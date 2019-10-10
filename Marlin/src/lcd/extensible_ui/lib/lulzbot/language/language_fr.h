@@ -24,8 +24,6 @@
 namespace Language_fr {
   using namespace Language_en; // Inherit undefined strings from English
 
-  PROGMEM Language_Str LANGUAGE                 = u8"Français";
-
   PROGMEM Language_Str YES                      = u8"oui";
   PROGMEM Language_Str NO                       = u8"non";
   PROGMEM Language_Str BACK                     = u8"Retour";

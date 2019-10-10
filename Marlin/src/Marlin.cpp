@@ -324,7 +324,7 @@ void disable_all_steppers() {
       #ifdef ACTION_ON_CANCEL
         host_action_cancel();
       #endif
-      kill(PSTR(MSG_ERR_PROBING_FAILED));
+      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -686,15 +686,16 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P const lcd_msg/*=nullptr*/, const bool steppers_off/*=false*/) {
+void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_msg ?: PSTR(MSG_KILLED));
+    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component);
   #else
-    UNUSED(lcd_msg);
+    UNUSED(lcd_error);
+    UNUSED(lcd_component);
   #endif
 
   #ifdef ACTION_ON_KILL

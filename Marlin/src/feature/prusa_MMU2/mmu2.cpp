@@ -433,7 +433,7 @@ bool MMU2::rx_ok() {
 void MMU2::check_version() {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
     SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
-    kill(MSG_MMU2_WRONG_FIRMWARE);
+    kill(GET_TEXT(MSG_MMU2_WRONG_FIRMWARE));
   }
 }
 
@@ -449,7 +449,7 @@ void MMU2::tool_change(uint8_t index) {
   if (index != extruder) {
 
     disable_E0();
-    ui.status_printf_P(0, PSTR(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+    ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
     command(MMU_CMD_T0 + index);
 
@@ -712,7 +712,7 @@ void MMU2::filament_runout() {
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), PSTR("Continue"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired(PSTR("MMU2 Eject Recover"));
+        ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover"));
       #endif
       while (wait_for_user) idle();
       BUZZ(200, 404);

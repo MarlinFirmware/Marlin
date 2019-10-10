@@ -300,8 +300,8 @@ void MarlinUI::draw_kill_screen() {
   do {
     set_font(FONT_MENU);
     lcd_put_u8str(0, h4 * 1, status_message);
-    lcd_put_u8str_P(0, h4 * 2, PSTR(MSG_HALTED));
-    lcd_put_u8str_P(0, h4 * 3, PSTR(MSG_PLEASE_RESET));
+    lcd_put_u8str_P(0, h4 * 2, GET_TEXT(MSG_HALTED));
+    lcd_put_u8str_P(0, h4 * 3, GET_TEXT(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
@@ -363,9 +363,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_CENTER*/, const char * const valstr/*=nullptr*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
 
-    if (mark_as_selected(row, (style & SS_INVERT))) {
+    if (mark_as_selected(row, style & SS_INVERT)) {
 
       u8g_uint_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 

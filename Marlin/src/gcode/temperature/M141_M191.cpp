@@ -68,7 +68,7 @@ void GcodeSuite::M191() {
   }
   else return;
 
-  lcd_setstatusPGM(thermalManager.isHeatingChamber() ? PSTR(MSG_CHAMBER_HEATING) : PSTR(MSG_CHAMBER_COOLING));
+  lcd_setstatusPGM(thermalManager.isHeatingChamber() ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
 
   thermalManager.wait_for_chamber(no_wait_for_cooling);
 }

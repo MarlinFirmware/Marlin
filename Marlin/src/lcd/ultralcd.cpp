@@ -44,19 +44,15 @@
 #if HAS_SPI_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
-    #if LONG_FILENAME_LENGTH > CHARSIZE * 2 * (LCD_WIDTH)
-      #define MAX_MESSAGE_LENGTH LONG_FILENAME_LENGTH
-    #else
-      #define MAX_MESSAGE_LENGTH CHARSIZE * 2 * (LCD_WIDTH)
-    #endif
+    constexpr uint8_t MAX_MESSAGE_LENGTH = max(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
   #else
-    #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
+    constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
   #endif
 #elif ENABLED(EXTENSIBLE_UI)
-  #define MAX_MESSAGE_LENGTH 63
+  constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#ifdef MAX_MESSAGE_LENGTH
+#if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
@@ -590,9 +586,12 @@ void MarlinUI::status_screen() {
   draw_status_screen();
 }
 
-void MarlinUI::kill_screen(PGM_P lcd_msg) {
+void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   init();
-  set_alert_status_P(lcd_msg);
+  status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
+  #if HAS_LCD_MENU
+    return_to_status();
+  #endif
 
   // RED ALERT. RED ALERT.
   #ifdef LED_BACKLIGHT_TIMEOUT
@@ -843,13 +842,13 @@ void MarlinUI::update() {
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
-          set_status_P(PSTR(MSG_MEDIA_INSERTED));
+          set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
       }
       #if PIN_EXISTS(SD_DETECT)
         else {
           card.release();
           if (old_sd_status != 2) {
-            set_status_P(PSTR(MSG_MEDIA_REMOVED));
+            set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
             #if HAS_LCD_MENU
               return_to_status();
             #endif
@@ -1428,14 +1427,14 @@ void MarlinUI::update() {
   #include "../Marlin.h"
   #include "../module/printcounter.h"
 
-  static const char print_paused[] PROGMEM = MSG_PRINT_PAUSED;
+  PGM_P print_paused = GET_TEXT(MSG_PRINT_PAUSED);
 
   /**
    * Reset the status message
    */
   void MarlinUI::reset_status() {
-    static const char printing[] PROGMEM = MSG_PRINTING;
-    static const char welcome[] PROGMEM = WELCOME_MSG;
+    PGM_P printing = GET_TEXT(MSG_PRINTING);
+    PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0
       static const char service1[] PROGMEM = { "> " SERVICE_NAME_1 "!" };
     #endif
@@ -1487,7 +1486,7 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), PSTR("Dismiss"));
     #endif
     print_job_timer.stop();
-    set_status_P(PSTR(MSG_PRINT_ABORTED));
+    set_status_P(GET_TEXT(MSG_PRINT_ABORTED));
     #if HAS_LCD_MENU
       return_to_status();
     #endif
@@ -1499,7 +1498,7 @@ void MarlinUI::update() {
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
-      synchronize(PSTR(MSG_PAUSE_PRINT));
+      synchronize(GET_TEXT(MSG_PAUSE_PRINT));
     #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1510,7 +1509,7 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
     #endif
 
-    set_status_P(print_paused); // MSG_PRINT_PAUSED
+    set_status_P(print_paused);
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       #if HAS_SPI_LCD

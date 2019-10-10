@@ -380,7 +380,7 @@ public:
     #endif
 
     static bool get_blink();
-    static void kill_screen(PGM_P const lcd_msg);
+    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
     static void set_status(const char* const message, const bool persist=false);
     static void set_status_P(PGM_P const message, const int8_t level=0);
@@ -598,5 +598,8 @@ private:
 
 extern MarlinUI ui;
 
-#define LCD_MESSAGEPGM(x)      ui.set_status_P(PSTR(x))
-#define LCD_ALERTMESSAGEPGM(x) ui.set_alert_status_P(PSTR(x))
+#define LCD_MESSAGEPGM_P(x)      ui.set_status_P(x)
+#define LCD_ALERTMESSAGEPGM_P(x) ui.set_alert_status_P(x)
+
+#define LCD_MESSAGEPGM(x)        LCD_MESSAGEPGM_P(GET_TEXT(x))
+#define LCD_ALERTMESSAGEPGM(x)   LCD_ALERTMESSAGEPGM_P(GET_TEXT(x))

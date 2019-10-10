@@ -722,7 +722,7 @@ G29_TYPE GcodeSuite::G29() {
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
           #if HAS_DISPLAY
-            ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), PSTR(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
+            ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
           #endif
 
           measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
@@ -764,7 +764,7 @@ G29_TYPE GcodeSuite::G29() {
       for (uint8_t i = 0; i < 3; ++i) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(MSG_PROBING_MESH " %i/3"), int(i));
+          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH)), int(i);
         #endif
 
         // Retain the last probe position

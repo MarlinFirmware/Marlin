@@ -9,6 +9,7 @@ set -e
 backup_ramps     # pins_set is used below...
 
 restore_configs
+opt_set LCD_LANGUAGE bg
 opt_set MOTHERBOARD BOARD_RAMPS4DUE_EFB
 opt_set TEMP_SENSOR_0 -2
 opt_set TEMP_SENSOR_BED 2
@@ -38,7 +39,7 @@ exec_test $1 $2 "RAMPS4DUE_EFB with ABL (Bilinear), EXTENSIBLE_UI, S-Curve, many
 restore_configs
 opt_set MOTHERBOARD BOARD_RADDS
 opt_enable USE_XMAX_PLUG USE_YMAX_PLUG BLTOUCH AUTO_BED_LEVELING_BILINEAR \
-           Z_TRIPLE_STEPPER_DRIVERS Z_TRIPLE_ENDSTOPS Z_STEPPER_AUTO_ALIGN ENDSTOPPULLUPS \
+           Z_TRIPLE_STEPPER_DRIVERS Z_TRIPLE_ENDSTOPS Z_STEPPER_AUTO_ALIGN ENDSTOPPULLUPS
            LULZBOT_TOUCH_UI LCD_ALEPHOBJECTS_CLCD_UI OTHER_PIN_LAYOUT
 opt_add Z2_MAX_ENDSTOP_INVERTING false
 opt_add Z3_MAX_ENDSTOP_INVERTING false
@@ -52,6 +53,7 @@ exec_test $1 $2 "RADDS with Lulzbot Touch UI, Bilinear ABL, Triple-Z and Z Auto-
 # Test SWITCHING_EXTRUDER
 #
 restore_configs
+opt_set LCD_LANGUAGE fi
 opt_set MOTHERBOARD BOARD_RAMPS4DUE_EEF
 opt_set EXTRUDERS 2
 opt_set NUM_SERVOS 1

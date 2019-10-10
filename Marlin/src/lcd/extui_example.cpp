@@ -46,7 +46,7 @@ namespace ExtUI {
      */
   }
   void onIdle() {}
-  void onPrinterKilled(PGM_P const msg) {}
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {}
   void onMediaInserted() {};
   void onMediaError() {};
   void onMediaRemoved() {};

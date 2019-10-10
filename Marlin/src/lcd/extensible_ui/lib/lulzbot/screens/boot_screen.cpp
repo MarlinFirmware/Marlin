@@ -85,10 +85,10 @@ void BootScreen::onIdle() {
       PUSH_SCREEN(StatusScreen);
       PUSH_SCREEN(BioConfirmHomeE);
     #elif NUM_LANGUAGES > 1
-      StatusScreen::setStatusMessage(F(WELCOME_MSG));
+      StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
       GOTO_SCREEN(LanguageMenu);
     #else
-      StatusScreen::setStatusMessage(F(WELCOME_MSG));
+      StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
       GOTO_SCREEN(StatusScreen);
     #endif
   }

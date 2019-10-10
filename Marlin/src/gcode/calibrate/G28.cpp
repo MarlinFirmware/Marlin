@@ -118,7 +118,7 @@
     // Disallow Z homing if X or Y are unknown
     if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_MSG(MSG_ERR_Z_HOMING);
+      SERIAL_ECHO_MSG(MSG_ERR_Z_HOMING_SER);
       return;
     }
 
@@ -154,7 +154,7 @@
     }
     else {
       LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-      SERIAL_ECHO_MSG(MSG_ZPROBE_OUT);
+      SERIAL_ECHO_MSG(MSG_ZPROBE_OUT_SER);
     }
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< home_z_safely");

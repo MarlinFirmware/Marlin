@@ -302,7 +302,7 @@ void Endstops::not_homing() {
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
-    else kill(PSTR(MSG_ERR_HOMING_FAILED));
+    else kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
   }
 #endif
 
@@ -373,7 +373,7 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     #if HAS_SPI_LCD
-      ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), PSTR(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP);
+      ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP);
     #endif
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
