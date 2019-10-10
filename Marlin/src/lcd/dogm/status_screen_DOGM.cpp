@@ -335,9 +335,9 @@ void MarlinUI::draw_status_screen() {
 
   #if HAS_PRINT_PROGRESS
     #if DISABLED(DOGM_SD_PERCENT)
-      #define _SD_DURATION_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - len * (MENU_FONT_WIDTH / 2))
+      #define _SD_DURATION_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - (len) * (MENU_FONT_WIDTH / 2))
     #else
-      #define _SD_DURATION_X(len) (LCD_PIXEL_WIDTH - len * MENU_FONT_WIDTH)
+      #define _SD_DURATION_X(len) (LCD_PIXEL_WIDTH - (len) * MENU_FONT_WIDTH)
     #endif
 
     static uint8_t progress_bar_solid_width = 0, lastProgress = 0;
@@ -348,7 +348,7 @@ void MarlinUI::draw_status_screen() {
     static char elapsed_string[10];
     #if ENABLED(PRINT_TIME_ESTIMATION)
       #define PRINT_TIME_ESTIMATION_PREFIX 'E'
-      static uint8_t estimation_x_pos = _SD_DURATION_X(1);
+      static uint8_t estimation_x_pos = 0;
       static char estimation_string[10];
     #endif
   #endif
@@ -402,14 +402,6 @@ void MarlinUI::draw_status_screen() {
             #endif
           ));
         #endif
-        #if ENABLED(PRINT_TIME_ESTIMATION)
-          if (ev != lastElapsed) {
-            duration_t estimation = elapsed.value * (100 * PROGRESS_SCALE - progress) / progress;
-            const bool has_days = (estimation.value >= 60*60*24L);
-            const uint8_t len = estimation.toDigital(estimation_string, has_days);
-            estimation_x_pos = _SD_DURATION_X(len + sizeof(PRINT_TIME_ESTIMATION_PREFIX));
-          }
-        #endif
       }
 
       if (ev != lastElapsed) {
@@ -417,6 +409,15 @@ void MarlinUI::draw_status_screen() {
         const bool has_days = (elapsed.value >= 60*60*24L);
         const uint8_t len = elapsed.toDigital(elapsed_string, has_days);
         elapsed_x_pos = _SD_DURATION_X(len);
+
+        #if ENABLED(PRINT_TIME_ESTIMATION)
+          if (ev % 4 == 0) {
+            duration_t estimation = elapsed.value * (100 * PROGRESS_SCALE - progress) / progress;
+            const bool has_days = (estimation.value >= 60*60*24L);
+            const uint8_t len = estimation.toDigital(estimation_string, has_days);
+            estimation_x_pos = _SD_DURATION_X(len + sizeof(PRINT_TIME_ESTIMATION_PREFIX));
+          }
+        #endif
       }
     #endif
   }
