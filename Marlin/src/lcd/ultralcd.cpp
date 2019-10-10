@@ -58,7 +58,7 @@
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  progress_t MarlinUI::progress_override; // = 0
+  MarlinUI::progress_t MarlinUI::progress_override; // = 0
 #endif
 
 #if HAS_BUZZER
@@ -1537,7 +1537,7 @@ void MarlinUI::update() {
 
   #if HAS_PRINT_PROGRESS
 
-    progress_t MarlinUI::_get_progress() {
+    MarlinUI::progress_t MarlinUI::_get_progress() {
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
         const progress_t p = progress_override & PROGRESS_MASK;
       #else
@@ -1545,7 +1545,11 @@ void MarlinUI::update() {
       #endif
       return (p
         #if ENABLED(SDSUPPORT)
-          ?: card.percentDone()
+          #if HAS_PRINT_PROGRESS_PERMYRIAD
+            ?: card.permyriadDone()
+          #else
+            ?: card.percentDone()
+          #endif
         #endif
       );
     }

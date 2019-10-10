@@ -39,12 +39,9 @@
  */
 void GcodeSuite::M73() {
   if (parser.seen('P'))
-    ui.set_progress(
-      #if HAS_PRINT_PROGRESS_PERMYRIAD
-        parser.value_int() * 100
-      #else
-        parser.value_byte()
-      #endif
+    ui.set_progress(PROGRESS_SCALE > 1
+      ? parser.value_float() * PROGRESS_SCALE
+      : parser.value_byte()
     );
 }
 
