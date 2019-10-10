@@ -357,10 +357,6 @@ void CardReader::mount() {
   flag.mounted = false;
   if (root.isOpen()) root.close();
 
-  #ifndef SPI_SPEED
-    #define SPI_SPEED SPI_FULL_SPEED
-  #endif
-
   if (!sd2card.init(SPI_SPEED, SDSS)
     #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
       && !sd2card.init(SPI_SPEED, LCD_SDSS)

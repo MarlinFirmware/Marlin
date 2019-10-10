@@ -123,6 +123,11 @@ namespace ExtUI {
     else
       ConfirmUserRequestAlertBox::hide();
   }
+
+  #if HAS_LEVELING && HAS_MESH
+    void onMeshUpdate(const uint8_t, const uint8_t, const float) {
+    }
+  #endif
 }
 
 #endif // LULZBOT_TOUCH_UI

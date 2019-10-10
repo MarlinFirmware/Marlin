@@ -47,7 +47,8 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .colors(normal_btn)
-       .cmd(COLOR_RGB(bg_text_enabled));
+       .cmd(COLOR_RGB(bg_text_enabled))
+       .tag(0);
   }
 
   cmd.font(font_medium);
@@ -126,6 +127,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
     CommandProcessor cmd;
     _button_style(cmd, TEXT_LABEL);
     cmd.font(font_medium)
+       .tag(0)
        .text(
          #ifdef TOUCH_UI_PORTRAIT
            BTN_POS(1, _line), BTN_SIZE(12,1),
@@ -188,7 +190,8 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
   cmd.font(LAYOUT_FONT);
 
   if (_what & BACKGROUND) {
-    cmd.text(
+    _button_style(cmd, TEXT_LABEL);
+    cmd.tag(0).text(
       #ifdef TOUCH_UI_PORTRAIT
         BTN_POS(1, _line), BTN_SIZE(4,1),
       #else

@@ -33,8 +33,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
-       .cmd(CLEAR(true,true,true))
-       .font(font_medium);
+       .cmd(CLEAR(true,true,true));
   }
 
   #ifdef TOUCH_UI_PORTRAIT

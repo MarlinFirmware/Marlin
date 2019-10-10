@@ -34,12 +34,13 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
-       .cmd(CLEAR(true,true,true));
+       .cmd(CLEAR(true,true,true))
+       .tag(0);
   }
 
   if (what & FOREGROUND) {
     CommandProcessor cmd;
-      cmd.font(font_large)
+    cmd.font(font_large)
     #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 9
       #define GRID_COLS 2

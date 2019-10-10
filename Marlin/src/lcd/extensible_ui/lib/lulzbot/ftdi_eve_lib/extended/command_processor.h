@@ -310,7 +310,9 @@ class CommandProcessor : public CLCD::CommandFifo {
     int8_t apply_fit_text(int16_t w, int16_t h, T text) {
       using namespace FTDI;
       int8_t font = _font;
-      const bool is_utf8 = has_utf8_chars(text);
+      #ifdef TOUCH_UI_USE_UTF8
+        const bool is_utf8 = has_utf8_chars(text);
+      #endif
       for (;font >= 26;) {
         int16_t width, height;
         #ifdef TOUCH_UI_USE_UTF8
