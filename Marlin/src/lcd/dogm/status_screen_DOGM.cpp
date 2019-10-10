@@ -389,24 +389,25 @@ void MarlinUI::draw_status_screen() {
 
     #if HAS_PRINT_PROGRESS
       duration_t elapsed = print_job_timer.duration();
-      if ((progress > 1) && ((progress & 0xFF) != lastProgress))
-      {
+      if (progress > 1 && (progress & 0xFF) != lastProgress) {
         lastProgress = progress & 0xFF;
 
-        progress_bar_solid_width = (uint8_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01 * _PROGRESS_DIVIDER);
+        progress_bar_solid_width = uint8_t((PROGRESS_BAR_WIDTH - 2) * progress * 0.01 * _PROGRESS_DIVIDER);
 
         #if ENABLED(DOGM_SD_PERCENT)
-          #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
-            strcpy(progress_string, ui16fptostr4(progress));
-          #else
-            strcpy(progress_string, ui8tostr3(progress / _PROGRESS_DIVIDER));
-          #endif
+          strcpy(progress_string,
+            #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
+              ui16fptostr4(progress)
+            #else
+              ui8tostr3(progress / _PROGRESS_DIVIDER)
+            #endif
+          );
         #endif
         #if ENABLED(PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION)
           if ((elapsed.value & 0xFF) != lastElapsed) {
-            duration_t estimation = elapsed.value * ((100 * _PROGRESS_DIVIDER) - progress) / progress;
-            bool has_days = (estimation.value >= 60*60*24L);
-            uint8_t len = estimation.toDigital(estimation_string, has_days);
+            duration_t estimation = elapsed.value * (100 * _PROGRESS_DIVIDER - progress) / progress;
+            const bool has_days = (estimation.value >= 60*60*24L);
+            const uint8_t len = estimation.toDigital(estimation_string, has_days);
             estimation_x_pos = _SD_DURATION_X(len);
           }
         #endif
@@ -415,8 +416,8 @@ void MarlinUI::draw_status_screen() {
       if ((elapsed.value & 0xFF) != lastElapsed) {
         lastElapsed = (elapsed.value & 0xFF);
 
-        bool has_days = (elapsed.value >= 60*60*24L);
-        uint8_t len = elapsed.toDigital(elapsed_string, has_days);
+        const bool has_days = (elapsed.value >= 60*60*24L);
+        const uint8_t len = elapsed.toDigital(elapsed_string, has_days);
         elapsed_x_pos = _SD_DURATION_X(len);
       }
     #endif
