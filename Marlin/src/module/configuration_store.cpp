@@ -525,7 +525,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         EEPROM_WRITE(planner.junction_deviation_mm);
       #else
         dummy = 0.02f;
@@ -1323,7 +1323,7 @@ void MarlinSettings::postprocess() {
           for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
         #endif
 
-        #if ENABLED(JUNCTION_DEVIATION)
+        #if DISABLED(CLASSIC_JERK)
           EEPROM_READ(planner.junction_deviation_mm);
         #else
           EEPROM_READ(dummy);
@@ -2235,7 +2235,7 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  #if ENABLED(JUNCTION_DEVIATION)
+  #if DISABLED(CLASSIC_JERK)
     planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #endif
 
@@ -2744,7 +2744,7 @@ void MarlinSettings::reset() {
     if (!forReplay) {
       CONFIG_ECHO_START();
       SERIAL_ECHOPGM("Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         SERIAL_ECHOPGM(" J<junc_dev>");
       #endif
       #if HAS_CLASSIC_JERK
@@ -2760,7 +2760,7 @@ void MarlinSettings::reset() {
         "  M205 B", LINEAR_UNIT(planner.settings.min_segment_time_us)
       , " S", LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
       , " T", LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         , " J", LINEAR_UNIT(planner.junction_deviation_mm)
       #endif
       #if HAS_CLASSIC_JERK
