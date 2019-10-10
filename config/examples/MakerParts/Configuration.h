@@ -39,26 +39,6 @@
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
-//===== Pololus calibration =================================================
-//===========================================================================
-
-// Voltage reference on potentiometer on Green Pololus in millivolts
-#define Vref_mV   800UL
-
-// Rsc value used on PCB of the Green Pololus
-#define Rsc_mOhms 100UL
-
-// Estimated maximum acceleration for X and Y axis
-#define MAX_XYAXIS_ACCEL (3UL * (Vref_mV) * 100UL / (Rsc_mOhms))
-
-// Notes:
-//  If we could use 1.65A as motor current, then 3000 mm/s^2 as acceleration
-// if perfectly achievable. Using 1A as motor current, 2400 mm/s^2 acceleration
-// is perfectly possible without losing any steps
-// On A4988 drivers, maximum current can be calculated as I_TripMax= Vref/(8*Rs)
-//
-
-//===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
 
@@ -756,7 +736,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_ACCELERATION        { MAX_XYAXIS_ACCEL, MAX_XYAXIS_ACCEL, 10, 200 }
+#define DEFAULT_MAX_ACCELERATION        { 2400, 2400, 10, 200 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -771,9 +751,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          MAX_XYAXIS_ACCEL    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_ACCELERATION          2400                // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  100                 // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   MAX_XYAXIS_ACCEL    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_TRAVEL_ACCELERATION   2400                // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -805,7 +785,7 @@
  *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.001 // (mm) Distance from real junction edge
 #endif
 
 /**
