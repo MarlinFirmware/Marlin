@@ -50,7 +50,8 @@
     }
     if (ui.should_draw()) {
       char tmp[21];
-      sprintf_P(tmp, PSTR(MSG_START_Z ": %4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
+      strcpy_P(tmp, GET_TEXT(MSG_START_Z));
+      sprintf_P(tmp + strlen(tmp), PSTR(": %4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
       SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
       LCDPRINT(tmp);
     }
@@ -75,7 +76,8 @@
 
     if (ui.should_draw()) {
       char tmp[21];
-      sprintf_P(tmp, PSTR(MSG_END_Z ": %4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
+      strcpy_P(tmp, GET_TEXT(MSG_END_Z));
+      sprintf_P(tmp + strlen(tmp), PSTR(": %4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
       SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
       LCDPRINT(tmp);
     }
@@ -101,13 +103,13 @@
 
     char tmp[18];
 
-    SUBMENU(MSG_START_Z ":", lcd_mixer_gradient_z_start_edit);
+    SUBMENU(MSG_START_Z, lcd_mixer_gradient_z_start_edit);
     MENU_ITEM_ADDON_START(9);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
       LCDPRINT(tmp);
     MENU_ITEM_ADDON_END();
 
-    SUBMENU(MSG_END_Z ":", lcd_mixer_gradient_z_end_edit);
+    SUBMENU(MSG_END_Z, lcd_mixer_gradient_z_end_edit);
     MENU_ITEM_ADDON_START(9);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
       LCDPRINT(tmp);
@@ -122,9 +124,11 @@ static uint8_t v_index;
 
 #if DUAL_MIXING_EXTRUDER
   void _lcd_draw_mix(const uint8_t y) {
-    char tmp[21];
-    sprintf_P(tmp, PSTR(MSG_MIX ":    %3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
+    char tmp[10]; // "100%_100%"
     SETCURSOR(2, y);
+    lcd_put_u8str_P(GET_TEXT(MSG_MIX));
+    SETCURSOR(LCD_WIDTH - 9, y);
+    sprintf_P(tmp, PSTR("%3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
     LCDPRINT(tmp);
   }
 #endif
@@ -158,7 +162,7 @@ void lcd_mixer_mix_edit() {
 
   #if CHANNEL_MIX_EDITING
 
-    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT " " STRINGIFY(N), &mixer.collector[N-1], 0, 10);
+    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT_##N, &mixer.collector[N-1], 0, 10);
 
     START_MENU();
     BACK_ITEM(MSG_MIXER);
@@ -250,14 +254,14 @@ void lcd_mixer_mix_edit() {
 //
 void menu_mixer_vtools_reset_confirm() {
   do_select_screen(
-    PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+    GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_CANCEL),
     []{
       mixer.reset_vtools();
       LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
       ui.return_to_status();
     },
     ui.goto_previous_screen,
-    PSTR(MSG_RESET_VTOOLS), nullptr, PSTR("?")
+    GET_TEXT(MSG_RESET_VTOOLS), nullptr, PSTR("?")
   );
 }
 

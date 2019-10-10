@@ -31,21 +31,22 @@ using namespace Theme;
 using namespace ExtUI;
 
 void TuneMenu::onRedraw(draw_mode_t what) {
+  #define GRID_ROWS 8
+  #define GRID_COLS 2
+
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
-       .font(font_medium);
+       .cmd(COLOR_RGB(bg_text_enabled))
+       .tag(0)
+       .font(font_large)
+       .text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(PRINT_MENU));
   }
-
-  #define GRID_ROWS 8
-  #define GRID_COLS 2
 
   if (what & FOREGROUND) {
     CommandProcessor cmd;
-    cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .font(font_large).text  ( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(PRINT_MENU))
-       .colors(normal_btn)
+    cmd.colors(normal_btn)
        .font(font_medium)
        .enabled( isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(PRINT_SPEED))
                               .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(BED_TEMPERATURE))

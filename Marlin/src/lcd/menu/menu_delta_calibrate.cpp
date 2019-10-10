@@ -60,7 +60,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), PSTR("Continue"));
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onUserConfirmRequired(PSTR("Delta Calibration in progress"));
+      ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress"));
     #endif
     while (wait_for_user) idle();
     ui.goto_previous_screen_no_defer();
@@ -104,12 +104,12 @@ void lcd_delta_settings() {
   START_MENU();
   BACK_ITEM(MSG_DELTA_CALIBRATE);
   EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
-  #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM(float43, LABEL, &delta_endstop_adj.N, -5, 5, _recalc_delta_settings)
+  #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_endstop_adj.N, -5, 5, _recalc_delta_settings)
   EDIT_ENDSTOP_ADJ("Ex",a);
   EDIT_ENDSTOP_ADJ("Ey",b);
   EDIT_ENDSTOP_ADJ("Ez",c);
   EDIT_ITEM(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
-  #define EDIT_ANGLE_TRIM(LABEL,N) EDIT_ITEM(float43, LABEL, &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
+  #define EDIT_ANGLE_TRIM(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
   EDIT_ANGLE_TRIM("Tx",a);
   EDIT_ANGLE_TRIM("Ty",b);
   EDIT_ANGLE_TRIM("Tz",c);

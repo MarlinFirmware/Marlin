@@ -70,7 +70,7 @@ void GcodeSuite::M428() {
       diff[i] = -current_position[i];
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(MSG_ERR_M428_TOO_FAR);
-      LCD_ALERTMESSAGEPGM("Err: Too far!");
+      LCD_ALERTMESSAGEPGM_P(PSTR("Err: Too far!"));
       BUZZ(200, 40);
       return;
     }

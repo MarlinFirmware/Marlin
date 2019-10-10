@@ -80,9 +80,9 @@ inline void sdcard_start_selected_file() {
     buffer[0] = ' ';
     strcpy(buffer + 1, longest);
     do_select_screen(
-      PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
+      GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
       sdcard_start_selected_file, ui.goto_previous_screen,
-      PSTR(MSG_START_PRINT), buffer, PSTR("?")
+      GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
     );
   }
 
@@ -134,11 +134,11 @@ void menu_media() {
   BACK_ITEM(MSG_MAIN);
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
-      ACTION_ITEM(LCD_STR_REFRESH MSG_REFRESH, [](){ encoderTopLine = 0; card.mount(); });
+      ACTION_ITEM(MSG_REFRESH, [](){ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM(LCD_STR_FOLDER "..", lcd_sd_updir);
+    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {

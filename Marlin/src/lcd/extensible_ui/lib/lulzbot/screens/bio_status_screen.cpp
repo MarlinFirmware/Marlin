@@ -29,8 +29,6 @@
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 #include "bio_printer_ui.h"
 
-#define E_TRAVEL_LIMIT 60
-
 #define GRID_COLS 2
 #define GRID_ROWS 9
 
@@ -94,11 +92,13 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     cmd.font(font_xlarge)
        .cmd(COLOR_RGB(bg_text_enabled));
 
-    if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0) {
+    if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
       format_temp(bed_str, getTargetTemp_celsius(BED));
-      ui.bounds(POLY(target_temp), x, y, h, v);
-      cmd.text(x, y, h, v, bed_str);
-    }
+    else
+      strcpy_P(bed_str, PSTR(MSG_BED));
+
+    ui.bounds(POLY(target_temp), x, y, h, v);
+    cmd.text(x, y, h, v, bed_str);
 
     format_temp(bed_str, getActualTemp_celsius(BED));
     ui.bounds(POLY(actual_temp), x, y, h, v);
@@ -108,7 +108,11 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
 void StatusScreen::draw_syringe(draw_mode_t what) {
   int16_t x, y, h, v;
-  const float fill_level = 1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / E_TRAVEL_LIMIT));
+  #ifdef LULZBOT_E_TRAVEL_LIMIT
+    const float fill_level = 1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / LULZBOT_E_TRAVEL_LIMIT));
+  #else
+    const float fill_level = 0.75;
+  #endif
   const bool  e_homed = isAxisPositionKnown(E0);
 
   CommandProcessor cmd;
@@ -239,8 +243,9 @@ void StatusScreen::loadBitmaps() {
 void StatusScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
-    cmd.cmd(CLEAR_COLOR_RGB(bg_color));
-    cmd.cmd(CLEAR(true,true,true));
+    cmd.cmd(CLEAR_COLOR_RGB(bg_color))
+       .cmd(CLEAR(true,true,true))
+       .tag(0);
   }
 
   draw_syringe(what);

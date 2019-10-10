@@ -32,7 +32,7 @@ using namespace FTDI;
 // loop. So we only have a show() method rather than onRedraw(). The KillScreen
 // should not be used as a model for other UI screens as it is an exception.
 
-void KillScreen::show(progmem_str message) {
+void KillScreen::show(const char *message) {
   CommandProcessor cmd;
 
   cmd.cmd(CMD_DLSTART)

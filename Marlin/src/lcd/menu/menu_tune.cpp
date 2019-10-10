@@ -74,7 +74,8 @@
           #else
             lcd_moveto(0, LCD_HEIGHT - 1);
           #endif
-          lcd_put_u8str_P(PSTR(MSG_BABYSTEP_TOTAL ":"));
+          lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
+          lcd_put_wchar(':');
           lcd_put_u8str(ftostr54sign(spm * babystep.axis_total[BS_TOTAL_AXIS(axis)]));
         }
       #endif
@@ -88,12 +89,12 @@
   }
 
   #if ENABLED(BABYSTEP_XY)
-    void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
-    void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
+    void _lcd_babystep_x() { _lcd_babystep(X_AXIS, GET_TEXT(MSG_BABYSTEP_X)); }
+    void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, GET_TEXT(MSG_BABYSTEP_Y)); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
+    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, GET_TEXT(MSG_BABYSTEP_Z)); }
     void lcd_babystep_z()  { _lcd_babystep_go(_lcd_babystep_z); }
   #endif
 
@@ -122,7 +123,7 @@ void menu_tune() {
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE LCD_STR_N##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
+    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE_##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
     EDIT_NOZZLE(0);
     EDIT_NOZZLE(1);
     #if HOTENDS > 2
@@ -155,24 +156,31 @@ void menu_tune() {
   //
   #if FAN_COUNT > 0
     #if HAS_FAN0
+      #if FAN_COUNT == 1
+        #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+        #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+      #else
+        #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_1
+        #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_1
+      #endif
       editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(0, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(0, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &thermalManager.new_fan_speed[0], 3, 255);
+        EDIT_ITEM_FAST(percent, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
     #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
       editable.uint8 = thermalManager.fan_speed[1];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED " 2", &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(1, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_2, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(1, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED " 2", &thermalManager.new_fan_speed[1], 3, 255);
+        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_2, &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
     #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
       editable.uint8 = thermalManager.fan_speed[2];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED " 3", &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(2, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_3, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(2, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED " 3", &thermalManager.new_fan_speed[2], 3, 255);
+        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_3, &thermalManager.new_fan_speed[2], 3, 255);
       #endif
     #endif
   #endif // FAN_COUNT > 0
@@ -185,7 +193,7 @@ void menu_tune() {
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, [](){ planner.refresh_e_factor(0); });
   #elif EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, [](){ planner.refresh_e_factor(active_extruder); });
-    #define EDIT_FLOW(N) EDIT_ITEM(int3, MSG_FLOW LCD_STR_N##N, &planner.flow_percentage[N], 10, 999, [](){ planner.refresh_e_factor(N); })
+    #define EDIT_FLOW(N) EDIT_ITEM(int3, MSG_FLOW_##N, &planner.flow_percentage[N], 10, 999, [](){ planner.refresh_e_factor(N); })
     EDIT_FLOW(0);
     EDIT_FLOW(1);
     #if EXTRUDERS > 2

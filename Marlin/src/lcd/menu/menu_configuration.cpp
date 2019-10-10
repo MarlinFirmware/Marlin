@@ -68,7 +68,7 @@ void menu_advanced_settings();
     bar_percent += (int8_t)ui.encoderPosition;
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
-    draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), SS_CENTER|SS_INVERT);
+    draw_menu_item_static(0, GET_TEXT(MSG_PROGRESS_BAR_TEST), SS_CENTER|SS_INVERT);
     lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_wchar('%');
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
@@ -203,17 +203,17 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
       SUBMENU(MSG_BLTOUCH_5V_MODE, []{
-        do_select_screen(PSTR(MSG_BLTOUCH_5V_MODE), PSTR(MSG_BUTTON_CANCEL), bltouch._set_5V_mode, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
+        do_select_screen(GET_TEXT(MSG_BLTOUCH_5V_MODE), GET_TEXT(MSG_BUTTON_CANCEL), bltouch._set_5V_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       });
       SUBMENU(MSG_BLTOUCH_OD_MODE, []{
-        do_select_screen(PSTR(MSG_BLTOUCH_OD_MODE), PSTR(MSG_BUTTON_CANCEL), bltouch._set_OD_mode, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
+        do_select_screen(GET_TEXT(MSG_BLTOUCH_OD_MODE), GET_TEXT(MSG_BUTTON_CANCEL), bltouch._set_OD_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       });
       ACTION_ITEM(MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
       SUBMENU(MSG_BLTOUCH_MODE_STORE_5V, []{
-        do_select_screen(PSTR(MSG_BLTOUCH_MODE_STORE_5V), PSTR(MSG_BUTTON_CANCEL), bltouch.mode_conv_5V, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
+        do_select_screen(GET_TEXT(MSG_BLTOUCH_MODE_STORE_5V), GET_TEXT(MSG_BUTTON_CANCEL), bltouch.mode_conv_5V, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       });
       SUBMENU(MSG_BLTOUCH_MODE_STORE_OD, []{
-        do_select_screen(PSTR(MSG_BLTOUCH_MODE_STORE_OD), PSTR(MSG_BUTTON_CANCEL), bltouch.mode_conv_OD, ui.goto_previous_screen, PSTR(MSG_BLTOUCH_MODE_CHANGE));
+        do_select_screen(GET_TEXT(MSG_BLTOUCH_MODE_STORE_OD), GET_TEXT(MSG_BUTTON_CANCEL), bltouch.mode_conv_OD, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       });
       ACTION_ITEM(MSG_BLTOUCH_MODE_ECHO, bltouch_report);
     #endif

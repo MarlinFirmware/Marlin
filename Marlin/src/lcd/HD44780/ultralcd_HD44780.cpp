@@ -484,9 +484,9 @@ void MarlinUI::draw_kill_screen() {
   lcd_put_u8str(0, 0, status_message);
   lcd_uint_t y = 2;
   #if LCD_HEIGHT >= 4
-    lcd_put_u8str_P(0, y++, PSTR(MSG_HALTED));
+    lcd_put_u8str_P(0, y++, GET_TEXT(MSG_HALTED));
   #endif
-  lcd_put_u8str_P(0, y, PSTR(MSG_PLEASE_RESET));
+  lcd_put_u8str_P(0, y, GET_TEXT(MSG_PLEASE_RESET));
 }
 
 //
@@ -861,7 +861,7 @@ void MarlinUI::draw_status_screen() {
           uint16_t per;
           #if HAS_FAN0
             if (true
-              #if EXTRUDERS
+              #if EXTRUDERS && ENABLED(ADAPTIVE_FAN_SLOWING)
                 && (blink || thermalManager.fan_speed_scaler[0] < 128)
               #endif
             ) {
@@ -977,7 +977,7 @@ void MarlinUI::draw_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_CENTER*/, const char * const valstr/*=nullptr*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
     if ((style & SS_CENTER) && !valstr) {

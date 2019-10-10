@@ -97,7 +97,20 @@
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
 //#endif
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_CHARACTER_LCD
+
+  // Custom characters defined in the first 8 characters of the LCD
+  #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!
+  #define LCD_STR_DEGREE      "\x01"
+  #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
+  #define LCD_STR_UPLEVEL     "\x03"
+  #define LCD_STR_REFRESH     "\x04"
+  #define LCD_STR_FOLDER      "\x05"
+  #define LCD_STR_FEEDRATE    "\x06"
+  #define LCD_STR_CLOCK       "\x07"
+  #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
+
+#else
   //
   // Custom characters from Marlin_symbols.fon which was merged into ISO10646-0-3.bdf
   // \x00 intentionally skipped to avoid problems in strings
@@ -119,19 +132,6 @@
   // Symbol characters
   #define LCD_STR_FILAM_DIA   "\xF8"
   #define LCD_STR_FILAM_MUL   "\xA4"
-
-#elif HAS_CHARACTER_LCD
-
-  // Custom characters defined in the first 8 characters of the LCD
-  #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!
-  #define LCD_STR_DEGREE      "\x01"
-  #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
-  #define LCD_STR_UPLEVEL     "\x03"
-  #define LCD_STR_REFRESH     "\x04"
-  #define LCD_STR_FOLDER      "\x05"
-  #define LCD_STR_FEEDRATE    "\x06"
-  #define LCD_STR_CLOCK       "\x07"
-  #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
 
 #endif
 
@@ -243,18 +243,15 @@
 #define MSG_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define MSG_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define MSG_ERR_HOTEND_TOO_COLD             "Hotend too cold"
+#define MSG_ERR_Z_HOMING_SER                "Home XY first"
+#define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
-#define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
-#define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
-#define MSG_FILAMENT_CHANGE_WAIT            "Press button (or M108) to resume"
 #define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
 #define MSG_FILAMENT_CHANGE_WAIT_LCD        "Press button to resume"
 #define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
 #define MSG_FILAMENT_CHANGE_WAIT_M108       "Send M108 to resume"
-
-#define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define MSG_STOP_BLTOUCH                    "STOP called because of BLTouch error - restart with M999"
 #define MSG_STOP_UNHOMED                    "STOP called because of unhomed error - restart with M999"
@@ -298,6 +295,8 @@
 #define MSG_T_THERMAL_RUNAWAY               "Thermal Runaway"
 #define MSG_T_MAXTEMP                       "MAXTEMP triggered"
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
+#define MSG_ERR_PROBING_FAILED              "Probing Failed"
+#define MSG_ZPROBE_OUT_SER                  "Z Probe Past Bed"
 
 // Debug
 #define MSG_DEBUG_PREFIX                    "DEBUG:"
@@ -313,11 +312,9 @@
 
 #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
 #define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
-#define INCLUDE_LANGUAGE_DATA LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
 #define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
-#define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
 
 // Never translate these strings
 #define MSG_X "X"
@@ -337,6 +334,11 @@
 #define MSG_Y2 "Y2"
 #define MSG_Z2 "Z2"
 #define MSG_Z3 "Z3"
+
+#define LCD_STR_A MSG_A
+#define LCD_STR_B MSG_B
+#define LCD_STR_C MSG_C
+#define LCD_STR_E MSG_E
 
 /**
  * Tool indexes for LCD display only
@@ -370,7 +372,14 @@
 #define LCD_STR_E4 "E" LCD_STR_N4
 #define LCD_STR_E5 "E" LCD_STR_N5
 
-#include INCLUDE_LANGUAGE
+#include "multi_language.h"   // Allow multiple languages
+
+#include "../lcd/language/language_en.h"
+#include LANGUAGE_INCL(LCD_LANGUAGE)
+#include LANGUAGE_INCL(LCD_LANGUAGE_2)
+#include LANGUAGE_INCL(LCD_LANGUAGE_3)
+#include LANGUAGE_INCL(LCD_LANGUAGE_4)
+#include LANGUAGE_INCL(LCD_LANGUAGE_5)
 
 #if NONE(DISPLAY_CHARSET_ISO10646_1, \
          DISPLAY_CHARSET_ISO10646_5, \
@@ -383,5 +392,3 @@
          DISPLAY_CHARSET_ISO10646_SK)
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
-
-#include "../lcd/language/language_en.h"

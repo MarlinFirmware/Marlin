@@ -135,7 +135,7 @@ class KillScreen {
   // The KillScreen is behaves differently than the
   // others, so we do not bother extending UIScreen.
   public:
-    static void show(progmem_str msg);
+    static void show(const char*);
 };
 
 class DialogBoxBaseClass : public BaseScreen {

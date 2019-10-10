@@ -45,6 +45,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
+       .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0);
   }
 
@@ -88,29 +89,28 @@ void LockScreen::onRedraw(draw_mode_t what) {
     const uint8_t pressed = EventLoop::get_pressed_tag();
 
     cmd.font(font_large)
-       .cmd(COLOR_RGB(bg_text_enabled))
-       #ifdef TOUCH_UI_PORTRAIT
+    #ifdef TOUCH_UI_PORTRAIT
        .text(BTN_POS(1,2), BTN_SIZE(1,1), message)
        .font(font_xlarge)
        .text(BTN_POS(1,4), BTN_SIZE(1,1), screen_data.LockScreen.passcode)
-       #else
+    #else
        .text(BTN_POS(1,1), BTN_SIZE(1,1), message)
        .font(font_xlarge)
        .text(BTN_POS(1,2), BTN_SIZE(1,1), screen_data.LockScreen.passcode)
-       #endif
+    #endif
        .font(font_large)
        .colors(normal_btn)
-       #ifdef TOUCH_UI_PASSCODE
+    #ifdef TOUCH_UI_PASSCODE
        .keys(BTN_POS(1,l+1), BTN_SIZE(1,1), F("123"),        pressed)
        .keys(BTN_POS(1,l+2), BTN_SIZE(1,1), F("456"),        pressed)
        .keys(BTN_POS(1,l+3), BTN_SIZE(1,1), F("789"),        pressed)
        .keys(BTN_POS(1,l+4), BTN_SIZE(1,1), F("0.<"),        pressed);
-       #else
+    #else
        .keys(BTN_POS(1,l+1), BTN_SIZE(1,1), F("1234567890"), pressed)
        .keys(BTN_POS(1,l+2), BTN_SIZE(1,1), F("qwertyuiop"), pressed)
        .keys(BTN_POS(1,l+3), BTN_SIZE(1,1), F("asdfghjkl "), pressed)
        .keys(BTN_POS(1,l+4), BTN_SIZE(1,1), F("zxcvbnm!?<"), pressed);
-       #endif
+    #endif
 
     #undef MARGIN_T
     #undef MARGIN_B

@@ -32,10 +32,12 @@ using namespace ExtUI;
 
 void EndstopStatesScreen::onEntry() {
   BaseScreen::onEntry();
+  enable_emi_pins(true);
 }
 
 void EndstopStatesScreen::onExit() {
   BaseScreen::onExit();
+  enable_emi_pins(false);
 }
 
 void EndstopStatesScreen::onRedraw(draw_mode_t) {
