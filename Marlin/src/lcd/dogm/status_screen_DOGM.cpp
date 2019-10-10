@@ -562,7 +562,7 @@ void MarlinUI::draw_status_screen() {
     //
 
     if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
-        u8g.drawBox(PROGRESS_BAR_X + 1, 50, progress_bar_solid_width, 2);
+      u8g.drawBox(PROGRESS_BAR_X + 1, 50, progress_bar_solid_width, 2);
 
     //
     // SD Percent Complete
@@ -586,14 +586,10 @@ void MarlinUI::draw_status_screen() {
         if (blink) {
           lcd_put_wchar(estimation_x_pos - 1, EXTRAS_BASELINE, 'E');
           lcd_put_u8str(estimation_string);
-        } else {
-      #endif
-
-      lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
-
-      #if ENABLED(PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION)
         }
+	else
       #endif
+          lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
     }
 
   #endif // HAS_PRINT_PROGRESS
