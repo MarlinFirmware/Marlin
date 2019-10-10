@@ -288,26 +288,28 @@ public:
     static void resume_print();
 
     #if HAS_PRINT_PROGRESS
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        #if HAS_PRINT_PROGRESS_PERMYRIAD
-          static uint16_t progress_override;
-          static void set_progress_permyriad(const uint16_t progress) { progress_override = _MIN(progress, 10000); }
-          static void set_progress(const uint8_t progress) { set_progress_permyriad(progress * 100); }
-          static void set_progress_done() { progress_override = 0x8000 + 10000; }
-          static void progress_reset() { if (progress_override & 0x8000) set_progress_permyriad(0); }
-        #elif HAS_PRINT_PROGRESS_PERCENT
-          static uint8_t progress_override;
-          static void set_progress(const uint8_t progress) { progress_override = _MIN(progress, 100); }
-          static void set_progress_done() { progress_override = 0x80 + 100; }
-          static void progress_reset() { if (progress_override & 0x80) set_progress(0); }
-        #endif
-      #endif
       #if HAS_PRINT_PROGRESS_PERMYRIAD
-        static uint16_t get_progress_permyriad();
+        typedef uint16_t progress_t;
+        #define PROGRESS_SCALE 100
+        #define PROGRESS_MASK 0x7FFF
+      #else
+        typedef uint8_t progress_t;
+        #define PROGRESS_SCALE 1
+        #define PROGRESS_MASK 0x7F
       #endif
-      static uint8_t get_progress();
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        static progress_t progress_override;
+        static void set_progress(const uint8_t p) { progress_override = _MIN(p, 100) * PROGRESS_SCALE; }
+        static void set_progress_done() { progress_override = (PROGRESS_MASK + 1) + 100 * PROGRESS_SCALE; }
+        static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1)) set_progress(0); }
+      #endif
+      progress_t _get_progress();
+      #if HAS_PRINT_PROGRESS_PERMYRIAD
+        static uint16_t get_progress_permyriad() { return _get_progress(); }
+      #endif
+      static uint8_t get_progress_percent() { return uint8_t(progress_override / PROGRESS_SCALE); }
     #else
-      static constexpr uint8_t get_progress() { return 0; }
+      static constexpr uint8_t get_progress_percent() { return 0; }
     #endif
 
     #if HAS_SPI_LCD

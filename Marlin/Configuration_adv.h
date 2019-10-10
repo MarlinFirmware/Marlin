@@ -893,7 +893,7 @@
   //#define PRINT_PROGRESS_SHOW_DECIMALS
 
   // Calculate and display time estimation to job completion (only graphical LCDs)
-  //#define PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION
+  //#define PRINT_TIME_ESTIMATION
 #endif
 
 #if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS

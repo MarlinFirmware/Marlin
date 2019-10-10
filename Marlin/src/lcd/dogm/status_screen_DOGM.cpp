@@ -335,14 +335,12 @@ void MarlinUI::draw_status_screen() {
 
   #if HAS_PRINT_PROGRESS
     static uint8_t lastProgress = 0;
-    static uint8_t progress_bar_solid_width = 0;
     #if ENABLED(DOGM_SD_PERCENT)
       static char progress_string[5];
     #endif
-    static uint8_t lastElapsed = 0;
-    static uint8_t elapsed_x_pos = 0;
+    static uint8_t lastElapsed = 0, elapsed_x_pos = 0;
     static char elapsed_string[10];
-    #if ENABLED(PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION)
+    #if ENABLED(PRINT_TIME_ESTIMATION)
       static uint8_t estimation_x_pos = 0;
       static char estimation_string[10];
     #endif
@@ -379,33 +377,35 @@ void MarlinUI::draw_status_screen() {
       #define _SD_DURATION_X(len) (LCD_PIXEL_WIDTH - len * MENU_FONT_WIDTH)
     #endif
 
-    #if HAS_PRINT_PROGRESS_PERMYRIAD
-      #define _PROGRESS_DIVIDER 100
-      const uint16_t progress = get_progress_permyriad();
-    #else
-      #define _PROGRESS_DIVIDER 1
-      const uint8_t progress = get_progress();
-    #endif
+    const progress_t progress =
+      #if HAS_PRINT_PROGRESS_PERMYRIAD
+        get_progress_permyriad()
+      #else
+        get_progress_percent()
+      #endif
+    ;
 
     #if HAS_PRINT_PROGRESS
+      static uint8_t progress_bar_solid_width = 0;
       duration_t elapsed = print_job_timer.duration();
-      if (progress > 1 && (progress & 0xFF) != lastProgress) {
-        lastProgress = progress & 0xFF;
+      const uint8_t p = progress & 0xFF, ev = elapsed.value & 0xFF;
+      if (progress > 1 && p != lastProgress) {
+        lastProgress = p;
 
-        progress_bar_solid_width = uint8_t((PROGRESS_BAR_WIDTH - 2) * progress * 0.01 * _PROGRESS_DIVIDER);
+        progress_bar_solid_width = uint8_t((PROGRESS_BAR_WIDTH - 2) * progress * PROGRESS_SCALE * 0.01f);
 
         #if ENABLED(DOGM_SD_PERCENT)
-          strcpy(progress_string,
+          strcpy(progress_string, (
             #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
               ui16fptostr4(progress)
             #else
-              ui8tostr3(progress / _PROGRESS_DIVIDER)
+              ui8tostr3(progress / PROGRESS_SCALE)
             #endif
-          );
+          ));
         #endif
-        #if ENABLED(PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION)
-          if ((elapsed.value & 0xFF) != lastElapsed) {
-            duration_t estimation = elapsed.value * (100 * _PROGRESS_DIVIDER - progress) / progress;
+        #if ENABLED(PRINT_TIME_ESTIMATION)
+          if (ev != lastElapsed) {
+            duration_t estimation = elapsed.value * (100 * PROGRESS_SCALE - progress) / progress;
             const bool has_days = (estimation.value >= 60*60*24L);
             const uint8_t len = estimation.toDigital(estimation_string, has_days);
             estimation_x_pos = _SD_DURATION_X(len);
@@ -413,9 +413,8 @@ void MarlinUI::draw_status_screen() {
         #endif
       }
 
-      if ((elapsed.value & 0xFF) != lastElapsed) {
-        lastElapsed = (elapsed.value & 0xFF);
-
+      if (ev != lastElapsed) {
+        lastElapsed = ev;
         const bool has_days = (elapsed.value >= 60*60*24L);
         const uint8_t len = elapsed.toDigital(elapsed_string, has_days);
         elapsed_x_pos = _SD_DURATION_X(len);
@@ -575,19 +574,19 @@ void MarlinUI::draw_status_screen() {
         lcd_put_wchar('%');
       }
     #endif
-    
+
     //
     // Elapsed Time
     //
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
-      #if ENABLED(PRINT_PROGRESS_ESTIMATE_TIME_TO_COMPLETION)
+      #if ENABLED(PRINT_TIME_ESTIMATION)
         if (blink) {
           lcd_put_wchar(estimation_x_pos - 1, EXTRAS_BASELINE, 'E');
           lcd_put_u8str(estimation_string);
         }
-	else
+      	else
       #endif
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
     }

@@ -60,7 +60,8 @@ char* i8tostr3(const int8_t x) {
 }
 
 #if HAS_PRINT_PROGRESS_PERMYRIAD
-  // Convert unsigned 16bit fixed-point float (in hundredth parts of int) to string 100 / 23 / 23.4 / 3.45 format
+  // Convert unsigned 16bit fixed-point float (in hundredth
+  // parts of int) to string 100 / 23 / 23.4 / 3.45 format.
   char* ui16fptostr4(const uint16_t xx) {
     if (xx >= 1000) {
       conv[3] = DIGIMOD(xx, 1000);
@@ -68,16 +69,16 @@ char* i8tostr3(const int8_t x) {
       conv[5] = '.';
       conv[6] = DIGIMOD(xx, 10);
       return &conv[3];
-    } else if (xx >= 10000) {
-      conv[4] = '1';
-      conv[5] = '0';
-      conv[6] = '0';
-      return &conv[4];
-    } else if (xx % 100 == 0) {
+    }
+    else if (xx >= 10000) {
+      return "100";
+    }
+    else if (xx % 100 == 0) {
       conv[5] = RJDIGIT(xx, 1000);
       conv[6] = DIGIMOD(xx, 100);
       return &conv[5];
-    } else {
+    }
+    else {
       conv[3] = DIGIMOD(xx, 100);
       conv[4] = '.';
       conv[5] = DIGIMOD(xx, 10);

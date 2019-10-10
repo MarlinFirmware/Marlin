@@ -566,7 +566,7 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
 #if HAS_PRINT_PROGRESS
 
   FORCE_INLINE void _draw_print_progress() {
-    const uint8_t progress = ui.get_progress();
+    const uint8_t progress = ui.get_progress_percent();
     lcd_put_u8str_P(PSTR(
       #if ENABLED(SDSUPPORT)
         "SD"
@@ -613,7 +613,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
     if (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !has_status()) {
-      const uint8_t progress = get_progress();
+      const uint8_t progress = get_progress_percent();
       if (progress > 2) return draw_progress_bar(progress);
     }
 
