@@ -53,7 +53,7 @@
       strcpy_P(tmp, GET_TEXT(MSG_START_Z));
       sprintf_P(tmp + strlen(tmp), PSTR(": %4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
       SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
-      LCDPRINT(tmp);
+      lcd_put_u8str(tmp);
     }
 
     if (ui.lcd_clicked) {
@@ -79,7 +79,7 @@
       strcpy_P(tmp, GET_TEXT(MSG_END_Z));
       sprintf_P(tmp + strlen(tmp), PSTR(": %4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
       SETCURSOR(2, (LCD_HEIGHT - 1) / 2);
-      LCDPRINT(tmp);
+      lcd_put_u8str(tmp);
     }
 
     if (ui.lcd_clicked) {
@@ -106,13 +106,13 @@
     SUBMENU(MSG_START_Z, lcd_mixer_gradient_z_start_edit);
     MENU_ITEM_ADDON_START(9);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
-      LCDPRINT(tmp);
+      lcd_put_u8str(tmp);
     MENU_ITEM_ADDON_END();
 
     SUBMENU(MSG_END_Z, lcd_mixer_gradient_z_end_edit);
     MENU_ITEM_ADDON_START(9);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
-      LCDPRINT(tmp);
+      lcd_put_u8str(tmp);
     MENU_ITEM_ADDON_END();
 
     END_MENU();
@@ -129,7 +129,7 @@ static uint8_t v_index;
     lcd_put_u8str_P(GET_TEXT(MSG_MIX));
     SETCURSOR(LCD_WIDTH - 9, y);
     sprintf_P(tmp, PSTR("%3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
-    LCDPRINT(tmp);
+    lcd_put_u8str(tmp);
   }
 #endif
 
@@ -283,7 +283,7 @@ void menu_mixer() {
     MENU_ITEM_ADDON_START(10);
       mixer.update_mix_from_vtool();
       sprintf_P(tmp, PSTR("%3d;%3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
-      LCDPRINT(tmp);
+      lcd_put_u8str(tmp);
     MENU_ITEM_ADDON_END();
     ACTION_ITEM(MSG_TOGGLE_MIX, _lcd_mixer_toggle_mix);
   }
@@ -299,7 +299,7 @@ void menu_mixer() {
     SUBMENU(MSG_GRADIENT, lcd_mixer_edit_gradient_menu);
     MENU_ITEM_ADDON_START(10);
       sprintf_P(tmp, PSTR("T%i->T%i"), mixer.gradient.start_vtool, mixer.gradient.end_vtool);
-      LCDPRINT(tmp);
+      lcd_put_u8str(tmp);
     MENU_ITEM_ADDON_END();
     ACTION_ITEM(MSG_REVERSE_GRADIENT, _lcd_mixer_reverse_gradient);
   }
