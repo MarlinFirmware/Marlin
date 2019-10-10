@@ -268,7 +268,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
                              !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
         sprintf_P(tmp, GET_TEXT(MSG_MOVE_Z_DIST), dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
-        LCDPRINT(tmp);
+        lcd_put_u8str(tmp);
       MENU_ITEM_ADDON_END();
     }
   }
