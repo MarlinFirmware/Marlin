@@ -40,7 +40,67 @@
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  FORCE_INLINE void mod_probe_offset(const float &offs) {
+  FORCE_INLINE void apply_offset_steps(const uint8_t axis, const float &offs) {
+    if (axis == Z_AXIS && (!parser.seen('P') || parser.value_bool()))
+    {
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        if (true
+          #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+            && active_extruder == 0
+          #endif
+        ) {
+            if((zprobe_zoffset+offs) < Z_PROBE_OFFSET_RANGE_MIN)
+            {
+              offs = Z_PROBE_OFFSET_RANGE_MIN - zprobe_zoffset;
+            }
+            if((zprobe_zoffset+offs) > Z_PROBE_OFFSET_RANGE_MAX)
+            {
+              offs = Z_PROBE_OFFSET_RANGE_MAX - zprobe_zoffset;
+            }
+        }
+        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+          else {
+            if((hotend_offset[Z_AXIS][active_extruder]-offs) < (0- HOTEND_OFFSET_LIMIT_Z))
+            {
+              offs = (0 - HOTEND_OFFSET_LIMIT_Z) - zprobe_zoffset;
+            }
+            if((hotend_offset[Z_AXIS][active_extruder]-offs) > HOTEND_OFFSET_LIMIT_Z)
+            {
+              offs = HOTEND_OFFSET_LIMIT_Z - hotend_offset[Z_AXIS][active_extruder];
+            }
+          }
+        #endif
+        mod_zprobe_zoffset(offs);
+      #endif
+    }
+    #if ENABLED(BABYSTEP_XY) && EXTRUDERS > 1
+      else if (axis == X_AXIS)
+      {
+        if((hotend_offset[X_AXIS][active_extruder]-offs) < (0- HOTEND_OFFSET_LIMIT_X))
+        {
+          offs = (0 - HOTEND_OFFSET_LIMIT_X) - zprobe_zoffset;
+        }
+        if((hotend_offset[X_AXIS][active_extruder]-offs) > HOTEND_OFFSET_LIMIT_X)
+        {
+          offs = HOTEND_OFFSET_LIMIT_X - hotend_offset[X_AXIS][active_extruder];
+        }
+      }
+      else if (axis == Y_AXIS)
+      {
+        if((hotend_offset[Y_AXIS][active_extruder]-offs) < (0- HOTEND_OFFSET_LIMIT_Y))
+        {
+          offs = (0 - HOTEND_OFFSET_LIMIT_Y) - zprobe_zoffset;
+        }
+        if((hotend_offset[Y_AXIS][active_extruder]-offs) > HOTEND_OFFSET_LIMIT_Y)
+        {
+          offs = HOTEND_OFFSET_LIMIT_Y - hotend_offset[Y_AXIS][active_extruder];
+        }
+      }
+    #endif
+    babystep.add_mm((AxisEnum)axis, offs);
+  }
+
+  FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
     if (true
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         && active_extruder == 0
@@ -79,17 +139,17 @@ void GcodeSuite::M290() {
     for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
       if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
-        babystep.add_mm((AxisEnum)a, offs);
+        apply_offset_steps(a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
+          if (a == Z_AXIS && parser.boolval('P', true)) mod_zprobe_zoffset(offs);
         #endif
       }
   #else
     if (parser.seenval('Z') || parser.seenval('S')) {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
-      babystep.add_mm(Z_AXIS, offs);
+      apply_offset_steps(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
+        if (parser.boolval('P', true)) mod_zprobe_zoffset(offs);
       #endif
     }
   #endif

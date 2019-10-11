@@ -1360,6 +1360,13 @@
   #undef NOZZLE_TO_PROBE_OFFSET
 #endif
 
+#if ENABLED(PRUSA_MMU2)
+  #define E_STEPPERS 1
+  #ifndef TOOLCHANGE_ZRAISE
+    #define TOOLCHANGE_ZRAISE 0
+  #endif
+#endif
+
 /**
  * XYZ Bed Skew Correction
  */
