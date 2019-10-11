@@ -58,7 +58,7 @@
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  uint8_t MarlinUI::progress_override; // = 0
+  MarlinUI::progress_t MarlinUI::progress_override; // = 0
 #endif
 
 #if HAS_BUZZER
@@ -515,7 +515,7 @@ void MarlinUI::status_screen() {
       if (expire_status_ms > 0) {
 
         // Expire the message if a job is active and the bar has ticks
-        if (get_progress() > 2 && !print_job_timer.isPaused()) {
+        if (get_progress_percent() > 2 && !print_job_timer.isPaused()) {
           if (ELAPSED(ms, expire_status_ms)) {
             status_message[0] = '\0';
             expire_status_ms = 0;
@@ -1534,18 +1534,24 @@ void MarlinUI::update() {
   }
 
   #if HAS_PRINT_PROGRESS
-    uint8_t MarlinUI::get_progress() {
+
+    MarlinUI::progress_t MarlinUI::_get_progress() {
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        const uint8_t p = progress_override & 0x7F;
+        const progress_t p = progress_override & PROGRESS_MASK;
       #else
-        constexpr uint8_t p = 0;
+        constexpr progress_t p = 0;
       #endif
       return (p
         #if ENABLED(SDSUPPORT)
-          ?: card.percentDone()
+          #if HAS_PRINT_PROGRESS_PERMYRIAD
+            ?: card.permyriadDone()
+          #else
+            ?: card.percentDone()
+          #endif
         #endif
       );
     }
+
   #endif
 
 #endif // HAS_DISPLAY

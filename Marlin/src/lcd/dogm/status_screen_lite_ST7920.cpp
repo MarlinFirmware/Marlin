@@ -850,7 +850,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
     // when an update is actually necessary.
 
     static uint8_t last_progress = 0;
-    const uint8_t progress = ui.get_progress();
+    const uint8_t progress = ui.get_progress_percent();
     if (forceUpdate || last_progress != progress) {
       last_progress = progress;
       draw_progress_bar(progress);
