@@ -25,7 +25,7 @@ e-mail   :  support@circuitsathome.com
  */
 
 #ifndef UHS_SCSI_H
-#define	UHS_SCSI_H
+#define UHS_SCSI_H
 
 /*
  * Reference documents from T10 (http://www.t10.org)
@@ -35,21 +35,21 @@ e-mail   :  support@circuitsathome.com
  */
 
 /* Group 1 commands (CDB's here are should all be 6-bytes) */
-#define SCSI_CMD_TEST_UNIT_READY	0x00U
-#define SCSI_CMD_REQUEST_SENSE		0x03U
-#define SCSI_CMD_FORMAT_UNIT		0x04U
-#define SCSI_CMD_READ_6			0x08U
-#define SCSI_CMD_WRITE_6		0x0AU
-#define SCSI_CMD_INQUIRY		0x12U
+#define SCSI_CMD_TEST_UNIT_READY        0x00U
+#define SCSI_CMD_REQUEST_SENSE          0x03U
+#define SCSI_CMD_FORMAT_UNIT            0x04U
+#define SCSI_CMD_READ_6                 0x08U
+#define SCSI_CMD_WRITE_6                0x0AU
+#define SCSI_CMD_INQUIRY                0x12U
 #define SCSI_CMD_MODE_SELECT_6          0x15U
-#define SCSI_CMD_MODE_SENSE_6		0x1AU
-#define SCSI_CMD_START_STOP_UNIT	0x1BU
+#define SCSI_CMD_MODE_SENSE_6           0x1AU
+#define SCSI_CMD_START_STOP_UNIT        0x1BU
 #define SCSI_CMD_PREVENT_REMOVAL        0x1EU
 /* Group 2 Commands (CDB's here are 10-bytes) */
 #define SCSI_CMD_READ_FORMAT_CAPACITIES 0x23U
-#define SCSI_CMD_READ_CAPACITY_10	0x25U
-#define SCSI_CMD_READ_10		0x28U
-#define SCSI_CMD_WRITE_10		0x2AU
+#define SCSI_CMD_READ_CAPACITY_10       0x25U
+#define SCSI_CMD_READ_10                0x28U
+#define SCSI_CMD_WRITE_10               0x2AU
 #define SCSI_CMD_SEEK_10                0x2BU
 #define SCSI_CMD_ERASE_10               0x2CU
 #define SCSI_CMD_WRITE_AND_VERIFY_10    0x2EU
@@ -107,10 +107,10 @@ e-mail   :  support@circuitsathome.com
 #define SCSI_CMD_READ_ALL_SUBCODES      0xDFU /* Vendor unique */
 
 /* SCSI error codes */
-#define SCSI_S_NOT_READY		0x02U
-#define SCSI_S_MEDIUM_ERROR		0x03U
-#define SCSI_S_ILLEGAL_REQUEST		0x05U
-#define SCSI_S_UNIT_ATTENTION		0x06U
+#define SCSI_S_NOT_READY                0x02U
+#define SCSI_S_MEDIUM_ERROR             0x03U
+#define SCSI_S_ILLEGAL_REQUEST          0x05U
+#define SCSI_S_UNIT_ATTENTION           0x06U
 #define SCSI_ASC_LBA_OUT_OF_RANGE       0x21U
 #define SCSI_ASC_MEDIA_CHANGED          0x28U
 #define SCSI_ASC_MEDIUM_NOT_PRESENT     0x3AU
@@ -324,4 +324,4 @@ struct SCSI_Request_Sense_Response {
         uint8_t SenseKeySpecific[3];
 } __attribute__((packed));
 
-#endif	/* UHS_SCSI_H */
+#endif  /* UHS_SCSI_H */
