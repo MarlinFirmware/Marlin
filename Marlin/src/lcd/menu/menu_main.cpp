@@ -182,7 +182,7 @@ void menu_main() {
       if (thermalManager.targetHotEnoughToExtrude(active_extruder))
         GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
       else
-        SUBMENU(MSG_FILAMENTCHANGE, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
+        SUBMENU(MSG_FILAMENTCHANGE, [](){ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
