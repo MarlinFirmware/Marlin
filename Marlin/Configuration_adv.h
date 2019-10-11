@@ -1614,11 +1614,9 @@
 
   /**
    * Limit the hotend offset values that may be applied.
-   * DUAL_X_CARRIAGE uses HOTEND_OFFSET_LIMIT_X as a maximum deviation from X2_MAX_POS.
+   * DUAL_X_CARRIAGE uses the X limit as a maximum offset from X2_MAX_POS.
    */
-  #define HOTEND_OFFSET_LIMIT_X 50.0  // (mm)
-  #define HOTEND_OFFSET_LIMIT_Y 50.0  // (mm)
-  #define HOTEND_OFFSET_LIMIT_Z  3.0  // (mm)
+  #define HOTEND_OFFSET_LIMIT { 50.0, 50.0, 3.0 }
 
   // Retract and prime filament on tool-change
   //#define TOOLCHANGE_FILAMENT_SWAP

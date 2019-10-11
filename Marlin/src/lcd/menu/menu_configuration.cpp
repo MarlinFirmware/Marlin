@@ -140,10 +140,10 @@ void menu_advanced_settings();
     #if ENABLED(DUAL_X_CARRIAGE)
       EDIT_ITEM_FAST(float51, MSG_X_OFFSET, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST(float52sign, MSG_X_OFFSET, &hotend_offset[1].x, hotend_offset_min, hotend_offset_max, _recalc_offsets);
+      EDIT_ITEM_FAST(float52sign, MSG_X_OFFSET, &hotend_offset[1].x, hotend_offset_min_x, hotend_offset_max_x, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST(float52sign, MSG_Y_OFFSET, &hotend_offset[1].y, -(HOTEND_OFFSET_LIMIT_Y), HOTEND_OFFSET_LIMIT_Y, _recalc_offsets);
-    EDIT_ITEM_FAST(float52sign, MSG_Z_OFFSET, &hotend_offset[1].z, MIN(Z_PROBE_LOW_POINT, -(HOTEND_OFFSET_LIMIT_Z)), HOTEND_OFFSET_LIMIT_Z, _recalc_offsets);
+    EDIT_ITEM_FAST(float52sign, MSG_Y_OFFSET, &hotend_offset[1].y, -hotend_offset_limit.y, hotend_offset_limit.y, _recalc_offsets);
+    EDIT_ITEM_FAST(float52sign, MSG_Z_OFFSET, &hotend_offset[1].z, MIN(Z_PROBE_LOW_POINT, -hotend_offset_limit.z), hotend_offset_limit.z, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
     #endif

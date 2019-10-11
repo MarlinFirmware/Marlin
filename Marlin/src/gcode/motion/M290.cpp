@@ -41,60 +41,37 @@
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   FORCE_INLINE void apply_offset_steps(const uint8_t axis, const float &offs) {
-    if (axis == Z_AXIS && (!parser.seen('P') || parser.value_bool()))
-    {
+    if (axis == Z_AXIS && parser.boolval('P', true)) {
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         if (true
           #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
             && active_extruder == 0
           #endif
         ) {
-            if((zprobe_zoffset+offs) < Z_PROBE_OFFSET_RANGE_MIN)
-            {
-              offs = Z_PROBE_OFFSET_RANGE_MIN - zprobe_zoffset;
-            }
-            if((zprobe_zoffset+offs) > Z_PROBE_OFFSET_RANGE_MAX)
-            {
-              offs = Z_PROBE_OFFSET_RANGE_MAX - zprobe_zoffset;
-            }
+          NOLESS(offs, Z_PROBE_OFFSET_RANGE_MIN - zprobe_zoffset);
+          NOMORE(offs, Z_PROBE_OFFSET_RANGE_MAX - zprobe_zoffset);
         }
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else {
-            if((hotend_offset[Z_AXIS][active_extruder]-offs) < (0- HOTEND_OFFSET_LIMIT_Z))
-            {
-              offs = (0 - HOTEND_OFFSET_LIMIT_Z) - zprobe_zoffset;
-            }
-            if((hotend_offset[Z_AXIS][active_extruder]-offs) > HOTEND_OFFSET_LIMIT_Z)
-            {
-              offs = HOTEND_OFFSET_LIMIT_Z - hotend_offset[Z_AXIS][active_extruder];
-            }
-          }
+          else if (offs > hotend_offset[active_extruder].z + hotend_offset_limit.z)
+            offs = -hotend_offset_limit.z - zprobe_zoffset;
+          else if (offs < hotend_offset[active_extruder].z - hotend_offset_limit.z)
+            offs = hotend_offset_limit.z - hotend_offset[active_extruder].z;
         #endif
         mod_zprobe_zoffset(offs);
       #endif
     }
     #if ENABLED(BABYSTEP_XY) && EXTRUDERS > 1
-      else if (axis == X_AXIS)
-      {
-        if((hotend_offset[X_AXIS][active_extruder]-offs) < (0- HOTEND_OFFSET_LIMIT_X))
-        {
-          offs = (0 - HOTEND_OFFSET_LIMIT_X) - zprobe_zoffset;
-        }
-        if((hotend_offset[X_AXIS][active_extruder]-offs) > HOTEND_OFFSET_LIMIT_X)
-        {
-          offs = HOTEND_OFFSET_LIMIT_X - hotend_offset[X_AXIS][active_extruder];
-        }
+      else if (axis == X_AXIS) {
+        if (offs > hotend_offset[active_extruder].x + hotend_offset_limit.x)
+          offs = -hotend_offset_limit.x - zprobe_zoffset;
+        else if (offs < hotend_offset[active_extruder].x - hotend_offset_limit.x)
+          offs = hotend_offset_limit.x - hotend_offset[active_extruder].x;
       }
-      else if (axis == Y_AXIS)
-      {
-        if((hotend_offset[Y_AXIS][active_extruder]-offs) < (0- HOTEND_OFFSET_LIMIT_Y))
-        {
-          offs = (0 - HOTEND_OFFSET_LIMIT_Y) - zprobe_zoffset;
-        }
-        if((hotend_offset[Y_AXIS][active_extruder]-offs) > HOTEND_OFFSET_LIMIT_Y)
-        {
-          offs = HOTEND_OFFSET_LIMIT_Y - hotend_offset[Y_AXIS][active_extruder];
-        }
+      else if (axis == Y_AXIS) {
+        if (offs > hotend_offset[active_extruder].y + hotend_offset_limit.y)
+          offs = -hotend_offset_limit.y - zprobe_zoffset;
+        else if (offs < hotend_offset[active_extruder].y - hotend_offset_limit.y)
+          offs = hotend_offset_limit.y - hotend_offset[active_extruder].y;
       }
     #endif
     babystep.add_mm((AxisEnum)axis, offs);

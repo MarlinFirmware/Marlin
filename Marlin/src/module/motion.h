@@ -407,10 +407,15 @@ FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return p
   void set_home_offset(const AxisEnum axis, const float v);
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE)
-  constexpr float hotend_offset_min = MIN(X2_HOME_POS, X2_MAX_POS) - (HOTEND_OFFSET_LIMIT_X),
-                  hotend_offset_max = MAX(X2_HOME_POS, X2_MAX_POS) + HOTEND_OFFSET_LIMIT_X;
-#elif HAS_HOTEND_OFFSET
-  constexpr float hotend_offset_min = -(HOTEND_OFFSET_LIMIT_X),
-                  hotend_offset_max = HOTEND_OFFSET_LIMIT_X;
+#if HAS_HOTEND_OFFSET
+  constexpr xyz_float_t hotend_offset_limit = HOTEND_OFFSET_LIMIT;
+  constexpr ab_float_t minmax_base = {
+    #if ENABLED(DUAL_X_CARRIAGE)
+      MIN(X2_HOME_POS, X2_MAX_POS), MAX(X2_HOME_POS, X2_MAX_POS)
+    #else
+      0, 0
+    #endif
+  };
+  constexpr float hotend_offset_min_x = minmax_base.a - hotend_offset_limit.x,
+                  hotend_offset_max_x = minmax_base.b + hotend_offset_limit.x;
 #endif
