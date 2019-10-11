@@ -889,11 +889,8 @@
 //#define LCD_SET_PROGRESS_MANUALLY
 
 #if HAS_PRINT_PROGRESS
-  // Calculate and display print progress with decimal digits (only graphical LCDs)
-  //#define PRINT_PROGRESS_SHOW_DECIMALS
-
-  // Calculate and display time estimation to job completion (only graphical LCDs)
-  //#define PRINT_TIME_ESTIMATION
+  //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits (Graphical LCD only)
+  //#define SHOW_REMAINING_TIME          // Display estimated time to completion (Graphical LCD only)
 #endif
 
 #if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS

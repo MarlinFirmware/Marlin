@@ -39,8 +39,8 @@
  */
 void GcodeSuite::M73() {
   if (parser.seen('P'))
-    ui.set_progress(PROGRESS_SCALE > 1
-      ? parser.value_float() * PROGRESS_SCALE
+    ui.set_progress((PROGRESS_SCALE) > 1
+      ? parser.value_float() * (PROGRESS_SCALE)
       : parser.value_byte()
     );
 }

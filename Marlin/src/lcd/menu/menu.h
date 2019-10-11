@@ -45,7 +45,7 @@ bool printer_busy();
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
     static constexpr float scale = SCALE; \
-    static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
+    static inline const char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
 DECLARE_MENU_EDIT_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
@@ -204,7 +204,7 @@ class MenuEditItemBase {
     static screenFunc_t callbackFunc;
     static bool liveEdit;
   protected:
-    typedef char* (*strfunc_t)(const int32_t);
+    typedef const char* (*strfunc_t)(const int32_t);
     typedef void (*loadfunc_t)(void *, const int32_t);
     static void init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le);
     static void edit(strfunc_t, loadfunc_t);
@@ -217,7 +217,7 @@ class TMenuEditItem : MenuEditItemBase {
     static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
     static inline float scale(const float value)      { return value * NAME::scale;           }
     static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
-    static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
+    static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
   public:
     static void action(
       PGM_P const pstr,                     // Edit label
