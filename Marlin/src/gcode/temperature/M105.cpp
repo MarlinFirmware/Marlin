@@ -39,7 +39,9 @@ void GcodeSuite::M105() {
       #endif
     );
   #else // !HAS_TEMP_SENSOR
-    SERIAL_ERROR_MSG(MSG_ERR_NO_THERMISTORS);
+    // Hosts such as printrun send M105 to check if firmware is responding.
+    SERIAL_ECHOPGM(MSG_OK);
+    SERIAL_ECHOPGM(" T:0");
   #endif
 
   SERIAL_EOL();
