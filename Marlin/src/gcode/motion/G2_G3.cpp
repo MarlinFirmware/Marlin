@@ -290,7 +290,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
                       len = d2.magnitude(),              // Distance to mid-point of move from current
                       h2 = (r - len) * (r + len),        // factored to reduce rounding error
                       h = (h2 >= 0) ? SQRT(h2) : 0.0f;   // Distance to the arc pivot-point from midpoint
-          const xy_pos_t s = { -d2.y, d2.x } / len;      // Unit vector along perpendicular bisector
+          const xy_pos_t s = { -d2.y/len, d2.x/len};     // Unit vector along perpendicular bisector
           arc_offset = d2 + s * e * h;                   // The calculated offset (mid-point if |r| <= len)
         }
       }
