@@ -606,7 +606,7 @@ void Endstops::update() {
       #endif
     #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       UPDATE_ENDSTOP_BIT(Z, MIN);
-    #elif Z_HOME_DIR < 0
+    #elif Z_HOME_DIR < 0 || Z_HOME_DIR > 0 && HAS_Z_MAX && DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       UPDATE_ENDSTOP_BIT(Z, MIN);
     #endif
   #endif
