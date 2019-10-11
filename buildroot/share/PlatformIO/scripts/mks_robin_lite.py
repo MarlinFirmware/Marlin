@@ -23,7 +23,7 @@ def encrypt(source, target, env):
             byte = firmware.read(1)
             if position >= 320 and position < 31040:
                 byte = chr(ord(byte) ^ key[position & 31])
-                if sys.version_info[0] == 3:
+                if sys.version_info[0] > 2:
                     byte = bytes(byte, 'latin1')
             robin.write(byte)
             position += 1
