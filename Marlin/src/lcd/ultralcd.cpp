@@ -1348,8 +1348,6 @@ void MarlinUI::update() {
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onStatusChanged(status_message);
     #endif
-
-    refresh();
   }
 
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
