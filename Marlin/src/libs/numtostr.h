@@ -97,7 +97,7 @@ FORCE_INLINE const char* ftostr3(const float &x) { return i16tostr3(int16_t(x + 
 
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
   // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
-  char* ftostr4sign(const float &fx);
+  const char* ftostr4sign(const float &fx);
 #else
   // Convert float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
   FORCE_INLINE const char* ftostr4sign(const float &x) { return i16tostr4sign(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
