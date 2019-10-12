@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,10 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if HAS_SPI_LCD
+  #include "../../lcd/ultralcd.h"
+#endif
+
 #if HAS_LEVELING
   #include "../../module/planner.h"
 #endif
@@ -55,7 +59,7 @@ void GcodeSuite::M48() {
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).");
+    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
     return;
   }
 
@@ -70,13 +74,14 @@ void GcodeSuite::M48() {
 
   const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
-  float X_current = current_position[X_AXIS],
-        Y_current = current_position[Y_AXIS];
+  xy_float_t next_pos = current_position;
 
-  const float X_probe_location = parser.linearval('X', X_current + X_PROBE_OFFSET_FROM_EXTRUDER),
-              Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
+  const xy_pos_t probe_pos = {
+    parser.linearval('X', next_pos.x + probe_offset.x),
+    parser.linearval('Y', next_pos.y + probe_offset.y)
+  };
 
-  if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
+  if (!position_is_reachable_by_probe(probe_pos)) {
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -107,88 +112,85 @@ void GcodeSuite::M48() {
     set_bed_leveling_enabled(false);
   #endif
 
-  setup_for_endstop_or_probe_move();
+  remember_feedrate_scaling_off();
 
   float mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
   // Move to the first point, deploy, and probe
-  const float t = probe_pt(X_probe_location, Y_probe_location, raise_after, verbose_level);
+  const float t = probe_at_point(probe_pos, raise_after, verbose_level);
   bool probing_good = !isnan(t);
 
   if (probing_good) {
     randomSeed(millis());
 
     for (uint8_t n = 0; n < n_samples; n++) {
+      #if HAS_SPI_LCD
+        // Display M48 progress in the status bar
+        ui.status_printf_P(0, PSTR(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
+      #endif
       if (n_legs) {
         const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
         float angle = random(0, 360);
         const float radius = random(
           #if ENABLED(DELTA)
-            (int) (0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
-            (int) (0.3333333333 * (DELTA_PRINTABLE_RADIUS))
+            int(0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
+            int(0.3333333333 * (DELTA_PRINTABLE_RADIUS))
           #else
-            (int) 5.0, (int) (0.125 * MIN(X_BED_SIZE, Y_BED_SIZE))
+            int(5), int(0.125 * _MIN(X_BED_SIZE, Y_BED_SIZE))
           #endif
         );
 
         if (verbose_level > 3) {
-          SERIAL_ECHOPAIR("Starting radius: ", radius);
-          SERIAL_ECHOPAIR("   angle: ", angle);
-          SERIAL_ECHOPGM(" Direction: ");
-          if (dir > 0) SERIAL_ECHOPGM("Counter-");
-          SERIAL_ECHOLNPGM("Clockwise");
+          SERIAL_ECHOPAIR("Start radius:", radius, " angle:", angle, " dir:");
+          if (dir > 0) SERIAL_CHAR('C');
+          SERIAL_ECHOLNPGM("CW");
         }
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
           float delta_angle;
 
-          if (schizoid_flag)
+          if (schizoid_flag) {
             // The points of a 5 point star are 72 degrees apart.  We need to
             // skip a point and go to the next one on the star.
             delta_angle = dir * 2.0 * 72.0;
-
-          else
+          }
+          else {
             // If we do this line, we are just trying to move further
             // around the circle.
             delta_angle = dir * (float) random(25, 45);
+          }
 
           angle += delta_angle;
+          while (angle > 360.0) angle -= 360.0; // We probably do not need to keep the angle between 0 and 2*PI, but the
+                                                // Arduino documentation says the trig functions should not be given values
+          while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
+                                                // numbers outside of the range, but just to be safe we clamp them.
 
-          while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
-            angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
-          while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
-            angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
-
-          X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
-          Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
+          next_pos.set(probe_pos.x - probe_offset.x + cos(RADIANS(angle)) * radius,
+                       probe_pos.y - probe_offset.y + sin(RADIANS(angle)) * radius);
 
           #if DISABLED(DELTA)
-            X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
-            Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
+            LIMIT(next_pos.x, X_MIN_POS, X_MAX_POS);
+            LIMIT(next_pos.y, Y_MIN_POS, Y_MAX_POS);
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while (!position_is_reachable_by_probe(X_current, Y_current)) {
-              X_current *= 0.8;
-              Y_current *= 0.8;
-              if (verbose_level > 3) {
-                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
-                SERIAL_ECHOLNPAIR(", ", Y_current);
-              }
+            while (!position_is_reachable_by_probe(next_pos)) {
+              next_pos *= 0.8f;
+              if (verbose_level > 3)
+                SERIAL_ECHOLNPAIR("Moving inward: X", next_pos.x, " Y", next_pos.y);
             }
           #endif
-          if (verbose_level > 3) {
-            SERIAL_ECHOPGM("Going to:");
-            SERIAL_ECHOPAIR(" X", X_current);
-            SERIAL_ECHOPAIR(" Y", Y_current);
-            SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
-          }
-          do_blocking_move_to_xy(X_current, Y_current);
+
+          if (verbose_level > 3)
+            SERIAL_ECHOLNPAIR("Going to: X", next_pos.x, " Y", next_pos.y);
+
+          do_blocking_move_to_xy(next_pos);
         } // n_legs loop
       } // n_legs
 
       // Probe a single point
-      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, raise_after, 0);
+      sample_set[n] = probe_at_point(probe_pos, raise_after, 0);
 
       // Break the loop if the probe fails
       probing_good = !isnan(sample_set[n]);
@@ -216,7 +218,7 @@ void GcodeSuite::M48() {
       if (verbose_level > 0) {
         if (verbose_level > 1) {
           SERIAL_ECHO(n + 1);
-          SERIAL_ECHOPAIR(" of ", (int)n_samples);
+          SERIAL_ECHOPAIR(" of ", int(n_samples));
           SERIAL_ECHOPAIR_F(": z: ", sample_set[n], 3);
           if (verbose_level > 2) {
             SERIAL_ECHOPAIR_F(" mean: ", mean, 4);
@@ -246,9 +248,15 @@ void GcodeSuite::M48() {
 
     SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
     SERIAL_EOL();
+
+    #if HAS_SPI_LCD
+      // Display M48 results in the status bar
+      char sigma_str[8];
+      ui.status_printf_P(0, PSTR(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));
+    #endif
   }
 
-  clean_up_after_endstop_or_probe_move();
+  restore_feedrate_and_scaling();
 
   // Re-enable bed level correction if it had been on
   #if HAS_LEVELING

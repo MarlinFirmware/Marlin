@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 #######################################
 #
 # Marlin 3D Printer Firmware
-# Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+# Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 #
 # Based on Sprinter and grbl.
-# Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+# Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -68,6 +69,9 @@
 #
 #######################################
 
+from __future__ import print_function
+from __future__ import division
+
 import sys
 import os
 
@@ -76,27 +80,22 @@ pwd = pwd.replace('\\', '/')
 if 0 <= pwd.find('buildroot/share/atom'):
   pwd = pwd[ : pwd.find('buildroot/share/atom')]
   os.chdir(pwd)
-print 'pwd: ', pwd
+print('pwd: ', pwd)
 
 num_args = len(sys.argv)
 if num_args > 1:
   build_type = str(sys.argv[1])
 else:
-  print 'Please specify build type'
+  print('Please specify build type')
   exit()
 
-print'build_type:  ', build_type
+print('build_type:  ', build_type)
 
-print '\nWorking\n'
+print('\nWorking\n')
 
 python_ver = sys.version_info[0] # major version - 2 or 3
 
-if python_ver == 2:
-  print "python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
-else:
-  print "python version " + str(sys.version_info[0])
-  print "This script only runs under python 2"
-  exit()
+print("python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2]))
 
 import platform
 current_OS = platform.system()
@@ -131,9 +130,9 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
 
 
         if python_ver == 2:
-          import Tkinter as tk
+            import Tkinter as tk
         else:
-          import tkinter as tk
+            import tkinter as tk
 
         def CPU_exit_3():   # forward declare functions
 
@@ -145,6 +144,7 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
           kill_session_()
 
         root_get_answer = tk.Tk()
+        root_get_answer.attributes("-topmost", True)
 
         root_get_answer.chk_state_1 = 1   # declare variables used by TK and enable
 
@@ -233,7 +233,7 @@ def resolve_path(path):
           line_num = path[ line_start + 1 : column_start]
           if line_num == '':
             line_num = 1
-        if not(column_start == column_end):
+        if column_start != column_end:
           column_num = path[ column_start + 1 : column_end]
           if column_num == '':
             column_num = 0
@@ -272,7 +272,7 @@ def resolve_path(path):
 
 
             start = path.find('/')
-            if not(0 == start):            # make sure path starts with '/'
+            if start != 0:                  # make sure path starts with '/'
               while 0 == path.find(' '):    # eat any spaces at the beginning
                 path = path[ 1 : ]
               path = '/' + path
@@ -417,17 +417,17 @@ def open_file(path):
 def get_build_last():
       env_last = ''
       DIR_PWD = os.listdir('.')
-      if '.pioenvs' in DIR_PWD:
+      if '.pio' in DIR_PWD:
         date_last = 0.0
-        DIR__pioenvs = os.listdir('.pioenvs')
+        DIR__pioenvs = os.listdir('.pio')
         for name in DIR__pioenvs:
           if 0 <= name.find('.') or 0 <= name.find('-'):   # skip files in listing
             continue
-          DIR_temp = os.listdir('.pioenvs/' + name)
+          DIR_temp = os.listdir('.pio/build/' + name)
           for names_temp in DIR_temp:
 
             if 0 == names_temp.find('firmware.'):
-              date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
+              date_temp = os.path.getmtime('.pio/build/' + name + '/' + names_temp)
               if date_temp > date_last:
                 date_last = date_temp
                 env_last = name
@@ -544,13 +544,13 @@ def get_CPU_name(environment):
 #  returns: environment
 def get_env(board_name, ver_Marlin):
       def no_environment():
-            print 'ERROR - no environment for this board'
-            print board_name
+            print('ERROR - no environment for this board')
+            print(board_name)
             raise SystemExit(0)                          # no environment so quit
 
       def invalid_board():
-            print 'ERROR - invalid board'
-            print board_name
+            print('ERROR - invalid board')
+            print(board_name)
             raise SystemExit(0)                          # quit if unable to find board
 
 
@@ -600,19 +600,22 @@ def get_env(board_name, ver_Marlin):
           else:
               invalid_board()
 
-      if build_type == 'traceback' and not(target_env == 'LPC1768_debug_and_upload' or target_env == 'DUE_debug')  and Marlin_ver == 2:
-          print "ERROR - this board isn't setup for traceback"
-          print 'board_name: ', board_name
-          print 'target_env: ', target_env
+      if build_type == 'traceback' and target_env != 'LPC1768_debug_and_upload' and target_env != 'DUE_debug' and Marlin_ver == 2:
+          print("ERROR - this board isn't setup for traceback")
+          print('board_name: ', board_name)
+          print('target_env: ', target_env)
           raise SystemExit(0)
 
       return target_env
 # end - get_env
 
 # puts screen text into queue so that the parent thread can fetch the data from this thread
-import Queue
-IO_queue = Queue.Queue()
-PIO_queue = Queue.Queue()
+if python_ver == 2:
+    import Queue as queue
+else:
+    import queue as queue
+IO_queue = queue.Queue()
+#PIO_queue = queue.Queue()    not used!
 def write_to_screen_queue(text, format_tag = 'normal'):
       double_in = [text, format_tag]
       IO_queue.put(double_in, block = False)
@@ -649,14 +652,13 @@ def line_print(line_input):
       global warning_continue
       global line_counter
 
-
-
-
       # all '0' elements must precede all '1' elements or they'll be skipped
       platformio_highlights = [
               ['Environment', 0, 'highlight_blue'],
               ['[SKIP]', 1, 'warning'],
+              ['[IGNORED]', 1, 'warning'],
               ['[ERROR]', 1, 'error'],
+              ['[FAILED]', 1, 'error'],
               ['[SUCCESS]', 1, 'highlight_green']
       ]
 
@@ -694,18 +696,18 @@ def line_print(line_input):
               found_right = text.find(']', found + 1)
               write_to_screen_queue(text[               : found + 1   ])
               write_to_screen_queue(text[found + 1      : found_right ], highlight[2])
-              write_to_screen_queue(text[found_right :                ] + '\n')
+              write_to_screen_queue(text[found_right :                ] + '\n' + '\n')
             break
         if did_something == False:
           r_loc = text.find('\r') + 1
           if r_loc > 0 and r_loc < len(text):  # need to split this line
             text = text.split('\r')
             for line in text:
-              write_to_screen_queue(line + '\n')
+              if line != '':
+                write_to_screen_queue(line + '\n')
           else:
             write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
-
 
 
     # scan the line
@@ -802,35 +804,86 @@ def line_print(line_input):
 # end - line_print
 
 
+##########################################################################
+#                                                                        #
+# run Platformio                                                         #
+#                                                                        #
+##########################################################################
+
+
+#  build      platformio run -e  target_env
+#  clean      platformio run --target clean -e  target_env
+#  upload     platformio run --target upload -e  target_env
+#  traceback  platformio run --target upload -e  target_env
+#  program    platformio run --target program -e  target_env
+#  test       platformio test upload -e  target_env
+#  remote     platformio remote run --target upload -e  target_env
+#  debug      platformio debug -e  target_env
+
+
+def sys_PIO():
+
+    ##########################################################################
+    #                                                                        #
+    # run Platformio inside the same shell as this Python script             #
+    #                                                                        #
+    ##########################################################################
+
+    global build_type
+    global target_env
+
+    import os
+
+    print('build_type: ', build_type)
+    print('starting platformio')
+
+    if   build_type == 'build':
+          # pio_result = os.system("echo -en '\033c'")
+          pio_result = os.system('platformio run -e ' + target_env)
+    elif build_type == 'clean':
+          pio_result = os.system('platformio run --target clean -e ' + target_env)
+    elif build_type == 'upload':
+          pio_result = os.system('platformio run --target upload -e ' + target_env)
+    elif build_type == 'traceback':
+          pio_result = os.system('platformio run --target upload -e ' + target_env)
+    elif build_type == 'program':
+          pio_result = os.system('platformio run --target program -e ' + target_env)
+    elif build_type == 'test':
+          pio_result = os.system('platformio test upload -e ' + target_env)
+    elif build_type == 'remote':
+          pio_result = os.system('platformio remote run --target program -e ' + target_env)
+    elif build_type == 'debug':
+          pio_result = os.system('platformio debug -e ' + target_env)
+    else:
+          print('ERROR - unknown build type:  ', build_type)
+          raise SystemExit(0)     # kill everything
+
+    # stream output from subprocess and split it into lines
+      #for line in iter(pio_subprocess.stdout.readline, ''):
+      #      line_print(line.replace('\n', ''))
+
+
+    # append info used to run PlatformIO
+    #  write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
+    #  write_to_screen_queue('Build type: ' + build_type  + '\n')
+    #  write_to_screen_queue('Environment used: ' + target_env  + '\n')
+    #  write_to_screen_queue(str(datetime.now()) + '\n')
+
+# end - sys_PIO
+
+
 
 def run_PIO(dummy):
-
-    ##########################################################################
-    #                                                                        #
-    # run Platformio                                                         #
-    #                                                                        #
-    ##########################################################################
-
-
-    #  build      platformio run -e  target_env
-    #  clean      platformio run --target clean -e  target_env
-    #  upload     platformio run --target upload -e  target_env
-    #  traceback  platformio run --target upload -e  target_env
-    #  program    platformio run --target program -e  target_env
-    #  test       platformio test upload -e  target_env
-    #  remote     platformio remote run --target upload -e  target_env
-    #  debug      platformio debug -e  target_env
-
 
     global build_type
     global target_env
     global board_name
-    print 'build_type:  ', build_type
+    print('build_type:  ', build_type)
 
     import subprocess
     import sys
 
-    print 'starting platformio'
+    print('starting platformio')
 
     if   build_type == 'build':
           # platformio run -e  target_env
@@ -881,13 +934,17 @@ def run_PIO(dummy):
 
 
     else:
-          print 'ERROR - unknown build type:  ', build_type
+          print('ERROR - unknown build type:  ', build_type)
           raise SystemExit(0)     # kill everything
 
   # stream output from subprocess and split it into lines
-    for line in iter(pio_subprocess.stdout.readline, ''):
-          line_print(line.replace('\n', ''))
-
+    if python_ver == 2:
+        for line in iter(pio_subprocess.stdout.readline, ''):
+            line_print(line.replace('\n', ''))
+    else:
+        for line in iter(pio_subprocess.stdout.readline, b''):
+            line = line.decode('utf-8')
+            line_print(line.replace('\n', ''))
 
   # append info used to run PlatformIO
     write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
@@ -898,26 +955,27 @@ def run_PIO(dummy):
 # end - run_PIO
 
 
+
 ########################################################################
 
 import time
 import threading
-import Tkinter as tk
-import ttk
-import Queue
+if python_ver == 2:
+    import Tkinter as tk
+    import Queue as queue
+    import ttk
+    from Tkinter import Tk, Frame, Text, Scrollbar, Menu
+    #from tkMessageBox import askokcancel      this is not used: removed
+    import tkFileDialog as fileDialog
+else:
+    import tkinter as tk
+    import queue as queue
+    from tkinter import ttk, Tk, Frame, Text, Scrollbar, Menu
+    from tkinter import filedialog
 import subprocess
 import sys
-que = Queue.Queue()
-#IO_queue = Queue.Queue()
-
-from Tkinter import Tk, Frame, Text, Scrollbar, Menu
-from tkMessageBox import askokcancel
-
-import tkFileDialog
-from tkMessageBox import askokcancel
-import tkFileDialog
-
-
+que = queue.Queue()
+#IO_queue = queue.Queue()
 
 class output_window(Text):
  # based on Super Text
@@ -935,6 +993,7 @@ class output_window(Text):
 
 
         self.root = tk.Tk()
+        self.root.attributes("-topmost", True)
         self.frame = tk.Frame(self.root)
         self.frame.pack(fill='both', expand=True)
 
@@ -943,7 +1002,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
-#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
+        #self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -966,24 +1025,24 @@ class output_window(Text):
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
 
-#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
-#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
-#        self.scrb_Y.pack(side='right', fill='y')
-#
-#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
-#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
-#        self.scrb_X.pack(side='bottom', fill='x')
+        #self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+        #self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+        #self.scrb_Y.pack(side='right', fill='y')
 
-#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
-#        self.config(xscrollcommand=scrb_X.set)
-#        scrb_X.pack(side='bottom', fill='x')
-#
-#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
-#        self.config(yscrollcommand=scrb.set)
-#        scrb.pack(side='right', fill='y')
+        #self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+        #self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+        #self.scrb_X.pack(side='bottom', fill='x')
 
-#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
-#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
+        #scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+        #self.config(xscrollcommand=scrb_X.set)
+        #scrb_X.pack(side='bottom', fill='x')
+
+        #scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+        #self.config(yscrollcommand=scrb.set)
+        #scrb.pack(side='right', fill='y')
+
+        #self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+        #self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -999,7 +1058,7 @@ class output_window(Text):
         self.popup.add_separator()
         self.popup.add_command(label='Save As', command=self._file_save_as)
         self.popup.add_separator()
- #       self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
+        #self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
         self.popup.add_command(label='Repeat Build', command=self._rebuild)
         self.popup.add_separator()
         self.popup.add_command(label='Scroll Errors (CTL-shift-e)', command=self._scroll_errors)
@@ -1060,10 +1119,10 @@ class output_window(Text):
             countVar = tk.IntVar()
             search_position = '1.0'
             search_count = 0
-            while not(search_position == '') and search_count < 100:
+            while search_position != '' and search_count < 100:
                 search_position = self.search("error", search_position, stopindex="end", count=countVar, nocase=1)
                 search_count = search_count + 1
-                if not(search_position == ''):
+                if search_position != '':
                     error_found = True
                     end_pos = '{}+{}c'.format(search_position, 5)
                     self.tag_add("error_highlight_inactive", search_position, end_pos)
@@ -1099,7 +1158,7 @@ class output_window(Text):
         self.start_thread()
 
     def rebuild(self, event):
-        print "event happened"
+        print("event happened")
         self._rebuild()
 
 
@@ -1121,7 +1180,7 @@ class output_window(Text):
 
 
     def _file_save_as(self):
-        self.filename = tkFileDialog.asksaveasfilename(defaultextension = '.txt')
+        self.filename = fileDialog.asksaveasfilename(defaultextension = '.txt')
         f = open(self.filename, 'w')
         f.write(self.get('1.0', 'end'))
         f.close()
@@ -1195,12 +1254,13 @@ class output_window(Text):
 
 
     def _clear_all(self):
-        '''erases all text'''
-
-        isok = askokcancel('Clear All', 'Erase all text?', frame=self,
-                           default='ok')
-        if isok:
-            self.delete('1.0', 'end')
+        #'''erases all text'''
+        #
+        #isok = askokcancel('Clear All', 'Erase all text?', frame=self,
+        #                   default='ok')
+        #if isok:
+        #    self.delete('1.0', 'end')
+        self.delete('1.0', 'end')
 
 
 # end - output_window
@@ -1210,29 +1270,28 @@ class output_window(Text):
 def main():
 
 
-  ##########################################################################
-  #                                                                        #
-  # main program                                                           #
-  #                                                                        #
-  ##########################################################################
+    ##########################################################################
+    #                                                                        #
+    # main program                                                           #
+    #                                                                        #
+    ##########################################################################
 
-        global build_type
-        global target_env
-        global board_name
+    global build_type
+    global target_env
+    global board_name
 
-        board_name, Marlin_ver = get_board_name()
+    board_name, Marlin_ver = get_board_name()
 
-        target_env = get_env(board_name, Marlin_ver)
+    target_env = get_env(board_name, Marlin_ver)
 
-        os.environ["BUILD_TYPE"] = build_type   # let sub processes know what is happening
-        os.environ["TARGET_ENV"] = target_env
-        os.environ["BOARD_NAME"] = board_name
-
+    # Re-use the VSCode terminal, if possible
+    if os.environ.get('PLATFORMIO_CALLER', '') == 'vscode':
+        sys_PIO()
+    else:
         auto_build = output_window()
         auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()
-
 
 
 

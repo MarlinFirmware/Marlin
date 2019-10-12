@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,56 +25,24 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
 #include <Wire.h>
 #include "usb/usb_task.h"
 
-// --------------------------------------------------------------------------
-// Externals
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Local defines
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 uint16_t HAL_adc_result;
 
-// --------------------------------------------------------------------------
-// Private Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Function prototypes
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Private functions
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 // HAL initialization task
-void HAL_init(void) {
+void HAL_init() {
   // Initialize the USB stack
   #if ENABLED(SDSUPPORT)
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
@@ -83,20 +51,20 @@ void HAL_init(void) {
 }
 
 // HAL idle task
-void HAL_idletask(void) {
+void HAL_idletask() {
   // Perform USB stack housekeeping
   usb_task_idle();
 }
 
 // Disable interrupts
-void cli(void) { noInterrupts(); }
+void cli() { noInterrupts(); }
 
 // Enable interrupts
-void sei(void) { interrupts(); }
+void sei() { interrupts(); }
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   switch ((RSTC->RSTC_SR >> 8) & 0x07) {
     case 0: return RST_POWER_ON;
     case 1: return RST_BACKUP;
@@ -119,18 +87,18 @@ extern "C" {
 // Return free memory between end of heap (or end bss) and whatever is current
 int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
-  return (int)&free_memory - (heap_end ? heap_end : (int)&_ebss);
+  return (int)&free_memory - (heap_end ?: (int)&_ebss);
 }
 
-// --------------------------------------------------------------------------
+// ------------------------
 // ADC
-// --------------------------------------------------------------------------
+// ------------------------
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = analogRead(adc_pin);
 }
 
-uint16_t HAL_adc_get_result(void) {
+uint16_t HAL_adc_get_result() {
   // nop
   return HAL_adc_result;
 }

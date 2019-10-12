@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,18 +34,21 @@ void GcodeSuite::M280() {
   if (!parser.seen('P')) return;
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
-    if (parser.seen('S'))
-      MOVE_SERVO(servo_index, parser.value_int());
+    if (parser.seen('S')) {
+      const int a = parser.value_int();
+      if (a == -1)
+        servo[servo_index].detach();
+      else
+        MOVE_SERVO(servo_index, a);
+    }
     else {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR(" Servo ", servo_index);
-      SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
+      SERIAL_ECHOLNPAIR(" Servo ", servo_index, ": ", servo[servo_index].read());
     }
   }
   else {
     SERIAL_ERROR_START();
-    SERIAL_ECHOPAIR("Servo ", servo_index);
-    SERIAL_ECHOLNPGM(" out of range");
+    SERIAL_ECHOLNPAIR("Servo ", servo_index, " out of range");
   }
 }
 

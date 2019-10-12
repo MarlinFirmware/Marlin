@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTRA_LCD))
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"
@@ -38,8 +38,11 @@
  *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (parser.seen('P') && !IS_SD_PRINTING())
-    ui.set_progress(parser.value_byte());
+  if (parser.seen('P'))
+    ui.set_progress((PROGRESS_SCALE) > 1
+      ? parser.value_float() * (PROGRESS_SCALE)
+      : parser.value_byte()
+    );
 }
 
-#endif // LCD_SET_PROGRESS_MANUALLY && (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTRA_LCD))
+#endif // LCD_SET_PROGRESS_MANUALLY

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -271,7 +271,7 @@
 
   // (called with TX irqs disabled)
   template<typename Cfg>
-  FORCE_INLINE void MarlinSerial<Cfg>::_tx_udr_empty_irq(void) {
+  FORCE_INLINE void MarlinSerial<Cfg>::_tx_udr_empty_irq() {
     if (Cfg::TX_SIZE > 0) {
       // Read positions
       uint8_t t = tx_buffer.tail;
@@ -363,13 +363,13 @@
   }
 
   template<typename Cfg>
-  int MarlinSerial<Cfg>::peek(void) {
+  int MarlinSerial<Cfg>::peek() {
     const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
     return h == t ? -1 : rx_buffer.buffer[t];
   }
 
   template<typename Cfg>
-  int MarlinSerial<Cfg>::read(void) {
+  int MarlinSerial<Cfg>::read() {
     const ring_buffer_pos_t h = atomic_read_rx_head();
 
     // Read the tail. Main thread owns it, so it is safe to directly read it
@@ -412,13 +412,13 @@
   }
 
   template<typename Cfg>
-  typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::available(void) {
+  typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::available() {
     const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
     return (ring_buffer_pos_t)(Cfg::RX_SIZE + h - t) & (Cfg::RX_SIZE - 1);
   }
 
   template<typename Cfg>
-  void MarlinSerial<Cfg>::flush(void) {
+  void MarlinSerial<Cfg>::flush() {
 
     // Set the tail to the head:
     //  - Read the RX head index in a safe way. (See atomic_read_rx_head.)
@@ -505,7 +505,7 @@
   }
 
   template<typename Cfg>
-  void MarlinSerial<Cfg>::flushTX(void) {
+  void MarlinSerial<Cfg>::flushTX() {
 
     if (Cfg::TX_SIZE == 0) {
       // No bytes written, no need to flush. This special case is needed since there's
@@ -595,7 +595,7 @@
   }
 
   template<typename Cfg>
-  void MarlinSerial<Cfg>::println(void) {
+  void MarlinSerial<Cfg>::println() {
     print('\r');
     print('\n');
   }
@@ -739,24 +739,24 @@
 
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
+#ifdef INTERNAL_SERIAL_PORT
 
-#if defined(INTERNAL_SERIAL_PORT)
+  ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_RX_vect)) {
+    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::store_rxd_char();
+  }
 
-    ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_RX_vect)) {
-      MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::store_rxd_char();
-    }
+  ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_UDRE_vect)) {
+    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::_tx_udr_empty_irq();
+  }
 
-    ISR(SERIAL_REGNAME(USART,INTERNAL_SERIAL_PORT,_UDRE_vect)) {
-      MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::_tx_udr_empty_irq();
-    }
+  // Preinstantiate
+  template class MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>;
 
-    // Preinstantiate
-    template class MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>;
-
-    // Instantiate
-    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
+  // Instantiate
+  MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
 
 #endif
+
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;

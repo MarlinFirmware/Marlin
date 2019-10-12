@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
 
-#if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
+#if EITHER(I2C_EEPROM, SPI_EEPROM)
   // round up address to next page boundary (assuming 32 byte pages)
   #define STATS_EEPROM_ADDRESS 0x40
 #else
@@ -57,7 +57,7 @@ class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
 
-    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM) || defined(CPU_32_BIT)
+    #if EITHER(I2C_EEPROM, SPI_EEPROM) || defined(CPU_32_BIT)
       typedef uint32_t eeprom_address_t;
     #else
       typedef uint16_t eeprom_address_t;

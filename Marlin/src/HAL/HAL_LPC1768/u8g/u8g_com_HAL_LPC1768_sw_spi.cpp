@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,18 +57,84 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_GRAPHICAL_LCD && DISABLED(U8GLIB_ST7920)
 
-#include <U8glib.h>
 #include "SoftwareSPI.h"
 
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz
 
+#include <Arduino.h>
+#include <algorithm>
+#include <LPC17xx.h>
+#include <gpio.h>
+
+#include <U8glib.h>
+
+uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+
+  for (uint8_t i = 0; i < 8; i++) {
+    if (spi_speed == 0) {
+      gpio_set(mosi_pin, !!(b & 0x80));
+      gpio_set(sck_pin, HIGH);
+      b <<= 1;
+      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+      gpio_set(sck_pin, LOW);
+    }
+    else {
+      const uint8_t state = (b & 0x80) ? HIGH : LOW;
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(mosi_pin, state);
+
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
+        gpio_set(sck_pin, HIGH);
+
+      b <<= 1;
+      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(sck_pin, LOW);
+    }
+  }
+
+  return b;
+}
+
+uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+
+  for (uint8_t i = 0; i < 8; i++) {
+    const uint8_t state = (b & 0x80) ? HIGH : LOW;
+    if (spi_speed == 0) {
+      gpio_set(sck_pin, LOW);
+      gpio_set(mosi_pin, state);
+      gpio_set(mosi_pin, state);  // need some setup time
+      gpio_set(sck_pin, HIGH);
+    }
+    else {
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
+        gpio_set(sck_pin, LOW);
+
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(mosi_pin, state);
+
+      for (uint8_t j = 0; j < spi_speed; j++)
+        gpio_set(sck_pin, HIGH);
+    }
+    b <<= 1;
+    if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+  }
+
+  return b;
+}
+
 static uint8_t SPI_speed = 0;
 
 static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
-  swSpiTransfer(val, SPI_speed, clockPin, -1, dataPin);
+  #if ENABLED(FYSETC_MINI_12864)
+    swSpiTransfer_mode_3(val, SPI_speed, clockPin, -1, dataPin);
+  #else
+    swSpiTransfer_mode_0(val, SPI_speed, clockPin, -1, dataPin);
+  #endif
 }
 
 uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
@@ -92,7 +158,19 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
-      u8g_SetPILevel(u8g, U8G_PI_CS, !arg_val);
+      #if ENABLED(FYSETC_MINI_12864)           // LCD SPI is running mode 3 while SD card is running mode 0
+        if (arg_val) {                         //   SCK idle state needs to be set to the proper idle state before
+                                               //   the next chip select goes active
+          u8g_SetPILevel(u8g, U8G_PI_SCK, 1);  // Set SCK to mode 3 idle state before CS goes active
+          u8g_SetPILevel(u8g, U8G_PI_CS, LOW);
+        }
+        else {
+          u8g_SetPILevel(u8g, U8G_PI_CS, HIGH);
+          u8g_SetPILevel(u8g, U8G_PI_SCK, 0);  // Set SCK to mode 0 idle state after CS goes inactive
+        }
+      #else
+        u8g_SetPILevel(u8g, U8G_PI_CS, !arg_val);
+      #endif
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
@@ -125,6 +203,5 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif // HAS_GRAPHICAL_LCD
-
+#endif // HAS_GRAPHICAL_LCD && !U8GLIB_ST7920
 #endif // TARGET_LPC1768

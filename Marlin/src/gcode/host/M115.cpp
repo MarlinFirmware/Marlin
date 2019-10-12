@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +125,7 @@ void GcodeSuite::M115() {
     );
     cap_line(PSTR("CASE_LIGHT_BRIGHTNESS")
       #if HAS_CASE_LIGHT
-        , USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)
+        , PWM_PIN(CASE_LIGHT_PIN)
       #endif
     );
 
@@ -152,7 +152,7 @@ void GcodeSuite::M115() {
 
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION")
-      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && (ENABLED(THERMAL_PROTECTION_BED) || !HAS_HEATED_BED) && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER)
         , true
       #endif
     );
@@ -163,6 +163,14 @@ void GcodeSuite::M115() {
         , true
       #endif
     );
+
+    // CHAMBER_TEMPERATURE (M141, M191)
+    cap_line(PSTR("CHAMBER_TEMPERATURE")
+      #if HAS_HEATED_CHAMBER
+        , true
+      #endif
+    );
+
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

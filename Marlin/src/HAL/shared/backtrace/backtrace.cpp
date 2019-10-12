@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ static const UnwindCallbacks UnwCallbacks = {
   #endif
 };
 
-void backtrace(void) {
+void backtrace() {
 
   UnwindFrame btf;
   uint32_t sp = 0, lr = 0, pc = 0;
@@ -95,6 +95,6 @@ void backtrace(void) {
 
 #else // !__arm__ && !__thumb__
 
-void backtrace(void) {}
+void backtrace() {}
 
 #endif

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,10 @@
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -59,7 +63,7 @@ void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
   #if HAS_SOFTWARE_ENDSTOPS
-    static bool enable_soft_endstops;
+    static bool saved_soft_endstops_state;
   #endif
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -85,7 +89,7 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_bl_move) {
-        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+        queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
       state = MeshNext;
@@ -99,16 +103,16 @@ void GcodeSuite::G29() {
       if (mbl_probe_index == 0) {
         #if HAS_SOFTWARE_ENDSTOPS
           // For the initial G29 S2 save software endstop state
-          enable_soft_endstops = soft_endstops_enabled;
+          saved_soft_endstops_state = soft_endstops_enabled;
         #endif
         // Move close to the bed before the first point
         do_blocking_move_to_z(0);
       }
       else {
         // Save Z for the previous mesh position
-        mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
+        mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = enable_soft_endstops;
+          soft_endstops_enabled = saved_soft_endstops_state;
         #endif
       }
       // If there's another point to sample, move there with optional lift.
@@ -120,11 +124,11 @@ void GcodeSuite::G29() {
         #endif
 
         mbl.zigzag(mbl_probe_index++, ix, iy);
-        _manual_goto_xy(mbl.index_to_xpos[ix], mbl.index_to_ypos[iy]);
+        _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
+        current_position.z = MANUAL_PROBE_HEIGHT;
         line_to_current_position();
         planner.synchronize();
 
@@ -134,13 +138,12 @@ void GcodeSuite::G29() {
         BUZZ(100, 659);
         BUZZ(100, 698);
 
-        gcode.home_all_axes();
+        home_all_axes();
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = 0;
-          set_destination_from_current();
-          buffer_line_to_destination(homing_feedrate(Z_AXIS));
+          current_position.z = 0;
+          line_to_current_position(homing_feedrate(Z_AXIS));
           planner.synchronize();
         #endif
 
@@ -173,8 +176,12 @@ void GcodeSuite::G29() {
       else
         return echo_not_entered('J');
 
-      if (parser.seenval('Z'))
+      if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
+        #endif
+      }
       else
         return echo_not_entered('Z');
       break;
@@ -193,7 +200,7 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
     SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 

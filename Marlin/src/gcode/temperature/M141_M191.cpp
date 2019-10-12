@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ void GcodeSuite::M191() {
 
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
-    thermalManager.setTargetBed(parser.value_celsius());
+    thermalManager.setTargetChamber(parser.value_celsius());
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       if (parser.value_celsius() > BED_MINTEMP)
         print_job_timer.start();
@@ -68,9 +68,9 @@ void GcodeSuite::M191() {
   }
   else return;
 
-  lcd_setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
+  lcd_setstatusPGM(thermalManager.isHeatingChamber() ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
 
-  thermalManager.wait_for_bed(no_wait_for_cooling);
+  thermalManager.wait_for_chamber(no_wait_for_cooling);
 }
 */
 

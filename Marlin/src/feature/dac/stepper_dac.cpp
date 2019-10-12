@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,23 +22,6 @@
 
 /**
  * stepper_dac.cpp - To set stepper current via DAC
- *
- * Part of Marlin
- *
- * Copyright (c) 2016 MarlinFirmware
- *
- * Marlin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Marlin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -48,8 +31,8 @@
 #include "stepper_dac.h"
 
 bool dac_present = false;
-const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-uint8_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
+constexpr xyze_uint8_t dac_order = DAC_STEPPER_ORDER;
+xyze_uint8_t dac_channel_pct = DAC_MOTOR_CURRENT_DEFAULT;
 
 int dac_init() {
   #if PIN_EXISTS(DAC_DISABLE)
@@ -91,11 +74,11 @@ void dac_current_raw(uint8_t channel, uint16_t val) {
   mcp4728_simpleCommand(UPDATE);
 }
 
-static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0f / (DAC_STEPPER_MAX)); }
-static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0f / (DAC_STEPPER_SENSE)); }
+static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * RECIPROCAL(DAC_STEPPER_MAX); }
+static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * RECIPROCAL(DAC_STEPPER_SENSE); }
 
-uint8_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
-void dac_current_set_percents(const uint8_t pct[XYZE]) {
+uint8_t dac_current_get_percent(const AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
+void dac_current_set_percents(xyze_uint8_t &pct) {
   LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
   mcp4728_setDrvPct(dac_channel_pct);
 }

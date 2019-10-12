@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,8 +36,16 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+#if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
   #include "printcounter.h" // for print_job_timer
+#endif
+
+#if ENABLED(BLTOUCH)
+  #include "../feature/bltouch.h"
+#endif
+
+#if ENABLED(JOYSTICK)
+  #include "../feature/joystick.h"
 #endif
 
 Endstops endstops;
@@ -70,6 +78,13 @@ Endstops::esbits_t Endstops::live_state = 0;
 #endif
 #if ENABLED(Z_TRIPLE_ENDSTOPS)
   float Endstops::z3_endstop_adj;
+#endif
+
+#if ENABLED(SPI_ENDSTOPS)
+  Endstops::tmc_spi_homing_t Endstops::tmc_spi_homing; // = 0
+#endif
+#if ENABLED(IMPROVE_HOMING_RELIABILITY)
+  millis_t sg_guard_period; // = 0
 #endif
 
 /**
@@ -287,7 +302,7 @@ void Endstops::not_homing() {
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
-    else kill(PSTR(MSG_ERR_HOMING_FAILED));
+    else kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
   }
 #endif
 
@@ -326,7 +341,7 @@ void Endstops::resync() {
 void Endstops::event_handler() {
   static uint8_t prev_hit_state; // = 0
   if (hit_state && hit_state != prev_hit_state) {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SPI_LCD
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -357,11 +372,11 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    #if ENABLED(ULTRA_LCD)
-      ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
+    #if HAS_SPI_LCD
+      ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP);
     #endif
 
-    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+    #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
         card.stopSDPrint();
         quickstop_stepper();
@@ -373,7 +388,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
 }
 
-static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
+static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   if (label) serialprintPGM(label);
   SERIAL_ECHOPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
@@ -381,6 +396,9 @@ static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
 }
 
 void _O2 Endstops::M119() {
+  #if ENABLED(BLTOUCH)
+    bltouch._set_SW_mode();
+  #endif
   SERIAL_ECHOLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
@@ -457,6 +475,14 @@ void _O2 Endstops::M119() {
       }
     #endif
   #endif
+  #if ENABLED(BLTOUCH)
+    bltouch._reset_SW_mode();
+  #endif
+
+  #if ENABLED(JOYSTICK_DEBUG)
+    joystick.report();
+  #endif
+
 } // Endstops::M119
 
 // The following routines are called from an ISR context. It could be the temperature ISR, the
@@ -672,21 +698,24 @@ void Endstops::update() {
   }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
+    #if ENABLED(G38_PROBE_AWAY)
+      #define _G38_OPEN_STATE (G38_move >= 4)
+    #else
+      #define _G38_OPEN_STATE LOW
+    #endif
     // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move) {
-      if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
-        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
-        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
-        G38_endstop_hit = true;
-      }
+    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE)) != _G38_OPEN_STATE) {
+           if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
+      else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
+      else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
+      G38_did_trigger = true;
     }
   #endif
 
   // Now, we must signal, after validation, if an endstop limit is pressed or not
   if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-      #if HAS_X_MIN
+      #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(X, X2, MIN);
         #else
@@ -695,7 +724,7 @@ void Endstops::update() {
       #endif
     }
     else { // +direction
-      #if HAS_X_MAX
+      #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_DIR > 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(X, X2, MAX);
         #else
@@ -707,7 +736,7 @@ void Endstops::update() {
 
   if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-      #if HAS_Y_MIN
+      #if HAS_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_DIR < 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(Y, Y2, MIN);
         #else
@@ -716,7 +745,7 @@ void Endstops::update() {
       #endif
     }
     else { // +direction
-      #if HAS_Y_MAX
+      #if HAS_Y_MAX || (Y_SPI_SENSORLESS && Y_HOME_DIR > 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
           PROCESS_DUAL_ENDSTOP(Y, Y2, MAX);
         #else
@@ -728,7 +757,7 @@ void Endstops::update() {
 
   if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
-      #if HAS_Z_MIN
+      #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_DIR < 0)
         #if ENABLED(Z_TRIPLE_ENDSTOPS)
           PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
         #elif ENABLED(Z_DUAL_ENDSTOPS)
@@ -750,7 +779,7 @@ void Endstops::update() {
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
-      #if HAS_Z_MAX
+      #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)
         #if ENABLED(Z_TRIPLE_ENDSTOPS)
           PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MAX);
         #elif ENABLED(Z_DUAL_ENDSTOPS)
@@ -765,19 +794,61 @@ void Endstops::update() {
   }
 } // Endstops::update()
 
+#if ENABLED(SPI_ENDSTOPS)
+
+  #define X_STOP (X_HOME_DIR < 0 ? X_MIN : X_MAX)
+  #define Y_STOP (Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)
+  #define Z_STOP (Z_HOME_DIR < 0 ? Z_MIN : Z_MAX)
+
+  bool Endstops::tmc_spi_homing_check() {
+    bool hit = false;
+    #if X_SPI_SENSORLESS
+      if (tmc_spi_homing.x && stepperX.test_stall_status()) {
+        SBI(live_state, X_STOP);
+        hit = true;
+      }
+    #endif
+    #if Y_SPI_SENSORLESS
+      if (tmc_spi_homing.y && stepperY.test_stall_status()) {
+        SBI(live_state, Y_STOP);
+        hit = true;
+      }
+    #endif
+    #if Z_SPI_SENSORLESS
+      if (tmc_spi_homing.z && stepperZ.test_stall_status()) {
+        SBI(live_state, Z_STOP);
+        hit = true;
+      }
+    #endif
+    return hit;
+  }
+
+  void Endstops::clear_endstop_state() {
+    #if X_SPI_SENSORLESS
+      CBI(live_state, X_STOP);
+    #endif
+    #if Y_SPI_SENSORLESS
+      CBI(live_state, Y_STOP);
+    #endif
+    #if Z_SPI_SENSORLESS
+      CBI(live_state, Z_STOP);
+    #endif
+  }
+
+#endif // SPI_ENDSTOPS
+
 #if ENABLED(PINS_DEBUGGING)
 
   bool Endstops::monitor_flag = false;
 
   /**
-   * monitors endstops & Z probe for changes
+   * Monitor Endstops and Z Probe for changes
    *
    * If a change is detected then the LED is toggled and
-   * a message is sent out the serial port
+   * a message is sent out the serial port.
    *
    * Yes, we could miss a rapid back & forth change but
    * that won't matter because this is all manual.
-   *
    */
   void Endstops::monitor() {
 
@@ -883,7 +954,7 @@ void Endstops::update() {
         ES_REPORT_CHANGE(Z3_MAX);
       #endif
       SERIAL_ECHOLNPGM("\n");
-      analogWrite(LED_PIN, local_LED_status);
+      analogWrite(pin_t(LED_PIN), local_LED_status);
       local_LED_status ^= 255;
       old_live_state_local = live_state_local;
     }

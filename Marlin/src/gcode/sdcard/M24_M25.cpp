@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/power_loss_recovery.h"
+#endif
+
 /**
  * M24: Start or Resume SD Print
  */
@@ -58,14 +62,17 @@ void GcodeSuite::M24() {
   if (card.isFileOpen()) {
     card.startFileprint();
     print_job_timer.start();
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      recovery.prepare();
+    #endif
   }
 
   #if ENABLED(HOST_ACTION_COMMANDS)
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_open(PROMPT_INFO, PSTR("Resume SD"));
-    #endif
     #ifdef ACTION_ON_RESUME
       host_action_resume();
+    #endif
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_prompt_open(PROMPT_INFO, PSTR("Resuming SD"), PSTR("Dismiss"));
     #endif
   #endif
 

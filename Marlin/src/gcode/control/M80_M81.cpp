@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@
 /**
  * M81: Turn off Power, including Power Supply, if there is one.
  *
- *      This code should ALWAYS be available for EMERGENCY SHUTDOWN!
+ *      This code should ALWAYS be available for FULL SHUTDOWN!
  */
 void GcodeSuite::M81() {
   thermalManager.disable_all_heaters();
@@ -97,7 +97,7 @@ void GcodeSuite::M81() {
     thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
       thermalManager.fans_paused = false;
-      ZERO(thermalManager.paused_fan_speed);
+      ZERO(thermalManager.saved_fan_speed);
     #endif
   #endif
 
@@ -110,6 +110,6 @@ void GcodeSuite::M81() {
   #endif
 
   #if HAS_LCD_MENU
-    LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " MSG_OFF "."));
   #endif
 }

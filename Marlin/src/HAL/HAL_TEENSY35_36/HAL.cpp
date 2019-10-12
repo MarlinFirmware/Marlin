@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,10 +51,10 @@ static const uint8_t pin2sc1a[] = {
 
 /*
   // disable interrupts
-  void cli(void) { noInterrupts(); }
+  void cli() { noInterrupts(); }
 
   // enable interrupts
-  void sei(void) { interrupts(); }
+  void sei() { interrupts(); }
 */
 
 void HAL_adc_init() {
@@ -64,9 +64,9 @@ void HAL_adc_init() {
   NVIC_ENABLE_IRQ(IRQ_FTM1);
 }
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   switch (RCM_SRS0) {
     case 128: return RST_POWER_ON; break;
     case 64: return RST_EXTERNAL; break;
@@ -109,7 +109,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   }
 }
 
-uint16_t HAL_adc_get_result(void) {
+uint16_t HAL_adc_get_result() {
   switch (HAL_adc_select) {
     case 0: return ADC0_RA;
     case 1: return ADC1_RA;

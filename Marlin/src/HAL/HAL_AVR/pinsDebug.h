@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -230,18 +227,9 @@ static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); 
 void com_print(uint8_t N, uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_ECHOPGM("    COM");
-  SERIAL_CHAR(N + '0');
-  switch (Z) {
-    case 'A':
-      SERIAL_ECHOPAIR("A: ", ((*TCCRA & (_BV(7) | _BV(6))) >> 6));
-      break;
-    case 'B':
-      SERIAL_ECHOPAIR("B: ", ((*TCCRA & (_BV(5) | _BV(4))) >> 4));
-      break;
-    case 'C':
-      SERIAL_ECHOPAIR("C: ", ((*TCCRA & (_BV(3) | _BV(2))) >> 2));
-      break;
-  }
+  SERIAL_CHAR('0' + N);
+  SERIAL_CHAR('A' + Z);
+  SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
 }
 
 void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
@@ -356,6 +344,8 @@ static void pwm_details(uint8_t pin) {
         timer_prefix(0, 'A', 3);
       #endif
     }
+  #else
+    UNUSED(print_is_also_tied);
   #endif
 } // pwm_details
 
@@ -403,4 +393,4 @@ static void pwm_details(uint8_t pin) {
 
 #endif
 
-#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer);} while (0)
+#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)

@@ -2,8 +2,10 @@
 
 cp config/default/Configuration*.h Marlin
 
-[ -f Marlin/src/pins/pins_RAMPS.h.backup ] && cp Marlin/src/pins/pins_RAMPS.h.backup Marlin/src/pins/pins_RAMPS.h
-rm -f Marlin/src/pins/pins_RAMPS.h.backup
+PINS="Marlin/src/pins"
+RAMPS="$PINS/ramps/pins_RAMPS.h"
+BKUP="$PINS/ramps/pins_RAMPS.backup.h"
+[ -f $BKUP ] && { cp "$BKUP" "$RAMPS" ; rm -f $BKUP ; }
 
 rm -f Marlin/_Bootscreen.h
 rm -f Marlin/_Statusscreen.h

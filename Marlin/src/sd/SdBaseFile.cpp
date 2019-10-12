@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 /**
  * Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
@@ -81,7 +81,7 @@ bool SdBaseFile::addDirCluster() {
 // cache a file's directory entry
 // return pointer to cached entry or null for failure
 dir_t* SdBaseFile::cacheDirEntry(uint8_t action) {
-  if (!vol_->cacheRawBlock(dirBlock_, action)) return NULL;
+  if (!vol_->cacheRawBlock(dirBlock_, action)) return nullptr;
   return vol_->cache()->dir + dirIndex_;
 }
 
@@ -273,7 +273,7 @@ int16_t SdBaseFile::fgets(char* str, int16_t num, char* delim) {
  *
  * \return true for success, false for failure.
  */
-bool SdBaseFile::getFilename(char * const name) {
+bool SdBaseFile::getDosName(char * const name) {
   if (!isOpen()) return false;
 
   if (isRoot()) {
@@ -841,7 +841,7 @@ bool SdBaseFile::openParent(SdBaseFile* dir) {
 
   // search for parent in '../..'
   do {
-    if (file.readDir(&entry, NULL) != 32) return false;
+    if (file.readDir(&entry, nullptr) != 32) return false;
     c = entry.firstClusterLow;
     c |= (uint32_t)entry.firstClusterHigh << 16;
   } while (c != cluster);
@@ -957,7 +957,7 @@ void SdBaseFile::printFatTime(uint16_t fatTime) {
  */
 bool SdBaseFile::printName() {
   char name[FILENAME_LENGTH];
-  if (!getFilename(name)) return false;
+  if (!getDosName(name)) return false;
   SERIAL_ECHO(name);
   return true;
 }

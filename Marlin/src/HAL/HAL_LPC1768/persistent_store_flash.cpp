@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,8 @@ bool PersistentStore::access_start() {
     // sector is blank so nothing stored yet
     for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
-  } else {
+  }
+  else {
     // current slot is the first non blank one
     current_slot = first_nblank_loc / EEPROM_SIZE;
     uint8_t *eeprom_data = SLOT_ADDRESS(EEPROM_SECTOR, current_slot);
