@@ -241,9 +241,9 @@
 //
 #define LED_PIN            P4_28   // (13)
 
-// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+// define digital pin 5 for the filament runout sensor. Use the RAMPS 1.4 digital input 5 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   P1_18   // (4)
+  #define FIL_RUNOUT_PIN   P1_19   // (5)
 #endif
 
 #define PS_ON_PIN          P2_12   // (12)
