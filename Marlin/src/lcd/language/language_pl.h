@@ -146,9 +146,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-wycofanie");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-przesuń.");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("kroki/mm");
-  PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("kroki") LCD_MSG_A _UxGT("/mm");
-  PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("kroki") LCD_MSG_B _UxGT("/mm");
-  PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("kroki") LCD_MSG_C _UxGT("/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("kroki") LCD_STR_A _UxGT("/mm");
+  PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("kroki") LCD_STR_B _UxGT("/mm");
+  PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("kroki") LCD_STR_C _UxGT("/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("krokiE/mm");
   PROGMEM Language_Str MSG_E0_STEPS                        = _UxGT("kroki ") LCD_STR_E0 _UxGT("/mm");
   PROGMEM Language_Str MSG_E1_STEPS                        = _UxGT("kroki ") LCD_STR_E1 _UxGT("/mm");
