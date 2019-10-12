@@ -44,8 +44,19 @@
 #endif
 
 // MYSERIAL0 required before MarlinSerial includes!
-#define MYSERIAL0 customizedSerial1
-
+//#define MYSERIAL0 customizedSerial1
+#if SERIAL_PORT == -1
+//extern USBSerial SerialUSB;
+  #define MYSERIAL0 Serial1
+#elif SERIAL_PORT == 0
+  #define MYSERIAL0 Serial
+#elif SERIAL_PORT == 1
+  #define MYSERIAL0 Serial1
+#elif SERIAL_PORT == 2
+  #define MYSERIAL0 Serial2
+#elif SERIAL_PORT == 3
+  #define MYSERIAL0 Serial3
+#endif
 #ifdef SERIAL_PORT_2
   #if !WITHIN(SERIAL_PORT_2, -1, 3)
     #error "SERIAL_PORT_2 must be from -1 to 3"
@@ -53,9 +64,18 @@
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
   #define NUM_SERIAL 2
-  #define MYSERIAL1 customizedSerial2
-#else
-  #define NUM_SERIAL 1
+  #if SERIAL_PORT_2 == -1
+  //extern USBSerial SerialUSB;
+    #define MYSERIAL1 Serial1
+  #elif SERIAL_PORT_2 == 0
+    #define MYSERIAL1 Serial
+  #elif SERIAL_PORT_2 == 1
+    #define MYSERIAL1 Serial1
+  #elif SERIAL_PORT_2 == 2
+    #define MYSERIAL1 Serial2
+  #elif SERIAL_PORT_2 == 3
+    #define MYSERIAL1 Serial3
+  #endif					
 #endif
 
 #include "MarlinSerial.h"
