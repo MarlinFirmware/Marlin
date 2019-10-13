@@ -38,15 +38,8 @@
 
 #include <stdint.h>
 
-// Serial ports
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
-#endif
-
-// MYSERIAL0 required before MarlinSerial includes!
-//#define MYSERIAL0 customizedSerial1
+// Define MYSERIAL0/1 before MarlinSerial includes!
 #if SERIAL_PORT == -1
-//extern USBSerial SerialUSB;
   #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 0
   #define MYSERIAL0 Serial
@@ -56,16 +49,15 @@
   #define MYSERIAL0 Serial2
 #elif SERIAL_PORT == 3
   #define MYSERIAL0 Serial3
+#else
+  #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
+
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
-  #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
+  #if SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
   #endif
-  #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-  //extern USBSerial SerialUSB;
     #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
@@ -75,7 +67,12 @@
     #define MYSERIAL1 Serial2
   #elif SERIAL_PORT_2 == 3
     #define MYSERIAL1 Serial3
-  #endif					
+  #else
+    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+  #endif
+  #define NUM_SERIAL 2
+#else
+  #define NUM_SERIAL 1
 #endif
 
 #include "MarlinSerial.h"
