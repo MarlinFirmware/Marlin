@@ -21,7 +21,7 @@ def encrypt(source, target, env):
         while position < length:
             byte = firmware.read(1)
             if position >= 320 and position < 31040:
-                byte = chr(ord(byte) ^ key[position & 31])
+                byte = bytes([ord(byte) ^ key[position & 31]])
             robin.write(byte)
             position += 1
     finally:
