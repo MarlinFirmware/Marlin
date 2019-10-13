@@ -67,7 +67,7 @@
 #define BOARD_INFO_NAME "RAMPS-SMART"
 
 #define IS_RAMPS_SMART
-#include "pins_RAMPS.h"
+#include "../ramps/pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM

@@ -24,6 +24,4 @@
 #define WDT_TIMEOUT   4000000 // 4 second timeout
 
 void watchdog_init();
-void watchdog_reset();
-void HAL_clear_reset_source();
-uint8_t HAL_get_reset_source();
+void HAL_watchdog_refresh();

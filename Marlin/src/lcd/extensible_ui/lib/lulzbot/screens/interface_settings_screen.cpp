@@ -69,15 +69,15 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
        .font(font_medium)
-       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXTF(INTERFACE_SETTINGS))
+       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(INTERFACE_SETTINGS))
     #undef EDGE_R
     #define EDGE_R 30
        .font(font_small)
        .tag(0)
-       .text(BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXTF(LCD_BRIGHTNESS), OPT_RIGHTX | OPT_CENTERY)
-       .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXTF(SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
-       .text(BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXTF(SCREEN_LOCK),    OPT_RIGHTX | OPT_CENTERY);
-    cmd.text(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXTF(BOOT_SCREEN),    OPT_RIGHTX | OPT_CENTERY);
+       .text(BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(LCD_BRIGHTNESS), OPT_RIGHTX | OPT_CENTERY)
+       .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
+       .text(BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(SCREEN_LOCK),    OPT_RIGHTX | OPT_CENTERY);
+    cmd.text(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(BOOT_SCREEN),    OPT_RIGHTX | OPT_CENTERY);
     #undef EDGE_R
   }
 
@@ -94,19 +94,19 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.brightness, 128)
        .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume,     0xFF)
        .colors(ui_toggle)
-       .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXTF(NO), GET_TEXTF(YES), LockScreen::is_enabled())
-       .tag(5).toggle2(BTN_POS(3,5), BTN_SIZE(w,1), GET_TEXTF(NO), GET_TEXTF(YES), UIData::animations_enabled())
+       .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(NO), GET_TEXT_F(YES), LockScreen::is_enabled())
+       .tag(5).toggle2(BTN_POS(3,5), BTN_SIZE(w,1), GET_TEXT_F(NO), GET_TEXT_F(YES), UIData::animations_enabled())
     #undef EDGE_R
     #define EDGE_R 0
     #ifdef TOUCH_UI_PORTRAIT
        .colors(normal_btn)
-       .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXTF(INTERFACE_SOUNDS))
+       .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(INTERFACE_SOUNDS))
        .colors(action_btn)
-       .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXTF(BACK));
+       .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(BACK));
     #else
-       .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SOUNDS))
+       .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(INTERFACE_SOUNDS))
        .colors(action_btn)
-       .tag(1).button (BTN_POS(3,6), BTN_SIZE(2,1), GET_TEXTF(BACK));
+       .tag(1).button (BTN_POS(3,6), BTN_SIZE(2,1), GET_TEXT_F(BACK));
     #endif
   }
 }
@@ -263,9 +263,9 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
       success = persistentStore.write_data(0, data, LULZBOT_EEPROM_BACKUP_SIZE) == PERSISTENT_STORE_SUCCESS;
 
     if (success)
-      StatusScreen::setStatusMessage(GET_TEXTF(EEPROM_RESTORED));
+      StatusScreen::setStatusMessage(GET_TEXT_F(EEPROM_RESTORED));
     else
-      StatusScreen::setStatusMessage(GET_TEXTF(EEPROM_RESET));
+      StatusScreen::setStatusMessage(GET_TEXT_F(EEPROM_RESET));
 
     return success;
   }

@@ -110,7 +110,7 @@ void GcodeSuite::G29() {
       }
       else {
         // Save Z for the previous mesh position
-        mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
+        mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = saved_soft_endstops_state;
         #endif
@@ -124,11 +124,11 @@ void GcodeSuite::G29() {
         #endif
 
         mbl.zigzag(mbl_probe_index++, ix, iy);
-        _manual_goto_xy(mbl.index_to_xpos[ix], mbl.index_to_ypos[iy]);
+        _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
+        current_position.z = MANUAL_PROBE_HEIGHT;
         line_to_current_position();
         planner.synchronize();
 
@@ -142,9 +142,8 @@ void GcodeSuite::G29() {
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = 0;
-          set_destination_from_current();
-          buffer_line_to_destination(homing_feedrate(Z_AXIS));
+          current_position.z = 0;
+          line_to_current_position(homing_feedrate(Z_AXIS));
           planner.synchronize();
         #endif
 

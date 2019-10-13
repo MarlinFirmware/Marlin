@@ -42,6 +42,8 @@
 // On STM32F103:
 // PB3, PB6, PB7, and PB8 can be used with pwm, which rules out TIM2 and TIM4.
 // On STM32F070, 16 and 17 are in use, but 1 and 3 are available.
+#undef STEP_TIMER
+#undef TEMP_TIMER
 #define STEP_TIMER 1
 #define TEMP_TIMER 3
 
@@ -84,15 +86,7 @@
 #define HEATER_0_PIN       PB6   // HOTEND0 MOSFET
 #define HEATER_BED_PIN     PB7   // BED MOSFET
 
-// FAN_PIN is commented out here because the M200 example
-// Configuration_adv.h does NOT override E0_AUTO_FAN_PIN.
-#ifndef FAN_PIN
-  //#define FAN_PIN        PB8   // FAN1 header on board - PRINT FAN
-#endif
-#define FAN1_PIN           PB3   // FAN2 header on board - CONTROLLER FAN
-#define FAN2_PIN           -1    // FAN3 header on board - EXTRUDER0 FAN
+#define MALYAN_FAN1_PIN    PB8   // FAN1 header on board - PRINT FAN
+#define MALYAN_FAN2_PIN    PB3   // FAN2 header on board - CONTROLLER FAN
 
-// This board has only the controller fan and the extruder fan
-// If someone hacks to put a direct power fan on the controller, PB3 could
-// be used as a separate print cooling fan.
-#define ORIG_E0_AUTO_FAN_PIN PB8
+#define FAN1_PIN           MALYAN_FAN2_PIN

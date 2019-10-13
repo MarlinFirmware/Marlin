@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_DOGM.cpp
+ * lcd/dogm/ultralcd_DOGM.h
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
@@ -30,9 +30,9 @@
  * License: http://opensource.org/licenses/BSD-3-Clause
  *
  * With the use of:
- * u8glib by Oliver Kraus
- * https://github.com/olikraus/U8glib_Arduino
- * License: http://opensource.org/licenses/BSD-3-Clause
+ *  u8glib by Oliver Kraus
+ *  https://github.com/olikraus/U8glib_Arduino
+ *  License: http://opensource.org/licenses/BSD-3-Clause
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -300,14 +300,16 @@ void MarlinUI::draw_kill_screen() {
   do {
     set_font(FONT_MENU);
     lcd_put_u8str(0, h4 * 1, status_message);
-    lcd_put_u8str_P(0, h4 * 2, PSTR(MSG_HALTED));
-    lcd_put_u8str_P(0, h4 * 3, PSTR(MSG_PLEASE_RESET));
+    lcd_put_u8str_P(0, h4 * 2, GET_TEXT(MSG_HALTED));
+    lcd_put_u8str_P(0, h4 * 3, GET_TEXT(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_LCD_MENU
+
+  #include "../menu/menu.h"
 
   u8g_uint_t row_y1, row_y2;
 
@@ -361,13 +363,13 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char* valstr/*=nullptr*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
 
-    if (mark_as_selected(row, invert)) {
+    if (mark_as_selected(row, style & SS_INVERT)) {
 
       u8g_uint_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
-      if (center && !valstr) {
+      if ((style & SS_CENTER) && !valstr) {
         int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
         while (--pad >= 0) { lcd_put_wchar(' '); n--; }
       }
@@ -545,10 +547,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Show X and Y positions at top of screen
       u8g.setColorIndex(1);
       if (PAGE_UNDER(7)) {
+        const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
+                       lpos = pos.asLogical();
         lcd_put_u8str(5, 7, "X:");
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        lcd_put_u8str(ftostr52(lpos.x));
         lcd_put_u8str(74, 7, "Y:");
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+        lcd_put_u8str(ftostr52(lpos.y));
       }
 
       // Print plot position

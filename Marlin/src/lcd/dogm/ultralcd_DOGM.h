@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * ultralcd_DOGM.h
+ * lcd/dogm/ultralcd_DOGM.h
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -30,7 +30,8 @@
 #include <U8glib.h>
 #include "HAL_LCD_class_defines.h"
 
-// LCD selection
+//#define ALTERNATIVE_LCD
+
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
   #define U8G_CLASS U8GLIB_ST7920_128X64_4X
   #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
@@ -40,102 +41,159 @@
   #endif
 
 #elif ENABLED(U8GLIB_ST7920)
+
   // RepRap Discount Full Graphics Smart Controller
+
   #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
-    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
-    #define U8G_PARAM LCD_PINS_RS // 2 stripes, HW SPI (shared with SD card, on AVR does not use standard LCD adapter)
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
+    #define U8G_PARAM LCD_PINS_RS
   #else
-    //#define U8G_CLASS U8GLIB_ST7920_128X64_4X
-    //#define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS     // Original u8glib device. 2 stripes, SW SPI
-    #define U8G_CLASS U8GLIB_ST7920_128X64_RRD
-    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS       // Number of stripes can be adjusted in ultralcd_st7920_u8glib_rrd.h with PAGE_HEIGHT
-                                                                      // AVR version ignores these pin settings
-                                                                      // HAL version uses these pin settings
+    #if ENABLED(ALTERNATIVE_LCD)
+      #define U8G_CLASS U8GLIB_ST7920_128X64_4X                 // 2 stripes, SW SPI (Original u8glib device)
+    #else
+      #define U8G_CLASS U8GLIB_ST7920_128X64_RRD                // Adjust stripes with PAGE_HEIGHT in ultralcd_st7920_u8glib_rrd.h
+    #endif
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS // AVR version ignores these pin settings
+                                                                // HAL version uses these pin settings
   #endif
 
 #elif ENABLED(CARTESIO_UI)
-  // The CartesioUI display
-  //#define U8G_CLASS U8GLIB_DOGM128_2X
-  //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
-  #define U8G_CLASS U8GLIB_DOGM128_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 4 stripes
+
+  // CartesioUI LCD
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes
+    #define FORCE_SOFT_SPI                                      // SW-SPI
+  #else
+    #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes (HW-SPI)
+  #endif
 
 #elif ENABLED(U8GLIB_LM6059_AF)
+
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
-  //#define U8G_CLASS U8GLIB_LM6059
-  //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
-  #define U8G_CLASS U8GLIB_LM6059_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 4 stripes
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_LM6059                             // 8 stripes (HW-SPI)
+  #else
+    #define U8G_CLASS U8GLIB_LM6059_2X                          // 4 stripes (HW-SPI)
+  #endif
 
 #elif ENABLED(U8GLIB_ST7565_64128N)
-  // The MaKrPanel, Mini Viki, Viki 2.0 & AZSMZ 12864 ST7565 controller
+
+  // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
+
   #define SMART_RAMPS (MB(RAMPS_SMART_EFB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_SMART_EFF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_SMART_SF))
-  #if DOGLCD_SCK == SCK_PIN && DOGLCD_MOSI == MOSI_PIN && !SMART_RAMPS
-    #define U8G_CLASS U8GLIB_64128N_2X_HAL
-    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // using HW-SPI
-  #else
-    #define U8G_CLASS U8GLIB_64128N_2X_HAL
-    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // using SW-SPI
+  #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
+  #if SMART_RAMPS || DOGLCD_SCK != SCK_PIN || DOGLCD_MOSI != MOSI_PIN
+    #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
 #elif ENABLED(MKS_12864OLED_SSD1306)
+
   // MKS 128x64 (SSD1306) OLED I2C LCD
-  #define U8G_CLASS U8GLIB_SSD1306_128X64
-  #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0     // 8 stripes
-  //#define U8G_CLASS U8GLIB_SSD1306_128X64_2X
-  //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
+  #endif
 
 #elif ENABLED(U8GLIB_SSD1306)
-  // Generic support for SSD1306 OLED I2C LCDs
-  //#define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE
-  //#define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)           // 4 stripes
-  #define U8G_CLASS U8GLIB_SSD1306_128X64_2X
-  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)             // 4 stripes
+
+  // Generic SSD1306 OLED I2C LCD
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #endif
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
 
 #elif ENABLED(MKS_12864OLED)
+
   // MKS 128x64 (SH1106) OLED I2C LCD
-  #define U8G_CLASS U8GLIB_SH1106_128X64
-  #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0     // 8 stripes
-  //#define U8G_CLASS U8GLIB_SH1106_128X64_2X
-  //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
-#elif ENABLED(U8GLIB_SH1106)
-  // Generic support for SH1106 OLED I2C LCDs
-  //#define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE
-  //#define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)           // 4 stripes
-  #define U8G_CLASS U8GLIB_SH1106_128X64_2X
-  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)             // 4 stripes
-#elif ENABLED(U8GLIB_SSD1309)
-  // Generic support for SSD1309 OLED I2C LCDs
-  #define U8G_CLASS U8GLIB_SSD1309_128X64
-  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
-#elif ENABLED(MINIPANEL)
-  // MINIPanel display
-  //#define U8G_CLASS U8GLIB_MINI12864
-  //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
-  #define U8G_CLASS U8GLIB_MINI12864_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 8 stripes
-#elif ENABLED(FYSETC_MINI_12864)
-  // The FYSETC_MINI_12864 display
-  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL
-  #if ENABLED(FORCE_SOFT_SPI)
-    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes SW-SPI
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
   #else
-    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 4 stripes HW-SPI
+    #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
   #endif
+
+#elif ENABLED(U8GLIB_SH1106)
+
+  // Generic SH1106 OLED I2C LCD
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE        // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
+  #endif
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
+
+#elif ENABLED(U8GLIB_SSD1309)
+
+  // Generic support for SSD1309 OLED I2C LCDs
+
+  #define U8G_CLASS U8GLIB_SSD1309_128X64
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
+
+#elif ENABLED(FYSETC_MINI_12864)
+
+  // The FYSETC Mini 12864 display
+
+  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
+
+#elif ENABLED(MKS_MINI_12864)
+
+  // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
+  // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with
+  // extra delays added to remove glitches seen with fast MCUs.
+
+  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 8 stripes (HW-SPI)
+
+#elif ENABLED(MINIPANEL)
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_MINI12864
+  #else
+    #define U8G_CLASS U8GLIB_MINI12864_2X                       // 8 stripes (HW-SPI)
+  #endif
+
 #elif ENABLED(U8GLIB_SH1106_EINSTART)
+
   // Connected via motherboard header
+
   #define U8G_CLASS U8GLIB_SH1106_128X64
   #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
+
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
+
   // Unspecified 320x240 TFT pre-initialized by built-in bootloader
+
   #define U8G_CLASS U8GLIB_TFT_320X240_UPSCALE_FROM_128X64
   #define U8G_PARAM FSMC_CS_PIN, FSMC_RS_PIN
+
 #else
-  // for regular DOGM128 display with HW-SPI
-  //#define U8G_CLASS U8GLIB_DOGM128
-  //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // HW-SPI Com: CS, A0  // 8 stripes
-  #define U8G_CLASS U8GLIB_DOGM128_2X
-  #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // HW-SPI Com: CS, A0 // 4 stripes
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_DOGM128                            // 8 stripes (HW-SPI)
+  #else
+    #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes (HW-SPI)
+  #endif
+
+#endif
+
+// Use HW-SPI if no other option is specified
+#ifndef U8G_PARAM
+  #if ENABLED(FORCE_SOFT_SPI)
+    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0 // SW-SPI
+  #else
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                      // HW-SPI
+  #endif
 #endif
 
 #ifndef LCD_PIXEL_WIDTH
@@ -145,11 +203,11 @@
   #define LCD_PIXEL_HEIGHT 64
 #endif
 
-// LCD_FULL_PIXEL_WIDTH = 
-// LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X 
+// LCD_FULL_PIXEL_WIDTH =
+// LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define LCD_FULL_PIXEL_WIDTH  320
-  #define LCD_PIXEL_OFFSET_X    32  
+  #define LCD_PIXEL_OFFSET_X    32
   #define LCD_FULL_PIXEL_HEIGHT 240
   #define LCD_PIXEL_OFFSET_Y    32
 #endif

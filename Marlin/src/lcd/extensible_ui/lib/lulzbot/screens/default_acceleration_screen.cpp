@@ -33,14 +33,14 @@ using namespace Theme;
 void DefaultAccelerationScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0);
-  w.units(GET_TEXTF(UNITS_MM_S2));
-  w.heading(      GET_TEXTF(ACCELERATION));
+  w.units(GET_TEXT_F(UNITS_MM_S2));
+  w.heading(      GET_TEXT_F(ACCELERATION));
   w.color(other);
-  w.adjuster(  2, GET_TEXTF(ACCEL_PRINTING), getPrintingAcceleration_mm_s2() );
-  w.adjuster(  4, GET_TEXTF(ACCEL_TRAVEL),   getTravelAcceleration_mm_s2() );
-  w.adjuster(  6, GET_TEXTF(ACCEL_RETRACT),  getRetractAcceleration_mm_s2() );
+  w.adjuster(  2, GET_TEXT_F(ACCEL_PRINTING), getPrintingAcceleration_mm_s2() );
+  w.adjuster(  4, GET_TEXT_F(ACCEL_TRAVEL),   getTravelAcceleration_mm_s2() );
+  w.adjuster(  6, GET_TEXT_F(ACCEL_RETRACT),  getRetractAcceleration_mm_s2() );
   w.increments();
-  w.button(    8, GET_TEXTF(SET_MAXIMUM));
+  w.button(    8, GET_TEXT_F(SET_MAXIMUM));
 }
 
 bool DefaultAccelerationScreen::onTouchHeld(uint8_t tag) {

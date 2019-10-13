@@ -38,8 +38,11 @@
  *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (parser.seen('P') && !IS_SD_PRINTING())
-    ui.set_progress(parser.value_byte());
+  if (parser.seen('P'))
+    ui.set_progress((PROGRESS_SCALE) > 1
+      ? parser.value_float() * (PROGRESS_SCALE)
+      : parser.value_byte()
+    );
 }
 
 #endif // LCD_SET_PROGRESS_MANUALLY

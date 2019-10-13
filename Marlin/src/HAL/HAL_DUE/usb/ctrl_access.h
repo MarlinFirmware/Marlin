@@ -191,7 +191,7 @@ extern bool g_wr_protect;
  *
  * \return \c true if the locker was successfully initialized, else \c false.
  */
-extern bool ctrl_access_init();
+extern bool ctrl_access_init(void);
 
 #endif  // FREERTOS_USED
 
@@ -199,7 +199,7 @@ extern bool ctrl_access_init();
  *
  * \return Number of LUNs in the system.
  */
-extern U8 get_nb_lun();
+extern U8 get_nb_lun(void);
 
 /*! \brief Returns the current LUN.
  *
@@ -207,7 +207,7 @@ extern U8 get_nb_lun();
  *
  * \todo Implement.
  */
-extern U8 get_cur_lun();
+extern U8 get_cur_lun(void);
 
 /*! \brief Tests the memory state and initializes the memory if required.
  *

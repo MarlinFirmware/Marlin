@@ -109,12 +109,12 @@ constexpr uint16_t VP_SD_AbortPrintConfirmed = 0x2028; // Abort print confirmati
 constexpr uint16_t VP_MOVE_X = 0x2100;
 constexpr uint16_t VP_MOVE_Y = 0x2102;
 constexpr uint16_t VP_MOVE_Z = 0x2104;
-constexpr uint16_t VP_MOVE_E1 = 0x2110;
-constexpr uint16_t VP_MOVE_E2 = 0x2112;
-//constexpr uint16_t VP_MOVE_E3 = 0x2114;
-//constexpr uint16_t VP_MOVE_E4 = 0x2116;
-//constexpr uint16_t VP_MOVE_E5 = 0x2118;
-//constexpr uint16_t VP_MOVE_E6 = 0x211A;
+constexpr uint16_t VP_MOVE_E0 = 0x2110;
+constexpr uint16_t VP_MOVE_E1 = 0x2112;
+//constexpr uint16_t VP_MOVE_E2 = 0x2114;
+//constexpr uint16_t VP_MOVE_E3 = 0x2116;
+//constexpr uint16_t VP_MOVE_E4 = 0x2118;
+//constexpr uint16_t VP_MOVE_E5 = 0x211A;
 constexpr uint16_t VP_HOME_ALL = 0x2120;
 
 // Firmware version on the boot screen.
@@ -126,34 +126,34 @@ constexpr uint16_t VP_M117 = 0x3020;
 constexpr uint8_t VP_M117_LEN = 0x20;
 
 // Temperatures.
-constexpr uint16_t VP_T_E1_Is = 0x3060;  // 4 Byte Integer
-constexpr uint16_t VP_T_E1_Set = 0x3062; // 2 Byte Integer
-constexpr uint16_t VP_T_E2_Is = 0x3064;  // 4 Byte Integer
+constexpr uint16_t VP_T_E0_Is = 0x3060;  // 4 Byte Integer
+constexpr uint16_t VP_T_E0_Set = 0x3062; // 2 Byte Integer
+constexpr uint16_t VP_T_E1_Is = 0x3064;  // 4 Byte Integer
 
 // reserved to support up to 6 Extruders:
-//constexpr uint16_t VP_T_E2_Set = 0x3066; // 2 Byte Integer
-//constexpr uint16_t VP_T_E3_Is = 0x3068;  // 4 Byte Integer
-//constexpr uint16_t VP_T_E3_Set = 0x306A; // 2 Byte Integer
-//constexpr uint16_t VP_T_E4_Is = 0x306C;  // 4 Byte Integer
-//constexpr uint16_t VP_T_E4_Set = 0x306E; // 2 Byte Integer
-//constexpr uint16_t VP_T_E5_Is = 0x3070;  // 4 Byte Integer
-//constexpr uint16_t VP_T_E5_Set = 0x3072; // 2 Byte Integer
-//constexpr uint16_t VP_T_E5_Is = 0x3074;  // 4 Byte Integer
-//constexpr uint16_t VP_T_E5_Set = 0x3076; // 2 Byte Integer
-//constexpr uint16_t VP_T_E6_Is = 0x3078;  // 4 Byte Integer
-//constexpr uint16_t VP_T_E6_Set = 0x307A; // 2 Byte Integer
+//constexpr uint16_t VP_T_E1_Set = 0x3066; // 2 Byte Integer
+//constexpr uint16_t VP_T_E2_Is = 0x3068;  // 4 Byte Integer
+//constexpr uint16_t VP_T_E2_Set = 0x306A; // 2 Byte Integer
+//constexpr uint16_t VP_T_E3_Is = 0x306C;  // 4 Byte Integer
+//constexpr uint16_t VP_T_E3_Set = 0x306E; // 2 Byte Integer
+//constexpr uint16_t VP_T_E4_Is = 0x3070;  // 4 Byte Integer
+//constexpr uint16_t VP_T_E4_Set = 0x3072; // 2 Byte Integer
+//constexpr uint16_t VP_T_E4_Is = 0x3074;  // 4 Byte Integer
+//constexpr uint16_t VP_T_E4_Set = 0x3076; // 2 Byte Integer
+//constexpr uint16_t VP_T_E5_Is = 0x3078;  // 4 Byte Integer
+//constexpr uint16_t VP_T_E5_Set = 0x307A; // 2 Byte Integer
 
 constexpr uint16_t VP_T_Bed_Is = 0x3080;  // 4 Byte Integer
 constexpr uint16_t VP_T_Bed_Set = 0x3082; // 2 Byte Integer
 
-constexpr uint16_t VP_Flowrate_E1 = 0x3090; // 2 Byte Integer
-constexpr uint16_t VP_Flowrate_E2 = 0x3092; // 2 Byte Integer
+constexpr uint16_t VP_Flowrate_E0 = 0x3090; // 2 Byte Integer
+constexpr uint16_t VP_Flowrate_E1 = 0x3092; // 2 Byte Integer
 
 // reserved for up to 6 Extruders:
-//constexpr uint16_t VP_Flowrate_E3 = 0x3094;
-//constexpr uint16_t VP_Flowrate_E4 = 0x3096;
-//constexpr uint16_t VP_Flowrate_E5 = 0x3098;
-//constexpr uint16_t VP_Flowrate_E6 = 0x309A;
+//constexpr uint16_t VP_Flowrate_E2 = 0x3094;
+//constexpr uint16_t VP_Flowrate_E3 = 0x3096;
+//constexpr uint16_t VP_Flowrate_E4 = 0x3098;
+//constexpr uint16_t VP_Flowrate_E5 = 0x309A;
 
 constexpr uint16_t VP_Fan_Percentage = 0x3100;  // 2 Byte Integer (0..100)
 constexpr uint16_t VP_Feedrate_Percentage = 0x3102; // 2 Byte Integer (0..100)
@@ -182,9 +182,9 @@ constexpr uint16_t VP_SD_FileName4 = 0x3280;
 // located at 0x5000 and up
 // Not used yet!
 // This can be used e.g to make controls / data display invisible
-constexpr uint16_t SP_T_E1_Is = 0x5000;
-constexpr uint16_t SP_T_E1_Set = 0x5010;
-constexpr uint16_t SP_T_E2_Is = 0x5020;
+constexpr uint16_t SP_T_E0_Is = 0x5000;
+constexpr uint16_t SP_T_E0_Set = 0x5010;
+constexpr uint16_t SP_T_E1_Is = 0x5020;
 constexpr uint16_t SP_T_Bed_Is = 0x5030;
 constexpr uint16_t SP_T_Bed_Set = 0x5040;
 

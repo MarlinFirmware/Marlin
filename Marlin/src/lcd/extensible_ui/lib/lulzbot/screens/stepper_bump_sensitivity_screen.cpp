@@ -33,23 +33,23 @@ using namespace Theme;
 void StepperBumpSensitivityScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0, BaseNumericAdjustmentScreen::DEFAULT_LOWEST);
-  w.heading(                     GET_TEXTF(HOME_SENSE));
-  w.color(x_axis)  .adjuster( 2, GET_TEXTF(AXIS_X),  getTMCBumpSensitivity(X),
-  #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+  w.heading(                     GET_TEXT_F(HOME_SENSE));
+  w.color(x_axis)  .adjuster( 2, GET_TEXT_F(AXIS_X),  getTMCBumpSensitivity(X),
+  #if X_SENSORLESS
     true
   #else
     false
   #endif
   );
-  w.color(y_axis)  .adjuster( 4, GET_TEXTF(AXIS_Y),  getTMCBumpSensitivity(Y),
-   #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+  w.color(y_axis)  .adjuster( 4, GET_TEXT_F(AXIS_Y),  getTMCBumpSensitivity(Y),
+   #if Y_SENSORLESS
      true
    #else
      false
    #endif
   );
-  w.color(z_axis)  .adjuster( 6, GET_TEXTF(AXIS_Z),  getTMCBumpSensitivity(Z),
-   #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+  w.color(z_axis)  .adjuster( 6, GET_TEXT_F(AXIS_Z),  getTMCBumpSensitivity(Z),
+   #if Z_SENSORLESS
      true
    #else
      false

@@ -33,13 +33,13 @@ void DisplayTuningScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0, BaseNumericAdjustmentScreen::DEFAULT_LOWEST);
   w.units(F(""));
-  w.heading(GET_TEXTF(DISPLAY_MENU));
+  w.heading(GET_TEXT_F(DISPLAY_MENU));
   w.color(other);
-  w.adjuster( 2, GET_TEXTF(H_OFFSET), CLCD::mem_read_16(CLCD::REG::HOFFSET) );
-  w.adjuster( 4, GET_TEXTF(V_OFFSET), CLCD::mem_read_16(CLCD::REG::VOFFSET) );
+  w.adjuster( 2, GET_TEXT_F(H_OFFSET), CLCD::mem_read_16(CLCD::REG::HOFFSET) );
+  w.adjuster( 4, GET_TEXT_F(V_OFFSET), CLCD::mem_read_16(CLCD::REG::VOFFSET) );
   w.increments();
-  w.heading(     GET_TEXTF(TOUCH_SCREEN));
-  w.button(6,    GET_TEXTF(CALIBRATE));
+  w.heading(     GET_TEXT_F(TOUCH_SCREEN));
+  w.button(6,    GET_TEXT_F(CALIBRATE));
 }
 
 bool DisplayTuningScreen::onTouchHeld(uint8_t tag) {

@@ -102,8 +102,8 @@ char MMU2::rx_buffer[16], MMU2::tx_buffer[16];
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
   struct E_Step {
-    float extrude;    //!< extrude distance in mm
-    float feedRate;   //!< feed rate in mm/s
+    float extrude;        //!< extrude distance in mm
+    feedRate_t feedRate;  //!< feed rate in mm/s
   };
 
   static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
@@ -432,10 +432,8 @@ bool MMU2::rx_ok() {
  */
 void MMU2::check_version() {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOPGM("MMU2 firmware version invalid. Required version >= ");
-    SERIAL_ECHOLN(MMU_REQUIRED_FW_BUILDNR);
-    kill(MSG_MMU2_WRONG_FIRMWARE);
+    SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
+    kill(GET_TEXT(MSG_MMU2_WRONG_FIRMWARE));
   }
 }
 
@@ -451,7 +449,7 @@ void MMU2::tool_change(uint8_t index) {
   if (index != extruder) {
 
     disable_E0();
-    ui.status_printf_P(0, PSTR(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+    ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
     command(MMU_CMD_T0 + index);
 
@@ -552,10 +550,10 @@ bool MMU2::get_response() {
  */
 void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
+  constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT;
   bool response = false;
   mmu_print_saved = false;
-  point_t park_point = NOZZLE_PARK_POINT;
-  float resume_position[XYZE];
+  xyz_pos_t resume_position;
   int16_t resume_hotend_temp;
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -574,7 +572,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         SERIAL_ECHOLNPGM("MMU not responding");
 
         resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
-        COPY(resume_position, current_position);
+        resume_position = current_position;
 
         if (move_axes && all_axes_homed())
           nozzle.park(2, park_point /*= NOZZLE_PARK_POINT*/);
@@ -606,10 +604,10 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         BUZZ(200, 404);
 
         // Move XY to starting position, then Z
-        do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+        do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
         // Move Z_AXIS to saved position
-        do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+        do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
       else {
         BUZZ(200, 404);
@@ -700,8 +698,8 @@ void MMU2::filament_runout() {
     LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
     enable_E0();
-    current_position[E_AXIS] -= MMU2_FILAMENTCHANGE_EJECT_FEED;
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 2500 / 60, active_extruder);
+    current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
+    line_to_current_position(2500 / 60);
     planner.synchronize();
     command(MMU_CMD_E0 + index);
     manage_response(false, false);
@@ -714,7 +712,7 @@ void MMU2::filament_runout() {
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), PSTR("Continue"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired(PSTR("MMU2 Eject Recover"));
+        ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover"));
       #endif
       while (wait_for_user) idle();
       BUZZ(200, 404);
@@ -783,15 +781,14 @@ void MMU2::filament_runout() {
     const E_Step* step = sequence;
 
     for (uint8_t i = 0; i < steps; i++) {
-      const float es = pgm_read_float(&(step->extrude)),
-                  fr = pgm_read_float(&(step->feedRate));
+      const float es = pgm_read_float(&(step->extrude));
+      const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
 
       DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("E step ", es, "/", fr);
+      DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
 
-      current_position[E_AXIS] += es;
-      planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-                          current_position[E_AXIS], MMM_TO_MMS(fr), active_extruder);
+      current_position.e += es;
+      line_to_current_position(MMM_TO_MMS(fr_mm_m));
       planner.synchronize();
 
       step++;

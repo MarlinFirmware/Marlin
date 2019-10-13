@@ -104,25 +104,25 @@
    */
   void GcodeSuite::M912() {
     #if M91x_SOME_X
-      const bool hasX = parser.seen(axis_codes[X_AXIS]);
+      const bool hasX = parser.seen(axis_codes.x);
     #else
       constexpr bool hasX = false;
     #endif
 
     #if M91x_SOME_Y
-      const bool hasY = parser.seen(axis_codes[Y_AXIS]);
+      const bool hasY = parser.seen(axis_codes.y);
     #else
       constexpr bool hasY = false;
     #endif
 
     #if M91x_SOME_Z
-      const bool hasZ = parser.seen(axis_codes[Z_AXIS]);
+      const bool hasZ = parser.seen(axis_codes.z);
     #else
       constexpr bool hasZ = false;
     #endif
 
     #if M91x_SOME_E
-      const bool hasE = parser.seen(axis_codes[E_AXIS]);
+      const bool hasE = parser.seen(axis_codes.e);
     #else
       constexpr bool hasE = false;
     #endif
@@ -130,7 +130,7 @@
     const bool hasNone = !hasX && !hasY && !hasZ && !hasE;
 
     #if M91x_SOME_X
-      const int8_t xval = int8_t(parser.byteval(axis_codes[X_AXIS], 0xFF));
+      const int8_t xval = int8_t(parser.byteval(axis_codes.x, 0xFF));
       #if M91x_USE(X)
         if (hasNone || xval == 1 || (hasX && xval < 0)) tmc_clear_otpw(stepperX);
       #endif
@@ -140,7 +140,7 @@
     #endif
 
     #if M91x_SOME_Y
-      const int8_t yval = int8_t(parser.byteval(axis_codes[Y_AXIS], 0xFF));
+      const int8_t yval = int8_t(parser.byteval(axis_codes.y, 0xFF));
       #if M91x_USE(Y)
         if (hasNone || yval == 1 || (hasY && yval < 0)) tmc_clear_otpw(stepperY);
       #endif
@@ -150,7 +150,7 @@
     #endif
 
     #if M91x_SOME_Z
-      const int8_t zval = int8_t(parser.byteval(axis_codes[Z_AXIS], 0xFF));
+      const int8_t zval = int8_t(parser.byteval(axis_codes.z, 0xFF));
       #if M91x_USE(Z)
         if (hasNone || zval == 1 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ);
       #endif
@@ -163,7 +163,7 @@
     #endif
 
     #if M91x_SOME_E
-      const int8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
+      const int8_t eval = int8_t(parser.byteval(axis_codes.e, 0xFF));
       #if M91x_USE_E(0)
         if (hasNone || eval == 0 || (hasE && eval < 0)) tmc_clear_otpw(stepperE0);
       #endif

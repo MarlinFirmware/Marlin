@@ -33,19 +33,12 @@ Ctrl_status sd_mmc_spi_read_capacity(uint32_t *nb_sector) {
   return CTRL_GOOD;
 }
 
-bool sd_mmc_spi_unload(bool unload) {
-  UNUSED(unload);
-  return true;
-}
+bool sd_mmc_spi_unload(bool) { return true; }
 
-bool sd_mmc_spi_wr_protect() {
-  return false;
-}
+bool sd_mmc_spi_wr_protect() { return false; }
 
 bool sd_mmc_spi_removal() {
-  if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())
-    return true;
-  return false;
+  return (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted());
 }
 
 #if ACCESS_USB == true

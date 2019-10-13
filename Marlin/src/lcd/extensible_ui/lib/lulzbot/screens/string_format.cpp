@@ -30,12 +30,6 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wno-format"
 
-#ifdef __AVR__
-  #define S_FMT "%S"
-#else
-  #define S_FMT "%s"
-#endif
-
 /**
  * Formats a temperature string (e.g. "100°C")
  */

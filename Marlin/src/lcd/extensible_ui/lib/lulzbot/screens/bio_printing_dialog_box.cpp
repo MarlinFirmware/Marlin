@@ -38,7 +38,8 @@ using namespace Theme;
 void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char* message) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
-    cmd.cmd(COLOR_RGB(bg_text_enabled));
+    cmd.cmd(COLOR_RGB(bg_text_enabled))
+       .tag(0);
     draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(2,2), message, OPT_CENTER, font_large);
   }
 }
@@ -130,7 +131,7 @@ void BioPrintingDialogBox::setStatusMessage(const char* message) {
   draw_interaction_buttons(BACKGROUND);
   storeBackground();
 
-  #ifdef UI_FRAMEWORK_DEBUG
+  #if ENABLED(TOUCH_UI_DEBUG)
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR("New status message: ", message);
   #endif

@@ -289,11 +289,11 @@ void DGUSScreenVariableHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable 
 
     // Don't let the user in the dark why there is no reaction.
     if (!ExtUI::isMediaInserted()) {
-       setstatusmessagePGM(PSTR(MSG_NO_MEDIA));
+       setstatusmessagePGM(GET_TEXT(MSG_NO_MEDIA));
        return;
     }
     if (card.flag.abort_sd_printing) {
-       setstatusmessagePGM(PSTR(MSG_MEDIA_ABORTING));
+       setstatusmessagePGM(GET_TEXT(MSG_MEDIA_ABORTING));
        return;
     }
   }
@@ -472,13 +472,13 @@ void DGUSScreenVariableHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, 
   switch (var.VP) {
     default: return;
     #if HOTENDS >= 1
-      case VP_T_E1_Set:
+      case VP_T_E0_Set:
         thermalManager.setTargetHotend(newvalue, 0);
         acceptedvalue = thermalManager.temp_hotend[0].target;
         break;
     #endif
     #if HOTENDS >= 2
-      case VP_T_E2_Set:
+      case VP_T_E1_Set:
         thermalManager.setTargetHotend(newvalue, 1);
         acceptedvalue = thermalManager.temp_hotend[1].target;
       break;
@@ -503,10 +503,10 @@ void DGUSScreenVariableHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, voi
     switch (var.VP) {
       default: return;
       #if (HOTENDS >= 1)
-        case VP_Flowrate_E1: target_extruder = 0; break;
+        case VP_Flowrate_E0: target_extruder = 0; break;
       #endif
       #if (HOTENDS >= 2)
-        case VP_Flowrate_E2: target_extruder = 1; break;
+        case VP_Flowrate_E1: target_extruder = 1; break;
       #endif
     }
 
@@ -526,11 +526,11 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &var, void 
   ExtUI::extruder_t target_extruder;
 
   switch (var.VP) {
-    #if HOTENDS >=1
-      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E0; break;
+    #if HOTENDS >= 1
+      case VP_MOVE_E0: target_extruder = ExtUI::extruder_t::E0; break;
     #endif
-    #if HOTENDS >=2
-      case VP_MOVE_E2: target_extruder = ExtUI::extruder_t::E1; break
+    #if HOTENDS >= 2
+      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break
     #endif
     default: return;
   }

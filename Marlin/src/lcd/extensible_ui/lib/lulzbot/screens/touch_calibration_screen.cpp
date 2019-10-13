@@ -45,15 +45,14 @@ void TouchCalibrationScreen::onEntry() {
        .cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled));
-    draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXTF(TOUCH_CALIBRATION_START), OPT_CENTER, font_large);
+    draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXT_F(TOUCH_CALIBRATION_START), OPT_CENTER, font_large);
     cmd.cmd(DL::DL_DISPLAY)
        .cmd(CMD_SWAP)
        .execute();
 
     while (CLCD::is_touching()) {
-      #ifdef UI_FRAMEWORK_DEBUG
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM("Waiting for touch release");
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("Waiting for touch release");
       #endif
     }
   }
@@ -77,7 +76,7 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled));
 
-  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXTF(TOUCH_CALIBRATION_PROMPT), OPT_CENTER, font_large);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXT_F(TOUCH_CALIBRATION_PROMPT), OPT_CENTER, font_large);
   cmd.cmd(CMD_CALIBRATE);
 }
 

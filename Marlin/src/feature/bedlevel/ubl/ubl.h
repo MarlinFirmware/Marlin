@@ -32,14 +32,11 @@
 #define UBL_OK false
 #define UBL_ERR true
 
-#define USE_NOZZLE_AS_REFERENCE 0
-#define USE_PROBE_AS_REFERENCE 1
-
-// ubl_G29.cpp
-
 enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 
 // External references
+
+struct mesh_index_pair;
 
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
@@ -52,10 +49,11 @@ class unified_bed_leveling {
                   g29_repetition_cnt,
                   g29_storage_slot,
                   g29_map_type;
-    static bool   g29_c_flag, g29_x_flag, g29_y_flag;
-    static float  g29_x_pos, g29_y_pos,
-                  g29_card_thickness,
+    static bool   g29_c_flag;
+    static float  g29_card_thickness,
                   g29_constant;
+    static xy_pos_t g29_pos;
+    static xy_bool_t xy_seen;
 
     #if HAS_BED_PROBE
       static int  g29_grid_size;
@@ -65,16 +63,19 @@ class unified_bed_leveling {
       static void move_z_with_encoder(const float &multiplier);
       static float measure_point_with_encoder();
       static float measure_business_card_thickness(float in_height);
-      static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool) _O0;
-      static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) _O0;
+      static void manually_probe_remaining_mesh(const xy_pos_t&, const float&, const float&, const bool) _O0;
+      static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) _O0;
     #endif
 
     static bool g29_parameter_parsing() _O0;
     static void shift_mesh_height();
-    static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) _O0;
+    static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) _O0;
     static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
     static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
     static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
+    static inline bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
+      return smart_fill_one(pos.x, pos.y, dir.x, dir.y);
+    }
     static void smart_fill_mesh();
 
     #if ENABLED(UBL_DEVEL_DEBUGGING)
@@ -91,7 +92,7 @@ class unified_bed_leveling {
     static void save_ubl_active_state_and_disable();
     static void restore_ubl_active_state_and_leave();
     static void display_map(const int) _O0;
-    static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]) _O0;
+    static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
     static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
     static void reset();
     static void invalidate();
@@ -118,14 +119,14 @@ class unified_bed_leveling {
 
     FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
-    static int8_t get_cell_index_x(const float &x) {
+    static int8_t cell_index_x(const float &x) {
       const int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
       return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
                                                           // that is OK because something else should be keeping that from
                                                           // happening and should not be worried about at this level.
-    static int8_t get_cell_index_y(const float &y) {
+    static int8_t cell_index_y(const float &y) {
       const int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
       return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
     }                                                     // position. But with this defined this way, it is possible
@@ -133,14 +134,21 @@ class unified_bed_leveling {
                                                           // that is OK because something else should be keeping that from
                                                           // happening and should not be worried about at this level.
 
-    static int8_t find_closest_x_index(const float &x) {
+    static inline xy_int8_t cell_indexes(const float &x, const float &y) {
+      return { cell_index_x(x), cell_index_y(y) };
+    }
+    static inline xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+
+    static int8_t closest_x_index(const float &x) {
       const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
       return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
     }
-
-    static int8_t find_closest_y_index(const float &y) {
+    static int8_t closest_y_index(const float &y) {
       const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
       return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
+    }
+    static inline xy_int8_t closest_indexes(const xy_pos_t &xy) {
+      return { closest_x_index(xy.x), closest_y_index(xy.y) };
     }
 
     /**
@@ -228,8 +236,7 @@ class unified_bed_leveling {
      * on the Y position within the cell.
      */
     static float get_z_correction(const float &rx0, const float &ry0) {
-      const int8_t cx = get_cell_index_x(rx0),
-                   cy = get_cell_index_y(ry0); // return values are clamped
+      const int8_t cx = cell_index_x(rx0), cy = cell_index_y(ry0); // return values are clamped
 
       /**
        * Check if the requested location is off the mesh.  If so, and
@@ -275,19 +282,19 @@ class unified_bed_leveling {
       }
       return z0;
     }
+    static inline float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
     static inline float mesh_index_to_xpos(const uint8_t i) {
       return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
     }
-
     static inline float mesh_index_to_ypos(const uint8_t i) {
       return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
     }
 
     #if UBL_SEGMENTED
-      static bool prepare_segmented_line_to(const float (&rtarget)[XYZE], const float &feedrate);
+      static bool line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s);
     #else
-      static void line_to_destination_cartesian(const float &fr, const uint8_t e);
+      static void line_to_destination_cartesian(const feedRate_t &scaled_fr_mm_s, const uint8_t e);
     #endif
 
     static inline bool mesh_is_valid() {
