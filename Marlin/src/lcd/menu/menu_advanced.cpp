@@ -527,9 +527,9 @@ void menu_backlash();
 
     #if DISABLED(CLASSIC_JERK)
       #if ENABLED(LIN_ADVANCE)
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.0025f, 0.3f, planner.recalculate_max_e_jerk);
+        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f, planner.recalculate_max_e_jerk);
       #else
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.0025f, 0.5f);
+        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.5f);
       #endif
     #endif
     #if HAS_CLASSIC_JERK
