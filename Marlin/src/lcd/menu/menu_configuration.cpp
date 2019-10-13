@@ -234,12 +234,12 @@ void menu_advanced_settings();
 
    void menu_fancontroller() {
       START_MENU();
-      MENU_BACK(MSG_MAIN);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &fanController.settings_fan.controllerFan_Idle_Speed, 0, 255, _fancontroller_update);
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CONTROLLER_FAN_AUTO_ON, &fanController.settings_fan.controllerFan_AutoMode, _fancontroller_update);
+      BACK_ITEM(MSG_CONFIGURATION);
+      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &fanController.settings_fan.controllerFan_Idle_Speed, 0, 255, _fancontroller_update);
+      EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &fanController.settings_fan.controllerFan_AutoMode, _fancontroller_update);
       if (fanController.settings_fan.controllerFan_AutoMode) {
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(percent, MSG_CONTROLLER_FAN_SPEED, &fanController.settings_fan.controllerFan_Speed, 0, 255, _fancontroller_update);
-        MENU_ITEM_EDIT_CALLBACK(uint16_4, MSG_CONTROLLER_FAN_DURATION, &fanController.settings_fan.controllerFan_Duration, 0, 4800, _fancontroller_update);
+        EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &fanController.settings_fan.controllerFan_Speed, 0, 255, _fancontroller_update);
+        EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &fanController.settings_fan.controllerFan_Duration, 0, 4800, _fancontroller_update);
       }
       END_MENU();
     }
@@ -386,7 +386,7 @@ void menu_configuration() {
   // Set Fan Controller speed
   //
   #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-    MENU_ITEM(submenu, MSG_CONTROLLER_FAN, menu_fancontroller);
+    SUBMENU( MSG_CONTROLLER_FAN, menu_fancontroller);
   #endif
 
   //
