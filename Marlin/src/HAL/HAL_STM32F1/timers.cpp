@@ -26,8 +26,8 @@
 
 #ifdef __STM32F1__
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
-
 #include "timers.h"
 
 // ------------------------

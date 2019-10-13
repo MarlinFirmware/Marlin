@@ -27,8 +27,8 @@
 
 #ifdef __STM32F1__
 
-#include "HAL.h"
 #include "../../inc/MarlinConfig.h"
+#include "HAL.h"
 
 #include <STM32ADC.h>
 
