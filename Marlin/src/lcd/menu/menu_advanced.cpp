@@ -334,7 +334,7 @@ void menu_backlash();
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
 
-    #if (ENABLED(PID_EDIT_MENU) || ENABLED(PID_AUTOTUNE_MENU))
+    #if EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
       #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
         #define PID_LABEL(MSG,N) MSG##_E##N
       #else
