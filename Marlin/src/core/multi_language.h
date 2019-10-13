@@ -65,7 +65,7 @@ typedef const char Language_Str[];
     lang == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
                 GET_LANG(LCD_LANGUAGE_5)::MSG \
     )
-  #define MAX_LANG_CHARSIZE max(GET_LANG(LCD_LANGUAGE)::CHARSIZE, \
+  #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE)::CHARSIZE, \
                                 GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
                                 GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
                                 GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
