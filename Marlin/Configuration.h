@@ -1050,22 +1050,18 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 34  // X offset in mm: -left  +right  [of the nozzle]
-                                         // Distance from nozzle to BLTouch is 33,5mm ~ we use 34mm!
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 0   // Y offset: -front +behind [the nozzle]
-
+// X offset in mm: -left  +right  [of the nozzle] Distance from nozzle to BLTouch is 33,5mm ~ we use 34mm!
+ // Y offset: -front +behind [the nozzle]
+ // Z offset: -below +above  [the nozzle]
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.05  // Z offset: -below +above  [the nozzle]
+  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, -2.05 }
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.67  // Z offset: -below +above  [the nozzle]
+  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, -1.67 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0      // Z offset: -below +above  [the nozzle]
+  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, 0 }
 #endif
-
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
-
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 2
@@ -1391,14 +1387,14 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION   X_PROBE_OFFSET_FROM_EXTRUDER
-  #define RIGHT_PROBE_BED_POSITION  X_BED_SIZE - MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_LEFT   10
+  #define MIN_PROBE_EDGE_RIGHT  X_BED_SIZE - MIN_PROBE_EDGE
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
-  #define FRONT_PROBE_BED_POSITION  MIN_PROBE_EDGE + 4 /* +4 vg3r specific adjustment */
+  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE + 4 /* +4 vg3r specific adjustment */
 #else
-  #define FRONT_PROBE_BED_POSITION  MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE
 #endif
-  #define BACK_PROBE_BED_POSITION   Y_BED_SIZE - MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_BACK   Y_BED_SIZE - MIN_PROBE_EDGE
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
