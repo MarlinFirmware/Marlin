@@ -285,7 +285,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_1               = _UxGT("Extra Fan Speed 1");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_2               = _UxGT("Extra Fan Speed 2");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_3               = _UxGT("Extra Fan Speed 3");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra Fan Speed");
   PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Fan Controller");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Fan Idle");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Motorload mode");
