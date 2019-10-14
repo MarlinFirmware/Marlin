@@ -33,6 +33,7 @@ env:
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
   - TEST_PLATFORM="STM32F407VE_black"
+  - TEST_PLATFORM="mks_robin"
 
   # Put lengthy tests last
   - TEST_PLATFORM="LPC1768"
@@ -42,7 +43,6 @@ env:
   #- TEST_PLATFORM="at90usb1286_cdc"
   #- TEST_PLATFORM="at90usb1286_dfu"
   #- TEST_PLATFORM="STM32F103CB_malyan"
-  #- TEST_PLATFORM="mks_robin"
   #- TEST_PLATFORM="mks_robin_lite"
   #- TEST_PLATFORM="mks_robin_mini"
   #- TEST_PLATFORM="mks_robin_nano"

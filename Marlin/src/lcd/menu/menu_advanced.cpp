@@ -333,14 +333,16 @@ void menu_backlash();
     // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
-    #if ENABLED(PID_EDIT_MENU)
 
+    #if EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
       #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
         #define PID_LABEL(MSG,N) MSG##_E##N
       #else
         #define PID_LABEL(MSG,N) MSG
       #endif
+    #endif
 
+    #if ENABLED(PID_EDIT_MENU)
       #define _PID_BASE_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
