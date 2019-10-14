@@ -316,6 +316,10 @@ static void print_es_state(const bool is_hit, const char * const label=NULL) {
 }
 
 void _O2 Endstops::M119() {
+  #if ENABLED(BLTOUCH)
+    extern void _bltouch_set_SW_mode();
+    _bltouch_set_SW_mode();
+  #endif
   SERIAL_PROTOCOLLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
@@ -382,6 +386,10 @@ void _O2 Endstops::M119() {
         print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
+  #endif
+  #if ENABLED(BLTOUCH)
+    extern void _bltouch_reset_SW_mode();
+    _bltouch_reset_SW_mode();
   #endif
 } // Endstops::M119
 

@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 #######################################
 #
 # Marlin 3D Printer Firmware
-# Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+# Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 #
 # Based on Sprinter and grbl.
-# Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+# Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -68,6 +69,9 @@
 #
 #######################################
 
+from __future__ import print_function
+from __future__ import division
+
 import sys
 import os
 
@@ -76,26 +80,26 @@ pwd = pwd.replace('\\', '/')
 if 0 <= pwd.find('buildroot/share/atom'):
   pwd = pwd[ : pwd.find('buildroot/share/atom')]
   os.chdir(pwd)
-print 'pwd: ', pwd
+print('pwd: ', pwd)
 
 num_args = len(sys.argv)
 if num_args > 1:
   build_type = str(sys.argv[1])
 else:
-  print 'Please specify build type'
+  print('Please specify build type')
   exit()
 
-print'build_type:  ', build_type
+print('build_type:  ', build_type)
 
-print '\nWorking\n'
+print('\nWorking\n')
 
 python_ver = sys.version_info[0] # major version - 2 or 3
 
 if python_ver == 2:
-  print "python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2])
+  print("python version " + str(sys.version_info[0]) + "." + str(sys.version_info[1]) + "." + str(sys.version_info[2]))
 else:
-  print "python version " + str(sys.version_info[0])
-  print "This script only runs under python 2"
+  print("python version " + str(sys.version_info[0]))
+  print("This script only runs under python 2")
   exit()
 
 import platform
@@ -105,6 +109,7 @@ current_OS = platform.system()
 target_env = ''
 board_name = ''
 
+from datetime import datetime, date, time
 
 #########
 #  Python 2 error messages:
@@ -118,17 +123,7 @@ board_name = ''
 #    reboot
 #########
 
-#
-# data/definitions used by memory check routine to determine if need to
-# insert % memory used
-#
-mem_check_environments = ('at90USB1286_CDC',  'at90USB1286_DFU')
-mem_check_builds = ('upload', 'program')
-FLASH_MAX = 128 * 1024 - 4 * 1024   # DFU & CDC bootloaders start at word address F800
-RAM_MAX = 8 * 1024
-FLASH_PERCENT_WARN = 0.90
-RAM_SYSTEM = 1024   # assume that 1K bytes is enough for stack, heap. ...
-RAM_WARN = RAM_SYSTEM * 1.5
+
 
 ##########################################################################################
 #
@@ -553,13 +548,13 @@ def get_CPU_name(environment):
 #  returns: environment
 def get_env(board_name, ver_Marlin):
       def no_environment():
-            print 'ERROR - no environment for this board'
-            print board_name
+            print('ERROR - no environment for this board')
+            print(board_name)
             raise SystemExit(0)                          # no environment so quit
 
       def invalid_board():
-            print 'ERROR - invalid board'
-            print board_name
+            print('ERROR - invalid board')
+            print(board_name)
             raise SystemExit(0)                          # quit if unable to find board
 
 
@@ -610,9 +605,9 @@ def get_env(board_name, ver_Marlin):
               invalid_board()
 
       if build_type == 'traceback' and not(target_env == 'LPC1768_debug_and_upload' or target_env == 'DUE_debug')  and Marlin_ver == 2:
-          print "ERROR - this board isn't setup for traceback"
-          print 'board_name: ', board_name
-          print 'target_env: ', target_env
+          print("ERROR - this board isn't setup for traceback")
+          print('board_name: ', board_name)
+          print('target_env: ', target_env)
           raise SystemExit(0)
 
       return target_env
@@ -665,7 +660,9 @@ def line_print(line_input):
       platformio_highlights = [
               ['Environment', 0, 'highlight_blue'],
               ['[SKIP]', 1, 'warning'],
+              ['[IGNORED]', 1, 'warning'],
               ['[ERROR]', 1, 'error'],
+              ['[FAILED]', 1, 'error'],
               ['[SUCCESS]', 1, 'highlight_green']
       ]
 
@@ -703,14 +700,15 @@ def line_print(line_input):
               found_right = text.find(']', found + 1)
               write_to_screen_queue(text[               : found + 1   ])
               write_to_screen_queue(text[found + 1      : found_right ], highlight[2])
-              write_to_screen_queue(text[found_right :                ] + '\n')
+              write_to_screen_queue(text[found_right :                ] + '\n' + '\n')
             break
         if did_something == False:
           r_loc = text.find('\r') + 1
           if r_loc > 0 and r_loc < len(text):  # need to split this line
             text = text.split('\r')
             for line in text:
-              write_to_screen_queue(line + '\n')
+              if not(line == ""):
+                write_to_screen_queue(line + '\n')
           else:
             write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
@@ -834,12 +832,12 @@ def run_PIO(dummy):
     global build_type
     global target_env
     global board_name
-    print 'build_type:  ', build_type
+    print('build_type:  ', build_type)
 
     import subprocess
     import sys
 
-    print 'starting platformio'
+    print('starting platformio')
 
     if   build_type == 'build':
           # platformio run -e  target_env
@@ -890,7 +888,7 @@ def run_PIO(dummy):
 
 
     else:
-          print 'ERROR - unknown build type:  ', build_type
+          print('ERROR - unknown build type:  ', build_type)
           raise SystemExit(0)     # kill everything
 
   # stream output from subprocess and split it into lines
@@ -902,6 +900,8 @@ def run_PIO(dummy):
     write_to_screen_queue('\nBoard name: ' + board_name  + '\n')  # put build info at the bottom of the screen
     write_to_screen_queue('Build type: ' + build_type  + '\n')
     write_to_screen_queue('Environment used: ' + target_env  + '\n')
+    write_to_screen_queue(str(datetime.now()) + '\n')
+
 # end - run_PIO
 
 
@@ -937,9 +937,6 @@ class output_window(Text):
     global error_found
     error_found = False        # are there any errors?
 
-    global memory_check_first_time
-    memory_check_first_time = True  #  wants to run memory_check twice
-
 
     def  __init__(self):
 
@@ -953,7 +950,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
-#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
+        #self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -976,24 +973,24 @@ class output_window(Text):
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
 
-#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
-#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
-#        self.scrb_Y.pack(side='right', fill='y')
-#
-#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
-#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
-#        self.scrb_X.pack(side='bottom', fill='x')
+        #self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+        #self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+        #self.scrb_Y.pack(side='right', fill='y')
 
-#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
-#        self.config(xscrollcommand=scrb_X.set)
-#        scrb_X.pack(side='bottom', fill='x')
-#
-#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
-#        self.config(yscrollcommand=scrb.set)
-#        scrb.pack(side='right', fill='y')
+        #self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+        #self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+        #self.scrb_X.pack(side='bottom', fill='x')
 
-#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
-#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
+        #scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+        #self.config(xscrollcommand=scrb_X.set)
+        #scrb_X.pack(side='bottom', fill='x')
+
+        #scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+        #self.config(yscrollcommand=scrb.set)
+        #scrb.pack(side='right', fill='y')
+
+        #self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+        #self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -1009,7 +1006,7 @@ class output_window(Text):
         self.popup.add_separator()
         self.popup.add_command(label='Save As', command=self._file_save_as)
         self.popup.add_separator()
- #       self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
+        #self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
         self.popup.add_command(label='Repeat Build', command=self._rebuild)
         self.popup.add_separator()
         self.popup.add_command(label='Scroll Errors (CTL-shift-e)', command=self._scroll_errors)
@@ -1050,8 +1047,6 @@ class output_window(Text):
         if IO_queue.empty():
           if not(self.secondary_thread.is_alive()):
             continue_updates = False  # queue is exhausted and thread is dead so no need for further updates
-            self.memory_check()   # scan buffer and add percent used if needed
-            print 'starting memory check'
         else:
           try:
               temp_text = IO_queue.get(block = False)
@@ -1111,7 +1106,7 @@ class output_window(Text):
         self.start_thread()
 
     def rebuild(self, event):
-        print "event happened"
+        print("event happened")
         self._rebuild()
 
 
@@ -1207,209 +1202,14 @@ class output_window(Text):
 
 
     def _clear_all(self):
-        '''erases all text'''
+        #'''erases all text'''
+        #
+        #isok = askokcancel('Clear All', 'Erase all text?', frame=self,
+        #                   default='ok')
+        #if isok:
+        #    self.delete('1.0', 'end')
+        self.delete('1.0', 'end')
 
-        isok = askokcancel('Clear All', 'Erase all text?', frame=self,
-                           default='ok')
-        if isok:
-            self.delete('1.0', 'end')
-
-  # add memory % if needed
-    def memory_check(self):
-        global memory_check_first_time
-        if not(memory_check_first_time):
-          return
-        memory_check_first_time = False
-        search_position = self.search("Environment used:", "1.0", stopindex="end")
-        env_line = self.get(search_position, '{}+{}c'.format(search_position, 200))
-        print 'env_line 1  ', env_line
-        if 0 <= env_line.find('\n'):
-          env_line = env_line[  : env_line.find('\n')]
-        env_end = env_line.find(' ', 18)
-        if env_end == -1:
-          env_end = len(env_line)
-        env_line = env_line[ 18 : env_end  ]
-        print 'env_line 2  ', env_line
-        env_found  = False
-        for env in mem_check_environments:
-          if env_line == env:
-            env_found  = True
-            print 'env  ', env
-
-        search_position = self.search("Build type:", "1.0", stopindex="end")
-        if search_position == "":
-          print "didn't find it"
-          return
-        build_line = self.get(search_position, '{}+{}c'.format(search_position, 200))
-        print 'build_line 1  ', build_line
-        if 0 <= build_line.find('\n'):
-          build_line = build_line[  : build_line.find('\n')]
-        build_end = build_line.find(' ', 14)
-        if build_end == -1:
-          build_end = len(build_line)
-        build_line = build_line[ 12 : build_end ]
-        print 'build_line 2  ', build_line
-        build_found  = False
-        for build in mem_check_builds:
-          if build_line == build:
-            build_found  = True
-            print 'build  ', build
-
-        if env_found and build_found:    # find the memory values
-          search_position = self.search("Checking program size", "1.0", stopindex="end")
-          if search_position != '':
-            print 'search_position: ' + search_position
-            line_int = int(search_position[ : search_position.find(".")]) + 1
-            line_str = str(line_int)
-            line = self.get(line_str + '.0', line_str + '.200')
-            print 'line: ', line
-            while 'text' != line[ : 4 ] :
-              line_int = line_int + 1
-              line_str = str(line_int)
-              line = self.get(line_str + '.0', line_str + '.200')
-              print 'line: ', line
-            line_int = line_int + 1
-            line_str = str(line_int)
-            print 'line + 3: ' + line_str + '.0'
-            size_line = self.get(line_str + '.0', line_str + '.200')
-            print 'size_line  ', size_line
-
-            data_start = 0
-            while ' ' == size_line[ data_start : data_start + 1] :
-                data_start = data_start + 1  # eat leading blanks
-                print 'data_start: ', data_start, size_line.find(' ', data_start)
-            data_end = size_line.find(' ', data_start) - 1
-            text_str = size_line[ data_start : data_end]
-            print 'text_str = ', data_start, data_end, text_str + '/////'
-            text_val = int(text_str)
-            print 'text_val  ', text_val
-
-            data_start = size_line.find(' ', data_end)
-            while ' ' == size_line[ data_start : data_start + 1] :
-                data_start = data_start + 1  # eat leading blanks
-                print 'data_start: ', data_start, size_line.find(' ', data_start)
-            data_end = size_line.find(' ', data_start) -1
-            data_val = int(size_line[ data_start : data_end])
-            print 'data_val  ', data_val
-
-            data_start = size_line.find(' ', data_end)
-            while ' ' == size_line[ data_start : data_start + 1] :
-                data_start = data_start + 1  # eat leading blanks
-                print 'data_start: ', data_start, size_line.find(' ', data_start)
-            data_end = size_line.find(' ', data_start) - 1
-            if data_end == -1:
-              data_end = len(size_line)
-            bss_val = int(size_line[ data_start : data_end])
-            print 'bss_val  ', bss_val
-
-            FLASH_total = text_val + data_val
-            RAM_total = bss_val + data_val
-
-            tag = 'normal'
-            if FLASH_total >= FLASH_MAX * FLASH_PERCENT_WARN:
-              tag = 'warning'
-            if FLASH_total >= FLASH_MAX:
-              tag = 'error'
-            line_int = line_int + 1
-            line_str = str(line_int)
-            self.insert('end', '\nProgram:  ' + str(FLASH_total) + ' bytes (' + str( 100*FLASH_total/FLASH_MAX) + '% of application area)\n', tag)
-            self.insert(line_str + '.0', '\nProgram:  ' + str(FLASH_total) + ' bytes (' + str( 100*FLASH_total/FLASH_MAX) + '% of application area)\n', tag)
-
-
-            tag = 'normal'
-            if RAM_total >= RAM_MAX - RAM_WARN:
-              tag = 'warning'
-            if RAM_total >= RAM_MAX - RAM_SYSTEM:
-              tag = 'error'
-            line_int = line_int + 2
-            line_str = str(line_int)
-            self.insert('end', 'Data:      ' + str(RAM_total) + ' bytes (' + str( 100*RAM_total/(RAM_MAX-RAM_SYSTEM)) + '% of non-system RAM)\n', tag)
-            self.insert(line_str + '.0', 'Data:      ' + str(RAM_total) + ' bytes (' + str( 100*RAM_total/(RAM_MAX-RAM_SYSTEM)) + '% of non-system RAM)\n\n', tag)
-            self.see("end")  # make the new lines visible (scroll text off the top)
-    # end - memory_check
-
-
-    #
-    # error reporting proceedure for copy_boards_dir()
-    #
-    def report_failure(self, PIO_path, board_path):
-           # didn't find the file - user needs to copy it & re-run the script
-            self.insert('end', 'Unable to move board definition file to destination.  User must manually copy the file.\n\n', 'error')
-            self.insert('end', 'Please copy the following file and re-run the script:\n', 'normal')
-            self.insert('end', '   FROM:\n')
-            self.insert('end', '       ' + pwd + '/' + board_path + '/at90USB1286.json\n')
-            self.insert('end', '   TO:\n')
-            self.insert('end', '       ' + PIO_path + '/at90USB1286.json\n')
-
-
-
-    #
-    # move custom board definitions from project folder to PlatformIO
-    #   returns True if the file ends up in the correct location
-    #
-    def copy_boards_dir(self):
-
-            temp = os.environ
-            for key in temp:
-              if 0 <=  os.environ[key].find('.platformio'):
-                part = os.environ[key].split(';')
-                for part2 in part:
-                  if 0 <=  part2.find('.platformio'):
-                    path = part2
-                    break
-
-            path =  path.replace("\\", "/")
-            path =  path.replace("//", "/")
-
-            path_remaining = path
-            still_looking = True
-            PIO_path = ''
-            while still_looking:
-              colon_pos = path_remaining.find(':')
-              if -1 == colon_pos:
-                  still_looking = False
-                  path_maybe =  path_remaining
-              else:
-                  path_maybe =  path_remaining[ : colon_pos]
-                  path_remaining = path_remaining[ colon_pos + 1 : ]
-              if 0 <= path_maybe.find('/.platformio'):
-                    still_looking = False
-                    PIO_path = path_maybe
-
-            start_loc = PIO_path.find('/.platformio')
-            next_loc = PIO_path.find('/', start_loc + 5)
-            if 0 <= next_loc:
-              PIO_path = PIO_path[ : next_loc]
-            PIO_path =  PIO_path + '/boards'
-
-            board_path = 'buildroot/share/PlatformIO/boards'
-
-            from distutils.dir_util import copy_tree
-            try:
-                copy_tree(board_path, PIO_path)
-            except:
-                pass
-          # check to see if it's there
-          #    macOS will throw an exception if it can't get to the directory
-          #    Ubuntu doesn't complain if it can't get to the directory
-          #    Windows always succeeds (have not been able to lock it out in testing)
-            short_path = PIO_path[ :  PIO_path.find('/boards')]
-            try:
-                PIO_dir = os.listdir(short_path)
-            except:
-                self.report_failure(PIO_path, board_path)
-                return False
-            if 'boards' in PIO_dir:
-               try:
-                   boards_dir = os.listdir(PIO_path)
-               except:
-                   self.report_failure(PIO_path, board_path)
-                   return False
-               if 'at90USB1286.json' in boards_dir:
-                  return True                                 # it's there so all is well
-               self.report_failure(PIO_path, board_path)
-               return False
-# end copy_boards_dir
 
 # end - output_window
 
@@ -1437,13 +1237,7 @@ def main():
         os.environ["BOARD_NAME"] = board_name
 
         auto_build = output_window()
-
-        continue_script = True
-        if 0 <= target_env.find('USB1286'):
-           continue_script = auto_build.copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
-
-        if continue_script:
-          auto_build.start_thread()  # executes the "run_PIO" function
+        auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()
 
