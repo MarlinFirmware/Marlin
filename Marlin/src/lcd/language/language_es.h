@@ -450,9 +450,9 @@ namespace Language_es {
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Calent. cama fallido");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Calent. Cám. fallido");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Err: TEMP. REDUN.");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ESCAPE TERMICO");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ESC. TERMICO CAMA");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ESC. TERMICO CAMARA");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("FUGA TÉRMICA");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("FUGA TÉRMICA CAMA");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("FUGA TÉRMICA CAMARA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err:TEMP. MÁX");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err:TEMP. MIN");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err:TEMP. MÁX CAMA");
