@@ -345,7 +345,7 @@ void MarlinUI::draw_status_screen() {
       static char progress_string[5];
     #endif
     static uint8_t lastElapsed = 0, elapsed_x_pos = 0;
-    static char elapsed_string[10];
+    static char elapsed_string[22];
     #if ENABLED(SHOW_REMAINING_TIME)
       #define SHOW_REMAINING_TIME_PREFIX 'E'
       static uint8_t estimation_x_pos = 0;
