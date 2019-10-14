@@ -393,34 +393,16 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
     template<class TMC, char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
     bool TMCMarlin<TMC, AXIS_LETTER, DRIVER_ID, AXIS_ID>::test_stall_status() {
-      uint16_t sg_result = 0;
-
       this->switchCSpin(LOW);
 
-      if (this->TMC_SW_SPI != nullptr) {
-        this->TMC_SW_SPI->transfer(TMC2130_n::DRV_STATUS_t::address);
-        this->TMC_SW_SPI->transfer16(0);
-        // We only care about the last 10 bits
-        sg_result = this->TMC_SW_SPI->transfer(0);
-        sg_result <<= 8;
-        sg_result |= this->TMC_SW_SPI->transfer(0);
-      }
-      else {
-        SPI.beginTransaction(SPISettings(16000000/8, MSBFIRST, SPI_MODE3));
-        // Read DRV_STATUS
-        SPI.transfer(TMC2130_n::DRV_STATUS_t::address);
-        SPI.transfer16(0);
-        // We only care about the last 10 bits
-        sg_result = SPI.transfer(0);
-        sg_result <<= 8;
-        sg_result |= SPI.transfer(0);
-        SPI.endTransaction();
-      }
+      // read stallGuard flag from TMC library, will handle HW and SW SPI
+      TMC2130_n::DRV_STATUS_t drv_status{0};
+      drv_status.sr = this->DRV_STATUS();
+
       this->switchCSpin(HIGH);
 
-      return (sg_result & 0x3FF) == 0;
+      return drv_status.stallGuard;
     }
-
   #endif // SPI_ENDSTOPS
 
 #endif // USE_SENSORLESS
