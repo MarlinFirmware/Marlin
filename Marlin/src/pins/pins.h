@@ -904,7 +904,7 @@
 //
 // Disable unused endstop / probe pins
 //
-#if !USES_Z_MIN_PROBE_ENDSTOP
+#if !HAS_CUSTOM_PROBE_PIN
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif
