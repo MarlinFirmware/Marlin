@@ -2373,13 +2373,21 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #endif
 
+  #ifdef USE_CACHED_SQRT
+    #define CACHED_SQRT(N, V) \
+      static float saved_V, N; \
+      if (V != saved_V) { N = SQRT(V); saved_V = V; }
+  #else
+    #define CACHED_SQRT(N, V) const float N = SQRT(V)
+  #endif
+
   #if HAS_CLASSIC_JERK
 
     /**
      * Adapted from Průša MKS firmware
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    const float nominal_speed = SQRT(block->nominal_speed_sqr);
+    CACHED_SQRT(nominal_speed, block->nominal_speed_sqr);
 
     // Exit speed limited by a jerk to full halt of a previous last segment
     static float previous_safe_speed;
@@ -2420,7 +2428,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
-      const float previous_nominal_speed = SQRT(previous_nominal_speed_sqr);
+      CACHED_SQRT(previous_nominal_speed, previous_nominal_speed_sqr);
+
       vmax_junction = _MIN(nominal_speed, previous_nominal_speed);
 
       // Now limit the jerk in all axes.
