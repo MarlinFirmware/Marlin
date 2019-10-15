@@ -73,7 +73,11 @@ public:
   #endif
 
   // Wait for spindle to spin up or spin down
-  static inline void power_delay() { safe_delay(enabled() ? SPINDLE_LASER_POWERUP_DELAY : SPINDLE_LASER_POWERDOWN_DELAY); }
+  static inline void power_delay() {
+    #if SPINDLE_LASER_POWERUP_DELAY || SPINDLE_LASER_POWERDOWN_DELAY
+      safe_delay(enabled() ? SPINDLE_LASER_POWERUP_DELAY : SPINDLE_LASER_POWERDOWN_DELAY);
+    #endif
+  }
 
   #if ENABLED(SPINDLE_CHANGE_DIR)
     static void set_direction(const bool reverse);
