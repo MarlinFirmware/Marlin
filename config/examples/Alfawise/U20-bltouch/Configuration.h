@@ -82,7 +82,7 @@
 
 // Valid platformio.ini submodel values are U20_PLUS U20 U30 LK1 LK2 LK4
 
-// Valid platformio.ini touchscreens are TS_V11 TS_V12
+// Valid platformio.ini touchscreens are TS_V11 TS_V12 TS_V19
 
 // 2 - Select the screen controller type. Most common is ILI9341 - First option. If your screen remains white,
 //     Try the alternate setting - this should enable ST7789V or ILI9328. For other LCDs... code is needed
@@ -137,8 +137,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 2
-#define NUM_SERIAL 2
+//#define SERIAL_PORT_2 2
 
 /**
  * This setting determines the communication speed of the printer.
@@ -361,7 +360,7 @@
  * Specify whether the power supply is active HIGH or active LOW.
  */
 //#define PSU_CONTROL
-//#define PSU_NAME "Power Supply"
+#define PSU_NAME "360W 24V/15A"
 
 #if ENABLED(PSU_CONTROL)
   #define PSU_ACTIVE_HIGH false // Set 'false' for ATX (1), 'true' for X-Box (2)
@@ -789,6 +788,11 @@
  */
 #define DEFAULT_MAX_FEEDRATE          { 200, 200, 100, 25 }
 
+#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
+#if ENABLED(LIMITED_MAX_FR_EDITING)
+  #define MAX_FEEDRATE_EDIT_VALUES    { 250, 250, 200, 50 } // ...or, set your own edit limits
+#endif
+
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
@@ -796,6 +800,11 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 200, 200, 100, 3000 }
+
+#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
+#if ENABLED(LIMITED_MAX_ACCEL_EDITING)
+  #define MAX_ACCEL_EDIT_VALUES       { 600, 600, 400, 6000 } // ...or, set your own edit limits
+#endif
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -817,11 +826,16 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define CLASSIC_JERK
+#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
   #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK  0.4
+
+  #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
+  #if ENABLED(LIMITED_JERK_EDITING)
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
+  #endif
 #endif
 
 #define DEFAULT_EJERK    5.0  // May be used by Linear Advance
@@ -834,7 +848,7 @@
  *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.20  // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.10  // (mm) Distance from real junction edge
 #endif
 
 /**
@@ -2128,18 +2142,26 @@
 
   #if ENABLED(TS_V11)
     // Alfawise U20 ILI9341 2.8 TP Ver 1.1 / Green PCB on the back of touchscreen
-    #define XPT2046_X_CALIBRATION   11605
-    #define XPT2046_Y_CALIBRATION   9091
+    #define XPT2046_X_CALIBRATION   12000
+    #define XPT2046_Y_CALIBRATION   9000
     #define XPT2046_X_OFFSET       -24
     #define XPT2046_Y_OFFSET       -17
   #endif
 
   #if ENABLED(TS_V12)
     // Alfawise U30 ILI9341 2.8 TP Ver 1.2 / Blue PCB on the back of touchscreen
-    #define XPT2046_X_CALIBRATION   12316
-    #define XPT2046_Y_CALIBRATION  -8981
+    #define XPT2046_X_CALIBRATION   12000
+    #define XPT2046_Y_CALIBRATION  -9000
     #define XPT2046_X_OFFSET       -43
     #define XPT2046_Y_OFFSET        257
+  #endif
+
+  #if ENABLED(TS_V19)
+    // Longer LK4/U30 2.8" Ver 2019 / Blue PCB, SID240x320-8PCB-D
+    #define XPT2046_X_CALIBRATION  -12000
+    #define XPT2046_Y_CALIBRATION   9000
+    #define XPT2046_X_OFFSET        320
+    #define XPT2046_Y_OFFSET        0
   #endif
 #endif
 
