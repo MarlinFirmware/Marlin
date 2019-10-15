@@ -164,7 +164,7 @@
   #define SHIFT_OUT        34
   #define SHIFT_EN         44
 
-  #if MB(MEGATRONICS_31) || MB(MEGATRONICS_32)
+  #if MB(MEGATRONICS_31, MEGATRONICS_32)
     #define SD_DETECT_PIN  56
   #endif
 
