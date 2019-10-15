@@ -15,8 +15,8 @@
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-//#define MachineCR10SV2
-#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCR10SV2
+//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
@@ -263,7 +263,10 @@
     #define ABL_BI
   #endif
   #define MeshStd
+#endif
 
+#if ENABLED(MachineCR10SV2)
+  #define lerdgeFilSensor
 #endif
 
 #if ANY(MachineCR10SV2, MachineCR10Max)
