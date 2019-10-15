@@ -82,7 +82,7 @@
 
 // Valid platformio.ini submodel values are U20_PLUS U20 U30 LK1 LK2 LK4
 
-// Valid platformio.ini touchscreens are TS_V11 TS_V12
+// Valid platformio.ini touchscreens are TS_V11 TS_V12 TS_V19
 
 // 2 - Select the screen controller type. Most common is ILI9341 - First option. If your screen remains white,
 //     Try the alternate setting - this should enable ST7789V or ILI9328. For other LCDs... code is needed
@@ -2137,18 +2137,26 @@
 
   #if ENABLED(TS_V11)
     // Alfawise U20 ILI9341 2.8 TP Ver 1.1 / Green PCB on the back of touchscreen
-    #define XPT2046_X_CALIBRATION   11605
-    #define XPT2046_Y_CALIBRATION   9091
+    #define XPT2046_X_CALIBRATION   12000
+    #define XPT2046_Y_CALIBRATION   9000
     #define XPT2046_X_OFFSET       -24
     #define XPT2046_Y_OFFSET       -17
   #endif
 
   #if ENABLED(TS_V12)
     // Alfawise U30 ILI9341 2.8 TP Ver 1.2 / Blue PCB on the back of touchscreen
-    #define XPT2046_X_CALIBRATION   12316
-    #define XPT2046_Y_CALIBRATION  -8981
+    #define XPT2046_X_CALIBRATION   12000
+    #define XPT2046_Y_CALIBRATION  -9000
     #define XPT2046_X_OFFSET       -43
     #define XPT2046_Y_OFFSET        257
+  #endif
+
+  #if ENABLED(TS_V19)
+    // Longer LK4/U30 2.8" Ver 2019 / Blue PCB, SID240x320-8PCB-D
+    #define XPT2046_X_CALIBRATION  -12000
+    #define XPT2046_Y_CALIBRATION   9000
+    #define XPT2046_X_OFFSET        320
+    #define XPT2046_Y_OFFSET        0
   #endif
 #endif
 
