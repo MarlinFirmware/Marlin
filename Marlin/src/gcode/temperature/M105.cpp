@@ -31,18 +31,21 @@ void GcodeSuite::M105() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
+  SERIAL_ECHOPGM(MSG_OK);
+
   #if HAS_TEMP_SENSOR
-    SERIAL_ECHOPGM(MSG_OK);
+
     thermalManager.print_heater_states(target_extruder
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         , parser.boolval('R')
       #endif
     );
-  #else // !HAS_TEMP_SENSOR
-    // Hosts such as printrun send M105 to check if firmware is responding.
-    SERIAL_ECHOPGM(MSG_OK);
-    SERIAL_ECHOPGM(" T:0");
-  #endif
 
-  SERIAL_EOL();
+    SERIAL_EOL();
+
+  #else
+
+    SERIAL_ECHOLNPGM(" T:0"); // Some hosts send M105 to test the serial connection
+
+  #endif
 }
