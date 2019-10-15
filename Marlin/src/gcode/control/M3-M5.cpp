@@ -29,10 +29,20 @@
 #include "../../module/stepper.h"
 
 /**
- *  M3 - Cutter ON (Clockwise)
- *  M4 - Cutter ON (Counter-clockwise)
+ * Laser:
  *
- *    S<power> - Set power. S0 turns it off.
+ *  M3 - Laser ON/Power (Ramped power)
+ *  M4 - Laser ON/Power (Continuous power)
+ *
+ *    S<power> - Set power. S0 will turn the laser off.
+ *    O<ocr>   - Set power and OCR
+ *
+ * Spindle:
+ *
+ *  M3 - Spindle ON (Clockwise)
+ *  M4 - Spindle ON (Counter-clockwise)
+ *
+ *    S<power> - Set power. S0 will turn the spindle off.
  *    O<ocr>   - Set power and OCR
  *
  *  If no PWM pin is defined then M3/M4 just turns it on.
