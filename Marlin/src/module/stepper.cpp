@@ -1667,6 +1667,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
           return interval; // No more queued movements!
       }
 
+      #if HAS_CUTTER
+        cutter.apply_power(current_block->cutter_power);
+      #endif
+
       #if ENABLED(POWER_LOSS_RECOVERY)
         recovery.info.sdpos = current_block->sdpos;
       #endif
