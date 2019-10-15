@@ -310,7 +310,7 @@
 //
 // Espressif ESP32 WiFi
 //
-#define BOARD_ESP32                   6000
+#define BOARD_ESPRESSIF_ESP32         6000
 
 //
 // Simulations

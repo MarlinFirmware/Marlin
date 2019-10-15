@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "../core/boards.h"
+
 /**
  * Include pins definitions
  *
@@ -528,7 +530,8 @@
 // Espressif ESP32
 //
 
-#elif MB(ESP32)
+#elif MB(ESPRESSIF_ESP32)
+
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
 
 //
