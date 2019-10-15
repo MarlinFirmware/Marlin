@@ -34,8 +34,20 @@
 
 #include "../core/boards.h"
 #include "../core/macros.h"
-#include "Version.h"
 #include "../../Configuration.h"
+
+
+#ifdef CUSTOM_VERSION_FILE
+  #if defined(__has_include)
+    #if __has_include(CUSTOM_VERSION_FILE)
+      #include XSTR(../../CUSTOM_VERSION_FILE)
+    #endif
+  #else
+    #include XSTR(../../CUSTOM_VERSION_FILE)
+  #endif
+#endif
+
+#include "Version.h"
 
 #include "Conditionals_LCD.h"
 #include HAL_PATH(../HAL, inc/Conditionals_LCD.h)

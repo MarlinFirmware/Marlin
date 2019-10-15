@@ -75,8 +75,8 @@ before_script:
   - cd ${TRAVIS_BUILD_DIR}
   #
   # Generate custom version include
-  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/src/inc
-  - cat ${TRAVIS_BUILD_DIR}/Marlin/src/inc/_Version.h
+  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/
+  - cat ${TRAVIS_BUILD_DIR}/Marlin/Version.h
   #
 script:
   - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
