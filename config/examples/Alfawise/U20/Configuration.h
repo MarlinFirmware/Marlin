@@ -360,7 +360,7 @@
  * Specify whether the power supply is active HIGH or active LOW.
  */
 //#define PSU_CONTROL
-//#define PSU_NAME "Power Supply"
+#define PSU_NAME "360W 24V/15A"
 
 #if ENABLED(PSU_CONTROL)
   #define PSU_ACTIVE_HIGH false // Set 'false' for ATX (1), 'true' for X-Box (2)
