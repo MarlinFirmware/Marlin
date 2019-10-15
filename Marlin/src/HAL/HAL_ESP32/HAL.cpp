@@ -187,19 +187,21 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
   const adc1_channel_t chan = get_channel(adc_pin);
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
+  HAL_adc_result = mv * 1023.0 / 3300.0;
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;
   if (mv < thresholds[ADC_ATTEN_DB_0] - 100)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_0);
+    atten = ADC_ATTEN_DB_0;
   else if (mv > thresholds[ADC_ATTEN_DB_0] - 50 && mv < thresholds[ADC_ATTEN_DB_2_5] - 100)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_2_5);
+    atten = ADC_ATTEN_DB_2_5;
   else if (mv > thresholds[ADC_ATTEN_DB_2_5] - 50 && mv < thresholds[ADC_ATTEN_DB_6] - 100)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_6);
+    atten = ADC_ATTEN_DB_6;
   else if (mv > thresholds[ADC_ATTEN_DB_6] - 50)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_11);
+    atten = ADC_ATTEN_DB_11;
+  else return;
 
-  HAL_adc_result = mv * 1023.0 / 3300.0;
+  adc1_set_attenuation(chan, atten);
 }
 
 void analogWrite(pin_t pin, int value) {
