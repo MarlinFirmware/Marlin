@@ -89,6 +89,10 @@
 
 #elif ENABLED(CR10_STOCKDISPLAY)
 
+  #if DISABLED(SDSUPPORT )
+    #define LONG_FILENAME_LENGTH 0
+  #endif
+
   #define IS_RRD_FG_SC
   #ifndef ST7920_DELAY_1
     #define ST7920_DELAY_1 DELAY_NS(125)
