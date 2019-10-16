@@ -417,6 +417,8 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
             #if ENABLED(LIN_ADVANCE)
               planner.recalculate_max_e_jerk();
             #endif
+          } else {
+            fprintf(stderr, "M205 J value ignored: Out of range (0.01-0.3)\n");
           }
         }
         break;
