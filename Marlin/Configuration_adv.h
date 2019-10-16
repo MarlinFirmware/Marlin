@@ -890,8 +890,10 @@
 //#define LCD_SET_PROGRESS_MANUALLY
 
 #if HAS_PRINT_PROGRESS
-  //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits (Graphical LCD only)
-  //#define SHOW_REMAINING_TIME          // Display estimated time to completion (Graphical LCD only)
+  #define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits (Graphical LCD only)
+  #define SHOW_REMAINING_TIME          // Display estimated time to completion (Graphical LCD only)
+  #define ROTATE_PROGRESS_DISPLAY      // if DOGM_SD_PERCENT enabled and SHOW_REMAINING_TIME enabled,
+                                       // rotate diplay for (P)rogress, (E)laspsed and (R)emaining Time.
 #endif
 
 #if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS
