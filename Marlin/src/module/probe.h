@@ -60,7 +60,7 @@
 
 #endif
 
-#if HAS_BED_PROBE || ENABLED(PROBE_MANUALLY)
+#if (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY)) && (HAS_LEVELING || NEEDS_THREE_PROBE_POINTS)
   #if IS_KINEMATIC
     constexpr float printable_radius = (
       #if ENABLED(DELTA)
