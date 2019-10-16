@@ -597,7 +597,7 @@ void MarlinUI::draw_status_screen() {
           lcd_put_wchar(PROGRESS_BAR_X, EXTRAS_BASELINE, SHOW_REMAINING_TIME_PREFIX);
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
         }
-        else {
+        else if (elapsed_string[0] != '\0'){
           lcd_put_wchar(PROGRESS_BAR_X, EXTRAS_BASELINE, ELAPSED_TIME_PREFIX);
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
         }
