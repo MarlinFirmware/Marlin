@@ -104,13 +104,11 @@
 
 namespace ExtUI {
   static struct {
-    uint8_t printer_killed  : 1;
-    uint8_t manual_motion   : 1;
+    uint8_t printer_killed : 1;
+    #if ENABLED(JOYSTICK)
+      uint8_t jogging : 1;
+    #endif
   } flags;
-
-  #if ENABLED(JOYSTICK)
-    float norm_jog[XYZ];
-  #endif
 
   #ifdef __SAM3X8E__
     /**
@@ -197,13 +195,41 @@ namespace ExtUI {
     #endif
   }
 
-  void jog(float dx, float dy, float dz) {
-    #if ENABLED(JOYSTICK)
-      norm_jog[X] = dx;
-      norm_jog[Y] = dy;
-      norm_jog[Z] = dz;
-    #endif
-  }
+  #if ENABLED(JOYSTICK)
+    /**
+     * Jogs in the direction given by the vector (dx, dy, dz).
+     * The values range from -1 to 1 mapping to the maximum
+     * feedrate for an axis.
+     *
+     * The axis will continue to jog until this function is
+     * called with all zeros.
+     */
+    void jog(const xyz_float_t &dir) {
+      // The "destination" variable is used as a scratchpad in
+      // Marlin by GCODE routines, but should remain untouched
+      // during manual jogging, allowing us to reuse the space
+      // for our direction vector.
+      destination = dir;
+      flags.jogging = !NEAR_ZERO(dir.x) || !NEAR_ZERO(dir.y) || !NEAR_ZERO(dir.z);
+    }
+
+    // Called by the polling routine in "joystick.cpp"
+    void _joystick_update(xyz_float_t &norm_jog) {
+      if (flags.jogging) {
+        #define OUT_OF_RANGE(VALUE) (VALUE < -1.0f || VALUE > 1.0f)
+
+        if (OUT_OF_RANGE(destination.x) || OUT_OF_RANGE(destination.y) || OUT_OF_RANGE(destination.z)) {
+          // If destination on any axis is out of range, it
+          // probably means the UI forgot to stop jogging and
+          // ran GCODE that wrote a position to destination.
+          // To prevent a disaster, stop jogging.
+          flags.jogging = false;
+          return;
+        }
+        norm_jog = destination;
+      }
+    }
+  #endif
 
   bool isHeaterIdle(const extruder_t extruder) {
     return false
@@ -288,15 +314,24 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return flags.manual_motion ? destination[axis] : current_position[axis];
+    return
+      #if ENABLED(JOYSTICK)
+        flags.jogging ? destination[axis] :
+      #endif
+      current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float pos = flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    const float epos = (
+      #if ENABLED(JOYSTICK)
+        flags.jogging ? destination.e :
+      #endif
+      current_position.e
+    );
     setActiveTool(old_tool, true);
-    return pos;
+    return epos;
   }
 
   void setAxisPosition_mm(const float position, const axis_t axis) {
@@ -309,26 +344,26 @@ namespace ExtUI {
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-            min = soft_endstop[X_AXIS].min;
+            min = soft_endstop.min.x;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-            max = soft_endstop[X_AXIS].max;
+            max = soft_endstop.max.x;
           #endif
           break;
         case Y_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            min = soft_endstop[Y_AXIS].min;
+            min = soft_endstop.min.y;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            max = soft_endstop[Y_AXIS].max;
+            max = soft_endstop.max.y;
           #endif
           break;
         case Z_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-            min = soft_endstop[Z_AXIS].min;
+            min = soft_endstop.min.z;
           #endif
           #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-            max = soft_endstop[Z_AXIS].max;
+            max = soft_endstop.max.z;
           #endif
         default: break;
       }
@@ -343,54 +378,15 @@ namespace ExtUI {
       }
     #endif
 
-    constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[axis]));
-
-    if (!flags.manual_motion) set_destination_from_current();
-    destination[axis] = constrain(position, min, max);
-    flags.manual_motion = true;
+    current_position[axis] = constrain(position, min, max);
+    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m[axis]));
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
-    constexpr float max_manual_feedrate[XYZE] = MANUAL_FEEDRATE;
-    setFeedrate_mm_s(MMM_TO_MMS(max_manual_feedrate[E_AXIS]));
-    if (!flags.manual_motion) set_destination_from_current();
-    destination[E_AXIS] = position;
-    flags.manual_motion = true;
-  }
-
-  void _processManualMoveToDestination() {
-    // Lower max_response_lag makes controls more responsive, but makes CPU work harder
-    constexpr float   max_response_lag = 0.1; // seconds
-    constexpr uint8_t segments_to_buffer = 4; // keep planner filled with this many segments
-
-    if (flags.manual_motion && planner.movesplanned() < segments_to_buffer) {
-      float saved_destination[XYZ];
-      COPY(saved_destination, destination);
-      // Compute direction vector from current_position towards destination.
-      destination[X_AXIS] -= current_position[X_AXIS];
-      destination[Y_AXIS] -= current_position[Y_AXIS];
-      destination[Z_AXIS] -= current_position[Z_AXIS];
-      const float inv_length = RSQRT(sq(destination[X_AXIS]) + sq(destination[Y_AXIS]) + sq(destination[Z_AXIS]));
-      // Find move segment length so that all segments can execute in less time than max_response_lag
-      const float scale = inv_length * feedrate_mm_s * max_response_lag / segments_to_buffer;
-      if (scale < 1) {
-        // Move a small bit towards the destination.
-        destination[X_AXIS] = scale * destination[X_AXIS] + current_position[X_AXIS];
-        destination[Y_AXIS] = scale * destination[Y_AXIS] + current_position[Y_AXIS];
-        destination[Z_AXIS] = scale * destination[Z_AXIS] + current_position[Z_AXIS];
-        prepare_move_to_destination();
-        COPY(destination, saved_destination);
-      }
-      else {
-        // We are close enough to finish off the move.
-        COPY(destination, saved_destination);
-        prepare_move_to_destination();
-        flags.manual_motion = false;
-      }
-    }
+    current_position.e = position;
+    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.e));
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -520,13 +516,13 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
+        #if X_SENSORLESS
           case X: return stepperX.homing_threshold();
         #endif
-        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
+        #if Y_SENSORLESS
           case Y: return stepperY.homing_threshold();
         #endif
-        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
+        #if Z_SENSORLESS
           case Z: return stepperZ.homing_threshold();
         #endif
         default: return 0;
@@ -535,18 +531,16 @@ namespace ExtUI {
 
     void setTMCBumpSensitivity(const float value, const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS && AXIS_HAS_STALLGUARD(X)
-          case X: stepperX.homing_threshold(value); break;
-        #else
-          UNUSED(value);
-        #endif
-        #if Y_SENSORLESS && AXIS_HAS_STALLGUARD(Y)
-          case Y: stepperY.homing_threshold(value); break;
-        #else
-          UNUSED(value);
-        #endif
-        #if Z_SENSORLESS && AXIS_HAS_STALLGUARD(Z)
-          case Z: stepperZ.homing_threshold(value); break;
+        #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+          #if X_SENSORLESS
+            case X: stepperX.homing_threshold(value); break;
+          #endif
+          #if Y_SENSORLESS
+            case Y: stepperY.homing_threshold(value); break;
+          #endif
+          #if Z_SENSORLESS
+            case Z: stepperZ.homing_threshold(value); break;
+          #endif
         #else
           UNUSED(value);
         #endif
@@ -573,22 +567,21 @@ namespace ExtUI {
     planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
   }
 
-  float getAxisMaxFeedrate_mm_s(const axis_t axis) {
+  feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
     return planner.settings.max_feedrate_mm_s[axis];
   }
 
-  float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
+  feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
     UNUSED_E(extruder);
     return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
   }
 
-  void setAxisMaxFeedrate_mm_s(const float value, const axis_t axis) {
-    planner.settings.max_feedrate_mm_s[axis] = value;
+  void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
+    planner.set_max_feedrate(axis, value);
   }
 
-  void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
-    UNUSED_E(extruder);
-    planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
+  void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
+    planner.set_max_feedrate(E_AXIS_N(extruder - E0), value);
   }
 
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
@@ -601,12 +594,11 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
-    planner.settings.max_acceleration_mm_per_s2[axis] = value;
+    planner.set_max_acceleration(axis, value);
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
-    UNUSED_E(extruder);
-    planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
+    planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -630,7 +622,7 @@ namespace ExtUI {
     }
   #endif
 
-  #if ENABLED(JUNCTION_DEVIATION)
+  #if DISABLED(CLASSIC_JERK)
 
     float getJunctionDeviation_mm() {
       return planner.junction_deviation_mm;
@@ -650,27 +642,27 @@ namespace ExtUI {
     }
 
     float getAxisMaxJerk_mm_s(const extruder_t) {
-      return planner.max_jerk[E_AXIS];
+      return planner.max_jerk.e;
     }
 
     void setAxisMaxJerk_mm_s(const float value, const axis_t axis) {
-      planner.max_jerk[axis] = value;
+      planner.set_max_jerk((AxisEnum)axis, value);
     }
 
     void setAxisMaxJerk_mm_s(const float value, const extruder_t) {
-      planner.max_jerk[E_AXIS] = value;
+      planner.set_max_jerk(E_AXIS, value);
     }
   #endif
 
-  float getFeedrate_mm_s()                            { return feedrate_mm_s; }
-  float getMinFeedrate_mm_s()                         { return planner.settings.min_feedrate_mm_s; }
-  float getMinTravelFeedrate_mm_s()                   { return planner.settings.min_travel_feedrate_mm_s; }
+  feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
+  feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
+  feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
-  void setFeedrate_mm_s(const float fr)               { feedrate_mm_s = fr; }
-  void setMinFeedrate_mm_s(const float fr)            { planner.settings.min_feedrate_mm_s = fr; }
-  void setMinTravelFeedrate_mm_s(const float fr)      { planner.settings.min_travel_feedrate_mm_s = fr; }
+  void setFeedrate_mm_s(const feedRate_t fr)          { feedrate_mm_s = fr; }
+  void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
+  void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
   void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
   void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
@@ -708,7 +700,7 @@ namespace ExtUI {
           #if EXTRUDERS > 1
             && (linked_nozzles || active_extruder == 0)
           #endif
-        ) zprobe_zoffset += mm;
+        ) probe_offset.z += mm;
       #else
         UNUSED(mm);
       #endif
@@ -722,7 +714,7 @@ namespace ExtUI {
         if (!linked_nozzles) {
           HOTEND_LOOP()
             if (e != active_extruder)
-              hotend_offset[axis][e] += mm;
+              hotend_offset[e][axis] += mm;
 
           normalizeNozzleOffset(X);
           normalizeNozzleOffset(Y);
@@ -746,7 +738,7 @@ namespace ExtUI {
 
   float getZOffset_mm() {
     #if HAS_BED_PROBE
-      return zprobe_zoffset;
+      return probe_offset.z;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       return babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
     #else
@@ -757,7 +749,7 @@ namespace ExtUI {
   void setZOffset_mm(const float value) {
     #if HAS_BED_PROBE
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-        zprobe_zoffset = value;
+        probe_offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       babystep.add_mm(Z_AXIS, (value - babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1]));
     #else
@@ -769,12 +761,12 @@ namespace ExtUI {
 
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
-      return hotend_offset[axis][extruder - E0];
+      return hotend_offset[extruder - E0][axis];
     }
 
     void setNozzleOffset_mm(const float value, const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return;
-      hotend_offset[axis][extruder - E0] = value;
+      hotend_offset[extruder - E0][axis] = value;
     }
 
     /**
@@ -783,8 +775,8 @@ namespace ExtUI {
      * user to edit the offset the first nozzle).
      */
     void normalizeNozzleOffset(const axis_t axis) {
-      const float offs = hotend_offset[axis][0];
-      HOTEND_LOOP() hotend_offset[axis][e] -= offs;
+      const float offs = hotend_offset[0][axis];
+      HOTEND_LOOP() hotend_offset[e][axis] -= offs;
     }
 
   #endif // HAS_HOTEND_OFFSET
@@ -804,7 +796,7 @@ namespace ExtUI {
   #endif
 
   uint8_t getProgress_percent() {
-    return ui.get_progress();
+    return ui.get_progress_percent();
   }
 
   uint32_t getProgress_seconds_elapsed() {
@@ -818,17 +810,14 @@ namespace ExtUI {
     bool getMeshValid() { return leveling_is_valid(); }
     #if HAS_MESH
       bed_mesh_t& getMeshArray() { return Z_VALUES_ARR; }
-      float getMeshPoint(const uint8_t xpos, const uint8_t ypos) { return Z_VALUES(xpos,ypos); }
-      void setMeshPoint(const uint8_t xpos, const uint8_t ypos, const float zoff) {
-        if (WITHIN(xpos, 0, GRID_MAX_POINTS_X) && WITHIN(ypos, 0, GRID_MAX_POINTS_Y)) {
-          Z_VALUES(xpos, ypos) = zoff;
+      float getMeshPoint(const xy_uint8_t &pos) { return Z_VALUES(pos.x, pos.y); }
+      void setMeshPoint(const xy_uint8_t &pos, const float zoff) {
+        if (WITHIN(pos.x, 0, GRID_MAX_POINTS_X) && WITHIN(pos.y, 0, GRID_MAX_POINTS_Y)) {
+          Z_VALUES(pos.x, pos.y) = zoff;
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
             bed_level_virt_interpolate();
           #endif
         }
-      }
-      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
-        UNUSED(xpos); UNUSED(ypos); UNUSED(zval);
       }
     #endif
   #endif
@@ -840,8 +829,8 @@ namespace ExtUI {
   #if ENABLED(PRINTCOUNTER)
     char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
     char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,i16tostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
-    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);       return buffer; }
-    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().longestPrint).toString(buffer);    return buffer; }
+    char* getTotalPrintTime_str(char buffer[21]) { return duration_t(print_job_timer.getStats().printTime).toString(buffer); }
+    char* getLongestPrint_str(char buffer[21])   { return duration_t(print_job_timer.getStats().longestPrint).toString(buffer); }
     char* getFilamentUsed_str(char buffer[21])   {
       printStatistics stats = print_job_timer.getStats();
       sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
@@ -882,7 +871,7 @@ namespace ExtUI {
     #endif
       {
         #if HOTENDS
-          static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+          static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
           const int16_t e = heater - H0;
           thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
         #endif
@@ -891,7 +880,7 @@ namespace ExtUI {
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
     #if HOTENDS
-      constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
+      constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
       thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
@@ -950,6 +939,12 @@ namespace ExtUI {
     ui.abort_print();
   }
 
+  void onUserConfirmRequired_P(PGM_P const pstr) {
+    char msg[strlen_P(pstr) + 1];
+    strcpy_P(msg, pstr);
+    onUserConfirmRequired(msg);
+  }
+
   FileList::FileList() { refresh(); }
 
   void FileList::refresh() { num_files = 0xFFFF; }
@@ -1000,14 +995,14 @@ namespace ExtUI {
 
   void FileList::upDir() {
     #if ENABLED(SDSUPPORT)
-      card.updir();
+      card.cdup();
       num_files = 0xFFFF;
     #endif
   }
 
   void FileList::changeDir(const char * const dirname) {
     #if ENABLED(SDSUPPORT)
-      card.chdir(dirname);
+      card.cd(dirname);
       num_files = 0xFFFF;
     #endif
   }
@@ -1044,15 +1039,14 @@ void MarlinUI::update() {
       }
     }
   #endif // SDSUPPORT
-  ExtUI::_processManualMoveToDestination();
   ExtUI::onIdle();
 }
 
-void MarlinUI::kill_screen(PGM_P const msg) {
+void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
   using namespace ExtUI;
   if (!flags.printer_killed) {
     flags.printer_killed = true;
-    onPrinterKilled(msg);
+    onPrinterKilled(error, component);
   }
 }
 

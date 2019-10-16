@@ -33,9 +33,9 @@ void GcodeSuite::M304() {
   if (parser.seen('D')) thermalManager.temp_bed.pid.Kd = scalePID_d(parser.value_float());
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(" p:", thermalManager.temp_bed.pid.Kp);
-  SERIAL_ECHOPAIR(" i:", unscalePID_i(thermalManager.temp_bed.pid.Ki));
-  SERIAL_ECHOLNPAIR(" d:", unscalePID_d(thermalManager.temp_bed.pid.Kd));
+  SERIAL_ECHOLNPAIR(" p:", thermalManager.temp_bed.pid.Kp,
+                    " i:", unscalePID_i(thermalManager.temp_bed.pid.Ki),
+                    " d:", unscalePID_d(thermalManager.temp_bed.pid.Kd));
 }
 
 #endif // PIDTEMPBED

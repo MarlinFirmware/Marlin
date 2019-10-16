@@ -38,11 +38,6 @@
   // __MARLIN_FIRMWARE__ exists when compiled within Marlin.
   #include "pin_mappings.h"
 #else
-  // Messages that are declared in Marlin
-  #define WELCOME_MSG        "Printer Ready"
-  #define MSG_MEDIA_INSERTED "Media Inserted"
-  #define MSG_MEDIA_REMOVED  "Media Removed"
-
   namespace UI {
     static inline uint32_t safe_millis() {return millis();};
     static inline void     yield()       {};

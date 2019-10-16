@@ -10,12 +10,10 @@ void manage_inactivity2();
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include "../core/enum.h"
 #include "../inc/MarlinConfig.h"
 
 //From motion.h
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
-extern float current_position[XYZE];
+extern xyze_pos_t current_position;
 #define SYNC_PLAN_POSITION_KINEMATIC()
 
 //From "../HAL/HAL_LPC1768/include/Arduino.h"
@@ -122,7 +120,8 @@ struct Stepper {
     return 0; // TODO: Check if this affects anything.
   }
   void wake_up() {}
-  inline static void set_position(const AxisEnum a, const int32_t &v) {}
+  inline static void set_axis_position(const AxisEnum a, const int32_t &v) {}
+  inline static void set_position(const xyze_long_t&) {}
   inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
   }
 };
@@ -140,6 +139,12 @@ typedef struct ExtraData {
 
 // From motion.h for fwretract.*
 extern int16_t feedrate_percentage;
+
+// From src/core/serial.h
+#define SERIAL_CHAR(x)         do{}while(0)
+#define SERIAL_ECHOPGM(x)      do{}while(0)
+#define serialprintPGM(x)      do{}while(0)
+#define SERIAL_ECHOLNPAIR(x,y) do{}while(0)
 
 // From motion.cpp for fwretract.cpp
 #define sync_plan_position_e() Planner::set_e_position_mm(current_position[E_AXIS]);

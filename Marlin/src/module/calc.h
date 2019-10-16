@@ -34,8 +34,8 @@ extern unsigned char active_extruder;
 // From motion.h
 void set_destination_from_current();
 extern double feedrate_mm_s;
-extern double destination[NUM_AXIS];
-extern void prepare_move(const ExtraData& extra_data);
-#define prepare_move_to_destination prepare_move
+extern xyze_pos_t destination;
+extern void prepare_move(const ExtraData& extra_data, const feedRate_t &fr_mm_s=0.0f);
+#define prepare_internal_move_to_destination prepare_move
 
 #endif

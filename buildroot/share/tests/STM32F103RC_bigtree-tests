@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F1 Bigtreetech (SKR Mini v1.1)
+# Build tests for STM32F103RC Bigtreetech (SKR Mini v1.1)
 #
 
 # exit on first failure

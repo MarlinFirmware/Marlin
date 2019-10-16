@@ -13,10 +13,8 @@ env:
   - TEST_PLATFORM="DUE"
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="linux_native"
-  - TEST_PLATFORM="LPC1768"
-  - TEST_PLATFORM="LPC1769"
   - TEST_PLATFORM="megaatmega2560"
-  - TEST_PLATFORM="STM32F103R"
+  - TEST_PLATFORM="STM32F103RE"
   - TEST_PLATFORM="teensy31"
   - TEST_PLATFORM="teensy35"
 
@@ -31,22 +29,27 @@ env:
   - TEST_PLATFORM="ARMED"
   - TEST_PLATFORM="BIGTREE_BTT002"
   - TEST_PLATFORM="BIGTREE_SKR_PRO"
-  - TEST_PLATFORM="STM32F103R_bigtree"
+  - TEST_PLATFORM="STM32F103RC_bigtree"
   - TEST_PLATFORM="jgaurora_a5s_a1"
-  - TEST_PLATFORM="STM32F103V_longer"
+  - TEST_PLATFORM="STM32F103VE_longer"
   - TEST_PLATFORM="STM32F407VE_black"
+  - TEST_PLATFORM="mks_robin"
+
+  # Put lengthy tests last
+  - TEST_PLATFORM="LPC1768"
+  - TEST_PLATFORM="LPC1769"
 
   # Non-working environment tests
   #- TEST_PLATFORM="at90usb1286_cdc"
   #- TEST_PLATFORM="at90usb1286_dfu"
-  #- TEST_PLATFORM="malyanm200"
-  #- TEST_PLATFORM="mks_robin"
+  #- TEST_PLATFORM="STM32F103CB_malyan"
   #- TEST_PLATFORM="mks_robin_lite"
   #- TEST_PLATFORM="mks_robin_mini"
   #- TEST_PLATFORM="mks_robin_nano"
   #- TEST_PLATFORM="SAMD51_grandcentral_m4"
-  #- TEST_PLATFORM="STM32F103R_bigtree"
-  #- TEST_PLATFORM="STM32F103R_fysetc"
+  #- TEST_PLATFORM="STM32F103RC_bigtree"
+  #- TEST_PLATFORM="STM32F103RC_bigtree_USB"
+  #- TEST_PLATFORM="STM32F103RC_fysetc"
   #- TEST_PLATFORM="STM32F4"
   #- TEST_PLATFORM="STM32F7"
 
@@ -72,8 +75,8 @@ before_script:
   - cd ${TRAVIS_BUILD_DIR}
   #
   # Generate custom version include
-  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/src/inc
-  - cat ${TRAVIS_BUILD_DIR}/Marlin/src/inc/_Version.h
+  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/
+  - cat ${TRAVIS_BUILD_DIR}/Marlin/Version.h
   #
 script:
   - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

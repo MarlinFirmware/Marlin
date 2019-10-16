@@ -21,9 +21,38 @@
 
 #include "../ftdi_extended.h"
 
-#if defined(FTDI_EXTENDED) && defined(TOUCH_UI_USE_UTF8)
+#if defined(FTDI_EXTENDED) && ENABLED(TOUCH_UI_USE_UTF8)
 
   using namespace FTDI;
+
+  /**
+   * Return true if a string has UTF8 characters
+   *
+   * Parameters:
+   *
+   *   c  - Pointer to a string.
+   *
+   * Returns: True if the strings has UTF8 characters
+   */
+
+  bool FTDI::has_utf8_chars(const char *str) {
+    for (;;) {
+      const char c = *str++;
+      if (!c) break;
+      if ((c & 0xC0) == 0x80) return true;
+    }
+    return false;
+  }
+
+  bool FTDI::has_utf8_chars(progmem_str _str) {
+    const char *str = (const char *) _str;
+    for (;;) {
+      const char c = pgm_read_byte(str++);
+      if (!c) break;
+      if ((c & 0xC0) == 0x80) return true;
+    }
+    return false;
+  }
 
   /**
    * Return a character in a UTF8 string and increment the

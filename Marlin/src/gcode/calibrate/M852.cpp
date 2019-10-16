@@ -93,13 +93,13 @@ void GcodeSuite::M852() {
 
   if (!ijk) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR_F(MSG_SKEW_FACTOR " XY: ", planner.skew_factor.xy, 6);
+    serialprintPGM(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      SERIAL_ECHOPAIR(" XZ: ", planner.skew_factor.xz);
-      SERIAL_ECHOLNPAIR(" YZ: ", planner.skew_factor.yz);
-    #else
-      SERIAL_EOL();
+      SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);
+      SERIAL_ECHOPAIR_F(" YZ: ", planner.skew_factor.yz, 6);
     #endif
+    SERIAL_EOL();
   }
 }
 

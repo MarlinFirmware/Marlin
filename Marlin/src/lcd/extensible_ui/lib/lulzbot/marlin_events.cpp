@@ -38,19 +38,21 @@ namespace ExtUI {
     EventLoop::loop();
   }
 
-  void onPrinterKilled(PGM_P lcd_msg) {
-    KillScreen::show(progmem_str(lcd_msg));
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {
+    char str[strlen_P(error) + strlen_P(component) + 3];
+    sprintf_P(str, PSTR(S_FMT ": " S_FMT), error, component);
+    KillScreen::show(str);
   }
 
   void onMediaInserted() {
     if (AT_SCREEN(StatusScreen))
-      StatusScreen::setStatusMessage(F(MSG_MEDIA_INSERTED));
+      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
     sound.play(media_inserted, PLAY_ASYNCHRONOUS);
   }
 
   void onMediaRemoved() {
     if (AT_SCREEN(StatusScreen))
-      StatusScreen::setStatusMessage(F(MSG_MEDIA_REMOVED));
+      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
     sound.play(media_removed, PLAY_ASYNCHRONOUS);
     if (AT_SCREEN(FilesScreen)) {
       GOTO_SCREEN(StatusScreen)
@@ -123,6 +125,11 @@ namespace ExtUI {
     else
       ConfirmUserRequestAlertBox::hide();
   }
+
+  #if HAS_LEVELING && HAS_MESH
+    void onMeshUpdate(const uint8_t, const uint8_t, const float) {
+    }
+  #endif
 }
 
 #endif // LULZBOT_TOUCH_UI

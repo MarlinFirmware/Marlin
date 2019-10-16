@@ -86,7 +86,7 @@ void GcodeSuite::G92() {
             #elif HAS_POSITION_SHIFT
               if (i == E_AXIS) {
                 didE = true;
-                current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+                current_position.e = v; // When using coordinate spaces, only E is set directly
               }
               else {
                 position_shift[i] += d;       // Other axes simply offset the coordinate space
@@ -102,7 +102,7 @@ void GcodeSuite::G92() {
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     // Apply workspace offset to the active coordinate system
     if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
-      COPY(coordinate_system[active_coordinate_system], position_shift);
+      coordinate_system[active_coordinate_system] = position_shift;
   #endif
 
   if    (didXYZ) sync_plan_position();

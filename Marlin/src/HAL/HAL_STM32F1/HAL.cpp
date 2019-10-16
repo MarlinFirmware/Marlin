@@ -27,8 +27,8 @@
 
 #ifdef __STM32F1__
 
-#include "HAL.h"
 #include "../../inc/MarlinConfig.h"
+#include "HAL.h"
 
 #include <STM32ADC.h>
 
@@ -233,7 +233,7 @@ void HAL_idletask() {
       // a PC via USB.
       // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
       // this will not reliably detect delete operations. To be safe we will lock
-      // the disk if Marlin has it mounted. Unfortuately there is currently no way
+      // the disk if Marlin has it mounted. Unfortunately there is currently no way
       // to unmount the disk from the LCD menu.
       // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
       /* copy from lpc1768 framework, should be fixed later for process SHARED_SD_CARD*/

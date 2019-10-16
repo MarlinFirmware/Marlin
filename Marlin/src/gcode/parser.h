@@ -290,9 +290,9 @@ public:
     static inline float mm_to_linear_unit(const float mm)     { return mm; }
     static inline float mm_to_volumetric_unit(const float mm) { return mm; }
 
-    static inline float linear_value_to_mm(const float v)                    { return v; }
-    static inline float axis_value_to_mm(const AxisEnum axis, const float v) { UNUSED(axis); return v; }
-    static inline float per_axis_value(const AxisEnum axis, const float v)   { UNUSED(axis); return v; }
+    static inline float linear_value_to_mm(const float v)               { return v; }
+    static inline float axis_value_to_mm(const AxisEnum, const float v) { return v; }
+    static inline float per_axis_value(const AxisEnum, const float v)   { return v; }
 
   #endif
 
@@ -364,7 +364,7 @@ public:
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
-  static inline float value_feedrate() { return value_linear_units(); }
+  static inline feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 
   void unknown_command_error();
 

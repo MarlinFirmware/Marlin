@@ -28,4 +28,4 @@ void watchdog_init();
 
 // Reset watchdog. MUST be called at least every 4 seconds after the
 // first watchdog_init or AVR will go into emergency procedures.
-inline void watchdog_reset() { wdt_reset(); }
+inline void HAL_watchdog_refresh() { wdt_reset(); }

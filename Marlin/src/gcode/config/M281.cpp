@@ -41,15 +41,14 @@ void GcodeSuite::M281() {
     }
     if (!angle_change) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR(" Servo ", servo_index);
-      SERIAL_ECHOPAIR(" L", servo_angles[servo_index][0]);
-      SERIAL_ECHOLNPAIR(" U", servo_angles[servo_index][1]);
+      SERIAL_ECHOLNPAIR(" Servo ", servo_index,
+                        " L", servo_angles[servo_index][0],
+                        " U", servo_angles[servo_index][1]);
     }
   }
   else {
     SERIAL_ERROR_START();
-    SERIAL_ECHOPAIR("Servo ", servo_index);
-    SERIAL_ECHOLNPGM(" out of range");
+    SERIAL_ECHOLNPAIR("Servo ", servo_index, " out of range");
   }
 }
 

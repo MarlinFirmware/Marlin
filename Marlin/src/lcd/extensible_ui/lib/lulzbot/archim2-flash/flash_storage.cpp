@@ -178,7 +178,7 @@ bool UIFlashStorage::is_present = false;
         ((manufacturer_id == 0x1F) && (device_type == 0x86) && (capacity == 0x01)) ;  // Adesto AT255F161
 
     if (!is_known) {
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Unable to locate supported SPI Flash Memory.");
+      SERIAL_ECHO_MSG("Unable to locate supported SPI Flash Memory.");
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Manufacturer ID, got: ", manufacturer_id);
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Device Type    , got: ", device_type);
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Capacity       , got: ", capacity);
@@ -252,7 +252,7 @@ bool UIFlashStorage::is_present = false;
           return -1;
       }
     }
-    SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("No LULZ delimiter found.");
+    SERIAL_ECHO_MSG("No LULZ delimiter found.");
     return -1;
   }
 
@@ -264,7 +264,7 @@ bool UIFlashStorage::is_present = false;
 
     int32_t write_offset = read_offset + 4 + block_size;
     if ((write_offset + 4 + block_size) > data_storage_area_size) {
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Not enough free space in Flash.");
+      SERIAL_ECHO_MSG("Not enough free space in Flash.");
       return -1; // Not enough free space
     }
     return write_offset;
@@ -300,7 +300,7 @@ bool UIFlashStorage::is_present = false;
 
   void UIFlashStorage::write_config_data(const void *data, size_t size) {
     if (!is_present) {
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("SPI Flash chip not present. Not saving UI settings.");
+      SERIAL_ECHO_MSG("SPI Flash chip not present. Not saving UI settings.");
       return;
     }
 
@@ -308,7 +308,7 @@ bool UIFlashStorage::is_present = false;
     // make sure that the data is different before rewriting.
 
     if (verify_config_data(data, size)) {
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("UI settings already written, skipping write.");
+      SERIAL_ECHO_MSG("UI settings already written, skipping write.");
       return;
     }
 
@@ -427,12 +427,12 @@ bool UIFlashStorage::is_present = false;
 
       MediaFileReader reader;
       if (!reader.open((char*) buff)) {
-        SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Unable to find media file");
+        SERIAL_ECHO_MSG("Unable to find media file");
         return FILE_NOT_FOUND;
       }
 
       if (get_media_file_size(slot) != 0xFFFFFFFFUL) {
-        SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Media file already exists");
+        SERIAL_ECHO_MSG("Media file already exists");
         return WOULD_OVERWRITE;
       }
 
@@ -518,9 +518,8 @@ bool UIFlashStorage::is_present = false;
       SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("Boot media file size:", bytes_remaining);
       addr = get_media_file_start(slot);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   int16_t UIFlashStorage::BootMediaReader::read(void *data, const size_t size) {

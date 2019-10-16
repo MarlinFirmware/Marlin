@@ -50,9 +50,8 @@
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR("  M421 I", x, " J", y);
-          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 4);
-          SERIAL_EOL();
+          SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
+          SERIAL_ECHOLNPAIR_F(" Z", z_values[x][y], 4);
           serial_delay(75); // Prevent Printrun from exploding
         }
   }
@@ -97,9 +96,6 @@
     const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
     storage_slot = -1;
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      planner.set_z_fade_height(10.0);
-    #endif
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -177,11 +173,10 @@
       serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    // Add XY_PROBE_OFFSET_FROM_EXTRUDER because probe_pt() subtracts these when
-    // moving to the xy position to be measured. This ensures better agreement between
+    // Add XY probe offset from extruder because probe_at_point() subtracts them when
+    // moving to the XY position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
-    const float current_xi = find_closest_x_index(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
-                current_yi = find_closest_y_index(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
+    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + xy_pos_t(probe_offset));
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
@@ -197,7 +192,7 @@
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
 
         // Opening Brace or Space
-        const bool is_current = i == current_xi && j == current_yi;
+        const bool is_current = i == curr.x && j == curr.y;
         if (human) SERIAL_CHAR(is_current ? '[' : ' ');
 
         // Z Value at current I, J

@@ -146,8 +146,7 @@ extern "C" {
 #define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0B)
 #define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0B)
 
-FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  UNUSED(frequency);
+FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       // waveform generation = 0100 = CTC

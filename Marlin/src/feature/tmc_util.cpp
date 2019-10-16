@@ -507,7 +507,7 @@
         case TMC_GLOBAL_SCALER:
           {
             uint16_t value = st.GLOBAL_SCALER();
-            SERIAL_PRINT(value ? value : 256, DEC);
+            SERIAL_PRINT(value ?: 256, DEC);
             SERIAL_ECHOPGM("/256");
           }
           break;
@@ -1118,7 +1118,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
     #endif
   }
 
-  if (axis_connection) ui.set_status_P(PSTR(MSG_ERROR_TMC));
+  if (axis_connection) ui.set_status_P(GET_TEXT(MSG_ERROR_TMC));
 }
 
 #endif // HAS_TRINAMIC

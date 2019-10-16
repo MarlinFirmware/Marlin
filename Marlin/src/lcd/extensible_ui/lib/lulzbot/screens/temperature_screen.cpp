@@ -32,29 +32,29 @@ using namespace ExtUI;
 
 void TemperatureScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(0).color(temp).units(GET_TEXTF(UNITS_C));
-  w.heading(GET_TEXTF(TEMPERATURE));
-  w.button(30, GET_TEXTF(COOLDOWN));
+  w.precision(0).color(temp).units(GET_TEXT_F(UNITS_C));
+  w.heading(GET_TEXT_F(TEMPERATURE));
+  w.button(30, GET_TEXT_F(COOLDOWN));
   #ifndef LULZBOT_DISABLE_TOOLHEAD_HEATER
     #if HOTENDS == 1
-      w.adjuster(   2, GET_TEXTF(HOTEND),   getTargetTemp_celsius(E0));
+      w.adjuster(   2, GET_TEXT_F(HOTEND),   getTargetTemp_celsius(E0));
     #else
-      w.adjuster(   2, GET_TEXTF(HOTEND1), getTargetTemp_celsius(E0));
-      w.adjuster(   4, GET_TEXTF(HOTEND2), getTargetTemp_celsius(E1));
+      w.adjuster(   2, GET_TEXT_F(HOTEND1), getTargetTemp_celsius(E0));
+      w.adjuster(   4, GET_TEXT_F(HOTEND2), getTargetTemp_celsius(E1));
       #if HOTENDS > 2
-        w.adjuster( 6, GET_TEXTF(HOTEND3), getTargetTemp_celsius(E2));
+        w.adjuster( 6, GET_TEXT_F(HOTEND3), getTargetTemp_celsius(E2));
       #endif
       #if HOTENDS > 3
-        w.adjuster( 8, GET_TEXTF(HOTEND4), getTargetTemp_celsius(E3));
+        w.adjuster( 8, GET_TEXT_F(HOTEND4), getTargetTemp_celsius(E3));
       #endif
     #endif
   #endif
   #if HAS_HEATED_BED
-    w.adjuster(    20, GET_TEXTF(BED),     getTargetTemp_celsius(BED));
+    w.adjuster(    20, GET_TEXT_F(BED),     getTargetTemp_celsius(BED));
   #endif
   #if FAN_COUNT > 0
-    w.color(fan_speed).units(GET_TEXTF(UNITS_PERCENT));
-    w.adjuster(    10, GET_TEXTF(FAN_SPEED), getTargetFan_percent(FAN0));
+    w.color(fan_speed).units(GET_TEXT_F(UNITS_PERCENT));
+    w.adjuster(    10, GET_TEXT_F(FAN_SPEED), getTargetFan_percent(FAN0));
   #endif
   w.increments();
 }

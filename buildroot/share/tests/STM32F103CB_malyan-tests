@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F1 malyanM200
+# Build tests for STM32F103CB Malyan M200
 #
 
 # exit on first failure

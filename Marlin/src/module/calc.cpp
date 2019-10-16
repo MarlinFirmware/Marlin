@@ -19,7 +19,7 @@
 //float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int16_t feedrate_percentage = 100; // In percent: 100->1 200->2
-float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0};
+xyze_pos_t current_position = { 0.0, 0.0, 0.0, 0.0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
@@ -41,7 +41,7 @@ bool volumetric_enabled = false;
 //=============================private variables=============================
 //===========================================================================
 static double extrusion_length[MAX_EXTRUDERS] = {0,0,0,0,0};
-double destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+xyze_pos_t destination = {  0.0, 0.0, 0.0, 0.0};
 //static double offset[3] = {0.0, 0.0, 0.0};
 //static bool home_all_axis = true;
 double feedrate_mm_s = 1500.0;
@@ -132,9 +132,14 @@ bool code_seen(char code)
 
 double extruder_position = 0;
 
-void prepare_move(const ExtraData& extra_data)
+void prepare_move(const ExtraData& extra_data, const feedRate_t &fr_mm_s)
 {
-  Planner::buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder, 0.0, extra_data);
+  Planner::buffer_line(destination[X_AXIS],
+                       destination[Y_AXIS],
+                       destination[Z_AXIS],
+                       destination[E_AXIS],
+                       fr_mm_s == 0 ? MMS_SCALED(feedrate_mm_s) : fr_mm_s,
+                       active_extruder, 0.0, extra_data);
 
   bool moved = destination[X_AXIS] != current_position[X_AXIS] ||
                destination[Y_AXIS] != current_position[Y_AXIS] ||

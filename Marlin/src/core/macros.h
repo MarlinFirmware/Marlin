@@ -21,11 +21,11 @@
  */
 #pragma once
 
-#define NUM_AXIS 4
 #define ABCE 4
 #define XYZE 4
 #define ABC  3
 #define XYZ  3
+#define XY   2
 
 #define _AXIS(A) (A##_AXIS)
 
@@ -60,6 +60,13 @@
 
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
+
+// Macros to make sprintf_P read from PROGMEM (AVR extension)
+#ifdef __AVR__
+  #define S_FMT "%S"
+#else
+  #define S_FMT "%s"
+#endif
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -198,25 +205,29 @@
   }while(0)
 
 // Macros for initializing arrays
-#define ARRAY_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P }
-#define ARRAY_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N,O }
-#define ARRAY_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) { A,B,C,D,E,F,G,H,I,J,K,L,M,N }
-#define ARRAY_13(A,B,C,D,E,F,G,H,I,J,K,L,M,...) { A,B,C,D,E,F,G,H,I,J,K,L,M }
-#define ARRAY_12(A,B,C,D,E,F,G,H,I,J,K,L,...) { A,B,C,D,E,F,G,H,I,J,K,L }
-#define ARRAY_11(A,B,C,D,E,F,G,H,I,J,K,...) { A,B,C,D,E,F,G,H,I,J,K }
-#define ARRAY_10(A,B,C,D,E,F,G,H,I,J,...) { A,B,C,D,E,F,G,H,I,J }
-#define ARRAY_9( A,B,C,D,E,F,G,H,I,...) { A,B,C,D,E,F,G,H,I }
-#define ARRAY_8( A,B,C,D,E,F,G,H,...) { A,B,C,D,E,F,G,H }
-#define ARRAY_7( A,B,C,D,E,F,G,...) { A,B,C,D,E,F,G }
-#define ARRAY_6( A,B,C,D,E,F,...) { A,B,C,D,E,F }
-#define ARRAY_5( A,B,C,D,E,...) { A,B,C,D,E }
-#define ARRAY_4( A,B,C,D,...) { A,B,C,D }
-#define ARRAY_3( A,B,C,...) { A,B,C }
-#define ARRAY_2( A,B,...) { A,B }
-#define ARRAY_1( A,...) { A }
+#define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
+#define LIST_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O
+#define LIST_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N
+#define LIST_13(A,B,C,D,E,F,G,H,I,J,K,L,M,...) A,B,C,D,E,F,G,H,I,J,K,L,M
+#define LIST_12(A,B,C,D,E,F,G,H,I,J,K,L,...) A,B,C,D,E,F,G,H,I,J,K,L
+#define LIST_11(A,B,C,D,E,F,G,H,I,J,K,...) A,B,C,D,E,F,G,H,I,J,K
+#define LIST_10(A,B,C,D,E,F,G,H,I,J,...) A,B,C,D,E,F,G,H,I,J
+#define LIST_9( A,B,C,D,E,F,G,H,I,...) A,B,C,D,E,F,G,H,I
+#define LIST_8( A,B,C,D,E,F,G,H,...) A,B,C,D,E,F,G,H
+#define LIST_7( A,B,C,D,E,F,G,...) A,B,C,D,E,F,G
+#define LIST_6( A,B,C,D,E,F,...) A,B,C,D,E,F
+#define LIST_5( A,B,C,D,E,...) A,B,C,D,E
+#define LIST_4( A,B,C,D,...) A,B,C,D
+#define LIST_3( A,B,C,...) A,B,C
+#define LIST_2( A,B,...) A,B
+#define LIST_1( A,...) A
 
-#define _ARRAY_N(N,V...) ARRAY_##N(V)
-#define ARRAY_N(N,V...) _ARRAY_N(N,V)
+#define _LIST_N(N,V...) LIST_##N(V)
+#define LIST_N(N,V...) _LIST_N(N,V)
+#define ARRAY_N(N,V...) { _LIST_N(N,V) }
+
+#define _JOIN_1(O)         (O)
+#define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
 // Macros for adding
 #define INC_0 1
@@ -243,9 +254,6 @@
 #define DEC_9 8
 #define DECREMENT_(n) DEC_##n
 #define DECREMENT(n) DECREMENT_(n)
-
-#define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
-#define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
 
 #define NOOP (void(0))
 
@@ -285,8 +293,8 @@
 #endif
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
-#define _NUM_ARGS(_0,_24_,_23,_22,_21,_20,_19,_18,_17,_16,_15,_14,_13,_12,_11,_10,_9,_8,_7,_6,_5,_4,_3,_2,_1,N,...) N
-#define NUM_ARGS(V...) _NUM_ARGS(0,V,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
 
 #ifdef __cplusplus
 
@@ -312,29 +320,29 @@
 #else
 
   #define MIN_2(a,b)      ((a)<(b)?(a):(b))
-  #define MIN_3(a,...)    MIN_2(a,MIN_2(__VA_ARGS__))
-  #define MIN_4(a,...)    MIN_2(a,MIN_3(__VA_ARGS__))
-  #define MIN_5(a,...)    MIN_2(a,MIN_4(__VA_ARGS__))
-  #define MIN_6(a,...)    MIN_2(a,MIN_5(__VA_ARGS__))
-  #define MIN_7(a,...)    MIN_2(a,MIN_6(__VA_ARGS__))
-  #define MIN_8(a,...)    MIN_2(a,MIN_7(__VA_ARGS__))
-  #define MIN_9(a,...)    MIN_2(a,MIN_8(__VA_ARGS__))
-  #define MIN_10(a,...)   MIN_2(a,MIN_9(__VA_ARGS__))
-  #define __MIN_N(N, ...) MIN_##N(__VA_ARGS__)
-  #define _MIN_N(N, ...)  __MIN_N(N,__VA_ARGS__)
-  #define _MIN(...)       _MIN_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+  #define MIN_3(a,V...)   MIN_2(a,MIN_2(V))
+  #define MIN_4(a,V...)   MIN_2(a,MIN_3(V))
+  #define MIN_5(a,V...)   MIN_2(a,MIN_4(V))
+  #define MIN_6(a,V...)   MIN_2(a,MIN_5(V))
+  #define MIN_7(a,V...)   MIN_2(a,MIN_6(V))
+  #define MIN_8(a,V...)   MIN_2(a,MIN_7(V))
+  #define MIN_9(a,V...)   MIN_2(a,MIN_8(V))
+  #define MIN_10(a,V...)  MIN_2(a,MIN_9(V))
+  #define __MIN_N(N,V...) MIN_##N(V)
+  #define _MIN_N(N,V...)  __MIN_N(N,V)
+  #define _MIN(V...)      _MIN_N(NUM_ARGS(V), V)
 
   #define MAX_2(a,b)      ((a)>(b)?(a):(b))
-  #define MAX_3(a,...)    MAX_2(a,MAX_2(__VA_ARGS__))
-  #define MAX_4(a,...)    MAX_2(a,MAX_3(__VA_ARGS__))
-  #define MAX_5(a,...)    MAX_2(a,MAX_4(__VA_ARGS__))
-  #define MAX_6(a,...)    MAX_2(a,MAX_5(__VA_ARGS__))
-  #define MAX_7(a,...)    MAX_2(a,MAX_6(__VA_ARGS__))
-  #define MAX_8(a,...)    MAX_2(a,MAX_7(__VA_ARGS__))
-  #define MAX_9(a,...)    MAX_2(a,MAX_8(__VA_ARGS__))
-  #define MAX_10(a,...)   MAX_2(a,MAX_9(__VA_ARGS__))
-  #define __MAX_N(N, ...) MAX_##N(__VA_ARGS__)
-  #define _MAX_N(N, ...)  __MAX_N(N,__VA_ARGS__)
-  #define _MAX(...)       _MAX_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+  #define MAX_3(a,V...)   MAX_2(a,MAX_2(V))
+  #define MAX_4(a,V...)   MAX_2(a,MAX_3(V))
+  #define MAX_5(a,V...)   MAX_2(a,MAX_4(V))
+  #define MAX_6(a,V...)   MAX_2(a,MAX_5(V))
+  #define MAX_7(a,V...)   MAX_2(a,MAX_6(V))
+  #define MAX_8(a,V...)   MAX_2(a,MAX_7(V))
+  #define MAX_9(a,V...)   MAX_2(a,MAX_8(V))
+  #define MAX_10(a,V...)  MAX_2(a,MAX_9(V))
+  #define __MAX_N(N,V...) MAX_##N(V)
+  #define _MAX_N(N,V...)  __MAX_N(N,V)
+  #define _MAX(V...)      _MAX_N(NUM_ARGS(V), V)
 
 #endif
