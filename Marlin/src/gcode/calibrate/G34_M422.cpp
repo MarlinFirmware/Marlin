@@ -346,10 +346,18 @@ void GcodeSuite::G34() {
 }
 
 /**
- * M422: Z-Stepper automatic alignment parameter selection
+ * M422: Set a Z-Stepper automatic alignment XY point.
+ *       Use repeatedly to set multiple points.
  *
- *   S<index> : Align to probe points
- *   W<index> : Align to stepper positions
+ *   S<index> : Index of the probe point to set
+ *
+ * With Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS:
+ *   W<index> : Index of the Z stepper position to set
+ *              The W and S parameters may not be combined.
+ *
+ * S and W require an X and/or Y parameter
+ *   X<pos>   : X position to set (Unchanged if omitted)
+ *   Y<pos>   : Y position to set (Unchanged if omitted)
  */
 void GcodeSuite::M422() {
   if (!parser.seen_any()) {
