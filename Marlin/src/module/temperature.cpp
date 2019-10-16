@@ -3160,7 +3160,7 @@ void Temperature::isr() {
 
   #endif // HAS_HEATED_BED
 
-  #if 0 && HAS_HEATED_CHAMBER
+  #if HAS_HEATED_CHAMBER
 
     #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER
       #define MIN_COOLING_SLOPE_DEG_CHAMBER 1.50
