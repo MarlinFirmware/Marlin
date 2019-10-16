@@ -140,7 +140,9 @@
   #define THERMAL_PROTECTION_PERIOD 60        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 10     // Degrees Celsius
 
-  #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
+  #if DISABLED(MachineCR10Orig)
+    #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
+  #endif
   #if BOTH(ADAPTIVE_FAN_SLOWING, PIDTEMP)
     #define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
   #endif
@@ -228,16 +230,16 @@
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define AUTOTEMP
+#if NONE(MachineCR10Orig, LowMemoryBoard)
+  #define AUTOTEMP
 #endif
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
 // Show extra position information in M114
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define M114_DETAIL
+#if NONE(MachineCR10Orig, LowMemoryBoard)
+  #define M114_DETAIL
 #endif
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
@@ -610,7 +612,9 @@
    * This feature was designed for Delta's with very fast Z moves however higher speed cartesians may function
    * If the machine cannot raise the probe fast enough after a trigger, it may enter a fault state.
    */
-  #define BLTOUCH_HS_MODE
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
+    #define BLTOUCH_HS_MODE
+  #endif
 
   // Safety: Enable voltage mode settings in the LCD menu.
   //#define BLTOUCH_LCD_VOLTAGE_MENU
@@ -671,7 +675,7 @@
 #define DEFAULT_MINSEGMENTTIME        20000   // (ms)
 
 // If defined the movements slow down when the look ahead buffer is only half full
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define SLOWDOWN
 #endif
 // Frequency limit
@@ -901,17 +905,17 @@
 #endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define STATUS_MESSAGE_SCROLLING
+#if NONE(MachineCR10Orig, LowMemoryBoard)
+  #define STATUS_MESSAGE_SCROLLING
 
-// On the Info Screen, display XY with one decimal place when possible
-#define LCD_DECIMAL_SMALL_XY
+  // On the Info Screen, display XY with one decimal place when possible
+  #define LCD_DECIMAL_SMALL_XY
 #endif
 // The timeout (in ms) to return to the status screen from sub-menus
 #define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define LCD_SET_PROGRESS_MANUALLY
 #endif
 #if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS
@@ -940,16 +944,14 @@
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
-   #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-  #define SDCARD_RATHERRECENTFIRST
-#endif
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-  #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
+    #define SDCARD_RATHERRECENTFIRST
+    #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
-  //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
+    //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
-  #define EVENT_GCODE_SD_STOP "G28XY"       // G-code to run on Stop Print (e.g., "G28XY" or "G27")
-#endif
+    #define EVENT_GCODE_SD_STOP "G28XY"       // G-code to run on Stop Print (e.g., "G28XY" or "G27")
+  #endif
 
   /**
    * Continue after Power-Loss (Creality3D)
@@ -1010,13 +1012,12 @@
                                       // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
   #endif
 
-  // This allows hosts to request long names for files and folders with M33
-  #define LONG_FILENAME_HOST_SUPPORT
-
   // Enable this option to scroll long filenames in the SD card menu
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-  #define SCROLL_LONG_FILENAMES
-#endif
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
+    // This allows hosts to request long names for files and folders with M33
+    #define LONG_FILENAME_HOST_SUPPORT
+    #define SCROLL_LONG_FILENAMES
+  #endif
 
   // Leave the heaters on after Stop Print (not recommended!)
   //#define SD_ABORT_NO_COOLDOWN
@@ -1038,7 +1039,9 @@
   /**
    * Auto-report SdCard status with M27 S<seconds>
    */
-  #define AUTO_REPORT_SD_STATUS
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
+    #define AUTO_REPORT_SD_STATUS
+  #endif
 
   /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
@@ -1136,9 +1139,8 @@
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   //#define USE_BIG_EDIT_FONT
-#endif
+
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
   //#define USE_SMALL_INFOFONT
@@ -1179,7 +1181,7 @@
   //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
   //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
   #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
-  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
     #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
     #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
   #endif
@@ -1190,7 +1192,6 @@
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
   //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
-
   #define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
   //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
@@ -1432,7 +1433,7 @@
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.
  */
-#if ENABLED(ABL_BI) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)
+#if ENABLED(ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard)
   #define G29_RETRY_AND_RECOVER
 #endif
 #if ENABLED(G29_RETRY_AND_RECOVER)
@@ -1541,8 +1542,8 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
- #if(ENABLED(MachineCR10Orig) || ENABLED(LowMemoryBoard))
-  #define BLOCK_BUFFER_SIZE 4 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #if(ENABLED(MachineCR10Orig) || ENABLED(LowMemoryBoard))
+    #define BLOCK_BUFFER_SIZE 4 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
   #else
     #define BLOCK_BUFFER_SIZE 16
   #endif
@@ -1603,10 +1604,14 @@
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
 // This "wait" is only sent when the buffer is empty. 1 second is a good value here.
-#define NO_TIMEOUTS 1000 // Milliseconds
+#if NONE(MachineCR10Orig, LowMemoryBoard)
+  #define NO_TIMEOUTS 1000 // Milliseconds
+#endif
 
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
-#define ADVANCED_OK
+#if NONE(MachineCR10Orig, LowMemoryBoard)
+  #define ADVANCED_OK
+#endif
 
 // Printrun may have trouble receiving long strings all at once.
 // This option inserts short delays between lines of serial output.
@@ -2468,13 +2473,13 @@
 /**
  * Auto-report temperatures with M155 S<seconds>
  */
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define AUTO_REPORT_TEMPERATURES
 #endif
 /**
  * Include capabilities in M115 output
  */
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define EXTENDED_CAPABILITIES_REPORT
 #endif
 /**
@@ -2521,7 +2526,7 @@
 /**
  * Spend 28 bytes of SRAM to optimize the GCode parser
  */
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define FASTER_GCODE_PARSER
 #endif
 
@@ -2563,7 +2568,7 @@
  * User-defined menu items that execute custom GCode
  */
 #if(ENABLED(ABL_UBL) || ENABLED(ABL_BI))
-  #define CUSTOM_USER_MENUS
+  //#define CUSTOM_USER_MENUS
 #endif
 
 #if ENABLED(CUSTOM_USER_MENUS)
@@ -2583,16 +2588,16 @@
   #elif ENABLED(ABL_BI)
     #define USER_GCODE_1 "M190S" CommBedTmp "\nG28\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM117 Set Z Offset"
   #endif
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
+    #define USER_DESC_2 "PID Tune"
+    #define USER_GCODE_2 "M106S128\nM303C8S215E0U\nM500\nM117 PID Tune Done"
 
-  #define USER_DESC_2 "PID Tune"
-  #define USER_GCODE_2 "M106S128\nM303C8S215E0U\nM500\nM117 PID Tune Done"
+    #define USER_DESC_3 "Prep for Z Adjust"
+    #define USER_GCODE_3 "M190S" CommBedTmp "\nM104S215\nG28\nG29L1\nG1 X100Y100F5000\nG1Z0"
 
-  #define USER_DESC_3 "Prep for Z Adjust"
-  #define USER_GCODE_3 "M190S" CommBedTmp "\nM104S215\nG28\nG29L1\nG1 X100Y100F5000\nG1Z0"
-
-  #define USER_DESC_4 "Store Settings"
-  #define USER_GCODE_4 "M500\nM117 Settings Stored"
-
+    #define USER_DESC_4 "Store Settings"
+    #define USER_GCODE_4 "M500\nM117 Settings Stored"
+  #endif
   //#define USER_DESC_5 "Run Mesh Validation"
   //#define USER_GCODE_5 "G26"
 #endif
@@ -2613,7 +2618,9 @@
  */
 #define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
-  #define HOST_PROMPT_SUPPORT
+  #if DISABLED(MachineCR10Orig)
+    #define HOST_PROMPT_SUPPORT
+  #endif
 #endif
 
 /**

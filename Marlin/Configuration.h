@@ -8,14 +8,14 @@
 //#define MachineEnder2
 //#define MachineEnder3
 //#define MachineEnder4
-//#define MachineEnder5
+#define MachineEnder5
 //#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
 //#define MachineCR20Pro
 //#define MachineCR10
 //#define MachineCR10S
-#define MachineCR10SV2
+//#define MachineCR10SV2
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
 //#define MachineCR10Max
@@ -30,7 +30,7 @@
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
-//#define Big_UI // Lightweight status screen
+#define Big_UI // Lightweight status screen
 
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
@@ -120,8 +120,8 @@
    UBL and Extreme are recommended with solid bed mounts as it becomes a one time commissioning.
    Standard is recommended in most other scenarios.
 */
-//#define MeshFast
-#define MeshStd
+#define MeshFast
+//#define MeshStd
 //#define MeshFine
 //#define MeshExtreme
 
@@ -273,7 +273,7 @@
   #define Z_STOP_PIN 19
 #endif
 
-#if ANY(MachineEnder2, MachineEnder3, MachineCR10) && NONE(Melzi_To_SBoardUpgrade, SKR13)
+#if ANY(MachineEnder2, MachineEnder3, MachineEnder5, MachineCR10) && NONE(Melzi_To_SBoardUpgrade, SKR13)
   #define MachineCR10Orig
 #endif
 
@@ -473,7 +473,7 @@
 
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5, 6]
-#if(ENABLED(Dual_BowdenSplitterY) || ENABLED(Dual_CyclopsSingleNozzle) || ENABLED(Dual_ChimeraDualNozzle))
+#if ANY(Dual_BowdenSplitterY, Dual_CyclopsSingleNozzle, Dual_ChimeraDualNozzle)
   #define EXTRUDERS 2
 #else
   #define EXTRUDERS 1
@@ -482,7 +482,7 @@
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
-#if(ENABLED(Dual_BowdenSplitterY) || ENABLED(Dual_CyclopsSingleNozzle))
+#if ANY(Dual_BowdenSplitterY, Dual_CyclopsSingleNozzle)
   #define SINGLENOZZLE
 #endif
 
@@ -824,7 +824,7 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 #if ENABLED(PIDTEMP)
-#if(DISABLED(MachineCR10Orig))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define PID_EDIT_MENU
   #define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
 #endif
@@ -903,8 +903,8 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
- #if(DISABLED(MachineCR10Orig, LowMemoryBoard))
-#define PIDTEMPBED
+#if(NONE(MachineCR10Orig, LowMemoryBoard))
+  #define PIDTEMPBED
 #endif
 //#define BED_LIMIT_SWITCHING
 
@@ -944,16 +944,17 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 160
+#if DISABLED(MachineCR10Orig)
+  #define PREVENT_COLD_EXTRUSION
+  #define EXTRUDE_MINTEMP 160
 
-/**
- * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
- * Note: For Bowden Extruders make this large enough to allow load/unload.
- */
-#define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 500
-
+  /**
+   * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
+   * Note: For Bowden Extruders make this large enough to allow load/unload.
+   */
+  #define PREVENT_LENGTHY_EXTRUDE
+  #define EXTRUDE_MAXLENGTH 500
+#endif
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
 //===========================================================================
@@ -983,7 +984,7 @@
 
 // Uncomment one of these options to enable CoreXY, CoreXZ, or CoreYZ kinematics
 // either in the usual order or reversed
-#if(ENABLED(MachineEnder4))
+#if ENABLED(MachineEnder4)
   #define COREXY
 #endif
 //#define COREXZ
@@ -1051,7 +1052,7 @@
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 
-#if (DISABLED(ABL_EZABL)&& DISABLED(ABL_BLTOUCH))
+#if NONE(ABL_EZABL, ABL_BLTOUCH)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
@@ -1295,7 +1296,9 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION
+#if DISABLED(MachineCR10Orig)
+  #define S_CURVE_ACCELERATION
+#endif
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1352,7 +1355,7 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#if ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
+#if ANY(ABL_EZABL, ABL_NCSW)
   #define FIX_MOUNTED_PROBE
 #endif
 
@@ -1388,7 +1391,9 @@
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 #if ENABLED(ABL_BLTOUCH)
-  #define PROBING_FANS_OFF          // Turn fans off when probing
+  #if DISABLED(MachineCR10Orig)
+    #define PROBING_FANS_OFF          // Turn fans off when probing
+  #endif
 
   #if ENABLED(MachineEnder4) && DISABLED(SKR13)
     #define SOLENOID_PROBE PIN_15
@@ -1430,10 +1435,10 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#if ENABLED(MachineCRX) && ENABLED(HotendStock)
+#if ENABLED(MachineCRX, HotendStock)
    #if ENABLED(ABL_BLTOUCH)
      #define NOZZLE_TO_PROBE_OFFSET { -22, -45, 0 }
-   #elif ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
+   #elif ANY(ABL_EZABL, ABL_NCSW)
      #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
    #endif
 #elif ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock)
@@ -1498,7 +1503,9 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-#define MULTIPLE_PROBING 2
+#if DISABLED(MachineCR10Orig)
+  #define MULTIPLE_PROBING 2
+#endif
 //#define EXTRA_PROBING    1
 
 /**
@@ -1527,7 +1534,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#if (ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW) && DISABLED(MachineCR10Orig))
+#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW) && DISABLED(MachineCR10Orig)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -1544,7 +1551,7 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-#if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(BED_AC))
+#if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(BED_AC)) && DISABLED(MachineCR10Orig)
   #define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #endif
 #if ENABLED(PROBING_HEATERS_OFF)
@@ -1782,10 +1789,10 @@
   #define MAX_SOFTWARE_ENDSTOP_Y
   #define MAX_SOFTWARE_ENDSTOP_Z
 #endif
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
-  #define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
-#endif
+#if(NONE(MachineCR10Orig, LowMemoryBoard))
+  #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+    #define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+  #endif
 #endif
 /**
  * Filament Runout Sensors
@@ -1897,7 +1904,9 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  #if DISABLED(MachineCR10Orig)
+    #define ENABLE_LEVELING_FADE_HEIGHT
+  #endif
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -2004,7 +2013,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if DISABLED(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, MachineCR10Orig) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
 #define LCD_BED_LEVELING
 #endif
 
@@ -2013,7 +2022,7 @@
   #define LCD_PROBE_Z_RANGE 8 // Z Range centered on Z_MIN_POS for LCD Z adjustment
 #endif
 
-#if(DISABLED(MachineCR10Orig) && DISABLED(SolidBedMounts))
+#if NONE(MachineCR10Orig, SolidBedMounts)
 // Add a menu item to move between bed corners for manual bed adjustment
   #define LEVEL_BED_CORNERS
 #endif
@@ -2154,13 +2163,13 @@
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
 #define EEPROM_SETTINGS     // Persistent storage with M500 and M501
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #else
   #define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #endif
 #if ENABLED(EEPROM_SETTINGS)
-  //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
+  #define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
 #endif
 
 //
@@ -2321,7 +2330,7 @@
  *
  * View the current statistics with M78.
  */
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if NONE(MachineCR10Orig, LowMemoryBoard)
  #define PRINTCOUNTER
 #endif
 //=============================================================================
@@ -2461,8 +2470,8 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
-#define INDIVIDUAL_AXIS_HOMING_MENU
+#if NONE(MachineCR10Orig, LowMemoryBoard)
+  #define INDIVIDUAL_AXIS_HOMING_MENU
 #endif
 //
 // SPEAKER/BUZZER
@@ -2470,6 +2479,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
+
 #define SPEAKER
 
 
