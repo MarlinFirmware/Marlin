@@ -23,6 +23,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+
 #include "../gcode.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
@@ -44,28 +45,29 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
-// Sanity-check
+// Sanity-check the count of Z_STEPPER_ALIGN_XY points
 constexpr xy_pos_t sanity_arr_z_align[] = Z_STEPPER_ALIGN_XY;
-static_assert(COUNT(sanity_arr_z_align) == Z_STEPPER_COUNT,
-  #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-    "Z_STEPPER_ALIGN_XY requires three {X,Y} entries (Z, Z2, and Z3)."
-  #else
-    "Z_STEPPER_ALIGN_XY requires two {X,Y} entries (Z and Z2)."
-  #endif
-);
-
-xy_pos_t z_auto_align_pos[Z_STEPPER_COUNT] = Z_STEPPER_ALIGN_XY;
-
-// Declare global arrays to allow modification with the M422 command
-static float z_auto_align_xpos[] = Z_STEPPER_ALIGN_X,
-             z_auto_align_ypos[] = Z_STEPPER_ALIGN_Y;
-
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  static float z_stepper_xpos[] = Z_STEPPER_ALIGN_STEPPER_X,
-               z_stepper_ypos[] = Z_STEPPER_ALIGN_STEPPER_Y;
+  static_assert(COUNT(sanity_arr_z_align) >= Z_STEPPER_COUNT,
+    "Z_STEPPER_ALIGN_XY requires at least three {X,Y} entries (Z, Z2, Z3, ...)."
+  );
+#else
+  static_assert(COUNT(sanity_arr_z_align) == Z_STEPPER_COUNT,
+    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+      "Z_STEPPER_ALIGN_XY requires three {X,Y} entries (Z, Z2, and Z3)."
+    #else
+      "Z_STEPPER_ALIGN_XY requires two {X,Y} entries (Z and Z2)."
+    #endif
+  );
 #endif
 
-#define G34_PROBE_COUNT COUNT(z_auto_align_xpos)
+static xy_pos_t z_auto_align_pos[Z_STEPPER_COUNT] = Z_STEPPER_ALIGN_XY;
+
+#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  static xy_pos_t z_stepper_pos[] = Z_STEPPER_ALIGN_STEPPER_XY;
+#endif
+
+#define G34_PROBE_COUNT COUNT(z_auto_align_pos)
 
 inline void set_all_z_lock(const bool lock) {
   stepper.set_z_lock(lock);
@@ -78,7 +80,9 @@ inline void set_all_z_lock(const bool lock) {
 /**
  * G34: Z-Stepper automatic alignment
  *
- * Parameters: I<iterations> T<accuracy> A<amplification>
+ *   I<iterations>
+ *   T<accuracy>
+ *   A<amplification>
  */
 void GcodeSuite::G34() {
   if (DEBUGGING(LEVELING)) {
@@ -152,8 +156,8 @@ void GcodeSuite::G34() {
     float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
       #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
          SQRT(_MAX(HYPOT2(z_auto_align_pos[0].x - z_auto_align_pos[0].y, z_auto_align_pos[1].x - z_auto_align_pos[1].y),
-                  HYPOT2(z_auto_align_pos[1].x - z_auto_align_pos[1].y, z_auto_align_pos[2].x - z_auto_align_pos[2].y),
-                  HYPOT2(z_auto_align_pos[2].x - z_auto_align_pos[2].y, z_auto_align_pos[0].x - z_auto_align_pos[0].y)))
+                   HYPOT2(z_auto_align_pos[1].x - z_auto_align_pos[1].y, z_auto_align_pos[2].x - z_auto_align_pos[2].y),
+                   HYPOT2(z_auto_align_pos[2].x - z_auto_align_pos[2].y, z_auto_align_pos[0].x - z_auto_align_pos[0].y)))
       #else
          HYPOT(z_auto_align_pos[0].x - z_auto_align_pos[0].y, z_auto_align_pos[1].x - z_auto_align_pos[1].y)
       #endif
@@ -190,7 +194,7 @@ void GcodeSuite::G34() {
         if (iteration == 0 || i > 0) do_blocking_move_to_z(z_probe);
 
         // Probe a Z height for each stepper.
-        const float z_probed_height = probe_at_point(z_auto_align_pos[zstepper], raise_after, 0, true);
+        const float z_probed_height = probe_at_point(z_auto_align_pos[i], raise_after, 0, true);
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;
@@ -206,7 +210,7 @@ void GcodeSuite::G34() {
         // Remember the minimum measurement to calculate the correction later on
         z_measured_min = _MIN(z_measured_min, z_measured[iprobe]);
         z_measured_max = _MAX(z_measured_max, z_measured[iprobe]);
-      } // for (zstepper)
+      } // for (i)
 
       if (err_break) break;
 
@@ -231,13 +235,13 @@ void GcodeSuite::G34() {
         incremental_LSF_reset(&lfd);
         for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i) {
           SERIAL_ECHOLNPAIR("PROBEPT_", int(i + 1), ": ", z_measured[i]);
-          incremental_LSF(&lfd, z_auto_align_xpos[i], z_auto_align_ypos[i], z_measured[i]);
+          incremental_LSF(&lfd, z_auto_align_pos[i], z_measured[i]);
         }
         finish_incremental_LSF(&lfd);
 
         z_measured_min = 100000.0f;
         for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i) {
-          z_measured[i] = -(lfd.A * z_stepper_xpos[i] + lfd.B * z_stepper_ypos[i]);
+          z_measured[i] = -(lfd.A * z_stepper_pos[i].x + lfd.B * z_stepper_pos[i].y);
           z_measured_min = _MIN(z_measured_min, z_measured[i]);
         }
 
@@ -343,57 +347,38 @@ void GcodeSuite::G34() {
 
 /**
  * M422: Z-Stepper automatic alignment parameter selection
+ *
+ *   S<index> : Align to probe points
+ *   W<index> : Align to stepper positions
  */
 void GcodeSuite::M422() {
   if (!parser.seen_any()) {
-    for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i) {
-      SERIAL_ECHOLNPAIR("M422 S", i + 1, " X", z_auto_align_xpos[i], " Y", z_auto_align_ypos[i]);
-    }
+    for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i)
+      SERIAL_ECHOLNPAIR("M422 S", i + 1, " X", z_auto_align_pos[i].x, " Y", z_auto_align_pos[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-      for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i) {
-        SERIAL_ECHOLNPAIR("M422 W", i + 1, " X", z_stepper_xpos[i], " Y", z_stepper_ypos[i]);
-      }
+      for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i)
+        SERIAL_ECHOLNPAIR("M422 W", i + 1, " X", z_stepper_pos[i].x, " Y", z_stepper_pos[i].y);
     #endif
-    return;
-  }
-
-  // Newest current code:
-
-  const xy_pos_t pos = {
-    parser.floatval('X', z_auto_align_pos[zstepper].x),
-    parser.floatval('Y', z_auto_align_pos[zstepper].y)
-  };
-
-  if (!WITHIN(pos.x, X_MIN_POS, X_MAX_POS)) {
-    SERIAL_ECHOLNPGM("?(X) out of bounds.");
-    return;
-  }
-
-  if (!WITHIN(pos.y, Y_MIN_POS, Y_MAX_POS)) {
-    SERIAL_ECHOLNPGM("?(Y) out of bounds.");
-    return;
-  }
-
-  z_auto_align_pos[zstepper] = pos;
-
-
-  // PR code. Needs update for position types.
-
-  if (parser.seen('S') && parser.seen('W')) {
-    SERIAL_ECHOLNPGM("?(S) and (W) may not be used together.");
     return;
   }
 
   const bool is_probe_point = parser.seen('S');
 
   #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-    float *xpos_dest = is_probe_point ? z_auto_align_xpos : z_stepper_xpos,
-          *ypos_dest = is_probe_point ? z_auto_align_ypos : z_stepper_ypos;
-  #else
-    float *xpos_dest = z_auto_align_xpos,
-          *ypos_dest = z_auto_align_ypos;
+    if (is_probe_point && parser.seen('W')) {
+      SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
+      return;
+    }
   #endif
 
+  xy_pos_t *pos_dest = (
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      !is_probe_point ? z_stepper_pos :
+    #endif
+    z_auto_align_pos
+  );
+
+  // Get the Probe Position Index or Z Stepper Index
   int8_t position_index;
   if (is_probe_point) {
     position_index = parser.intval('S') - 1;
@@ -402,30 +387,33 @@ void GcodeSuite::M422() {
       return;
     }
   }
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-    else {
+  else {
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       position_index = parser.intval('W') - 1;
       if (!WITHIN(position_index, 0, Z_STEPPER_COUNT - 1)) {
         SERIAL_ECHOLNPGM("?(W) Z-Stepper index invalid.");
         return;
       }
+    #endif
+  }
+
+  const xy_pos_t pos = {
+    parser.floatval('X', pos_dest[position_index].x),
+    parser.floatval('Y', pos_dest[position_index].y)
+  };
+
+  if (is_probe_point) {
+    if (!position_is_reachable_by_probe(pos.x, Y_CENTER)) {
+      SERIAL_ECHOLNPGM("?(X) out of bounds.");
+      return;
     }
-  #endif
-
-  const float x_pos = parser.floatval('X', xpos_dest[position_index]);
-  if (is_probe_point && !position_is_reachable_by_probe(x_pos, Y_MAX_POS / 2)) {
-    SERIAL_ECHOLNPGM("?(X) out of bounds.");
-    return;
+    if (!position_is_reachable_by_probe(pos)) {
+      SERIAL_ECHOLNPGM("?(Y) out of bounds.");
+      return;
+    }
   }
 
-  const float y_pos = parser.floatval('Y', ypos_dest[position_index]);
-  if (is_probe_point && !position_is_reachable_by_probe(x_pos, y_pos)) {
-    SERIAL_ECHOLNPGM("?(Y) out of bounds.");
-    return;
-  }
-
-  xpos_dest[position_index] = x_pos;
-  ypos_dest[position_index] = y_pos;
+  pos_dest[position_index] = pos;
 }
 
 #endif // Z_STEPPER_AUTO_ALIGN
