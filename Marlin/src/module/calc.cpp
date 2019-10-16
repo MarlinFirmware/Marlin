@@ -417,6 +417,8 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
             #if ENABLED(LIN_ADVANCE)
               planner.recalculate_max_e_jerk();
             #endif
+          } else {
+            fprintf(stderr, "M205 J value ignored: Out of range (0.01-0.3)\n");
           }
         }
         break;
@@ -465,10 +467,14 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
             target_extruder = code_value();
           }
           if (code_seen('K')) {
-            auto new_value = code_value();
-            set_linear_advance(new_value != 0);
-            planner.synchronize();
-            planner.extruder_advance_K[target_extruder] = new_value;
+            const float newK = code_value();
+            if (WITHIN(newK, 0, 10)) {
+              set_linear_advance(newK != 0);
+              planner.synchronize();
+              planner.extruder_advance_K[target_extruder] = newK;
+            } else {
+              fprintf(stderr, "M900 K value ignored: Out of range (0-10)\n");
+            }
           }
         }
         break;
