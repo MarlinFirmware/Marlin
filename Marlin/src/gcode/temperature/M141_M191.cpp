@@ -65,9 +65,11 @@ void GcodeSuite::M191() {
   }
   else return;
 
-  lcd_setstatusPGM(thermalManager.isHeatingChamber() ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
-
-  thermalManager.wait_for_chamber(no_wait_for_cooling);
+  const bool is_heating = thermalManager.isHeatingChamber();
+  if (is_heating || !no_wait_for_cooling) {
+    lcd_setstatusPGM(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
+    thermalManager.wait_for_chamber(false);
+  }
 }
 
 #endif // HAS_HEATED_CHAMBER
