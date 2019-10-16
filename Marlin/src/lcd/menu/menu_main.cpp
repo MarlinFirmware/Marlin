@@ -171,10 +171,10 @@ void menu_main() {
 
   #if ENABLED(CUSTOM_USER_MENUS)
     #ifdef CUSTOM_USER_MENU_TITLE
-      #undef MSG_USER_MENU
-      #define MSG_USER_MENU CUSTOM_USER_MENU_TITLE
+      SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+    #else
+      SUBMENU(MSG_USER_MENU, menu_user);
     #endif
-    SUBMENU(MSG_USER_MENU, menu_user);
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
