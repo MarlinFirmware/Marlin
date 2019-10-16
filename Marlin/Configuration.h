@@ -21,6 +21,7 @@
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
+//#define MachineCR2020 // Industrial Series 2020
 
 
 /*
@@ -281,6 +282,9 @@
   #define MachineCR10Std
 #endif
 
+#if ENABLED(MachineCR2020)
+  #define EnclosureLight
+#endif
 #if ENABLED(PLUS)
   #define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock)
   #define HotendAllMetal
@@ -351,6 +355,8 @@
 #define CUSTOM_MACHINE_NAME "400 SuPeR"
 #elif(ENABLED(MachineS5))
 #define CUSTOM_MACHINE_NAME "500 SuPeR"
+#elif ENABLED(MachineCR2020)
+  #define CUSTOM_MACHINE_NAME "TM3D 2020"
 #endif
 
 #if(ENABLED(MachineMini))
@@ -377,6 +383,8 @@
 #define VerChar1 "4"
 #elif(ENABLED(MachineS5) || ENABLED(MachineCR10Max))
 #define VerChar1 "5"
+#elif ENABLED(MachineCR2020)
+  #define VerChar1 "20"
 #endif
 
 #if(ENABLED(HotendStock))
@@ -657,7 +665,7 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-//#define PSU_CONTROL
+#define PSU_CONTROL
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
@@ -665,7 +673,7 @@
 
   //#define PS_DEFAULT_OFF      // Keep power off until enabled directly with M80
 
-  //#define AUTO_POWER_CONTROL  // Enable automatic control of the PS_ON pin
+  #define AUTO_POWER_CONTROL  // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS           // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
@@ -740,7 +748,7 @@
  *
  * :{ '0':"Not used", '1':"100k / 4.7k - EPCOS", '331':"(3.3V thermistor 1)", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '512':"100k RPW-Ultra hotend thermistor", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '18':"ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327" '20':"Pt100 (Ultimainboard V2.x)", '201':"Pt100 (Overlord)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '61':"100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup", '66':"Dyze Design 4.7M High Temperature thermistor", '67':"Slice Engineering 450C High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595", '998':"Dummy 1", '999':"Dummy 2", '1000':"Custom thermistor params" }
  */
-#if ENABLED(HotendStock) || ENABLED(CrealityThermistor)
+#if ANY(HotendStock, CrealityThermistor)
   #define TEMP_SENSOR_0 1
   #if(ENABLED(Dual_ChimeraDualNozzle))
     #define TEMP_SENSOR_1 1
@@ -1042,17 +1050,21 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#if(ENABLED(MachineEnder4))
+#if ANY(MachineEnder4, MachineCR2020)
   #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #endif
-#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#if ENABLED(MachineCR2020)
+  #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#else
+  #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#endif
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 
-#if NONE(ABL_EZABL, ABL_BLTOUCH)
+#if NONE(ABL_EZABL, ABL_BLTOUCH, MachineCR2020)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
@@ -1172,6 +1184,8 @@
   #define EStepsmm 93
 #elif ANY(MachineCR10SPro, MachineCR10Max)
   #define EStepsmm 140
+#elif ENABLED(MachineCR2020)
+  #define EStepsmm 113
 #else
   #define EStepsmm 95
 #endif
@@ -1222,6 +1236,12 @@
 #elif ANY(MachineS5, MachineCR10Max)
   #define DEFAULT_MAX_FEEDRATE          { 500, 400, 15, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1000, 700, 100, 75 }
+  #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+  #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
+#elif ENABLED(MachineCR2020)
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 120 }
+  #define DEFAULT_MAX_ACCELERATION      { 700, 700, 100, 1000 }
   #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
@@ -1611,17 +1631,17 @@
   #endif
 #else
   #define INVERT_X_DIR false
-  #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max)
+  #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020)
     #define INVERT_Y_DIR true
   #else
     #define INVERT_Y_DIR false
   #endif
-  #if ENABLED(MachineEnder5Plus)
+  #if ANY(MachineEnder5Plus, MachineCR2020)
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
   #endif
-  #if(ENABLED(E3DTitan))
+  #if ANY(E3DTitan, MachineCR2020)
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #else
@@ -1705,6 +1725,10 @@
   #define X_BED_SIZE 500
   #define Y_BED_SIZE 500
   #define Z_MAX_POS 500
+#elif ENABLED(MachineCR2020)
+  #define X_BED_SIZE 210
+  #define Y_BED_SIZE 210
+  #define Z_MAX_POS 210
 #endif
 // The size of the print bed
 
@@ -1754,6 +1778,10 @@
   #define X_BED_SIZE 510
   #define Y_BED_SIZE 500
   #define Z_MAX_POS 500
+#elif ENABLED(MachineCR2020)
+  #define X_BED_SIZE 210
+  #define Y_BED_SIZE 210
+  #define Z_MAX_POS 210
 #endif
 
 #endif
@@ -2567,7 +2595,7 @@
 //=============================================================================
 #if(ENABLED(MachineEnder4) && DISABLED(GraphicLCD))
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
-#elif(ENABLED(MachineEnder2) )
+#elif ANY(MachineEnder2, MachineCR2020)
   #define MINIPANEL
 #elif ENABLED(MachineCR20)
   #define MKS_MINI_12864

@@ -400,7 +400,11 @@
   #define CASE_LIGHT_ENABLE
 #endif
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 12                  // Override the default pin if needed
+  #if ENABLED(MachineCR2020)
+    #define CASE_LIGHT_PIN 65                  // Override the default pin if needed
+  #else
+    #define CASE_LIGHT_PIN 12                  // Override the default pin if needed
+  #endif
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
@@ -2567,8 +2571,8 @@
 /**
  * User-defined menu items that execute custom GCode
  */
-#if(ENABLED(ABL_UBL) || ENABLED(ABL_BI))
-  //#define CUSTOM_USER_MENUS
+#if ANY(ABL_UBL,ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard)
+  #define CUSTOM_USER_MENUS
 #endif
 
 #if ENABLED(CUSTOM_USER_MENUS)
@@ -2588,7 +2592,7 @@
   #elif ENABLED(ABL_BI)
     #define USER_GCODE_1 "M190S" CommBedTmp "\nG28\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM117 Set Z Offset"
   #endif
-  #if NONE(MachineCR10Orig, LowMemoryBoard)
+
     #define USER_DESC_2 "PID Tune"
     #define USER_GCODE_2 "M106S128\nM303C8S215E0U\nM500\nM117 PID Tune Done"
 
@@ -2597,7 +2601,7 @@
 
     #define USER_DESC_4 "Store Settings"
     #define USER_GCODE_4 "M500\nM117 Settings Stored"
-  #endif
+
   //#define USER_DESC_5 "Run Mesh Validation"
   //#define USER_GCODE_5 "G26"
 #endif

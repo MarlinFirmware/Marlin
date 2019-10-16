@@ -42,9 +42,11 @@
 #define SD_DETECT_PIN 49  // Always define onboard SD detect
 #define BEEPER_PIN    37  // Always define beeper pin so Play Tone works with ExtUI
 
+#define PS_ON_PIN        40 // Used by CR2020 Industrial series
+
 #include "pins_RAMPS.h"
 
-#define EXP1_PIN 65   // A11
+#define EXP1_PIN 65   // A11 // Case light for CR2020 Industrial series
 #define EXP2_PIN 66   // A12
 #define EXP3_PIN 11   // SERVO0_PIN
 #define EXP4_PIN 12   // PS_ON_PIN
