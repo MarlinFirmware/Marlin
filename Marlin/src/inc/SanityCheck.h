@@ -2335,11 +2335,24 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+
   #if !Z_MULTI_STEPPER_DRIVERS
     #error "Z_STEPPER_AUTO_ALIGN requires Z_DUAL_STEPPER_DRIVERS or Z_TRIPLE_STEPPER_DRIVERS."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
   #endif
+
+  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #if DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
+      #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
+    #endif
+    constexpr float sanity_arr_screw_xy[][2] = Z_STEPPER_ALIGN_STEPPER_XY;
+    static_assert(
+      COUNT(sanity_arr_screw_xy) == Z_STEPPER_COUNT,
+      "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
+    );
+  #endif
+
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
