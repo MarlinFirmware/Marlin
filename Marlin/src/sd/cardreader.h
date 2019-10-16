@@ -296,4 +296,6 @@ extern CardReader card;
 #define IS_SD_PAUSED()    false
 #define IS_SD_FILE_OPEN() false
 
+#define LONG_FILENAME_LENGTH 0
+
 #endif // !SDSUPPORT
