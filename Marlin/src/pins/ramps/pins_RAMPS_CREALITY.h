@@ -41,7 +41,7 @@
 
 #define SD_DETECT_PIN 49  // Always define onboard SD detect
 
-#define PS_ON_PIN     12 // Used by CR2020 Industrial series
+#define PS_ON_PIN     40 // Used by CR2020 Industrial series
 
 #include "pins_RAMPS.h"
 

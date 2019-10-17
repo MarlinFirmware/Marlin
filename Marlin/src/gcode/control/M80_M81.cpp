@@ -68,7 +68,7 @@
      * a print without suicide...
      */
     #if HAS_SUICIDE
-      OUT_WRITE(SUICIDE_PIN, HIGH);
+      OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)

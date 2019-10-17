@@ -99,7 +99,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 //#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
@@ -110,7 +110,7 @@
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-#define ABL_BI
+//#define ABL_BI
 //#define ABL_UBL
 
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
@@ -121,8 +121,8 @@
    UBL and Extreme are recommended with solid bed mounts as it becomes a one time commissioning.
    Standard is recommended in most other scenarios.
 */
-#define MeshFast
-//#define MeshStd
+//#define MeshFast
+#define MeshStd
 //#define MeshFine
 //#define MeshExtreme
 
@@ -284,6 +284,9 @@
 
 #if ENABLED(MachineCR2020)
   #define EnclosureLight
+  #define LCD_CONTRAST_INIT 165
+  #define SUICIDE_PIN 12 // Power up method is triggering the kill. Need to add consistent inversion upstream
+  #define SUICIDE_PIN_INVERTING true
 #endif
 #if ENABLED(PLUS)
   #define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock)
@@ -1066,12 +1069,12 @@
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 
-#if NONE(ABL_EZABL, ABL_BLTOUCH)
+#if NONE(ABL_EZABL, ABL_BLTOUCH, MachineCR2020)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
-#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
+  #define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
 #endif
 /**
  * Stepper Drivers

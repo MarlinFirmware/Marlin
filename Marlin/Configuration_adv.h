@@ -2571,7 +2571,7 @@
 /**
  * User-defined menu items that execute custom GCode
  */
-#if ANY(ABL_UBL,ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard)
+#if ANY(ABL_UBL, ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard)
   #define CUSTOM_USER_MENUS
 #endif
 
