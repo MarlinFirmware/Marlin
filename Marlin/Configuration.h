@@ -8,7 +8,7 @@
 //#define MachineEnder2
 //#define MachineEnder3
 //#define MachineEnder4
-#define MachineEnder5
+//#define MachineEnder5
 //#define MachineEnder5Plus
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work
@@ -21,7 +21,7 @@
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
-//#define MachineCR2020 // Industrial Series 2020
+#define MachineCR2020 // Industrial Series 2020
 
 
 /*
@@ -665,7 +665,9 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-#define PSU_CONTROL
+#if ENABLED(MachineCR2020)
+  #define PSU_CONTROL
+#endif
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
