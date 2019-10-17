@@ -1066,7 +1066,7 @@
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 
-#if NONE(ABL_EZABL, ABL_BLTOUCH, MachineCR2020)
+#if NONE(ABL_EZABL, ABL_BLTOUCH)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
@@ -2597,9 +2597,9 @@
 //=============================================================================
 #if(ENABLED(MachineEnder4) && DISABLED(GraphicLCD))
   #define REPRAP_DISCOUNT_SMART_CONTROLLER
-#elif ANY(MachineEnder2, MachineCR2020)
+#elif ENABLED(MachineEnder2)
   #define MINIPANEL
-#elif ENABLED(MachineCR20)
+#elif ANY(MachineCR20, MachineCR2020)
   #define MKS_MINI_12864
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
