@@ -2854,7 +2854,7 @@ void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
 }
 
 void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
-  #if HAS_CLASSIC_JERK
+  //#if HAS_CLASSIC_JERK
     #if ENABLED(LIMITED_JERK_EDITING)
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
@@ -2867,9 +2867,9 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       limit_and_warn(targetValue, axis, PSTR("Jerk"), max_jerk_edit);
     #endif
     max_jerk[axis] = targetValue;
-  #else
-    UNUSED(axis); UNUSED(targetValue);
-  #endif
+  //#else
+    //UNUSED(axis); UNUSED(targetValue);
+  //#endif
 }
 
 #if ENABLED(AUTOTEMP)
