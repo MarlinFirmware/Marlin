@@ -16,12 +16,12 @@
 //#define MachineCR10
 //#define MachineCR10S
 //#define MachineCR10SV2
-//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCRX
 //#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
-#define MachineCR2020 // Industrial Series 2020
+//#define MachineCR2020 // Industrial Series 2020
 
 
 /*
@@ -31,7 +31,7 @@
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
-#define Big_UI // Lightweight status screen
+//#define Big_UI // Lightweight status screen
 
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
@@ -1701,106 +1701,117 @@
 
 // The size of the print bed
 
-#if (DISABLED(ABL_EZABL)&& DISABLED(ABL_BLTOUCH) && DISABLED(ABL_NCSW))
+#if NONE(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW)
 
-#if ENABLED(MachineMini)
-  #define X_BED_SIZE 300
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 300
-#elif ENABLED(MachineEnder2)
-  #define X_BED_SIZE 150
-  #define Y_BED_SIZE 150
-  #define Z_MAX_POS 200
-#elif ENABLED(MachineEnder3)
-  #define X_BED_SIZE 230
-  #define Y_BED_SIZE 230
-  #define Z_MAX_POS 250
-#elif ANY(MachineEnder4, MachineEnder5)
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 300
-#elif ENABLED(MachineEnder5Plus)
-  #define X_BED_SIZE 360
-  #define Y_BED_SIZE 360
-  #define Z_MAX_POS 400
-#elif ENABLED(MachineCR20)
-  #define X_BED_SIZE 230
-  #define Y_BED_SIZE 230
-  #define Z_MAX_POS 250
-#elif ENABLED(MachineCR10Std)
-  #define X_BED_SIZE 300
-  #define Y_BED_SIZE 300
-  #define Z_MAX_POS 400
-#elif ENABLED(MachineS4)
-  #define X_BED_SIZE 400
-  #define Y_BED_SIZE 400
-  #define Z_MAX_POS 400
-#elif ENABLED(MachineCR10Max)
-  #define X_BED_SIZE 475
-  #define Y_BED_SIZE 450
-  #define Z_MAX_POS 470
-#elif ENABLED(MachineS5)
-  #define X_BED_SIZE 500
-  #define Y_BED_SIZE 500
-  #define Z_MAX_POS 500
-#elif ENABLED(MachineCR2020)
-  #define X_BED_SIZE 210
-  #define Y_BED_SIZE 210
-  #define Z_MAX_POS 210
-#endif
-// The size of the print bed
+  #if ENABLED(MachineMini)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+  #elif ENABLED(MachineEnder2)
+    #define X_BED_SIZE 150
+    #define Y_BED_SIZE 150
+    #define Z_MAX_POS 200
+  #elif ENABLED(MachineEnder3)
+    #define X_BED_SIZE 230
+    #define Y_BED_SIZE 230
+    #define Z_MAX_POS 250
+  #elif ANY(MachineEnder4, MachineEnder5)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+  #elif ENABLED(MachineEnder5Plus)
+    #define X_BED_SIZE 360
+    #define Y_BED_SIZE 360
+    #define Z_MAX_POS 400
+  #elif ENABLED(MachineCR20)
+    #define X_BED_SIZE 230
+    #define Y_BED_SIZE 230
+    #define Z_MAX_POS 250
+  #elif ENABLED(MachineCR10Std)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 400
+  #elif ENABLED(MachineS4)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 400
+  #elif ENABLED(MachineCR10Max)
+    #define X_BED_SIZE 475
+    #define Y_BED_SIZE 450
+    #define Z_MAX_POS 470
+  #elif ENABLED(MachineS5)
+    #define X_BED_SIZE 500
+    #define Y_BED_SIZE 500
+    #define Z_MAX_POS 500
+  #elif ENABLED(MachineCR2020)
+    #define X_BED_SIZE 210
+    #define Y_BED_SIZE 210
+    #define Z_MAX_POS 210
+  #endif
+  // The size of the print bed
 
 #else
 
-#if ENABLED(MachineMini)
-  #define X_BED_SIZE 300
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 300
-#elif(ENABLED(MachineEnder2))
-  #define X_BED_SIZE 150
-  #define Y_BED_SIZE 150
-  #define Z_MAX_POS 200
-  #elif(ENABLED(MachineEnder3))
-  #define X_BED_SIZE 230
-  #define Y_BED_SIZE 230
-  #define Z_MAX_POS 250
-#elif(ANY(MachineEnder4, MachineEnder5))
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 300
-#elif ENABLED(MachineEnder5Plus)
-  #define X_BED_SIZE 360
-  #define Y_BED_SIZE 360
-  #define Z_MAX_POS 400
-#elif(ENABLED(MachineCR20))
-  #define X_BED_SIZE 240
-  #define Y_BED_SIZE 240
-  #define Z_MAX_POS 250
-#elif (ENABLED(MachineCRX))
-  #define X_BED_SIZE 315
-  #define Y_BED_SIZE 308
-  #define Z_MAX_POS 400
-#elif (ENABLED(MachineCR10Std))
-  #define X_BED_SIZE 315
-  #define Y_BED_SIZE 310
-  #define Z_MAX_POS 400
-#elif ENABLED( MachineS4)
-  #define X_BED_SIZE 410
-  #define Y_BED_SIZE 400
-  #define Z_MAX_POS 400
-#elif ENABLED(MachineCR10Max)
-  #define X_BED_SIZE 475
-  #define Y_BED_SIZE 450
-  #define Z_MAX_POS 470
-#elif ENABLED(MachineS5)
-  #define X_BED_SIZE 510
-  #define Y_BED_SIZE 500
-  #define Z_MAX_POS 500
-#elif ENABLED(MachineCR2020)
-  #define X_BED_SIZE 210
-  #define Y_BED_SIZE 210
-  #define Z_MAX_POS 210
-#endif
+  #if ENABLED(MachineMini)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+    #define ClipClearance 15
+  #elif(ENABLED(MachineEnder2))
+    #define X_BED_SIZE 150
+    #define Y_BED_SIZE 150
+    #define Z_MAX_POS 200
+    #define ClipClearance 15
+    #elif(ENABLED(MachineEnder3))
+    #define X_BED_SIZE 230
+    #define Y_BED_SIZE 230
+    #define Z_MAX_POS 250
+    #define ClipClearance 15
+  #elif(ANY(MachineEnder4, MachineEnder5))
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+    #define ClipClearance 15
+  #elif ENABLED(MachineEnder5Plus)
+    #define X_BED_SIZE 360
+    #define Y_BED_SIZE 360
+    #define Z_MAX_POS 400
+    #define ClipClearance 25
+  #elif(ENABLED(MachineCR20))
+    #define X_BED_SIZE 240
+    #define Y_BED_SIZE 240
+    #define Z_MAX_POS 250
+    #define ClipClearance 15
+  #elif (ENABLED(MachineCRX))
+    #define X_BED_SIZE 315
+    #define Y_BED_SIZE 308
+    #define Z_MAX_POS 400
+    #define ClipClearance 25
+  #elif (ENABLED(MachineCR10Std))
+    #define X_BED_SIZE 315
+    #define Y_BED_SIZE 310
+    #define Z_MAX_POS 400
+    #define ClipClearance 25
+  #elif ENABLED( MachineS4)
+    #define X_BED_SIZE 410
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 400
+    #define ClipClearance 35
+  #elif ENABLED(MachineCR10Max)
+    #define X_BED_SIZE 475
+    #define Y_BED_SIZE 450
+    #define Z_MAX_POS 470
+  #elif ENABLED(MachineS5)
+    #define X_BED_SIZE 510
+    #define Y_BED_SIZE 500
+    #define Z_MAX_POS 500
+    #define ClipClearance 35
+  #elif ENABLED(MachineCR2020)
+    #define X_BED_SIZE 210
+    #define Y_BED_SIZE 210
+    #define Z_MAX_POS 210
+    #define ClipClearance 15
+  #endif
 
 #endif
 
