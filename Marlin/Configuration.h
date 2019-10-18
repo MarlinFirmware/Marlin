@@ -74,6 +74,8 @@
  //#define Bondtech
  //#define E3DTitan
 
+ //#define DirectDrive // Any direct drive extruder, reduces filament change lengths
+
  /*
   *
   * If any dual extruder is used, define type here
@@ -287,6 +289,7 @@
   #define LCD_CONTRAST_INIT 165
   #define SUICIDE_PIN 12 // Power up method is triggering the kill. Need to add consistent inversion upstream
   #define SUICIDE_PIN_INVERTING true
+  #define DirectDrive
 #endif
 #if ENABLED(PLUS)
   #define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock)
@@ -1255,9 +1258,9 @@
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif ENABLED(MachineCR2020)
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 120 }
-  #define DEFAULT_MAX_ACCELERATION      { 700, 700, 100, 1000 }
-  #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
+  #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
+  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #endif
