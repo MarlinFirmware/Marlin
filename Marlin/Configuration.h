@@ -868,6 +868,10 @@
     #define  DEFAULT_Kp 19.47
     #define  DEFAULT_Ki 1.59
     #define  DEFAULT_Kd 59.40
+  #elif ENABLED(MachineCR2020)
+    #define  DEFAULT_Kp 22.2
+    #define  DEFAULT_Ki 1.08
+    #define  DEFAULT_Kd 114
   #else
     #define  DEFAULT_Kp 17.42
     #define  DEFAULT_Ki 1.27
@@ -935,9 +939,15 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-#define  DEFAULT_bedKp 690.34
-#define  DEFAULT_bedKi 111.47
-#define  DEFAULT_bedKd 1068.83
+  #if ENABLED(MachineCR2020)
+    #define  DEFAULT_bedKp 10.00
+    #define  DEFAULT_bedKi .023
+    #define  DEFAULT_bedKd 305.4
+  #else
+    #define  DEFAULT_bedKp 690.34
+    #define  DEFAULT_bedKi 111.47
+    #define  DEFAULT_bedKd 1068.83
+  #endif
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
