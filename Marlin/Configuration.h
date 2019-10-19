@@ -16,9 +16,10 @@
 //#define MachineCR10
 //#define MachineCR10S
 //#define MachineCR10SV2
-#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+//#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
+//#define MachineCR10SProV2 // Second Gen 10S Pro with BLTouch wired to Z Max
 //#define MachineCRX
-//#define MachineCR10Max
+#define MachineCR10Max
 //#define MachineS4
 //#define MachineS5
 //#define MachineCR2020 // Industrial Series 2020
@@ -36,7 +37,7 @@
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
 //#define ForceCRXDisplay
-//#define Force10SProDisplay
+#define Force10SProDisplay
 
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
@@ -57,8 +58,9 @@
 
    Configured with 5015 left wing, right wing ABL sensor (BLTouch or M18) only
 */
-#define HotendStock
+//#define HotendStock
 //#define HotendE3D
+#define HotendMosquito
 
 //Enable this if you have an all metal hotend capable of 300c
 #define HotendAllMetal
@@ -100,7 +102,7 @@
    Leave all disabled if no sensor is available
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
-//#define ABL_NCSW //Creality ABL or Any NC Sensor
+#define ABL_NCSW //Creality ABL or Any NC Sensor
 //#define ABL_BLTOUCH
 
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
@@ -112,7 +114,7 @@
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-//#define ABL_BI
+#define ABL_BI
 //#define ABL_UBL
 
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
@@ -232,9 +234,16 @@
  */
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
+#if ENABLED(MachineCR10SProV2)
+  #define MachineCR10SPro
+  #if NONE(ABL_NCSW, ABL_EZABL)
+    #define ABL_BLTOUCH
+  #endif
+#endif
+
 #if(ENABLED(MachineCR10SPro))
   #define MachineCR10Std
-  #if DISABLED(ABL_BLTOUCH)
+  #if DISABLED(ABL_BLTOUCH, ABL_EZABL)
     #define ABL_NCSW
   #endif
   #if DISABLED(ABL_UBL)
@@ -245,7 +254,7 @@
 #endif
 
 #if ENABLED(MachineCR10Max)
-  #if DISABLED(ABL_NCSW) && DISABLED(ABL_EZABL)
+  #if NONE(ABL_NCSW, ABL_EZABL)
     #define ABL_BLTOUCH
   #endif
   #if DISABLED(ABL_UBL)
@@ -272,7 +281,7 @@
   #define lerdgeFilSensor
 #endif
 
-#if ANY(MachineCR10SV2, MachineCR10Max)
+#if ANY(MachineCR10SV2, MachineCR10Max, MachineCR10SProV2)
   #define Z_STOP_PIN 19
 #endif
 
@@ -397,6 +406,8 @@
 #define VerChar2 "S"
 #elif(ENABLED(HotendE3D))
 #define VerChar2 "E"
+#elif ENABLED(HotendMosquito)
+#define VerChar2 "M"
 #endif
 
 #if(ENABLED(HotendAllMetal))
@@ -761,10 +772,15 @@
   #if(ENABLED(Dual_ChimeraDualNozzle))
     #define TEMP_SENSOR_1 1
   #endif
-#else
+#elif ENABLED(HotendE3D)
   #define TEMP_SENSOR_0 5
   #if(ENABLED(Dual_ChimeraDualNozzle))
     #define TEMP_SENSOR_1 5
+  #endif
+#elif ENABLED(HotendMosquito)
+  #define TEMP_SENSOR_0 67
+  #if(ENABLED(Dual_ChimeraDualNozzle))
+    #define TEMP_SENSOR_1 67
   #endif
 #endif
 #if(DISABLED(Dual_ChimeraDualNozzle))
@@ -817,7 +833,9 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#if (ENABLED(HotendAllMetal))
+#if ENABLED(HotendMosquito)
+  #define HEATER_0_MAXTEMP 450
+#elif ENABLED(HotendAllMetal)
 	#define HEATER_0_MAXTEMP 315
 #else
 	#define HEATER_0_MAXTEMP 255
@@ -882,7 +900,7 @@
   #endif
 #endif
 
-#if ENABLED(HotendE3D)
+#if ANY(HotendE3D, HotendMosquito)
 //E3D v6 Clone with 5050 fan wing at 100% set to 235
 #define  DEFAULT_Kp 23.36
 #define  DEFAULT_Ki 1.99
@@ -943,9 +961,9 @@
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
   #if ENABLED(MachineCR2020)
-    #define  DEFAULT_bedKp 10.00
-    #define  DEFAULT_bedKi .023
-    #define  DEFAULT_bedKd 305.4
+    #define  DEFAULT_bedKp 690.34
+    #define  DEFAULT_bedKi 111.47
+    #define  DEFAULT_bedKd 1068.83
   #else
     #define  DEFAULT_bedKp 690.34
     #define  DEFAULT_bedKi 111.47
@@ -1501,7 +1519,7 @@
   #endif
 
 
-   #if (ANY(ABL_BLTOUCH, ABL_EZABL,ABL_NCSW) && ENABLED(HotendE3D))
+   #if (ANY(ABL_BLTOUCH, ABL_EZABL,ABL_NCSW) && ANY(HotendE3D, HotendMosquito))
     #if ENABLED(E3D_DUALFAN_MOUNT)
       #if ENABLED(E3D_PROBEMOUNT_LEFT)
         #define NOZZLE_TO_PROBE_OFFSET { -63, 5, 0 }
@@ -1744,8 +1762,8 @@
     #define Y_BED_SIZE 500
     #define Z_MAX_POS 500
   #elif ENABLED(MachineCR2020)
-    #define X_BED_SIZE 210
-    #define Y_BED_SIZE 210
+    #define X_BED_SIZE 200
+    #define Y_BED_SIZE 202.5
     #define Z_MAX_POS 210
   #endif
   // The size of the print bed
@@ -1801,14 +1819,15 @@
     #define X_BED_SIZE 475
     #define Y_BED_SIZE 450
     #define Z_MAX_POS 470
+    #define ClipClearance 35
   #elif ENABLED(MachineS5)
     #define X_BED_SIZE 510
     #define Y_BED_SIZE 500
     #define Z_MAX_POS 500
     #define ClipClearance 35
   #elif ENABLED(MachineCR2020)
-    #define X_BED_SIZE 210
-    #define Y_BED_SIZE 210
+    #define X_BED_SIZE 200
+    #define Y_BED_SIZE 202.5
     #define Z_MAX_POS 210
     #define ClipClearance 15
   #endif
@@ -2084,7 +2103,7 @@
   #define LEVEL_BED_CORNERS
 #endif
 #if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET 40    // (mm) An inset for corner leveling
+  #define LEVEL_CORNERS_INSET 22    // (mm) An inset for corner leveling
   #define LEVEL_CORNERS_Z_HOP  4.0  // (mm) Move nozzle up before moving between corners
   #define LEVEL_CORNERS_HEIGHT 0.0  // (mm) Z height of nozzle at leveling points
   #define LEVEL_CENTER_TOO        // Move to the center after the last corner
