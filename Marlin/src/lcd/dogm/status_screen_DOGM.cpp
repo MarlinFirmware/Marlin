@@ -340,20 +340,20 @@ void MarlinUI::draw_status_screen() {
       #define _SD_DURATION_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
     #endif
 
-    static uint8_t progress_bar_solid_width = 0, lastProgress = 0;
     #if ENABLED(DOGM_SD_PERCENT)
       static char progress_string[5];
     #endif
-    static uint8_t lastElapsed = 0, elapsed_x_pos = 0;
+    static uint8_t lastElapsed = 0, lastProgress = 0;
+    static u8g_uint_t elapsed_x_pos = 0, progress_bar_solid_width = 0;
     static char elapsed_string[16];
     #if ENABLED(SHOW_REMAINING_TIME)
-      static uint8_t estimation_x_pos = 0;
+      static u8g_uint_t estimation_x_pos = 0;
       static char estimation_string[10];
       #if ENABLED(DOGM_SD_PERCENT) && ENABLED(ROTATE_PROGRESS_DISPLAY)
         #define PROGRESS_TIME_PREFIX "PROG"
         #define ELAPSED_TIME_PREFIX "ELAP"
         #define SHOW_REMAINING_TIME_PREFIX "REM"
-        static uint8_t progress_x_pos = 0;
+        static u8g_uint_t progress_x_pos = 0;
         static uint8_t progress_state = 0;
         static bool prev_blink = 0;
       #else
@@ -397,19 +397,26 @@ void MarlinUI::draw_status_screen() {
       ;
       duration_t elapsed = print_job_timer.duration();
       const uint8_t p = progress & 0xFF, ev = elapsed.value & 0xFF;
-      if (progress > 1 && p != lastProgress) {
+      if (progress > 1 || p != lastProgress) {
         lastProgress = p;
 
-        progress_bar_solid_width = uint8_t((PROGRESS_BAR_WIDTH - 2) * progress / (PROGRESS_SCALE) * 0.01f);
+        progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * progress / (PROGRESS_SCALE) * 0.01f);
 
         #if ENABLED(DOGM_SD_PERCENT)
-          strcpy(progress_string, (
-            #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
-              permyriadtostr4(progress)
-            #else
-              ui8tostr3(progress / (PROGRESS_SCALE))
-            #endif
-          ));
+          if (progress == 0) {
+            progress_string[0] = '\0';
+            estimation_string[0] = '\0';
+            estimation_x_pos = _PROGRESS_CENTER_X(0);
+          }
+          else {
+            strcpy(progress_string, (
+              #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
+                permyriadtostr4(progress)
+              #else
+                ui8tostr3(progress / (PROGRESS_SCALE))
+              #endif
+            ));
+          }
           #if ENABLED(SHOW_REMAINING_TIME)  && ENABLED(ROTATE_PROGRESS_DISPLAY) // Tristate progress display mode
             progress_x_pos = _SD_DURATION_X(strlen(progress_string)+1);
           #endif
