@@ -29,10 +29,18 @@
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 #include "../archim2-flash/flash_storage.h"
 
-#ifdef TOUCH_UI_PORTRAIT
-  #include "../theme/bootscreen_logo_portrait.h"
+#ifdef SHOW_CUSTOM_BOOTSCREEN
+  #ifdef TOUCH_UI_PORTRAIT
+    #include "../theme/_bootscreen_portrait.h"
+  #else
+    #include "../theme/_bootscreen_landscape.h"
+  #endif
 #else
-  #include "../theme/bootscreen_logo_landscape.h"
+  #ifdef TOUCH_UI_PORTRAIT
+    #include "../theme/marlin_bootscreen_portrait.h"
+  #else
+    #include "../theme/marlin_bootscreen_landscape.h"
+  #endif
 #endif
 
 using namespace FTDI;
@@ -97,19 +105,19 @@ void BootScreen::onIdle() {
 void BootScreen::showSplashScreen() {
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART);
-  cmd.cmd(CLEAR_COLOR_RGB(logo_bg));
+  cmd.cmd(CLEAR_COLOR_RGB(logo_bg_rgb));
   cmd.cmd(CLEAR(true,true,true));
 
   #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
 
   PolyUI ui(cmd);
 
-  cmd.cmd(COLOR_RGB(logo_fg));
-  ui.fill(POLY(logo_green));
-  cmd.cmd(COLOR_RGB(logo_stroke));
-  ui.fill(POLY(logo_black));
-  ui.fill(POLY(logo_type));
-  ui.fill(POLY(logo_mark));
+  cmd.cmd(COLOR_RGB(logo_stroke_rgb));
+  ui.fill(POLY(logo_stroke));
+  
+  cmd.cmd(COLOR_RGB(logo_fill_rgb));
+  ui.fill(POLY(logo_fill));
+  
   cmd.cmd(COLOR_RGB(0xFFFFFF));
   ui.fill(POLY(logo_white));
 
