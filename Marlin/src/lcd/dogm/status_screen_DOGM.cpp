@@ -432,13 +432,19 @@ void MarlinUI::draw_status_screen() {
         #if ENABLED(SHOW_REMAINING_TIME)
           if (!(ev & 0x3)) {
             duration_t estimation = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
-            const bool has_days = (estimation.value >= 60*60*24L);
-            const uint8_t len = estimation.toDigital(estimation_string, has_days);
-            #if ENABLED(DOGM_SD_PERCENT) && ENABLED(ROTATE_PROGRESS_DISPLAY)
-              estimation_x_pos = _SD_DURATION_X(len);
-            #else
-              estimation_x_pos = _SD_DURATION_X(len + 1);
-            #endif
+            if (estimation.value == 0) {
+              estimation_string[0] = '\0';
+              estimation_x_pos = _PROGRESS_CENTER_X(0);
+            }
+            else {
+              const bool has_days = (estimation.value >= 60*60*24L);
+              const uint8_t len = estimation.toDigital(estimation_string, has_days);
+              #if ENABLED(DOGM_SD_PERCENT) && ENABLED(ROTATE_PROGRESS_DISPLAY)
+                estimation_x_pos = _SD_DURATION_X(len);
+              #else
+                estimation_x_pos = _SD_DURATION_X(len + 1);
+              #endif
+            }
           }
         #endif
       }
