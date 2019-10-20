@@ -68,7 +68,7 @@ class UIFlashStorage : private SPIFlash {
     static void     set_media_file_size(uint8_t slot, uint32_t size);
     static uint32_t get_media_file_size(uint8_t slot);
 
-    static constexpr uint32_t delimiter = 0x4C554C5A; // 'LULZ'
+    static constexpr uint32_t delimiter = 0x4D524C4E; // 'MRLN'
   public:
     enum error_t {
       SUCCESS,

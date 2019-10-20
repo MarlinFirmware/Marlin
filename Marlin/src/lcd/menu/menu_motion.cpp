@@ -412,6 +412,13 @@ void menu_motion() {
       SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //
+  // Level X Axis
+  //
+  #if defined(AXIS_LEVELING_COMMANDS)
+    GCODES_ITEM(MSG_LEVEL_X_AXIS, PSTR(AXIS_LEVELING_COMMANDS));
+  #endif
+  
+  //
   // Auto Home
   //
   GCODES_ITEM(MSG_AUTO_HOME, PSTR("G28"));
@@ -421,6 +428,13 @@ void menu_motion() {
     GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28 Z"));
   #endif
 
+  //
+  // Auto-calibration
+  //
+  #if ENABLED(CALIBRATION_GCODE) && defined(CALIBRATION_COMMANDS)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, PSTR(CALIBRATION_COMMANDS));
+  #endif
+  
   //
   // Auto Z-Align
   //
