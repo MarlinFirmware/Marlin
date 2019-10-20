@@ -251,16 +251,16 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   #endif
 }
 
-#ifdef LULZBOT_EEPROM_BACKUP_SIZE
+#ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
   #include "../../../../../HAL/shared/persistent_store_api.h"
 
   bool restoreEEPROM() {
-    uint8_t data[LULZBOT_EEPROM_BACKUP_SIZE];
+    uint8_t data[ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE];
 
-    bool success = UIFlashStorage::read_config_data(data, LULZBOT_EEPROM_BACKUP_SIZE);
+    bool success = UIFlashStorage::read_config_data(data, ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE);
 
     if (success)
-      success = persistentStore.write_data(0, data, LULZBOT_EEPROM_BACKUP_SIZE) == PERSISTENT_STORE_SUCCESS;
+      success = persistentStore.write_data(0, data, ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE) == PERSISTENT_STORE_SUCCESS;
 
     if (success)
       StatusScreen::setStatusMessage(GET_TEXT_F(EEPROM_RESTORED));
@@ -271,12 +271,12 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   }
 
   bool InterfaceSettingsScreen::backupEEPROM() {
-    uint8_t data[LULZBOT_EEPROM_BACKUP_SIZE];
+    uint8_t data[ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE];
 
-    if (persistentStore.read_data(0, data, LULZBOT_EEPROM_BACKUP_SIZE) != PERSISTENT_STORE_SUCCESS)
+    if (persistentStore.read_data(0, data, ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE) != PERSISTENT_STORE_SUCCESS)
       return false;
 
-    UIFlashStorage::write_config_data(data, LULZBOT_EEPROM_BACKUP_SIZE);
+    UIFlashStorage::write_config_data(data, ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE);
 
     return true;
   }
