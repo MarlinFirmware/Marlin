@@ -88,6 +88,9 @@ void ChangeFilamentScreen::onEntry() {
   screen_data.ChangeFilamentScreen.t_tag = 0;
   screen_data.ChangeFilamentScreen.repeat_tag = 0;
   screen_data.ChangeFilamentScreen.saved_extruder = getActiveTool();
+  #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
+    screen_data.ChangeFilamentScreen.need_purge = true;
+  #endif
 }
 
 void ChangeFilamentScreen::onExit() {
@@ -262,10 +265,24 @@ ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
   }
 }
 
+void ChangeFilamentScreen::doPurge() {
+  #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
+    constexpr float purge_distance_mm = FILAMENT_UNLOAD_PURGE_LENGTH;
+    if (screen_data.ChangeFilamentScreen.need_purge) {
+      screen_data.ChangeFilamentScreen.need_purge = false;
+      MoveAxisScreen::setManualFeedrate(getExtruder(), purge_distance_mm);
+      ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(getExtruder()) + purge_distance_mm, getExtruder());
+    }
+  #endif
+}
+
 bool ChangeFilamentScreen::onTouchStart(uint8_t tag) {
   // Make the Momentary and Continuous buttons slightly more responsive
   switch (tag) {
     case 5: case 6: case 7: case 8:
+      #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
+        if (tag == 5 || tag == 7) doPurge();
+      #endif
       return ChangeFilamentScreen::onTouchHeld(tag);
     default:
       return false;
@@ -295,6 +312,9 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
       screen_data.ChangeFilamentScreen.e_tag      = tag;
       screen_data.ChangeFilamentScreen.t_tag      = 0;
       screen_data.ChangeFilamentScreen.repeat_tag = 0;
+      #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
+        screen_data.ChangeFilamentScreen.need_purge = true;
+      #endif
       setActiveTool(getExtruder(), true);
       break;
     case 15: GOTO_SCREEN(TemperatureScreen); break;
