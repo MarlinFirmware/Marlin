@@ -31,13 +31,6 @@
 #include "menu.h"
 #include "../../sd/cardreader.h"
 
-#if !PIN_EXISTS(SD_DETECT)
-  void lcd_sd_refresh() {
-    encoderTopLine = 0;
-    card.mount();
-  }
-#endif
-
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
@@ -87,9 +80,9 @@ inline void sdcard_start_selected_file() {
     buffer[0] = ' ';
     strcpy(buffer + 1, longest);
     do_select_screen(
-      PSTR(MSG_BUTTON_PRINT), PSTR(MSG_BUTTON_CANCEL),
+      GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
       sdcard_start_selected_file, ui.goto_previous_screen,
-      PSTR(MSG_START_PRINT), buffer, PSTR("?")
+      GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
     );
   }
 
@@ -138,14 +131,14 @@ void menu_media() {
   #endif
 
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
-      MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
+      ACTION_ITEM(MSG_REFRESH, [](){ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())
-    MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
+    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
@@ -163,7 +156,7 @@ void menu_media() {
         MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
     }
     else {
-      MENU_ITEM_DUMMY();
+      SKIP_ITEM();
     }
   }
   END_MENU();

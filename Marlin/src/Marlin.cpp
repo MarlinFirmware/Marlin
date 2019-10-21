@@ -173,10 +173,6 @@
   #include "feature/prusa_MMU2/mmu2.h"
 #endif
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "lcd/extensible_ui/ui_api.h"
-#endif
-
 #if HAS_DRIVER(L6470)
   #include "libs/L6470/L6470_Marlin.h"
 #endif
@@ -279,6 +275,10 @@ void quickstop_stepper() {
   sync_plan_position();
 }
 
+void enable_e_steppers() {
+  enable_E0(); enable_E1(); enable_E2(); enable_E3(); enable_E4(); enable_E5();
+}
+
 void enable_all_steppers() {
   #if ENABLED(AUTO_POWER_CONTROL)
     powerManager.power_on();
@@ -286,30 +286,11 @@ void enable_all_steppers() {
   enable_X();
   enable_Y();
   enable_Z();
-  enable_E0();
-  enable_E1();
-  enable_E2();
-  enable_E3();
-  enable_E4();
-  enable_E5();
-}
-
-void enable_e_steppers() {
-  enable_E0();
-  enable_E1();
-  enable_E2();
-  enable_E3();
-  enable_E4();
-  enable_E5();
+  enable_e_steppers();
 }
 
 void disable_e_steppers() {
-  disable_E0();
-  disable_E1();
-  disable_E2();
-  disable_E3();
-  disable_E4();
-  disable_E5();
+  disable_E0(); disable_E1(); disable_E2(); disable_E3(); disable_E4(); disable_E5();
 }
 
 void disable_e_stepper(const uint8_t e) {
@@ -330,71 +311,6 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
-#if HAS_FILAMENT_SENSOR
-
-  void event_filament_runout() {
-
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
-    #endif
-
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onFilamentRunout(ExtUI::getActiveTool());
-    #endif
-
-    #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
-      const char tool = '0'
-        #if NUM_RUNOUT_SENSORS > 1
-          + active_extruder
-        #endif
-      ;
-    #endif
-
-    //action:out_of_filament
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
-      host_action_prompt_end();
-      host_action_prompt_begin(PSTR("FilamentRunout T"), false);
-      SERIAL_CHAR(tool);
-      SERIAL_EOL();
-      host_action_prompt_show();
-    #endif
-
-    const bool run_runout_script = !runout.host_handling;
-
-    #if ENABLED(HOST_ACTION_COMMANDS)
-      if (run_runout_script
-        && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
-          || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            || strstr(FILAMENT_RUNOUT_SCRIPT, "M25")
-          #endif
-        )
-      ) {
-        host_action_paused(false);
-      }
-      else {
-        // Legacy Repetier command for use until newer version supports standard dialog
-        // To be removed later when pause command also triggers dialog
-        #ifdef ACTION_ON_FILAMENT_RUNOUT
-          host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT " T"), false);
-          SERIAL_CHAR(tool);
-          SERIAL_EOL();
-        #endif
-
-        host_action_pause(false);
-      }
-      SERIAL_ECHOPGM(" " ACTION_REASON_ON_FILAMENT_RUNOUT " ");
-      SERIAL_CHAR(tool);
-      SERIAL_EOL();
-    #endif // HOST_ACTION_COMMANDS
-
-    if (run_runout_script)
-      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
-  }
-
-#endif // HAS_FILAMENT_SENSOR
-
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void event_probe_failure() {
@@ -408,7 +324,7 @@ void disable_all_steppers() {
       #ifdef ACTION_ON_CANCEL
         host_action_cancel();
       #endif
-      kill(PSTR(MSG_ERR_PROBING_FAILED));
+      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -425,6 +341,20 @@ void disable_all_steppers() {
   }
 
 #endif
+
+/**
+ * Printing is active when the print job timer is running
+ */
+bool printingIsActive() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
+
+/**
+ * Printing is paused according to SD or host indicators
+ */
+bool printingIsPaused() {
+  return print_job_timer.isPaused() || IS_SD_PAUSED();
+}
 
 /**
  * Manage several activities:
@@ -756,15 +686,16 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P const lcd_msg/*=nullptr*/, const bool steppers_off/*=false*/) {
+void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
+    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component);
   #else
-    UNUSED(lcd_msg);
+    UNUSED(lcd_error);
+    UNUSED(lcd_component);
   #endif
 
   #ifdef ACTION_ON_KILL

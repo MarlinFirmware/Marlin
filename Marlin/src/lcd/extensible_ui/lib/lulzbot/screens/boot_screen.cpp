@@ -36,6 +36,7 @@
 #endif
 
 using namespace FTDI;
+using namespace Theme;
 
 void BootScreen::onRedraw(draw_mode_t) {
   CommandProcessor cmd;
@@ -64,7 +65,7 @@ void BootScreen::onIdle() {
   } else {
     if (!UIFlashStorage::is_valid()) {
       StatusScreen::loadBitmaps();
-      SpinnerDialogBox::show(GET_TEXTF(PLEASE_WAIT));
+      SpinnerDialogBox::show(GET_TEXT_F(PLEASE_WAIT));
       UIFlashStorage::format_flash();
       SpinnerDialogBox::hide();
     }
@@ -84,10 +85,10 @@ void BootScreen::onIdle() {
       PUSH_SCREEN(StatusScreen);
       PUSH_SCREEN(BioConfirmHomeE);
     #elif NUM_LANGUAGES > 1
-      StatusScreen::setStatusMessage(F(WELCOME_MSG));
+      StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
       GOTO_SCREEN(LanguageMenu);
     #else
-      StatusScreen::setStatusMessage(F(WELCOME_MSG));
+      StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
       GOTO_SCREEN(StatusScreen);
     #endif
   }
@@ -96,16 +97,16 @@ void BootScreen::onIdle() {
 void BootScreen::showSplashScreen() {
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART);
-  cmd.cmd(CLEAR_COLOR_RGB(0xDEEA5C));
+  cmd.cmd(CLEAR_COLOR_RGB(logo_bg));
   cmd.cmd(CLEAR(true,true,true));
 
   #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
 
   PolyUI ui(cmd);
 
-  cmd.cmd(COLOR_RGB(0xC1D82F));
+  cmd.cmd(COLOR_RGB(logo_fg));
   ui.fill(POLY(logo_green));
-  cmd.cmd(COLOR_RGB(0x000000));
+  cmd.cmd(COLOR_RGB(logo_stroke));
   ui.fill(POLY(logo_black));
   ui.fill(POLY(logo_type));
   ui.fill(POLY(logo_mark));

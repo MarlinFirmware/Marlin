@@ -11,11 +11,13 @@ MFINFO=$(mfinfo) || exit 1
 [[ -d Marlin/src ]] || { echo "Please 'cd' up to repo root." ; exit 1 ; }
 
 TESTPATH=buildroot/share/tests
+STATE_FILE=$( echo ./.pio/.mftestrc )
 
 shopt -s extglob nocasematch
 
-# Get test
+# Get the environment and test number from the command
 TESTENV=${1:-'-'}
+CHOICE=${2:-0}
 
 # Allow shorthand for test name
 case $TESTENV in
@@ -37,6 +39,15 @@ case $TESTENV in
      t32) TESTENV='teensy31' ;;
      t35) TESTENV='teensy35' ;;
      t36) TESTENV='teensy35' ;;
+          # Build with the last-built env
+      -r) [[ -f "$STATE_FILE" ]] || { echo "No previous (-r) build state found." ; exit 1 ; }
+          read TESTENV <"$STATE_FILE"
+          platformio run --project-dir . -e $TESTENV
+          exit
+          ;;
+          # A -y may come first
+      -y) TESTENV=${2:-'-'} ; CHOICE=${3:-0} ;;
+  -[a-z]) echo "Unknown flag $TESTENV" ; exit 1 ;;
        -) ;;
 esac
 
@@ -76,9 +87,6 @@ OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { echo "Can't find test '$T
 # Count up the number of tests
 # TODO: List test descriptions with numbers
 TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
-
-# Get the entered or interactive test index
-CHOICE=${2:-0}
 
 # User entered a number?
 (( CHOICE && CHOICE > TESTCOUNT )) && { echo "Invalid test index '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
@@ -135,6 +143,16 @@ echo "$OUT" | {
   done
 }
 
+# Get a -y parameter the lazy way
+[[ "$2" == "-y" || "$3" == "-y" ]] && BUILD_YES='Y'
+
 # Build the test too?
-echo ; read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
-[[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && platformio run --project-dir . -e $TESTENV
+if [[ $BUILD_YES != 'Y' ]]; then
+  echo
+  read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
+fi
+
+[[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
+  platformio run --project-dir . -e $TESTENV
+  echo "$TESTENV" >"$STATE_FILE"
+}

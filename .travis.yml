@@ -13,8 +13,6 @@ env:
   - TEST_PLATFORM="DUE"
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="linux_native"
-  - TEST_PLATFORM="LPC1768"
-  - TEST_PLATFORM="LPC1769"
   - TEST_PLATFORM="megaatmega2560"
   - TEST_PLATFORM="STM32F103RE"
   - TEST_PLATFORM="teensy31"
@@ -35,12 +33,16 @@ env:
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
   - TEST_PLATFORM="STM32F407VE_black"
+  - TEST_PLATFORM="mks_robin"
+
+  # Put lengthy tests last
+  - TEST_PLATFORM="LPC1768"
+  - TEST_PLATFORM="LPC1769"
 
   # Non-working environment tests
   #- TEST_PLATFORM="at90usb1286_cdc"
   #- TEST_PLATFORM="at90usb1286_dfu"
   #- TEST_PLATFORM="STM32F103CB_malyan"
-  #- TEST_PLATFORM="mks_robin"
   #- TEST_PLATFORM="mks_robin_lite"
   #- TEST_PLATFORM="mks_robin_mini"
   #- TEST_PLATFORM="mks_robin_nano"
@@ -73,8 +75,8 @@ before_script:
   - cd ${TRAVIS_BUILD_DIR}
   #
   # Generate custom version include
-  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/src/inc
-  - cat ${TRAVIS_BUILD_DIR}/Marlin/src/inc/_Version.h
+  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/
+  - cat ${TRAVIS_BUILD_DIR}/Marlin/Version.h
   #
 script:
   - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

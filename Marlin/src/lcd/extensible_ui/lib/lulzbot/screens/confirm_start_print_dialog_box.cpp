@@ -48,7 +48,7 @@ bool ConfirmStartPrintDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       printFile(getShortFilename());
-      StatusScreen::setStatusMessage(GET_TEXTF(PRINT_STARTING));
+      StatusScreen::setStatusMessage(GET_TEXT_F(PRINT_STARTING));
       GOTO_SCREEN(StatusScreen);
       return true;
     case 2: GOTO_PREVIOUS(); return true;

@@ -51,6 +51,10 @@
   #include "../feature/mixing.h"
 #endif
 
+#if HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE;
@@ -144,6 +148,10 @@ typedef struct block_t {
            initial_rate,                    // The jerk-adjusted step rate at start of block
            final_rate,                      // The minimal rate at exit
            acceleration_steps_per_s2;       // acceleration steps/sec^2
+
+  #if HAS_CUTTER
+    cutter_power_t cutter_power;            // Power level for Spindle, Laser, etc.
+  #endif
 
   #if FAN_COUNT > 0
     uint8_t fan_speed[FAN_COUNT];
@@ -245,7 +253,7 @@ class Planner {
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
     static float steps_to_mm[XYZE_N];           // Millimeters per step
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    #if DISABLED(CLASSIC_JERK)
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)
         static float max_e_jerk                 // Calculated from junction_deviation_mm
@@ -257,7 +265,7 @@ class Planner {
     #endif
 
     #if HAS_CLASSIC_JERK
-      #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+      #if HAS_LINEAR_E_JERK
         static xyz_pos_t max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
       #else
         static xyze_pos_t max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -268,7 +276,6 @@ class Planner {
       static bool leveling_active;          // Flag that bed leveling is enabled
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
-        static constexpr xy_pos_t level_fulcrum = { X_TILT_FULCRUM, Y_TILT_FULCRUM };
       #endif
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         static float z_fade_height, inverse_z_fade_height;
@@ -358,6 +365,10 @@ class Planner {
 
     static void reset_acceleration_rates();
     static void refresh_positioning();
+    static void set_max_acceleration(const uint8_t axis, float targetValue);
+    static void set_max_feedrate(const uint8_t axis, float targetValue);
+    static void set_max_jerk(const AxisEnum axis, float targetValue);
+
 
     #if EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
@@ -576,7 +587,7 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const xyze_pos_t &target_float
       #endif
-      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         , const xyze_float_t &delta_mm_cart
       #endif
       , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
@@ -599,7 +610,7 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const xyze_pos_t &target_float
       #endif
-      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         , const xyze_float_t &delta_mm_cart
       #endif
       , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
@@ -631,20 +642,20 @@ class Planner {
      *  millimeters - the length of the movement, if known
      */
     static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
-      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         , const xyze_float_t &delta_mm_cart
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
     FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
-      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         , const xyze_float_t &delta_mm_cart
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     ) {
       return buffer_segment(abce.a, abce.b, abce.c, abce.e
-        #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+        #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
           , delta_mm_cart
         #endif
         , fr_mm_s, extruder, millimeters);
@@ -862,7 +873,7 @@ class Planner {
       static void autotemp_M104_M109();
     #endif
 
-    #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+    #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
@@ -934,7 +945,7 @@ class Planner {
 
     static void recalculate();
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    #if DISABLED(CLASSIC_JERK)
 
       FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
         float magnitude_sq = 0;
@@ -949,7 +960,7 @@ class Planner {
         return limit_value;
       }
 
-    #endif // JUNCTION_DEVIATION
+    #endif // !CLASSIC_JERK
 };
 
 #define PLANNER_XY_FEEDRATE() (_MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))

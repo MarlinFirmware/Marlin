@@ -27,6 +27,7 @@
 #include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/planner.h"
+#include "../../module/probe.h"
 
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../module/configuration_store.h"

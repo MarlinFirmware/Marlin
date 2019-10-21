@@ -28,6 +28,7 @@
 
 // All displays share the MarlinUI class
 #if HAS_DISPLAY
+  #include "../gcode/queue.h"
   #include "ultralcd.h"
   #include "fontutils.h"
   MarlinUI ui;
@@ -43,25 +44,21 @@
 #if HAS_SPI_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
-    #if LONG_FILENAME_LENGTH > CHARSIZE * 2 * (LCD_WIDTH)
-      #define MAX_MESSAGE_LENGTH LONG_FILENAME_LENGTH
-    #else
-      #define MAX_MESSAGE_LENGTH CHARSIZE * 2 * (LCD_WIDTH)
-    #endif
+    constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
   #else
-    #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
+    constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
   #endif
 #elif ENABLED(EXTENSIBLE_UI)
-  #define MAX_MESSAGE_LENGTH 63
+  constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#ifdef MAX_MESSAGE_LENGTH
+#if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  uint8_t MarlinUI::progress_bar_percent; // = 0
+  MarlinUI::progress_t MarlinUI::progress_override; // = 0
 #endif
 
 #if HAS_BUZZER
@@ -93,7 +90,6 @@
 #include "../module/planner.h"
 #include "../module/printcounter.h"
 #include "../module/motion.h"
-#include "../gcode/queue.h"
 
 #include "../Marlin.h"
 
@@ -519,7 +515,7 @@ void MarlinUI::status_screen() {
       if (expire_status_ms > 0) {
 
         // Expire the message if a job is active and the bar has ticks
-        if (get_progress() > 2 && !print_job_timer.isPaused()) {
+        if (get_progress_percent() > 2 && !print_job_timer.isPaused()) {
           if (ELAPSED(ms, expire_status_ms)) {
             status_message[0] = '\0';
             expire_status_ms = 0;
@@ -590,9 +586,12 @@ void MarlinUI::status_screen() {
   draw_status_screen();
 }
 
-void MarlinUI::kill_screen(PGM_P lcd_msg) {
+void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   init();
-  set_alert_status_P(lcd_msg);
+  status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
+  #if HAS_LCD_MENU
+    return_to_status();
+  #endif
 
   // RED ALERT. RED ALERT.
   #ifdef LED_BACKLIGHT_TIMEOUT
@@ -843,13 +842,13 @@ void MarlinUI::update() {
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
-          set_status_P(PSTR(MSG_MEDIA_INSERTED));
+          set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
       }
       #if PIN_EXISTS(SD_DETECT)
         else {
           card.release();
           if (old_sd_status != 2) {
-            set_status_P(PSTR(MSG_MEDIA_REMOVED));
+            set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
             #if HAS_LCD_MENU
               return_to_status();
             #endif
@@ -1349,8 +1348,6 @@ void MarlinUI::update() {
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onStatusChanged(status_message);
     #endif
-
-    refresh();
   }
 
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
@@ -1425,15 +1422,17 @@ void MarlinUI::update() {
     #endif
   }
 
+  #include "../Marlin.h"
   #include "../module/printcounter.h"
+
+  PGM_P print_paused = GET_TEXT(MSG_PRINT_PAUSED);
 
   /**
    * Reset the status message
    */
   void MarlinUI::reset_status() {
-    static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
-    static const char printing[] PROGMEM = MSG_PRINTING;
-    static const char welcome[] PROGMEM = WELCOME_MSG;
+    PGM_P printing = GET_TEXT(MSG_PRINTING);
+    PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0
       static const char service1[] PROGMEM = { "> " SERVICE_NAME_1 "!" };
     #endif
@@ -1444,8 +1443,8 @@ void MarlinUI::update() {
       static const char service3[] PROGMEM = { "> " SERVICE_NAME_3 "!" };
     #endif
     PGM_P msg;
-    if (!IS_SD_PRINTING() && print_job_timer.isPaused())
-      msg = paused;
+    if (printingIsPaused())
+      msg = print_paused;
     #if ENABLED(SDSUPPORT)
       else if (IS_SD_PRINTING())
         return set_status(card.longest_filename(), true);
@@ -1485,7 +1484,7 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), PSTR("Dismiss"));
     #endif
     print_job_timer.stop();
-    set_status_P(PSTR(MSG_PRINT_ABORTED));
+    set_status_P(GET_TEXT(MSG_PRINT_ABORTED));
     #if HAS_LCD_MENU
       return_to_status();
     #endif
@@ -1497,7 +1496,7 @@ void MarlinUI::update() {
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
-      synchronize(PSTR(MSG_PAUSE_PRINT));
+      synchronize(GET_TEXT(MSG_PAUSE_PRINT));
     #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1508,7 +1507,7 @@ void MarlinUI::update() {
       host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume"));
     #endif
 
-    set_status_P(PSTR(MSG_PRINT_PAUSED));
+    set_status_P(print_paused);
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       #if HAS_SPI_LCD
@@ -1527,9 +1526,7 @@ void MarlinUI::update() {
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       wait_for_heatup = wait_for_user = false;
     #endif
-    #if ENABLED(SDSUPPORT)
-      if (card.isPaused()) queue.inject_P(PSTR("M24"));
-    #endif
+    if (IS_SD_PAUSED()) queue.inject_P(PSTR("M24"));
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif
@@ -1537,19 +1534,24 @@ void MarlinUI::update() {
   }
 
   #if HAS_PRINT_PROGRESS
-    uint8_t MarlinUI::get_progress() {
+
+    MarlinUI::progress_t MarlinUI::_get_progress() {
       #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        uint8_t &progress = progress_bar_percent;
-        #define _PLIMIT(P) ((P) & 0x7F)
+        const progress_t p = progress_override & PROGRESS_MASK;
       #else
-        #define _PLIMIT(P) P
-        uint8_t progress = 0;
+        constexpr progress_t p = 0;
       #endif
-      #if ENABLED(SDSUPPORT)
-        if (IS_SD_PRINTING()) progress = card.percentDone();
-      #endif
-      return _PLIMIT(progress);
+      return (p
+        #if ENABLED(SDSUPPORT)
+          #if HAS_PRINT_PROGRESS_PERMYRIAD
+            ?: card.permyriadDone()
+          #else
+            ?: card.percentDone()
+          #endif
+        #endif
+      );
     }
+
   #endif
 
 #endif // HAS_DISPLAY

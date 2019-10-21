@@ -115,12 +115,12 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
     // If we are allocating new space...
     dl_addr     = CLCD::mem_read_32(DL_FREE_ADDR);
     free_space  = MAP::RAM_G_SIZE - dl_addr;
-    dl_alloc    = num_bytes ? num_bytes : new_dl_size;
+    dl_alloc    = num_bytes ?: new_dl_size;
     dl_size     = new_dl_size;
   } else {
     // Otherwise, we can only store as much space
     // as was previously allocated.
-    free_space  = num_bytes ? num_bytes : dl_size;
+    free_space  = num_bytes ?: dl_size;
     dl_alloc    = 0;
     dl_size     = new_dl_size;
   }

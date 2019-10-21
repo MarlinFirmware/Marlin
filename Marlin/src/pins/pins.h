@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "../core/boards.h"
+
 /**
  * Include pins definitions
  *
@@ -35,15 +37,15 @@
 
 #define MAX_EXTRUDERS 6
 
-#if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_PLUS_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
+#if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
-#elif MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB) || MB(RAMPS_PLUS_EEB) || MB(RAMPS_14_RE_ARM_EEB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_DUO_EEB) || MB(RAMPS4DUE_EEB)
+#elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB)
   #define IS_RAMPS_EEB
-#elif MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF) || MB(RAMPS_PLUS_EFF) || MB(RAMPS_14_RE_ARM_EFF) || MB(RAMPS_SMART_EFF) || MB(RAMPS_DUO_EFF) || MB(RAMPS4DUE_EFF)
+#elif MB(RAMPS_13_EFF, RAMPS_14_EFF, RAMPS_PLUS_EFF, RAMPS_14_RE_ARM_EFF, RAMPS_SMART_EFF, RAMPS_DUO_EFF, RAMPS4DUE_EFF)
   #define IS_RAMPS_EFF
-#elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF) || MB(RAMPS_PLUS_EEF) || MB(RAMPS_14_RE_ARM_EEF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_DUO_EEF) || MB(RAMPS4DUE_EEF)
+#elif MB(RAMPS_13_EEF, RAMPS_14_EEF, RAMPS_PLUS_EEF, RAMPS_14_RE_ARM_EEF, RAMPS_SMART_EEF, RAMPS_DUO_EEF, RAMPS4DUE_EEF)
   #define IS_RAMPS_EEF
-#elif MB(RAMPS_13_SF)  || MB(RAMPS_14_SF)  || MB(RAMPS_PLUS_SF)  || MB(RAMPS_14_RE_ARM_SF)  || MB(RAMPS_SMART_SF)  || MB(RAMPS_DUO_SF)  || MB(RAMPS4DUE_SF)
+#elif MB(RAMPS_13_SF,  RAMPS_14_SF,  RAMPS_PLUS_SF,  RAMPS_14_RE_ARM_SF,  RAMPS_SMART_SF,  RAMPS_DUO_SF,  RAMPS4DUE_SF)
   #define IS_RAMPS_SF
 #endif
 
@@ -185,7 +187,7 @@
 
 #elif MB(RAMBO)
   #include "rambo/pins_RAMBO.h"                 // ATmega2560                             env:rambo
-#elif MB(MINIRAMBO) || MB(MINIRAMBO_10A)
+#elif MB(MINIRAMBO, MINIRAMBO_10A)
   #include "rambo/pins_MINIRAMBO.h"             // ATmega2560                             env:rambo
 #elif MB(EINSY_RAMBO)
   #include "rambo/pins_EINSY_RAMBO.h"           // ATmega2560                             env:rambo
@@ -214,7 +216,7 @@
   #include "mega/pins_MEGATRONICS.h"            // ATmega2560                             env:megaatmega2560
 #elif MB(MEGATRONICS_2)
   #include "mega/pins_MEGATRONICS_2.h"          // ATmega2560                             env:megaatmega2560
-#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31) || MB(MEGATRONICS_32)
+#elif MB(MEGATRONICS_3, MEGATRONICS_31, MEGATRONICS_32)
   #include "mega/pins_MEGATRONICS_3.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(ELEFU_3)
   #include "mega/pins_ELEFU_3.h"                // ATmega2560                             env:megaatmega2560
@@ -464,6 +466,8 @@
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(BIGTREE_SKR_MINI_V1_1)
   #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:STM32F103RC_bigtree
+#elif MB(BTT_SKR_MINI_E3_V1_2)
+  #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree
 #elif MB(BIGTREE_SKR_MINI_E3)
   #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:STM32F103RC_bigtree
 #elif MB(BIGTREE_SKR_E3_DIP)
@@ -526,7 +530,8 @@
 // Espressif ESP32
 //
 
-#elif MB(ESP32)
+#elif MB(ESPRESSIF_ESP32)
+
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
 
 //
@@ -902,7 +907,7 @@
 //
 // Disable unused endstop / probe pins
 //
-#if !USES_Z_MIN_PROBE_ENDSTOP
+#if !HAS_CUSTOM_PROBE_PIN
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif

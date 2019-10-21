@@ -67,13 +67,9 @@
     #if HAS_GRAPHICAL_LCD
       #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
       #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-      #define LCDPRINT(p) u8g.print(p)
-      #define LCDWRITE(c) u8g.print(c)
     #else
       #define SETCURSOR(col, row) lcd_moveto(col, row)
       #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
-      #define LCDPRINT(p) lcd_put_u8str(p)
-      #define LCDWRITE(c) lcd_put_wchar(c)
     #endif
 
     #include "lcdprint.h"
@@ -292,15 +288,28 @@ public:
     static void resume_print();
 
     #if HAS_PRINT_PROGRESS
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        static uint8_t progress_bar_percent;
-        static void set_progress(const uint8_t progress) { progress_bar_percent = _MIN(progress, 100); }
-        static void set_progress_done() { set_progress(0x80 + 100); }
-        static void progress_reset() { if (progress_bar_percent & 0x80) set_progress(0); }
+      #if HAS_PRINT_PROGRESS_PERMYRIAD
+        typedef uint16_t progress_t;
+        #define PROGRESS_SCALE 100U
+        #define PROGRESS_MASK 0x7FFF
+      #else
+        typedef uint8_t progress_t;
+        #define PROGRESS_SCALE 1U
+        #define PROGRESS_MASK 0x7F
       #endif
-      static uint8_t get_progress();
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        static progress_t progress_override;
+        static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
+        static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
+        static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
+      #endif
+      static progress_t _get_progress();
+      #if HAS_PRINT_PROGRESS_PERMYRIAD
+        static uint16_t get_progress_permyriad() { return _get_progress(); }
+      #endif
+      static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
     #else
-      static constexpr uint8_t get_progress() { return 0; }
+      static constexpr uint8_t get_progress_percent() { return 0; }
     #endif
 
     #if HAS_SPI_LCD
@@ -380,7 +389,7 @@ public:
     #endif
 
     static bool get_blink();
-    static void kill_screen(PGM_P const lcd_msg);
+    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
     static void set_status(const char* const message, const bool persist=false);
     static void set_status_P(PGM_P const message, const int8_t level=0);
@@ -598,5 +607,8 @@ private:
 
 extern MarlinUI ui;
 
-#define LCD_MESSAGEPGM(x)      ui.set_status_P(PSTR(x))
-#define LCD_ALERTMESSAGEPGM(x) ui.set_alert_status_P(PSTR(x))
+#define LCD_MESSAGEPGM_P(x)      ui.set_status_P(x)
+#define LCD_ALERTMESSAGEPGM_P(x) ui.set_alert_status_P(x)
+
+#define LCD_MESSAGEPGM(x)        LCD_MESSAGEPGM_P(GET_TEXT(x))
+#define LCD_ALERTMESSAGEPGM(x)   LCD_ALERTMESSAGEPGM_P(GET_TEXT(x))

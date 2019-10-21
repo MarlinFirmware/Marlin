@@ -27,7 +27,6 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
-/*
 #include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 
@@ -40,7 +39,6 @@
 #endif
 
 #include "../../Marlin.h" // for wait_for_heatup and idle()
-*/
 
 /**
  * M141: Set chamber temperature
@@ -54,7 +52,6 @@ void GcodeSuite::M141() {
  * M191: Sxxx Wait for chamber current temp to reach target temp. Waits only when heating
  *       Rxxx Wait for chamber current temp to reach target temp. Waits when heating and cooling
  */
-/*
 void GcodeSuite::M191() {
   if (DEBUGGING(DRYRUN)) return;
 
@@ -68,10 +65,11 @@ void GcodeSuite::M191() {
   }
   else return;
 
-  lcd_setstatusPGM(thermalManager.isHeatingChamber() ? PSTR(MSG_CHAMBER_HEATING) : PSTR(MSG_CHAMBER_COOLING));
-
-  thermalManager.wait_for_chamber(no_wait_for_cooling);
+  const bool is_heating = thermalManager.isHeatingChamber();
+  if (is_heating || !no_wait_for_cooling) {
+    lcd_setstatusPGM(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
+    thermalManager.wait_for_chamber(false);
+  }
 }
-*/
 
 #endif // HAS_HEATED_CHAMBER

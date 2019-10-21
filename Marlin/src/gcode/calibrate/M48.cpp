@@ -126,7 +126,7 @@ void GcodeSuite::M48() {
     for (uint8_t n = 0; n < n_samples; n++) {
       #if HAS_SPI_LCD
         // Display M48 progress in the status bar
-        ui.status_printf_P(0, PSTR(MSG_M48_POINT ": %d/%d"), int(n + 1), int(n_samples));
+        ui.status_printf_P(0, PSTR(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
       if (n_legs) {
         const int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
@@ -252,7 +252,7 @@ void GcodeSuite::M48() {
     #if HAS_SPI_LCD
       // Display M48 results in the status bar
       char sigma_str[8];
-      ui.status_printf_P(0, PSTR(MSG_M48_DEVIATION ": %s"), dtostrf(sigma, 2, 6, sigma_str));
+      ui.status_printf_P(0, PSTR(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));
     #endif
   }
 

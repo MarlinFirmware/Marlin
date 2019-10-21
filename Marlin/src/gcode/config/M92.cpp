@@ -76,7 +76,7 @@ void GcodeSuite::M92() {
         const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS_N(target_extruder)));
         if (value < 20) {
           float factor = planner.settings.axis_steps_per_mm[E_AXIS_N(target_extruder)] / value; // increase e constants if M92 E14 is given for netfab.
-          #if HAS_CLASSIC_JERK && !BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+          #if HAS_CLASSIC_E_JERK
             planner.max_jerk.e *= factor;
           #endif
           planner.settings.max_feedrate_mm_s[E_AXIS_N(target_extruder)] *= factor;
@@ -98,7 +98,7 @@ void GcodeSuite::M92() {
     const float wanted = parser.floatval('L');
     if (parser.seen('H') || wanted) {
       const uint16_t argH = parser.ushortval('H'),
-                     micro_steps = argH ? argH : Z_MICROSTEPS;
+                     micro_steps = argH ?: Z_MICROSTEPS;
       const float z_full_step_mm = micro_steps * planner.steps_to_mm[Z_AXIS];
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);

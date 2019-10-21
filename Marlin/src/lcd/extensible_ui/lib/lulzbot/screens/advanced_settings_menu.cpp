@@ -49,52 +49,52 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
         .enabled(0)
       #endif
-      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXTF(ZPROBE_ZOFFSET))
+      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(ZPROBE_ZOFFSET))
       .enabled(1)
-      .tag(3) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXTF(STEPS_PER_MM))
+      .tag(3) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(STEPS_PER_MM))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(13).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXTF(MOTOR_CURRENT))
+      .tag(13).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MOTOR_CURRENT))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(14).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXTF(HOME_SENSE))
+      .tag(14).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(HOME_SENSE))
       #if HOTENDS > 1
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXTF(TOOL_OFFSETS))
+      .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(TOOL_OFFSETS))
       #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(11).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXTF(FILAMENT))
-      .tag(12).button( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXTF(ENDSTOPS))
-      .tag(15).button( BTN_POS(2,6), BTN_SIZE(1,1), GET_TEXTF(DISPLAY_MENU))
-      .tag(9) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
-      .tag(10).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXTF(RESTORE_DEFAULTS))
-      .tag(5) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXTF(VELOCITY))
-      .tag(6) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXTF(ACCELERATION))
-      #if ENABLED(JUNCTION_DEVIATION)
-      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JUNC_DEVIATION))
+      .tag(11).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(FILAMENT))
+      .tag(12).button( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(ENDSTOPS))
+      .tag(15).button( BTN_POS(2,6), BTN_SIZE(1,1), GET_TEXT_F(DISPLAY_MENU))
+      .tag(9) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(INTERFACE_SETTINGS))
+      .tag(10).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(RESTORE_DEFAULTS))
+      .tag(5) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(VELOCITY))
+      .tag(6) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(ACCELERATION))
+      #if DISABLED(CLASSIC_JERK)
+      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(JUNC_DEVIATION))
       #else
-      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXTF(JERK))
+      .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(JERK))
       #endif
       #if ENABLED(BACKLASH_GCODE)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(8).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXTF(BACKLASH))
+      .tag(8).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(BACKLASH))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXTF(BACK));
+      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #else
@@ -105,47 +105,47 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
         .enabled(0)
       #endif
-      .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,2), GET_TEXTF(ZPROBE_ZOFFSET))
+      .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,2), GET_TEXT_F(ZPROBE_ZOFFSET))
       .enabled(1)
-      .tag(3) .button( BTN_POS(2,1),  BTN_SIZE(1,1), GET_TEXTF(STEPS_PER_MM))
+      .tag(3) .button( BTN_POS(2,1),  BTN_SIZE(1,1), GET_TEXT_F(STEPS_PER_MM))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(13).button( BTN_POS(3,1), BTN_SIZE(1,1), GET_TEXTF(MOTOR_CURRENT))
+      .tag(13).button( BTN_POS(3,1), BTN_SIZE(1,1), GET_TEXT_F(MOTOR_CURRENT))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(14).button( BTN_POS(3,2), BTN_SIZE(1,1), GET_TEXTF(HOME_SENSE))
+      .tag(14).button( BTN_POS(3,2), BTN_SIZE(1,1), GET_TEXT_F(HOME_SENSE))
       #if ENABLED(BACKLASH_GCODE)
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(8).button( BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXTF(BACKLASH))
+      .tag(8).button( BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXT_F(BACKLASH))
       #if HOTENDS > 1
       .enabled(1)
       #else
       .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,3),  BTN_SIZE(1,1), GET_TEXTF(TOOL_OFFSETS))
-      .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXTF(ENDSTOPS))
-      .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), GET_TEXTF(VELOCITY))
-      .tag(6) .button( BTN_POS(2,3),  BTN_SIZE(1,1), GET_TEXTF(ACCELERATION))
-      #if ENABLED(JUNCTION_DEVIATION)
-      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXTF(JUNC_DEVIATION))
+      .tag(4) .button( BTN_POS(1,3),  BTN_SIZE(1,1), GET_TEXT_F(TOOL_OFFSETS))
+      .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXT_F(ENDSTOPS))
+      .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), GET_TEXT_F(VELOCITY))
+      .tag(6) .button( BTN_POS(2,3),  BTN_SIZE(1,1), GET_TEXT_F(ACCELERATION))
+      #if DISABLED(CLASSIC_JERK)
+      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXT_F(JUNC_DEVIATION))
       #else
-      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXTF(JERK))
+      .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXT_F(JERK))
       #endif
-      .tag(11).button( BTN_POS(1,4),  BTN_SIZE(1,1), GET_TEXTF(FILAMENT))
-      .tag(15).button( BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXTF(DISPLAY_MENU))
-      .tag(9) .button( BTN_POS(1,5),  BTN_SIZE(2,1), GET_TEXTF(INTERFACE_SETTINGS))
-      .tag(10).button( BTN_POS(1,6),  BTN_SIZE(2,1), GET_TEXTF(RESTORE_DEFAULTS))
+      .tag(11).button( BTN_POS(1,4),  BTN_SIZE(1,1), GET_TEXT_F(FILAMENT))
+      .tag(15).button( BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXT_F(DISPLAY_MENU))
+      .tag(9) .button( BTN_POS(1,5),  BTN_SIZE(2,1), GET_TEXT_F(INTERFACE_SETTINGS))
+      .tag(10).button( BTN_POS(1,6),  BTN_SIZE(2,1), GET_TEXT_F(RESTORE_DEFAULTS))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(3,6),  BTN_SIZE(1,1), GET_TEXTF(BACK));
+      .tag(1) .button( BTN_POS(3,6),  BTN_SIZE(1,1), GET_TEXT_F(BACK));
     #endif
   }
 }
@@ -163,7 +163,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 5:  GOTO_SCREEN(MaxVelocityScreen);          break;
     case 6:  GOTO_SCREEN(DefaultAccelerationScreen);  break;
     case 7:
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         GOTO_SCREEN(JunctionDeviationScreen);
       #else
         GOTO_SCREEN(JerkScreen);

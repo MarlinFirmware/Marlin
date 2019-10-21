@@ -123,7 +123,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 }
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  #if USES_Z_MIN_PROBE_ENDSTOP
+  #if HAS_CUSTOM_PROBE_PIN
     #define TEST_PROBE_PIN (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
   #else
     #define TEST_PROBE_PIN (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)

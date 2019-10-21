@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#define NUM_AXIS 4
 #define ABCE 4
 #define XYZE 4
 #define ABC  3
@@ -226,6 +225,9 @@
 #define _LIST_N(N,V...) LIST_##N(V)
 #define LIST_N(N,V...) _LIST_N(N,V)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
+
+#define _JOIN_1(O)         (O)
+#define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
 // Macros for adding
 #define INC_0 1

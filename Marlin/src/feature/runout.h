@@ -46,6 +46,8 @@
   #define FILAMENT_RUNOUT_THRESHOLD 5
 #endif
 
+void event_filament_runout();
+
 class FilamentMonitorBase {
   public:
     static bool enabled, filament_ran_out;
@@ -98,7 +100,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning()
+      if (enabled && !filament_ran_out && (printingIsActive()
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           || did_pause_print
         #endif

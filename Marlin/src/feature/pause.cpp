@@ -53,6 +53,7 @@
   #include "../lcd/extensible_ui/ui_api.h"
 #endif
 
+#include "../core/language.h"
 #include "../lcd/ultralcd.h"
 
 #if HAS_BUZZER
@@ -74,6 +75,12 @@ fil_change_settings_t fc_settings[EXTRUDERS];
 
 #if ENABLED(SDSUPPORT)
   #include "../sd/cardreader.h"
+#endif
+
+#if ENABLED(EMERGENCY_PARSER)
+  #define _PMSG(L) L##_M108
+#else
+  #define _PMSG(L) L##_LCD
 #endif
 
 #if HAS_BUZZER
@@ -163,7 +170,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #if HAS_LCD_MENU
       if (show_lcd) lcd_pause_show_message(PAUSE_MESSAGE_INSERT, mode);
     #endif
-    SERIAL_ECHO_MSG(MSG_FILAMENT_CHANGE_INSERT);
+    SERIAL_ECHO_MSG(_PMSG(MSG_FILAMENT_CHANGE_INSERT));
 
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
@@ -188,7 +195,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       host_action_prompt_show();
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onUserConfirmRequired(PSTR("Load Filament"));
+      ExtUI::onUserConfirmRequired_P(PSTR("Load Filament"));
     #endif
     while (wait_for_user) {
       #if HAS_BUZZER
@@ -240,10 +247,10 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
     wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Continuous Purge Running..."), PSTR("Continue"));
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Filament Purge Running..."), PSTR("Continue"));
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onUserConfirmRequired(PSTR("Continuous Purge Running..."));
+      ExtUI::onUserConfirmRequired_P(PSTR("Filament Purge Running..."));
     #endif
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -381,7 +388,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
  * - Park the nozzle at the given position
  * - Call unload_filament (if a length was specified)
  *
- * Returns 'true' if pause was completed, 'false' for abort
+ * Return 'true' if pause was completed, 'false' for abort
  */
 uint8_t did_pause_print = 0;
 
@@ -481,14 +488,6 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
  * Used by M125 and M600
  */
 
-#if (HAS_LCD_MENU || ENABLED(EXTENSIBLE_UI)) && ENABLED(EMERGENCY_PARSER)
-  #define _PMSG(L) L
-#elif ENABLED(EMERGENCY_PARSER)
-  #define _PMSG(L) L##_M108
-#else
-  #define _PMSG(L) L##_LCD
-#endif
-
 void show_continue_prompt(const bool is_reload) {
   #if HAS_LCD_MENU
     lcd_pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
@@ -527,7 +526,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Nozzle Parked"), PSTR("Continue"));
   #endif
   #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onUserConfirmRequired(PSTR("Nozzle Parked"));
+    ExtUI::onUserConfirmRequired_P(PSTR("Nozzle Parked"));
   #endif
   while (wait_for_user) {
     #if HAS_BUZZER
@@ -551,7 +550,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #endif
 
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired(PSTR("HeaterTimeout"));
+        ExtUI::onUserConfirmRequired_P(PSTR("HeaterTimeout"));
       #endif
 
       // Wait for LCD click or M108
@@ -581,7 +580,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), PSTR("Continue"));
       #endif
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired("Reheat finished.");
+        ExtUI::onUserConfirmRequired_P(PSTR("Reheat finished."));
       #endif
       wait_for_user = true;
       nozzle_timed_out = false;
@@ -603,7 +602,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 /**
  * Resume or Start print procedure
  *
- * - Abort if not paused
+ * - If not paused, do nothing and return
  * - Reset heater idle timers
  * - Load filament if specified, but only if:
  *   - a nozzle timed out, or

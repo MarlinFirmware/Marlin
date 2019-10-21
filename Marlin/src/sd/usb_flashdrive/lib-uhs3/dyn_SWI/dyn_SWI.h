@@ -20,7 +20,7 @@
  */
 
 #ifndef DYN_SWI_H
-#define	DYN_SWI_H
+#define DYN_SWI_H
 
 
 #if defined(__arm__) || defined(ARDUINO_ARCH_PIC32)
@@ -109,10 +109,10 @@ extern "C"
 #elif defined(CORE_TEENSY)
 
 #ifndef NVIC_GET_ACTIVE
-#define NVIC_GET_ACTIVE(n)	(*((volatile uint32_t *)0xE000E300 + ((n) >> 5)) & (1 << ((n) & 31)))
+#define NVIC_GET_ACTIVE(n)  (*((volatile uint32_t *)0xE000E300 + ((n) >> 5)) & (1 << ((n) & 31)))
 #endif
 #ifndef NVIC_GET_PENDING
-#define NVIC_GET_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
+#define NVIC_GET_PENDING(n) (*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
 #ifndef SWI_IRQ_NUM
 #ifdef __MK20DX256__
 #define SWI_IRQ_NUM 17
@@ -169,4 +169,4 @@ extern int exec_SWI(const dyn_SWI* klass);
 #define DDSB() (void(0))
 #endif
 #endif
-#endif	/* DYN_SWI_H */
+#endif  /* DYN_SWI_H */
