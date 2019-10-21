@@ -190,7 +190,8 @@
   #define FAN_PIN          P2_03
 #endif
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN   -1
+  #define HEATER_BED_PIN   -1 // WDW
+  //#define HEATER_BED_PIN   P2_05
 #endif
 
 /**
