@@ -33,9 +33,13 @@ using namespace ExtUI;
 void TemperatureScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0).color(temp).units(GET_TEXT_F(UNITS_C));
+  #ifdef NO_TOOLHEAD_HEATER_GCODE
+  w.heading(GET_TEXT_F(BED_TEMPERATURE));
+  #else
   w.heading(GET_TEXT_F(TEMPERATURE));
+  #endif
   w.button(30, GET_TEXT_F(COOLDOWN));
-  #ifndef LULZBOT_DISABLE_TOOLHEAD_HEATER
+  #ifndef NO_TOOLHEAD_HEATER_GCODE
     #if HOTENDS == 1
       w.adjuster(   2, GET_TEXT_F(HOTEND),   getTargetTemp_celsius(E0));
     #else

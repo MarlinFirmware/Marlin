@@ -108,8 +108,8 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
 void StatusScreen::draw_syringe(draw_mode_t what) {
   int16_t x, y, h, v;
-  #ifdef LULZBOT_E_TRAVEL_LIMIT
-    const float fill_level = 1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / LULZBOT_E_TRAVEL_LIMIT));
+  #ifdef E_MAX_POS
+    const float fill_level = 1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / E_MAX_POS));
   #else
     const float fill_level = 0.75;
   #endif
@@ -328,6 +328,7 @@ void StatusScreen::setStatusMessage(const char * const str) {
 }
 
 void StatusScreen::onIdle() {
+  reset_menu_timeout();
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     if (!EventLoop::is_touch_held())
       onRefresh();

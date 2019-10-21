@@ -338,6 +338,7 @@ bool ChangeFilamentScreen::onTouchHeld(uint8_t tag) {
 }
 
 void ChangeFilamentScreen::onIdle() {
+  reset_menu_timeout();
   if (screen_data.ChangeFilamentScreen.repeat_tag) onTouchHeld(screen_data.ChangeFilamentScreen.repeat_tag);
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();

@@ -226,7 +226,7 @@ namespace Language_en {
 
   #ifdef LULZBOT_USE_BIOPRINTER_UI
     PROGMEM Language_Str MAIN_MENU              = u8"Main Menu";
-    PROGMEM Language_Str MOVE_TO_HOME           = u8"Move To Home";
+    PROGMEM Language_Str MOVE_TO_HOME           = u8"Move to Home";
     PROGMEM Language_Str RAISE_PLUNGER          = u8"Raise Plunger";
     PROGMEM Language_Str RELEASE_XY_AXIS        = u8"Release X and Y Axis";
     PROGMEM Language_Str AUTOLEVEL_X_AXIS       = u8"Auto-level X Axis";

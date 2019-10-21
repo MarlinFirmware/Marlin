@@ -44,7 +44,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
       #define GRID_ROWS 8
       #define GRID_COLS 2
         .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(AUTO_HOME))
-        #ifdef NOZZLE_CLEAN_FEATURE
+        #if ENABLED(NOZZLE_CLEAN_FEATURE)
          .enabled(1)
         #else
          .enabled(0)
