@@ -3,8 +3,8 @@
  *********************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Portions (c) 2019 Aleph Objects, Inc., 2019                            *
+ *   Portions (c) 2019 Marcio Teixeira 2019                                 *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -72,7 +72,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 2: GOTO_SCREEN(BioConfirmHomeXYZ);                                              break;
     case 3: SpinnerDialogBox::enqueueAndWait_P(e_homed ? F("G0 E0 F120") : F("G112"));   break;
     case 4: StatusScreen::unlockMotors();                                                break;
-    case 5: SpinnerDialogBox::enqueueAndWait_P(F(LULZBOT_AXIS_LEVELING_COMMANDS));       break;
+    case 5: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS));               break;
     case 6: GOTO_SCREEN(TemperatureScreen);                                              break;
     case 7: GOTO_SCREEN(InterfaceSettingsScreen);                                        break;
     case 8: GOTO_SCREEN(AdvancedSettingsMenu);                                           break;

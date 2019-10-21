@@ -3,8 +3,8 @@
  ****************************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Portions (c) 2019 Aleph Objects, Inc., 2019                            *
+ *   Portions (c) 2019 Marcio Teixeira 2019                                 *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -37,9 +37,9 @@ bool BioConfirmHomeE::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       SpinnerDialogBox::enqueueAndWait_P(F(
-        "G112\n"
-        LULZBOT_AXIS_LEVELING_COMMANDS "\n"
-        LULZBOT_PARK_AND_RELEASE_COMMANDS
+        "G28 E\n"
+        AXIS_LEVELING_COMMANDS "\n"
+        PARK_AND_RELEASE_COMMANDS
       ));
       current_screen.forget();
       break;

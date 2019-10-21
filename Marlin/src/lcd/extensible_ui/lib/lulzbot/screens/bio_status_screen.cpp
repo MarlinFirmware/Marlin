@@ -3,8 +3,8 @@
  *************************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Portions (c) 2019 Aleph Objects, Inc., 2019                            *
+ *   Portions (c) 2019 Marcio Teixeira 2019                                 *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -95,7 +95,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
       format_temp(bed_str, getTargetTemp_celsius(BED));
     else
-      strcpy_P(bed_str, PSTR(MSG_BED));
+      strcpy_P(bed_str, GET_TEXT(MSG_BED));
 
     ui.bounds(POLY(target_temp), x, y, h, v);
     cmd.text(x, y, h, v, bed_str);
