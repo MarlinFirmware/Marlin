@@ -121,7 +121,7 @@
     // Encoder knob or keypad buttons adjust the Z position
     //
     if (ui.encoderPosition) {
-      const float z = current_position.z + float(int16_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
+      const float z = current_position.z + float(int32_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.encoderPosition = 0;
@@ -142,7 +142,7 @@
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
       char msg[10];
-      sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), total_probe_points);
+      sprintf_P(msg, PSTR("%i / %u"), int(manual_probe_index + 1), total_probe_points);
       draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);

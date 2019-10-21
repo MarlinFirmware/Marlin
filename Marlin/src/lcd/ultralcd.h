@@ -552,7 +552,7 @@ public:
       static void wait_for_release();
     #endif
 
-    static uint16_t encoderPosition;
+    static uint32_t encoderPosition;
 
     #if ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODERBASE -1
