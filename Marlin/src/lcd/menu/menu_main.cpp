@@ -199,7 +199,7 @@ void menu_main() {
   //
   // Switch power on/off
   //
-  #if HAS_POWER_SWITCH
+  #if ENABLED(PSU_CONTROL)
     if (powersupply_on)
       GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
     else

@@ -137,7 +137,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 // Encoder Handling
 #if HAS_ENCODER_ACTION
-  uint16_t MarlinUI::encoderPosition;
+  uint32_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 

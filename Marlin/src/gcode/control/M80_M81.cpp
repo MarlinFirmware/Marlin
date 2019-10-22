@@ -35,7 +35,7 @@
   #include "../../Marlin.h"
 #endif
 
-#if HAS_POWER_SWITCH
+#if ENABLED(PSU_CONTROL)
 
   #if ENABLED(AUTO_POWER_CONTROL)
     #include "../../feature/power.h"
@@ -81,7 +81,7 @@
     #endif
   }
 
-#endif // HAS_POWER_SWITCH
+#endif // ENABLED(PSU_CONTROL)
 
 /**
  * M81: Turn off Power, including Power Supply, if there is one.
@@ -105,7 +105,7 @@ void GcodeSuite::M81() {
 
   #if HAS_SUICIDE
     suicide();
-  #elif HAS_POWER_SWITCH
+  #elif ENABLED(PSU_CONTROL)
     PSU_OFF();
   #endif
 

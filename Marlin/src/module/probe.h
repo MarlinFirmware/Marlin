@@ -62,7 +62,7 @@
 
 #endif
 
-#if HAS_LEVELING && HAS_BED_PROBE
+#if HAS_LEVELING && (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY))
   inline float probe_min_x() {
     return _MAX(
       #if IS_KINEMATIC

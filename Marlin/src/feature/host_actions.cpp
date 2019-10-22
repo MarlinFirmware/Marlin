@@ -102,8 +102,8 @@ void host_action(const char * const pstr, const bool eol) {
 
   void host_response_handler(const uint8_t response) {
     #ifdef DEBUG_HOST_ACTIONS
-      SERIAL_ECHOLNPAIR("M86 Handle Reason: ", host_prompt_reason);
-      SERIAL_ECHOLNPAIR("M86 Handle Response: ", response);
+      SERIAL_ECHOLNPAIR("M876 Handle Reason: ", host_prompt_reason);
+      SERIAL_ECHOLNPAIR("M876 Handle Response: ", response);
     #endif
     const char *msg = PSTR("UNKNOWN STATE");
     const PromptReason hpr = host_prompt_reason;
