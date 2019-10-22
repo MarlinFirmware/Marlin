@@ -436,7 +436,7 @@ void MarlinUI::draw_status_screen() {
             duration_t estimation = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
             if (estimation.value == 0) {
               estimation_string[0] = '\0';
-              estimation_x_pos = _PROGRESS_CENTER_X(0);
+              estimation_x_pos = _SD_DURATION_X(0);
             }
             else {
               const bool has_days = (estimation.value >= 60*60*24L);
