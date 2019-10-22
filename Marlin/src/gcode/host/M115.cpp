@@ -112,7 +112,7 @@ void GcodeSuite::M115() {
 
     // SOFTWARE_POWER (M80, M81)
     cap_line(PSTR("SOFTWARE_POWER")
-      #if HAS_POWER_SWITCH
+      #if ENABLED(PSU_CONTROL)
         , true
       #endif
     );

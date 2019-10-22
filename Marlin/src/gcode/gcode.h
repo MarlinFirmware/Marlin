@@ -548,7 +548,7 @@ private:
     static void M78();
   #endif
 
-  #if HAS_POWER_SWITCH
+  #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
 

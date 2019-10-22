@@ -351,7 +351,7 @@ extern millis_t max_inactive_time, stepper_inactive_time;
   extern uint8_t controllerfan_speed;
 #endif
 
-#if HAS_POWER_SWITCH
+#if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)
   #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_HIGH); powersupply_on = false; }while(0)

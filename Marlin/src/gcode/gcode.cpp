@@ -471,7 +471,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif // BARICUDA
 
-      #if HAS_POWER_SWITCH
+      #if ENABLED(PSU_CONTROL)
         case 80: M80(); break;                                    // M80: Turn on Power Supply
       #endif
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
