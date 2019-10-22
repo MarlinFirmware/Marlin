@@ -405,8 +405,10 @@ void MarlinUI::draw_status_screen() {
         #if ENABLED(DOGM_SD_PERCENT)
           if (progress == 0) {
             progress_string[0] = '\0';
-            estimation_string[0] = '\0';
-            estimation_x_pos = _PROGRESS_CENTER_X(0);
+            #if ENABLED(SHOW_REMAINING_TIME)
+              estimation_string[0] = '\0';
+              estimation_x_pos = _SD_DURATION_X(0);
+            #endif
           }
           else {
             strcpy(progress_string, (
