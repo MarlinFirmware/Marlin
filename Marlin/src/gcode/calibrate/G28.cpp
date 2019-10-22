@@ -162,6 +162,38 @@
 
 #endif // Z_SAFE_HOMING
 
+#if ENABLED(IMPROVE_HOMING_RELIABILITY)
+
+  static slow_homing_t begin_slow_homing() {
+
+    slow_homing_t slow_homing{0};
+    slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
+                                 planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
+    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
+    #if HAS_CLASSIC_JERK
+      slow_homing.jerk_xy = planner.max_jerk;
+      planner.max_jerk.set(0, 0);
+    #endif
+
+    planner.reset_acceleration_rates();
+
+    return slow_homing;
+  }
+
+  static void end_slow_homing(slow_homing_t slow_homing) {
+  
+      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
+      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
+      #if HAS_CLASSIC_JERK
+        planner.max_jerk = slow_homing.jerk_xy;
+      #endif
+      planner.reset_acceleration_rates();
+    
+  }
+
+#endif // IMPROVE_HOMING_RELIABILITY
+
 /**
  * G28: Home all axes according to settings
  *
@@ -230,17 +262,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    slow_homing_t slow_homing{0};
-    slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
-                                 planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
-    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
-    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
-    #if HAS_CLASSIC_JERK
-      slow_homing.jerk_xy = planner.max_jerk;
-      planner.max_jerk.set(0, 0);
-    #endif
-
-    planner.reset_acceleration_rates();
+    slow_homing_t slow_homing = begin_slow_homing();
   #endif
 
   // Always home with tool 0 active
@@ -263,6 +285,10 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     home_delta();
     UNUSED(always_home_all);
+
+    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+      end_slow_homing(slow_homing);
+    #endif
 
   #else // NOT DELTA
 
@@ -348,6 +374,10 @@ void GcodeSuite::G28(const bool always_home_all) {
       if (doY) homeaxis(Y_AXIS);
     #endif
 
+    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+      end_slow_homing(slow_homing);
+    #endif
+
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
       if (doZ) {
@@ -431,15 +461,6 @@ void GcodeSuite::G28(const bool always_home_all) {
       #define NO_FETCH true
     #endif
     tool_change(old_tool_index, NO_FETCH);
-  #endif
-
-  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
-    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    #if HAS_CLASSIC_JERK
-      planner.max_jerk = slow_homing.jerk_xy;
-    #endif
-    planner.reset_acceleration_rates();
   #endif
 
   ui.refresh();
