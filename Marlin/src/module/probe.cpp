@@ -387,7 +387,7 @@ bool set_probe_deployed(const bool deploy) {
   const xy_pos_t old_xy = current_position;
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
-    #if USES_Z_MIN_PROBE_ENDSTOP
+    #if HAS_CUSTOM_PROBE_PIN
       #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
     #else
       #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)

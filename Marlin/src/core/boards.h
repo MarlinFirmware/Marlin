@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "macros.h"
+
 #define BOARD_UNKNOWN -1
 
 //
@@ -308,7 +310,7 @@
 //
 // Espressif ESP32 WiFi
 //
-#define BOARD_ESP32                   6000
+#define BOARD_ESPRESSIF_ESP32         6000
 
 //
 // Simulations
@@ -316,4 +318,7 @@
 
 #define BOARD_LINUX_RAMPS             9999
 
-#define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)
+#define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
+#define MB(V...)  DO(MB,||,V)
+
+#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY)

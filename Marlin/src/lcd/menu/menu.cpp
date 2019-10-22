@@ -132,7 +132,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *
  *   bool MenuItem_int3::_edit();
  *   void MenuItem_int3::edit(); // edit int16_t (interactively)
- *   void MenuItem_int3::action(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback = null, const bool live = false);
+ *   void MenuItem_int3::action(PGM_P const pstr, int16_t * const ptr, const int32_t minValue, const int32_t maxValue, const screenFunc_t callback = null, const bool live = false);
  *
  * You can then use one of the menu macros to present the edit interface:
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -148,8 +148,8 @@ void MenuEditItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   #if ENABLED(TOUCH_BUTTONS)
     ui.repeat_delay = BUTTON_DELAY_EDIT;
   #endif
-  if (int16_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
-  if (int16_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
+  if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
+  if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
     draw_edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
@@ -341,7 +341,7 @@ void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
 void scroll_screen(const uint8_t limit, const bool is_menu) {
   ui.encoder_direction_menus();
   ENCODER_RATE_MULTIPLY(false);
-  if (ui.encoderPosition > 0x8000) ui.encoderPosition = 0;
+  if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (ui.first_page) {
     encoderLine = ui.encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);
     screen_changed = false;

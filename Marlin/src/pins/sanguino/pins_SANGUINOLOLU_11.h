@@ -115,7 +115,7 @@
 
 #endif
 
-#if !defined(FAN_PIN) && (MB(AZTEEG_X1) || MB(STB_11) || ENABLED(IS_MELZI))
+#if !defined(FAN_PIN) && (MB(AZTEEG_X1, STB_11) || IS_MELZI)
   #define FAN_PIN           4   // Works for Panelolu2 too
 #endif
 
@@ -132,7 +132,7 @@
 //#define SDSS               24
 #define SDSS               31
 
-#if ENABLED(IS_MELZI)
+#if IS_MELZI
   #define LED_PIN          27
 #elif MB(STB_11)
   #define LCD_BACKLIGHT_PIN 17   // LCD backlight LED
@@ -160,7 +160,7 @@
 
     #if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
-      #if ENABLED(IS_MELZI)
+      #if IS_MELZI
         #define LCD_PINS_RS     30   // CS chip select /SS chip slave select
         #define LCD_PINS_ENABLE 29   // SID (MOSI)
         #define LCD_PINS_D4     17   // SCK (CLK) clock
@@ -187,7 +187,7 @@
         #define DOGLCD_CS       17
         #define LCD_BACKLIGHT_PIN 28   // PA3
 
-      #elif ENABLED(IS_MELZI)
+      #elif IS_MELZI
 
         #define BEEPER_PIN      27
         #define DOGLCD_CS       28
@@ -219,7 +219,7 @@
 
   #if ENABLED(LCD_I2C_PANELOLU2)
 
-    #if ENABLED(IS_MELZI)
+    #if IS_MELZI
       #define BTN_ENC           29
       #define LCD_SDSS          30   // Panelolu2 SD card reader rather than the Melzi
     #else

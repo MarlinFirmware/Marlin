@@ -825,12 +825,12 @@
 // Is an endstop plug used for the Z2 endstop or the bed probe?
 #define IS_Z2_OR_PROBE(A,M) ( \
      (Z_MULTI_ENDSTOPS && Z2_USE_ENDSTOP == _##A##M##_) \
-  || (USES_Z_MIN_PROBE_ENDSTOP && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
+  || (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
 
 // Is an endstop plug used for the Z3 endstop or the bed probe?
 #define IS_Z3_OR_PROBE(A,M) ( \
      (ENABLED(Z_TRIPLE_ENDSTOPS) && Z3_USE_ENDSTOP == _##A##M##_) \
-  || (USES_Z_MIN_PROBE_ENDSTOP && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
+  || (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
 
 /**
  * Set ENDSTOPPULLUPS for active endstop switches
@@ -1005,7 +1005,7 @@
 #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
 #define HAS_Z3_MIN (PIN_EXISTS(Z3_MIN))
 #define HAS_Z3_MAX (PIN_EXISTS(Z3_MAX))
-#define HAS_Z_MIN_PROBE_PIN (USES_Z_MIN_PROBE_ENDSTOP && PIN_EXISTS(Z_MIN_PROBE))
+#define HAS_Z_MIN_PROBE_PIN (HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE))
 #define HAS_CALIBRATION_PIN (PIN_EXISTS(CALIBRATION))
 
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
@@ -1768,23 +1768,25 @@
   #define Z_STEPPER_COUNT 1
 #endif
 
-// Get LCD character width/height, which may be overridden by pins, configs, etc.
-#ifndef LCD_WIDTH
-  #if HAS_GRAPHICAL_LCD
-    #define LCD_WIDTH 21
-  #elif ENABLED(ULTIPANEL)
-    #define LCD_WIDTH 20
-  #elif HAS_SPI_LCD
-    #define LCD_WIDTH 16
+#if HAS_SPI_LCD
+  // Get LCD character width/height, which may be overridden by pins, configs, etc.
+  #ifndef LCD_WIDTH
+    #if HAS_GRAPHICAL_LCD
+      #define LCD_WIDTH 21
+    #elif ENABLED(ULTIPANEL)
+      #define LCD_WIDTH 20
+    #else
+      #define LCD_WIDTH 16
+    #endif
   #endif
-#endif
-#ifndef LCD_HEIGHT
-  #if HAS_GRAPHICAL_LCD
-    #define LCD_HEIGHT 5
-  #elif ENABLED(ULTIPANEL)
-    #define LCD_HEIGHT 4
-  #elif HAS_SPI_LCD
-    #define LCD_HEIGHT 2
+  #ifndef LCD_HEIGHT
+    #if HAS_GRAPHICAL_LCD
+      #define LCD_HEIGHT 5
+    #elif ENABLED(ULTIPANEL)
+      #define LCD_HEIGHT 4
+    #else
+      #define LCD_HEIGHT 2
+    #endif
   #endif
 #endif
 
@@ -1805,4 +1807,11 @@
 
 #if !NUM_SERIAL
   #undef BAUD_RATE_GCODE
+#endif
+
+#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #undef Z_STEPPER_ALIGN_AMP
+#endif
+#ifndef Z_STEPPER_ALIGN_AMP
+  #define Z_STEPPER_ALIGN_AMP 1.0
 #endif

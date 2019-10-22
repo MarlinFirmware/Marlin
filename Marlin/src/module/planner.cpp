@@ -100,6 +100,10 @@
   #include "../feature/power_loss_recovery.h"
 #endif
 
+#if HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -1220,6 +1224,11 @@ void Planner::check_axes_activity() {
     #endif
   }
   else {
+
+    #if HAS_CUTTER
+      cutter.refresh();
+    #endif
+
     #if FAN_COUNT > 0
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
@@ -1235,6 +1244,9 @@ void Planner::check_axes_activity() {
     #endif
   }
 
+  //
+  // Disable inactive axes
+  //
   #if ENABLED(DISABLE_X)
     if (!axis_active.x) disable_X();
   #endif
@@ -1248,6 +1260,9 @@ void Planner::check_axes_activity() {
     if (!axis_active.e) disable_e_steppers();
   #endif
 
+  //
+  // Update Fan speeds
+  //
   #if FAN_COUNT > 0
 
     #if FAN_KICKSTART_TIME > 0
@@ -1841,6 +1856,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     MIXER_POPULATE_BLOCK();
   #endif
 
+  #if HAS_CUTTER
+    block->cutter_power = cutter.power;
+  #endif
+
   #if FAN_COUNT > 0
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
@@ -2354,13 +2373,21 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #endif
 
+  #ifdef USE_CACHED_SQRT
+    #define CACHED_SQRT(N, V) \
+      static float saved_V, N; \
+      if (V != saved_V) { N = SQRT(V); saved_V = V; }
+  #else
+    #define CACHED_SQRT(N, V) const float N = SQRT(V)
+  #endif
+
   #if HAS_CLASSIC_JERK
 
     /**
      * Adapted from Průša MKS firmware
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    const float nominal_speed = SQRT(block->nominal_speed_sqr);
+    CACHED_SQRT(nominal_speed, block->nominal_speed_sqr);
 
     // Exit speed limited by a jerk to full halt of a previous last segment
     static float previous_safe_speed;
@@ -2401,7 +2428,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
-      const float previous_nominal_speed = SQRT(previous_nominal_speed_sqr);
+      CACHED_SQRT(previous_nominal_speed, previous_nominal_speed_sqr);
+
       vmax_junction = _MIN(nominal_speed, previous_nominal_speed);
 
       // Now limit the jerk in all axes.

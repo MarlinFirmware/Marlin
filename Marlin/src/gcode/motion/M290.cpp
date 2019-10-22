@@ -124,7 +124,7 @@ void GcodeSuite::M290() {
           " X", babystep.axis_total[X_AXIS],
           " Y", babystep.axis_total[Y_AXIS],
         #endif
-        " Z", babystep.axis_total[Z_AXIS]
+        " Z", babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]
       );
     }
     #endif
