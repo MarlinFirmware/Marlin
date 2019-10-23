@@ -411,6 +411,10 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     if (dxc_is_duplicating()) {
 
+      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+        slow_homing = begin_slow_homing();
+      #endif
+
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
       homeaxis(X_AXIS);
@@ -431,6 +435,10 @@ void GcodeSuite::G28(const bool always_home_all) {
 
       dual_x_carriage_mode         = IDEX_saved_mode;
       stepper.set_directions();
+
+      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+        end_slow_homing(slow_homing);
+      #endif
     }
 
   #endif // DUAL_X_CARRIAGE
