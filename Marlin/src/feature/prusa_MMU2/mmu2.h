@@ -79,7 +79,11 @@ private:
   static volatile bool finda_runout_valid;
   static int16_t version, buildnr;
   static millis_t last_request, next_P0_request;
-  static char rx_buffer[16], tx_buffer[16];
+  #if SERIAL_USB
+    static char rx_buffer[256], tx_buffer[256];
+  #else
+    static char rx_buffer[16], tx_buffer[16];
+  #endif
 
   static inline void set_runout_valid(const bool valid) {
     finda_runout_valid = valid;
