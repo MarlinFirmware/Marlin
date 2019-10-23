@@ -743,10 +743,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Marlin supports a maximum of 6 EXTRUDERS."
   #endif
 
-  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    #error "EXTRUDERS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT."
-  #endif
-
   #if ENABLED(HEATERS_PARALLEL)
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
@@ -1501,6 +1497,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
   #elif !ANY_PIN(TEMP_1, MAX6675_SS2)
     #error "TEMP_1_PIN not defined for this board."
+  #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    #error "HOTENDS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT."
   #endif
   #if HOTENDS > 2
     #if TEMP_SENSOR_2 == 0

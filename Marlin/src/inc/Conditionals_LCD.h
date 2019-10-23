@@ -416,7 +416,6 @@
 #if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
   #undef HOTENDS
   #define HOTENDS       1
-  #undef TEMP_SENSOR_1_AS_REDUNDANT
   #undef HOTEND_OFFSET_X
   #undef HOTEND_OFFSET_Y
 #endif
