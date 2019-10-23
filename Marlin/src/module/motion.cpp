@@ -1389,6 +1389,11 @@ void set_axis_is_at_home(const AxisEnum axis) {
     babystep.reset_total(axis);
   #endif
 
+  #if HAS_POSITION_SHIFT
+    position_shift[axis] = 0;
+    update_workspace_offset(axis);
+  #endif
+
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET
       DEBUG_ECHOLNPAIR("> home_offset[", axis_codes[axis], "] = ", home_offset[axis]);
