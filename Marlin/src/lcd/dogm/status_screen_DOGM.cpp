@@ -397,7 +397,7 @@ void MarlinUI::draw_status_screen() {
       ;
       duration_t elapsed = print_job_timer.duration();
       const uint8_t p = progress & 0xFF, ev = elapsed.value & 0xFF;
-      if (progress > 1 || p != lastProgress) {
+      if (p != lastProgress) {
         lastProgress = p;
 
         progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * progress / (PROGRESS_SCALE) * 0.01f);
