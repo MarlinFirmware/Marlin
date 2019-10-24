@@ -295,6 +295,10 @@ void MarlinUI::init() {
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
+    #if BUTTON_EXISTS(BACK)
+      SET_INPUT_PULLUP(BTN_BACK);
+    #endif
+
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
     #endif
