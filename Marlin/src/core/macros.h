@@ -279,7 +279,7 @@
 #define ATAN2(y, x) atan2f(y, x)
 #define POW(x, y)   powf(x, y)
 #define SQRT(x)     sqrtf(x)
-#define RSQRT(x)    (1 / sqrtf(x))
+#define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
 #define LROUND(x)   lroundf(x)
