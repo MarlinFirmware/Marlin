@@ -39,7 +39,7 @@
 
 #ifdef CUSTOM_VERSION_FILE
   #if defined(__has_include)
-    #if __has_include(CUSTOM_VERSION_FILE)
+    #if __has_include(XSTR(../../CUSTOM_VERSION_FILE))
       #include XSTR(../../CUSTOM_VERSION_FILE)
     #endif
   #else
