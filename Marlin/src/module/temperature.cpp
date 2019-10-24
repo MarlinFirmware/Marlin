@@ -1308,7 +1308,7 @@ void Temperature::manage_heater() {
     }
 
     // maximum adc value .. take into account the over sampling
-    const int adc_max = (THERMISTOR_ADC_RESOLUTION * OVERSAMPLENR) - 1,
+    const int adc_max = _BV(THERMISTOR_ADC_RESOLUTION) * OVERSAMPLENR - 1,
               adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
@@ -2313,7 +2313,7 @@ void Temperature::readings_ready() {
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
-  Temperature::isr();
+  Temperature::tick();
 
   HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
@@ -2343,11 +2343,21 @@ public:
   #endif
 };
 
-void Temperature::isr() {
+/**
+ * Handle various ~1KHz tasks associated with temperature
+ *  - Heater PWM (~1KHz with scaler)
+ *  - LCD Button polling (~500Hz)
+ *  - Start / Read one ADC sensor
+ *  - Advance Babysteps
+ *  - Endstop polling
+ *  - Planner clean buffer
+ */
+void Temperature::tick() {
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
+
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
 

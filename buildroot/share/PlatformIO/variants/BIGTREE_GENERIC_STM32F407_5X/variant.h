@@ -222,9 +222,15 @@ extern "C" {
 //#define DACC_RESOLUTION         12
 
 // PWM resolution
-#define PWM_RESOLUTION          8
-#define PWM_FREQUENCY           20000
-#define PWM_MAX_DUTY_CYCLE      255
+/*
+ * BEWARE:
+ * Changing this value from the default (1000) will affect the PWM output value of analogWrite (to a PWM pin)
+ * Since the pin is toggled on capture, if you change the frequency of the timer you have to adapt the compare value (analogWrite thinks you did)
+ */
+//#define PWM_FREQUENCY           20000
+//The bottom values are the default and don't need to be redefined
+//#define PWM_RESOLUTION          8
+//#define PWM_MAX_DUTY_CYCLE      255
 
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one
@@ -261,7 +267,11 @@ extern "C" {
 #define PIN_SERIAL_TX           PA9
 
 /* Extra HAL modules */
-#define HAL_PCD_MODULE_ENABLED
+#ifndef HAL_PCD_MODULE_ENABLED
+  #define HAL_PCD_MODULE_ENABLED //Since STM32 v3.10700.191028 this is automatically added if any type of USB is enabled (as in Arduino IDE)
+#endif
+
+#define HAL_DAC_MODULE_ENABLED
 
 #ifdef __cplusplus
 } // extern "C"
