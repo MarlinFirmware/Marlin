@@ -386,6 +386,21 @@ void GcodeSuite::M422() {
     z_auto_align_pos
   );
 
+  if (!is_probe_point
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      && !parser.seen('W')
+    #endif
+  ) {
+    SERIAL_ECHOLNPGM(
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        "?(S) or (W) is required."
+      #else
+        "?(S) is required."
+      #endif
+    );
+    return;
+  }
+
   // Get the Probe Position Index or Z Stepper Index
   int8_t position_index;
   if (is_probe_point) {
