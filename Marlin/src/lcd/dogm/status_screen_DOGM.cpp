@@ -596,38 +596,38 @@ void MarlinUI::draw_status_screen() {
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
-      #if ENABLED(DOGM_SD_PERCENT) && ENABLED(SHOW_REMAINING_TIME) && ENABLED(ROTATE_PROGRESS_DISPLAY)
+      #if ALL(DOGM_SD_PERCENT, SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY)
+
         if (prev_blink != blink) {
           prev_blink = blink;
-          progress_state++;
-          if (progress_state >=3) progress_state = 0;
+          if (++progress_state >= 3) progress_state = 0;
         }
 
         if (progress_state == 0) {
-          if (progress_string[0] != '\0') {
+          if (progress_string[0]) {
             lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, PROGRESS_TIME_PREFIX);
             lcd_put_u8str(progress_x_pos, EXTRAS_BASELINE, progress_string);
             lcd_put_wchar('%');
           }
         }
-        else if (progress_state == 2  && estimation_string[0] != '\0') {
+        else if (progress_state == 2 && estimation_string[0]) {
           lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, SHOW_REMAINING_TIME_PREFIX);
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
         }
-        else if (elapsed_string[0] != '\0'){
+        else if (elapsed_string[0]) {
           lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, ELAPSED_TIME_PREFIX);
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
         }
-      #else
+
+      #else // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
 
         //
         // SD Percent Complete
         //
 
         #if ENABLED(DOGM_SD_PERCENT)
-          if (progress_string[0] != '\0') {
-            // Percent complete
-            lcd_put_u8str(55, 48, progress_string);
+          if (progress_string[0]) {
+            lcd_put_u8str(55, 48, progress_string); // Percent complete
             lcd_put_wchar('%');
           }
         #endif
@@ -637,7 +637,7 @@ void MarlinUI::draw_status_screen() {
         //
 
         #if ENABLED(SHOW_REMAINING_TIME)
-          if (blink && (estimation_string[0] != '\0')) {
+          if (blink && estimation_string[0]) {
             lcd_put_wchar(estimation_x_pos, EXTRAS_BASELINE, SHOW_REMAINING_TIME_PREFIX);
             lcd_put_u8str(estimation_string);
           }
@@ -645,8 +645,9 @@ void MarlinUI::draw_status_screen() {
         #endif
             lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
 
-      #endif
+      #else // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
     }
+
   #endif // HAS_PRINT_PROGRESS
 
   //
