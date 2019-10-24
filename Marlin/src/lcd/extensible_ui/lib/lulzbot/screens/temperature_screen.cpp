@@ -33,15 +33,17 @@ using namespace ExtUI;
 void TemperatureScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0).color(temp).units(GET_TEXT_F(UNITS_C));
-  #ifdef NO_TOOLHEAD_HEATER_GCODE
-  w.heading(GET_TEXT_F(BED_TEMPERATURE));
-  #else
-  w.heading(GET_TEXT_F(TEMPERATURE));
-  #endif
+  w.heading(GET_TEXT_F(
+    #ifdef NO_TOOLHEAD_HEATER_GCODE
+      BED_TEMPERATURE
+    #else
+      TEMPERATURE
+    #endif
+  ));
   w.button(30, GET_TEXT_F(COOLDOWN));
   #ifndef NO_TOOLHEAD_HEATER_GCODE
     #if HOTENDS == 1
-      w.adjuster(   2, GET_TEXT_F(HOTEND),   getTargetTemp_celsius(E0));
+      w.adjuster(   2, GET_TEXT_F(HOTEND),  getTargetTemp_celsius(E0));
     #else
       w.adjuster(   2, GET_TEXT_F(HOTEND1), getTargetTemp_celsius(E0));
       w.adjuster(   4, GET_TEXT_F(HOTEND2), getTargetTemp_celsius(E1));
@@ -69,24 +71,24 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
     case 20: UI_DECREMENT(TargetTemp_celsius, BED); break;
     case 21: UI_INCREMENT(TargetTemp_celsius, BED); break;
     #ifndef LULZBOT_DISABLE_TOOLHEAD_HEATER
-    case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
-    case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
+      case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
+      case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
     #endif
     #if HOTENDS > 1
-    case  4: UI_DECREMENT(TargetTemp_celsius, E1); break;
-    case  5: UI_INCREMENT(TargetTemp_celsius, E1); break;
+      case  4: UI_DECREMENT(TargetTemp_celsius, E1); break;
+      case  5: UI_INCREMENT(TargetTemp_celsius, E1); break;
     #endif
     #if HOTENDS > 2
-    case  6: UI_DECREMENT(TargetTemp_celsius, E2); break;
-    case  7: UI_INCREMENT(TargetTemp_celsius, E2); break;
+      case  6: UI_DECREMENT(TargetTemp_celsius, E2); break;
+      case  7: UI_INCREMENT(TargetTemp_celsius, E2); break;
     #endif
     #if HOTENDS > 3
-    case  8: UI_DECREMENT(TargetTemp_celsius, E3); break;
-    case  9: UI_INCREMENT(TargetTemp_celsius, E3); break;
+      case  8: UI_DECREMENT(TargetTemp_celsius, E3); break;
+      case  9: UI_INCREMENT(TargetTemp_celsius, E3); break;
     #endif
     #if FAN_COUNT > 0
-    case 10: UI_DECREMENT(TargetFan_percent, FAN0); break;
-    case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
+      case 10: UI_DECREMENT(TargetFan_percent, FAN0); break;
+      case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
     #endif
     case 30:
       setTargetTemp_celsius(0,E0);
