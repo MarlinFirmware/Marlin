@@ -2091,12 +2091,12 @@ void MarlinSettings::postprocess() {
     validating = true;
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       bool success = _load();
-      if(!success && restoreEEPROM()) {
+      if (!success && restoreEEPROM()) {
         SERIAL_ECHOLNPGM("Recovered backup EEPROM settings from SPI Flash");
         success = _load();
       }
     #else
-    const bool success = _load();
+      const bool success = _load();
     #endif
     validating = false;
     return success;
