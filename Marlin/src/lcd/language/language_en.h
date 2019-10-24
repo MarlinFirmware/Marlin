@@ -427,6 +427,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause Print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resume Print");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop Print");
+  PROGMEM Language_Str MSG_OBJECT_CANCEL                   = _UxGT("Cancel Object");
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Outage Recovery");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Print from Media");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("No Media");

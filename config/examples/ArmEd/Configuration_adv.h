@@ -2060,7 +2060,7 @@
    *
    * IMPROVE_HOMING_RELIABILITY tunes acceleration and jerk when
    * homing and adds a guard period for endstop triggering.
-   * 
+   *
    * TMC2209 requires STEALTHCHOP enabled for SENSORLESS_HOMING
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
@@ -2559,6 +2559,13 @@
 #if ENABLED(HOST_ACTION_COMMANDS)
   //#define HOST_PROMPT_SUPPORT
 #endif
+
+/**
+ * Cancel Objects
+ *
+ * Implement M486 to allow Marlin to skip objects
+ */
+//#define CANCEL_OBJECTS
 
 /**
  * I2C position encoders for closed loop control.

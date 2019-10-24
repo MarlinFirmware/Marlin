@@ -2229,7 +2229,7 @@ int32_t Stepper::position(const AxisEnum axis) {
 // be very careful here. If the interrupt being preempted was the
 // Stepper ISR (this CAN happen with the endstop limits ISR) then
 // when the stepper ISR resumes, we must be very sure that the movement
-// is properly cancelled
+// is properly canceled
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
   const bool was_enabled = STEPPER_ISR_ENABLED();

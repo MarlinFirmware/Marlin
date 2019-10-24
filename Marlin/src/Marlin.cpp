@@ -342,18 +342,31 @@ void disable_all_steppers() {
 
 #endif
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "feature/pause.h"
+#else
+  constexpr bool did_pause_print = false;
+#endif
+
 /**
  * Printing is active when the print job timer is running
  */
 bool printingIsActive() {
-  return print_job_timer.isRunning() || IS_SD_PRINTING();
+  return !did_pause_print && (print_job_timer.isRunning() || IS_SD_PRINTING());
 }
 
 /**
  * Printing is paused according to SD or host indicators
  */
 bool printingIsPaused() {
-  return print_job_timer.isPaused() || IS_SD_PAUSED();
+  return did_pause_print || print_job_timer.isPaused() || IS_SD_PAUSED();
+}
+
+void startOrResumeJob() {
+  #if ENABLED(CANCEL_OBJECTS)
+    if (!printingIsPaused()) cancelable.reset();
+  #endif
+  print_job_timer.start();
 }
 
 /**
