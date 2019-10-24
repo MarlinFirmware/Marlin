@@ -335,9 +335,9 @@ void MarlinUI::draw_status_screen() {
 
   #if HAS_PRINT_PROGRESS
     #if DISABLED(DOGM_SD_PERCENT)
-      #define _SD_DURATION_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH) / 2 - (len) * (MENU_FONT_WIDTH) / 2)
+      #define _SD_INFO_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH) / 2 - (len) * (MENU_FONT_WIDTH) / 2)
     #else
-      #define _SD_DURATION_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
+      #define _SD_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
     #endif
 
     #if ENABLED(DOGM_SD_PERCENT)
@@ -350,14 +350,9 @@ void MarlinUI::draw_status_screen() {
       static u8g_uint_t estimation_x_pos = 0;
       static char estimation_string[10];
       #if BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
-        #define PROGRESS_TIME_PREFIX "PROG"
-        #define ELAPSED_TIME_PREFIX "ELAP"
-        #define SHOW_REMAINING_TIME_PREFIX "REM"
         static u8g_uint_t progress_x_pos = 0;
         static uint8_t progress_state = 0;
         static bool prev_blink = 0;
-      #else
-        #define SHOW_REMAINING_TIME_PREFIX 'R'
       #endif
     #endif
   #endif
@@ -407,7 +402,7 @@ void MarlinUI::draw_status_screen() {
             progress_string[0] = '\0';
             #if ENABLED(SHOW_REMAINING_TIME)
               estimation_string[0] = '\0';
-              estimation_x_pos = _SD_DURATION_X(0);
+              estimation_x_pos = _SD_INFO_X(0);
             #endif
           }
           else {
@@ -420,7 +415,7 @@ void MarlinUI::draw_status_screen() {
             ));
           }
           #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
-            progress_x_pos = _SD_DURATION_X(strlen(progress_string) + 1);
+            progress_x_pos = _SD_INFO_X(strlen(progress_string));
           #endif
         #endif
       }
@@ -429,22 +424,22 @@ void MarlinUI::draw_status_screen() {
         lastElapsed = ev;
         const bool has_days = (elapsed.value >= 60*60*24L);
         const uint8_t len = elapsed.toDigital(elapsed_string, has_days);
-        elapsed_x_pos = _SD_DURATION_X(len);
+        elapsed_x_pos = _SD_INFO_X(len);
 
         #if ENABLED(SHOW_REMAINING_TIME)
           if (!(ev & 0x3)) {
             duration_t estimation = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
             if (estimation.value == 0) {
               estimation_string[0] = '\0';
-              estimation_x_pos = _SD_DURATION_X(0);
+              estimation_x_pos = _SD_INFO_X(0);
             }
             else {
               const bool has_days = (estimation.value >= 60*60*24L);
               const uint8_t len = estimation.toDigital(estimation_string, has_days);
               #if BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
-                estimation_x_pos = _SD_DURATION_X(len);
+                estimation_x_pos = _SD_INFO_X(len);
               #else
-                estimation_x_pos = _SD_DURATION_X(len + 1);
+                estimation_x_pos = _SD_INFO_X(len + 1);
               #endif
             }
           }
@@ -605,17 +600,16 @@ void MarlinUI::draw_status_screen() {
 
         if (progress_state == 0) {
           if (progress_string[0]) {
-            lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, PROGRESS_TIME_PREFIX);
             lcd_put_u8str(progress_x_pos, EXTRAS_BASELINE, progress_string);
             lcd_put_wchar('%');
           }
         }
         else if (progress_state == 2 && estimation_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, SHOW_REMAINING_TIME_PREFIX);
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, "R:");
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
         }
         else if (elapsed_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, ELAPSED_TIME_PREFIX);
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, "E:");
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
         }
 
@@ -638,7 +632,7 @@ void MarlinUI::draw_status_screen() {
 
         #if ENABLED(SHOW_REMAINING_TIME)
           if (blink && estimation_string[0]) {
-            lcd_put_wchar(estimation_x_pos, EXTRAS_BASELINE, SHOW_REMAINING_TIME_PREFIX);
+            lcd_put_wchar(estimation_x_pos, EXTRAS_BASELINE, 'R');
             lcd_put_u8str(estimation_string);
           }
           else
