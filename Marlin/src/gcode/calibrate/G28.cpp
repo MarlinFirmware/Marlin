@@ -164,8 +164,7 @@
 
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
 
-  static slow_homing_t begin_slow_homing() {
-
+  slow_homing_t begin_slow_homing() {
     slow_homing_t slow_homing{0};
     slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
                                  planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
@@ -175,21 +174,17 @@
       slow_homing.jerk_xy = planner.max_jerk;
       planner.max_jerk.set(0, 0);
     #endif
-
     planner.reset_acceleration_rates();
-
     return slow_homing;
   }
 
-  static void end_slow_homing(slow_homing_t slow_homing) {
-  
-      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
-      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-      #if HAS_CLASSIC_JERK
-        planner.max_jerk = slow_homing.jerk_xy;
-      #endif
-      planner.reset_acceleration_rates();
-    
+  void end_slow_homing(const slow_homing_t &slow_homing) {
+    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
+    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
+    #if HAS_CLASSIC_JERK
+      planner.max_jerk = slow_homing.jerk_xy;
+    #endif
+    planner.reset_acceleration_rates();
   }
 
 #endif // IMPROVE_HOMING_RELIABILITY
