@@ -141,19 +141,13 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 
 void scara_set_axis_is_at_home(const AxisEnum axis) {
   if (axis == Z_AXIS)
-    ccurrent_position.z = Z_HOME_POS;
+    current_position.z = Z_HOME_POS;
   else {
-
-    /**
-     * SCARA homes XY at the same time
-     */
+    // SCARA homes XY at the same time
     xyz_pos_t homeposition;
     LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
-
     // SERIAL_ECHOLNPAIR("Cartesian X:", cartes.x, " Y:", cartes.y);
-
     current_position[axis] = homeposition[axis];
-
     update_software_endstops(axis);
   }
 }
