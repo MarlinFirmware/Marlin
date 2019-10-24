@@ -46,31 +46,34 @@ void AboutScreen::onRedraw(draw_mode_t) {
      .tag(0);
 
   draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(4,1),
-      #ifdef CUSTOM_MACHINE_NAME
-        F(CUSTOM_MACHINE_NAME)
-      #else
-        GET_TEXT_F(ABOUT_TOUCH_PANEL_1)
-      #endif
-  , OPT_CENTER, font_xlarge);
-  
-  #ifdef TOOLHEAD_NAME
-   char about_str[
-     strlen_P(GET_TEXT(FIRMWARE_FOR_TOOLHEAD)) +
-     strlen_P(TOOLHEAD_NAME) +
-     strlen_P(GET_TEXT(ABOUT_TOUCH_PANEL_2)) + 1];
+    #ifdef CUSTOM_MACHINE_NAME
+      F(CUSTOM_MACHINE_NAME)
+    #else
+      GET_TEXT_F(ABOUT_TOUCH_PANEL_1)
+    #endif
+    , OPT_CENTER, font_xlarge
+  );
 
-   sprintf_P(about_str, GET_TEXT(FIRMWARE_FOR_TOOLHEAD), TOOLHEAD_NAME);
-   strcat_P (about_str, GET_TEXT(ABOUT_TOUCH_PANEL_2));
+  #ifdef TOOLHEAD_NAME
+    char about_str[1
+      + strlen_P(GET_TEXT(FIRMWARE_FOR_TOOLHEAD))
+      + strlen_P(TOOLHEAD_NAME)
+      + strlen_P(GET_TEXT(ABOUT_TOUCH_PANEL_2))
+    ];
+
+    sprintf_P(about_str, GET_TEXT(FIRMWARE_FOR_TOOLHEAD), TOOLHEAD_NAME);
+    strcat_P(about_str, GET_TEXT(ABOUT_TOUCH_PANEL_2));
   #endif
 
   cmd.tag(2);
   draw_text_box(cmd, BTN_POS(1,3), BTN_SIZE(4,3),
-      #ifdef TOOLHEAD_NAME
-        about_str
-      #else
-        GET_TEXT_F(ABOUT_TOUCH_PANEL_2)
-      #endif
-  , OPT_CENTER, font_medium);
+    #ifdef TOOLHEAD_NAME
+      about_str
+    #else
+      GET_TEXT_F(ABOUT_TOUCH_PANEL_2)
+    #endif
+    , OPT_CENTER, font_medium
+  );
 
   cmd.tag(0);
   draw_text_box(cmd, BTN_POS(1,6), BTN_SIZE(4,2), progmem_str(getFirmwareName_str()), OPT_CENTER, font_medium);
@@ -80,12 +83,13 @@ void AboutScreen::onRedraw(draw_mode_t) {
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 1: GOTO_PREVIOUS();            return true;
-#if ENABLED(DEVELOPER_SCREENS)
-    case 2: GOTO_SCREEN(DeveloperMenu); return true;
-#endif
-    default:                            return false;
+    default: return false;
+    case 1: GOTO_PREVIOUS(); break;
+    #if ENABLED(DEVELOPER_SCREENS)
+      case 2: GOTO_SCREEN(DeveloperMenu); break;
+    #endif
   }
+  return true;
 }
 
 #endif // LULZBOT_TOUCH_UI
