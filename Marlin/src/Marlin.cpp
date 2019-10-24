@@ -217,7 +217,7 @@ void setup_killpin() {
 
 void setup_powerhold() {
   #if HAS_SUICIDE
-    OUT_WRITE(SUICIDE_PIN, HIGH);
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
   #if ENABLED(PSU_CONTROL)
     #if ENABLED(PS_DEFAULT_OFF)
