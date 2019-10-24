@@ -448,9 +448,9 @@ void MarlinSettings::postprocess() {
 
 #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
   static_assert(
-      EEPROM_OFFSET + sizeof(SettingsData) < ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE,
-      "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data."
-    );
+    EEPROM_OFFSET + sizeof(SettingsData) < ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE,
+    "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data."
+  );
 #endif
 
 #define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
