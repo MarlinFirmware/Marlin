@@ -349,7 +349,7 @@ void MarlinUI::draw_status_screen() {
     #if ENABLED(SHOW_REMAINING_TIME)
       static u8g_uint_t estimation_x_pos = 0;
       static char estimation_string[10];
-      #if ENABLED(DOGM_SD_PERCENT) && ENABLED(ROTATE_PROGRESS_DISPLAY)
+      #if BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
         #define PROGRESS_TIME_PREFIX "PROG"
         #define ELAPSED_TIME_PREFIX "ELAP"
         #define SHOW_REMAINING_TIME_PREFIX "REM"
@@ -419,8 +419,8 @@ void MarlinUI::draw_status_screen() {
               #endif
             ));
           }
-          #if ENABLED(SHOW_REMAINING_TIME)  && ENABLED(ROTATE_PROGRESS_DISPLAY) // Tristate progress display mode
-            progress_x_pos = _SD_DURATION_X(strlen(progress_string)+1);
+          #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
+            progress_x_pos = _SD_DURATION_X(strlen(progress_string) + 1);
           #endif
         #endif
       }
@@ -441,7 +441,7 @@ void MarlinUI::draw_status_screen() {
             else {
               const bool has_days = (estimation.value >= 60*60*24L);
               const uint8_t len = estimation.toDigital(estimation_string, has_days);
-              #if ENABLED(DOGM_SD_PERCENT) && ENABLED(ROTATE_PROGRESS_DISPLAY)
+              #if BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
                 estimation_x_pos = _SD_DURATION_X(len);
               #else
                 estimation_x_pos = _SD_DURATION_X(len + 1);
