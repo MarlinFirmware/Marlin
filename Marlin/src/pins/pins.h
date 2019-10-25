@@ -180,6 +180,8 @@
   #include "ramps/pins_Z_BOLT_X_SERIES.h"       // ATmega2560                             env:megaatmega2560
 #elif MB(TT_OSCAR)
   #include "ramps/pins_TT_OSCAR.h"              // ATmega2560                             env:megaatmega2560
+#elif MB(TANGO)
+  #include "ramps/pins_TANGO.h"                 // ATmega2560                             env:megaatmega2560
 
 //
 // RAMBo and derivatives
@@ -800,9 +802,6 @@
 #endif
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN -1
-#endif
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING false
 #endif
 
 #ifndef NUM_SERVO_PLUGS
