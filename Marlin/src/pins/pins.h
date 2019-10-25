@@ -498,8 +498,8 @@
 
 #elif MB(BEAST)
   #include "stm32/pins_BEAST.h"                 // STM32F4                                env:STM32F4
-#elif MB(STM32F4)
-  #include "stm32/pins_STM32F4.h"               // STM32F4                                env:STM32F4
+#elif MB(GENERIC_STM32F4)
+  #include "stm32/pins_GENERIC_STM32F4.h"       // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
 #elif MB(RUMBA32)
