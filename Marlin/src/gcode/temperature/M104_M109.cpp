@@ -29,10 +29,14 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../lcd/ultralcd.h"
-#include "../../Marlin.h"
+
+#include "../../Marlin.h" // for startOrResumeJob, etc.
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
+  #if ENABLED(CANCEL_OBJECTS)
+    #include "../../feature/cancel_object.h"
+  #endif
 #endif
 
 #if ENABLED(SINGLENOZZLE)
@@ -126,7 +130,7 @@ void GcodeSuite::M109() {
         ui.reset_status();
       }
       else
-        print_job_timer.start();
+        startOrResumeJob();
     #endif
 
     #if HAS_DISPLAY

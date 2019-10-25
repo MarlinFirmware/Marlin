@@ -47,9 +47,9 @@ inline void serial_delay(const millis_t ms) {
     void unmark(const uint8_t x, const uint8_t y) { CBI(bits[y], x); }
     void mark(const uint8_t x, const uint8_t y)   { SBI(bits[y], x); }
     bool marked(const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
-    inline void unmark(const xy_int8_t &xy)       { unmark(xy.y, xy.x); }
-    inline void mark(const xy_int8_t &xy)         { mark(xy.y, xy.x); }
-    inline bool marked(const xy_int8_t &xy)       { return marked(xy.y, xy.x); }
+    inline void unmark(const xy_int8_t &xy)       { unmark(xy.x, xy.y); }
+    inline void mark(const xy_int8_t &xy)         { mark(xy.x, xy.y); }
+    inline bool marked(const xy_int8_t &xy)       { return marked(xy.x, xy.y); }
   };
 
   typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;

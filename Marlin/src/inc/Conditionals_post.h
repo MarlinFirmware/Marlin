@@ -333,8 +333,6 @@
   #endif
 #endif
 
-#define HAS_POWER_SWITCH (ENABLED(PSU_CONTROL) && PIN_EXISTS(PS_ON))
-
 /**
  * Temp Sensor defines
  */

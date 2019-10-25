@@ -21,39 +21,20 @@
  */
 #pragma once
 
-#ifndef __MARLIN_FIRMWARE__
-#define __MARLIN_FIRMWARE__
-#endif
-
-//
-// Prefix header to acquire configurations
-//
 #include <stdint.h>
 
-#include "../HAL/platforms.h"
+class CancelObject {
+public:
+  static bool skipping;
+  static int8_t object_count, active_object;
+  static uint32_t canceled;
+  static void set_active_object(const int8_t obj);
+  static void cancel_object(const int8_t obj);
+  static void uncancel_object(const int8_t obj);
+  static void report();
+  static inline void clear_active_object() { set_active_object(-1); }
+  static inline void cancel_active_object() { cancel_object(active_object); }
+  static inline void reset() { canceled = 0x0000; object_count = 0; clear_active_object(); }
+};
 
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../../Configuration.h"
-
-
-#ifdef CUSTOM_VERSION_FILE
-  #if defined(__has_include)
-    #if __has_include(XSTR(../../CUSTOM_VERSION_FILE))
-      #include XSTR(../../CUSTOM_VERSION_FILE)
-    #endif
-  #else
-    #include XSTR(../../CUSTOM_VERSION_FILE)
-  #endif
-#endif
-
-#include "Version.h"
-
-#include "Conditionals_LCD.h"
-#include HAL_PATH(../HAL, inc/Conditionals_LCD.h)
-
-#include "../core/drivers.h"
-#include "../../Configuration_adv.h"
-
-#include "Conditionals_adv.h"
-#include HAL_PATH(../HAL, inc/Conditionals_adv.h)
+extern CancelObject cancelable;

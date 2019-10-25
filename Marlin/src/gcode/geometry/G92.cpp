@@ -33,12 +33,7 @@
  */
 void GcodeSuite::G92() {
 
-  bool didE = false;
-  #if IS_SCARA || !HAS_POSITION_SHIFT
-    bool didXYZ = false;
-  #else
-    constexpr bool didXYZ = false;
-  #endif
+  bool sync_E = false, sync_XYZ = false;
 
   #if USE_GCODE_SUBCODES
     const uint8_t subcode_G92 = parser.subcode;
@@ -64,11 +59,7 @@ void GcodeSuite::G92() {
         LOOP_XYZE(i) {
           if (parser.seenval(axis_codes[i])) {
             current_position[i] = parser.value_axis_units((AxisEnum)i);
-            #if IS_SCARA || !HAS_POSITION_SHIFT
-              if (i == E_AXIS) didE = true; else didXYZ = true;
-            #elif HAS_POSITION_SHIFT
-              if (i == E_AXIS) didE = true;
-            #endif
+            if (i == E_AXIS) sync_E = true; else sync_XYZ = true;
           }
         }
       } break;
@@ -81,11 +72,11 @@ void GcodeSuite::G92() {
                       d = v - current_position[i];
           if (!NEAR_ZERO(d)) {
             #if IS_SCARA || !HAS_POSITION_SHIFT
-              if (i == E_AXIS) didE = true; else didXYZ = true;
+              if (i == E_AXIS) sync_E = true; else sync_XYZ = true;
               current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
             #elif HAS_POSITION_SHIFT
               if (i == E_AXIS) {
-                didE = true;
+                sync_E = true;
                 current_position.e = v; // When using coordinate spaces, only E is set directly
               }
               else {
@@ -105,8 +96,8 @@ void GcodeSuite::G92() {
       coordinate_system[active_coordinate_system] = position_shift;
   #endif
 
-  if    (didXYZ) sync_plan_position();
-  else if (didE) sync_plan_position_e();
+  if    (sync_XYZ) sync_plan_position();
+  else if (sync_E) sync_plan_position_e();
 
   report_current_position();
 }

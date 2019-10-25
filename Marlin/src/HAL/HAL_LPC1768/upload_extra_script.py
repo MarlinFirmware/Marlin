@@ -31,9 +31,11 @@ try:
         #
         import subprocess
         # typical result (string): 'Drives: C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
-        driveStr = subprocess.check_output("fsutil fsinfo drives").decode('utf8')
+        driveStr = str(subprocess.check_output("fsutil fsinfo drives"))
         # typical result (string): 'C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
-        driveStr = driveStr.strip().lstrip('Drives: ')
+        # driveStr = driveStr.strip().lstrip('Drives: ') <- Doesn't work in other Languages as English. In German is "Drives:" = "Laufwerke:"
+        FirstFound = driveStr.find(':',0,-1)         # Find the first ":" and
+        driveStr = driveStr[FirstFound + 1 : -1]     # truncate to the rest
         # typical result (array of stings): ['C:\\', 'D:\\', 'E:\\', 'F:\\',
         # 'G:\\', 'H:\\', 'I:\\', 'J:\\', 'K:\\', 'L:\\', 'M:\\', 'Y:\\', 'Z:\\']
         drives = driveStr.split()
@@ -44,7 +46,7 @@ try:
         for drive in drives:
             final_drive_name = drive.strip().rstrip('\\')   # typical result (string): 'C:'
             try:
-                volume_info = subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT).decode('utf8')
+                volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))
             except Exception as e:
                 continue
             else:

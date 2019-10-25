@@ -38,7 +38,7 @@
   #include "../../feature/leds/leds.h"
 #endif
 
-#include "../../Marlin.h" // for wait_for_heatup and idle()
+#include "../../Marlin.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
  * M141: Set chamber temperature
@@ -60,7 +60,7 @@ void GcodeSuite::M191() {
     thermalManager.setTargetChamber(parser.value_celsius());
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       if (parser.value_celsius() > BED_MINTEMP)
-        print_job_timer.start();
+        startOrResumeJob();
     #endif
   }
   else return;

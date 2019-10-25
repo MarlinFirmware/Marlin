@@ -333,6 +333,7 @@ inline bool IsStopped() { return !Running; }
 
 bool printingIsActive();
 bool printingIsPaused();
+void startOrResumeJob();
 
 extern bool wait_for_heatup;
 
@@ -347,7 +348,11 @@ extern bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if HAS_POWER_SWITCH
+#if ENABLED(USE_CONTROLLER_FAN)
+  extern uint8_t controllerfan_speed;
+#endif
+
+#if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)
   #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_HIGH); powersupply_on = false; }while(0)
@@ -364,7 +369,7 @@ bool pin_is_protected(const pin_t pin);
 void protected_pin_err();
 
 #if HAS_SUICIDE
-  inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
+  inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_INVERTING); }
 #endif
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
