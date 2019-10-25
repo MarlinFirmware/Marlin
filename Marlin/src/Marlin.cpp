@@ -145,6 +145,10 @@
   #include "feature/power_loss_recovery.h"
 #endif
 
+#if ENABLED(CANCEL_OBJECTS)
+  #include "feature/cancel_object.h"
+#endif
+
 #if HAS_FILAMENT_SENSOR
   #include "feature/runout.h"
 #endif
