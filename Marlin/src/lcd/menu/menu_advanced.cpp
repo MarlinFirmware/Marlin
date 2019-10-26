@@ -654,7 +654,7 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(CANCEL_OBJECTS)
-    SUBMENU(MSG_CANCELOBJECTS, [](){ editable.int8 = -1; goto_screen(menu_cancelobject); });
+    SUBMENU(MSG_CANCEL_OBJECT, [](){ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)

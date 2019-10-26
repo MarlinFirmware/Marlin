@@ -45,13 +45,13 @@ void GcodeSuite::M486() {
   }
 
   if (parser.seen('S'))
-    cancelable.set_active_object(parser.value_integer());
+    cancelable.set_active_object(parser.value_int());
 
   if (parser.seen('C')) cancelable.cancel_active_object();
 
-  if (parser.seen('P')) cancelable.cancel_object(parser.value_integer());
+  if (parser.seen('P')) cancelable.cancel_object(parser.value_int());
 
-  if (parser.seen('U')) cancelable.uncancel_object(parser.value_integer());
+  if (parser.seen('U')) cancelable.uncancel_object(parser.value_int());
 }
 
 #endif // CANCEL_OBJECTS

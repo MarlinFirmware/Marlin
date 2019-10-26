@@ -25,7 +25,6 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
-#include "../ultralcd.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 #include "../../module/printcounter.h"

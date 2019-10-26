@@ -111,9 +111,9 @@
 #define LED_PIN            PB2
 
 /**
- * Note: MKS Robin TFT screens use various TFT controllers. Supported screens
- * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
- * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+ * Note: MKS Robin TFT screens use various TFT controllers
+ * Supported screens are based on the ILI9341 and ST7789V (320x240), ILI9328 and 9488 are not.
+ * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
  *
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
@@ -125,6 +125,10 @@
 #define LCD_BACKLIGHT_PIN  PG11
 #define FSMC_CS_PIN        PG12  // NE4
 #define FSMC_RS_PIN        PF0   // A0
+
+#define LCD_USE_DMA_FSMC   // Use DMA transfers to send data to the TFT
+#define FSMC_DMA_DEV       DMA2
+#define FSMC_DMA_CHANNEL   DMA_CH5
 
 #if ENABLED(TOUCH_BUTTONS)
   #define TOUCH_CS_PIN     PB1   // SPI2_NSS
