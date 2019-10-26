@@ -29,6 +29,7 @@
 #if HAS_LCD_MENU && ENABLED(CANCEL_OBJECTS)
 
 #include "menu.h"
+#include "menu_addon.h"
 
 #include "../../feature/cancel_object.h"
 
@@ -39,15 +40,15 @@
 //
 void menu_cancelobject() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
 
-  GCODES_ITEM(MSG_OBJECT_CANCEL, PSTR("M486 C"));
+  GCODES_ITEM(MSG_CANCEL_OBJECT, PSTR("M486 C"));
 
   // Draw cancelable items in a loop
   for (int8_t i = 0; i < cancelable.object_count; i++) {
     if (!TEST(cancelable.canceled, i)) {
       editable.int8 = i;
-      ACTION_ITEM(MSG_OBJECT_CANCEL, [](){
+      ACTION_ITEM(MSG_CANCEL_OBJECT, [](){
         cancelable.cancel_object(editable.int8);
         ui.quick_feedback();
       });
@@ -58,7 +59,7 @@ void menu_cancelobject() {
   }
 
   /*
-  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_OBJECT_CANCEL, &editable.int8, -1, 32, [](){
+  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_CANCEL_OBJECT, &editable.int8, -1, 32, [](){
     if (editable.int8 > -1) {
       cancelable.cancel_object(editable.int8);
       ui.quick_feedback();

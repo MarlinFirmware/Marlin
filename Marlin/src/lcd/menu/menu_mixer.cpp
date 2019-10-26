@@ -29,11 +29,9 @@
 #if HAS_LCD_MENU && ENABLED(MIXING_EXTRUDER)
 
 #include "menu.h"
-#include "../../feature/mixing.h"
+#include "menu_addon.h"
 
-#include "../dogm/ultralcd_DOGM.h"
-#include "../ultralcd.h"
-#include "../lcdprint.h"
+#include "../../feature/mixing.h"
 
 #define CHANNEL_MIX_EDITING !DUAL_MIXING_EXTRUDER
 
