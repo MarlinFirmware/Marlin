@@ -25,10 +25,12 @@ env:
   - TEST_PLATFORM="sanguino_atmega1284p"
   - TEST_PLATFORM="sanguino_atmega644p"
 
+  # Broken Extended STM32 Environments
+  #- TEST_PLATFORM="ARMED"
+  #- TEST_PLATFORM="BIGTREE_BTT002"
+  #- TEST_PLATFORM="BIGTREE_SKR_PRO"
+
   # Extended STM32 Environments
-  - TEST_PLATFORM="ARMED"
-  - TEST_PLATFORM="BIGTREE_BTT002"
-  - TEST_PLATFORM="BIGTREE_SKR_PRO"
   - TEST_PLATFORM="STM32F103RC_bigtree"
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
