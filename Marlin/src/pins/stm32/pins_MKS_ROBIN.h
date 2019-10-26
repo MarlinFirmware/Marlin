@@ -128,7 +128,7 @@
 
 #define LCD_USE_DMA_FSMC   // Use DMA transfers to send data to the TFT
 #define FSMC_DMA_DEV       DMA2
-#define FSMC_DMA_CHANNEL   DMA_CH4 // or DMA_CH5
+#define FSMC_DMA_CHANNEL   DMA_CH5
 
 #if ENABLED(TOUCH_BUTTONS)
   #define TOUCH_CS_PIN     PB1   // SPI2_NSS
