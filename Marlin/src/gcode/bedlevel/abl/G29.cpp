@@ -725,7 +725,7 @@ G29_TYPE GcodeSuite::G29() {
             ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
           #endif
 
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
+          measured_z = faux ? 0.001f * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
