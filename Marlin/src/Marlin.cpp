@@ -918,8 +918,6 @@ void setup() {
   #endif
 
   ui.init();
-  ui.reset_status();
-
   #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
     ui.show_bootscreen();
   #endif
@@ -947,6 +945,8 @@ void setup() {
   thermalManager.init();    // Initialize temperature loop
 
   print_job_timer.init();   // Initial setup of print job timer
+
+  ui.reset_status();        // Print startup message after print statistics are loaded
 
   endstops.init();          // Init endstops and pullups
 
