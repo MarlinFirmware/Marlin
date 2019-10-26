@@ -143,7 +143,7 @@
 #ifndef FAN_PIN
   #define FAN_PIN           7
 #endif
-#ifndef FAN1_PIN
+#if !defined(FAN1_PIN)
   #define FAN1_PIN            8
 #endif
 //
