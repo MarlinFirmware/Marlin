@@ -555,6 +555,15 @@
 #ifndef X_MS3_PIN
   #define X_MS3_PIN -1
 #endif
+#ifndef X2_MS1_PIN
+  #define X2_MS1_PIN -1
+#endif
+#ifndef X2_MS2_PIN
+  #define X2_MS2_PIN -1
+#endif
+#ifndef X2_MS3_PIN
+  #define X2_MS3_PIN -1
+#endif
 #ifndef Y_MS1_PIN
   #define Y_MS1_PIN -1
 #endif
@@ -564,6 +573,15 @@
 #ifndef Y_MS3_PIN
   #define Y_MS3_PIN -1
 #endif
+#ifndef Y2_MS1_PIN
+  #define Y2_MS1_PIN -1
+#endif
+#ifndef Y2_MS2_PIN
+  #define Y2_MS2_PIN -1
+#endif
+#ifndef Y2_MS3_PIN
+  #define Y2_MS3_PIN -1
+#endif
 #ifndef Z_MS1_PIN
   #define Z_MS1_PIN -1
 #endif
@@ -572,6 +590,24 @@
 #endif
 #ifndef Z_MS3_PIN
   #define Z_MS3_PIN -1
+#endif
+#ifndef Z2_MS1_PIN
+  #define Z2_MS1_PIN -1
+#endif
+#ifndef Z2_MS2_PIN
+  #define Z2_MS2_PIN -1
+#endif
+#ifndef Z2_MS3_PIN
+  #define Z2_MS3_PIN -1
+#endif
+#ifndef Z3_MS1_PIN
+  #define Z3_MS1_PIN -1
+#endif
+#ifndef Z3_MS2_PIN
+  #define Z3_MS2_PIN -1
+#endif
+#ifndef Z3_MS3_PIN
+  #define Z3_MS3_PIN -1
 #endif
 #ifndef E0_MS1_PIN
   #define E0_MS1_PIN -1
