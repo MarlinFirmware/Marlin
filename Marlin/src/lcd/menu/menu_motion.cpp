@@ -29,12 +29,7 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
-
-#include "../lcdprint.h"
-
-#if HAS_GRAPHICAL_LCD
-  #include "../dogm/ultralcd_DOGM.h"
-#endif
+#include "menu_addon.h"
 
 #include "../../module/motion.h"
 

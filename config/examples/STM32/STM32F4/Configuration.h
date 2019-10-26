@@ -130,7 +130,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_STM32F4
+  #define MOTHERBOARD BOARD_GENERIC_STM32F4
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
