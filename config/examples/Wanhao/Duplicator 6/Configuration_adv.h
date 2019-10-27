@@ -2559,6 +2559,13 @@
 #endif
 
 /**
+ * Cancel Objects
+ *
+ * Implement M486 to allow Marlin to skip objects
+ */
+//#define CANCEL_OBJECTS
+
+/**
  * I2C position encoders for closed loop control.
  * Developed by Chris Barr at Aus3D.
  *
