@@ -31,34 +31,35 @@ using namespace Theme;
 using namespace ExtUI;
 
 void TuneMenu::onRedraw(draw_mode_t what) {
+  #define GRID_ROWS 8
+  #define GRID_COLS 2
+
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
-       .font(font_medium);
+       .cmd(COLOR_RGB(bg_text_enabled))
+       .tag(0)
+       .font(font_large)
+       .text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(PRINT_MENU));
   }
-
-  #define GRID_ROWS 8
-  #define GRID_COLS 2
 
   if (what & FOREGROUND) {
     CommandProcessor cmd;
-    cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .font(font_large).text  ( BTN_POS(1,1), BTN_SIZE(2,1), F("Print Menu"))
-       .colors(normal_btn)
+    cmd.colors(normal_btn)
        .font(font_medium)
-       .enabled(!isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), isPrinting() ? F("Printing...") : F("Print Again"))
-       .enabled( isPrinting()).tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), F("Print Speed"))
-                              .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), F("Bed Temperature"))
+       .enabled( isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(PRINT_SPEED))
+                              .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(BED_TEMPERATURE))
         #if ENABLED(BABYSTEPPING)
           .enabled(true)
         #else
           .enabled(false)
         #endif
-                              .tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), F("Nudge Nozzle"))
-       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), F("Load Syringe"))
-       .enabled(!isPrinting()).tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), F("Unlock XY Axis"))
-       .colors(action_btn)    .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), F("Back"));
+                              .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(NUDGE_NOZZLE))
+       .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MOVE_TO_HOME))
+       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(RAISE_PLUNGER))
+       .enabled(!isPrinting()).tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(RELEASE_XY_AXIS))
+       .colors(action_btn)    .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(BACK));
   }
   #undef GRID_COLS
   #undef GRID_ROWS
@@ -66,18 +67,13 @@ void TuneMenu::onRedraw(draw_mode_t what) {
 
 bool TuneMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 1:  GOTO_PREVIOUS();                    break;
-    case 2: {
-      FileList files;
-      printFile(files.shortFilename());
-      GOTO_PREVIOUS();
-      break;
-    }
-    case 3: GOTO_SCREEN(FeedratePercentScreen); break;
-    case 4: GOTO_SCREEN(TemperatureScreen);     break;
-    case 5: GOTO_SCREEN(NudgeNozzleScreen);     break;
-    case 6: GOTO_SCREEN(BioConfirmHomeXYZ);     break;
-    case 7: StatusScreen::unlockMotors();       break;
+    case 1: GOTO_PREVIOUS();                                     break;
+    case 2: GOTO_SCREEN(FeedratePercentScreen);                  break;
+    case 3: GOTO_SCREEN(TemperatureScreen);                      break;
+    case 4: GOTO_SCREEN(NudgeNozzleScreen);                      break;
+    case 5: GOTO_SCREEN(BioConfirmHomeXYZ);                      break;
+    case 6: SpinnerDialogBox::enqueueAndWait_P(F("G0 E0 F120")); break;
+    case 7: StatusScreen::unlockMotors();                        break;
     default:
       return false;
   }

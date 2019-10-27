@@ -28,7 +28,7 @@
 #define BOARD_INFO_NAME "GMARSH X6 REV1"
 
 // Ignore temp readings during develpment.
-//#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
 // Enable 12MHz clock output on P1.27 pin to sync TMC2208 chip clocks

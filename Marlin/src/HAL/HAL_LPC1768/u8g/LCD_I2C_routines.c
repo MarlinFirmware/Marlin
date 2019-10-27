@@ -163,7 +163,7 @@ uint8_t u8g_i2c_send_byte(uint8_t data) {
   return 1;
 }
 
-void u8g_i2c_stop(void) {
+void u8g_i2c_stop() {
 }
 
 

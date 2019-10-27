@@ -26,4 +26,4 @@
  */
 
 extern void fanmux_switch(const uint8_t e);
-extern void fanmux_init(void);
+extern void fanmux_init();

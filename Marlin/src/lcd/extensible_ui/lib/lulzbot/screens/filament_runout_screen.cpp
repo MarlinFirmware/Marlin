@@ -32,15 +32,15 @@ using namespace Theme;
 
 void FilamentRunoutScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.heading(   PSTR("Runout Detection:"));
-  w.toggle( 2, PSTR("Filament Sensor:"), PSTR("off\xFFon"), getFilamentRunoutEnabled());
+  w.heading(   GET_TEXT_F(FILAMENT));
+  w.toggle( 2, GET_TEXT_F(RUNOUT_SENSOR), getFilamentRunoutEnabled());
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    w.heading(PSTR("Detection Threshold:"));
-    w.units(PSTR("mm"));
+    w.heading(GET_TEXT_F(DETECTION_THRESHOLD));
+    w.units(GET_TEXT_F(UNITS_MM));
     w.precision(0);
     w.color(e_axis);
-    w.adjuster( 10, PSTR("Distance:"), getFilamentRunoutDistance_mm(), getFilamentRunoutEnabled());
+    w.adjuster( 10, GET_TEXT_F(DISTANCE), getFilamentRunoutDistance_mm(), getFilamentRunoutEnabled());
     w.increments();
   #endif
 }

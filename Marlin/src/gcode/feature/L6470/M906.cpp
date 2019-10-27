@@ -151,7 +151,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
       break;
   }
   SERIAL_ECHO(dtostrf(val * 100 / 256, 10, 2, numstr));
-  SERIAL_ECHO("%% ");
+  SERIAL_ECHOPGM("%% ");
   serialprintPGM(suf);
   SERIAL_EOL();
 }

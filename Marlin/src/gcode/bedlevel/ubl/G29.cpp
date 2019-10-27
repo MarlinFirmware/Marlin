@@ -29,7 +29,7 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
 #include "../../gcode.h"
-#include "../../../feature/bedlevel/ubl/ubl.h"
+#include "../../../feature/bedlevel/bedlevel.h"
 
 void GcodeSuite::G29() { ubl.G29(); }
 

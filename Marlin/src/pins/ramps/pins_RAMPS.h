@@ -552,7 +552,7 @@
       #define BTN_EN2            7
       #define BTN_ENC           39
 
-      #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
+      #define SD_DETECT_PIN     -1   // Pin 49 for display SD interface, 72 for easy adapter board
       #define KILL_PIN          31
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)

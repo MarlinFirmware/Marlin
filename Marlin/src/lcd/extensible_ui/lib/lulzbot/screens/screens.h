@@ -23,9 +23,9 @@
 #pragma once
 
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
+#include "../language/language.h"
 #include "../theme/theme.h"
-
-#define ROUND(val) uint16_t((val)+0.5)
+#include "string_format.h"
 
 extern tiny_timer_t refresh_timer;
 
@@ -55,7 +55,7 @@ enum {
   MAX_VELOCITY_SCREEN_CACHE,
   MAX_ACCELERATION_SCREEN_CACHE,
   DEFAULT_ACCELERATION_SCREEN_CACHE,
-#if ENABLED(JUNCTION_DEVIATION)
+#if DISABLED(CLASSIC_JERK)
   JUNC_DEV_SCREEN_CACHE,
 #else
   JERK_SCREEN_CACHE,
@@ -97,6 +97,8 @@ class BaseScreen : public UIScreen {
       static uint32_t last_interaction;
     #endif
 
+    static bool buttonIsPressed(uint8_t tag);
+
   public:
     static bool buttonStyleCallback(CommandProcessor &, uint8_t, uint8_t &, uint16_t &, bool);
 
@@ -133,7 +135,7 @@ class KillScreen {
   // The KillScreen is behaves differently than the
   // others, so we do not bother extending UIScreen.
   public:
-    static void show(progmem_str msg);
+    static void show(const char*);
 };
 
 class DialogBoxBaseClass : public BaseScreen {
@@ -147,6 +149,7 @@ class DialogBoxBaseClass : public BaseScreen {
     static void onRedraw(draw_mode_t) {};
   public:
     static bool onTouchEnd(uint8_t tag);
+    static void onIdle();
 };
 
 class AlertDialogBox : public DialogBoxBaseClass, public CachedScreen<ALERT_BOX_CACHE,ALERT_BOX_DL_SIZE> {
@@ -174,6 +177,20 @@ class SaveSettingsDialogBox : public DialogBoxBaseClass, public UncachedScreen {
 
     static void promptToSaveSettings();
     static void settingsChanged() {needs_save = true;}
+};
+
+class ConfirmStartPrintDialogBox : public DialogBoxBaseClass, public UncachedScreen {
+  private:
+    inline static const char *getShortFilename() {return getFilename(false);}
+    inline static const char *getLongFilename()  {return getFilename(true);}
+
+    static const char *getFilename(bool longName);
+  public:
+    static void onEntry();
+    static void onRedraw(draw_mode_t);
+    static bool onTouchEnd(uint8_t);
+
+    static void show(uint8_t file_index);
 };
 
 class ConfirmAbortPrintDialogBox : public DialogBoxBaseClass, public UncachedScreen {
@@ -219,6 +236,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
     static void draw_status_message(draw_mode_t, const char * const);
 
   public:
+    static void loadBitmaps();
     static void setStatusMessage(const char *);
     static void setStatusMessage(progmem_str);
     static void onRedraw(draw_mode_t);
@@ -241,12 +259,12 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
       static void draw_fine_motion(draw_mode_t what);
       static void draw_buttons(draw_mode_t what);
     public:
+      static void loadBitmaps();
       static void unlockMotors();
 
       static void setStatusMessage(const char *);
       static void setStatusMessage(progmem_str);
 
-      static void onStartup();
       static void onRedraw(draw_mode_t);
 
       static bool onTouchStart(uint8_t tag);
@@ -350,28 +368,37 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
         uint8_t     _line;
         uint32_t    _color;
         uint8_t     _decimals;
-        const char *_units;
+        progmem_str _units;
+        enum style_t {
+          BTN_NORMAL,
+          BTN_ACTION,
+          BTN_TOGGLE,
+          BTN_DISABLED,
+          TEXT_AREA,
+          TEXT_LABEL
+        } _style;
 
       protected:
-        void _draw_increment_btn(uint8_t line, const uint8_t tag);
-
+        void _draw_increment_btn(CommandProcessor &, uint8_t line, const uint8_t tag);
+        void _button(CommandProcessor &, uint8_t tag, int16_t x, int16_t y, int16_t w, int16_t h, progmem_str, bool enabled = true, bool highlight = false);
+        void _button_style(CommandProcessor &cmd, style_t style);
       public:
         widgets_t(draw_mode_t);
 
         widgets_t &color(uint32_t color)       {_color = color; return *this;}
-        widgets_t &units(const char *units)    {_units = units; return *this;}
+        widgets_t &units(progmem_str units)    {_units = units; return *this;}
         widgets_t &draw_mode(draw_mode_t what) {_what  = what;  return *this;}
         widgets_t &precision(uint8_t decimals, precision_default_t = DEFAULT_HIGHEST);
 
-        void heading       (const char *label);
-        void adjuster_sram_val (uint8_t tag,  const char *label, const char *value,  bool is_enabled = true);
-        void adjuster          (uint8_t tag,  const char *label, const char *value,  bool is_enabled = true);
-        void adjuster          (uint8_t tag,  const char *label, float value=0,      bool is_enabled = true);
-        void button            (uint8_t tag,  const char *label,                     bool is_enabled = true);
-        void text_field        (uint8_t tag,  const char *label, const char *value,  bool is_enabled = true);
-        void two_buttons       (uint8_t tag1, const char *label1,
-                                uint8_t tag2, const char *label2,                    bool is_enabled = true);
-        void toggle            (uint8_t tag,  const char *label, const char *text, bool value, bool is_enabled = true);
+        void heading           (progmem_str label);
+        void adjuster_sram_val (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
+        void adjuster          (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
+        void adjuster          (uint8_t tag,  progmem_str label, float value=0,      bool is_enabled = true);
+        void button            (uint8_t tag,  progmem_str label,                     bool is_enabled = true);
+        void text_field        (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
+        void two_buttons       (uint8_t tag1, progmem_str label1,
+                                uint8_t tag2, progmem_str label2,                    bool is_enabled = true);
+        void toggle            (uint8_t tag,  progmem_str label,                     bool value, bool is_enabled = true);
         void home_buttons      (uint8_t tag);
         void increments        ();
     };
@@ -476,7 +503,7 @@ class DefaultAccelerationScreen : public BaseNumericAdjustmentScreen, public Cac
     static bool onTouchHeld(uint8_t tag);
 };
 
-#if ENABLED(JUNCTION_DEVIATION)
+#if DISABLED(CLASSIC_JERK)
   class JunctionDeviationScreen : public BaseNumericAdjustmentScreen, public CachedScreen<JUNC_DEV_SCREEN_CACHE> {
     public:
       static void onRedraw(draw_mode_t);
@@ -625,9 +652,11 @@ class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, F
     static uint8_t  getTagForLine(uint8_t line) {return line + 2;}
     static uint8_t  getLineForTag(uint8_t tag)  {return  tag - 2;}
     static uint16_t getFileForTag(uint8_t tag);
+    static uint16_t getSelectedFileIndex();
 
-    static const char *getSelectedShortFilename();
-    static const char *getSelectedLongFilename();
+    inline static const char *getSelectedShortFilename() {return getSelectedFilename(false);}
+    inline static const char *getSelectedLongFilename()  {return getSelectedFilename(true);}
+    static const char *getSelectedFilename(bool longName);
 
     static void drawFileButton(const char* filename, uint8_t tag, bool is_dir, bool is_highlighted);
     static void drawFileList();
@@ -710,3 +739,11 @@ class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
 
     static void playStream(void *obj, media_streamer_func_t*);
 };
+
+#if NUM_LANGUAGES > 1
+  class LanguageMenu : public BaseScreen, public UncachedScreen {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+#endif

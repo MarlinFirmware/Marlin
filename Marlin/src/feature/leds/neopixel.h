@@ -66,11 +66,9 @@ public:
   static void set_color_startup(const uint32_t c);
 
   static void set_color(const uint32_t c);
-  static void set_color_background();
-  //bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
-    static void set_pixel_color(const uint16_t n, const uint32_t c);
+    static void set_color_background();
   #endif
 
   static inline void begin() {
@@ -106,6 +104,10 @@ public:
       #endif
     #endif
   }
+
+  #if 0
+    bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
+  #endif
 
   // Accessors
   static inline uint16_t pixels() { return adaneo1.numPixels(); }

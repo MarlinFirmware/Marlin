@@ -71,7 +71,7 @@ void GcodeSuite::M7219() {
   }
   else if (parser.seen('D')) {
     const uint8_t uline = parser.value_byte() & 0x7,
-                  line = uline + parser.byteval('U') << 3;
+                  line = uline + (parser.byteval('U') << 3);
     if (line < MAX7219_LINES) {
       max7219.led_line[line] = v;
       return max7219.refresh_line(line);

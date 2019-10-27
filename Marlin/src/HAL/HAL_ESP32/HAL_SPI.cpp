@@ -80,7 +80,7 @@ void spiInit(uint8_t spiRate) {
   SPI.begin();
 }
 
-uint8_t spiRec(void) {
+uint8_t spiRec() {
   SPI.beginTransaction(spiConfig);
   uint8_t returnByte = SPI.transfer(0xFF);
   SPI.endTransaction();

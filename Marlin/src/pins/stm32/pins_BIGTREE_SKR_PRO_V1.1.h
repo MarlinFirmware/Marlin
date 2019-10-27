@@ -207,6 +207,13 @@
     #define LCD_PINS_ENABLE PG7
     #define LCD_PINS_D4    PG3
 
+    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here. 
+    // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
+    #undef ST7920_DELAY_1
+    #undef ST7920_DELAY_2
+    #undef ST7920_DELAY_3
+
+
   #else
 
     #define LCD_PINS_RS    PD10
@@ -219,6 +226,26 @@
 
     #define LCD_PINS_ENABLE PD11
     #define LCD_PINS_D4    PG2
+
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS    PD11
+      #define DOGLCD_A0    PD10
+      //#define LCD_BACKLIGHT_PIN -1
+      #define LCD_RESET_PIN PG2   // Must be high or open for LCD to operate normally.
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN PG3
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN PG6
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN PG7
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN    PG3
+      #endif
+    #endif // !FYSETC_MINI_12864
 
     #if ENABLED(ULTIPANEL)
       #define LCD_PINS_D5  PG3

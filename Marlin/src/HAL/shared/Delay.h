@@ -29,8 +29,8 @@
  *  DELAY_US(count): Delay execution in microseconds
  */
 
-#include "../../core/macros.h"
 #include "../../core/millis_t.h"
+#include "../../core/macros.h"
 
 #if defined(__arm__) || defined(__thumb__)
 
@@ -53,7 +53,7 @@
 
     FORCE_INLINE static void DELAY_CYCLES(const uint32_t x) {
       const uint32_t endCycles = getCycleCount() + x;
-      while (PENDING(getCycleCount(), endCycles)) { }
+      while (PENDING(getCycleCount(), endCycles)) {}
     }
 
   #else

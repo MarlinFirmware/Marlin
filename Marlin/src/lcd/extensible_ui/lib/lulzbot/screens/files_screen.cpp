@@ -41,21 +41,15 @@ void FilesScreen::onEntry() {
   BaseScreen::onEntry();
 }
 
-const char *FilesScreen::getSelectedShortFilename() {
+const char *FilesScreen::getSelectedFilename(bool longName) {
   FileList files;
-  files.seek(getFileForTag(screen_data.FilesScreen.selected_tag), true);
-  return files.shortFilename();
-}
-
-const char *FilesScreen::getSelectedLongFilename() {
-  FileList files;
-  files.seek(getFileForTag(screen_data.FilesScreen.selected_tag), true);
-  return files.longFilename();
+  files.seek(getSelectedFileIndex(), true);
+  return longName ? files.longFilename() : files.shortFilename();
 }
 
 void FilesScreen::drawSelectedFile() {
   FileList files;
-  files.seek(getFileForTag(screen_data.FilesScreen.selected_tag), true);
+  files.seek(getSelectedFileIndex(), true);
   screen_data.FilesScreen.flags.is_dir = files.isDir();
   drawFileButton(
     files.filename(),
@@ -63,6 +57,10 @@ void FilesScreen::drawSelectedFile() {
     screen_data.FilesScreen.flags.is_dir,
     true
   );
+}
+
+uint16_t FilesScreen::getSelectedFileIndex() {
+  return getFileForTag(screen_data.FilesScreen.selected_tag);
 }
 
 uint16_t FilesScreen::getFileForTag(uint8_t tag) {
@@ -91,7 +89,11 @@ void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir,
       cmd.cmd(MACRO(0));
     }
   #endif
-  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY);
+  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY
+    #if ENABLED(SCROLL_LONG_FILENAMES)
+      | OPT_NOFIT
+    #endif
+  );
   if (is_dir) {
     cmd.text(BTN_POS(1,header_h+line), BTN_SIZE(6,1), F("> "),  OPT_CENTERY | OPT_RIGHTX);
   }
@@ -165,13 +167,13 @@ void FilesScreen::drawFooter() {
   cmd.colors(normal_btn)
      .font(font_medium)
      .colors(has_selection ? normal_btn : action_btn)
-     .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), F("Back"))
+     .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(BACK))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
   if (screen_data.FilesScreen.flags.is_dir) {
-    cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), F("Open"));
+    cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(OPEN_DIR));
   } else {
-    cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), F("Print"));
+    cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(PRINT_FILE));
   }
 }
 
@@ -209,9 +211,7 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
       }
       break;
     case 243:
-      printFile(getSelectedShortFilename());
-      StatusScreen::setStatusMessage(F("Print Starting"));
-      GOTO_SCREEN(StatusScreen);
+      ConfirmStartPrintDialogBox::show(getSelectedFileIndex());
       return true;
     case 244:
       {
@@ -234,8 +234,8 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
           if (FTDI::ftdi_chip >= 810) {
             const char *longFilename = getSelectedLongFilename();
             if (longFilename[0]) {
-              CLCD::FontMetrics fm(font_medium);
-              uint16_t text_width = fm.get_text_width(longFilename);
+              CommandProcessor cmd;
+              uint16_t text_width = cmd.font(font_medium).text_width(longFilename);
               screen_data.FilesScreen.scroll_pos = 0;
               if (text_width > display_width)
                 screen_data.FilesScreen.scroll_max = text_width - display_width + MARGIN_L + MARGIN_R;

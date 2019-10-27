@@ -34,18 +34,18 @@ e-mail   :  support@circuitsathome.com
 static MAX3421E_HOST *ISReven;
 static MAX3421E_HOST *ISRodd;
 
-static void UHS_NI call_ISReven(void) {
+static void UHS_NI call_ISReven() {
         ISReven->ISRTask();
 }
 
-static void UHS_NI call_ISRodd(void) {
+static void UHS_NI call_ISRodd() {
         UHS_PIN_WRITE(LED_BUILTIN, HIGH);
         ISRodd->ISRTask();
 }
 #endif
 
 
-void UHS_NI MAX3421E_HOST::resume_host(void) {
+void UHS_NI MAX3421E_HOST::resume_host() {
                 // Used on MCU that lack control of IRQ priority (AVR).
                 // Resumes ISRs.
                 // NOTE: you must track the state yourself!
@@ -133,7 +133,7 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* dat
 /* GPIO read. See gpioWr for explanation */
 
 /* GPIN pins are in high nibbles of IOPINS1, IOPINS2    */
-uint8_t UHS_NI MAX3421E_HOST::gpioRd(void) {
+uint8_t UHS_NI MAX3421E_HOST::gpioRd() {
         uint8_t gpin = 0;
         gpin = regRd(rIOPINS2); //pins 4-7
         gpin &= 0xf0; //clean lower nibble
@@ -143,7 +143,7 @@ uint8_t UHS_NI MAX3421E_HOST::gpioRd(void) {
 
 /* reset MAX3421E. Returns number of microseconds it took for PLL to stabilize after reset
   or zero if PLL haven't stabilized in 65535 cycles */
-uint16_t UHS_NI MAX3421E_HOST::reset(void) {
+uint16_t UHS_NI MAX3421E_HOST::reset() {
         uint16_t i = 0;
 
         // Initiate chip reset
@@ -167,7 +167,7 @@ uint16_t UHS_NI MAX3421E_HOST::reset(void) {
         return (i);
 }
 
-void UHS_NI MAX3421E_HOST::VBUS_changed(void) {
+void UHS_NI MAX3421E_HOST::VBUS_changed() {
         /* modify USB task state because Vbus changed or unknown */
         uint8_t speed = 1;
         //printf("\r\n\r\n\r\n\r\nSTATE %2.2x -> ", usb_task_state);
@@ -214,7 +214,7 @@ void UHS_NI MAX3421E_HOST::VBUS_changed(void) {
  *  Probe bus to determine device presence and speed,
  *  then switch host to detected speed.
  */
-void UHS_NI MAX3421E_HOST::busprobe(void) {
+void UHS_NI MAX3421E_HOST::busprobe() {
         uint8_t bus_sample;
         uint8_t tmpdata;
         bus_sample = regRd(rHRSL); //Get J,K status
@@ -760,7 +760,7 @@ uint8_t UHS_NI MAX3421E_HOST::ctrlReqClose(UHS_EpInfo *pep, uint8_t bmReqType, u
 /**
  * Bottom half of the ISR task
  */
-void UHS_NI MAX3421E_HOST::ISRbottom(void) {
+void UHS_NI MAX3421E_HOST::ISRbottom() {
         uint8_t x;
         //        Serial.print("Enter ");
         //        Serial.print((uint32_t)this,HEX);
@@ -879,12 +879,12 @@ void UHS_NI MAX3421E_HOST::ISRbottom(void) {
 /* USB main task. Services the MAX3421e */
 #if !USB_HOST_SHIELD_USE_ISR
 
-void UHS_NI MAX3421E_HOST::ISRTask(void) {
+void UHS_NI MAX3421E_HOST::ISRTask() {
 }
-void UHS_NI MAX3421E_HOST::Task(void)
+void UHS_NI MAX3421E_HOST::Task()
 #else
 
-void UHS_NI MAX3421E_HOST::Task(void) {
+void UHS_NI MAX3421E_HOST::Task() {
 #ifdef USB_HOST_MANUAL_POLL
         if(usb_task_state == UHS_USB_HOST_STATE_RUNNING) {
                 noInterrupts();
@@ -896,7 +896,7 @@ void UHS_NI MAX3421E_HOST::Task(void) {
 #endif
 }
 
-void UHS_NI MAX3421E_HOST::ISRTask(void)
+void UHS_NI MAX3421E_HOST::ISRTask()
 #endif
 {
         DDSB();

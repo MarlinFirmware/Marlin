@@ -61,9 +61,9 @@ void GcodeSuite::M301() {
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
     #endif // PID_PARAMS_PER_HOTEND
-    SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e));
-    SERIAL_ECHOPAIR(" i:", unscalePID_i(PID_PARAM(Ki, e)));
-    SERIAL_ECHOPAIR(" d:", unscalePID_d(PID_PARAM(Kd, e)));
+    SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
+                    " i:", unscalePID_i(PID_PARAM(Ki, e)),
+                    " d:", unscalePID_d(PID_PARAM(Kd, e)));
     #if ENABLED(PID_EXTRUSION_SCALING)
       //Kc does not have scaling applied above, or in resetting defaults
       SERIAL_ECHOPAIR(" c:", PID_PARAM(Kc, e));

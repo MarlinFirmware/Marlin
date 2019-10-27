@@ -31,10 +31,10 @@ using namespace ExtUI;
 
 void FeedratePercentScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(0).units(PSTR("%"));
+  w.precision(0).units(GET_TEXT_F(UNITS_PERCENT));
 
-  w.heading(PSTR("Print Speed"));
-  w.adjuster(4,  PSTR("Speed"), getFeedrate_percent());
+  w.heading(GET_TEXT_F(PRINT_SPEED));
+  w.adjuster(4,  GET_TEXT_F(SPEED), getFeedrate_percent());
   w.increments();
 }
 
