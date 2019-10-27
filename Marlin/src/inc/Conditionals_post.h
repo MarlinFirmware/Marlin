@@ -1560,7 +1560,7 @@
 #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
 
 #if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
-  #define HAS_FIXED_3POINT;
+  #define HAS_FIXED_3POINT
 #endif
 
 #if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT) && IS_KINEMATIC
