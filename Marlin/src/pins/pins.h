@@ -498,8 +498,8 @@
 
 #elif MB(BEAST)
   #include "stm32/pins_BEAST.h"                 // STM32F4                                env:STM32F4
-#elif MB(STM32F4)
-  #include "stm32/pins_STM32F4.h"               // STM32F4                                env:STM32F4
+#elif MB(GENERIC_STM32F4)
+  #include "stm32/pins_GENERIC_STM32F4.h"       // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
 #elif MB(RUMBA32)
@@ -1007,6 +1007,19 @@
   #define Y2_E_INDEX E_STEPPERS
 #endif
 
+#ifndef X2_CS_PIN
+  #define X2_CS_PIN  -1
+#endif
+#ifndef X2_MS1_PIN
+  #define X2_MS1_PIN -1
+#endif
+#ifndef X2_MS2_PIN
+  #define X2_MS2_PIN -1
+#endif
+#ifndef X2_MS3_PIN
+  #define X2_MS3_PIN -1
+#endif
+
 // The Y2 axis, if any, should be the next open extruder port
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #ifndef Y2_STEP_PIN
@@ -1040,6 +1053,19 @@
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
   #define Z2_E_INDEX Y2_E_INDEX
+#endif
+
+#ifndef Y2_CS_PIN
+  #define Y2_CS_PIN  -1
+#endif
+#ifndef Y2_MS1_PIN
+  #define Y2_MS1_PIN -1
+#endif
+#ifndef Y2_MS2_PIN
+  #define Y2_MS2_PIN -1
+#endif
+#ifndef Y2_MS3_PIN
+  #define Y2_MS3_PIN -1
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
@@ -1077,6 +1103,19 @@
   #define Z3_E_INDEX Z2_E_INDEX
 #endif
 
+#ifndef Z2_CS_PIN
+  #define Z2_CS_PIN  -1
+#endif
+#ifndef Z2_MS1_PIN
+  #define Z2_MS1_PIN -1
+#endif
+#ifndef Z2_MS2_PIN
+  #define Z2_MS2_PIN -1
+#endif
+#ifndef Z2_MS3_PIN
+  #define Z2_MS3_PIN -1
+#endif
+
 #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
   #ifndef Z3_STEP_PIN
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
@@ -1106,6 +1145,19 @@
       #define Z3_SERIAL_RX_PIN _EPIN(Z3_E_INDEX, SERIAL_RX)
     #endif
   #endif
+#endif
+
+#ifndef Z3_CS_PIN
+  #define Z3_CS_PIN  -1
+#endif
+#ifndef Z3_MS1_PIN
+  #define Z3_MS1_PIN -1
+#endif
+#ifndef Z3_MS2_PIN
+  #define Z3_MS2_PIN -1
+#endif
+#ifndef Z3_MS3_PIN
+  #define Z3_MS3_PIN -1
 #endif
 
 #undef HAS_FREE_AUX2_PINS

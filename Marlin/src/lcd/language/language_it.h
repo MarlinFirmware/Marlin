@@ -419,6 +419,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa stampa");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arresta stampa");
+  PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancella Oggetto");
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Ripresa da PowerLoss");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Stampa da media");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Media non presente");
