@@ -289,7 +289,7 @@
 //
 
 #define BOARD_BEAST                   4200  // STM32F4xxVxT6 Libmaple-based STM32F4 controller
-#define BOARD_STM32F4                 4201  // STM32 STM32GENERIC-based STM32F4 controller
+#define BOARD_GENERIC_STM32F4         4201  // STM32 STM32GENERIC-based STM32F4 controller
 #define BOARD_ARMED                   4202  // Arm'ed STM32F4-based controller
 #define BOARD_RUMBA32                 4203  // RUMBA32 STM32F4-based controller
 #define BOARD_BLACK_STM32F407VE       4204  // BLACK_STM32F407VE

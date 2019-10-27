@@ -45,6 +45,10 @@ GcodeSuite gcode;
   #include "../feature/power_loss_recovery.h"
 #endif
 
+#if ENABLED(CANCEL_OBJECTS)
+  #include "../feature/cancel_object.h"
+#endif
+
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
 millis_t GcodeSuite::previous_move_ms;

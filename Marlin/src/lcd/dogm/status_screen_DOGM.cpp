@@ -637,6 +637,7 @@ void MarlinUI::draw_status_screen() {
           else
         #endif
             lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
+
       #endif // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
     }
 
