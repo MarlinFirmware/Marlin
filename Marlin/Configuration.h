@@ -149,7 +149,8 @@
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
 
-// For Cyclops or any "multi-extruder" that shares a single nozzle.
+// For Cyclops, 2-in-1-out or any "multi-extruder" that shares a single nozzle,
+// so HOTENDS remains 1
 //#define SINGLENOZZLE
 
 /**
