@@ -87,7 +87,7 @@ class ST7920_Lite_Status_Screen {
     static void draw_print_time(const duration_t &elapsed);
     static void draw_feedrate_percentage(const uint16_t percentage);
     static void draw_status_message();
-    static void draw_position(const xyz_pos_t &pos, bool position_known = true);
+    static void draw_position(const xyze_pos_t &pos, bool position_known = true);
 
     static bool indicators_changed();
     static bool position_changed();

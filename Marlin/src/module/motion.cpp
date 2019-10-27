@@ -114,6 +114,10 @@ xyze_pos_t destination; // {0}
   uint8_t active_extruder; // = 0
 #endif
 
+#if ENABLED(LCD_SHOW_E_TOTAL)
+  float e_move_accumulator; // = 0
+#endif
+
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
   xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load()

@@ -367,9 +367,14 @@ bool printingIsPaused() {
 }
 
 void startOrResumeJob() {
-  #if ENABLED(CANCEL_OBJECTS)
-    if (!printingIsPaused()) cancelable.reset();
-  #endif
+  if (!printingIsPaused()) {
+    #if ENABLED(CANCEL_OBJECTS)
+      cancelable.reset();
+    #endif
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      e_move_accumulator = 0;
+    #endif
+  }
   print_job_timer.start();
 }
 

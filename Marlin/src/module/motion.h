@@ -107,6 +107,10 @@ extern int16_t feedrate_percentage;
   constexpr uint8_t active_extruder = 0;
 #endif
 
+#if ENABLED(LCD_SHOW_E_TOTAL)
+  extern float e_move_accumulator;
+#endif
+
 FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
 FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
