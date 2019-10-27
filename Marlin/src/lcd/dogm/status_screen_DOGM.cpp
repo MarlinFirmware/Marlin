@@ -298,7 +298,13 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const bool blin
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
-  const uint8_t offs = (XYZ_SPACING) * axis;
+  const AxisEnum a = (
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      axis == E_AXIS ? X_AXIS :
+    #endif
+    axis
+  );
+  const uint8_t offs = (XYZ_SPACING) * a;
   lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
   lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
   if (blink)
@@ -361,6 +367,12 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif
 
+  const bool showxy = (true
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      && !printingIsActive()
+    #endif
+  );
+
   // At the first page, generate new display values
   if (first_page) {
     #if ANIM_HBC
@@ -377,11 +389,6 @@ void MarlinUI::draw_status_screen() {
       heat_bits = new_bits;
     #endif
     const xyz_pos_t lpos = current_position.asLogical();
-    const bool showxy = (true
-      #if ENABLED(LCD_SHOW_E_TOTAL)
-        && !printingIsActive()
-      #endif
-    );
     if (showxy)
       strcpy(xstring, ftostr4sign(lpos.x));
     else {
