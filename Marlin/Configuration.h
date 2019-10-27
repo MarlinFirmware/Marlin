@@ -317,6 +317,7 @@
 #endif
 
 #if ENABLED(MachineCR20Pro)
+  #define LCD_CONTRAST_INIT 165
   #define MachineCR20
   #if DISABLED(ABL_EZABL) && DISABLED(ABL_NCSW)
     #define ABL_BLTOUCH
@@ -858,7 +859,7 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 #if ENABLED(PIDTEMP)
-#if NONE(MachineCR10Orig, LowMemoryBoard)
+#if DISABLED(LowMemoryBoard)
   #define PID_EDIT_MENU
   #define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
 #endif
@@ -988,9 +989,8 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-#if DISABLED(MachineCR10Orig)
   #define PREVENT_COLD_EXTRUSION
-  #define EXTRUDE_MINTEMP 160
+  #define EXTRUDE_MINTEMP 170
 
   /**
    * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -998,7 +998,7 @@
    */
   #define PREVENT_LENGTHY_EXTRUDE
   #define EXTRUDE_MAXLENGTH 500
-#endif
+
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
 //===========================================================================
@@ -1578,7 +1578,11 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#if ANY(MachineEnder5, MachineEnder5Plus)
+  #define Z_CLEARANCE_DEPLOY_PROBE   0 // Z Clearance for Deploy/Stow
+#else
+  #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#endif
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 #define Z_AFTER_PROBING           5 // Z position after probing is done
@@ -1699,9 +1703,12 @@
 //#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
 
 //#define UNKNOWN_Z_NO_RAISE // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
-
+#if ANY(MachineEnder5, MachineEnder5Plus)
+  #define Z_HOMING_HEIGHT 0
+#else
 #define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
+#endif
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
@@ -1734,8 +1741,8 @@
     #define Y_BED_SIZE 230
     #define Z_MAX_POS 250
   #elif ANY(MachineEnder4, MachineEnder5)
-    #define X_BED_SIZE 220
-    #define Y_BED_SIZE 220
+    #define X_BED_SIZE 230
+    #define Y_BED_SIZE 225
     #define Z_MAX_POS 300
   #elif ENABLED(MachineEnder5Plus)
     #define X_BED_SIZE 360
@@ -2089,7 +2096,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, MachineCR10Orig) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
 #define LCD_BED_LEVELING
 #endif
 
@@ -2098,7 +2105,7 @@
   #define LCD_PROBE_Z_RANGE 8 // Z Range centered on Z_MIN_POS for LCD Z adjustment
 #endif
 
-#if NONE(MachineCR10Orig, SolidBedMounts)
+#if NONE(SolidBedMounts)
 // Add a menu item to move between bed corners for manual bed adjustment
   #define LEVEL_BED_CORNERS
 #endif
@@ -2153,6 +2160,9 @@
   #elif ENABLED(MachineCRX)
     #define Z_SAFE_HOMING_X_POINT 50 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
     #define Z_SAFE_HOMING_Y_POINT 70 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
+  #elif ANY(MachineEnder5, MachineEnder5Plus)  
+    #define Z_SAFE_HOMING_X_POINT 110 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_Y_POINT 110 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
   #else
     #define Z_SAFE_HOMING_X_POINT 50 + HOMING_ADD    // X point for Z homing when homing all axis (G28).
     #define Z_SAFE_HOMING_Y_POINT 50 + HOMING_ADD    // Y point for Z homing when homing all axis (G28).
@@ -2239,7 +2249,7 @@
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
 #define EEPROM_SETTINGS     // Persistent storage with M500 and M501
-#if NONE(MachineCR10Orig, LowMemoryBoard)
+#if DISABLED(LowMemoryBoard)
   #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #else
   #define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
