@@ -44,7 +44,7 @@ void GcodeSuite::M76() {
  * M77: Stop print timer
  */
 void GcodeSuite::M77() {
- print_job_timer.stop();
+  print_job_timer.stop();
 }
 
 #if ENABLED(PRINTCOUNTER)

@@ -207,7 +207,7 @@
     #define LCD_PINS_ENABLE PG7
     #define LCD_PINS_D4    PG3
 
-    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here. 
+    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
     // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
     #undef ST7920_DELAY_1
     #undef ST7920_DELAY_2

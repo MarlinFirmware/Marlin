@@ -114,6 +114,10 @@ xyze_pos_t destination; // {0}
   uint8_t active_extruder; // = 0
 #endif
 
+#if ENABLED(LCD_SHOW_E_TOTAL)
+  float e_move_accumulator; // = 0
+#endif
+
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
   xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load()
@@ -986,32 +990,37 @@ void prepare_move_to_destination() {
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
 
-    if (!DEBUGGING(DRYRUN)) {
-      if (destination.e != current_position.e) {
-        #if ENABLED(PREVENT_COLD_EXTRUSION)
-          if (thermalManager.tooColdToExtrude(active_extruder)) {
-            current_position.e = destination.e; // Behave as if the move really took place, but ignore E part
-            SERIAL_ECHO_MSG(MSG_ERR_COLD_EXTRUDE_STOP);
-          }
-        #endif // PREVENT_COLD_EXTRUSION
-        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
-          if (e_delta > (EXTRUDE_MAXLENGTH)) {
-            #if ENABLED(MIXING_EXTRUDER)
-              bool ignore_e = false;
-              float collector[MIXING_STEPPERS];
-              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
-              MIXER_STEPPER_LOOP(e)
-                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) { ignore_e = true; break; }
-            #else
-              constexpr bool ignore_e = true;
-            #endif
-            if (ignore_e) {
-              current_position.e = destination.e; // Behave as if the move really took place, but ignore E part
-              SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+    if (!DEBUGGING(DRYRUN) && destination.e != current_position.e) {
+      bool ignore_e = false;
+
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        ignore_e = thermalManager.tooColdToExtrude(active_extruder);
+        if (ignore_e) SERIAL_ECHO_MSG(MSG_ERR_COLD_EXTRUDE_STOP);
+      #endif
+
+      #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+        const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
+        if (e_delta > (EXTRUDE_MAXLENGTH)) {
+          #if ENABLED(MIXING_EXTRUDER)
+            float collector[MIXING_STEPPERS];
+            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+            MIXER_STEPPER_LOOP(e) {
+              if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
+                ignore_e = true;
+                SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+                break;
+              }
             }
-          }
-        #endif // PREVENT_LENGTHY_EXTRUDE
+          #else
+            ignore_e = true;
+            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+          #endif
+        }
+      #endif
+
+      if (ignore_e) {
+        current_position.e = destination.e;       // Behave as if the E move really took place
+        planner.set_e_position_mm(destination.e); // Prevent the planner from complaining too
       }
     }
 

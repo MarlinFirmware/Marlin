@@ -1810,6 +1810,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     delta_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
   #endif
 
+  #if ENABLED(LCD_SHOW_E_TOTAL)
+    e_move_accumulator += delta_mm.e;
+  #endif
+
   if (block->steps.a < MIN_STEPS_PER_SEGMENT && block->steps.b < MIN_STEPS_PER_SEGMENT && block->steps.c < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = (0
       #if EXTRUDERS

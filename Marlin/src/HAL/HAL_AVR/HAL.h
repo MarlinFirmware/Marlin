@@ -41,7 +41,7 @@
 #ifndef pgm_read_ptr
   // Compatibility for avr-libc 1.8.0-4.1 included with Ubuntu for
   // Windows Subsystem for Linux on Windows 10 as of 10/18/2019
-  #define pgm_read_ptr_far(address_long) (void*)__ELPM_word((uint32_t)(address_long)) 
+  #define pgm_read_ptr_far(address_long) (void*)__ELPM_word((uint32_t)(address_long))
   #define pgm_read_ptr_near(address_short) (void*)__LPM_word((uint16_t)(address_short))
   #define pgm_read_ptr(address_short) pgm_read_ptr_near(address_short)
 #endif
