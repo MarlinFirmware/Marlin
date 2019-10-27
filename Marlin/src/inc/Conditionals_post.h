@@ -1559,7 +1559,7 @@
 
 #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
 
-#if ALL(PROBE_PT_1_X, PROBE_PT_2_X, PROBE_PT_3_X, PROBE_PT_1_Y, PROBE_PT_2_Y, PROBE_PT_3_Y)
+#if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
   #define HAS_FIXED_3POINT;
 #endif
 
