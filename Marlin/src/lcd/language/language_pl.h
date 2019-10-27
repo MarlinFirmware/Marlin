@@ -253,7 +253,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MOVE_E3                         = _UxGT("Ekstruzja (os E) ") LCD_STR_E3;
   PROGMEM Language_Str MSG_MOVE_E4                         = _UxGT("Ekstruzja (os E) ") LCD_STR_E4;
   PROGMEM Language_Str MSG_MOVE_E5                         = _UxGT("Ekstruzja (os E) ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Dysza za zimna");																					  
+  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Dysza za zimna");
   PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Przesuń co %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Przesuń co .1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Przesuń co 1mm");
@@ -268,7 +268,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_NOZZLE_4                        = _UxGT("Dysza ") LCD_STR_N4;
   PROGMEM Language_Str MSG_NOZZLE_5                        = _UxGT("Dysza ") LCD_STR_N5;
   PROGMEM Language_Str MSG_BED                             = _UxGT("Stół");
-  PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Obudowa");																				
+  PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Obudowa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Obroty wiatraka");
   PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Obroty wiatraka 1");
   PROGMEM Language_Str MSG_FAN_SPEED_2                     = _UxGT("Obroty wiatraka 2");
@@ -333,7 +333,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_SELECT_E3                       = _UxGT("Wybierz ") LCD_STR_E3;
   PROGMEM Language_Str MSG_SELECT_E4                       = _UxGT("Wybierz ") LCD_STR_E4;
   PROGMEM Language_Str MSG_SELECT_E5                       = _UxGT("Wybierz ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_ACC                             = _UxGT("Przyspieszenie");																			
+  PROGMEM Language_Str MSG_ACC                             = _UxGT("Przyspieszenie");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Zryw");
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Zryw V") LCD_STR_A;
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("Zryw V") LCD_STR_B;
@@ -363,7 +363,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_AMAX_E2                         = _UxGT("Amax ") LCD_STR_E2;
   PROGMEM Language_Str MSG_AMAX_E3                         = _UxGT("Amax ") LCD_STR_E3;
   PROGMEM Language_Str MSG_AMAX_E4                         = _UxGT("Amax ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_AMAX_E5                         = _UxGT("Amax ") LCD_STR_E5;																				   
+  PROGMEM Language_Str MSG_AMAX_E5                         = _UxGT("Amax ") LCD_STR_E5;
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-wycofanie");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-przesuń.");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("kroki/mm");
@@ -419,14 +419,14 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Wstrzymaj druk");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Wznowienie");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop");
-  PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Odzyskiwanie po awarii");																					  
+  PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Odzyskiwanie po awarii");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Karta SD");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Brak karty");
   PROGMEM Language_Str MSG_DWELL                           = _UxGT("Uśpij...");
   PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("Oczekiwanie...");
   PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("Druk wstrzymany");
   PROGMEM Language_Str MSG_PRINTING                        = _UxGT("Drukowanie...");
-  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Druk przerwany");  
+  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Druk przerwany");
   PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("Brak ruchu");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("Ubity. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("Zatrzymany. ");
@@ -465,11 +465,11 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E2               = _UxGT("Wyładuj Filament ") LCD_STR_E2;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E3               = _UxGT("Wyładuj Filament ") LCD_STR_E3;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E4               = _UxGT("Wyładuj Filament ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Wyładuj Filament ") LCD_STR_E5;																					
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E5               = _UxGT("Wyładuj Filament ") LCD_STR_E5;
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Wyładuj wszystkie");
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inicjal. karty SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Zmiana karty SD");
-  PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Zwolnienie karty");																					
+  PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Zwolnienie karty");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z za stołem");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Współczynik skrzywienia");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
