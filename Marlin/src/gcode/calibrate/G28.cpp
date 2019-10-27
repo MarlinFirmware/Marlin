@@ -56,6 +56,13 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
+#if ENABLED(USE_HOMING_CURRENT)
+  int16_t TMC_SAVE_CURRENT_X;
+  int16_t TMC_SAVE_CURRENT_X2;
+  int16_t TMC_SAVE_CURRENT_Y;
+  int16_t TMC_SAVE_CURRENT_Y2;
+#endif
+
 #if ENABLED(QUICK_HOME)
 
   static void quick_home_xy() {
@@ -233,6 +240,42 @@ void GcodeSuite::G28(const bool always_home_all) {
     workspace_plane = PLANE_XY;
   #endif
 
+  #if ENABLED(USE_HOMING_CURRENT)
+    #ifdef X_CURRENT_HOME
+      TMC_SAVE_CURRENT_X = stepperX.getMilliamps();
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_X);
+      stepperX.rms_current(X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("changing X current:\n old: " STRINGIFY(TMC_SAVE_CURRENT_X) "\n new:" STRINGIFY(X_CURRENT_HOME));
+    #endif
+
+    #ifdef X2_CURRENT_HOME
+      TMC_SAVE_CURRENT_X2 = stepperX2.getMilliamps();
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_X2);
+      stepperX2.rms_current(X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("changing X2 current:\n old: " STRINGIFY(TMC_SAVE_CURRENT_X2) "\n new:" STRINGIFY(X2_CURRENT_HOME));
+    #endif
+    
+    #ifdef Y_CURRENT_HOME
+      TMC_SAVE_CURRENT_Y = stepperY.getMilliamps();
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_Y);
+      stepperY.rms_current(Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("changing Y current:\n old: " STRINGIFY(TMC_SAVE_CURRENT_Y) "\n new:" STRINGIFY(Y_CURRENT_HOME));
+    #endif
+
+    #ifdef Y2_CURRENT_HOME
+      TMC_SAVE_CURRENT_Y2 = stepperY2.getMilliamps();
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_Y2);
+      stepperY2.rms_current(Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("changing Y2 current:\n old: " STRINGIFY(TMC_SAVE_CURRENT_Y2) "\n new:" STRINGIFY(Y2_CURRENT_HOME))
+    #endif
+  #endif
+
+  #if ENABLED(STEALTHCHOP_XY)
+    #if ENABLED(USE_SPREADCYCLE_FOR_HOMING)
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("change driver XY to spreadCycle");
+      process_subcommands_now_P(PSTR("M569 S0 X Y"));
+    #endif
+  #endif
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     slow_homing_t slow_homing { 0 };
     slow_homing.acceleration.x = planner.settings.max_acceleration_mm_per_s2[X_AXIS];
@@ -448,6 +491,33 @@ void GcodeSuite::G28(const bool always_home_all) {
     #endif
 
     planner.reset_acceleration_rates();
+  #endif
+
+  #if ENABLED(USE_HOMING_CURRENT)
+    #ifdef X_CURRENT_HOME
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_X);
+      stepperX.rms_current(TMC_SAVE_CURRENT_X);
+    #endif
+    #ifdef X2_CURRENT_HOME
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_X2);
+      stepperX2.rms_current(TMC_SAVE_CURRENT_X2);
+    #endif
+    #ifdef Y_CURRENT_HOME
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_Y);
+      stepperY.rms_current(TMC_SAVE_CURRENT_Y);
+    #endif
+    #ifdef Y2_CURRENT_HOME
+      SERIAL_ECHOLN(TMC_SAVE_CURRENT_Y2);
+      stepperY2.rms_current(TMC_SAVE_CURRENT_Y2);
+    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Driver current restored.");
+  #endif
+  
+  #if ENABLED(STEALTHCHOP_XY)
+    #if ENABLED(USE_SPREADCYCLE_FOR_HOMING)
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("change driver XY back to StealthChop");
+      process_subcommands_now_P(PSTR("M569 S1 X Y"));
+    #endif
   #endif
 
   ui.refresh();
