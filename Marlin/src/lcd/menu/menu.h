@@ -299,10 +299,7 @@ class MenuItem_bool {
   } \
   screen_items = _thisItemNr
 
-#define END_MENU() \
-  } \
-  screen_items = _thisItemNr; \
-  UNUSED(_skipStatic)
+#define END_MENU() END_SCREEN(); UNUSED(_skipStatic)
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
   #define ENCODER_RATE_MULTIPLY(F) (ui.encoderRateMultiplierEnabled = F)

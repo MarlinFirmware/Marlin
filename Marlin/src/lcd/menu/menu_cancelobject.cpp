@@ -33,40 +33,44 @@
 
 #include "../../feature/cancel_object.h"
 
-//
-// TODO: Select the active object
-// upon entry to the menu and present
-// a confirmation screen.
-//
+static void lcd_cancel_object_confirm() {
+  const int8_t v = editable.int8;
+  const char item_num[] = {
+    ' ',
+    char((v > 9) ? '0' + (v / 10) : ' '),
+    char('0' + (v % 10)),
+    '\0'
+  };
+  do_select_screen_yn(
+    []{
+      cancelable.cancel_object(editable.int8 - 1);
+      #if HAS_BUZZER
+        ui.completion_feedback();
+      #endif
+    },
+    ui.goto_previous_screen,
+    GET_TEXT(MSG_CANCEL_OBJECT), item_num, PSTR("?")
+  );
+}
+
 void menu_cancelobject() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
-  GCODES_ITEM(MSG_CANCEL_OBJECT, PSTR("M486 C"));
-
   // Draw cancelable items in a loop
-  for (int8_t i = 0; i < cancelable.object_count; i++) {
-    if (!TEST(cancelable.canceled, i)) {
-      editable.int8 = i;
-      ACTION_ITEM(MSG_CANCEL_OBJECT, [](){
-        cancelable.cancel_object(editable.int8);
-        ui.quick_feedback();
-      });
-      MENU_ITEM_ADDON_START(LCD_WIDTH - 2 - (i >= 10));
-        lcd_put_int(i);
+  int8_t a = cancelable.active_object;
+  for (int8_t i = -1; i < cancelable.object_count; i++) {
+    if (i == a) continue;
+    int8_t j = i < 0 ? a : i;
+    if (!cancelable.is_canceled(j)) {
+      editable.int8 = j + 1;
+      SUBMENU(MSG_CANCEL_OBJECT, lcd_cancel_object_confirm);
+      MENU_ITEM_ADDON_START(LCD_WIDTH - 2 - (j >= 9));
+        lcd_put_int(editable.int8);
       MENU_ITEM_ADDON_END();
     }
+    if (i < 0) SKIP_ITEM();
   }
-
-  /*
-  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_CANCEL_OBJECT, &editable.int8, -1, 32, [](){
-    if (editable.int8 > -1) {
-      cancelable.cancel_object(editable.int8);
-      ui.quick_feedback();
-      editable.int8 = -1;
-    }
-  });
-  */
 
   END_MENU();
 }
