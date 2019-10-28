@@ -27,15 +27,12 @@
 
 #define BOARD_INFO_NAME "Tango"
 
- #define FAN_PIN           8
- #define FAN1_PIN          -1
- 
- #if  !defined(E0_AUTO_FAN_PIN) || (E0_AUTO_FAN_PIN==-1)
-   #undef E0_AUTO_FAN_PIN
-   #define E0_AUTO_FAN_PIN 7
- #endif
+#define FAN_PIN             8
+#define FAN1_PIN           -1
 
- #ifndef TEMP_0_PIN
+#define ORIG_E0_AUTO_FAN_PIN 7
+
+#ifndef TEMP_0_PIN
   #if TEMP_SENSOR_0 == -1
     #define TEMP_0_PIN     10   // Analog Input (connector *K1* on Tango thermocouple ADD ON is used)
   #else
@@ -51,4 +48,4 @@
   #endif
 #endif
 
- #include "pins_RUMBA.h"
+#include "pins_RUMBA.h"
