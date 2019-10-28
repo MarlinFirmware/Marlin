@@ -53,12 +53,12 @@
   void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
-      const int16_t steps = int16_t(ui.encoderPosition) *
+      const int16_t steps = int16_t(ui.encoderPosition) * (
         #if ENABLED(BABYSTEP_XY)
-          (axis == Z_AXIS ? BABYSTEP_MULTIPLICATOR_Z : BABYSTEP_MULTIPLICATOR_XY);
-        #else
-          BABYSTEP_MULTIPLICATOR_Z;
+          axis != Z_AXIS ? BABYSTEP_MULTIPLICATOR_XY :
         #endif
+        BABYSTEP_MULTIPLICATOR_Z
+      );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);
       babystep.add_steps(axis, steps);
