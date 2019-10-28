@@ -242,14 +242,14 @@ void menu_temperature() {
         EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_1, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
-    #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+    #if HAS_FAN1
       editable.uint8 = thermalManager.fan_speed[1];
       EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_2, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(1, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_2, &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
-    #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+    #if HAS_FAN2
       editable.uint8 = thermalManager.fan_speed[2];
       EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_3, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(2, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
