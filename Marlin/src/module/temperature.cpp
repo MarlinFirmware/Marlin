@@ -302,7 +302,7 @@ volatile bool Temperature::temp_meas_ready = false;
 // public:
 
 #if HAS_ADC_BUTTONS
-  uint32_t Temperature::current_ADCKey_raw = 1024;
+  uint32_t Temperature::current_ADCKey_raw = HAL_ADC_RANGE;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
@@ -1308,7 +1308,7 @@ void Temperature::manage_heater() {
     }
 
     // maximum adc value .. take into account the over sampling
-    const int adc_max = (THERMISTOR_ADC_RESOLUTION * OVERSAMPLENR) - 1,
+    const int adc_max = MAX_RAW_THERMISTOR_VALUE,
               adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
@@ -2742,7 +2742,7 @@ void Temperature::isr() {
           next_sensor_state = adc_sensor_state; // redo this state
         else if (ADCKey_count < 16) {
           raw_ADCKey_value = HAL_READ_ADC();
-          if (raw_ADCKey_value <= 900) {
+          if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
             NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
@@ -2750,7 +2750,7 @@ void Temperature::isr() {
             if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
             if (ADCKey_pressed) {
               ADCKey_count = 0;
-              current_ADCKey_raw = 1024;
+              current_ADCKey_raw = HAL_ADC_RANGE;
             }
           }
         }
