@@ -113,7 +113,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Allumer alim.");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Eteindre alim.");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrusion");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retractation");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétractation");
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
