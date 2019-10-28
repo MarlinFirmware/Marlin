@@ -1302,8 +1302,15 @@
 /**
  * MIN/MAX fan PWM scaling
  */
+#ifndef FAN_OFF_PWM
+  #define FAN_OFF_PWM 0
+#endif
 #ifndef FAN_MIN_PWM
-  #define FAN_MIN_PWM 0
+  #if FAN_OFF_PWM > 0
+    #define FAN_MIN_PWM (FAN_OFF_PWM + 1)
+  #else
+    #define FAN_MIN_PWM 0
+  #endif
 #endif
 #ifndef FAN_MAX_PWM
   #define FAN_MAX_PWM 255
@@ -1314,6 +1321,8 @@
   #error "FAN_MAX_PWM must be a value from 0 to 255."
 #elif FAN_MIN_PWM > FAN_MAX_PWM
   #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
+#elif FAN_OFF_PWM > FAN_MIN_PWM
+  #error "FAN_OFF_PWM must be less than or equal to FAN_MIN_PWM."
 #endif
 
 /**
