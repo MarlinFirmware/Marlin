@@ -99,6 +99,7 @@
 #define BOARD_OVERLORD                1143  // Overlord/Overlord Pro
 #define BOARD_HJC2560C_REV1           1144  // ADIMLab Gantry v1
 #define BOARD_HJC2560C_REV2           1145  // ADIMLab Gantry v2
+#define BOARD_TANGO                   1146  // BIQU Tango V1
 
 //
 // RAMBo and derivatives
