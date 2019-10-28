@@ -133,6 +133,9 @@
   #define MOTHERBOARD BOARD_RAMPS_13_EFB
 #endif
 
+#define FAN_PIN  -1
+#define KILL_PIN 64
+
 // Name displayed in the LCD "Ready" message and Info menu
 //#define CUSTOM_MACHINE_NAME "RF100"
 
