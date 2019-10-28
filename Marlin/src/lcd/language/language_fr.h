@@ -268,7 +268,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Vit.  ventil. 1");
   PROGMEM Language_Str MSG_FAN_SPEED_2                     = _UxGT("Vit.  ventil. 2");
   PROGMEM Language_Str MSG_FAN_SPEED_3                     = _UxGT("Vit.  ventil. 3");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra ventil.");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra ventil.  ");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_1               = _UxGT("Extra ventil. 1");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_2               = _UxGT("Extra ventil. 2");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_3               = _UxGT("Extra ventil. 3");
