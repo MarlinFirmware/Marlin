@@ -135,7 +135,9 @@ using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 #define HAL_adc_init()         FilteredADC::init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
 #define HAL_START_ADC(pin)     FilteredADC::start_conversion(pin)
-#define HAL_READ_ADC()         FilteredADC::get_result()
+#define HAL_ADC_FILTERED       1 // To disable oversampling done in Marlin as ADC values already filtered in HAL
+#define HAL_ADC_RESOLUTION     4096 // 12-bit
+#define HAL_READ_ADC()         FilteredADC::get_result_12bit()
 #define HAL_ADC_READY()        FilteredADC::finished_conversion()
 
 // Parse a G-code word into a pin index

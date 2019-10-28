@@ -1308,7 +1308,7 @@ void Temperature::manage_heater() {
     }
 
     // maximum adc value .. take into account the over sampling
-    const int adc_max = (THERMISTOR_ADC_RESOLUTION * OVERSAMPLENR) - 1,
+    const int adc_max = (HAL_ADC_RESOLUTION * OVERSAMPLENR) - 1,
               adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
