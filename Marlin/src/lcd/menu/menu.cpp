@@ -390,7 +390,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       constexpr bool do_probe = true;
     #endif
     if (ui.encoderPosition) {
-      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR);
+      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR_Z);
       ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,

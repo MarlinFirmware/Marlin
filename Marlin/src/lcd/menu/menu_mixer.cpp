@@ -122,12 +122,10 @@ static uint8_t v_index;
 
 #if DUAL_MIXING_EXTRUDER
   void _lcd_draw_mix(const uint8_t y) {
-    char tmp[10]; // "100%_100%"
-    SETCURSOR(2, y);
-    lcd_put_u8str_P(GET_TEXT(MSG_MIX));
-    SETCURSOR(LCD_WIDTH - 9, y);
+    char tmp[20]; // "100%_100%"
     sprintf_P(tmp, PSTR("%3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
-    lcd_put_u8str(tmp);
+    SETCURSOR(2, y); lcd_put_u8str_P(GET_TEXT(MSG_MIX));
+    SETCURSOR_RJ(9, y); lcd_put_u8str(tmp);
   }
 #endif
 

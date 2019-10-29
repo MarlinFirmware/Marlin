@@ -338,7 +338,7 @@
           }
           z_values[cpos.x][cpos.y] = NAN;
           #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(closest, 0);
+            ExtUI::onMeshUpdate(cpos, 0.0f);
           #endif
           cnt++;
         }
@@ -541,7 +541,7 @@
                 else {
                   z_values[cpos.x][cpos.y] = g29_constant;
                   #if ENABLED(EXTENSIBLE_UI)
-                    ExtUI::onMeshUpdate(closest, g29_constant);
+                    ExtUI::onMeshUpdate(cpos, g29_constant);
                   #endif
                 }
               }
@@ -783,7 +783,7 @@
                       );
           z_values[best.pos.x][best.pos.y] = measured_z;
           #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(best, measured_z);
+            ExtUI::onMeshUpdate(best.pos, measured_z);
           #endif
         }
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
@@ -1335,7 +1335,7 @@
         if (!isnan(v2)) {
           z_values[x][y] = v1 < v2 ? v1 : v1 + v1 - v2;
           #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(x, y, z_values[pos.x][pos.y]);
+            ExtUI::onMeshUpdate(x, y, z_values[x][y]);
           #endif
           return true;
         }

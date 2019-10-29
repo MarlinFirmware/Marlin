@@ -53,7 +53,12 @@
   void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
-      const int16_t steps = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR);
+      const int16_t steps = int16_t(ui.encoderPosition) * (
+        #if ENABLED(BABYSTEP_XY)
+          axis != Z_AXIS ? BABYSTEP_MULTIPLICATOR_XY :
+        #endif
+        BABYSTEP_MULTIPLICATOR_Z
+      );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);
       babystep.add_steps(axis, steps);
@@ -169,14 +174,14 @@ void menu_tune() {
         EDIT_ITEM_FAST(percent, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
-    #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+    #if HAS_FAN1
       editable.uint8 = thermalManager.fan_speed[1];
       EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_2, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(1, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_2, &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
-    #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+    #if HAS_FAN2
       editable.uint8 = thermalManager.fan_speed[2];
       EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_3, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(2, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)

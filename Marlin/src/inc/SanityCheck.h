@@ -408,6 +408,8 @@
   #error "Z_STEPPER_ALIGN_X and Z_STEPPER_ALIGN_Y are now combined as Z_STEPPER_ALIGN_XY. Please update your Configuration_adv.h."
 #elif defined(JUNCTION_DEVIATION)
   #error "JUNCTION_DEVIATION is no longer required. (See CLASSIC_JERK). Please remove it from Configuration.h."
+#elif defined(BABYSTEP_MULTIPLICATOR)
+  #error "BABYSTEP_MULTIPLICATOR is now BABYSTEP_MULTIPLICATOR_[XY|Z]. Please update Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13        -1000
