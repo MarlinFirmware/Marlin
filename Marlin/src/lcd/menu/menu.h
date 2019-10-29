@@ -423,6 +423,10 @@ void _lcd_draw_homing();
   void lcd_enqueue_one_now_P(PGM_P const cmd);
 #endif
 
+#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  void _lcd_zoffset_overlay_gfx(const float zvalue);
+#endif
+
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
 #endif
