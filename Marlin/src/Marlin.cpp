@@ -378,27 +378,31 @@ void startOrResumeJob() {
   print_job_timer.start();
 }
 
-void abortSDPrinting() {
-  card.stopSDPrint(
-    #if SD_RESORT
-      true
+#if ENABLED(SDSUPPORT)
+
+  void abortSDPrinting() {
+    card.stopSDPrint(
+      #if SD_RESORT
+        true
+      #endif
+    );
+    queue.clear();
+    quickstop_stepper();
+    print_job_timer.stop();
+    #if DISABLED(SD_ABORT_NO_COOLDOWN)
+      thermalManager.disable_all_heaters();
     #endif
-  );
-  queue.clear();
-  quickstop_stepper();
-  print_job_timer.stop();
-  #if DISABLED(SD_ABORT_NO_COOLDOWN)
-    thermalManager.disable_all_heaters();
-  #endif
-  thermalManager.zero_fan_speeds();
-  wait_for_heatup = false;
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    card.removeJobRecoveryFile();
-  #endif
-  #ifdef EVENT_GCODE_SD_STOP
-    queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
-  #endif
-}
+    thermalManager.zero_fan_speeds();
+    wait_for_heatup = false;
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      card.removeJobRecoveryFile();
+    #endif
+    #ifdef EVENT_GCODE_SD_STOP
+      queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+    #endif
+  }
+
+#endif
 
 /**
  * Manage several activities:
