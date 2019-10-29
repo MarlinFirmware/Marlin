@@ -161,13 +161,6 @@ void menu_tune() {
   //
   #if FAN_COUNT > 0
     #if HAS_FAN0
-      #if FAN_COUNT == 1
-        #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-        #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
-      #else
-        #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_1
-        #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_1
-      #endif
       editable.uint8 = thermalManager.fan_speed[0];
       EDIT_ITEM_FAST(percent, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(0, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)

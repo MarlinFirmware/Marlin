@@ -237,9 +237,9 @@ void menu_temperature() {
   #if FAN_COUNT > 0
     #if HAS_FAN0
       editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_1, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(0, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(0, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_1, &thermalManager.new_fan_speed[0], 3, 255);
+        EDIT_ITEM_FAST(percent, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
     #if HAS_FAN1
