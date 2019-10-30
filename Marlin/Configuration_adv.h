@@ -1797,7 +1797,7 @@
 // @section tmc_smart
 
 /**
- * To use TMC2130, TMC2160, TMC2660, TMC5130, TMC5160 stepper drivers in SPI mode
+ * To use TMC2130, TMC2160, TMC2660, TMC5130, TMC5160, TMC5161 stepper drivers in SPI mode
  * connect your SPI pins to the hardware SPI interface on your board and define
  * the required CS pins in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3
  * pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
@@ -1909,7 +1909,7 @@
   #endif
 
   /**
-   * Override default SPI pins for TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160 drivers here.
+   * Override default SPI pins for TMC2130, TMC2160, TMC2660, TMC5130, TMC5160 and TMC5161 drivers here.
    * The default pins can be found in your board's pins file.
    */
   //#define X_CS_PIN          -1
@@ -1927,7 +1927,7 @@
   //#define E5_CS_PIN         -1
 
   /**
-   * Software option for SPI driven drivers (TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160).
+   * Software option for SPI driven drivers (TMC2130, TMC2160, TMC2660, TMC5130, TMC5160 and TMC5161).
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
    */
@@ -1971,7 +1971,7 @@
   //#define SOFTWARE_DRIVER_ENABLE
 
   /**
-   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
+   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130, TMC5160 and TMC5161 only
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
@@ -2015,7 +2015,7 @@
   #endif
 
   /**
-   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
+   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130, TMC5160 and TMC5161 only
    * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
    * This mode allows for faster movements at the expense of higher noise levels.
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
@@ -2040,7 +2040,7 @@
   /**
    * Use StallGuard2 to home / probe X, Y, Z.
    *
-   * TMC2130, TMC2160, TMC2209, TMC2660, TMC5130, and TMC5160 only
+   * TMC2130, TMC2160, TMC2209, TMC2660, TMC5130, TMC5160 and TMC5161 only
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
    *
