@@ -766,7 +766,7 @@ void Temperature::_temp_error(const heater_ind_t heater, PGM_P const serial_msg,
         if (ELAPSED(ms, expire_ms)) ++killed;
         break;
       case 2:
-        loud_kill(lcd_msg1, heater);
+        loud_kill(lcd_msg, heater);
         ++killed;
         break;
     }
