@@ -141,6 +141,11 @@
   //#define ANYCUBIC_4MAX_7OF9
   #define ANYCUBIC_4MAX_DEFAULT
 
+// TMC2208 with UART where TX is on SERVO0_PIN and RX is on PS_ON_PIN
+// Info: Just for Testing.
+// My Test-Result: Working! But it seems that TMC2208 on E0 makes other steppers Like X and Y motors to loose steps!
+//#define ANYCUBIC_4MAX_TMC_E0
+
 #endif
 
 #if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
@@ -767,9 +772,9 @@
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 
-#if ENABLED(ANYCUBIC_4MAX_VG3R)
+#if ENABLED(ANYCUBIC_4MAX_TMC_E0)
   #define E0_DRIVER_TYPE TMC2208
-#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+#elif ENABLED(ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_VG3R)
   #define E0_DRIVER_TYPE TMC2208_STANDALONE
 #else // Default 4MAX Driver
   #define E0_DRIVER_TYPE A4988

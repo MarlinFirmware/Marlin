@@ -103,11 +103,19 @@
  // Software serial  E0
   #ifdef E0_SERIAL_TX_PIN
    #undef E0_SERIAL_TX_PIN
-   #define E0_SERIAL_TX_PIN    11 //SERVO0_PIN
+   #ifdef ANYCUBIC_4MAX_TMC_E0
+    #define E0_SERIAL_TX_PIN    11 //SERVO0_PIN
+   #else
+    #define E0_SERIAL_TX_PIN    -1
+   #endif
   #endif
   #ifdef E0_SERIAL_RX_PIN
    #undef E0_SERIAL_RX_PIN
-   #define E0_SERIAL_RX_PIN    12 //PS_ON_PIN
+   #ifdef ANYCUBIC_4MAX_TMC_E0
+    #define E0_SERIAL_RX_PIN    12 //PS_ON_PIN
+   #else
+    #define E0_SERIAL_RX_PIN    -1
+   #endif
   #endif
 
  // Software serial  X

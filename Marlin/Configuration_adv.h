@@ -2027,7 +2027,7 @@
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
 
-  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+  #if ENABLED(ANYCUBIC_4MAX_TMC_E0)
     #define MONITOR_DRIVER_STATUS
   #else
     //#define MONITOR_DRIVER_STATUS
@@ -2116,7 +2116,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+  #if ENABLED(ANYCUBIC_4MAX_TMC_E0)
     #define TMC_DEBUG
     //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
   #else
