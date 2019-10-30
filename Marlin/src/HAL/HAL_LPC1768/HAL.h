@@ -28,6 +28,14 @@
 
 #define CPU_32_BIT
 
+#if PIO_PLATFORM_VERSION < 000001000
+  #error nxplpc-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries. You may need to remove the platform and let it reinstall automatically.
+#endif
+
+#if PIO_FRAMEWORK_VERSION < 000002000
+  #error framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries
+#endif
+
 void HAL_init();
 
 #include <stdint.h>
