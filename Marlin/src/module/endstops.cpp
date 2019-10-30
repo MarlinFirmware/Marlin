@@ -396,7 +396,7 @@ static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   SERIAL_EOL();
 }
 
-void _O2 Endstops::M119() {
+void _O2 Endstops::report_states() {
   #if ENABLED(BLTOUCH)
     bltouch._set_SW_mode();
   #endif
@@ -484,7 +484,7 @@ void _O2 Endstops::M119() {
     joystick.report();
   #endif
 
-} // Endstops::M119
+} // Endstops::report_states
 
 // The following routines are called from an ISR context. It could be the temperature ISR, the
 // endstop ISR or the Stepper ISR.
