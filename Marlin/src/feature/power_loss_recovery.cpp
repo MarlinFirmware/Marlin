@@ -186,7 +186,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     #if DISABLED(NO_VOLUMETRICS)
       info.volumetric_enabled = parser.volumetric_enabled;
       #if EXTRUDERS > 1
-        for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e]
+        for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
         if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder]; 
       #endif    
