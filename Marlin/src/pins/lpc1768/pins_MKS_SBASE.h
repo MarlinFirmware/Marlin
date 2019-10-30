@@ -25,7 +25,7 @@
  * MKS SBASE pin assignments
  */
 
-#ifndef TARGET_LPC1768
+#ifndef MCU_LPC1768
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
