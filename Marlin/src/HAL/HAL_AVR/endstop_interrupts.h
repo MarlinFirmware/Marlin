@@ -51,37 +51,20 @@ void endstop_ISR() { endstops.update(); }
  * There are more PCI-enabled processor pins on Port J, but they are not connected to Arduino MEGA.
  */
 #if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA)
-  #undef  digitalPinToPCICR
-  #define digitalPinToPCICR(p)    ( WITHIN(p, 10, 15) || \
-                                    WITHIN(p, 50, 53) || \
-                                    WITHIN(p, 62, 69) ? &PCICR : nullptr )
-  #undef  digitalPinToPCICRbit
-  #define digitalPinToPCICRbit(p) ( WITHIN(p, 10, 13) || WITHIN(p, 50, 53) ? 0 : \
-                                    WITHIN(p, 14, 15) ? 1 : \
-                                    WITHIN(p, 62, 69) ? 2 : \
-                                    0 )
-  #undef  digitalPinToPCMSK
-  #define digitalPinToPCMSK(p)    ( WITHIN(p, 10, 13) || WITHIN(p, 50, 53) ? &PCMSK0 : \
-                                    WITHIN(p, 14, 15) ? &PCMSK1 : \
-                                    WITHIN(p, 62, 69) ? &PCMSK2 : \
-                                    nullptr )
-  #undef  digitalPinToPCMSKbit
-  #define digitalPinToPCMSKbit(p) ( WITHIN(p, 10, 13) ? ((p) - 6) : \
-                                    (p) == 14 || (p) == 51 ? 2 : \
-                                    (p) == 15 || (p) == 52 ? 1 : \
-                                    (p) == 50 ? 3 : \
-                                    (p) == 53 ? 0 : \
-                                    WITHIN(p, 62, 69) ? ((p) - 62) : \
-                                    0 )
+  #define digitalPinHasPCICR(p)   (WITHIN(p, 10, 15) || WITHIN(p, 50, 53) || WITHIN(p, 62, 69))
+  #define moreDigitalPinToPCICR(p)    digitalPinToPCICR(WITHIN(p, 13, 14) ? 10 : p)
+  #define moreDigitalPinToPCICRbit(p) digitalPinToPCICRbit(p == 13 ? 10 : p == 14 ? 15 : p)
+  #define moreDigitalPinToPCMSK(p)    digitalPinToPCMSK(   p == 13 ? 10 : p == 14 ? 15 : p)
+  #define moreDigitalPinToPCMSKbit(p) digitalPinToPCMSKbit(p == 13 ? 10 : p == 14 ? 51 : p)
 #endif
 
 
 // Install Pin change interrupt for a pin. Can be called multiple times.
 void pciSetup(const int8_t pin) {
-  if (digitalPinToPCMSK(pin) != nullptr) {
-    SBI(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin));  // enable pin
-    SBI(PCIFR, digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
-    SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
+  if (moreDigitalPinToPCMSK(pin) != nullptr) {
+    SBI(*moreDigitalPinToPCMSK(pin), moreDigitalPinToPCMSKbit(pin));  // enable pin
+    SBI(PCIFR, moreDigitalPinToPCICRbit(pin)); // clear any outstanding interrupt
+    SBI(PCICR, moreDigitalPinToPCICRbit(pin)); // enable interrupt for the group
   }
 }
 
@@ -108,7 +91,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(X_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(X_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(X_MAX_PIN), "X_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(X_MAX_PIN), "X_MAX_PIN is not interrupt-capable");
       pciSetup(X_MAX_PIN);
     #endif
   #endif
@@ -116,7 +99,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(X_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(X_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(X_MIN_PIN), "X_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(X_MIN_PIN), "X_MIN_PIN is not interrupt-capable");
       pciSetup(X_MIN_PIN);
     #endif
   #endif
@@ -124,7 +107,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Y_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Y_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(Y_MAX_PIN), "Y_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Y_MAX_PIN), "Y_MAX_PIN is not interrupt-capable");
       pciSetup(Y_MAX_PIN);
     #endif
   #endif
@@ -132,7 +115,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Y_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Y_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(Y_MIN_PIN), "Y_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Y_MIN_PIN), "Y_MIN_PIN is not interrupt-capable");
       pciSetup(Y_MIN_PIN);
     #endif
   #endif
@@ -140,7 +123,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z_MAX_PIN), "Z_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z_MAX_PIN), "Z_MAX_PIN is not interrupt-capable");
       pciSetup(Z_MAX_PIN);
     #endif
   #endif
@@ -148,7 +131,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z_MIN_PIN), "Z_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z_MIN_PIN), "Z_MIN_PIN is not interrupt-capable");
       pciSetup(Z_MIN_PIN);
     #endif
   #endif
@@ -156,7 +139,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(X2_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(X2_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(X2_MAX_PIN), "X2_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(X2_MAX_PIN), "X2_MAX_PIN is not interrupt-capable");
       pciSetup(X2_MAX_PIN);
     #endif
   #endif
@@ -164,7 +147,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(X2_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(X2_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(X2_MIN_PIN), "X2_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(X2_MIN_PIN), "X2_MIN_PIN is not interrupt-capable");
       pciSetup(X2_MIN_PIN);
     #endif
   #endif
@@ -172,7 +155,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Y2_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Y2_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(Y2_MAX_PIN), "Y2_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Y2_MAX_PIN), "Y2_MAX_PIN is not interrupt-capable");
       pciSetup(Y2_MAX_PIN);
     #endif
   #endif
@@ -180,7 +163,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Y2_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Y2_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(Y2_MIN_PIN), "Y2_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Y2_MIN_PIN), "Y2_MIN_PIN is not interrupt-capable");
       pciSetup(Y2_MIN_PIN);
     #endif
   #endif
@@ -188,7 +171,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z2_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z2_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z2_MAX_PIN), "Z2_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z2_MAX_PIN), "Z2_MAX_PIN is not interrupt-capable");
       pciSetup(Z2_MAX_PIN);
     #endif
   #endif
@@ -196,7 +179,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z2_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z2_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z2_MIN_PIN), "Z2_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z2_MIN_PIN), "Z2_MIN_PIN is not interrupt-capable");
       pciSetup(Z2_MIN_PIN);
     #endif
   #endif
@@ -204,7 +187,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z3_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z3_MAX_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z3_MAX_PIN), "Z3_MAX_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z3_MAX_PIN), "Z3_MAX_PIN is not interrupt-capable");
       pciSetup(Z3_MAX_PIN);
     #endif
   #endif
@@ -212,7 +195,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z3_MIN_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z3_MIN_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z3_MIN_PIN), "Z3_MIN_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z3_MIN_PIN), "Z3_MIN_PIN is not interrupt-capable");
       pciSetup(Z3_MIN_PIN);
     #endif
   #endif
@@ -220,7 +203,7 @@ void setup_endstop_interrupts() {
     #if (digitalPinToInterrupt(Z_MIN_PROBE_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z_MIN_PROBE_PIN);
     #else
-      static_assert(digitalPinToPCICR(Z_MIN_PROBE_PIN), "Z_MIN_PROBE_PIN is not interrupt-capable");
+      static_assert(digitalPinHasPCICR(Z_MIN_PROBE_PIN), "Z_MIN_PROBE_PIN is not interrupt-capable");
       pciSetup(Z_MIN_PROBE_PIN);
     #endif
   #endif
