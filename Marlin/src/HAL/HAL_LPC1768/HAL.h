@@ -148,7 +148,7 @@ uint16_t HAL_read_adc();
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
 #define HAL_START_ADC(pin)     HAL_start_adc(pin)
 #define HAL_ADC_FILTERED       1 // To disable oversampling done in Marlin as ADC values already filtered in HAL
-#define HAL_ADC_RESOLUTION     1024 // 10-bit
+#define HAL_ADC_RESOLUTION     16384 // 14-bit
 #define HAL_READ_ADC()         HAL_read_adc()
 #define HAL_ADC_READY()        (true)
 

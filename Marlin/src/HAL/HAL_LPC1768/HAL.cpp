@@ -32,7 +32,7 @@
 
 uint32_t HAL_adc_reading = 0;
 void HAL_start_adc(uint8_t channel) {
-  HAL_adc_reading = FilteredADC::read(channel) >> 6; // returns 16bit value, reduce to 10bit
+  HAL_adc_reading = (FilteredADC::read(channel) >> 2) & 0x3FFF; // returns 16bit value, reduce to 14bit
 }
 uint16_t HAL_read_adc() {
   return HAL_adc_reading;
