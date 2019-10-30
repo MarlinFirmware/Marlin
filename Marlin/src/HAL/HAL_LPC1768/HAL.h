@@ -28,6 +28,14 @@
 
 #define CPU_32_BIT
 
+#if PIO_PLATFORM_VERSION < 000001000
+  #error nxplpc-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries. You may need to remove the platform and let it reinstall automatically.
+#endif
+
+#if PIO_FRAMEWORK_VERSION < 000002000
+  #error framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries
+#endif
+
 void HAL_init();
 
 #include <stdint.h>
@@ -132,13 +140,37 @@ int freeMemory();
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
-#define HAL_adc_init()         FilteredADC::init()
+
+void HAL_start_adc(uint8_t channel);
+uint16_t HAL_read_adc();
+
+#define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     FilteredADC::start_conversion(pin)
+#define HAL_START_ADC(pin)     HAL_start_adc(pin)
 #define HAL_ADC_FILTERED       1 // To disable oversampling done in Marlin as ADC values already filtered in HAL
 #define HAL_ADC_RESOLUTION     1024 // 10-bit
-#define HAL_READ_ADC()         FilteredADC::get_result()
-#define HAL_ADC_READY()        FilteredADC::finished_conversion()
+#define HAL_READ_ADC()         HAL_read_adc()
+#define HAL_ADC_READY()        (true)
+
+// Test whether the pin is valid
+constexpr bool VALID_PIN(const pin_t pin) {
+  return pin_is_valid(pin);
+}
+
+// Get the analog index for a digital pin
+constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t pin) {
+  return (pin_is_valid(pin) && pin_has_adc(pin)) ? pin : -1;
+}
+
+// Return the index of a pin number
+constexpr int16_t GET_PIN_MAP_INDEX(const pin_t pin) {
+  return pin_index(pin);
+}
+
+// Get the pin number at the given index
+constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
+  return pin_index(index);
+}
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);

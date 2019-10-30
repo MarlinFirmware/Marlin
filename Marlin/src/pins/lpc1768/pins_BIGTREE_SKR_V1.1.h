@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_LPC1768
+#ifndef MCU_LPC1768
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -64,9 +64,9 @@
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_BED_PIN       0   // Analog Input
-#define TEMP_0_PIN         1   // Analog Input
-#define TEMP_1_PIN         2   // Analog Input
+#define TEMP_BED_PIN       P0_23_A0   // Analog Input
+#define TEMP_0_PIN         P0_24_A1   // Analog Input
+#define TEMP_1_PIN         P0_25_A2   // Analog Input
 
 //
 // Heaters / Fans
