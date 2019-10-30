@@ -300,7 +300,7 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now(cmd);
   #endif
 
-  // Recover volumetric exstrusion
+  // Recover volumetric exstrusion state
   #if DISABLED(NO_VOLUMETRICS)    
     #if EXTRUDERS > 1
       for (int8_t e = 0; e < EXTRUDERS; e++){
@@ -319,7 +319,6 @@ void PrintJobRecovery::resume() {
         gcode.process_subcommands_now(cmd);
       }
     #endif
-
   #endif
 
   #if HAS_HEATED_BED
