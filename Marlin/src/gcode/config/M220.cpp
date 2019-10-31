@@ -24,11 +24,17 @@
 #include "../../module/motion.h"
 
 /**
- * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
+ * M220 Sxxx: Set speed percentage factor, aka "Feed Rate" (M220 S95)
+ * M220 B: backup current speed override
+ * M220 R: restore previously saved speed override
  */
 void GcodeSuite::M220() {
-
+  static int16_t backup_feedrate_percentage = 100;
   if (parser.seenval('S'))
     feedrate_percentage = parser.value_int();
+  if (parser.seen('B'))
+    backup_feedrate_percentage = feedrate_percentage;
+  if (parser.seen('R'))
+    feedrate_percentage = backup_feedrate_percentage;
 
 }
