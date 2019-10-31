@@ -31,12 +31,6 @@
 #endif
 
 uint32_t HAL_adc_reading = 0;
-void HAL_start_adc(uint8_t channel) {
-  HAL_adc_reading = FilteredADC::read(channel) >> 6; // returns 16bit value, reduce to 10bit
-}
-uint16_t HAL_read_adc() {
-  return HAL_adc_reading;
-}
 
 // U8glib required functions
 extern "C" void u8g_xMicroDelay(uint16_t val) {

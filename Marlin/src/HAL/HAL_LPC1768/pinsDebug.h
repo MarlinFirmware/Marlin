@@ -37,9 +37,8 @@
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
-//  uses pin index
 #ifndef M43_NEVER_TOUCH
-  #define M43_NEVER_TOUCH(Q) ((Q) == 29 || (Q) == 30 || (Q) == 73)  // USB pins
+  #define M43_NEVER_TOUCH(Q) ((Q) == P0_29 || (Q) == P0_30 || (Q) == P2_09)  // USB pins
 #endif
 
 bool GET_PINMODE(const pin_t pin) {

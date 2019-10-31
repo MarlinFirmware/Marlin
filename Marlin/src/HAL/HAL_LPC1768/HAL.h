@@ -141,8 +141,13 @@ int freeMemory();
 
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 
-void HAL_start_adc(uint8_t channel);
-uint16_t HAL_read_adc();
+extern uint32_t HAL_adc_reading;
+[[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
+  HAL_adc_reading = FilteredADC::read(pin) >> 6; // returns 16bit value, reduce to 10bit
+}
+[[gnu::always_inline]] inline uint16_t HAL_read_adc() {
+  return HAL_adc_reading;
+}
 
 #define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
