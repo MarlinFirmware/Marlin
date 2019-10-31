@@ -26,7 +26,6 @@
 
 #include "../../gcode.h"
 #include "../../../module/motion.h" // for active_extruder and current_position
-#include "../../../module/planner.h"
 
 #if PIN_EXISTS(CHDK)
   millis_t chdk_timeout; // = 0
