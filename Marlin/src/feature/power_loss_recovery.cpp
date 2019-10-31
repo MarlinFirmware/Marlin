@@ -300,20 +300,20 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now(cmd);
   #endif
 
-  // Recover volumetric exstrusion state
+  // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)    
     #if EXTRUDERS > 1
-      for (int8_t e = 0; e < EXTRUDERS; e++){
+      for (int8_t e = 0; e < EXTRUDERS; e++) {
         dtostrf(info.filament_size[e], 1, 3, str_1);
         sprintf_P(cmd, PSTR("M200 T%i D%s"), e, str_1);
         gcode.process_subcommands_now(cmd);
       }
-      if (!info.volumetric_enabled){
+      if (!info.volumetric_enabled) {
         sprintf_P(cmd, PSTR("M200 T%i D0"), info.active_extruder);
         gcode.process_subcommands_now(cmd);
       }
     #else
-      if (info.volumetric_enabled){
+      if (info.volumetric_enabled) {
         dtostrf(info.filament_size, 1, 3, str_1);
         sprintf_P(cmd, PSTR("M200 D%s"), str_1);
         gcode.process_subcommands_now(cmd);
