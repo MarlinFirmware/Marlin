@@ -225,7 +225,7 @@ G29_TYPE GcodeSuite::G29() {
   #if ABL_GRID
 
     #if ENABLED(PROBE_MANUALLY)
-      ABL_VAR xy_int8_t meshCount;
+      ABL_VAR xy_uint8_t meshCount;
     #endif
 
     ABL_VAR xy_int_t probe_position_lf, probe_position_rb;
@@ -678,7 +678,7 @@ G29_TYPE GcodeSuite::G29() {
 
       measured_z = 0;
 
-      xy_int8_t meshCount;
+      xy_uint8_t meshCount;
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
@@ -746,7 +746,7 @@ G29_TYPE GcodeSuite::G29() {
 
             z_values[meshCount.x][meshCount.y] = measured_z + zoffset;
             #if ENABLED(EXTENSIBLE_UI)
-              ExtUI::onMeshUpdate(meshCount.x, meshCount.y, z_values[meshCount.x][meshCount.y]);
+              ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]);
             #endif
 
           #endif
