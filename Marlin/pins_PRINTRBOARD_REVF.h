@@ -190,7 +190,9 @@
 #endif
 #endif
 
-#define FAN_PIN            16   // C6 PWM3A
+#ifndef FAN_PIN
+  #define FAN_PIN          16   // C6 PWM3A
+#endif
 
 //
 // LCD / Controller

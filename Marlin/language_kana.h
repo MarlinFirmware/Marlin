@@ -50,6 +50,7 @@
 #define MSG_AUTO_HOME_X                     "X\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7"                // "Xｼﾞｸ ｹﾞﾝﾃﾝﾌｯｷ" ("Home X")
 #define MSG_AUTO_HOME_Y                     "Y\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7"                // "Yｼﾞｸ ｹﾞﾝﾃﾝﾌｯｷ" ("Home Y")
 #define MSG_AUTO_HOME_Z                     "Z\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7"                // "Zｼﾞｸ ｹﾞﾝﾃﾝﾌｯｷ" ("Home Z")
+#define MSG_TMC_Z_CALIBRATION               "Z\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                                // "Zｼﾞｸ ｺｳｾｲ" ("Calibrate Z")
 #define MSG_LEVEL_BED_HOMING                "\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7\xc1\xad\xb3"                     // "ｹﾞﾝﾃﾝﾌｯｷﾁｭｳ" ("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               "\xda\xcd\xde\xd8\xdd\xb8\xde\xb6\xb2\xbc"                         // "ﾚﾍﾞﾘﾝｸﾞｶｲｼ" ("Click to Begin")
 #define MSG_LEVEL_BED_NEXT_POINT            "\xc2\xb7\xde\xc9\xbf\xb8\xc3\xb2\xc3\xdd\xcd"                     // "ﾂｷﾞﾉｿｸﾃｲﾃﾝﾍ" ("Next Point")

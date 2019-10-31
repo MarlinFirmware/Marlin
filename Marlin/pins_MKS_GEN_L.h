@@ -36,4 +36,17 @@
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
+//
+// CS Pins wired to avoid conflict with the LCD
+// See https://www.thingiverse.com/asset:66604
+//
+
+#ifndef X_CS_PIN
+  #define X_CS_PIN 59
+#endif
+
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN 63
+#endif
+
 #include "pins_RAMPS.h"

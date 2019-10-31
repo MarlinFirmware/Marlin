@@ -368,7 +368,7 @@ int8_t SdBaseFile::lsPrintNext(uint8_t flags, uint8_t indent) {
   // print size if requested
   if (!DIR_IS_SUBDIR(&dir) && (flags & LS_SIZE)) {
     SERIAL_CHAR(' ');
-    SERIAL_PROTOCOL(dir.fileSize);
+    SERIAL_ECHO(dir.fileSize);
   }
   SERIAL_EOL();
   return DIR_IS_FILE(&dir) ? 1 : 2;
@@ -601,7 +601,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t ofla
   // search for file
 
   while (dirFile->curPosition_ < dirFile->fileSize_) {
-    index = 0XF & (dirFile->curPosition_ >> 5);
+    index = 0xF & (dirFile->curPosition_ >> 5);
     p = dirFile->readDirCache();
     if (!p) return false;
 
@@ -705,7 +705,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag) {
     return false;
   }
   // open cached entry
-  return openCachedEntry(index & 0XF, oflag);
+  return openCachedEntry(index & 0xF, oflag);
 }
 
 // open a cached directory entry. Assumes vol_ is initialized
@@ -775,7 +775,7 @@ bool SdBaseFile::openNext(SdBaseFile* dirFile, uint8_t oflag) {
   vol_ = dirFile->vol_;
 
   while (1) {
-    index = 0XF & (dirFile->curPosition_ >> 5);
+    index = 0xF & (dirFile->curPosition_ >> 5);
 
     // read entry into cache
     p = dirFile->readDirCache();
@@ -902,11 +902,10 @@ int SdBaseFile::peek() {
   return c;
 }
 
-
 // print uint8_t with width 2
-static void print2u(uint8_t v) {
+static void print2u(const uint8_t v) {
   if (v < 10) SERIAL_CHAR('0');
-  SERIAL_PRINT(v, DEC);
+  SERIAL_ECHO_F(v, DEC);
 }
 
 /**
@@ -927,7 +926,7 @@ static void print2u(uint8_t v) {
  * \param[in] fatDate The date field from a directory entry.
  */
 void SdBaseFile::printFatDate(uint16_t fatDate) {
-  SERIAL_PROTOCOL(FAT_YEAR(fatDate));
+  SERIAL_ECHO(FAT_YEAR(fatDate));
   SERIAL_CHAR('-');
   print2u(FAT_MONTH(fatDate));
   SERIAL_CHAR('-');
@@ -959,7 +958,7 @@ void SdBaseFile::printFatTime(uint16_t fatTime) {
 bool SdBaseFile::printName() {
   char name[FILENAME_LENGTH];
   if (!getFilename(name)) return false;
-  SERIAL_PROTOCOL(name);
+  SERIAL_ECHO(name);
   return true;
 }
 
@@ -1104,7 +1103,7 @@ dir_t* SdBaseFile::readDirCache() {
   if (!isDir()) return 0;
 
   // index of entry in cache
-  i = (curPosition_ >> 5) & 0XF;
+  i = (curPosition_ >> 5) & 0xF;
 
   // use read to locate and cache block
   if (read() < 0) return 0;
@@ -1725,9 +1724,5 @@ int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
   writeError = true;
   return -1;
 }
-
-#if ALLOW_DEPRECATED_FUNCTIONS
-  void (*SdBaseFile::oldDateTime_)(uint16_t &date, uint16_t &time) = 0;
-#endif
 
 #endif // SDSUPPORT

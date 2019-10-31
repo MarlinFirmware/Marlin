@@ -28,9 +28,10 @@
 #include "Version.h"
 #include "Configuration.h"
 #include "Conditionals_LCD.h"
+#include "drivers.h"
 #include "Configuration_adv.h"
 
-#if defined(__AVR__) && !defined(USBCON)
+#if USE_MARLINSERIAL
   #define HardwareSerial_h // trick to disable the standard HWserial
 #endif
 

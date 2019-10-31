@@ -204,7 +204,7 @@ bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
     index &= 0x1FF;
     uint8_t tmp = value;
     if (cluster & 1) {
-      tmp = (cacheBuffer_.data[index] & 0XF) | tmp << 4;
+      tmp = (cacheBuffer_.data[index] & 0xF) | tmp << 4;
     }
     cacheBuffer_.data[index] = tmp;
     index++;

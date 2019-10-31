@@ -48,6 +48,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Origen X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Origen Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Origen Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origen XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Iniciar (Presione)")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Siguiente punto")

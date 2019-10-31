@@ -46,8 +46,8 @@
        */
       #if ENABLED(SKEW_CORRECTION)
         // For skew correction just adjust the destination point and we're done
-        float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] },
-              end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS] };
+        float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_CART] },
+              end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_CART] };
         planner.skew(start[X_AXIS], start[Y_AXIS], start[Z_AXIS]);
         planner.skew(end[X_AXIS], end[Y_AXIS], end[Z_AXIS]);
       #else
@@ -64,7 +64,7 @@
         SERIAL_ECHOPAIR(" ubl.line_to_destination_cartesian(xe=", destination[X_AXIS]);
         SERIAL_ECHOPAIR(", ye=", destination[Y_AXIS]);
         SERIAL_ECHOPAIR(", ze=", destination[Z_AXIS]);
-        SERIAL_ECHOPAIR(", ee=", destination[E_AXIS]);
+        SERIAL_ECHOPAIR(", ee=", destination[E_CART]);
         SERIAL_CHAR(')');
         SERIAL_EOL();
         debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
@@ -85,7 +85,7 @@
               + UBL_Z_RAISE_WHEN_OFF_MESH
             #endif
           ;
-          planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], feed_rate, extruder);
+          planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_CART], feed_rate, extruder);
           set_current_from_destination();
 
           if (g26_debug_flag)
@@ -97,7 +97,7 @@
         FINAL_MOVE:
 
         // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
-        const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * (1.0 / (MESH_X_DIST));
+        const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * (1.0f / (MESH_X_DIST));
 
         float z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
                   (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
@@ -107,12 +107,12 @@
         if (cell_dest_xi >= GRID_MAX_POINTS_X - 1) z1 = z2 = 0.0;
 
         // X cell-fraction done. Interpolate the two Z offsets with the Y fraction for the final Z offset.
-        const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST)),
+        const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0f / (MESH_Y_DIST)),
                     z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
-        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_AXIS], feed_rate, extruder);
+        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_CART], feed_rate, extruder);
 
         if (g26_debug_flag)
           debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
@@ -149,7 +149,7 @@
       const bool use_x_dist = adx > ady;
 
       float on_axis_distance = use_x_dist ? dx : dy,
-            e_position = end[E_AXIS] - start[E_AXIS],
+            e_position = end[E_CART] - start[E_CART],
             z_position = end[Z_AXIS] - start[Z_AXIS];
 
       const float e_normalized_dist = e_position / on_axis_distance,
@@ -198,11 +198,11 @@
           if (ry != start[Y_AXIS]) {
             if (!inf_normalized_flag) {
               on_axis_distance = use_x_dist ? rx - start[X_AXIS] : ry - start[Y_AXIS];
-              e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+              e_position = start[E_CART] + on_axis_distance * e_normalized_dist;
               z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
             }
             else {
-              e_position = end[E_AXIS];
+              e_position = end[E_CART];
               z_position = end[Z_AXIS];
             }
 
@@ -249,11 +249,11 @@
           if (rx != start[X_AXIS]) {
             if (!inf_normalized_flag) {
               on_axis_distance = use_x_dist ? rx - start[X_AXIS] : ry - start[Y_AXIS];
-              e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
+              e_position = start[E_CART] + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
               z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
             }
             else {
-              e_position = end[E_AXIS];
+              e_position = end[E_CART];
               z_position = end[Z_AXIS];
             }
 
@@ -308,11 +308,11 @@
 
           if (!inf_normalized_flag) {
             on_axis_distance = use_x_dist ? rx - start[X_AXIS] : next_mesh_line_y - start[Y_AXIS];
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+            e_position = start[E_CART] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = end[E_AXIS];
+            e_position = end[E_CART];
             z_position = end[Z_AXIS];
           }
           if (!planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder))
@@ -331,11 +331,11 @@
 
           if (!inf_normalized_flag) {
             on_axis_distance = use_x_dist ? next_mesh_line_x - start[X_AXIS] : ry - start[Y_AXIS];
-            e_position = start[E_AXIS] + on_axis_distance * e_normalized_dist;
+            e_position = start[E_CART] + on_axis_distance * e_normalized_dist;
             z_position = start[Z_AXIS] + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = end[E_AXIS];
+            e_position = end[E_CART];
             z_position = end[Z_AXIS];
           }
 
@@ -378,7 +378,12 @@
       #if ENABLED(DELTA)  // apply delta inverse_kinematics
 
         DELTA_IK(raw);
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_CART], fr, active_extruder);
+
+      #elif ENABLED(HANGPRINTER)   // apply hangprinter inverse_kinematics
+
+        HANGPRINTER_IK(raw);
+        planner.buffer_segment(line_lengths[A_AXIS], line_lengths[B_AXIS], line_lengths[C_AXIS], line_lengths[D_AXIS], in_raw[E_CART], fr, active_extruder);
 
       #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
 
@@ -391,11 +396,11 @@
         scara_oldB = delta[B_AXIS];
         float s_feedrate = MAX(adiff, bdiff) * scara_feed_factor;
 
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_CART], s_feedrate, active_extruder);
 
       #else // CARTESIAN
 
-        planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_AXIS], fr, active_extruder);
+        planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_CART], fr, active_extruder);
 
       #endif
     }
@@ -427,7 +432,7 @@
         rtarget[X_AXIS] - current_position[X_AXIS],
         rtarget[Y_AXIS] - current_position[Y_AXIS],
         rtarget[Z_AXIS] - current_position[Z_AXIS],
-        rtarget[E_AXIS] - current_position[E_AXIS]
+        rtarget[E_CART] - current_position[E_CART]
       };
 
       const float cartesian_xy_mm = HYPOT(total[X_AXIS], total[Y_AXIS]);  // total horizontal xy distance
@@ -435,14 +440,14 @@
       #if IS_KINEMATIC
         const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
         uint16_t segments = lroundf(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
-                 seglimit = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
+                 seglimit = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
         NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
       #else
-        uint16_t segments = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
+        uint16_t segments = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
       #endif
 
       NOLESS(segments, 1U);                        // must have at least one segment
-      const float inv_segments = 1.0 / segments;  // divide once, multiply thereafter
+      const float inv_segments = 1.0f / segments;  // divide once, multiply thereafter
 
       #if IS_SCARA // scale the feed rate from mm/s to degrees/s
         scara_feed_factor = cartesian_xy_mm * inv_segments * feedrate;
@@ -454,7 +459,7 @@
         total[X_AXIS] * inv_segments,
         total[Y_AXIS] * inv_segments,
         total[Z_AXIS] * inv_segments,
-        total[E_AXIS] * inv_segments
+        total[E_CART] * inv_segments
       };
 
       // Note that E segment distance could vary slightly as z mesh height
@@ -464,7 +469,7 @@
         current_position[X_AXIS],
         current_position[Y_AXIS],
         current_position[Z_AXIS],
-        current_position[E_AXIS]
+        current_position[E_CART]
       };
 
       // Only compute leveling per segment if ubl active and target below z_fade_height.
@@ -495,8 +500,8 @@
         // in top of loop and again re-find same adjacent cell and use it, just less efficient
         // for mesh inset area.
 
-        int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST)),
-               cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
+        int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST)),
+               cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
 
         cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
         cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);
@@ -517,15 +522,15 @@
         float cx = raw[X_AXIS] - x0,   // cell-relative x and y
               cy = raw[Y_AXIS] - y0;
 
-        const float z_xmy0 = (z_x1y0 - z_x0y0) * (1.0 / (MESH_X_DIST)),   // z slope per x along y0 (lower left to lower right)
-                    z_xmy1 = (z_x1y1 - z_x0y1) * (1.0 / (MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
+        const float z_xmy0 = (z_x1y0 - z_x0y0) * (1.0f / (MESH_X_DIST)),   // z slope per x along y0 (lower left to lower right)
+                    z_xmy1 = (z_x1y1 - z_x0y1) * (1.0f / (MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
 
               float z_cxy0 = z_x0y0 + z_xmy0 * cx;            // z height along y0 at cx (changes for each cx in cell)
 
         const float z_cxy1 = z_x0y1 + z_xmy1 * cx,            // z height along y1 at cx
                     z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cx from y0 to y1
 
-              float z_cxym = z_cxyd * (1.0 / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1 (changes for each cx in cell)
+              float z_cxym = z_cxyd * (1.0f / (MESH_Y_DIST));  // z slope per y along cx from y0 to y1 (changes for each cx in cell)
 
         //    float z_cxcy = z_cxy0 + z_cxym * cy;            // interpolated mesh z height along cx at cy (do inside the segment loop)
 
@@ -534,7 +539,7 @@
         // each change by a constant for fixed segment lengths.
 
         const float z_sxy0 = z_xmy0 * diff[X_AXIS],                                     // per-segment adjustment to z_cxy0
-                    z_sxym = (z_xmy1 - z_xmy0) * (1.0 / (MESH_Y_DIST)) * diff[X_AXIS];  // per-segment adjustment to z_cxym
+                    z_sxym = (z_xmy1 - z_xmy0) * (1.0f / (MESH_Y_DIST)) * diff[X_AXIS];  // per-segment adjustment to z_cxym
 
         for (;;) {  // for all segments within this mesh cell
 

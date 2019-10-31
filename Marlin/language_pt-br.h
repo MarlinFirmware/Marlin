@@ -48,6 +48,7 @@
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir na origem Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir na origem Z")
 #define MSG_AUTO_HOME                       _UxGT("Ir na origem XYZ")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clique para Iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Proximo Ponto")
@@ -145,8 +146,7 @@
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Compensacao Z parou")
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL passo a passo")
 #define MSG_LED_CONTROL                     _UxGT("Controle do LED")
-#define MSG_LEDS_ON                         _UxGT("Luz Acesa")
-#define MSG_LEDS_OFF                        _UxGT("Luz Apagada")
+#define MSG_LEDS                            _UxGT("Luz")
 #define MSG_LED_PRESETS                     _UxGT("Configuracao da Luz")
 #define MSG_SET_LEDS_RED                    _UxGT("Luz Vermelha")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Luz Laranja")
@@ -369,7 +369,7 @@
 
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando impressao")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("continuar")
-#else LCD_HEIGHT < 4
+#else // LCD_HEIGHT < 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Aguarde...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Ejetando...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insira e Clique")

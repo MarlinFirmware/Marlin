@@ -28,10 +28,9 @@
 /**
  * Axis indices as enumerated constants
  *
- * Special axis:
- *  - A_AXIS and B_AXIS are used by COREXY printers
- *  - X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship
- *    between X_AXIS and X Head movement, like CoreXY bots
+ *  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
+ *  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
+ *  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
  */
 enum AxisEnum : unsigned char {
   X_AXIS    = 0,
@@ -40,10 +39,14 @@ enum AxisEnum : unsigned char {
   B_AXIS    = 1,
   Z_AXIS    = 2,
   C_AXIS    = 2,
-  E_AXIS    = 3,
-  X_HEAD    = 4,
-  Y_HEAD    = 5,
-  Z_HEAD    = 6,
+  E_CART    = 3,
+  #if ENABLED(HANGPRINTER) // Hangprinter order: A_AXIS, B_AXIS, C_AXIS, D_AXIS, E_AXIS
+    D_AXIS  = 3,
+    E_AXIS  = 4,
+  #else
+    E_AXIS  = 3,
+  #endif
+  X_HEAD, Y_HEAD, Z_HEAD,
   ALL_AXES  = 0xFE,
   NO_AXIS   = 0xFF
 };
@@ -55,11 +58,11 @@ enum AxisEnum : unsigned char {
 
 #define LOOP_NA(VAR) LOOP_L_N(VAR, NUM_AXIS)
 #define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
-#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_CART)
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
-#define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
-#define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
-#define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
+#define LOOP_MOV_AXIS(VAR) LOOP_S_L_N(VAR, A_AXIS, MOV_AXIS)
+#define LOOP_NUM_AXIS(VAR) LOOP_S_L_N(VAR, A_AXIS, NUM_AXIS)
+#define LOOP_NUM_AXIS_N(VAR) LOOP_S_L_N(VAR, A_AXIS, NUM_AXIS_N)
 
 typedef enum {
   LINEARUNIT_MM,

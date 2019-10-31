@@ -45,6 +45,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Паркування X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Паркування Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Паркування Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Калібрування Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Паркування XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Почати")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Слідуюча Точка")

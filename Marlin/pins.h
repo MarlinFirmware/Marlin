@@ -696,6 +696,7 @@
 // Dual X-carriage, Dual Y, Dual Z support
 //
 
+#define _D_PINS
 #define _X2_PINS
 #define _Y2_PINS
 #define _Z2_PINS
@@ -703,16 +704,64 @@
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
 
+// The HANGPRINTER A, B, C, D axes
+#if ENABLED(HANGPRINTER)
+  #define A_ENABLE_PIN      X_ENABLE_PIN
+  #define A_DIR_PIN         X_DIR_PIN
+  #define A_STEP_PIN        X_STEP_PIN
+  #define A_MS1_PIN         X_MS1_PIN
+
+  #define B_ENABLE_PIN      Y_ENABLE_PIN
+  #define B_DIR_PIN         Y_DIR_PIN
+  #define B_STEP_PIN        Y_STEP_PIN
+  #define B_MS1_PIN         Y_MS1_PIN
+
+  #define C_ENABLE_PIN      Z_ENABLE_PIN
+  #define C_DIR_PIN         Z_DIR_PIN
+  #define C_STEP_PIN        Z_STEP_PIN
+  #define C_MS1_PIN         Z_MS1_PIN
+
+  #ifndef D_STEP_PIN
+    #define D_STEP_PIN   _EPIN(E_STEPPERS, STEP)
+    #define D_DIR_PIN    _EPIN(E_STEPPERS, DIR)
+    #define D_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
+    #ifndef D_CS_PIN
+      #define D_CS_PIN   _EPIN(E_STEPPERS, CS)
+    #endif
+    #ifndef D_MS1_PIN
+      #define D_MS1_PIN  _EPIN(E_STEPPERS, MS1)
+    #endif
+    #if E_STEPPERS >= MAX_EXTRUDERS || !PIN_EXISTS(D_ENABLE)
+      #error "No E stepper plug left for D Axis!"
+    #endif
+  #endif
+  #undef _D_PINS
+  #define ___D_PINS D_STEP_PIN, D_DIR_PIN, D_ENABLE_PIN,
+  #ifdef D_CS_PIN
+    #define __D_PINS ___D_PINS D_CS_PIN,
+  #else
+    #define __D_PINS ___D_PINS
+  #endif
+  #ifdef D_MS1_PIN
+    #define _D_PINS __D_PINS D_MS1_PIN,
+  #else
+    #define _D_PINS __D_PINS
+  #endif
+  #define X2_E_INDEX INCREMENT(E_STEPPERS)
+#else
+  #define X2_E_INDEX E_STEPPERS
+#endif
+
 // The X2 axis, if any, should be the next open extruder port
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
-    #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
-    #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
-    #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
+    #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
+    #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)
+    #define X2_ENABLE_PIN _EPIN(X2_E_INDEX, ENABLE)
     #ifndef X2_CS_PIN
-      #define X2_CS_PIN   _EPIN(E_STEPPERS, CS)
+      #define X2_CS_PIN   _EPIN(X2_E_INDEX, CS)
     #endif
-    #if E_STEPPERS > 4 || !PIN_EXISTS(X2_ENABLE)
+    #if X2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(X2_ENABLE)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
@@ -723,9 +772,9 @@
   #else
     #define _X2_PINS __X2_PINS
   #endif
-  #define Y2_E_INDEX INCREMENT(E_STEPPERS)
+  #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
-  #define Y2_E_INDEX E_STEPPERS
+  #define Y2_E_INDEX X2_E_INDEX
 #endif
 
 // The Y2 axis, if any, should be the next open extruder port
@@ -737,7 +786,7 @@
     #ifndef Y2_CS_PIN
       #define Y2_CS_PIN   _EPIN(Y2_E_INDEX, CS)
     #endif
-    #if Y2_E_INDEX > 4 || !PIN_EXISTS(Y2_ENABLE)
+    #if Y2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Y2_ENABLE)
       #error "No E stepper plug left for Y2!"
     #endif
   #endif
@@ -762,7 +811,7 @@
     #ifndef Z2_CS_PIN
       #define Z2_CS_PIN   _EPIN(Z2_E_INDEX, CS)
     #endif
-    #if Z2_E_INDEX > 4 || !PIN_EXISTS(Z2_ENABLE)
+    #if Z2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Z2_ENABLE)
       #error "No E stepper plug left for Z2!"
     #endif
   #endif
@@ -782,7 +831,7 @@
     PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLER_FAN_PIN, \
     _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS BED_PINS \
     _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS \
-    _X2_PINS _Y2_PINS _Z2_PINS \
+    _D_PINS _X2_PINS _Y2_PINS _Z2_PINS \
   }
 
 #define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))

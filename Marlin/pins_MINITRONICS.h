@@ -57,13 +57,13 @@
 #define X_DIR_PIN          47
 #define X_ENABLE_PIN       49
 
-#define Y_STEP_PIN         39 // A6
-#define Y_DIR_PIN          40 // A0
+#define Y_STEP_PIN         39   // A6
+#define Y_DIR_PIN          40   // A0
 #define Y_ENABLE_PIN       38
 
-#define Z_STEP_PIN         42 // A2
-#define Z_DIR_PIN          43 // A6
-#define Z_ENABLE_PIN       41 // A1
+#define Z_STEP_PIN         42   // A2
+#define Z_DIR_PIN          43   // A6
+#define Z_ENABLE_PIN       41   // A1
 
 #define E0_STEP_PIN        45
 #define E0_DIR_PIN         44
@@ -83,11 +83,13 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        7 // EXTRUDER 1
-#define HEATER_1_PIN        8 // EXTRUDER 2
-#define HEATER_BED_PIN      3 // BED
+#define HEATER_0_PIN        7   // EXTRUDER 1
+#define HEATER_1_PIN        8   // EXTRUDER 2
+#define HEATER_BED_PIN      3   // BED
 
-#define FAN_PIN             9
+#ifndef FAN_PIN
+  #define FAN_PIN           9
+#endif
 
 //
 // Misc. Functions
@@ -122,7 +124,7 @@
   #define BTN_EN2          -1
   #define BTN_ENC          -1
 
-  #define SD_DETECT_PIN    -1 // Minitronics doesn't use this
+  #define SD_DETECT_PIN    -1   // Minitronics doesn't use this
 #endif
 
 //

@@ -55,7 +55,7 @@ void TWIBus::address(const uint8_t adr) {
   #endif
 }
 
-void TWIBus::addbyte(const char c) {
+void TWIBus::addbyte(const byte c) {
   if (this->buffer_s >= COUNT(this->buffer)) return;
   this->buffer[this->buffer_s++] = c;
   #if ENABLED(DEBUG_TWIBUS)
@@ -63,7 +63,7 @@ void TWIBus::addbyte(const char c) {
   #endif
 }
 
-void TWIBus::addbytes(char src[], uint8_t bytes) {
+void TWIBus::addbytes(byte src[], uint8_t bytes) {
   #if ENABLED(DEBUG_TWIBUS)
     debug(PSTR("addbytes"), bytes);
   #endif
@@ -138,7 +138,7 @@ void TWIBus::relay(const uint8_t bytes) {
     echodata(bytes, PSTR("i2c-reply"), this->addr);
 }
 
-uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
+uint8_t TWIBus::capture(byte *dst, const uint8_t bytes) {
   this->reset();
   uint8_t count = 0;
   while (count < bytes && Wire.available())

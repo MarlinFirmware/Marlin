@@ -53,13 +53,13 @@
 #define X_DIR_PIN          28
 #define X_ENABLE_PIN       24
 
-#define Y_STEP_PIN         60 // A6
-#define Y_DIR_PIN          61 // A7
+#define Y_STEP_PIN         60   // A6
+#define Y_DIR_PIN          61   // A7
 #define Y_ENABLE_PIN       22
 
-#define Z_STEP_PIN         54 // A0
-#define Z_DIR_PIN          55 // A1
-#define Z_ENABLE_PIN       56 // A2
+#define Z_STEP_PIN         54   // A0
+#define Z_DIR_PIN          55   // A1
+#define Z_ENABLE_PIN       56   // A2
 
 #define E0_STEP_PIN        31
 #define E0_DIR_PIN         32
@@ -87,7 +87,9 @@
 #define HEATER_1_PIN        8
 #define HEATER_BED_PIN     10
 
-#define FAN_PIN             7   // IO pin. Buffer needed
+#ifndef FAN_PIN
+  #define FAN_PIN           7   // IO pin. Buffer needed
+#endif
 
 //
 // Misc. Functions

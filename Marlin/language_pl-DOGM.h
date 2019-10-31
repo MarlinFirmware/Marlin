@@ -39,6 +39,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Zeruj X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Zeruj Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Zeruj Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibruj Z")
 #define MSG_LEVEL_BED                       _UxGT("Poziom. stołu")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Pozycja zerowa")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")

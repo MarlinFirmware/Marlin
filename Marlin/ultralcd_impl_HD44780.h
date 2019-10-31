@@ -491,18 +491,47 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
   void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
-    char tmp[LCD_WIDTH + 1] = {0};
-    const int16_t n = MAX(lcd_strlen_P(text) - len, 0);
-    for (int16_t i = 0; i <= n; i++) {
-      strncpy_P(tmp, text + i, MIN(len, LCD_WIDTH));
+    uint8_t slen = utf8_strlen_P(text);
+    if (slen < len) {
+      // Fits into,
       lcd.setCursor(col, line);
-      lcd_print(tmp);
-      delay(time / MAX(n, 1));
+      lcd_printPGM_utf(text, len);
+      while (slen < len) {
+        lcd.write(' ');
+        ++slen;
+      }
+      safe_delay(time);
+    }
+    else {
+      const char* p = text;
+      int dly = time / MAX(slen, 1);
+      for (uint8_t i = 0; i <= slen; i++) {
+
+        // Go to the correct place
+        lcd.setCursor(col, line);
+
+        // Print the text
+        lcd_printPGM_utf(p, len);
+
+        // Fill with spaces
+        uint8_t ix = slen - i;
+        while (ix < len) {
+          lcd.write(' ');
+          ++ix;
+        }
+
+        // Delay
+        safe_delay(dly);
+
+        // Advance to the next UTF8 valid position
+        p++;
+        while (!START_OF_UTF8_CHAR(pgm_read_byte(p))) p++;
+      }
     }
   }
 
   static void logo_lines(const char* const extra) {
-    int16_t indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
+    int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
     lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x01');
     lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
     lcd.setCursor(indent, 2); lcd.write('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x03');
@@ -517,7 +546,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
     #define CENTER_OR_SCROLL(STRING,DELAY) \
       lcd_erase_line(3); \
       if (strlen(STRING) <= LCD_WIDTH) { \
-        lcd.setCursor((LCD_WIDTH - lcd_strlen_P(PSTR(STRING))) / 2, 3); \
+        lcd.setCursor((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3); \
         lcd_printPGM_utf(PSTR(STRING)); \
         safe_delay(DELAY); \
       } \
@@ -607,11 +636,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   if (blink)
     lcd.print(value);
   else {
-    if (!axis_homed[axis])
+    if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_print(c <= '.' ? c : '?');
     else {
       #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[axis])
+        if (!TEST(axis_known_position, axis))
           lcd_printPGM(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
       #endif
@@ -774,7 +803,7 @@ static void lcd_implementation_status_screen() {
       #if ENABLED(SDSUPPORT)
         lcd.setCursor(0, 2);
         lcd_printPGM(PSTR("SD"));
-        if (IS_SD_PRINTING)
+        if (IS_SD_PRINTING())
           lcd.print(itostr3(card.percentDone()));
         else
           lcd_printPGM(PSTR("---"));
@@ -838,7 +867,7 @@ static void lcd_implementation_status_screen() {
 
       lcd.setCursor(7, 2);
       lcd_printPGM(PSTR("SD"));
-      if (IS_SD_PRINTING)
+      if (IS_SD_PRINTING())
         lcd.print(itostr3(card.percentDone()));
       else
         lcd_printPGM(PSTR("---"));
@@ -895,35 +924,76 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    const uint8_t slen = lcd_strlen(lcd_status_message);
-    const char *stat = lcd_status_message + status_scroll_pos;
-    if (slen <= LCD_WIDTH)
-      lcd_print_utf(stat);                                      // The string isn't scrolling
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = utf8_strlen(lcd_status_message);
+
+    // If the string fits into the LCD, just print it and do not scroll it
+    if (slen <= LCD_WIDTH) {
+
+      // The string isn't scrolling and may not fill the screen
+      lcd_print_utf(lcd_status_message);
+
+      // Fill the rest with spaces
+      while (slen < LCD_WIDTH) {
+        lcd.write(' ');
+        ++slen;
+      }
+    }
     else {
-      if (status_scroll_pos <= slen - LCD_WIDTH)
-        lcd_print_utf(stat);                                    // The string fills the screen
+      // String is larger than the available space in screen.
+
+      // Get a pointer to the next valid UTF8 character
+      const char *stat = lcd_status_message + status_scroll_offset;
+
+      // Get the string remaining length
+      const uint8_t rlen = utf8_strlen(stat);
+
+      // If we have enough characters to display
+      if (rlen >= LCD_WIDTH) {
+        // The remaining string fills the screen - Print it
+        lcd_print_utf(stat, LCD_WIDTH);
+      }
       else {
-        uint8_t chars = LCD_WIDTH;
-        if (status_scroll_pos < slen) {                         // First string still visible
-          lcd_print_utf(stat);                                  // The string leaves space
-          chars -= slen - status_scroll_pos;                    // Amount of space left
-        }
-        lcd.write('.');                                         // Always at 1+ spaces left, draw a dot
-        if (--chars) {
-          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, lcd.write('.');
-          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+
+        // The remaining string does not completely fill the screen
+        lcd_print_utf(stat, LCD_WIDTH);               // The string leaves space
+        uint8_t chars = LCD_WIDTH - rlen;             // Amount of space left in characters
+
+        lcd.write('.');                               // Always at 1+ spaces left, draw a dot
+        if (--chars) {                                // Draw a second dot if there's space
+          lcd.write('.');
+          if (--chars)
+            lcd_print_utf(lcd_status_message, chars); // Print a second copy of the message
         }
       }
       if (last_blink != blink) {
         last_blink = blink;
-        // Skip any non-printing bytes
-        if (status_scroll_pos < slen) while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
-        if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
+
+        // Adjust by complete UTF8 characters
+        if (status_scroll_offset < slen) {
+          status_scroll_offset++;
+          while (!START_OF_UTF8_CHAR(lcd_status_message[status_scroll_offset]))
+            status_scroll_offset++;
+        }
+        else
+          status_scroll_offset = 0;
       }
     }
   #else
-    lcd_print_utf(lcd_status_message);
+    UNUSED(blink);
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = utf8_strlen(lcd_status_message);
+
+    // Just print the string to the LCD
+    lcd_print_utf(lcd_status_message, LCD_WIDTH);
+
+    // Fill the rest with spaces if there are missing spaces
+    while (slen < LCD_WIDTH) {
+      lcd.write(' ');
+      ++slen;
+    }
   #endif
 }
 
@@ -946,7 +1016,7 @@ static void lcd_implementation_status_screen() {
     int8_t n = LCD_WIDTH;
     lcd.setCursor(0, row);
     if (center && !valstr) {
-      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd.write(' '); n--; }
     }
     while (n > 0 && (c = pgm_read_byte(pstr))) {
@@ -975,7 +1045,7 @@ static void lcd_implementation_status_screen() {
 
   static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
-    uint8_t n = LCD_WIDTH - 2 - lcd_strlen(data);
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
     while ((c = pgm_read_byte(pstr)) && n > 0) {
@@ -988,7 +1058,7 @@ static void lcd_implementation_status_screen() {
   }
   static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
-    uint8_t n = LCD_WIDTH - 2 - lcd_strlen_P(data);
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
     while ((c = pgm_read_byte(pstr)) && n > 0) {
@@ -1008,8 +1078,8 @@ static void lcd_implementation_status_screen() {
     lcd_printPGM_utf(pstr);
     if (value != NULL) {
       lcd.write(':');
-      const uint8_t valrow = (lcd_strlen_P(pstr) + 1 + lcd_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1;  // Value on the next row if it won't fit
-      lcd.setCursor((LCD_WIDTH - 1) - (lcd_strlen(value) + 1), valrow);                                   // Right-justified, padded by spaces
+      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + utf8_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1; // Value on the next row if it won't fit
+      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), valrow);                                  // Right-justified, padded by spaces
       lcd.write(' ');                                                                                     // overwrite char if value gets shorter
       lcd_print(value);
     }
@@ -1017,29 +1087,29 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
+    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, CardReader& theCard, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
 
       uint8_t n = LCD_WIDTH - concat;
-      const char *outstr = longFilename[0] ? longFilename : filename;
-      if (longFilename[0]) {
+      const char *outstr = theCard.longest_filename();
+      if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = MAX(0, lcd_strlen(longFilename) - n);  // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - n);  // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
             outstr += filename_scroll_pos;
           }
         #else
-          longFilename[n] = '\0'; // cutoff at screen edge
+          theCard.longFilename[n] = '\0'; // cutoff at screen edge
         #endif
       }
 
@@ -1053,12 +1123,12 @@ static void lcd_implementation_status_screen() {
       lcd.print(post_char);
     }
 
-    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
+    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, CardReader& theCard) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, ' ');
     }
 
-    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
+    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, CardReader& theCard) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, LCD_STR_FOLDER[0]);
     }
 
   #endif // SDSUPPORT

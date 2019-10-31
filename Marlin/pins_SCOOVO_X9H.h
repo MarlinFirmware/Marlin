@@ -91,7 +91,7 @@
 #define E1_MS2_PIN          64
 
 #define DIGIPOTSS_PIN       38
-#define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
+#define DIGIPOT_CHANNELS {4,5,3,0,1}   // X Y Z E0 E1 digipot channels to stepper driver mapping
 
 //
 // Temperature Sensors
@@ -106,7 +106,9 @@
 #define HEATER_1_PIN         7
 #define HEATER_BED_PIN       3
 
-#define FAN_PIN              8
+#ifndef FAN_PIN
+  #define FAN_PIN            8
+#endif
 #define FAN1_PIN             6
 #define FAN2_PIN             2
 

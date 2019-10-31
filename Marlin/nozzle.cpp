@@ -161,9 +161,11 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-  void Nozzle::park(const uint8_t &z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
-    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE;
-    const float fr_z = NOZZLE_PARK_Z_FEEDRATE;
+  constexpr float npp[] = NOZZLE_PARK_POINT;
+  static_assert(COUNT(npp) == XYZ, "NOZZLE_PARK_POINT requires X, Y, and Z values.");
+
+  void Nozzle::park(const uint8_t &z_action, const point_t &park/*=NOZZLE_PARK_POINT*/) {
+    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height

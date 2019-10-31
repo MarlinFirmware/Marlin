@@ -33,10 +33,8 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //
-#if DISABLED(HAVE_TMC2130)
-  #error "You must enable TMC2130 support in Configuration_adv.h for EinsyRambo."
-#elif DISABLED(X_IS_TMC2130) || DISABLED(Y_IS_TMC2130) || DISABLED(Z_IS_TMC2130) || DISABLED(E0_IS_TMC2130)
-  #error "You must enable ([XYZ]|E0)_IS_TMC2130 in Configuration_adv.h for EinsyRambo."
+#if !AXIS_DRIVER_TYPE(X, TMC2130) || !AXIS_DRIVER_TYPE(Y, TMC2130) || !AXIS_DRIVER_TYPE(Z, TMC2130) || !AXIS_DRIVER_TYPE(E0, TMC2130)
+  #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRambo."
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
@@ -117,8 +115,13 @@
 #define HEATER_0_PIN        3
 #define HEATER_BED_PIN      4
 
-#define FAN_PIN             8
-#define FAN1_PIN            6
+#ifndef FAN_PIN
+  #define FAN_PIN           8
+#endif
+
+#ifndef FAN1_PIN
+  #define FAN1_PIN          6
+#endif
 
 //
 // Misc. Functions

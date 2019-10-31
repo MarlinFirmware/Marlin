@@ -85,6 +85,9 @@
 #ifndef MSG_AUTO_HOME_Z
   #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
 #endif
+#ifndef MSG_TMC_Z_CALIBRATION
+  #define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrate Z")
+#endif
 #ifndef MSG_LEVEL_BED_HOMING
   #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #endif
@@ -371,11 +374,8 @@
 #ifndef MSG_LED_CONTROL
   #define MSG_LED_CONTROL                     _UxGT("LED Control")
 #endif
-#ifndef MSG_LEDS_ON
-  #define MSG_LEDS_ON                         _UxGT("Lights On")
-#endif
-#ifndef MSG_LEDS_OFF
-  #define MSG_LEDS_OFF                        _UxGT("Lights Off")
+#ifndef MSG_LEDS
+  #define MSG_LEDS                            _UxGT("Lights")
 #endif
 #ifndef MSG_LED_PRESETS
   #define MSG_LED_PRESETS                     _UxGT("Light Presets")
@@ -540,6 +540,9 @@
 #ifndef MSG_VE_JERK
   #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #endif
+#ifndef MSG_JUNCTION_DEVIATION
+  #define MSG_JUNCTION_DEVIATION              _UxGT("Junction Dev")
+#endif
 #ifndef MSG_VELOCITY
   #define MSG_VELOCITY                        _UxGT("Velocity")
 #endif
@@ -666,6 +669,9 @@
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
 #endif
+#ifndef MSG_POWER_LOSS_RECOVERY
+  #define MSG_POWER_LOSS_RECOVERY             _UxGT("Power-Loss Recovery")
+#endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")
 #endif
@@ -751,16 +757,40 @@
   #define MSG_BLTOUCH                         _UxGT("BLTouch")
 #endif
 #ifndef MSG_BLTOUCH_SELFTEST
-  #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
+  #define MSG_BLTOUCH_SELFTEST                _UxGT("Cmd: Self-Test")
 #endif
 #ifndef MSG_BLTOUCH_RESET
-  #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
-#endif
-#ifndef MSG_BLTOUCH_DEPLOY
-  #define MSG_BLTOUCH_DEPLOY                  _UxGT("Deploy BLTouch")
+  #define MSG_BLTOUCH_RESET                   _UxGT("Cmd: Reset")
 #endif
 #ifndef MSG_BLTOUCH_STOW
-  #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
+  #define MSG_BLTOUCH_STOW                    _UxGT("Cmd: Stow")
+#endif
+#ifndef MSG_BLTOUCH_DEPLOY
+  #define MSG_BLTOUCH_DEPLOY                  _UxGT("Cmd: Deploy")
+#endif
+#ifndef MSG_BLTOUCH_SW_MODE
+  #define MSG_BLTOUCH_SW_MODE                 _UxGT("Cmd: SW-Mode")
+#endif
+#ifndef MSG_BLTOUCH_5V_MODE
+  #define MSG_BLTOUCH_5V_MODE                 _UxGT("Cmd: 5V-Mode")
+#endif
+#ifndef MSG_BLTOUCH_OD_MODE
+  #define MSG_BLTOUCH_OD_MODE                 _UxGT("Cmd: OD-Mode")
+#endif
+#ifndef MSG_BLTOUCH_MODE_STORE
+  #define MSG_BLTOUCH_MODE_STORE              _UxGT("Cmd: Mode-Store")
+#endif
+#ifndef MSG_BLTOUCH_MODE_STORE_5V
+  #define MSG_BLTOUCH_MODE_STORE_5V           _UxGT("Set BLTouch to 5V")
+#endif
+#ifndef MSG_BLTOUCH_MODE_STORE_OD
+  #define MSG_BLTOUCH_MODE_STORE_OD           _UxGT("Set BLTouch to OD")
+#endif
+#ifndef MSG_BLTOUCH_MODE_ECHO
+  #define MSG_BLTOUCH_MODE_ECHO               _UxGT("Report Drain")
+#endif
+#ifndef MSG_BLTOUCH_MODE_CHANGE
+  #define MSG_BLTOUCH_MODE_CHANGE             _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?")
 #endif
 #ifndef MSG_HOME
   #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
@@ -1051,6 +1081,9 @@
   #endif
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert and Click")
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_HEAT_1
+    #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Click to heat")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_HEATING_1
     #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heating...")

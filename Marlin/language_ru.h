@@ -49,6 +49,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Парковка X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Парковка Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Парковка Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровать Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Нулевое положение")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Нажмите чтобы начать")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Следующая точка")
@@ -145,8 +146,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Пошаговое UBL")
 
 #define MSG_LED_CONTROL                     _UxGT("Настройки LED")
-#define MSG_LEDS_ON                         _UxGT("Включить подсветку")
-#define MSG_LEDS_OFF                        _UxGT("Выключить подсветку")
+#define MSG_LEDS                            _UxGT("Подсветку")
 #define MSG_LED_PRESETS                     _UxGT("Предустановки света")
 #define MSG_SET_LEDS_RED                    _UxGT("Красный свет")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Оранжевый свет")

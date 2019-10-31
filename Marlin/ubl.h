@@ -54,14 +54,12 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 // External references
 
 char *ftostr43sign(const float&, char);
-void home_all_axes();
 
 extern uint8_t ubl_cnt;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if ENABLED(ULTRA_LCD)
-  extern char lcd_status_message[];
   void lcd_quick_feedback(const bool clear_buttons);
 #endif
 
@@ -162,14 +160,14 @@ class unified_bed_leveling {
     FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
     static int8_t get_cell_index_x(const float &x) {
-      const int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
+      const int8_t cx = (x - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST));
       return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
                                                           // that is OK because something else should be keeping that from
                                                           // happening and should not be worried about at this level.
     static int8_t get_cell_index_y(const float &y) {
-      const int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
+      const int8_t cy = (y - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
       return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
@@ -177,12 +175,12 @@ class unified_bed_leveling {
                                                           // happening and should not be worried about at this level.
 
     static int8_t find_closest_x_index(const float &x) {
-      const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
+      const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5f) * (1.0f / (MESH_X_DIST));
       return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
     }
 
     static int8_t find_closest_y_index(const float &y) {
-      const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
+      const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5f) * (1.0f / (MESH_Y_DIST));
       return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
     }
 

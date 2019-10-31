@@ -36,7 +36,10 @@
 
 #define STATUS_SCREEN_BED_TEXT_X (HOTENDS > 1 ? 81 : 73)
 
-#define FAN_ANIM_FRAMES 3
+// Can also be overridden in Configuration.h
+#ifndef FAN_ANIM_FRAMES
+  #define FAN_ANIM_FRAMES 3
+#endif
 #define STATUS_SCREEN_FAN_TEXT_X (FAN_ANIM_FRAMES == 3 ? 103 : 105)
 #define STATUS_SCREEN_FAN_TEXT_Y (FAN_ANIM_FRAMES > 2 ? 28 : 27)
 

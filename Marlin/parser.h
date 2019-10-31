@@ -39,6 +39,8 @@
   #include "serial.h"
 #endif
 
+#define strtof strtod
+
 /**
  * GCode parser
  *
@@ -88,8 +90,14 @@ public:
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
-    void debug();
+    static void debug();
   #endif
+
+  GCodeParser() {
+    #if ENABLED(INCH_MODE_SUPPORT)
+      set_input_linear_units(LINEARUNIT_MM);
+    #endif
+  }
 
   // Reset is done before parsing
   static void reset();
@@ -153,7 +161,7 @@ public:
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
     static bool seen(const char c) {
-      const char *p = strchr(command_args, c);
+      char *p = strchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = valid_float(&p[1]) ? &p[1] : (char*)NULL;
       return b;
@@ -194,15 +202,15 @@ public:
         if (c == '\0' || c == ' ') break;
         if (c == 'E' || c == 'e') {
           *e = '\0';
-          const float ret = strtod(value_ptr, NULL);
+          const float ret = strtof(value_ptr, NULL);
           *e = c;
           return ret;
         }
         ++e;
       }
-      return strtod(value_ptr, NULL);
+      return strtof(value_ptr, NULL);
     }
-    return 0.0;
+    return 0;
   }
 
   // Code value as a long or ulong
@@ -317,7 +325,7 @@ public:
 
   // Provide simple value accessors with default option
   FORCE_INLINE static float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  FORCE_INLINE static bool     boolval(const char c)                          { return seenval(c) ? value_bool()         : seen(c); }
+  FORCE_INLINE static bool     boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
   FORCE_INLINE static uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
   FORCE_INLINE static int16_t  intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
   FORCE_INLINE static uint16_t ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }

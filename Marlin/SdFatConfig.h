@@ -62,11 +62,6 @@
 #define ENDL_CALLS_FLUSH 0
 
 /**
- * Allow use of deprecated functions if ALLOW_DEPRECATED_FUNCTIONS is nonzero
- */
-#define ALLOW_DEPRECATED_FUNCTIONS 1
-
-/**
  * Allow FAT12 volumes if FAT12_SUPPORT is nonzero.
  * FAT12 has not been well tested.
  */

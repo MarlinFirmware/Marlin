@@ -43,6 +43,7 @@
 #define MSG_AUTO_HOME_X                     "Ir para origem X"
 #define MSG_AUTO_HOME_Y                     "Ir para origem Y"
 #define MSG_AUTO_HOME_Z                     "Ir para origem Z"
+#define MSG_TMC_Z_CALIBRATION               "Calibrar Z"
 #define MSG_LEVEL_BED_HOMING                "Indo para origem"
 #define MSG_LEVEL_BED_WAITING               "Click para iniciar"
 #define MSG_LEVEL_BED_NEXT_POINT            "Proximo ponto"

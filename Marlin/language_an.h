@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Orichen X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Orichen Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Orichen Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Orichen XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Encetar (pretar)")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Vinient punto")

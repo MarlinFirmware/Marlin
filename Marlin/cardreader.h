@@ -32,8 +32,6 @@
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
-#include "types.h"
-#include "enum.h"
 
 class CardReader {
 public:
@@ -45,8 +43,8 @@ public:
   void beginautostart();
   void checkautostart();
 
-  void openFile(char* name, const bool read, const bool subcall=false);
-  void openLogFile(char* name);
+  void openFile(char * const path, const bool read, const bool subcall=false);
+  void openLogFile(char * const path);
   void removeFile(const char * const name);
   void closefile(const bool store_location=false);
   void release();
@@ -74,6 +72,8 @@ public:
   void chdir(const char *relpath);
   int8_t updir();
   void setroot();
+
+  const char* diveToFile(SdFile*& curDir, const char * const path, const bool echo);
 
   uint16_t get_num_Files();
 
@@ -114,12 +114,14 @@ public:
     }
   #endif
 
-  bool saving, logging, sdprinting, cardOK, filenameIsDir;
-  char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
-  int autostart_index;
+  FORCE_INLINE char* longest_filename() { return longFilename[0] ? longFilename : filename; }
 
+public:
+  bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
+  char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
+  int8_t autostart_index;
 private:
-  SdFile root, *curDir, workDir, workDirParents[MAX_DIR_DEPTH];
+  SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;
 
   // Sort files and folders alphabetically.
@@ -172,7 +174,7 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  Sd2Card card;
+  Sd2Card sd2card;
   SdVolume volume;
   SdFile file;
 
@@ -204,13 +206,13 @@ private:
 
 #if PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == HIGH)
+    #define IS_SD_INSERTED()  READ(SD_DETECT_PIN)
   #else
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == LOW)
+    #define IS_SD_INSERTED() !READ(SD_DETECT_PIN)
   #endif
 #else
   // No card detect line? Assume the card is inserted.
-  #define IS_SD_INSERTED true
+  #define IS_SD_INSERTED() true
 #endif
 
 extern CardReader card;
@@ -218,11 +220,11 @@ extern CardReader card;
 #endif // SDSUPPORT
 
 #if ENABLED(SDSUPPORT)
-  #define IS_SD_PRINTING (card.sdprinting)
-  #define IS_SD_FILE_OPEN (card.isFileOpen())
+  #define IS_SD_PRINTING()  card.sdprinting
+  #define IS_SD_FILE_OPEN() card.isFileOpen()
 #else
-  #define IS_SD_PRINTING (false)
-  #define IS_SD_FILE_OPEN (false)
+  #define IS_SD_PRINTING()  false
+  #define IS_SD_FILE_OPEN() false
 #endif
 
 #endif // _CARDREADER_H_

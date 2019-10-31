@@ -88,11 +88,15 @@
 #if ENABLED(RAMPS_V_1_0)
   #define HEATER_0_PIN     12
   #define HEATER_BED_PIN   -1
-  #define FAN_PIN          11
+  #ifndef FAN_PIN
+    #define FAN_PIN        11
+  #endif
 #else // RAMPS_V_1_1 or RAMPS_V_1_2
   #define HEATER_0_PIN     10
   #define HEATER_BED_PIN    8
-  #define FAN_PIN           9
+  #ifndef FAN_PIN
+    #define FAN_PIN         9
+  #endif
 #endif
 
 //

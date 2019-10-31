@@ -46,6 +46,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("回X原點")  //"Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("回Y原點")  //"Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("回Z原點")  //"Home Z"
+#define MSG_TMC_Z_CALIBRATION               _UxGT("⊿校準Z")  //"Calibrate Z"
 #define MSG_LEVEL_BED_HOMING                _UxGT("平台調平XYZ歸原點")  //"Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("單擊開始熱床調平")  //"Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("下個熱床調平點")  //"Next Point"
@@ -141,8 +142,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("一步步UBL") // "Step-By-Step UBL"
 
 #define MSG_LED_CONTROL                     _UxGT("灯管控制") // "LED Control")
-#define MSG_LEDS_ON                         _UxGT("灯亮") // "Lights On")
-#define MSG_LEDS_OFF                        _UxGT("灯灭") // "Lights Off")
+#define MSG_LEDS                            _UxGT("灯") // "Lights")
 #define MSG_LED_PRESETS                     _UxGT("灯预置") // "Light Presets")
 #define MSG_SET_LEDS_RED                    _UxGT("红") // "Red")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("橙") // "Orange")

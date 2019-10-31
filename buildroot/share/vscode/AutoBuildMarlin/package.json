@@ -1,0 +1,96 @@
+{
+  "name": "auto-build",
+  "displayName": "Auto Build Marlin",
+  "description": "Auto Build Marlin for VS code",
+  "version": "0.1.0",
+  "publisher": "marlinfirmware",
+  "engines": {
+    "vscode": "^1.23.0"
+  },
+  "enableProposedApi": true,
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:piobuild",
+    "onCommand:pioclean",
+    "onCommand:pioupload",
+    "onCommand:piotraceback"
+  ],
+  "main": "./extension",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "auto-build",
+          "title": "Auto Build Marlin",
+          "icon": "media/AB.svg"
+        }
+      ]
+    },
+    "views": {
+      "auto-build": [
+        {
+          "id": "autobuild",
+          "name": " "
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "piobuild",
+        "title": "PIO Build",
+        "icon": "resources/B32x32_white.svg"
+      },
+      {
+        "command": "pioclean",
+        "title": "PIO Clean",
+        "icon": "resources/C32x32_white.svg"
+      },
+      {
+        "command": "pioupload",
+        "title": "PIO Upload",
+        "icon": "resources/U32x32_white.svg"
+      },
+      {
+        "command": "piotraceback",
+        "title": "PIO Upload (traceback)",
+        "icon": "resources/Ut32x32_white.svg"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "piobuild",
+          "group": "navigation@1"
+        },
+        {
+          "command": "pioclean",
+          "group": "navigation@2"
+        },
+        {
+          "command": "pioupload",
+          "group": "navigation@3"
+        },
+        {
+          "command": "piotraceback",
+          "group": "navigation@4"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "vscode": "^1.1.17",
+    "typescript": "^2.6.1",
+    "tslint": "^5.8.0",
+    "@types/node": "^7.0.43",
+    "@types/mocha": "^2.2.42"
+  }
+}

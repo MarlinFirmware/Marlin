@@ -144,7 +144,7 @@
   #endif // DISPLAY_CHARSET_HD44780
 #endif // SIMULATE_ROMFONT
 
-#define PRINTABLE(C) (((C) & 0xC0u) != 0x80u)
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
 
 #if ENABLED(MAPPER_C2C3)
 

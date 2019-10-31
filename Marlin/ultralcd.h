@@ -41,8 +41,8 @@
 
   #include "Marlin.h"
 
-  int16_t lcd_strlen(const char* s);
-  int16_t lcd_strlen_P(const char* s);
+  int16_t utf8_strlen(const char* s);
+  int16_t utf8_strlen_P(const char* s);
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
@@ -178,12 +178,6 @@
     #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & KEYPAD_HOME)
     #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
 
-    #if BUTTON_EXISTS(ENC)
-      #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
-    #else
-      #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU
-    #endif
-
     #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
                                               EN_REPRAPWORLD_KEYPAD_F3 | \
                                               EN_REPRAPWORLD_KEYPAD_F2 | \
@@ -194,14 +188,6 @@
                                               EN_REPRAPWORLD_KEYPAD_UP | \
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
-
-  #elif defined(EN_C)
-
-    #define LCD_CLICKED (buttons & EN_C)
-
-  #else
-
-    #define LCD_CLICKED false
 
   #endif
 
@@ -257,17 +243,23 @@
 
 #endif
 
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #ifdef EN_C
+    #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
+  #else
+    #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU
+  #endif
+#elif defined(EN_C)
+  #define LCD_CLICKED (buttons & EN_C)
+#else
+  #define LCD_CLICKED false
+#endif
+
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
 
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   void lcd_reselect_last_file();
-#endif
-
-#if ENABLED(ULTIPANEL) && ENABLED(SDSUPPORT)
-  extern bool abort_sd_printing;
-#else
-  constexpr bool abort_sd_printing = false;
 #endif
 
 #endif // ULTRALCD_H

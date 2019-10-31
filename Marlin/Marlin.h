@@ -60,10 +60,10 @@ extern const char axis_codes[XYZE];
 
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
-  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
 #elif HAS_X_ENABLE
   #define  enable_X() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
 #else
   #define  enable_X() NOOP
   #define disable_X() NOOP
@@ -71,10 +71,10 @@ extern const char axis_codes[XYZE];
 
 #if HAS_Y2_ENABLE
   #define  enable_Y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
-  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
 #elif HAS_Y_ENABLE
   #define  enable_Y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
 #else
   #define  enable_Y() NOOP
   #define disable_Y() NOOP
@@ -82,10 +82,10 @@ extern const char axis_codes[XYZE];
 
 #if HAS_Z2_ENABLE
   #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
-  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
 #elif HAS_Z_ENABLE
   #define  enable_Z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
 #else
   #define  enable_Z() NOOP
   #define disable_Z() NOOP
@@ -96,7 +96,10 @@ extern const char axis_codes[XYZE];
   /**
    * Mixing steppers synchronize their enable (and direction) together
    */
-  #if MIXING_STEPPERS > 3
+  #if MIXING_STEPPERS > 4
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); E4_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); E4_ENABLE_WRITE(!E_ENABLE_ON); }
+  #elif MIXING_STEPPERS > 3
     #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
     #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
   #elif MIXING_STEPPERS > 2
@@ -159,6 +162,42 @@ extern const char axis_codes[XYZE];
 
 #endif // !MIXING_EXTRUDER
 
+#if ENABLED(HANGPRINTER)
+
+  #define enable_A() enable_X()
+  #define enable_B() enable_Y()
+  #define enable_C() enable_Z()
+  #define __D_ENABLE(p) E##p##_ENABLE_WRITE(E_ENABLE_ON)
+  #define _D_ENABLE(p) __D_ENABLE(p)
+  #define enable_D() _D_ENABLE(EXTRUDERS)
+
+  // Don't allow any axes to be disabled
+  #undef disable_X
+  #undef disable_Y
+  #undef disable_Z
+  #define disable_X() NOOP
+  #define disable_Y() NOOP
+  #define disable_Z() NOOP
+
+  #if EXTRUDERS >= 1
+    #undef disable_E1
+    #define disable_E1() NOOP
+    #if EXTRUDERS >= 2
+      #undef disable_E2
+      #define disable_E2() NOOP
+      #if EXTRUDERS >= 3
+        #undef disable_E3
+        #define disable_E3() NOOP
+        #if EXTRUDERS >= 4
+          #undef disable_E4
+          #define disable_E4() NOOP
+        #endif // EXTRUDERS >= 4
+      #endif // EXTRUDERS >= 3
+    #endif // EXTRUDERS >= 2
+  #endif // EXTRUDERS >= 1
+
+#endif // HANGPRINTER
+
 #if ENABLED(G38_PROBE_TARGET)
   extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
               G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
@@ -193,8 +232,8 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a single command to the end of the buffer. Return false on failure.
-void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
+bool enqueue_and_echo_command(const char* cmd);           // Add a single command to the end of the buffer. Return false on failure.
+void enqueue_and_echo_commands_P(const char * const cmd); // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(POWER_LOSS_RECOVERY)
@@ -220,11 +259,16 @@ inline void reset_stepper_timeout() { previous_move_ms = millis(); }
 extern float feedrate_mm_s;
 extern int16_t feedrate_percentage;
 
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
+#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
-extern bool axis_relative_modes[];
-extern bool axis_known_position[XYZ];
-extern bool axis_homed[XYZ];
+extern bool axis_relative_modes[XYZE];
+
+extern uint8_t axis_homed, axis_known_position;
+
+constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
+FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
+
 extern volatile bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
@@ -294,10 +338,18 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   bool select_coordinate_system(const int8_t _new);
 #endif
 
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
+
+void home_all_axes();
+
 void report_current_position();
 
 #if IS_KINEMATIC
-  extern float delta[ABC];
+  #if ENABLED(HANGPRINTER)
+    extern float line_lengths[ABCD];
+  #else
+    extern float delta[ABC];
+  #endif
   void inverse_kinematics(const float raw[XYZ]);
 #endif
 
@@ -316,25 +368,63 @@ void report_current_position();
   void recalc_delta_settings();
   float delta_safe_distance_from_top();
 
-  #if ENABLED(DELTA_FAST_SQRT)
-    float Q_rsqrt(const float number);
-    #define _SQRT(n) (1.0f / Q_rsqrt(n))
-  #else
-    #define _SQRT(n) SQRT(n)
-  #endif
-
   // Macro to obtain the Z position of an individual tower
-  #define DELTA_Z(V,T) V[Z_AXIS] + _SQRT(   \
+  #define DELTA_Z(V,T) V[Z_AXIS] + SQRT(    \
     delta_diagonal_rod_2_tower[T] - HYPOT2( \
         delta_tower[T][X_AXIS] - V[X_AXIS], \
         delta_tower[T][Y_AXIS] - V[Y_AXIS]  \
       )                                     \
     )
 
-  #define DELTA_IK(V) do {        \
+  #define DELTA_IK(V) do {              \
     delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
     delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
     delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
+  }while(0)
+
+#elif ENABLED(HANGPRINTER)
+
+  // Don't collect anchor positions in array because there are no A_x, D_x or D_y
+  extern float anchor_A_y,
+               anchor_A_z,
+               anchor_B_x,
+               anchor_B_y,
+               anchor_B_z,
+               anchor_C_x,
+               anchor_C_y,
+               anchor_C_z,
+               anchor_D_z,
+               delta_segments_per_second,
+               line_lengths_origin[ABCD];
+
+  void recalc_hangprinter_settings();
+
+  #define HANGPRINTER_IK(V) do {                             \
+    line_lengths[A_AXIS] = SQRT(sq(anchor_A_z - V[Z_AXIS])   \
+                              + sq(anchor_A_y - V[Y_AXIS])   \
+                              + sq(             V[X_AXIS])); \
+    line_lengths[B_AXIS] = SQRT(sq(anchor_B_z - V[Z_AXIS])   \
+                              + sq(anchor_B_y - V[Y_AXIS])   \
+                              + sq(anchor_B_x - V[X_AXIS])); \
+    line_lengths[C_AXIS] = SQRT(sq(anchor_C_z - V[Z_AXIS])   \
+                              + sq(anchor_C_y - V[Y_AXIS])   \
+                              + sq(anchor_C_x - V[X_AXIS])); \
+    line_lengths[D_AXIS] = SQRT(sq(             V[X_AXIS])   \
+                              + sq(             V[Y_AXIS])   \
+                              + sq(anchor_D_z - V[Z_AXIS])); \
+  }while(0)
+
+  // Inverse kinematics at origin
+  #define HANGPRINTER_IK_ORIGIN(LL) do { \
+    LL[A_AXIS] = SQRT(sq(anchor_A_z)     \
+                    + sq(anchor_A_y));   \
+    LL[B_AXIS] = SQRT(sq(anchor_B_z)     \
+                    + sq(anchor_B_y)     \
+                    + sq(anchor_B_x));   \
+    LL[C_AXIS] = SQRT(sq(anchor_C_z)     \
+                    + sq(anchor_C_y)     \
+                    + sq(anchor_C_x));   \
+    LL[D_AXIS] = anchor_D_z;             \
   }while(0)
 
 #elif IS_SCARA
@@ -368,11 +458,6 @@ void report_current_position();
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(MESH_BED_LEVELING)
   typedef float (*element_2d_fn)(const uint8_t, const uint8_t);
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const element_2d_fn fn);
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  typedef struct { double A, B, D; } linear_fit;
-  linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
 #endif
 
 #if HAS_LEVELING
@@ -468,10 +553,10 @@ void prepare_move_to_destination();
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0.0);
-void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0.0);
-void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0.0);
-void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0.0);
+void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
+void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
+void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
 
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(const float(&cart)[XYZE], const float(&offset)[2], const bool clockwise);
@@ -506,6 +591,9 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset);
+    #elif ENABLED(HANGPRINTER)
+      // TODO: This is over simplified. Hangprinter's build volume is _not_ cylindrical.
+      return HYPOT2(rx, ry) <= sq(HANGPRINTER_PRINTABLE_RADIUS - inset);
     #elif IS_SCARA
       const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
       return (
@@ -531,8 +619,8 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
    // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
     // Add 0.001 margin to deal with float imprecision
-    return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
-        && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
+    return WITHIN(rx, X_MIN_POS - 0.001f, X_MAX_POS + 0.001f)
+        && WITHIN(ry, Y_MIN_POS - 0.001f, Y_MAX_POS + 0.001f);
   }
 
   #if HAS_BED_PROBE
@@ -545,8 +633,8 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-          && WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
-          && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
+          && WITHIN(rx, MIN_PROBE_X - 0.001f, MAX_PROBE_X + 0.001f)
+          && WITHIN(ry, MIN_PROBE_Y - 0.001f, MAX_PROBE_Y + 0.001f);
     }
   #endif
 
