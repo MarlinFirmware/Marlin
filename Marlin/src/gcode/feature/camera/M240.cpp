@@ -26,6 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../module/motion.h" // for active_extruder and current_position
+#include "../../../module/planner.h"
 
 #if PIN_EXISTS(CHDK)
   millis_t chdk_timeout; // = 0
@@ -148,7 +149,7 @@ void GcodeSuite::M240() {
   #if PIN_EXISTS(CHDK)
 
     OUT_WRITE(CHDK_PIN, HIGH);
-    chdk_timeout = millis() + PHOTO_SWITCH_MS;
+    chdk_timeout = millis() + parser.intval('D', PHOTO_SWITCH_MS);
 
   #elif HAS_PHOTOGRAPH
 
@@ -160,7 +161,7 @@ void GcodeSuite::M240() {
 
   #ifdef PHOTO_POSITION
     #if PHOTO_DELAY_MS > 0
-      const millis_t timeout = millis() + PHOTO_DELAY_MS;
+      const millis_t timeout = millis() + parser.intval('P', PHOTO_DELAY_MS);
       while (PENDING(millis(), timeout)) idle();
     #endif
     do_blocking_move_to(old_pos, fr_mm_s);
