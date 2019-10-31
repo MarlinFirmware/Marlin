@@ -199,6 +199,10 @@ bool wait_for_heatup = true;
 millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
+#if PIN_EXISTS(CHDK)
+  extern millis_t chdk_timeout;
+#endif
+
 #if ENABLED(I2C_POSITION_ENCODERS)
   I2CPositionEncodersMgr I2CPEM;
 #endif
@@ -406,6 +410,7 @@ void startOrResumeJob() {
  *  - Keep the command buffer full
  *  - Check for maximum inactive time between commands
  *  - Check for maximum inactive time between stepper commands
+ *  - Check if CHDK_PIN needs to go LOW
  *  - Check for KILL button held down
  *  - Check for HOME button held down
  *  - Check if cooling fan needs to be switched on
@@ -466,6 +471,13 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     else
       already_shutdown_steppers = false;
   }
+
+  #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
+    if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
+      chdk_timeout = 0;
+      WRITE(CHDK_PIN, LOW);
+    }
+  #endif
 
   #if HAS_KILL
 
