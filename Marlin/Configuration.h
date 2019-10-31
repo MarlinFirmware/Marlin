@@ -1391,15 +1391,26 @@
   #define GRID_MAX_POINTS_X 10
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
-  // Set the boundaries for probing (where the probe can reach).
-  #define MIN_PROBE_EDGE_LEFT   10
-  #define MIN_PROBE_EDGE_RIGHT  X_BED_SIZE - MIN_PROBE_EDGE
+//
+// ____________________________
+// |          Back            |
+// |      ______________      |
+// |      |            |      |
+// |      |  Printing- |      |
+// | Left |  Area      | Right|
+// |      |            |      |
+// |      |____________|      |
+// |          Front           |
+// |__________________________|
+// Set the boundaries for probing (where the probe can reach).
+  #define MIN_PROBE_EDGE_LEFT   MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_RIGHT  MIN_PROBE_EDGE
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
-  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE + 4 /* +4 vg3r specific adjustment */
+  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE + 4 // MIN_PROBE_EDGE + 4 /* +4 vg3r specific adjustment */
 #else
   #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE
 #endif
-  #define MIN_PROBE_EDGE_BACK   Y_BED_SIZE - MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_BACK   MIN_PROBE_EDGE
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
