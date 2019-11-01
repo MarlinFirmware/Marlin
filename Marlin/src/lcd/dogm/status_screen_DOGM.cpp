@@ -438,7 +438,7 @@ void MarlinUI::draw_status_screen() {
             ));
           }
           #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
-            progress_x_pos = _SD_INFO_X(strlen(progress_string));
+            progress_x_pos = _SD_INFO_X(strlen(progress_string)+1);
           #endif
         #endif
       }
