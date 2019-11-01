@@ -389,9 +389,10 @@ void MarlinUI::draw_status_screen() {
       heat_bits = new_bits;
     #endif
     const xyz_pos_t lpos = current_position.asLogical();
-    if (showxy)
+    if (showxy) {
       strcpy(xstring, ftostr4sign(lpos.x));
       strcpy(ystring, ftostr4sign(lpos.y));
+    }
     else {
       #if ENABLED(LCD_SHOW_E_TOTAL)
         const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
