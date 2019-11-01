@@ -141,7 +141,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *
  * ...which calls:
  *       MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
- *       draw_menu_item_int3(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
+ *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
  */
 void MenuEditItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   #if ENABLED(TOUCH_BUTTONS)
@@ -150,7 +150,7 @@ void MenuEditItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
-    draw_edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
+    edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
     if (editValue != nullptr) loadfunc(editValue, ui.encoderPosition + minEditValue);
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
@@ -309,7 +309,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 static PGM_P sync_message;
 
 void MarlinUI::_synchronize() {
-  if (should_draw()) draw_menu_item_static(LCD_HEIGHT >= 4 ? 1 : 0, sync_message);
+  if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
   if (no_reentry) return;
   // Make this the current handler till all moves are done
   no_reentry = true;
@@ -417,10 +417,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          draw_edit_screen(GET_TEXT(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
+          MenuEditItemBase::edit_screen(GET_TEXT(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
         else
       #endif
-          draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
+          MenuEditItemBase::edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
         if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
@@ -465,7 +465,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 void _lcd_draw_homing() {
   constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
-  if (ui.should_draw()) draw_menu_item_static(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
+  if (ui.should_draw()) MenuItem_static::draw(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
 }
 
