@@ -202,19 +202,11 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
-      SUBMENU(MSG_BLTOUCH_5V_MODE, []{
-        do_select_screen(GET_TEXT(MSG_BLTOUCH_5V_MODE), GET_TEXT(MSG_BUTTON_CANCEL), bltouch._set_5V_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      });
-      SUBMENU(MSG_BLTOUCH_OD_MODE, []{
-        do_select_screen(GET_TEXT(MSG_BLTOUCH_OD_MODE), GET_TEXT(MSG_BUTTON_CANCEL), bltouch._set_OD_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      });
+      CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       ACTION_ITEM(MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
-      SUBMENU(MSG_BLTOUCH_MODE_STORE_5V, []{
-        do_select_screen(GET_TEXT(MSG_BLTOUCH_MODE_STORE_5V), GET_TEXT(MSG_BUTTON_CANCEL), bltouch.mode_conv_5V, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      });
-      SUBMENU(MSG_BLTOUCH_MODE_STORE_OD, []{
-        do_select_screen(GET_TEXT(MSG_BLTOUCH_MODE_STORE_OD), GET_TEXT(MSG_BUTTON_CANCEL), bltouch.mode_conv_OD, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      });
+      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_5V, MSG_BLTOUCH_MODE_STORE_5V, MSG_BUTTON_CANCEL, bltouch.mode_conv_5V, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_OD, MSG_BLTOUCH_MODE_STORE_OD, MSG_BUTTON_CANCEL, bltouch.mode_conv_OD, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       ACTION_ITEM(MSG_BLTOUCH_MODE_ECHO, bltouch_report);
     #endif
     END_MENU();

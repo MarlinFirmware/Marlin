@@ -38,11 +38,6 @@ void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();
 
 typedef void (*selectFunc_t)();
-void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff);
-void do_select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
-inline void do_select_screen_yn(selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr) {
-  do_select_screen(GET_TEXT(MSG_YES), GET_TEXT(MSG_NO), yesFunc, noFunc, pref, string, suff);
-}
 
 #define SS_LEFT    0x00
 #define SS_CENTER  0x01
@@ -70,6 +65,42 @@ class MenuItemBase {
     // Draw an item either selected ('>') or not (space) with post_char
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char post_char) {
       _draw(sel, row, pstr, '>', post_char);
+    }
+};
+
+// CONFIRM_ITEM(PLABEL,Y,N,FY,FN,V...), YESNO_ITEM(PLABEL,FY,FN,V...)
+class MenuItem_confirm : MenuItemBase {
+  public:
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
+      _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
+    }
+    // Implemented for HD44780 and DOGM
+    // Draw the prompt, buttons, and state
+    static void draw_select_screen(
+      PGM_P const yes,            // Right option label
+      PGM_P const no,             // Left option label
+      const bool yesno,           // Is "yes" selected?
+      PGM_P const pref,           // Prompt prefix
+      const char * const string,  // Prompt runtime string
+      PGM_P const suff            // Prompt suffix
+    );
+    static void select_screen(
+      PGM_P const yes, PGM_P const no,
+      selectFunc_t yesFunc, selectFunc_t noFunc,
+      PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr
+    );
+    static inline void select_screen(
+      PGM_P const yes, PGM_P const no,
+      selectFunc_t yesFunc, selectFunc_t noFunc,
+      PGM_P const pref, const progmem_str string, PGM_P const suff=nullptr
+    ) {
+      char str[strlen_P((PGM_P)string) + 1];
+      strcpy_P(str, (PGM_P)string);
+      select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+    }
+    // Shortcut for prompt with "NO"/ "YES" labels
+    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr) {
+      select_screen(GET_TEXT(MSG_YES), GET_TEXT(MSG_NO), yesFunc, noFunc, pref, string, suff);
     }
 };
 
@@ -316,20 +347,20 @@ class MenuItem_bool : public MenuEditItemBase {
  *     MenuItem_int3::action(GET_TEXT(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
-#define _MENU_ITEM_P(TYPE, USE_MULTIPLIER, PLABEL, V...) do {  \
-    _skipStatic = false;                                          \
-    if (_menuLineNr == _thisItemNr) {                             \
-      PGM_P const plabel = PLABEL;                                \
-      if (encoderLine == _thisItemNr && ui.use_click()) {         \
-        _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);              \
-        MenuItem_##TYPE ::action(plabel, ##V);                    \
-        if (screen_changed) return;                               \
-      }                                                           \
-      if (ui.should_draw())                                       \
-        MenuItem_##TYPE::draw                                     \
-          (encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V);  \
-    }                                                             \
-  ++_thisItemNr;                                                  \
+#define _MENU_ITEM_P(TYPE, USE_MULTIPLIER, PLABEL, V...) do {   \
+  _skipStatic = false;                                          \
+  if (_menuLineNr == _thisItemNr) {                             \
+    PGM_P const plabel = PLABEL;                                \
+    if (encoderLine == _thisItemNr && ui.use_click()) {         \
+      _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);              \
+      MenuItem_##TYPE::action(plabel, ##V);                     \
+      if (screen_changed) return;                               \
+    }                                                           \
+    if (ui.should_draw())                                       \
+      MenuItem_##TYPE::draw                                     \
+        (encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V);  \
+  }                                                             \
+  ++_thisItemNr;                                                \
 }while(0)
 
 // Used to print static text with no visible cursor.
@@ -368,6 +399,24 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define BACK_ITEM(LABEL)                         MENU_ITEM(back, LABEL)
 #define SKIP_ITEM() (_thisItemNr++)
+
+#define _CONFIRM_ITEM_P(PLABEL, V...) do {                      \
+  _skipStatic = false;                                          \
+  if (_menuLineNr == _thisItemNr) {                             \
+    if (encoderLine == _thisItemNr && ui.use_click()) {         \
+      ui.goto_screen([]{MenuItem_confirm::select_screen(V);});  \
+      return;                                                   \
+    }                                                           \
+    if (ui.should_draw()) MenuItem_confirm::draw                \
+      (encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ##V);    \
+  }                                                             \
+  ++_thisItemNr;                                                \
+}while(0)
+
+#define CONFIRM_ITEM_P(PLABEL,A,B,V...) _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
+#define CONFIRM_ITEM(LABEL, V...)        CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_P(PLABEL, V...)      _CONFIRM_ITEM_P(PLABEL, ##V)
+#define YESNO_ITEM(LABEL, V...)         _CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////

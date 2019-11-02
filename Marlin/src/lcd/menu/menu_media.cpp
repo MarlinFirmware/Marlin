@@ -79,7 +79,7 @@ inline void sdcard_start_selected_file() {
     char buffer[strlen(longest) + 2];
     buffer[0] = ' ';
     strcpy(buffer + 1, longest);
-    do_select_screen(
+    MenuItem_confirm::select_screen(
       GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
       sdcard_start_selected_file, ui.goto_previous_screen,
       GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")

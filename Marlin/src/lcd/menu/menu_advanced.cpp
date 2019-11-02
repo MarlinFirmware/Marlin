@@ -48,6 +48,10 @@
   float lcd_runout_distance_mm;
 #endif
 
+#if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
+  #include "../../module/configuration_store.h"
+#endif
+
 void menu_tmc();
 void menu_backlash();
 void menu_cancelobject();
@@ -595,27 +599,6 @@ void menu_cancelobject();
     END_MENU();
   }
 
-  #if ENABLED(EEPROM_SETTINGS)
-
-    #include "../../module/configuration_store.h"
-
-    static void lcd_init_eeprom_confirm() {
-      do_select_screen(
-        GET_TEXT(MSG_BUTTON_INIT), GET_TEXT(MSG_BUTTON_CANCEL),
-        []{
-          const bool inited = settings.init_eeprom();
-          #if HAS_BUZZER
-            ui.completion_feedback(inited);
-          #endif
-          UNUSED(inited);
-        },
-        ui.goto_previous_screen,
-        GET_TEXT(MSG_INIT_EEPROM), nullptr, PSTR("?")
-      );
-    }
-
-  #endif
-
 #endif // !SLIM_LCD_MENUS
 
 void menu_advanced_settings() {
@@ -718,7 +701,18 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
-    SUBMENU(MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
+    CONFIRM_ITEM(MSG_INIT_EEPROM,
+      MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
+      []{
+        const bool inited = settings.init_eeprom();
+        #if HAS_BUZZER
+          ui.completion_feedback(inited);
+        #endif
+        UNUSED(inited);
+      },
+      ui.goto_previous_screen,
+      GET_TEXT(MSG_INIT_EEPROM), (PGM_P)nullptr, PSTR("?")
+    );
   #endif
 
   END_MENU();
