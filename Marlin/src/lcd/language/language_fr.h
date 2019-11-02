@@ -138,9 +138,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Copie miroir");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Contrôle complet");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Offsets Outil");
-  PROGMEM Language_Str MSG_X_OFFSET                        = _UxGT("Buse 2 X");
-  PROGMEM Language_Str MSG_Y_OFFSET                        = _UxGT("Buse 2 Y");
-  PROGMEM Language_Str MSG_Z_OFFSET                        = _UxGT("Buse 2 Z");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("Buse 2 X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("Buse 2 Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("Buse 2 Z");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Chauffe lit");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Chauffe buse");
   PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Amorce manuelle...");

@@ -417,7 +417,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          MenuEditItemBase::edit_screen(GET_TEXT(MSG_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
+          MenuEditItemBase::edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr43sign(hotend_offset[active_extruder].z));
         else
       #endif
           MenuEditItemBase::edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
