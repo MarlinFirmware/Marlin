@@ -125,18 +125,18 @@
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = pin_bit(SCK_PIN);
-    PinCfg.Portnum = pin_port(SCK_PIN);
+    PinCfg.Pinnum = LPC176x::pin_bit(SCK_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(SCK_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(SCK_PIN);
 
-    PinCfg.Pinnum = pin_bit(MISO_PIN);
-    PinCfg.Portnum = pin_port(MISO_PIN);
+    PinCfg.Pinnum = LPC176x::pin_bit(MISO_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(MISO_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_INPUT(MISO_PIN);
 
-    PinCfg.Pinnum = pin_bit(MOSI_PIN);
-    PinCfg.Portnum = pin_port(MOSI_PIN);
+    PinCfg.Pinnum = LPC176x::pin_bit(MOSI_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(MOSI_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(MOSI_PIN);
     // divide PCLK by 2 for SSP0

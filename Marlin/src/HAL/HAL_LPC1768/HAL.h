@@ -149,22 +149,22 @@ extern uint32_t HAL_adc_reading;
 
 // Test whether the pin is valid
 constexpr bool VALID_PIN(const pin_t pin) {
-  return pin_is_valid(pin);
+  return LPC176x::pin_is_valid(pin);
 }
 
 // Get the analog index for a digital pin
 constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t pin) {
-  return (pin_is_valid(pin) && pin_has_adc(pin)) ? pin : -1;
+  return (LPC176x::pin_is_valid(pin) && LPC176x::pin_has_adc(pin)) ? pin : -1;
 }
 
 // Return the index of a pin number
 constexpr int16_t GET_PIN_MAP_INDEX(const pin_t pin) {
-  return pin_index(pin);
+  return LPC176x::pin_index(pin);
 }
 
 // Get the pin number at the given index
 constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
-  return pin_index(index);
+  return LPC176x::pin_index(index);
 }
 
 // Parse a G-code word into a pin index
