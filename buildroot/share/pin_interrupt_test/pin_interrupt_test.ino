@@ -2,7 +2,7 @@
 // Compile with the same build settings you'd use for Marlin.
 
 #if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA)
-  #define moreDigitalPinToPCICR(p) digitalPinToPCICR(WITHIN(p, 13, 14) ? 10 : p)
+  #define moreDigitalPinToPCICR(p) digitalPinToPCICR(WITHIN(p, 14, 15) ? 10 : p)
 #else
   #define moreDigitalPinToPCICR(p) digitalPinToPCICR(p)
 #endif

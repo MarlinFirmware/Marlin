@@ -46,16 +46,16 @@ void endstop_ISR() { endstops.update(); }
 /**
  * Patch for pins_arduino.h (...\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h)
  *
- * These macros for the Arduino MEGA do not include the two connected pins on Port J (D13, D14).
+ * These macros for the Arduino MEGA do not include the two connected pins on Port J (D14, D15).
  * So we extend them here because these are the normal pins for Y_MIN and Y_MAX on RAMPS.
  * There are more PCI-enabled processor pins on Port J, but they are not connected to Arduino MEGA.
  */
 #if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA)
   #define digitalPinHasPCICR(p)   (WITHIN(p, 10, 15) || WITHIN(p, 50, 53) || WITHIN(p, 62, 69))
-  #define moreDigitalPinToPCICR(p)    digitalPinToPCICR(WITHIN(p, 13, 14) ? 10 : p)
-  #define moreDigitalPinToPCICRbit(p) digitalPinToPCICRbit(p == 13 ? 10 : p == 14 ? 15 : p)
-  #define moreDigitalPinToPCMSK(p)    digitalPinToPCMSK(   p == 13 ? 10 : p == 14 ? 15 : p)
-  #define moreDigitalPinToPCMSKbit(p) digitalPinToPCMSKbit(p == 13 ? 10 : p == 14 ? 51 : p)
+  #define moreDigitalPinToPCICR(p)    digitalPinToPCICR(WITHIN(p, 14, 15) ? 10 : p)
+  #define moreDigitalPinToPCICRbit(p) (WITHIN(p, 14, 15) ? 1 : digitalPinToPCICRbit(p))
+  #define moreDigitalPinToPCMSK(p)    (WITHIN(p, 14, 15) ? (&PCMSK1) : digitalPinToPCMSK(p))
+  #define moreDigitalPinToPCMSKbit(p) digitalPinToPCMSKbit(WITHIN(p, 14, 15) ? (p)+36 : p)
 #endif
 
 
