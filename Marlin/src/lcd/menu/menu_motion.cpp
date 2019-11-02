@@ -256,7 +256,8 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
     SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
     if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
-      SUBMENU_P(PSTR(""), []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+      extern const char NUL_STR[];
+      SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
       MENU_ITEM_ADDON_START(0);
         char tmp[20], numstr[10];
         // Determine digits needed right of decimal

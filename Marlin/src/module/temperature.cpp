@@ -539,7 +539,7 @@ volatile bool Temperature::temp_meas_ready = false;
         SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_FINISHED);
 
         #if HAS_PID_FOR_BOTH
-          const char * const estring = GHV(PSTR("bed"), PSTR(""));
+          const char * const estring = GHV(PSTR("bed"), NUL_STR);
           say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Kp ", tune_pid.Kp);
           say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Ki ", tune_pid.Ki);
           say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Kd ", tune_pid.Kd);

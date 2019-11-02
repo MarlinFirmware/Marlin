@@ -184,7 +184,8 @@
 const char G28_STR[] PROGMEM = "G28",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
-           M24_STR[] PROGMEM = "M24";
+           M24_STR[] PROGMEM = "M24",
+           NUL_STR[] PROGMEM = "";
 
 bool Running = true;
 
