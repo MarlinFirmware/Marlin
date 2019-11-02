@@ -268,7 +268,7 @@ void menu_bed_leveling() {
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     // Shadow for editing the fade height
     editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
 
   //

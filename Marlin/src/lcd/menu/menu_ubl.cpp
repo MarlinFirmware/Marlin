@@ -234,7 +234,7 @@ void _lcd_ubl_grid_level() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
   EDIT_ITEM(int3, MSG_UBL_SIDE_POINTS, &side_points, 2, 6);
-  ACTION_ITEM(MSG_UBL_MESH_LEVEL, [](){
+  ACTION_ITEM(MSG_UBL_MESH_LEVEL, []{
     char ubl_lcd_gcode[12];
     sprintf_P(ubl_lcd_gcode, PSTR("G29 J%i"), side_points);
     lcd_enqueue_one_now(ubl_lcd_gcode);
@@ -617,7 +617,7 @@ void _lcd_ubl_level_bed() {
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29 W"));
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
   END_MENU();
 }

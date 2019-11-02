@@ -61,7 +61,7 @@ void menu_cancelobject();
     LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i);
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
-    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_##A " " MSG_DAC_PERCENT, &driverPercent[_AXIS(A)], 0, 100, [](){ dac_current_set_percents(driverPercent); })
+    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_##A " " MSG_DAC_PERCENT, &driverPercent[_AXIS(A)], 0, 100, []{ dac_current_set_percents(driverPercent); })
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
@@ -348,8 +348,8 @@ void menu_cancelobject();
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
         EDIT_ITEM(float52sign, PID_LABEL(MSG_PID_P,N), &PID_PARAM(Kp, N), 1, 9990); \
-        EDIT_ITEM(float52sign, PID_LABEL(MSG_PID_I,N), &raw_Ki, 0.01f, 9990, [](){ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM(float52sign, PID_LABEL(MSG_PID_D,N), &raw_Kd, 1, 9990, [](){ copy_and_scalePID_d(N); })
+        EDIT_ITEM(float52sign, PID_LABEL(MSG_PID_I,N), &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM(float52sign, PID_LABEL(MSG_PID_D,N), &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_EDIT_MENU_ITEMS(N) \
@@ -368,7 +368,7 @@ void menu_cancelobject();
     #if ENABLED(PID_AUTOTUNE_MENU)
       #define PID_EDIT_MENU_ITEMS(N) \
         _PID_EDIT_MENU_ITEMS(N); \
-        EDIT_ITEM_FAST(int3, PID_LABEL(MSG_AUTOTUNE_PID,N), &autotune_temp[N], 150, heater_maxtemp[N] - 15, [](){ _lcd_autotune(N); })
+        EDIT_ITEM_FAST(int3, PID_LABEL(MSG_AUTOTUNE_PID,N), &autotune_temp[N], 150, heater_maxtemp[N] - 15, []{ _lcd_autotune(N); })
     #else
       #define PID_EDIT_MENU_ITEMS(N) _PID_EDIT_MENU_ITEMS(N)
     #endif
@@ -493,15 +493,15 @@ void menu_cancelobject();
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
 
-    #define EDIT_AMAX(Q,L) EDIT_ITEM_FAST(long5_25, MSG_AMAX_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], [](){ planner.reset_acceleration_rates(); })
+    #define EDIT_AMAX(Q,L) EDIT_ITEM_FAST(long5_25, MSG_AMAX_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], []{ planner.reset_acceleration_rates(); })
 
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
     EDIT_AMAX(C, 10);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_AMAX_E(N) EDIT_ITEM_FAST(long5_25, MSG_AMAX_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(N)], 100, max_accel_edit_scaled.e, [](){ _reset_e_acceleration_rate(N); })
-      EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, [](){ planner.reset_acceleration_rates(); });
+      #define EDIT_AMAX_E(N) EDIT_ITEM_FAST(long5_25, MSG_AMAX_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(N)], 100, max_accel_edit_scaled.e, []{ _reset_e_acceleration_rate(N); })
+      EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
       EDIT_AMAX_E(0);
       EDIT_AMAX_E(1);
       #if E_STEPPERS > 2
@@ -517,7 +517,7 @@ void menu_cancelobject();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, [](){ planner.reset_acceleration_rates(); });
+      EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
     #endif
 
     END_MENU();
@@ -566,14 +566,14 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-    #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, [](){ planner.refresh_positioning(); })
+    #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
     EDIT_QSTEPS(A);
     EDIT_QSTEPS(B);
     EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST(float51, MSG_E##N##_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, [](){ _planner_refresh_e_positioning(N); })
-      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, [](){ planner.refresh_positioning(); });
+      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST(float51, MSG_E##N##_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, []{ _planner_refresh_e_positioning(N); })
+      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, []{ planner.refresh_positioning(); });
       EDIT_ESTEPS(0);
       EDIT_ESTEPS(1);
       #if E_STEPPERS > 2
@@ -589,7 +589,7 @@ void menu_cancelobject();
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #elif E_STEPPERS
-      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, [](){ planner.refresh_positioning(); });
+      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
     #endif
 
     END_MENU();
@@ -631,7 +631,7 @@ void menu_advanced_settings() {
       //
       // Set Home Offsets
       //
-      ACTION_ITEM(MSG_SET_HOME_OFFSETS, [](){ queue.inject_P(PSTR("M428")); ui.return_to_status(); });
+      ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject_P(PSTR("M428")); ui.return_to_status(); });
     #endif
 
     // M203 / M205 - Feedrate items
@@ -654,7 +654,7 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(CANCEL_OBJECTS)
-    SUBMENU(MSG_CANCEL_OBJECT, [](){ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+    SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)

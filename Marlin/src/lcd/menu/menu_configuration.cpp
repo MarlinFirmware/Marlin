@@ -399,7 +399,7 @@ void menu_configuration() {
   #endif
 
   if (!busy)
-    ACTION_ITEM(MSG_RESTORE_FAILSAFE, [](){
+    ACTION_ITEM(MSG_RESTORE_FAILSAFE, []{
       settings.reset();
       #if HAS_BUZZER
         ui.completion_feedback();

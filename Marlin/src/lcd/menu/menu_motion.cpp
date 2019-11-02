@@ -252,9 +252,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   #endif
   {
     BACK_ITEM(MSG_MOVE_AXIS);
-    SUBMENU(MSG_MOVE_10MM, [](){ _goto_manual_move(10);    });
-    SUBMENU(MSG_MOVE_1MM,  [](){ _goto_manual_move( 1);    });
-    SUBMENU(MSG_MOVE_01MM, [](){ _goto_manual_move( 0.1f); });
+    SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
+    SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
+    SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
     if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
       SUBMENU_P(PSTR(""), []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
       MENU_ITEM_ADDON_START(0);
@@ -292,15 +292,15 @@ void menu_move() {
         true
       #endif
     ) {
-      SUBMENU(MSG_MOVE_X, [](){ _menu_move_distance(X_AXIS, lcd_move_x); });
-      SUBMENU(MSG_MOVE_Y, [](){ _menu_move_distance(Y_AXIS, lcd_move_y); });
+      SUBMENU(MSG_MOVE_X, []{ _menu_move_distance(X_AXIS, lcd_move_x); });
+      SUBMENU(MSG_MOVE_Y, []{ _menu_move_distance(Y_AXIS, lcd_move_y); });
     }
     #if ENABLED(DELTA)
       else
-        ACTION_ITEM(MSG_FREE_XY, [](){ line_to_z(delta_clip_start_height); ui.synchronize(); });
+        ACTION_ITEM(MSG_FREE_XY, []{ line_to_z(delta_clip_start_height); ui.synchronize(); });
     #endif
 
-    SUBMENU(MSG_MOVE_Z, [](){ _menu_move_distance(Z_AXIS, lcd_move_z); });
+    SUBMENU(MSG_MOVE_Z, []{ _menu_move_distance(Z_AXIS, lcd_move_z); });
   }
   else
     GCODES_ITEM(MSG_AUTO_HOME, PSTR("G28"));
@@ -344,9 +344,9 @@ void menu_move() {
   #if E_MANUAL
 
     // The current extruder
-    SUBMENU(MSG_MOVE_E, [](){ _menu_move_distance(E_AXIS, [](){ lcd_move_e(); }, -1); });
+    SUBMENU(MSG_MOVE_E, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(); }, -1); });
 
-    #define SUBMENU_MOVE_E(N) SUBMENU(MSG_MOVE_E##N, [](){ _menu_move_distance(E_AXIS, [](){ lcd_move_e(N); }, N); });
+    #define SUBMENU_MOVE_E(N) SUBMENU(MSG_MOVE_E##N, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(N); }, N); });
 
     #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
@@ -445,7 +445,7 @@ void menu_motion() {
     }
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       editable.decimal = planner.z_fade_height;
-      EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
+      EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
     #endif
 
   #endif

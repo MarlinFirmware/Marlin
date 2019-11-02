@@ -134,7 +134,7 @@ void menu_media() {
   BACK_ITEM(MSG_MAIN);
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
-      ACTION_ITEM(MSG_REFRESH, [](){ encoderTopLine = 0; card.mount(); });
+      ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())
