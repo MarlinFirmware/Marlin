@@ -52,6 +52,7 @@ void endstop_ISR() { endstops.update(); }
  */
 #if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA)
   #define digitalPinHasPCICR(p)   (WITHIN(p, 10, 15) || WITHIN(p, 50, 53) || WITHIN(p, 62, 69))
+  #define moreDigitalPinToPCICR(p)    digitalPinToPCICR(WITHIN(p, 14, 15) ? 10 : p)
   #define moreDigitalPinToPCICRbit(p) (WITHIN(p, 14, 15) ? 1 : digitalPinToPCICRbit(p))
   #define moreDigitalPinToPCMSK(p)    (WITHIN(p, 14, 15) ? (&PCMSK1) : digitalPinToPCMSK(p))
   #define moreDigitalPinToPCMSKbit(p) digitalPinToPCMSKbit(WITHIN(p, 14, 15) ? (p)+36 : p)
