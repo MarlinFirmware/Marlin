@@ -34,16 +34,17 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-  #if __CORTEX_M == 7
+  #if WITHIN(__CORTEX_M, 3, 7)
 
-    // Cortex-M7 can use the cycle counter of the DWT unit
+    // Cortex-M3 through M7 can use the cycle counter of the DWT unit
     // http://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
 
     FORCE_INLINE static void enableCycleCounter() {
       CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
-      // Unlock DWT.
-      DWT->LAR = 0xC5ACCE55;
+      #if __CORTEX_M == 7
+        DWT->LAR = 0xC5ACCE55; // Unlock DWT on the M7
+      #endif
 
       DWT->CYCCNT = 0;
       DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
