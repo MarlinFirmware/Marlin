@@ -130,7 +130,7 @@ void menu_advanced_settings();
 
     auto _recalc_offsets = []{
       if (active_extruder && all_axes_known()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
-        queue.inject_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
+        queue.inject_P(G28_STR); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
         active_extruder = 0;
       }
     };

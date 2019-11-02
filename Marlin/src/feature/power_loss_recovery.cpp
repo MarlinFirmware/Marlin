@@ -188,8 +188,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       #if EXTRUDERS > 1
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
-        if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder]; 
-      #endif    
+        if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder];
+      #endif
     #endif
 
     #if EXTRUDERS
@@ -301,7 +301,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Recover volumetric extrusion state
-  #if DISABLED(NO_VOLUMETRICS)    
+  #if DISABLED(NO_VOLUMETRICS)
     #if EXTRUDERS > 1
       for (int8_t e = 0; e < EXTRUDERS; e++) {
         dtostrf(info.filament_size[e], 1, 3, str_1);
@@ -437,7 +437,8 @@ void PrintJobRecovery::resume() {
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
-  sprintf_P(cmd, PSTR("M23 %s"), fn);
+  extern const char M23_STR[];
+  sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);

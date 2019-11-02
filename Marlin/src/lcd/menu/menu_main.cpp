@@ -95,6 +95,8 @@ void menu_configuration();
   #endif
 #endif
 
+extern const char M21_STR[];
+
 void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_WATCH);
@@ -129,7 +131,7 @@ void menu_main() {
           SUBMENU(MSG_MEDIA_MENU, menu_media);
           MENU_ITEM(gcode,
             #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, PSTR("M21")
+              MSG_CHANGE_MEDIA, M21_STR
             #else
               MSG_RELEASE_MEDIA, PSTR("M22")
             #endif
@@ -140,7 +142,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_INIT_MEDIA, PSTR("M21"));
+          GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
           ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
         #endif
       }
@@ -218,7 +220,7 @@ void menu_main() {
       if (!card_open) {
         MENU_ITEM(gcode,
           #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_MEDIA, PSTR("M21")
+            MSG_CHANGE_MEDIA, M21_STR
           #else
             MSG_RELEASE_MEDIA, PSTR("M22")
           #endif
@@ -230,7 +232,7 @@ void menu_main() {
       #if PIN_EXISTS(SD_DETECT)
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);
       #else
-        GCODES_ITEM(MSG_INIT_MEDIA, PSTR("M21"));
+        GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
         ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
       #endif
     }
