@@ -45,10 +45,11 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "conf_usb.h"
-#include "udc.h"
 #include <Arduino.h>
 #include <Reset.h>
+
+#include "conf_usb.h"
+#include "udc.h"
 
 #if ENABLED(SDSUPPORT)
   static volatile bool main_b_msc_enable = false;
