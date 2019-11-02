@@ -147,7 +147,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
         + manual_move_offset
       #endif
     , axis);
-    draw_edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    MenuEditItemBase::edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -200,7 +200,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
         }
       #endif // E_MANUAL > 1
 
-      draw_edit_screen(pos_label, ftostr41sign(current_position.e
+      MenuEditItemBase::edit_screen(pos_label, ftostr41sign(current_position.e
         #if IS_KINEMATIC
           + manual_move_offset
         #endif

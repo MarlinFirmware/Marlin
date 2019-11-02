@@ -245,22 +245,6 @@ void lcd_mixer_mix_edit() {
   }
 #endif
 
-//
-// Reset All V-Tools
-//
-void menu_mixer_vtools_reset_confirm() {
-  do_select_screen(
-    GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_CANCEL),
-    []{
-      mixer.reset_vtools();
-      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
-      ui.return_to_status();
-    },
-    ui.goto_previous_screen,
-    GET_TEXT(MSG_RESET_VTOOLS), nullptr, PSTR("?")
-  );
-}
-
 void menu_mixer() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
@@ -287,7 +271,19 @@ void menu_mixer() {
     SUBMENU(MSG_MIX, _lcd_goto_mix_edit);
   #endif
 
-  SUBMENU(MSG_RESET_VTOOLS, menu_mixer_vtools_reset_confirm);
+  //
+  // Reset All V-Tools
+  //
+  CONFIRM_ITEM(MSG_RESET_VTOOLS,
+    MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+    []{
+      mixer.reset_vtools();
+      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
+      ui.return_to_status();
+    },
+    ui.goto_previous_screen,
+    GET_TEXT(MSG_RESET_VTOOLS), (PGM_P)nullptr, PSTR("?")
+  );
 
   #if ENABLED(GRADIENT_MIX)
   {

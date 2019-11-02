@@ -38,7 +38,7 @@
       //Error_Handler();
     }
     else {
-      #if PIN_EXISTS(LED) && !ENABLED(PINS_DEBUGGING)
+      #if PIN_EXISTS(LED) && DISABLED(PINS_DEBUGGING)
         TOGGLE(LED_PIN);  // heartbeat indicator
       #endif
     }
