@@ -745,7 +745,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component);
+    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: PSTR(""));
   #else
     UNUSED(lcd_error);
     UNUSED(lcd_component);
