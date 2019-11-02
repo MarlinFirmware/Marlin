@@ -1015,11 +1015,11 @@ void MarlinUI::draw_status_screen() {
 
   // Draw an edit menu item with label and value string
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
-    uint8_t n = LCD_WIDTH - 2 - (pgm ? utf8_strlen_P(data) : utf8_strlen(data));
+    int8_t n = LCD_WIDTH - 2 - (pgm ? utf8_strlen_P(data) : utf8_strlen(data));
     lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     lcd_put_wchar(':');
-    for (; n; --n) lcd_put_wchar(' ');
+    for (; n > 0; --n) lcd_put_wchar(' ');
     if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
   }
 
