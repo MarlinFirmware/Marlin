@@ -464,7 +464,7 @@ bool MarlinUI::get_blink() {
 
         #endif // HAS_LCD_MENU
 
-        if (!homed && RRK(EN_KEYPAD_F1)) queue.inject_P(PSTR("G28"));
+        if (!homed && RRK(EN_KEYPAD_F1)) queue.inject_P(G28_STR);
         return true;
       }
 
@@ -1530,7 +1530,7 @@ void MarlinUI::update() {
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       wait_for_heatup = wait_for_user = false;
     #endif
-    if (IS_SD_PAUSED()) queue.inject_P(PSTR("M24"));
+    if (IS_SD_PAUSED()) queue.inject_P(M24_STR);
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif

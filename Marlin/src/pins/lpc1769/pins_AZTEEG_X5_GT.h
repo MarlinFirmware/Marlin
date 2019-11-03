@@ -25,18 +25,12 @@
  * Azteeg X5 GT pin assignments
  */
 
-#ifndef LPC1769
+#ifndef MCU_LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
 #define BOARD_INFO_NAME   "Azteeg X5 GT"
 #define BOARD_WEBSITE_URL "tinyurl.com/yx8tdqa3"
-
-//
-// Custom CPU Speed 120MHz
-//
-#undef F_CPU
-#define F_CPU 120000000
 
 //
 // Servos
@@ -96,9 +90,9 @@
 // Temperature Sensors
 // 3.3V max when defined as an analog input
 //
-#define TEMP_BED_PIN        0   // A0 (TH1)
-#define TEMP_0_PIN          1   // A1 (TH2)
-#define TEMP_1_PIN          2   // A2 (TH3)
+#define TEMP_BED_PIN        P0_23_A0   // A0 (TH1)
+#define TEMP_0_PIN          P0_24_A1   // A1 (TH2)
+#define TEMP_1_PIN          P0_25_A2   // A2 (TH3)
 
 
 //

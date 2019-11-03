@@ -25,18 +25,12 @@
  * Smoothieboard pin assignments
  */
 
-#ifndef LPC1769
+#ifndef MCU_LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
 #define BOARD_INFO_NAME   "Smoothieboard"
 #define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
-
-//
-// Custom CPU Speed 120MHz
-//
-#undef F_CPU
-#define F_CPU 120000000
 
 //
 // Servos
@@ -80,10 +74,10 @@
 // Temperature Sensors
 // 3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          0   // P0.23 (T1)
-#define TEMP_BED_PIN        1   // P0.24 (T2)
-#define TEMP_1_PIN          2   // P0.25 (T3)
-#define TEMP_2_PIN          3   // P0.26 (T4)
+#define TEMP_0_PIN          P0_23_A0   // (T1)
+#define TEMP_BED_PIN        P0_24_A1   // (T2)
+#define TEMP_1_PIN          P0_25_A2   // (T3)
+#define TEMP_2_PIN          P0_26_A3   // (T4)
 
 //
 // Heaters / Fans

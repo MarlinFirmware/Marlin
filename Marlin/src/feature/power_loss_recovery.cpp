@@ -183,6 +183,15 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
       info.active_extruder = active_extruder;
     #endif
 
+    #if DISABLED(NO_VOLUMETRICS)
+      info.volumetric_enabled = parser.volumetric_enabled;
+      #if EXTRUDERS > 1
+        for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
+      #else
+        if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder];
+      #endif
+    #endif
+
     #if EXTRUDERS
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
     #endif
@@ -289,6 +298,27 @@ void PrintJobRecovery::resume() {
   #if EXTRUDERS > 1
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
+  #endif
+
+  // Recover volumetric extrusion state
+  #if DISABLED(NO_VOLUMETRICS)
+    #if EXTRUDERS > 1
+      for (int8_t e = 0; e < EXTRUDERS; e++) {
+        dtostrf(info.filament_size[e], 1, 3, str_1);
+        sprintf_P(cmd, PSTR("M200 T%i D%s"), e, str_1);
+        gcode.process_subcommands_now(cmd);
+      }
+      if (!info.volumetric_enabled) {
+        sprintf_P(cmd, PSTR("M200 T%i D0"), info.active_extruder);
+        gcode.process_subcommands_now(cmd);
+      }
+    #else
+      if (info.volumetric_enabled) {
+        dtostrf(info.filament_size, 1, 3, str_1);
+        sprintf_P(cmd, PSTR("M200 D%s"), str_1);
+        gcode.process_subcommands_now(cmd);
+      }
+    #endif
   #endif
 
   #if HAS_HEATED_BED
@@ -407,7 +437,8 @@ void PrintJobRecovery::resume() {
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
-  sprintf_P(cmd, PSTR("M23 %s"), fn);
+  extern const char M23_STR[];
+  sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);

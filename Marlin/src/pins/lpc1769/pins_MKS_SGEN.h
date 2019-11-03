@@ -25,7 +25,7 @@
  * MKS SGen pin assignments
  */
 
-#ifndef LPC1769
+#ifndef MCU_LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 

@@ -363,7 +363,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
 
@@ -380,9 +380,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a generic menu item
-  void draw_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char) {
-    UNUSED(pre_char);
-
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
       u8g_uint_t n = (LCD_WIDTH - 2) * (MENU_FONT_WIDTH);
       n -= lcd_put_u8str_max_P(pstr, n);
@@ -393,7 +391,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a menu item with an editable value
-  void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
       u8g_uint_t n = (LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
@@ -405,7 +403,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
   }
 
-  void draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
     const u8g_uint_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
@@ -466,7 +464,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (inv) u8g.setColorIndex(1);
   }
 
-  void draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
+  void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
     draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
@@ -474,9 +472,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(SDSUPPORT)
 
-    void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
-      UNUSED(pstr);
-
+    void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
         if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
         constexpr uint8_t maxlen = LCD_WIDTH - 1;
@@ -578,20 +574,20 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     const unsigned char cw_bmp[] PROGMEM = {
-      B00000001,B11111100,B00000000,
-      B00000111,B11111111,B00000000,
-      B00001111,B00000111,B10000000,
-      B00001110,B00000001,B11000000,
-      B00000000,B00000001,B11000000,
+      B00000000,B11111110,B00000000,
+      B00000011,B11111111,B10000000,
+      B00000111,B11000111,B11000000,
+      B00000111,B00000001,B11100000,
       B00000000,B00000000,B11100000,
-      B00001000,B00000000,B11100000,
-      B00011100,B00000000,B11100000,
-      B00111110,B00000000,B11100000,
-      B01111111,B00000000,B11100000,
-      B00011100,B00000000,B11100000,
+      B00000000,B00000000,B11110000,
+      B00000000,B00000000,B01110000,
+      B00000100,B00000000,B01110000,
+      B00001110,B00000000,B01110000,
+      B00011111,B00000000,B01110000,
+      B00111111,B10000000,B11110000,
       B00001110,B00000000,B11100000,
-      B00001110,B00000001,B11000000,
-      B00000111,B10000011,B11000000,
+      B00001111,B00000001,B11100000,
+      B00000111,B11000111,B11000000,
       B00000011,B11111111,B10000000,
       B00000000,B11111110,B00000000
     };
@@ -599,20 +595,20 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     const unsigned char ccw_bmp[] PROGMEM = {
       B00000000,B11111110,B00000000,
       B00000011,B11111111,B10000000,
-      B00000111,B10000011,B11000000,
-      B00001110,B00000001,B11000000,
+      B00000111,B11000111,B11000000,
+      B00001111,B00000001,B11100000,
       B00001110,B00000000,B11100000,
-      B00011100,B00000000,B11100000,
-      B01111111,B00000000,B11100000,
-      B00111110,B00000000,B11100000,
-      B00011100,B00000000,B11100000,
-      B00001000,B00000000,B11100000,
+      B00111111,B10000000,B11110000,
+      B00011111,B00000000,B01110000,
+      B00001110,B00000000,B01110000,
+      B00000100,B00000000,B01110000,
+      B00000000,B00000000,B01110000,
+      B00000000,B00000000,B11110000,
       B00000000,B00000000,B11100000,
-      B00000000,B00000001,B11000000,
-      B00001110,B00000001,B11000000,
-      B00001111,B00000111,B10000000,
-      B00000111,B11111111,B00000000,
-      B00000001,B11111100,B00000000
+      B00000111,B00000001,B11100000,
+      B00000111,B11000111,B11000000,
+      B00000011,B11111111,B10000000,
+      B00000000,B11111110,B00000000
     };
 
     const unsigned char up_arrow_bmp[] PROGMEM = {

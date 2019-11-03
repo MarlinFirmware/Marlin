@@ -181,6 +181,12 @@
   #include "libs/L6470/L6470_Marlin.h"
 #endif
 
+const char G28_STR[] PROGMEM = "G28",
+           M21_STR[] PROGMEM = "M21",
+           M23_STR[] PROGMEM = "M23 %s",
+           M24_STR[] PROGMEM = "M24",
+           NUL_STR[] PROGMEM = "";
+
 bool Running = true;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
@@ -378,6 +384,32 @@ void startOrResumeJob() {
   print_job_timer.start();
 }
 
+#if ENABLED(SDSUPPORT)
+
+  void abortSDPrinting() {
+    card.stopSDPrint(
+      #if SD_RESORT
+        true
+      #endif
+    );
+    queue.clear();
+    quickstop_stepper();
+    print_job_timer.stop();
+    #if DISABLED(SD_ABORT_NO_COOLDOWN)
+      thermalManager.disable_all_heaters();
+    #endif
+    thermalManager.zero_fan_speeds();
+    wait_for_heatup = false;
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      card.removeJobRecoveryFile();
+    #endif
+    #ifdef EVENT_GCODE_SD_STOP
+      queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+    #endif
+  }
+
+#endif
+
 /**
  * Manage several activities:
  *  - Check for Filament Runout
@@ -483,7 +515,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       if (ELAPSED(ms, next_home_key_ms)) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
-        queue.enqueue_now_P(PSTR("G28"));
+        queue.enqueue_now_P(G28_STR);
       }
     }
   #endif
@@ -714,7 +746,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component);
+    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: PSTR(""));
   #else
     UNUSED(lcd_error);
     UNUSED(lcd_component);
@@ -1127,34 +1159,12 @@ void loop() {
     idle(); // Do an idle first so boot is slightly faster
 
     #if ENABLED(SDSUPPORT)
-
       card.checkautostart();
-
-      if (card.flag.abort_sd_printing) {
-        card.stopSDPrint(
-          #if SD_RESORT
-            true
-          #endif
-        );
-        queue.clear();
-        quickstop_stepper();
-        print_job_timer.stop();
-        #if DISABLED(SD_ABORT_NO_COOLDOWN)
-          thermalManager.disable_all_heaters();
-        #endif
-        thermalManager.zero_fan_speeds();
-        wait_for_heatup = false;
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          card.removeJobRecoveryFile();
-        #endif
-        #ifdef EVENT_GCODE_SD_STOP
-          queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
-        #endif
-      }
-
-    #endif // SDSUPPORT
+      if (card.flag.abort_sd_printing) abortSDPrinting();
+    #endif
 
     queue.advance();
+
     endstops.event_handler();
   }
 }

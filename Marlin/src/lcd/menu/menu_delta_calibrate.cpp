@@ -79,7 +79,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _lcd_delta_calibrate_home() {
-    queue.inject_P(PSTR("G28"));
+    queue.inject_P(G28_STR);
     ui.goto_screen(_lcd_calibrate_homing);
   }
 

@@ -376,3 +376,5 @@ void protected_pin_err();
   void event_probe_recover();
   void event_probe_failure();
 #endif
+
+extern const char G28_STR[], M21_STR[], M23_STR[], M24_STR[], NUL_STR[];

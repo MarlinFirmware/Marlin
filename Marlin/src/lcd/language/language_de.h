@@ -137,9 +137,9 @@ namespace Language_de {
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplizieren");
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Spiegelkopie");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("vollstä. Kontrolle");
-  PROGMEM Language_Str MSG_X_OFFSET                        = _UxGT("2. Düse X");
-  PROGMEM Language_Str MSG_Y_OFFSET                        = _UxGT("2. Düse Y");
-  PROGMEM Language_Str MSG_Z_OFFSET                        = _UxGT("2. Düse Z");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2. Düse X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2. Düse Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2. Düse Z");
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("G29 ausführen");
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBL-Werkzeuge");
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");

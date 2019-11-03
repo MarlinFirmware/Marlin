@@ -44,7 +44,8 @@ namespace ExtUI {
   void onIdle() { ScreenHandler.loop(); }
 
   void onPrinterKilled(PGM_P error, PGM_P component) {
-    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, PSTR(""), GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
+    extern const char NUL_STR[];
+    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }

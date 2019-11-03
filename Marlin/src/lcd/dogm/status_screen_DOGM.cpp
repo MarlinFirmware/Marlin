@@ -388,17 +388,21 @@ void MarlinUI::draw_status_screen() {
       #endif
       heat_bits = new_bits;
     #endif
+
     const xyz_pos_t lpos = current_position.asLogical();
-    if (showxy)
+    strcpy(zstring, ftostr52sp(lpos.z));
+
+    if (showxy) {
       strcpy(xstring, ftostr4sign(lpos.x));
+      strcpy(ystring, ftostr4sign(lpos.y));
+    }
     else {
       #if ENABLED(LCD_SHOW_E_TOTAL)
         const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
         sprintf_P(xstring, PSTR("%ld%cm"), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       #endif
     }
-    strcpy(ystring, ftostr4sign(lpos.y));
-    strcpy(zstring, ftostr52sp( lpos.z));
+
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filwidth.measured_mm));
       strcpy(mstring, i16tostr3(planner.volumetric_percent(parser.volumetric_enabled)));
@@ -438,7 +442,7 @@ void MarlinUI::draw_status_screen() {
             ));
           }
           #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
-            progress_x_pos = _SD_INFO_X(strlen(progress_string));
+            progress_x_pos = _SD_INFO_X(strlen(progress_string) + 1);
           #endif
         #endif
       }
