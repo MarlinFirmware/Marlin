@@ -162,7 +162,8 @@
   #if ENABLED(LCD_I2C_VIKI)
 
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-
+    #include <Wire.h>
+    #include <LiquidTWI2.h>
     // button and encoder bit positions within 'buttons'
     #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)      // The remaining normalized buttons are all read via I2C
     #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
