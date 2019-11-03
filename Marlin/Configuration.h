@@ -1060,12 +1060,12 @@
  // Z offset: -below +above  [the nozzle]
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Offset
-  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, -2.05 }
+  #define NOZZLE_TO_PROBE_OFFSET { 34.48, 0, -1.30 }
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, -1.67 }
+  #define NOZZLE_TO_PROBE_OFFSET { 32.77, 0, -0.96 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, 0 }
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
 #endif
 
 // Certain types of probes need to stay away from edges
@@ -1206,27 +1206,17 @@
 #define Z_HOME_DIR -1
 
 // @section machine
-
-#if ENABLED(BLTOUCH)
-  #if ENABLED(ANYCUBIC_4MAX_VG3R)
-    // vg3r offset from extruder |<--?->|BLTOUCH|
-    #define BLTOUCH_X_MAX_OFFSET 6
-  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
-    // 7of9 offset from extruder |<--?->|BLTOUCH|
-    #define BLTOUCH_X_MAX_OFFSET 6
-  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-    // Default offset from extruder |<--?->|BLTOUCH|
-    #define BLTOUCH_X_MAX_OFFSET 8
-  #endif
-#endif
-
 // The size of the print bed
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-  #define X_BED_SIZE 218 - BLTOUCH_X_MAX_OFFSET
+#if ENABLED(ANYCUBIC_4MAX_VG3R)
+  #define X_BED_SIZE 207
+  #define Y_BED_SIZE 215
+#elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  #define X_BED_SIZE 212
+  #define Y_BED_SIZE 215
 #else
   #define X_BED_SIZE 218
+  #define Y_BED_SIZE 218
 #endif
-#define Y_BED_SIZE 218
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -5
@@ -1235,6 +1225,10 @@
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 300
+
+
+
+
 
 /**
  * Software Endstops
@@ -1405,11 +1399,7 @@
 // Set the boundaries for probing (where the probe can reach).
   #define MIN_PROBE_EDGE_LEFT   MIN_PROBE_EDGE
   #define MIN_PROBE_EDGE_RIGHT  MIN_PROBE_EDGE
-#if ENABLED(ANYCUBIC_4MAX_VG3R)
-  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE + 4 // MIN_PROBE_EDGE + 4 /* +4 vg3r specific adjustment */
-#else
   #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE
-#endif
   #define MIN_PROBE_EDGE_BACK   MIN_PROBE_EDGE
 
   // Probe along the Y axis, advancing X after each column
@@ -1419,16 +1409,28 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+      #define EXTRAPOLATE_BEYOND_GRID
+    #else
+      //#define EXTRAPOLATE_BEYOND_GRID
+    #endif
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
     //
-    //#define ABL_BILINEAR_SUBDIVISION
+    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+      #define ABL_BILINEAR_SUBDIVISION
+    #else
+      //#define ABL_BILINEAR_SUBDIVISION
+    #endif
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       // Number of subdivisions between probe points
-      #define BILINEAR_SUBDIVISIONS 3
+      #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+        #define BILINEAR_SUBDIVISIONS 3
+      #else
+        //#define BILINEAR_SUBDIVISIONS 3
+      #endif
     #endif
 
   #endif
