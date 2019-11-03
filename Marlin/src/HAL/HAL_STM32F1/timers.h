@@ -50,7 +50,7 @@ typedef uint16_t hal_timer_t;
 /**
  * Note: Some timers that can be already allocated elsewhere
  * 
- * FAN0 PWM:
+ * FAN PWM:
  *   When FAN_SOFT_PWM is not defined in Configuration.h, temperature.cpp
  *   uses the timer that belongs to FAN_PIN to generate FAN0 PWM signal.
  * 
