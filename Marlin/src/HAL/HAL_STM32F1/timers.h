@@ -50,9 +50,9 @@ typedef uint16_t hal_timer_t;
 /**
  * Note: Some timers that can be already allocated elsewhere
  * 
- * FAN PWM:
+ * FAN PWMs:
  *   When FAN_SOFT_PWM is not defined in Configuration.h, temperature.cpp
- *   uses the timer that belongs to FAN_PIN to generate FAN0 PWM signal.
+ *   uses timers that belong to FANx_PIN pins to generate FAN PWM signals.
  * 
  * Speaker:
  *   When SPEAKER is enabled in Configuration.h, one timer is allocated
