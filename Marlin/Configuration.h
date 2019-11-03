@@ -1058,12 +1058,15 @@
 // X offset in mm: -left  +right  [of the nozzle] Distance from nozzle to BLTouch is 33,5mm ~ we use 34mm!
  // Y offset: -front +behind [the nozzle]
  // Z offset: -below +above  [the nozzle]
+ // G3m1n1S3rv3r 11-03-2019 - INFO: Do not set X and Y offset with float. Only decimal are allowed or working!!
 #if ENABLED(ANYCUBIC_4MAX_VG3R)
   // my 4MAX Printer: vg3r - Offset
-  #define NOZZLE_TO_PROBE_OFFSET { 34.48, 0, -1.30 }
+  //#define NOZZLE_TO_PROBE_OFFSET { 34.48, 0, -1.30 }
+  #define NOZZLE_TO_PROBE_OFFSET { 34, 0, -1.30 }
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
-  #define NOZZLE_TO_PROBE_OFFSET { 32.77, 0, -0.96 }
+  //#define NOZZLE_TO_PROBE_OFFSET { 32.77, 0, -0.96 }
+  #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -0.96 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
 #endif
@@ -1427,7 +1430,7 @@
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       // Number of subdivisions between probe points
       #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-        #define BILINEAR_SUBDIVISIONS 3
+        #define BILINEAR_SUBDIVISIONS 1
       #else
         //#define BILINEAR_SUBDIVISIONS 3
       #endif
