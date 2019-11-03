@@ -85,7 +85,6 @@ fil_change_settings_t fc_settings[EXTRUDERS];
 
 #if HAS_BUZZER
   static void filament_change_beep(const int8_t max_beep_count, const bool init=false) {
-    if (pause_mode == PAUSE_MODE_PAUSE_PRINT) return;
     static millis_t next_buzz = 0;
     static int8_t runout_beep = 0;
 
