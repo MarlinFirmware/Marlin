@@ -34,6 +34,9 @@
 
 // I2C buttons must be read in the main thread
 #define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+#ifdef HAS_SLOW_BUTTONS
+	extern millis_t next_button_update_ms;
+#endif
 
 #if HAS_SPI_LCD
 

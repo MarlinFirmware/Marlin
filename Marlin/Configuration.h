@@ -1833,13 +1833,13 @@
 // Note: The PANELOLU2 encoder click input can either be directly connected to
 // a pin (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
 //
-#define LCD_I2C_PANELOLU2
+//#define LCD_I2C_PANELOLU2
 
 //
 // Panucatt VIKI LCD with status LEDs,
 // integrated click & L/R/U/D buttons, separate encoder inputs.
 //
-//#define LCD_I2C_VIKI
+#define LCD_I2C_VIKI
 
 //
 // CONTROLLER TYPE: Shift register panels
