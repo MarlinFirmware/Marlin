@@ -1839,7 +1839,7 @@
 // Panucatt VIKI LCD with status LEDs,
 // integrated click & L/R/U/D buttons, separate encoder inputs.
 //
-#define LCD_I2C_VIKI
+//#define LCD_I2C_VIKI
 
 //
 // CONTROLLER TYPE: Shift register panels
