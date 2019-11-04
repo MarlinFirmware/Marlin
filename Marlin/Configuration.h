@@ -1137,8 +1137,8 @@
   #if ENABLED(FILAMENT_JAM_SENSOR)
 
       #define NUM_FIL_JAM_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-      #define FIL_JAM_PULLUP          // If sensor wired to V+
-      //#define FIL_JAM_PULLDOWN      // If sensor wired to Gnd
+      #define FIL_JAM_PULLUP          // If sensor wired to Gnd
+      //#define FIL_JAM_PULLDOWN      // If sensor wired to V+
 
       //Encoder wheel distance by pulse(Require precision)
       #define FIL_JAM_SENSOR_PULSE_DISTANCE_MM 3
@@ -1150,6 +1150,21 @@
       //Because no direction changes or brakes
       #define FIL_JAM_SENSOR_DISABLE_LINEAR_ADVANCE
 
+  #endif
+
+  /**
+   * Tool change on runout or jam
+   * Swap to the next extruder automaticly
+   * Stop on the last extruder defined
+   */
+  //#define FILAMENT_RUNOUT_SWAP_NEXT
+  #ifdef FILAMENT_RUNOUT_SWAP_NEXT
+    //Automatic firmware tool change (require FW_TOOLCHANGE/ADVANCED PAUSE FEATURE)
+    //#define FILAMENT_RUNOUT_SWAP_USE_FW_TOOLCHANGE
+
+    //Custom toolchange process(disabled if SWAP_USE_FW_TOOLCHANGE)
+    //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_BEFORE_TOOLCHANGE ""
+    //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_AFTER_TOOLCHANGE ""
   #endif
 
 #endif
