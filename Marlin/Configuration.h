@@ -1152,6 +1152,7 @@
 
   // Tool change on runout or jam
   // Swap to the next extruder automaticly
+  // Set the same temp
   // Stop on the last extruder defined
   //#define FILAMENT_RUNOUT_SWAP_NEXT
   #ifdef FILAMENT_RUNOUT_SWAP_NEXT
@@ -1161,6 +1162,8 @@
     //Custom toolchange process(disabled if SWAP_USE_FW_TOOLCHANGE)
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_BEFORE_TOOLCHANGE ""
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_AFTER_TOOLCHANGE ""
+
+
   #endif//FILAMENT_RUNOUT_SWAP_NEXT
 
 #endif//ADVANCED_RUNOUT_FEATURE
