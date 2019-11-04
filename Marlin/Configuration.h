@@ -1091,65 +1091,20 @@
 #endif
 
 /**
- * Filament Runout Sensors
- * Mechanical or opto endstops are used to check for the presence of filament.
- *
- * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
- * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
- * By default the firmware assumes HIGH=FILAMENT PRESENT.
+ * Advanced Filament runout
  */
-//#define FILAMENT_RUNOUT_SENSOR
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
-  #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
-  //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
-  // Set one or more commands to execute on filament runout.
-  // (After 'M412 H' Marlin will ask the host to handle the process.)
-  #define FILAMENT_RUNOUT_SCRIPT "M600"
+ //#define ADVANCED_FILAMENT_RUNOUT
+#if ENABLED(ADVANCED_FILAMENT_RUNOUT)
 
-  // After a runout is detected, continue printing this length of filament
-  // before executing the runout script. Useful for a sensor at the end of
-  // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  //#define FILAMENT_RUNOUT_DISTANCE_MM 25
-
-  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    // Enable this option to use an encoder disc that toggles the runout pin
-    // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
-    // large enough to avoid false positives.)
-    //#define FILAMENT_MOTION_SENSOR
-  #endif
-
-
-  #define NUM_RUNOUT_SW_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
-  #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
-  //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
-
-  // After a runout is detected, continue printing this length of filament
-  // before executing the runout script. Useful for a sensor at the end of
-  // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  //#define FILAMENT_RUNOUT_DISTANCE_MM 25
-
-  // Enable this option to use an encoder disc that toggles the runout pin
-  // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
-  // large enough to avoid false positives.)
-  //#define FILAMENT_MOTION_SENSOR
-
-  #endif
-  /**
-   * Filament Runout Sensors
-   * Mechanical or opto endstops are used to check for the presence of filament.
-   *
-   * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
-   * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
-   * By default the firmware assumes HIGH=FILAMENT PRESENT.
-   */
+  // Filament Runout Sensors
+  // Mechanical or opto endstops are used to check for the presence of filament.
+  // RAMPS-based boards use SERVO3_PIN for the first runout sensor.
+  // For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
+  // By default the firmware assumes HIGH=FILAMENT PRESENT.
   //#define FILAMENT_RUNOUT_SENSOR
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-
-    #define NUM_RUNOUT_SW_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
     #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
     #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
     //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
@@ -1158,13 +1113,44 @@
     // before executing the runout script. Useful for a sensor at the end of
     // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
     //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      //Extrusion limiter
+      //Divides a gcode extrusion command if no enough remaining filament
+      //Process the remaining extrusion when back of pausing
+      //#define RUNOUT_SEGMENTATION
+    #endif
 
     // Enable this option to use an encoder disc that toggles the runout pin
     // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
     // large enough to avoid false positives.)
     //#define FILAMENT_MOTION_SENSOR
 
-    #endif
+  #endif//Filament runout sensors
+
+  /**
+   * Filament Jam Sensors
+   * Rotary wheels are used to check for the feeding of filament.
+   * All extrusion commands are divided 'segmentized' by the sensor pulse distance
+   * The encoder is checked each time a change is waited
+   */
+  //#define FILAMENT_JAM_SENSOR
+  #if ENABLED(FILAMENT_JAM_SENSOR)
+
+      #define NUM_FIL_JAM_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+      #define FIL_JAM_PULLUP          // If sensor wired to V+
+      //#define FIL_JAM_PULLDOWN      // If sensor wired to Gnd
+
+      //Encoder wheel distance by pulse(Require precision)
+      #define FIL_JAM_SENSOR_PULSE_DISTANCE_MM 3
+      //Detection offsets(require 20% to 80%)
+      //Require : pulse < check < 2x pulses :1=100% , 1.2=20% .
+      #define FIL_JAM_SENSOR_PULSE_OFFSET 1.2
+
+      //Disable linear advance,only when segmentation in progress
+      //Because no direction changes or brakes
+      #define FIL_JAM_SENSOR_DISABLE_LINEAR_ADVANCE
+
+  #endif
 
 #endif
 
