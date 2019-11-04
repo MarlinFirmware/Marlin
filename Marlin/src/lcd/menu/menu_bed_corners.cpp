@@ -97,13 +97,13 @@ static inline void _lcd_level_bed_corners_homing() {
         #endif
         ui.goto_previous_screen_no_defer();
       },
-      GET_TEXT(
+      GET_TEXT((
         #if ENABLED(LEVEL_CENTER_TOO)
           MSG_LEVEL_BED_NEXT_POINT
         #else
           MSG_NEXT_CORNER
         #endif
-      ), (PGM_P)nullptr, PSTR("?")
+      )), (PGM_P)nullptr, PSTR("?")
     );
     ui.set_selection(true);
     _lcd_goto_next_corner();
