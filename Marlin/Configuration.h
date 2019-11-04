@@ -1095,7 +1095,7 @@
  */
 
  //#define ADVANCED_FILAMENT_RUNOUT
-#if ENABLED(ADVANCED_FILAMENT_RUNOUT)
+#if ENABLED(ADVANCED_RUNOUT_FEATURE)
 
   // Filament Runout Sensors
   // Mechanical or opto endstops are used to check for the presence of filament.
@@ -1134,8 +1134,7 @@
    * The encoder is checked each time a change is waited
    */
   //#define FILAMENT_JAM_SENSOR
-  #if ENABLED(FILAMENT_JAM_SENSOR)
-
+  #if ENABLED(FILAMENT_JAM_SENSORS)
       #define NUM_FIL_JAM_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
       #define FIL_JAM_PULLUP          // If sensor wired to Gnd
       //#define FIL_JAM_PULLDOWN      // If sensor wired to V+
@@ -1148,9 +1147,8 @@
 
       //Disable linear advance,only when segmentation in progress
       //Because no direction changes or brakes
-      #define FIL_JAM_SENSOR_DISABLE_LINEAR_ADVANCE
-
-  #endif
+      #define FIL_JAM_SENSORS_DISABLE_LINEAR_ADVANCE
+  #endif//FILAMENT_JAM_SENSORS
 
   /**
    * Tool change on runout or jam
@@ -1165,9 +1163,8 @@
     //Custom toolchange process(disabled if SWAP_USE_FW_TOOLCHANGE)
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_BEFORE_TOOLCHANGE ""
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_AFTER_TOOLCHANGE ""
-  #endif
-
-#endif
+  #endif//FILAMENT_RUNOUT_SWAP_NEXT
+#endif//ADVANCED_RUNOUT_FEATURE
 
 //===========================================================================
 //=============================== Bed Leveling ==============================
