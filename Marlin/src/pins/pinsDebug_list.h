@@ -36,6 +36,15 @@
 #if !PIN_EXISTS(X_MS3)
   #undef X_MS3_PIN
 #endif
+#if !PIN_EXISTS(X2_MS1)
+  #undef X2_MS1_PIN
+#endif
+#if !PIN_EXISTS(X2_MS2)
+  #undef X2_MS2_PIN
+#endif
+#if !PIN_EXISTS(X2_MS3)
+  #undef X2_MS3_PIN
+#endif
 #if !PIN_EXISTS(Y_MS1)
   #undef Y_MS1_PIN
 #endif
@@ -45,6 +54,15 @@
 #if !PIN_EXISTS(Y_MS3)
   #undef Y_MS3_PIN
 #endif
+#if !PIN_EXISTS(Y2_MS1)
+  #undef Y2_MS1_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS2)
+  #undef Y2_MS2_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS3)
+  #undef Y2_MS3_PIN
+#endif
 #if !PIN_EXISTS(Z_MS1)
   #undef Z_MS1_PIN
 #endif
@@ -53,6 +71,24 @@
 #endif
 #if !PIN_EXISTS(Z_MS3)
   #undef Z_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS1)
+  #undef Z2_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS2)
+  #undef Z2_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS3)
+  #undef Z2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS1)
+  #undef Z3_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS2)
+  #undef Z3_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS3)
+  #undef Z3_MS3_PIN
 #endif
 #if !PIN_EXISTS(E0_MS1)
   #undef E0_MS1_PIN
