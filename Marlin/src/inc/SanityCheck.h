@@ -328,26 +328,26 @@
   #error "ENDSTOP_NOISE_FILTER is now ENDSTOP_NOISE_THRESHOLD [2-7]. Please update your configuration."
 #elif defined(RETRACT_ZLIFT)
   #error "RETRACT_ZLIFT is now RETRACT_ZRAISE. Please update your Configuration_adv.h."
-#elif defined(TOOLCHANGE_PARK_ZLIFT) || defined(TOOLCHANGE_UNPARK_ZLIFT)
-  #error "TOOLCHANGE_PARK_ZLIFT and TOOLCHANGE_UNPARK_ZLIFT are now TOOLCHANGE_ZRAISE. Please update your configuration."
-#elif defined(SINGLENOZZLE_TOOLCHANGE_ZRAISE)
-  #error "SINGLENOZZLE_TOOLCHANGE_ZRAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
+#elif defined(FW_TOOLCHANGE_PARK_ZLIFT) || defined(FW_TOOLCHANGE_UNPARK_ZLIFT)
+  #error "FW_TOOLCHANGE_PARK_ZLIFT and FW_TOOLCHANGE_UNPARK_ZLIFT are now FW_TOOLCHANGE_ZRAISE. Please update your configuration."
+#elif defined(SINGLENOZZLE_FW_TOOLCHANGE_ZRAISE)
+  #error "SINGLENOZZLE_FW_TOOLCHANGE_ZRAISE is now FW_TOOLCHANGE_ZRAISE. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_LENGTH)
-  #error "SINGLENOZZLE_SWAP_LENGTH is now TOOLCHANGE_FIL_SWAP_LENGTH. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_LENGTH is now FW_TOOLCHANGE_FIL_SWAP_LENGTH. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_RETRACT_SPEED)
-  #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now FW_TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PRIME_SPEED)
-  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now FW_TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PARK)
-  #error "SINGLENOZZLE_SWAP_PARK is now TOOLCHANGE_PARK. Please update your configuration."
-#elif defined(SINGLENOZZLE_TOOLCHANGE_XY)
-  #error "SINGLENOZZLE_TOOLCHANGE_XY is now TOOLCHANGE_PARK_XY. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_PARK is now FW_TOOLCHANGE_PARK. Please update your configuration."
+#elif defined(SINGLENOZZLE_FW_TOOLCHANGE_XY)
+  #error "SINGLENOZZLE_FW_TOOLCHANGE_XY is now FW_TOOLCHANGE_PARK_XY. Please update your configuration."
 #elif defined(SINGLENOZZLE_PARK_XY_FEEDRATE)
-  #error "SINGLENOZZLE_PARK_XY_FEEDRATE is now TOOLCHANGE_PARK_XY_FEEDRATE. Please update your configuration."
+  #error "SINGLENOZZLE_PARK_XY_FEEDRATE is now FW_TOOLCHANGE_PARK_XY_FEEDRATE. Please update your configuration."
 #elif defined(PARKING_EXTRUDER_SECURITY_RAISE)
-  #error "PARKING_EXTRUDER_SECURITY_RAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
+  #error "PARKING_EXTRUDER_SECURITY_RAISE is now FW_TOOLCHANGE_ZRAISE. Please update your configuration."
 #elif defined(SWITCHING_TOOLHEAD_SECURITY_RAISE)
-  #error "SWITCHING_TOOLHEAD_SECURITY_RAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
+  #error "SWITCHING_TOOLHEAD_SECURITY_RAISE is now FW_TOOLCHANGE_ZRAISE. Please update your configuration."
 #elif defined(G0_FEEDRATE) && G0_FEEDRATE == 0
   #error "G0_FEEDRATE is now used to set the G0 feedrate. Please update your configuration."
 #elif defined(MBL_Z_STEP)
@@ -749,25 +749,25 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #ifndef TOOLCHANGE_FIL_SWAP_LENGTH
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_LENGTH. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
+  #if ENABLED(FW_TOOLCHANGE_FILAMENT_SWAP)
+    #ifndef FW_TOOLCHANGE_FIL_SWAP_LENGTH
+      #error "FW_TOOLCHANGE_FILAMENT_SWAP requires FW_TOOLCHANGE_FIL_SWAP_LENGTH. Please update your Configuration."
+    #elif !defined(FW_TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
+      #error "FW_TOOLCHANGE_FILAMENT_SWAP requires FW_TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your Configuration."
+    #elif !defined(FW_TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
+      #error "FW_TOOLCHANGE_FILAMENT_SWAP requires FW_TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
     #endif
   #endif
-  #if ENABLED(TOOLCHANGE_PARK)
-    #ifndef TOOLCHANGE_PARK_XY
-      #error "TOOLCHANGE_PARK requires TOOLCHANGE_PARK_XY. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_PARK_XY_FEEDRATE)
-      #error "TOOLCHANGE_PARK requires TOOLCHANGE_PARK_XY_FEEDRATE. Please update your Configuration."
+  #if ENABLED(FW_TOOLCHANGE_PARK)
+    #ifndef FW_TOOLCHANGE_PARK_XY
+      #error "FW_TOOLCHANGE_PARK requires FW_TOOLCHANGE_PARK_XY. Please update your Configuration."
+    #elif !defined(FW_TOOLCHANGE_PARK_XY_FEEDRATE)
+      #error "FW_TOOLCHANGE_PARK requires FW_TOOLCHANGE_PARK_XY_FEEDRATE. Please update your Configuration."
     #endif
   #endif
 
-  #ifndef TOOLCHANGE_ZRAISE
-    #error "TOOLCHANGE_ZRAISE required for EXTRUDERS > 1. Please update your Configuration_adv.h."
+  #ifndef FW_TOOLCHANGE_ZRAISE
+    #error "FW_TOOLCHANGE_ZRAISE required for EXTRUDERS > 1. Please update your Configuration_adv.h."
   #endif
 
 #elif ENABLED(MK2_MULTIPLEXER)
@@ -907,10 +907,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "(MAGNETIC_)PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif !defined(PARKING_EXTRUDER_PARKING_X)
     #error "(MAGNETIC_)PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
-  #elif !defined(TOOLCHANGE_ZRAISE)
-    #error "(MAGNETIC_)PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
-  #elif TOOLCHANGE_ZRAISE < 0
-    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
+  #elif !defined(FW_TOOLCHANGE_ZRAISE)
+    #error "(MAGNETIC_)PARKING_EXTRUDER requires FW_TOOLCHANGE_ZRAISE."
+  #elif FW_TOOLCHANGE_ZRAISE < 0
+    #error "FW_TOOLCHANGE_ZRAISE must be 0 or higher."
   #elif ENABLED(PARKING_EXTRUDER)
     #if !PIN_EXISTS(SOL0, SOL1)
       #error "PARKING_EXTRUDER requires SOL0_PIN and SOL1_PIN."
@@ -940,10 +940,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #elif SWITCHING_TOOLHEAD_SERVO_NR == 3
       #error "A SWITCHING_TOOLHEAD_SERVO_NR of 3 requires NUM_SERVOS >= 4."
     #endif
-  #elif !defined(TOOLCHANGE_ZRAISE)
-    #error "SWITCHING_TOOLHEAD requires TOOLCHANGE_ZRAISE."
-  #elif TOOLCHANGE_ZRAISE < 0
-    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
+  #elif !defined(FW_TOOLCHANGE_ZRAISE)
+    #error "SWITCHING_TOOLHEAD requires FW_TOOLCHANGE_ZRAISE."
+  #elif FW_TOOLCHANGE_ZRAISE < 0
+    #error "FW_TOOLCHANGE_ZRAISE must be 0 or higher."
   #endif
 #endif
 

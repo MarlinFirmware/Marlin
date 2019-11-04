@@ -103,7 +103,7 @@ void menu_advanced_settings();
   void menu_tool_change() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    #if ENABLED(FW_TOOLCHANGE_FILAMENT_SWAP)
       static constexpr float max_extrude =
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           EXTRUDE_MAXLENGTH

@@ -29,14 +29,14 @@
 
 void M217_report(const bool eeprom=false) {
 
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  #if ENABLED(FW_TOOLCHANGE_FILAMENT_SWAP)
     serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPAIR(" E", LINEAR_UNIT(toolchange_settings.extra_prime));
     SERIAL_ECHOPAIR(" P", LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
 
-    #if ENABLED(TOOLCHANGE_PARK)
+    #if ENABLED(FW_TOOLCHANGE_PARK)
       SERIAL_ECHOPAIR(" X", LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
@@ -58,8 +58,8 @@ void M217_report(const bool eeprom=false) {
  *  E[linear]   Purge length
  *  P[linear/m] Prime speed
  *  R[linear/m] Retract speed
- *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
- *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
+ *  X[linear]   Park X (Requires FW_TOOLCHANGE_PARK)
+ *  Y[linear]   Park Y (Requires FW_TOOLCHANGE_PARK)
  *  Z[linear]   Z Raise
  */
 void GcodeSuite::M217() {
@@ -67,7 +67,7 @@ void GcodeSuite::M217() {
   #define SPR_PARAM
   #define XY_PARAM
 
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  #if ENABLED(FW_TOOLCHANGE_FILAMENT_SWAP)
 
     #undef SPR_PARAM
     #define SPR_PARAM "SPRE"
@@ -86,7 +86,7 @@ void GcodeSuite::M217() {
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
   #endif
 
-  #if ENABLED(TOOLCHANGE_PARK)
+  #if ENABLED(FW_TOOLCHANGE_PARK)
     #undef XY_PARAM
     #define XY_PARAM "XY"
     if (parser.seenval('X')) { toolchange_settings.change_point.x = parser.value_linear_units(); }

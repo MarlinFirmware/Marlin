@@ -834,7 +834,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    #if ENABLED(FW_TOOLCHANGE_FILAMENT_SWAP)
       const bool should_swap = can_move_away && toolchange_settings.swap_length;
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool));
@@ -859,7 +859,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #endif
         }
       }
-    #endif // TOOLCHANGE_FILAMENT_SWAP
+    #endif // FW_TOOLCHANGE_FILAMENT_SWAP
 
     #if HAS_LEVELING
       // Set current position to the physical position
@@ -897,7 +897,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             NOMORE(current_position.z, soft_endstop.max.z);
           #endif
           fast_line_to_current(Z_AXIS);
-          #if ENABLED(TOOLCHANGE_PARK)
+          #if ENABLED(FW_TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, old_tool);
@@ -974,7 +974,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           }
         #endif
 
-        #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+        #if ENABLED(FW_TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
@@ -986,7 +986,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed * 0.2f), new_tool);
             #endif
             planner.synchronize();
-            planner.set_e_position_mm((destination.e = current_position.e = current_position.e - (TOOLCHANGE_FIL_EXTRA_PRIME)));
+            planner.set_e_position_mm((destination.e = current_position.e = current_position.e - (FW_TOOLCHANGE_FIL_EXTRA_PRIME)));
           }
         #endif
 
@@ -1004,7 +1004,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
         // Should the nozzle move back to the old position?
         if (can_move_away) {
-          #if ENABLED(TOOLCHANGE_NO_RETURN)
+          #if ENABLED(FW_TOOLCHANGE_NO_RETURN)
             // Just move back down
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
             do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
