@@ -62,7 +62,7 @@ void endstop_ISR() { endstops.update(); }
                                    WITHIN(p, 14, 15) ? 1 : \
                                    WITHIN(p, 62, 69) ? 2 : \
                                    0)
-  
+
   #undef  digitalPinToPCMSK
   #define digitalPinToPCMSK(p)    (WITHIN(p, 10, 13) || WITHIN(p, 50, 53) ? (&PCMSK0) : \
                                    WITHIN(p, 14, 15) ? (&PCMSK1) : \
@@ -94,7 +94,7 @@ void endstop_ISR() { endstops.update(); }
 
 // Install Pin change interrupt for a pin. Can be called multiple times.
 void pciSetup(const int8_t pin) {
-  if (digitalPinToPCMSK(pin) != nullptr) {
+  if (digitalPinHasPCICR(pin)) {
     SBI(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin));  // enable pin
     SBI(PCIFR, digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
     SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
