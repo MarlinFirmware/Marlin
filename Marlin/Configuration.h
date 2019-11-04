@@ -1150,16 +1150,45 @@
     #define FIL_JAM_SENSORS_DISABLE_LINEAR_ADVANCE
   #endif//FILAMENT_JAM_SENSORS
 
-  // Tool change on runout or jam
-  // Swap to the next extruder automaticly
-  // Set the same temp
-  // Stop on the last extruder defined
+    /**
+     * FILAMENT_RUNOUT_SWAPPING
+     *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
+     *   Transfer all properties : Temp + Flow + Gear position + Fwretract
+     *   Utility to : Finish old ended spool without human intervention
+     *              : Swap the current extruder to automaticly with only one click
+     *              : Rescue a broken spool/jammed extruder by using others extruders/spools
+     *              Requires 2 or more extruders.
+     *              Requires same nozzle size or single nozzle
+     *
+     *   : L[int]: 0=disable : 1/2/3/4 - Last extruder to reach after runouts - One or more migrations possible(By LCD/Gcode)
+     *   : T[int]: 0/1/2/3/4 : Migration to desired extruder(By LCD/Gcode)
+     *   : Default value     : Migration to next extruder (By Runout/LCD/Gcode)
+     *
+     * Purge
+     *   Utility to : Extrude/Retract/Recover with the values stored in the machine
+     *              : Settings by LCD/G-code
+     *              : Adjust purge length/retraction values during a print
+     *   Settings
+     *   : D[count] - s    - Fan dwell
+     *   : E[count] - mm   - Purge length
+     *   : F[count] - mm/s - Purge feedrate
+     *   : G[count] - mm   - Recovery length
+     *   : H[count] - mm/s - Retract  feedrate - If FWRETRACT disabled
+     *   : I[count] - mm/s - Recovery feedrate - If FWRETRACT disabled
+     *
+     *   Commands
+     *   : P1 - Extrusion
+    	*   : Q1 - Fan dwell
+     *   : R1 - Retract
+     *   : S1	- Recover
+     *
+     */
   //#define FILAMENT_RUNOUT_SWAP_NEXT
   #ifdef FILAMENT_RUNOUT_SWAP_NEXT
-    //Automatic firmware tool change (require FW_TOOLCHANGE/ADVANCED PAUSE FEATURE)
-    //#define FILAMENT_RUNOUT_SWAP_USE_FW_TOOLCHANGE
+    //Pause park and settings for swapping
+    //#define FILAMENT_RUNOUT_SWAP_USE_ADVANCED_PAUSE_FEATURE
 
-    //Custom toolchange process(disabled if SWAP_USE_FW_TOOLCHANGE)
+    //Custom toolchange process(Disabled if USE_ADVANCED_PAUSE_FEATURE)
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_BEFORE_TOOLCHANGE ""
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_AFTER_TOOLCHANGE ""
 
