@@ -47,6 +47,7 @@ static void lcd_cancel_object_confirm() {
       #if HAS_BUZZER
         ui.completion_feedback();
       #endif
+      ui.goto_previous_screen();
     },
     ui.goto_previous_screen,
     GET_TEXT(MSG_CANCEL_OBJECT), item_num, PSTR("?")
