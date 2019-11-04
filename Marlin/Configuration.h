@@ -1135,26 +1135,24 @@
    */
   //#define FILAMENT_JAM_SENSOR
   #if ENABLED(FILAMENT_JAM_SENSORS)
-      #define NUM_FIL_JAM_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-      #define FIL_JAM_PULLUP          // If sensor wired to Gnd
-      //#define FIL_JAM_PULLDOWN      // If sensor wired to V+
+    #define NUM_FIL_JAM_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define FIL_JAM_PULLUP          // If sensor wired to Gnd
+    //#define FIL_JAM_PULLDOWN      // If sensor wired to V+
 
-      //Encoder wheel distance by pulse(Require precision)
-      #define FIL_JAM_SENSOR_PULSE_DISTANCE_MM 3
-      //Detection offsets(require 20% to 80%)
-      //Require : pulse < check < 2x pulses :1=100% , 1.2=20% .
-      #define FIL_JAM_SENSOR_PULSE_OFFSET 1.2
+    //Encoder wheel distance by pulse(Require precision)
+    #define FIL_JAM_SENSOR_PULSE_DISTANCE_MM 3
+    //Detection offsets(require 20% to 80%)
+    //Require : pulse < check < 2x pulses :1=100% , 1.2=20% .
+    #define FIL_JAM_SENSOR_PULSE_OFFSET 1.2
 
-      //Disable linear advance,only when segmentation in progress
-      //Because no direction changes or brakes
-      #define FIL_JAM_SENSORS_DISABLE_LINEAR_ADVANCE
+    //Disable linear advance,only when segmentation in progress
+    //Because no direction changes or brakes
+    #define FIL_JAM_SENSORS_DISABLE_LINEAR_ADVANCE
   #endif//FILAMENT_JAM_SENSORS
 
-  /**
-   * Tool change on runout or jam
-   * Swap to the next extruder automaticly
-   * Stop on the last extruder defined
-   */
+  // Tool change on runout or jam
+  // Swap to the next extruder automaticly
+  // Stop on the last extruder defined
   //#define FILAMENT_RUNOUT_SWAP_NEXT
   #ifdef FILAMENT_RUNOUT_SWAP_NEXT
     //Automatic firmware tool change (require FW_TOOLCHANGE/ADVANCED PAUSE FEATURE)
@@ -1164,6 +1162,7 @@
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_BEFORE_TOOLCHANGE ""
     //#define FILAMENT_RUNOUT_SWAP_USE_SCRIPT_AFTER_TOOLCHANGE ""
   #endif//FILAMENT_RUNOUT_SWAP_NEXT
+
 #endif//ADVANCED_RUNOUT_FEATURE
 
 //===========================================================================
