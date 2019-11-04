@@ -51,20 +51,24 @@ void endstop_ISR() { endstops.update(); }
  * There are more PCI-enabled processor pins on Port J, but they are not connected to Arduino MEGA.
  */
 #if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA)
+
   #define digitalPinHasPCICR(p)   (WITHIN(p, 10, 15) || WITHIN(p, 50, 53) || WITHIN(p, 62, 69))
 
   #undef  digitalPinToPCICR
-  #define digitalPinToPCICR(p)    (digitalPinHasPCICR(p) ? &PCICR : nullptr)
+  #define digitalPinToPCICR(p)    (digitalPinHasPCICR(p) ? (&PCICR) : nullptr)
+
   #undef  digitalPinToPCICRbit
   #define digitalPinToPCICRbit(p) (WITHIN(p, 10, 13) || WITHIN(p, 50, 53) ? 0 : \
                                    WITHIN(p, 14, 15) ? 1 : \
                                    WITHIN(p, 62, 69) ? 2 : \
                                    0)
+  
   #undef  digitalPinToPCMSK
   #define digitalPinToPCMSK(p)    (WITHIN(p, 10, 13) || WITHIN(p, 50, 53) ? (&PCMSK0) : \
                                    WITHIN(p, 14, 15) ? (&PCMSK1) : \
                                    WITHIN(p, 62, 69) ? (&PCMSK2) : \
                                    nullptr)
+
   #undef  digitalPinToPCMSKbit
   #define digitalPinToPCMSKbit(p) (WITHIN(p, 10, 13) ? ((p) - 6) : \
                                    (p) == 14 || (p) == 51 ? 2 : \
@@ -73,13 +77,18 @@ void endstop_ISR() { endstops.update(); }
                                    (p) == 53 ? 0 : \
                                    WITHIN(p, 62, 69) ? ((p) - 62) : \
                                    0)
+
 #elif defined(__AVR_ATmega164A__) || defined(__AVR_ATmega164P__) || defined(__AVR_ATmega324A__) || \
       defined(__AVR_ATmega324P__) || defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324PB__) || \
       defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284__) || \
       defined(__AVR_ATmega1284P__)
+
   #define digitalPinHasPCICR(p)   WITHIN(p, 0, NUM_DIGITAL_PINS)
+
 #else
-  #error "Must be done!"
+
+  #error "Unsupported AVR variant!"
+
 #endif
 
 
