@@ -583,10 +583,8 @@
   #elif TRINAMICS
     #if ENABLED(LIN_ADVANCE) && (HAS_TMC_STANDALONE_E_DRIVER || (HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)))
       #define MINIMUM_STEPPER_PULSE 1
-      #error "MSP=1"
     #else
       #define MINIMUM_STEPPER_PULSE 0
-      #error "MSP=0"
     #endif
   #else
     #define MINIMUM_STEPPER_PULSE 2
