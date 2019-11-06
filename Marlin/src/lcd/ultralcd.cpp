@@ -61,15 +61,13 @@
   MarlinUI::progress_t MarlinUI::progress_override; // = 0
 #endif
 
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
+#if ENABLED(PCA9632_BUZZER) || USE_BEEPER
+  #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(duration, freq);
-    #elif ENABLED(PCA9632_BUZZER)
+    #if ENABLED(PCA9632_BUZZER)
       pca9632_buzz(duration, freq);
     #elif USE_BEEPER
       buzzer.tone(duration, freq);

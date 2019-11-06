@@ -153,6 +153,8 @@
 
   #if ENABLED(LCD_I2C_VIKI)
 
+    #include <LiquidTWI2.h>
+
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
     // button and encoder bit positions within 'buttons'
