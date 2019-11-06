@@ -255,6 +255,10 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1143)
 else ifeq ($(HARDWARE_MOTHERBOARD),1144)
 # ADIMLab Gantry v2
 else ifeq ($(HARDWARE_MOTHERBOARD),1145)
+# BIQU Tango V1
+else ifeq ($(HARDWARE_MOTHERBOARD),1146)
+# MKS GEN L V2
+else ifeq ($(HARDWARE_MOTHERBOARD),1147)
 
 #
 # RAMBo and derivatives
