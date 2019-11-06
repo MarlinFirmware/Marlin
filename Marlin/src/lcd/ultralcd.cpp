@@ -1132,7 +1132,7 @@ void MarlinUI::update() {
   uint8_t get_ADC_keyValue() {
     if (thermalManager.ADCKey_count >= 16) {
       const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw;
-      thermalManager.current_ADCKey_raw = HAL_ADC_RANGE >> 2;
+      thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < adc_other_button)
         for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
