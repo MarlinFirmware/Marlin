@@ -302,7 +302,7 @@ volatile bool Temperature::temp_meas_ready = false;
 // public:
 
 #if HAS_ADC_BUTTONS
-  uint32_t Temperature::current_ADCKey_raw = HAL_ADC_RANGE;
+  uint32_t Temperature::current_ADCKey_raw = HAL_ADC_RANGE >> 2;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
@@ -2750,7 +2750,7 @@ void Temperature::isr() {
             if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
             if (ADCKey_pressed) {
               ADCKey_count = 0;
-              current_ADCKey_raw = HAL_ADC_RANGE;
+              current_ADCKey_raw = HAL_ADC_RANGE >> 2;
             }
           }
         }
