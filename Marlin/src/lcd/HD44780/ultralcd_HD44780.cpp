@@ -111,6 +111,12 @@ static void createChar_P(const char c, const byte * const ptr) {
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
 
+#if ENABLED(LCD_USE_I2C_BUZZER)
+  void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    lcd.buzz(duration, freq);
+  }
+#endif
+
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
   #if NONE(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
     UNUSED(screen_charset);
