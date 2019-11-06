@@ -48,19 +48,18 @@ typedef uint16_t hal_timer_t;
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 
 /**
- * Note: Some timers that can be already allocated elsewhere
+ * Note: Timers may be used by platforms and libraries
  *
  * FAN PWMs:
- *   When FAN_SOFT_PWM is not defined in Configuration.h, temperature.cpp
- *   uses timers that belong to FANx_PIN pins to generate FAN PWM signals.
+ *   With FAN_SOFT_PWM disabled the Temperature class uses
+ *   FANx_PIN timers to generate FAN PWM signals.
  *
  * Speaker:
- *   When SPEAKER is enabled in Configuration.h, one timer is allocated
- *   by libmaple's tone.cpp to generate tones.
- *   - If BEEPER_PIN has a timer channel (and USE_PIN_TIMER is defined in tone.cpp),
- *     the timer that belongs to this pin is used.
- *   - Otherwise, either TIMER 8 (on boards with high-density MCUs)
- *     or TIMER 4 (on boards with medium-density MCUs) is used.
+ *   When SPEAKER is enabled, one timer is allocated by maple/tone.cpp.
+ *   - If BEEPER_PIN has a timer channel (and USE_PIN_TIMER is
+ *     defined in tone.cpp) it uses the pin's own timer.
+ *   - Otherwise it uses Timer 8 on boards with STM32_HIGH_DENSITY
+ *     or Timer 4 on other boards.
  */
 #if defined(MCU_STM32F103CB) || defined(MCU_STM32F103C8)
   #define STEP_TIMER_NUM 4 // For C8/CB boards, use timer 4
