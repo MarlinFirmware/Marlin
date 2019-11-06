@@ -34,7 +34,7 @@
 
 // Currently Marlin stores all oversampled ADC values as int16_t, make sure the HAL settings do not overflow 15bit
 #if MAX_RAW_THERMISTOR_VALUE > ((1 << 15) - 1)
-  #error MAX_RAW_THERMISTOR_VALUE is too high for int16_t, reduce OVERSAMPLENR or HAL_ADC_RESOLUTION
+  #error "MAX_RAW_THERMISTOR_VALUE is too large for int16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
 #endif
 
 #define OV(N) int16_t((N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
