@@ -1233,11 +1233,11 @@ void MarlinUI::update() {
 
         #endif // UP || DWN || LFT || RT
 
-        buttons = newbutton
+        buttons = (newbutton
           #if HAS_SLOW_BUTTONS
             | slow_buttons
           #endif
-        ;
+        );
 
       #elif HAS_ADC_BUTTONS
 
@@ -1254,13 +1254,13 @@ void MarlinUI::update() {
 
       #if HAS_SHIFT_ENCODER
 
-        GET_SHIFT_BUTTON_STATES(
+        GET_SHIFT_BUTTON_STATES((
           #if ENABLED(REPRAPWORLD_KEYPAD)
             keypad_buttons
           #else
             buttons
           #endif
-        );
+        ));
 
       #endif
 
