@@ -32,7 +32,6 @@ env:
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
   - TEST_PLATFORM="STM32F407VE_black"
-  - TEST_PLATFORM="BIGTREE_BTT002"
   - TEST_PLATFORM="BIGTREE_SKR_PRO"
   - TEST_PLATFORM="mks_robin"
   - TEST_PLATFORM="ARMED"
@@ -42,6 +41,7 @@ env:
   - TEST_PLATFORM="LPC1769"
 
   # Non-working environment tests
+  #- TEST_PLATFORM="BIGTREE_BTT002" this board isn't released yet. we need pinout to be sure about what we do
   #- TEST_PLATFORM="at90usb1286_cdc"
   #- TEST_PLATFORM="at90usb1286_dfu"
   #- TEST_PLATFORM="STM32F103CB_malyan"
