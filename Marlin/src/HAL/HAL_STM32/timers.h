@@ -33,9 +33,6 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
-#define SWSERIAL_TIMER_PRIORITY 1
-#define STEP_TIMER_PRIORITY 2
-#define TEMP_TIMER_PRIORITY 14
 
 #ifdef STM32F0xx
 
@@ -70,10 +67,21 @@
   #endif
 
   #ifndef TEMP_TIMER
-    #define TEMP_TIMER 14
+    #define TEMP_TIMER 14 // TIM7 is consumed by Software Serial if used.
   #endif
 
-  // TIM7 is consumed by Software Serial if used.
+#endif
+
+#ifndef SWSERIAL_TIMER_IRQ_PRIO
+  #define SWSERIAL_TIMER_IRQ_PRIO 1
+#endif
+
+#ifndef STEP_TIMER_IRQ_PRIO
+  #define STEP_TIMER_IRQ_PRIO 2
+#endif
+
+#ifndef TEMP_TIMER_IRQ_PRIO
+  #define TEMP_TIMER_IRQ_PRIO 14 //14 = after hardware ISRs
 #endif
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
@@ -84,7 +92,7 @@
 
 //TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
-#define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE))
+#define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define PULSE_TIMER_RATE STEPPER_TIMER_RATE

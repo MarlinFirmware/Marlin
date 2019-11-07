@@ -29,12 +29,12 @@
 #include "../shared/Delay.h"
 
 #if (__cplusplus == 201703L) && defined(__has_include)
-	#define HAS_SOFTSERIAL __has_include(<SoftwareSerial.h>)
+	#define HAS_SWSERIAL __has_include(<SoftwareSerial.h>)
 #else
-	#define HAS_SOFTSERIAL HAS_TMC220x
+	#define HAS_SWSERIAL HAS_TMC220x
 #endif
 
-#if HAS_SOFTSERIAL
+#if HAS_SWSERIAL
   #include "SoftwareSerial.h"
 #endif  
 
@@ -93,8 +93,8 @@ void HAL_init() {
   while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
 
-  #if HAS_SOFTSERIAL
-    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_PRIORITY, 0);
+  #if HAS_SWSERIAL
+    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
   #endif
 }
 

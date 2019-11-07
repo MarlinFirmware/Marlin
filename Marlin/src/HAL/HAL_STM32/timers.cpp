@@ -93,11 +93,11 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
     // timer_instance[timer_num]->setInterruptPriority one time in HAL_timer_start.
     switch (timer_num) {
       case STEP_TIMER_NUM:
-      HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_PRIORITY, 0);
+      HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_IRQ_PRIO, 0);
       break;
 
       case TEMP_TIMER_NUM:
-      HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_PRIORITY, 0);
+      HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_IRQ_PRIO, 0);
       break;
     }
   }
