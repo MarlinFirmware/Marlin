@@ -466,7 +466,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 void _lcd_draw_homing() {
   constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
-  if (ui.should_draw()) MenuItem_static::draw(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
+  MenuItem_static::draw(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
 }
 
