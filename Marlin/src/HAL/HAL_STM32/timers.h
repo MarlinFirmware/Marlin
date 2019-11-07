@@ -33,6 +33,10 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
+#define SWSERIAL_TIMER_PRIORITY 0
+#define STEP_TIMER_PRIORITY 1
+#define TEMP_TIMER_PRIORITY 8
+
 #ifdef STM32F0xx
 
   #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
@@ -69,6 +73,7 @@
     #define TEMP_TIMER 14
   #endif
 
+  // TIM7 is consumed by Software Serial if used.
 #endif
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
@@ -143,3 +148,7 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
 
 #define HAL_timer_isr_prologue(TIMER_NUM)
 #define HAL_timer_isr_epilogue(TIMER_NUM)
+
+#if HAS_TMC220x
+  void swserial_init();
+#endif  

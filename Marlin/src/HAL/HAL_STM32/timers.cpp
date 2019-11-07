@@ -26,6 +26,10 @@
 
 #include "timers.h"
 
+#if HAS_TMC220x
+  #include <SoftwareSerial.h>
+#endif  
+
 // ------------------------
 // Local defines
 // ------------------------
@@ -72,8 +76,6 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
         timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
         timer_instance[timer_num]->attachInterrupt(Step_Handler); // Called on rollover
-
-        // IRQ priority is left unchanged for SoftSerial compatibility
         break;
       case TEMP_TIMER_NUM: // TEMP TIMER - any available 16bit timer
         timer_instance[timer_num] = new HardwareTimer(TEMP_TIMER_DEV);
@@ -91,8 +93,17 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
     timer_instance[timer_num]->resume(); // Resume the timer to start receiving the interrupt
 
     // HardwareTimer::resume() reinits the timer, resetting the priority. Set again.
-    if (timer_num == TEMP_TIMER_NUM)
-      HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TIM_IRQ_PRIO + 1, 0); //default+1
+    // This is fixed in Arduino_Core_STM32 1.8. These calls can be removed, and replaced
+    // timer_instance[timer_num]->setInterruptPriority one time in HAL_timer_start.
+    switch (timer_num) {
+      case STEP_TIMER_NUM:
+      HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_PRIORITY, 0);
+      break;
+
+      case TEMP_TIMER_NUM:
+      HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_PRIORITY, 0);
+      break;
+    }
   }
 }
 
@@ -116,5 +127,12 @@ TIM_TypeDef * HAL_timer_device(const uint8_t timer_num) {
   }
   return nullptr;
 }
+
+#if HAS_TMC220x
+  void swserial_init()
+  {
+    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_PRIORITY, 0);
+  }
+#endif
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
