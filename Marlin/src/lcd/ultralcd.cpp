@@ -61,15 +61,13 @@
   MarlinUI::progress_t MarlinUI::progress_override; // = 0
 #endif
 
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
+#if ENABLED(PCA9632_BUZZER) || USE_BEEPER
+  #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(duration, freq);
-    #elif ENABLED(PCA9632_BUZZER)
+    #if ENABLED(PCA9632_BUZZER)
       pca9632_buzz(duration, freq);
     #elif USE_BEEPER
       buzzer.tone(duration, freq);
@@ -103,6 +101,10 @@
 
 #if HAS_TRINAMIC
   #include "../feature/tmc_util.h"
+#endif
+
+#if HAS_ADC_BUTTONS
+  #include "../module/thermistor/thermistors.h"
 #endif
 
 #if HAS_ENCODER_ACTION
@@ -1104,31 +1106,33 @@ void MarlinUI::update() {
   #endif
 
   // Calculate the ADC value for the voltage divider with specified pull-down resistor value
-  #define ADC_BUTTON_VALUE(r)  (int(4096.0 * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP)))
+  #define ADC_BUTTON_VALUE(r)  int(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
 
+  static constexpr uint16_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
+                                adc_other_button = HAL_ADC_RANGE * 1000 / 1024;
   static const _stADCKeypadTable_ stADCKeyTable[] PROGMEM = {
     // VALUE_MIN, VALUE_MAX, KEY
-    { 4000, 4096, 1 + BLEN_KEYPAD_F1     }, // F1
-    { 4000, 4096, 1 + BLEN_KEYPAD_F2     }, // F2
-    { 4000, 4096, 1 + BLEN_KEYPAD_F3     }, // F3
-    {  ADC_BUTTON_VALUE(ADC_BUTTONS_LEFT_R_PULLDOWN)   - 100,
-       ADC_BUTTON_VALUE(ADC_BUTTONS_LEFT_R_PULLDOWN)   + 100, 1 + BLEN_KEYPAD_LEFT   }, // LEFT  ( 272 ...  472)
-    {  ADC_BUTTON_VALUE(ADC_BUTTONS_RIGHT_R_PULLDOWN)  - 100,
-       ADC_BUTTON_VALUE(ADC_BUTTONS_RIGHT_R_PULLDOWN)  + 100, 1 + BLEN_KEYPAD_RIGHT  }, // RIGHT (1948 ... 2148)
-    {  ADC_BUTTON_VALUE(ADC_BUTTONS_UP_R_PULLDOWN)     - 100,
-       ADC_BUTTON_VALUE(ADC_BUTTONS_UP_R_PULLDOWN)     + 100, 1 + BLEN_KEYPAD_UP     }, // UP    ( 618 ...  818)
-    {  ADC_BUTTON_VALUE(ADC_BUTTONS_DOWN_R_PULLDOWN)   - 100,
-       ADC_BUTTON_VALUE(ADC_BUTTONS_DOWN_R_PULLDOWN)   + 100, 1 + BLEN_KEYPAD_DOWN   }, // DOWN  (2686 ... 2886)
-    {  ADC_BUTTON_VALUE(ADC_BUTTONS_MIDDLE_R_PULLDOWN) - 100,
-       ADC_BUTTON_VALUE(ADC_BUTTONS_MIDDLE_R_PULLDOWN) + 100, 1 + BLEN_KEYPAD_MIDDLE }, // ENTER (1205 ... 1405)
+    { adc_other_button, HAL_ADC_RANGE, 1 + BLEN_KEYPAD_F1     }, // F1
+    { adc_other_button, HAL_ADC_RANGE, 1 + BLEN_KEYPAD_F2     }, // F2
+    { adc_other_button, HAL_ADC_RANGE, 1 + BLEN_KEYPAD_F3     }, // F3
+    {  ADC_BUTTON_VALUE(ADC_BUTTONS_LEFT_R_PULLDOWN)   - adc_button_tolerance,
+       ADC_BUTTON_VALUE(ADC_BUTTONS_LEFT_R_PULLDOWN)   + adc_button_tolerance, 1 + BLEN_KEYPAD_LEFT   }, // LEFT  ( 272 ...  472)
+    {  ADC_BUTTON_VALUE(ADC_BUTTONS_RIGHT_R_PULLDOWN)  - adc_button_tolerance,
+       ADC_BUTTON_VALUE(ADC_BUTTONS_RIGHT_R_PULLDOWN)  + adc_button_tolerance, 1 + BLEN_KEYPAD_RIGHT  }, // RIGHT (1948 ... 2148)
+    {  ADC_BUTTON_VALUE(ADC_BUTTONS_UP_R_PULLDOWN)     - adc_button_tolerance,
+       ADC_BUTTON_VALUE(ADC_BUTTONS_UP_R_PULLDOWN)     + adc_button_tolerance, 1 + BLEN_KEYPAD_UP     }, // UP    ( 618 ...  818)
+    {  ADC_BUTTON_VALUE(ADC_BUTTONS_DOWN_R_PULLDOWN)   - adc_button_tolerance,
+       ADC_BUTTON_VALUE(ADC_BUTTONS_DOWN_R_PULLDOWN)   + adc_button_tolerance, 1 + BLEN_KEYPAD_DOWN   }, // DOWN  (2686 ... 2886)
+    {  ADC_BUTTON_VALUE(ADC_BUTTONS_MIDDLE_R_PULLDOWN) - adc_button_tolerance,
+       ADC_BUTTON_VALUE(ADC_BUTTONS_MIDDLE_R_PULLDOWN) + adc_button_tolerance, 1 + BLEN_KEYPAD_MIDDLE }, // ENTER (1205 ... 1405)
   };
 
   uint8_t get_ADC_keyValue() {
     if (thermalManager.ADCKey_count >= 16) {
-      const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw << 2;
-      thermalManager.current_ADCKey_raw = 1024;
+      const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw;
+      thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
-      if (currentkpADCValue < 4000)
+      if (currentkpADCValue < adc_other_button)
         for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
@@ -1233,11 +1237,11 @@ void MarlinUI::update() {
 
         #endif // UP || DWN || LFT || RT
 
-        buttons = newbutton
+        buttons = (newbutton
           #if HAS_SLOW_BUTTONS
             | slow_buttons
           #endif
-        ;
+        );
 
       #elif HAS_ADC_BUTTONS
 
@@ -1254,13 +1258,13 @@ void MarlinUI::update() {
 
       #if HAS_SHIFT_ENCODER
 
-        GET_SHIFT_BUTTON_STATES(
+        GET_SHIFT_BUTTON_STATES((
           #if ENABLED(REPRAPWORLD_KEYPAD)
             keypad_buttons
           #else
             buttons
           #endif
-        );
+        ));
 
       #endif
 

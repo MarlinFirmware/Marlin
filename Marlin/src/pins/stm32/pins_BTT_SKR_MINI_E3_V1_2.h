@@ -100,6 +100,9 @@
 
   #define E0_SERIAL_TX_PIN PC11
   #define E0_SERIAL_RX_PIN PC11
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200  
 #endif
 
 //

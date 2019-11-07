@@ -169,7 +169,7 @@ template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(Stream * SerialPort, const float RS, const uint8_t) :
-      TMC2208Stepper(SerialPort, RS, /*has_rx=*/true)
+      TMC2208Stepper(SerialPort, RS)
       {}
     TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t, const bool has_rx=true) :
       TMC2208Stepper(RX, TX, RS, has_rx)

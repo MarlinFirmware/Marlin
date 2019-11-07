@@ -72,22 +72,6 @@ inline void sdcard_start_selected_file() {
   ui.reset_status();
 }
 
-#if ENABLED(SD_MENU_CONFIRM_START)
-
-  void menu_sd_confirm() {
-    char * const longest = card.longest_filename();
-    char buffer[strlen(longest) + 2];
-    buffer[0] = ' ';
-    strcpy(buffer + 1, longest);
-    MenuItem_confirm::select_screen(
-      GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-      sdcard_start_selected_file, ui.goto_previous_screen,
-      GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
-    );
-  }
-
-#endif
-
 class MenuItem_sdfile : public MenuItem_sdbase {
   public:
     static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
@@ -101,7 +85,17 @@ class MenuItem_sdfile : public MenuItem_sdbase {
         sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
-        MenuItem_submenu::action(pstr, menu_sd_confirm);
+        MenuItem_submenu::action(pstr, []{
+          char * const longest = card.longest_filename();
+          char buffer[strlen(longest) + 2];
+          buffer[0] = ' ';
+          strcpy(buffer + 1, longest);
+          MenuItem_confirm::select_screen(
+            GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
+            sdcard_start_selected_file, ui.goto_previous_screen,
+            GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
+          );
+        });
       #else
         sdcard_start_selected_file();
         UNUSED(pstr);

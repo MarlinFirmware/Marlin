@@ -157,6 +157,9 @@
 
   //#define E2_SERIAL_TX_PIN PD6
   //#define E2_SERIAL_RX_PIN PD6
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200  
 #endif
 
 //
