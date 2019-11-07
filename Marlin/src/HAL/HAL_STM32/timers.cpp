@@ -26,10 +26,6 @@
 
 #include "timers.h"
 
-#if HAS_TMC220x
-  #include <SoftwareSerial.h>
-#endif  
-
 // ------------------------
 // Local defines
 // ------------------------
@@ -127,12 +123,5 @@ TIM_TypeDef * HAL_timer_device(const uint8_t timer_num) {
   }
   return nullptr;
 }
-
-#if HAS_TMC220x
-  void swserial_init()
-  {
-    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_PRIORITY, 0);
-  }
-#endif
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

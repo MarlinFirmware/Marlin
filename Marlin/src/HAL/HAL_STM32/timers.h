@@ -33,9 +33,9 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
-#define SWSERIAL_TIMER_PRIORITY 0
-#define STEP_TIMER_PRIORITY 1
-#define TEMP_TIMER_PRIORITY 8
+#define SWSERIAL_TIMER_PRIORITY 1
+#define STEP_TIMER_PRIORITY 2
+#define TEMP_TIMER_PRIORITY 14
 
 #ifdef STM32F0xx
 
@@ -148,7 +148,3 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
 
 #define HAL_timer_isr_prologue(TIMER_NUM)
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#if HAS_TMC220x
-  void swserial_init();
-#endif  

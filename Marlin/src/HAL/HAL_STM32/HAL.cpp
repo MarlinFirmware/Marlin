@@ -28,6 +28,16 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+#if (__cplusplus == 201703L) && defined(__has_include)
+	#define HAS_SOFTSERIAL __has_include(<SoftwareSerial.h>)
+#else
+	#define HAS_SOFTSERIAL HAS_TMC220x
+#endif
+
+#if HAS_SOFTSERIAL
+  #include "SoftwareSerial.h"
+#endif  
+
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
     #include "stm32f7xx_ll_pwr.h"
@@ -83,8 +93,8 @@ void HAL_init() {
   while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
 
-  #if HAS_TMC220x
-    swserial_init();
+  #if HAS_SOFTSERIAL
+    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_PRIORITY, 0);
   #endif
 }
 
