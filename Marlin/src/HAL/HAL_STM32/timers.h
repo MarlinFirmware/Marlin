@@ -132,7 +132,7 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
-TIM_TypeDef* HAL_timer_device(const uint8_t timer_num); //no need to be public for now. not public = not used externally
+//TIM_TypeDef* HAL_timer_device(const uint8_t timer_num); no need to be public for now. not public = not used externally
 
 // FORCE_INLINE because these are used in performance-critical situations
 FORCE_INLINE bool HAL_timer_initialized(const uint8_t timer_num) {
@@ -150,7 +150,7 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
     // wiki: "force all registers (Autoreload, prescaler, compare) to be taken into account"
     // So, if the new overflow value is less than the count it will trigger a rollover interrupt.
     if (overflow < timer_instance[timer_num]->getCount())  // Added 'if' here because reports say it won't boot without it
-      HAL_timer_device(timer_num)->EGR |= TIM_EGR_UG;
+      timer_instance[timer_num]->refresh();
   }
 }
 

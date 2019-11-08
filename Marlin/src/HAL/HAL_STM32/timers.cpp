@@ -50,8 +50,6 @@ bool timer_enabled[NUM_HARDWARE_TIMERS] = { false };
 
 // frequency is in Hertz
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  static_assert(TIM_IRQ_PRIO > 0 && TIM_IRQ_PRIO < 15, "Default timer interrupt priority is too low to allow proper prioritization of interrupts.");
-
   if (!HAL_timer_initialized(timer_num)) {
     switch (timer_num) {
       case STEP_TIMER_NUM: // STEPPER TIMER - use a 32bit timer if possible
@@ -71,13 +69,34 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
          */
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
         timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
-        timer_instance[timer_num]->attachInterrupt(Step_Handler); // Called on rollover
         break;
       case TEMP_TIMER_NUM: // TEMP TIMER - any available 16bit timer
         timer_instance[timer_num] = new HardwareTimer(TEMP_TIMER_DEV);
         // The prescale factor is computed automatically for HERTZ_FORMAT
         timer_instance[timer_num]->setOverflow(frequency, HERTZ_FORMAT);
-        timer_instance[timer_num]->attachInterrupt(Temp_Handler);
+        break;
+    }
+
+    HAL_timer_enable_interrupt(timer_num);
+
+    /*
+     * Initializes (and unfortunately starts) the timer.
+     * This is needed to set correct IRQ priority at the moment but causes
+     * no harm since every call to HAL_timer_start() is actually followed by
+     * a call to HAL_timer_enable_interrupt() which means that there isn't
+     * a case in which you want the timer to run without a callback.
+     */
+    timer_instance[timer_num]->resume(); //the first call to resume MUST follow the attachInterrupt
+
+    // This is fixed in Arduino_Core_STM32 1.8.
+    // These calls can be removed and replaced with
+    // timer_instance[timer_num]->setInterruptPriority
+    switch (timer_num) {                 
+      case STEP_TIMER_NUM:
+        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_IRQ_PRIO, 0);
+        break;
+      case TEMP_TIMER_NUM:
+        HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_IRQ_PRIO, 0);
         break;
     }
   }
@@ -86,18 +105,12 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   if (HAL_timer_initialized(timer_num) && !timer_enabled[timer_num]) {
     timer_enabled[timer_num] = true;
-    timer_instance[timer_num]->resume(); // Resume the timer to start receiving the interrupt
-
-    // HardwareTimer::resume() reinits the timer, resetting the priority. Set again.
-    // This is fixed in Arduino_Core_STM32 1.8. These calls can be removed, and replaced
-    // timer_instance[timer_num]->setInterruptPriority one time in HAL_timer_start.
     switch (timer_num) {
       case STEP_TIMER_NUM:
-      HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_IRQ_PRIO, 0);
+      timer_instance[timer_num]->attachInterrupt(Step_Handler);
       break;
-
-      case TEMP_TIMER_NUM:
-      HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_IRQ_PRIO, 0);
+    case TEMP_TIMER_NUM:
+      timer_instance[timer_num]->attachInterrupt(Temp_Handler);
       break;
     }
   }
@@ -105,9 +118,8 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   if (HAL_timer_interrupt_enabled(timer_num)) {
-    // Pause the timer instead of detaching the interrupt through detachInterrupt()
-    timer_instance[timer_num]->pause();
     timer_enabled[timer_num] = false;
+    timer_instance[timer_num]->detachInterrupt();
   }
 }
 
