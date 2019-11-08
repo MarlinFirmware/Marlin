@@ -1015,8 +1015,8 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   if (Command_Space < (len + padding)) {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Waiting for ", len + padding,
-                      " bytes in command queue, now free: ", Command_Space);
+      SERIAL_ECHOPAIR("Waiting for ", len + padding);
+      SERIAL_ECHOLNPAIR(" bytes in command queue, now free: ", Command_Space);
     #endif
     do {
       Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
