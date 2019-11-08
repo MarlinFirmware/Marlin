@@ -39,6 +39,9 @@ union screen_data_t {
   struct {
     uint8_t e_tag, t_tag, repeat_tag;
     ExtUI::extruder_t saved_extruder;
+    #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
+      bool need_purge;
+    #endif
   } ChangeFilamentScreen;
   struct {
     struct {
