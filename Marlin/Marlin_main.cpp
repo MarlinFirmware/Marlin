@@ -553,10 +553,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 
 uint8_t target_extruder;
 
-#if HAS_BED_PROBE
-  float zprobe_zoffset; // Initialized by settings.load()
-#endif
-
 #if HAS_ABL
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
@@ -745,6 +741,11 @@ XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
 XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
 XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
+
+#if HAS_BED_PROBE
+  // Adjustable with M851
+  float probeOffsetFromExtruder[XYZ] = { X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, Z_PROBE_OFFSET_FROM_EXTRUDER }; // Initialized by settings.load()
+#endif
 
 /**
  * ***************************************************************************
@@ -1379,7 +1380,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
       soft_endstop_min[axis] = base_min_pos(axis);
       soft_endstop_max[axis] = axis == Z_AXIS ? delta_height
       #if HAS_BED_PROBE
-        - zprobe_zoffset
+        - probeOffsetFromExtruder[Z_AXIS];
       #endif
       : base_max_pos(axis);
     #else
@@ -1512,7 +1513,7 @@ static void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS ? delta_height
     #if HAS_BED_PROBE
-      - zprobe_zoffset
+      - probeOffsetFromExtruder[Z_AXIS]
     #endif
     : base_home_pos(axis));
   #else
@@ -1526,12 +1527,12 @@ static void set_axis_is_at_home(const AxisEnum axis) {
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
 
-        current_position[Z_AXIS] -= zprobe_zoffset;
+        current_position[Z_AXIS] -= probeOffsetFromExtruder[Z_AXIS];
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***");
-            SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", zprobe_zoffset);
+            SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", probeOffsetFromExtruder[Z_AXIS]);
           }
         #endif
 
@@ -2320,7 +2321,7 @@ void clean_up_after_endstop_or_probe_move() {
     #endif
 
     float z_dest = z_raise;
-    if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
+    if (probeOffsetFromExtruder[Z_AXIS] < 0) z_dest -= probeOffsetFromExtruder[Z_AXIS];
 
     NOMORE(z_dest, Z_MAX_POS);
 
@@ -2510,7 +2511,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     // Stop the probe before it goes too low to prevent damage.
     // If Z isn't known then probe to -10mm.
-    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -probeOffsetFromExtruder[Z_AXIS] + Z_PROBE_LOW_POINT : -10.0;
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
@@ -2540,7 +2541,7 @@ void clean_up_after_endstop_or_probe_move() {
       // If the nozzle is well over the travel height then
       // move down quickly before doing the slow probe
       float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
-      if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+      if (probeOffsetFromExtruder[Z_AXIS] < 0) z -= probeOffsetFromExtruder[Z_AXIS];
 
       if (current_position[Z_AXIS] > z) {
         // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
@@ -2630,8 +2631,8 @@ void clean_up_after_endstop_or_probe_move() {
     float nx = rx, ny = ry;
     if (probe_relative) {
       if (!position_is_reachable_by_probe(rx, ry)) return NAN;  // The given position is in terms of the probe
-      nx -= (X_PROBE_OFFSET_FROM_EXTRUDER);                     // Get the nozzle position
-      ny -= (Y_PROBE_OFFSET_FROM_EXTRUDER);
+      nx -= (probeOffsetFromExtruder[X_AXIS]);                     // Get the nozzle position
+      ny -= (probeOffsetFromExtruder[Y_AXIS]);
     }
     else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
 
@@ -2652,7 +2653,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
-      measured_z = run_z_probe() + zprobe_zoffset;
+      measured_z = run_z_probe() + probeOffsetFromExtruder[Z_AXIS];
 
       const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
       if (big_raise || raise_after == PROBE_PT_RAISE)
@@ -4110,9 +4111,9 @@ inline void gcode_G4() {
     #endif
 
     #if HAS_BED_PROBE
-      SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
-      SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
-      SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
+      SERIAL_ECHOPAIR("Probe Offset X:", probeOffsetFromExtruder[X_AXIS]);
+      SERIAL_ECHOPAIR(" Y:", probeOffsetFromExtruder[Y_AXIS]);
+      SERIAL_ECHOPAIR(" Z:", probeOffsetFromExtruder[Z_AXIS]);
       #if X_PROBE_OFFSET_FROM_EXTRUDER > 0
         SERIAL_ECHOPGM(" (Right");
       #elif X_PROBE_OFFSET_FROM_EXTRUDER < 0
@@ -4137,9 +4138,9 @@ inline void gcode_G4() {
       #elif X_PROBE_OFFSET_FROM_EXTRUDER != 0
         SERIAL_ECHOPGM("-Center");
       #endif
-      if (zprobe_zoffset < 0)
+      if (probeOffsetFromExtruder[Z_AXIS] < 0)
         SERIAL_ECHOPGM(" & Below");
-      else if (zprobe_zoffset > 0)
+      else if (probeOffsetFromExtruder[Z_AXIS] > 0)
         SERIAL_ECHOPGM(" & Above");
       else
         SERIAL_ECHOPGM(" & Same Z as");
@@ -4263,7 +4264,7 @@ inline void gcode_G4() {
     // Move all carriages together linearly until an endstop is hit.
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10
       #if HAS_BED_PROBE
-        - zprobe_zoffset
+        - probeOffsetFromExtruder[Z_AXIS]
       #endif
     );
     feedrate_mm_s = homing_feedrate(X_AXIS);
@@ -4341,8 +4342,8 @@ inline void gcode_G4() {
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
     #if HOMING_Z_WITH_PROBE
-      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[X_AXIS] -= probeOffsetFromExtruder[X_AXIS];
+      destination[Y_AXIS] -= probeOffsetFromExtruder[Y_AXIS];
     #endif
 
     if (position_is_reachable(destination[X_AXIS], destination[Y_AXIS])) {
@@ -5723,8 +5724,8 @@ void home_all_axes() { gcode_G28(true); }
           planner.leveling_active = false;
 
           // Use the last measured distance to the bed, if possible
-          if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
-            && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+          if ( NEAR(current_position[X_AXIS], xProbe - (probeOffsetFromExtruder[X_AXIS]))
+            && NEAR(current_position[Y_AXIS], yProbe - (probeOffsetFromExtruder[Y_AXIS]))
           ) {
             const float simple_z = current_position[Z_AXIS] - measured_z;
             #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -5808,8 +5809,8 @@ void home_all_axes() { gcode_G28(true); }
    *   E   Engage the probe for each probe (default 1)
    */
   inline void gcode_G30() {
-    const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
-                ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
+    const float xpos = parser.linearval('X', current_position[X_AXIS] + probeOffsetFromExtruder[X_AXIS]),
+                ypos = parser.linearval('Y', current_position[Y_AXIS] + probeOffsetFromExtruder[Y_AXIS]);
 
     if (!position_is_reachable_by_probe(xpos, ypos)) return;
 
@@ -6617,8 +6618,8 @@ void home_all_axes() { gcode_G28(true); }
       if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
       if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
       if (parser.boolval('P')) {
-        if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-        if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+        if (hasI) destination[X_AXIS] -= probeOffsetFromExtruder[X_AXIS];
+        if (hasJ) destination[Y_AXIS] -= probeOffsetFromExtruder[Y_AXIS];
       }
 
       const float fval = parser.linearval('F');
@@ -8156,8 +8157,8 @@ inline void gcode_M42() {
     float X_current = current_position[X_AXIS],
           Y_current = current_position[Y_AXIS];
 
-    const float X_probe_location = parser.linearval('X', X_current + X_PROBE_OFFSET_FROM_EXTRUDER),
-                Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
+    const float X_probe_location = parser.linearval('X', X_current + probeOffsetFromExtruder[X_AXIS]),
+                Y_probe_location = parser.linearval('Y', Y_current + probeOffsetFromExtruder[Y_AXIS]);
 
     if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
       SERIAL_PROTOCOLLNPGM("? (X,Y) out of bounds.");
@@ -8242,8 +8243,8 @@ inline void gcode_M42() {
             while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
               angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
 
-            X_current = X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER) + cos(RADIANS(angle)) * radius;
-            Y_current = Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER) + sin(RADIANS(angle)) * radius;
+            X_current = X_probe_location - (probeOffsetFromExtruder[X_AXIS]) + cos(RADIANS(angle)) * radius;
+            Y_current = Y_probe_location - (probeOffsetFromExtruder[Y_AXIS]) + sin(RADIANS(angle)) * radius;
 
             #if DISABLED(DELTA)
               X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
@@ -10187,9 +10188,9 @@ inline void gcode_M226() {
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
-      zprobe_zoffset += offs;
+      probeOffsetFromExtruder[Z_AXIS] += offs;
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", probeOffsetFromExtruder[Z_AXIS]);
     }
   #endif
 
@@ -11031,16 +11032,28 @@ inline void gcode_M502() {
     if (parser.seenval('Z')) {
       const float value = parser.value_linear_units();
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-        zprobe_zoffset = value;
+        probeOffsetFromExtruder[Z_AXIS] = value;
       else {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
       }
       return;
     }
+    if (parser.seenval('X')) {
+      const float value = parser.value_linear_units();
+      probeOffsetFromExtruder[X_AXIS] = value;
+      return;
+    }
+    if (parser.seenval('Y')) {
+      const float value = parser.value_linear_units();
+      probeOffsetFromExtruder[Y_AXIS] = value;
+      return;
+    }
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_PROBE_Z_OFFSET);
-    SERIAL_ECHOLNPAIR(": ", zprobe_zoffset);
+    SERIAL_ECHOLNPAIR(": ", probeOffsetFromExtruder[Z_AXIS]);
+    SERIAL_ECHOLNPAIR("X: ", probeOffsetFromExtruder[X_AXIS]);
+    SERIAL_ECHOLNPAIR("Y: ", probeOffsetFromExtruder[Y_AXIS]);
   }
 
 #endif // HAS_BED_PROBE

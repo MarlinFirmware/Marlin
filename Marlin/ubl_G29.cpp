@@ -275,7 +275,7 @@
    *   especially better for Delta printers, since it populates the center of the mesh first, allowing for
    *   a quicker test print to verify settings. You don't need to populate the entire mesh to use it.
    *   After all, you don't want to spend a lot of time generating a mesh only to realize the resolution
-   *   or zprobe_zoffset are incorrect. Mesh-generation gathers points starting closest to the nozzle unless
+   *   or probeOffsetFromExtruder[Z_AXIS] are incorrect. Mesh-generation gathers points starting closest to the nozzle unless
    *   an (X,Y) coordinate pair is given.
    *
    *   Unified Bed Leveling uses a lot of EEPROM storage to hold its data, and it takes some effort to get
@@ -415,7 +415,7 @@
               SERIAL_PROTOCOL(g29_y_pos);
               SERIAL_PROTOCOLLNPGM(").\n");
             }
-            probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
+            probe_entire_mesh(g29_x_pos + probeOffsetFromExtruder[X_AXIS], g29_y_pos + probeOffsetFromExtruder[Y_AXIS],
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
@@ -443,8 +443,8 @@
                 g29_x_pos = X_HOME_POS;
                 g29_y_pos = Y_HOME_POS;
               #else // cartesian
-                g29_x_pos = X_PROBE_OFFSET_FROM_EXTRUDER > 0 ? X_BED_SIZE : 0;
-                g29_y_pos = Y_PROBE_OFFSET_FROM_EXTRUDER < 0 ? Y_BED_SIZE : 0;
+                g29_x_pos = probeOffsetFromExtruder[X_AXIS] > 0 ? X_BED_SIZE : 0;
+                g29_y_pos = probeOffsetFromExtruder[Y_AXIS] < 0 ? Y_BED_SIZE : 0;
               #endif
             }
 
@@ -759,8 +759,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_X, MESH_MAX_X),
-        constrain(ry - (Y_PROBE_OFFSET_FROM_EXTRUDER), MESH_MIN_Y, MESH_MAX_Y)
+        constrain(rx - (probeOffsetFromExtruder[X_AXIS]), MESH_MIN_X, MESH_MAX_X),
+        constrain(ry - (probeOffsetFromExtruder[Y_AXIS]), MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -1081,7 +1081,7 @@
 
     #if HAS_BED_PROBE
       SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
-      SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
+      SERIAL_PROTOCOL_F(probeOffsetFromExtruder[Z_AXIS], 7);
       SERIAL_EOL();
     #endif
 
@@ -1287,8 +1287,8 @@
     out_mesh.distance = -99999.9f;
 
     // Get our reference position. Either the nozzle or probe location.
-    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
-                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
+    const float px = rx + (probe_as_reference == USE_PROBE_AS_REFERENCE ? probeOffsetFromExtruder[X_AXIS] : 0),
+                py = ry + (probe_as_reference == USE_PROBE_AS_REFERENCE ? probeOffsetFromExtruder[Y_AXIS] : 0);
 
     float best_so_far = 99999.99f;
 
@@ -1601,7 +1601,7 @@
                 }
               #endif
 
-              measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
+              measured_z -= get_z_correction(rx, ry) /* + probeOffsetFromExtruder[Z_AXIS] */ ;
 
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 if (DEBUGGING(LEVELING)) {
