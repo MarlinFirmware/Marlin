@@ -30,9 +30,9 @@ namespace Theme {
     constexpr int   accent_hue          = 208;
     constexpr float accent_sat          = 0.5;
 
-    constexpr uint32_t logo_bg          = 0xffffff;
-    constexpr uint32_t logo_fg          = 0xffffff;
-    constexpr uint32_t logo_stroke      = hsl_to_rgb(accent_hue, 1.0, 0.39);
+    constexpr uint32_t logo_bg_rgb      = 0xffffff;
+    constexpr uint32_t logo_fill_rgb    = 0xffffff;
+    constexpr uint32_t logo_stroke_rgb  = hsl_to_rgb(accent_hue, 1.0, 0.39);
   #else
     // The Lulzbot logo uses the color PANTONE 382c.
     // This translates to HSL(68°, 68%, 52%) as an accent color on the GUI.
@@ -40,9 +40,9 @@ namespace Theme {
     constexpr int   accent_hue          = 68;
     constexpr float accent_sat          = 0.68;
 
-    constexpr uint32_t logo_bg          = hsl_to_rgb(accent_hue, 0.77, 0.64);
-    constexpr uint32_t logo_fg          = hsl_to_rgb(accent_hue, 0.68, 0.52); // Lulzbot Green
-    constexpr uint32_t logo_stroke      = 0x000000;
+    constexpr uint32_t logo_bg_rgb      = hsl_to_rgb(accent_hue, 0.77, 0.64);
+    constexpr uint32_t logo_fill_rgb    = hsl_to_rgb(accent_hue, 0.68, 0.52); // Lulzbot Green
+    constexpr uint32_t logo_stroke_rgb  = 0x000000;
   #endif
 
   // Shades of accent color
