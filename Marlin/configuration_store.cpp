@@ -138,7 +138,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_BED_PROBE
   //
-  float zprobe_zoffset;                                 // M851 Z
+  float probeOffsetFromExtruder[XYZ];                                 // M851 Z
 
   //
   // ABL_PLANAR
@@ -524,12 +524,12 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
-    _FIELD_TEST(zprobe_zoffset);
+    _FIELD_TEST(probeOffsetFromExtruder);
 
     #if !HAS_BED_PROBE
-      const float zprobe_zoffset = 0;
+      const float probeOffsetFromExtruder[XYZ] = {0, 0, 0};
     #endif
-    EEPROM_WRITE(zprobe_zoffset);
+    EEPROM_WRITE(probeOffsetFromExtruder);
 
     //
     // Planar Bed Leveling matrix
@@ -1158,12 +1158,12 @@ void MarlinSettings::postprocess() {
         for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
       #endif // MESH_BED_LEVELING
 
-      _FIELD_TEST(zprobe_zoffset);
+      _FIELD_TEST(probeOffsetFromExtruder);
 
       #if !HAS_BED_PROBE
-        float zprobe_zoffset;
+        float probeOffsetFromExtruder[XYZ];
       #endif
-      EEPROM_READ(zprobe_zoffset);
+      EEPROM_READ(probeOffsetFromExtruder);
 
       //
       // Planar Bed Leveling matrix
@@ -1870,7 +1870,9 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_BED_PROBE
-    zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+    probeOffsetFromExtruder[X_AXIS] = float(X_PROBE_OFFSET_FROM_EXTRUDER);
+    probeOffsetFromExtruder[Y_AXIS] = float(Y_PROBE_OFFSET_FROM_EXTRUDER);
+    probeOffsetFromExtruder[Z_AXIS] = float(Z_PROBE_OFFSET_FROM_EXTRUDER);
   #endif
 
   #if ENABLED(DELTA)
@@ -2554,11 +2556,13 @@ void MarlinSettings::reset() {
     #if HAS_BED_PROBE
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPGM("Z-Probe Offset");
+        SERIAL_ECHOPGM("Probe Offset");
         say_units(true);
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));
+      SERIAL_ECHOLNPAIR("  M851 X", LINEAR_UNIT(probeOffsetFromExtruder[X_AXIS]));
+      SERIAL_ECHOLNPAIR("  M851 Y", LINEAR_UNIT(probeOffsetFromExtruder[Y_AXIS]));
+      SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(probeOffsetFromExtruder[Z_AXIS]));
     #endif
 
     /**
