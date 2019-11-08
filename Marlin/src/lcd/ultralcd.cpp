@@ -1033,7 +1033,8 @@ void MarlinUI::update() {
           // If still drawing and there's another page, update max-time and return now.
           // The nextPage will already be set up on the next call.
           if (drawing_screen && (drawing_screen = u8g.nextPage())) {
-            NOLESS(max_display_update_time, millis() - ms);
+            if (on_status_screen())
+              NOLESS(max_display_update_time, millis() - ms);
             return;
           }
         }
@@ -1050,7 +1051,8 @@ void MarlinUI::update() {
 
       // Keeping track of the longest time for an individual LCD update.
       // Used to do screen throttling when the planner starts to fill up.
-      NOLESS(max_display_update_time, millis() - ms);
+      if (on_status_screen())
+        NOLESS(max_display_update_time, millis() - ms);
     }
 
     #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
