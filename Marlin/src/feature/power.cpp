@@ -70,7 +70,7 @@ bool Power::is_power_needed() {
     #endif
     #if E_STEPPERS
       #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == E_ENABLE_ON
-      EVAL(_REPEAT(0, E_STEPPERS, _OR_ENABLED_E))
+      REPEAT(E_STEPPERS, _OR_ENABLED_E)
     #endif
   ) return true;
 
