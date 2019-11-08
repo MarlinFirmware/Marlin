@@ -598,7 +598,7 @@ class InterfaceSettingsScreen : public BaseScreen, public CachedScreen<INTERFACE
     };
 
   public:
-    #ifdef LULZBOT_EEPROM_BACKUP_SIZE
+    #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       static bool backupEEPROM();
     #endif
 
