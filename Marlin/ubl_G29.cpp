@@ -1498,10 +1498,10 @@
     #include "vector_3.h"
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
-      constexpr int16_t x_min = MAX(MIN_PROBE_X, MESH_MIN_X),
-                        x_max = MIN(MAX_PROBE_X, MESH_MAX_X),
-                        y_min = MAX(MIN_PROBE_Y, MESH_MIN_Y),
-                        y_max = MIN(MAX_PROBE_Y, MESH_MAX_Y);
+      constexpr int16_t x_min = MAX(probeMin[X_AXIS], MESH_MIN_X),
+                        x_max = MIN(probeMax[X_AXIS], MESH_MAX_X),
+                        y_min = MAX(probeMin[Y_AXIS], MESH_MIN_Y),
+                        y_max = MIN(probeMax[Y_AXIS], MESH_MAX_Y);
 
       bool abort_flag = false;
 
