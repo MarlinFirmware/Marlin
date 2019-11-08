@@ -5,7 +5,6 @@ for define in env['CPPDEFINES']:
     if define[0] == "VECT_TAB_ADDR":
         env['CPPDEFINES'].remove(define)
 env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08007000"))
-env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/mks_robin_mini.ld")
 
 # Encrypt ${PROGNAME}.bin and save it as 'Robin_mini.bin'
 def encrypt(source, target, env):

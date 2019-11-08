@@ -6,7 +6,6 @@ for define in env['CPPDEFINES']:
     if define[0] == "VECT_TAB_ADDR":
         env['CPPDEFINES'].remove(define)
 env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x8008800"))
-env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/chitu_f103.ld")
 
 def calculate_crc(contents, seed):
     accumulating_xor_value = seed;
