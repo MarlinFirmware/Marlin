@@ -126,7 +126,7 @@ class WriteDataStructure:
     self.hex_words = []
 
   def push(self, value):
-    self.hex_words.append("0x%04X" % value)
+    self.hex_words.append("0x%04X" % (0xffff & int(value)))
 
   def command(self, type, x, y):
     if type == "M":
