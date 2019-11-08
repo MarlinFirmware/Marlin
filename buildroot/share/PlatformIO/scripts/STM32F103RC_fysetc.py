@@ -5,7 +5,6 @@ Import("env", "projenv")
 # Relocate firmware from 0x08000000 to 0x08002000
 #env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
 #env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08010000"))
-#env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/fysetc_aio_ii.ld")
 
 # Custom HEX from ELF
 env.AddPostAction(
