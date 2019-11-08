@@ -23,6 +23,24 @@
 
 #include "language.h"
 
+#if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
+  #define COPYRIGHT_SIGN    u8"©"
+#else
+  #define COPYRIGHT_SIGN    u8"(c)"
+#endif
+
+#if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
+  #define SUPERSCRIPT_TWO   u8"²"
+#else
+  #define SUPERSCRIPT_TWO   u8"^2"
+#endif
+
+#if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
+  #define DEGREE_SIGN       u8"°"
+#else
+  #define DEGREE_SIGN       u8" "
+#endif
+
 namespace Language_en {
   PROGMEM Language_Str YES                      = u8"Yes";
   PROGMEM Language_Str NO                       = u8"No";
@@ -114,13 +132,8 @@ namespace Language_en {
   PROGMEM Language_Str PRINTER_HALTED           = u8"PRINTER HALTED";
   PROGMEM Language_Str PLEASE_RESET             = u8"Please reset";
 
-  PROGMEM Language_Str COLOR_TOUCH_PANEL        = u8"Color Touch Panel";
-  #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
-    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"© 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
-  #else
-    PROGMEM Language_Str ABOUT_ALEPH_OBJECTS    = u8"(C) 2019 Aleph Objects, Inc.\n\nwww.lulzbot.com";
-  #endif
-
+  PROGMEM Language_Str ABOUT_TOUCH_PANEL_1      = u8"Color Touch Panel";
+  PROGMEM Language_Str ABOUT_TOUCH_PANEL_2      = u8"Portions " COPYRIGHT_SIGN " 2019 Aleph Objects, Inc.";
   PROGMEM Language_Str FIRMWARE_FOR_TOOLHEAD    = u8"Firmware for toolhead:\n%s\n\n";
 
   PROGMEM Language_Str HOME_SENSE               = u8"Home Sense";
@@ -144,18 +157,10 @@ namespace Language_en {
   PROGMEM Language_Str UNITS_MILLIAMP           = u8"mA";
   PROGMEM Language_Str UNITS_MM                 = u8"mm";
   PROGMEM Language_Str UNITS_MM_S               = u8"mm/s";
-  #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
-    PROGMEM Language_Str UNITS_MM_S2            = u8"mm/s²";
-  #else
-    PROGMEM Language_Str UNITS_MM_S2            = u8"mm/s^2";
-  #endif
+  PROGMEM Language_Str UNITS_MM_S2              = u8"mm/s" SUPERSCRIPT_TWO;
   PROGMEM Language_Str UNITS_STEP_MM            = u8"st/mm";
   PROGMEM Language_Str UNITS_PERCENT            = u8"%";
-  #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
-    PROGMEM Language_Str UNITS_C                = u8"°C";
-  #else
-    PROGMEM Language_Str UNITS_C                = u8" C";
-  #endif
+  PROGMEM Language_Str UNITS_C                  = DEGREE_SIGN u8"C";
   PROGMEM Language_Str MATERIAL_PLA             = u8"PLA";
   PROGMEM Language_Str MATERIAL_ABS             = u8"ABS";
   PROGMEM Language_Str MATERIAL_HIGH_TEMP       = u8"High";
@@ -190,7 +195,7 @@ namespace Language_en {
   PROGMEM Language_Str HEATING                  = u8"Heating";
   PROGMEM Language_Str CAUTION                  = u8"Caution:";
   PROGMEM Language_Str HOT                      = u8"Hot!";
-  PROGMEM Language_Str UNLOAD_FILAMENT          = u8"Unload";
+  PROGMEM Language_Str UNLOAD_FILAMENT          = u8"Unload/Retract";
   PROGMEM Language_Str LOAD_FILAMENT            = u8"Load/Extruder";
   PROGMEM Language_Str MOMENTARY                = u8"Momentary";
   PROGMEM Language_Str CONTINUOUS               = u8"Continuous";
@@ -221,7 +226,7 @@ namespace Language_en {
 
   #ifdef LULZBOT_USE_BIOPRINTER_UI
     PROGMEM Language_Str MAIN_MENU              = u8"Main Menu";
-    PROGMEM Language_Str MOVE_TO_HOME           = u8"Move To Home";
+    PROGMEM Language_Str MOVE_TO_HOME           = u8"Move to Home";
     PROGMEM Language_Str RAISE_PLUNGER          = u8"Raise Plunger";
     PROGMEM Language_Str RELEASE_XY_AXIS        = u8"Release X and Y Axis";
     PROGMEM Language_Str AUTOLEVEL_X_AXIS       = u8"Auto-level X Axis";
