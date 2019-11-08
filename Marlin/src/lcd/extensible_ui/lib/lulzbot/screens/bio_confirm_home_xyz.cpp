@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && defined(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && defined(TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
@@ -38,7 +38,7 @@ bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
     case 1:
       SpinnerDialogBox::enqueueAndWait_P(F(
        "G28\n"
-       LULZBOT_PARK_AND_RELEASE_COMMANDS
+       PARK_AND_RELEASE_COMMANDS
       ));
       current_screen.forget();
       break;

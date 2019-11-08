@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
 
 #include "screens.h"
 #include "screen_data.h"

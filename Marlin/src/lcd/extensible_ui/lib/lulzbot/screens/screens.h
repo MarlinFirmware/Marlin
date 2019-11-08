@@ -69,7 +69,7 @@ enum {
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   FILAMENT_RUNOUT_SCREEN_CACHE,
 #endif
-#ifdef LULZBOT_USE_BIOPRINTER_UI
+#ifdef TOUCH_UI_LULZBOT_BIO
   PRINTING_SCREEN_CACHE,
 #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
@@ -226,7 +226,7 @@ class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_
     static void enqueueAndWait_P(const progmem_str message, const progmem_str commands);
 };
 
-#ifndef LULZBOT_USE_BIOPRINTER_UI
+#if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
 class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,STATUS_SCREEN_DL_SIZE> {
   private:
     static void draw_axis_position(draw_mode_t);
@@ -273,7 +273,9 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
       static void onIdle();
 
   };
+#endif
 
+#if ENABLED(TOUCH_UI_LULZBOT_BIO)
   class BioPrintingDialogBox : public BaseScreen, public CachedScreen<PRINTING_SCREEN_CACHE,PRINTING_SCREEN_DL_SIZE> {
     private:
       static void draw_status_message(draw_mode_t, const char * const);

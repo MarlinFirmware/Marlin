@@ -89,7 +89,7 @@ void BootScreen::onIdle() {
 
     StatusScreen::loadBitmaps();
 
-    #ifdef LULZBOT_USE_BIOPRINTER_UI
+    #ifdef TOUCH_UI_LULZBOT_BIO
       GOTO_SCREEN(BioConfirmHomeXYZ);
       current_screen.forget();
       PUSH_SCREEN(StatusScreen);

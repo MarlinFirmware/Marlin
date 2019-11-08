@@ -224,7 +224,7 @@ namespace Language_en {
   PROGMEM Language_Str TOUCH_CALIBRATION_START  = u8"Release to begin screen calibration";
   PROGMEM Language_Str TOUCH_CALIBRATION_PROMPT = u8"Touch the dots to calibrate";
 
-  #ifdef LULZBOT_USE_BIOPRINTER_UI
+  #ifdef TOUCH_UI_LULZBOT_BIO
     PROGMEM Language_Str MAIN_MENU              = u8"Main Menu";
     PROGMEM Language_Str MOVE_TO_HOME           = u8"Move to Home";
     PROGMEM Language_Str RAISE_PLUNGER          = u8"Raise Plunger";
