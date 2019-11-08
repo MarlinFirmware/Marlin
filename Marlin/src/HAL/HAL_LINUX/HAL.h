@@ -89,6 +89,7 @@ int freeMemory();
 // ADC
 #define HAL_ANALOG_SELECT(pin) HAL_adc_enable_channel(pin)
 #define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION     10
 #define HAL_READ_ADC()         HAL_adc_get_result()
 #define HAL_ADC_READY()        true
 

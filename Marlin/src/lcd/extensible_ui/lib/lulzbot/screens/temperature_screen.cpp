@@ -91,7 +91,13 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
         #if HOTENDS > 2
           setTargetTemp_celsius(0,E2);
           #if HOTENDS > 3
-            setTargetTemp_celsius(0,E4);
+            setTargetTemp_celsius(0,E3);
+            #if HOTENDS > 4
+              setTargetTemp_celsius(0,E4);
+              #if HOTENDS > 5
+                setTargetTemp_celsius(0,E5);
+              #endif
+            #endif
           #endif
         #endif
       #endif

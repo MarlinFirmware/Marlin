@@ -154,6 +154,8 @@
   #define Z2_SERIAL_TX_PIN P1_04
   #define Z2_SERIAL_RX_PIN P1_01
 
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //
@@ -226,7 +228,6 @@
       #define DOGLCD_A0    P1_19
       #define DOGLCD_SCK   P0_15
       #define DOGLCD_MOSI  P0_18
-      #define FORCE_SOFT_SPI
 
       #define LCD_BACKLIGHT_PIN -1
 
@@ -252,8 +253,11 @@
     #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
-        #define DOGLCD_CS  P1_21
-        #define DOGLCD_A0  P1_22
+        #define DOGLCD_CS    P1_21
+        #define DOGLCD_A0    P1_22
+        #define DOGLCD_SCK   P0_15
+        #define DOGLCD_MOSI  P0_18
+        #define FORCE_SOFT_SPI
       #endif
 
       #if ENABLED(ULTIPANEL)
