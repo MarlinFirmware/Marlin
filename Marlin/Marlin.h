@@ -471,6 +471,9 @@ void report_current_position();
 #endif
 
 #if HAS_BED_PROBE
+  extern float probeMin[2];
+  extern float probeMax[2];
+  void calcProbeMaxMin();
   extern float probeOffsetFromExtruder[XYZ];
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
@@ -633,8 +636,8 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (probeOffsetFromExtruder[X_AXIS]), ry - (probeOffsetFromExtruder[Y_AXIS]))
-          && WITHIN(rx, MIN_PROBE_X - 0.001f, MAX_PROBE_X + 0.001f)
-          && WITHIN(ry, MIN_PROBE_Y - 0.001f, MAX_PROBE_Y + 0.001f);
+          && WITHIN(rx, probeMin[X_AXIS] - 0.001f, probeMax[X_AXIS] + 0.001f)
+          && WITHIN(ry, probeMin[Y_AXIS] - 0.001f, probeMax[Y_AXIS] + 0.001f);
     }
   #endif
 

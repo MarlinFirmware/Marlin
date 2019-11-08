@@ -138,7 +138,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_BED_PROBE
   //
-  float probeOffsetFromExtruder[XYZ];                                 // M851 Z
+  float probeOffsetFromExtruder[XYZ];                                 // M851
 
   //
   // ABL_PLANAR
@@ -1164,7 +1164,8 @@ void MarlinSettings::postprocess() {
         float probeOffsetFromExtruder[XYZ];
       #endif
       EEPROM_READ(probeOffsetFromExtruder);
-
+      calcProbeMaxMin();
+      
       //
       // Planar Bed Leveling matrix
       //
@@ -1873,6 +1874,7 @@ void MarlinSettings::reset() {
     probeOffsetFromExtruder[X_AXIS] = float(X_PROBE_OFFSET_FROM_EXTRUDER);
     probeOffsetFromExtruder[Y_AXIS] = float(Y_PROBE_OFFSET_FROM_EXTRUDER);
     probeOffsetFromExtruder[Z_AXIS] = float(Z_PROBE_OFFSET_FROM_EXTRUDER);
+    calcProbeMaxMin();
   #endif
 
   #if ENABLED(DELTA)

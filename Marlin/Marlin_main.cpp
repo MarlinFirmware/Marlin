@@ -745,6 +745,8 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 #if HAS_BED_PROBE
   // Adjustable with M851
   float probeOffsetFromExtruder[XYZ] = { X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, Z_PROBE_OFFSET_FROM_EXTRUDER }; // Initialized by settings.load()
+  float probeMin[2] = { MIN_PROBE_X, MIN_PROBE_Y }; // Initialized by settings.load()
+  float probeMax[2] = { MAX_PROBE_X, MAX_PROBE_Y }; // Initialized by settings.load()
 #endif
 
 /**
@@ -752,6 +754,33 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
  * ******************************** FUNCTIONS ********************************
  * ***************************************************************************
  */
+
+void calcProbeMaxMin() {
+  #ifdef MIN_PROBE_X_FORCED
+      probeMin[X_AXIS] = MIN_PROBE_X;
+  #else
+      probeMin[X_AXIS] = (max(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + probeOffsetFromExtruder[X_AXIS]));
+  #endif
+
+  #ifdef MIN_PROBE_Y_FORCED
+    probeMin[Y_AXIS] = MIN_PROBE_Y;
+  #else
+    probeMin[Y_AXIS] = (max(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + probeOffsetFromExtruder[Y_AXIS])); 
+  #endif
+
+  #ifdef MAX_PROBE_X_FORCED
+    probeMax[X_AXIS] = MAX_PROBE_X;
+  #else
+    probeMax[X_AXIS] = (min(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + probeOffsetFromExtruder[X_AXIS]));
+  #endif
+
+  #ifdef MAX_PROBE_Y_FORCED
+    probeMax[Y_AXIS] = MAX_PROBE_Y;
+  #else
+    probeMax[Y_AXIS] = (min(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + probeOffsetFromExtruder[Y_AXIS]));
+  #endif
+}
+
 
 void stop();
 
@@ -11037,17 +11066,14 @@ inline void gcode_M502() {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
       }
-      return;
     }
     if (parser.seenval('X')) {
       const float value = parser.value_linear_units();
       probeOffsetFromExtruder[X_AXIS] = value;
-      return;
     }
     if (parser.seenval('Y')) {
       const float value = parser.value_linear_units();
       probeOffsetFromExtruder[Y_AXIS] = value;
-      return;
     }
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_PROBE_Z_OFFSET);

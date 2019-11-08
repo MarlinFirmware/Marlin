@@ -1164,15 +1164,23 @@
 // These may be overridden in Configuration.h if a smaller area is desired
 #ifndef MIN_PROBE_X
   #define MIN_PROBE_X _MIN_PROBE_X
+#else
+  #define MIN_PROBE_X_FORCED
 #endif
 #ifndef MIN_PROBE_Y
   #define MIN_PROBE_Y _MIN_PROBE_Y
+#else
+  #define MIN_PROBE_Y_FORCED
 #endif
 #ifndef MAX_PROBE_X
   #define MAX_PROBE_X _MAX_PROBE_X
+#else
+  #define MAX_PROBE_X_FORCED
 #endif
 #ifndef MAX_PROBE_Y
   #define MAX_PROBE_Y _MAX_PROBE_Y
+#else
+  #define MAX_PROBE_Y_FORCED
 #endif
 
 /**
