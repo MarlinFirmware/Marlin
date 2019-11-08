@@ -118,8 +118,8 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   if (HAL_timer_interrupt_enabled(timer_num)) {
-    timer_enabled[timer_num] = false;
     timer_instance[timer_num]->detachInterrupt();
+    timer_enabled[timer_num] = false;
   }
 }
 
