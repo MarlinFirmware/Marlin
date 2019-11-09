@@ -60,7 +60,7 @@ union screen_data_t {
     struct base_numeric_adjustment_t placeholder;
     float e_rel[ExtUI::extruderCount];
   } MoveAxisScreen;
-#if ENABLED(DEVELOPER_SCREENS)
+#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
   struct {
     uint32_t next_watchdog_trigger;
     const char*  message;

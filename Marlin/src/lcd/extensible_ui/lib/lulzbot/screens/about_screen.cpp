@@ -81,7 +81,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS();            return true;
-#if ENABLED(DEVELOPER_SCREENS)
+#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
     case 2: GOTO_SCREEN(DeveloperMenu); return true;
 #endif
     default:                            return false;

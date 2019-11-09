@@ -690,7 +690,7 @@ class DisplayTuningScreen : public BaseNumericAdjustmentScreen, public CachedScr
     static bool onTouchHeld(uint8_t tag);
 };
 
-#if ENABLED(DEVELOPER_SCREENS)
+#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
   class DeveloperMenu : public BaseScreen, public UncachedScreen {
     public:
       static void onRedraw(draw_mode_t);

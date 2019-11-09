@@ -101,7 +101,7 @@ SCREEN_TABLE {
   DECL_SCREEN(BioConfirmHomeXYZ),
   DECL_SCREEN(BioConfirmHomeE),
 #endif
-#if ENABLED(DEVELOPER_SCREENS)
+#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
   DECL_SCREEN(DeveloperMenu),
   DECL_SCREEN(ConfirmEraseFlashDialogBox),
   DECL_SCREEN(WidgetsScreen),

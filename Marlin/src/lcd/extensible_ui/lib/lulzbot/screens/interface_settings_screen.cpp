@@ -246,7 +246,7 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   for(uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
     InterfaceSoundsScreen::event_sounds[i] = eeprom.event_sounds[i];
 
-  #if ENABLED(DEVELOPER_SCREENS)
+  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
     StressTestScreen::startupCheck();
   #endif
 }
