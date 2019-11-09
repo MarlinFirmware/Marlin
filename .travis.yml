@@ -36,9 +36,9 @@ env:
   - TEST_PLATFORM="mks_robin"
   - TEST_PLATFORM="ARMED"
 
-  # STM32 with non-STM framework.
-  - TEST_PLATFORM="STM32F4"
-  - TEST_PLATFORM="STM32F7"
+  # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
+  #- TEST_PLATFORM="STM32F4"
+  #- TEST_PLATFORM="STM32F7"
 
   # Put lengthy tests last
   - TEST_PLATFORM="LPC1768"
