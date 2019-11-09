@@ -111,6 +111,12 @@ static void createChar_P(const char c, const byte * const ptr) {
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
 
+#if ENABLED(LCD_USE_I2C_BUZZER)
+  void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    lcd.buzz(duration, freq);
+  }
+#endif
+
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
   #if NONE(LCD_PROGRESS_BAR, SHOW_BOOTSCREEN)
     UNUSED(screen_charset);
@@ -1066,9 +1072,13 @@ void MarlinUI::draw_status_screen() {
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
 
-      if (thermalManager.degTargetBed() > 0) leds |= LED_A;
+      #if HAS_HEATED_BED
+        if (thermalManager.degTargetBed() > 0) leds |= LED_A;
+      #endif
 
-      if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
+      #if HOTENDS
+        if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
+      #endif
 
       #if FAN_COUNT > 0
         if (0

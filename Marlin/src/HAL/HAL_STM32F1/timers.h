@@ -47,6 +47,20 @@ typedef uint16_t hal_timer_t;
 #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 
+/**
+ * Note: Timers may be used by platforms and libraries
+ *
+ * FAN PWMs:
+ *   With FAN_SOFT_PWM disabled the Temperature class uses
+ *   FANx_PIN timers to generate FAN PWM signals.
+ *
+ * Speaker:
+ *   When SPEAKER is enabled, one timer is allocated by maple/tone.cpp.
+ *   - If BEEPER_PIN has a timer channel (and USE_PIN_TIMER is
+ *     defined in tone.cpp) it uses the pin's own timer.
+ *   - Otherwise it uses Timer 8 on boards with STM32_HIGH_DENSITY
+ *     or Timer 4 on other boards.
+ */
 #if defined(MCU_STM32F103CB) || defined(MCU_STM32F103C8)
   #define STEP_TIMER_NUM 4 // For C8/CB boards, use timer 4
 #else
@@ -58,7 +72,11 @@ typedef uint16_t hal_timer_t;
 
 #if MB(BIGTREE_SKR_MINI_E3, BIGTREE_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE)
   // SKR Mini E3 boards use PA8 as FAN_PIN, so TIMER 1 is used for Fan PWM.
-  #define SERVO0_TIMER_NUM 8
+  #ifdef STM32_HIGH_DENSITY
+    #define SERVO0_TIMER_NUM 8  // tone.cpp uses Timer 4
+  #else
+    #define SERVO0_TIMER_NUM 3  // tone.cpp uses Timer 8
+  #endif
 #else
   #define SERVO0_TIMER_NUM 1  // SERVO0 or BLTOUCH
 #endif
