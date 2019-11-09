@@ -238,21 +238,21 @@ void menu_main() {
     #if SERVICE_INTERVAL_1 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(1); }, ui.goto_previous_screen,
+        []{ _service_reset(1); }, static_cast<screenFunc_t>(ui.goto_previous_screen),
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_2 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(2); }, ui.goto_previous_screen,
+        []{ _service_reset(2); }, static_cast<screenFunc_t>(ui.goto_previous_screen),
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_3 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(3); }, ui.goto_previous_screen,
+        []{ _service_reset(3); }, static_cast<screenFunc_t>(ui.goto_previous_screen),
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
       );
     #endif
