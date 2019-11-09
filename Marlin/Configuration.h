@@ -913,9 +913,9 @@
  *     O-- FRONT --+
  *   (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 32 //32  // X offset: -left  +right  [of the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 34 //32  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -2 //-2  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.35   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
@@ -927,7 +927,7 @@
 #define Z_PROBE_SPEED_FAST (4*60)
 
 // Feedrate (mm/m) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (4*60)
+#define Z_PROBE_SPEED_SLOW (3*60)
 
 /**
  * Multiple Probing
@@ -1209,10 +1209,10 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 36
-  #define RIGHT_PROBE_BED_POSITION 198
-  #define FRONT_PROBE_BED_POSITION 18
-  #define BACK_PROBE_BED_POSITION 222
+  #define LEFT_PROBE_BED_POSITION 38
+  #define RIGHT_PROBE_BED_POSITION 196
+  #define FRONT_PROBE_BED_POSITION 38
+  #define BACK_PROBE_BED_POSITION 196
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1221,7 +1221,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    // #define EXTRAPOLATE_BEYOND_GRID
+    #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
