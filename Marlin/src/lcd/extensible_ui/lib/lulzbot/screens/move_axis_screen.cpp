@@ -45,24 +45,24 @@ void MoveAxisScreen::onEntry() {
 void MoveAxisScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(1);
-  w.units(GET_TEXT_F(UNITS_MM));
-  w.heading(                           GET_TEXT_F(MOVE_AXIS));
+  w.units(GET_TEXT_F(MSG_UNITS_MM));
+  w.heading(                           GET_TEXT_F(MSG_MOVE_AXIS));
   w.home_buttons(20);
-  w.color(Theme::x_axis).adjuster(  2, GET_TEXT_F(AXIS_X),  getAxisPosition_mm(X), canMove(X));
-  w.color(Theme::y_axis).adjuster(  4, GET_TEXT_F(AXIS_Y),  getAxisPosition_mm(Y), canMove(Y));
-  w.color(Theme::z_axis).adjuster(  6, GET_TEXT_F(AXIS_Z),  getAxisPosition_mm(Z), canMove(Z));
+  w.color(Theme::x_axis).adjuster(  2, GET_TEXT_F(MSG_AXIS_X),  getAxisPosition_mm(X), canMove(X));
+  w.color(Theme::y_axis).adjuster(  4, GET_TEXT_F(MSG_AXIS_Y),  getAxisPosition_mm(Y), canMove(Y));
+  w.color(Theme::z_axis).adjuster(  6, GET_TEXT_F(MSG_AXIS_Z),  getAxisPosition_mm(Z), canMove(Z));
 
   w.color(Theme::e_axis);
   #if EXTRUDERS == 1
-    w.adjuster(  8, GET_TEXT_F(AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
   #elif EXTRUDERS > 1
-    w.adjuster(  8, GET_TEXT_F(AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
-    w.adjuster( 10, GET_TEXT_F(AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.adjuster( 12, GET_TEXT_F(AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
+      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.adjuster( 14, GET_TEXT_F(AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
+      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
     #endif
   #endif
   w.increments();

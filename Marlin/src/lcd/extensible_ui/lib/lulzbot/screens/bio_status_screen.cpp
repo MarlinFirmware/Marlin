@@ -105,10 +105,10 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       cmd.font(font_medium);
       
       ui.bounds(POLY(zone1_label), x, y, h, v);
-      cmd.text(x, y, h, v, F("Zone 1:"));
+      cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_1));
       
       ui.bounds(POLY(zone2_label), x, y, h, v);
-      cmd.text(x, y, h, v, F("Zone 2:"));
+      cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_2));
     #endif
 
     #ifdef TOUCH_UI_USE_UTF8
@@ -260,13 +260,13 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
   if (what & BACKGROUND) {
     ui.bounds(POLY(fine_label), x, y, h, v);
     cmd.cmd(COLOR_RGB(bg_text_enabled))
-       .text(x, y, h, v, GET_TEXT_F(FINE_MOTION));
+       .text(x, y, h, v, GET_TEXT_F(MSG_FINE_MOTION));
   }
 
   if (what & FOREGROUND) {
     ui.bounds(POLY(fine_toggle), x, y, h, v);
     cmd.colors(ui_toggle)
-       .toggle2(x, y, h, v, GET_TEXT_F(NO), GET_TEXT_F(YES), fine_motion);
+       .toggle2(x, y, h, v, GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), fine_motion);
   }
 }
 
@@ -307,12 +307,12 @@ void StatusScreen::draw_buttons(draw_mode_t what) {
      .colors(has_media ? action_btn : normal_btn)
      .tag(9).button(x, y, h, v,
         isPrintingFromMedia() ?
-          GET_TEXT_F(PRINTING) :
-          GET_TEXT_F(MEDIA)
+          GET_TEXT_F(MSG_PRINTING) :
+          GET_TEXT_F(MSG_BUTTON_MEDIA)
       );
       
   ui.bounds(POLY(menu_btn), x, y, h, v);
-  cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(x, y, h, v, GET_TEXT_F(MENU));
+  cmd.colors(!has_media ? action_btn : normal_btn).tag(10).button(x, y, h, v, GET_TEXT_F(MSG_BUTTON_MENU));
 }
 
 void StatusScreen::loadBitmaps() {

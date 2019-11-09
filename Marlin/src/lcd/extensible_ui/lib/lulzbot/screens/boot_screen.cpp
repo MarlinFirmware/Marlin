@@ -75,7 +75,7 @@ void BootScreen::onIdle() {
   } else {
     if (!UIFlashStorage::is_valid()) {
       StatusScreen::loadBitmaps();
-      SpinnerDialogBox::show(GET_TEXT_F(PLEASE_WAIT));
+      SpinnerDialogBox::show(GET_TEXT_F(MSG_PLEASE_WAIT));
       UIFlashStorage::format_flash();
       SpinnerDialogBox::hide();
     }

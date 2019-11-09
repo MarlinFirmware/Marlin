@@ -49,7 +49,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
       #ifdef CUSTOM_MACHINE_NAME
         F(CUSTOM_MACHINE_NAME)
       #else
-        GET_TEXT_F(ABOUT_TOUCH_PANEL_1)
+        GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_1)
       #endif
   , OPT_CENTER, font_xlarge);
   
@@ -68,14 +68,14 @@ void AboutScreen::onRedraw(draw_mode_t) {
       #ifdef TOOLHEAD_NAME
         about_str
       #else
-        GET_TEXT_F(ABOUT_TOUCH_PANEL_2)
+        GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_2)
       #endif
   , OPT_CENTER, font_medium);
 
   cmd.tag(0);
   draw_text_box(cmd, BTN_POS(1,6), BTN_SIZE(4,2), progmem_str(getFirmwareName_str()), OPT_CENTER, font_medium);
 
-  cmd.font(font_medium).colors(action_btn).tag(1).button(BTN_POS(2,8), BTN_SIZE(2,1), GET_TEXT_F(OKAY));
+  cmd.font(font_medium).colors(action_btn).tag(1).button(BTN_POS(2,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_OKAY));
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {

@@ -121,6 +121,7 @@ void StressTestScreen::onIdle() {
 
   if (!commandsInQueue()) {
       if (!isPositionKnown()) {
+        extern const char G28_STR[];
         injectCommands_P(G28_STR);
       } else {
         injectCommands_P(PSTR(
