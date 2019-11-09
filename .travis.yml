@@ -36,6 +36,10 @@ env:
   - TEST_PLATFORM="mks_robin"
   - TEST_PLATFORM="ARMED"
 
+  # STM32 with non-STM framework.
+  - TEST_PLATFORM="STM32F4"
+  - TEST_PLATFORM="STM32F7"
+
   # Put lengthy tests last
   - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="LPC1769"
@@ -49,8 +53,6 @@ env:
   #- TEST_PLATFORM="mks_robin_mini"
   #- TEST_PLATFORM="mks_robin_nano"
   #- TEST_PLATFORM="SAMD51_grandcentral_m4"
-  #- TEST_PLATFORM="STM32F4"
-  #- TEST_PLATFORM="STM32F7"
 
 before_install:
   #
