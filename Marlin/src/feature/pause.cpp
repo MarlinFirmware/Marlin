@@ -464,7 +464,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #endif
 
   if (unload_length)   // Unload the filament
-    unload_filament(unload_length, show_lcd);
+    unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     active_extruder = saved_ext;
@@ -637,7 +637,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   }
 
   if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) // Load the new filament
-    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_PAUSE_PRINT DXC_PASS);
+    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
 
   #if HAS_LCD_MENU
     lcd_pause_show_message(PAUSE_MESSAGE_RESUME);

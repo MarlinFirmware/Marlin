@@ -21,21 +21,31 @@
  */
 #pragma once
 
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Ender-4 supports only 1 hotend / E-stepper. Comment out this line to continue."
-#endif
+/**
+ * BIQU Tango pin assignments
+ */
 
-#define BOARD_INFO_NAME "Ender-4"
+#define BOARD_INFO_NAME "Tango"
 
-#include "pins_RAMPS.h"
+#define FAN_PIN             8
+#define FAN1_PIN           -1
 
-// The board only has one PWM fan connector. The others are 12V always-on.
-// The default config uses this pin to control the brightness of the LED
-// band (case light). Thus the hotend and controller fans are always-on.
+#define ORIG_E0_AUTO_FAN_PIN 7
 
-#if ENABLED(CASE_LIGHT_ENABLE)
-  #undef FAN_PIN
-  #ifndef CASE_LIGHT_PIN
-    #define CASE_LIGHT_PIN RAMPS_D9_PIN
+#ifndef TEMP_0_PIN
+  #if TEMP_SENSOR_0 == -1
+    #define TEMP_0_PIN     10   // Analog Input (connector *K1* on Tango thermocouple ADD ON is used)
+  #else
+    #define TEMP_0_PIN     15   // Analog Input (default connector for thermistor *T0* on rumba board is used)
   #endif
 #endif
+
+#ifndef TEMP_1_PIN
+  #if TEMP_SENSOR_1 == -1
+    #define TEMP_1_PIN      9   // Analog Input (connector *K2* on Tango thermocouple ADD ON is used)
+  #else
+    #define TEMP_1_PIN     14   // Analog Input (default connector for thermistor *T1* on rumba board is used)
+  #endif
+#endif
+
+#include "pins_RUMBA.h"

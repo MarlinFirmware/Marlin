@@ -1017,7 +1017,7 @@
 #define HAS_TEMP_ADC_BED HAS_ADC_TEST(BED)
 #define HAS_TEMP_ADC_CHAMBER HAS_ADC_TEST(CHAMBER)
 
-#define HAS_TEMP_HOTEND (HAS_TEMP_ADC_0 || ENABLED(HEATER_0_USES_MAX6675))
+#define HAS_TEMP_HOTEND (HOTENDS > 0 && (HAS_TEMP_ADC_0 || ENABLED(HEATER_0_USES_MAX6675)))
 #define HAS_TEMP_BED HAS_TEMP_ADC_BED
 #define HAS_TEMP_CHAMBER HAS_TEMP_ADC_CHAMBER
 #define HAS_HEATED_CHAMBER (HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER))
@@ -1302,8 +1302,15 @@
 /**
  * MIN/MAX fan PWM scaling
  */
+#ifndef FAN_OFF_PWM
+  #define FAN_OFF_PWM 0
+#endif
 #ifndef FAN_MIN_PWM
-  #define FAN_MIN_PWM 0
+  #if FAN_OFF_PWM > 0
+    #define FAN_MIN_PWM (FAN_OFF_PWM + 1)
+  #else
+    #define FAN_MIN_PWM 0
+  #endif
 #endif
 #ifndef FAN_MAX_PWM
   #define FAN_MAX_PWM 255
@@ -1314,6 +1321,8 @@
   #error "FAN_MAX_PWM must be a value from 0 to 255."
 #elif FAN_MIN_PWM > FAN_MAX_PWM
   #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
+#elif FAN_OFF_PWM > FAN_MIN_PWM
+  #error "FAN_OFF_PWM must be less than or equal to FAN_MIN_PWM."
 #endif
 
 /**
@@ -1559,8 +1568,8 @@
 
 #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
 
-#if ALL(PROBE_PT_1_X, PROBE_PT_2_X, PROBE_PT_3_X, PROBE_PT_1_Y, PROBE_PT_2_Y, PROBE_PT_3_Y)
-  #define HAS_FIXED_3POINT;
+#if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
+  #define HAS_FIXED_3POINT
 #endif
 
 #if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT) && IS_KINEMATIC

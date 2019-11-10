@@ -60,7 +60,7 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC12
+  #define FIL_RUNOUT_PIN   PC15   // "E0-STOP"
 #endif
 
 //
@@ -100,6 +100,9 @@
 
   #define E0_SERIAL_TX_PIN PC11
   #define E0_SERIAL_RX_PIN PC11
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_LPC1768
+#ifndef MCU_LPC1768
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -154,15 +154,17 @@
   #define Z2_SERIAL_TX_PIN P1_04
   #define Z2_SERIAL_RX_PIN P1_01
 
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_BED_PIN       0   // A0 (T0) - (67) - TEMP_BED_PIN
-#define TEMP_0_PIN         1   // A1 (T1) - (68) - TEMP_0_PIN
-#define TEMP_1_PIN         2   // A2 (T2) - (69) - TEMP_1_PIN
+#define TEMP_BED_PIN       P0_23_A0   // A0 (T0) - (67) - TEMP_BED_PIN
+#define TEMP_0_PIN         P0_24_A1   // A1 (T1) - (68) - TEMP_0_PIN
+#define TEMP_1_PIN         P0_25_A2   // A2 (T2) - (69) - TEMP_1_PIN
 
 //
 // Heaters / Fans
@@ -226,7 +228,6 @@
       #define DOGLCD_A0    P1_19
       #define DOGLCD_SCK   P0_15
       #define DOGLCD_MOSI  P0_18
-      #define FORCE_SOFT_SPI
 
       #define LCD_BACKLIGHT_PIN -1
 
@@ -252,8 +253,11 @@
     #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
-        #define DOGLCD_CS  P1_21
-        #define DOGLCD_A0  P1_22
+        #define DOGLCD_CS    P1_21
+        #define DOGLCD_A0    P1_22
+        #define DOGLCD_SCK   P0_15
+        #define DOGLCD_MOSI  P0_18
+        #define FORCE_SOFT_SPI
       #endif
 
       #if ENABLED(ULTIPANEL)

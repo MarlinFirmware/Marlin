@@ -36,7 +36,6 @@
 #include "../core/macros.h"
 #include "../../Configuration.h"
 
-
 #ifdef CUSTOM_VERSION_FILE
   #if defined(__has_include)
     #if __has_include(XSTR(../../CUSTOM_VERSION_FILE))

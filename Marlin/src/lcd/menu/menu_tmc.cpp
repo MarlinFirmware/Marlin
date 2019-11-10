@@ -32,7 +32,7 @@
 #include "../../module/stepper/indirection.h"
 #include "../../feature/tmc_util.h"
 
-#define TMC_EDIT_STORED_I_RMS(ST,MSG) EDIT_ITEM_P(uint16_4, PSTR(MSG), &stepper##ST.val_mA, 100, 3000, [](){ stepper##ST.refresh_stepper_current(); })
+#define TMC_EDIT_STORED_I_RMS(ST,MSG) EDIT_ITEM_P(uint16_4, PSTR(MSG), &stepper##ST.val_mA, 100, 3000, []{ stepper##ST.refresh_stepper_current(); })
 
 void menu_tmc_current() {
   START_MENU();
@@ -81,7 +81,7 @@ void menu_tmc_current() {
 
 #if ENABLED(HYBRID_THRESHOLD)
 
-  #define TMC_EDIT_STORED_HYBRID_THRS(ST, MSG) EDIT_ITEM_P(uint8, PSTR(MSG), &stepper##ST.stored.hybrid_thrs, 0, 255, [](){ stepper##ST.refresh_hybrid_thrs(); });
+  #define TMC_EDIT_STORED_HYBRID_THRS(ST, MSG) EDIT_ITEM_P(uint8, PSTR(MSG), &stepper##ST.stored.hybrid_thrs, 0, 255, []{ stepper##ST.refresh_hybrid_thrs(); });
 
   void menu_tmc_hybrid_thrs() {
     START_MENU();
@@ -132,7 +132,7 @@ void menu_tmc_current() {
 
 #if ENABLED(SENSORLESS_HOMING)
 
-  #define TMC_EDIT_STORED_SGT(ST) EDIT_ITEM_P(int4, PSTR(MSG_##ST), &stepper##ST.stored.homing_thrs, stepper##ST.sgt_min, stepper##ST.sgt_max, [](){ stepper##ST.refresh_homing_thrs(); });
+  #define TMC_EDIT_STORED_SGT(ST) EDIT_ITEM_P(int4, PSTR(MSG_##ST), &stepper##ST.stored.homing_thrs, stepper##ST.sgt_min, stepper##ST.sgt_max, []{ stepper##ST.refresh_homing_thrs(); });
 
   void menu_tmc_homing_thrs() {
     START_MENU();
@@ -156,7 +156,7 @@ void menu_tmc_current() {
 
 #if HAS_STEALTHCHOP
 
-  #define TMC_EDIT_STEP_MODE(ST, MSG) EDIT_ITEM_P(bool, PSTR(MSG), &stepper##ST.stored.stealthChop_enabled, [](){ stepper##ST.refresh_stepping_mode(); })
+  #define TMC_EDIT_STEP_MODE(ST, MSG) EDIT_ITEM_P(bool, PSTR(MSG), &stepper##ST.stored.stealthChop_enabled, []{ stepper##ST.refresh_stepping_mode(); })
 
   void menu_tmc_step_mode() {
     START_MENU();

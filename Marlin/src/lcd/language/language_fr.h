@@ -113,7 +113,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Allumer alim.");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Eteindre alim.");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrusion");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retrait");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétractation");
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
@@ -138,9 +138,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Copie miroir");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Contrôle complet");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Offsets Outil");
-  PROGMEM Language_Str MSG_X_OFFSET                        = _UxGT("Buse 2 X");
-  PROGMEM Language_Str MSG_Y_OFFSET                        = _UxGT("Buse 2 Y");
-  PROGMEM Language_Str MSG_Z_OFFSET                        = _UxGT("Buse 2 Z");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("Buse 2 X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("Buse 2 Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("Buse 2 Z");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Chauffe lit");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Chauffe buse");
   PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Amorce manuelle...");
@@ -264,14 +264,14 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_NOZZLE_5                        = _UxGT("Buse ") LCD_STR_N5;
   PROGMEM Language_Str MSG_BED                             = _UxGT("Lit");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Caisson");
-  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vitesse ventil.");
-  PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Vitesse ventil. 1");
-  PROGMEM Language_Str MSG_FAN_SPEED_2                     = _UxGT("Vitesse ventil. 2");
-  PROGMEM Language_Str MSG_FAN_SPEED_3                     = _UxGT("Vitesse ventil. 3");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra V ventil.");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_1               = _UxGT("Extra V ventil. 1");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_2               = _UxGT("Extra V ventil. 2");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_3               = _UxGT("Extra V ventil. 3");
+  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vit.  ventil.  ");
+  PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Vit.  ventil. 1");
+  PROGMEM Language_Str MSG_FAN_SPEED_2                     = _UxGT("Vit.  ventil. 2");
+  PROGMEM Language_Str MSG_FAN_SPEED_3                     = _UxGT("Vit.  ventil. 3");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra ventil.  ");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_1               = _UxGT("Extra ventil. 1");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_2               = _UxGT("Extra ventil. 2");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_3               = _UxGT("Extra ventil. 3");
 
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_0                          = _UxGT("Flux ") LCD_STR_N0;

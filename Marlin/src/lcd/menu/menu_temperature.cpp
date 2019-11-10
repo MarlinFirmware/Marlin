@@ -87,14 +87,14 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   #define _PREHEAT_ITEMS(M,N) do{ \
-    ACTION_ITEM(MSG_PREHEAT_##M##_H##N, [](){ _preheat_both(M-1, N); }); \
-    ACTION_ITEM(MSG_PREHEAT_##M##_END_E##N, [](){ _preheat_end(M-1, N); }); \
+    ACTION_ITEM(MSG_PREHEAT_##M##_H##N, []{ _preheat_both(M-1, N); }); \
+    ACTION_ITEM(MSG_PREHEAT_##M##_END_E##N, []{ _preheat_end(M-1, N); }); \
   }while(0)
   #if HAS_HEATED_BED
     #define PREHEAT_ITEMS(M,N) _PREHEAT_ITEMS(M,N)
   #else
     #define PREHEAT_ITEMS(M,N) \
-      ACTION_ITEM(MSG_PREHEAT_##M##_H##N, [](){ _preheat_end(M-1, N); })
+      ACTION_ITEM(MSG_PREHEAT_##M##_H##N, []{ _preheat_end(M-1, N); })
   #endif
 
   void menu_preheat_m1() {
@@ -102,10 +102,10 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
     BACK_ITEM(MSG_TEMPERATURE);
     #if HOTENDS == 1
       #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_1, [](){ _preheat_both(0, 0); });
-        ACTION_ITEM(MSG_PREHEAT_1_END, [](){ _preheat_end(0, 0); });
+        ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_both(0, 0); });
+        ACTION_ITEM(MSG_PREHEAT_1_END, []{ _preheat_end(0, 0); });
       #else
-        ACTION_ITEM(MSG_PREHEAT_1, [](){ _preheat_end(0, 0); });
+        ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
       #endif
     #elif HOTENDS > 1
       #if HAS_HEATED_BED
@@ -132,7 +132,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       });
     #endif // HOTENDS > 1
     #if HAS_HEATED_BED
-      ACTION_ITEM(MSG_PREHEAT_1_BEDONLY, [](){ _preheat_bed(0); });
+      ACTION_ITEM(MSG_PREHEAT_1_BEDONLY, []{ _preheat_bed(0); });
     #endif
     END_MENU();
   }
@@ -142,10 +142,10 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
     BACK_ITEM(MSG_TEMPERATURE);
     #if HOTENDS == 1
       #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_both(1, 0); });
-        ACTION_ITEM(MSG_PREHEAT_2_END, [](){ _preheat_end(1, 0); });
+        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_both(1, 0); });
+        ACTION_ITEM(MSG_PREHEAT_2_END, []{ _preheat_end(1, 0); });
       #else
-        ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_end(1, 0); });
+        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
       #endif
     #elif HOTENDS > 1
       #if HAS_HEATED_BED
@@ -172,7 +172,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       });
     #endif // HOTENDS > 1
     #if HAS_HEATED_BED
-      ACTION_ITEM(MSG_PREHEAT_2_BEDONLY, [](){ _preheat_bed(1); });
+      ACTION_ITEM(MSG_PREHEAT_2_BEDONLY, []{ _preheat_bed(1); });
     #endif
     END_MENU();
   }
@@ -194,9 +194,9 @@ void menu_temperature() {
   // Nozzle [1-5]:
   //
   #if HOTENDS == 1
-    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(0); });
+    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_TARGET(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE_##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, [](){ thermalManager.start_watching_hotend(N); })
+    #define EDIT_TARGET(N) EDIT_ITEM_FAST(int3, MSG_NOZZLE_##N, &thermalManager.temp_hotend[N].target, 0, HEATER_##N##_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(N); })
     EDIT_TARGET(0);
     EDIT_TARGET(1);
     #if HOTENDS > 2
@@ -237,21 +237,21 @@ void menu_temperature() {
   #if FAN_COUNT > 0
     #if HAS_FAN0
       editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_1, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(0, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(0, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_1, &thermalManager.new_fan_speed[0], 3, 255);
+        EDIT_ITEM_FAST(percent, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
-    #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+    #if HAS_FAN1
       editable.uint8 = thermalManager.fan_speed[1];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_2, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(1, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_2, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(1, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_2, &thermalManager.new_fan_speed[1], 3, 255);
       #endif
     #endif
-    #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+    #if HAS_FAN2
       editable.uint8 = thermalManager.fan_speed[2];
-      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_3, &editable.uint8, 0, 255, [](){ thermalManager.set_fan_speed(2, editable.uint8); });
+      EDIT_ITEM_FAST(percent, MSG_FAN_SPEED_3, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(2, editable.uint8); });
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST(percent, MSG_EXTRA_FAN_SPEED_3, &thermalManager.new_fan_speed[2], 3, 255);
       #endif
@@ -267,8 +267,8 @@ void menu_temperature() {
       SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
       SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
     #else
-      ACTION_ITEM(MSG_PREHEAT_1, [](){ _preheat_end(0, 0); });
-      ACTION_ITEM(MSG_PREHEAT_2, [](){ _preheat_end(1, 0); });
+      ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
+      ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
     #endif
 
     //

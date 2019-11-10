@@ -385,10 +385,11 @@ void CardReader::release() {
 
 void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
-  sprintf_P(cmd, PSTR("M23 %s"), name);
+  extern const char M23_STR[];
+  sprintf_P(cmd, M23_STR, name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
   queue.enqueue_one_now(cmd);
-  queue.enqueue_now_P(PSTR("M24"));
+  queue.enqueue_now_P(M24_STR);
 }
 
 void CardReader::startFileprint() {

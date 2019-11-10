@@ -165,6 +165,7 @@
 
 // Macros to support option testing
 #define _CAT(a,V...) a##V
+#define CAT(a,V...) _CAT(a,V)
 #define SWITCH_ENABLED_false 0
 #define SWITCH_ENABLED_true  1
 #define SWITCH_ENABLED_0     0
@@ -228,32 +229,6 @@
 
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
-
-// Macros for adding
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
-#define INCREMENT_(n) INC_##n
-#define INCREMENT(n) INCREMENT_(n)
-
-// Macros for subtracting
-#define DEC_1 0
-#define DEC_2 1
-#define DEC_3 2
-#define DEC_4 3
-#define DEC_5 4
-#define DEC_6 5
-#define DEC_7 6
-#define DEC_8 7
-#define DEC_9 8
-#define DECREMENT_(n) DEC_##n
-#define DECREMENT(n) DECREMENT_(n)
 
 #define NOOP (void(0))
 
@@ -346,3 +321,127 @@
   #define _MAX(V...)      _MAX_N(NUM_ARGS(V), V)
 
 #endif
+
+// Macros for adding
+#define INC_0 1
+#define INC_1 2
+#define INC_2 3
+#define INC_3 4
+#define INC_4 5
+#define INC_5 6
+#define INC_6 7
+#define INC_7 8
+#define INC_8 9
+#define INCREMENT_(n) INC_##n
+#define INCREMENT(n) INCREMENT_(n)
+
+#define ADD0(N)  N
+#define ADD1(N)  INCREMENT_(N)
+#define ADD2(N)  ADD1(ADD1(N))
+#define ADD3(N)  ADD1(ADD2(N))
+#define ADD4(N)  ADD2(ADD2(N))
+#define ADD5(N)  ADD2(ADD3(N))
+#define ADD6(N)  ADD3(ADD3(N))
+#define ADD7(N)  ADD3(ADD4(N))
+#define ADD8(N)  ADD4(ADD4(N))
+#define ADD9(N)  ADD4(ADD5(N))
+#define ADD10(N) ADD5(ADD5(N))
+
+// Macros for subtracting
+#define DEC_0 0
+#define DEC_1 0
+#define DEC_2 1
+#define DEC_3 2
+#define DEC_4 3
+#define DEC_5 4
+#define DEC_6 5
+#define DEC_7 6
+#define DEC_8 7
+#define DEC_9 8
+#define DECREMENT_(n) DEC_##n
+#define DECREMENT(n) DECREMENT_(n)
+
+#define SUB0(N)  N
+#define SUB1(N)  DECREMENT_(N)
+#define SUB2(N)  SUB1(SUB1(N))
+#define SUB3(N)  SUB1(SUB2(N))
+#define SUB4(N)  SUB2(SUB2(N))
+#define SUB5(N)  SUB2(SUB3(N))
+#define SUB6(N)  SUB3(SUB3(N))
+#define SUB7(N)  SUB3(SUB4(N))
+#define SUB8(N)  SUB4(SUB4(N))
+#define SUB9(N)  SUB4(SUB5(N))
+#define SUB10(N) SUB5(SUB5(N))
+
+//
+// Primitives supporting precompiler REPEAT
+//
+#define FIRST(a,...)    a
+#define SECOND(a,b,...) b
+
+// Defer expansion
+#define EMPTY()
+#define DEFER(M)  M EMPTY()
+#define DEFER2(M) M EMPTY EMPTY()()
+#define DEFER3(M) M EMPTY EMPTY EMPTY()()()
+#define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
+
+// Force define expansion
+#define EVAL(V...)     EVAL16(V)
+#define EVAL1024(V...) EVAL512(EVAL512(V))
+#define EVAL512(V...)  EVAL256(EVAL256(V))
+#define EVAL256(V...)  EVAL128(EVAL128(V))
+#define EVAL128(V...)  EVAL64(EVAL64(V))
+#define EVAL64(V...)   EVAL32(EVAL32(V))
+#define EVAL32(V...)   EVAL16(EVAL16(V))
+#define EVAL16(V...)   EVAL8(EVAL8(V))
+#define EVAL8(V...)    EVAL4(EVAL4(V))
+#define EVAL4(V...)    EVAL2(EVAL2(V))
+#define EVAL2(V...)    EVAL1(EVAL1(V))
+#define EVAL1(V...)    V
+
+#define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
+#define PROBE() ~, 1                    // Second item will be 1 if this is passed
+#define _NOT_0 PROBE()
+#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
+#define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+
+#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
+#define _IF_ELSE(TF) _CAT(_IF_, TF)
+
+#define _IF_1(V...) V _IF_1_ELSE
+#define _IF_0(...)    _IF_0_ELSE
+
+#define _IF_1_ELSE(...)
+#define _IF_0_ELSE(V...) V
+
+#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
+#define _END_OF_ARGUMENTS_() 0
+
+//
+// REPEAT core macros. Recurse N times with ascending I.
+//
+
+// Call OP(I) N times with ascending counter.
+#define _REPEAT(_RPT_I,_RPT_N,_RPT_OP)                        \
+  _RPT_OP(_RPT_I)                                             \
+  IF_ELSE(SUB1(_RPT_N))                                       \
+    ( DEFER2(__REPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
+    ( /* Do nothing */ )
+#define __REPEAT() _REPEAT
+
+// Call OP(I, ...) N times with ascending counter.
+#define _REPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                              \
+  IF_ELSE(SUB1(_RPT_N))                                          \
+    ( DEFER2(__REPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __REPEAT2() _REPEAT2
+
+// Repeat a macro passing S...N-1.
+#define REPEAT_S(S,N,OP)        EVAL(_REPEAT(S,SUB##S(N),OP))
+#define REPEAT(N,OP)            REPEAT_S(0,N,OP)
+
+// Repeat a macro passing 0...N-1 plus additional arguments.
+#define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
+#define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)

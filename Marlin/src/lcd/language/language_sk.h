@@ -145,9 +145,9 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplikácia");
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Zrkadlená kópia");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Plná kontrola");
-  PROGMEM Language_Str MSG_X_OFFSET                        = _UxGT("2. tryska X");
-  PROGMEM Language_Str MSG_Y_OFFSET                        = _UxGT("2. tryska Y");
-  PROGMEM Language_Str MSG_Z_OFFSET                        = _UxGT("2. tryska Z");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2. tryska X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2. tryska Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2. tryska Z");
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Vykonávam G29");
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Nástroje UBL");
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("UBL rovnanie");
