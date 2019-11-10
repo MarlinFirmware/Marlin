@@ -88,7 +88,7 @@ void MarlinUI::save_previous_screen() {
     screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items };
 }
 
-void MarlinUI::goto_previous_screen(
+void MarlinUI::_goto_previous_screen(
   #if ENABLED(TURBO_BACK_MENU_ITEM)
     const bool is_back/*=false*/
   #endif
