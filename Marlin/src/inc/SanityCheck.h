@@ -2544,3 +2544,9 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "SHOW_REMAINING_TIME currently requires a Graphical LCD."
   #endif
 #endif
+
+#if ENABLED(LIN_ADVANCE) && HAS_TMC_STANDALONE_E_DRIVER && MINIMUM_STEPPER_PULSE < 1
+  #error "LIN_ADVANCED with TMC standalone driver on extruder requires MIMIMUM_STEPPER_PULSE >= 1"
+#elif ENABLED(LIN_ADVANCE) && HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING) && MINIMUM_STEPPER_PULSE < 1
+  #error "LIN_ADVANCE with TMC driver on extruder requires SQUARE_WAVE_STEPPING or MINIMUM_STEPPER_PULSE >= 1"
+#endif
