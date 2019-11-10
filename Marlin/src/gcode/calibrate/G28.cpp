@@ -308,7 +308,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination.z = z_homing_height;
+      destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
       if (destination.z > current_position.z) {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) to ", destination.z);
         do_blocking_move_to_z(destination.z);
