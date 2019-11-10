@@ -599,11 +599,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Custom Boot and Status screens
  */
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !HAS_GRAPHICAL_LCD && !ENABLED(LULZBOT_TOUCH_UI)
-  #error "Graphical LCD is required for SHOW_CUSTOM_BOOTSCREEN."
-#endif
-
-#if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
-  #error "Graphical LCD is required for CUSTOM_STATUS_SCREEN_IMAGE."
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or LULZBOT_TOUCH_UI."
+#elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
+  #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
 #endif
 
 /**

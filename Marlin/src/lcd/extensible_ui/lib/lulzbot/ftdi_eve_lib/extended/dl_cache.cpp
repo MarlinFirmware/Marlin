@@ -130,7 +130,7 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR  ("Not enough space in GRAM to cache display list, free space: ", free_space);
-      SERIAL_ECHOLNPAIR(  " Required: ", dl_size);
+      SERIAL_ECHOLNPAIR(" Required: ", dl_size);
     #endif
     return false;
   } else {

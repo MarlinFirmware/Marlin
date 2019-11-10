@@ -49,19 +49,19 @@ namespace Theme {
   // Shades of accent color
 
   #ifdef TOUCH_UI_COCOA_PRESS
-    constexpr uint32_t accent_color_1     = hsl_to_rgb(12.8,0.597,0.263); // Darkest
-    constexpr uint32_t accent_color_2     = hsl_to_rgb(12.8,0.597,0.263);
-    constexpr uint32_t accent_color_3     = hsl_to_rgb( 9.6,0.664,0.443);
-    constexpr uint32_t accent_color_4     = hsl_to_rgb(16.3,0.873,0.537);
-    constexpr uint32_t accent_color_5     = hsl_to_rgb(23.0,0.889,0.539);
-    constexpr uint32_t accent_color_6     = hsl_to_rgb(23.0,0.889,0.539); // Lightest
+    constexpr uint32_t accent_color_1   = hsl_to_rgb(12.8,0.597,0.263); // Darkest
+    constexpr uint32_t accent_color_2   = hsl_to_rgb(12.8,0.597,0.263);
+    constexpr uint32_t accent_color_3   = hsl_to_rgb( 9.6,0.664,0.443);
+    constexpr uint32_t accent_color_4   = hsl_to_rgb(16.3,0.873,0.537);
+    constexpr uint32_t accent_color_5   = hsl_to_rgb(23.0,0.889,0.539);
+    constexpr uint32_t accent_color_6   = hsl_to_rgb(23.0,0.889,0.539); // Lightest
   #else
-    constexpr uint32_t accent_color_1     = hsl_to_rgb(accent_hue, accent_sat, 0.26); // Darkest
-    constexpr uint32_t accent_color_2     = hsl_to_rgb(accent_hue, accent_sat, 0.39);
-    constexpr uint32_t accent_color_3     = hsl_to_rgb(accent_hue, accent_sat, 0.52);
-    constexpr uint32_t accent_color_4     = hsl_to_rgb(accent_hue, accent_sat, 0.65);
-    constexpr uint32_t accent_color_5     = hsl_to_rgb(accent_hue, accent_sat, 0.78);
-    constexpr uint32_t accent_color_6     = hsl_to_rgb(accent_hue, accent_sat, 0.91); // Lightest
+    constexpr uint32_t accent_color_1   = hsl_to_rgb(accent_hue, accent_sat, 0.26); // Darkest
+    constexpr uint32_t accent_color_2   = hsl_to_rgb(accent_hue, accent_sat, 0.39);
+    constexpr uint32_t accent_color_3   = hsl_to_rgb(accent_hue, accent_sat, 0.52);
+    constexpr uint32_t accent_color_4   = hsl_to_rgb(accent_hue, accent_sat, 0.65);
+    constexpr uint32_t accent_color_5   = hsl_to_rgb(accent_hue, accent_sat, 0.78);
+    constexpr uint32_t accent_color_6   = hsl_to_rgb(accent_hue, accent_sat, 0.91); // Lightest
   #endif
 
   // Shades of gray

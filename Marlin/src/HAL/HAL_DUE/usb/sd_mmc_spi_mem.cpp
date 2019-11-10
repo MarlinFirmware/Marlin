@@ -19,7 +19,7 @@ void sd_mmc_spi_mem_init() {
 }
 
 Ctrl_status sd_mmc_spi_test_unit_ready() {
-  #if defined(DISABLE_DUE_SD_MMC)
+  #ifdef DISABLE_DUE_SD_MMC
     return CTRL_NO_PRESENT;
   #endif
   if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())
@@ -58,7 +58,7 @@ uint8_t sector_buf[SD_MMC_BLOCK_SIZE];
 // #define DEBUG_MMC
 
 Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
-  #if defined(DISABLE_DUE_SD_MMC)
+  #ifdef DISABLE_DUE_SD_MMC
     return CTRL_NO_PRESENT;
   #endif
   if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())
@@ -98,7 +98,7 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
 }
 
 Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
-  #if defined(DISABLE_DUE_SD_MMC)
+  #ifdef DISABLE_DUE_SD_MMC
     return CTRL_NO_PRESENT;
   #endif
   if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())

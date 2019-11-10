@@ -36,11 +36,12 @@ void FilamentRunoutScreen::onRedraw(draw_mode_t what) {
   w.toggle( 2, GET_TEXT_F(MSG_RUNOUT_SENSOR), getFilamentRunoutEnabled());
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    extern const char NUL_STR[];
     w.heading(GET_TEXT_F(MSG_RUNOUT_DISTANCE_MM));
     w.units(GET_TEXT_F(MSG_UNITS_MM));
     w.precision(0);
     w.color(e_axis);
-    w.adjuster( 10, PSTR(""), getFilamentRunoutDistance_mm(), getFilamentRunoutEnabled());
+    w.adjuster( 10, NUL_STR, getFilamentRunoutDistance_mm(), getFilamentRunoutEnabled());
     w.increments();
   #endif
 }

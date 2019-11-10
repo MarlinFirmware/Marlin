@@ -112,7 +112,7 @@ void BootScreen::showSplashScreen() {
 
   #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
   #define LOGO_PAINT_PATH(rgb, path) cmd.cmd(COLOR_RGB(rgb)); ui.fill(POLY(path));
-  
+
   PolyUI ui(cmd);
 
   LOGO_PAINT_PATHS

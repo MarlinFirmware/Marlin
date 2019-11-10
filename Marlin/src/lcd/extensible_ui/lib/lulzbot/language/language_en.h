@@ -153,7 +153,7 @@ namespace Language_en {
     PROGMEM Language_Str MSG_HOME_XYZ_WARNING       = u8"About to move to home position. Ensure the top and the bed of the printer are clear.\n\nContinue?";
     PROGMEM Language_Str MSG_HOME_E_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
   #endif
-  
+
   #ifdef TOUCH_UI_COCOA_PRESS
     PROGMEM Language_Str MSG_ZONE_1                 = u8"Zone 1:";
     PROGMEM Language_Str MSG_ZONE_2                 = u8"Zone 2:";
