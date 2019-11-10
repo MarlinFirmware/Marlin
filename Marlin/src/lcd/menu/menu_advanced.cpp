@@ -710,7 +710,7 @@ void menu_advanced_settings() {
         #endif
         UNUSED(inited);
       },
-      static_cast<screenFunc_t>(ui.goto_previous_screen),
+      []{ ui.goto_previous_screen(); },
       GET_TEXT(MSG_INIT_EEPROM), (PGM_P)nullptr, PSTR("?")
     );
   #endif
