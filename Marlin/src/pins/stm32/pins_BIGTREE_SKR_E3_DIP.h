@@ -143,7 +143,7 @@
   #define E0_SERIAL_RX_PIN PD2
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200  
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //
