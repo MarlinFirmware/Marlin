@@ -1285,9 +1285,9 @@ void Planner::check_axes_activity() {
     #endif
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : 0)
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
     #else
-      #define CALC_FAN_SPEED(f) tail_fan_speed[f]
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ?: FAN_OFF_PWM)
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
