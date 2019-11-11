@@ -1165,4 +1165,20 @@
   #define Z3_MS3_PIN -1
 #endif
 
+#if HAS_GRAPHICAL_LCD
+  #if !defined(ST7920_DELAY_1) && defined(BOARD_ST7920_DELAY_1)
+    #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
+  #endif
+  #if !defined(ST7920_DELAY_2) && defined(BOARD_ST7920_DELAY_2)
+    #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
+  #endif
+  #if !defined(ST7920_DELAY_3) && defined(BOARD_ST7920_DELAY_3)
+    #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
+  #endif
+#else
+  #undef ST7920_DELAY_1
+  #undef ST7920_DELAY_2
+  #undef ST7920_DELAY_3
+#endif
+
 #undef HAS_FREE_AUX2_PINS

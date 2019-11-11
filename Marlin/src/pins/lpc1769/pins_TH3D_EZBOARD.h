@@ -87,7 +87,7 @@
   #define Z_SERIAL_RX_PIN  P0_20
   #define E0_SERIAL_TX_PIN P0_22
   #define E0_SERIAL_RX_PIN P0_21
-    
+
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
 #endif

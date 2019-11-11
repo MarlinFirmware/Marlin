@@ -38,8 +38,8 @@ void ConfirmStartPrintDialogBox::onEntry() {
 
 void ConfirmStartPrintDialogBox::onRedraw(draw_mode_t) {
   const char *filename = getLongFilename();
-  char buffer[strlen_P(GET_TEXT(START_PRINT_CONFIRMATION)) + strlen(filename) + 1];
-  sprintf_P(buffer, GET_TEXT(START_PRINT_CONFIRMATION), filename);
+  char buffer[strlen_P(GET_TEXT(MSG_START_PRINT_CONFIRMATION)) + strlen(filename) + 1];
+  sprintf_P(buffer, GET_TEXT(MSG_START_PRINT_CONFIRMATION), filename);
   drawMessage((const char *)buffer);
   drawYesNoButtons(1);
 }
@@ -48,7 +48,7 @@ bool ConfirmStartPrintDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       printFile(getShortFilename());
-      StatusScreen::setStatusMessage(GET_TEXT_F(PRINT_STARTING));
+      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PRINT_STARTING));
       GOTO_SCREEN(StatusScreen);
       return true;
     case 2: GOTO_PREVIOUS(); return true;

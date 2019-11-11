@@ -48,12 +48,12 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          37
-#define X_MAX_PIN          40
-#define Y_MIN_PIN          41
-#define Y_MAX_PIN          38
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define X_MIN_PIN          37   // No INT
+#define X_MAX_PIN          40   // No INT
+#define Y_MIN_PIN          41   // No INT
+#define Y_MAX_PIN          38   // No INT
+#define Z_MIN_PIN          18   // No INT
+#define Z_MAX_PIN          19   // No INT
 
 //
 // Z Probe (when not Z_MIN_PIN)

@@ -46,7 +46,7 @@ void SpinnerDialogBox::hide() {
 }
 
 void SpinnerDialogBox::enqueueAndWait_P(const progmem_str commands) {
-  enqueueAndWait_P(GET_TEXT_F(PLEASE_WAIT), commands);
+  enqueueAndWait_P(GET_TEXT_F(MSG_PLEASE_WAIT), commands);
 }
 
 void SpinnerDialogBox::enqueueAndWait_P(const progmem_str message, const progmem_str commands) {

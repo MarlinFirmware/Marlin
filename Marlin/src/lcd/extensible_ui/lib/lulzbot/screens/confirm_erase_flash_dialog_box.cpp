@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, DEVELOPER_SCREENS)
+#if BOTH(LULZBOT_TOUCH_UI, TOUCH_UI_DEVELOPER_MENU)
 
 #include "screens.h"
 
@@ -31,17 +31,17 @@
 using namespace FTDI;
 
 void ConfirmEraseFlashDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXT_F(ERASE_FLASH_WARNING));
+  drawMessage(GET_TEXT_F(MSG_ERASE_FLASH_WARNING));
   drawYesNoButtons();
 }
 
 bool ConfirmEraseFlashDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      SpinnerDialogBox::show(GET_TEXT_F(ERASING));
+      SpinnerDialogBox::show(GET_TEXT_F(MSG_ERASING));
       UIFlashStorage::format_flash();
       SpinnerDialogBox::hide();
-      AlertDialogBox::show(GET_TEXT_F(ERASED));
+      AlertDialogBox::show(GET_TEXT_F(MSG_ERASED));
       // Remove ConfirmEraseFlashDialogBox from the stack
       // so the alert box doesn't return to me.
       current_screen.forget();

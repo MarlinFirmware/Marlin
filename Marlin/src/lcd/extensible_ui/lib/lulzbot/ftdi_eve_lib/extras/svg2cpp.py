@@ -60,7 +60,7 @@ header = '''
  ****************************************************************************/
 
 /**
- * This file was auto-generated using "svg2cpp.pl"
+ * This file was auto-generated using "svg2cpp.py"
  *
  * The encoding consists of x,y pairs with the min and max scaled to
  * 0x0000 and 0xFFFE. A single 0xFFFF in the data stream indicates the
@@ -101,10 +101,11 @@ class ComputeBoundingBox:
     pass
 
   def write(self):
-    print("constexpr float x_min = %f;\n" % self.x_min)
-    print("constexpr float x_max = %f;\n" % self.x_max)
-    print("constexpr float y_min = %f;\n" % self.y_min)
-    print("constexpr float y_max = %f;\n" % self.y_max)
+    print("constexpr float x_min = %f;" % self.x_min)
+    print("constexpr float x_max = %f;" % self.x_max)
+    print("constexpr float y_min = %f;" % self.y_min)
+    print("constexpr float y_max = %f;" % self.y_max)
+    print()
 
   def from_svg_view_box(self, svg):
     s = re.search('<svg[^>]+>', svg);
@@ -118,6 +119,7 @@ class ComputeBoundingBox:
         return True
     return False
 
+# op
 class WriteDataStructure:
   def __init__(self, bounding_box):
     self.bounds = bounding_box
@@ -126,7 +128,7 @@ class WriteDataStructure:
     self.hex_words = []
 
   def push(self, value):
-    self.hex_words.append("0x%04X" % value)
+    self.hex_words.append("0x%04X" % (0xFFFF & int(value)))
 
   def command(self, type, x, y):
     if type == "M":
@@ -138,7 +140,7 @@ class WriteDataStructure:
   def path_finished(self, id):
     if self.hex_words and self.hex_words[0] == "0xFFFF":
       self.hex_words.pop(0)
-    print("const PROGMEM uint16_t", id + "[] = {" + ", ".join (self.hex_words) + "};\n")
+    print("const PROGMEM uint16_t", id + "[] = {" + ", ".join (self.hex_words) + "};")
     self.hex_words = []
 
 class Parser:
