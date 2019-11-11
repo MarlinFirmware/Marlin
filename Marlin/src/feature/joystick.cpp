@@ -148,7 +148,7 @@ Joystick joystick;
     float hypot2 = 0;
     LOOP_XYZ(i) if (norm_jog[i]) {
       move_dist[i] = seg_time * norm_jog[i] *
-        #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
+        #if ENABLED(EXTENSIBLE_UI)
           MMM_TO_MMS(manual_feedrate_mm_m[i]);
         #else
           planner.settings.max_feedrate_mm_s[i];
