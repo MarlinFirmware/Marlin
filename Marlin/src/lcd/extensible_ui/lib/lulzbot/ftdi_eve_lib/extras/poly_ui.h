@@ -53,9 +53,10 @@
  */
 
 class PolyReader {
-  private:
+  public:
     typedef uint16_t type_t;
 
+  private:
     static constexpr type_t eol = 0xFFFF;
 
     const type_t *p, *top, *end;
@@ -321,10 +322,10 @@ class GenericPolyUI {
       int16_t x_max = INT16_MIN;
       int16_t y_max = INT16_MIN;
       for(r.start(); r.has_more(); r.next()) {
-        x_min = min(x_min, r.x);
-        x_max = max(x_max, r.x);
-        y_min = min(y_min, r.y);
-        y_max = max(y_max, r.y);
+        x_min = min(x_min, int16_t(r.x));
+        x_max = max(x_max, int16_t(r.x));
+        y_min = min(y_min, int16_t(r.y));
+        y_max = max(y_max, int16_t(r.y));
       }
       x = x_min;
       y = y_min;

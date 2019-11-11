@@ -158,10 +158,11 @@ void lcd_mixer_mix_edit() {
 
   #if CHANNEL_MIX_EDITING
 
-    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT_##N, &mixer.collector[N-1], 0, 10);
-
     START_MENU();
     BACK_ITEM(MSG_MIXER);
+
+    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT_##N, &mixer.collector[N-1], 0, 10);
+
     EDIT_COLOR(1);
     EDIT_COLOR(2);
     #if MIXING_STEPPERS > 2
@@ -176,6 +177,7 @@ void lcd_mixer_mix_edit() {
         #endif
       #endif
     #endif
+
     ACTION_ITEM(MSG_CYCLE_MIX, _lcd_mixer_cycle_mix);
     ACTION_ITEM(MSG_COMMIT_VTOOL, _lcd_mixer_commit_vtool);
     END_MENU();

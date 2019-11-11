@@ -628,31 +628,31 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
   #define CHAMBER_FAN_INDEX HOTENDS
 
   void Temperature::checkExtruderAutoFans() {
-    #define _EFAN(A,B) _EFANOVERLAP(A,B) ? B :
+    #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
       0
       #if HOTENDS > 1
-        , _EFAN(1,0) 1
-      #endif
-      #if HOTENDS > 2
-        , _EFAN(2,0) _EFAN(2,1) 2
-      #endif
-      #if HOTENDS > 3
-        , _EFAN(3,0) _EFAN(3,1) _EFAN(3,2) 3
-      #endif
-      #if HOTENDS > 4
-        , _EFAN(4,0) _EFAN(4,1) _EFAN(4,2) _EFAN(4,3) 4
-      #endif
-      #if HOTENDS > 5
-        , _EFAN(5,0) _EFAN(5,1) _EFAN(5,2) _EFAN(5,3) _EFAN(5,4) 5
+        , REPEAT2(1,_EFAN,1) 1
+        #if HOTENDS > 2
+          , REPEAT2(2,_EFAN,2) 2
+          #if HOTENDS > 3
+            , REPEAT2(3,_EFAN,3) 3
+            #if HOTENDS > 4
+              , REPEAT2(4,_EFAN,4) 4
+              #if HOTENDS > 5
+                , REPEAT2(5,_EFAN,5) 5
+              #endif
+            #endif
+          #endif
+        #endif
       #endif
       #if HAS_AUTO_CHAMBER_FAN
         #define _CFAN(B) _FANOVERLAP(CHAMBER,B) ? B :
-        , _CFAN(0) _CFAN(1) _CFAN(2) _CFAN(3) _CFAN(4) _CFAN(5) 6
+        , REPEAT(HOTENDS,_CFAN) (HOTENDS)
       #endif
     };
-    uint8_t fanState = 0;
 
+    uint8_t fanState = 0;
     HOTEND_LOOP()
       if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[e]));
@@ -1953,22 +1953,7 @@ void Temperature::disable_all_heaters() {
   }
 
   #if HAS_TEMP_HOTEND
-    DISABLE_HEATER(0);
-    #if HOTENDS > 1
-      DISABLE_HEATER(1);
-      #if HOTENDS > 2
-        DISABLE_HEATER(2);
-        #if HOTENDS > 3
-          DISABLE_HEATER(3);
-          #if HOTENDS > 4
-            DISABLE_HEATER(4);
-            #if HOTENDS > 5
-              DISABLE_HEATER(5);
-            #endif // HOTENDS > 5
-          #endif // HOTENDS > 4
-        #endif // HOTENDS > 3
-      #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
+    REPEAT(HOTENDS, DISABLE_HEATER);
   #endif
 
   #if HAS_HEATED_BED
@@ -2223,22 +2208,14 @@ void Temperature::readings_ready() {
         TEMPDIR(0)
       #endif
       #if HOTENDS > 1
+        #define _TEMPDIR(N) , TEMPDIR(N)
         #if ENABLED(HEATER_1_USES_MAX6675)
           , 0
         #else
-          , TEMPDIR(1)
+          _TEMPDIR(1)
         #endif
         #if HOTENDS > 2
-          , TEMPDIR(2)
-          #if HOTENDS > 3
-            , TEMPDIR(3)
-            #if HOTENDS > 4
-              , TEMPDIR(4)
-              #if HOTENDS > 5
-                , TEMPDIR(5)
-              #endif // HOTENDS > 5
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
+          REPEAT_S(2, HOTENDS, _TEMPDIR)
         #endif // HOTENDS > 2
       #endif // HOTENDS > 1
     };
@@ -2391,24 +2368,9 @@ void Temperature::isr() {
       pwm_count_tmp -= 127;
 
       #if HOTENDS
-        #define _PWM_MOD_E(N) _PWM_MOD(N,soft_pwm_hotend[N],temp_hotend[N])
-        _PWM_MOD_E(0);
-        #if HOTENDS > 1
-          _PWM_MOD_E(1);
-          #if HOTENDS > 2
-            _PWM_MOD_E(2);
-            #if HOTENDS > 3
-              _PWM_MOD_E(3);
-              #if HOTENDS > 4
-                _PWM_MOD_E(4);
-                #if HOTENDS > 5
-                  _PWM_MOD_E(5);
-                #endif // HOTENDS > 5
-              #endif // HOTENDS > 4
-            #endif // HOTENDS > 3
-          #endif // HOTENDS > 2
-        #endif // HOTENDS > 1
-      #endif // HOTENDS
+        #define _PWM_MOD_E(N) _PWM_MOD(N,soft_pwm_hotend[N],temp_hotend[N]);
+        REPEAT(HOTENDS, _PWM_MOD_E);
+      #endif
 
       #if HAS_HEATED_BED
         _PWM_MOD(BED,soft_pwm_bed,temp_bed);
@@ -2438,24 +2400,9 @@ void Temperature::isr() {
     else {
       #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_HEATER_##N(LOW); }while(0)
       #if HOTENDS
-        #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N])
-        _PWM_LOW_E(0);
-        #if HOTENDS > 1
-          _PWM_LOW_E(1);
-          #if HOTENDS > 2
-            _PWM_LOW_E(2);
-            #if HOTENDS > 3
-              _PWM_LOW_E(3);
-              #if HOTENDS > 4
-                _PWM_LOW_E(4);
-                #if HOTENDS > 5
-                  _PWM_LOW_E(5);
-                #endif // HOTENDS > 5
-              #endif // HOTENDS > 4
-            #endif // HOTENDS > 3
-          #endif // HOTENDS > 2
-        #endif // HOTENDS > 1
-      #endif // HOTENDS
+        #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N]);
+        REPEAT(HOTENDS, _PWM_LOW_E);
+      #endif
 
       #if HAS_HEATED_BED
         _PWM_LOW(BED, soft_pwm_bed);
@@ -2504,24 +2451,9 @@ void Temperature::isr() {
     if (slow_pwm_count == 0) {
 
       #if HOTENDS
-        #define _SLOW_PWM_E(N) _SLOW_PWM(N, soft_pwm_hotend[N], temp_hotend[N])
-        _SLOW_PWM_E(0);
-        #if HOTENDS > 1
-          _SLOW_PWM_E(1);
-          #if HOTENDS > 2
-            _SLOW_PWM_E(2);
-            #if HOTENDS > 3
-              _SLOW_PWM_E(3);
-              #if HOTENDS > 4
-                _SLOW_PWM_E(4);
-                #if HOTENDS > 5
-                  _SLOW_PWM_E(5);
-                #endif // HOTENDS > 5
-              #endif // HOTENDS > 4
-            #endif // HOTENDS > 3
-          #endif // HOTENDS > 2
-        #endif // HOTENDS > 1
-      #endif // HOTENDS
+        #define _SLOW_PWM_E(N) _SLOW_PWM(N, soft_pwm_hotend[N], temp_hotend[N]);
+        REPEAT(HOTENDS, _SLOW_PWM_E);
+      #endif
 
       #if HAS_HEATED_BED
         _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
@@ -2531,23 +2463,8 @@ void Temperature::isr() {
 
     #if HOTENDS
       #define _PWM_OFF_E(N) _PWM_OFF(N, soft_pwm_hotend[N]);
-      _PWM_OFF_E(0);
-      #if HOTENDS > 1
-        _PWM_OFF_E(1);
-        #if HOTENDS > 2
-          _PWM_OFF_E(2);
-          #if HOTENDS > 3
-            _PWM_OFF_E(3);
-            #if HOTENDS > 4
-              _PWM_OFF_E(4);
-              #if HOTENDS > 5
-                _PWM_OFF_E(5);
-              #endif // HOTENDS > 5
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #endif // HOTENDS > 1
-    #endif // HOTENDS
+      REPEAT(HOTENDS, _PWM_OFF_E);
+    #endif
 
     #if HAS_HEATED_BED
       _PWM_OFF(BED, soft_pwm_bed);
@@ -2598,23 +2515,8 @@ void Temperature::isr() {
       slow_pwm_count &= 0x7F;
 
       #if HOTENDS
-        soft_pwm_hotend[0].dec();
-        #if HOTENDS > 1
-          soft_pwm_hotend[1].dec();
-          #if HOTENDS > 2
-            soft_pwm_hotend[2].dec();
-            #if HOTENDS > 3
-              soft_pwm_hotend[3].dec();
-              #if HOTENDS > 4
-                soft_pwm_hotend[4].dec();
-                #if HOTENDS > 5
-                  soft_pwm_hotend[5].dec();
-                #endif // HOTENDS > 5
-              #endif // HOTENDS > 4
-            #endif // HOTENDS > 3
-          #endif // HOTENDS > 2
-        #endif // HOTENDS > 1
-      #endif // HOTENDS
+        HOTEND_LOOP() soft_pwm_hotend[e].dec();
+      #endif
       #if HAS_HEATED_BED
         soft_pwm_bed.dec();
       #endif

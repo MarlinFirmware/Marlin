@@ -581,6 +581,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.set_max_feedrate(E_AXIS_N(extruder - E0), value);
   }
 
@@ -598,6 +599,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
@@ -908,6 +910,7 @@ namespace ExtUI {
   }
 
   void printFile(const char *filename) {
+    UNUSED(filename);
     IFSD(card.openAndPrintFile(filename), NOOP);
   }
 
@@ -961,6 +964,8 @@ namespace ExtUI {
       card.getfilename_sorted(nr);
       return card.filename[0] != '\0';
     #else
+      UNUSED(pos);
+      UNUSED(skip_range_check);
       return false;
     #endif
   }
@@ -1004,6 +1009,8 @@ namespace ExtUI {
     #if ENABLED(SDSUPPORT)
       card.cd(dirname);
       num_files = 0xFFFF;
+    #else
+      UNUSED(dirname);
     #endif
   }
 
