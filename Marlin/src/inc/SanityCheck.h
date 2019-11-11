@@ -2545,8 +2545,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(LIN_ADVANCE) && HAS_TMC_STANDALONE_E_DRIVER && MINIMUM_STEPPER_PULSE < 1
-  #error "LIN_ADVANCED with TMC standalone driver on extruder requires MIMIMUM_STEPPER_PULSE >= 1"
-#elif ENABLED(LIN_ADVANCE) && HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING) && MINIMUM_STEPPER_PULSE < 1
-  #error "LIN_ADVANCE with TMC driver on extruder requires SQUARE_WAVE_STEPPING or MINIMUM_STEPPER_PULSE >= 1"
+#if ENABLED(LIN_ADVANCE) && MINIMUM_STEPPER_PULSE < 1
+  #if HAS_TMC_STANDALONE_E_DRIVER
+    #error "LIN_ADVANCE with TMC standalone driver on extruder requires MIMIMUM_STEPPER_PULSE >= 1"
+  #elif HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)
+    #error "LIN_ADVANCE with TMC driver on extruder requires SQUARE_WAVE_STEPPING or MINIMUM_STEPPER_PULSE >= 1"
+  #endif
 #endif
