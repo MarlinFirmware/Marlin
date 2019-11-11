@@ -1484,13 +1484,14 @@
   /**
    * Delta radius/rod trimmers/angle trimmers
    */
-  #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #if HAS_BED_PROBE
+    #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(HYPOT(probe_offset.x, probe_offset.y), ABS(MIN_PROBE_EDGE)))
+  #else
+    #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #endif
   #ifndef DELTA_CALIBRATION_RADIUS
-    #if HAS_BED_PROBE
-      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(probe_offset.x), ABS(probe_offset.y), ABS(MIN_PROBE_EDGE)))
-    #else
-      #define DELTA_CALIBRATION_RADIUS _PROBE_RADIUS
-    #endif
+    // Round calibration radius down to avoid probing points outside range due to floating point error.
+    #define DELTA_CALIBRATION_RADIUS FLOOR(_PROBE_RADIUS)
   #endif
   #ifndef DELTA_ENDSTOP_ADJ
     #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
@@ -1510,8 +1511,8 @@
   // so that may be added to SanityCheck.h in the future.
   #define PROBE_X_MIN (X_CENTER - (_PROBE_RADIUS))
   #define PROBE_Y_MIN (Y_CENTER - (_PROBE_RADIUS))
-  #define PROBE_X_MAX (X_CENTER + _PROBE_RADIUS)
-  #define PROBE_Y_MAX (Y_CENTER + _PROBE_RADIUS)
+  #define PROBE_X_MAX (X_CENTER + (_PROBE_RADIUS))
+  #define PROBE_Y_MAX (Y_CENTER + (_PROBE_RADIUS))
 
 #elif IS_SCARA
 
