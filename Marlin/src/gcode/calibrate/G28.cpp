@@ -230,6 +230,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
+  // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
     return;
@@ -498,17 +499,6 @@ void GcodeSuite::G28(const bool always_home_all) {
       #define NO_FETCH true
     #endif
     tool_change(old_tool_index, NO_FETCH);
-  #endif
-
-  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
-    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    #if HAS_CLASSIC_JERK
-      planner.max_jerk[X_AXIS] = slow_homing.jerk.x;
-      planner.max_jerk[Y_AXIS] = slow_homing.jerk.y;
-    #endif
-
-    planner.reset_acceleration_rates();
   #endif
 
   #if HAS_HOMING_CURRENT
