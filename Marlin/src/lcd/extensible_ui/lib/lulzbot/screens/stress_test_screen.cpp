@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, DEVELOPER_SCREENS)
+#if BOTH(LULZBOT_TOUCH_UI, TOUCH_UI_DEVELOPER_MENU)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -121,6 +121,7 @@ void StressTestScreen::onIdle() {
 
   if (!commandsInQueue()) {
       if (!isPositionKnown()) {
+        extern const char G28_STR[];
         injectCommands_P(G28_STR);
       } else {
         injectCommands_P(PSTR(

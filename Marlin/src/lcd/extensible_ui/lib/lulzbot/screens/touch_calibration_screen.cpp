@@ -45,7 +45,7 @@ void TouchCalibrationScreen::onEntry() {
        .cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled));
-    draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXT_F(TOUCH_CALIBRATION_START), OPT_CENTER, font_large);
+    draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXT_F(MSG_TOUCH_CALIBRATION_START), OPT_CENTER, font_large);
     cmd.cmd(DL::DL_DISPLAY)
        .cmd(CMD_SWAP)
        .execute();
@@ -76,7 +76,7 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled));
 
-  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXT_F(TOUCH_CALIBRATION_PROMPT), OPT_CENTER, font_large);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,16), GET_TEXT_F(MSG_TOUCH_CALIBRATION_PROMPT), OPT_CENTER, font_large);
   cmd.cmd(CMD_CALIBRATE);
 }
 

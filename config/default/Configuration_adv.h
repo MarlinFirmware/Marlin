@@ -1269,6 +1269,9 @@
 
   // Output extra debug info for Touch UI events
   //#define TOUCH_UI_DEBUG
+  
+  // Enable developers menu (access by touching the copyright text on the About Printer)
+  //#define TOUCH_UI_DEVELOPER_MENU
 #endif
 
 //

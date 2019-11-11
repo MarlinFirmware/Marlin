@@ -22,14 +22,14 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && defined(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && defined(TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
 using namespace FTDI;
 
 void BioConfirmHomeXYZ::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXT_F(HOME_XYZ_WARNING));
+  drawMessage(GET_TEXT_F(MSG_HOME_XYZ_WARNING));
   drawYesNoButtons(1);
 }
 
@@ -38,7 +38,7 @@ bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
     case 1:
       SpinnerDialogBox::enqueueAndWait_P(F(
        "G28\n"
-       LULZBOT_PARK_AND_RELEASE_COMMANDS
+       PARK_AND_RELEASE_COMMANDS
       ));
       current_screen.forget();
       break;
