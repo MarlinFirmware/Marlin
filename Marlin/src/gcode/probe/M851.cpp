@@ -28,6 +28,10 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+#if ENABLED(DELTA)
+  #include "../../module/delta.h"
+#endif
+
 /**
  * M851: Set the nozzle-to-probe offsets in current units
  */
@@ -74,7 +78,12 @@ void GcodeSuite::M851() {
   }
 
   // Save the new offsets
-  if (ok) probe_offset = offs;
+  if (ok) {
+    probe_offset = offs;
+    #if ENABLED(DELTA)
+      delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
+    #endif
+  }
 }
 
 #endif // HAS_BED_PROBE
