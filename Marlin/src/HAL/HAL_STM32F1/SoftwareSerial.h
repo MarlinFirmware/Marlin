@@ -18,28 +18,27 @@
  */
 #pragma once
 
+#include <stdint.h>
+
 #ifndef HAVE_SW_SERIAL
-
-  #include <stdint.h>
-
-  #define SW_SERIAL_PLACEHOLDER 1
-
-  class SoftwareSerial {
-  public:
-    SoftwareSerial(int8_t RX_pin, int8_t TX_pin);
-
-    void begin(const uint32_t baudrate);
-
-    bool available();
-
-    uint8_t read();
-    uint16_t write(uint8_t byte);
-    void flush();
-
-    void listen();
-    void stopListening();
-
-  protected:
-    bool listening;
-  };
+   #define SW_SERIAL_PLACEHOLDER 1
 #endif
+
+class SoftwareSerial {
+public:
+  SoftwareSerial(int8_t RX_pin, int8_t TX_pin);
+
+  void begin(const uint32_t baudrate);
+
+  bool available();
+
+  uint8_t read();
+  uint16_t write(uint8_t byte);
+  void flush();
+
+  void listen();
+  void stopListening();
+
+protected:
+  bool listening;
+};

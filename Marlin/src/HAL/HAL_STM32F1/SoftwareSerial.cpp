@@ -20,7 +20,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #if HAS_TMC220x
-  #warning "Consider using SoftwareSerialM with HAVE_SW_SERIAL and appropriate SS_TIMER defined.
+  #warning "Consider using SoftwareSerialM with HAVE_SW_SERIAL and appropriate SS_TIMER defined."
   #error "Missing SoftwareSerial implementation"
 #endif
 
