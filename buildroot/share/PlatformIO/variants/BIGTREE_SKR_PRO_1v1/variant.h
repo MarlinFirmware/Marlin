@@ -267,13 +267,6 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
-/* Extra HAL modules */
-#ifndef HAL_PCD_MODULE_ENABLED
-  #define HAL_PCD_MODULE_ENABLED //Since STM32 v3.10700.191028 this is automatically added if any type of USB is enabled (as in Arduino IDE)
-#endif
-
-#define HAL_DAC_MODULE_ENABLED
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
