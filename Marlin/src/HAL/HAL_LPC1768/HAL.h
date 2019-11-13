@@ -131,11 +131,13 @@ int freeMemory();
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
-using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
+#define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
+#define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
 
+using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 extern uint32_t HAL_adc_reading;
 [[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
-  HAL_adc_reading = FilteredADC::read(pin) >> 6; // returns 16bit value, reduce to 10bit
+  HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
 }
 [[gnu::always_inline]] inline uint16_t HAL_read_adc() {
   return HAL_adc_reading;

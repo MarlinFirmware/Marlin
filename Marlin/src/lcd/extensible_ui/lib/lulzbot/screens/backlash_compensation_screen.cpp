@@ -32,17 +32,17 @@ using namespace Theme;
 
 void BacklashCompensationScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2).units(       GET_TEXT_F(UNITS_MM));
-  w.heading(                  GET_TEXT_F(BACKLASH));
-  w.color(x_axis).adjuster(2, GET_TEXT_F(AXIS_X), getAxisBacklash_mm(X));
-  w.color(y_axis).adjuster(4, GET_TEXT_F(AXIS_Y), getAxisBacklash_mm(Y));
-  w.color(z_axis).adjuster(6, GET_TEXT_F(AXIS_Z), getAxisBacklash_mm(Z));
+  w.precision(2).units(       GET_TEXT_F(MSG_UNITS_MM));
+  w.heading(                  GET_TEXT_F(MSG_BACKLASH));
+  w.color(x_axis).adjuster(2, GET_TEXT_F(MSG_AXIS_X), getAxisBacklash_mm(X));
+  w.color(y_axis).adjuster(4, GET_TEXT_F(MSG_AXIS_Y), getAxisBacklash_mm(Y));
+  w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), getAxisBacklash_mm(Z));
   #if ENABLED(CALIBRATION_GCODE)
-  w.button(12, GET_TEXT_F(MEASURE_AUTOMATICALLY));
+  w.button(12, GET_TEXT_F(MSG_MEASURE_AUTOMATICALLY));
   #endif
-  w.color(other).adjuster(8,  GET_TEXT_F(SMOOTHING), getBacklashSmoothing_mm());
-  w.precision(0).units(GET_TEXT_F(UNITS_PERCENT))
-                .adjuster(10, GET_TEXT_F(CORRECTION), getBacklashCorrection_percent());
+  w.color(other).adjuster(8,  GET_TEXT_F(MSG_SMOOTHING), getBacklashSmoothing_mm());
+  w.precision(0).units(GET_TEXT_F(MSG_UNITS_PERCENT))
+                .adjuster(10, GET_TEXT_F(MSG_CORRECTION), getBacklashCorrection_percent());
   w.precision(2).increments();
 }
 

@@ -39,14 +39,14 @@ void NozzleOffsetScreen::onEntry() {
 
 void NozzleOffsetScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2).units(GET_TEXT_F(UNITS_MM));
+  w.precision(2).units(GET_TEXT_F(MSG_UNITS_MM));
 
-  w.heading(                          GET_TEXT_F(TOOL_OFFSETS));
-  w.color(Theme::x_axis).adjuster(2,  GET_TEXT_F(AXIS_X), ExtUI::getNozzleOffset_mm(X, E1));
-  w.color(Theme::y_axis).adjuster(4,  GET_TEXT_F(AXIS_Y), ExtUI::getNozzleOffset_mm(Y, E1));
-  w.color(Theme::z_axis).adjuster(6,  GET_TEXT_F(AXIS_Z), ExtUI::getNozzleOffset_mm(Z, E1));
+  w.heading(                          GET_TEXT_F(MSG_OFFSETS_MENU));
+  w.color(Theme::x_axis).adjuster(2,  GET_TEXT_F(MSG_AXIS_X), ExtUI::getNozzleOffset_mm(X, E1));
+  w.color(Theme::y_axis).adjuster(4,  GET_TEXT_F(MSG_AXIS_Y), ExtUI::getNozzleOffset_mm(Y, E1));
+  w.color(Theme::z_axis).adjuster(6,  GET_TEXT_F(MSG_AXIS_Z), ExtUI::getNozzleOffset_mm(Z, E1));
   #if ENABLED(CALIBRATION_GCODE)
-  w.button(8, GET_TEXT_F(MEASURE_AUTOMATICALLY), !isPrinting());
+  w.button(8, GET_TEXT_F(MSG_MEASURE_AUTOMATICALLY), !isPrinting());
   #endif
   w.increments();
 }

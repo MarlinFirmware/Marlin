@@ -152,10 +152,12 @@
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN P2_08
   #endif
-  #ifndef E0_SESIAL_RX_PIN
+  #ifndef E0_SERIAL_RX_PIN
     #define E0_SERIAL_RX_PIN P2_08
   #endif
 
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //

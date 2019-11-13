@@ -446,6 +446,13 @@ void MarlinSettings::postprocess() {
 
 #endif // SD_FIRMWARE_UPDATE
 
+#ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
+  static_assert(
+      EEPROM_OFFSET + sizeof(SettingsData) < ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE,
+      "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data."
+    );
+#endif
+
 #define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
 #include "../core/debug_out.h"
 
@@ -2076,9 +2083,21 @@ void MarlinSettings::postprocess() {
     return !eeprom_error;
   }
 
+  #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
+    extern bool restoreEEPROM();
+  #endif
+
   bool MarlinSettings::validate() {
     validating = true;
-    const bool success = _load();
+    #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
+      bool success = _load();
+      if (!success && restoreEEPROM()) {
+        SERIAL_ECHOLNPGM("Recovered backup EEPROM settings from SPI Flash");
+        success = _load();
+      }
+    #else
+      const bool success = _load();
+    #endif
     validating = false;
     return success;
   }

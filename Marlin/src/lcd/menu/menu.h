@@ -110,13 +110,7 @@ class MenuItem_back : public MenuItemBase {
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr) {
       _draw(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
     }
-    static inline void action(PGM_P const=nullptr) {
-      ui.goto_previous_screen(
-        #if ENABLED(TURBO_BACK_MENU_ITEM)
-          true
-        #endif
-      );
-    }
+    static inline void action(PGM_P const=nullptr) { ui.go_back(); }
 };
 
 // SUBMENU(PLABEL, screen_handler)

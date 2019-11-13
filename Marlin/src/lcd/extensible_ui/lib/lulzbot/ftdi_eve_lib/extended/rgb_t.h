@@ -31,25 +31,25 @@ constexpr float _hsl_fmod(float x, float y) {
   return x - int(x/y)*y;
 }
 
-constexpr float _hsl_c(int, float S, float L) {
+constexpr float _hsl_c(float, float S, float L) {
   return (1.0f - fabs(2*L-1.0f)) * S;
 }
 
-constexpr float _hsl_x(int H, float S, float L) {
-  return _hsl_c(H,S,L) * (1.0f - fabs(_hsl_fmod(float(H)/60, 2) - 1));
+constexpr float _hsl_x(float H, float S, float L) {
+  return _hsl_c(H,S,L) * (1.0f - fabs(_hsl_fmod(H/60, 2) - 1));
 }
 
-constexpr float _hsl_m(int H, float S, float L) {
+constexpr float _hsl_m(float H, float S, float L) {
   return L - _hsl_c(H,S,L)/2;
 }
 
-constexpr float _hsl_rgb(int H, float S, float L, float r, float g, float b) {
+constexpr float _hsl_rgb(float H, float S, float L, float r, float g, float b) {
   return ((uint32_t((r + _hsl_m(H,S,L))*255+0.5) << 16) |
           (uint32_t((g + _hsl_m(H,S,L))*255+0.5) <<  8) |
           (uint32_t((b + _hsl_m(H,S,L))*255+0.5) <<  0));
 }
 
-constexpr uint32_t hsl_to_rgb(int H, float S, float L) {
+constexpr uint32_t hsl_to_rgb(float H, float S, float L) {
   return (H <  60) ? _hsl_rgb(H,S,L,_hsl_c(H,S,L), _hsl_x(H,S,L), 0) :
          (H < 120) ? _hsl_rgb(H,S,L,_hsl_x(H,S,L), _hsl_c(H,S,L), 0) :
          (H < 180) ? _hsl_rgb(H,S,L,            0, _hsl_c(H,S,L), _hsl_x(H,S,L)) :

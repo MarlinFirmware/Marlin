@@ -1285,9 +1285,9 @@ void Planner::check_axes_activity() {
     #endif
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : 0)
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
     #else
-      #define CALC_FAN_SPEED(f) tail_fan_speed[f]
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ?: FAN_OFF_PWM)
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -1924,121 +1924,32 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-        #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
-
         for (uint8_t i = 0; i < EXTRUDERS; i++)
           if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
-        switch (extruder) {
-          case 0:
-            #if EXTRUDERS > 1
-              DISABLE_IDLE_E(1);
-              #if EXTRUDERS > 2
-                DISABLE_IDLE_E(2);
-                #if EXTRUDERS > 3
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif // EXTRUDERS > 5
-                  #endif // EXTRUDERS > 4
-                #endif // EXTRUDERS > 3
-              #endif // EXTRUDERS > 2
-            #endif // EXTRUDERS > 1
-            enable_E0();
-            g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-            #if HAS_DUPLICATION_MODE
-              if (extruder_duplication_enabled) {
-                enable_E1();
-                g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-              }
-            #endif
-          break;
-          #if EXTRUDERS > 1
-            case 1:
-              DISABLE_IDLE_E(0);
-              #if EXTRUDERS > 2
-                DISABLE_IDLE_E(2);
-                #if EXTRUDERS > 3
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif // EXTRUDERS > 5
-                  #endif // EXTRUDERS > 4
-                #endif // EXTRUDERS > 3
-              #endif // EXTRUDERS > 2
-              enable_E1();
-              g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            break;
-            #if EXTRUDERS > 2
-              case 2:
-                DISABLE_IDLE_E(0);
-                DISABLE_IDLE_E(1);
-                #if EXTRUDERS > 3
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif
-                  #endif
-                #endif
-                enable_E2();
-                g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
-              break;
-              #if EXTRUDERS > 3
-                case 3:
-                  DISABLE_IDLE_E(0);
-                  DISABLE_IDLE_E(1);
-                  DISABLE_IDLE_E(2);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif
-                  #endif
-                  enable_E3();
-                  g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
-                break;
-                #if EXTRUDERS > 4
-                  case 4:
-                    DISABLE_IDLE_E(0);
-                    DISABLE_IDLE_E(1);
-                    DISABLE_IDLE_E(2);
-                    DISABLE_IDLE_E(3);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif
-                    enable_E4();
-                    g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
-                  break;
-                  #if EXTRUDERS > 5
-                    case 5:
-                      DISABLE_IDLE_E(0);
-                      DISABLE_IDLE_E(1);
-                      DISABLE_IDLE_E(2);
-                      DISABLE_IDLE_E(3);
-                      DISABLE_IDLE_E(4);
-                      enable_E5();
-                      g_uc_extruder_last_move[5] = (BLOCK_BUFFER_SIZE) * 2;
-                    break;
-                  #endif // EXTRUDERS > 5
-                #endif // EXTRUDERS > 4
-              #endif // EXTRUDERS > 3
-            #endif // EXTRUDERS > 2
-          #endif // EXTRUDERS > 1
-        }
+        #if HAS_DUPLICATION_MODE
+          if (extruder_duplication_enabled && extruder == 0) {
+            enable_E1();
+            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
+          }
+        #endif
+
+        #define ENABLE_ONE_E(N) do{ \
+          if (extruder == N) { \
+            enable_E##N(); \
+            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
+          } \
+          else if (!g_uc_extruder_last_move[N]) \
+            disable_E##N(); \
+        }while(0);
+
       #else
-        enable_E0();
-        enable_E1();
-        enable_E2();
-        enable_E3();
-        enable_E4();
-        enable_E5();
+
+        #define ENABLE_ONE_E(N) enable_E##N();
+
       #endif
+
+      REPEAT(EXTRUDERS, ENABLE_ONE_E);
     }
   #endif // EXTRUDERS
 

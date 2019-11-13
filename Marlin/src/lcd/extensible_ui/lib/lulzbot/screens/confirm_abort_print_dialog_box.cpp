@@ -29,7 +29,7 @@
 using namespace ExtUI;
 
 void ConfirmAbortPrintDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXT_F(ABORT_WARNING));
+  drawMessage(GET_TEXT_F(MSG_ABORT_WARNING));
   drawYesNoButtons();
 }
 

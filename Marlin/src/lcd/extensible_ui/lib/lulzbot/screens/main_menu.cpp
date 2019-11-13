@@ -5,6 +5,7 @@
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2019 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,7 +23,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && !defined(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && !defined(TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
@@ -43,53 +44,63 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 8
       #define GRID_COLS 2
-        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(AUTO_HOME))
-        #ifdef NOZZLE_CLEAN_FEATURE
-         .enabled(1)
-        #else
-         .enabled(0)
-        #endif
-        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(CLEAN_NOZZLE))
-        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MOVE_AXIS))
-        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MOTORS_OFF))
-        .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(TEMPERATURE))
-        .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(CHANGE_FILAMENT))
-        .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(ADVANCED_SETTINGS))
-        #ifdef PRINTCOUNTER
-         .enabled(1)
-        #else
-         .enabled(0)
-        #endif
-        .tag(9).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(PRINTER_STATISTICS))
-        .tag(10).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(ABOUT_PRINTER))
-        .colors(action_btn)
-        .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(BACK));
-      #undef GRID_COLS
-      #undef GRID_ROWS
-    #else
-      #define GRID_ROWS 5
-      #define GRID_COLS 2
-        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(AUTO_HOME))
+        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_AUTO_HOME))
         #if ENABLED(NOZZLE_CLEAN_FEATURE)
          .enabled(1)
         #else
          .enabled(0)
         #endif
-        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(CLEAN_NOZZLE))
-        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MOVE_AXIS))
-        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MOTORS_OFF))
-        .tag(6).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(TEMPERATURE))
-        .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(CHANGE_FILAMENT))
-        .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(ADVANCED_SETTINGS))
+        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_CLEAN_NOZZLE))
+        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MOVE_AXIS))
+        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISABLE_STEPPERS))
+        .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_TEMPERATURE))
+        #if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
+         .enabled(1)
+        #else
+         .enabled(0)
+        #endif
+        .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
+        .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
         #ifdef PRINTCOUNTER
          .enabled(1)
         #else
          .enabled(0)
         #endif
-        .tag(9).button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(PRINTER_STATISTICS))
-        .tag(10).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(ABOUT_PRINTER))
+        .tag(9).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_STATS_MENU))
+        .tag(10).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_MENU))
         .colors(action_btn)
-        .tag(1).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(BACK));
+        .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+      #undef GRID_COLS
+      #undef GRID_ROWS
+    #else
+      #define GRID_ROWS 5
+      #define GRID_COLS 2
+        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_AUTO_HOME))
+        #if ENABLED(NOZZLE_CLEAN_FEATURE)
+         .enabled(1)
+        #else
+         .enabled(0)
+        #endif
+        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_CLEAN_NOZZLE))
+        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MOVE_AXIS))
+        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISABLE_STEPPERS))
+        .tag(6).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TEMPERATURE))
+        #if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
+         .enabled(1)
+        #else
+         .enabled(0)
+        #endif
+        .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
+        .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
+        #ifdef PRINTCOUNTER
+         .enabled(1)
+        #else
+         .enabled(0)
+        #endif
+        .tag(9).button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_INFO_STATS_MENU))
+        .tag(10).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_INFO_MENU))
+        .colors(action_btn)
+        .tag(1).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #endif
