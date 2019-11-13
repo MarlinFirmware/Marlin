@@ -110,8 +110,7 @@ uint32_t SoftwareSerial::rx_buffer = 0;
 int32_t SoftwareSerial::rx_bit_cnt = -1; // rx_bit_cnt = -1 :  waiting for start bit
 uint32_t SoftwareSerial::cur_speed = 0;
 
-void SoftwareSerial::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority)
-{
+void SoftwareSerial::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority) {
   timer_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), preemptPriority, subPriority);
 }
 
@@ -119,8 +118,7 @@ void SoftwareSerial::setInterruptPriority(uint32_t preemptPriority, uint32_t sub
 // Private methods
 //
 
-void SoftwareSerial::setSpeed(uint32_t speed)
-{
+void SoftwareSerial::setSpeed(uint32_t speed) {
   if (speed != cur_speed) {
     timer.pause();
     if (speed != 0) {
@@ -133,7 +131,7 @@ void SoftwareSerial::setSpeed(uint32_t speed)
       do {
         cmp_value = clock_rate / (speed * OVERSAMPLE);
         if (cmp_value >= UINT16_MAX) {
-          clock_rate = clock_rate / 2;
+          clock_rate /= 2;
           pre *= 2;
         }
       } while (cmp_value >= UINT16_MAX);
@@ -143,17 +141,16 @@ void SoftwareSerial::setSpeed(uint32_t speed)
       timer.attachInterrupt(&handleInterrupt);
       timer.resume();
       NVIC_SetPriority(timer_interrupt_number, timer_interrupt_priority);
-    } else {
-      timer.detachInterrupt();
     }
+    else
+      timer.detachInterrupt();
     cur_speed = speed;
   }
 }
 
 // This function sets the current object as the "listening"
 // one and returns true if it replaces another
-bool SoftwareSerial::listen()
-{
+bool SoftwareSerial::listen() {
   if (active_listener != this) {
     // wait for any transmit to complete as we may change speed
     while (active_out);
@@ -162,23 +159,18 @@ bool SoftwareSerial::listen()
     rx_bit_cnt = -1; // rx_bit_cnt = -1 :  waiting for start bit
     setSpeed(_speed);
     active_listener = this;
-    if (!_half_duplex) {
-      active_in = this;
-    }
+    if (!_half_duplex) active_in = this;
     return true;
   }
   return false;
 }
 
 // Stop listening. Returns true if we were actually listening.
-bool SoftwareSerial::stopListening()
-{
+bool SoftwareSerial::stopListening() {
   if (active_listener == this) {
     // wait for any output to complete
     while (active_out);
-    if (_half_duplex) {
-      setRXTX(false);
-    }
+    if (_half_duplex) setRXTX(false);
     active_listener = nullptr;
     active_in = nullptr;
     // turn off ints
@@ -188,23 +180,19 @@ bool SoftwareSerial::stopListening()
   return false;
 }
 
-inline void SoftwareSerial::setTX()
-{
-  if (_inverse_logic) {
+inline void SoftwareSerial::setTX() {
+  if (_inverse_logic)
     LL_GPIO_ResetOutputPin(_transmitPinPort, _transmitPinNumber);
-  } else {
+  else
     LL_GPIO_SetOutputPin(_transmitPinPort, _transmitPinNumber);
-  }
   pinMode(_transmitPin, OUTPUT);
 }
 
-inline void SoftwareSerial::setRX()
-{
+inline void SoftwareSerial::setRX() {
   pinMode(_receivePin, _inverse_logic ? INPUT_PULLDOWN : INPUT_PULLUP); // pullup for normal logic!
 }
 
-inline void SoftwareSerial::setRXTX(bool input)
-{
+inline void SoftwareSerial::setRXTX(bool input) {
   if (_half_duplex) {
     if (input) {
       if (active_in != this) {
@@ -213,7 +201,8 @@ inline void SoftwareSerial::setRXTX(bool input)
         rx_tick_cnt = 2; // 2 : next interrupt will be discarded. 2 interrupts required to consider RX pin level
         active_in = this;
       }
-    } else {
+    }
+    else {
       if (active_in == this) {
         setTX();
         active_in = nullptr;
@@ -222,29 +211,27 @@ inline void SoftwareSerial::setRXTX(bool input)
   }
 }
 
-inline void SoftwareSerial::send()
-{
-  if (--tx_tick_cnt <= 0) { // if tx_tick_cnt > 0 interrupt is discarded. Only when tx_tick_cnt reach 0 we set TX pin.
-    if (tx_bit_cnt++ < 10) { // tx_bit_cnt < 10 transmission is not fiisehed (10 = 1 start +8 bits + 1 stop)
-      // send data (including start and stop bits)
-      if (tx_buffer & 1) {
+inline void SoftwareSerial::send() {
+  if (--tx_tick_cnt <= 0) { // if tx_tick_cnt > 0 interrupt is discarded. Only when tx_tick_cnt reaches 0 is TX pin set.
+    if (tx_bit_cnt++ < 10) { // tx_bit_cnt < 10 transmission is not finished (10 = 1 start +8 bits + 1 stop)
+      // Send data (including start and stop bits)
+      if (tx_buffer & 1)
         LL_GPIO_SetOutputPin(_transmitPinPort, _transmitPinNumber);
-      } else {
+      else
         LL_GPIO_ResetOutputPin(_transmitPinPort, _transmitPinNumber);
-      }
       tx_buffer >>= 1;
-      tx_tick_cnt = OVERSAMPLE; // Wait OVERSAMPLE tick to send next bit
-    } else { // Transmission finished
+      tx_tick_cnt = OVERSAMPLE; // Wait OVERSAMPLE ticks to send next bit
+    }
+    else { // Transmission finished
       tx_tick_cnt = 1;
       if (_output_pending) {
         active_out = nullptr;
 
-        // When in half-duplex mode, wait for HALFDUPLEX_SWITCH_DELAY bit-periods after the byte has
+        // In half-duplex mode wait HALFDUPLEX_SWITCH_DELAY bit-periods after the byte has
         // been transmitted before allowing the switch to RX mode
-      } else if (tx_bit_cnt > 10 + OVERSAMPLE * HALFDUPLEX_SWITCH_DELAY) {
-        if (_half_duplex && active_listener == this) {
-          setRXTX(true);
-        }
+      }
+      else if (tx_bit_cnt > 10 + OVERSAMPLE * HALFDUPLEX_SWITCH_DELAY) {
+        if (_half_duplex && active_listener == this) setRXTX(true);
         active_out = nullptr;
       }
     }
@@ -254,9 +241,8 @@ inline void SoftwareSerial::send()
 //
 // The receive routine called by the interrupt handler
 //
-inline void SoftwareSerial::recv()
-{
-  if (--rx_tick_cnt <= 0) { // if rx_tick_cnt > 0 interrupt is discarded. Only when rx_tick_cnt reach 0 RX pin is considered
+inline void SoftwareSerial::recv() {
+  if (--rx_tick_cnt <= 0) { // if rx_tick_cnt > 0 interrupt is discarded. Only when rx_tick_cnt reaches 0 is RX pin considered
     bool inbit = LL_GPIO_IsInputPinSet(_receivePinPort, _receivePinNumber) ^ _inverse_logic;
     if (rx_bit_cnt == -1) {  // rx_bit_cnt = -1 :  waiting for start bit
       if (!inbit) {
@@ -264,31 +250,31 @@ inline void SoftwareSerial::recv()
         rx_bit_cnt = 0; // rx_bit_cnt == 0 : start bit received
         rx_tick_cnt = OVERSAMPLE + 1; // Wait 1 bit (OVERSAMPLE ticks) + 1 tick in order to sample RX pin in the middle of the edge (and not too close to the edge)
         rx_buffer = 0;
-      } else {
-        rx_tick_cnt = 1; // Waiting for start bit, but we don't get right level. Wait for next Interrupt to ckech RX pin level
       }
-    } else if (rx_bit_cnt >= 8) { // rx_bit_cnt >= 8 : waiting for stop bit
+      else
+        rx_tick_cnt = 1; // Waiting for start bit, but wrong level. Wait for next Interrupt to check RX pin level
+    }
+    else if (rx_bit_cnt >= 8) { // rx_bit_cnt >= 8 : waiting for stop bit
       if (inbit) {
-        // stop bit read complete add to buffer
+        // Stop-bit read complete. Add to buffer.
         uint8_t next = (_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
         if (next != _receive_buffer_head) {
-          // save new data in buffer: tail points to where byte goes
+          // save new data in buffer: tail points to byte destination
           _receive_buffer[_receive_buffer_tail] = rx_buffer; // save new byte
           _receive_buffer_tail = next;
-        } else { // rx_bit_cnt = x  with x = [0..7] correspond to new bit x received
-          _buffer_overflow = true;
         }
+        else // rx_bit_cnt = x  with x = [0..7] correspond to new bit x received
+          _buffer_overflow = true;
       }
-      // Full trame received. Resart wainting for sart bit at next interrupt
+      // Full trame received. Restart waiting for start bit at next interrupt
       rx_tick_cnt = 1;
       rx_bit_cnt = -1;
-    } else {
+    }
+    else {
       // data bits
       rx_buffer >>= 1;
-      if (inbit) {
-        rx_buffer |= 0x80;
-      }
-      rx_bit_cnt++; // Preprare for next bit
+      if (inbit) rx_buffer |= 0x80;
+      rx_bit_cnt++; // Prepare for next bit
       rx_tick_cnt = OVERSAMPLE; // Wait OVERSAMPLE ticks before sampling next bit
     }
   }
@@ -299,16 +285,11 @@ inline void SoftwareSerial::recv()
 //
 
 /* static */
-inline void SoftwareSerial::handleInterrupt(HardwareTimer *timer)
-{
-  UNUSED(timer);
-  if (active_in) {
-    active_in->recv();
-  }
-  if (active_out) {
-    active_out->send();
-  }
+inline void SoftwareSerial::handleInterrupt(HardwareTimer*) {
+  if (active_in)   active_in->recv();
+  if (active_out) active_out->send();
 }
+
 //
 // Constructor
 //
@@ -331,50 +312,42 @@ SoftwareSerial::SoftwareSerial(uint16_t receivePin, uint16_t transmitPin, bool i
     /* Enable GPIO clock for tx and rx pin*/
     set_GPIO_Port_Clock(STM_PORT(digitalPinToPinName(transmitPin)));
     set_GPIO_Port_Clock(STM_PORT(digitalPinToPinName(receivePin)));
-  } else {
-    _Error_Handler("ERROR: invalid pin number\n", -1);
   }
+  else
+    _Error_Handler("ERROR: invalid pin number\n", -1);
 }
 
 //
 // Destructor
 //
-SoftwareSerial::~SoftwareSerial()
-{
-  end();
-}
+SoftwareSerial::~SoftwareSerial() { end(); }
 
 //
 // Public methods
 //
 
-void SoftwareSerial::begin(long speed)
-{
-#ifdef FORCE_BAUD_RATE
-  speed = FORCE_BAUD_RATE;
-#endif
+void SoftwareSerial::begin(long speed) {
+  #ifdef FORCE_BAUD_RATE
+    speed = FORCE_BAUD_RATE;
+  #endif
   _speed = speed;
   if (!_half_duplex) {
     setTX();
     setRX();
     listen();
-  } else {
-    setTX();
   }
+  else
+    setTX();
 }
 
-void SoftwareSerial::end()
-{
+void SoftwareSerial::end() {
   stopListening();
 }
 
 // Read data from buffer
-int SoftwareSerial::read()
-{
+int SoftwareSerial::read() {
   // Empty buffer?
-  if (_receive_buffer_head == _receive_buffer_tail) {
-    return -1;
-  }
+  if (_receive_buffer_head == _receive_buffer_tail) return -1;
 
   // Read from "head"
   uint8_t d = _receive_buffer[_receive_buffer_head]; // grab next byte
@@ -382,47 +355,36 @@ int SoftwareSerial::read()
   return d;
 }
 
-int SoftwareSerial::available()
-{
+int SoftwareSerial::available() {
   return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
-size_t SoftwareSerial::write(uint8_t b)
-{
+size_t SoftwareSerial::write(uint8_t b) {
   // wait for previous transmit to complete
   _output_pending = 1;
-  while (active_out)
-    ;
+  while (active_out) { /* nada */ }
   // add start and stop bits.
   tx_buffer = b << 1 | 0x200;
-  if (_inverse_logic) {
-    tx_buffer = ~tx_buffer;
-  }
+  if (_inverse_logic) tx_buffer = ~tx_buffer;
   tx_bit_cnt = 0;
   tx_tick_cnt = OVERSAMPLE;
   setSpeed(_speed);
-  if (_half_duplex) {
-    setRXTX(false);
-  }
+  if (_half_duplex) setRXTX(false);
   _output_pending = 0;
   // make us active
   active_out = this;
   return 1;
 }
 
-void SoftwareSerial::flush()
-{
+void SoftwareSerial::flush() {
   noInterrupts();
   _receive_buffer_head = _receive_buffer_tail = 0;
   interrupts();
 }
 
-int SoftwareSerial::peek()
-{
+int SoftwareSerial::peek() {
   // Empty buffer?
-  if (_receive_buffer_head == _receive_buffer_tail) {
-    return -1;
-  }
+  if (_receive_buffer_head == _receive_buffer_tail) return -1;
 
   // Read from "head"
   return _receive_buffer[_receive_buffer_head];
