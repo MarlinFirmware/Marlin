@@ -34,6 +34,8 @@
 //
 // Includes
 //
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+
 #include "SoftwareSerial.h"
 #include <timer.h>
 
@@ -389,3 +391,5 @@ int SoftwareSerial::peek() {
   // Read from "head"
   return _receive_buffer[_receive_buffer_head];
 }
+
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
