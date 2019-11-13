@@ -787,7 +787,7 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 // variables to calculate steps
 #define XYZ_FULL_STEPS_PER_ROTATION 100
@@ -802,7 +802,7 @@
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 #define DEFAULT_MAX_FEEDRATE          { 100, 100, 100, 25 }
 
@@ -810,7 +810,7 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 1000, 3000 }
 

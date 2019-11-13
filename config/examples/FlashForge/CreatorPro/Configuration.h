@@ -704,7 +704,7 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 //really Sailfish... got enough precision on that float for an 8 bit system?
 //I'm leaving this in for posterior's sake
@@ -713,7 +713,7 @@
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 #define DEFAULT_MAX_FEEDRATE          { 250, 250, 20, 100 }
 
@@ -726,7 +726,7 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000 }
 
