@@ -1,4 +1,4 @@
-/*
+/**
  * SoftwareSerial.h (formerly NewSoftSerial.h)
  *
  * Multi-instance software serial library for Arduino/Wiring
@@ -36,8 +36,8 @@
 #include <Arduino.h>
 
 /******************************************************************************
-* Definitions
-******************************************************************************/
+ * Definitions
+ ******************************************************************************/
 
 #define _SS_MAX_RX_BUFF 64 // RX buffer size
 
@@ -96,17 +96,11 @@ class SoftwareSerial : public Stream {
     void begin(long speed);
     bool listen();
     void end();
-    bool isListening()
-    {
-      return active_listener == this;
-    }
+    bool isListening() { return active_listener == this; }
     bool stopListening();
-    bool overflow()
-    {
+    bool overflow() {
       bool ret = _buffer_overflow;
-      if (ret) {
-        _buffer_overflow = false;
-      }
+      if (ret) _buffer_overflow = false;
       return ret;
     }
     int peek();
@@ -115,10 +109,7 @@ class SoftwareSerial : public Stream {
     virtual int read();
     virtual int available();
     virtual void flush();
-    operator bool()
-    {
-      return true;
-    }
+    operator bool() { return true; }
 
     static void setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority);
 
