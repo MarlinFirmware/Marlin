@@ -18,12 +18,6 @@
  */
 #if defined(__STM32F1__) && !defined(HAVE_SW_SERIAL)
 
-#include "../../inc/MarlinConfig.h"
-#if HAS_TMC220x
-  #warning "Consider using SoftwareSerialM with HAVE_SW_SERIAL and appropriate SS_TIMER defined."
-  #error "Missing SoftwareSerial implementation"
-#endif
-
 /**
  * Empty class for Software Serial implementation (Custom RX/TX pins)
  *
