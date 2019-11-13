@@ -133,7 +133,7 @@
                                        || HAS_E_DRIVER(TMC2660_STANDALONE) \
                                        || HAS_E_DRIVER(TMC2209_STANDALONE) \
                                        || HAS_E_DRIVER(TMC5130_STANDALONE) \
-                                       || HAS_E_DRIVER(TMC5160_STANDALONE) )                   
+                                       || HAS_E_DRIVER(TMC5160_STANDALONE) )
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options
 //

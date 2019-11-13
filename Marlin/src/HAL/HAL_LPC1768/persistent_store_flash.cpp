@@ -46,7 +46,7 @@
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
 extern "C" {
-  #include "lpc17xx_iap.h"
+  #include <lpc17xx_iap.h>
 }
 
 #define SECTOR_START(sector)  ((sector < 16) ? (sector * 0x1000) : ((sector - 14) * 0x8000))

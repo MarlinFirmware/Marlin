@@ -22,7 +22,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "driver/timer.h"
+#include <driver/timer.h>
 
 // Includes needed to get I2S_STEPPER_STREAM. Note that pins.h
 // is included in case this header is being included early.

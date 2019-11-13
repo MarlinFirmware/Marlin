@@ -26,7 +26,7 @@
 
 #if ENABLED(USE_WATCHDOG)
 
-#include "lpc17xx_wdt.h"
+#include <lpc17xx_wdt.h>
 #include "watchdog.h"
 
 void watchdog_init() {
