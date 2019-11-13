@@ -1485,13 +1485,9 @@
    * Delta radius/rod trimmers/angle trimmers
    */
   #if HAS_BED_PROBE
-    #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(HYPOT(probe_offset.x, probe_offset.y), ABS(MIN_PROBE_EDGE)))
+    #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(HYPOT(probe_offset.x, probe_offset.y), MIN_PROBE_EDGE))
   #else
     #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #endif
-  #ifndef DELTA_CALIBRATION_RADIUS
-    // Round calibration radius down to avoid probing points outside range due to floating point error.
-    #define DELTA_CALIBRATION_RADIUS FLOOR(_PROBE_RADIUS)
   #endif
   #ifndef DELTA_ENDSTOP_ADJ
     #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
@@ -1506,9 +1502,6 @@
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0, 0, 0 }
   #endif
 
-  // Probing points may be verified at compile time within the radius
-  // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
-  // so that may be added to SanityCheck.h in the future.
   #define PROBE_X_MIN (X_CENTER - (_PROBE_RADIUS))
   #define PROBE_Y_MIN (Y_CENTER - (_PROBE_RADIUS))
   #define PROBE_X_MAX (X_CENTER + (_PROBE_RADIUS))

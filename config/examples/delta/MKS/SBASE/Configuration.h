@@ -625,9 +625,6 @@
   #endif
 
   #if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-    // Set the radius for the calibration probe points - max DELTA_PRINTABLE_RADIUS for non-eccentric probes
-    // Overrides auto-calculated value, and ignores probe offsets set using M851.
-    //#define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE)  // (mm)
     // Set the steprate for papertest probing
     #define PROBE_MANUALLY_STEP 0.05      // (mm)
   #endif
