@@ -24,16 +24,15 @@
 
 #define CPU_32_BIT
 
+#include "../../inc/MarlinConfigPre.h"
+
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
-
 #include "timers.h"
-
-#include "../../inc/MarlinConfigPre.h"
+#include "watchdog.h"
 
 #include <stdint.h>
 

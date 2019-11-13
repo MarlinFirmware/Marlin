@@ -1367,6 +1367,9 @@
       #define XY_PROBE_SPEED 4000
     #endif
   #endif
+  #ifndef NOZZLE_TO_PROBE_OFFSET
+    #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
+  #endif
 #else
   #undef NOZZLE_TO_PROBE_OFFSET
 #endif
@@ -1477,18 +1480,14 @@
   #define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
 #endif
 
-#ifndef NOZZLE_TO_PROBE_OFFSET
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
-#endif
-
 #if ENABLED(DELTA)
   /**
    * Delta radius/rod trimmers/angle trimmers
    */
   #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
   #ifndef DELTA_CALIBRATION_RADIUS
-    #ifdef NOZZLE_TO_PROBE_OFFSET
-      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(nozzle_to_probe_offset.x), ABS(nozzle_to_probe_offset.y), ABS(MIN_PROBE_EDGE)))
+    #if HAS_BED_PROBE
+      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(probe_offset.x), ABS(probe_offset.y), ABS(MIN_PROBE_EDGE)))
     #else
       #define DELTA_CALIBRATION_RADIUS _PROBE_RADIUS
     #endif
@@ -1543,16 +1542,16 @@
     #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
-    #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+    #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
       #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
       #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
       #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
       #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
     #else
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + nozzle_to_probe_offset.x))
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + nozzle_to_probe_offset.y))
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + nozzle_to_probe_offset.x))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + nozzle_to_probe_offset.y))
+      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + probe_offset.x))
+      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + probe_offset.y))
+      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + probe_offset.x))
+      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + probe_offset.y))
     #endif
   #endif
 
