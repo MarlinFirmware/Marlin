@@ -2344,9 +2344,6 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_BED_PROBE
-    #ifndef NOZZLE_TO_PROBE_OFFSET
-      #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
-    #endif
     constexpr float dpo[XYZ] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == 3, "NOZZLE_TO_PROBE_OFFSET must contain offsets for X, Y, and Z.");
     LOOP_XYZ(a) probe_offset[a] = dpo[a];
