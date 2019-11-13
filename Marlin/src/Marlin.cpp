@@ -378,6 +378,9 @@ void startOrResumeJob() {
     #if ENABLED(LCD_SHOW_E_TOTAL)
       e_move_accumulator = 0;
     #endif
+    #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+      ui.reset_remaining_time();
+    #endif
   }
   print_job_timer.start();
 }
@@ -717,7 +720,8 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: PSTR(""));
+    extern const char NUL_STR[];
+    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
     UNUSED(lcd_error);
     UNUSED(lcd_component);

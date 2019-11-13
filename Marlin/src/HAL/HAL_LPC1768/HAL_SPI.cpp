@@ -56,7 +56,7 @@
 // ------------------------
 #if ENABLED(LPC_SOFTWARE_SPI)
 
-  #include "SoftwareSPI.h"
+  #include <SoftwareSPI.h>
 
   // Software SPI
 

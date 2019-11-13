@@ -45,43 +45,46 @@ void AboutScreen::onRedraw(draw_mode_t) {
      .cmd(COLOR_RGB(bg_text_enabled))
      .tag(0);
 
-  draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(4,1), F(
-      #ifdef LULZBOT_LCD_MACHINE_NAME
-      LULZBOT_LCD_MACHINE_NAME
-      #else
-      GET_TEXT_F(COLOR_TOUCH_PANEL)
-      #endif
-    ), OPT_CENTER, font_xlarge);
+  draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(4,1),
+    #ifdef CUSTOM_MACHINE_NAME
+      F(CUSTOM_MACHINE_NAME)
+    #else
+      GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_1)
+    #endif
+    , OPT_CENTER, font_xlarge
+  );
 
-  #ifdef LULZBOT_LCD_TOOLHEAD_NAME
-   char about_str[
-     strlen_P(GET_TEXT(FIRMWARE_FOR_TOOLHEAD)) +
-     strlen_P(LULZBOT_LCD_TOOLHEAD_NAME) +
-     strlen_P(GET_TEXT(ABOUT_ALEPH_OBJECTS)) + 1];
+  #ifdef TOOLHEAD_NAME
+    char about_str[
+      strlen_P(GET_TEXT(FIRMWARE_FOR_TOOLHEAD)) +
+      strlen_P(TOOLHEAD_NAME) +
+      strlen_P(GET_TEXT(ABOUT_TOUCH_PANEL_2)) + 1
+    ];
 
-   sprintf_P(about_str, GET_TEXT(FIRMWARE_FOR_TOOLHEAD), LULZBOT_LCD_TOOLHEAD_NAME);
-   strcat_P(about_str,  GET_TEXT(ABOUT_ALEPH_OBJECTS));
+    sprintf_P(about_str, GET_TEXT(FIRMWARE_FOR_TOOLHEAD), TOOLHEAD_NAME);
+    strcat_P (about_str, GET_TEXT(ABOUT_TOUCH_PANEL_2));
   #endif
 
   cmd.tag(2);
   draw_text_box(cmd, BTN_POS(1,3), BTN_SIZE(4,3),
-      #ifdef LULZBOT_LCD_TOOLHEAD_NAME
-        about_str
-      #else
-        GET_TEXT_F(ABOUT_ALEPH_OBJECTS)
-      #endif
-  , OPT_CENTER, font_medium);
+    #ifdef TOOLHEAD_NAME
+      about_str
+    #else
+      GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_2)
+    #endif
+    , OPT_CENTER, font_medium
+  );
 
   cmd.tag(0);
   draw_text_box(cmd, BTN_POS(1,6), BTN_SIZE(4,2), progmem_str(getFirmwareName_str()), OPT_CENTER, font_medium);
 
-  cmd.font(font_medium).colors(action_btn).tag(1).button(BTN_POS(2,8), BTN_SIZE(2,1), GET_TEXT_F(OKAY));
+  cmd.font(font_medium).colors(action_btn).tag(1).button(BTN_POS(2,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_OKAY));
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS();            return true;
-#if ENABLED(DEVELOPER_SCREENS)
+#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
     case 2: GOTO_SCREEN(DeveloperMenu); return true;
 #endif
     default:                            return false;

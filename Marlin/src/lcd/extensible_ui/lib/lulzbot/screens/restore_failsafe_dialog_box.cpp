@@ -29,7 +29,7 @@
 using namespace ExtUI;
 
 void RestoreFailsafeDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXT_F(EEPROM_RESET_WARNING));
+  drawMessage(GET_TEXT_F(MSG_EEPROM_RESET_WARNING));
   drawYesNoButtons();
 }
 
@@ -37,7 +37,7 @@ bool RestoreFailsafeDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       ExtUI::injectCommands_P(PSTR("M502"));
-      AlertDialogBox::show(GET_TEXT_F(EEPROM_RESET));
+      AlertDialogBox::show(GET_TEXT_F(MSG_EEPROM_RESET));
       // Remove RestoreFailsafeDialogBox from the stack
       // so the alert box doesn't return to it.
       current_screen.forget();

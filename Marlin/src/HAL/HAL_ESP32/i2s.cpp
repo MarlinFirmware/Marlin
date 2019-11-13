@@ -26,10 +26,10 @@
 #include "i2s.h"
 
 #include "../shared/Marduino.h"
-#include "driver/periph_ctrl.h"
-#include "rom/lldesc.h"
-#include "soc/i2s_struct.h"
-#include "freertos/queue.h"
+#include <driver/periph_ctrl.h>
+#include <rom/lldesc.h>
+#include <soc/i2s_struct.h>
+#include <freertos/queue.h>
 #include "../../module/stepper.h"
 
 #define DMA_BUF_COUNT 8                                // number of DMA buffers to store data

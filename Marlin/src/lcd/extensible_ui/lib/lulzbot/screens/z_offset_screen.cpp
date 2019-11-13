@@ -32,10 +32,10 @@ using namespace Theme;
 
 void ZOffsetScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(UNITS_MM));
+  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(MSG_UNITS_MM));
 
-  w.heading(                  GET_TEXT_F(ZPROBE_ZOFFSET));
-  w.color(z_axis).adjuster(4, GET_TEXT_F(ZPROBE_ZOFFSET), getZOffset_mm());
+  w.heading(                  GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
+  w.color(z_axis).adjuster(4, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), getZOffset_mm());
   w.increments();
 }
 

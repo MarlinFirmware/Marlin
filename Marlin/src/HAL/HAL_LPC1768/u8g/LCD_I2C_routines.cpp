@@ -25,6 +25,8 @@
 
 #ifdef TARGET_LPC1768
 
+extern int millis();
+
 #ifdef __cplusplus
   extern "C" {
 #endif
@@ -34,7 +36,8 @@
 #include <lpc17xx_libcfg_default.h>
 
 #include "../../../core/millis_t.h"
-extern int millis();
+
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 // These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
