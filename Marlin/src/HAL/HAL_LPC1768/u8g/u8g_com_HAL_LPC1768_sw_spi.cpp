@@ -59,7 +59,7 @@
 
 #if HAS_GRAPHICAL_LCD && DISABLED(U8GLIB_ST7920)
 
-#include "SoftwareSPI.h"
+#include <SoftwareSPI.h>
 
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz

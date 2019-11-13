@@ -33,21 +33,21 @@ using namespace Theme;
 void StepperCurrentScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0);
-  w.units(GET_TEXT_F(UNITS_MILLIAMP));
-  w.heading(                     GET_TEXT_F(MOTOR_CURRENT));
-  w.color(x_axis)  .adjuster( 2, GET_TEXT_F(AXIS_X),  getAxisCurrent_mA(X) );
-  w.color(y_axis)  .adjuster( 4, GET_TEXT_F(AXIS_Y),  getAxisCurrent_mA(Y) );
-  w.color(z_axis)  .adjuster( 6, GET_TEXT_F(AXIS_Z),  getAxisCurrent_mA(Z) );
+  w.units(GET_TEXT_F(MSG_UNITS_MILLIAMP));
+  w.heading(                     GET_TEXT_F(MSG_TMC_CURRENT));
+  w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getAxisCurrent_mA(X) );
+  w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AXIS_Y),  getAxisCurrent_mA(Y) );
+  w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getAxisCurrent_mA(Z) );
   #if EXTRUDERS == 1
-    w.color(e_axis).adjuster( 8, GET_TEXT_F(AXIS_E),  getAxisCurrent_mA(E0) );
+    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AXIS_E),  getAxisCurrent_mA(E0) );
   #elif EXTRUDERS > 1
-    w.color(e_axis).adjuster( 8, GET_TEXT_F(AXIS_E1), getAxisCurrent_mA(E0) );
-    w.color(e_axis).adjuster(10, GET_TEXT_F(AXIS_E2), getAxisCurrent_mA(E1) );
+    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AXIS_E1), getAxisCurrent_mA(E0) );
+    w.color(e_axis).adjuster(10, GET_TEXT_F(MSG_AXIS_E2), getAxisCurrent_mA(E1) );
     #if EXTRUDERS > 2
-    w.color(e_axis).adjuster(12, GET_TEXT_F(AXIS_E3), getAxisCurrent_mA(E2) );
+    w.color(e_axis).adjuster(12, GET_TEXT_F(MSG_AXIS_E3), getAxisCurrent_mA(E2) );
     #endif
     #if EXTRUDERS > 3
-    w.color(e_axis).adjuster(14, GET_TEXT_F(AXIS_E4), getAxisCurrent_mA(E3) );
+    w.color(e_axis).adjuster(14, GET_TEXT_F(MSG_AXIS_E4), getAxisCurrent_mA(E3) );
     #endif
   #endif
   w.increments();

@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V70"
+#define EEPROM_VERSION "V71"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -446,6 +446,13 @@ void MarlinSettings::postprocess() {
 
 #endif // SD_FIRMWARE_UPDATE
 
+#ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
+  static_assert(
+      EEPROM_OFFSET + sizeof(SettingsData) < ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE,
+      "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data."
+    );
+#endif
+
 #define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
 #include "../core/debug_out.h"
 
@@ -781,7 +788,10 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
         PIDC_t pidc = {
-          PID_PARAM(Kp, e), PID_PARAM(Ki, e), PID_PARAM(Kd, e), PID_PARAM(Kc, e)
+                       PID_PARAM(Kp, e),
+          unscalePID_i(PID_PARAM(Ki, e)),
+          unscalePID_d(PID_PARAM(Kd, e)),
+                       PID_PARAM(Kc, e)
         };
         EEPROM_WRITE(pidc);
       }
@@ -801,12 +811,17 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(bedPID);
 
-      #if DISABLED(PIDTEMPBED)
-        const PID_t bed_pid = { DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE };
-        EEPROM_WRITE(bed_pid);
-      #else
-        EEPROM_WRITE(thermalManager.temp_bed.pid);
-      #endif
+      const PID_t bed_pid = {
+        #if DISABLED(PIDTEMPBED)
+          DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE
+        #else
+          // Store the unscaled PID values
+          thermalManager.temp_bed.pid.Kp,
+          unscalePID_i(thermalManager.temp_bed.pid.Ki),
+          unscalePID_d(thermalManager.temp_bed.pid.Kd)
+        #endif
+      };
+      EEPROM_WRITE(bed_pid);
     }
 
     //
@@ -1578,10 +1593,10 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(pidc);
           #if ENABLED(PIDTEMP)
             if (!validating && pidc.Kp != DUMMY_PID_VALUE) {
-              // No need to scale PID values since EEPROM values are scaled
+              // Scale PID values since EEPROM values are unscaled
               PID_PARAM(Kp, e) = pidc.Kp;
-              PID_PARAM(Ki, e) = pidc.Ki;
-              PID_PARAM(Kd, e) = pidc.Kd;
+              PID_PARAM(Ki, e) = scalePID_i(pidc.Ki);
+              PID_PARAM(Kd, e) = scalePID_d(pidc.Kd);
               #if ENABLED(PID_EXTRUSION_SCALING)
                 PID_PARAM(Kc, e) = pidc.Kc;
               #endif
@@ -1610,8 +1625,12 @@ void MarlinSettings::postprocess() {
         PID_t pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
-          if (!validating && pid.Kp != DUMMY_PID_VALUE)
-            memcpy(&thermalManager.temp_bed.pid, &pid, sizeof(pid));
+          if (!validating && pid.Kp != DUMMY_PID_VALUE) {
+            // Scale PID values since EEPROM values are unscaled
+            thermalManager.temp_bed.pid.Kp = pid.Kp;
+            thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);
+            thermalManager.temp_bed.pid.Kd = scalePID_d(pid.Kd);
+          }
         #endif
       }
 
@@ -2076,9 +2095,21 @@ void MarlinSettings::postprocess() {
     return !eeprom_error;
   }
 
+  #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
+    extern bool restoreEEPROM();
+  #endif
+
   bool MarlinSettings::validate() {
     validating = true;
-    const bool success = _load();
+    #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
+      bool success = _load();
+      if (!success && restoreEEPROM()) {
+        SERIAL_ECHOLNPGM("Recovered backup EEPROM settings from SPI Flash");
+        success = _load();
+      }
+    #else
+      const bool success = _load();
+    #endif
     validating = false;
     return success;
   }
@@ -2313,9 +2344,6 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_BED_PROBE
-    #ifndef NOZZLE_TO_PROBE_OFFSET
-      #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
-    #endif
     constexpr float dpo[XYZ] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == 3, "NOZZLE_TO_PROBE_OFFSET must contain offsets for X, Y, and Z.");
     LOOP_XYZ(a) probe_offset[a] = dpo[a];

@@ -85,5 +85,5 @@
 #ifndef E1_SERIAL_RX_PIN
   #define E1_SERIAL_RX_PIN    21
 #endif
- 
+
 #include "pins_RAMPS.h"

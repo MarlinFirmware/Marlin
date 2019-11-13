@@ -22,8 +22,8 @@
 #ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
-#include "Adafruit_ZeroDMA.h"
-#include "wiring_private.h"
+#include <Adafruit_ZeroDMA.h>
+#include <wiring_private.h>
 
 // ------------------------
 // Local defines
@@ -442,9 +442,11 @@ void HAL_adc_init() {
       // Preloaded data (fixed for all ADC instances hence not loaded by DMA)
       adc->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;               // VRefA pin
       SYNC(adc->SYNCBUSY.bit.REFCTRL);
-      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
       SYNC(adc->SYNCBUSY.bit.CTRLB);
       adc->SAMPCTRL.bit.SAMPLEN = (6 - 1);                                  // Sampling clocks
+      adc->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_16 | ADC_AVGCTRL_ADJRES(4);  // 16 Accumulated conversions and shift 4 to get oversampled 12 bits result
+      SYNC(adc->SYNCBUSY.bit.AVGCTRL);
       // Registers loaded by DMA
       adc->DSEQCTRL.bit.INPUTCTRL = true;
 

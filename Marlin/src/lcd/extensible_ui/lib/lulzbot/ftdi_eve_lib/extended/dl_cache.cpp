@@ -129,15 +129,15 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
     // Not enough memory to cache the display list.
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("Not enough space in GRAM to cache display list, free space: ", free_space,
-                        " Required: ", dl_size);
+      SERIAL_ECHOPAIR  ("Not enough space in GRAM to cache display list, free space: ", free_space);
+      SERIAL_ECHOLNPAIR(" Required: ", dl_size);
     #endif
     return false;
   } else {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("Saving DL to RAMG cache, bytes: ", dl_size,
-                        " Free space: ", free_space);
+      SERIAL_ECHOPAIR  ("Saving DL to RAMG cache, bytes: ", dl_size);
+      SERIAL_ECHOLNPAIR(" Free space: ", free_space);
     #endif
     cmd.memcpy(dl_addr, MAP::RAM_DL, dl_size);
     cmd.execute();
@@ -167,8 +167,8 @@ void DLCache::append() {
     cmd.execute();
     wait_until_idle();
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("Appending to DL from RAMG cache, bytes: ", dl_size,
-                      " REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
+    SERIAL_ECHOPAIR  ("Appending to DL from RAMG cache, bytes: ", dl_size);
+    SERIAL_ECHOLNPAIR(" REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
   #endif
 }
 

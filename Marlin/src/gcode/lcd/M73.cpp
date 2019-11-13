@@ -43,6 +43,9 @@ void GcodeSuite::M73() {
       ? parser.value_float() * (PROGRESS_SCALE)
       : parser.value_byte()
     );
+  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+    if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
+  #endif
 }
 
 #endif // LCD_SET_PROGRESS_MANUALLY
