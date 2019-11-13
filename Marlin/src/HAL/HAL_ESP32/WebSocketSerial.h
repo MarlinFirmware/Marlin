@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include "Stream.h"
+#include <Stream.h>
 
 #ifndef RX_BUFFER_SIZE
   #define RX_BUFFER_SIZE 128

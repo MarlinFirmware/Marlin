@@ -91,7 +91,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     // This is fixed in Arduino_Core_STM32 1.8.
     // These calls can be removed and replaced with
     // timer_instance[timer_num]->setInterruptPriority
-    switch (timer_num) {                 
+    switch (timer_num) {
       case STEP_TIMER_NUM:
         HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_IRQ_PRIO, 0);
         break;

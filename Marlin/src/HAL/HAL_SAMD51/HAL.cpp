@@ -22,8 +22,8 @@
 #ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
-#include "Adafruit_ZeroDMA.h"
-#include "wiring_private.h"
+#include <Adafruit_ZeroDMA.h>
+#include <wiring_private.h>
 
 // ------------------------
 // Local defines

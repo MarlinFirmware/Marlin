@@ -36,13 +36,13 @@
 
 #if HAS_SWSERIAL
   #include "SoftwareSerial.h"
-#endif  
+#endif
 
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
-    #include "stm32f7xx_ll_pwr.h"
+    #include <stm32f7xx_ll_pwr.h>
   #elif STM32F4xx
-    #include "stm32f4xx_ll_pwr.h"
+    #include <stm32f4xx_ll_pwr.h>
   #else
     #error "SRAM_EEPROM_EMULATION is currently only supported for STM32F4xx and STM32F7xx"
   #endif
