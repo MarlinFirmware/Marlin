@@ -29,9 +29,9 @@
 #include "../shared/Delay.h"
 
 #if (__cplusplus == 201703L) && defined(__has_include)
-	#define HAS_SWSERIAL __has_include(<SoftwareSerial.h>)
+  #define HAS_SWSERIAL __has_include(<SoftwareSerial.h>)
 #else
-	#define HAS_SWSERIAL HAS_TMC220x
+  #define HAS_SWSERIAL HAS_TMC220x
 #endif
 
 #if HAS_SWSERIAL
