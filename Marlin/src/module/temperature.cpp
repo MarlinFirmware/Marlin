@@ -2290,7 +2290,7 @@ void Temperature::readings_ready() {
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
-  Temperature::isr();
+  Temperature::tick();
 
   HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
@@ -2320,11 +2320,21 @@ public:
   #endif
 };
 
-void Temperature::isr() {
+/**
+ * Handle various ~1KHz tasks associated with temperature
+ *  - Heater PWM (~1KHz with scaler)
+ *  - LCD Button polling (~500Hz)
+ *  - Start / Read one ADC sensor
+ *  - Advance Babysteps
+ *  - Endstop polling
+ *  - Planner clean buffer
+ */
+void Temperature::tick() {
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
+
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
 
