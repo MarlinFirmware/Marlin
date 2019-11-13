@@ -138,8 +138,8 @@
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
   //#define ANYCUBIC_4MAX_VG3R
-  //#define ANYCUBIC_4MAX_7OF9
-  #define ANYCUBIC_4MAX_DEFAULT
+  #define ANYCUBIC_4MAX_7OF9
+  //#define ANYCUBIC_4MAX_DEFAULT
 
 // TMC2208 with UART where TX is on SERVO0_PIN and RX is on PS_ON_PIN
 // Info: Just for Testing.
@@ -834,7 +834,7 @@
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.16032, 80.16835, 398.24771, 102.17 }
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Steps - Filament
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.12018, 80.10413, 397.14058, 100.56 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.12018, 80.10413, 397.14058, 98.73 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
@@ -1066,7 +1066,7 @@
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
   // my 4MAX Printer: 7of9 - Offset
   //#define NOZZLE_TO_PROBE_OFFSET { 32.77, 0, -0.96 }
-  #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -0.96 }
+  #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -2.94 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
 #endif
@@ -1423,7 +1423,7 @@
     // Synthesizes intermediate points to produce a more detailed mesh.
     //
     #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-      #define ABL_BILINEAR_SUBDIVISION
+      //#define ABL_BILINEAR_SUBDIVISION
     #else
       //#define ABL_BILINEAR_SUBDIVISION
     #endif
