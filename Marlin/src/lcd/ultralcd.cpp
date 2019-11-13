@@ -59,7 +59,7 @@
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
   MarlinUI::progress_t MarlinUI::progress_override; // = 0
-  #if ENABLED(USE_M73_REMAINING_TIME)
+  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
   #endif
 #endif

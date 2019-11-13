@@ -378,7 +378,7 @@ void startOrResumeJob() {
     #if ENABLED(LCD_SHOW_E_TOTAL)
       e_move_accumulator = 0;
     #endif
-    #if ENABLED(USE_M73_REMAINING_TIME)
+    #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
       ui.reset_remaining_time();
     #endif
   }

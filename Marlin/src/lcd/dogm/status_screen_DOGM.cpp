@@ -456,7 +456,7 @@ void MarlinUI::draw_status_screen() {
         #if ENABLED(SHOW_REMAINING_TIME)
           if (!(ev & 0x3)) {
             uint32_t timeval = (0
-              #if ENABLED(USE_M73_REMAINING_TIME)
+              #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
                 + get_remaining_time()
               #endif
             );
