@@ -86,7 +86,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
      * a call to HAL_timer_enable_interrupt() which means that there isn't
      * a case in which you want the timer to run without a callback.
      */
-    timer_instance[timer_num]->resume(); //the first call to resume MUST follow the attachInterrupt
+    timer_instance[timer_num]->resume(); // First call to resume() MUST follow the attachInterrupt()
 
     // This is fixed in Arduino_Core_STM32 1.8.
     // These calls can be removed and replaced with
