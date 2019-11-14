@@ -17,8 +17,6 @@ for i, flag in enumerate(env["LINKFLAGS"]):
 
 # Rename ${PROGNAME}.bin and save it as 'project.bin' (No encryption on the Longer3D)
 def encrypt(source, target, env):
-    import os
-
     firmware = open(target[0].path, "rb")
     marlin_alfa = open(target[0].dir.path +'/project.bin', "wb")
     length = os.path.getsize(target[0].path)
