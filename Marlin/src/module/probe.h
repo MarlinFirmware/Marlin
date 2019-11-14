@@ -79,37 +79,6 @@
   }
 #endif
 
-#if NEEDS_THREE_PROBE_POINTS
-  // Hide inside function so probe offsets can be updated
-  inline vector_3 (&get_three_probe_points())[3] {
-    static vector_3 points[3] = {
-      #if HAS_FIXED_3POINT
-        { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-        { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-        { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-      #else
-        { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }
-      #endif
-    };
-
-    #if !HAS_FIXED_3POINT
-      #if IS_KINEMATIC
-        constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
-                        COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
-        points[0] = { (X_CENTER + probe_radius() * COS0),   (Y_CENTER + probe_radius() * SIN0), 0 };
-        points[1] = { (X_CENTER + probe_radius() * COS120), (Y_CENTER + probe_radius() * SIN120), 0 };
-        points[2] = { (X_CENTER + probe_radius() * COS240), (Y_CENTER + probe_radius() * SIN240), 0 };
-      #else
-        points[0] = { probe_min_x(), probe_min_y(), 0 };
-        points[1] = { probe_max_x(), probe_min_y(), 0 };
-        points[2] = { (probe_max_x() - probe_min_x()) / 2, probe_max_y(), 0 };
-      #endif
-    #endif
-
-    return points;
-  }
-#endif  
-
 #if HAS_LEVELING && (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY))
   inline float probe_min_x() {
     return
@@ -148,6 +117,37 @@
   inline float probe_max_x() { return 0; };
   inline float probe_min_y() { return 0; };
   inline float probe_max_y() { return 0; };
+#endif
+
+#if NEEDS_THREE_PROBE_POINTS
+  // Hide inside function so probe offsets can be updated
+  inline vector_3 (&get_three_probe_points())[3] {
+    static vector_3 points[3] = {
+      #if HAS_FIXED_3POINT
+        { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
+        { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
+        { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
+      #else
+        { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }
+      #endif
+    };
+
+    #if !HAS_FIXED_3POINT
+      #if IS_KINEMATIC
+        constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
+                        COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
+        points[0] = { (X_CENTER + probe_radius() * COS0),   (Y_CENTER + probe_radius() * SIN0), 0 };
+        points[1] = { (X_CENTER + probe_radius() * COS120), (Y_CENTER + probe_radius() * SIN120), 0 };
+        points[2] = { (X_CENTER + probe_radius() * COS240), (Y_CENTER + probe_radius() * SIN240), 0 };
+      #else
+        points[0] = { probe_min_x(), probe_min_y(), 0 };
+        points[1] = { probe_max_x(), probe_min_y(), 0 };
+        points[2] = { (probe_max_x() - probe_min_x()) / 2, probe_max_y(), 0 };
+      #endif
+    #endif
+
+    return points;
+  }
 #endif
 
 #if HAS_Z_SERVO_PROBE

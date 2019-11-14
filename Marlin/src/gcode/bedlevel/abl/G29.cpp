@@ -266,7 +266,7 @@ G29_TYPE GcodeSuite::G29() {
     // Probe at 3 arbitrary points
     const float x_min = probe_min_x(), x_max = probe_max_x(), y_min = probe_min_y(), y_max = probe_max_y();
 
-    auto& points = get_three_probe_points
+    auto& points = get_three_probe_points();
 
   #endif // AUTO_BED_LEVELING_3POINT
 
