@@ -60,42 +60,56 @@
 
 #endif
 
+#if IS_KINEMATIC
+  constexpr float printable_radius =
+    #if ENABLED(DELTA)
+      DELTA_PRINTABLE_RADIUS;
+    #elif IS_SCARA
+      SCARA_PRINTABLE_RADIUS;
+    #endif
+  
+  inline float probe_radius() {
+    return printable_radius -
+      #if HAS_BED_PROBE
+        _MAX(MIN_PROBE_EDGE, HYPOT(probe_offset.x, probe_offset.y));
+      #else
+        MIN_PROBE_EDGE;
+      #endif
+  }
+#endif
+
 #if HAS_LEVELING && (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY))
   inline float probe_min_x() {
-    return _MAX(
+    return
       #if IS_KINEMATIC
-        PROBE_X_MIN, MESH_MIN_X
+        (X_CENTER) - probe_radius();
       #else
-        (X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x
+        _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x);
       #endif
-    );
   }
   inline float probe_max_x() {
-    return _MIN(
+    return
       #if IS_KINEMATIC
-        PROBE_X_MAX, MESH_MAX_X
+        (X_CENTER) + probe_radius();
       #else
-        (X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x
+        _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x);
       #endif
-    );
   }
   inline float probe_min_y() {
-    return _MAX(
+    return 
       #if IS_KINEMATIC
-        PROBE_Y_MIN, MESH_MIN_Y
+        (Y_CENTER) - probe_radius();
       #else
-        (Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y
+        _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y);
       #endif
-    );
   }
   inline float probe_max_y() {
-    return _MIN(
+    return 
       #if IS_KINEMATIC
-        PROBE_Y_MAX, MESH_MAX_Y
+        (Y_CENTER) + probe_radius();
       #else
-        (Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y
+        _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y);
       #endif
-    );
   }
 #else
   inline float probe_min_x() { return 0; };

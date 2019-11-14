@@ -1461,34 +1461,37 @@
 #endif
 
 /**
- * Bed Probing rectangular bounds
- * These can be further constrained in code for Delta and SCARA
+ * Bed Probing bounds
  */
+
 #ifndef MIN_PROBE_EDGE
   #define MIN_PROBE_EDGE 0
 #endif
-#ifndef MIN_PROBE_EDGE_LEFT
-  #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
-#endif
-#ifndef MIN_PROBE_EDGE_RIGHT
-  #define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
-#endif
-#ifndef MIN_PROBE_EDGE_FRONT
-  #define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
-#endif
-#ifndef MIN_PROBE_EDGE_BACK
-  #define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
+
+#if IS_KINEMATIC
+  #undef MIN_PROBE_EDGE_LEFT
+  #undef MIN_PROBE_EDGE_RIGHT
+  #undef MIN_PROBE_EDGE_FRONT
+  #undef MIN_PROBE_EDGE_BACK
+#else
+  #ifndef MIN_PROBE_EDGE_LEFT
+    #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
+  #endif
+  #ifndef MIN_PROBE_EDGE_RIGHT
+    #define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
+  #endif
+  #ifndef MIN_PROBE_EDGE_FRONT
+    #define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
+  #endif
+  #ifndef MIN_PROBE_EDGE_BACK
+    #define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
+  #endif
 #endif
 
 #if ENABLED(DELTA)
   /**
    * Delta radius/rod trimmers/angle trimmers
    */
-  #if HAS_BED_PROBE
-    #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(HYPOT(probe_offset.x, probe_offset.y), MIN_PROBE_EDGE))
-  #else
-    #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #endif
   #ifndef DELTA_ENDSTOP_ADJ
     #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
   #endif
@@ -1501,21 +1504,6 @@
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0, 0, 0 }
   #endif
-
-  #define PROBE_X_MIN (X_CENTER - (_PROBE_RADIUS))
-  #define PROBE_Y_MIN (Y_CENTER - (_PROBE_RADIUS))
-  #define PROBE_X_MAX (X_CENTER + (_PROBE_RADIUS))
-  #define PROBE_Y_MAX (Y_CENTER + (_PROBE_RADIUS))
-
-#elif IS_SCARA
-
-  #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-  #define _PROBE_RADIUS (SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #define PROBE_X_MIN (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE_LEFT)
-  #define PROBE_Y_MIN (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE_FRONT)
-  #define PROBE_X_MAX (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE_RIGHT))
-  #define PROBE_Y_MAX (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE_BACK))
-
 #endif
 
 #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
@@ -1525,7 +1513,7 @@
 /**
  * Default mesh area is an area with an inset margin on the print area.
  */
-#if HAS_LEVELING
+#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
@@ -1536,17 +1524,10 @@
     #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
-    #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
-    #else
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + probe_offset.x))
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + probe_offset.y))
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + probe_offset.x))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + probe_offset.y))
-    #endif
+    #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
+    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
+    #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
+    #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
   #endif
 
   // These may be overridden in Configuration.h if a smaller area is desired
@@ -1562,8 +1543,12 @@
   #ifndef MESH_MAX_Y
     #define MESH_MAX_Y _MESH_MAX_Y
   #endif
-
-#endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
+#else
+  #undef MESH_MIN_X
+  #undef MESH_MIN_Y
+  #undef MESH_MAX_X
+  #undef MESH_MAX_Y
+#endif
 
 #if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
   #define HAS_FIXED_3POINT
