@@ -132,6 +132,7 @@
 
 /**
  * SCARA cannot use SLOWDOWN and requires QUICKHOME
+ * Printable radius assumes joints can fully extend
  */
 #if IS_SCARA
   #undef SLOWDOWN
