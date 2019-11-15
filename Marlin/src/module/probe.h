@@ -26,7 +26,6 @@
  */
 
 #include "../inc/MarlinConfig.h"
-#include "../libs/vector_3.h"
 
 #if HAS_BED_PROBE
 
@@ -120,33 +119,26 @@
 #endif
 
 #if NEEDS_THREE_PROBE_POINTS
-  // Hide inside function so probe offsets can be updated
-  inline vector_3 (&get_three_probe_points())[3] {
-    static vector_3 points[3] = {
-      #if HAS_FIXED_3POINT
-        { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-        { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-        { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-      #else
-        { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }
-      #endif
-    };
-
-    #if !HAS_FIXED_3POINT
+  // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
+  template <typename T>
+  inline void get_three_probe_points(T points[3]) {
+    #if HAS_FIXED_3POINT
+      points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
+      points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
+      points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
+    #else
       #if IS_KINEMATIC
         constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
                         COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
-        points[0] = { (X_CENTER + probe_radius() * COS0),   (Y_CENTER + probe_radius() * SIN0), 0 };
-        points[1] = { (X_CENTER + probe_radius() * COS120), (Y_CENTER + probe_radius() * SIN120), 0 };
-        points[2] = { (X_CENTER + probe_radius() * COS240), (Y_CENTER + probe_radius() * SIN240), 0 };
+        points[0].set((X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0);
+        points[1].set((X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120);
+        points[2].set((X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240);
       #else
-        points[0] = { probe_min_x(), probe_min_y(), 0 };
-        points[1] = { probe_max_x(), probe_min_y(), 0 };
-        points[2] = { (probe_max_x() - probe_min_x()) / 2, probe_max_y(), 0 };
+        points[0].set(probe_min_x(), probe_min_y());
+        points[1].set(probe_max_x(), probe_min_y());
+        points[2].set((probe_max_x() - probe_min_x()) / 2, probe_max_y());
       #endif
     #endif
-
-    return points;
   }
 #endif
 

@@ -1385,7 +1385,8 @@
                   dx = (x_max - x_min) / (g29_grid_size - 1),
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
-      const auto& points = get_three_probe_points();
+      xy_float_t points[3];
+      get_three_probe_points(points);
 
       float measured_z;
       bool abort_flag = false;
