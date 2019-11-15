@@ -156,34 +156,9 @@ void _lcd_mixer_select_vtool() {
 
 void lcd_mixer_mix_edit() {
 
-  #if CHANNEL_MIX_EDITING
+  #if DUAL_MIXING_EXTRUDER && !CHANNEL_MIX_EDITING
 
-    START_MENU();
-    BACK_ITEM(MSG_MIXER);
-
-    #define EDIT_COLOR(N) EDIT_ITEM_FAST(float52, MSG_MIX_COMPONENT_##N, &mixer.collector[N-1], 0, 10);
-
-    EDIT_COLOR(1);
-    EDIT_COLOR(2);
-    #if MIXING_STEPPERS > 2
-      EDIT_COLOR(3);
-      #if MIXING_STEPPERS > 3
-        EDIT_COLOR(4);
-        #if MIXING_STEPPERS > 4
-          EDIT_COLOR(5);
-          #if MIXING_STEPPERS > 5
-            EDIT_COLOR(6);
-          #endif
-        #endif
-      #endif
-    #endif
-
-    ACTION_ITEM(MSG_CYCLE_MIX, _lcd_mixer_cycle_mix);
-    ACTION_ITEM(MSG_COMMIT_VTOOL, _lcd_mixer_commit_vtool);
-    END_MENU();
-
-  #elif DUAL_MIXING_EXTRUDER
-
+    // Adjust 2-channel mix from the encoder
     if (ui.encoderPosition != 0) {
       mixer.mix[0] += int32_t(ui.encoderPosition);
       ui.encoderPosition = 0;
@@ -193,6 +168,7 @@ void lcd_mixer_mix_edit() {
     }
     _lcd_draw_mix((LCD_HEIGHT - 1) / 2);
 
+    // Click to commit the change
     if (ui.lcd_clicked) {
       mixer.update_vtool_from_mix();
       ui.goto_previous_screen();
@@ -202,6 +178,17 @@ void lcd_mixer_mix_edit() {
 
     START_MENU();
     BACK_ITEM(MSG_MIXER);
+
+    #if CHANNEL_MIX_EDITING
+
+      for (uint8_t n = 1; n <= MIXING_STEPPERS; n++)
+        EDIT_ITEM_FAST_N(float52, n, MSG_MIX_COMPONENT_N, &mixer.collector[n-1], 0, 10);
+
+      ACTION_ITEM(MSG_CYCLE_MIX, _lcd_mixer_cycle_mix);
+      ACTION_ITEM(MSG_COMMIT_VTOOL, _lcd_mixer_commit_vtool);
+
+    #endif
+
     END_MENU();
 
   #endif

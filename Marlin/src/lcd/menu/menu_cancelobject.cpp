@@ -34,7 +34,7 @@
 #include "../../feature/cancel_object.h"
 
 static void lcd_cancel_object_confirm() {
-  const int8_t v = editable.int8;
+  const int8_t v = MenuItemBase::itemIndex;
   const char item_num[] = {
     ' ',
     char((v > 9) ? '0' + (v / 10) : ' '),
@@ -43,7 +43,7 @@ static void lcd_cancel_object_confirm() {
   };
   MenuItem_confirm::confirm_screen(
     []{
-      cancelable.cancel_object(editable.int8 - 1);
+      cancelable.cancel_object(MenuItemBase::itemIndex - 1);
       #if HAS_BUZZER
         ui.completion_feedback();
       #endif
@@ -63,13 +63,8 @@ void menu_cancelobject() {
   for (int8_t i = -1; i < cancelable.object_count; i++) {
     if (i == a) continue;
     int8_t j = i < 0 ? a : i;
-    if (!cancelable.is_canceled(j)) {
-      editable.int8 = j + 1;
-      SUBMENU(MSG_CANCEL_OBJECT, lcd_cancel_object_confirm);
-      MENU_ITEM_ADDON_START(LCD_WIDTH - 2 - (j >= 9));
-        lcd_put_int(editable.int8);
-      MENU_ITEM_ADDON_END();
-    }
+    if (!cancelable.is_canceled(j))
+      SUBMENU_N(j, MSG_CANCEL_OBJECT_N, lcd_cancel_object_confirm);
     if (i < 0) SKIP_ITEM();
   }
 

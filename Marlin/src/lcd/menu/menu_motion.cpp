@@ -74,7 +74,7 @@ inline void manual_move_to_current(AxisEnum axis
 // "Motion" > "Move Axis" submenu
 //
 
-static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
+static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
   if (ui.encoderPosition && !ui.processing_manual_move) {
 
@@ -147,7 +147,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
         + manual_move_offset
       #endif
     , axis);
-    MenuEditItemBase::edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    MenuEditItemBase::draw_edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -180,35 +180,27 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       ui.encoderPosition = 0;
     }
     if (ui.should_draw()) {
-      PGM_P pos_label = GET_TEXT(MSG_MOVE_E);
       #if E_MANUAL > 1
-        switch (eindex) {
-          default: pos_label = GET_TEXT(MSG_MOVE_E0); break;
-          case 1: pos_label = GET_TEXT(MSG_MOVE_E1); break;
-          #if E_MANUAL > 2
-            case 2: pos_label = GET_TEXT(MSG_MOVE_E2); break;
-            #if E_MANUAL > 3
-              case 3: pos_label = GET_TEXT(MSG_MOVE_E3); break;
-              #if E_MANUAL > 4
-                case 4: pos_label = GET_TEXT(MSG_MOVE_E4); break;
-                #if E_MANUAL > 5
-                  case 5: pos_label = GET_TEXT(MSG_MOVE_E5); break;
-                #endif // E_MANUAL > 5
-              #endif // E_MANUAL > 4
-            #endif // E_MANUAL > 3
-          #endif // E_MANUAL > 2
-        }
-      #endif // E_MANUAL > 1
-
-      MenuEditItemBase::edit_screen(pos_label, ftostr41sign(current_position.e
-        #if IS_KINEMATIC
-          + manual_move_offset
-        #endif
-        #if ENABLED(MANUAL_E_MOVES_RELATIVE)
-          - manual_move_e_origin
-        #endif
-      ));
-    }
+        MenuItemBase::init(eindex);
+      #endif
+      MenuEditItemBase::draw_edit_screen(
+        GET_TEXT(
+          #if E_MANUAL > 1
+            MSG_MOVE_EN
+          #else
+            MSG_MOVE_E
+          #endif
+        ),
+        ftostr41sign(current_position.e
+          #if IS_KINEMATIC
+            + manual_move_offset
+          #endif
+          #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+            - manual_move_e_origin
+          #endif
+        )
+      );
+    } // should_draw
   }
 
 #endif // E_MANUAL
@@ -310,35 +302,35 @@ void menu_move() {
 
     #if EXTRUDERS >= 4
       switch (active_extruder) {
-        case 0: GCODES_ITEM(MSG_SELECT_E1, PSTR("T1")); break;
-        case 1: GCODES_ITEM(MSG_SELECT_E0, PSTR("T0")); break;
-        case 2: GCODES_ITEM(MSG_SELECT_E3, PSTR("T3")); break;
-        case 3: GCODES_ITEM(MSG_SELECT_E2, PSTR("T2")); break;
+        case 0: GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1")); break;
+        case 1: GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0")); break;
+        case 2: GCODES_ITEM_N(3, MSG_SELECT_E, PSTR("T3")); break;
+        case 3: GCODES_ITEM_N(2, MSG_SELECT_E, PSTR("T2")); break;
         #if EXTRUDERS == 6
-          case 4: GCODES_ITEM(MSG_SELECT_E5, PSTR("T5")); break;
-          case 5: GCODES_ITEM(MSG_SELECT_E4, PSTR("T4")); break;
+          case 4: GCODES_ITEM_N(5, MSG_SELECT_E, PSTR("T5")); break;
+          case 5: GCODES_ITEM_N(4, MSG_SELECT_E, PSTR("T4")); break;
         #endif
       }
     #elif EXTRUDERS == 3
       if (active_extruder < 2) {
         if (active_extruder)
-          GCODES_ITEM(MSG_SELECT_E0, PSTR("T0"));
+          GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0"));
         else
-          GCODES_ITEM(MSG_SELECT_E1, PSTR("T1"));
+          GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1"));
       }
     #else
       if (active_extruder)
-        GCODES_ITEM(MSG_SELECT_E0, PSTR("T0"));
+        GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0"));
       else
-        GCODES_ITEM(MSG_SELECT_E1, PSTR("T1"));
+        GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
     if (active_extruder)
-      GCODES_ITEM(MSG_SELECT_E0, PSTR("T0"));
+      GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0"));
     else
-      GCODES_ITEM(MSG_SELECT_E1, PSTR("T1"));
+      GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1"));
 
   #endif
 
@@ -347,7 +339,7 @@ void menu_move() {
     // The current extruder
     SUBMENU(MSG_MOVE_E, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(); }, -1); });
 
-    #define SUBMENU_MOVE_E(N) SUBMENU(MSG_MOVE_E##N, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(N); }, N); });
+    #define SUBMENU_MOVE_E(N) SUBMENU_N(N, MSG_MOVE_EN, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(MenuItemBase::itemIndex); }, MenuItemBase::itemIndex); });
 
     #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
@@ -358,25 +350,10 @@ void menu_move() {
         SUBMENU_MOVE_E(2);
       #endif
 
-    #else
+    #elif E_MANUAL > 1
 
       // Independent extruders with one E-stepper per hotend
-      #if E_MANUAL > 1
-        SUBMENU_MOVE_E(0);
-        SUBMENU_MOVE_E(1);
-        #if E_MANUAL > 2
-          SUBMENU_MOVE_E(2);
-          #if E_MANUAL > 3
-            SUBMENU_MOVE_E(3);
-            #if E_MANUAL > 4
-              SUBMENU_MOVE_E(4);
-              #if E_MANUAL > 5
-                SUBMENU_MOVE_E(5);
-              #endif // E_MANUAL > 5
-            #endif // E_MANUAL > 4
-          #endif // E_MANUAL > 3
-        #endif // E_MANUAL > 2
-      #endif // E_MANUAL > 1
+      for (uint8_t n = 0; n < E_MANUAL; n++) SUBMENU_MOVE_E(n);
 
     #endif
 
