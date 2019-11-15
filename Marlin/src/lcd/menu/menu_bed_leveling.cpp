@@ -132,7 +132,7 @@
     //
     if (ui.should_draw()) {
       const float v = current_position.z;
-      MenuEditItemBase::edit_screen(GET_TEXT(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
 
@@ -143,7 +143,7 @@
     if (ui.should_draw()) {
       char msg[10];
       sprintf_P(msg, PSTR("%i / %u"), int(manual_probe_index + 1), total_probe_points);
-      MenuEditItemBase::edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
+      MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
     if (!ui.wait_for_bl_move) ui.goto_screen(_lcd_level_bed_get_z);

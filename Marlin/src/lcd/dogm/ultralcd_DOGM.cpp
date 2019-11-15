@@ -373,7 +373,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
         while (--pad >= 0) { lcd_put_wchar(' '); n--; }
       }
-      n -= lcd_put_u8str_max_P(pstr, n);
+      n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH) * (MENU_FONT_WIDTH);
       if (valstr) n -= lcd_put_u8str_max(valstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
     }
@@ -382,8 +382,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
-      u8g_uint_t n = (LCD_WIDTH - 2) * (MENU_FONT_WIDTH);
-      n -= lcd_put_u8str_max_P(pstr, n);
+      u8g_uint_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2) * (MENU_FONT_WIDTH);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       lcd_put_wchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_wchar(' ');
@@ -394,16 +393,17 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
-      u8g_uint_t n = (LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
-      n -= lcd_put_u8str_max_P(pstr, n);
-      lcd_put_wchar(':');
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
-      lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH) * vallen, row_y2);
-      if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
+      u8g_uint_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
+      if (vallen) {
+        lcd_put_wchar(':');
+        while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
+        lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH) * vallen, row_y2);
+        if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
+      }
     }
   }
 
-  void MenuEditItemBase::edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
     const u8g_uint_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
@@ -435,7 +435,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // Assume the label is alpha-numeric (with a descender)
     bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
-    if (onpage) lcd_put_u8str_P(0, baseline, pstr);
+    if (onpage) lcd_put_u8str_ind_P(0, baseline, pstr, itemIndex);
 
     // If a value is included, print a colon, then print the value right-justified
     if (value != nullptr) {
