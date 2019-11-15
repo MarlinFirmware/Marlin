@@ -182,6 +182,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
   #endif
 
   screenFunc_t MarlinUI::currentScreen; // Initialized in CTOR
+  bool MarlinUI::screen_changed;
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
     bool MarlinUI::encoderRateMultiplierEnabled;

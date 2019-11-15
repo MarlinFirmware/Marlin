@@ -64,15 +64,17 @@ typedef struct {
 } menuPosition;
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
-bool screen_changed;
 
-// Value Editing
-chimera_t editable;
-PGM_P MenuEditItemBase::editLabel;
-void* MenuEditItemBase::editValue;
-int32_t MenuEditItemBase::minEditValue, MenuEditItemBase::maxEditValue;
+uint8_t MenuItemBase::itemIndex;  // Index number for draw and action
+chimera_t editable;               // Value Editing
+
+// Menu Edit Items
+PGM_P        MenuEditItemBase::editLabel;
+void*        MenuEditItemBase::editValue;
+int32_t      MenuEditItemBase::minEditValue,
+             MenuEditItemBase::maxEditValue;
 screenFunc_t MenuEditItemBase::callbackFunc;
-bool MenuEditItemBase::liveEdit;
+bool         MenuEditItemBase::liveEdit;
 
 // Prevent recursion into screen handlers
 bool no_reentry = false;
@@ -121,17 +123,15 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
 /**
  * Functions for editing single values
  *
- * The "DEFINE_MENU_EDIT_ITEM" macro generates the functions needed to edit a numerical value.
+ * The "DEFINE_MENU_EDIT_ITEM" macro generates the classes needed to edit a numerical value.
  *
  * The prerequisite is that in the header the type was already declared:
  *
- *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, i16tostr3, 1)
+ *   DEFINE_MENU_EDIT_ITEM_TYPE(int16_t, int3, i16tostr3, 1)
  *
- * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
+ * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into:
  *
- *   bool MenuItem_int3::_edit();
- *   void MenuItem_int3::edit(); // edit int16_t (interactively)
- *   void MenuItem_int3::action(PGM_P const pstr, int16_t * const ptr, const int32_t minValue, const int32_t maxValue, const screenFunc_t callback = null, const bool live = false);
+ *   template class TMenuEditItem<MenuEditItemInfo_int3>
  *
  * You can then use one of the menu macros to present the edit interface:
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -143,14 +143,14 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *       MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
  *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
  */
-void MenuEditItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
+void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
   #if ENABLED(TOUCH_BUTTONS)
     ui.repeat_delay = BUTTON_DELAY_EDIT;
   #endif
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
-    edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
+    draw_edit_screen(strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
     if (editValue != nullptr) loadfunc(editValue, ui.encoderPosition + minEditValue);
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
@@ -158,7 +158,17 @@ void MenuEditItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   }
 }
 
-void MenuEditItemBase::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint16_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+void MenuEditItemBase::goto_edit_screen(
+  PGM_P const el,         // Edit label
+  void * const ev,        // Edit value pointer
+  const int32_t minv,     // Encoder minimum
+  const int32_t maxv,     // Encoder maximum
+  const uint16_t ep,      // Initial encoder value
+  const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
+  const screenFunc_t cb,  // Callback after edit
+  const bool le           // Flag to call cb() during editing
+) {
+  ui.screen_changed = true;
   ui.save_previous_screen();
   ui.refresh();
   editLabel = el;
@@ -171,6 +181,7 @@ void MenuEditItemBase::init(PGM_P const el, void * const ev, const int32_t minv,
   liveEdit = le;
 }
 
+// TODO: Remove these but test build size with and without
 #define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuEditItem<MenuEditItemInfo_##NAME>
 
 DEFINE_MENU_EDIT_ITEM(percent);     // 100%       right-justified
@@ -193,8 +204,8 @@ DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
 DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(long5_25);    // 12345      right-justified (25 increment)
 
-void MenuItem_bool::action(PGM_P pstr, bool *ptr, screenFunc_t callback) {
-  UNUSED(pstr); *ptr ^= true; ui.refresh();
+void MenuItem_bool::action(PGM_P const, bool * const ptr, screenFunc_t callback) {
+  *ptr ^= true; ui.refresh();
   if (callback) (*callback)();
 }
 
@@ -344,7 +355,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (ui.first_page) {
     encoderLine = ui.encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);
-    screen_changed = false;
+    ui.screen_changed = false;
   }
   if (screen_items > 0 && encoderLine >= screen_items - limit) {
     encoderLine = _MAX(0, screen_items - limit);
@@ -418,10 +429,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          MenuEditItemBase::edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr43sign(hotend_offset[active_extruder].z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr43sign(hotend_offset[active_extruder].z));
         else
       #endif
-          MenuEditItemBase::edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe_offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
         if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
