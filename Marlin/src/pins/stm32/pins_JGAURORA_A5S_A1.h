@@ -22,31 +22,26 @@
 #pragma once
 
  /**
-  * 2017 Victor Perez Marlin for stm32f1 test
-  * 2018 Modified by Pablo Crespo for Morpheus Board (https://github.com/pscrespo/Morpheus-STM32)
-  * 2019 Modified by Roberto Mariani & Samuel Pinches for JGAurora A5S & A1 Board.
+  *  ╦╔═╗╔═╗┬ ┬┬─┐┌─┐┬─┐┌─┐╔═╗┌─┐┬─┐┬ ┬┌┬┐ ┌─┐┌─┐┌┬┐
+  *  ║║ ╦╠═╣│ │├┬┘│ │├┬┘├─┤╠╣ │ │├┬┘│ ││││ │  │ ││││
+  * ╚╝╚═╝╩ ╩└─┘┴└─└─┘┴└─┴ ┴╚  └─┘┴└─└─┘┴ ┴o└─┘└─┘┴ ┴
+  *   Pin assignments for 32-bit JGAurora A5S & A1
   */
-
-/**
- * JGAurora A5S A1 Board pin assignments
- */
 
 #ifndef __STM32F1__
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
+#elif HOTENDS > 1 || E_STEPPERS > 1
+  #error "JGAurora 32-bit board only supports 1 hotend / E-stepper. Comment out this line to continue."
 #endif
+#define BOARD_INFO_NAME "JGAurora A5S A1 board"
 
-#define BOARD_NAME "JGAurora A5S A1 board"
+#define STM32_XL_DENSITY
+// #define MCU_STM32F103ZE // not yet required
+// Enable EEPROM Emulation for this board, so that we don't overwrite factory data
 
-// #define STM32_XL_DENSITY // required, but should be set by platformio flags, not here! (why? not sure.)
-
-//#define MCU_STM32F103ZE // not yet required
-
-// #define I2C_EEPROM   // AT24C64
-// #define E2END 0x7FFF // 64KB
-
-// Enable EEPROM Emulation for this board
-
-//#define FLASH_EEPROM_EMULATION 1
+//#define I2C_EEPROM   // AT24C64
+//#define E2END 0x7FFF // 64KB
+//#define FLASH_EEPROM_EMULATION
 //#define E2END 0xFFF // 4KB
 //#define E2END uint32(EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE * 2) - 1)
 //#define EEPROM_CHITCHAT
@@ -58,6 +53,9 @@
 #define X_STOP_PIN         PC6
 #define Y_STOP_PIN         PG8
 #define Z_STOP_PIN         PG7
+//#define X_MAX_PIN          PC5
+//#define Y_MAX_PIN          PC4
+//#define Z_MAX_PIN          PB0
 
 //
 // Steppers
@@ -96,7 +94,6 @@
 
 #define FAN_PIN            PA1
 
-#define PS_ON_PIN          PA0
 #define FIL_RUNOUT_PIN     PC7
 
 //
@@ -105,6 +102,10 @@
 #define LCD_BACKLIGHT_PIN  PF11
 #define FSMC_CS_PIN        PD7
 #define FSMC_RS_PIN        PG0
+
+#define LCD_USE_DMA_FSMC          // Use DMA transfers to send data to the TFT
+#define FSMC_DMA_DEV       DMA2
+#define FSMC_DMA_CHANNEL   DMA_CH5
 
 //
 // SD Card
@@ -121,9 +122,6 @@
 // Touch support
 //
 #if ENABLED(TOUCH_BUTTONS)
-  #define BTN_ENC          PA11   // Real pin needed to enable encoder's push button functionality used by touch screen. PA11 gives stable value.
   #define TOUCH_CS_PIN     PA4
   #define TOUCH_INT_PIN    PC4
 #endif
-
-#define NO_PAUSE_AFTER_PRINT

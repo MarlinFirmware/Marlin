@@ -41,7 +41,6 @@
  * faster to do a Max7219_Set_Column() with a rotation of 90 or 270 degrees than to do
  * a Max7219_Set_Row().    The opposite is true for rotations of 0 or 180 degrees.
  */
-#pragma once
 
 #ifndef MAX7219_ROTATE
   #define MAX7219_ROTATE 0
@@ -76,7 +75,7 @@ class Max7219 {
 public:
   static uint8_t led_line[MAX7219_LINES];
 
-  Max7219() { }
+  Max7219() {}
 
   static void init();
   static void register_setup();

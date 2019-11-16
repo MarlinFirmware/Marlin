@@ -31,10 +31,10 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_Teensy.h"
-#include "watchdog_Teensy.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_Teensy.h"
+#include "timers.h"
 
 #include <stdint.h>
 #include <util/atomic.h>
@@ -93,40 +93,36 @@ typedef int8_t pin_t;
 #undef pgm_read_word
 #define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
-inline void HAL_init(void) { }
+inline void HAL_init() {}
 
-/** clear reset reason */
-void HAL_clear_reset_source(void);
+// Clear reset reason
+void HAL_clear_reset_source();
 
-/** reset reason */
-uint8_t HAL_get_reset_source(void);
+// Reset reason
+uint8_t HAL_get_reset_source();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
-
-// SPI: Extended functions which take a channel number (hardware SPI only)
-/** Write single byte to specified SPI channel */
-void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
-uint8_t spiRec(uint32_t chan);
+#pragma GCC diagnostic pop
 
 // ADC
 
 void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_get_result()
 #define HAL_ADC_READY()     true
 
 #define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

@@ -39,7 +39,7 @@
 #include HAL_PATH(../HAL, inc/SanityCheck.h)
 
 // Include all core headers
-#include "../core/enum.h"
+#include "../core/types.h"
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"

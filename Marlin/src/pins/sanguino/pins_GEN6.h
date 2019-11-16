@@ -56,8 +56,8 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Gen6"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Gen6"
 #endif
 
 //

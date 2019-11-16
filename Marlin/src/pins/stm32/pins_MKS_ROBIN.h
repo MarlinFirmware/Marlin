@@ -23,6 +23,8 @@
 
 /**
  * MKS Robin (STM32F130ZET6) board pin assignments
+ *
+ * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
 #ifndef __STM32F1__
@@ -31,12 +33,12 @@
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "MKS Robin"
+#define BOARD_INFO_NAME "MKS Robin"
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-#define DISABLE_DEBUG
+#define DISABLE_JTAG
 
 //
 // Servos
@@ -109,9 +111,9 @@
 #define LED_PIN            PB2
 
 /**
- * Note: MKS Robin TFT screens use various TFT controllers. Supported screens
- * are based on the ILI9342, ILI9328 and ST7798V. Define init sequences for
- * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+ * Note: MKS Robin TFT screens use various TFT controllers
+ * Supported screens are based on the ILI9341 and ST7789V (320x240), ILI9328 and 9488 are not.
+ * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
  *
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
@@ -124,5 +126,33 @@
 #define FSMC_CS_PIN        PG12  // NE4
 #define FSMC_RS_PIN        PF0   // A0
 
-#define SD_DETECT_PIN      PF12
-#define SDSS               -1
+#define LCD_USE_DMA_FSMC   // Use DMA transfers to send data to the TFT
+#define FSMC_DMA_DEV       DMA2
+#define FSMC_DMA_CHANNEL   DMA_CH5
+
+#if ENABLED(TOUCH_BUTTONS)
+  #define TOUCH_CS_PIN     PB1   // SPI2_NSS
+  #define TOUCH_SCK_PIN    PB13  // SPI2_SCK
+  #define TOUCH_MISO_PIN   PB14  // SPI2_MISO
+  #define TOUCH_MOSI_PIN   PB15  // SPI2_MOSI
+#endif
+
+// SPI1(PA7) & SPI3(PB5) not available
+#define ENABLE_SPI2
+
+#if ENABLED(SDIO_SUPPORT)
+  #define SCK_PIN           PB13 // SPI2
+  #define MISO_PIN          PB14 // SPI2
+  #define MOSI_PIN          PB15 // SPI2
+  #define SS_PIN            -1   // PB12 is X-
+  #define SD_DETECT_PIN     PF12 // SD_CD
+#else
+  // SD as custom software SPI (SDIO pins)
+  #define SCK_PIN           PC12
+  #define MISO_PIN          PC8
+  #define MOSI_PIN          PD2
+  #define SS_PIN            -1
+  #define ONBOARD_SD_CS_PIN PC11
+  #define SDSS              PD2
+  #define SD_DETECT_PIN     -1
+#endif

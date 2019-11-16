@@ -45,7 +45,7 @@
  *         7 | 11
  */
 
-#if ENABLED(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
   #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
 #elif defined(__STM32F1__)
   #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
@@ -57,8 +57,8 @@
   #endif
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "RAMPS 1.4"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
 //
@@ -66,7 +66,7 @@
 //
 #ifndef SERVO0_PIN
   #ifdef IS_RAMPS_13
-    #define SERVO0_PIN      7   // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
+    #define SERVO0_PIN      7
   #else
     #define SERVO0_PIN     11
   #endif
@@ -477,7 +477,7 @@
     #endif
 
     #if DISABLED(NEWPANEL)
-      // Buttons are attached to a shift register
+      // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK       38
       //#define SHIFT_LD        42
@@ -531,8 +531,8 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1           22   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
-      #define BTN_EN2            7   // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
+      #define BTN_EN1           40   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN2           42
       #define BTN_ENC           -1
 
       #define LCD_SDSS          SDSS
@@ -552,7 +552,7 @@
       #define BTN_EN2            7
       #define BTN_ENC           39
 
-      #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
+      #define SD_DETECT_PIN     -1   // Pin 49 for display SD interface, 72 for easy adapter board
       #define KILL_PIN          31
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)

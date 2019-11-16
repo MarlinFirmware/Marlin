@@ -103,8 +103,14 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     TMCMarlin(const uint16_t cs_pin, const float RS) :
       TMC(cs_pin, RS)
       {}
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t axis_chain_index) :
+      TMC(cs_pin, RS, axis_chain_index)
+      {}
     TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK,  axis_chain_index)
       {}
     inline uint16_t rms_current() { return TMC::rms_current(); }
     inline void rms_current(uint16_t mA) {
@@ -140,6 +146,9 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
           this->stored.homing_thrs = sgt_val;
         #endif
       }
+      #if ENABLED(SPI_ENDSTOPS)
+        bool test_stall_status();
+      #endif
     #endif
 
     #if HAS_LCD_MENU
@@ -160,7 +169,7 @@ template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(Stream * SerialPort, const float RS, const uint8_t) :
-      TMC2208Stepper(SerialPort, RS, /*has_rx=*/true)
+      TMC2208Stepper(SerialPort, RS)
       {}
     TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t, const bool has_rx=true) :
       TMC2208Stepper(RX, TX, RS, has_rx)
@@ -264,10 +273,10 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(const uint16_t cs_pin, const float RS) :
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
       TMC2660Stepper(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
       TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
     inline uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
@@ -355,8 +364,21 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
+
   // Track enabled status of stealthChop and only re-enable where applicable
   struct sensorless_t { bool x, y, z, x2, y2, z2, z3; };
+
+  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+    extern millis_t sg_guard_period;
+    constexpr uint16_t default_sg_guard_duration = 400;
+
+    struct slow_homing_t {
+      xy_ulong_t acceleration;
+      #if HAS_CLASSIC_JERK
+        xy_float_t jerk_xy;
+      #endif
+    };
+  #endif
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);
   void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);
@@ -366,7 +388,24 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
   bool tmc_enable_stallguard(TMC2660Stepper);
   void tmc_disable_stallguard(TMC2660Stepper, const bool);
-#endif
+
+  #if ENABLED(SPI_ENDSTOPS)
+
+    template<class TMC, char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    bool TMCMarlin<TMC, AXIS_LETTER, DRIVER_ID, AXIS_ID>::test_stall_status() {
+      this->switchCSpin(LOW);
+
+      // read stallGuard flag from TMC library, will handle HW and SW SPI
+      TMC2130_n::DRV_STATUS_t drv_status{0};
+      drv_status.sr = this->DRV_STATUS();
+
+      this->switchCSpin(HIGH);
+
+      return drv_status.stallGuard;
+    }
+  #endif // SPI_ENDSTOPS
+
+#endif // USE_SENSORLESS
 
 #if TMC_HAS_SPI
   void tmc_init_cs_pins();

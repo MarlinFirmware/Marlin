@@ -36,11 +36,11 @@
 
 // Numbers in parentheses () are the corresponding mega2560 pin numbers
 
-#ifndef TARGET_LPC1768
+#ifndef MCU_LPC1768
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME "Re-ARM RAMPS 1.4"
+#define BOARD_INFO_NAME "Re-ARM RAMPS 1.4"
 
 //
 // Servos
@@ -128,32 +128,50 @@
   // P2_08 E1-Step
   // P2_13 E1-Dir
 
-  #define X_SERIAL_TX_PIN  P2_13
-  #define X_SERIAL_RX_PIN  P2_13
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN  P0_01
+  #endif
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN  P0_01
+  #endif
 
-  #define Y_SERIAL_TX_PIN  P0_00
-  #define Y_SERIAL_RX_PIN  P0_00
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN  P0_00
+  #endif
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN  P0_00
+  #endif
 
-  #define Z_SERIAL_TX_PIN  P0_01
-  #define Z_SERIAL_RX_PIN  P0_01
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN  P2_13
+  #endif
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN  P2_13
+  #endif
 
-  #define E0_SERIAL_TX_PIN P2_08
-  #define E0_SERIAL_RX_PIN P2_08
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN P2_08
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN P2_08
+  #endif
 
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          0   // A0 (T0) - (67) - TEMP_0_PIN
-#define TEMP_BED_PIN        1   // A1 (T1) - (68) - TEMP_BED_PIN
-#define TEMP_1_PIN          2   // A2 (T2) - (69) - TEMP_1_PIN
-#define TEMP_2_PIN          3   // A3 - (63) - J5-3 & AUX-2
-#define TEMP_3_PIN          4   // A4 - (37) - BUZZER_PIN
-//#define TEMP_4_PIN          5   // A5 - (49) - SD_DETECT_PIN
-//#define ??                  6   // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
-#define FILWIDTH_PIN        7   // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
+#define TEMP_0_PIN          P0_23_A0   // A0 (T0) - (67) - TEMP_0_PIN
+#define TEMP_BED_PIN        P0_24_A1   // A1 (T1) - (68) - TEMP_BED_PIN
+#define TEMP_1_PIN          P0_25_A2   // A2 (T2) - (69) - TEMP_1_PIN
+#define TEMP_2_PIN          P0_26_A3   // A3 - (63) - J5-3 & AUX-2
+#define TEMP_3_PIN          P1_30_A4   // A4 - (37) - BUZZER_PIN
+//#define TEMP_4_PIN          P1_31_A5   // A5 - (49) - SD_DETECT_PIN
+//#define ??                  P0_03_A6   // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
+#define FILWIDTH_PIN        P0_02_A7   // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
 
 //
 // Augmentation for auto-assigning RAMPS plugs
@@ -225,9 +243,9 @@
 //
 #define LED_PIN            P4_28   // (13)
 
-// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+// define digital pin 5 for the filament runout sensor. Use the RAMPS 1.4 digital input 5 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   P1_18   // (4)
+  #define FIL_RUNOUT_PIN   P1_19   // (5)
 #endif
 
 #define PS_ON_PIN          P2_12   // (12)

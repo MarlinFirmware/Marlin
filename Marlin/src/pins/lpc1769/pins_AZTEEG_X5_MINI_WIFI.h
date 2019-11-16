@@ -25,11 +25,11 @@
  * Azteeg X5 MINI pin assignments
  */
 
-#ifndef LPC1769
+#ifndef MCU_LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_NAME "Azteeg X5 MINI WIFI"
+#define BOARD_INFO_NAME "Azteeg X5 MINI WIFI"
 
 //
 // DIGIPOT slave addresses

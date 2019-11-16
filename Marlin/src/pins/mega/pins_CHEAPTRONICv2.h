@@ -31,7 +31,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Cheaptronic v2.0"
+#define BOARD_INFO_NAME "Cheaptronic v2.0"
 
 //
 // Limit Switches
@@ -125,7 +125,6 @@
 #define BEEPER_PIN         44
 
 #if ENABLED(SDSUPPORT)
-  #define SDPOWER          -1
   #define SDSS             53
   #define SD_DETECT_PIN    49
 #endif

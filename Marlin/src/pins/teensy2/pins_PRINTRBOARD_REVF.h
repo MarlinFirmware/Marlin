@@ -71,7 +71,7 @@
   #error "USBCON should be defined by the platform for this board."
 #endif
 
-#define BOARD_NAME "Printrboard Rev.F"
+#define BOARD_INFO_NAME "Printrboard Rev.F"
 
 // Disable JTAG pins so EXP1 pins work correctly
 // (Its pins are used for the Extrudrboard and filament sensor, for example).
@@ -247,15 +247,9 @@
     //#define MISO         23   //         13               B3                ICSP-06             EXP2-05
 
     // increase delays
-    #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_NS(313)
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_NS(313)
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_NS(313)
-    #endif
+    #define BOARD_ST7920_DELAY_1 DELAY_NS(313)
+    #define BOARD_ST7920_DELAY_2 DELAY_NS(313)
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(313)
 
   #else
 

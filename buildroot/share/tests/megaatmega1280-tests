@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+# Build tests for AVR ATmega1280
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+#restore_configs
+#exec_test $1 $2 "Default Configuration"
+
+#
+# Test MESH_BED_LEVELING feature, with LCD
+#
+restore_configs
+opt_set LCD_LANGUAGE an
+opt_enable SPINDLE_FEATURE ULTIMAKERCONTROLLER LCD_BED_LEVELING \
+           MESH_BED_LEVELING ENABLE_LEVELING_FADE_HEIGHT MESH_G28_REST_ORIGIN \
+           G26_MESH_VALIDATION MESH_EDIT_MENU
+exec_test $1 $2 "Spindle, MESH_BED_LEVELING, and LCD"
+
+
+# clean up
+restore_configs

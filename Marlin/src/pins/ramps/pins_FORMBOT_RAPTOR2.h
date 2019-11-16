@@ -25,8 +25,8 @@
  * Formbot Raptor 2 pin assignments
  */
 
-#define BOARD_NAME           "Formbot Raptor2"
-#define DEFAULT_MACHINE_NAME BOARD_NAME
+#define BOARD_INFO_NAME      "Formbot Raptor2"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #define FAN_PIN             6
 
@@ -47,7 +47,7 @@
     #define SPINDLE_LASER_PWM_PIN     4 // Hardware PWM
     #define SPINDLE_DIR_PIN           5
   #elif !GREEDY_PANEL                   // Try to use AUX2
-    #define SPINDLE_LASER_ENA_PIN    40 // Pullup or pulldown!
+    #define SPINDLE_LASER_ENA_PIN     4 // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN    44 // Hardware PWM
     #define SPINDLE_DIR_PIN          65
   #endif

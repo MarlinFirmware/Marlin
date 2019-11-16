@@ -125,7 +125,7 @@ static void debug_rw(const bool write, int &pos, const uint8_t *value, const siz
 //    FR_INVALID_PARAMETER     /* (19) Given parameter is invalid */
 //  } FRESULT;
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   if (!eeprom_file_open) return true;
   FRESULT s;
   UINT bytes_written = 0;

@@ -36,7 +36,7 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "RuRAMPS4Due v1.1"
+#define BOARD_INFO_NAME "RuRAMPS4Due v1.1"
 
 //
 // Servos
@@ -118,7 +118,7 @@
 //#define E3_MS2_PIN         ?
 //#define E3_MS3_PIN         ?
 
-#if USES_Z_MIN_PROBE_ENDSTOP
+#if HAS_CUSTOM_PROBE_PIN
   #define Z_MIN_PROBE_PIN  49
 #endif
 

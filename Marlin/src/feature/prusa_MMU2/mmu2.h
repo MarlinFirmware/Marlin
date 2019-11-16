@@ -27,6 +27,14 @@
   #include "../runout.h"
 #endif
 
+#if SERIAL_USB
+  #define MMU_RX_SIZE 256
+  #define MMU_TX_SIZE 256
+#else
+  #define MMU_RX_SIZE  16
+  #define MMU_TX_SIZE  16
+#endif
+
 struct E_Step;
 
 class MMU2 {
@@ -61,7 +69,7 @@ private:
   static void check_version();
 
   static void command(const uint8_t cmd);
-  static bool get_response(void);
+  static bool get_response();
   static void manage_response(const bool move_axes, const bool turn_off_nozzle);
 
   #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
@@ -79,7 +87,7 @@ private:
   static volatile bool finda_runout_valid;
   static int16_t version, buildnr;
   static millis_t last_request, next_P0_request;
-  static char rx_buffer[16], tx_buffer[16];
+  static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 
   static inline void set_runout_valid(const bool valid) {
     finda_runout_valid = valid;

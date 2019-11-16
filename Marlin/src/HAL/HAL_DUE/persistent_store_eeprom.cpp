@@ -33,7 +33,7 @@
   #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
 #endif
 
-extern void eeprom_flush(void);
+extern void eeprom_flush();
 
 bool PersistentStore::access_start() { return true; }
 

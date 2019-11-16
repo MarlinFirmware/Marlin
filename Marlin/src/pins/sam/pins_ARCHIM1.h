@@ -41,7 +41,13 @@
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Archim 1.0"
+#define BOARD_INFO_NAME "Archim 1.0"
+
+//
+// Timers
+//
+#define STEP_TIMER_NUM 3
+#define HAL_STEP_TIMER_ISR()  void TC3_Handler()
 
 //
 // Items marked * have been altered from Archim v1.0

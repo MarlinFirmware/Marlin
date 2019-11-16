@@ -83,6 +83,7 @@
  * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
  * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
  * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
+ * M16  - Expected printer check. (Requires EXPECTED_PRINTER_CHECK)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -131,7 +132,7 @@
  *        If AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
  * M110 - Set the current line number. (Used by host printing)
  * M111 - Set debug flags: "M111 S<flagbits>". See flag bits defined in enum.h.
- * M112 - Emergency stop.
+ * M112 - Full Shutdown.
  * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
  * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
@@ -212,6 +213,7 @@
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
+ * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -228,7 +230,7 @@
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
- * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
  * M861 - Report the status of position encoder modules.
@@ -274,7 +276,6 @@
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
  */
-#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
@@ -283,12 +284,31 @@
   #include "../feature/I2CPositionEncoder.h"
 #endif
 
+enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
+
 class GcodeSuite {
 public:
 
-  GcodeSuite() {}
+  static uint8_t axis_relative;
 
-  static bool axis_relative_modes[];
+  static inline bool axis_is_relative(const AxisEnum a) {
+    if (a == E_AXIS) {
+      if (TEST(axis_relative, E_MODE_REL)) return true;
+      if (TEST(axis_relative, E_MODE_ABS)) return false;
+    }
+    return TEST(axis_relative, a);
+  }
+  static inline void set_relative_mode(const bool rel) {
+    axis_relative = rel ? _BV(REL_X) | _BV(REL_Y) | _BV(REL_Z) | _BV(REL_E) : 0;
+  }
+  static inline void set_e_relative() {
+    CBI(axis_relative, E_MODE_ABS);
+    SBI(axis_relative, E_MODE_REL);
+  }
+  static inline void set_e_absolute() {
+    CBI(axis_relative, E_MODE_REL);
+    SBI(axis_relative, E_MODE_ABS);
+  }
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     /**
@@ -302,7 +322,7 @@ public:
   #define MAX_COORDINATE_SYSTEMS 9
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     static int8_t active_coordinate_system;
-    static float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+    static xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
@@ -320,7 +340,10 @@ public:
   static void process_subcommands_now_P(PGM_P pgcode);
   static void process_subcommands_now(char * gcode);
 
-  static inline void home_all_axes() { process_subcommands_now_P(PSTR("G28")); }
+  static inline void home_all_axes() {
+    extern const char G28_STR[];
+    process_subcommands_now_P(G28_STR);
+  }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
@@ -351,7 +374,7 @@ private:
 
   static void G0_G1(
     #if IS_SCARA || defined(G0_FEEDRATE)
-      bool fast_move=false
+      const bool fast_move=false
     #endif
   );
 
@@ -473,6 +496,10 @@ private:
     static void M12();
   #endif
 
+  #if ENABLED(EXPECTED_PRINTER_CHECK)
+    static void M16();
+  #endif
+
   static void M17();
 
   static void M18_M84();
@@ -525,7 +552,7 @@ private:
     static void M78();
   #endif
 
-  #if HAS_POWER_SWITCH
+  #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
 
@@ -539,10 +566,17 @@ private:
     static void M100();
   #endif
 
-  static void M104();
+  #if EXTRUDERS
+    static void M104();
+    static void M109();
+  #endif
+
   static void M105();
-  static void M106();
-  static void M107();
+
+  #if FAN_COUNT > 0
+    static void M106();
+    static void M107();
+  #endif
 
   #if DISABLED(EMERGENCY_PARSER)
     static void M108();
@@ -552,8 +586,6 @@ private:
       static void M876();
     #endif
   #endif
-
-  static void M109();
 
   static void M110();
   static void M111();
@@ -592,10 +624,10 @@ private:
 
   #if HAS_HEATED_CHAMBER
     static void M141();
-    //static void M191();
+    static void M191();
   #endif
 
-  #if HAS_LCD_MENU
+  #if HOTENDS && HAS_LCD_MENU
     static void M145();
   #endif
 
@@ -656,7 +688,11 @@ private:
   #endif
 
   static void M220();
-  static void M221();
+
+  #if EXTRUDERS
+    static void M221();
+  #endif
+
   static void M226();
 
   #if ENABLED(PHOTO_GCODE)
@@ -764,6 +800,10 @@ private:
     static void M428();
   #endif
 
+  #if ENABLED(CANCEL_OBJECTS)
+    static void M486();
+  #endif
+
   static void M500();
   static void M501();
   static void M502();
@@ -780,6 +820,10 @@ private:
 
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
     static void M540();
+  #endif
+
+  #if ENABLED(BAUD_RATE_GCODE)
+    static void M575();
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)

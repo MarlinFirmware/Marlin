@@ -22,8 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-
-constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#include "../core/types.h"
 
 // Delay that ensures heaters and watchdog are kept alive
 void safe_delay(millis_t ms);
@@ -37,10 +36,25 @@ inline void serial_delay(const millis_t ms) {
   #endif
 }
 
-// 16x16 bit arrays
-FORCE_INLINE void bitmap_clear(uint16_t bits[16], const uint8_t x, const uint8_t y)  { CBI(bits[y], x); }
-FORCE_INLINE void bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y)    { SBI(bits[y], x); }
-FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
+#if GRID_MAX_POINTS_X && GRID_MAX_POINTS_Y
+
+  // 16x16 bit arrays
+  template <int W, int H>
+  struct FlagBits {
+    typename IF<(W>8), uint16_t, uint8_t>::type bits[H];
+    void fill()                                   { memset(bits, 0xFF, sizeof(bits)); }
+    void reset()                                  { memset(bits, 0x00, sizeof(bits)); }
+    void unmark(const uint8_t x, const uint8_t y) { CBI(bits[y], x); }
+    void mark(const uint8_t x, const uint8_t y)   { SBI(bits[y], x); }
+    bool marked(const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
+    inline void unmark(const xy_int8_t &xy)       { unmark(xy.x, xy.y); }
+    inline void mark(const xy_int8_t &xy)         { mark(xy.x, xy.y); }
+    inline bool marked(const xy_int8_t &xy)       { return marked(xy.x, xy.y); }
+  };
+
+  typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;
+
+#endif
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void log_machine_info();
@@ -59,7 +73,7 @@ public:
   inline void restore() { ref_ = val_; }
 };
 
-#define REMEMBER(N,X, ...) restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
+#define REMEMBER(N,X,V...) const restorer<typeof(X)> restorer_##N(X, ##V)
 #define RESTORE(N) restorer_##N.restore()
 
 // Converts from an uint8_t in the range of 0-255 to an uint8_t

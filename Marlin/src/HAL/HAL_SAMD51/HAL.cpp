@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,8 +22,8 @@
 #ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
-#include "Adafruit_ZeroDMA.h"
-#include "wiring_private.h"
+#include <Adafruit_ZeroDMA.h>
+#include <wiring_private.h>
 
 // ------------------------
 // Local defines
@@ -59,12 +59,12 @@
 #else
   #define GET_TEMP_5_ADC()          -1
 #endif
-#if HAS_HEATED_BED
+#if HAS_TEMP_ADC_BED
   #define GET_BED_ADC()             PIN_TO_ADC(TEMP_BED_PIN)
 #else
   #define GET_BED_ADC()             -1
 #endif
-#if HAS_HEATED_CHAMBER
+#if HAS_TEMP_ADC_CHAMBER
   #define GET_CHAMBER_ADC()         PIN_TO_ADC(TEMP_CHAMBER_PIN)
 #else
   #define GET_CHAMBER_ADC()         -1
@@ -193,8 +193,8 @@ uint16_t HAL_adc_result;
   uint16_t HAL_adc_results[COUNT(adc_pins)];
 
   #if ADC0_IS_REQUIRED
-    Adafruit_ZeroDMA adc0ProgramDMA,
-                     adc0ReadDMA;
+    Adafruit_ZeroDMA adc0DMAProgram,
+                     adc0DMARead;
 
     const HAL_DMA_DAC_Registers adc0_dma_regs_list[] = {
       #if GET_TEMP_0_ADC() == 0
@@ -233,8 +233,8 @@ uint16_t HAL_adc_result;
   #endif // ADC0_IS_REQUIRED
 
   #if ADC1_IS_REQUIRED
-    Adafruit_ZeroDMA adc1ProgramDMA,
-                     adc1ReadDMA;
+    Adafruit_ZeroDMA adc1DMAProgram,
+                     adc1DMARead;
 
     const HAL_DMA_DAC_Registers adc1_dma_regs_list[] = {
       #if GET_TEMP_0_ADC() == 1
@@ -284,11 +284,11 @@ uint16_t HAL_adc_result;
     DmacDescriptor *descriptor;
 
     #if ADC0_IS_REQUIRED
-      adc0ProgramDMA.setTrigger(ADC0_DMAC_ID_SEQ);
-      adc0ProgramDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc0ProgramDMA.loop(true);
-      if (adc0ProgramDMA.allocate() == DMA_STATUS_OK) {
-        descriptor = adc0ProgramDMA.addDescriptor(
+      adc0DMAProgram.setTrigger(ADC0_DMAC_ID_SEQ);
+      adc0DMAProgram.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc0DMAProgram.loop(true);
+      if (adc0DMAProgram.allocate() == DMA_STATUS_OK) {
+        descriptor = adc0DMAProgram.addDescriptor(
           (void *)adc0_dma_regs_list,         // SRC
           (void *)&ADC0->DSEQDATA.reg,        // DEST
           sizeof(adc0_dma_regs_list) / 4,     // CNT
@@ -300,14 +300,14 @@ uint16_t HAL_adc_result;
         );
         if (descriptor != nullptr)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
-        adc0ProgramDMA.startJob();
+        adc0DMAProgram.startJob();
       }
 
-      adc0ReadDMA.setTrigger(ADC0_DMAC_ID_RESRDY);
-      adc0ReadDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc0ReadDMA.loop(true);
-      if (adc0ReadDMA.allocate() == DMA_STATUS_OK) {
-        adc0ReadDMA.addDescriptor(
+      adc0DMARead.setTrigger(ADC0_DMAC_ID_RESRDY);
+      adc0DMARead.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc0DMARead.loop(true);
+      if (adc0DMARead.allocate() == DMA_STATUS_OK) {
+        adc0DMARead.addDescriptor(
           (void *)&ADC0->RESULT.reg,          // SRC
           &HAL_adc_results,                   // DEST
           ADC0_AINCOUNT,                      // CNT
@@ -317,15 +317,15 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_DST                     // STEPSEL
         );
-        adc0ReadDMA.startJob();
+        adc0DMARead.startJob();
       }
     #endif
     #if ADC1_IS_REQUIRED
-      adc1ProgramDMA.setTrigger(ADC1_DMAC_ID_SEQ);
-      adc1ProgramDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc1ProgramDMA.loop(true);
-      if (adc1ProgramDMA.allocate() == DMA_STATUS_OK) {
-        descriptor = adc1ProgramDMA.addDescriptor(
+      adc1DMAProgram.setTrigger(ADC1_DMAC_ID_SEQ);
+      adc1DMAProgram.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc1DMAProgram.loop(true);
+      if (adc1DMAProgram.allocate() == DMA_STATUS_OK) {
+        descriptor = adc1DMAProgram.addDescriptor(
           (void *)adc1_dma_regs_list,         // SRC
           (void *)&ADC1->DSEQDATA.reg,        // DEST
           sizeof(adc1_dma_regs_list) / 4,     // CNT
@@ -337,14 +337,14 @@ uint16_t HAL_adc_result;
         );
         if (descriptor != nullptr)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
-        adc1ProgramDMA.startJob();
+        adc1DMAProgram.startJob();
       }
 
-      adc1ReadDMA.setTrigger(ADC1_DMAC_ID_RESRDY);
-      adc1ReadDMA.setAction(DMA_TRIGGER_ACTON_BEAT);
-      adc1ReadDMA.loop(true);
-      if (adc1ReadDMA.allocate() == DMA_STATUS_OK) {
-        adc1ReadDMA.addDescriptor(
+      adc1DMARead.setTrigger(ADC1_DMAC_ID_RESRDY);
+      adc1DMARead.setAction(DMA_TRIGGER_ACTON_BEAT);
+      adc1DMARead.loop(true);
+      if (adc1DMARead.allocate() == DMA_STATUS_OK) {
+        adc1DMARead.addDescriptor(
           (void *)&ADC1->RESULT.reg,          // SRC
           &HAL_adc_results[ADC0_AINCOUNT],    // DEST
           ADC1_AINCOUNT,                      // CNT
@@ -354,11 +354,11 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_DST                     // STEPSEL
         );
-        adc1ReadDMA.startJob();
+        adc1DMARead.startJob();
       }
     #endif
 
-    DMAC->PRICTRL0.bit.RRLVLEN0 = true;                         // Activate round robin for DMA channels used by ADCs
+    DMAC->PRICTRL0.bit.RRLVLEN0 = true;                         // Activate round robin for DMA channels required by ADCs
   }
 
 #endif // DMA_IS_REQUIRED
@@ -368,12 +368,13 @@ uint16_t HAL_adc_result;
 // ------------------------
 
 // HAL initialization task
-void HAL_init(void) {
+void HAL_init() {
   #if DMA_IS_REQUIRED
     dma_init();
   #endif
   #if ENABLED(SDSUPPORT)
-    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)    // SD_DETECT_PIN may be remove when NO_SD_HOST_DRIVE is not defined in configuration_adv
+    // SD_DETECT_PIN may be removed if NO_SD_HOST_DRIVE is not defined in Configuration_adv.h
+    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
@@ -382,15 +383,15 @@ void HAL_init(void) {
 
 // HAL idle task
 /*
-void HAL_idletask(void) {
+void HAL_idletask() {
 }
 */
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
 #pragma push_macro("WDT")
-#undef WDT    // Required to be able to use '.bit.WDT'. Compiler wrongly replace struct field with WDT define 
-uint8_t HAL_get_reset_source(void) {
+#undef WDT    // Required to be able to use '.bit.WDT'. Compiler wrongly replace struct field with WDT define
+uint8_t HAL_get_reset_source() {
   RSTC_RCAUSE_Type resetCause;
 
   resetCause.reg = REG_RSTC_RCAUSE;
@@ -413,14 +414,14 @@ extern "C" {
 // Return free memory between end of heap (or end bss) and whatever is current
 int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
-  return (int)&free_memory - (heap_end ? heap_end : (int)&__bss_end__);
+  return (int)&free_memory - (heap_end ?: (int)&__bss_end__);
 }
 
 // ------------------------
 // ADC
 // ------------------------
 
-void HAL_adc_init(void) {
+void HAL_adc_init() {
   #if ADC_IS_REQUIRED
     memset(HAL_adc_results, 0xFF, sizeof(HAL_adc_results));                 // Fill result with invalid values
 
@@ -441,9 +442,11 @@ void HAL_adc_init(void) {
       // Preloaded data (fixed for all ADC instances hence not loaded by DMA)
       adc->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;               // VRefA pin
       SYNC(adc->SYNCBUSY.bit.REFCTRL);
-      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
       SYNC(adc->SYNCBUSY.bit.CTRLB);
       adc->SAMPCTRL.bit.SAMPLEN = (6 - 1);                                  // Sampling clocks
+      adc->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_16 | ADC_AVGCTRL_ADJRES(4);  // 16 Accumulated conversions and shift 4 to get oversampled 12 bits result
+      SYNC(adc->SYNCBUSY.bit.AVGCTRL);
       // Registers loaded by DMA
       adc->DSEQCTRL.bit.INPUTCTRL = true;
 
@@ -468,7 +471,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = 0xFFFF;
 }
 
-uint16_t HAL_adc_get_result(void) {
+uint16_t HAL_adc_get_result() {
   return HAL_adc_result;
 }
 

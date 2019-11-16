@@ -67,12 +67,14 @@
 
 #define AXIS_DRIVER_TYPE(A,T) AXIS_DRIVER_TYPE_##A(T)
 
+#define HAS_E_DRIVER(T) (  AXIS_DRIVER_TYPE_E0(T) || AXIS_DRIVER_TYPE_E1(T) \
+                        || AXIS_DRIVER_TYPE_E2(T) || AXIS_DRIVER_TYPE_E3(T) \
+                        || AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) )
+
 #define HAS_DRIVER(T) (    AXIS_DRIVER_TYPE_X(T)  || AXIS_DRIVER_TYPE_X2(T) \
                         || AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Y2(T) \
                         || AXIS_DRIVER_TYPE_Z(T)  || AXIS_DRIVER_TYPE_Z2(T) || AXIS_DRIVER_TYPE_Z3(T) \
-                        || AXIS_DRIVER_TYPE_E0(T) || AXIS_DRIVER_TYPE_E1(T) \
-                        || AXIS_DRIVER_TYPE_E2(T) || AXIS_DRIVER_TYPE_E3(T) \
-                        || AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) )
+                        || HAS_E_DRIVER(T) )
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
@@ -119,6 +121,19 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
+#define HAS_TMC_E_DRIVER (    HAS_E_DRIVER(TMC2130) \
+                           || HAS_E_DRIVER(TMC2160) \
+                           || HAS_E_DRIVER(TMC2660) \
+                           || HAS_E_DRIVER(TMC2209) \
+                           || HAS_E_DRIVER(TMC5130) \
+                           || HAS_E_DRIVER(TMC5160) )
+
+#define HAS_TMC_STANDALONE_E_DRIVER  (    HAS_E_DRIVER(TMC2130_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC2160_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC2660_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC2209_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC5130_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC5160_STANDALONE) )
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options
 //

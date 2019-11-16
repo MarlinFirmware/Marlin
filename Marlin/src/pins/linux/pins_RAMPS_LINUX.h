@@ -45,8 +45,8 @@
  *         7 | 11
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "RAMPS 1.4"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
 #define E2END 0xFFF // 4KB
@@ -437,7 +437,7 @@
     #endif
 
     #if DISABLED(NEWPANEL)
-      // Buttons are attached to a shift register
+      // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK       38
       //#define SHIFT_LD        42

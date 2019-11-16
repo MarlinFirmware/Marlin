@@ -56,7 +56,7 @@ uint8_t _getc();
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "HAL_timers.h"
+#include "timers.h"
 #include "serial.h"
 
 #define SHARED_SERVOS HAS_SERVOS
@@ -78,29 +78,29 @@ extern HalSerial usb_serial;
 #define ENABLE_ISRS()
 #define DISABLE_ISRS()
 
-inline void HAL_init(void) { }
+inline void HAL_init() {}
 
 // Utility functions
-int freeMemory(void);
-
-// SPI: Extended functions which take a channel number (hardware SPI only)
-/** Write single byte to specified SPI channel */
-void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
-uint8_t spiRec(uint32_t chan);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+int freeMemory();
+#pragma GCC diagnostic pop
 
 // ADC
 #define HAL_ANALOG_SELECT(pin) HAL_adc_enable_channel(pin)
 #define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION     10
 #define HAL_READ_ADC()         HAL_adc_get_result()
 #define HAL_ADC_READY()        true
 
-void HAL_adc_init(void);
+void HAL_adc_init();
 void HAL_adc_enable_channel(int pin);
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
+
+// Reset source
+inline void HAL_clear_reset_source(void) {}
+inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 
 /* ---------------- Delay in cycles */
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {

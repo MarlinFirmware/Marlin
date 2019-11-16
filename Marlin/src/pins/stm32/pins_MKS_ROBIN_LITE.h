@@ -29,10 +29,10 @@
   #error "MKS Robin Lite supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "MKS Robin Lite"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS Robin Lite"
 #endif
-#define BOARD_WEBSITE_URL "https://github.com/makerbase-mks"
+#define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -132,12 +132,8 @@
 #define MOSI_PIN           P1B5
 #define SS_PIN             PA15
 
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(125)
+#if HAS_GRAPHICAL_LCD
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif

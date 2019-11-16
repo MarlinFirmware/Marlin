@@ -416,8 +416,7 @@ void InvadersGame::game_screen() {
     // Draw Score
     //const uint8_t sx = (LCD_PIXEL_WIDTH - (score >= 10 ? score >= 100 ? score >= 1000 ? 4 : 3 : 2 : 1) * MENU_FONT_WIDTH) / 2;
     constexpr uint8_t sx = 0;
-    lcd_moveto(sx, MENU_FONT_ASCENT - 1);
-    lcd_put_int(score);
+    lcd_put_int(sx, MENU_FONT_ASCENT - 1, score);
 
     // Draw lives
     if (idat.cannons_left)

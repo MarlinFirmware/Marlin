@@ -26,7 +26,7 @@
  * extruder motors due to dual Z motors. Pinout therefore based on pins_RUMBA.h.
  */
 
-#define BOARD_NAME "RL200"
+#define BOARD_INFO_NAME "RL200"
 #define DEFAULT_MACHINE_NAME "Rapide Lite 200"
 
 #if HOTENDS > 2 || E_STEPPERS > 2

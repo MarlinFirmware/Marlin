@@ -28,8 +28,8 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_STM32.h"
-#include "watchdog_STM32.h"
+#include "fastio.h"
+#include "watchdog.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -96,7 +96,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#include "HAL_timers_STM32.h"
+#include "timers.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -136,7 +136,7 @@ typedef int16_t pin_t;
 // Public Variables
 // ------------------------
 
-/** result of last ADC conversion */
+// result of last ADC conversion
 extern uint16_t HAL_adc_result;
 
 // ------------------------
@@ -147,33 +147,27 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 // Enable hooks into  setup for HAL
-void HAL_init(void);
+void HAL_init();
 
-/** clear reset reason */
-void HAL_clear_reset_source (void);
+// Clear reset reason
+void HAL_clear_reset_source();
 
-/** reset reason */
-uint8_t HAL_get_reset_source(void);
+// Reset reason
+uint8_t HAL_get_reset_source();
 
 void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 
 static inline int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
-//
-// SPI: Extended functions which take a channel number (hardware SPI only)
-//
-
-/** Write single byte to specified SPI channel */
-void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
-uint8_t spiRec(uint32_t chan);
+#pragma GCC diagnostic pop
 
 //
 // EEPROM
@@ -182,8 +176,8 @@ uint8_t spiRec(uint32_t chan);
 // Wire library should work for i2c EEPROMs
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
+void eeprom_read_block(void *__dst, const void *__src, size_t __n);
+void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 //
 // ADC
@@ -191,16 +185,20 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
-inline void HAL_adc_init(void) {}
+inline void HAL_adc_init() {}
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);

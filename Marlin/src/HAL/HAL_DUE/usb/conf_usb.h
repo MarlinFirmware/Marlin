@@ -48,9 +48,7 @@
 #define _CONF_USB_H_
 
 #undef UNUSED                           /* To avoid a macro clash as macros.h already defines it */
-#include "../../../core/macros.h"       /* For ENABLED()/DISABLED() */
-#include "../../../core/boards.h"       /* For MB() */
-#include "../../../../Configuration.h"  /* For CUSTOM_MACHINE_NAME definition - We just need the name, no C++ allowed! */
+#include "../../../inc/MarlinConfigPre.h"
 #include "compiler.h"
 
 /**
@@ -59,8 +57,6 @@
  */
 
 //! Device definition (mandatory)
-#define  USB_DEVICE_VENDOR_ID             0x03EB /* ATMEL VID */
-#define  USB_DEVICE_PRODUCT_ID            0x2424 /* MSC / CDC */
 #define  USB_DEVICE_MAJOR_VERSION         1
 #define  USB_DEVICE_MINOR_VERSION         0
 #define  USB_DEVICE_POWER                 100 // Consumption on Vbus line (mA)
@@ -69,15 +65,6 @@
 // (USB_CONFIG_ATTR_BUS_POWERED)
 //  (USB_CONFIG_ATTR_REMOTE_WAKEUP|USB_CONFIG_ATTR_SELF_POWERED)
 //  (USB_CONFIG_ATTR_REMOTE_WAKEUP|USB_CONFIG_ATTR_BUS_POWERED)
-
-//! USB Device string definitions (Optional)
-#define  USB_DEVICE_MANUFACTURE_NAME      "marlinfw.org"
-#ifdef CUSTOM_MACHINE_NAME
-  #define  USB_DEVICE_PRODUCT_NAME        CUSTOM_MACHINE_NAME
-#else
-  #define  USB_DEVICE_PRODUCT_NAME        "3D Printer"
-#endif
-#define  USB_DEVICE_SERIAL_NAME           "123985739853"
 
 /**
  * Device speeds support

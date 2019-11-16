@@ -25,7 +25,7 @@
  * Melzi (Malyan M150) pin assignments
  */
 
-#define BOARD_NAME "Melzi (Malyan)"
+#define BOARD_INFO_NAME "Melzi (Malyan)"
 #include "pins_MELZI.h"
 
 #undef LCD_SDSS
@@ -44,12 +44,8 @@
 #define BTN_ENC            28
 
 // Alter timing for graphical display
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(125)
+#if HAS_GRAPHICAL_LCD
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif

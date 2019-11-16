@@ -23,7 +23,7 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "HAL.h"
-#include "HAL_timers_ESP32.h"
+#include "timers.h"
 #include <rom/rtc.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
@@ -78,11 +78,11 @@ volatile int numPWMUsed = 0,
 // Public functions
 // ------------------------
 
-void HAL_init(void) {
+void HAL_init() {
   i2s_init();
 }
 
-void HAL_init_board(void) {
+void HAL_init_board() {
   #if EITHER(EEPROM_SETTINGS, WEBSUPPORT)
     spiffs_init();
   #endif
@@ -99,15 +99,15 @@ void HAL_init_board(void) {
   #endif
 }
 
-void HAL_idletask(void) {
+void HAL_idletask() {
   #if ENABLED(OTASUPPORT)
     OTA_handle();
   #endif
 }
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
-uint8_t HAL_get_reset_source(void) { return rtc_get_reset_reason(1); }
+uint8_t HAL_get_reset_source() { return rtc_get_reset_reason(1); }
 
 void _delay_ms(int delay_ms) { delay(delay_ms); }
 
@@ -187,19 +187,21 @@ void HAL_adc_start_conversion(uint8_t adc_pin) {
   const adc1_channel_t chan = get_channel(adc_pin);
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
+  HAL_adc_result = mv * 1023.0 / 3300.0;
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;
   if (mv < thresholds[ADC_ATTEN_DB_0] - 100)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_0);
+    atten = ADC_ATTEN_DB_0;
   else if (mv > thresholds[ADC_ATTEN_DB_0] - 50 && mv < thresholds[ADC_ATTEN_DB_2_5] - 100)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_2_5);
+    atten = ADC_ATTEN_DB_2_5;
   else if (mv > thresholds[ADC_ATTEN_DB_2_5] - 50 && mv < thresholds[ADC_ATTEN_DB_6] - 100)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_6);
+    atten = ADC_ATTEN_DB_6;
   else if (mv > thresholds[ADC_ATTEN_DB_6] - 50)
-    adc1_set_attenuation(chan, ADC_ATTEN_DB_11);
+    atten = ADC_ATTEN_DB_11;
+  else return;
 
-  HAL_adc_result = mv * 1023.0 / 3300.0;
+  adc1_set_attenuation(chan, atten);
 }
 
 void analogWrite(pin_t pin, int value) {

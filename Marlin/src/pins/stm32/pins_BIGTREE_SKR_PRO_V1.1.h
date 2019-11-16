@@ -27,9 +27,11 @@
   #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
 #endif
 
-#define BOARD_NAME "BIGTREE SKR Pro 1.1"
+#define BOARD_INFO_NAME "BIGTREE SKR Pro 1.1" // redefined?
 
-#define SRAM_EEPROM_EMULATION
+// Use one of these or SDCard-based Emulation will be used
+//#define SRAM_EEPROM_EMULATION   // Use BackSRAM-based EEPROM emulation
+//#define FLASH_EEPROM_EMULATION  // Use Flash-based EEPROM emulation
 
 //
 // Servos
@@ -152,6 +154,9 @@
 
   #define E2_SERIAL_TX_PIN PD6
   #define E2_SERIAL_RX_PIN PD6
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //
@@ -205,6 +210,13 @@
     #define LCD_PINS_ENABLE PG7
     #define LCD_PINS_D4    PG3
 
+    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
+    // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
+    #undef ST7920_DELAY_1
+    #undef ST7920_DELAY_2
+    #undef ST7920_DELAY_3
+
+
   #else
 
     #define LCD_PINS_RS    PD10
@@ -218,6 +230,26 @@
     #define LCD_PINS_ENABLE PD11
     #define LCD_PINS_D4    PG2
 
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS    PD11
+      #define DOGLCD_A0    PD10
+      //#define LCD_BACKLIGHT_PIN -1
+      #define LCD_RESET_PIN PG2   // Must be high or open for LCD to operate normally.
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN PG3
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN PG6
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN PG7
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN    PG3
+      #endif
+    #endif // !FYSETC_MINI_12864
+
     #if ENABLED(ULTIPANEL)
       #define LCD_PINS_D5  PG3
       #define LCD_PINS_D6  PG6
@@ -228,15 +260,9 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+    #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
   #endif
 
 #endif // HAS_SPI_LCD

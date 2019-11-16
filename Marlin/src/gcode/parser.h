@@ -34,6 +34,14 @@
   #include "../libs/hex_print_routines.h"
 #endif
 
+#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
+  typedef enum : uint8_t { TEMPUNIT_C, TEMPUNIT_K, TEMPUNIT_F } TempUnit;
+#endif
+
+#if ENABLED(INCH_MODE_SUPPORT)
+  typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
+#endif
+
 /**
  * GCode parser
  *
@@ -254,7 +262,6 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
-
     static inline float mm_to_linear_unit(const float mm)     { return mm / linear_unit_factor; }
     static inline float mm_to_volumetric_unit(const float mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
 
@@ -263,13 +270,9 @@ public:
 
     static inline void set_input_linear_units(const LinearUnit units) {
       switch (units) {
-        case LINEARUNIT_INCH:
-          linear_unit_factor = 25.4f;
-          break;
-        case LINEARUNIT_MM:
         default:
-          linear_unit_factor = 1;
-          break;
+        case LINEARUNIT_MM:   linear_unit_factor =  1.0f; break;
+        case LINEARUNIT_INCH: linear_unit_factor = 25.4f; break;
       }
       volumetric_unit_factor = POW(linear_unit_factor, 3);
     }
@@ -287,9 +290,9 @@ public:
     static inline float mm_to_linear_unit(const float mm)     { return mm; }
     static inline float mm_to_volumetric_unit(const float mm) { return mm; }
 
-    static inline float linear_value_to_mm(const float v)                    { return v; }
-    static inline float axis_value_to_mm(const AxisEnum axis, const float v) { UNUSED(axis); return v; }
-    static inline float per_axis_value(const AxisEnum axis, const float v)   { UNUSED(axis); return v; }
+    static inline float linear_value_to_mm(const float v)               { return v; }
+    static inline float axis_value_to_mm(const AxisEnum, const float v) { return v; }
+    static inline float per_axis_value(const AxisEnum, const float v)   { return v; }
 
   #endif
 
@@ -302,7 +305,7 @@ public:
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
 
-    static inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
+    static inline void set_input_temp_units(const TempUnit units) { input_temp_units = units; }
 
     #if HAS_LCD_MENU && DISABLED(DISABLE_M503)
 
@@ -361,7 +364,7 @@ public:
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
-  static inline float value_feedrate() { return value_linear_units(); }
+  static inline feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 
   void unknown_command_error();
 

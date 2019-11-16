@@ -2,7 +2,7 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F407xx",
+    "extra_flags": "-DSTM32F4 -DSTM32F407xx -DSTM32F40_41xxx",
     "f_cpu": "168000000L",
     "hwids": [
       [
@@ -16,34 +16,15 @@
     ],
     "ldscript": "stm32f407xg.ld",
     "mcu": "stm32f407zgt6",
-    "variant": "BIGTREE_GENERIC_STM32F407_5X"
+    "variant": "BIGTREE_SKR_PRO_1v1"
   },
   "debug": {
     "jlink_device": "STM32F407ZG",
     "openocd_target": "stm32f4x",
-    "svd_path": "STM32F40x.svd",
-    "tools": {
-      "stlink": {
-        "server": {
-          "arguments": [
-            "-f",
-            "scripts/interface/stlink.cfg",
-            "-c",
-            "transport select hla_swd",
-            "-f",
-            "scripts/target/stm32f4x.cfg",
-            "-c",
-            "reset_config none"
-          ],
-          "executable": "bin/openocd",
-          "package": "tool-openocd"
-        }
-      }
-    }
+    "svd_path": "STM32F40x.svd"
   },
   "frameworks": [
-    "arduino",
-    "stm32cube"
+    "arduino"
   ],
   "name": "STM32F407ZG (192k RAM. 1024k Flash)",
   "upload": {

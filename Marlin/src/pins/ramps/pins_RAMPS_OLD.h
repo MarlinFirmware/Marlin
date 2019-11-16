@@ -29,7 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "RAMPS <1.2"
+#define BOARD_INFO_NAME "RAMPS <1.2"
 
 // Uncomment the following line for RAMPS v1.0
 //#define RAMPS_V_1_0
@@ -103,7 +103,7 @@
 //
 // Misc. Functions
 //
-#define SDPOWER            48
+#define SDPOWER_PIN        48
 #define SDSS               53
 #define LED_PIN            13
 #define CASE_LIGHT_PIN     45   // Hardware PWM

@@ -124,9 +124,9 @@ class Endstops {
     static void event_handler();
 
     /**
-     * Report endstop positions in response to M119
+     * Report endstop states in response to M119
      */
-    static void M119();
+    static void report_states();
 
     // Enable / disable endstop checking globally
     static void enable_globally(const bool onoff=true);
@@ -160,6 +160,18 @@ class Endstops {
       static bool monitor_flag;
       static void monitor();
       static void run_monitor();
+    #endif
+
+    #if ENABLED(SPI_ENDSTOPS)
+      typedef struct {
+        union {
+          bool any;
+          struct { bool x:1, y:1, z:1; };
+        };
+      } tmc_spi_homing_t;
+      static tmc_spi_homing_t tmc_spi_homing;
+      static void clear_endstop_state();
+      static bool tmc_spi_homing_check();
     #endif
 };
 

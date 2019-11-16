@@ -36,8 +36,12 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-void _man_probe_pt(const float &rx, const float &ry) {
-  do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
+#endif
+
+void _man_probe_pt(const xy_pos_t &xy) {
+  do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
   ui.synchronize();
   move_menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
   ui.goto_screen(lcd_move_z);
@@ -47,17 +51,20 @@ void _man_probe_pt(const float &rx, const float &ry) {
 
   #include "../../gcode/gcode.h"
 
-  float lcd_probe_pt(const float &rx, const float &ry) {
-    _man_probe_pt(rx, ry);
+  float lcd_probe_pt(const xy_pos_t &xy) {
+    _man_probe_pt(xy);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     ui.defer_status_screen();
     wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), PSTR("Continue"));
     #endif
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress"));
+    #endif
     while (wait_for_user) idle();
     ui.goto_previous_screen_no_defer();
-    return current_position[Z_AXIS];
+    return current_position.z;
   }
 
 #endif
@@ -72,62 +79,65 @@ void _man_probe_pt(const float &rx, const float &ry) {
   }
 
   void _lcd_delta_calibrate_home() {
-    queue.inject_P(PSTR("G28"));
+    queue.inject_P(G28_STR);
     ui.goto_screen(_lcd_calibrate_homing);
   }
 
-  void _goto_tower_x() { _man_probe_pt(cos(RADIANS(210)) * delta_calibration_radius, sin(RADIANS(210)) * delta_calibration_radius); }
-  void _goto_tower_y() { _man_probe_pt(cos(RADIANS(330)) * delta_calibration_radius, sin(RADIANS(330)) * delta_calibration_radius); }
-  void _goto_tower_z() { _man_probe_pt(cos(RADIANS( 90)) * delta_calibration_radius, sin(RADIANS( 90)) * delta_calibration_radius); }
-  void _goto_center()  { _man_probe_pt(0,0); }
+  void _goto_tower_a(const float &a) {
+    xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
+    _man_probe_pt(tower_vec * delta_calibration_radius);
+  }
+  void _goto_tower_x() { _goto_tower_a(210); }
+  void _goto_tower_y() { _goto_tower_a(330); }
+  void _goto_tower_z() { _goto_tower_a( 90); }
+  void _goto_center()  { xy_pos_t ctr{0}; _man_probe_pt(ctr); }
 
 #endif
 
-void _recalc_delta_settings() {
-  #if HAS_LEVELING
-    reset_bed_level(); // After changing kinematics bed-level data is no longer valid
-  #endif
-  recalc_delta_settings();
-}
-
 void lcd_delta_settings() {
+  auto _recalc_delta_settings = []() {
+    #if HAS_LEVELING
+      reset_bed_level(); // After changing kinematics bed-level data is no longer valid
+    #endif
+    recalc_delta_settings();
+  };
   START_MENU();
-  MENU_BACK(MSG_DELTA_CALIBRATE);
-  MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
-  #define EDIT_ENDSTOP_ADJ(LABEL,N) MENU_ITEM_EDIT_CALLBACK(float43, LABEL, &delta_endstop_adj[_AXIS(N)], -5, 5, _recalc_delta_settings)
-  EDIT_ENDSTOP_ADJ("Ex",A);
-  EDIT_ENDSTOP_ADJ("Ey",B);
-  EDIT_ENDSTOP_ADJ("Ez",C);
-  MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
-  #define EDIT_ANGLE_TRIM(LABEL,N) MENU_ITEM_EDIT_CALLBACK(float43, LABEL, &delta_tower_angle_trim[_AXIS(N)], -5, 5, _recalc_delta_settings)
-  EDIT_ANGLE_TRIM("Tx",A);
-  EDIT_ANGLE_TRIM("Ty",B);
-  EDIT_ANGLE_TRIM("Tz",C);
-  MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
+  BACK_ITEM(MSG_DELTA_CALIBRATE);
+  EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
+  #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_endstop_adj.N, -5, 5, _recalc_delta_settings)
+  EDIT_ENDSTOP_ADJ("Ex",a);
+  EDIT_ENDSTOP_ADJ("Ey",b);
+  EDIT_ENDSTOP_ADJ("Ez",c);
+  EDIT_ITEM(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
+  #define EDIT_ANGLE_TRIM(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
+  EDIT_ANGLE_TRIM("Tx",a);
+  EDIT_ANGLE_TRIM("Ty",b);
+  EDIT_ANGLE_TRIM("Tz",c);
+  EDIT_ITEM(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
   END_MENU();
 }
 
 void menu_delta_calibrate() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
-    MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
+    GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+      ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
     #endif
   #endif
 
-  MENU_ITEM(submenu, MSG_DELTA_SETTINGS, lcd_delta_settings);
+  SUBMENU(MSG_DELTA_SETTINGS, lcd_delta_settings);
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
-    MENU_ITEM(submenu, MSG_AUTO_HOME, _lcd_delta_calibrate_home);
+    SUBMENU(MSG_AUTO_HOME, _lcd_delta_calibrate_home);
     if (all_axes_homed()) {
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_X, _goto_tower_x);
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_CENTER, _goto_center);
+      SUBMENU(MSG_DELTA_CALIBRATE_X, _goto_tower_x);
+      SUBMENU(MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
+      SUBMENU(MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
+      SUBMENU(MSG_DELTA_CALIBRATE_CENTER, _goto_center);
     }
   #endif
 

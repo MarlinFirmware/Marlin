@@ -29,8 +29,8 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "PRINTRBOARD_G2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "PRINTRBOARD_G2"
 #endif
 
 //
@@ -126,7 +126,7 @@
 #define MOTOR_CURRENT_PWM_Y_PIN 64 // PB19        MOTOR 3
 #define MOTOR_CURRENT_PWM_E_PIN 61 // PA2         MOTOR 4
 
-//#define DEFAULT_PWM_MOTOR_CURRENT { 300, 400, 1000}  // XY Z E0, 1000 = 1000mAh
+#define DEFAULT_PWM_MOTOR_CURRENT { 300, 400, 1000}  // XY Z E0, 1000 = 1000mAh
 
 //
 // Temperature Sensors

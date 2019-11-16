@@ -27,7 +27,7 @@
 #include "tmc_util.h"
 #include "../Marlin.h"
 
-#include "../module/stepper_indirection.h"
+#include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
@@ -507,7 +507,7 @@
         case TMC_GLOBAL_SCALER:
           {
             uint16_t value = st.GLOBAL_SCALER();
-            SERIAL_PRINT(value ? value : 256, DEC);
+            SERIAL_PRINT(value ?: 256, DEC);
             SERIAL_ECHOPGM("/256");
           }
           break;
@@ -787,7 +787,7 @@
     #if HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5160)
       TMC_REPORT("Global scaler",    TMC_GLOBAL_SCALER);
     #endif
-    TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
+    TMC_REPORT("CS actual",          TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
     #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_TMC220x
       TMC_REPORT("vsense\t",         TMC_VSENSE);
@@ -795,14 +795,14 @@
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
     TMC_REPORT("tstep\t",            TMC_TSTEP);
-    TMC_REPORT("pwm\nthreshold\t",   TMC_TPWMTHRS);
+    TMC_REPORT("pwm\nthreshold",     TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
       TMC_REPORT("OT prewarn has\n"
                  "been triggered",   TMC_OTPW_TRIGGERED);
     #endif
-    TMC_REPORT("off time\t",         TMC_TOFF);
+    TMC_REPORT("off time",           TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
     TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
     TMC_REPORT("-start\t",           TMC_HSTRT);
@@ -811,7 +811,7 @@
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
     #if HAS_TMCX1X0
       DRV_REPORT("stallguard\t",     TMC_STALLGUARD);
-      DRV_REPORT("sg_result\t",      TMC_SG_RESULT);
+      DRV_REPORT("sg_result",        TMC_SG_RESULT);
       DRV_REPORT("fsactive\t",       TMC_FSACTIVE);
     #endif
     DRV_REPORT("stst\t",             TMC_STST);
@@ -1118,7 +1118,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
     #endif
   }
 
-  if (axis_connection) ui.set_status_P(PSTR("TMC CONNECTION ERROR"));
+  if (axis_connection) ui.set_status_P(GET_TEXT(MSG_ERROR_TMC));
 }
 
 #endif // HAS_TRINAMIC

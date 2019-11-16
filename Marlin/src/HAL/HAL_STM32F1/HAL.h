@@ -33,30 +33,44 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_STM32F1.h"
-#include "watchdog_STM32F1.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_STM32F1.h"
+#include "timers.h"
 
 #include <stdint.h>
 #include <util/atomic.h>
 
 #include "../../inc/MarlinConfigPre.h"
 
+#ifdef USE_USB_COMPOSITE
+  #include "msc_sd.h"
+#endif
+
 // ------------------------
 // Defines
 // ------------------------
 
+#ifndef STM32_FLASH_SIZE
+  #ifdef MCU_STM32F103RE
+    #define STM32_FLASH_SIZE 512
+  #else
+    #define STM32_FLASH_SIZE 256
+  #endif
+#endif
+
 #ifdef SERIAL_USB
-  #define UsbSerial Serial
+  #ifndef USE_USB_COMPOSITE
+    #define UsbSerial Serial
+  #else
+    #define UsbSerial MarlinCompositeSerial
+  #endif
   #define MSerial1  Serial1
   #define MSerial2  Serial2
   #define MSerial3  Serial3
   #define MSerial4  Serial4
   #define MSerial5  Serial5
 #else
-  extern USBSerial SerialUSB;
-  #define UsbSerial SerialUSB
   #define MSerial1  Serial
   #define MSerial2  Serial1
   #define MSerial3  Serial2
@@ -110,7 +124,9 @@
 #endif
 
 // Set interrupt grouping for this MCU
-void HAL_init(void);
+void HAL_init();
+#define HAL_IDLETASK 1
+void HAL_idletask();
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -158,7 +174,7 @@ typedef int8_t pin_t;
 // Public Variables
 // ------------------------
 
-/** result of last ADC conversion */
+// Result of last ADC conversion
 extern uint16_t HAL_adc_result;
 
 // ------------------------
@@ -174,21 +190,25 @@ extern uint16_t HAL_adc_result;
 // Memory related
 #define __bss_end __bss_end__
 
-/** clear reset reason */
-void HAL_clear_reset_source(void);
+// Clear reset reason
+void HAL_clear_reset_source();
 
-/** reset reason */
-uint8_t HAL_get_reset_source(void);
+// Reset reason
+uint8_t HAL_get_reset_source();
 
 void _delay_ms(const int delay);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 /*
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
 */
 
 extern "C" char* _sbrk(int incr);
+
 /*
 static int freeMemory() {
   volatile int top;
@@ -197,26 +217,12 @@ static int freeMemory() {
 }
 */
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
 #pragma GCC diagnostic pop
-
-//
-// SPI: Extended functions which take a channel number (hardware SPI only)
-//
-
-/** Write single byte to specified SPI channel */
-void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
-uint8_t spiRec(uint32_t chan);
 
 //
 // EEPROM
@@ -237,14 +243,15 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 
-void HAL_adc_init(void);
+void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
 void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
@@ -255,3 +262,6 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);
