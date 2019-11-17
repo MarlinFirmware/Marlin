@@ -896,6 +896,12 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 //#define FIX_MOUNTED_PROBE
 
 /**
+ * Utilize the nozzle as a probe for systems such as the Lulzbot
+ * conductive nozzle or a Piezeo Electric smart effector
+ */
+//#define NOZZLE_AS_PROBE
+
+/**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
 //#define Z_PROBE_SERVO_NR 0       // Defaults to SERVO 0 connector.

@@ -195,6 +195,11 @@
   #define Z_SAFE_HOMING
 #endif
 
+// NOZZLE_AS_PROBE is a subset of FIX_MOUNTED_PROBE
+#if ENABLED(NOZZLE_AS_PROBE)
+  #define FIX_MOUNTED_PROBE
+#endif
+
 /**
  * DELTA should ignore Z_SAFE_HOMING and SLOWDOWN
  */
