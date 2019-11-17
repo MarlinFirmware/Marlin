@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,24 +33,23 @@
  * For TARGET LPC1768
  */
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 
-#define PWM_PIN(P)              true // all pins are PWM capable
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+#define PWM_PIN(P)            true // all pins are PWM capable
 
-#define LPC_PIN(pin)          gpio_pin(pin)
-#define LPC_GPIO(port)        gpio_port(port)
+#define LPC_PIN(pin)          LPC176x::gpio_pin(pin)
+#define LPC_GPIO(port)        LPC176x::gpio_port(port)
 
-#define SET_DIR_INPUT(IO)     gpio_set_input(IO)
-#define SET_DIR_OUTPUT(IO)    gpio_set_output(IO)
+#define SET_DIR_INPUT(IO)     LPC176x::gpio_set_input(IO)
+#define SET_DIR_OUTPUT(IO)    LPC176x::gpio_set_output(IO)
 
 #define SET_MODE(IO, mode)    pinMode(IO, mode)
 
-#define WRITE_PIN_SET(IO)     gpio_set(IO)
-#define WRITE_PIN_CLR(IO)     gpio_clear(IO)
+#define WRITE_PIN_SET(IO)     LPC176x::gpio_set(IO)
+#define WRITE_PIN_CLR(IO)     LPC176x::gpio_clear(IO)
 
-#define READ_PIN(IO)          gpio_get(IO)
-#define WRITE_PIN(IO,V)       gpio_set(IO, V)
+#define READ_PIN(IO)          LPC176x::gpio_get(IO)
+#define WRITE_PIN(IO,V)       LPC176x::gpio_set(IO, V)
 
 /**
  * Magic I/O routines
@@ -64,8 +63,6 @@
 #define _READ(IO)             READ_PIN(IO)
 
 /// Write to a pin
-#define _WRITE_VAR(IO,V)      digitalWrite(IO,V)
-
 #define _WRITE(IO,V)          WRITE_PIN(IO,V)
 
 /// toggle a pin
@@ -84,20 +81,15 @@
 #define _PULLDOWN(IO,V)       pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
 /// check if pin is an input
-#define _IS_INPUT(IO)         (!gpio_get_dir(IO))
+#define _IS_INPUT(IO)         (!LPC176x::gpio_get_dir(IO))
 
 /// check if pin is an output
-#define _IS_OUTPUT(IO)        (gpio_get_dir(IO))
-
-/// check if pin is a timer
-/// all gpio pins are pwm capable, either interrupt or hardware pwm controlled
-#define _HAS_TIMER(IO)        true
+#define _IS_OUTPUT(IO)        (LPC176x::gpio_get_dir(IO))
 
 /// Read a pin wrapper
 #define READ(IO)              _READ(IO)
 
 /// Write to a pin wrapper
-#define WRITE_VAR(IO,V)       _WRITE_VAR(IO,V)
 #define WRITE(IO,V)           _WRITE(IO,V)
 
 /// toggle a pin wrapper
@@ -118,9 +110,6 @@
 #define IS_INPUT(IO)          _IS_INPUT(IO)
 /// check if pin is an output wrapper
 #define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
-
-/// check if pin is a timer (wrapper)
-#define HAS_TIMER(IO)         _HAS_TIMER(IO)
 
 // Shorthand
 #define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)

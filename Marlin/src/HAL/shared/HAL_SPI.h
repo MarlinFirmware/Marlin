@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,11 @@
 #pragma once
 
 /**
- * HAL/HAL_SPI.h
+ * HAL/shared/HAL_SPI.h
  * Core Marlin definitions for SPI, implemented in the HALs
  */
 
+#include "Marduino.h"
 #include <stdint.h>
 
 /**
@@ -53,26 +54,40 @@
 #define SPI_SPEED_5         5   // Set SCK rate to 1/32 of max rate
 #define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
 
-#define SPI_LSBFIRST 0
-#define SPI_MSBFIRST 1
-
-#define SPI_DATAMODE_0 0x00
-#define SPI_DATAMODE_1 0x04
-#define SPI_DATAMODE_2 0x08
-#define SPI_DATAMODE_3 0x0C
-
+//
 // Standard SPI functions
-/** Initialize SPI bus */
-void spiBegin(void);
-/** Configure SPI for specified SPI speed */
+//
+
+// Initialize SPI bus
+void spiBegin();
+
+// Configure SPI for specified SPI speed
 void spiInit(uint8_t spiRate);
-/** Write single byte to SPI */
+
+// Write single byte to SPI
 void spiSend(uint8_t b);
-/** Read single byte from SPI */
-uint8_t spiRec(void);
-/** Read from SPI into buffer */
+
+// Read single byte from SPI
+uint8_t spiRec();
+
+// Read from SPI into buffer
 void spiRead(uint8_t* buf, uint16_t nbyte);
-/** Write token and then write from 512 byte buffer to SPI (for SD card) */
+
+// Write token and then write from 512 byte buffer to SPI (for SD card)
 void spiSendBlock(uint8_t token, const uint8_t* buf);
-/** Begin SPI transaction, set clock, bit order, data mode */
+
+// Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
+
+//
+// Extended SPI functions taking a channel number (Hardware SPI only)
+//
+
+// Write single byte to specified SPI channel
+void spiSend(uint32_t chan, byte b);
+
+// Write buffer to specified SPI channel
+void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
+
+// Read single byte from specified SPI channel
+uint8_t spiRec(uint32_t chan);

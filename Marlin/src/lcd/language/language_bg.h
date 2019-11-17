@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,118 +28,126 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#define DISPLAY_CHARSET_ISO10646_5
-#define CHARSIZE 2
 
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" Готов.")
-#define MSG_SD_INSERTED                     _UxGT("Картата е поставена")
-#define MSG_SD_REMOVED                      _UxGT("Картата е извадена")
-#define MSG_MAIN                            _UxGT("Меню")
-#define MSG_AUTOSTART                       _UxGT("Автостарт")
-#define MSG_DISABLE_STEPPERS                _UxGT("Изкл. двигатели")
-#define MSG_AUTO_HOME                       _UxGT("Паркиране")
-#define MSG_SET_HOME_OFFSETS                _UxGT("Задай Начало")
-#define MSG_SET_ORIGIN                      _UxGT("Изходна точка")
-#define MSG_PREHEAT_1                       _UxGT("Подгряване " PREHEAT_1_LABEL)
-#define MSG_PREHEAT_1_N                     _UxGT("Подгряване " PREHEAT_1_LABEL)
-#define MSG_PREHEAT_1_ALL                   _UxGT("Подгр. " PREHEAT_1_LABEL " Всички")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Подгр. " PREHEAT_1_LABEL " Легло")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Настройки " PREHEAT_1_LABEL)
-#define MSG_PREHEAT_2                       _UxGT("Подгряване " PREHEAT_2_LABEL)
-#define MSG_PREHEAT_2_N                     _UxGT("Подгряване " PREHEAT_2_LABEL)
-#define MSG_PREHEAT_2_ALL                   _UxGT("Подгр. " PREHEAT_2_LABEL " Всички")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Подгр. " PREHEAT_2_LABEL " Легло")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Настройки " PREHEAT_2_LABEL)
-#define MSG_COOLDOWN                        _UxGT("Охлаждане")
-#define MSG_SWITCH_PS_ON                    _UxGT("Вкл. захранване")
-#define MSG_SWITCH_PS_OFF                   _UxGT("Изкл. захранване")
-#define MSG_EXTRUDE                         _UxGT("Екструзия")
-#define MSG_RETRACT                         _UxGT("Откат")
-#define MSG_MOVE_AXIS                       _UxGT("Движение по ос")
-#define MSG_BED_LEVELING                    _UxGT("Нивелиране")
-#define MSG_LEVEL_BED                       _UxGT("Нивелиране")
-#define MSG_MOVE_X                          _UxGT("Движение по X")
-#define MSG_MOVE_Y                          _UxGT("Движение по Y")
-#define MSG_MOVE_Z                          _UxGT("Движение по Z")
-#define MSG_MOVE_E                          _UxGT("Екструдер")
-#define MSG_MOVE_01MM                       _UxGT("Премести с 0.1mm")
-#define MSG_MOVE_1MM                        _UxGT("Премести с 1mm")
-#define MSG_MOVE_10MM                       _UxGT("Премести с 10mm")
-#define MSG_SPEED                           _UxGT("Скорост")
-#define MSG_BED_Z                           _UxGT("Bed Z")
-#define MSG_NOZZLE                          LCD_STR_THERMOMETER _UxGT(" Дюза")
-#define MSG_BED                             LCD_STR_THERMOMETER _UxGT(" Легло")
-#define MSG_FAN_SPEED                       _UxGT("Вентилатор")
-#define MSG_FLOW                            _UxGT("Поток")
-#define MSG_CONTROL                         _UxGT("Управление")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Минимум")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Максимум")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Фактор")
-#define MSG_AUTOTEMP                        _UxGT("Авто-темп.")
-#define MSG_LCD_ON                          _UxGT("Вкл.")
-#define MSG_LCD_OFF                         _UxGT("Изкл.")
-#define MSG_A_RETRACT                       _UxGT("A-откат")
-#define MSG_A_TRAVEL                        _UxGT("A-travel")
-#define MSG_STEPS_PER_MM                    _UxGT("Стъпки/mm")
-#if IS_KINEMATIC
-  #define MSG_ASTEPS                        _UxGT("Aстъпки/mm")
-  #define MSG_BSTEPS                        _UxGT("Bстъпки/mm")
-  #define MSG_CSTEPS                        _UxGT("Cстъпки/mm")
-#else
-  #define MSG_ASTEPS                        _UxGT("Xстъпки/mm")
-  #define MSG_BSTEPS                        _UxGT("Yстъпки/mm")
-  #define MSG_CSTEPS                        _UxGT("Zстъпки/mm")
-#endif
-#define MSG_ESTEPS                          _UxGT("E стъпки/mm")
-#define MSG_E1STEPS                         _UxGT("E1 стъпки/mm")
-#define MSG_E2STEPS                         _UxGT("E2 стъпки/mm")
-#define MSG_E3STEPS                         _UxGT("E3 стъпки/mm")
-#define MSG_E4STEPS                         _UxGT("E4 стъпки/mm")
-#define MSG_E5STEPS                         _UxGT("E5 стъпки/mm")
-#define MSG_E6STEPS                         _UxGT("E6 стъпки/mm")
-#define MSG_TEMPERATURE                     _UxGT("Температура")
-#define MSG_MOTION                          _UxGT("Движение")
-#define MSG_FILAMENT                        _UxGT("Нишка")
-#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
-#define MSG_FILAMENT_DIAM                   _UxGT("Диам. нишка")
-#define MSG_CONTRAST                        _UxGT("LCD контраст")
-#define MSG_STORE_EEPROM                    _UxGT("Запази в EPROM")
-#define MSG_LOAD_EEPROM                     _UxGT("Зареди от EPROM")
-#define MSG_RESTORE_FAILSAFE                _UxGT("Фабрични настройки")
-#define MSG_REFRESH                         LCD_STR_REFRESH _UxGT("Обнови")
-#define MSG_WATCH                           _UxGT("Преглед")
-#define MSG_PREPARE                         _UxGT("Действия")
-#define MSG_TUNE                            _UxGT("Настройка")
-#define MSG_PAUSE_PRINT                     _UxGT("Пауза")
-#define MSG_RESUME_PRINT                    _UxGT("Възобнови печата")
-#define MSG_STOP_PRINT                      _UxGT("Спри печата")
-#define MSG_CARD_MENU                       _UxGT("Меню карта")
-#define MSG_NO_CARD                         _UxGT("Няма карта")
-#define MSG_DWELL                           _UxGT("Почивка...")
-#define MSG_USERWAIT                        _UxGT("Изчакване")
-#define MSG_PRINT_ABORTED                   _UxGT("Печатът е прекъснат")
-#define MSG_NO_MOVE                         _UxGT("Няма движение")
-#define MSG_KILLED                          _UxGT("УБИТО.")
-#define MSG_STOPPED                         _UxGT("СПРЯНО.")
-#define MSG_CONTROL_RETRACT                 _UxGT("Откат mm")
-#define MSG_CONTROL_RETRACT_SWAP            _UxGT("Смяна Откат mm")
-#define MSG_CONTROL_RETRACTF                _UxGT("Откат  V")
-#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Скок mm")
-#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Възврат mm")
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Смяна Възврат mm")
-#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Възврат  V")
-#define MSG_AUTORETRACT                     _UxGT("Автоoткат")
-#define MSG_FILAMENTCHANGE                  _UxGT("Смяна нишка")
-#define MSG_INIT_SDCARD                     _UxGT("Иниц. SD-Карта")
-#define MSG_CHANGE_SDCARD                   _UxGT("Смяна SD-Карта")
-#define MSG_ZPROBE_OUT                      _UxGT("Z-сондата е извадена")
-#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Отстояние")
-#define MSG_BABYSTEP_X                      _UxGT("Министъпка X")
-#define MSG_BABYSTEP_Y                      _UxGT("Министъпка Y")
-#define MSG_BABYSTEP_Z                      _UxGT("Министъпка Z")
-#define MSG_ENDSTOP_ABORT                   _UxGT("Стоп Кр.Изключватели")
-#define MSG_DELTA_CALIBRATE                 _UxGT("Делта Калибровка")
-#define MSG_DELTA_CALIBRATE_X               _UxGT("Калибровка X")
-#define MSG_DELTA_CALIBRATE_Y               _UxGT("Калибровка Y")
-#define MSG_DELTA_CALIBRATE_Z               _UxGT("Калибровка Z")
-#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Калибровка Център")
+#define DISPLAY_CHARSET_ISO10646_5
+
+namespace Language_bg {
+  using namespace Language_en; // Inherit undefined strings from English
+
+  constexpr uint8_t    CHARSIZE                            = 2;
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Bulgarian");
+
+  PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Готов.");
+  PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Картата е поставена");
+  PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Картата е извадена");
+  PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
+  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Автостарт");
+  PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Изкл. двигатели");
+  PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Паркиране");
+  PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Задай Начало");
+  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Изходна точка");
+  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Подгряване ") PREHEAT_1_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
+  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
+  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
+  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
+  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Настройки ") PREHEAT_2_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Подгряване ") PREHEAT_2_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Подгряване ") PREHEAT_2_LABEL " ~";
+  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Подгряване ") PREHEAT_2_LABEL _UxGT(" Дюза");
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Подгряване ") PREHEAT_2_LABEL _UxGT(" Дюза ~");
+  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Подгр. ") PREHEAT_2_LABEL _UxGT(" Всички");
+  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Подгр. ") PREHEAT_2_LABEL _UxGT(" Легло");
+  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Настройки ") PREHEAT_2_LABEL;
+  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Охлаждане");
+  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Вкл. захранване");
+  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Изкл. захранване");
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Екструзия");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Откат");
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Движение по ос");
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Нивелиране");
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Нивелиране");
+  PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Движение по X");
+  PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Движение по Y");
+  PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Движение по Z");
+  PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
+  PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
+  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Премести с %smm");
+  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Премести с 0.1mm");
+  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Премести с 1mm");
+  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Премести с 10mm");
+  PROGMEM Language_Str MSG_SPEED                           = _UxGT("Скорост");
+  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
+  PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" Дюза");
+  PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" Дюза ~");
+  PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" Легло");
+  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Вентилатор");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Вентилатор =");
+  PROGMEM Language_Str MSG_FLOW                            = _UxGT("Поток");
+  PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Поток ~");
+  PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Управление");
+  PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER _UxGT(" Минимум");
+  PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER _UxGT(" Максимум");
+  PROGMEM Language_Str MSG_FACTOR                          = " " LCD_STR_THERMOMETER _UxGT(" Фактор");
+  PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Авто-темп.");
+  PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Вкл.");
+  PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Изкл.");
+  PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-откат");
+  PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-travel");
+  PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Стъпки/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("стъпки/mm");
+  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("стъпки/mm");
+  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("стъпки/mm");
+  PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E стъпки/mm");
+  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* стъпки/mm");
+  PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
+  PROGMEM Language_Str MSG_MOTION                          = _UxGT("Движение");
+  PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Нишка");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm3");
+  PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Диам. нишка");
+  PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Диам. нишка *");
+  PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD контраст");
+  PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Запази в EPROM");
+  PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Зареди от EPROM");
+  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Фабрични настройки");
+  PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Обнови");
+  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Преглед");
+  PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Действия");
+  PROGMEM Language_Str MSG_TUNE                            = _UxGT("Настройка");
+  PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Пауза");
+  PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Възобнови печата");
+  PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Спри печата");
+  PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Меню карта");
+  PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Няма карта");
+  PROGMEM Language_Str MSG_DWELL                           = _UxGT("Почивка...");
+  PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("Изчакване");
+  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Печатът е прекъснат");
+  PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("Няма движение");
+  PROGMEM Language_Str MSG_KILLED                          = _UxGT("УБИТО.");
+  PROGMEM Language_Str MSG_STOPPED                         = _UxGT("СПРЯНО.");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Откат mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Смяна Откат mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Откат  V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Скок mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Възврат mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Смяна Възврат mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Възврат  V");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Автоoткат");
+  PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Смяна нишка");
+  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Смяна нишка *");
+  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Иниц. SD-Карта");
+  PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Смяна SD-Карта");
+  PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-сондата е извадена");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z Отстояние");
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Министъпка X");
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Министъпка Y");
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Министъпка Z");
+  PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Стоп Кр.Изключватели");
+  PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Делта Калибровка");
+  PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Калибровка X");
+  PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Калибровка Y");
+  PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Калибровка Z");
+  PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Калибровка Център");
+  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неправилен принтер");
+}

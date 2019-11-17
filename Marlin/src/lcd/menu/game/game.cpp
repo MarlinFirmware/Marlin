@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@ int MarlinGame::score;
 uint8_t MarlinGame::game_state;
 millis_t MarlinGame::next_frame;
 
+MarlinGameData marlin_game_data;
+
 bool MarlinGame::game_frame() {
   static int8_t slew;
   if (ui.first_page) slew = 2;
@@ -46,17 +48,13 @@ void MarlinGame::draw_game_over() {
     u8g.setColorIndex(0);
     u8g.drawBox(lx - 1, ly - gohigh - 1, gowide + 2, gohigh + 2);
     u8g.setColorIndex(1);
-    if (ui.get_blink()) {
-      lcd_moveto(lx, ly);
-      lcd_put_u8str_P(PSTR("GAME OVER"));
-    }
+    if (ui.get_blink()) lcd_put_u8str_P(lx, ly, PSTR("GAME OVER"));
   }
 }
 
 void MarlinGame::init_game(const uint8_t init_state, const screenFunc_t screen) {
   score = 0;
   game_state = init_state;
-  ui.encoder_direction_normal();
   ui.goto_screen(screen);
   ui.defer_status_screen();
 }

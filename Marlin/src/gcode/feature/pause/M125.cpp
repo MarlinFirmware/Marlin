@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ void GcodeSuite::M125() {
     #endif
   );
 
-  point_t park_point = NOZZLE_PARK_POINT;
+  xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
   if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));
@@ -67,9 +67,8 @@ void GcodeSuite::M125() {
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE, DELTA)
-    park_point.x += hotend_offset[X_AXIS][active_extruder];
-    park_point.y += hotend_offset[Y_AXIS][active_extruder];
+  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
+    park_point += hotend_offset[active_extruder];
   #endif
 
   #if ENABLED(SDSUPPORT)

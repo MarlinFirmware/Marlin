@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,28 +46,25 @@
  *   M421 C Q<offset>
  */
 void GcodeSuite::M421() {
-  int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
-  const bool hasI = ix >= 0,
-             hasJ = iy >= 0,
+  xy_int8_t ij = { int8_t(parser.intval('I', -1)), int8_t(parser.intval('J', -1)) };
+  const bool hasI = ij.x >= 0,
+             hasJ = ij.y >= 0,
              hasC = parser.seen('C'),
              hasN = parser.seen('N'),
              hasZ = parser.seen('Z'),
              hasQ = !hasZ && parser.seen('Q');
 
-  if (hasC) {
-    const mesh_index_pair location = ubl.find_closest_mesh_point_of_type(REAL, current_position[X_AXIS], current_position[Y_AXIS], USE_NOZZLE_AS_REFERENCE, NULL);
-    ix = location.x_index;
-    iy = location.y_index;
-  }
+  if (hasC) ij = ubl.find_closest_mesh_point_of_type(REAL, current_position);
 
   if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN))
     SERIAL_ERROR_MSG(MSG_ERR_M421_PARAMETERS);
-  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))
+  else if (!WITHIN(ij.x, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ij.y, 0, GRID_MAX_POINTS_Y - 1))
     SERIAL_ERROR_MSG(MSG_ERR_MESH_XY);
   else {
-    ubl.z_values[ix][iy] = hasN ? NAN : parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
+    float &zval = ubl.z_values[ij.x][ij.y];
+    zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onMeshUpdate(ix, iy, ubl.z_values[ix][iy]);
+      ExtUI::onMeshUpdate(ij.x, ij.y, zval);
     #endif
   }
 }

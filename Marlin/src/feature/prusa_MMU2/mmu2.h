@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../runout.h"
+#endif
+
+#if SERIAL_USB
+  #define MMU_RX_SIZE 256
+  #define MMU_TX_SIZE 256
+#else
+  #define MMU_RX_SIZE  16
+  #define MMU_TX_SIZE  16
 #endif
 
 struct E_Step;
@@ -62,8 +69,8 @@ private:
   static void check_version();
 
   static void command(const uint8_t cmd);
-  static bool get_response(void);
-  static void manage_response(bool move_axes, bool turn_off_nozzle);
+  static bool get_response();
+  static void manage_response(const bool move_axes, const bool turn_off_nozzle);
 
   #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
     static void load_to_nozzle();
@@ -80,7 +87,7 @@ private:
   static volatile bool finda_runout_valid;
   static int16_t version, buildnr;
   static millis_t last_request, next_P0_request;
-  static char rx_buffer[16], tx_buffer[16];
+  static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 
   static inline void set_runout_valid(const bool valid) {
     finda_runout_valid = valid;

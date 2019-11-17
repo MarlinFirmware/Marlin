@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 #include "../../module/printcounter.h"
 #include "../../module/planner.h"
 
+#include "../../Marlin.h" // for startOrResumeJob
+
 /**
  * M32: Select file and start SD Print
  *
@@ -42,7 +44,7 @@
 void GcodeSuite::M32() {
   if (IS_SD_PRINTING()) planner.synchronize();
 
-  if (card.isDetected()) {
+  if (card.isMounted()) {
     const bool call_procedure = parser.boolval('P');
 
     card.openFile(parser.string_arg, true, call_procedure);
@@ -52,7 +54,7 @@ void GcodeSuite::M32() {
     card.startFileprint();
 
     // Procedure calls count as normal print time.
-    if (!call_procedure) print_job_timer.start();
+    if (!call_procedure) startOrResumeJob();
   }
 }
 

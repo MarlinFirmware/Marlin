@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
  * emergency_parser.h - Intercept special commands directly in the serial stream
  */
 
-#define FORCE_INLINE __attribute__((always_inline)) inline
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "host_actions.h"

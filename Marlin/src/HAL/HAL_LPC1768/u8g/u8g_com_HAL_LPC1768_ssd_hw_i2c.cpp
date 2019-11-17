@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,7 +109,7 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
     case U8G_COM_MSG_INIT:
       //u8g_com_arduino_digital_write(u8g, U8G_PI_SCL, HIGH);
       //u8g_com_arduino_digital_write(u8g, U8G_PI_SDA, HIGH);
-      //u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: unknown mode */
+      //u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* initial RS state: unknown mode */
 
       u8g_i2c_init(u8g->pin_list[U8G_PI_I2C_OPTION]);
       u8g_com_ssd_I2C_start_sequence(u8g);
@@ -137,8 +137,11 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
 
     case U8G_COM_MSG_WRITE_BYTE:
       //u8g->pin_list[U8G_PI_SET_A0] = 1;
-      //if (u8g_com_arduino_ssd_start_sequence(u8g) == 0)
-      //  return u8g_i2c_stop(), 0;
+      if (u8g_com_ssd_I2C_start_sequence(u8g) == 0) {
+        u8g_i2c_stop();
+        return 0;
+      }
+
       if (u8g_i2c_send_byte(arg_val) == 0) {
         u8g_i2c_stop();
         return 0;
@@ -186,9 +189,6 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
     case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
       u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
       u8g->pin_list[U8G_PI_SET_A0] = 1;   /* force a0 to set again */
-
-      u8g_i2c_start(0); // send slave address and write bit
-      u8g_i2c_send_byte(arg_val ? 0x40 : 0x80);  // Write to ? Graphics DRAM mode : Command mode
       break;
 
   } // switch

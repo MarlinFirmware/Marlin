@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,19 +24,8 @@
 
 #if ENABLED(BACKLASH_GCODE)
 
+#include "../../feature/backlash.h"
 #include "../../module/planner.h"
-
-float   backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
-uint8_t backlash_correction = BACKLASH_CORRECTION * all_on;
-
-#ifdef BACKLASH_SMOOTHING_MM
-  float backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
-#endif
-
-#if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  float backlash_measured_mm[XYZ] = { 0 };
-  uint8_t backlash_measured_num[XYZ] = { 0 };
-#endif
 
 #include "../gcode.h"
 
@@ -57,62 +46,55 @@ uint8_t backlash_correction = BACKLASH_CORRECTION * all_on;
 void GcodeSuite::M425() {
   bool noArgs = true;
 
-  LOOP_XYZ(i) {
-    if (parser.seen(axis_codes[i])) {
+  LOOP_XYZ(a) {
+    if (parser.seen(axis_codes[a])) {
       planner.synchronize();
-      const float measured_backlash = (
-        #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-          backlash_measured_num[i] > 0 ? backlash_measured_mm[i] / backlash_measured_num[i] : 0
-        #else
-          0
-        #endif
-      );
-      backlash_distance_mm[i] = parser.has_value() ? parser.value_linear_units() : measured_backlash;
+      backlash.distance_mm[a] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a));
       noArgs = false;
     }
   }
 
   if (parser.seen('F')) {
     planner.synchronize();
-    backlash_correction = MAX(0, MIN(1.0, parser.value_float())) * all_on;
+    backlash.set_correction(parser.value_float());
     noArgs = false;
   }
 
   #ifdef BACKLASH_SMOOTHING_MM
     if (parser.seen('S')) {
       planner.synchronize();
-      backlash_smoothing_mm = parser.value_linear_units();
+      backlash.smoothing_mm = parser.value_linear_units();
       noArgs = false;
     }
   #endif
 
   if (noArgs) {
-    SERIAL_ECHOPGM("Backlash correction is ");
-    if (!backlash_correction) SERIAL_ECHOPGM("in");
+    SERIAL_ECHOPGM("Backlash Correction ");
+    if (!backlash.correction) SERIAL_ECHOPGM("in");
     SERIAL_ECHOLNPGM("active:");
-    SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", float(ui8_to_percent(backlash_correction)) / 100, "     (F1.0 = full, F0.0 = none)");
+    SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_XYZ(a) {
       SERIAL_CHAR(' ');
       SERIAL_CHAR(axis_codes[a]);
-      SERIAL_ECHO(backlash_distance_mm[a]);
+      SERIAL_ECHO(backlash.distance_mm[a]);
       SERIAL_EOL();
     }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      SERIAL_ECHOLNPAIR("  Smoothing (mm):                 S", backlash_smoothing_mm);
+      SERIAL_ECHOLNPAIR("  Smoothing (mm):                 S", backlash.smoothing_mm);
     #endif
 
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
-      LOOP_XYZ(a) {
-        if (backlash_measured_num[a] > 0) {
+      if (backlash.has_any_measurement()) {
+        LOOP_XYZ(a) if (backlash.has_measurement(AxisEnum(a))) {
           SERIAL_CHAR(' ');
           SERIAL_CHAR(axis_codes[a]);
-          SERIAL_ECHO(backlash_measured_mm[a] / backlash_measured_num[a]);
+          SERIAL_ECHO(backlash.get_measurement(AxisEnum(a)));
         }
       }
-      if (!backlash_measured_num[X_AXIS] && !backlash_measured_num[Y_AXIS] && !backlash_measured_num[Z_AXIS])
+      else
         SERIAL_ECHOPGM(" (Not yet measured)");
       SERIAL_EOL();
     #endif

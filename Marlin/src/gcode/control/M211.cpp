@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,18 +33,14 @@
  * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
  */
 void GcodeSuite::M211() {
+  const xyz_pos_t l_soft_min = soft_endstop.min.asLogical(),
+                  l_soft_max = soft_endstop.max.asLogical();
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
   if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
   serialprint_onoff(soft_endstops_enabled);
-  SERIAL_ECHOPGM(MSG_SOFT_MIN);
-  SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(soft_endstop[X_AXIS].min));
-  SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(soft_endstop[Y_AXIS].min));
-  SERIAL_ECHOPAIR(" " MSG_Z, LOGICAL_Z_POSITION(soft_endstop[Z_AXIS].min));
-  SERIAL_ECHOPGM(MSG_SOFT_MAX);
-  SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(soft_endstop[X_AXIS].max));
-  SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(soft_endstop[Y_AXIS].max));
-  SERIAL_ECHOLNPAIR(" " MSG_Z, LOGICAL_Z_POSITION(soft_endstop[Z_AXIS].max));
+  print_xyz(l_soft_min, PSTR(MSG_SOFT_MIN), PSTR(" "));
+  print_xyz(l_soft_max, PSTR(MSG_SOFT_MAX));
 }
 
 #endif

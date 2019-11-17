@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,8 +83,9 @@ public:
 
   HalSerial() { host_connected = true; }
 
-  void begin(int32_t baud) {
-  }
+  void begin(int32_t) {}
+
+  void end() {}
 
   int peek() {
     uint8_t value;
@@ -107,11 +108,11 @@ public:
 
   void flush() { receive_buffer.clear(); }
 
-  uint8_t availableForWrite(void){
+  uint8_t availableForWrite() {
     return transmit_buffer.free() > 255 ? 255 : (uint8_t)transmit_buffer.free();
   }
 
-  void flushTX(void){
+  void flushTX() {
     if (host_connected)
       while (transmit_buffer.available()) { /* nada */ }
   }
@@ -141,10 +142,10 @@ public:
   void print_bin(uint32_t value, uint8_t num_digits) {
     uint32_t mask = 1 << (num_digits -1);
     for (uint8_t i = 0; i < num_digits; i++) {
-      if (!(i % 4) && i)    write(' ');
-      if (!(i % 16)  && i)  write(' ');
-      if (value & mask)     write('1');
-      else                  write('0');
+      if (!(i %  4) && i) write(' ');
+      if (!(i % 16) && i) write(' ');
+      if (value & mask)   write('1');
+      else                write('0');
       value <<= 1;
     }
   }
@@ -199,7 +200,7 @@ public:
   void println(unsigned long value, int nbase = 0) { print(value, nbase); println(); }
   void println(float value, int round = 6) { printf("%f\n" , value); }
   void println(double value, int round = 6) { printf("%f\n" , value); }
-  void println(void) { print('\n'); }
+  void println() { print('\n'); }
 
   volatile RingBuffer<uint8_t, 128> receive_buffer;
   volatile RingBuffer<uint8_t, 128> transmit_buffer;

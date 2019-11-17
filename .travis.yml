@@ -1,39 +1,60 @@
-dist: trusty
-sudo: require
+dist: bionic
+sudo: false
 
 language: python
 python:
-  - "2.7"
+  - "3.7"
 
 notifications:
   email: false
 
-# Cache PlatformIO packages using Travis CI container-based infrastructure
-sudo: false
-cache:
-  pip: true
-  directories:
-  - "~/.platformio"
-
 env:
-  - TEST_PLATFORM="megaatmega2560"
+  # Base Environments
   - TEST_PLATFORM="DUE"
+  - TEST_PLATFORM="esp32"
+  - TEST_PLATFORM="linux_native"
+  - TEST_PLATFORM="megaatmega2560"
+  - TEST_PLATFORM="STM32F103RE"
+  - TEST_PLATFORM="teensy31"
+  - TEST_PLATFORM="teensy35"
+
+  # Extended AVR Environments
+  - TEST_PLATFORM="fysetc_f6_13"
+  - TEST_PLATFORM="megaatmega1280"
+  - TEST_PLATFORM="rambo"
+  - TEST_PLATFORM="sanguino_atmega1284p"
+  - TEST_PLATFORM="sanguino_atmega644p"
+
+  # Extended STM32 Environments
+  - TEST_PLATFORM="STM32F103RC_bigtree"
+  - TEST_PLATFORM="STM32F103RC_bigtree_NOUSB"
+  - TEST_PLATFORM="STM32F103RC_fysetc"
+  - TEST_PLATFORM="jgaurora_a5s_a1"
+  - TEST_PLATFORM="STM32F103VE_longer"
+  - TEST_PLATFORM="STM32F407VE_black"
+  - TEST_PLATFORM="BIGTREE_SKR_PRO"
+  - TEST_PLATFORM="mks_robin"
+  - TEST_PLATFORM="ARMED"
+
+  # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
+  #- TEST_PLATFORM="STM32F4"
+  #- TEST_PLATFORM="STM32F7"
+
+  # Put lengthy tests last
   - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="LPC1769"
-  #- TEST_PLATFORM="STM32F1"
-  - TEST_PLATFORM="teensy35"
-  - TEST_PLATFORM="linux_native"
-  - TEST_PLATFORM="esp32"
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
+  # Non-working environment tests
+  #- TEST_PLATFORM="BIGTREE_BTT002" this board isn't released yet. we need pinout to be sure about what we do
+  #- TEST_PLATFORM="at90usb1286_cdc"
+  #- TEST_PLATFORM="at90usb1286_dfu"
+  #- TEST_PLATFORM="STM32F103CB_malyan"
+  #- TEST_PLATFORM="mks_robin_lite"
+  #- TEST_PLATFORM="mks_robin_mini"
+  #- TEST_PLATFORM="mks_robin_nano"
+  #- TEST_PLATFORM="SAMD51_grandcentral_m4"
 
 before_install:
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
   #
   # Fetch the tag information for the current branch
   - git fetch origin --tags
@@ -45,7 +66,7 @@ before_install:
 
 install:
   #- pip install -U platformio
-  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+  - pip install -U https://github.com/platformio/platformio-core/archive/master.zip
 
 before_script:
   # Update PlatformIO packages
@@ -55,8 +76,8 @@ before_script:
   - cd ${TRAVIS_BUILD_DIR}
   #
   # Generate custom version include
-  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/src/inc
-  - cat ${TRAVIS_BUILD_DIR}/Marlin/src/inc/_Version.h
+  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/
+  - cat ${TRAVIS_BUILD_DIR}/Marlin/Version.h
   #
 script:
   - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,23 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if EXTRUDERS
+
 #include "../gcode.h"
 #include "../../module/temperature.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../lcd/ultralcd.h"
-#include "../../Marlin.h"
+
+#include "../../Marlin.h" // for startOrResumeJob, etc.
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
+  #if ENABLED(CANCEL_OBJECTS)
+    #include "../../feature/cancel_object.h"
+  #endif
 #endif
 
 #if ENABLED(SINGLENOZZLE)
@@ -122,10 +130,10 @@ void GcodeSuite::M109() {
         ui.reset_status();
       }
       else
-        print_job_timer.start();
+        startOrResumeJob();
     #endif
 
-    #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+    #if HAS_DISPLAY
       if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
         thermalManager.set_heating_message(target_extruder);
     #endif
@@ -138,3 +146,5 @@ void GcodeSuite::M109() {
   if (set_temp)
     (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
 }
+
+#endif // EXTRUDERS

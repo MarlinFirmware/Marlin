@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,10 @@
   millis_t chdk_timeout; // = 0
 #endif
 
+#ifdef PHOTO_POSITION && PHOTO_DELAY_MS > 0
+  #include "../../../Marlin.h" // for idle()
+#endif
+
 #ifdef PHOTO_RETRACT_MM
 
   #define _PHOTO_RETRACT_MM (PHOTO_RETRACT_MM + 0)
@@ -43,13 +47,13 @@
   #endif
 
   #ifdef PHOTO_RETRACT_MM
-    inline void e_move_m240(const float length, const float fr_mm_s) {
+    inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
       if (length && thermalManager.hotEnoughToExtrude(active_extruder)) {
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           do_pause_e_move(length, fr_mm_s);
         #else
-          current_position[E_AXIS] += length / planner.e_factor[active_extruder];
-          planner.buffer_line(current_position, fr_mm_s, active_extruder);
+          current_position.e += length / planner.e_factor[active_extruder];
+          line_to_current_position(fr_mm_s);
         #endif
       }
     }
@@ -97,14 +101,15 @@ void GcodeSuite::M240() {
 
     if (axis_unhomed_error()) return;
 
-    const float old_pos[XYZ] = {
-      current_position[X_AXIS] + parser.linearval('A'),
-      current_position[Y_AXIS] + parser.linearval('B'),
-      current_position[Z_AXIS]
+    const xyz_pos_t old_pos = {
+      current_position.x + parser.linearval('A'),
+      current_position.y + parser.linearval('B'),
+      current_position.z
     };
 
     #ifdef PHOTO_RETRACT_MM
-      constexpr float rfr = (MMS_TO_MMM(
+      const float rval = parser.seenval('R') ? parser.value_linear_units() : _PHOTO_RETRACT_MM;
+      feedRate_t sval = (
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
           PAUSE_PARK_RETRACT_FEEDRATE
         #elif ENABLED(FWRETRACT)
@@ -112,31 +117,30 @@ void GcodeSuite::M240() {
         #else
           45
         #endif
-      ));
-      const float rval = parser.seenval('R') ? parser.value_linear_units() : _PHOTO_RETRACT_MM,
-                  sval = parser.seenval('S') ? MMM_TO_MMS(parser.value_feedrate()) : rfr;
+      );
+      if (parser.seenval('S')) sval = parser.value_feedrate();
       e_move_m240(-rval, sval);
     #endif
 
-    float fr_mm_s = MMM_TO_MMS(parser.linearval('F'));
+    feedRate_t fr_mm_s = MMM_TO_MMS(parser.linearval('F'));
     if (fr_mm_s) NOLESS(fr_mm_s, 10.0f);
 
-    constexpr float photo_position[XYZ] = PHOTO_POSITION;
-    float raw[XYZ] = {
-       parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : photo_position[X_AXIS],
-       parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_position[Y_AXIS],
-      (parser.seenval('Z') ? parser.value_linear_units() : photo_position[Z_AXIS]) + current_position[Z_AXIS]
+    constexpr xyz_pos_t photo_position = PHOTO_POSITION;
+    xyz_pos_t raw = {
+       parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : photo_position.x,
+       parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_position.y,
+      (parser.seenval('Z') ? parser.value_linear_units() : photo_position.z) + current_position.z
     };
     apply_motion_limits(raw);
     do_blocking_move_to(raw, fr_mm_s);
 
     #ifdef PHOTO_SWITCH_POSITION
-      constexpr float photo_switch_position[2] = PHOTO_SWITCH_POSITION;
-      const float sraw[] = {
-         parser.seenval('I') ? RAW_X_POSITION(parser.value_linear_units()) : photo_switch_position[X_AXIS],
-         parser.seenval('J') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_switch_position[Y_AXIS]
+      constexpr xy_pos_t photo_switch_position = PHOTO_SWITCH_POSITION;
+      const xy_pos_t sraw = {
+         parser.seenval('I') ? RAW_X_POSITION(parser.value_linear_units()) : photo_switch_position.x,
+         parser.seenval('J') ? RAW_Y_POSITION(parser.value_linear_units()) : photo_switch_position.y
       };
-      do_blocking_move_to_xy(sraw[X_AXIS], sraw[Y_AXIS], get_homing_bump_feedrate(X_AXIS));
+      do_blocking_move_to_xy(sraw, get_homing_bump_feedrate(X_AXIS));
       #if PHOTO_SWITCH_MS > 0
         safe_delay(parser.intval('D', PHOTO_SWITCH_MS));
       #endif
@@ -148,7 +152,7 @@ void GcodeSuite::M240() {
   #if PIN_EXISTS(CHDK)
 
     OUT_WRITE(CHDK_PIN, HIGH);
-    chdk_timeout = millis() + PHOTO_SWITCH_MS;
+    chdk_timeout = millis() + parser.intval('D', PHOTO_SWITCH_MS);
 
   #elif HAS_PHOTOGRAPH
 
@@ -160,7 +164,8 @@ void GcodeSuite::M240() {
 
   #ifdef PHOTO_POSITION
     #if PHOTO_DELAY_MS > 0
-      safe_delay(parser.intval('P', PHOTO_DELAY_MS));
+      const millis_t timeout = millis() + parser.intval('P', PHOTO_DELAY_MS);
+      while (PENDING(millis(), timeout)) idle();
     #endif
     do_blocking_move_to(old_pos, fr_mm_s);
     #ifdef PHOTO_RETRACT_MM

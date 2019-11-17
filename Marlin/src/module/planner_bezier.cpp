@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,22 +107,23 @@ static inline float dist1(const float &x1, const float &y1, const float &x2, con
  * the mitigation offered by MIN_STEP and the small computational
  * power available on Arduino, I think it is not wise to implement it.
  */
-void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS], const float offset[4], float fr_mm_s, uint8_t extruder) {
+void cubic_b_spline(
+  const xyze_pos_t &position,       // current position
+  const xyze_pos_t &target,         // target position
+  const xy_pos_t (&offsets)[2],     // a pair of offsets
+  const feedRate_t &scaled_fr_mm_s, // mm/s scaled by feedrate %
+  const uint8_t extruder
+) {
   // Absolute first and second control points are recovered.
-  const float first0 = position[X_AXIS] + offset[0],
-              first1 = position[Y_AXIS] + offset[1],
-              second0 = target[X_AXIS] + offset[2],
-              second1 = target[Y_AXIS] + offset[3];
-  float t = 0;
+  const xy_pos_t first = position + offsets[0], second = target + offsets[1];
 
-  float bez_target[4];
-  bez_target[X_AXIS] = position[X_AXIS];
-  bez_target[Y_AXIS] = position[Y_AXIS];
+  xyze_pos_t bez_target;
+  bez_target.set(position.x, position.y);
   float step = MAX_STEP;
 
   millis_t next_idle_ms = millis() + 200UL;
 
-  while (t < 1) {
+  for (float t = 0; t < 1;) {
 
     thermalManager.manage_heater();
     millis_t now = millis();
@@ -136,15 +137,15 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     bool did_reduce = false;
     float new_t = t + step;
     NOMORE(new_t, 1);
-    float new_pos0 = eval_bezier(position[X_AXIS], first0, second0, target[X_AXIS], new_t),
-          new_pos1 = eval_bezier(position[Y_AXIS], first1, second1, target[Y_AXIS], new_t);
+    float new_pos0 = eval_bezier(position.x, first.x, second.x, target.x, new_t),
+          new_pos1 = eval_bezier(position.y, first.y, second.y, target.y, new_t);
     for (;;) {
       if (new_t - t < (MIN_STEP)) break;
       const float candidate_t = 0.5f * (t + new_t),
-                  candidate_pos0 = eval_bezier(position[X_AXIS], first0, second0, target[X_AXIS], candidate_t),
-                  candidate_pos1 = eval_bezier(position[Y_AXIS], first1, second1, target[Y_AXIS], candidate_t),
-                  interp_pos0 = 0.5f * (bez_target[X_AXIS] + new_pos0),
-                  interp_pos1 = 0.5f * (bez_target[Y_AXIS] + new_pos1);
+                  candidate_pos0 = eval_bezier(position.x, first.x, second.x, target.x, candidate_t),
+                  candidate_pos1 = eval_bezier(position.y, first.y, second.y, target.y, candidate_t),
+                  interp_pos0 = 0.5f * (bez_target.x + new_pos0),
+                  interp_pos1 = 0.5f * (bez_target.y + new_pos1);
       if (dist1(candidate_pos0, candidate_pos1, interp_pos0, interp_pos1) <= (SIGMA)) break;
       new_t = candidate_t;
       new_pos0 = candidate_pos0;
@@ -157,10 +158,10 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
       if (new_t - t > MAX_STEP) break;
       const float candidate_t = t + 2 * (new_t - t);
       if (candidate_t >= 1) break;
-      const float candidate_pos0 = eval_bezier(position[X_AXIS], first0, second0, target[X_AXIS], candidate_t),
-                  candidate_pos1 = eval_bezier(position[Y_AXIS], first1, second1, target[Y_AXIS], candidate_t),
-                  interp_pos0 = 0.5f * (bez_target[X_AXIS] + candidate_pos0),
-                  interp_pos1 = 0.5f * (bez_target[Y_AXIS] + candidate_pos1);
+      const float candidate_pos0 = eval_bezier(position.x, first.x, second.x, target.x, candidate_t),
+                  candidate_pos1 = eval_bezier(position.y, first.y, second.y, target.y, candidate_t),
+                  interp_pos0 = 0.5f * (bez_target.x + candidate_pos0),
+                  interp_pos1 = 0.5f * (bez_target.y + candidate_pos1);
       if (dist1(new_pos0, new_pos1, interp_pos0, interp_pos1) > (SIGMA)) break;
       new_t = candidate_t;
       new_pos0 = candidate_pos0;
@@ -182,22 +183,22 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     t = new_t;
 
     // Compute and send new position
-    bez_target[X_AXIS] = new_pos0;
-    bez_target[Y_AXIS] = new_pos1;
-    // FIXME. The following two are wrong, since the parameter t is
-    // not linear in the distance.
-    bez_target[Z_AXIS] = interp(position[Z_AXIS], target[Z_AXIS], t);
-    bez_target[E_AXIS] = interp(position[E_AXIS], target[E_AXIS], t);
-    apply_motion_limits(bez_target);
+    xyze_pos_t new_bez = {
+      new_pos0, new_pos1,
+      interp(position.z, target.z, t),   // FIXME. These two are wrong, since the parameter t is
+      interp(position.e, target.e, t)    // not linear in the distance.
+    };
+    apply_motion_limits(new_bez);
+    bez_target = new_bez;
 
     #if HAS_LEVELING && !PLANNER_LEVELING
-      float pos[XYZE] = { bez_target[X_AXIS], bez_target[Y_AXIS], bez_target[Z_AXIS], bez_target[E_AXIS] };
+      xyze_pos_t pos = bez_target;
       planner.apply_leveling(pos);
     #else
-      const float (&pos)[XYZE] = bez_target;
+      const xyze_pos_t &pos = bez_target;
     #endif
 
-    if (!planner.buffer_line(pos, fr_mm_s, active_extruder, step))
+    if (!planner.buffer_line(pos, scaled_fr_mm_s, active_extruder, step))
       break;
   }
 }

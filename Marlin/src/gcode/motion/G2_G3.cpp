@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,38 +50,38 @@
  * options for G2/G3 arc generation. In future these options may be GCode tunable.
  */
 void plan_arc(
-  const float (&cart)[XYZE],  // Destination position
-  const float (&offset)[2],   // Center of rotation relative to current_position
-  const uint8_t clockwise     // Clockwise?
+  const xyze_pos_t &cart,   // Destination position
+  const ab_float_t &offset, // Center of rotation relative to current_position
+  const uint8_t clockwise   // Clockwise?
 ) {
   #if ENABLED(CNC_WORKSPACE_PLANES)
     AxisEnum p_axis, q_axis, l_axis;
     switch (gcode.workspace_plane) {
       default:
       case GcodeSuite::PLANE_XY: p_axis = X_AXIS; q_axis = Y_AXIS; l_axis = Z_AXIS; break;
-      case GcodeSuite::PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
       case GcodeSuite::PLANE_YZ: p_axis = Y_AXIS; q_axis = Z_AXIS; l_axis = X_AXIS; break;
+      case GcodeSuite::PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
     }
   #else
     constexpr AxisEnum p_axis = X_AXIS, q_axis = Y_AXIS, l_axis = Z_AXIS;
   #endif
 
   // Radius vector from center to current location
-  float r_P = -offset[0], r_Q = -offset[1];
+  ab_float_t rvec = -offset;
 
-  const float radius = HYPOT(r_P, r_Q),
+  const float radius = HYPOT(rvec.a, rvec.b),
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 start_L  = current_position[l_axis],
               #endif
-              center_P = current_position[p_axis] - r_P,
-              center_Q = current_position[q_axis] - r_Q,
+              center_P = current_position[p_axis] - rvec.a,
+              center_Q = current_position[q_axis] - rvec.b,
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
               linear_travel = cart[l_axis] - current_position[l_axis],
-              extruder_travel = cart[E_AXIS] - current_position[E_AXIS];
+              extruder_travel = cart.e - current_position.e;
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
-  float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
+  float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
   if (angular_travel < 0) angular_travel += RADIANS(360);
   #ifdef MIN_ARC_SEGMENTS
     uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
@@ -133,7 +133,7 @@ void plan_arc(
    * This is important when there are successive arc motions.
    */
   // Vector rotation matrix values
-  float raw[XYZE];
+  xyze_pos_t raw;
   const float theta_per_segment = angular_travel / segments,
               linear_per_segment = linear_travel / segments,
               extruder_per_segment = extruder_travel / segments,
@@ -144,12 +144,12 @@ void plan_arc(
   raw[l_axis] = current_position[l_axis];
 
   // Initialize the extruder axis
-  raw[E_AXIS] = current_position[E_AXIS];
+  raw.e = current_position.e;
 
-  const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = fr_mm_s / MM_PER_ARC_SEGMENT;
+    const float inv_duration = scaled_fr_mm_s / MM_PER_ARC_SEGMENT;
   #endif
 
   millis_t next_idle_ms = millis() + 200UL;
@@ -168,10 +168,10 @@ void plan_arc(
 
     #if N_ARC_CORRECTION > 1
       if (--arc_recalc_count) {
-        // Apply vector rotation matrix to previous r_P / 1
-        const float r_new_Y = r_P * sin_T + r_Q * cos_T;
-        r_P = r_P * cos_T - r_Q * sin_T;
-        r_Q = r_new_Y;
+        // Apply vector rotation matrix to previous rvec.a / 1
+        const float r_new_Y = rvec.a * sin_T + rvec.b * cos_T;
+        rvec.a = rvec.a * cos_T - rvec.b * sin_T;
+        rvec.b = r_new_Y;
       }
       else
     #endif
@@ -185,20 +185,20 @@ void plan_arc(
       // To reduce stuttering, the sin and cos could be computed at different times.
       // For now, compute both at the same time.
       const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
-      r_P = -offset[0] * cos_Ti + offset[1] * sin_Ti;
-      r_Q = -offset[0] * sin_Ti - offset[1] * cos_Ti;
+      rvec.a = -offset[0] * cos_Ti + offset[1] * sin_Ti;
+      rvec.b = -offset[0] * sin_Ti - offset[1] * cos_Ti;
     }
 
     // Update raw location
-    raw[p_axis] = center_P + r_P;
-    raw[q_axis] = center_Q + r_Q;
+    raw[p_axis] = center_P + rvec.a;
+    raw[q_axis] = center_Q + rvec.b;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       raw[l_axis] = start_L;
       UNUSED(linear_per_segment);
     #else
       raw[l_axis] += linear_per_segment;
     #endif
-    raw[E_AXIS] += extruder_per_segment;
+    raw.e += extruder_per_segment;
 
     apply_motion_limits(raw);
 
@@ -206,7 +206,7 @@ void plan_arc(
       planner.apply_leveling(raw);
     #endif
 
-    if (!planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
@@ -215,16 +215,18 @@ void plan_arc(
   }
 
   // Ensure last segment arrives at target location.
-  COPY(raw, cart);
+  raw = cart;
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     raw[l_axis] = start_L;
   #endif
+
+  apply_motion_limits(raw);
 
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
@@ -233,26 +235,27 @@ void plan_arc(
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     raw[l_axis] = start_L;
   #endif
-  COPY(current_position, raw);
+  current_position = raw;
 } // plan_arc
 
 /**
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
  *
- * This command has two forms: IJ-form and R-form.
+ * This command has two forms: IJ-form (JK, KI) and R-form.
  *
- *  - I specifies an X offset. J specifies a Y offset.
- *    At least one of the IJ parameters is required.
- *    X and Y can be omitted to do a complete circle.
- *    The given XY is not error-checked. The arc ends
- *     based on the angle of the destination.
- *    Mixing I or J with R will throw an error.
+ *  - Depending on the current Workspace Plane orientation,
+ *    use parameters IJ/JK/KI to specify the XY/YZ/ZX offsets.
+ *    At least one of the IJ/JK/KI parameters is required.
+ *    XY/YZ/ZX can be omitted to do a complete circle.
+ *    The given XY/YZ/ZX is not error-checked. The arc ends
+ *    based on the angle of the destination.
+ *    Mixing IJ/JK/KI with R will throw an error.
  *
- *  - R specifies the radius. X or Y is required.
- *    Omitting both X and Y will throw an error.
- *    X or Y must differ from the current XY.
- *    Mixing R with I or J will throw an error.
+ *  - R specifies the radius. X or Y (Y or Z / Z or X) is required.
+ *    Omitting both XY/YZ/ZX will throw an error.
+ *    XY/YZ/ZX must differ from the current XY/YZ/ZX.
+ *    Mixing R with IJ/JK/KI will throw an error.
  *
  *  - P specifies the number of full circles to do
  *    before the specified arc move.
@@ -276,30 +279,39 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = relative_mode_backup;
     #endif
 
-    float arc_offset[2] = { 0, 0 };
+    ab_float_t arc_offset = { 0, 0 };
     if (parser.seenval('R')) {
-      const float r = parser.value_linear_units(),
-                  p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
-                  p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
-      if (r && (p2 != p1 || q2 != q1)) {
-        const float e = clockwise ^ (r < 0) ? -1 : 1,            // clockwise -1/1, counterclockwise 1/-1
-                    dx = p2 - p1, dy = q2 - q1,                  // X and Y differences
-                    d = HYPOT(dx, dy),                           // Linear distance between the points
-                    dinv = 1/d,                                  // Inverse of d
-                    h = SQRT(sq(r) - sq(d * 0.5f)),              // Distance to the arc pivot-point
-                    mx = (p1 + p2) * 0.5f, my = (q1 + q2) * 0.5f,// Point between the two points
-                    sx = -dy * dinv, sy = dx * dinv,             // Slope of the perpendicular bisector
-                    cx = mx + e * h * sx, cy = my + e * h * sy;  // Pivot-point of the arc
-        arc_offset[0] = cx - p1;
-        arc_offset[1] = cy - q1;
+      const float r = parser.value_linear_units();
+      if (r) {
+        const xy_pos_t p1 = current_position, p2 = destination;
+        if (p1 != p2) {
+          const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
+          const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
+                      len = d2.magnitude(),              // Distance to mid-point of move from current
+                      h2 = (r - len) * (r + len),        // factored to reduce rounding error
+                      h = (h2 >= 0) ? SQRT(h2) : 0.0f;   // Distance to the arc pivot-point from midpoint
+          const xy_pos_t s = { -d2.y, d2.x };            // Perpendicular bisector. (Divide by len for unit vector.)
+          arc_offset = d2 + s / len * e * h;             // The calculated offset (mid-point if |r| <= len)
+        }
       }
     }
     else {
-      if (parser.seenval('I')) arc_offset[0] = parser.value_linear_units();
-      if (parser.seenval('J')) arc_offset[1] = parser.value_linear_units();
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        char achar, bchar;
+        switch (gcode.workspace_plane) {
+          default:
+          case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
+          case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;
+          case GcodeSuite::PLANE_ZX: achar = 'K'; bchar = 'I'; break;
+        }
+      #else
+        constexpr char achar = 'I', bchar = 'J';
+      #endif
+      if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
+      if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
     }
 
-    if (arc_offset[0] || arc_offset[1]) {
+    if (arc_offset) {
 
       #if ENABLED(ARC_P_CIRCLES)
         // P indicates number of circles to do

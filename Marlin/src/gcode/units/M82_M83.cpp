@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 /**
  * M82: Set E codes absolute (default)
  */
-void GcodeSuite::M82() { axis_relative_modes[E_AXIS] = false; }
+void GcodeSuite::M82() { set_e_absolute(); }
 
 /**
  * M83: Set E codes relative while in Absolute Coordinates (G90) mode
  */
-void GcodeSuite::M83() { axis_relative_modes[E_AXIS] = true; }
+void GcodeSuite::M83() { set_e_relative(); }

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,12 @@
 
 #undef THERMISTOR_NAME
 
+// User-specified thermistor parameters
+#if THERMISTOR_ID == 1000
+  #define THERMISTOR_NAME "User Parameters"
+
 // Thermcouples
-#if THERMISTOR_ID == -4
+#elif THERMISTOR_ID == -4
   #define THERMISTOR_NAME "AD8495"
 #elif THERMISTOR_ID == -3
   #define THERMISTOR_NAME "MAX31855"
@@ -52,6 +56,10 @@
   #define THERMISTOR_NAME "Generic 10K"
 #elif THERMISTOR_ID == 5
   #define THERMISTOR_NAME "ATC 104GT-2"
+#elif THERMISTOR_ID == 501
+  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
+#elif THERMISTOR_ID == 512
+  #define THERMISTOR_NAME "RPW-Ultra"
 #elif THERMISTOR_ID == 6
   #define THERMISTOR_NAME "EPCOS (alt)"
 #elif THERMISTOR_ID == 7
@@ -70,8 +78,14 @@
   #define THERMISTOR_NAME "E3104FXT (alt)"
 #elif THERMISTOR_ID == 13
   #define THERMISTOR_NAME "Hisens 3950"
+#elif THERMISTOR_ID == 15
+  #define THERMISTOR_NAME "100k JGAurora A5"
+#elif THERMISTOR_ID == 18
+  #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
-  #define THERMISTOR_NAME "PT100 UltiMB"
+  #define THERMISTOR_NAME "Pt100 UltiMB"
+#elif THERMISTOR_ID == 201
+  #define THERMISTOR_NAME "Pt100 OverLord"
 #elif THERMISTOR_ID == 60
   #define THERMISTOR_NAME "Makers Tool"
 #elif THERMISTOR_ID == 70
@@ -91,9 +105,9 @@
 #elif THERMISTOR_ID == 1010
   #define THERMISTOR_NAME "PT1000 1K"
 #elif THERMISTOR_ID == 147
-  #define THERMISTOR_NAME "PT100 4K7"
+  #define THERMISTOR_NAME "Pt100 4K7"
 #elif THERMISTOR_ID == 110
-  #define THERMISTOR_NAME "PT100 1K"
+  #define THERMISTOR_NAME "Pt100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
 
@@ -110,5 +124,7 @@
   #define THERMISTOR_NAME "Dummy 1"
 #elif THERMISTOR_ID == 999
   #define THERMISTOR_NAME "Dummy 2"
+#elif THERMISTOR_ID == 1000
+  #define THERMISTOR_NAME "Custom"
 
 #endif // THERMISTOR_ID

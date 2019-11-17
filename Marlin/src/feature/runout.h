@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@
 
 #include "../sd/cardreader.h"
 #include "../module/printcounter.h"
-#include "../module/stepper.h"
+#include "../module/planner.h"
+#include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
 
 #include "../inc/MarlinConfig.h"
@@ -41,6 +42,11 @@
 #endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
+#ifndef FILAMENT_RUNOUT_THRESHOLD
+  #define FILAMENT_RUNOUT_THRESHOLD 5
+#endif
+
+void event_filament_runout();
 
 class FilamentMonitorBase {
   public:
@@ -78,6 +84,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
       response.filament_present(extruder);
     }
 
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      static inline float& runout_distance() { return response.runout_distance_mm; }
+      static inline void set_runout_distance(const float &mm) { response.runout_distance_mm = mm; }
+    #endif
+
     // Handle a block completion. RunoutResponseDelayed uses this to
     // add up the length of filament moved while the filament is out.
     static inline void block_completed(const block_t* const b) {
@@ -89,14 +100,18 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning() || did_pause_print)) {
-        #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+      if (enabled && !filament_ran_out && (printingIsActive()
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          || did_pause_print
+        #endif
+      )) {
+        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif
         response.run();
         sensor.run();
         const bool ran_out = response.has_run_out();
-        #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           sei();
         #endif
         if (ran_out) {
@@ -241,6 +256,8 @@ class FilamentSensorBase {
               && (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_MIRRORED_MODE)
             #elif ENABLED(MULTI_NOZZLE_DUPLICATION)
               && extruder_duplication_enabled
+            #else
+              && false
             #endif
           #endif
         ) return runout_states;               // Any extruder
@@ -251,7 +268,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const b) { UNUSED(b); }
+      static inline void block_completed(const block_t* const) {}
 
       static inline void run() {
         const bool out = poll_runout_state(active_extruder);
@@ -272,7 +289,7 @@ class FilamentSensorBase {
 
 /********************************* RESPONSE TYPE *********************************/
 
-#if FILAMENT_RUNOUT_DISTANCE_MM > 0
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
 
   // RunoutResponseDelayed triggers a runout event only if the length
   // of filament specified by FILAMENT_RUNOUT_DISTANCE_MM has been fed
@@ -312,14 +329,14 @@ class FilamentSensorBase {
       }
 
       static inline void block_completed(const block_t* const b) {
-        if (b->steps[X_AXIS] || b->steps[Y_AXIS] || b->steps[Z_AXIS]
+        if (b->steps.x || b->steps.y || b->steps.z
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
             || did_pause_print // Allow pause purge move to re-trigger runout state
           #endif
         ) {
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
-          const int32_t steps = b->steps[E_AXIS];
+          const int32_t steps = b->steps.e;
           runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.steps_to_mm[E_AXIS_N(e)];
         }
       }
@@ -332,14 +349,14 @@ class FilamentSensorBase {
 
   class RunoutResponseDebounced {
     private:
-      static constexpr int8_t runout_threshold = 5;
+      static constexpr int8_t runout_threshold = FILAMENT_RUNOUT_THRESHOLD;
       static int8_t runout_count;
     public:
       static inline void reset()                                  { runout_count = runout_threshold; }
-      static inline void run()                                    { runout_count--; }
+      static inline void run()                                    { if (runout_count >= 0) runout_count--; }
       static inline bool has_run_out()                            { return runout_count < 0; }
-      static inline void block_completed(const block_t* const b)  { UNUSED(b); }
-      static inline void filament_present(const uint8_t extruder) { runout_count = runout_threshold; UNUSED(extruder); }
+      static inline void block_completed(const block_t* const)    { }
+      static inline void filament_present(const uint8_t)          { runout_count = runout_threshold; }
   };
 
 #endif // !FILAMENT_RUNOUT_DISTANCE_MM
@@ -347,11 +364,12 @@ class FilamentSensorBase {
 /********************************* TEMPLATE SPECIALIZATION *********************************/
 
 typedef TFilamentMonitor<
-  #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    RunoutResponseDelayed,
     #if ENABLED(FILAMENT_MOTION_SENSOR)
-      RunoutResponseDelayed, FilamentSensorEncoder
+      FilamentSensorEncoder
     #else
-      RunoutResponseDelayed, FilamentSensorSwitch
+      FilamentSensorSwitch
     #endif
   #else
     RunoutResponseDebounced, FilamentSensorSwitch

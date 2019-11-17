@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,34 +18,37 @@
  */
 #pragma once
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
+#include "../shared/Marduino.h"
+#include "../shared/HAL_SPI.h"
+#include "fastio.h"
+#include "watchdog.h"
+#include "math.h"
+
+#ifdef USBCON
+  #include <HardwareSerial.h>
+#else
+  #define HardwareSerial_h // Hack to prevent HardwareSerial.h header inclusion
+  #include "MarlinSerial.h"
+#endif
 
 #include <stdint.h>
-
-#include <Arduino.h>
-
 #include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "../shared/HAL_SPI.h"
-#include "fastio_AVR.h"
-#include "watchdog_AVR.h"
-#include "math_AVR.h"
-
-#ifdef USBCON
-  #include "HardwareSerial.h"
-#else
-  #include "MarlinSerial.h"
+#ifndef pgm_read_ptr
+  // Compatibility for avr-libc 1.8.0-4.1 included with Ubuntu for
+  // Windows Subsystem for Linux on Windows 10 as of 10/18/2019
+  #define pgm_read_ptr_far(address_long) (void*)__ELPM_word((uint32_t)(address_long))
+  #define pgm_read_ptr_near(address_short) (void*)__LPM_word((uint16_t)(address_short))
+  #define pgm_read_ptr(address_short) pgm_read_ptr_near(address_short)
 #endif
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
 
 //#define analogInputToDigitalPin(IO) IO
 
@@ -60,20 +63,21 @@
 // On AVR this is in math.h?
 //#define square(x) ((x)*(x))
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
 typedef int8_t pin_t;
 
+#define SHARED_SERVOS HAS_SERVOS
 #define HAL_SERVO_LIB Servo
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 //extern uint8_t MCUSR;
 
@@ -105,20 +109,25 @@ typedef int8_t pin_t;
   #endif
 #endif
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
-//void cli(void);
+void HAL_init();
+
+//void cli();
 
 //void _delay_ms(const int delay);
 
-inline void HAL_clear_reset_source(void) { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source(void) { return MCUSR; }
+inline void HAL_clear_reset_source() { MCUSR = 0; }
+inline uint8_t HAL_get_reset_source() { return MCUSR; }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
+#pragma GCC diagnostic pop
 
 // timers
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
@@ -145,8 +154,7 @@ extern "C" {
 #define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0B)
 #define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0B)
 
-FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  UNUSED(frequency);
+FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
   switch (timer_num) {
     case STEP_TIMER_NUM:
       // waveform generation = 0100 = CTC
@@ -198,9 +206,9 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t freque
 
 /* 18 cycles maximum latency */
 #define HAL_STEP_TIMER_ISR() \
-extern "C" void TIMER1_COMPA_vect (void) __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER1_COMPA_vect_bottom (void) asm ("TIMER1_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER1_COMPA_vect (void) { \
+extern "C" void TIMER1_COMPA_vect() __attribute__ ((signal, naked, used, externally_visible)); \
+extern "C" void TIMER1_COMPA_vect_bottom() asm ("TIMER1_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
+void TIMER1_COMPA_vect() { \
   __asm__ __volatile__ ( \
     A("push r16")                      /* 2 Save R16 */ \
     A("in r16, __SREG__")              /* 1 Get SREG */ \
@@ -267,13 +275,13 @@ void TIMER1_COMPA_vect (void) { \
     : \
   ); \
 } \
-void TIMER1_COMPA_vect_bottom(void)
+void TIMER1_COMPA_vect_bottom()
 
 /* 14 cycles maximum latency */
 #define HAL_TEMP_TIMER_ISR() \
-extern "C" void TIMER0_COMPB_vect (void) __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER0_COMPB_vect_bottom(void)  asm ("TIMER0_COMPB_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER0_COMPB_vect (void) { \
+extern "C" void TIMER0_COMPB_vect() __attribute__ ((signal, naked, used, externally_visible)); \
+extern "C" void TIMER0_COMPB_vect_bottom()  asm ("TIMER0_COMPB_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
+void TIMER0_COMPB_vect() { \
   __asm__ __volatile__ ( \
     A("push r16")                       /* 2 Save R16 */ \
     A("in r16, __SREG__")               /* 1 Get SREG */ \
@@ -333,7 +341,7 @@ void TIMER0_COMPB_vect (void) { \
     : \
   ); \
 } \
-void TIMER0_COMPB_vect_bottom(void)
+void TIMER0_COMPB_vect_bottom()
 
 // ADC
 #ifdef DIDR2
@@ -342,7 +350,7 @@ void TIMER0_COMPB_vect_bottom(void)
   #define HAL_ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
 #endif
 
-inline void HAL_adc_init(void) {
+inline void HAL_adc_init() {
   ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
   DIDR0 = 0;
   #ifdef DIDR2
@@ -357,6 +365,7 @@ inline void HAL_adc_init(void) {
   #define HAL_START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
 #endif
 
+#define HAL_ADC_RESOLUTION 10
 #define HAL_READ_ADC()  ADC
 #define HAL_ADC_READY() !TEST(ADCSRA, ADSC)
 

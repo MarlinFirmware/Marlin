@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,15 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include <Arduino.h> // replace that with the proper imports
+#include "../../inc/MarlinConfigPre.h"
+
 #include "i2s.h"
-#include "../../core/macros.h"
-#include "driver/periph_ctrl.h"
-#include "rom/lldesc.h"
-#include "soc/i2s_struct.h"
-#include "freertos/queue.h"
+
+#include "../shared/Marduino.h"
+#include <driver/periph_ctrl.h>
+#include <rom/lldesc.h>
+#include <soc/i2s_struct.h>
+#include <freertos/queue.h>
 #include "../../module/stepper.h"
 
 #define DMA_BUF_COUNT 8                                // number of DMA buffers to store data
@@ -54,7 +56,7 @@ static i2s_dev_t* I2S[I2S_NUM_MAX] = {&I2S0, &I2S1};
 static i2s_dma_t dma;
 
 // output value
-uint32_t i2s_port_data;
+uint32_t i2s_port_data = 0;
 
 #define I2S_ENTER_CRITICAL()  portENTER_CRITICAL(&i2s_spinlock[i2s_num])
 #define I2S_EXIT_CRITICAL()   portEXIT_CRITICAL(&i2s_spinlock[i2s_num])
@@ -138,13 +140,13 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
 }
 
 void stepperTask(void* parameter) {
-  uint32_t i, remaining = 0;
+  uint32_t remaining = 0;
 
   while (1) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
-    for (i = 0; i < DMA_SAMPLE_COUNT; i++) {
+    while (dma.rw_pos < DMA_SAMPLE_COUNT) {
       // Fill with the port data post pulse_phase until the next step
       if (remaining) {
         i2s_push_sample();
@@ -182,22 +184,22 @@ int i2s_init() {
 
   // Allocate the array of pointers to the buffers
   dma.buffers = (uint32_t **)malloc(sizeof(uint32_t*) * DMA_BUF_COUNT);
-  if (dma.buffers == NULL) return -1;
+  if (dma.buffers == nullptr) return -1;
 
   // Allocate each buffer that can be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
     dma.buffers[buf_idx] = (uint32_t*) heap_caps_calloc(1, DMA_BUF_LEN, MALLOC_CAP_DMA);
-    if (dma.buffers[buf_idx] == NULL) return -1;
+    if (dma.buffers[buf_idx] == nullptr) return -1;
   }
 
   // Allocate the array of DMA descriptors
   dma.desc = (lldesc_t**) malloc(sizeof(lldesc_t*) * DMA_BUF_COUNT);
-  if (dma.desc == NULL) return -1;
+  if (dma.desc == nullptr) return -1;
 
   // Allocate each DMA descriptor that will be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
     dma.desc[buf_idx] = (lldesc_t*) heap_caps_malloc(sizeof(lldesc_t), MALLOC_CAP_DMA);
-    if (dma.desc[buf_idx] == NULL) return -1;
+    if (dma.desc[buf_idx] == nullptr) return -1;
   }
 
   // Initialize
@@ -252,7 +254,13 @@ int i2s_init() {
 
   I2S0.fifo_conf.dscr_en = 0;
 
-  I2S0.conf_chan.tx_chan_mod = 0;
+  I2S0.conf_chan.tx_chan_mod = (
+    #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
+      4
+    #else
+      0
+    #endif
+  );
   I2S0.fifo_conf.tx_fifo_mod = 0;
   I2S0.conf.tx_mono = 0;
 
@@ -296,23 +304,36 @@ int i2s_init() {
 
   // Allocate and Enable the I2S interrupt
   intr_handle_t i2s_isr_handle;
-  esp_intr_alloc(ETS_I2S0_INTR_SOURCE, 0, i2s_intr_handler_default, NULL, &i2s_isr_handle);
+  esp_intr_alloc(ETS_I2S0_INTR_SOURCE, 0, i2s_intr_handler_default, nullptr, &i2s_isr_handle);
   esp_intr_enable(i2s_isr_handle);
 
   // Create the task that will feed the buffer
-  xTaskCreate(stepperTask, "StepperTask", 10000, NULL, 1, NULL);
+  xTaskCreate(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr);
 
   // Route the i2s pins to the appropriate GPIO
-  gpio_matrix_out_check(22, I2S0O_DATA_OUT23_IDX, 0, 0);
-  gpio_matrix_out_check(25, I2S0O_WS_OUT_IDX, 0, 0);
-  gpio_matrix_out_check(26, I2S0O_BCK_OUT_IDX, 0, 0);
+  gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
+  gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
+  gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
 
   // Start the I2S peripheral
   return i2s_start(I2S_NUM_0);
 }
 
 void i2s_write(uint8_t pin, uint8_t val) {
+  #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
+    if (pin >= 16) {
+      SET_BIT_TO(I2S0.conf_single_data, pin, val);
+      return;
+    }
+  #endif
   SET_BIT_TO(i2s_port_data, pin, val);
+}
+
+uint8_t i2s_state(uint8_t pin) {
+  #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
+    if (pin >= 16) return TEST(I2S0.conf_single_data, pin);
+  #endif
+  return TEST(i2s_port_data, pin);
 }
 
 void i2s_push_sample() {

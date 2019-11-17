@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ bool GCodeParser::volumetric_enabled;
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-  TempUnit GCodeParser::input_temp_units;
+  TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
 char *GCodeParser::command_ptr,
@@ -80,7 +80,7 @@ GCodeParser parser;
  * this may be optimized by commenting out ZERO(param)
  */
 void GCodeParser::reset() {
-  string_arg = NULL;                    // No whole line argument
+  string_arg = nullptr;                 // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
   #if USE_GCODE_SUBCODES
@@ -138,31 +138,29 @@ void GCodeParser::parse(char *p) {
   switch (letter) {
 
     case 'G': case 'M': case 'T':
-
+    #if ENABLED(CANCEL_OBJECTS)
+      case 'O':
+    #endif
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
-
-      // Bail if there's no command code number
-      // Prusa MMU2 has T?/Tx/Tc commands
-      #if DISABLED(PRUSA_MMU2)
-        if (!NUMERIC(*p)) return;
-      #endif
-
-      // Save the command letter at this point
-      // A '?' signifies an unknown command
-      command_letter = letter;
-
 
       #if ENABLED(PRUSA_MMU2)
         if (letter == 'T') {
           // check for special MMU2 T?/Tx/Tc commands
           if (*p == '?' || *p == 'x' || *p == 'c') {
+            command_letter = letter;
             string_arg = p;
             return;
           }
         }
       #endif
 
+      // Bail if there's no command code number
+      if (!NUMERIC(*p)) return;
+
+      // Save the command letter at this point
+      // A '?' signifies an unknown command
+      command_letter = letter;
 
       // Get the code number - integer digits only
       codenum = 0;
@@ -226,13 +224,22 @@ void GCodeParser::parse(char *p) {
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) {
     #if ENABLED(GCODE_MACROS)
-      case 810: case 811: case 812: case 813: case 814:
-      case 815: case 816: case 817: case 818: case 819:
+      case 810 ... 819:
+    #endif
+    #if ENABLED(EXPECTED_PRINTER_CHECK)
+      case 16:
     #endif
     case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return;
     default: break;
   }
-
+/*
+  #if ENABLED(CANCEL_OBJECTS)
+  if (letter == 'O') switch (codenum) {
+    case 1:  string_arg = p; return;
+    default: break;
+  }
+  #endif
+*/
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;
   #endif
@@ -245,8 +252,8 @@ void GCodeParser::parse(char *p) {
    * This allows M0/M1 with expire time to work: "M0 S5 You Win!"
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
-  string_arg = NULL;
-  while (const char code = *p++) {                    // Get the next parameter. A NUL ends the loop
+  string_arg = nullptr;
+  while (const char code = *p++) {              // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
@@ -289,7 +296,7 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
-        set(code, has_num ? p : NULL);          // Set parameter exists and pointer (NULL for no number)
+        set(code, has_num ? p : nullptr);       // Set parameter exists and pointer (nullptr for no number)
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
@@ -315,7 +322,7 @@ void GCodeParser::parse(char *p) {
       if (next_command) {
         while (*next_command && *next_command != ' ') ++next_command;
         while (*next_command == ' ') ++next_command;
-        if (!*next_command) next_command = NULL;
+        if (!*next_command) next_command = nullptr;
       }
     #else
       const char *next_command = command_args;

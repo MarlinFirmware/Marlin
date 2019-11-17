@@ -51,13 +51,12 @@ jobs:
             export PATH=`pwd`/buildroot/bin/:${PATH}
 
             # Generate custom version include
-            generate_version ./Marlin/src/inc
-            cat ./Marlin/src/inc/_Version.h
+            generate_version ./Marlin/
+            cat ./Marlin/Version.h
             #
-            # Backup pins_RAMPS.h
+            # Back up pins_RAMPS.h
             #
-            cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
-            #
+            backup_ramps
 
             env_backup
 
@@ -241,14 +240,14 @@ jobs:
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
             echo testing STM32F1 targets...
-            export TEST_PLATFORM="-e STM32F1"
+            export TEST_PLATFORM="-e STM32F103RE"
             restore_configs
-            echo use_example_configs STM32F10
-            use_example_configs STM32F10
+            echo use_example_configs STM32/STM32F103RE
+            use_example_configs STM32/STM32F103RE
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
-            echo use_example_configs stm32f103ret6
-            use_example_configs stm32f103ret6
+            echo use_example_configs STM32/stm32f103ret6
+            use_example_configs STM32/stm32f103ret6
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
 

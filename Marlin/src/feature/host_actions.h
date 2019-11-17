@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 void host_action(const char * const pstr, const bool eol=true);
 
@@ -62,8 +62,8 @@ void host_action(const char * const pstr, const bool eol=true);
   void host_action_prompt_button(const char * const pstr);
   void host_action_prompt_end();
   void host_action_prompt_show();
-  void host_prompt_do(const PromptReason type, const char * const pstr, const char * const pbtn=NULL);
-  inline void host_prompt_open(const PromptReason reason, const char * const pstr, const char * const pbtn=NULL) {
+  void host_prompt_do(const PromptReason type, const char * const pstr, const char * const pbtn=nullptr);
+  inline void host_prompt_open(const PromptReason reason, const char * const pstr, const char * const pbtn=nullptr) {
     if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, pbtn);
   }
 

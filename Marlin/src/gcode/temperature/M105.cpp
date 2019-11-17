@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +31,21 @@ void GcodeSuite::M105() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
-  #if HAS_TEMP_SENSOR
-    SERIAL_ECHOPGM(MSG_OK);
-    thermalManager.print_heater_states(target_extruder);
-  #else // !HAS_TEMP_SENSOR
-    SERIAL_ERROR_MSG(MSG_ERR_NO_THERMISTORS);
-  #endif
+  SERIAL_ECHOPGM(MSG_OK);
 
-  SERIAL_EOL();
+  #if HAS_TEMP_SENSOR
+
+    thermalManager.print_heater_states(target_extruder
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        , parser.boolval('R')
+      #endif
+    );
+
+    SERIAL_EOL();
+
+  #else
+
+    SERIAL_ECHOLNPGM(" T:0"); // Some hosts send M105 to test the serial connection
+
+  #endif
 }

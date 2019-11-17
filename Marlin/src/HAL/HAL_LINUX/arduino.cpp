@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@
 #include "../shared/Delay.h"
 
 // Interrupts
-void cli(void) { } // Disable
-void sei(void) { }  // Enable
+void cli() { } // Disable
+void sei() { } // Enable
 
 // Time functions
 void _delay_ms(const int delay_ms) {
@@ -90,7 +90,7 @@ void eeprom_read_block(void *__dst, const void *__src, size_t __n) { }
 
 void eeprom_update_block(const void *__src, void *__dst, size_t __n) { }
 
-char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s) {
+char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s) {
   char format_string[20];
   snprintf(format_string, 20, "%%%d.%df", __width, __prec);
   sprintf(__s, format_string, __val);

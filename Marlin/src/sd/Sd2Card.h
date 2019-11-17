@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 
 /**
  * Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
@@ -85,27 +85,6 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
 #elif USE_SOFTWARE_SPI
   #define SOFTWARE_SPI
 #endif  // MEGA_SOFT_SPI
-//------------------------------------------------------------------------------
-// SPI pin definitions - do not edit here - change in SdFatConfig.h
-//
-#define SD_CHIP_SELECT_PIN SS_PIN
-
-#if 0
-#if DISABLED(SOFTWARE_SPI)
-  // hardware pin defs
-  #define SD_CHIP_SELECT_PIN SS_PIN   // The default chip select pin for the SD card is SS.
-  // The following three pins must not be redefined for hardware SPI.
-  #define SPI_MOSI_PIN MOSI_PIN       // SPI Master Out Slave In pin
-  #define SPI_MISO_PIN MISO_PIN       // SPI Master In Slave Out pin
-  #define SPI_SCK_PIN SCK_PIN         // SPI Clock pin
-#else  // SOFTWARE_SPI
-  #define SD_CHIP_SELECT_PIN SOFT_SPI_CS_PIN  // SPI chip select pin
-  #define SPI_MOSI_PIN SOFT_SPI_MOSI_PIN      // SPI Master Out Slave In pin
-  #define SPI_MISO_PIN SOFT_SPI_MISO_PIN      // SPI Master In Slave Out pin
-  #define SPI_SCK_PIN SOFT_SPI_SCK_PIN        // SPI Clock pin
-#endif  // SOFTWARE_SPI
-
-#endif
 
 /**
  * \class Sd2Card
@@ -140,7 +119,7 @@ public:
    *
    * \return true for success or false for failure.
    */
-  bool init(const uint8_t sckRateID=SPI_FULL_SPEED, const pin_t chipSelectPin=SD_CHIP_SELECT_PIN);
+  bool init(const uint8_t sckRateID, const pin_t chipSelectPin);
 
   bool readBlock(uint32_t block, uint8_t* dst);
 

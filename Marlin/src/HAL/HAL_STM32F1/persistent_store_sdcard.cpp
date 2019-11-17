@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,47 +22,67 @@
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ * Implementation of EEPROM settings in SD Card
  */
 
 #ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
+#if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
 
 #include "../shared/persistent_store_api.h"
 
-#include "../../sd/cardreader.h"
+#ifndef E2END
+  #define E2END 0xFFF // 4KB
+#endif
+#define HAL_EEPROM_SIZE (E2END + 1)
 
-#define HAL_STM32F1_EEPROM_SIZE 4096
-char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
+#define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
+static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
 
-char eeprom_filename[] = "eeprom.dat";
+#if ENABLED(SDSUPPORT)
 
-bool PersistentStore::access_start() {
-  if (!card.isDetected()) return false;
-  int16_t bytes_read = 0;
-  constexpr char eeprom_zero = 0xFF;
-  card.openFile(eeprom_filename, true);
-  bytes_read = card.read(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
-  if (bytes_read < 0) return false;
-  for (; bytes_read < HAL_STM32F1_EEPROM_SIZE; bytes_read++)
-    HAL_STM32F1_eeprom_content[bytes_read] = eeprom_zero;
-  card.closefile();
-  return true;
-}
+  #include "../../sd/cardreader.h"
 
-bool PersistentStore::access_finish() {
-  if (!card.isDetected()) return false;
-  card.openFile(eeprom_filename, false);
-  int16_t bytes_written = card.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
-  card.closefile();
-  return (bytes_written == HAL_STM32F1_EEPROM_SIZE);
-}
+  #define EEPROM_FILENAME "eeprom.dat"
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+  bool PersistentStore::access_start() {
+    if (!card.isMounted()) return false;
+
+    SdFile file, root = card.getroot();
+    if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
+      return true; // false aborts the save
+
+    int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
+    if (bytes_read < 0) return false;
+    for (; bytes_read < HAL_EEPROM_SIZE; bytes_read++)
+      HAL_eeprom_data[bytes_read] = 0xFF;
+    file.close();
+    return true;
+  }
+
+  bool PersistentStore::access_finish() {
+    if (!card.isMounted()) return false;
+
+    SdFile file, root = card.getroot();
+    int bytes_written = 0;
+    if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
+      bytes_written = file.write(HAL_eeprom_data, HAL_EEPROM_SIZE);
+      file.close();
+    }
+    return (bytes_written == HAL_EEPROM_SIZE);
+  }
+
+#else // !SDSUPPORT
+
+  #error "Please define SPI_EEPROM (in Configuration.h) or disable EEPROM_SETTINGS."
+
+#endif // !SDSUPPORT
+
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   for (size_t i = 0; i < size; i++)
-    HAL_STM32F1_eeprom_content[pos + i] = value[i];
+    HAL_eeprom_data[pos + i] = value[i];
   crc16(crc, value, size);
   pos += size;
   return false;
@@ -71,7 +90,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t si
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (size_t i = 0; i < size; i++) {
-    uint8_t c = HAL_STM32F1_eeprom_content[pos + i];
+    uint8_t c = HAL_eeprom_data[pos + i];
     if (writing) value[i] = c;
     crc16(crc, &c, 1);
   }
@@ -79,7 +98,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return false;
 }
 
-size_t PersistentStore::capacity() { return HAL_STM32F1_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return HAL_EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS
 

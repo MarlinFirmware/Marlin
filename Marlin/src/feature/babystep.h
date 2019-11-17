@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-#include "../core/enum.h"
 
 #if IS_CORE || EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
   #define BS_TODO_AXIS(A) A
@@ -30,7 +29,7 @@
   #define BS_TODO_AXIS(A) 0
 #endif
 
-#if HAS_LCD_MENU && ENABLED(BABYSTEP_DISPLAY_TOTAL)
+#if ENABLED(BABYSTEP_DISPLAY_TOTAL)
   #if ENABLED(BABYSTEP_XY)
     #define BS_TOTAL_AXIS(A) A
   #else
@@ -40,20 +39,21 @@
 
 class Babystep {
 public:
-  static volatile int16_t todo[BS_TODO_AXIS(Z_AXIS) + 1];
-  #if HAS_LCD_MENU
-    static int16_t accum;                                     // Total babysteps in current edit
-    #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      static int16_t axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];   // Total babysteps since G28
-      static inline void reset_total(const AxisEnum axis) {
+  static volatile int16_t steps[BS_TODO_AXIS(Z_AXIS) + 1];
+  static int16_t accum;                                     // Total babysteps in current edit
+
+  #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+    static int16_t axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];   // Total babysteps since G28
+    static inline void reset_total(const AxisEnum axis) {
+      if (true
         #if ENABLED(BABYSTEP_XY)
-          if (axis == Z_AXIS)
+          && axis == Z_AXIS
         #endif
-            axis_total[BS_TOTAL_AXIS(axis)] = 0;
-      }
-    #endif
+      ) axis_total[BS_TOTAL_AXIS(axis)] = 0;
+    }
   #endif
-  static void add_steps(const AxisEnum axis, const int32_t distance);
+
+  static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const float &mm);
   static void task();
 private:

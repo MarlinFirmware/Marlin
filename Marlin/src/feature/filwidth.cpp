@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,11 +26,24 @@
 
 #include "filwidth.h"
 
-bool filament_sensor; // = false;                             // M405/M406 turns filament sensor control ON/OFF.
-float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404.
-      filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
-uint8_t meas_delay_cm = MEASUREMENT_DELAY_CM;                 // Distance delay setting
-int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1],          // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
-       filwidth_delay_index[2] = { 0, -1 };                   // Indexes into ring buffer
+FilamentWidthSensor filwidth;
+
+bool FilamentWidthSensor::enabled; // = false;                          // (M405-M406) Filament Width Sensor ON/OFF.
+uint32_t FilamentWidthSensor::accum; // = 0                             // ADC accumulator
+uint16_t FilamentWidthSensor::raw; // = 0                               // Measured filament diameter - one extruder only
+float FilamentWidthSensor::nominal_mm = DEFAULT_NOMINAL_FILAMENT_DIA,   // (M104) Nominal filament width
+      FilamentWidthSensor::measured_mm = DEFAULT_MEASURED_FILAMENT_DIA, // Measured filament diameter
+      FilamentWidthSensor::e_count = 0,
+      FilamentWidthSensor::delay_dist = 0;
+uint8_t FilamentWidthSensor::meas_delay_cm = MEASUREMENT_DELAY_CM;      // Distance delay setting
+int8_t FilamentWidthSensor::ratios[MAX_MEASUREMENT_DELAY + 1],          // Ring buffer to delay measurement. (Extruder factor minus 100)
+       FilamentWidthSensor::index_r,                                    // Indexes into ring buffer
+       FilamentWidthSensor::index_w;
+
+void FilamentWidthSensor::init() {
+  const int8_t ratio = sample_to_size_ratio();
+  for (uint8_t i = 0; i < COUNT(ratios); ++i) ratios[i] = ratio;
+  index_r = index_w = 0;
+}
 
 #endif // FILAMENT_WIDTH_SENSOR

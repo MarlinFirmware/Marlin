@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,13 +93,13 @@ void GcodeSuite::M852() {
 
   if (!ijk) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR_F(MSG_SKEW_FACTOR " XY: ", planner.skew_factor.xy, 6);
+    serialprintPGM(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      SERIAL_ECHOPAIR(" XZ: ", planner.skew_factor.xz);
-      SERIAL_ECHOLNPAIR(" YZ: ", planner.skew_factor.yz);
-    #else
-      SERIAL_EOL();
+      SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);
+      SERIAL_ECHOPAIR_F(" YZ: ", planner.skew_factor.yz, 6);
     #endif
+    SERIAL_EOL();
   }
 }
 

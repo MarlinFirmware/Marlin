@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,16 +25,29 @@
 #if HAS_DRIVER(L6470)
 
 #include "../../gcode.h"
-#include "../../../module/stepper_indirection.h"
+#include "../../../module/stepper/indirection.h"
 #include "../../../module/planner.h"
 #include "../../../libs/L6470/L6470_Marlin.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../../core/debug_out.h"
 
+static void jiggle_axis(const char axis_char, const float &min, const float &max, const feedRate_t &fr_mm_m) {
+  char gcode_string[30], str1[11], str2[11];
+
+  // Turn the motor(s) both directions
+  sprintf_P(gcode_string, PSTR("G0 %c%s F%s"), axis_char, dtostrf(min, 1, 3, str1), dtostrf(fr_mm_m, 1, 3, str2));
+  gcode.process_subcommands_now(gcode_string);
+
+  sprintf_P(gcode_string, PSTR("G0 %c%s F%s"), axis_char, dtostrf(max, 1, 3, str1), str2);
+  gcode.process_subcommands_now(gcode_string);
+
+  planner.synchronize();
+}
+
 /**
  *
- * M916: increase KVAL_HOLD until get thermal warning
+ * M916: Increase KVAL_HOLD until thermal warning
  *
  *
  * J - select which driver(s) to monitor on multi-driver axis
@@ -71,7 +84,7 @@ void GcodeSuite::M916() {
   uint8_t driver_count = 1;
   float position_max;
   float position_min;
-  float final_feedrate;
+  feedRate_t final_fr_mm_m;
   uint8_t kval_hold;
   uint8_t ocd_th_val = 0;
   uint8_t stall_th_val = 0;
@@ -80,19 +93,16 @@ void GcodeSuite::M916() {
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_fr_mm_m, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
     return;  // quit if invalid user input
 
-  DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
+  DEBUG_ECHOLNPAIR("feedrate = ", final_fr_mm_m);
 
-  planner.synchronize();                             // wait for all current movement commands to complete
+  planner.synchronize();                  // Wait for moves to finish
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L6470.get_status(axis_index[j]);      // Clear out error flags
 
-  char temp_axis_string[] = " ";
-  temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
-  char gcode_string[80];
   uint16_t status_composite = 0;
 
   DEBUG_ECHOLNPGM(".\n.");
@@ -104,15 +114,8 @@ void GcodeSuite::M916() {
     for (j = 0; j < driver_count; j++)
       L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
 
-    // turn the motor(s) both directions
-    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
-
-    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
-
-    // get the status after the motors have stopped
-    planner.synchronize();
+    // Turn the motor(s) both directions
+    jiggle_axis(axis_mon[0][0], position_min, position_max, final_fr_mm_m);
 
     status_composite = 0;    // clear out the old bits
 
@@ -187,7 +190,7 @@ void GcodeSuite::M917() {
   uint8_t driver_count = 1;
   float position_max;
   float position_min;
-  float final_feedrate;
+  feedRate_t final_fr_mm_m;
   uint8_t kval_hold;
   uint8_t ocd_th_val = 0;
   uint8_t stall_th_val = 0;
@@ -196,17 +199,14 @@ void GcodeSuite::M917() {
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_fr_mm_m, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
     return;  // quit if invalid user input
 
-  DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
+  DEBUG_ECHOLNPAIR("feedrate = ", final_fr_mm_m);
 
-  planner.synchronize();                             // wait for all current movement commands to complete
+  planner.synchronize();                // Wait for moves to finish
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);  // clear out any pre-existing error flags
-  char temp_axis_string[] = " ";
-  temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
-  char gcode_string[80];
+    L6470.get_status(axis_index[j]);    // Clear out error flags
   uint16_t status_composite = 0;
   uint8_t test_phase = 0;
         // 0 - decreasing OCD - exit when OCD warning occurs (ignore STALL)
@@ -225,13 +225,7 @@ void GcodeSuite::M917() {
     DEBUG_ECHOPAIR("STALL threshold : ", (stall_th_val + 1) * 31.25);
     DEBUG_ECHOLNPAIR("   OCD threshold : ", (ocd_th_val + 1) * 375);
 
-    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_min, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
-
-    sprintf_P(gcode_string, PSTR("G0 %s%4.3f  F%4.3f"), temp_axis_string, position_max, final_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
-
-    planner.synchronize();
+    jiggle_axis(axis_mon[0][0], position_min, position_max, final_fr_mm_m);
 
     status_composite = 0;    // clear out the old bits
 
@@ -263,8 +257,8 @@ void GcodeSuite::M917() {
             L6470.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
-        gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
-        watchdog_reset();   // beat the dog
+        reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
+        watchdog_refresh();
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
@@ -458,7 +452,7 @@ void GcodeSuite::M918() {
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max, position_min;
-  float final_feedrate;
+  feedRate_t final_fr_mm_m;
   uint8_t kval_hold;
   uint8_t ocd_th_val = 0;
   uint8_t stall_th_val = 0;
@@ -467,7 +461,7 @@ void GcodeSuite::M918() {
 
   uint8_t j;   // general purpose counter
 
-  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
+  if (L6470.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_fr_mm_m, kval_hold, over_current_flag, ocd_th_val, stall_th_val, over_current_threshold))
     return;  // quit if invalid user input
 
   uint8_t m_steps = parser.byteval('M');
@@ -495,42 +489,29 @@ void GcodeSuite::M918() {
   for (j = 0; j < driver_count; j++)
     L6470.set_param(axis_index[j], L6470_STEP_MODE, m_bits);   // set microsteps
 
-  DEBUG_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
+  DEBUG_ECHOLNPAIR("target (maximum) feedrate = ", final_fr_mm_m);
 
-  float feedrate_inc = final_feedrate / 10, // start at 1/10 of max & go up by 1/10 per step)
-        current_feedrate = 0;
-
-  planner.synchronize();                  // wait for all current movement commands to complete
+  planner.synchronize();                  // Wait for moves to finish
 
   for (j = 0; j < driver_count; j++)
-    L6470.get_status(axis_index[j]);      // clear all error flags
+    L6470.get_status(axis_index[j]);      // Clear all error flags
 
-  char temp_axis_string[2];
-  temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
-  temp_axis_string[1] = '\n';
-
-  char gcode_string[80];
   uint16_t status_composite = 0;
-  DEBUG_ECHOLNPGM(".\n.\n.");            // make the feedrate prints easier to see
+  DEBUG_ECHOLNPGM(".\n.\n.");             // Make the feedrate prints easier to see
 
-  do {
-    current_feedrate += feedrate_inc;
-    DEBUG_ECHOLNPAIR("...feedrate = ", current_feedrate);
+  constexpr uint8_t iterations = 10;
+  for (uint8_t i = 1; i <= iterations; i++) {
+    const feedRate_t fr_mm_m = i * final_fr_mm_m / iterations;
+    DEBUG_ECHOLNPAIR("...feedrate = ", fr_mm_m);
 
-    sprintf_P(gcode_string, PSTR("G0 %s%4.3f F%4.3f"), temp_axis_string, position_min, current_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
-
-    sprintf_P(gcode_string, PSTR("G0 %s%4.3f F%4.3f"), temp_axis_string, position_max, current_feedrate);
-    gcode.process_subcommands_now_P(gcode_string);
-
-    planner.synchronize();
+    jiggle_axis(axis_mon[0][0], position_min, position_max, fr_mm_m);
 
     for (j = 0; j < driver_count; j++) {
       axis_status[j] = (~L6470.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
     if (status_composite) break;       // quit if any errors flags are raised
-  } while (current_feedrate < final_feedrate * 0.99);
+  }
 
   DEBUG_ECHOPGM("Completed with errors");
   if (status_composite) {

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,21 +29,22 @@
  *  DELAY_US(count): Delay execution in microseconds
  */
 
-#include "../../core/macros.h"
 #include "../../core/millis_t.h"
+#include "../../core/macros.h"
 
 #if defined(__arm__) || defined(__thumb__)
 
   #if __CORTEX_M == 7
 
-    // Cortex-M7 can use the cycle counter of the DWT unit
+    // Cortex-M3 through M7 can use the cycle counter of the DWT unit
     // http://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
 
     FORCE_INLINE static void enableCycleCounter() {
       CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
-      // Unlock DWT.
-      DWT->LAR = 0xC5ACCE55;
+      #if __CORTEX_M == 7
+        DWT->LAR = 0xC5ACCE55; // Unlock DWT on the M7
+      #endif
 
       DWT->CYCCNT = 0;
       DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -53,7 +54,7 @@
 
     FORCE_INLINE static void DELAY_CYCLES(const uint32_t x) {
       const uint32_t endCycles = getCycleCount() + x;
-      while (PENDING(getCycleCount(), endCycles)) { }
+      while (PENDING(getCycleCount(), endCycles)) {}
     }
 
   #else

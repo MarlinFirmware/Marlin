@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -28,45 +28,49 @@
 
 #define CPU_32_BIT
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
-#include <stdint.h>
-#include <util/atomic.h>
-#include <Arduino.h>
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
+#include "../../core/macros.h"
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
-#include "fastio_STM32F1.h"
-#include "watchdog_STM32F1.h"
+#include "fastio.h"
+#include "watchdog.h"
 
-#include "HAL_timers_STM32F1.h"
+#include "timers.h"
+
+#include <stdint.h>
+#include <util/atomic.h>
+
 #include "../../inc/MarlinConfigPre.h"
 
-// --------------------------------------------------------------------------
+#ifdef USE_USB_COMPOSITE
+  #include "msc_sd.h"
+#endif
+
+// ------------------------
 // Defines
-// --------------------------------------------------------------------------
+// ------------------------
+
+#ifndef STM32_FLASH_SIZE
+  #ifdef MCU_STM32F103RE
+    #define STM32_FLASH_SIZE 512
+  #else
+    #define STM32_FLASH_SIZE 256
+  #endif
+#endif
 
 #ifdef SERIAL_USB
-  #define UsbSerial Serial
+  #ifndef USE_USB_COMPOSITE
+    #define UsbSerial Serial
+  #else
+    #define UsbSerial MarlinCompositeSerial
+  #endif
   #define MSerial1  Serial1
   #define MSerial2  Serial2
   #define MSerial3  Serial3
   #define MSerial4  Serial4
   #define MSerial5  Serial5
 #else
-  extern USBSerial SerialUSB;
-  #define UsbSerial SerialUSB
   #define MSerial1  Serial
   #define MSerial2  Serial1
   #define MSerial3  Serial2
@@ -119,9 +123,10 @@
   #define NUM_SERIAL 1
 #endif
 
-// Use HAL_init() to set interrupt grouping.
-#define HAL_INIT
+// Set interrupt grouping for this MCU
 void HAL_init();
+#define HAL_IDLETASK 1
+void HAL_idletask();
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -131,7 +136,7 @@ void HAL_init();
 #endif
 
 #ifndef digitalPinHasPWM
-  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != NULL)
+  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
 #endif
 
 #define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); (void)__iCliRetVal()
@@ -159,22 +164,22 @@ void HAL_init();
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Types
-// --------------------------------------------------------------------------
+// ------------------------
 
 typedef int8_t pin_t;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
-/** result of last ADC conversion */
+// Result of last ADC conversion
 extern uint16_t HAL_adc_result;
 
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
 
 // Disable interrupts
 #define cli() noInterrupts()
@@ -185,21 +190,25 @@ extern uint16_t HAL_adc_result;
 // Memory related
 #define __bss_end __bss_end__
 
-/** clear reset reason */
-void HAL_clear_reset_source(void);
+// Clear reset reason
+void HAL_clear_reset_source();
 
-/** reset reason */
-uint8_t HAL_get_reset_source(void);
+// Reset reason
+uint8_t HAL_get_reset_source();
 
 void _delay_ms(const int delay);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 /*
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
 */
 
 extern "C" char* _sbrk(int incr);
+
 /*
 static int freeMemory() {
   volatile int top;
@@ -208,26 +217,12 @@ static int freeMemory() {
 }
 */
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
 #pragma GCC diagnostic pop
-
-//
-// SPI: Extended functions which take a channel number (hardware SPI only)
-//
-
-/** Write single byte to specified SPI channel */
-void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
-uint8_t spiRec(uint32_t chan);
 
 //
 // EEPROM
@@ -248,29 +243,18 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 
-void HAL_adc_init(void);
+void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
+uint16_t HAL_adc_get_result();
 
-uint16_t HAL_adc_get_result(void);
-
-/* Todo: Confirm none of this is needed.
-uint16_t HAL_getAdcReading(uint8_t chan);
-
-void HAL_startAdcConversion(uint8_t chan);
-uint8_t HAL_pinToAdcChannel(int pin);
-
-uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-//uint16_t HAL_getAdcSuperSample(uint8_t chan);
-
-void HAL_enable_AdcFreerun(void);
-//void HAL_disable_AdcFreerun(uint8_t chan);
-
-*/
+uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
+void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
@@ -278,3 +262,6 @@ void HAL_enable_AdcFreerun(void);
 
 #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);

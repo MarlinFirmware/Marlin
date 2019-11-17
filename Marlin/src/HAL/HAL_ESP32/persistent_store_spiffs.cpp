@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,25 +28,38 @@
 
 #include "../shared/persistent_store_api.h"
 
-#include "SPIFFS.h"
-#include "FS.h"
+#include <SPIFFS.h>
+#include <FS.h>
 #include "spiffs.h"
 
 #define HAL_ESP32_EEPROM_SIZE 4096
+#define HAL_ESP32_EEPROM_FILE_PATH "/eeprom.dat"
 
 File eeprom_file;
 
 bool PersistentStore::access_start() {
   if (spiffs_initialized) {
-    eeprom_file = SPIFFS.open("/eeprom.dat", "r+");
+    eeprom_file = SPIFFS.open(HAL_ESP32_EEPROM_FILE_PATH, "r+");
 
     size_t file_size = eeprom_file.size();
     if (file_size < HAL_ESP32_EEPROM_SIZE) {
-      bool write_ok = eeprom_file.seek(file_size);
+      SERIAL_ECHO_MSG("SPIFFS EEPROM settings file " HAL_ESP32_EEPROM_FILE_PATH " is too small or did not exist, expanding.");
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR(" file size: ", file_size, ", required size: ", HAL_ESP32_EEPROM_SIZE);
 
-      while (write_ok && file_size < HAL_ESP32_EEPROM_SIZE) {
-        write_ok = eeprom_file.write(0xFF) == 1;
-        file_size++;
+      // mode r+ does not allow to expand the file (at least on ESP32 SPIFFS9, so we close, reopen "a", append, close, reopen "r+"
+      eeprom_file.close();
+
+      eeprom_file = SPIFFS.open(HAL_ESP32_EEPROM_FILE_PATH, "a");
+      for (size_t i = eeprom_file.size(); i < HAL_ESP32_EEPROM_SIZE; i++)
+        eeprom_file.write(0xFF);
+      eeprom_file.close();
+
+      eeprom_file = SPIFFS.open(HAL_ESP32_EEPROM_FILE_PATH, "r+");
+      file_size = eeprom_file.size();
+      if (file_size < HAL_ESP32_EEPROM_SIZE) {
+        SERIAL_ERROR_MSG("Failed to expand " HAL_ESP32_EEPROM_FILE_PATH " to required size. SPIFFS partition full?");
+        SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(" file size: ", file_size, ", required size: ", HAL_ESP32_EEPROM_SIZE);
+        SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(" SPIFFS used bytes: ", SPIFFS.usedBytes(), ", total bytes: ", SPIFFS.totalBytes());
       }
     }
     return true;
