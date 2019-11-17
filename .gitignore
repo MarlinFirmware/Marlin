@@ -41,6 +41,7 @@ applet/
 *.i
 *.ii
 *.swp
+.project
 tags
 
 #

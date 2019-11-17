@@ -512,15 +512,7 @@
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL)
-  #include "stm32/pins_STEVAL.h"                // STM32F4                                env:STM32F4
-#elif MB(BIGTREE_SKR_PRO_V1_1)
-  #include "stm32/pins_BIGTREE_SKR_PRO_V1.1.h"  // STM32F4                                env:BIGTREE_SKR_PRO
-#elif MB(BIGTREE_BTT002_V1_0)
-  #include "stm32/pins_BIGTREE_BTT002_V1.0.h"   // STM32F4                                env:BIGTREE_BTT002
-#elif MB(LERDGE_K)
-  #include "stm32/pins_LERDGE_K.h"              // STM32F4                                env:STM32F4
-#elif MB(LERDGE_X)
-  #include "stm32/pins_LERDGE_X.h"              // STM32F4                                env:STM32F4
+  #include "pins_STEVAL.h"            // STM32F4                                    env:STM32F4
 
 //
 // ARM Cortex M7
@@ -529,7 +521,9 @@
 #elif MB(THE_BORG)
   #include "stm32/pins_THE_BORG.h"              // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
-  #include "stm32/pins_REMRAM_V1.h"             // STM32F7                                env:STM32F7
+  #include "pins_REMRAM_V1.h"         // STM32F7                                    env:STM32F7xx
+#elif MB(NUCLEO)
+  #include "pins_NUCLEO.h"            // STM32H7                                    env:STM32H7
 
 //
 // Espressif ESP32

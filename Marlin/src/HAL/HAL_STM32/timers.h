@@ -58,16 +58,12 @@
     #define TEMP_TIMER 2
   #endif
 
-#elif defined(STM32F4xx) || defined(STM32F7xx)
+#elif defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx)
 
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
     #define STEP_TIMER 5
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 14 // TIM7 is consumed by Software Serial if used.
   #endif
 
 #endif
