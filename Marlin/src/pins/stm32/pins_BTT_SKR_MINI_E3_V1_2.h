@@ -139,10 +139,11 @@
  *                 EXP1
  */
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       PB5
-  #define BTN_ENC          PB6
 
   #if ENABLED(CR10_STOCKDISPLAY)
+    #define BEEPER_PIN       PB5
+    #define BTN_ENC          PB6
+    
     #define LCD_PINS_RS    PB8
 
     #define BTN_EN1        PA9
@@ -150,10 +151,21 @@
 
     #define LCD_PINS_ENABLE PB7
     #define LCD_PINS_D4    PB9
+  #endif //CR10 LCD
+
+  #if ENABLED(ZONESTAR_LCD) //ANET A8 LCD CONTROLLER - MUST CONVERT TO 3.3V
+    #define LCD_PINS_RS    PB9
+    #define LCD_PINS_ENABLE    PB6
+    #define LCD_PINS_D4    PB8
+    #define LCD_PINS_D5    PA10
+    #define LCD_PINS_D6    PA9
+    #define LCD_PINS_D7    PB5
+    #define ADC_KEYPAD_PIN    PA1 //REPURPOSE SERVO PIN FOR ADC 
+
+  #endif //Zonestar LCD
 
   #else
-    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3 V1.2."
-  #endif
+    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3."
 
 #endif // HAS_SPI_LCD
 
