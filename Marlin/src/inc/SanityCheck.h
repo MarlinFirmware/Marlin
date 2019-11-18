@@ -2332,10 +2332,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(ULTIPANEL)
-  #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
-#endif
-
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
 
   #if !Z_MULTI_STEPPER_DRIVERS
