@@ -161,10 +161,10 @@ enum TEMP_PINS : char {
     TEMP_5,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    FILWIDTH,
+  #endif
   #if ENABLED(ADC_KEYPAD)
     ADC_KEY,
-  #endif
-    FILWIDTH,
   #endif
   #if HAS_JOY_ADC_X
     JOY_X,
