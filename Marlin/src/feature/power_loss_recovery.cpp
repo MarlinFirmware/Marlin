@@ -240,8 +240,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 
 #if ENABLED(BIGTREE_MINI_UPS)
   void PrintJobRecovery::raise_z() {
+    // Disable all heaters to reduce power loss
     thermalManager.disable_all_heaters();
     quickstop_stepper();
+    // Raise Z axis
     gcode.process_subcommands_now_P(PSTR("G91\nG0 Z" STRINGIFY(POWER_LOSS_ZRAISE)));
     planner.synchronize();
   }
@@ -249,6 +251,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 
 #if PIN_EXISTS(POWER_LOSS)
   void PrintJobRecovery::_outage() {
+    // Here will call back continuously in idle(), lock it to ensure that here is executed only once
     static bool lock = false;
     if (lock) return;
     lock = true;

@@ -2333,7 +2333,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(BIGTREE_MINI_UPS) && !PIN_EXISTS(POWER_LOSS)
-  #error "BIGTREE_MINI_UPS currently requires an POWER_LOSS_PIN."
+  #error "BIGTREE_MINI_UPS currently requires a POWER_LOSS_PIN."
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
