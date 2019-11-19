@@ -1578,17 +1578,17 @@ void MarlinUI::update() {
 
   #endif
 #else // HAS_DISPLAY
-  void MarlinUI::set_status(const char* message, const bool=false) {
+  void MarlinUI::set_status(const char* message, bool persist) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #endif
   }
-  void MarlinUI::set_status_P(PGM_P message, const int8_t=0) {
+  void MarlinUI::set_status_P(PGM_P message, int8_t i) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #endif
   }
-  void MarlinUI::status_printf_P(const uint8_t, PGM_P message, ...) {
+  void MarlinUI::status_printf_P(const uint8_t i, PGM_P message, ...) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #endif
