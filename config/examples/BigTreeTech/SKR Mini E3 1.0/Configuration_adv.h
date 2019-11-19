@@ -1133,7 +1133,7 @@
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-  #define USE_BIG_EDIT_FONT
+  //#define USE_BIG_EDIT_FONT
 
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
