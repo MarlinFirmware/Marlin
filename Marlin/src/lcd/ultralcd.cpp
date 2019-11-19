@@ -1369,6 +1369,10 @@ void MarlinUI::update() {
   void MarlinUI::set_status(const char * const message, const bool persist) {
     if (alert_level) return;
 
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_action_notify(message);
+    #endif
+
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
     // that there is no cutting in the middle of a multibyte character!
@@ -1407,6 +1411,10 @@ void MarlinUI::update() {
     if (level < 0) level = alert_level = 0;
     if (level < alert_level) return;
     alert_level = level;
+
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_action_notify(message);
+    #endif
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
