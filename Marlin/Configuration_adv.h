@@ -960,6 +960,15 @@
    */
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
+    /**
+	 * BigTree mini UPS is a micro backup power supply, it will supply power to the stepper to make the hotend leave the printed model
+	 * and avoid damaging the printed model when outage.
+	 * It requires an POWER_LOSS_PIN, and POWER_LOSS_STATE should be HIGH
+	 * 12V version: https://www.amazon.com/dp/B07X41PJ61?ref=myi_title_dp
+	 * 24V version: https://www.amazon.com/dp/B08182XHZV?ref=myi_title_dp
+	 */
+    //#define BIGTREE_MINI_UPS
+    //#define POWER_LOSS_ZRAISE      10 // (mm) Height of Z axis rising after power loss
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
     //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate

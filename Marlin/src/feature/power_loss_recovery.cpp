@@ -65,6 +65,9 @@ PrintJobRecovery recovery;
 #ifndef POWER_LOSS_RETRACT_LEN
   #define POWER_LOSS_RETRACT_LEN 0
 #endif
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2
+#endif
 
 /**
  * Clear the recovery info
@@ -234,9 +237,27 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
   }
 }
 
+
+#if ENABLED(BIGTREE_MINI_UPS)
+  void PrintJobRecovery::raise_z() {
+    thermalManager.disable_all_heaters();
+    quickstop_stepper();
+    gcode.process_subcommands_now_P(PSTR("G91\nG0 Z" STRINGIFY(POWER_LOSS_ZRAISE)));
+    planner.synchronize();
+  }
+#endif
+
 #if PIN_EXISTS(POWER_LOSS)
   void PrintJobRecovery::_outage() {
-    save(true);
+    static bool lock = false;
+    if (lock) return;
+    lock = true;
+    if (IS_SD_PRINTING()) {
+      save(true);
+    }
+    #if ENABLED(BIGTREE_MINI_UPS)
+      raise_z();
+    #endif
     kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
 #endif
@@ -260,8 +281,6 @@ void PrintJobRecovery::write() {
  */
 void PrintJobRecovery::resume() {
 
-  #define RECOVERY_ZRAISE 2
-
   const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
 
   #if HAS_LEVELING
@@ -279,8 +298,13 @@ void PrintJobRecovery::resume() {
       #endif
     #else
       // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
-      // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-      "Z0\nG1Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28R0"
+      // with no raise. (Only do simulated homing in Marlin Dev Mode.)      
+      #if DISABLED(BIGTREE_MINI_UPS)
+        "Z0\nG1Z" STRINGIFY(POWER_LOSS_ZRAISE)
+      #else // If defined miniUPS, z-axis will be raised automatically when outage
+        "Z" STRINGIFY(POWER_LOSS_ZRAISE)
+      #endif
+      "\nG28R0"
       #if ENABLED(MARLIN_DEV_MODE)
         "S"
       #elif !IS_KINEMATIC
