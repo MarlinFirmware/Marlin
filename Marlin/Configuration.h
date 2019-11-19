@@ -281,7 +281,7 @@
   #define lerdgeFilSensor
 #endif
 
-#if ANY(MachineCR10SV2, MachineCR10Max, MachineCR10SProV2)
+#if ANY(MachineCR10SV2, MachineCR10Max, MachineCR10SProV2) && ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH)
   #define Z_STOP_PIN 19
 #endif
 
