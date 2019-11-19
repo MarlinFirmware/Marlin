@@ -26,18 +26,20 @@
   #include "../feature/leds/leds.h"
 #endif
 
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #include "../feature/host_actions.h"
+#endif
+
+#include "ultralcd.h"
+MarlinUI ui;
+
 // All displays share the MarlinUI class
 #if HAS_DISPLAY
   #include "../gcode/queue.h"
-  #include "ultralcd.h"
   #include "fontutils.h"
-  MarlinUI ui;
   #include "../sd/cardreader.h"
   #if ENABLED(EXTENSIBLE_UI)
     #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
-  #endif
-  #if ENABLED(HOST_ACTION_COMMANDS)
-    #include "../feature/host_actions.h"
   #endif
 #endif
 
@@ -1575,5 +1577,21 @@ void MarlinUI::update() {
     }
 
   #endif
+#else // HAS_DISPLAY
+  void MarlinUI::set_status(const char* message, const bool=false) {
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_action_notify(message);
+    #endif
+  }
+  void MarlinUI::set_status_P(PGM_P message, const int8_t=0) {
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_action_notify(message);
+    #endif
+  }
+  void MarlinUI::status_printf_P(const uint8_t, PGM_P message, ...) {
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      host_action_notify(message);
+    #endif
+  }
 
-#endif // HAS_DISPLAY
+#endif
