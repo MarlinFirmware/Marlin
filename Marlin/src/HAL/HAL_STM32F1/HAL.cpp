@@ -121,6 +121,9 @@ const uint8_t adc_pins[] = {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
+  #if ENABLED(ADC_KEYPAD)
+    ADC_KEYPAD_PIN,
+  #endif
   #if HAS_JOY_ADC_X
     JOY_X_PIN,
   #endif
@@ -159,6 +162,9 @@ enum TEMP_PINS : char {
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
+  #endif
+  #if ENABLED(ADC_KEYPAD)
+    ADC_KEY,
   #endif
   #if HAS_JOY_ADC_X
     JOY_X,
@@ -351,6 +357,9 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
+    #endif
+    #if ENABLED(ADC_KEYPAD)
+      case ADC_KEYPAD_PIN: pin_index = ADC_KEY; break;
     #endif
   }
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
