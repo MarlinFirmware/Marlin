@@ -298,20 +298,27 @@ void PrintJobRecovery::resume() {
   // Reset E, raise Z, home XY...
   gcode.process_subcommands_now_P(PSTR("G92.9 E0"
     #if Z_HOME_DIR > 0
-      // If Z homing goes to max, reset E and home all
-      "\nG28R0"
+
+      // If Z homing goes to max, just reset E and home all
+      "\n"
+      "G28R0"
       #if ENABLED(MARLIN_DEV_MODE)
         "S"
       #endif
-    #else
+
+    #else // "G92.9 E0 ..."
+
       // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
-      // with no raise. (Only do simulated homing in Marlin Dev Mode.)      
-      #if DISABLED(BIGTREE_MINI_UPS)
-        "Z0\nG1Z" STRINGIFY(POWER_LOSS_ZRAISE)
-      #else // If defined miniUPS, z-axis will be raised automatically when outage
-        "Z" STRINGIFY(POWER_LOSS_ZRAISE)
+      // with no raise. (Only do simulated homing in Marlin Dev Mode.)
+      #if ENABLED(BIGTREE_MINI_UPS)
+        "Z" STRINGIFY(POWER_LOSS_ZRAISE)    // Z-axis was already raised at outage
+      #else
+        "Z0\n"                              // Set Z=0
+        "G1Z" STRINGIFY(POWER_LOSS_ZRAISE)  // Raise Z
       #endif
-      "\nG28R0"
+      "\n"
+
+      "G28R0"
       #if ENABLED(MARLIN_DEV_MODE)
         "S"
       #elif !IS_KINEMATIC
