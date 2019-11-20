@@ -127,8 +127,9 @@
 #if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define BEEPER_PIN       PB5
-    #define BTN_ENC          PB6
+
+    #define BEEPER_PIN     PB5
+    #define BTN_ENC        PB6
     
     #define LCD_PINS_RS    PB8
 
@@ -137,21 +138,22 @@
 
     #define LCD_PINS_ENABLE PB7
     #define LCD_PINS_D4    PB9
-  #endif //CR10 LCD
 
-  #if ENABLED(ZONESTAR_LCD) //ANET A8 LCD CONTROLLER - MUST CONVERT TO 3.3V - CONNECTING TO 5V WILL DAMAGE YOUR BOARD
+  #elif ENABLED(ZONESTAR_LCD)     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+
     #define LCD_PINS_RS    PB9
-    #define LCD_PINS_ENABLE    PB6
+    #define LCD_PINS_ENABLE PB6
     #define LCD_PINS_D4    PB8
     #define LCD_PINS_D5    PA10
     #define LCD_PINS_D6    PA9
     #define LCD_PINS_D7    PB5
-    #define ADC_KEYPAD_PIN    PA1 //REPURPOSE SERVO PIN FOR ADC - CONNECTING TO 5V WILL DAMAGE YOUR BOARD
-
-  #endif //Zonestar LCD
+    #define ADC_KEYPAD_PIN PA1    // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
   #else
-    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3."
+
+    #error "Only CR10_STOCKDISPLAY and ZONESTAR_LCD are currently supported for BIGTREE_SKR_MINI_E3."
+
+  #endif
 
 #endif // HAS_SPI_LCD
 
@@ -164,5 +166,5 @@
   #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1    //SPI1
+#define ON_BOARD_SPI_DEVICE 1    // SPI1
 #define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
