@@ -1363,12 +1363,14 @@ void Temperature::manage_heater() {
         #if ENABLED(HEATER_0_USER_THERMISTOR)
           return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
         #elif ENABLED(HEATER_0_USES_MAX6675)
-          #if DISABLED(MAX6675_IS_MAX31865)
-            return raw * 0.25;
-          #elif ENABLED(MAX6675_IS_MAX31865) 
-            return max31865.temperature(100,400); //100 is resistance in ohms of PT100. 400 ohms value for calibration resistor
-          #endif
-       #elif ENABLED(HEATER_0_USES_AD595)
+          return (
+            #if ENABLED(MAX6675_IS_MAX31865)
+              max31865.temperature(100, 400)  // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+            #else
+              raw * 0.25
+            #endif
+          );
+        #elif ENABLED(HEATER_0_USES_AD595)
           return TEMP_AD595(raw);
         #elif ENABLED(HEATER_0_USES_AD8495)
           return TEMP_AD8495(raw);
