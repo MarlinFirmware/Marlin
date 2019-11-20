@@ -72,7 +72,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset applicato");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Imposta Origine");
   PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_HN                    = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
+  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
   PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
   PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
@@ -322,10 +322,14 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Resetta");
   PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Annulla");
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Fatto");
+  PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Indietro");
+  PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procedi");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa stampa");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arresta stampa");
+  PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Stampa Oggetto");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancella Oggetto");
+  PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Canc. Oggetto =");
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Ripresa da PowerLoss");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Stampa da media");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Media non presente");

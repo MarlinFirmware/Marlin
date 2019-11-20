@@ -127,7 +127,7 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshUpdate(const uint8_t, const uint8_t, const float) {
+    void onMeshUpdate(const int8_t, const int8_t, const float) {
     }
   #endif
 }
