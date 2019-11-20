@@ -263,7 +263,7 @@ G29_TYPE GcodeSuite::G29() {
       int constexpr abl_points = 3; // used to show total points
     #endif
 
-    vector_3 points[3] = { { 0 } };
+    vector_3 points[3];
     get_three_probe_points(points);
 
   #endif // AUTO_BED_LEVELING_3POINT
