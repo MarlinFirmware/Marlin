@@ -678,7 +678,7 @@ G29_TYPE GcodeSuite::G29() {
 
       measured_z = 0;
 
-      xy_uint8_t meshCount;
+      xy_int8_t meshCount;
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
