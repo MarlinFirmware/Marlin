@@ -237,20 +237,19 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
   }
 }
 
-
 #if PIN_EXISTS(POWER_LOSS)
 
   void PrintJobRecovery::_outage() {
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      // Prevent re-entrance from idle() during raise_z()
       static bool lock = false;
-      if (lock) return;
+      if (lock) return; // No re-entrance from idle() during raise_z()
       lock = true;
     #endif
     if (IS_SD_PRINTING()) save(true);
     #if ENABLED(BACKUP_POWER_SUPPLY)
       raise_z();
     #endif
+
     kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
 

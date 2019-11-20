@@ -56,8 +56,7 @@ void GcodeSuite::M1000() {
       #if HAS_LCD_MENU
         ui.goto_screen(menu_job_recovery);
       #else
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR("HAS_LCD_MENU disabled");
+        SERIAL_ECHO_MSG("Resume requires LCD.");
       #endif
     }
     else
