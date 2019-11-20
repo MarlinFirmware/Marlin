@@ -228,7 +228,7 @@ G29_TYPE GcodeSuite::G29() {
       ABL_VAR xy_uint8_t meshCount;
     #endif
 
-    ABL_VAR xy_int_t probe_position_lf, probe_position_rb;
+    ABL_VAR xy_float_t probe_position_lf, probe_position_rb;
     ABL_VAR xy_float_t gridSpacing = { 0, 0 };
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -678,7 +678,7 @@ G29_TYPE GcodeSuite::G29() {
 
       measured_z = 0;
 
-      xy_uint8_t meshCount;
+      xy_int8_t meshCount;
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled

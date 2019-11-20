@@ -25,8 +25,6 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
-
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
 
@@ -60,7 +58,7 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC15
+  #define FIL_RUNOUT_PIN   PC15   // "E0-STOP"
 #endif
 
 //
@@ -81,17 +79,6 @@
 #define E0_ENABLE_PIN      PD2
 #define E0_STEP_PIN        PB3
 #define E0_DIR_PIN         PB4
-
-#if HAS_DRIVER(TMC2209)
-  /**
-   * TMC2209 stepper drivers
-   * Hardware serial communication ports.
-   */
-  #define X_HARDWARE_SERIAL  Serial4
-  #define Y_HARDWARE_SERIAL  Serial4
-  #define Z_HARDWARE_SERIAL  Serial4
-  #define E0_HARDWARE_SERIAL Serial4
-#endif
 
 //
 // Temperature Sensors
@@ -125,10 +112,12 @@
  *                 EXP1
  */
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       PB5
-  #define BTN_ENC          PB6
 
   #if ENABLED(CR10_STOCKDISPLAY)
+
+    #define BEEPER_PIN     PB5
+    #define BTN_ENC        PB6
+
     #define LCD_PINS_RS    PB8
 
     #define BTN_EN1        PA9
@@ -137,8 +126,41 @@
     #define LCD_PINS_ENABLE PB7
     #define LCD_PINS_D4    PB9
 
+  #elif ENABLED(ZONESTAR_LCD)     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+
+    #define LCD_PINS_RS    PB9
+    #define LCD_PINS_ENABLE PB6
+    #define LCD_PINS_D4    PB8
+    #define LCD_PINS_D5    PA10
+    #define LCD_PINS_D6    PA9
+    #define LCD_PINS_D7    PB5
+    #define ADC_KEYPAD_PIN PA1    // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+
+  #elif ENABLED(MKS_MINI_12864)
+
+    /** Creality Ender-2 display pinout
+     *                   _____
+     *               5V | · · | GND
+     *      (MOSI) PB7  | · · | PB8  (LCD_RS)
+     *    (LCD_A0) PB9  | · · | PA10 (BTN_EN2)
+     *            RESET | · · | PA9  (BTN_EN1)
+     *   (BTN_ENC) PB6  | · · | PA15 (SCK)
+     *                   -----
+     *                    EXP1
+     */
+    #define BTN_EN1        PA9
+    #define BTN_EN2        PA10
+    #define DOGLCD_CS      PB8
+    #define DOGLCD_A0      PB9
+    #define DOGLCD_SCK     PA15
+    #define DOGLCD_MOSI    PB7
+    #define FORCE_SOFT_SPI
+    #define LCD_BACKLIGHT_PIN -1
+
   #else
-    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_MINI_E3."
+
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3."
+
   #endif
 
 #endif // HAS_SPI_LCD
@@ -152,5 +174,5 @@
   #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1    //SPI1
+#define ON_BOARD_SPI_DEVICE 1    // SPI1
 #define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
