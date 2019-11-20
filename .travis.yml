@@ -320,11 +320,11 @@ script:
   #
   #- restore_configs
   #- opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin
+  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin
   #
   #- restore_configs
   #- opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin
+  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin
   #
   #
   ######## Example Configurations ##############

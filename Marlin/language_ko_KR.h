@@ -91,11 +91,7 @@
 #define MSG_MIN                             LCD_STR_THERMOMETER " \xe4\xb7" // " 최소" (" Min")
 #define MSG_MAX                             LCD_STR_THERMOMETER " \xe4\x92" // " 최대" (" Max")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact" // (" Fact")
-#if LCD_WIDTH >= 20
-  #define MSG_AUTOTEMP                      "\xcf\x95 \xc2\x93 \xb3\xd8"  // "자동 온도 설정" ("Autotemp")
-#else
-  #define MSG_AUTOTEMP                      "\xcf\x95 \xc2\x93 \xb3\xd8"  // "자동 온도 설정" ("Autotemp")
-#endif
+#define MSG_AUTOTEMP                        "\xcf\x95 \xc2\x93 \xb3\xd8"  // "자동 온도 설정" ("Autotemp")
 #define MSG_ON                              "\xc2   "  // "온 " intentional space to shift wide symbol to the left
 #define MSG_OFF                            "\xc1\xf2   "  // "오프 " intentional space to shift wide symbol to the left
 #define MSG_PID_P                           "PID-P"
@@ -115,11 +111,11 @@
     #define MSG_VB_JERK                     "Vy-jerk mm/s" // "Vy-jerk mm/s" ("Vy-jerk")
     #define MSG_VC_JERK                     "Vz-jerk mm/s" // "Vz-jerk mm/s" ("Vz-jerk")
   #endif
-  #define MSG_VE_JERK                       "Ve-jerk" 
-  #define MSG_VMAX                          "Vmax " 
-  #define MSG_VMIN                          "Vmin" 
-  #define MSG_VTRAV_MIN                     "VTrav min"  
-  #define MSG_AMAX                          "Amax " 
+  #define MSG_VE_JERK                       "Ve-jerk"
+  #define MSG_VMAX                          "Vmax "
+  #define MSG_VMIN                          "Vmin"
+  #define MSG_VTRAV_MIN                     "VTrav min"
+  #define MSG_AMAX                          "Amax "
 #else
   #define MSG_ACC                           "\x82\xb8"  // "가속" ("Accel")
   #if IS_KINEMATIC
@@ -132,13 +128,13 @@
     #define MSG_VC_JERK                     "Vz-jerk" // "Vz-jerk" ("Vz-jerk")
   #endif
   #define MSG_VE_JERK                       "Ve-jerk"  // "Ve-jerk" ("Ve-jerk")
-  #define MSG_VMAX                          "Vmax "  
-  #define MSG_VMIN                          "Vmin"  
-  #define MSG_VTRAV_MIN                     "VTrav min"  
-  #define MSG_AMAX                          "Amax " 
+  #define MSG_VMAX                          "Vmax "
+  #define MSG_VMIN                          "Vmin"
+  #define MSG_VTRAV_MIN                     "VTrav min"
+  #define MSG_AMAX                          "Amax "
 #endif
-#define MSG_A_RETRACT                       "A-retract"  
-#define MSG_A_TRAVEL                        "A-travel"  
+#define MSG_A_RETRACT                       "A-retract"
+#define MSG_A_TRAVEL                        "A-travel"
 #if LCD_WIDTH >= 20
   #define MSG_STEPS_PER_MM                  "Steps/mm"
   #if IS_KINEMATIC
@@ -178,11 +174,7 @@
 #define MSG_MOTION                          "\x95\xd0"  // "동작" ("Motion")
 #define MSG_FILAMENT                        "\xf3\x99\xa6\xed"  // "필라멘트" ("Filament")
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#if LCD_WIDTH >= 20
-  #define MSG_FILAMENT_DIAM                 "\xf3\x99\xa6\xed Dia." //"필라멘트 Dia" ("Fil. Dia.")
-#else
-  #define MSG_FILAMENT_DIAM                 "\xf3\x99\xa6\xed Dia." //"필라멘트 Dia" ("Fil. Dia.")
-#endif
+#define MSG_FILAMENT_DIAM                   "\xf3\x99\xa6\xed Dia." //"필라멘트 Dia" ("Fil. Dia.")
 #define MSG_CONTRAST                        "LCD contrast" // ("LCD contrast")
 #define MSG_STORE_EEPROM                    "\xb3\xd8 \xd3\xd1"  // "설정 저장" ("Store memory")
 #define MSG_LOAD_EEPROM                     "\xb3\xd8 \x9f\x97"  // "설정 로드" ("Load memory")
@@ -202,55 +194,29 @@
 #define MSG_NO_MOVE                         "No move"  // ("No move.")
 #define MSG_KILLED                          "\x84\xd9 \xdb\xa0" // "강제 종료" ("KILLED. ")
 #define MSG_STOPPED                         "\xd8\xe0"  // "정지" ("STOPPED. ")
-#if LCD_WIDTH >= 20
-  #define MSG_CONTROL_RETRACT               "Retract mm" // ("Retract mm")
-  #define MSG_CONTROL_RETRACT_SWAP          "Swap Re.mm"  //  ("Swap Re.mm")
-  #define MSG_CONTROL_RETRACTF              "Retract  V" //  ("Retract  V")
-  #define MSG_CONTROL_RETRACT_ZLIFT         "Hop mm" // ("Hop mm")
-  #define MSG_CONTROL_RETRACT_RECOVER       "UnRet mm" // ("UnRet mm")
-  #define MSG_CONTROL_RETRACT_RECOVER_SWAP  "S UnRet mm"  // ("S UnRet mm")
-  #define MSG_CONTROL_RETRACT_RECOVERF      "UnRet  V" // ("UnRet  V")
-#else
-  #define MSG_CONTROL_RETRACT               "Retract mm"  // ("Retract mm")
-  #define MSG_CONTROL_RETRACT_SWAP          "Swap Re.mm"  // ("Swap Re.mm")
-  #define MSG_CONTROL_RETRACTF              "Retract  V"  // ("Retract  V")
-  #define MSG_CONTROL_RETRACT_ZLIFT         "Hop mm"  // ("Hop mm")
-  #define MSG_CONTROL_RETRACT_RECOVER       "UnRet mm"  //  ("UnRet mm")
-  #define MSG_CONTROL_RETRACT_RECOVER_SWAP  "S UnRet mm"  //  ("S UnRet mm")
-  #define MSG_CONTROL_RETRACT_RECOVERF      "UnRet  V"  // ("UnRet  V")
-#endif
+#define MSG_CONTROL_RETRACT                 "Retract mm" // ("Retract mm")
+#define MSG_CONTROL_RETRACT_SWAP            "Swap Re.mm"  //  ("Swap Re.mm")
+#define MSG_CONTROL_RETRACTF                "Retract  V" //  ("Retract  V")
+#define MSG_CONTROL_RETRACT_ZLIFT           "Hop mm" // ("Hop mm")
+#define MSG_CONTROL_RETRACT_RECOVER         "UnRet mm" // ("UnRet mm")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "S UnRet mm"  // ("S UnRet mm")
+#define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V" // ("UnRet  V")
 #define MSG_AUTORETRACT                     "AutoRetr." //  ("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  "\xf3\x99\xa6\xed \x8b\xe2" // "필라멘트 교체" ("Change filament")
 #define MSG_INIT_SDCARD                     "SD \xeb\x97 \xe3\x8d\xf6"  // "SD 카드 초기화" ("Init. SD card")
 #define MSG_CNG_SDCARD                      "SD \xeb\x97 \x8b\xe2"  // "SD 카드 교체" ("Change SD card")
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"    // ("Z probe out. bed")
-#if LCD_WIDTH >= 20
-  #define MSG_BLTOUCH_SELFTEST              "BLTouch \xcf\x82 \xd7\x87"  // "BLTouch 자가 점검" ("BLTouch Self-Test")
-#else
-  #define MSG_BLTOUCH_SELFTEST              "BLTouch \xcf\x82 \xd7\x87"  // "BLTouch 자가 점검" ("BLTouch Self-Test")
-#endif
+#define MSG_BLTOUCH_SELFTEST                "BLTouch \xcf\x82 \xd7\x87"  // "BLTouch 자가 점검" ("BLTouch Self-Test")
 #define MSG_BLTOUCH_RESET                   "BLTouch \xa2\xb6"  // "BLTouch 리셋" ("Reset BLTouch")
 #define MSG_HOME                            "\xf5\xc8\x9f"  // "홈으로" ("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#if LCD_WIDTH >= 20
-  #define MSG_FIRST                         "\xe1\xc9\xc8\x9f"  // "처음으로" ("first")
-#else
-  #define MSG_FIRST                         "\xe1\xc9\xc8\x9f"  // "처음으로" ("first")
-#endif
+#define MSG_FIRST                           "\xe1\xc9\xc8\x9f"  // "처음으로" ("first")
 #define MSG_ZPROBE_ZOFFSET                  "Z \xc1\xf2\xb6" // "Z 오프셋" ("Z Offset")
 #define MSG_BABYSTEP_X                      "Babystep X" // "Babystep X" ("Babystep X")
 #define MSG_BABYSTEP_Y                      "Babystep Y"  // "Babystep Y" ("Babystep Y")
 #define MSG_BABYSTEP_Z                      "Babystep Z"  // "Babystep Z" ("Babystep Z")
-#if LCD_WIDTH >= 20
-  #define MSG_ENDSTOP_ABORT                 "Endstop \xe8\xb7"  // "Endstop 취소" ("Endstop abort")
-#else
-  #define MSG_ENDSTOP_ABORT                 "Endstop \xe8\xb7"  // "Endstop 취소" ("Endstop abort")
-#endif
+#define MSG_ENDSTOP_ABORT                   "Endstop \xe8\xb7"  // "Endstop 취소" ("Endstop abort")
 #define MSG_HEATING_FAILED_LCD              "\x82\xbf \xbb\xef"  // "가열 실패" ("Heating failed")
-#if LCD_WIDTH >= 20
-  #define MSG_ERR_REDUNDANT_TEMP            "Err: REDUNDANT TEMP"  //  ("Err: REDUNDANT TEMP")
-#else
-  #define MSG_ERR_REDUNDANT_TEMP            "Err: REDUNDANT TEMP" // ("Err: REDUNDANT TEMP")
-#endif
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"  //  ("Err: REDUNDANT TEMP")
 #define MSG_THERMAL_RUNAWAY                 "ERR: \xc2\x93\xb5\xb2"  // "ERR: 온도센서" ("THERMAL RUNAWAY")
 #define MSG_ERR_MAXTEMP                     "ERR: \xc2\x93 \xe4\x92" // "ERR: 온도 최대" ("Err: MAXTEMP")
 #define MSG_ERR_MINTEMP                     "ERR: \xc2\x93 \xe4\xb7" // "ERR: 온도 최저" ("Err: MINTEMP")
@@ -300,11 +266,7 @@
   #define MSG_INFO_PSU                      "\xd5\xc6 \x89\x8c" // "전원 공급" ("Power Supply")
 #endif
 #define MSG_DRIVE_STRENGTH                  "Drive Strength" // ("Drive Strength")
-#if LCD_WIDTH >= 20
-  #define MSG_DAC_PERCENT                   "Driver %" // ("Driver %")
-#else
-  #define MSG_DAC_PERCENT                   "Driver %"  // ("Driver %")
-#endif
+#define MSG_DAC_PERCENT                     "Driver %" // ("Driver %")
 #define MSG_DAC_EEPROM_WRITE                MSG_STORE_EEPROM                                                   // "ﾒﾓﾘﾍｶｸﾉｳ" ("DAC EEPROM Write")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "\xe6\x9e \xcb\xbd\xf4\x86" // "출력 이어하기" ("Resume print")
 
@@ -324,11 +286,7 @@
   // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1        "\x92\x8d"  // "대기" ("Please wait...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      "Ejecting..."  //  ("Ejecting...")
-  #if LCD_WIDTH >= 20
-    #define MSG_FILAMENT_CHANGE_INSERT_1    "Insert and Click"  // ("Insert and Click")
-  #else
-    #define MSG_FILAMENT_CHANGE_INSERT_1    "nsert and Click"  //  ("Insert and Click")
-  #endif
+  #define MSG_FILAMENT_CHANGE_INSERT_1      "Insert and Click"  // ("Insert and Click")
   #define MSG_FILAMENT_CHANGE_LOAD_1        "\x9f\x98 \xde..."  // "로딩 중..." ("Loading...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      "\xd2\x85 \xde..."  // "재개 중..." ("Resuming...")
 #endif // LCD_HEIGHT < 4
