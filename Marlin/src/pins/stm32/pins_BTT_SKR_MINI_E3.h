@@ -25,8 +25,6 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
-
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
 
@@ -60,7 +58,7 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC15
+  #define FIL_RUNOUT_PIN   PC15   // "E0-STOP"
 #endif
 
 //
@@ -81,17 +79,6 @@
 #define E0_ENABLE_PIN      PD2
 #define E0_STEP_PIN        PB3
 #define E0_DIR_PIN         PB4
-
-#if HAS_DRIVER(TMC2209)
-  /**
-   * TMC2209 stepper drivers
-   * Hardware serial communication ports.
-   */
-  #define X_HARDWARE_SERIAL  Serial4
-  #define Y_HARDWARE_SERIAL  Serial4
-  #define Z_HARDWARE_SERIAL  Serial4
-  #define E0_HARDWARE_SERIAL Serial4
-#endif
 
 //
 // Temperature Sensors
@@ -130,7 +117,7 @@
 
     #define BEEPER_PIN     PB5
     #define BTN_ENC        PB6
-    
+
     #define LCD_PINS_RS    PB8
 
     #define BTN_EN1        PA9
@@ -151,7 +138,7 @@
 
   #else
 
-    #error "Only CR10_STOCKDISPLAY and ZONESTAR_LCD are currently supported for BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY and ZONESTAR_LCD are currently supported for BTT_SKR_MINI_E3 boards."
 
   #endif
 

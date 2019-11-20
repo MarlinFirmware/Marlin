@@ -21,21 +21,7 @@
  */
 #pragma once
 
-#ifndef MCU_LPC1768
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
-
 #define BOARD_INFO_NAME "BIGTREE SKR 1.1"
-
-//
-// Limit Switches
-//
-#define X_MIN_PIN          P1_29
-#define X_MAX_PIN          P1_28
-#define Y_MIN_PIN          P1_27
-#define Y_MAX_PIN          P1_26
-#define Z_MIN_PIN          P1_25
-#define Z_MAX_PIN          P1_24
 
 //
 // Steppers
@@ -56,30 +42,6 @@
 #define E0_DIR_PIN         P2_13
 #define E0_ENABLE_PIN      P2_12
 
-#define E1_STEP_PIN        P0_01
-#define E1_DIR_PIN         P0_00
-#define E1_ENABLE_PIN      P0_10
-
-//
-// Temperature Sensors
-//  3.3V max when defined as an analog input
-//
-#define TEMP_BED_PIN       P0_23_A0   // Analog Input
-#define TEMP_0_PIN         P0_24_A1   // Analog Input
-#define TEMP_1_PIN         P0_25_A2   // Analog Input
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN       P2_07
-#if HOTENDS == 1
-  #define FAN1_PIN         P2_04
-#else
-  #define HEATER_1_PIN     P2_04
-#endif
-#define FAN_PIN            P2_03
-#define HEATER_BED_PIN     P2_05
-
 /**
  * LCD / Controller
  *
@@ -94,7 +56,6 @@
  */
 
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       P1_30
   #define BTN_EN1          P3_26
   #define BTN_EN2          P3_25
   #define BTN_ENC          P2_11
@@ -125,22 +86,8 @@
   #endif
 #endif
 
-#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN          P0_15
-  #define MISO_PIN         P0_17
-  #define MOSI_PIN         P0_18
   #define SS_PIN           P1_23
-#elif SD_CONNECTION_IS(ONBOARD)
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN    P0_27
-  #define SCK_PIN          P0_07
-  #define MISO_PIN         P0_08
-  #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS_PIN
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
 #endif
 
 // Trinamic driver support
@@ -270,3 +217,6 @@
   #endif // SOFTWARE_DRIVER_ENABLE
 
 #endif
+
+// Include common SKR pins
+#include "pins_BTT_SKR.h"
