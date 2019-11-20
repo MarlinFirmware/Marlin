@@ -461,8 +461,6 @@ void GcodeSuite::G28(const bool always_home_all) {
       delayed_move_time = 0;
       active_extruder_parked = true;
       extruder_duplication_enabled = IDEX_saved_duplication_state;
-      extruder_duplication_enabled = false;
-
       dual_x_carriage_mode         = IDEX_saved_mode;
       stepper.set_directions();
 

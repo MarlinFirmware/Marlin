@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_BIGTREE_SKR_MINI_E3
+opt_set MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_0
 opt_set SERIAL_PORT 1
 opt_set SERIAL_PORT_2 -1
 exec_test $1 $2 "Bigtreetech SKR Mini E3 - Basic Configuration"

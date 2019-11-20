@@ -211,6 +211,9 @@ void menu_temperature() {
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST_N(percent, 2, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[1], 3, 255);
       #endif
+    #elif ENABLED(SINGLENOZZLE) && EXTRUDERS > 1
+      editable.uint8 = thermalManager.fan_speed[1];
+      EDIT_ITEM_FAST_N(percent, 2, MSG_STORED_FAN_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(1, editable.uint8); });
     #endif
     #if HAS_FAN2
       editable.uint8 = thermalManager.fan_speed[2];
@@ -218,6 +221,9 @@ void menu_temperature() {
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST_N(percent, 3, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[2], 3, 255);
       #endif
+    #elif ENABLED(SINGLENOZZLE) && EXTRUDERS > 2
+      editable.uint8 = thermalManager.fan_speed[2];
+      EDIT_ITEM_FAST_N(percent, 3, MSG_STORED_FAN_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(2, editable.uint8); });
     #endif
   #endif // FAN_COUNT > 0
 
