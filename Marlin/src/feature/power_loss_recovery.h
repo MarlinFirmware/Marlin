@@ -183,8 +183,8 @@ class PrintJobRecovery {
 
   private:
     static void write();
-  
-  #if ENABLED(BIGTREE_MINI_UPS)
+
+  #if ENABLED(BACKUP_POWER_SUPPLY)
     static void raise_z();
   #endif
 

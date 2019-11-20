@@ -241,20 +241,20 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 #if PIN_EXISTS(POWER_LOSS)
 
   void PrintJobRecovery::_outage() {
-    #if ENABLED(BIGTREE_MINI_UPS)
+    #if ENABLED(BACKUP_POWER_SUPPLY)
       // Prevent re-entrance from idle() during raise_z()
       static bool lock = false;
       if (lock) return;
       lock = true;
     #endif
     if (IS_SD_PRINTING()) save(true);
-    #if ENABLED(BIGTREE_MINI_UPS)
+    #if ENABLED(BACKUP_POWER_SUPPLY)
       raise_z();
     #endif
     kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
 
-  #if ENABLED(BIGTREE_MINI_UPS)
+  #if ENABLED(BACKUP_POWER_SUPPLY)
 
     void PrintJobRecovery::raise_z() {
       // Disable all heaters to reduce power loss
@@ -310,7 +310,7 @@ void PrintJobRecovery::resume() {
 
       // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
       // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-      #if ENABLED(BIGTREE_MINI_UPS)
+      #if ENABLED(BACKUP_POWER_SUPPLY)
         "Z" STRINGIFY(POWER_LOSS_ZRAISE)    // Z-axis was already raised at outage
       #else
         "Z0\n"                              // Set Z=0
