@@ -420,6 +420,7 @@
 #define BOARD_STM32F1R      -1005
 #define BOARD_STM32F103R    -1006
 #define BOARD_ESP32         -1007
+#define BOARD_BIGTREE_SKR_MINI_E3 -1008
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -436,6 +437,8 @@
   #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
 #elif MOTHERBOARD == BOARD_ESP32
   #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
+#elif MOTHERBOARD == BOARD_BIGTREE_SKR_MINI_E3
+  #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
@@ -445,6 +448,7 @@
 #undef BOARD_STM32F1R
 #undef BOARD_STM32F103R
 #undef BOARD_ESP32
+#undef BOARD_BIGTREE_SKR_MINI_E3
 
 /**
  * Marlin release, version and default string
