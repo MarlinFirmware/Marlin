@@ -351,7 +351,7 @@
  * --NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
  *
  * Temperature sensors available:
- *    
+ *
  *    -5 : thermocouple with MAX31865 (only for sensor 0)
  *    -4 : thermocouple with AD8495
  *    -3 : thermocouple with MAX31855 (only for sensor 0)
