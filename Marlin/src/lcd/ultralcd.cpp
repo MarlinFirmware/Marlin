@@ -1584,7 +1584,7 @@ void MarlinUI::update() {
   // Send the status line as a host notification
   //
 
-  void MarlinUI::set_status(const char *message, const bool) {
+  void MarlinUI::set_status(const char * const message, const bool) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #else
