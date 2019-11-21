@@ -54,8 +54,7 @@ float delta_height;
 abc_float_t delta_endstop_adj{0};
 float delta_radius,
       delta_diagonal_rod,
-      delta_segments_per_second,
-      delta_calibration_radius;
+      delta_segments_per_second;
 abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
@@ -81,6 +80,24 @@ void recalc_delta_settings() {
                                  sq(delta_diagonal_rod + drt.c));
   update_software_endstops(Z_AXIS);
   set_all_unhomed();
+}
+
+/**
+ * Get a safe radius for calibration
+ */
+
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  float calibration_radius_factor = 1;
+#endif
+
+float delta_calibration_radius() {
+  return FLOOR((DELTA_PRINTABLE_RADIUS - (
+    #if HAS_BED_PROBE
+      _MAX(HYPOT(probe_offset.x, probe_offset.y), MIN_PROBE_EDGE)
+    #else
+      MIN_PROBE_EDGE
+    #endif
+  )) * calibration_radius_factor);
 }
 
 /**

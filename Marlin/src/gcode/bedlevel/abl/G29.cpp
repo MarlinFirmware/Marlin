@@ -263,20 +263,8 @@ G29_TYPE GcodeSuite::G29() {
       int constexpr abl_points = 3; // used to show total points
     #endif
 
-    // Probe at 3 arbitrary points
-    const float x_min = probe_min_x(), x_max = probe_max_x(), y_min = probe_min_y(), y_max = probe_max_y();
-
-    ABL_VAR vector_3 points[3] = {
-      #if ENABLED(HAS_FIXED_3POINT)
-        { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-        { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-        { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-      #else
-        { x_min, y_min, 0 },
-        { x_max, y_min, 0 },
-        { (x_max - x_min) / 2, y_max, 0 }
-      #endif
-    };
+    vector_3 points[3];
+    get_three_probe_points(points);
 
   #endif // AUTO_BED_LEVELING_3POINT
 
@@ -764,7 +752,7 @@ G29_TYPE GcodeSuite::G29() {
       for (uint8_t i = 0; i < 3; ++i) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH)), int(i);
+          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
         #endif
 
         // Retain the last probe position

@@ -1387,17 +1387,8 @@
                   dx = (x_max - x_min) / (g29_grid_size - 1),
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
-      const vector_3 points[3] = {
-        #if ENABLED(HAS_FIXED_3POINT)
-          { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-          { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-          { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-        #else
-          { x_min, y_min, 0 },
-          { x_max, y_min, 0 },
-          { (x_max - x_min) / 2, y_max, 0 }
-        #endif
-      };
+      xy_float_t points[3];
+      get_three_probe_points(points);
 
       float measured_z;
       bool abort_flag = false;
