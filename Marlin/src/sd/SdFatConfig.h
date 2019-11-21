@@ -66,10 +66,10 @@
 #define FAT12_SUPPORT 0
 
 /**
- * SPI init rate for SD initialization commands. Must be 5 (F_CPU/64)
- * or 6 (F_CPU/128).
+ * SPI init rate for SD initialization commands.
+ * Must be 5 or 6.
  */
-#define SPI_SD_INIT_RATE 5
+#define SPI_SD_INIT_RATE 6
 
 /**
  * Set the SS pin high for hardware SPI.  If SS is chip select for another SPI

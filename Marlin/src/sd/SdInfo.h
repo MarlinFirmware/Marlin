@@ -61,6 +61,14 @@ uint8_t const CMD0 = 0x00,    // GO_IDLE_STATE - init card in spi mode if CS low
               ACMD23 = 0x17,  // SET_WR_BLK_ERASE_COUNT - Set the number of write blocks to be pre-erased before writing
               ACMD41 = 0x29;  // SD_SEND_OP_COMD - Sends host capacity support information and activates the card's initialization process
 
+//SD card responses
+uint8_t const R1 = 0x01, //basic response
+              R1b= 0x11, //= R1 + busy (any number of bytes until 0xFF)
+              R2 = 0x02, //= R1 + status (1 byte)
+              R3 = 0x03, //= R1 + OCR (4 bytes)
+              R6 = 0x06,
+              R7 = 0x07; //= R1 + voltage specifications (4 bytes)
+
 /** status for card in the ready state */
 uint8_t const R1_READY_STATE = 0x00;
 /** status for card in the idle state */

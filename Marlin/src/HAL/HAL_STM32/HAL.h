@@ -168,7 +168,7 @@ extern uint16_t HAL_adc_result;
 // Memory related
 #define __bss_end __bss_end__
 
-// Enable hooks into  setup for HAL
+// Enable hooks into setup for HAL
 void HAL_init();
 
 // Clear reset reason

@@ -95,6 +95,8 @@ public:
 
   Sd2Card() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
 
+  uint8_t dev_num = -1;
+
   uint32_t cardSize();
   bool erase(uint32_t firstBlock, uint32_t lastBlock);
   bool eraseSingleBlockEnable();
@@ -103,7 +105,13 @@ public:
    *  Set SD error code.
    *  \param[in] code value for error code.
    */
-  inline void error(const uint8_t code) { errorCode_ = code; }
+  inline void error(const uint8_t code) {
+    errorCode_ = code;
+    #ifdef TRACE_SD
+      SERIAL_ECHO("Error ");
+      SERIAL_PRINTLN(code, HEX);
+    #endif
+    }
 
   /**
    * \return error code for last error. See Sd2Card.h for a list of error codes.
@@ -114,12 +122,15 @@ public:
   inline int errorData() const { return status_; }
 
   /**
-   * Initialize an SD flash memory card with default clock rate and chip
-   * select pin.  See sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin).
-   *
+   * Initialize the SD flash memory card identified by dev_num
+   * from its bus with the specified clock rate
+   * 
    * \return true for success or false for failure.
    */
-  bool init(const uint8_t sckRateID, const pin_t chipSelectPin);
+  bool init(const uint8_t sckRateID);
+
+  static bool anyInserted();
+  static bool isInserted(const uint8_t dev_num);
 
   bool readBlock(uint32_t block, uint8_t* dst);
 
@@ -160,8 +171,7 @@ public:
   bool writeStop();
 
 private:
-  uint8_t chipSelectPin_,
-          errorCode_,
+  uint8_t errorCode_,
           spiRate_,
           status_,
           type_;
@@ -175,8 +185,6 @@ private:
 
   bool readData(uint8_t* dst, const uint16_t count);
   bool readRegister(const uint8_t cmd, void* buf);
-  void chipDeselect();
-  void chipSelect();
   inline void type(const uint8_t value) { type_ = value; }
   bool waitNotBusy(const millis_t timeout_ms);
   bool writeData(const uint8_t token, const uint8_t* src);

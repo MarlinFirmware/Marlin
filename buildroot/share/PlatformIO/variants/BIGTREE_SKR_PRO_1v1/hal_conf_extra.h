@@ -1,4 +1,5 @@
 #pragma once
+#define USE_SPI_CRC 1
 
 #define HAL_MODULE_ENABLED
 #define HAL_ADC_MODULE_ENABLED

@@ -1648,6 +1648,15 @@
 //#define SDSUPPORT
 
 /**
+ * SD CARD: SEARCH ORDER
+ * Order in which SD-Cards should be searched on the device, if there are more than one.
+ * (see SD-Cards definitions in your pins.h file)
+ * This setting makes marlin prioritize the cards if more than one is inserted.
+ * Change only if you prefer one SD-Card over the other (maybe because it's more accessible)
+ */
+//#define SD_SEARCH_ORDER { 0, 1, 2, 3 }
+
+/**
  * SD CARD: SPI SPEED
  *
  * Enable one of the following items for a slower SPI transfer speed.

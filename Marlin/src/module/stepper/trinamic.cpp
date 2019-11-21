@@ -42,78 +42,102 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 //   ST = Stepper object letter
 //   L  = Label characters
 //   AI = Axis Enum Index
+//   IX = SPI device index
 // SWHW = SW/SH UART selection
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI, IX) TMCMarlin<IC##Stepper, L, AI> stepper##ST(CS_OF_DEV(IX), ST##_RSENSE, SPI_BusConfig[BUS_OF_DEV(IX)][SPIBUS_MOSI], SPI_BusConfig[BUS_OF_DEV(IX)][SPIBUS_MISO], SPI_BusConfig[BUS_OF_DEV(IX)][SPIBUS_CLCK], ST##_CHAIN_POS)
 #else
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI, IX) TMCMarlin<IC##Stepper, L, AI> stepper##ST(CS_OF_DEV(IX), ST##_RSENSE, ST##_CHAIN_POS)
 #endif
 
 #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
 #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SLAVE_ADDRESS, ST##_SERIAL_RX_PIN > -1)
 
-#define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
-#define TMC_SPI_DEFINE(ST, AI) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS)
+#define _TMC_SPI_DEFINE(IC, ST, AI, IX) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI, IX)
+#define TMC_SPI_DEFINE(ST, AI, IX) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS, IX)
 
 #define _TMC_UART_DEFINE(SWHW, IC, ST, AI) TMC_UART_##SWHW##_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
 #define TMC_UART_DEFINE(SWHW, ST, AI) _TMC_UART_DEFINE(SWHW, ST##_DRIVER_TYPE, ST, AI##_AXIS)
 
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-  #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E##AI)
+  #define TMC_SPI_DEFINE_E(AI, IX) TMC_SPI_DEFINE(E##AI, E##AI, IX)
   #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E##AI)
 #else
-  #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E)
+  #define TMC_SPI_DEFINE_E(AI, IX) TMC_SPI_DEFINE(E##AI, E, IX)
   #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E)
 #endif
 
 // Stepper objects of TMC2130/TMC2160/TMC2660/TMC5130/TMC5160 steppers used
+int findDriver(const int driverType, const int driverIndex) {
+  for (uint8_t i = 0; i < NUM_SPI_DEVICES; i++)
+    if (IS_DEV_DRIVER(i) && TYPE_OF_DRIVER(i) == driverType && AXIS_OF_DRIVER(i) == driverIndex) return i;
+  // TODO: add some message to warn user the config is wrong.
+  return -1;
+}
+
 #if AXIS_HAS_SPI(X)
-  TMC_SPI_DEFINE(X, X);
+  int xDev = findDriver(DRIVER_AXIS, 0);
+  TMC_SPI_DEFINE(X, X, xDev);
 #endif
 #if AXIS_HAS_SPI(X2)
-  TMC_SPI_DEFINE(X2, X);
+  int x2Dev = findDriver(DRIVER_AXIS, 10);
+  TMC_SPI_DEFINE(X2, X, x2Dev);
 #endif
 #if AXIS_HAS_SPI(Y)
-  TMC_SPI_DEFINE(Y, Y);
+  int yDev = findDriver(DRIVER_AXIS, 1);
+  TMC_SPI_DEFINE(Y, Y, yDev);
 #endif
 #if AXIS_HAS_SPI(Y2)
-  TMC_SPI_DEFINE(Y2, Y);
+  int y2Dev = findDriver(DRIVER_AXIS, 11);
+  TMC_SPI_DEFINE(Y2, Y, y2Dev);
 #endif
 #if AXIS_HAS_SPI(Z)
-  TMC_SPI_DEFINE(Z, Z);
+  int zDev = findDriver(DRIVER_AXIS, 2);
+  TMC_SPI_DEFINE(Z, Z, zDev);
 #endif
 #if AXIS_HAS_SPI(Z2)
-  TMC_SPI_DEFINE(Z2, Z);
+  int z2Dev = findDriver(DRIVER_AXIS, 12);
+  TMC_SPI_DEFINE(Z2, Z, z2Dev);
 #endif
 #if AXIS_HAS_SPI(Z3)
-  TMC_SPI_DEFINE(Z3, Z);
+  int z3Dev = findDriver(DRIVER_AXIS, 22);
+  TMC_SPI_DEFINE(Z3, Z, z3Dev);
 #endif
 #if AXIS_HAS_SPI(Z4)
+  int z4Dev = findDriver(DRIVER_AXIS, 32);
   TMC_SPI_DEFINE(Z4, Z);
 #endif
 #if AXIS_HAS_SPI(E0)
-  TMC_SPI_DEFINE_E(0);
+  int e0Dev = findDriver(DRIVER_EXTRUDER, 0);
+  TMC_SPI_DEFINE_E(0, e0Dev);
 #endif
 #if AXIS_HAS_SPI(E1)
-  TMC_SPI_DEFINE_E(1);
+  int e1Dev = findDriver(DRIVER_EXTRUDER, 1);
+  TMC_SPI_DEFINE_E(1, e1Dev);
 #endif
 #if AXIS_HAS_SPI(E2)
-  TMC_SPI_DEFINE_E(2);
+  int e2Dev = findDriver(DRIVER_EXTRUDER, 2);
+  TMC_SPI_DEFINE_E(2, e2Dev);
 #endif
 #if AXIS_HAS_SPI(E3)
-  TMC_SPI_DEFINE_E(3);
+  int e3Dev = findDriver(DRIVER_EXTRUDER, 3);
+  TMC_SPI_DEFINE_E(3, e3Dev);
 #endif
 #if AXIS_HAS_SPI(E4)
-  TMC_SPI_DEFINE_E(4);
+  int e4Dev = findDriver(DRIVER_EXTRUDER, 4);
+  TMC_SPI_DEFINE_E(4, e4Dev);
 #endif
 #if AXIS_HAS_SPI(E5)
-  TMC_SPI_DEFINE_E(5);
+  int e5Dev = findDriver(DRIVER_EXTRUDER, 5);
+  TMC_SPI_DEFINE_E(5, e5Dev);
 #endif
 #if AXIS_HAS_SPI(E6)
-  TMC_SPI_DEFINE_E(6);
+  int e6Dev = findDriver(DRIVER_EXTRUDER, 6);
+  TMC_SPI_DEFINE_E(6, e6Dev);
 #endif
 #if AXIS_HAS_SPI(E7)
-  TMC_SPI_DEFINE_E(7);
+  int e7Dev = findDriver(DRIVER_EXTRUDER, 7);
+  TMC_SPI_DEFINE_E(7, e7Dev);
 #endif
 
 #ifndef TMC_BAUD_RATE

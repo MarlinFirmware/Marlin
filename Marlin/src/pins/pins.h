@@ -959,14 +959,8 @@
   #define TEMP_BED_PIN -1
 #endif
 
-#ifndef SD_DETECT_PIN
-  #define SD_DETECT_PIN -1
-#endif
 #ifndef SDPOWER_PIN
   #define SDPOWER_PIN -1
-#endif
-#ifndef SDSS
-  #define SDSS -1
 #endif
 #ifndef LED_PIN
   #define LED_PIN -1

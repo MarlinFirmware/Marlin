@@ -2041,43 +2041,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Check existing CS pins against enabled TMC SPI drivers.
- */
-#define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI(ST) && !PIN_EXISTS(ST##_CS))
-#if INVALID_TMC_SPI(X)
-  #error "An SPI driven TMC driver on X requires X_CS_PIN."
-#elif INVALID_TMC_SPI(X2)
-  #error "An SPI driven TMC driver on X2 requires X2_CS_PIN."
-#elif INVALID_TMC_SPI(Y)
-  #error "An SPI driven TMC driver on Y requires Y_CS_PIN."
-#elif INVALID_TMC_SPI(Y2)
-  #error "An SPI driven TMC driver on Y2 requires Y2_CS_PIN."
-#elif INVALID_TMC_SPI(Z)
-  #error "An SPI driven TMC driver on Z requires Z_CS_PIN."
-#elif INVALID_TMC_SPI(Z2)
-  #error "An SPI driven TMC driver on Z2 requires Z2_CS_PIN."
-#elif INVALID_TMC_SPI(Z3)
-  #error "An SPI driven TMC driver on Z3 requires Z3_CS_PIN."
-#elif INVALID_TMC_SPI(E0)
-  #error "An SPI driven TMC driver on E0 requires E0_CS_PIN."
-#elif INVALID_TMC_SPI(E1)
-  #error "An SPI driven TMC driver on E1 requires E1_CS_PIN."
-#elif INVALID_TMC_SPI(E2)
-  #error "An SPI driven TMC driver on E2 requires E2_CS_PIN."
-#elif INVALID_TMC_SPI(E3)
-  #error "An SPI driven TMC driver on E3 requires E3_CS_PIN."
-#elif INVALID_TMC_SPI(E4)
-  #error "An SPI driven TMC driver on E4 requires E4_CS_PIN."
-#elif INVALID_TMC_SPI(E5)
-  #error "An SPI driven TMC driver on E5 requires E5_CS_PIN."
-#elif INVALID_TMC_SPI(E6)
-  #error "An SPI driven TMC driver on E6 requires E6_CS_PIN."
-#elif INVALID_TMC_SPI(E7)
-  #error "An SPI driven TMC driver on E7 requires E7_CS_PIN."
-#endif
-#undef INVALID_TMC_SPI
-
-/**
  * Check existing RX/TX pins against enable TMC UART drivers.
  */
 #define INVALID_TMC_UART(ST) (AXIS_HAS_UART(ST) && !(defined(ST##_HARDWARE_SERIAL) || (PINS_EXIST(ST##_SERIAL_RX, ST##_SERIAL_TX))))
