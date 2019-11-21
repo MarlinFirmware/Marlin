@@ -249,6 +249,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Speed");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed =");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan =");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra Fan Speed");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed =");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");

@@ -168,7 +168,7 @@ class PrintJobRecovery {
 
   #if PIN_EXISTS(POWER_LOSS)
     static inline void outage() {
-      if (enabled && IS_SD_PRINTING() && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
+      if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
         _outage();
     }
   #endif
@@ -183,6 +183,10 @@ class PrintJobRecovery {
 
   private:
     static void write();
+
+  #if ENABLED(BACKUP_POWER_SUPPLY)
+    static void raise_z();
+  #endif
 
   #if PIN_EXISTS(POWER_LOSS)
     static void _outage();

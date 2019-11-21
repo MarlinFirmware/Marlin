@@ -176,6 +176,7 @@
   #define BTN_ENC          PB6
 
   #if ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS    PB8
 
     #define BTN_EN1        PA9
@@ -184,8 +185,30 @@
     #define LCD_PINS_ENABLE PB7
     #define LCD_PINS_D4    PB9
 
+  #elif ENABLED(MKS_MINI_12864)
+
+    /** Creality Ender-2 display pinout
+     *                   _____
+     *               5V | · · | GND
+     *      (MOSI) PB7  | · · | PB8  (LCD_RS)
+     *    (LCD_A0) PB9  | · · | PA10 (BTN_EN2)
+     *            RESET | · · | PA9  (BTN_EN1)
+     *   (BTN_ENC) PB6  | · · | PA15 (SCK)
+     *                   -----
+     *                    EXP1
+     */
+
+    #define BTN_EN1      PA9
+    #define BTN_EN2      PA10
+    #define DOGLCD_CS    PB8
+    #define DOGLCD_A0    PB9
+    #define DOGLCD_SCK   PA15
+    #define DOGLCD_MOSI  PB7
+    #define FORCE_SOFT_SPI
+    #define LCD_BACKLIGHT_PIN -1
+
   #else
-    #error "Only CR10_STOCKDISPLAY is currently supported on the BIGTREE_SKR_E3_DIP."
+    #error "Only CR10_STOCKDISPLAY and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_E3_DIP."
   #endif
 
 #endif // HAS_SPI_LCD
