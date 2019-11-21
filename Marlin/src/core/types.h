@@ -26,6 +26,9 @@
 
 #include "millis_t.h"
 
+class __FlashStringHelper;
+typedef const __FlashStringHelper *progmem_str;
+
 //
 // Enumerated axis indices
 //

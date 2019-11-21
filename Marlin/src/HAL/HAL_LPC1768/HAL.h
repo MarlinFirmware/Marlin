@@ -131,12 +131,43 @@ int freeMemory();
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
+#define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
+#define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
+
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
-#define HAL_adc_init()         FilteredADC::init()
+extern uint32_t HAL_adc_reading;
+[[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
+  HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
+}
+[[gnu::always_inline]] inline uint16_t HAL_read_adc() {
+  return HAL_adc_reading;
+}
+
+#define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     FilteredADC::start_conversion(pin)
-#define HAL_READ_ADC()         FilteredADC::get_result()
-#define HAL_ADC_READY()        FilteredADC::finished_conversion()
+#define HAL_START_ADC(pin)     HAL_start_adc(pin)
+#define HAL_READ_ADC()         HAL_read_adc()
+#define HAL_ADC_READY()        (true)
+
+// Test whether the pin is valid
+constexpr bool VALID_PIN(const pin_t pin) {
+  return LPC176x::pin_is_valid(pin);
+}
+
+// Get the analog index for a digital pin
+constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t pin) {
+  return (LPC176x::pin_is_valid(pin) && LPC176x::pin_has_adc(pin)) ? pin : -1;
+}
+
+// Return the index of a pin number
+constexpr int16_t GET_PIN_MAP_INDEX(const pin_t pin) {
+  return LPC176x::pin_index(pin);
+}
+
+// Get the pin number at the given index
+constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
+  return LPC176x::pin_index(index);
+}
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);

@@ -58,7 +58,7 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
     #else
       BTN_POS(15,7), BTN_SIZE(4,1),
     #endif
-    GET_TEXT_F(BACK), true, true
+    GET_TEXT_F(MSG_BACK), true, true
   );
 
   _line = 1;
@@ -197,7 +197,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
       #else
         BTN_POS(15,    1), BTN_SIZE(4,1),
       #endif
-      GET_TEXT_F(INCREMENT)
+      GET_TEXT_F(MSG_INCREMENT)
     );
   }
 
@@ -328,7 +328,7 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, progmem_str lab
         #else
           BTN_POS(10,_line), BTN_SIZE(4,1),
         #endif
-        GET_TEXT_F(NO), GET_TEXT_F(YES), value
+        GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), value
        );
   }
 
@@ -341,14 +341,14 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
   if (_what & BACKGROUND) {
     _button_style(cmd, TEXT_LABEL);
     cmd.font(font_small)
-       .text(BTN_POS(1, _line), BTN_SIZE(4,1), GET_TEXT_F(HOME));
+       .text(BTN_POS(1, _line), BTN_SIZE(4,1), GET_TEXT_F(MSG_HOME));
   }
 
   cmd.font(LAYOUT_FONT);
- _button(cmd, tag+0, BTN_POS(5,_line),  BTN_SIZE(2,1), GET_TEXT_F(AXIS_X));
- _button(cmd, tag+1, BTN_POS(7,_line),  BTN_SIZE(2,1), GET_TEXT_F(AXIS_Y));
- _button(cmd, tag+2, BTN_POS(9,_line),  BTN_SIZE(2,1), GET_TEXT_F(AXIS_Z));
- _button(cmd, tag+3, BTN_POS(11,_line), BTN_SIZE(3,1), GET_TEXT_F(AXIS_ALL));
+ _button(cmd, tag+0, BTN_POS(5,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_X));
+ _button(cmd, tag+1, BTN_POS(7,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_Y));
+ _button(cmd, tag+2, BTN_POS(9,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_Z));
+ _button(cmd, tag+3, BTN_POS(11,_line), BTN_SIZE(3,1), GET_TEXT_F(MSG_AXIS_ALL));
 
   _line++;
 }

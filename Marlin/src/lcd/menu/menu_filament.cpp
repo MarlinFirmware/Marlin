@@ -84,9 +84,9 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_CENTER|SS_INVERT);
   BACK_ITEM(MSG_BACK);
-  ACTION_ITEM(MSG_PREHEAT_1, [](){ _change_filament_temp(ui.preheat_hotend_temp[0]); });
-  ACTION_ITEM(MSG_PREHEAT_2, [](){ _change_filament_temp(ui.preheat_hotend_temp[1]); });
-  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_temp_extruder].target, EXTRUDE_MINTEMP, heater_maxtemp[extruder] - 15, [](){
+  ACTION_ITEM(MSG_PREHEAT_1, []{ _change_filament_temp(ui.preheat_hotend_temp[0]); });
+  ACTION_ITEM(MSG_PREHEAT_2, []{ _change_filament_temp(ui.preheat_hotend_temp[1]); });
+  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_temp_extruder].target, EXTRUDE_MINTEMP, heater_maxtemp[extruder] - 15, []{
     _change_filament_temp(thermalManager.temp_hotend[_change_filament_temp_extruder].target);
   });
   END_MENU();
@@ -107,155 +107,86 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 
     // Change filament
     #if E_STEPPERS == 1
-      PGM_P const msg0 = GET_TEXT(MSG_FILAMENTCHANGE);
+      PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE);
       if (thermalManager.targetTooColdToExtrude(active_extruder))
-        MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 0); });
+        SUBMENU_P(msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
       else
-        MENU_ITEM_P(gcode, msg0, PSTR("M600 B0"));
+        GCODES_ITEM_P(msg, PSTR("M600 B0"));
     #else
-      PGM_P const msg0 = GET_TEXT(MSG_FILAMENTCHANGE_E0);
-      PGM_P const msg1 = GET_TEXT(MSG_FILAMENTCHANGE_E1);
-      if (thermalManager.targetTooColdToExtrude(0))
-        MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 0); });
-      else
-        MENU_ITEM_P(gcode, msg0, PSTR("M600 B0 T0"));
-      if (thermalManager.targetTooColdToExtrude(1))
-        MENU_ITEM_P(submenu, msg1, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 1); });
-      else
-        MENU_ITEM_P(gcode, msg1, PSTR("M600 B0 T1"));
-      #if E_STEPPERS > 2
-        PGM_P const msg2 = GET_TEXT(MSG_FILAMENTCHANGE_E2);
-        if (thermalManager.targetTooColdToExtrude(2))
-          MENU_ITEM_P(submenu, msg2, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 2); });
-        else
-          MENU_ITEM_P(gcode, msg2, PSTR("M600 B0 T2"));
-        #if E_STEPPERS > 3
-          PGM_P const msg3 = GET_TEXT(MSG_FILAMENTCHANGE_E3);
-          if (thermalManager.targetTooColdToExtrude(3))
-            MENU_ITEM_P(submenu, msg3, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 3); });
-          else
-            MENU_ITEM_P(gcode, msg3, PSTR("M600 B0 T3"));
-          #if E_STEPPERS > 4
-            PGM_P const msg4 = GET_TEXT(MSG_FILAMENTCHANGE_E4);
-            if (thermalManager.targetTooColdToExtrude(4))
-              MENU_ITEM_P(submenu, msg4, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 4); });
-            else
-              MENU_ITEM_P(gcode, msg4, PSTR("M600 B0 T4"));
-            #if E_STEPPERS > 5
-              PGM_P const msg5 = GET_TEXT(MSG_FILAMENTCHANGE_E5);
-              if (thermalManager.targetTooColdToExtrude(5))
-                MENU_ITEM_P(submenu, msg5, [](){ _menu_temp_filament_op(PauseMode(editable.int8), 5); });
-              else
-                MENU_ITEM_P(gcode, msg5, PSTR("M600 B0 T5"));
-            #endif // E_STEPPERS > 5
-          #endif // E_STEPPERS > 4
-        #endif // E_STEPPERS > 3
-      #endif // E_STEPPERS > 2
-    #endif // E_STEPPERS == 1
+      PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
+      for (uint8_t s = 0; s < E_STEPPERS; s++) {
+        if (thermalManager.targetTooColdToExtrude(s))
+          SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
+        else {
+          ACTION_ITEM_N_P(s, msg, []{
+            char cmd[12];
+            sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
+            lcd_enqueue_one_now(cmd);
+          });
+        }
+      }
+    #endif
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       if (!printer_busy()) {
         // Load filament
         #if E_STEPPERS == 1
-          PGM_P const msg0 = GET_TEXT(MSG_FILAMENTLOAD);
+          PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD);
           if (thermalManager.targetTooColdToExtrude(active_extruder))
-            MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
+            SUBMENU_P(msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
           else
-            MENU_ITEM_P(gcode, msg0, PSTR("M701"));
+            GCODES_ITEM_P(msg_load, PSTR("M701"));
         #else
-          PGM_P const msg0 = GET_TEXT(MSG_FILAMENTLOAD_E0);
-          PGM_P const msg1 = GET_TEXT(MSG_FILAMENTLOAD_E1);
-          if (thermalManager.targetTooColdToExtrude(0))
-            MENU_ITEM_P(submenu, msg0, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
-          else
-            MENU_ITEM_P(gcode, msg0, PSTR("M701 T0"));
-          if (thermalManager.targetTooColdToExtrude(1))
-            MENU_ITEM_P(submenu, msg1, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 1); });
-          else
-            MENU_ITEM_P(gcode, msg1, PSTR("M701 T1"));
-          #if E_STEPPERS > 2
-            PGM_P const msg2 = GET_TEXT(MSG_FILAMENTLOAD_E2);
-            if (thermalManager.targetTooColdToExtrude(2))
-              MENU_ITEM_P(submenu, msg2, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 2); });
-            else
-              MENU_ITEM_P(gcode, msg2, PSTR("M701 T2"));
-            #if E_STEPPERS > 3
-              PGM_P const msg3 = GET_TEXT(MSG_FILAMENTLOAD_E3);
-              if (thermalManager.targetTooColdToExtrude(3))
-                MENU_ITEM_P(submenu, msg3, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 3); });
-              else
-                MENU_ITEM_P(gcode, msg3, PSTR("M701 T3"));
-              #if E_STEPPERS > 4
-                PGM_P const msg4 = GET_TEXT(MSG_FILAMENTLOAD_E4);
-                if (thermalManager.targetTooColdToExtrude(4))
-                  MENU_ITEM_P(submenu, msg4, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 4); });
-                else
-                  MENU_ITEM_P(gcode, msg4, PSTR("M701 T4"));
-                #if E_STEPPERS > 5
-                  PGM_P const msg5 = GET_TEXT(MSG_FILAMENTLOAD_E5);
-                  if (thermalManager.targetTooColdToExtrude(5))
-                    MENU_ITEM_P(submenu, msg5, [](){ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 5); });
-                  else
-                    MENU_ITEM_P(gcode, msg5, PSTR("M701 T5"));
-                #endif // E_STEPPERS > 5
-              #endif // E_STEPPERS > 4
-            #endif // E_STEPPERS > 3
-          #endif // E_STEPPERS > 2
-        #endif // E_STEPPERS == 1
+          PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD_E);
+          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+            if (thermalManager.targetTooColdToExtrude(s))
+              SUBMENU_N_P(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
+            else {
+              ACTION_ITEM_N_P(s, msg_load, []{
+                char cmd[12];
+                sprintf_P(cmd, PSTR("M701 T%i"), int(MenuItemBase::itemIndex));
+                lcd_enqueue_one_now(cmd);
+              });
+            }
+          }
+        #endif
 
         // Unload filament
         #if E_STEPPERS == 1
-          if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-            GCODES_ITEM(MSG_FILAMENTUNLOAD, PSTR("M702"));
+          PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD);
+          if (thermalManager.targetTooColdToExtrude(active_extruder))
+            SUBMENU_P(msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 0); });
           else
-            SUBMENU(MSG_FILAMENTUNLOAD, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 0); });
+            GCODES_ITEM_P(msg_unload, PSTR("M702"));
         #else
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-            if (JOIN_N(E_STEPPERS, &&,
-              thermalManager.targetHotEnoughToExtrude(0),
-              thermalManager.targetHotEnoughToExtrude(1),
-              thermalManager.targetHotEnoughToExtrude(2),
-              thermalManager.targetHotEnoughToExtrude(3),
-              thermalManager.targetHotEnoughToExtrude(4),
-              thermalManager.targetHotEnoughToExtrude(5))
-            ) GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
-          else
-            SUBMENU(MSG_FILAMENTUNLOAD_ALL, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, -1); });
-          #endif
-          if (thermalManager.targetHotEnoughToExtrude(0))
-            GCODES_ITEM(MSG_FILAMENTUNLOAD_E0, PSTR("M702 T0"));
-          else
-            SUBMENU(MSG_FILAMENTUNLOAD_E0, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 0); });
-          if (thermalManager.targetHotEnoughToExtrude(1))
-            GCODES_ITEM(MSG_FILAMENTUNLOAD_E1, PSTR("M702 T1"));
-          else
-            SUBMENU(MSG_FILAMENTUNLOAD_E1, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 1); });
-          #if E_STEPPERS > 2
-            if (thermalManager.targetHotEnoughToExtrude(2))
-              GCODES_ITEM(MSG_FILAMENTUNLOAD_E2, PSTR("M702 T2"));
+          {
+            bool too_cold = false;
+            for (uint8_t s = 0; s < E_STEPPERS; s++) {
+              if (thermalManager.targetTooColdToExtrude(s)) {
+                too_cold = true; break;
+              }
+            }
+            if (!too_cold)
+              GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
             else
-              SUBMENU(MSG_FILAMENTUNLOAD_E2, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 2); });
-            #if E_STEPPERS > 3
-              if (thermalManager.targetHotEnoughToExtrude(3))
-                GCODES_ITEM(MSG_FILAMENTUNLOAD_E3, PSTR("M702 T3"));
-              else
-                SUBMENU(MSG_FILAMENTUNLOAD_E3, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 3); });
-              #if E_STEPPERS > 4
-                if (thermalManager.targetHotEnoughToExtrude(4))
-                  GCODES_ITEM(MSG_FILAMENTUNLOAD_E4, PSTR("M702 T4"));
-                else
-                  SUBMENU(MSG_FILAMENTUNLOAD_E4, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 4); });
-                #if E_STEPPERS > 5
-                  if (thermalManager.targetHotEnoughToExtrude(5))
-                    GCODES_ITEM(MSG_FILAMENTUNLOAD_E5, PSTR("M702 T5"));
-                  else
-                    SUBMENU(MSG_FILAMENTUNLOAD_E5, [](){ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 5); });
-                #endif // E_STEPPERS > 5
-              #endif // E_STEPPERS > 4
-            #endif // E_STEPPERS > 3
-          #endif // E_STEPPERS > 2
-        #endif // E_STEPPERS == 1
-      }
+              SUBMENU(MSG_FILAMENTUNLOAD_ALL, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, -1); });
+          }
+          #endif
+          PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD_E);
+          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+            if (thermalManager.targetTooColdToExtrude(s))
+              SUBMENU_N_P(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
+            else {
+              ACTION_ITEM_N_P(s, msg_unload, []{
+                char cmd[12];
+                sprintf_P(cmd, PSTR("M702 T%i"), int(MenuItemBase::itemIndex));
+                lcd_enqueue_one_now(cmd);
+              });
+            }
+          }
+        #endif
+      } // !printer_busy
     #endif
 
     END_MENU();
@@ -281,7 +212,7 @@ static PGM_P pause_header() {
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
     if (ui.should_draw()) { \
-      draw_menu_item_static(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT); \
+      MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
@@ -298,13 +229,13 @@ void menu_pause_option() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
   #endif
-  ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_PURGE, [](){ pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; });
+  ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_PURGE, []{ pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; });
   #if HAS_FILAMENT_SENSOR
     if (runout.filament_ran_out)
       EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
     else
   #endif
-      ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, [](){ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
+      ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
   END_MENU();
 }
 

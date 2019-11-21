@@ -33,15 +33,9 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
-#ifdef MCU_STM32F103RE
-  #define STM32_FLASH_SIZE (512 * 1024)
-#else
-  #define STM32_FLASH_SIZE (256 * 1024)
-#endif
-
 #define FLASH_EEPROM_EMULATION
 #define EEPROM_PAGE_SIZE     (0x800) // 2KB
-#define EEPROM_START_ADDRESS (0x8000000 + STM32_FLASH_SIZE - 2 * EEPROM_PAGE_SIZE)
+#define EEPROM_START_ADDRESS uint32(0x8000000 + (STM32_FLASH_SIZE) * 1024 - 2 * EEPROM_PAGE_SIZE)
 #define E2END                (EEPROM_PAGE_SIZE - 1)
 
 //
@@ -209,13 +203,8 @@
 #define ON_BOARD_SPI_DEVICE 1    //SPI1
 #define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
 
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(125)
+#if HAS_GRAPHICAL_LCD
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(125)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(125)
-#endif
-

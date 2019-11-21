@@ -230,6 +230,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
+  // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
     return;
@@ -254,6 +255,40 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     workspace_plane = PLANE_XY;
+  #endif
+
+  #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
+  #define HAS_HOMING_CURRENT (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2))
+
+  #if HAS_HOMING_CURRENT
+    auto debug_current = [](const char * const s, const int16_t a, const int16_t b){
+      DEBUG_ECHO(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+    };
+    #if HAS_CURRENT_HOME(X)
+      const int16_t tmc_save_current_X = stepperX.getMilliamps();
+      stepperX.rms_current(X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current("X", tmc_save_current_X, X_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(X2)
+      const int16_t tmc_save_current_X2 = stepperX2.getMilliamps();
+      stepperX2.rms_current(X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current("X2", tmc_save_current_X2, X2_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(Y)
+      const int16_t tmc_save_current_Y = stepperY.getMilliamps();
+      stepperY.rms_current(Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current("Y", tmc_save_current_Y, Y_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(Y2)
+      const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
+      stepperY2.rms_current(Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current("Y2", tmc_save_current_Y2, Y2_CURRENT_HOME);
+    #endif
+  #endif
+
+  #if BOTH(STEALTHCHOP_XY, HOME_USING_SPREADCYCLE)
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set XY to spreadCycle...");
+    process_subcommands_now_P(PSTR("M569S0XY"));
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -308,7 +343,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination.z = z_homing_height;
+      destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
       if (destination.z > current_position.z) {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) to ", destination.z);
         do_blocking_move_to_z(destination.z);
@@ -426,8 +461,6 @@ void GcodeSuite::G28(const bool always_home_all) {
       delayed_move_time = 0;
       active_extruder_parked = true;
       extruder_duplication_enabled = IDEX_saved_duplication_state;
-      extruder_duplication_enabled = false;
-
       dual_x_carriage_mode         = IDEX_saved_mode;
       stepper.set_directions();
 
@@ -464,6 +497,27 @@ void GcodeSuite::G28(const bool always_home_all) {
       #define NO_FETCH true
     #endif
     tool_change(old_tool_index, NO_FETCH);
+  #endif
+
+  #if HAS_HOMING_CURRENT
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
+    #if HAS_CURRENT_HOME(X)
+      stepperX.rms_current(tmc_save_current_X);
+    #endif
+    #if HAS_CURRENT_HOME(X2)
+      stepperX2.rms_current(tmc_save_current_X2);
+    #endif
+    #if HAS_CURRENT_HOME(Y)
+      stepperY.rms_current(tmc_save_current_Y);
+    #endif
+    #if HAS_CURRENT_HOME(Y2)
+      stepperY2.rms_current(tmc_save_current_Y2);
+    #endif
+  #endif
+
+  #if BOTH(STEALTHCHOP_XY, HOME_USING_SPREADCYCLE)
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set XY to StealthChop...");
+    process_subcommands_now_P(PSTR("M569S1XY"));
   #endif
 
   ui.refresh();

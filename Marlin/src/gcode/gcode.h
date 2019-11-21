@@ -340,7 +340,10 @@ public:
   static void process_subcommands_now_P(PGM_P pgcode);
   static void process_subcommands_now(char * gcode);
 
-  static inline void home_all_axes() { process_subcommands_now_P(PSTR("G28")); }
+  static inline void home_all_axes() {
+    extern const char G28_STR[];
+    process_subcommands_now_P(G28_STR);
+  }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**

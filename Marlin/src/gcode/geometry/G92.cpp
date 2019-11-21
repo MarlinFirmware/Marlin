@@ -77,7 +77,7 @@ void GcodeSuite::G92() {
             #elif HAS_POSITION_SHIFT
               if (i == E_AXIS) {
                 sync_E = true;
-                current_position.e = v; // When using coordinate spaces, only E is set directly
+                current_position.e = v;       // When using coordinate spaces, only E is set directly
               }
               else {
                 position_shift[i] += d;       // Other axes simply offset the coordinate space

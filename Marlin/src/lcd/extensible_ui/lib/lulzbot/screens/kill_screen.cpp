@@ -46,8 +46,8 @@ void KillScreen::show(const char *message) {
   cmd.font(Theme::font_large)
      .cmd(COLOR_RGB(Theme::bg_text_enabled))
      .text(BTN_POS(1,2), BTN_SIZE(4,1), message)
-     .text(BTN_POS(1,3), BTN_SIZE(4,1), GET_TEXT_F(PRINTER_HALTED))
-     .text(BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(PLEASE_RESET));
+     .text(BTN_POS(1,3), BTN_SIZE(4,1), GET_TEXT_F(MSG_HALTED))
+     .text(BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_PLEASE_RESET));
 
   #undef GRID_COLS
   #undef GRID_ROWS

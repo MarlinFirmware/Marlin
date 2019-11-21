@@ -60,7 +60,7 @@
 #if ENABLED(U8GLIB_ST7920)
 
 #include <U8glib.h>
-#include "SoftwareSPI.h"
+#include <SoftwareSPI.h>
 #include "../../shared/Delay.h"
 
 #undef SPI_SPEED

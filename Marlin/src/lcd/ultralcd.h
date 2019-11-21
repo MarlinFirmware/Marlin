@@ -153,6 +153,8 @@
 
   #if ENABLED(LCD_I2C_VIKI)
 
+    #include <LiquidTWI2.h>
+
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
     // button and encoder bit positions within 'buttons'
@@ -302,10 +304,16 @@ public:
         static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
         static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
         static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
+        #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+          static uint32_t remaining_time;
+          FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
+          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
+          FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+        #endif
       #endif
       static progress_t _get_progress();
       #if HAS_PRINT_PROGRESS_PERMYRIAD
-        static uint16_t get_progress_permyriad() { return _get_progress(); }
+        FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
       #endif
       static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
     #else
@@ -319,9 +327,9 @@ public:
       static bool detected();
 
       static LCDViewAction lcdDrawUpdate;
-      static inline bool should_draw() { return bool(lcdDrawUpdate); }
-      static inline void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
-      static inline void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
+      FORCE_INLINE static bool should_draw() { return bool(lcdDrawUpdate); }
+      FORCE_INLINE static void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
+      FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
 
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         static void draw_custom_bootscreen(const uint8_t frame=0);
@@ -351,7 +359,7 @@ public:
           static void draw_progress_bar(const uint8_t percent);
           #if PROGRESS_MSG_EXPIRE > 0
             static millis_t expire_status_ms; // = 0
-            static inline void reset_progress_bar_timeout() { expire_status_ms = 0; }
+            FORCE_INLINE static void reset_progress_bar_timeout() { expire_status_ms = 0; }
           #endif
         #endif
 
@@ -362,7 +370,7 @@ public:
       #if HAS_LCD_CONTRAST
         static int16_t contrast;
         static void set_contrast(const int16_t value);
-        static inline void refresh_contrast() { set_contrast(contrast); }
+        FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
       #endif
 
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
@@ -459,29 +467,30 @@ public:
     static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
+    static bool screen_changed;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
     static void save_previous_screen();
-    static void goto_previous_screen(
-      #if ENABLED(TURBO_BACK_MENU_ITEM)
-        const bool is_back
-      #endif
-    );
 
+    // goto_previous_screen and go_back may also be used as menu item callbacks
     #if ENABLED(TURBO_BACK_MENU_ITEM)
-      // Various menu items require a "void (*)()" to point to
-      // this function so a default argument *won't* work
-      static inline void goto_previous_screen() { goto_previous_screen(false); }
+      static void _goto_previous_screen(const bool is_back);
+      static inline void goto_previous_screen() { _goto_previous_screen(false); }
+      static inline void go_back()              { _goto_previous_screen(true); }
+    #else
+      static void _goto_previous_screen();
+      FORCE_INLINE static void goto_previous_screen() { _goto_previous_screen(); }
+      FORCE_INLINE static void go_back()              { _goto_previous_screen(); }
     #endif
 
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }
-    static inline void run_current_screen() { (*currentScreen)(); }
+    FORCE_INLINE static void run_current_screen() { (*currentScreen)(); }
 
     #if ENABLED(LIGHTWEIGHT_UI)
       static void lcd_in_status(const bool inStatus);
     #endif
 
-    static inline void defer_status_screen(const bool defer=true) {
+    FORCE_INLINE static void defer_status_screen(const bool defer=true) {
       #if LCD_TIMEOUT_TO_STATUS
         defer_return_to_status = defer;
       #else
@@ -499,7 +508,7 @@ public:
     #endif
 
     #if ENABLED(G26_MESH_VALIDATION)
-      static inline void chirp() {
+      FORCE_INLINE static void chirp() {
         #if HAS_BUZZER
           buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
         #endif
@@ -516,7 +525,7 @@ public:
 
     static constexpr bool lcd_clicked = false;
     static constexpr bool on_status_screen() { return true; }
-    static inline void run_current_screen() { status_screen(); }
+    FORCE_INLINE static void run_current_screen() { status_screen(); }
 
   #endif
 
@@ -562,22 +571,27 @@ public:
 
     #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
-      static inline void encoder_direction_normal() { encoderDirection = ENCODERBASE; }
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
-      static inline void encoder_direction_normal() {}
     #endif
 
-    #if ENABLED(REVERSE_MENU_DIRECTION)
-      static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
-    #else
-      static inline void encoder_direction_menus()  {}
-    #endif
-    #if ENABLED(REVERSE_SELECT_DIRECTION)
-      static inline void encoder_direction_select()  { encoderDirection = -(ENCODERBASE); }
-    #else
-      static inline void encoder_direction_select()  {}
-    #endif
+    FORCE_INLINE static void encoder_direction_normal() {
+      #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+        encoderDirection = ENCODERBASE;
+      #endif
+    }
+
+    FORCE_INLINE static void encoder_direction_menus() {
+      #if ENABLED(REVERSE_MENU_DIRECTION)
+        encoderDirection = -(ENCODERBASE);
+      #endif
+    }
+
+    FORCE_INLINE static void encoder_direction_select() {
+      #if ENABLED(REVERSE_SELECT_DIRECTION)
+        encoderDirection = -(ENCODERBASE);
+      #endif
+    }
 
   #else
 

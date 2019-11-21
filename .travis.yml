@@ -25,23 +25,27 @@ env:
   - TEST_PLATFORM="sanguino_atmega1284p"
   - TEST_PLATFORM="sanguino_atmega644p"
 
-  # Broken Extended STM32 Environments
-  #- TEST_PLATFORM="ARMED"
-  #- TEST_PLATFORM="BIGTREE_BTT002"
-  #- TEST_PLATFORM="BIGTREE_SKR_PRO"
-
   # Extended STM32 Environments
   - TEST_PLATFORM="STM32F103RC_bigtree"
+  - TEST_PLATFORM="STM32F103RC_bigtree_NOUSB"
+  - TEST_PLATFORM="STM32F103RC_fysetc"
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
   - TEST_PLATFORM="STM32F407VE_black"
+  - TEST_PLATFORM="BIGTREE_SKR_PRO"
   - TEST_PLATFORM="mks_robin"
+  - TEST_PLATFORM="ARMED"
+
+  # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
+  #- TEST_PLATFORM="STM32F4"
+  #- TEST_PLATFORM="STM32F7"
 
   # Put lengthy tests last
   - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="LPC1769"
 
   # Non-working environment tests
+  #- TEST_PLATFORM="BIGTREE_BTT002" this board isn't released yet. we need pinout to be sure about what we do
   #- TEST_PLATFORM="at90usb1286_cdc"
   #- TEST_PLATFORM="at90usb1286_dfu"
   #- TEST_PLATFORM="STM32F103CB_malyan"
@@ -49,11 +53,6 @@ env:
   #- TEST_PLATFORM="mks_robin_mini"
   #- TEST_PLATFORM="mks_robin_nano"
   #- TEST_PLATFORM="SAMD51_grandcentral_m4"
-  #- TEST_PLATFORM="STM32F103RC_bigtree"
-  #- TEST_PLATFORM="STM32F103RC_bigtree_USB"
-  #- TEST_PLATFORM="STM32F103RC_fysetc"
-  #- TEST_PLATFORM="STM32F4"
-  #- TEST_PLATFORM="STM32F7"
 
 before_install:
   #

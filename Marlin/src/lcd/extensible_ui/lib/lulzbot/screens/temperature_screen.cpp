@@ -32,29 +32,29 @@ using namespace ExtUI;
 
 void TemperatureScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(0).color(temp).units(GET_TEXT_F(UNITS_C));
-  w.heading(GET_TEXT_F(TEMPERATURE));
-  w.button(30, GET_TEXT_F(COOLDOWN));
-  #ifndef LULZBOT_DISABLE_TOOLHEAD_HEATER
+  w.precision(0).color(temp).units(GET_TEXT_F(MSG_UNITS_C));
+  w.heading(GET_TEXT_F(MSG_TEMPERATURE));
+  w.button(30, GET_TEXT_F(MSG_COOLDOWN));
+  #ifndef NO_TOOLHEAD_HEATER_GCODE
     #if HOTENDS == 1
-      w.adjuster(   2, GET_TEXT_F(HOTEND),   getTargetTemp_celsius(E0));
+      w.adjuster(   2, GET_TEXT_F(MSG_NOZZLE),   getTargetTemp_celsius(E0));
     #else
-      w.adjuster(   2, GET_TEXT_F(HOTEND1), getTargetTemp_celsius(E0));
-      w.adjuster(   4, GET_TEXT_F(HOTEND2), getTargetTemp_celsius(E1));
+      w.adjuster(   2, GET_TEXT_F(MSG_NOZZLE_0), getTargetTemp_celsius(E0));
+      w.adjuster(   4, GET_TEXT_F(MSG_NOZZLE_1), getTargetTemp_celsius(E1));
       #if HOTENDS > 2
-        w.adjuster( 6, GET_TEXT_F(HOTEND3), getTargetTemp_celsius(E2));
+        w.adjuster( 6, GET_TEXT_F(MSG_NOZZLE_2), getTargetTemp_celsius(E2));
       #endif
       #if HOTENDS > 3
-        w.adjuster( 8, GET_TEXT_F(HOTEND4), getTargetTemp_celsius(E3));
+        w.adjuster( 8, GET_TEXT_F(MSG_NOZZLE_3), getTargetTemp_celsius(E3));
       #endif
     #endif
   #endif
   #if HAS_HEATED_BED
-    w.adjuster(    20, GET_TEXT_F(BED),     getTargetTemp_celsius(BED));
+    w.adjuster(    20, GET_TEXT_F(MSG_BED),     getTargetTemp_celsius(BED));
   #endif
   #if FAN_COUNT > 0
-    w.color(fan_speed).units(GET_TEXT_F(UNITS_PERCENT));
-    w.adjuster(    10, GET_TEXT_F(FAN_SPEED), getTargetFan_percent(FAN0));
+    w.color(fan_speed).units(GET_TEXT_F(MSG_UNITS_PERCENT));
+    w.adjuster(    10, GET_TEXT_F(MSG_FAN_SPEED), getTargetFan_percent(FAN0));
   #endif
   w.increments();
 }
@@ -64,7 +64,7 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
   switch (tag) {
     case 20: UI_DECREMENT(TargetTemp_celsius, BED); break;
     case 21: UI_INCREMENT(TargetTemp_celsius, BED); break;
-    #ifndef LULZBOT_DISABLE_TOOLHEAD_HEATER
+    #ifndef NO_TOOLHEAD_HEATER_GCODE
     case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
     case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
     #endif
@@ -85,16 +85,8 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
     case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
     #endif
     case 30:
-      setTargetTemp_celsius(0,E0);
-      #if HOTENDS > 1
-        setTargetTemp_celsius(0,E1);
-        #if HOTENDS > 2
-          setTargetTemp_celsius(0,E2);
-          #if HOTENDS > 3
-            setTargetTemp_celsius(0,E4);
-          #endif
-        #endif
-      #endif
+      #define _HOTEND_OFF(N) setTargetTemp_celsius(0,E##N);
+      REPEAT(HOTENDS, _HOTEND_OFF);
       #if HAS_HEATED_BED
         setTargetTemp_celsius(0,BED);
       #endif

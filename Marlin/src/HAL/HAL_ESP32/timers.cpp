@@ -23,10 +23,10 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include <stdio.h>
-#include "esp_types.h"
-#include "soc/timer_group_struct.h"
-#include "driver/periph_ctrl.h"
-#include "driver/timer.h"
+#include <esp_types.h>
+#include <soc/timer_group_struct.h>
+#include <driver/periph_ctrl.h>
+#include <driver/timer.h>
 
 #include "HAL.h"
 

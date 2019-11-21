@@ -340,7 +340,9 @@ void Endstops::resync() {
 
 void Endstops::event_handler() {
   static uint8_t prev_hit_state; // = 0
-  if (hit_state && hit_state != prev_hit_state) {
+  if (hit_state == prev_hit_state) return;
+  prev_hit_state = hit_state;
+  if (hit_state) {
     #if HAS_SPI_LCD
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
@@ -385,7 +387,6 @@ void Endstops::event_handler() {
       }
     #endif
   }
-  prev_hit_state = hit_state;
 }
 
 static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
@@ -395,7 +396,7 @@ static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   SERIAL_EOL();
 }
 
-void _O2 Endstops::M119() {
+void _O2 Endstops::report_states() {
   #if ENABLED(BLTOUCH)
     bltouch._set_SW_mode();
   #endif
@@ -483,7 +484,7 @@ void _O2 Endstops::M119() {
     joystick.report();
   #endif
 
-} // Endstops::M119
+} // Endstops::report_states
 
 // The following routines are called from an ISR context. It could be the temperature ISR, the
 // endstop ISR or the Stepper ISR.

@@ -154,6 +154,9 @@
 
   #define E2_SERIAL_TX_PIN PD6
   #define E2_SERIAL_RX_PIN PD6
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif
 
 //
@@ -207,7 +210,7 @@
     #define LCD_PINS_ENABLE PG7
     #define LCD_PINS_D4    PG3
 
-    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here. 
+    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
     // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
     #undef ST7920_DELAY_1
     #undef ST7920_DELAY_2
@@ -257,15 +260,9 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+    #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
   #endif
 
 #endif // HAS_SPI_LCD

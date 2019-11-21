@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && defined(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && defined(TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
@@ -41,25 +41,25 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
        .font(font_large)
-       .text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(PRINT_MENU));
+       .text( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_MENU));
   }
 
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-       .enabled( isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(PRINT_SPEED))
-                              .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(BED_TEMPERATURE))
+       .enabled( isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_SPEED))
+                              .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_BED_TEMPERATURE))
         #if ENABLED(BABYSTEPPING)
           .enabled(true)
         #else
           .enabled(false)
         #endif
-                              .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(NUDGE_NOZZLE))
-       .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MOVE_TO_HOME))
-       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(RAISE_PLUNGER))
-       .enabled(!isPrinting()).tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(RELEASE_XY_AXIS))
-       .colors(action_btn)    .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(BACK));
+                              .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_NUDGE_NOZZLE))
+       .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_MOVE_TO_HOME))
+       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_RAISE_PLUNGER))
+       .enabled(!isPrinting()).tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_RELEASE_XY_AXIS))
+       .colors(action_btn)    .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
   }
   #undef GRID_COLS
   #undef GRID_ROWS

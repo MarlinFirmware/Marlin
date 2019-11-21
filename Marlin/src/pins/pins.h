@@ -180,6 +180,11 @@
   #include "ramps/pins_Z_BOLT_X_SERIES.h"       // ATmega2560                             env:megaatmega2560
 #elif MB(TT_OSCAR)
   #include "ramps/pins_TT_OSCAR.h"              // ATmega2560                             env:megaatmega2560
+#elif MB(TANGO)
+  #include "ramps/pins_TANGO.h"                 // ATmega2560                             env:megaatmega2560
+#elif MB(MKS_GEN_L_V2)
+  #include "ramps/pins_MKS_GEN_L_V2.h"          // ATmega2560                             env:megaatmega2560
+
 
 //
 // RAMBo and derivatives
@@ -350,11 +355,11 @@
 #elif MB(SELENA_COMPACT)
   #include "lpc1768/pins_SELENA_COMPACT.h"      // LPC1768                                env:LPC1768
 #elif MB(BIGTREE_SKR_V1_1)
-  #include "lpc1768/pins_BIGTREE_SKR_V1.1.h"    // LPC1768                                env:LPC1768
+  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
 #elif MB(BIGTREE_SKR_V1_3)
-  #include "lpc1768/pins_BIGTREE_SKR_V1.3.h"    // LPC1768                                env:LPC1768
+  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
 
@@ -465,13 +470,13 @@
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(BIGTREE_SKR_MINI_V1_1)
-  #include "stm32/pins_BIGTREE_SKR_MINI_V1_1.h" // STM32F1                                env:STM32F103RC_bigtree
+  #include "stm32/pins_BTT_SKR_MINI_V1_1.h"     // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
+#elif MB(BTT_SKR_MINI_E3_V1_0)
+  #include "stm32/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
-  #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree
-#elif MB(BIGTREE_SKR_MINI_E3)
-  #include "stm32/pins_BIGTREE_SKR_MINI_E3.h"   // STM32F1                                env:STM32F103RC_bigtree
+  #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
 #elif MB(BIGTREE_SKR_E3_DIP)
-  #include "stm32/pins_BIGTREE_SKR_E3_DIP.h"    // STM32F1                                env:STM32F103RC_bigtree
+  #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
@@ -509,9 +514,9 @@
 #elif MB(STEVAL)
   #include "stm32/pins_STEVAL.h"                // STM32F4                                env:STM32F4
 #elif MB(BIGTREE_SKR_PRO_V1_1)
-  #include "stm32/pins_BIGTREE_SKR_PRO_V1.1.h"  // STM32F4                                env:BIGTREE_SKR_PRO
+  #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BIGTREE_BTT002_V1_0)
-  #include "stm32/pins_BIGTREE_BTT002_V1.0.h"   // STM32F4                                env:BIGTREE_BTT002
+  #include "stm32/pins_BTT_BTT002_V1_0.h"       // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32/pins_LERDGE_K.h"              // STM32F4                                env:STM32F4
 #elif MB(LERDGE_X)
@@ -982,9 +987,6 @@
       #error "No E stepper plug left for X2!"
     #endif
   #endif
-  #ifndef X2_CS_PIN
-    #define X2_CS_PIN     _EPIN(E_STEPPERS, CS)
-  #endif
   #ifndef X2_MS1_PIN
     #define X2_MS1_PIN    _EPIN(E_STEPPERS, MS1)
   #endif
@@ -994,7 +996,10 @@
   #ifndef X2_MS3_PIN
     #define X2_MS3_PIN    _EPIN(E_STEPPERS, MS3)
   #endif
-  #if AXIS_DRIVER_TYPE_X2(TMC2208) || AXIS_DRIVER_TYPE_X2(TMC2209)
+  #if AXIS_HAS_SPI(X2) && !defined(X2_CS_PIN)
+    #define X2_CS_PIN     _EPIN(E_STEPPERS, CS)
+  #endif
+  #if AXIS_HAS_UART(X2)
     #ifndef X2_SERIAL_TX_PIN
       #define X2_SERIAL_TX_PIN _EPIN(E_STEPPERS, SERIAL_TX)
     #endif
@@ -1030,9 +1035,6 @@
       #error "No E stepper plug left for Y2!"
     #endif
   #endif
-  #ifndef Y2_CS_PIN
-    #define Y2_CS_PIN     _EPIN(Y2_E_INDEX, CS)
-  #endif
   #ifndef Y2_MS1_PIN
     #define Y2_MS1_PIN    _EPIN(Y2_E_INDEX, MS1)
   #endif
@@ -1042,7 +1044,10 @@
   #ifndef Y2_MS3_PIN
     #define Y2_MS3_PIN    _EPIN(Y2_E_INDEX, MS3)
   #endif
-  #if AXIS_DRIVER_TYPE_Y2(TMC2208) || AXIS_DRIVER_TYPE_Y2(TMC2209)
+  #if AXIS_HAS_SPI(Y2) && !defined(Y2_CS_PIN)
+    #define Y2_CS_PIN     _EPIN(Y2_E_INDEX, CS)
+  #endif
+  #if AXIS_HAS_UART(Y2)
     #ifndef Y2_SERIAL_TX_PIN
       #define Y2_SERIAL_TX_PIN _EPIN(Y2_E_INDEX, SERIAL_TX)
     #endif
@@ -1078,9 +1083,6 @@
       #error "No E stepper plug left for Z2!"
     #endif
   #endif
-  #ifndef Z2_CS_PIN
-    #define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
-  #endif
   #ifndef Z2_MS1_PIN
     #define Z2_MS1_PIN    _EPIN(Z2_E_INDEX, MS1)
   #endif
@@ -1090,7 +1092,10 @@
   #ifndef Z2_MS3_PIN
     #define Z2_MS3_PIN    _EPIN(Z2_E_INDEX, MS3)
   #endif
-  #if AXIS_DRIVER_TYPE_Z2(TMC2208) || AXIS_DRIVER_TYPE_Z2(TMC2209)
+  #if AXIS_HAS_SPI(Z2) && !defined(Z2_CS_PIN)
+    #define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
+  #endif
+  #if AXIS_HAS_UART(Z2)
     #ifndef Z2_SERIAL_TX_PIN
       #define Z2_SERIAL_TX_PIN _EPIN(Z2_E_INDEX, SERIAL_TX)
     #endif
@@ -1125,8 +1130,10 @@
       #error "No E stepper plug left for Z3!"
     #endif
   #endif
-  #ifndef Z3_CS_PIN
-    #define Z3_CS_PIN     _EPIN(Z3_E_INDEX, CS)
+  #if AXIS_HAS_SPI(Z3)
+    #ifndef Z3_CS_PIN
+      #define Z3_CS_PIN     _EPIN(Z3_E_INDEX, CS)
+    #endif
   #endif
   #ifndef Z3_MS1_PIN
     #define Z3_MS1_PIN    _EPIN(Z3_E_INDEX, MS1)
@@ -1137,7 +1144,7 @@
   #ifndef Z3_MS3_PIN
     #define Z3_MS3_PIN    _EPIN(Z3_E_INDEX, MS3)
   #endif
-  #if AXIS_DRIVER_TYPE_Z3(TMC2208) || AXIS_DRIVER_TYPE_Z3(TMC2209)
+  #if AXIS_HAS_UART(Z3)
     #ifndef Z3_SERIAL_TX_PIN
       #define Z3_SERIAL_TX_PIN _EPIN(Z3_E_INDEX, SERIAL_TX)
     #endif
@@ -1158,6 +1165,22 @@
 #endif
 #ifndef Z3_MS3_PIN
   #define Z3_MS3_PIN -1
+#endif
+
+#if HAS_GRAPHICAL_LCD
+  #if !defined(ST7920_DELAY_1) && defined(BOARD_ST7920_DELAY_1)
+    #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
+  #endif
+  #if !defined(ST7920_DELAY_2) && defined(BOARD_ST7920_DELAY_2)
+    #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
+  #endif
+  #if !defined(ST7920_DELAY_3) && defined(BOARD_ST7920_DELAY_3)
+    #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
+  #endif
+#else
+  #undef ST7920_DELAY_1
+  #undef ST7920_DELAY_2
+  #undef ST7920_DELAY_3
 #endif
 
 #undef HAS_FREE_AUX2_PINS

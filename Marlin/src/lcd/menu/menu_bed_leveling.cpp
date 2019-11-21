@@ -81,7 +81,7 @@
         ui.completion_feedback();
       #endif
     }
-    if (ui.should_draw()) draw_menu_item_static(LCD_HEIGHT >= 4 ? 1 : 0, GET_TEXT(MSG_LEVEL_BED_DONE));
+    if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   }
 
@@ -132,7 +132,7 @@
     //
     if (ui.should_draw()) {
       const float v = current_position.z;
-      draw_edit_screen(GET_TEXT(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
 
@@ -143,7 +143,7 @@
     if (ui.should_draw()) {
       char msg[10];
       sprintf_P(msg, PSTR("%i / %u"), int(manual_probe_index + 1), total_probe_points);
-      draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
+      MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
     if (!ui.wait_for_bl_move) ui.goto_screen(_lcd_level_bed_get_z);
@@ -169,7 +169,7 @@
   //         Move to the first probe position
   //
   void _lcd_level_bed_homing_done() {
-    if (ui.should_draw()) draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_WAITING));
+    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
     if (ui.use_click()) {
       manual_probe_index = 0;
       _lcd_level_goto_next_point();
@@ -195,7 +195,7 @@
     ui.defer_status_screen();
     set_all_unhomed();
     ui.goto_screen(_lcd_level_bed_homing);
-    queue.inject_P(PSTR("G28"));
+    queue.inject_P(G28_STR);
   }
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING
@@ -241,7 +241,7 @@ void menu_bed_leveling() {
 
   // Auto Home if not using manual probing
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    if (!is_homed) GCODES_ITEM(MSG_AUTO_HOME, PSTR("G28"));
+    if (!is_homed) GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
   #endif
 
   // Level Bed
@@ -268,7 +268,7 @@ void menu_bed_leveling() {
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     // Shadow for editing the fade height
     editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
 
   //

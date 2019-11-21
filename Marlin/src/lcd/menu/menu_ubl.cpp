@@ -65,7 +65,7 @@ static void _lcd_mesh_fine_tune(PGM_P msg) {
   }
 
   if (ui.should_draw()) {
-    draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
+    MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
     #if ENABLED(MESH_EDIT_GFX_OVERLAY)
       _lcd_zoffset_overlay_gfx(mesh_edit_value);
     #endif
@@ -107,7 +107,7 @@ void lcd_z_offset_edit_setup(const float &initial) {
  */
 void _lcd_ubl_build_custom_mesh() {
   char ubl_lcd_gcode[20];
-  queue.inject_P(PSTR("G28"));
+  queue.inject_P(G28_STR);
   #if HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("M190 S%i"), custom_bed_temp);
     lcd_enqueue_one_now(ubl_lcd_gcode);
@@ -195,7 +195,7 @@ void _lcd_ubl_validate_custom_mesh() {
     #endif
   ;
   sprintf_P(ubl_lcd_gcode, PSTR("G26 C B%i H%i P"), temp, custom_hotend_temp);
-  lcd_enqueue_one_now_P(PSTR("G28"));
+  lcd_enqueue_one_now_P(G28_STR);
   lcd_enqueue_one_now(ubl_lcd_gcode);
 }
 
@@ -234,7 +234,7 @@ void _lcd_ubl_grid_level() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
   EDIT_ITEM(int3, MSG_UBL_SIDE_POINTS, &side_points, 2, 6);
-  ACTION_ITEM(MSG_UBL_MESH_LEVEL, [](){
+  ACTION_ITEM(MSG_UBL_MESH_LEVEL, []{
     char ubl_lcd_gcode[12];
     sprintf_P(ubl_lcd_gcode, PSTR("G29 J%i"), side_points);
     lcd_enqueue_one_now(ubl_lcd_gcode);
@@ -519,7 +519,7 @@ void _lcd_ubl_output_map_lcd() {
 void _lcd_ubl_output_map_lcd_cmd() {
   if (!all_axes_known()) {
     set_all_unhomed();
-    queue.inject_P(PSTR("G28"));
+    queue.inject_P(G28_STR);
   }
   ui.goto_screen(_lcd_ubl_map_homing);
 }
@@ -617,7 +617,7 @@ void _lcd_ubl_level_bed() {
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29 W"));
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, [](){ set_z_fade_height(editable.decimal); });
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
   END_MENU();
 }

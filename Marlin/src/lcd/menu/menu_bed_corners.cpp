@@ -84,31 +84,29 @@ static inline void _lcd_goto_next_corner() {
   ) bed_corner = 0;
 }
 
-static inline void menu_level_bed_corners() {
-  do_select_screen(
-    GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE),
-    _lcd_goto_next_corner,
-    []{
-      #if HAS_LEVELING
-        set_bed_leveling_enabled(leveling_was_active);
-      #endif
-      ui.goto_previous_screen_no_defer();
-    },
-    GET_TEXT(
-      #if ENABLED(LEVEL_CENTER_TOO)
-        MSG_LEVEL_BED_NEXT_POINT
-      #else
-        MSG_NEXT_CORNER
-      #endif
-    ), nullptr, PSTR("?")
-  );
-}
-
 static inline void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (all_axes_homed()) {
     bed_corner = 0;
-    ui.goto_screen(menu_level_bed_corners);
+    ui.goto_screen([]{
+      MenuItem_confirm::select_screen(
+        GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE),
+        _lcd_goto_next_corner,
+        []{
+          #if HAS_LEVELING
+            set_bed_leveling_enabled(leveling_was_active);
+          #endif
+          ui.goto_previous_screen_no_defer();
+        },
+        GET_TEXT(
+          #if ENABLED(LEVEL_CENTER_TOO)
+            MSG_LEVEL_BED_NEXT_POINT
+          #else
+            MSG_NEXT_CORNER
+          #endif
+        ), (PGM_P)nullptr, PSTR("?")
+      );
+    });
     ui.set_selection(true);
     _lcd_goto_next_corner();
   }
@@ -118,7 +116,7 @@ void _lcd_level_bed_corners() {
   ui.defer_status_screen();
   if (!all_axes_known()) {
     set_all_unhomed();
-    queue.inject_P(PSTR("G28"));
+    queue.inject_P(G28_STR);
   }
 
   // Disable leveling so the planner won't mess with us

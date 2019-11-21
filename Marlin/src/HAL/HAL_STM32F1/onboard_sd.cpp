@@ -36,8 +36,8 @@
   #define SPI_CLOCK_MAX SPI_BAUD_PCLK_DIV_2
 #endif
 
-#define CS_LOW()  {WRITE(ONBOARD_SD_CS_PIN, LOW);}  /* Set OnBoardSPI cs low */
-#define CS_HIGH() {WRITE(ONBOARD_SD_CS_PIN, HIGH);} /* Set OnBoardSPI cs high */
+#define CS_LOW()  WRITE(ONBOARD_SD_CS_PIN, LOW)  /* Set OnBoardSPI cs low */
+#define CS_HIGH() WRITE(ONBOARD_SD_CS_PIN, HIGH) /* Set OnBoardSPI cs high */
 
 #define FCLK_FAST() ONBOARD_SD_SPI.setClockDivider(SPI_CLOCK_MAX)
 #define FCLK_SLOW() ONBOARD_SD_SPI.setClockDivider(SPI_BAUD_PCLK_DIV_256)

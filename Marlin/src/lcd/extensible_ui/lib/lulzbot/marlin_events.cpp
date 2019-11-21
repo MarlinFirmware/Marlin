@@ -103,7 +103,7 @@ namespace ExtUI {
   }
 
   void onConfigurationStoreWritten(bool success) {
-    #ifdef LULZBOT_EEPROM_BACKUP_SIZE
+    #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       if (success && InterfaceSettingsScreen::backupEEPROM()) {
         SERIAL_ECHOLNPGM("Made backup of EEPROM to SPI Flash");
       }
@@ -127,7 +127,7 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshUpdate(const uint8_t, const uint8_t, const float) {
+    void onMeshUpdate(const int8_t, const int8_t, const float) {
     }
   #endif
 }
