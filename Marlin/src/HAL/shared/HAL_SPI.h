@@ -55,39 +55,68 @@
 #define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
 
 //
+// SPI device access definitions
+//
+#define SPIBUS_TYPE     0 // HW/SW
+#define SPIBUS_MOSI     1
+#define SPIBUS_MISO     2
+#define SPIBUS_CLCK     3
+
+#define SPIDEV_TYPE     0 //device type
+#define SPIDEV_BUS      1 //attached to bus
+#define SPIDEV_CS       2 //selection
+#define SPIDEV_SW       3 //detection
+#define SPIDEV_DLV      4 //level when detected
+
+#define DEVTYPE_SD      0
+#define DEVTYPE_DRIVER  1
+#define DEVTYPE_DISPLAY 2
+#define DEVTYPE_SENSOR  3
+
+#define HW_SPI(X)       SPI_BusPins[X][SPIBUS_TYPE]==true
+#define IS_DEV_SD(X)    SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_SD
+
+#define BUS_OF_DEV(X)   SPI_Devices[X][SPIDEV_BUS]
+#define CS_OF_DEV(X)    SPI_Devices[X][SPIDEV_CS]
+#define SW_OF_SD(X)     SPI_Devices[X][SPIDEV_SW]
+#define DLV_OF_SD(X)    SPI_Devices[X][SPIDEV_DLV]
+
+//
 // Standard SPI functions
 //
 
+bool spiInitialized(uint8_t bus_num);
+
 // Initialize SPI bus
-void spiBegin();
+void spiBegin(uint8_t bus_num);
 
 // Configure SPI for specified SPI speed
-void spiInit(uint8_t spiRate);
+void spiInit(uint8_t bus_num, uint8_t spiRate);
 
 // Write single byte to SPI
-void spiSend(uint8_t b);
+void spiSend(uint8_t dev_num, uint8_t b);
 
 // Read single byte from SPI
-uint8_t spiRec();
+uint8_t spiRec(uint8_t dev_num);
 
 // Read from SPI into buffer
-void spiRead(uint8_t* buf, uint16_t nbyte);
+void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte);
 
 // Write token and then write from 512 byte buffer to SPI (for SD card)
-void spiSendBlock(uint8_t token, const uint8_t* buf);
+void spiSendBlock(uint8_t dev_num, uint8_t token, const uint8_t* buf);
 
 // Begin SPI transaction, set clock, bit order, data mode
-void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
+void spiBeginTransaction(uint8_t dev_num, uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
 
 //
 // Extended SPI functions taking a channel number (Hardware SPI only)
 //
 
 // Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
+void spiSend(uint8_t bus_num, uint32_t chan, byte b);
 
 // Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
+void spiSend(uint8_t bus_num, uint32_t chan, const uint8_t* buf, size_t n);
 
 // Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
+uint8_t spiRec(uint8_t bus_num, uint32_t chan);

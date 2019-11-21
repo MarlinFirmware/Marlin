@@ -29,25 +29,12 @@
 // ------------------------
 // Public Variables
 // ------------------------
-
-static SPISettings spiConfig;
+static SPISettings* spiConfig[NUM_SPI_BUSES]  = { NULL };
+static void* spiBus[NUM_SPI_BUSES]  = { NULL };
 
 // ------------------------
 // Public functions
 // ------------------------
-
-#if ENABLED(SOFTWARE_SPI)
-  // ------------------------
-  // Software SPI
-  // ------------------------
-  #error "Software SPI not supported for STM32. Use Hardware SPI."
-
-#else
-
-// ------------------------
-// Hardware SPI
-// ------------------------
-
 /**
  * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
  */
@@ -59,31 +46,44 @@ static SPISettings spiConfig;
  *
  * @details Only configures SS pin since stm32duino creates and initialize the SPI object
  */
-void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
-  #endif
-
-  OUT_WRITE(SS_PIN, HIGH);
+void spiBegin(uint8_t bus_num) {
+  //the bus must be initialized with spiInit
 }
 
-/** Configure SPI for specified SPI speed */
-void spiInit(uint8_t spiRate) {
-  // Use datarates Marlin uses
-  uint32_t clock;
-  switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
-    case SPI_HALF_SPEED:    clock =  5000000; break;
-    case SPI_QUARTER_SPEED: clock =  2500000; break;
-    case SPI_EIGHTH_SPEED:  clock =  1250000; break;
-    case SPI_SPEED_5:       clock =   625000; break;
-    case SPI_SPEED_6:       clock =   300000; break;
-    default:
-      clock = 4000000; // Default from the SPI library
-  }
-  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+bool spiInitialized(uint8_t bus_num)
+{
+  return spiBus[bus_num] != NULL;
+}
 
-  SPI.begin();
+/** Configure SPI BUS for specified SPI speed */
+void spiInit(uint8_t bus_num, uint8_t spiRate) {
+  if (!spiInitialized(bus_num)) {
+    
+    // Use datarates Marlin uses
+    uint32_t clock;
+    switch (spiRate) {
+      case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
+      case SPI_HALF_SPEED:    clock =  5000000; break;
+      case SPI_QUARTER_SPEED: clock =  2500000; break;
+      case SPI_EIGHTH_SPEED:  clock =  1250000; break;
+      case SPI_SPEED_5:       clock =   625000; break;
+      case SPI_SPEED_6:       clock =   300000; break;
+      default:
+        clock = 4000000; // Default from the SPI library
+    }
+
+    if (HW_SPI(bus_num))
+    {
+      spiBus[bus_num] = new SPIClass(SPI_BusPins[bus_num][SPIBUS_MOSI], SPI_BusPins[bus_num][SPIBUS_MISO], SPI_BusPins[bus_num][SPIBUS_CLCK]);
+      spiConfig[bus_num] = new SPISettings(clock, MSBFIRST, SPI_MODE0);
+    }
+    else
+    {
+      //TODO if needed.
+      //spiBus[bus_num] = new SoftSPI(SPI_BusPins[bus_num][SPIBUS_MOSI], SPI_BusPins[bus_num][SPIBUS_MISO], SPI_BusPins[bus_num][SPIBUS_CLCK]);
+    }
+    GET_BUS(bus_num) -> begin();
+  }
 }
 
 /**
@@ -93,10 +93,11 @@ void spiInit(uint8_t spiRate) {
  *
  * @details
  */
-uint8_t spiRec() {
-  SPI.beginTransaction(spiConfig);
-  uint8_t returnByte = SPI.transfer(0xFF);
-  SPI.endTransaction();
+uint8_t spiRec(uint8_t dev_num) { //transactions are supported only on HW SPI
+  
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
+  uint8_t returnByte = GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), 0xFF);
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
   return returnByte;
 }
 
@@ -109,12 +110,12 @@ uint8_t spiRec() {
  *
  * @details Uses DMA
  */
-void spiRead(uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
   if (nbyte == 0) return;
   memset(buf, 0xFF, nbyte);
-  SPI.beginTransaction(spiConfig);
-  SPI.transfer(buf, nbyte);
-  SPI.endTransaction();
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
+  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), buf, nbyte);
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
 }
 
 /**
@@ -124,10 +125,10 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
  *
  * @details
  */
-void spiSend(uint8_t b) {
-  SPI.beginTransaction(spiConfig);
-  SPI.transfer(b);
-  SPI.endTransaction();
+void spiSend(uint8_t dev_num, uint8_t b) {
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
+  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), b);
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
 }
 
 /**
@@ -138,14 +139,12 @@ void spiSend(uint8_t b) {
  *
  * @details Use DMA
  */
-void spiSendBlock(uint8_t token, const uint8_t* buf) {
+void spiSendBlock(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
   uint8_t rxBuf[512];
-  SPI.beginTransaction(spiConfig);
-  SPI.transfer(token);
-  SPI.transfer((uint8_t*)buf, &rxBuf, 512);
-  SPI.endTransaction();
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
+  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), token, SPI_CONTINUE);
+  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), (uint8_t*)buf, &rxBuf, 512, SPI_LAST);
+  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
 }
-
-#endif // SOFTWARE_SPI
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

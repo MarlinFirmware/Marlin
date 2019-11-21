@@ -357,23 +357,35 @@ void CardReader::mount() {
   flag.mounted = false;
   if (root.isOpen()) root.close();
 
-  if (!sd2card.init(SPI_SPEED, SDSS)
-    #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
-      && !sd2card.init(SPI_SPEED, LCD_SDSS)
-    #endif
-  ) SERIAL_ECHO_MSG(MSG_SD_INIT_FAIL);
-  else if (!volume.init(&sd2card))
-    SERIAL_ERROR_MSG(MSG_SD_VOL_INIT_FAIL);
-  else if (!root.openRoot(&volume))
-    SERIAL_ERROR_MSG(MSG_SD_OPENROOT_FAIL);
+  if (!Sd2Card::anyInserted())
+    SERIAL_ECHO_MSG("No SD card found...");
   else {
-    flag.mounted = true;
-    SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
-    #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
-      settings.first_load();
-    #endif
+    bool initOK = false;
+
+    for (sd2card.dev_num = 0; sd2card.dev_num < NUM_SPI_BUSES && !initOK; sd2card.dev_num++)
+      if (sd2card.isInserted(sd2card.dev_num))
+      {
+          char mess[45];
+          sprintf(mess, PSTR("SD card found in bus %d, initializing..."), BUS_OF_DEV(sd2card.dev_num));
+          SERIAL_ECHOLN(mess);
+          initOK = sd2card.init(SPI_SPEED);
+      }
+
+    if (!initOK) //card not found.
+      SERIAL_ECHO_MSG(MSG_SD_INIT_FAIL);
+    else if (!volume.init(&sd2card))
+      SERIAL_ERROR_MSG(MSG_SD_VOL_INIT_FAIL);
+    else if (!root.openRoot(&volume))
+      SERIAL_ERROR_MSG(MSG_SD_OPENROOT_FAIL);
+    else {
+      flag.mounted = true;
+      SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
+      #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+        settings.first_load();
+      #endif
+      cdroot();
+    }
   }
-  cdroot();
 
   ui.refresh();
 }

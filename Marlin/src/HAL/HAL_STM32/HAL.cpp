@@ -69,12 +69,41 @@ uint16_t HAL_adc_result;
   }
 #endif
 
+//this might be not needed for release.
+//we will check later if we need it
+void _SPI_Init()
+{
+    __HAL_RCC_SPI1_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_5;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
 // HAL initialization task
 void HAL_init() {
   FastIO_init();
+  _SPI_Init(); //force low level initialization of SPI1.
 
   #if ENABLED(SDSUPPORT)
-    OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up
+    for (uint8_t dev = 0; dev < NUM_SPI_DEVICES; dev++) {
+      OUT_WRITE(CS_OF_DEV(dev), HIGH); //Set ChipSelect PIN high (inactive) before any other SPI users start up
+      if (IS_DEV_SD(dev) && SW_OF_SD(dev) != NC) //if it's an SD card and has a real switch set the pin as input
+          _SET_MODE(SW_OF_SD(dev), DLV_OF_SD(dev) == LOW ? INPUT_PULLUP : INPUT_PULLDOWN); //with the appropriate pull
+    }
   #endif
 
   #if PIN_EXISTS(LED)

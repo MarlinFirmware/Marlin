@@ -179,9 +179,27 @@
 #define FAN2_PIN           PE6  // Fan2
 
 //
+// SPI devices, buses and pins definition
+//
+#define NUM_SPI_BUSES 3
+#define NUM_SPI_DEVICES 3 //for now let's only consider SD-Cards
+
+const int SPI_BusPins[NUM_SPI_BUSES][4] = {
+// HW/SW, MOSI, MISO, SCK
+  {true , PB15, PB14, PB13},  //EXT2 (Probed first. The card in the display is probably easier to reach.)
+  {false, PB5 , PA6 , PA5},   //TF is SoftwareSPI
+  {true , PC12, PC11, PC10}   //SPI3 (or motors)
+};
+const int SPI_Devices[NUM_SPI_DEVICES][5] = {
+//   TYPE    , BUS#, Selection PIN, Detection PIN, Level when detected
+  {DEVTYPE_SD,  0  ,      PB12    , PF12         , ENABLED(SD_DETECT_INVERTED)},
+  {DEVTYPE_SD,  1  ,       PA4    , PB11         , LOW},
+  {DEVTYPE_SD,  2  ,      PA15    , NC           , NC}
+};
+
+//
 // Misc. Functions
 //
-#define SDSS               PB12
 
 /**
  *               _____                                             _____
@@ -216,16 +234,12 @@
     #undef ST7920_DELAY_2
     #undef ST7920_DELAY_3
 
-
   #else
 
     #define LCD_PINS_RS    PD10
 
     #define BTN_EN1        PG10
     #define BTN_EN2        PF11
-    #define SD_DETECT_PIN  PF12
-
-    #define LCD_SDSS       PB12
 
     #define LCD_PINS_ENABLE PD11
     #define LCD_PINS_D4    PG2

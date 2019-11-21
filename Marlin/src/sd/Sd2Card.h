@@ -95,6 +95,8 @@ public:
 
   Sd2Card() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
 
+  uint8_t dev_num = -1;
+
   uint32_t cardSize();
   bool erase(uint32_t firstBlock, uint32_t lastBlock);
   bool eraseSingleBlockEnable();
@@ -114,12 +116,15 @@ public:
   inline int errorData() const { return status_; }
 
   /**
-   * Initialize an SD flash memory card with default clock rate and chip
-   * select pin.  See sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin).
-   *
+   * Initialize the SD flash memory card identified by dev_num
+   * from its bus with the specified clock rate
+   * 
    * \return true for success or false for failure.
    */
-  bool init(const uint8_t sckRateID, const pin_t chipSelectPin);
+  bool init(const uint8_t sckRateID);
+
+  static bool anyInserted();
+  static bool isInserted(const uint8_t dev_num);
 
   bool readBlock(uint32_t block, uint8_t* dst);
 
@@ -160,8 +165,7 @@ public:
   bool writeStop();
 
 private:
-  uint8_t chipSelectPin_,
-          errorCode_,
+  uint8_t errorCode_,
           spiRate_,
           status_,
           type_;
