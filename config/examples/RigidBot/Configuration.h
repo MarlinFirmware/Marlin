@@ -355,6 +355,7 @@
  *
  * Temperature sensors available:
  *
+ *    -5 : thermocouple with MAX31865 (only for sensors 0-1)
  *    -4 : thermocouple with AD8495
  *    -3 : thermocouple with MAX31855 (only for sensors 0-1)
  *    -2 : thermocouple with MAX6675 (only for sensors 0-1)
