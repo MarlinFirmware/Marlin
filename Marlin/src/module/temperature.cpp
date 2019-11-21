@@ -35,9 +35,25 @@
 
 #if ENABLED(MAX6675_IS_MAX31865)
   #include "Adafruit_MAX31865.h"
-  //Adafruit_MAX31865::Adafruit_MAX31865(int8_t spi_cs, int8_t spi_mosi, int8_t spi_miso, int8_t spi_clk)
-  //Adafruit_MAX31865 max31865 = Adafruit_MAX31865(65, 63, 42, 40); // For software SPI set CS/MOSI/MISO/SCK
-  Adafruit_MAX31865 max31865 = Adafruit_MAX31865(49);  // For hardware SPI, set CS pin
+  #ifndef MAX31865_CS_PIN
+    #define MAX31865_CS_PIN     CS_PIN      // HW:49   SW:65    for example
+  #endif
+  #ifndef MAX31865_MOSI_PIN
+    #define MAX31865_MOSI_PIN   MOSI_PIN    //            63
+  #endif
+  #ifndef MAX31865_MISO_PIN
+    #define MAX31865_MISO_PIN   MISO_PIN    //            42
+  #endif
+  #ifndef MAX31865_SCK_PIN
+    #define MAX31865_SCK_PIN    SCK_PIN     //            40
+  #endif
+  Adafruit_MAX31865 max31865 = Adafruit_MAX31865(MAX31865_CS_PIN
+    #if MAX31865_CS_PIN != CS_PIN
+      , MAX31865_MOSI_PIN           // For software SPI also set MOSI/MISO/SCK
+      , MAX31865_MISO_PIN
+      , MAX31865_SCK_PIN
+    #endif
+  );
 #endif
 
 #define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO))
