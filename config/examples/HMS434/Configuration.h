@@ -447,6 +447,8 @@
 #define HEATER_1_MAXTEMP 410
 #define HEATER_2_MAXTEMP 410
 #define HEATER_3_MAXTEMP 410
+#define HEATER_4_MAXTEMP 410
+#define HEATER_5_MAXTEMP 410
 #define BED_MAXTEMP      150
 
 //===========================================================================
@@ -2012,6 +2014,12 @@
 // Touch-screen LCD for Malyan M200 printers
 //
 //#define MALYAN_LCD
+
+//
+// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
+// See Configuration_adv.h for all configuration options.
+//
+//#define LULZBOT_TOUCH_UI
 
 //
 // Third-party or vendor-customized controller interfaces.
