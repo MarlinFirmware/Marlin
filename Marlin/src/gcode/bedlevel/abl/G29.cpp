@@ -225,7 +225,7 @@ G29_TYPE GcodeSuite::G29() {
   #if ABL_GRID
 
     #if ENABLED(PROBE_MANUALLY)
-      ABL_VAR xy_uint8_t meshCount;
+      ABL_VAR xy_int8_t meshCount;
     #endif
 
     ABL_VAR xy_float_t probe_position_lf, probe_position_rb;
