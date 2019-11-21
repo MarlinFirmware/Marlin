@@ -472,7 +472,7 @@ void menu_cancelobject();
       #else
         EDIT_ITEM_FAST(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, max_jerk_edit.c);
       #endif
-      #if HAS_CLASSIC_E_JERK
+      #if !HAS_LINEAR_E_JERK
         EDIT_ITEM_FAST(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f, max_jerk_edit.e);
       #endif
     #endif

@@ -2258,7 +2258,7 @@ void MarlinSettings::reset() {
       #define DEFAULT_ZJERK 0
     #endif
     planner.max_jerk.set(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK);
-    #if HAS_CLASSIC_E_JERK
+    #if !HAS_LINEAR_E_JERK
       planner.max_jerk.e = DEFAULT_EJERK;
     #endif
   #endif
@@ -2773,7 +2773,7 @@ void MarlinSettings::reset() {
       #endif
       #if HAS_CLASSIC_JERK
         SERIAL_ECHOPGM(" X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
-        #if HAS_CLASSIC_E_JERK
+        #if !HAS_LINEAR_E_JERK
           SERIAL_ECHOPGM(" E<max_e_jerk>");
         #endif
       #endif
@@ -2791,7 +2791,7 @@ void MarlinSettings::reset() {
         , " X", LINEAR_UNIT(planner.max_jerk.x)
         , " Y", LINEAR_UNIT(planner.max_jerk.y)
         , " Z", LINEAR_UNIT(planner.max_jerk.z)
-        #if HAS_CLASSIC_E_JERK
+        #if !HAS_LINEAR_E_JERK
           , " E", LINEAR_UNIT(planner.max_jerk.e)
         #endif
       #endif

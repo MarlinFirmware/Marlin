@@ -159,7 +159,7 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-    #if HAS_CLASSIC_E_JERK
+    #if !HAS_LINEAR_E_JERK
       if (parser.seen('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
     #endif
   #endif
