@@ -33,6 +33,29 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 
+#if ENABLED(MAX6675_IS_MAX31865)
+  #include "Adafruit_MAX31865.h"
+  #ifndef MAX31865_CS_PIN
+    #define MAX31865_CS_PIN     CS_PIN      // HW:49   SW:65    for example
+  #endif
+  #ifndef MAX31865_MOSI_PIN
+    #define MAX31865_MOSI_PIN   MOSI_PIN    //            63
+  #endif
+  #ifndef MAX31865_MISO_PIN
+    #define MAX31865_MISO_PIN   MISO_PIN    //            42
+  #endif
+  #ifndef MAX31865_SCK_PIN
+    #define MAX31865_SCK_PIN    SCK_PIN     //            40
+  #endif
+  Adafruit_MAX31865 max31865 = Adafruit_MAX31865(MAX31865_CS_PIN
+    #if MAX31865_CS_PIN != CS_PIN
+      , MAX31865_MOSI_PIN           // For software SPI also set MOSI/MISO/SCK
+      , MAX31865_MISO_PIN
+      , MAX31865_SCK_PIN
+    #endif
+  );
+#endif
+
 #define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO))
 
 #if MAX6675_SEPARATE_SPI
@@ -1356,7 +1379,13 @@ void Temperature::manage_heater() {
         #if ENABLED(HEATER_0_USER_THERMISTOR)
           return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
         #elif ENABLED(HEATER_0_USES_MAX6675)
-          return raw * 0.25;
+          return (
+            #if ENABLED(MAX6675_IS_MAX31865)
+              max31865.temperature(100, 400)  // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+            #else
+              raw * 0.25
+            #endif
+          );
         #elif ENABLED(HEATER_0_USES_AD595)
           return TEMP_AD595(raw);
         #elif ENABLED(HEATER_0_USES_AD8495)
@@ -1537,6 +1566,10 @@ void Temperature::updateTemperaturesFromRawValues() {
  * The manager is implemented by periodic calls to manage_heater()
  */
 void Temperature::init() {
+
+  #if ENABLED(MAX6675_IS_MAX31865)
+    max31865.begin(MAX31865_2WIRE); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+  #endif
 
   #if EARLY_WATCHDOG
     // Flag that the thermalManager should be running
@@ -2032,6 +2065,10 @@ void Temperature::disable_all_heaters() {
       );
 
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
+
+    #if ENABLED(MAX6675_IS_MAX31865)
+      max6675_temp = int(max31865.temperature(100, 400)); // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+    #endif
 
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.

@@ -341,17 +341,22 @@
 
 #define HAS_USER_THERMISTORS ANY_TEMP_SENSOR_IS(1000)
 
-#if TEMP_SENSOR_0 == -4
+#if TEMP_SENSOR_0 == -5 || TEMP_SENSOR_0 == -3 || TEMP_SENSOR_0 == -2
+  #define HEATER_0_USES_MAX6675
+  #if TEMP_SENSOR_0 == -3
+    #define HEATER_0_MAX6675_TMIN -270
+    #define HEATER_0_MAX6675_TMAX 1800
+  #else
+    #define HEATER_0_MAX6675_TMIN    0
+    #define HEATER_0_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_0 == -5
+    #define MAX6675_IS_MAX31865
+  #elif TEMP_SENSOR_0 == -3
+    #define MAX6675_IS_MAX31855
+  #endif
+#elif TEMP_SENSOR_0 == -4
   #define HEATER_0_USES_AD8495
-#elif TEMP_SENSOR_0 == -3
-  #define HEATER_0_USES_MAX6675
-  #define MAX6675_IS_MAX31855
-  #define HEATER_0_MAX6675_TMIN -270
-  #define HEATER_0_MAX6675_TMAX 1800
-#elif TEMP_SENSOR_0 == -2
-  #define HEATER_0_USES_MAX6675
-  #define HEATER_0_MAX6675_TMIN 0
-  #define HEATER_0_MAX6675_TMAX 1024
 #elif TEMP_SENSOR_0 == -1
   #define HEATER_0_USES_AD595
 #elif TEMP_SENSOR_0 > 0
@@ -365,22 +370,26 @@
   #undef HEATER_0_MAXTEMP
 #endif
 
-#if TEMP_SENSOR_1 == -4
+#if TEMP_SENSOR_1 == -5 || TEMP_SENSOR_1 == -3 || TEMP_SENSOR_1 == -2
+  #define HEATER_1_USES_MAX6675
+  #if TEMP_SENSOR_1 == -3
+    #define HEATER_1_MAX6675_TMIN -270
+    #define HEATER_1_MAX6675_TMAX 1800
+  #else
+    #define HEATER_1_MAX6675_TMIN    0
+    #define HEATER_1_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_1 != TEMP_SENSOR_0
+    #if   TEMP_SENSOR_1 == -5
+      #error "If MAX31865 Thermocouple (-5) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
+    #elif TEMP_SENSOR_1 == -3
+      #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
+    #elif TEMP_SENSOR_1 == -2
+      #error "If MAX6675 Thermocouple (-2) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
+    #endif
+  #endif
+#elif TEMP_SENSOR_1 == -4
   #define HEATER_1_USES_AD8495
-#elif TEMP_SENSOR_1 == -3
-  #if TEMP_SENSOR_0 == -2
-    #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
-  #endif
-  #define HEATER_1_USES_MAX6675
-  #define HEATER_1_MAX6675_TMIN -270
-  #define HEATER_1_MAX6675_TMAX 1800
-#elif TEMP_SENSOR_1 == -2
-  #if TEMP_SENSOR_0 == -3
-    #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_0 then TEMP_SENSOR_1 must match."
-  #endif
-  #define HEATER_1_USES_MAX6675
-  #define HEATER_1_MAX6675_TMIN 0
-  #define HEATER_1_MAX6675_TMAX 1024
 #elif TEMP_SENSOR_1 == -1
   #define HEATER_1_USES_AD595
 #elif TEMP_SENSOR_1 > 0
