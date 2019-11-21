@@ -35,8 +35,15 @@
 #define X_MAX_PIN          P1_28
 #define Y_MIN_PIN          P1_27
 #define Y_MAX_PIN          P1_26
-#define Z_MIN_PIN          P1_25
-#define Z_MAX_PIN          P1_24
+#if EITHER(Z_HOME_DIR == 1, Z_STALL_SENSITIVITY)
+  // Remaping TMC2130 Z1 diag pin (Z_MIN_PIN) to Z_MAX_PIN when upright Z stallguard homing
+  #define Z_MIN_PIN          P1_24
+  #define Z_MAX_PIN          P1_25
+#else
+  // Use normal endstop pins
+  #define Z_MIN_PIN          P1_25
+  #define Z_MAX_PIN          P1_24
+#endif
 
 //
 // Steppers
