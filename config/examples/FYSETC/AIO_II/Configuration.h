@@ -2212,9 +2212,3 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
-
-/**
- * Sometimes after inserting the SD card settings get lost.
- * This option reloads settings when the SD card is inserted.
- */
-#define SD_RELOAD_SETTINGS
