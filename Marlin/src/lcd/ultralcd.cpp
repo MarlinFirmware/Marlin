@@ -1584,19 +1584,19 @@ void MarlinUI::update() {
   // Send the status line as a host notification
   //
 
-  void MarlinUI::set_status(const char* message, bool) {
+  void MarlinUI::set_status(const char* message, const bool) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #endif
   }
 
-  void MarlinUI::set_status_P(PGM_P message, int8_t) {
+  void MarlinUI::set_status_P(PGM_P message, const int8_t) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #endif
   }
 
-  void MarlinUI::status_printf_P(const uint8_t, PGM_P message, ...) {
+  void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_action_notify(message);
     #endif
