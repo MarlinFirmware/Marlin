@@ -36,8 +36,8 @@
 #if ENABLED(MAX6675_IS_MAX31865)
   #include "Adafruit_MAX31865.h"
   //Adafruit_MAX31865::Adafruit_MAX31865(int8_t spi_cs, int8_t spi_mosi, int8_t spi_miso, int8_t spi_clk)
-  //Adafruit_MAX31865 max31865 = Adafruit_MAX31865(65,63,42,40); // For software SPI set CS/MOSI/MISO/SCK
-  Adafruit_MAX31865 max31865 = Adafruit_MAX31865(49);// For hardware SPI, set CS pin
+  //Adafruit_MAX31865 max31865 = Adafruit_MAX31865(65, 63, 42, 40); // For software SPI set CS/MOSI/MISO/SCK
+  Adafruit_MAX31865 max31865 = Adafruit_MAX31865(49);  // For hardware SPI, set CS pin
 #endif
 
 #define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO))
@@ -1552,7 +1552,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 void Temperature::init() {
 
   #if ENABLED(MAX6675_IS_MAX31865)
-    max31865.begin(MAX31865_2WIRE); //MAX31865_2WIRE or MAX31865_3WIRE or MAX31865_4WIRE
+    max31865.begin(MAX31865_2WIRE); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
   #endif
 
   #if EARLY_WATCHDOG
@@ -2051,7 +2051,7 @@ void Temperature::disable_all_heaters() {
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
     #if ENABLED(MAX6675_IS_MAX31865)
-      max6675_temp = int(max31865.temperature(100, 400.0));//100 is resistance in ohms of PT100. 400 ohms value for calibration resistor
+      max6675_temp = int(max31865.temperature(100, 400)); // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
     #endif
 
     //
