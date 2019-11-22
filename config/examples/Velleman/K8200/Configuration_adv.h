@@ -303,6 +303,9 @@
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 #define FAN_KICKSTART_TIME 500
 
+// Some coolers may require a non-zero "off" state.
+//#define FAN_OFF_PWM  1
+
 /**
  * PWM Fan Scaling
  *

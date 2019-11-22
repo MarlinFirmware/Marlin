@@ -352,7 +352,7 @@
  *
  * Temperature sensors available:
  *
- *    -5 : thermocouple with MAX31865 (only for sensors 0-1)
+ *    -5 : PT100 / PT1000 with MAX31865 (only for sensors 0-1)
  *    -3 : thermocouple with MAX31855 (only for sensors 0-1)
  *    -2 : thermocouple with MAX6675 (only for sensors 0-1)
  *    -4 : thermocouple with AD8495
@@ -447,6 +447,8 @@
 #define HEATER_1_MAXTEMP 410
 #define HEATER_2_MAXTEMP 410
 #define HEATER_3_MAXTEMP 410
+#define HEATER_4_MAXTEMP 410
+#define HEATER_5_MAXTEMP 410
 #define BED_MAXTEMP      150
 
 //===========================================================================
@@ -2012,6 +2014,12 @@
 // Touch-screen LCD for Malyan M200 printers
 //
 //#define MALYAN_LCD
+
+//
+// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
+// See Configuration_adv.h for all configuration options.
+//
+//#define LULZBOT_TOUCH_UI
 
 //
 // Third-party or vendor-customized controller interfaces.

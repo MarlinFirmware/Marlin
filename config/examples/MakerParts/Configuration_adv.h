@@ -290,6 +290,9 @@
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 //#define FAN_KICKSTART_TIME 100
 
+// Some coolers may require a non-zero "off" state.
+//#define FAN_OFF_PWM  1
+
 /**
  * PWM Fan Scaling
  *
@@ -2511,6 +2514,13 @@
 #ifdef G0_FEEDRATE
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
+
+/**
+ * Startup commands
+ *
+ * Execute certain G-code commands immediately after power-on.
+ */
+//#define STARTUP_COMMANDS "M17 Z"
 
 /**
  * G-code Macros

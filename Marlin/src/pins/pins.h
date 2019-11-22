@@ -476,7 +476,7 @@
 #elif MB(BTT_SKR_MINI_E3_V1_2)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
 #elif MB(BIGTREE_SKR_E3_DIP)
-  #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
+  #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB env:STM32F103RE_bigtree
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
