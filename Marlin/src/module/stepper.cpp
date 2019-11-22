@@ -1537,7 +1537,7 @@ void Stepper::stepper_pulse_phase_isr() {
 uint32_t Stepper::stepper_block_phase_isr() {
 
   // If no queued movements, just wait 1ms for the next move
-  uint32_t interval = (STEPPER_TIMER_RATE / 1000);
+  uint32_t interval = (STEPPER_TIMER_RATE) / 1000;
 
   // If there is a current block
   if (current_block) {
@@ -2229,7 +2229,7 @@ int32_t Stepper::position(const AxisEnum axis) {
 // be very careful here. If the interrupt being preempted was the
 // Stepper ISR (this CAN happen with the endstop limits ISR) then
 // when the stepper ISR resumes, we must be very sure that the movement
-// is properly cancelled
+// is properly canceled
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
   const bool was_enabled = STEPPER_ISR_ENABLED();

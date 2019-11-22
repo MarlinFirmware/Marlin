@@ -152,16 +152,9 @@ namespace Language_test {
     PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_0                        = STRG_OKTAL_8 " " LCD_STR_N0;
-    PROGMEM Language_Str MSG_NOZZLE_1                        = STRG_OKTAL_8 " " LCD_STR_N1;
-    PROGMEM Language_Str MSG_NOZZLE_2                        = STRG_OKTAL_8 " " LCD_STR_N2;
-    PROGMEM Language_Str MSG_NOZZLE_3                        = STRG_OKTAL_8 " " LCD_STR_N3;
-    PROGMEM Language_Str MSG_NOZZLE_4                        = STRG_OKTAL_8 " " LCD_STR_N4;
-    PROGMEM Language_Str MSG_NOZZLE_5                        = STRG_OKTAL_8 " " LCD_STR_N5;
+    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
     PROGMEM Language_Str MSG_FAN_SPEED                       = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_1                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_2                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_3                     = STRG_OKTAL_9;
+    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
@@ -196,15 +189,8 @@ namespace Language_test {
     PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_0                        = STRG_OKTAL_8 " " LCD_STR_N0;
-    PROGMEM Language_Str MSG_NOZZLE_1                        = STRG_OKTAL_8 " " LCD_STR_N1;
-    PROGMEM Language_Str MSG_NOZZLE_2                        = STRG_OKTAL_8 " " LCD_STR_N2;
-    PROGMEM Language_Str MSG_NOZZLE_3                        = STRG_OKTAL_8 " " LCD_STR_N3;
-    PROGMEM Language_Str MSG_NOZZLE_4                        = STRG_OKTAL_8 " " LCD_STR_N4;
-    PROGMEM Language_Str MSG_NOZZLE_5                        = STRG_OKTAL_8 " " LCD_STR_N5;
-    PROGMEM Language_Str MSG_FAN_SPEED_1                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_2                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_3                     = STRG_OKTAL_9;
+    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
+    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
@@ -239,15 +225,8 @@ namespace Language_test {
     PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_0                        = STRG_OKTAL_8 " " LCD_STR_N0;
-    PROGMEM Language_Str MSG_NOZZLE_1                        = STRG_OKTAL_8 " " LCD_STR_N1;
-    PROGMEM Language_Str MSG_NOZZLE_2                        = STRG_OKTAL_8 " " LCD_STR_N2;
-    PROGMEM Language_Str MSG_NOZZLE_3                        = STRG_OKTAL_8 " " LCD_STR_N3;
-    PROGMEM Language_Str MSG_NOZZLE_4                        = STRG_OKTAL_8 " " LCD_STR_N4;
-    PROGMEM Language_Str MSG_NOZZLE_5                        = STRG_OKTAL_8 " " LCD_STR_N5;
-    PROGMEM Language_Str MSG_FAN_SPEED_1                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_2                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_3                     = STRG_OKTAL_9;
+    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
+    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;

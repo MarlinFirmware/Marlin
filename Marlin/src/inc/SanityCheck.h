@@ -245,6 +245,8 @@
   #error "NEOPIXEL_RGBW_LED is now NEOPIXEL_LED. Please update your configuration."
 #elif ENABLED(DELTA) && defined(DELTA_PROBEABLE_RADIUS)
   #error "Remove DELTA_PROBEABLE_RADIUS and use MIN_PROBE_EDGE to inset the probe area instead."
+#elif ENABLED(DELTA) && defined(DELTA_CALIBRATION_RADIUS)
+  #error "Remove DELTA_CALIBRATION_RADIUS and use MIN_PROBE_EDGE to inset the probe area instead."
 #elif defined(UBL_MESH_INSET)
   #error "UBL_MESH_INSET is now just MESH_INSET. Please update your configuration."
 #elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X) || defined(UBL_MESH_MAX_Y)
@@ -408,6 +410,8 @@
   #error "Z_STEPPER_ALIGN_X and Z_STEPPER_ALIGN_Y are now combined as Z_STEPPER_ALIGN_XY. Please update your Configuration_adv.h."
 #elif defined(JUNCTION_DEVIATION)
   #error "JUNCTION_DEVIATION is no longer required. (See CLASSIC_JERK). Please remove it from Configuration.h."
+#elif defined(BABYSTEP_MULTIPLICATOR)
+  #error "BABYSTEP_MULTIPLICATOR is now BABYSTEP_MULTIPLICATOR_[XY|Z]. Please update Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13        -1000
@@ -418,6 +422,7 @@
 #define BOARD_STM32F1R      -1005
 #define BOARD_STM32F103R    -1006
 #define BOARD_ESP32         -1007
+#define BOARD_BIGTREE_SKR_MINI_E3 -1008
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(TRIGORILLA)
@@ -434,6 +439,8 @@
   #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
 #elif MOTHERBOARD == BOARD_ESP32
   #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
+#elif MOTHERBOARD == BOARD_BIGTREE_SKR_MINI_E3
+  #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
 #endif
 #undef BOARD_MKS_13
 #undef BOARD_TRIGORILLA
@@ -443,6 +450,7 @@
 #undef BOARD_STM32F1R
 #undef BOARD_STM32F103R
 #undef BOARD_ESP32
+#undef BOARD_BIGTREE_SKR_MINI_E3
 
 /**
  * Marlin release, version and default string
@@ -596,8 +604,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Custom Boot and Status screens
  */
-#if EITHER(SHOW_CUSTOM_BOOTSCREEN, CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
-  #error "Graphical LCD is required for SHOW_CUSTOM_BOOTSCREEN and CUSTOM_STATUS_SCREEN_IMAGE."
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !HAS_GRAPHICAL_LCD && !ENABLED(LULZBOT_TOUCH_UI)
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or LULZBOT_TOUCH_UI."
+#elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
+  #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
 #endif
 
 /**
@@ -741,10 +751,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
   #if EXTRUDERS > 6
     #error "Marlin supports a maximum of 6 EXTRUDERS."
-  #endif
-
-  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    #error "EXTRUDERS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT."
   #endif
 
   #if ENABLED(HEATERS_PARALLEL)
@@ -1501,6 +1507,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
   #elif !ANY_PIN(TEMP_1, MAX6675_SS2)
     #error "TEMP_1_PIN not defined for this board."
+  #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    #error "HOTENDS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT."
   #endif
   #if HOTENDS > 2
     #if TEMP_SENSOR_2 == 0
@@ -1591,7 +1599,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * LED Backlight Timeout
  */
-#if defined(LED_BACKLIGHT_TIMEOUT) && !(EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && HAS_POWER_SWITCH)
+#if defined(LED_BACKLIGHT_TIMEOUT) && !(EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && ENABLED(PSU_CONTROL))
   #error "LED_BACKLIGHT_TIMEOUT requires a FYSETC Mini Panel and a Power Switch."
 #endif
 
@@ -2330,8 +2338,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(ULTIPANEL)
-  #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
+#if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
+  #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -2467,8 +2475,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Ensure this option is set intentionally
  */
-#if ENABLED(PSU_CONTROL) && !defined(PSU_ACTIVE_HIGH)
-  #error "PSU_CONTROL requires PSU_ACTIVE_HIGH to be defined as 'true' or 'false'."
+#if ENABLED(PSU_CONTROL)
+  #ifndef PSU_ACTIVE_HIGH
+    #error "PSU_CONTROL requires PSU_ACTIVE_HIGH to be defined as 'true' or 'false'."
+  #elif !PIN_EXISTS(PS_ON)
+    #error "PSU_CONTROL requires PS_ON_PIN."
+  #endif
+#elif ENABLED(AUTO_POWER_CONTROL)
+  #error "AUTO_POWER_CONTROL requires PSU_CONTROL."
 #endif
 
 #if HAS_CUTTER
@@ -2536,5 +2550,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
   #elif ENABLED(SHOW_REMAINING_TIME)
     #error "SHOW_REMAINING_TIME currently requires a Graphical LCD."
+  #endif
+#endif
+
+#if ENABLED(LIN_ADVANCE) && MINIMUM_STEPPER_PULSE < 1
+  #if HAS_TMC_STANDALONE_E_DRIVER
+    #error "LIN_ADVANCE with TMC standalone driver on extruder requires MIMIMUM_STEPPER_PULSE >= 1"
+  #elif HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)
+    #error "LIN_ADVANCE with TMC driver on extruder requires SQUARE_WAVE_STEPPING or MINIMUM_STEPPER_PULSE >= 1"
   #endif
 #endif

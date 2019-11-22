@@ -222,9 +222,15 @@ extern "C" {
 //#define DACC_RESOLUTION         12
 
 // PWM resolution
-#define PWM_RESOLUTION          8
-#define PWM_FREQUENCY           20000
-#define PWM_MAX_DUTY_CYCLE      255
+/*
+ * BEWARE:
+ * Changing this value from the default (1000) will affect the PWM output value of analogWrite (to a PWM pin)
+ * Since the pin is toggled on capture, if you change the frequency of the timer you have to adapt the compare value (analogWrite thinks you did)
+ */
+//#define PWM_FREQUENCY           20000
+//The bottom values are the default and don't need to be redefined
+//#define PWM_RESOLUTION          8
+//#define PWM_MAX_DUTY_CYCLE      255
 
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one
@@ -241,6 +247,7 @@ extern "C" {
 // Timer Definitions
 //Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 #define TIMER_TONE              TIM6
+#define TIMER_SERIAL            TIM7
 
 // Do not use basic timer: OC is required
 #define TIMER_SERVO             TIM2  //TODO: advanced-control timers don't work
@@ -259,9 +266,6 @@ extern "C" {
 // Mandatory for Firmata
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
-
-/* Extra HAL modules */
-#define HAL_PCD_MODULE_ENABLED
 
 #ifdef __cplusplus
 } // extern "C"

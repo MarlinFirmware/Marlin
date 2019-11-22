@@ -97,7 +97,7 @@ volatile int8_t MMU2::finda = 1;
 volatile bool MMU2::finda_runout_valid;
 int16_t MMU2::version = -1, MMU2::buildnr = -1;
 millis_t MMU2::last_request, MMU2::next_P0_request;
-char MMU2::rx_buffer[16], MMU2::tx_buffer[16];
+char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 

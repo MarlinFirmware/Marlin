@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_LPC1768
+#ifndef MCU_LPC1768
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -95,6 +95,9 @@
   #define E1_SERIAL_RX_PIN P2_02
   #define E2_SERIAL_TX_PIN P2_06
   #define E2_SERIAL_RX_PIN P2_06
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #else
   #error "TMC2208 UART configuration is required for GMarsh X6."
 #endif
@@ -103,8 +106,8 @@
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          1   // AD0[0] on P0_23
-#define TEMP_BED_PIN        0   // AD0[1] on P0_24
+#define TEMP_0_PIN          P0_24_A1   // AD0[0] on P0_23
+#define TEMP_BED_PIN        P0_23_A0   // AD0[1] on P0_24
 
 //
 // Heaters / Fans

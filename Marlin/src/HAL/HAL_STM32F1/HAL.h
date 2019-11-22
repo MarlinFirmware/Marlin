@@ -51,6 +51,14 @@
 // Defines
 // ------------------------
 
+#ifndef STM32_FLASH_SIZE
+  #ifdef MCU_STM32F103RE
+    #define STM32_FLASH_SIZE 512
+  #else
+    #define STM32_FLASH_SIZE 256
+  #endif
+#endif
+
 #ifdef SERIAL_USB
   #ifndef USE_USB_COMPOSITE
     #define UsbSerial Serial
@@ -238,6 +246,7 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 

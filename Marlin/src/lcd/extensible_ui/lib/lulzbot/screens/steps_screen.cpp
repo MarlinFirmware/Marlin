@@ -33,21 +33,21 @@ using namespace Theme;
 void StepsScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0);
-  w.units(GET_TEXT_F(UNITS_STEP_MM));
-  w.heading(                        GET_TEXT_F(STEPS_PER_MM));
-  w.color(x_axis)     .adjuster( 2, GET_TEXT_F(AXIS_X),  getAxisSteps_per_mm(X) );
-  w.color(y_axis)     .adjuster( 4, GET_TEXT_F(AXIS_Y),  getAxisSteps_per_mm(Y) );
-  w.color(z_axis)     .adjuster( 6, GET_TEXT_F(AXIS_Z),  getAxisSteps_per_mm(Z) );
+  w.units(GET_TEXT_F(MSG_UNITS_STEP_MM));
+  w.heading(                        GET_TEXT_F(MSG_STEPS_PER_MM));
+  w.color(x_axis)     .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getAxisSteps_per_mm(X) );
+  w.color(y_axis)     .adjuster( 4, GET_TEXT_F(MSG_AXIS_Y),  getAxisSteps_per_mm(Y) );
+  w.color(z_axis)     .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getAxisSteps_per_mm(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
-    w.color(e_axis)   .adjuster( 8, GET_TEXT_F(AXIS_E),  getAxisSteps_per_mm(E0) );
+    w.color(e_axis)   .adjuster( 8, GET_TEXT_F(MSG_AXIS_E),  getAxisSteps_per_mm(E0) );
   #elif EXTRUDERS > 1
-    w.color(e_axis)   .adjuster( 8, GET_TEXT_F(AXIS_E1), getAxisSteps_per_mm(E0) );
-    w.color(e_axis)   .adjuster(10, GET_TEXT_F(AXIS_E2), getAxisSteps_per_mm(E1) );
+    w.color(e_axis)   .adjuster( 8, GET_TEXT_F(MSG_AXIS_E1), getAxisSteps_per_mm(E0) );
+    w.color(e_axis)   .adjuster(10, GET_TEXT_F(MSG_AXIS_E2), getAxisSteps_per_mm(E1) );
     #if EXTRUDERS > 2
-      w.color(e_axis) .adjuster(12, GET_TEXT_F(AXIS_E3), getAxisSteps_per_mm(E2) );
+      w.color(e_axis) .adjuster(12, GET_TEXT_F(MSG_AXIS_E3), getAxisSteps_per_mm(E2) );
     #endif
     #if EXTRUDERS > 3
-      w.color(e_axis) .adjuster(14, GET_TEXT_F(AXIS_E4), getAxisSteps_per_mm(E3) );
+      w.color(e_axis) .adjuster(14, GET_TEXT_F(MSG_AXIS_E4), getAxisSteps_per_mm(E3) );
     #endif
   #endif
   w.increments();

@@ -37,19 +37,19 @@
 
 #define PWM_PIN(P)            true // all pins are PWM capable
 
-#define LPC_PIN(pin)          gpio_pin(pin)
-#define LPC_GPIO(port)        gpio_port(port)
+#define LPC_PIN(pin)          LPC176x::gpio_pin(pin)
+#define LPC_GPIO(port)        LPC176x::gpio_port(port)
 
-#define SET_DIR_INPUT(IO)     gpio_set_input(IO)
-#define SET_DIR_OUTPUT(IO)    gpio_set_output(IO)
+#define SET_DIR_INPUT(IO)     LPC176x::gpio_set_input(IO)
+#define SET_DIR_OUTPUT(IO)    LPC176x::gpio_set_output(IO)
 
 #define SET_MODE(IO, mode)    pinMode(IO, mode)
 
-#define WRITE_PIN_SET(IO)     gpio_set(IO)
-#define WRITE_PIN_CLR(IO)     gpio_clear(IO)
+#define WRITE_PIN_SET(IO)     LPC176x::gpio_set(IO)
+#define WRITE_PIN_CLR(IO)     LPC176x::gpio_clear(IO)
 
-#define READ_PIN(IO)          gpio_get(IO)
-#define WRITE_PIN(IO,V)       gpio_set(IO, V)
+#define READ_PIN(IO)          LPC176x::gpio_get(IO)
+#define WRITE_PIN(IO,V)       LPC176x::gpio_set(IO, V)
 
 /**
  * Magic I/O routines
@@ -81,10 +81,10 @@
 #define _PULLDOWN(IO,V)       pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
 /// check if pin is an input
-#define _IS_INPUT(IO)         (!gpio_get_dir(IO))
+#define _IS_INPUT(IO)         (!LPC176x::gpio_get_dir(IO))
 
 /// check if pin is an output
-#define _IS_OUTPUT(IO)        (gpio_get_dir(IO))
+#define _IS_OUTPUT(IO)        (LPC176x::gpio_get_dir(IO))
 
 /// Read a pin wrapper
 #define READ(IO)              _READ(IO)

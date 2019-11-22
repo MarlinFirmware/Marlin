@@ -20,10 +20,9 @@
  *
  */
 
-#include "backtrace.h"
-
 #if defined(__arm__) || defined(__thumb__)
 
+#include "backtrace.h"
 #include "unwinder.h"
 #include "unwmemaccess.h"
 

@@ -109,6 +109,8 @@ extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 void HAL_adc_init();
 
+#define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
+#define HAL_ADC_RESOLUTION  12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true

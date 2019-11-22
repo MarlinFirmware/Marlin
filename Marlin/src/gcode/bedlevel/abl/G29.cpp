@@ -228,7 +228,7 @@ G29_TYPE GcodeSuite::G29() {
       ABL_VAR xy_int8_t meshCount;
     #endif
 
-    ABL_VAR xy_int_t probe_position_lf, probe_position_rb;
+    ABL_VAR xy_float_t probe_position_lf, probe_position_rb;
     ABL_VAR xy_float_t gridSpacing = { 0, 0 };
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -263,20 +263,8 @@ G29_TYPE GcodeSuite::G29() {
       int constexpr abl_points = 3; // used to show total points
     #endif
 
-    // Probe at 3 arbitrary points
-    const float x_min = probe_min_x(), x_max = probe_max_x(), y_min = probe_min_y(), y_max = probe_max_y();
-
-    ABL_VAR vector_3 points[3] = {
-      #if ENABLED(HAS_FIXED_3POINT)
-        { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-        { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-        { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-      #else
-        { x_min, y_min, 0 },
-        { x_max, y_min, 0 },
-        { (x_max - x_min) / 2, y_max, 0 }
-      #endif
-    };
+    vector_3 points[3];
+    get_three_probe_points(points);
 
   #endif // AUTO_BED_LEVELING_3POINT
 
@@ -725,7 +713,7 @@ G29_TYPE GcodeSuite::G29() {
             ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
           #endif
 
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
+          measured_z = faux ? 0.001f * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
@@ -746,7 +734,7 @@ G29_TYPE GcodeSuite::G29() {
 
             z_values[meshCount.x][meshCount.y] = measured_z + zoffset;
             #if ENABLED(EXTENSIBLE_UI)
-              ExtUI::onMeshUpdate(meshCount.x, meshCount.y, z_values[meshCount.x][meshCount.y]);
+              ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]);
             #endif
 
           #endif
@@ -764,7 +752,7 @@ G29_TYPE GcodeSuite::G29() {
       for (uint8_t i = 0; i < 3; ++i) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH)), int(i);
+          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
         #endif
 
         // Retain the last probe position

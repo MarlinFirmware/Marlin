@@ -43,21 +43,21 @@ void NudgeNozzleScreen::onEntry() {
 
 void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(UNITS_MM));
+  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(MSG_UNITS_MM));
 
-  w.heading(                   GET_TEXT_F(NUDGE_NOZZLE));
+  w.heading(                   GET_TEXT_F(MSG_NUDGE_NOZZLE));
   #if ENABLED(BABYSTEP_XY)
-  w.color(x_axis).adjuster(2,  GET_TEXT_F(AXIS_X), screen_data.NudgeNozzleScreen.rel.x / getAxisSteps_per_mm(X));
-  w.color(y_axis).adjuster(4,  GET_TEXT_F(AXIS_Y), screen_data.NudgeNozzleScreen.rel.y / getAxisSteps_per_mm(Y));
+  w.color(x_axis).adjuster(2,  GET_TEXT_F(MSG_AXIS_X), screen_data.NudgeNozzleScreen.rel.x / getAxisSteps_per_mm(X));
+  w.color(y_axis).adjuster(4,  GET_TEXT_F(MSG_AXIS_Y), screen_data.NudgeNozzleScreen.rel.y / getAxisSteps_per_mm(Y));
   #endif
-  w.color(z_axis).adjuster(6,  GET_TEXT_F(AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
+  w.color(z_axis).adjuster(6,  GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
   w.increments();
   #if EXTRUDERS > 1
-    w.toggle  (8,  GET_TEXT_F(ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
+    w.toggle  (8,  GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
   #endif
 
   #if EXTRUDERS > 1 || HAS_BED_PROBE
-    w.toggle  (9,  GET_TEXT_F(SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
+    w.toggle  (9,  GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
 
     if (screen_data.NudgeNozzleScreen.show_offsets) {
       char str[19];
@@ -69,12 +69,12 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
         dtostrf(getZOffset_mm(), 4, 2, str);
         strcat(str, " ");
         strcat_P(str, GET_TEXT(UNITS_MM));
-        w.text_field  (0,  GET_TEXT_F(ZPROBE_ZOFFSET), str);
+        w.text_field  (0,  GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
       #endif
 
       #if EXTRUDERS > 1
         format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
-        w.text_field  (0, GET_TEXT_F(TOOL_OFFSETS), str);
+        w.text_field  (0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
       #endif
     }
   #endif

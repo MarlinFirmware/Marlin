@@ -194,7 +194,7 @@ void GcodeSuite::G34() {
         if (iteration == 0 || i > 0) do_blocking_move_to_z(z_probe);
 
         // Probe a Z height for each stepper.
-        const float z_probed_height = probe_at_point(z_auto_align_pos[i], raise_after, 0, true);
+        const float z_probed_height = probe_at_point(z_auto_align_pos[iprobe], raise_after, 0, true);
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;
@@ -385,6 +385,21 @@ void GcodeSuite::M422() {
     #endif
     z_auto_align_pos
   );
+
+  if (!is_probe_point
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      && !parser.seen('W')
+    #endif
+  ) {
+    SERIAL_ECHOLNPGM(
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        "?(S) or (W) is required."
+      #else
+        "?(S) is required."
+      #endif
+    );
+    return;
+  }
 
   // Get the Probe Position Index or Z Stepper Index
   int8_t position_index;

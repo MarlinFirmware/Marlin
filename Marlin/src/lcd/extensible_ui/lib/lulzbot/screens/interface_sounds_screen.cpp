@@ -71,15 +71,15 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     #define GRID_ROWS 9
 
        .font(font_medium)
-       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(INTERFACE_SOUNDS))
+       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE_SOUNDS))
     #undef EDGE_R
     #define EDGE_R 30
        .font(font_small)
-       .tag(0).text      (BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
-              .text      (BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(CLICK_SOUNDS),   OPT_RIGHTX | OPT_CENTERY)
-              .text      (BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(PRINT_STARTING), OPT_RIGHTX | OPT_CENTERY)
-              .text      (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(PRINT_FINISHED), OPT_RIGHTX | OPT_CENTERY)
-              .text      (BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(PRINT_ERROR),    OPT_RIGHTX | OPT_CENTERY);
+       .tag(0).text      (BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
+              .text      (BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_CLICK_SOUNDS),   OPT_RIGHTX | OPT_CENTERY)
+              .text      (BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_STARTING), OPT_RIGHTX | OPT_CENTERY)
+              .text      (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_FINISHED), OPT_RIGHTX | OPT_CENTERY)
+              .text      (BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_ERROR),    OPT_RIGHTX | OPT_CENTERY);
     #undef EDGE_R
   }
 
@@ -95,7 +95,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     #define EDGE_R 30
        .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume, 0xFF)
        .colors(ui_toggle)
-       .tag(3).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(NO), GET_TEXT_F(YES), UIData::touch_sounds_enabled())
+       .tag(3).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::touch_sounds_enabled())
     #undef EDGE_R
        .colors(normal_btn)
     #define EDGE_R 0
@@ -103,7 +103,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
        .tag(5).button    (BTN_POS(3,6), BTN_SIZE(2,1), getSoundSelection(PRINTING_FINISHED))
        .tag(6).button    (BTN_POS(3,7), BTN_SIZE(2,1), getSoundSelection(PRINTING_FAILED))
        .colors(action_btn)
-       .tag(1).button    (BTN_POS(1,9), BTN_SIZE(4,1), GET_TEXT_F(BACK));
+       .tag(1).button    (BTN_POS(1,9), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
   }
 }
 

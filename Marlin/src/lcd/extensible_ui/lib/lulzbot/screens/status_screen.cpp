@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(LULZBOT_USE_BIOPRINTER_UI)
+#if ENABLED(LULZBOT_TOUCH_UI) && DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -53,9 +53,9 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
                          .button( BTN_POS(1,7), BTN_SIZE(2,1), F(""), OPT_FLAT)
 
         .font(Theme::font_small)
-                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(AXIS_X))
-                         .text  ( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(AXIS_Y))
-                         .text  ( BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXT_F(AXIS_Z))
+                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_X))
+                         .text  ( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Y))
+                         .text  ( BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Z))
 
         .font(Theme::font_medium)
         .fgcolor(Theme::x_axis) .button( BTN_POS(2,5), BTN_SIZE(2,1), F(""), OPT_FLAT)
@@ -69,9 +69,9 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
                          .button( BTN_POS(3,5), BTN_SIZE(1,2), F(""),  OPT_FLAT)
 
         .font(Theme::font_small)
-                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(AXIS_X))
-                         .text  ( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(AXIS_Y))
-                         .text  ( BTN_POS(3,5), BTN_SIZE(1,1), GET_TEXT_F(AXIS_Z))
+                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_X))
+                         .text  ( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Y))
+                         .text  ( BTN_POS(3,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Z))
                          .font(Theme::font_medium)
 
         .fgcolor(Theme::x_axis) .button( BTN_POS(1,6), BTN_SIZE(1,1), F(""), OPT_FLAT)
@@ -279,12 +279,12 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
           #else
             BTN_POS(1,7), BTN_SIZE(2,2),
           #endif
-          isPrintingFromMedia() ? GET_TEXT_F(PRINTING) : GET_TEXT_F(MEDIA)
+          isPrintingFromMedia() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA)
         ).colors(!has_media ? action_btn : normal_btn)
       #ifdef TOUCH_UI_PORTRAIT
-       .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), GET_TEXT_F(MENU));
+       .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_MENU));
       #else
-       .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), GET_TEXT_F(MENU));
+       .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), GET_TEXT_F(MSG_BUTTON_MENU));
     #endif
   }
   #undef  GRID_COLS
