@@ -132,10 +132,12 @@
 
 /**
  * SCARA cannot use SLOWDOWN and requires QUICKHOME
+ * Printable radius assumes joints can fully extend
  */
 #if IS_SCARA
   #undef SLOWDOWN
   #define QUICK_HOME
+  #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
 #endif
 
 /**
@@ -341,17 +343,22 @@
 
 #define HAS_USER_THERMISTORS ANY_TEMP_SENSOR_IS(1000)
 
-#if TEMP_SENSOR_0 == -4
+#if TEMP_SENSOR_0 == -5 || TEMP_SENSOR_0 == -3 || TEMP_SENSOR_0 == -2
+  #define HEATER_0_USES_MAX6675
+  #if TEMP_SENSOR_0 == -3
+    #define HEATER_0_MAX6675_TMIN -270
+    #define HEATER_0_MAX6675_TMAX 1800
+  #else
+    #define HEATER_0_MAX6675_TMIN    0
+    #define HEATER_0_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_0 == -5
+    #define MAX6675_IS_MAX31865
+  #elif TEMP_SENSOR_0 == -3
+    #define MAX6675_IS_MAX31855
+  #endif
+#elif TEMP_SENSOR_0 == -4
   #define HEATER_0_USES_AD8495
-#elif TEMP_SENSOR_0 == -3
-  #define HEATER_0_USES_MAX6675
-  #define MAX6675_IS_MAX31855
-  #define HEATER_0_MAX6675_TMIN -270
-  #define HEATER_0_MAX6675_TMAX 1800
-#elif TEMP_SENSOR_0 == -2
-  #define HEATER_0_USES_MAX6675
-  #define HEATER_0_MAX6675_TMIN 0
-  #define HEATER_0_MAX6675_TMAX 1024
 #elif TEMP_SENSOR_0 == -1
   #define HEATER_0_USES_AD595
 #elif TEMP_SENSOR_0 > 0
@@ -365,22 +372,26 @@
   #undef HEATER_0_MAXTEMP
 #endif
 
-#if TEMP_SENSOR_1 == -4
+#if TEMP_SENSOR_1 == -5 || TEMP_SENSOR_1 == -3 || TEMP_SENSOR_1 == -2
+  #define HEATER_1_USES_MAX6675
+  #if TEMP_SENSOR_1 == -3
+    #define HEATER_1_MAX6675_TMIN -270
+    #define HEATER_1_MAX6675_TMAX 1800
+  #else
+    #define HEATER_1_MAX6675_TMIN    0
+    #define HEATER_1_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_1 != TEMP_SENSOR_0
+    #if   TEMP_SENSOR_1 == -5
+      #error "If MAX31865 Thermocouple (-5) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
+    #elif TEMP_SENSOR_1 == -3
+      #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
+    #elif TEMP_SENSOR_1 == -2
+      #error "If MAX6675 Thermocouple (-2) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
+    #endif
+  #endif
+#elif TEMP_SENSOR_1 == -4
   #define HEATER_1_USES_AD8495
-#elif TEMP_SENSOR_1 == -3
-  #if TEMP_SENSOR_0 == -2
-    #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
-  #endif
-  #define HEATER_1_USES_MAX6675
-  #define HEATER_1_MAX6675_TMIN -270
-  #define HEATER_1_MAX6675_TMAX 1800
-#elif TEMP_SENSOR_1 == -2
-  #if TEMP_SENSOR_0 == -3
-    #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_0 then TEMP_SENSOR_1 must match."
-  #endif
-  #define HEATER_1_USES_MAX6675
-  #define HEATER_1_MAX6675_TMIN 0
-  #define HEATER_1_MAX6675_TMAX 1024
 #elif TEMP_SENSOR_1 == -1
   #define HEATER_1_USES_AD595
 #elif TEMP_SENSOR_1 > 0
@@ -1425,6 +1436,7 @@
 #define PLANNER_LEVELING      (HAS_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL))
 #define HAS_PROBING_PROCEDURE (HAS_ABL_OR_UBL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
 #define HAS_POSITION_MODIFIERS (ENABLED(FWRETRACT) || HAS_LEVELING || ENABLED(SKEW_CORRECTION))
+#define NEEDS_THREE_PROBE_POINTS EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
@@ -1461,37 +1473,37 @@
 #endif
 
 /**
- * Bed Probing rectangular bounds
- * These can be further constrained in code for Delta and SCARA
+ * Bed Probing bounds
  */
+
 #ifndef MIN_PROBE_EDGE
   #define MIN_PROBE_EDGE 0
 #endif
-#ifndef MIN_PROBE_EDGE_LEFT
-  #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
-#endif
-#ifndef MIN_PROBE_EDGE_RIGHT
-  #define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
-#endif
-#ifndef MIN_PROBE_EDGE_FRONT
-  #define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
-#endif
-#ifndef MIN_PROBE_EDGE_BACK
-  #define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
+
+#if IS_KINEMATIC
+  #undef MIN_PROBE_EDGE_LEFT
+  #undef MIN_PROBE_EDGE_RIGHT
+  #undef MIN_PROBE_EDGE_FRONT
+  #undef MIN_PROBE_EDGE_BACK
+#else
+  #ifndef MIN_PROBE_EDGE_LEFT
+    #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
+  #endif
+  #ifndef MIN_PROBE_EDGE_RIGHT
+    #define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
+  #endif
+  #ifndef MIN_PROBE_EDGE_FRONT
+    #define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
+  #endif
+  #ifndef MIN_PROBE_EDGE_BACK
+    #define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
+  #endif
 #endif
 
 #if ENABLED(DELTA)
   /**
    * Delta radius/rod trimmers/angle trimmers
    */
-  #define _PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #ifndef DELTA_CALIBRATION_RADIUS
-    #if HAS_BED_PROBE
-      #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - _MAX(ABS(probe_offset.x), ABS(probe_offset.y), ABS(MIN_PROBE_EDGE)))
-    #else
-      #define DELTA_CALIBRATION_RADIUS _PROBE_RADIUS
-    #endif
-  #endif
   #ifndef DELTA_ENDSTOP_ADJ
     #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
   #endif
@@ -1504,24 +1516,6 @@
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0, 0, 0 }
   #endif
-
-  // Probing points may be verified at compile time within the radius
-  // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
-  // so that may be added to SanityCheck.h in the future.
-  #define PROBE_X_MIN (X_CENTER - (_PROBE_RADIUS))
-  #define PROBE_Y_MIN (Y_CENTER - (_PROBE_RADIUS))
-  #define PROBE_X_MAX (X_CENTER + _PROBE_RADIUS)
-  #define PROBE_Y_MAX (Y_CENTER + _PROBE_RADIUS)
-
-#elif IS_SCARA
-
-  #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-  #define _PROBE_RADIUS (SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-  #define PROBE_X_MIN (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE_LEFT)
-  #define PROBE_Y_MIN (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE_FRONT)
-  #define PROBE_X_MAX (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE_RIGHT))
-  #define PROBE_Y_MAX (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE_BACK))
-
 #endif
 
 #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
@@ -1531,7 +1525,7 @@
 /**
  * Default mesh area is an area with an inset margin on the print area.
  */
-#if HAS_LEVELING
+#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
@@ -1542,17 +1536,10 @@
     #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
-    #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
-    #else
-      #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + probe_offset.x))
-      #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + probe_offset.y))
-      #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + probe_offset.x))
-      #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + probe_offset.y))
-    #endif
+    #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
+    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
+    #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
+    #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
   #endif
 
   // These may be overridden in Configuration.h if a smaller area is desired
@@ -1568,40 +1555,17 @@
   #ifndef MESH_MAX_Y
     #define MESH_MAX_Y _MESH_MAX_Y
   #endif
-
-#endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
+#else
+  #undef MESH_MIN_X
+  #undef MESH_MIN_Y
+  #undef MESH_MAX_X
+  #undef MESH_MAX_Y
+#endif
 
 #if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
   #define HAS_FIXED_3POINT
 #endif
 
-#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT) && IS_KINEMATIC
-    #define HAS_FIXED_3POINT
-    #define SIN0    0.0
-    #define SIN120  0.866025
-    #define SIN240 -0.866025
-    #define COS0    1.0
-    #define COS120 -0.5
-    #define COS240 -0.5
-    #ifndef PROBE_PT_1_X
-      #define PROBE_PT_1_X (X_CENTER + (_PROBE_RADIUS) * COS0)
-    #endif
-    #ifndef PROBE_PT_1_Y
-      #define PROBE_PT_1_Y (Y_CENTER + (_PROBE_RADIUS) * SIN0)
-    #endif
-    #ifndef PROBE_PT_2_X
-      #define PROBE_PT_2_X (X_CENTER + (_PROBE_RADIUS) * COS120)
-    #endif
-    #ifndef PROBE_PT_2_Y
-      #define PROBE_PT_2_Y (Y_CENTER + (_PROBE_RADIUS) * SIN120)
-    #endif
-    #ifndef PROBE_PT_3_X
-      #define PROBE_PT_3_X (X_CENTER + (_PROBE_RADIUS) * COS240)
-    #endif
-    #ifndef PROBE_PT_3_Y
-      #define PROBE_PT_3_Y (Y_CENTER + (_PROBE_RADIUS) * SIN240)
-    #endif
-#endif
 
 /**
  * Buzzer/Speaker

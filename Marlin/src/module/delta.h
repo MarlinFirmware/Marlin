@@ -31,8 +31,7 @@ extern float delta_height;
 extern abc_float_t delta_endstop_adj;
 extern float delta_radius,
              delta_diagonal_rod,
-             delta_segments_per_second,
-             delta_calibration_radius;
+             delta_segments_per_second;
 extern abc_float_t delta_tower_angle_trim;
 extern xy_float_t delta_tower[ABC];
 extern abc_float_t delta_diagonal_rod_2_tower;
@@ -43,6 +42,17 @@ extern float delta_clip_start_height;
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings();
+
+/**
+ * Get a safe radius for calibration
+ */
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  extern float calibration_radius_factor;
+#else
+  constexpr float calibration_radius_factor = 1;
+#endif
+
+float delta_calibration_radius();
 
 /**
  * Delta Inverse Kinematics

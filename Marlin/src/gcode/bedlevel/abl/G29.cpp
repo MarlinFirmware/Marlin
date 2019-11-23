@@ -225,10 +225,10 @@ G29_TYPE GcodeSuite::G29() {
   #if ABL_GRID
 
     #if ENABLED(PROBE_MANUALLY)
-      ABL_VAR xy_uint8_t meshCount;
+      ABL_VAR xy_int8_t meshCount;
     #endif
 
-    ABL_VAR xy_int_t probe_position_lf, probe_position_rb;
+    ABL_VAR xy_float_t probe_position_lf, probe_position_rb;
     ABL_VAR xy_float_t gridSpacing = { 0, 0 };
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -263,20 +263,8 @@ G29_TYPE GcodeSuite::G29() {
       int constexpr abl_points = 3; // used to show total points
     #endif
 
-    // Probe at 3 arbitrary points
-    const float x_min = probe_min_x(), x_max = probe_max_x(), y_min = probe_min_y(), y_max = probe_max_y();
-
-    ABL_VAR vector_3 points[3] = {
-      #if ENABLED(HAS_FIXED_3POINT)
-        { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-        { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-        { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-      #else
-        { x_min, y_min, 0 },
-        { x_max, y_min, 0 },
-        { (x_max - x_min) / 2, y_max, 0 }
-      #endif
-    };
+    vector_3 points[3];
+    get_three_probe_points(points);
 
   #endif // AUTO_BED_LEVELING_3POINT
 
@@ -678,13 +666,13 @@ G29_TYPE GcodeSuite::G29() {
 
       measured_z = 0;
 
-      xy_uint8_t meshCount;
+      xy_int8_t meshCount;
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
       for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
 
-        uint8_t inStart, inStop, inInc;
+        int8_t inStart, inStop, inInc;
 
         if (zig) { // away from origin
           inStart = 0;
@@ -693,8 +681,8 @@ G29_TYPE GcodeSuite::G29() {
         }
         else {     // towards origin
           inStart = PR_INNER_END - 1;
-          inStop = 0xFF;
-          inInc = 0xFF;
+          inStop = -1;
+          inInc = -1;
         }
 
         zig ^= true; // zag
@@ -764,7 +752,7 @@ G29_TYPE GcodeSuite::G29() {
       for (uint8_t i = 0; i < 3; ++i) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH)), int(i);
+          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
         #endif
 
         // Retain the last probe position

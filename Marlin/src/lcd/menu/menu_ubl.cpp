@@ -65,7 +65,7 @@ static void _lcd_mesh_fine_tune(PGM_P msg) {
   }
 
   if (ui.should_draw()) {
-    MenuEditItemBase::edit_screen(msg, ftostr43sign(mesh_edit_value));
+    MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
     #if ENABLED(MESH_EDIT_GFX_OVERLAY)
       _lcd_zoffset_overlay_gfx(mesh_edit_value);
     #endif
