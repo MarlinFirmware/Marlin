@@ -80,6 +80,9 @@ SCREEN_TABLE {
 #else
   DECL_SCREEN(JerkScreen),
 #endif
+#if HAS_CASE_LIGHT
+  DECL_SCREEN(CaseLightScreen),
+#endif
 #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
   DECL_SCREEN(FilamentMenu),
 #endif
@@ -96,10 +99,13 @@ SCREEN_TABLE {
   DECL_SCREEN(LockScreen),
   DECL_SCREEN(FilesScreen),
   DECL_SCREEN(EndstopStatesScreen),
-#ifdef TOUCH_UI_LULZBOT_BIO
+#if ENABLED(TOUCH_UI_LULZBOT_BIO)
   DECL_SCREEN(BioPrintingDialogBox),
   DECL_SCREEN(BioConfirmHomeXYZ),
   DECL_SCREEN(BioConfirmHomeE),
+#endif
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  DECL_SCREEN(PreheatTimerScreen),
 #endif
 #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
   DECL_SCREEN(DeveloperMenu),

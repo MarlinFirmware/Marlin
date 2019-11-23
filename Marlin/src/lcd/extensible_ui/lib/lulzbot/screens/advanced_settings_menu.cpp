@@ -105,7 +105,13 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
         .enabled(0)
       #endif
-      .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,2), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+      .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,1), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+      #if HAS_CASE_LIGHT
+        .enabled(1)
+      #else
+        .enabled(0)
+      #endif
+      .tag(16).button( BTN_POS(1,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_CASE_LIGHT))
       .enabled(1)
       .tag(3) .button( BTN_POS(2,1),  BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
       #if HAS_TRINAMIC
@@ -131,7 +137,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
       .enabled(0)
       #endif
-      .tag(4) .button( BTN_POS(1,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(4) .button( BTN_POS(1,2),  BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
       .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
       .tag(6) .button( BTN_POS(2,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
@@ -140,7 +146,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
       .tag(7) .button( BTN_POS(2,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_JERK))
       #endif
-      .tag(11).button( BTN_POS(1,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENT))
+      .tag(11).button( BTN_POS(1,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENT))
       .tag(15).button( BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXT_F(MSG_DISPLAY_MENU))
       .tag(9) .button( BTN_POS(1,5),  BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
       .tag(10).button( BTN_POS(1,6),  BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_FAILSAFE))
@@ -183,6 +189,9 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 14: GOTO_SCREEN(StepperBumpSensitivityScreen); break;
     #endif
     case 15: GOTO_SCREEN(DisplayTuningScreen); break;
+    #if HAS_CASE_LIGHT
+    case 16: GOTO_SCREEN(CaseLightScreen); break;
+    #endif
     default: return false;
   }
   return true;
