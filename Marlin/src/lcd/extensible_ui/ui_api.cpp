@@ -619,11 +619,17 @@ namespace ExtUI {
   
   #if HAS_CASE_LIGHT
     bool getCaseLightState()                 { return case_light_on; }
-    void setCaseLightState(const bool value) { case_light_on = value; }
+    void setCaseLightState(const bool value) {
+      case_light_on = value;
+      update_case_light();
+    }
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       float getCaseLightBrightness_percent()                 { return ui8_to_percent(case_light_brightness); }
-      void setCaseLightBrightness_percent(const float value) { case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255); }
+      void setCaseLightBrightness_percent(const float value) {
+         case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
+         update_case_light();
+      }
     #endif
   #endif
 
