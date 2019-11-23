@@ -28,36 +28,6 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
-/*
- * Limit Switches
- * Validation of pins assignement in case stallguard is use
- * with positive homing direction, in this case, the min and 
- * max values will be reversed to allow the use of MAX physical 
- * connectors for other purposes
- */
-
-#if EITHER(X_HOME_DIR == 1, X_STALL_SENSITIVITY)
-  #define X_MIN_PIN          P1_28
-  #define X_MAX_PIN          P1_29
-#else
-  #define X_MIN_PIN          P1_29
-  #define X_MAX_PIN          P1_28
-#endif
-#if EITHER(Y_HOME_DIR == 1, Y_STALL_SENSITIVITY)
-  #define Y_MIN_PIN          P1_26
-  #define Y_MAX_PIN          P1_27
-#else
-  #define Y_MIN_PIN          P1_27
-  #define Y_MAX_PIN          P1_26
-#endif
-#if EITHER(Z_HOME_DIR == 1, Z_STALL_SENSITIVITY)
-  #define Z_MIN_PIN          P1_24
-  #define Z_MAX_PIN          P1_25
-#else
-  #define Z_MIN_PIN          P1_25
-  #define Z_MAX_PIN          P1_24
-#endif
-
 //
 // Steppers
 //
