@@ -42,7 +42,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
     #ifdef TOUCH_UI_PORTRAIT
-      #define GRID_ROWS 9
+      #define GRID_ROWS 10
       #define GRID_COLS 2
       #if HAS_BED_PROBE
         .enabled(1)
@@ -50,20 +50,25 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
         .enabled(0)
       #endif
       .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
-      .enabled(1)
+      #if HAS_CASE_LIGHT
+        .enabled(1)
+      #else
+        .enabled(0)
+      #endif
+      .tag(16).button( BTN_POS(1,6),  BTN_SIZE(1,1), GET_TEXT_F(MSG_CASE_LIGHT))
       .tag(3) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(13).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
+      .tag(13).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
       #if HAS_TRINAMIC
         .enabled(1)
       #else
         .enabled(0)
       #endif
-      .tag(14).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
+      .tag(14).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
       #if HOTENDS > 1
       .enabled(1)
       #else
@@ -76,10 +81,10 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .enabled(0)
       #endif
       .tag(11).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENT))
-      .tag(12).button( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
+      .tag(12).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(15).button( BTN_POS(2,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISPLAY_MENU))
-      .tag(9) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
-      .tag(10).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_FAILSAFE))
+      .tag(9) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
+      .tag(10).button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_FAILSAFE))
       .tag(5) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
       .tag(6) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
       #if DISABLED(CLASSIC_JERK)
@@ -94,7 +99,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #endif
       .tag(8).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACKLASH))
       .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+      .tag(1) .button( BTN_POS(1,10), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
       #undef GRID_COLS
       #undef GRID_ROWS
     #else

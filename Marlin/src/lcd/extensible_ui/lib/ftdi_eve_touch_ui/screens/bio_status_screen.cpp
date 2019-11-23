@@ -95,9 +95,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
          .icon (x + 2, y + 2, h, v, Bed_Heat_Icon_Info, icon_scale * 2)
          .cmd(COLOR_RGB(bg_text_enabled))
          .icon (x, y, h, v, Bed_Heat_Icon_Info, icon_scale * 2);
-    #endif
-
-    #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    #elif ENABLED(TOUCH_UI_COCOA_PRESS) && DISABLED(TOUCH_UI_PORTRAIT)
       // The CocoaPress shows the temperature for two
       // heating zones, but has no bed temperature
 
@@ -115,6 +113,11 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       
       ui.bounds(POLY(h3_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_CHAMBER));
+    #else
+      UNUSED(x);
+      UNUSED(y);
+      UNUSED(h);
+      UNUSED(v);
     #endif
 
     #ifdef TOUCH_UI_USE_UTF8
@@ -149,9 +152,8 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
         ui.bounds(POLY(bed_temp), x, y, h, v);
         cmd.text(x, y, h, v, str);
       #endif
-    #endif
-
-    #if ENABLED(TOUCH_UI_COCOA_PRESS)
+      
+    #elif ENABLED(TOUCH_UI_COCOA_PRESS) && DISABLED(TOUCH_UI_PORTRAIT)
       // The CocoaPress shows the temperature for two
       // heating zones, but has no bed temperature
 
@@ -188,6 +190,8 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
       ui.bounds(POLY(h3_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
+    #else
+      UNUSED(str);
     #endif
   }
 }
@@ -260,7 +264,9 @@ void StatusScreen::draw_arrows(draw_mode_t what) {
   }
 
   if ((what & BACKGROUND) || e_homed) {
-    ui.button(7, POLY(e_neg));
+    #if DISABLED(TOUCH_UI_COCOA_PRESS)
+      ui.button(7, POLY(e_neg));
+    #endif
     ui.button(8, POLY(e_pos));
   }
 }
