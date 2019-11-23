@@ -267,36 +267,42 @@ namespace ExtUI {
     #endif
   }
 
+  #ifdef TOUCH_UI_LCD_TEMP_SCALING
+    #define GET_TEMP_ADJUSTMENT(A) float(A)/TOUCH_UI_LCD_TEMP_SCALING
+  #else
+    #define GET_TEMP_ADJUSTMENT(A) A
+  #endif
+
   float getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if HAS_HEATED_BED
-        case BED: return thermalManager.degBed();
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
       #endif
       #if HAS_HEATED_CHAMBER
-        case CHAMBER: return thermalManager.degChamber();
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
       #endif
-      default: return thermalManager.degHotend(heater - H0);
+      default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
     }
   }
 
   float getActualTemp_celsius(const extruder_t extruder) {
-    return thermalManager.degHotend(extruder - E0);
+    return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(extruder - E0));
   }
 
   float getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if HAS_HEATED_BED
-        case BED: return thermalManager.degTargetBed();
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
       #endif
       #if HAS_HEATED_CHAMBER
-        case CHAMBER: return thermalManager.degTargetChamber();
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
       #endif
-      default: return thermalManager.degTargetHotend(heater - H0);
+      default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
     }
   }
 
   float getTargetTemp_celsius(const extruder_t extruder) {
-    return thermalManager.degTargetHotend(extruder - E0);
+    return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
   float getTargetFan_percent(const fan_t fan) {
@@ -885,6 +891,9 @@ namespace ExtUI {
   }
 
   void setTargetTemp_celsius(float value, const heater_t heater) {
+    #ifdef TOUCH_UI_LCD_TEMP_SCALING
+      value *= TOUCH_UI_LCD_TEMP_SCALING;
+    #endif
     enableHeater(heater);
     #if HAS_HEATED_CHAMBER
       if (heater == CHAMBER)
@@ -906,6 +915,9 @@ namespace ExtUI {
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
+    #ifdef TOUCH_UI_LCD_TEMP_SCALING
+      value *= TOUCH_UI_LCD_TEMP_SCALING;
+    #endif
     #if HOTENDS
       constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
       const int16_t e = extruder - E0;
