@@ -882,19 +882,19 @@ namespace ExtUI {
     enableHeater(heater);
     #if HAS_HEATED_CHAMBER
       if (heater == CHAMBER)
-        thermalManager.setTargetChamber(constrain(value, 0, CHAMBER_MAXTEMP - 10));
+        thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10)));
       else
     #endif
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(constrain(value, 0, BED_MAXTEMP - 10));
+        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAXTEMP - 10)));
       else
     #endif
       {
         #if HOTENDS
           static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
+          thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
         #endif
       }
   }
@@ -904,7 +904,7 @@ namespace ExtUI {
       constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
+      thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
     #endif
   }
 
