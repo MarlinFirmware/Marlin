@@ -23,7 +23,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "screens.h"
 
@@ -124,4 +124,4 @@ void BootScreen::showSplashScreen() {
   ExtUI::delay_ms(2500);
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

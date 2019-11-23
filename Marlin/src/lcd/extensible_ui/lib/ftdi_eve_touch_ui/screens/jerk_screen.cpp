@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, CLASSIC_JERK)
+#if BOTH(TOUCH_UI_FTDI_EVE, CLASSIC_JERK)
 
 #include "screens.h"
 
@@ -62,4 +62,4 @@ bool JerkScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI && CLASSIC_JERK
+#endif // TOUCH_UI_FTDI_EVE && CLASSIC_JERK

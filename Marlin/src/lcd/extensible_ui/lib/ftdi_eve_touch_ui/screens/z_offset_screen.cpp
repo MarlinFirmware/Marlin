@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && HAS_BED_PROBE
+#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_BED_PROBE
 
 #include "screens.h"
 
@@ -51,4 +51,4 @@ bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI && HAS_BED_PROBE
+#endif // TOUCH_UI_FTDI_EVE && HAS_BED_PROBE

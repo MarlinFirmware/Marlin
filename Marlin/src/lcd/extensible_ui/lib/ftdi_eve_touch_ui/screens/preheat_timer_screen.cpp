@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && defined(TOUCH_UI_COCOA_PRESS)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && defined(TOUCH_UI_COCOA_PRESS)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -112,4 +112,4 @@ void PreheatTimerScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

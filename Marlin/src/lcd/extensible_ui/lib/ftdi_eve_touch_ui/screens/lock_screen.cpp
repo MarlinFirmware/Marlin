@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -211,4 +211,4 @@ void LockScreen::enable() {
   GOTO_SCREEN(LockScreen);
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

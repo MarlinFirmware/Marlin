@@ -22,7 +22,7 @@
 #ifdef __MARLIN_FIRMWARE__
 
   // Marlin will define the I/O functions for us
-  #if ENABLED(LULZBOT_TOUCH_UI)
+  #if ENABLED(TOUCH_UI_FTDI_EVE)
     #define FTDI_BASIC
     #define FTDI_EXTENDED
   #endif

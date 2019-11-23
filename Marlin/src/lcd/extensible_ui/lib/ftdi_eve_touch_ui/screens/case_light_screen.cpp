@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, CASE_LIGHT_ENABLE)
+#if BOTH(TOUCH_UI_FTDI_EVE, CASE_LIGHT_ENABLE)
 
 #include "screens.h"
 
@@ -59,4 +59,4 @@ bool CaseLightScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

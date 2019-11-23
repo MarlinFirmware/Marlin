@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "screens.h"
 
@@ -80,4 +80,4 @@ void format_position(char *str, float x, float y, float z) {
 
 #pragma GCC diagnostic pop
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

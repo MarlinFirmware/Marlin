@@ -39,7 +39,7 @@
  *   ffmpeg -i video.avi -i silence.wav -c copy -map 0:v:0 -map 1:a:0 startup.avi
  */
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "screens.h"
 
@@ -165,4 +165,4 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
   #endif // FTDI_API_LEVEL >= 810
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

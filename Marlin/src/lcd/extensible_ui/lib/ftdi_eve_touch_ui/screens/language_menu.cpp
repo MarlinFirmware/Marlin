@@ -23,7 +23,7 @@
 #include "../config.h"
 #include "../language/language.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && NUM_LANGUAGES > 1
+#if ENABLED(TOUCH_UI_FTDI_EVE) && NUM_LANGUAGES > 1
 
 #include "screens.h"
 
@@ -63,4 +63,4 @@ bool LanguageMenu::onTouchEnd(uint8_t tag) {
   return false;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

@@ -22,7 +22,7 @@
 
 #include "../compat.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 
@@ -407,4 +407,4 @@ const SoundList::list_t SoundList::list[] = {
 
 const uint8_t SoundList::n = N_ELEMENTS(SoundList::list);
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE
