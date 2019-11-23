@@ -119,7 +119,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    case 1:  GOTO_PREVIOUS();                                         break;
+    case 1:  SaveSettingsDialogBox::promptToSaveSettings();           break;
     case 2:  SpinnerDialogBox::enqueueAndWait_P(F("G28"));            break;
     #if ENABLED(TOUCH_UI_COCOA_PRESS)
     case 3:  GOTO_SCREEN(PreheatTimerScreen);                         break;
