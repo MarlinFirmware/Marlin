@@ -23,43 +23,34 @@
 
 #define BOARD_INFO_NAME "BIGTREE SKR 1.3"
 
-/*
+/**
  * Limit Switches
- * 
- * Validation of pins assignement in case stallguard is use
- * with positive homing direction, in this case, the min and 
- * max values will be reversed to allow the use of MAX physical 
- * connectors for other purposes
+ *
+ * For Stallguard homing to max swap the min / max pins so
+ * the MAX physical connectors can be used for other things.
  */
-
-#if EITHER(X_HOME_DIR == 1, X_STALL_SENSITIVITY)
-  // Reverse pins assignement
-  #define X_MIN_PIN          P1_28
-  #define X_MAX_PIN          P1_29
+#if X_HOME_DIR == -1 || !X_STALL_SENSITIVITY
+  #define X_MIN_PIN          P1_29   // X_MIN
+  #define X_MAX_PIN          P1_28   // X_MAX
 #else
-  // Normal pin assignement
-  #define X_MIN_PIN          P1_29
-  #define X_MAX_PIN          P1_28
+  #define X_MIN_PIN          P1_28   // X_MAX
+  #define X_MAX_PIN          P1_29   // X_MIN
 #endif
 
-#if EITHER(Y_HOME_DIR == 1, Y_STALL_SENSITIVITY)
-  // Reverse pins assignement
-  #define Y_MIN_PIN          P1_26
-  #define Y_MAX_PIN          P1_27
+#if Y_HOME_DIR == -1 || !Y_STALL_SENSITIVITY
+  #define Y_MIN_PIN          P1_27   // Y_MIN
+  #define Y_MAX_PIN          P1_26   // Y_MAX
 #else
-  // Normal pin assignement
-  #define Y_MIN_PIN          P1_27
-  #define Y_MAX_PIN          P1_26
+  #define Y_MIN_PIN          P1_26   // Y_MAX
+  #define Y_MAX_PIN          P1_27   // Y_MIN
 #endif
 
-#if EITHER(Z_HOME_DIR == 1, Z_STALL_SENSITIVITY)
-  // Reverse pins assignement
-  #define Z_MIN_PIN          P1_24
-  #define Z_MAX_PIN          P1_25
+#if Z_HOME_DIR == -1 || !Z_STALL_SENSITIVITY
+  #define Z_MIN_PIN          P1_25   // Z_MIN
+  #define Z_MAX_PIN          P1_24   // Z_MAX
 #else
-  // Normal pin assignement
-  #define Z_MIN_PIN          P1_25
-  #define Z_MAX_PIN          P1_24
+  #define Z_MIN_PIN          P1_24   // Z_MAX
+  #define Z_MAX_PIN          P1_25   // Z_MIN
 #endif
 
 //
