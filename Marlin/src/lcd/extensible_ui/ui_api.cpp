@@ -94,6 +94,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(BABYSTEPPING)
   #include "../../feature/babystep.h"
 #endif
@@ -612,6 +616,16 @@ namespace ExtUI {
       void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(constrain(value, 0, 999)); }
     #endif
   #endif
+  
+  #if HAS_CASE_LIGHT
+    bool getCaseLightState()                 { return case_light_on; }
+    void setCaseLightState(const bool value) { case_light_on = value; }
+
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      float getCaseLightBrightness_percent()                 { return ui8_to_percent(case_light_brightness); }
+      void setCaseLightBrightness_percent(const float value) { case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255); }
+    #endif
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
@@ -866,6 +880,11 @@ namespace ExtUI {
 
   void setTargetTemp_celsius(float value, const heater_t heater) {
     enableHeater(heater);
+    #if HAS_HEATED_CHAMBER
+      if (heater == CHAMBER)
+        thermalManager.setTargetChamber(constrain(value, 0, CHAMBER_MAXTEMP - 10));
+      else
+    #endif
     #if HAS_HEATED_BED
       if (heater == BED)
         thermalManager.setTargetBed(constrain(value, 0, BED_MAXTEMP - 10));
