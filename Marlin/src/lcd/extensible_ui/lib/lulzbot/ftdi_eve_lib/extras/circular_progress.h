@@ -23,10 +23,11 @@
 
 /* This function draws a circular progress "ring" */
 
-void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, uint8_t percent, uint32_t bgcolor, uint32_t fgcolor, float rim = 0.3) {
+void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, float percent, char *text, uint32_t bgcolor, uint32_t fgcolor) {
   using namespace FTDI;
 
-  const float a  = float(percent)/100.0*2.0*PI;
+  const float rim = 0.3;
+  const float a  = percent/100.0*2.0*PI;
   const float a1 = min(PI/2, a);
   const float a2 = min(PI/2, a-a1);
   const float a3 = min(PI/2, a-a1-a2);
@@ -90,11 +91,15 @@ void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, u
   cmd.cmd(RESTORE_CONTEXT());
 
   // Draw the text
-  char str[5];
-  sprintf(str,"%d\%%",percent);
 
   cmd.cmd(SAVE_CONTEXT());
   cmd.cmd(COLOR_RGB(fgcolor));
-  cmd.text(x,y,w,h,str, OPT_CENTERX | OPT_CENTERY);
+  cmd.text(x,y,w,h,text, OPT_CENTERX | OPT_CENTERY);
   cmd.cmd(RESTORE_CONTEXT());
+}
+
+void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, float percent, uint32_t bgcolor, uint32_t fgcolor) {
+  char str[5];
+  sprintf(str,"%d\%%",int(percent));
+  draw_circular_progress(cmd, x, y, w, h, percent, str, bgcolor, fgcolor); 
 }
