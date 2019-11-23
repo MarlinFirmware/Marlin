@@ -214,6 +214,10 @@
 #define GPIO_PA18_J20_21   71   // D71 PA17 (Header J20 21)
 #define GPIO_PA17_J20_22   70   // D70 PA17 (Header J20 22)
 
+// Case Light
+
+#define CASE_LIGHT_PIN     GPIO_PB1_J20_5
+
 // 2MB SPI Flash
 #define SPI_FLASH_SS       52   // D52 PB21
 
