@@ -622,7 +622,7 @@ namespace ExtUI {
       void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(constrain(value, 0, 999)); }
     #endif
   #endif
-  
+
   #if HAS_CASE_LIGHT
     bool getCaseLightState()                 { return case_light_on; }
     void setCaseLightState(const bool value) {

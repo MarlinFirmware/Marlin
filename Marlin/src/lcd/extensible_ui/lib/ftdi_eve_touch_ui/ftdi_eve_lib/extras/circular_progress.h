@@ -101,5 +101,5 @@ void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, f
 void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, float percent, uint32_t bgcolor, uint32_t fgcolor) {
   char str[5];
   sprintf(str,"%d\%%",int(percent));
-  draw_circular_progress(cmd, x, y, w, h, percent, str, bgcolor, fgcolor); 
+  draw_circular_progress(cmd, x, y, w, h, percent, str, bgcolor, fgcolor);
 }

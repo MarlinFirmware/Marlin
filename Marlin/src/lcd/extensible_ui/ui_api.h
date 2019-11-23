@@ -230,11 +230,11 @@ namespace ExtUI {
       void setFilamentRunoutDistance_mm(const float);
     #endif
   #endif
-  
+
   #if ENABLED(CASE_LIGHT_ENABLE)
     bool getCaseLightState();
     void setCaseLightState(const bool);
-    
+
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       float getCaseLightBrightness_percent();
       void setCaseLightBrightness_percent(const float);

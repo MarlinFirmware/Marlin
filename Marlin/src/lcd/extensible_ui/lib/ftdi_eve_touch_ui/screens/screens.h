@@ -317,7 +317,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
   class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
     private:
       static uint16_t secondsRemaining();
-      
+
       static void draw_message(draw_mode_t);
       static void draw_time_remaining(draw_mode_t);
       static void draw_interaction_buttons(draw_mode_t);

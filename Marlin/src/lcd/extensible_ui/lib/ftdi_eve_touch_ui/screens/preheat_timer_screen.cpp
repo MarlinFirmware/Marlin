@@ -54,8 +54,8 @@ uint16_t PreheatTimerScreen::secondsRemaining() {
 void PreheatTimerScreen::draw_time_remaining(draw_mode_t what) {
   if (what & FOREGROUND) {
     const uint16_t elapsed_sec = secondsRemaining();
-    const uint8_t min = elapsed_sec / 60;
-    const uint8_t sec = elapsed_sec % 60;
+    const uint8_t min = elapsed_sec / 60,
+                  sec = elapsed_sec % 60;
 
     char str[10];
     sprintf_P(str, PSTR("%02d:%02d"), min, sec);
@@ -90,10 +90,10 @@ void PreheatTimerScreen::onRedraw(draw_mode_t what) {
 
 bool PreheatTimerScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 1: GOTO_PREVIOUS(); break;
-    default: return false;
+    case 1: GOTO_PREVIOUS(); return true;
+    default: break;
   }
-  return true;
+  return false;
 }
 
 void PreheatTimerScreen::onIdle() {
@@ -103,7 +103,7 @@ void PreheatTimerScreen::onIdle() {
     // so the alert box doesn't return to me.
     current_screen.forget();
   }
-  
+
   reset_menu_timeout();
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();

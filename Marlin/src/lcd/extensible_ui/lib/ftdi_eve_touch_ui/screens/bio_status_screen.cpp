@@ -23,7 +23,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && (ENABLED(TOUCH_UI_LULZBOT_BIO) || ENABLED(TOUCH_UI_COCOA_PRESS))
+#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
 
 #include "screens.h"
 
@@ -107,10 +107,10 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
       ui.bounds(POLY(h1_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_2));
-      
+
       ui.bounds(POLY(h2_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_3));
-      
+
       ui.bounds(POLY(h3_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_CHAMBER));
     #else
@@ -152,7 +152,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
         ui.bounds(POLY(bed_temp), x, y, h, v);
         cmd.text(x, y, h, v, str);
       #endif
-      
+
     #elif ENABLED(TOUCH_UI_COCOA_PRESS) && DISABLED(TOUCH_UI_PORTRAIT)
       // The CocoaPress shows the temperature for two
       // heating zones, but has no bed temperature
@@ -174,7 +174,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
       ui.bounds(POLY(h1_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
-      
+
       if (!isHeaterIdle(E2) && getTargetTemp_celsius(E2) > 0)
         format_temp_and_temp(str, getActualTemp_celsius(E2), getTargetTemp_celsius(E2));
       else
@@ -182,7 +182,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
       ui.bounds(POLY(h2_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
-      
+
       if (!isHeaterIdle(CHAMBER) && getTargetTemp_celsius(CHAMBER) > 0)
         format_temp_and_temp(str, getActualTemp_celsius(CHAMBER), getTargetTemp_celsius(CHAMBER));
       else

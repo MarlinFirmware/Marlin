@@ -15,7 +15,7 @@
  ****************************************************************************/
 
 /**
- * This file was auto-generated using "svg2cpp.pl"
+ * This file was auto-generated using "svg2cpp.py"
  *
  * The encoding consists of x,y pairs with the min and max scaled to
  * 0x0000 and 0xFFFE. A single 0xFFFF in the data stream indicates the

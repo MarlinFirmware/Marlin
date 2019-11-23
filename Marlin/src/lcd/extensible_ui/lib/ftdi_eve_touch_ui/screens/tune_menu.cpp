@@ -117,7 +117,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
         .enabled(0)
       #endif
        .tag(8).           button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_STOP_PRINT))
-       #if ENABLED(LIN_ADVANCE) || ENABLED(FILAMENT_RUNOUT_SENSOR)
+       #if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
           .enabled(1)
         #else
           .enabled(0)
