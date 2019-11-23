@@ -38,11 +38,13 @@ void BacklashCompensationScreen::onRedraw(draw_mode_t what) {
   w.color(y_axis).adjuster(4, GET_TEXT_F(MSG_AXIS_Y), getAxisBacklash_mm(Y));
   w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), getAxisBacklash_mm(Z));
   #if ENABLED(CALIBRATION_GCODE)
-  w.button(12, GET_TEXT_F(MSG_MEASURE_AUTOMATICALLY));
+    w.button(12, GET_TEXT_F(MSG_MEASURE_AUTOMATICALLY));
   #endif
-  w.color(other).adjuster(8,  GET_TEXT_F(MSG_SMOOTHING), getBacklashSmoothing_mm());
+  #ifdef BACKLASH_SMOOTHING_MM
+    w.color(other).adjuster(8,  GET_TEXT_F(MSG_BACKLASH_SMOOTHING), getBacklashSmoothing_mm());
+  #endif
   w.precision(0).units(GET_TEXT_F(MSG_UNITS_PERCENT))
-                .adjuster(10, GET_TEXT_F(MSG_CORRECTION), getBacklashCorrection_percent());
+                .adjuster(10, GET_TEXT_F(MSG_BACKLASH_CORRECTION), getBacklashCorrection_percent());
   w.precision(2).increments();
 }
 
@@ -55,12 +57,14 @@ bool BacklashCompensationScreen::onTouchHeld(uint8_t tag) {
     case  5:  UI_INCREMENT(AxisBacklash_mm, Y); break;
     case  6:  UI_DECREMENT(AxisBacklash_mm, Z); break;
     case  7:  UI_INCREMENT(AxisBacklash_mm, Z); break;
-    case  8:  UI_DECREMENT(BacklashSmoothing_mm); break;
-    case  9:  UI_INCREMENT(BacklashSmoothing_mm); break;
+    #ifdef BACKLASH_SMOOTHING_MM
+      case  8:  UI_DECREMENT(BacklashSmoothing_mm); break;
+      case  9:  UI_INCREMENT(BacklashSmoothing_mm); break;
+    #endif
     case  10: UI_DECREMENT_BY(BacklashCorrection_percent, increment*100);  break;
     case  11: UI_INCREMENT_BY(BacklashCorrection_percent, increment*100);  break;
     #if ENABLED(CALIBRATION_GCODE)
-    case  12: GOTO_SCREEN(ConfirmAutoCalibrationDialogBox); return true;
+      case  12: GOTO_SCREEN(ConfirmAutoCalibrationDialogBox); return true;
     #endif
     default:
       return false;

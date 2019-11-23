@@ -68,7 +68,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
       #if HAS_BED_PROBE
         dtostrf(getZOffset_mm(), 4, 2, str);
         strcat(str, " ");
-        strcat_P(str, GET_TEXT(UNITS_MM));
+        strcat_P(str, GET_TEXT(MSG_UNITS_MM));
         w.text_field  (0,  GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
       #endif
 

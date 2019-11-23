@@ -39,15 +39,16 @@ void MaxAccelerationScreen::onRedraw(draw_mode_t what) {
   w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AMAX_Y),  getAxisMaxAcceleration_mm_s2(Y) );
   w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AMAX_Z),  getAxisMaxAcceleration_mm_s2(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
-    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E0), getAxisMaxAcceleration_mm_s2(E0) );
+    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E), getAxisMaxAcceleration_mm_s2(E0) );
   #elif EXTRUDERS > 1
-    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E0), getAxisMaxAcceleration_mm_s2(E0) );
-    w.color(e_axis).adjuster(10, GET_TEXT_F(MSG_AMAX_E1), getAxisMaxAcceleration_mm_s2(E1) );
+    w.heading(GET_TEXT_F(MSG_AMAX_E));
+    w.color(e_axis).adjuster( 8, F(LCD_STR_E0), getAxisMaxAcceleration_mm_s2(E0) );
+    w.color(e_axis).adjuster(10, F(LCD_STR_E1), getAxisMaxAcceleration_mm_s2(E1) );
     #if EXTRUDERS > 2
-    w.color(e_axis).adjuster(12, GET_TEXT_F(MSG_AMAX_E2), getAxisMaxAcceleration_mm_s2(E2) );
+    w.color(e_axis).adjuster(12, F(LCD_STR_E2), getAxisMaxAcceleration_mm_s2(E2) );
     #endif
     #if EXTRUDERS > 3
-    w.color(e_axis).adjuster(14, GET_TEXT_F(MSG_AMAX_E3), getAxisMaxAcceleration_mm_s2(E3) );
+    w.color(e_axis).adjuster(14, F(LCD_STR_E3), getAxisMaxAcceleration_mm_s2(E3) );
     #endif
   #endif
   w.increments();
