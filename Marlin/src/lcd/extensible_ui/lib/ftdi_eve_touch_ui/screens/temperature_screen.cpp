@@ -32,25 +32,33 @@ using namespace ExtUI;
 
 void TemperatureScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(0).color(temp).units(GET_TEXT_F(MSG_UNITS_C));
+  #if TOUCH_UI_LCD_TEMP_SCALING == 10
+    w.precision(1)
+  #else
+    w.precision(0)
+  #endif
+   .color(temp).units(GET_TEXT_F(MSG_UNITS_C));
   w.heading(GET_TEXT_F(MSG_TEMPERATURE));
   w.button(30, GET_TEXT_F(MSG_COOLDOWN));
   #ifndef NO_TOOLHEAD_HEATER_GCODE
     #if HOTENDS == 1
       w.adjuster(   2, GET_TEXT_F(MSG_NOZZLE),   getTargetTemp_celsius(E0));
     #else
-      w.adjuster(   2, GET_TEXT_F(MSG_NOZZLE_0), getTargetTemp_celsius(E0));
-      w.adjuster(   4, GET_TEXT_F(MSG_NOZZLE_1), getTargetTemp_celsius(E1));
+      w.adjuster(   2, F(LCD_STR_E0), getTargetTemp_celsius(E0));
+      w.adjuster(   4, F(LCD_STR_E1), getTargetTemp_celsius(E1));
       #if HOTENDS > 2
-        w.adjuster( 6, GET_TEXT_F(MSG_NOZZLE_2), getTargetTemp_celsius(E2));
+        w.adjuster( 6, F(LCD_STR_E2), getTargetTemp_celsius(E2));
       #endif
       #if HOTENDS > 3
-        w.adjuster( 8, GET_TEXT_F(MSG_NOZZLE_3), getTargetTemp_celsius(E3));
+        w.adjuster( 8, F(LCD_STR_E3), getTargetTemp_celsius(E3));
       #endif
     #endif
   #endif
   #if HAS_HEATED_BED
     w.adjuster(    20, GET_TEXT_F(MSG_BED),     getTargetTemp_celsius(BED));
+  #endif
+  #if HAS_HEATED_CHAMBER
+    w.adjuster(    22, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER));
   #endif
   #if FAN_COUNT > 0
     w.color(fan_speed).units(GET_TEXT_F(MSG_UNITS_PERCENT));
@@ -64,6 +72,8 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
   switch (tag) {
     case 20: UI_DECREMENT(TargetTemp_celsius, BED); break;
     case 21: UI_INCREMENT(TargetTemp_celsius, BED); break;
+    case 22: UI_DECREMENT(TargetTemp_celsius, CHAMBER); break;
+    case 23: UI_INCREMENT(TargetTemp_celsius, CHAMBER); break;
     #ifndef NO_TOOLHEAD_HEATER_GCODE
     case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
     case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
@@ -89,6 +99,9 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
       REPEAT(HOTENDS, _HOTEND_OFF);
       #if HAS_HEATED_BED
         setTargetTemp_celsius(0,BED);
+      #endif
+      #if HAS_HEATED_CHAMBER
+        setTargetTemp_celsius(0,CHAMBER);
       #endif
       #if FAN_COUNT > 0
         setTargetFan_percent(0,FAN0);

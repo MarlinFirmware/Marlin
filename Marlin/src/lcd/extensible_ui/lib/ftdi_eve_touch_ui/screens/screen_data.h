@@ -66,6 +66,11 @@ union screen_data_t {
     const char*  message;
   } StressTestScreen;
 #endif
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  struct {
+    uint32_t start_ms;
+  } PreheatTimerScreen;
+#endif
 #if ENABLED(BABYSTEPPING)
   struct {
     struct base_numeric_adjustment_t placeholder;

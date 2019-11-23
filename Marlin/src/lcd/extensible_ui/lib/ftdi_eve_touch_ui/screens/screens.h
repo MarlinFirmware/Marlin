@@ -60,6 +60,9 @@ enum {
 #else
   JERK_SCREEN_CACHE,
 #endif
+#if HAS_CASE_LIGHT
+  CASE_LIGHT_SCREEN_CACHE,
+#endif
 #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
   FILAMENT_MENU_CACHE,
 #endif
@@ -69,8 +72,11 @@ enum {
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   FILAMENT_RUNOUT_SCREEN_CACHE,
 #endif
-#ifdef TOUCH_UI_LULZBOT_BIO
+#if ENABLED(TOUCH_UI_LULZBOT_BIO)
   PRINTING_SCREEN_CACHE,
+#endif
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  PREHEAT_TIMER_SCREEN_CACHE,
 #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
   INTERFACE_SETTINGS_SCREEN_CACHE,
@@ -307,6 +313,23 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
   };
 #endif
 
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
+    private:
+      static uint16_t secondsRemaining();
+      
+      static void draw_message(draw_mode_t);
+      static void draw_time_remaining(draw_mode_t);
+      static void draw_interaction_buttons(draw_mode_t);
+    public:
+      static void onRedraw(draw_mode_t);
+
+      static void onEntry();
+      static void onIdle();
+      static bool onTouchEnd(uint8_t tag);
+  };
+#endif
+
 class MainMenu : public BaseScreen, public CachedScreen<MENU_SCREEN_CACHE> {
   public:
     static void onRedraw(draw_mode_t);
@@ -514,6 +537,14 @@ class DefaultAccelerationScreen : public BaseNumericAdjustmentScreen, public Cac
   };
 #else
   class JerkScreen : public BaseNumericAdjustmentScreen, public CachedScreen<JERK_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchHeld(uint8_t tag);
+  };
+#endif
+
+#if HAS_CASE_LIGHT
+  class CaseLightScreen : public BaseNumericAdjustmentScreen, public CachedScreen<CASE_LIGHT_SCREEN_CACHE> {
     public:
       static void onRedraw(draw_mode_t);
       static bool onTouchHeld(uint8_t tag);
