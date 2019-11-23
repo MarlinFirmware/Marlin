@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
 
 #include "screens.h"
 
@@ -99,4 +99,4 @@ bool FilamentMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

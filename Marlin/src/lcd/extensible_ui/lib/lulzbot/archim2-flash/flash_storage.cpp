@@ -22,7 +22,7 @@
 
 #include "../compat.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 
@@ -556,4 +556,4 @@ bool UIFlashStorage::is_present = false;
   int16_t UIFlashStorage::BootMediaReader::read(void *, const size_t)         {return -1;}
   int16_t UIFlashStorage::BootMediaReader::read(void *, void *, const size_t) {return -1;}
 #endif // SPI_FLASH_SS
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

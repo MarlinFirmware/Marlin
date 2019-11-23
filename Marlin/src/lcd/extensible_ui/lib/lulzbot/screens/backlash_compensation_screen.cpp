@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, BACKLASH_GCODE)
+#if BOTH(TOUCH_UI_FTDI_EVE, BACKLASH_GCODE)
 
 #include "screens.h"
 
@@ -69,4 +69,4 @@ bool BacklashCompensationScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

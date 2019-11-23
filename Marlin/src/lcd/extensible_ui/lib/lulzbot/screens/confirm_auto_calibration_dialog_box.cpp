@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, CALIBRATION_GCODE)
+#if BOTH(TOUCH_UI_FTDI_EVE, CALIBRATION_GCODE)
 
 #include "screens.h"
 
@@ -45,4 +45,4 @@ bool ConfirmAutoCalibrationDialogBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

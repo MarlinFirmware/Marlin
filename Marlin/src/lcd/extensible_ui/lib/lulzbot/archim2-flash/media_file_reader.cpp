@@ -22,7 +22,7 @@
 
 #include "../compat.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
   #include "media_file_reader.h"
 
   #if ENABLED(SDSUPPORT)
@@ -60,4 +60,4 @@
     void MediaFileReader::rewind()                        {}
     int16_t MediaFileReader::read(void *, void *, size_t) {return 0;}
   #endif
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

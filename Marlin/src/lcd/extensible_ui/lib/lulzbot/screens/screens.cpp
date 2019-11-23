@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
 #include "screens.h"
 #include "screen_data.h"
 
@@ -114,4 +114,4 @@ SCREEN_TABLE {
 
 SCREEN_TABLE_POST
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

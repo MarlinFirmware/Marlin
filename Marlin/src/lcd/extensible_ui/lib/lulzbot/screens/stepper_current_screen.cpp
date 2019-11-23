@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && HAS_TRINAMIC
+#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_TRINAMIC
 
 #include "screens.h"
 
@@ -83,4 +83,4 @@ bool StepperCurrentScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

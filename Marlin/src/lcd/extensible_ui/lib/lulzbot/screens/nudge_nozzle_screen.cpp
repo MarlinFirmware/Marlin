@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, BABYSTEPPING)
+#if BOTH(TOUCH_UI_FTDI_EVE, BABYSTEPPING)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -121,4 +121,4 @@ void NudgeNozzleScreen::onIdle() {
   reset_menu_timeout();
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

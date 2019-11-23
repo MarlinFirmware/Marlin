@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && HOTENDS > 1
+#if ENABLED(TOUCH_UI_FTDI_EVE) && HOTENDS > 1
 
 #include "screens.h"
 
@@ -70,4 +70,4 @@ bool NozzleOffsetScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

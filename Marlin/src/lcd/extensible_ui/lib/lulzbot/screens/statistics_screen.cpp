@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, PRINTCOUNTER)
+#if BOTH(TOUCH_UI_FTDI_EVE, PRINTCOUNTER)
 
 #include "screens.h"
 
@@ -74,4 +74,4 @@ bool StatisticsScreen::onTouchEnd(uint8_t tag) {
   }
 }
 
-#endif // LULZBOT_TOUCH_UI && PRINTCOUNTER
+#endif // TOUCH_UI_FTDI_EVE && PRINTCOUNTER

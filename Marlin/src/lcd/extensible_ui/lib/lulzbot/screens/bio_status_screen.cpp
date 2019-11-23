@@ -23,7 +23,7 @@
 
 #include "../config.h"
 
-#if ENABLED(LULZBOT_TOUCH_UI) && (ENABLED(TOUCH_UI_LULZBOT_BIO) || ENABLED(TOUCH_UI_COCOA_PRESS))
+#if ENABLED(TOUCH_UI_FTDI_EVE) && (ENABLED(TOUCH_UI_LULZBOT_BIO) || ENABLED(TOUCH_UI_COCOA_PRESS))
 
 #include "screens.h"
 
@@ -436,4 +436,4 @@ void StatusScreen::onIdle() {
   }
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

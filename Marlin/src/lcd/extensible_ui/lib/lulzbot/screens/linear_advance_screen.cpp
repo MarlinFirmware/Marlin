@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, LIN_ADVANCE)
+#if BOTH(TOUCH_UI_FTDI_EVE, LIN_ADVANCE)
 
 #include "screens.h"
 
@@ -74,4 +74,4 @@ bool LinearAdvanceScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE

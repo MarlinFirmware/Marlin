@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(LULZBOT_TOUCH_UI, FILAMENT_RUNOUT_SENSOR)
+#if BOTH(TOUCH_UI_FTDI_EVE, FILAMENT_RUNOUT_SENSOR)
 
 #include "screens.h"
 
@@ -63,4 +63,4 @@ bool FilamentRunoutScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // LULZBOT_TOUCH_UI
+#endif // TOUCH_UI_FTDI_EVE
