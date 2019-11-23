@@ -41,6 +41,7 @@ void StatisticsScreen::onRedraw(draw_mode_t what) {
 
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
        .cmd(CLEAR(true,true,true))
+       .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
 
        .font(Theme::font_medium)
