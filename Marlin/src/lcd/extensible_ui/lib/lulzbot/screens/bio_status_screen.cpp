@@ -104,11 +104,17 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       cmd.cmd(COLOR_RGB(bg_text_enabled));
       cmd.font(font_medium);
 
-      ui.bounds(POLY(zone1_label), x, y, h, v);
+      ui.bounds(POLY(h0_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_1));
 
-      ui.bounds(POLY(zone2_label), x, y, h, v);
+      ui.bounds(POLY(h1_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_2));
+      
+      ui.bounds(POLY(h2_label), x, y, h, v);
+      cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_3));
+      
+      ui.bounds(POLY(h3_label), x, y, h, v);
+      cmd.text(x, y, h, v, GET_TEXT_F(MSG_CHAMBER));
     #endif
 
     #ifdef TOUCH_UI_USE_UTF8
@@ -156,7 +162,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       else
         format_temp_and_idle(str, getActualTemp_celsius(E0));
 
-      ui.bounds(POLY(zone1_temp), x, y, h, v);
+      ui.bounds(POLY(h0_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
 
       if (!isHeaterIdle(E1) && getTargetTemp_celsius(E1) > 0)
@@ -164,7 +170,23 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       else
         format_temp_and_idle(str, getActualTemp_celsius(E1));
 
-      ui.bounds(POLY(zone2_temp), x, y, h, v);
+      ui.bounds(POLY(h1_temp), x, y, h, v);
+      cmd.text(x, y, h, v, str);
+      
+      if (!isHeaterIdle(E2) && getTargetTemp_celsius(E2) > 0)
+        format_temp_and_temp(str, getActualTemp_celsius(E2), getTargetTemp_celsius(E2));
+      else
+        format_temp_and_idle(str, getActualTemp_celsius(E2));
+
+      ui.bounds(POLY(h2_temp), x, y, h, v);
+      cmd.text(x, y, h, v, str);
+      
+      if (!isHeaterIdle(CHAMBER) && getTargetTemp_celsius(CHAMBER) > 0)
+        format_temp_and_temp(str, getActualTemp_celsius(CHAMBER), getTargetTemp_celsius(CHAMBER));
+      else
+        format_temp_and_idle(str, getActualTemp_celsius(CHAMBER));
+
+      ui.bounds(POLY(h3_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
     #endif
   }
