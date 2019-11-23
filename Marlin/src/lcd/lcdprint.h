@@ -11,6 +11,7 @@
 #include "fontutils.h"
 
 #include "../inc/MarlinConfigPre.h"
+#include "../inc/Conditionals_post.h"
 
 #if HAS_GRAPHICAL_LCD
   #include "dogm/u8g_fontutf8.h"
@@ -71,8 +72,8 @@ inline int lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P con
   return lcd_put_u8str_P(pstr);
 }
 
-lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const uint8_t ind, const lcd_uint_t maxlen=20);
-inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const pstr, const uint8_t ind, const lcd_uint_t maxlen=20) {
+lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const uint8_t ind, const lcd_uint_t maxlen=LCD_WIDTH);
+inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const pstr, const uint8_t ind, const lcd_uint_t maxlen=LCD_WIDTH) {
   lcd_moveto(col, row);
   return lcd_put_u8str_ind_P(pstr, ind, maxlen);
 }
