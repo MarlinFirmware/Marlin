@@ -10,8 +10,7 @@
 
 #include "fontutils.h"
 
-#include "../inc/MarlinConfigPre.h"
-#include "../inc/Conditionals_post.h"
+#include "../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD
   #include "dogm/u8g_fontutf8.h"
