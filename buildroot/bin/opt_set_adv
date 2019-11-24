@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-eval "sed -i 's/\(#define \b${1}\b\).*$/\1 ${2}/g' Marlin/Configuration_adv.h"
+SED=$(which gsed || which sed)
+
+eval "${SED} -i 's/\(#define \b${1}\b\).*$/\1 ${2}/g' Marlin/Configuration_adv.h"

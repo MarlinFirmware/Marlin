@@ -31,6 +31,7 @@
 #define LANGUAGE_CN_H
 
 #define DISPLAY_CHARSET_ISO10646_CN
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         "\xa4\xa5\xa6\xa7"
 #define MSG_SD_INSERTED                     "\xa8\xa9\xaa\xab"
@@ -39,6 +40,7 @@
 #define MSG_AUTOSTART                       "\xb1\xb2\xb3\xb4"
 #define MSG_DISABLE_STEPPERS                "\xb5\xb6\xb7\xb8\xb9\xba"
 #define MSG_AUTO_HOME                       "\xbb\xbc\xbd"
+#define MSG_TMC_Z_CALIBRATION               "Calibrate Z"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "Click to Begin"
 #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
@@ -88,9 +90,15 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Accel"
 #define MSG_JERK                            "Jerk"
-#define MSG_VX_JERK                         "Vx-jerk"
-#define MSG_VY_JERK                         "Vy-jerk"
-#define MSG_VZ_JERK                         "Vz-jerk"
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       "Va-jerk"
+  #define MSG_VB_JERK                       "Vb-jerk"
+  #define MSG_VC_JERK                       "Vc-jerk"
+#else
+  #define MSG_VA_JERK                       "Vx-jerk"
+  #define MSG_VB_JERK                       "Vy-jerk"
+  #define MSG_VC_JERK                       "Vz-jerk"
+#endif
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
 #define MSG_VMIN                            "Vmin"
@@ -99,9 +107,6 @@
 #define MSG_A_RETRACT                       "A-retract"
 #define MSG_A_TRAVEL                        "A-travel"
 #define MSG_STEPS_PER_MM                    "Steps/mm"
-#define MSG_XSTEPS                          "Xsteps/mm"
-#define MSG_YSTEPS                          "Ysteps/mm"
-#define MSG_ZSTEPS                          "Zsteps/mm"
 #define MSG_ESTEPS                          "Esteps/mm"
 #define MSG_E1STEPS                         "E1steps/mm"
 #define MSG_E2STEPS                         "E2steps/mm"
@@ -128,7 +133,6 @@
 #define MSG_NO_CARD                         "\xf9\xa8"
 #define MSG_DWELL                           "Sleep..."
 #define MSG_USERWAIT                        "Wait for user..."
-#define MSG_RESUMING                        "Resuming print"
 #define MSG_PRINT_ABORTED                   "Print aborted"
 #define MSG_NO_MOVE                         "No move."
 #define MSG_KILLED                          "KILLED. "

@@ -62,17 +62,17 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         62 // A8
-#define X_DIR_PIN          63 // A9
-#define X_ENABLE_PIN       61 // A7
+#define X_STEP_PIN         62   // A8
+#define X_DIR_PIN          63   // A9
+#define X_ENABLE_PIN       61   // A7
 
-#define Y_STEP_PIN         65 // A11
-#define Y_DIR_PIN          66 // A12
-#define Y_ENABLE_PIN       64 // A10
+#define Y_STEP_PIN         65   // A11
+#define Y_DIR_PIN          66   // A12
+#define Y_ENABLE_PIN       64   // A10
 
-#define Z_STEP_PIN         68 // A14
-#define Z_DIR_PIN          69 // A15
-#define Z_ENABLE_PIN       67 // A13
+#define Z_STEP_PIN         68   // A14
+#define Z_DIR_PIN          69   // A15
+#define Z_ENABLE_PIN       67   // A13
 
 #define E0_STEP_PIN        23
 #define E0_DIR_PIN         24
@@ -112,7 +112,9 @@
 #define HEATER_1_PIN       34
 #define HEATER_BED_PIN     28
 
-#define FAN_PIN            39
+#ifndef FAN_PIN
+  #define FAN_PIN          39
+#endif
 #define FAN1_PIN           35
 #define FAN2_PIN           36
 
@@ -133,11 +135,12 @@
 // LCD / Controller
 //
 #if ENABLED(MINIPANEL)
+
   #define BEEPER_PIN       46
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        47
   #define DOGLCD_CS        45
-  #define LCD_BACKLIGHT_PIN 44  // backlight LED on PA3
+  #define LCD_BACKLIGHT_PIN 44   // backlight LED on PA3
 
   #define KILL_PIN         12
   // GLCD features
@@ -152,11 +155,12 @@
   #define BTN_ENC          10
 
   #define SD_DETECT_PIN    49
+
 #endif // MINIPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN     6  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN  7  // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     6   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN  7   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN           8

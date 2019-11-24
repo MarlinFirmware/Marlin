@@ -45,24 +45,23 @@
  *
  * Initial version by Roxy-3D
  */
-#define M100_FREE_MEMORY_DUMPER     // Enable for the `M110 D` Dump sub-command
-#define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
 #include "MarlinConfig.h"
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
 
-#define TEST_BYTE ((char) 0xE5)
+#define M100_FREE_MEMORY_DUMPER     // Enable for the `M100 D` Dump sub-command
+#define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
-extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
+#include "Marlin.h"
+#include "parser.h"
+#include "hex_print_routines.h"
+
+#define TEST_BYTE ((char) 0xE5)
 
 extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;
 extern char __bss_end;
-
-#include "Marlin.h"
-#include "gcode.h"
-#include "hex_print_routines.h"
 
 //
 // Utility functions

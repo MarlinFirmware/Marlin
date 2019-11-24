@@ -23,7 +23,9 @@
 #undef THERMISTOR_NAME
 
 // Thermcouples
-#if THERMISTOR_ID == -3
+#if THERMISTOR_ID == -4
+  #define THERMISTOR_NAME "AD8495"
+#elif THERMISTOR_ID == -3
   #define THERMISTOR_NAME "MAX31855"
 #elif THERMISTOR_ID == -2
   #define THERMISTOR_NAME "MAX6675"
@@ -44,11 +46,11 @@
 #elif THERMISTOR_ID == 6
   #define THERMISTOR_NAME "EPCOS (alt)"
 #elif THERMISTOR_ID == 7
-  #define THERMISTOR_NAME "HW 104LAG"
+  #define THERMISTOR_NAME "Honeywell 104LAG"
 #elif THERMISTOR_ID == 71
-  #define THERMISTOR_NAME "HW 104LAF"
+  #define THERMISTOR_NAME "Honeywell 104LAF"
 #elif THERMISTOR_ID == 8
-  #define THERMISTOR_NAME "E3104FXT"
+  #define THERMISTOR_NAME "E3104FHT"
 #elif THERMISTOR_ID == 9
   #define THERMISTOR_NAME "GE AL03006"
 #elif THERMISTOR_ID == 10
@@ -56,9 +58,9 @@
 #elif THERMISTOR_ID == 11
   #define THERMISTOR_NAME "1% beta 3950"
 #elif THERMISTOR_ID == 12
-  #define THERMISTOR_NAME "E3104FXT (alt)"
+  #define THERMISTOR_NAME "Unknown"
 #elif THERMISTOR_ID == 13
-  #define THERMISTOR_NAME "Hisens 3950"
+  #define THERMISTOR_NAME "Hisens"
 #elif THERMISTOR_ID == 20
   #define THERMISTOR_NAME "PT100 UltiMB"
 #elif THERMISTOR_ID == 60

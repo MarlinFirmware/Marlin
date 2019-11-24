@@ -32,6 +32,7 @@
 
 #define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Готов.")
 #define MSG_SD_INSERTED                     _UxGT("Картата е поставена")
@@ -40,6 +41,7 @@
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Изкл. двигатели")
 #define MSG_AUTO_HOME                       _UxGT("Паркиране")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровка Z")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Задай Начало")
 #define MSG_SET_ORIGIN                      _UxGT("Изходна точка")
 #define MSG_PREHEAT_1                       _UxGT("Подгряване PLA")
@@ -83,9 +85,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-откат")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
 #define MSG_STEPS_PER_MM                    _UxGT("Стъпки/mm")
-#define MSG_XSTEPS                          _UxGT("X стъпки/mm")
-#define MSG_YSTEPS                          _UxGT("Y стъпки/mm")
-#define MSG_ZSTEPS                          _UxGT("Z стъпки/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Aстъпки/mm")
+  #define MSG_BSTEPS                        _UxGT("Bстъпки/mm")
+  #define MSG_CSTEPS                        _UxGT("Cстъпки/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xстъпки/mm")
+  #define MSG_BSTEPS                        _UxGT("Yстъпки/mm")
+  #define MSG_CSTEPS                        _UxGT("Zстъпки/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("E стъпки/mm")
 #define MSG_E1STEPS                         _UxGT("E1 стъпки/mm")
 #define MSG_E2STEPS                         _UxGT("E2 стъпки/mm")
@@ -112,7 +120,6 @@
 #define MSG_NO_CARD                         _UxGT("Няма карта")
 #define MSG_DWELL                           _UxGT("Почивка...")
 #define MSG_USERWAIT                        _UxGT("Изчакване")
-#define MSG_RESUMING                        _UxGT("Продълж. печата")
 #define MSG_PRINT_ABORTED                   _UxGT("Печатът е прекъснат")
 #define MSG_NO_MOVE                         _UxGT("Няма движение")
 #define MSG_KILLED                          _UxGT("УБИТО.")

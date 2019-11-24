@@ -42,11 +42,10 @@ bool fastDigitalRead(uint8_t pin){
  */
 static inline __attribute__((always_inline))
 void fastDigitalWrite(uint8_t pin, bool value){
-  if(value) {
+  if (value)
     g_APinDescription[pin].pPort->PIO_SODR = g_APinDescription[pin].ulPin;
-  } else {
+  else
     g_APinDescription[pin].pPort->PIO_CODR = g_APinDescription[pin].ulPin;
-  }
 }
 #endif  // CORE_TEENSY
 //------------------------------------------------------------------------------

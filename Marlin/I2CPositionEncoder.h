@@ -78,6 +78,7 @@
 
   #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
     #define I2CPE_ERR_ARRAY_SIZE        32
+    #define I2CPE_ERR_PRST_ARRAY_SIZE   10
   #endif
 
   // Error Correction Methods
@@ -96,8 +97,6 @@
 
   #define LOOP_PE(VAR) LOOP_L_N(VAR, I2CPE_ENCODER_CNT)
   #define CHECK_IDX() do{ if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return; }while(0)
-
-  extern const char axis_codes[XYZE];
 
   typedef union {
     volatile int32_t val = 0;
@@ -127,10 +126,7 @@
               invert              = false,
               ec                  = true;
 
-    float     axisOffset          = 0;
-
-    int32_t   axisOffsetTicks     = 0,
-              zeroOffset          = 0,
+    int32_t   zeroOffset          = 0,
               lastPosition        = 0,
               position;
 
@@ -138,14 +134,11 @@
               nextErrorCountTime  = 0,
               lastErrorTime;
 
-    //double        positionMm; //calculate
-
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-      uint8_t errIdx = 0;
-      int     err[I2CPE_ERR_ARRAY_SIZE] = { 0 };
+      uint8_t errIdx = 0, errPrstIdx = 0;
+      int err[I2CPE_ERR_ARRAY_SIZE] = { 0 },
+          errPrst[I2CPE_ERR_PRST_ARRAY_SIZE] = { 0 };
     #endif
-
-    //float        positionMm; //calculate
 
   public:
     void init(const uint8_t address, const AxisEnum axis);
@@ -168,7 +161,7 @@
     }
 
     FORCE_INLINE float get_position_mm() { return mm_from_count(get_position()); }
-    FORCE_INLINE int32_t get_position() { return get_raw_count() - zeroOffset - axisOffsetTicks; }
+    FORCE_INLINE int32_t get_position() { return get_raw_count() - zeroOffset; }
 
     int32_t get_axis_error_steps(const bool report);
     float get_axis_error_mm(const bool report);
@@ -219,16 +212,6 @@
 
     FORCE_INLINE int get_stepper_ticks() { return stepperTicks; }
     FORCE_INLINE void set_stepper_ticks(const int ticks) { stepperTicks = ticks; }
-
-    FORCE_INLINE float get_axis_offset() { return axisOffset; }
-    FORCE_INLINE void set_axis_offset(const float newOffset) {
-      axisOffset = newOffset;
-      axisOffsetTicks = int32_t(axisOffset * get_encoder_ticks_mm());
-    }
-
-    FORCE_INLINE void set_current_position(const float newPositionMm) {
-      set_axis_offset(get_position_mm() - newPositionMm + axisOffset);
-    }
   };
 
   class I2CPositionEncodersMgr {

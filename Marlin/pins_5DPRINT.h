@@ -74,7 +74,13 @@
 #define DEFAULT_MACHINE_NAME "Makibox"
 #define BOARD_NAME           "5DPrint D8"
 
-#define LARGE_FLASH        true
+//
+// Servos
+//
+#define SERVO0_PIN        41
+#define SERVO1_PIN        42
+#define SERVO2_PIN        43
+#define SERVO3_PIN        44
 
 //
 // Limit Switches
@@ -102,7 +108,9 @@
 #define E0_DIR_PIN         35   // A7
 #define E0_ENABLE_PIN      11   // C1
 
-
+//
+// Digital Microstepping
+//
 #define X_MS1_PIN          25   // B5
 #define X_MS2_PIN          26   // B6
 #define Y_MS1_PIN           9   // E1
@@ -124,9 +132,14 @@
 #define HEATER_0_PIN       15   // C5
 #define HEATER_BED_PIN     14   // C4
 
-#define FAN_PIN            16   // C6  PWM3A
+#ifndef FAN_PIN
+  #define FAN_PIN          16   // C6  PWM3A
+#endif
 
 //
 // Misc. Functions
 //
 #define SDSS               20   // B0
+
+//DIGIPOTS slave addresses
+#define DIGIPOT_I2C_ADDRESS_A 0x2C   // unshifted slave address for DIGIPOT 0x2C (0x58 <- 0x2C << 1)

@@ -32,6 +32,7 @@
 
 #define MAPPER_CECF
 #define DISPLAY_CHARSET_ISO10646_GREEK
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
 #define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
@@ -44,6 +45,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Αρχικό σημείο X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Αρχικό σημείο Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Αρχικό σημείο Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Βαθμονόμηση Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Επαναφορά Επ. Εκτύπωσης") //SHORTEN
 #define MSG_LEVEL_BED_WAITING               _UxGT("Επιπεδοποίηση επ. Εκτύπωσης περιμενει") //SHORTEN
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Επόμενο σημείο")
@@ -95,10 +97,16 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_ACC                             _UxGT("Επιτάχυνση")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vαντίδραση x")
-#define MSG_VY_JERK                         _UxGT("Vαντίδραση y")
-#define MSG_VZ_JERK                         _UxGT("Vαντίδραση z")
-#define MSG_VE_JERK                         _UxGT("Vαντίδραση e")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Vαντίδραση A")
+  #define MSG_VB_JERK                       _UxGT("Vαντίδραση B")
+  #define MSG_VC_JERK                       _UxGT("Vαντίδραση C")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vαντίδραση X")
+  #define MSG_VB_JERK                       _UxGT("Vαντίδραση Y")
+  #define MSG_VC_JERK                       _UxGT("Vαντίδραση Z")
+#endif
+#define MSG_VE_JERK                         _UxGT("Vαντίδραση E")
 #define MSG_VMAX                            _UxGT("V Μέγιστο")
 #define MSG_VMIN                            _UxGT("V Ελάχιστο")
 #define MSG_VTRAV_MIN                       _UxGT("Vελάχ. μετατόπιση")
@@ -107,9 +115,15 @@
 #define MSG_A_RETRACT                       _UxGT("Α-ανάσυρση")
 #define MSG_A_TRAVEL                        _UxGT("Α-μετατόπιση")
 #define MSG_STEPS_PER_MM                    _UxGT("Bήματα ανά μμ")
-#define MSG_XSTEPS                          _UxGT("Bήματα X ανά μμ")
-#define MSG_YSTEPS                          _UxGT("Bήματα Υ ανά μμ")
-#define MSG_ZSTEPS                          _UxGT("Bήματα Ζ ανά μμ")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Bήματα A ανά μμ")
+  #define MSG_BSTEPS                        _UxGT("Bήματα B ανά μμ")
+  #define MSG_CSTEPS                        _UxGT("Bήματα C ανά μμ")
+#else
+  #define MSG_ASTEPS                        _UxGT("Bήματα X ανά μμ")
+  #define MSG_BSTEPS                        _UxGT("Bήματα Y ανά μμ")
+  #define MSG_CSTEPS                        _UxGT("Bήματα Z ανά μμ")
+#endif
 #define MSG_ESTEPS                          _UxGT("Bήματα Ε ανά μμ")
 #define MSG_E1STEPS                         _UxGT("Bήματα Ε1 ανά μμ")
 #define MSG_E2STEPS                         _UxGT("Bήματα Ε2 ανά μμ")
@@ -136,7 +150,6 @@
 #define MSG_NO_CARD                         _UxGT("Δεν βρέθηκε SD")
 #define MSG_DWELL                           _UxGT("Αναστολή λειτουργίας")
 #define MSG_USERWAIT                        _UxGT("Αναμονή για χρήστη")
-#define MSG_RESUMING                        _UxGT("Συνεχίζεται η εκτύπωση") //SHORTEN
 #define MSG_PRINT_ABORTED                   _UxGT("Διακόπτεται η εκτύπωση") //SHORTEN
 #define MSG_NO_MOVE                         _UxGT("Καμία κίνηση.")
 #define MSG_KILLED                          _UxGT("ΤΕΡΜΑΤΙΣΜΟΣ. ")
@@ -168,67 +181,12 @@
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("ΜΕΓΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ") //SHORTEN
 #define MSG_ERR_MINTEMP_BED                 _UxGT("ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ") //SHORTEN
 #define MSG_HALTED                          _UxGT("H εκτύπωση διακόπηκε")
-#define MSG_PLEASE_RESET                    _UxGT("PLEASE RESET") //TRANSLATE
 #define MSG_HEATING                         _UxGT("Θερμαίνεται…")
-#define MSG_HEATING_COMPLETE                _UxGT("Η θέρμανση ολοκληρώθηκε.") //SHORTEN
 #define MSG_BED_HEATING                     _UxGT("Θέρμανση ΕΠ. Εκτύπωσης") //SHORTEN
-#define MSG_BED_DONE                        _UxGT("Η Επ. Εκτύπωσης ολοκληρώθηκε") //SHORTEN
 #define MSG_DELTA_CALIBRATE                 _UxGT("Βαθμονόμηση Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Βαθμονόμηση X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
-
-#define MSG_INFO_MENU                       _UxGT("About Printer")
-#define MSG_INFO_PRINTER_MENU               _UxGT("Printer Info")
-#define MSG_INFO_STATS_MENU                 _UxGT("Printer Stats")
-#define MSG_INFO_BOARD_MENU                 _UxGT("Board Info")
-#define MSG_INFO_THERMISTOR_MENU            _UxGT("Thermistors")
-#define MSG_INFO_EXTRUDERS                  _UxGT("Extruders")
-#define MSG_INFO_BAUDRATE                   _UxGT("Baud")
-#define MSG_INFO_PROTOCOL                   _UxGT("Protocol")
-
-#if LCD_WIDTH >= 20
-  #define MSG_INFO_PRINT_COUNT              _UxGT("Print Count")
-  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Completed  ")
-  #define MSG_INFO_PRINT_TIME               _UxGT("Total Time ")
-#else
-  #define MSG_INFO_PRINT_COUNT              _UxGT("Prints   ")
-  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Completed")
-  #define MSG_INFO_PRINT_TIME               _UxGT("Duration ")
-#endif
-#define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
-#define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
-#define MSG_INFO_PSU                        _UxGT("PSU")
-
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("CHANGE FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrude more")
-#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resume print")
-
-#if LCD_HEIGHT >= 4
-  // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Wait for start")
-  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("of the filament")
-  #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("change")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wait for")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filament unload")
-  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert filament")
-  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("and press button")
-  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("to continue...")
-  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wait for")
-  #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament load")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wait for")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("filament extrude")
-  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wait for print")
-  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("to resume")
-#else // LCD_HEIGHT < 4
-  // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Please wait...")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Ejecting...")
-  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert and Click")
-  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Loading...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extruding...")
-  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Resuming...")
-#endif
 
 #endif // LANGUAGE_EL_H

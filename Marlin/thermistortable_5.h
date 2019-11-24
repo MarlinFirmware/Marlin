@@ -20,41 +20,42 @@
  *
  */
 
+// R25 = 100 kOhm, beta25 = 4267 K, 4.7 kOhm pull-up
 // 100k ParCan thermistor (104GT-2)
 // ATC Semitec 104GT-2 (Used in ParCan)
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 const short temptable_5[][2] PROGMEM = {
-  {    1 * OVERSAMPLENR, 713 },
-  {   17 * OVERSAMPLENR, 300 }, // top rating 300C
-  {   20 * OVERSAMPLENR, 290 },
-  {   23 * OVERSAMPLENR, 280 },
-  {   27 * OVERSAMPLENR, 270 },
-  {   31 * OVERSAMPLENR, 260 },
-  {   37 * OVERSAMPLENR, 250 },
-  {   43 * OVERSAMPLENR, 240 },
-  {   51 * OVERSAMPLENR, 230 },
-  {   61 * OVERSAMPLENR, 220 },
-  {   73 * OVERSAMPLENR, 210 },
-  {   87 * OVERSAMPLENR, 200 },
-  {  106 * OVERSAMPLENR, 190 },
-  {  128 * OVERSAMPLENR, 180 },
-  {  155 * OVERSAMPLENR, 170 },
-  {  189 * OVERSAMPLENR, 160 },
-  {  230 * OVERSAMPLENR, 150 },
-  {  278 * OVERSAMPLENR, 140 },
-  {  336 * OVERSAMPLENR, 130 },
-  {  402 * OVERSAMPLENR, 120 },
-  {  476 * OVERSAMPLENR, 110 },
-  {  554 * OVERSAMPLENR, 100 },
-  {  635 * OVERSAMPLENR,  90 },
-  {  713 * OVERSAMPLENR,  80 },
-  {  784 * OVERSAMPLENR,  70 },
-  {  846 * OVERSAMPLENR,  60 },
-  {  897 * OVERSAMPLENR,  50 },
-  {  937 * OVERSAMPLENR,  40 },
-  {  966 * OVERSAMPLENR,  30 },
-  {  986 * OVERSAMPLENR,  20 },
-  { 1000 * OVERSAMPLENR,  10 },
-  { 1010 * OVERSAMPLENR,   0 }
+  { OV(   1), 713 },
+  { OV(  17), 300 }, // top rating 300C
+  { OV(  20), 290 },
+  { OV(  23), 280 },
+  { OV(  27), 270 },
+  { OV(  31), 260 },
+  { OV(  37), 250 },
+  { OV(  43), 240 },
+  { OV(  51), 230 },
+  { OV(  61), 220 },
+  { OV(  73), 210 },
+  { OV(  87), 200 },
+  { OV( 106), 190 },
+  { OV( 128), 180 },
+  { OV( 155), 170 },
+  { OV( 189), 160 },
+  { OV( 230), 150 },
+  { OV( 278), 140 },
+  { OV( 336), 130 },
+  { OV( 402), 120 },
+  { OV( 476), 110 },
+  { OV( 554), 100 },
+  { OV( 635),  90 },
+  { OV( 713),  80 },
+  { OV( 784),  70 },
+  { OV( 846),  60 },
+  { OV( 897),  50 },
+  { OV( 937),  40 },
+  { OV( 966),  30 },
+  { OV( 986),  20 },
+  { OV(1000),  10 },
+  { OV(1010),   0 }
 };

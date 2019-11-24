@@ -5,10 +5,9 @@
 # - Fetch latest upstream and replace the PR Target branch with
 # - Rebase the (current or specified) branch on the PR Target
 # - Force-push the branch to 'origin'
-# -
 #
 
-[[ $# < 2 ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+[[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -17,7 +16,7 @@ FORK=${INFO[1]}
 REPO=${INFO[2]}
 TARG=${INFO[3]}
 BRANCH=${INFO[4]}
-OLDBRANCH=${INFO[5]}
+CURR=${INFO[5]}
 
 set -e
 
@@ -27,30 +26,23 @@ set -e
 echo "Fetching upstream ($ORG/$REPO)..."
 git fetch upstream
 
-echo ; echo "Bringing $TARG up to date..."
-if [[ ! $(git checkout -q $TARG) ]]; then
-  git reset --hard upstream/$TARG
-  git push -f origin
-else
-  git checkout upstream/$TARG -b $TARG
-  git push --set-upstream origin $TARG
-fi
-
 if [[ $BRANCH != $TARG ]]; then
   echo ; echo "Rebasing $BRANCH on $TARG..."
-  if git checkout $BRANCH; then
-    echo
-    if git rebase $TARG; then
+  if [[ $BRANCH == $CURR ]] || git checkout $BRANCH; then
+    if git rebase upstream/$TARG; then
       git push -f
     else
-      echo "Looks like merge conflicts. Stopping here." ; exit
+      echo "Looks like merge conflicts. Stopping here."
+      exit
     fi
   else
     echo "No such branch!"
   fi
+else
+  git reset --hard upstream/$TARG
 fi
 
 echo
-[[ $BRANCH != $OLDBRANCH ]] && git checkout $OLDBRANCH
+[[ $BRANCH != $CURR ]] && git checkout $CURR
 
 [[ $HAS_STASH == 1 ]] && git stash pop

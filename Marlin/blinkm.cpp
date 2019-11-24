@@ -21,26 +21,26 @@
  */
 
 /**
- * blinkm.cpp - Library for controlling a BlinkM over i2c
- * Created by Tim Koster, August 21 2013.
+ * blinkm.cpp - Control a BlinkM over i2c
  */
 
-#include "Marlin.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(BLINKM)
 
 #include "blinkm.h"
+#include "leds.h"
+#include <Wire.h>
 
-void SendColors(byte red, byte grn, byte blu) {
+void blinkm_set_led_color(const LEDColor &color) {
   Wire.begin();
   Wire.beginTransmission(0x09);
   Wire.write('o');                    //to disable ongoing script, only needs to be used once
   Wire.write('n');
-  Wire.write(red);
-  Wire.write(grn);
-  Wire.write(blu);
+  Wire.write(color.r);
+  Wire.write(color.g);
+  Wire.write(color.b);
   Wire.endTransmission();
 }
 
 #endif // BLINKM
-

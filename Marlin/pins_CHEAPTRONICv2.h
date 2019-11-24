@@ -31,7 +31,6 @@
 #endif
 
 #define BOARD_NAME         "Cheaptronic v2.0"
-#define LARGE_FLASH        true
 
 //
 // Limit Switches
@@ -76,16 +75,38 @@
 #define TEMP_0_PIN         15
 #define TEMP_1_PIN         13
 #define TEMP_2_PIN         14
-#define TEMP_3_PIN         11
+#define TEMP_3_PIN         11   // should be used for chamber temperature control
 #define TEMP_BED_PIN       12
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       6
-#define HEATER_1_PIN       7
-#define HEATER_2_PIN       8
-#define HEATER_BED_PIN     9
+#define HEATER_0_PIN        6
+#define HEATER_1_PIN        7
+#define HEATER_2_PIN        8
+#define HEATER_BED_PIN      9
+#ifndef FAN_PIN
+  #define FAN_PIN           3
+#endif
+#define FAN2_PIN           58   // additional fan or light control output
+
+//
+// Other board specific pins
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   37   // board input labeled as F-DET
+#endif
+#define Z_MIN_PROBE_PIN    36   // additional external board input labeled as E-SENS (should be used for Z-probe)
+#define LED_PIN            13
+#define SPINDLE_ENABLE_PIN  4   // additional PWM pin 1 at JP1 connector - should be used for laser control too
+#define EXT_2               5   // additional PWM pin 2 at JP1 connector
+#define EXT_3               2   // additional PWM pin 3 at JP1 connector
+#define PS_ON_PIN          45
+#define KILL_PIN           46
+
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN     11   // shared with TEMP_3 analog input
+#endif
 
 //
 // LCD
@@ -107,16 +128,3 @@
 #define BTN_EN1            11
 #define BTN_EN2            12
 #define BTN_ENC            43
-
-//
-// Other board specific pins
-//
-#define LED_PIN            13
-#define SPINDLE_ENABLE_PIN  4
-#define FAN_PIN             3
-#define PS_ON_PIN          45
-#define KILL_PIN           46
-
-#ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN     37   // should be Analog Input (0-15)
-#endif

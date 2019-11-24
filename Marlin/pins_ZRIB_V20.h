@@ -36,4 +36,4 @@
   #define FILWIDTH_PIN 11   // Analog Input
 #endif
 
-#include "pins_MKS_13.h"
+#include "pins_MKS_GEN_13.h"

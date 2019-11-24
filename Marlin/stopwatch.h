@@ -23,10 +23,11 @@
 #ifndef STOPWATCH_H
 #define STOPWATCH_H
 
-#include "macros.h"
-
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
+
+#include "macros.h"
+#include "types.h"
 
 /**
  * @brief Stopwatch class
@@ -35,79 +36,85 @@
  */
 class Stopwatch {
   private:
-    enum State {
+    enum State : char {
       STOPPED,
       RUNNING,
       PAUSED
     };
 
-    Stopwatch::State state;
-    millis_t accumulator;
-    millis_t startTimestamp;
-    millis_t stopTimestamp;
+    static Stopwatch::State state;
+    static millis_t accumulator;
+    static millis_t startTimestamp;
+    static millis_t stopTimestamp;
 
   public:
     /**
-     * @brief Class constructor
+     * @brief Initialize the stopwatch
      */
-    Stopwatch();
+    FORCE_INLINE static void init() { reset(); }
 
     /**
-     * @brief Stops the stopwatch
-     * @details Stops the running timer, it will silently ignore the request if
-     * no timer is currently running.
-     * @return true is method was successful
+     * @brief Stop the stopwatch
+     * @details Stop the running timer. Silently ignore the request if
+     *          no timer is running.
+     * @return true on success
      */
-    bool stop();
+    static bool stop();
 
     /**
      * @brief Pause the stopwatch
-     * @details Pauses the running timer, it will silently ignore the request if
-     * no timer is currently running.
-     * @return true is method was successful
+     * @details Pause the running timer, it will silently ignore the request if
+     *          no timer is running.
+     * @return true on success
      */
-    bool pause();
+    static bool pause();
 
     /**
-     * @brief Starts the stopwatch
-     * @details Starts the timer, it will silently ignore the request if the
-     * timer is already running.
-     * @return true is method was successful
+     * @brief Start the stopwatch
+     * @details Start the timer, it will silently ignore the request if the
+     *          timer is already running.
+     * @return true on success
      */
-    bool start();
+    static bool start();
 
     /**
-     * @brief Resets the stopwatch
-     * @details Resets all settings to their default values.
+     * @brief Resume the stopwatch
+     * @details Resume a timer from a given duration
      */
-    void reset();
+    static void resume(const millis_t duration);
 
     /**
-     * @brief Checks if the timer is running
-     * @details Returns true if the timer is currently running, false otherwise.
+     * @brief Reset the stopwatch
+     * @details Reset all settings to their default values.
+     */
+    static void reset();
+
+    /**
+     * @brief Check if the timer is running
+     * @details Return true if the timer is currently running, false otherwise.
      * @return true if stopwatch is running
      */
-    bool isRunning();
+    FORCE_INLINE static bool isRunning() { return state == RUNNING; }
 
     /**
-     * @brief Checks if the timer is paused
-     * @details Returns true if the timer is currently paused, false otherwise.
+     * @brief Check if the timer is paused
+     * @details Return true if the timer is currently paused, false otherwise.
      * @return true if stopwatch is paused
      */
-    bool isPaused();
+    FORCE_INLINE static bool isPaused() { return state == PAUSED; }
 
     /**
-     * @brief Gets the running time
-     * @details Returns the total number of seconds the timer has been running.
+     * @brief Get the running time
+     * @details Return the total number of seconds the timer has been running.
      * @return the delta since starting the stopwatch
      */
-    millis_t duration();
+    static millis_t duration();
 
-    #if ENABLED(DEBUG_STOPWATCH)
+    #ifdef DEBUG_STOPWATCH
 
       /**
-       * @brief Prints a debug message
-       * @details Prints a simple debug message "Stopwatch::function"
+       * @brief Print a debug message
+       * @details Print a simple debug message "Stopwatch::function"
        */
       static void debug(const char func[]);
 

@@ -8,8 +8,6 @@
 
 #define BOARD_NAME            "CN Controls V12"
 
-//#define LARGE_FLASH true
-
 //
 // Limit Switches
 //
@@ -67,7 +65,9 @@
 #define HEATER_3_PIN        3
 #define HEATER_BED_PIN     24
 
-#define FAN_PIN             5  // 5 is PWMtool3 -> 7 is common PWM pin for all tools
+#ifndef FAN_PIN
+  #define FAN_PIN           5   // 5 is PWMtool3 -> 7 is common PWM pin for all tools
+#endif
 
 #define ORIG_E0_AUTO_FAN_PIN 7
 #define ORIG_E1_AUTO_FAN_PIN 7
@@ -83,9 +83,9 @@
 // Tools
 
 //#define TOOL_0_PIN         56
-//#define TOOL_0_PWM_PIN     10  // red warning led at dual extruder
+//#define TOOL_0_PWM_PIN     10   // red warning led at dual extruder
 //#define TOOL_1_PIN         59
-//#define TOOL_1_PWM_PIN      8  // lights at dual extruder
+//#define TOOL_1_PWM_PIN      8   // lights at dual extruder
 //#define TOOL_2_PIN          4
 //#define TOOL_2_PWM_PIN      5
 //#define TOOL_3_PIN         14
@@ -93,7 +93,9 @@
 
 // Common I/O
 
-#define FIL_RUNOUT_PIN     18
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   18
+#endif
 //#define PWM_1_PIN          12
 //#define PWM_2_PIN          13
 //#define SPARE_IO           17
@@ -124,4 +126,4 @@
 //#define UI2              37
 
 #define STAT_LED_BLUE_PIN  -1
-#define STAT_LED_RED_PIN   10 // TOOL_0_PWM_PIN
+#define STAT_LED_RED_PIN   10   // TOOL_0_PWM_PIN

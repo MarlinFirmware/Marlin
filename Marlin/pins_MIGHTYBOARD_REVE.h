@@ -59,8 +59,6 @@
 #define DEFAULT_MACHINE_NAME    "MB Replicator"
 #define BOARD_NAME              "Mightyboard"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
@@ -121,11 +119,12 @@
 #define DIGIPOTS_I2C_SDA_Z  65   // K3
 #define DIGIPOTS_I2C_SDA_E0 27   // A5
 #define DIGIPOTS_I2C_SDA_E1 77   // J6
+#define DIGIPOT_I2C_ADDRESS_A 0x2F   // unshifted slave address (5E <- 2F << 1)
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN        69   // K7
+#define TEMP_BED_PIN        15   // K7 - 69 / ADC15 - 15
 
 // SPI for Max6675 or Max31855 Thermocouple
 // Uses a separate SPI bus
@@ -135,14 +134,14 @@
 //  2 E4 CS2
 // 78 E2 SCK
 //
-#define THERMO_SCK_PIN      78   // E2
-#define THERMO_DO_PIN        3   // E5
-#define THERMO_CS1           5   // E3
-#define THERMO_CS2           2   // E4
+#define THERMO_SCK_PIN     78   // E2
+#define THERMO_DO_PIN       3   // E5
+#define THERMO_CS1          5   // E3
+#define THERMO_CS2          2   // E4
 
-#define MAX6675_SS          THERMO_CS1
-#define MAX6675_SCK_PIN     THERMO_SCK_PIN
-#define MAX6675_DO_PIN      THERMO_DO_PIN
+#define MAX6675_SS         THERMO_CS1
+#define MAX6675_SCK_PIN    THERMO_SCK_PIN
+#define MAX6675_DO_PIN     THERMO_DO_PIN
 //
 // Augmentation for auto-assigning plugs
 //
@@ -150,10 +149,10 @@
 // 2 extruders or 1 extruder and a heated bed.
 // With no heated bed, an additional 24V fan is possible.
 //
-#define MOSFET_A_PIN         6   // H3
-#define MOSFET_B_PIN        11   // B5 - Rev A of this file had this pin assigned to 9
-#define MOSFET_C_PIN        45   // L4
-#define MOSFET_D_PIN        44   // L5
+#define MOSFET_A_PIN        6   // H3
+#define MOSFET_B_PIN       11   // B5 - Rev A of this file had this pin assigned to 9
+#define MOSFET_C_PIN       45   // L4
+#define MOSFET_D_PIN       44   // L5
 
 #if HOTENDS > 1
   #if TEMP_SENSOR_BED
@@ -173,23 +172,24 @@
 #define HEATER_0_PIN     MOSFET_A_PIN
 
 #if ENABLED(IS_EFB)                            // Hotend, Fan, Bed
-  #define FAN_PIN        MOSFET_B_PIN
-  #define HEATER_BED_PIN MOSFET_C_PIN
+  #define HEATER_BED_PIN   MOSFET_C_PIN
 #elif ENABLED(IS_EEF)                          // Hotend, Hotend, Fan
-  #define HEATER_1_PIN   MOSFET_B_PIN
-  #define FAN_PIN        MOSFET_C_PIN
+  #define HEATER_1_PIN     MOSFET_B_PIN
 #elif ENABLED(IS_EEB)                          // Hotend, Hotend, Bed
-  #define HEATER_1_PIN   MOSFET_B_PIN
-  #define HEATER_BED_PIN MOSFET_C_PIN
+  #define HEATER_1_PIN     MOSFET_B_PIN
+  #define HEATER_BED_PIN   MOSFET_C_PIN
 #elif ENABLED(IS_EFF)                          // Hotend, Fan, Fan
-  #define FAN_PIN        MOSFET_B_PIN
-  #define FAN1_PIN       MOSFET_C_PIN
-#elif ENABLED(IS_SF)                           // Spindle, Fan
-  #define FAN_PIN        MOSFET_C_PIN
+  #define FAN1_PIN         MOSFET_C_PIN
 #endif
 
 #ifndef FAN_PIN
-  #define FAN_PIN MOSFET_D_PIN
+  #if ENABLED(IS_EFB) || ENABLED(IS_EFF)       // Hotend, Fan, Bed or Hotend, Fan, Fan
+    #define FAN_PIN        MOSFET_B_PIN
+  #elif ENABLED(IS_EEF) || ENABLED(IS_SF)      // Hotend, Hotend, Fan or Spindle, Fan
+    #define FAN_PIN        MOSFET_C_PIN
+  #else
+    #define FAN_PIN        MOSFET_D_PIN
+  #endif
 #endif
 
 //
@@ -201,37 +201,37 @@
 //
 // Misc. Functions
 //
-#define LED_PIN             13   // B7
-#define CUTOFF_RESET_PIN    16   // H1
-#define CUTOFF_TEST_PIN     17   // H0
-#define CASE_LIGHT_PIN      44   // L5   MUST BE HARDWARE PWM
+#define LED_PIN            13   // B7
+#define CUTOFF_RESET_PIN   16   // H1
+#define CUTOFF_TEST_PIN    17   // H0
+#define CASE_LIGHT_PIN     44   // L5   MUST BE HARDWARE PWM
 
 //
 // LCD / Controller
 //
 #ifdef REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
-  #define LCD_PINS_RS       33   // C4: LCD-STROBE
-  #define LCD_PINS_ENABLE   72   // J2: LEFT
-  #define LCD_PINS_D4       35   // C2: LCD-CLK
-  #define LCD_PINS_D5       32   // C5: RLED
-  #define LCD_PINS_D6       34   // C3: LCD-DATA
-  #define LCD_PINS_D7       31   // C6: GLED
+  #define LCD_PINS_RS      33   // C4: LCD-STROBE
+  #define LCD_PINS_ENABLE  72   // J2: LEFT
+  #define LCD_PINS_D4      35   // C2: LCD-CLK
+  #define LCD_PINS_D5      32   // C5: RLED
+  #define LCD_PINS_D6      34   // C3: LCD-DATA
+  #define LCD_PINS_D7      31   // C6: GLED
 
-  #define BTN_EN2           75   // J4, UP
-  #define BTN_EN1           73   // J3, DOWN
+  #define BTN_EN2          75   // J4, UP
+  #define BTN_EN1          73   // J3, DOWN
   //STOP button connected as KILL_PIN
-  #define KILL_PIN          14   // J1, RIGHT
+  #define KILL_PIN         14   // J1, RIGHT
   //KILL - not connected
 
-  #define BEEPER_PIN         8   // H5, SD_WP
+  #define BEEPER_PIN        8   // H5, SD_WP
 
-  #define BTN_CENTER        15   // J0
-  #define BTN_ENC           BTN_CENTER
+  #define BTN_CENTER       15   // J0
+  #define BTN_ENC          BTN_CENTER
 
   //on board leds
-  #define STAT_LED_RED_LED  SERVO0_PIN // C1 (1280-EX1, DEBUG2)
-  #define STAT_LED_BLUE_PIN SERVO1_PIN // C0 (1280-EX2, DEBUG3)
+  #define STAT_LED_RED_LED  SERVO0_PIN   // C1 (1280-EX1, DEBUG2)
+  #define STAT_LED_BLUE_PIN SERVO1_PIN   // C0 (1280-EX2, DEBUG3)
 
 #else
   // Replicator uses a 3-wire SR controller with HD44780
@@ -239,18 +239,18 @@
   //
 
   #define SAV_3DLCD
-  #define SR_DATA_PIN       34   // C3
-  #define SR_CLK_PIN        35   // C2
-  #define SR_STROBE_PIN     33   // C4
+  #define SR_DATA_PIN      34   // C3
+  #define SR_CLK_PIN       35   // C2
+  #define SR_STROBE_PIN    33   // C4
 
-  #define BTN_UP            75   // J4
-  #define BTN_DOWN          73   // J3
-  #define BTN_LEFT          72   // J2
-  #define BTN_RIGHT         14   // J1
-  #define BTN_CENTER        15   // J0
-  #define BTN_ENC           BTN_CENTER
+  #define BTN_UP           75   // J4
+  #define BTN_DOWN         73   // J3
+  #define BTN_LEFT         72   // J2
+  #define BTN_RIGHT        14   // J1
+  #define BTN_CENTER       15   // J0
+  #define BTN_ENC          BTN_CENTER
 
-  #define BEEPER_PIN         4   // G5
+  #define BEEPER_PIN        4   // G5
 
   #define STAT_LED_RED_PIN  32   // C5
   #define STAT_LED_BLUE_PIN 31   // C6 (Actually green)
@@ -260,19 +260,17 @@
 //
 // SD Card
 //
-#define SDSS                53   // B0
-#define SD_DETECT_PIN        9   // H6
+#define SDSS               53   // B0
+#define SD_DETECT_PIN       9   // H6
 
 #define MAX_PIN             THERMO_SCK_PIN
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 66  // K4   Pin should have a pullup!
-#define SPINDLE_LASER_PWM_PIN     8  // H5   MUST BE HARDWARE PWM
-#define SPINDLE_DIR_PIN          67  // K5
-
-
+#define SPINDLE_LASER_ENABLE_PIN 66   // K4   Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     8   // H5   MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN          67   // K5
 
 
 // Check if all pins are defined in mega/pins_arduino.h

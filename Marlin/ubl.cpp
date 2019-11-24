@@ -20,86 +20,137 @@
  *
  */
 
-#include "Marlin.h"
-#include "math.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+  #include "Marlin.h"
   #include "ubl.h"
   #include "hex_print_routines.h"
   #include "temperature.h"
+  #include "planner.h"
+  #include "math.h"
 
-  extern Planner planner;
-
-  /**
-   * These support functions allow the use of large bit arrays of flags that take very
-   * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
-   * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
-   * in the future.
-   */
-  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
-  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
+  unified_bed_leveling ubl;
 
   uint8_t ubl_cnt = 0;
 
   void unified_bed_leveling::echo_name() { SERIAL_PROTOCOLPGM("Unified Bed Leveling"); }
 
+  void unified_bed_leveling::report_current_mesh() {
+    if (!leveling_is_valid()) return;
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPGM("  G29 I999");
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
+        if (!isnan(z_values[x][y])) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M421 I", x);
+          SERIAL_ECHOPAIR(" J", y);
+          SERIAL_ECHOPGM(" Z");
+          SERIAL_ECHO_F(z_values[x][y], 2);
+          SERIAL_EOL();
+        }
+  }
+
   void unified_bed_leveling::report_state() {
     echo_name();
     SERIAL_PROTOCOLPGM(" System v" UBL_VERSION " ");
-    if (!state.active) SERIAL_PROTOCOLPGM("in");
+    if (!planner.leveling_active) SERIAL_PROTOCOLPGM("in");
     SERIAL_PROTOCOLLNPGM("active.");
     safe_delay(50);
   }
 
-  static void serial_echo_xy(const int16_t x, const int16_t y) {
-    SERIAL_CHAR('(');
-    SERIAL_ECHO(x);
-    SERIAL_CHAR(',');
-    SERIAL_ECHO(y);
-    SERIAL_CHAR(')');
-    safe_delay(10);
-  }
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
 
-  ubl_state unified_bed_leveling::state;
+    static void debug_echo_axis(const AxisEnum axis) {
+      if (current_position[axis] == destination[axis])
+        SERIAL_ECHOPGM("-------------");
+      else
+        SERIAL_ECHO_F(destination[X_AXIS], 6);
+    }
 
-  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-        unified_bed_leveling::last_specified_z;
+    void debug_current_and_destination(const char *title) {
+
+      // if the title message starts with a '!' it is so important, we are going to
+      // ignore the status of the g26_debug_flag
+      if (*title != '!' && !g26_debug_flag) return;
+
+      const float de = destination[E_CART] - current_position[E_CART];
+
+      if (de == 0.0) return; // Printing moves only
+
+      const float dx = destination[X_AXIS] - current_position[X_AXIS],
+                  dy = destination[Y_AXIS] - current_position[Y_AXIS],
+                  xy_dist = HYPOT(dx, dy);
+
+      if (xy_dist == 0.0) return;
+
+      SERIAL_ECHOPGM("   fpmm=");
+      const float fpmm = de / xy_dist;
+      SERIAL_ECHO_F(fpmm, 6);
+
+      SERIAL_ECHOPGM("    current=( ");
+      SERIAL_ECHO_F(current_position[X_AXIS], 6);
+      SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[Y_AXIS], 6);
+      SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[Z_AXIS], 6);
+      SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[E_CART], 6);
+      SERIAL_ECHOPGM(" )   destination=( ");
+      debug_echo_axis(X_AXIS);
+      SERIAL_ECHOPGM(", ");
+      debug_echo_axis(Y_AXIS);
+      SERIAL_ECHOPGM(", ");
+      debug_echo_axis(Z_AXIS);
+      SERIAL_ECHOPGM(", ");
+      debug_echo_axis(E_AXIS);
+      SERIAL_ECHOPGM(" )   ");
+      SERIAL_ECHO(title);
+      SERIAL_EOL();
+
+    }
+
+  #endif // UBL_DEVEL_DEBUGGING
+
+  int8_t unified_bed_leveling::storage_slot;
+
+  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
   // until determinism prevails
   constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
                   unified_bed_leveling::_mesh_index_to_ypos[16];
 
-  bool unified_bed_leveling::g26_debug_flag = false,
-       unified_bed_leveling::has_control_of_lcd_panel = false;
+  #if ENABLED(ULTIPANEL)
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
 
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to insure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
+    ubl_cnt++;  // Debug counter to ensure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
   void unified_bed_leveling::reset() {
+    const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
-    state.z_offset = 0;
-    state.storage_slot = -1;
+    storage_slot = -1;
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      planner.z_fade_height = 10.0;
+      planner.set_z_fade_height(10.0);
     #endif
     ZERO(z_values);
-    last_specified_z = -999.9;
+    if (was_enabled) report_current_position();
   }
 
   void unified_bed_leveling::invalidate() {
     set_bed_leveling_enabled(false);
-    state.z_offset = 0;
     set_all_mesh_points_to_value(NAN);
   }
 
-  void unified_bed_leveling::set_all_mesh_points_to_value(float value) {
+  void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         z_values[x][y] = value;
@@ -107,86 +158,128 @@
     }
   }
 
-  // display_map() currently produces three different mesh map types
-  // 0 : suitable for PronterFace and Repetier's serial console
-  // 1 : .CSV file suitable for importation into various spread sheets
-  // 2 : disply of the map data on a RepRap Graphical LCD Panel
+  static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
+    SERIAL_ECHO_SP(sp);
+    SERIAL_CHAR('(');
+    if (x < 100) { SERIAL_CHAR(' '); if (x < 10) SERIAL_CHAR(' '); }
+    SERIAL_ECHO(x);
+    SERIAL_CHAR(',');
+    if (y < 100) { SERIAL_CHAR(' '); if (y < 10) SERIAL_CHAR(' '); }
+    SERIAL_ECHO(y);
+    SERIAL_CHAR(')');
+    safe_delay(5);
+  }
 
+  static void serial_echo_column_labels(const uint8_t sp) {
+    SERIAL_ECHO_SP(7);
+    for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      if (i < 10) SERIAL_CHAR(' ');
+      SERIAL_ECHO(i);
+      SERIAL_ECHO_SP(sp);
+    }
+    safe_delay(10);
+  }
+
+  /**
+   * Produce one of these mesh maps:
+   *   0: Human-readable
+   *   1: CSV format for spreadsheet import
+   *   2: TODO: Display on Graphical LCD
+   *   4: Compact Human-Readable
+   */
   void unified_bed_leveling::display_map(const int map_type) {
-    constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
+    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+      suspend_auto_report = true;
+    #endif
 
-    SERIAL_PROTOCOLPGM("\nBed Topography Report");
-    if (map_type == 0) {
-      SERIAL_PROTOCOLPGM(":\n\n");
-      serial_echo_xy(0, GRID_MAX_POINTS_Y - 1);
-      SERIAL_ECHO_SP(spaces + 3);
-      serial_echo_xy(GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1);
+    constexpr uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
+                      twixt = eachsp * (GRID_MAX_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
+
+    const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
+
+    SERIAL_ECHOPGM("\nBed Topography Report");
+    if (human) {
+      SERIAL_ECHOPGM(":\n\n");
+      serial_echo_xy(4, MESH_MIN_X, MESH_MAX_Y);
+      serial_echo_xy(twixt, MESH_MAX_X, MESH_MAX_Y);
       SERIAL_EOL();
-      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MAX_Y);
-      SERIAL_ECHO_SP(spaces);
-      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
-      SERIAL_EOL();
+      serial_echo_column_labels(eachsp - 2);
     }
     else {
-      SERIAL_PROTOCOLPGM(" for ");
-      serialprintPGM(map_type == 1 ? PSTR("CSV:\n\n") : PSTR("LCD:\n\n"));
+      SERIAL_ECHOPGM(" for ");
+      serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    const float current_xi = get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
-                current_yi = get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+    // Add XY_PROBE_OFFSET_FROM_EXTRUDER because probe_pt() subtracts these when
+    // moving to the xy position to be measured. This ensures better agreement between
+    // the current Z position after G28 and the mesh values.
+    const float current_xi = find_closest_x_index(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
+                current_yi = find_closest_y_index(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
+    if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
+
+      // Row Label (J index)
+      if (human) {
+        if (j < 10) SERIAL_CHAR(' ');
+        SERIAL_ECHO(j);
+        SERIAL_ECHOPGM(" |");
+      }
+
+      // Row Values (I indexes)
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+
+        // Opening Brace or Space
         const bool is_current = i == current_xi && j == current_yi;
+        if (human) SERIAL_CHAR(is_current ? '[' : ' ');
 
-        // is the nozzle here? then mark the number
-        if (map_type == 0) SERIAL_CHAR(is_current ? '[' : ' ');
-
+        // Z Value at current I, J
         const float f = z_values[i][j];
-        if (isnan(f)) {
-          serialprintPGM(map_type == 0 ? PSTR("    .   ") : PSTR("NAN"));
+        if (lcd) {
+          // TODO: Display on Graphical LCD
         }
-        else if (map_type <= 1) {
-          // if we don't do this, the columns won't line up nicely
-          if (map_type == 0 && f >= 0.0) SERIAL_CHAR(' ');
-          SERIAL_PROTOCOL_F(f, 3);
+        else if (isnan(f))
+          serialprintPGM(human ? PSTR("  .   ") : PSTR("NAN"));
+        else if (human || csv) {
+          if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Space for positive ('-' for negative)
+          SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
         }
         idle();
-        if (map_type == 1 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
+        if (csv && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR('\t');
+
+        // Closing Brace or Space
+        if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
         #if TX_BUFFER_SIZE > 0
-          MYSERIAL.flushTX();
+          SERIAL_FLUSHTX();
         #endif
-        safe_delay(15);
-        if (map_type == 0) {
-          SERIAL_CHAR(is_current ? ']' : ' ');
-          SERIAL_CHAR(' ');
-        }
+        safe_delay(5);
       }
-      SERIAL_EOL();
-      if (j && map_type == 0) { // we want the (0,0) up tight against the block of numbers
-        SERIAL_CHAR(' ');
-        SERIAL_EOL();
-      }
+      if (!lcd) SERIAL_EOL();
+
+      // A blank line between rows (unless compact)
+      if (j && human && !comp) SERIAL_ECHOLNPGM("   |");
     }
 
-    if (map_type == 0) {
-      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
-      SERIAL_ECHO_SP(spaces + 4);
-      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
+    if (human) {
+      serial_echo_column_labels(eachsp - 2);
       SERIAL_EOL();
-      serial_echo_xy(0, 0);
-      SERIAL_ECHO_SP(spaces + 5);
-      serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
+      serial_echo_xy(4, MESH_MIN_X, MESH_MIN_Y);
+      serial_echo_xy(twixt, MESH_MAX_X, MESH_MIN_Y);
+      SERIAL_EOL();
       SERIAL_EOL();
     }
+
+    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+      suspend_auto_report = false;
+    #endif
   }
 
   bool unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
     if (settings.calc_num_meshes() < 1) {
-      SERIAL_PROTOCOLLNPGM("?Insufficient EEPROM storage for a mesh of this size.");
+      SERIAL_PROTOCOLLNPGM("?Mesh too big for EEPROM.");
       error_flag++;
     }
 
