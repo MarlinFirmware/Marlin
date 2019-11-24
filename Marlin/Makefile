@@ -92,6 +92,9 @@ U8GLIB             ?= 1
 # this defines whether to include the Trinamic TMCStepper library
 TMC                ?= 1
 
+# this defines whether to include the AdaFruit NeoPixel library
+NEOPIXEL           ?= 0
+
 ############
 # Try to automatically determine whether RELOC_WORKAROUND is needed based
 # on GCC versions:
