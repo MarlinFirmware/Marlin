@@ -44,42 +44,42 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     #ifdef TOUCH_UI_PORTRAIT
       #define GRID_ROWS 10
       #define GRID_COLS 2
-      #if HAS_BED_PROBE
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_BED_PROBE
+          1
+        #endif
+      )
       .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
-      #if HAS_CASE_LIGHT
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_CASE_LIGHT
+          1
+        #endif
+      )
       .tag(16).button( BTN_POS(1,6),  BTN_SIZE(1,1), GET_TEXT_F(MSG_CASE_LIGHT))
       .tag(3) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
-      #if HAS_TRINAMIC
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_TRINAMIC
+          1
+        #endif
+      )
       .tag(13).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
-      #if HAS_TRINAMIC
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_TRINAMIC
+          1
+        #endif
+      )
       .tag(14).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
-      #if HOTENDS > 1
-      .enabled(1)
-      #else
-      .enabled(0)
-      #endif
+      .enabled(
+        #if HOTENDS > 1
+          1
+        #endif
+      )
       .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
-      #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
-      .enabled(1)
-      #else
-      .enabled(0)
-      #endif
+      .enabled(
+        #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+          1
+        #endif
+      )
       .tag(11).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENT))
       .tag(12).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(15).button( BTN_POS(2,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISPLAY_MENU))
@@ -92,11 +92,11 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #else
       .tag(7) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JERK))
       #endif
-      #if ENABLED(BACKLASH_GCODE)
-      .enabled(1)
-      #else
-      .enabled(0)
-      #endif
+      .enabled(
+        #if ENABLED(BACKLASH_GCODE)
+          1
+        #endif
+      )
       .tag(8).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACKLASH))
       .colors(action_btn)
       .tag(1) .button( BTN_POS(1,10), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
@@ -105,43 +105,43 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     #else
       #define GRID_ROWS 6
       #define GRID_COLS 3
-      #if HAS_BED_PROBE
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_BED_PROBE
+          1
+        #endif
+      )
       .tag(2) .button( BTN_POS(1,1),  BTN_SIZE(1,1), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
-      #if HAS_CASE_LIGHT
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_CASE_LIGHT
+          1
+        #endif
+      )
       .tag(16).button( BTN_POS(1,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_CASE_LIGHT))
       .enabled(1)
       .tag(3) .button( BTN_POS(2,1),  BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
-      #if HAS_TRINAMIC
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_TRINAMIC
+          1
+        #endif
+      )
       .tag(13).button( BTN_POS(3,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
-      #if HAS_TRINAMIC
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if HAS_TRINAMIC
+          1
+        #endif
+      )
       .tag(14).button( BTN_POS(3,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
-      #if ENABLED(BACKLASH_GCODE)
-      .enabled(1)
-      #else
-      .enabled(0)
-      #endif
+      .enabled(
+        #if ENABLED(BACKLASH_GCODE)
+          1
+        #endif
+      )
       .tag(8).button( BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_BACKLASH))
-      #if HOTENDS > 1
-      .enabled(1)
-      #else
-      .enabled(0)
-      #endif
+      .enabled(
+        #if HOTENDS > 1
+          1
+        #endif
+      )
       .tag(4) .button( BTN_POS(1,2),  BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
       .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))

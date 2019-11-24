@@ -45,27 +45,27 @@ void MainMenu::onRedraw(draw_mode_t what) {
       #define GRID_ROWS 8
       #define GRID_COLS 2
         .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_AUTO_HOME))
-        #if ENABLED(NOZZLE_CLEAN_FEATURE)
-         .enabled(1)
-        #else
-         .enabled(0)
-        #endif
+        .enabled(
+          #if ENABLED(NOZZLE_CLEAN_FEATURE)
+            1
+          #endif
+        )
         .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_CLEAN_NOZZLE))
         .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MOVE_AXIS))
         .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISABLE_STEPPERS))
         .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_TEMPERATURE))
-        #if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
-         .enabled(1)
-        #else
-         .enabled(0)
-        #endif
+        .enabled(
+          #if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
+            1
+          #endif
+        )
         .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
         .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-        #ifdef PRINTCOUNTER
-         .enabled(1)
-        #else
-         .enabled(0)
-        #endif
+        .enabled(
+          #ifdef PRINTCOUNTER
+            1
+          #endif
+        )
         .tag(9).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_STATS_MENU))
         .tag(10).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_MENU))
         .colors(action_btn)
@@ -79,11 +79,11 @@ void MainMenu::onRedraw(draw_mode_t what) {
         #if ENABLED(TOUCH_UI_COCOA_PRESS)
           .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_PREHEAT_1))
         #else
-          #if ENABLED(NOZZLE_CLEAN_FEATURE)
-           .enabled(1)
-          #else
-           .enabled(0)
-          #endif
+          .enabled(
+            #if ENABLED(NOZZLE_CLEAN_FEATURE)
+              1
+            #endif
+          )
           .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_CLEAN_NOZZLE))
         #endif
         .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MOVE_AXIS))
@@ -92,19 +92,19 @@ void MainMenu::onRedraw(draw_mode_t what) {
         #if ENABLED(TOUCH_UI_COCOA_PRESS)
           .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_CASE_LIGHT))
         #else
-          #if DISABLED(TOUCH_UI_LULZBOT_BIO)
-            .enabled(1)
-          #else
-            .enabled(0)
-          #endif
+          .enabled(
+            #if DISABLED(TOUCH_UI_LULZBOT_BIO)
+              1
+            #endif
+          )
           .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
         #endif
         .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-        #ifdef PRINTCOUNTER
-         .enabled(1)
-        #else
-         .enabled(0)
-        #endif
+        .enabled(
+          #ifdef PRINTCOUNTER
+            1
+          #endif
+        )
         .tag(9).button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_INFO_STATS_MENU))
         .tag(10).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_INFO_MENU))
         .colors(action_btn)

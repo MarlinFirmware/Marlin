@@ -195,11 +195,14 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const bool tog8 = screen_data.ChangeFilamentScreen.repeat_tag == 8;
 
 
-    #ifdef TOUCH_UI_PORTRAIT
-      cmd.font(font_large);
-    #else
-      cmd.font(font_small);
-    #endif
+    cmd.font(
+      #ifdef TOUCH_UI_PORTRAIT
+        font_large
+      #else
+        font_small
+      #endif
+    );
+
     {
       char str[30];
 

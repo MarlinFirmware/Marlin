@@ -132,7 +132,7 @@ class CommandProcessor : public CLCD::CommandFifo {
 
     inline CommandProcessor& font     (int16_t  font)             {_font = font; return *this;}
 
-    inline CommandProcessor& enabled  (bool enabled) {
+    inline CommandProcessor& enabled  (bool enabled=false) {
       if (enabled)
         _style &= ~STYLE_DISABLED;
       else

@@ -46,17 +46,17 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
       #define GRID_COLS 2
          .text  ( BTN_POS(1,1),      BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENT))
          .font(font_medium).colors(normal_btn)
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+         .enabled(
+           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+             1
+           #endif
+         )
       .tag(2).button( BTN_POS(1,2),  BTN_SIZE(2,1), GET_TEXT_F(MSG_RUNOUT_SENSOR))
-      #if ENABLED(LIN_ADVANCE)
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if ENABLED(LIN_ADVANCE)
+          1
+        #endif
+      )
       .tag(3).button( BTN_POS(1,3),  BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
       .colors(action_btn)
       .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
@@ -67,17 +67,17 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
       #define GRID_COLS 3
          .text  ( BTN_POS(1,1),      BTN_SIZE(3,1), GET_TEXT_F(MSG_FILAMENT))
          .font(font_medium).colors(normal_btn)
-      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+         .enabled(
+           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+             1
+           #endif
+         )
       .tag(2).button( BTN_POS(1,2),  BTN_SIZE(3,1), GET_TEXT_F(MSG_RUNOUT_SENSOR))
-      #if ENABLED(LIN_ADVANCE)
-        .enabled(1)
-      #else
-        .enabled(0)
-      #endif
+      .enabled(
+        #if ENABLED(LIN_ADVANCE)
+          1
+        #endif
+      )
       .tag(3).button( BTN_POS(1,3),  BTN_SIZE(3,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
       .colors(action_btn)
       .tag(1) .button( BTN_POS(1,6), BTN_SIZE(3,1), GET_TEXT_F(MSG_BACK));
