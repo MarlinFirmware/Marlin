@@ -24,7 +24,7 @@
 
 #######################################
 #
-# Revision: 2.0.1
+# Revision: 2.1.0
 #
 # Description: script to automate PlatformIO builds
 # CLI:  python auto_build.py build_option
@@ -599,12 +599,16 @@ def get_env(board_name, ver_Marlin):
           target_env = 'DUE_USB'
         else:
           target_env = 'DUE'
-    elif env_A == 'STM32F103RC_bigtree':
-      get_answer(board_name, 'RCT6 Flash Size?', '512K', '256K')
-      if 1 == get_answer_val:
-        target_env = 'STM32F103RC_bigtree_512K'
-      else:
-        target_env = 'STM32F103RC_bigtree'
+    elif env_A == 'STM32F103RC_bigtree' or env_A == 'STM32F103RE_bigtree':
+      if env_A == 'STM32F103RE_bigtree':
+        get_answer(board_name, 'MCU Type?', 'STM32F103RC', 'STM32F103RE')
+        if 1 == get_answer_val:
+          env_A = 'STM32F103RC_bigtree'
+      target_env = env_A
+      if env_A == 'STM32F103RC_bigtree':
+        get_answer(board_name, 'RCT6 Flash Size?', '512K', '256K')
+        if 1 == get_answer_val:
+          target_env += '_512K'
       get_answer(board_name, 'USB Support?', 'No USB', 'USB')
       if 1 == get_answer_val:
         target_env += '_NOUSB'
@@ -1203,7 +1207,6 @@ class output_window(Text):
       pass
 
   def cut(self, event):
-
     try:
       selection = self.get(*self.tag_ranges('sel'))
       self.clipboard_clear()
@@ -1224,7 +1227,6 @@ class output_window(Text):
       self.popup.grab_release()
 
   def _cut(self):
-
     try:
       selection = self.get(*self.tag_ranges('sel'))
       self.clipboard_clear()
@@ -1249,7 +1251,6 @@ class output_window(Text):
     self._copy()
 
   def _paste(self):
-
     self.insert('insert', self.selection_get(selection='CLIPBOARD'))
 
   def _select_all(self):

@@ -231,6 +231,16 @@ namespace ExtUI {
     #endif
   #endif
 
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    bool getCaseLightState();
+    void setCaseLightState(const bool);
+
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      float getCaseLightBrightness_percent();
+      void setCaseLightBrightness_percent(const float);
+    #endif
+  #endif
+
   /**
    * Delay and timing routines
    * Should be used by the EXTENSIBLE_UI to safely pause or measure time
