@@ -1814,13 +1814,13 @@ uint32_t Stepper::block_phase_isr() {
               else {
                 laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
                 laser.cur_power = (current_block->laser.power * step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser.cur_power); // Cycle efficiency isn't relevent when the last line was many cycles
+                cutter.set_ocr_power(laser.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
               }
             #endif
           }
         #endif
       }
-      // We must be in cruise phase otherwise
+      // Must be in cruise phase otherwise
       else {
 
         #if ENABLED(LIN_ADVANCE)
