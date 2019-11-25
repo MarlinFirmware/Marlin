@@ -295,7 +295,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       // Set the laser power in the planner to configure this move
       if (parser.seen('S')) {
         cutter.inline_power(
-          #if ENABLED(SPEED_POWER_FLOAT)
+          #if ENABLED(CUTTER_POWER_PROPORTIONAL)
             parser.value_float()
           #else
             parser.value_int()

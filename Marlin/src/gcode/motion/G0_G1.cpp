@@ -75,7 +75,7 @@ void GcodeSuite::G0_G1(
 
     #if ENABLED(LASER_MOVE_POWER)
       //Set the laser power in the planner to configure this move
-      #if ENABLED(SPEED_POWER_FLOAT)
+      #if ENABLED(CUTTER_POWER_PROPORTIONAL)
         if (parser.seen('S')) {
           cutter.inline_power(parser.value_float());
         }

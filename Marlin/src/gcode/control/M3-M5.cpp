@@ -34,7 +34,7 @@
   #define INLINE_I_STATE true
 #endif
 
-#if ENABLED(SPEED_POWER_FLOAT)
+#if ENABLED(CUTTER_POWER_PROPORTIONAL)
   inline float get_s_power() { return parser.floatval('S', SPEED_POWER_STARTUP); }
 #else
   inline int16_t get_s_power() { return parser.intval('S', SPEED_POWER_STARTUP); }
