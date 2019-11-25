@@ -35,7 +35,7 @@
  void menu_spindle_laser() {
 
     START_MENU();
-    MENU_BACK(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN);
     #if ENABLED(SPINDLE_LASER_PWM)
       EDIT_ITEM(CUTTER_MENU_TYPE, MSG_CUTTER(POWER), &cutter.power, SPEED_POWER_MIN, SPEED_POWER_MAX);
     #endif
