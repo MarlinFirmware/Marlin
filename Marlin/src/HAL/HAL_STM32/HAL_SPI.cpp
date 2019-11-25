@@ -24,43 +24,36 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <SPI.h>
+#include <spi_com.h> //use this as helper for SPI peripheral Init configuration
 
 // ------------------------
 // Public Variables
 // ------------------------
-static SPISettings* spiConfig[NUM_SPI_BUSES]  = { NULL };
-static void* spiBus[NUM_SPI_BUSES]  = { NULL };
+static spi_t* spi[NUM_SPI_BUSES]  = { NULL };
 
 // ------------------------
 // Public functions
 // ------------------------
-/**
- * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
- */
 
-/**
- * @brief  Begin SPI port setup
- *
- * @return Nothing
- *
- * @details Only configures SS pin since stm32duino creates and initialize the SPI object
- */
-void spiBegin(uint8_t bus_num) {
-  //the bus must be initialized with spiInit
-}
+#define spiBegin ; //not used on STM32
 
 bool spiInitialized(uint8_t bus_num)
 {
-  return spiBus[bus_num] != NULL;
+  return spi[bus_num] != NULL;
 }
 
-/** Configure SPI BUS for specified SPI speed */
+/**
+ * Initialize and configure SPI BUS for specified SPI speed
+ * 
+ * @param bus_num Number of the spi bus
+ * @param spiRate Maximum speed of the bus in Mhz
+ * 
+ * @return Nothing
+ */
 void spiInit(uint8_t bus_num, uint8_t spiRate) {
   if (!spiInitialized(bus_num)) {
-    
-    // Use datarates Marlin uses
     uint32_t clock;
+
     switch (spiRate) {
       case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
       case SPI_HALF_SPEED:    clock =  5000000; break;
@@ -69,82 +62,85 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
       case SPI_SPEED_5:       clock =   625000; break;
       case SPI_SPEED_6:       clock =   300000; break;
       default:
-        clock = 4000000; // Default from the SPI library
+        clock = SPI_SPEED_CLOCK_DEFAULT; // Default from the SPI library
     }
 
-    if (HW_SPI(bus_num))
-    {
-      spiBus[bus_num] = new SPIClass(SPI_BusPins[bus_num][SPIBUS_MOSI], SPI_BusPins[bus_num][SPIBUS_MISO], SPI_BusPins[bus_num][SPIBUS_CLCK]);
-      spiConfig[bus_num] = new SPISettings(clock, MSBFIRST, SPI_MODE0);
-    }
-    else
-    {
-      //TODO if needed.
-      //spiBus[bus_num] = new SoftSPI(SPI_BusPins[bus_num][SPIBUS_MOSI], SPI_BusPins[bus_num][SPIBUS_MISO], SPI_BusPins[bus_num][SPIBUS_CLCK]);
-    }
-    GET_BUS(bus_num) -> begin();
+    spi[bus_num] = new spi_t();
+    spi[bus_num] -> pin_miso = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MISO]);
+    spi[bus_num] -> pin_mosi = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MOSI]);
+    spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
+    spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
+    spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
   }
 }
 
 /**
- * @brief  Receives a single byte from the SPI port.
- *
+ * @brief  Receives a single byte from the SPI device.
+ * 
+ * @param  dev_num Device number (identifies device and bus)
+ * 
  * @return Byte received
  *
- * @details
  */
-uint8_t spiRec(uint8_t dev_num) { //transactions are supported only on HW SPI
-  
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
-  uint8_t returnByte = GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), 0xFF);
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
-  return returnByte;
+uint8_t spiRec(uint8_t dev_num) {
+  uint8_t b = 0xff;
+  if (!spiInitialized(BUS_OF_DEV(dev_num))) return b;
+
+  digitalWrite(CS_OF_DEV(dev_num), LOW);
+  HAL_SPI_Receive(&(spi[BUS_OF_DEV(dev_num)] -> handle), &b, 1, SPI_TRANSFER_TIMEOUT);
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
+
+  return b;
 }
 
 /**
  * @brief  Receives a number of bytes from the SPI port to a buffer
- *
- * @param  buf   Pointer to starting address of buffer to write to.
- * @param  nbyte Number of bytes to receive.
+ * 
+ * @param  dev_num Device number (identifies device and bus)
+ * @param  buf     Pointer to starting address of buffer to write to.
+ * @param  nbyte   Number of bytes to receive.
+ * 
  * @return Nothing
  *
- * @details Uses DMA
  */
 void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
+  if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
   if (nbyte == 0) return;
-  memset(buf, 0xFF, nbyte);
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
-  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), buf, nbyte);
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
+  memset(buf, 0xff, nbyte);
+
+  digitalWrite(CS_OF_DEV(dev_num), LOW);
+  HAL_SPI_Receive(&(spi[BUS_OF_DEV(dev_num)] -> handle), buf, nbyte, SPI_TRANSFER_TIMEOUT);
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
 /**
- * @brief  Sends a single byte on SPI port
- *
+ * @brief  Sends a single byte to a SPI device
+ * 
+ * @param  dev_num Device number (identifies device and bus)
  * @param  b Byte to send
  *
  * @details
  */
 void spiSend(uint8_t dev_num, uint8_t b) {
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
-  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), b);
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
+  if (spiInitialized(BUS_OF_DEV(dev_num))) return;
+
+  digitalWrite(CS_OF_DEV(dev_num), LOW);
+  HAL_SPI_Transmit(&(spi[BUS_OF_DEV(dev_num)] -> handle), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
  *
- * @param  buf   Pointer with buffer start address
+ * @param  dev_num Device number (identifies device and bus)
+ * @param  buf     Pointer with buffer start address
  * @return Nothing
- *
- * @details Use DMA
  */
 void spiSendBlock(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
-  uint8_t rxBuf[512];
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> beginTransaction(CS_OF_DEV(dev_num), *spiConfig[BUS_OF_DEV(dev_num)]);
-  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), token, SPI_CONTINUE);
-  GET_BUS(BUS_OF_DEV(dev_num)) -> transfer(CS_OF_DEV(dev_num), (uint8_t*)buf, &rxBuf, 512, SPI_LAST);
-  if (HW_SPI(BUS_OF_DEV(dev_num))) ((SPIClass*)spiBus[BUS_OF_DEV(dev_num)]) -> endTransaction(CS_OF_DEV(dev_num));
+  digitalWrite(CS_OF_DEV(dev_num), LOW);
+  HAL_SPI_Transmit(&(spi[BUS_OF_DEV(dev_num)] -> handle), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
+  HAL_SPI_Transmit(&(spi[BUS_OF_DEV(dev_num)] -> handle), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

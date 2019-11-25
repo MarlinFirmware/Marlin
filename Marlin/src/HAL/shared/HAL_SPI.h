@@ -57,10 +57,10 @@
 //
 // SPI device access definitions
 //
-#define SPIBUS_TYPE     0 // HW/SW
-#define SPIBUS_MOSI     1
-#define SPIBUS_MISO     2
-#define SPIBUS_CLCK     3
+#define SPIBUS_MOSI     0
+#define SPIBUS_MISO     1
+#define SPIBUS_CLCK     2
+#define SPIBUS_MODE     3
 
 #define SPIDEV_TYPE     0 //device type
 #define SPIDEV_BUS      1 //attached to bus
@@ -72,9 +72,10 @@
 #define DEVTYPE_DRIVER  1
 #define DEVTYPE_DISPLAY 2
 #define DEVTYPE_SENSOR  3
+#define DEVTYPE_EEPROM  4
 
-#define HW_SPI(X)       SPI_BusPins[X][SPIBUS_TYPE]==true
-#define IS_DEV_SD(X)    SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_SD
+#define IS_DEV_SD(X)     SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_SD
+#define IS_DEV_EEPROM(X) SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_EEPROM
 
 #define BUS_OF_DEV(X)   SPI_Devices[X][SPIDEV_BUS]
 #define CS_OF_DEV(X)    SPI_Devices[X][SPIDEV_CS]
@@ -113,10 +114,10 @@ void spiBeginTransaction(uint8_t dev_num, uint32_t spiClock, uint8_t bitOrder, u
 //
 
 // Write single byte to specified SPI channel
-void spiSend(uint8_t bus_num, uint32_t chan, byte b);
+void spiSend(uint8_t dev_num, uint32_t chan, byte b);
 
 // Write buffer to specified SPI channel
-void spiSend(uint8_t bus_num, uint32_t chan, const uint8_t* buf, size_t n);
+void spiSend(uint8_t dev_num, uint32_t chan, const uint8_t* buf, size_t n);
 
 // Read single byte from specified SPI channel
-uint8_t spiRec(uint8_t bus_num, uint32_t chan);
+uint8_t spiRec(uint8_t dev_num, uint32_t chan);

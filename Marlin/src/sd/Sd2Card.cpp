@@ -165,13 +165,19 @@ uint32_t Sd2Card::cardSize() {
   }
 }
 
+/**
+ * @remarks This shouldn't be used when card access can be multi-threaded. Customize HAL for proper chip selection/deselection at each call
+ */
 void Sd2Card::chipDeselect() {
-  spiSend(dev_num, 0xFF); // Ensure MISO goes high impedance
+  //spiSend(dev_num, 0xFF); // Ensure MISO goes high impedance
 }
 
+/**
+ * @remarks This shouldn't be used when card access can be multi-threaded. Customize HAL for proper chip selection/deselection at each call
+ */
 void Sd2Card::chipSelect() {
-  spiInit(BUS_OF_DEV(dev_num), spiRate_);
-  extDigitalWrite(CS_OF_DEV(dev_num), LOW);
+  //spiInit(BUS_OF_DEV(dev_num), spiRate_);
+  //extDigitalWrite(CS_OF_DEV(dev_num), LOW);
 }
 
 /**
@@ -249,7 +255,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   // Set pin modes
   //extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
   //pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
-  spiBegin(BUS_OF_DEV(dev_num));
+  //spiBegin(BUS_OF_DEV(dev_num));
 
   // Set SCK rate for initialization commands
   spiRate_ = SPI_SD_INIT_RATE;

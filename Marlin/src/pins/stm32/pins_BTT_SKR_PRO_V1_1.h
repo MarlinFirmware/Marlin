@@ -61,59 +61,26 @@
 #define X_STEP_PIN         PE9
 #define X_DIR_PIN          PF1
 #define X_ENABLE_PIN       PF2
-#ifndef X_CS_PIN
-  #define X_CS_PIN         PA15
-#endif
 
 #define Y_STEP_PIN         PE11
 #define Y_DIR_PIN          PE8
 #define Y_ENABLE_PIN       PD7
- #ifndef Y_CS_PIN
-  #define Y_CS_PIN         PB8
-#endif
 
 #define Z_STEP_PIN         PE13
 #define Z_DIR_PIN          PC2
 #define Z_ENABLE_PIN       PC0
-#ifndef Z_CS_PIN
-  #define Z_CS_PIN         PB9
-#endif
 
 #define E0_STEP_PIN        PE14
 #define E0_DIR_PIN         PA0
 #define E0_ENABLE_PIN      PC3
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN        PB3
-#endif
 
 #define E1_STEP_PIN        PD15
 #define E1_DIR_PIN         PE7
 #define E1_ENABLE_PIN      PA3
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN        PG15
-#endif
 
 #define E2_STEP_PIN        PD13
 #define E2_DIR_PIN         PG9
 #define E2_ENABLE_PIN      PF0
-#ifndef E2_CS_PIN
-  #define E2_CS_PIN        PG12
-#endif
-
-//
-// Software SPI pins for TMC2130 stepper drivers
-//
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    PC12
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    PC11
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     PC10
-  #endif
-#endif
 
 #if HAS_TMC220x
   /**
@@ -181,21 +148,77 @@
 //
 // SPI devices, buses and pins definition
 //
-#define NUM_SPI_BUSES 3
-#define NUM_SPI_DEVICES 3 //for now let's only consider SD-Cards
+#define NUM_SPI_BUSES 3   //number of SPI buses in the controller
 
-const int SPI_BusPins[NUM_SPI_BUSES][4] = {
-// HW/SW, MOSI, MISO, SCK
-  {true , PB15, PB14, PB13},  //EXT2 (Probed first. The card in the display is probably easier to reach.)
-  {false, PB5 , PA6 , PA5},   //TF is SoftwareSPI
-  {true , PC12, PC11, PC10}   //SPI3 (or motors)
+const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
+// MOSI, MISO, SCK , MODE
+  {PB5 , PA6 , PA5 , SPI_MODE_2}, //BUS0: only connected to onboard SD, mode 2 because pulled up.
+  {PB15, PB14, PB13, SPI_MODE_0}, //BUS1: on EXT2 port
+  {PC12, PC11, PC10, SPI_MODE_0}  //BUS2: on SPI3 port (when not used by drivers)
 };
+
+#if HAS_SPI_LCD && ENABLED(TMC_USE_SW_SPI)
+#define NUM_SPI_DEVICES 11
+#elif HAS_SPI_LCD && DISABLED(TMC_USE_SW_SPI)
+#define NUM_SPI_DEVICES 5
+#elif UNDEFINED(HAS_SPI_LCD) && ENABLED(TMC_USE_SW_SPI)
+#define NUM_SPI_DEVICES 10
+#else
+#define NUM_SPI_DEVICES 4
+#endif
+
 const int SPI_Devices[NUM_SPI_DEVICES][5] = {
-//   TYPE    , BUS#, Selection PIN, Detection PIN, Level when detected
-  {DEVTYPE_SD,  0  ,      PB12    , PF12         , ENABLED(SD_DETECT_INVERTED)},
-  {DEVTYPE_SD,  1  ,       PA4    , PB11         , LOW},
-  {DEVTYPE_SD,  2  ,      PA15    , NC           , NC}
+// Device type    , BUS, Selection, Detection PIN, Level when detected
+//                  NR.  PIN        (SD only)      (SD only)
+  {DEVTYPE_SD     ,   0,     PB12,           PF12, ENABLED(SD_DETECT_INVERTED)},
+  {DEVTYPE_SD     ,   1,      PA4,           PB11, LOW},
+  {DEVTYPE_SD     ,   2,     PA15,             NC, NC}, //optional external SD on SPI3
+#if HAS_SPI_LCD
+  {DEVTYPE_DISPLAY,   1,     PD11,             NC, NC},
+#endif
+#if ENABLED(TMC_USE_SW_SPI)
+#error todo: comunicate through devices and not pins
+#ifndef X_CS_PIN
+  #define X_CS_PIN         PA15
+#endif
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN         PB8
+#endif
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN         PB9
+#endif
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        PB3
+#endif
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN        PG15
+#endif
+#ifndef E2_CS_PIN
+  #define E2_CS_PIN        PG12
+#endif
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI    PC12
+#endif
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO    PC11
+#endif
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK     PC10
+#endif
+
+  {DEVTYPE_DRIVER ,   2,  X_CS_PIN,           NC, NC}, //X
+  {DEVTYPE_DRIVER ,   2,  Y_CS_PIN,           NC, NC}, //Y
+  {DEVTYPE_DRIVER ,   2,  Z_CS_PIN,           NC, NC}, //Z
+  {DEVTYPE_DRIVER ,   2, E0_CS_PIN,           NC, NC}, //E0
+  {DEVTYPE_DRIVER ,   2, E1_CS_PIN,           NC, NC}, //E1
+  {DEVTYPE_DRIVER ,   2, E2_CS_PIN,           NC, NC}, //E2
+#endif
+  {DEVTYPE_EEPROM ,   2,      PA15,           NC, NC} //optional external EEPROM on SPI3
 };
+
+#ifndef SD_SEARCH_ORDER
+  #define SD_SEARCH_ORDER { 1, 0, 2 }
+#endif
 
 //
 // Misc. Functions

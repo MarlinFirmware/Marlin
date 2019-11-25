@@ -362,12 +362,15 @@ void CardReader::mount() {
   else {
     bool initOK = false;
 
-    for (sd2card.dev_num = 0; sd2card.dev_num < NUM_SPI_BUSES && !initOK; sd2card.dev_num++)
-      if (sd2card.isInserted(sd2card.dev_num))
+    uint8_t order[] = SD_SEARCH_ORDER;
+    int probes = sizeof(order)/sizeof(order[0]);
+    for (uint8_t i = 0; i < probes && !initOK; i++)
+      if (sd2card.isInserted(i))
       {
           char mess[45];
-          sprintf(mess, PSTR("SD card found in bus %d, initializing..."), BUS_OF_DEV(sd2card.dev_num));
+          sprintf(mess, PSTR("SD card found in bus %d, initializing..."), BUS_OF_DEV(i));
           SERIAL_ECHOLN(mess);
+          sd2card.dev_num = i;
           initOK = sd2card.init(SPI_SPEED);
       }
 
