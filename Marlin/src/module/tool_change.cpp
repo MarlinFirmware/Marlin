@@ -861,7 +861,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
     #endif // TOOLCHANGE_FILAMENT_SWAP
 
-    #if HAS_LEVELING
+    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
       // Set current position to the physical position
       const bool leveling_was_enabled = planner.leveling_active;
       set_bed_leveling_enabled(false);
@@ -1040,7 +1040,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
 
-    #if HAS_LEVELING
+    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
       set_bed_leveling_enabled(leveling_was_enabled);
     #endif
 
