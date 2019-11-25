@@ -26,6 +26,8 @@
 
 #include <spi_com.h> //use this as helper for SPI peripheral Init configuration
 
+#define SPI_TRANSFER_TIMEOUT 1000
+
 // ------------------------
 // Public Variables
 // ------------------------

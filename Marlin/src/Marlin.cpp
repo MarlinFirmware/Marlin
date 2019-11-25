@@ -1126,9 +1126,7 @@ void setup() {
  */
 void loop() {
 
-  for (;;) {
-
-    idle(); // Do an idle first so boot is slightly faster
+    idle();
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
@@ -1138,5 +1136,4 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
-  }
 }
