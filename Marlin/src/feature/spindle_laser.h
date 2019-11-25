@@ -28,25 +28,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SPINDLE_FEATURE)
-  #define _MSG_CUTTER(M) MSG_SPINDLE_##M
-#else
-  #define _MSG_CUTTER(M) MSG_LASER_##M
-#endif
-#define MSG_CUTTER(M) _MSG_CUTTER(M)
-
-#if DISABLED(CUTTER_POWER_PROPORTIONAL)
-  #if SPEED_POWER_MAX > 255
-    #define cutter_power_t   uint16_t
-    #define CUTTER_MENU_TYPE uint16_5
-  #else
-    #define cutter_power_t   uint8_t
-    #define CUTTER_MENU_TYPE uint8
-  #endif
-#else
-  #define cutter_power_t   float
-  #define CUTTER_MENU_TYPE float52
-#endif
+#include "spindle_laser_types.h"
 
 #if ENABLED(LASER_POWER_INLINE)
   #include "../module/planner.h"
@@ -57,7 +39,6 @@ public:
   static cutter_power_t power;
   static cutter_power_t isOn;
 
-
   static void init();
 
   // Modifying this function should update everywhere
@@ -66,9 +47,8 @@ public:
 
   static inline void set_power(const cutter_power_t pwr) { power = pwr; update_output(); }
 
-//   static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before
-    static inline void set_enabled(const bool enable) { set_power(enable && isOn ? (power ? power : SPEED_POWER_STARTUP) : (power ? power : 0));}
-
+  //static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before
+  static inline void set_enabled(const bool enable) { set_power(enable && isOn ? (power ? power : SPEED_POWER_STARTUP) : (power ? power : 0));}
 
   //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
 
