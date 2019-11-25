@@ -35,7 +35,7 @@
 #endif
 #define MSG_CUTTER(M) _MSG_CUTTER(M)
 
-#if DISABLED(SPEED_POWER_FLOAT)
+#if DISABLED(CUTTER_POWER_PROPORTIONAL)
   #if SPEED_POWER_MAX > 255
     #define cutter_power_t   uint16_t
     #define CUTTER_MENU_TYPE uint16_5

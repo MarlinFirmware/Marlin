@@ -1944,7 +1944,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
             #endif
           }
         #endif
-      #endif
+      #endif // LASER_POWER_INLINE
 
       // At this point, we must ensure the movement about to execute isn't
       // trying to force the head against a limit switch. If using interrupt-
