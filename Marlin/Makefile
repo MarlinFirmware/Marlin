@@ -92,6 +92,9 @@ U8GLIB             ?= 1
 # this defines whether to include the Trinamic TMCStepper library
 TMC                ?= 1
 
+# this defines whether to include the AdaFruit NeoPixel library
+NEOPIXEL           ?= 0
+
 ############
 # Try to automatically determine whether RELOC_WORKAROUND is needed based
 # on GCC versions:
@@ -255,6 +258,10 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1143)
 else ifeq ($(HARDWARE_MOTHERBOARD),1144)
 # ADIMLab Gantry v2
 else ifeq ($(HARDWARE_MOTHERBOARD),1145)
+# BIQU Tango V1
+else ifeq ($(HARDWARE_MOTHERBOARD),1146)
+# MKS GEN L V2
+else ifeq ($(HARDWARE_MOTHERBOARD),1147)
 
 #
 # RAMBo and derivatives
@@ -691,8 +698,8 @@ LIBWARN = -w -Wno-packed-bitfield-compat
 CSTANDARD = -std=gnu99
 CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
-CWARN   = -Wall -Wstrict-prototypes -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter -Wno-format
-CXXWARN = -Wall                     -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter -Wno-format
+CWARN   = -Wall -Wstrict-prototypes -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter
+CXXWARN = -Wall                     -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter
 CTUNING = -fsigned-char -funsigned-bitfields -fno-exceptions \
           -fshort-enums -ffunction-sections -fdata-sections
 ifneq ($(HARDWARE_MOTHERBOARD),)

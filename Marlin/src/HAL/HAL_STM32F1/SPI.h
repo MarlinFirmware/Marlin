@@ -96,36 +96,36 @@ typedef enum {
 
 class SPISettings {
 public:
-  SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
-    if (__builtin_constant_p(clock))
-      init_AlwaysInline(clock, bitOrder, dataMode, DATA_SIZE_8BIT);
+  SPISettings(uint32_t inClock, BitOrder inBitOrder, uint8_t inDataMode) {
+    if (__builtin_constant_p(inClock))
+      init_AlwaysInline(inClock, inBitOrder, inDataMode, DATA_SIZE_8BIT);
     else
-      init_MightInline(clock, bitOrder, dataMode, DATA_SIZE_8BIT);
+      init_MightInline(inClock, inBitOrder, inDataMode, DATA_SIZE_8BIT);
   }
-  SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode, uint32_t dataSize) {
-    if (__builtin_constant_p(clock))
-      init_AlwaysInline(clock, bitOrder, dataMode, dataSize);
+  SPISettings(uint32_t inClock, BitOrder inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
+    if (__builtin_constant_p(inClock))
+      init_AlwaysInline(inClock, inBitOrder, inDataMode, inDataSize);
     else
-      init_MightInline(clock, bitOrder, dataMode, dataSize);
+      init_MightInline(inClock, inBitOrder, inDataMode, inDataSize);
   }
-  SPISettings(uint32_t clock) {
-    if (__builtin_constant_p(clock))
-      init_AlwaysInline(clock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
+  SPISettings(uint32_t inClock) {
+    if (__builtin_constant_p(inClock))
+      init_AlwaysInline(inClock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
     else
-      init_MightInline(clock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
+      init_MightInline(inClock, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
   }
   SPISettings() {
     init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
   }
 private:
-  void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode, uint32_t dataSize) {
-    init_AlwaysInline(clock, bitOrder, dataMode, dataSize);
+  void init_MightInline(uint32_t inClock, BitOrder inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
+    init_AlwaysInline(inClock, inBitOrder, inDataMode, inDataSize);
   }
-  void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode, uint32_t dataSize) __attribute__((__always_inline__)) {
-    this->clock = clock;
-    this->bitOrder = bitOrder;
-    this->dataMode = dataMode;
-    this->dataSize = dataSize;
+  void init_AlwaysInline(uint32_t inClock, BitOrder inBitOrder, uint8_t inDataMode, uint32_t inDataSize) __attribute__((__always_inline__)) {
+    clock    = inClock;
+    bitOrder = inBitOrder;
+    dataMode = inDataMode;
+    dataSize = inDataSize;
   }
   uint32_t clock;
   uint32_t dataSize;
@@ -137,8 +137,8 @@ private:
   spi_dev *spi_d;
   dma_channel spiRxDmaChannel, spiTxDmaChannel;
   dma_dev* spiDmaDev;
-  void (*receiveCallback)(void) = NULL;
-  void (*transmitCallback)(void) = NULL;
+  void (*receiveCallback)() = NULL;
+  void (*transmitCallback)() = NULL;
 
   friend class SPIClass;
 };
@@ -213,8 +213,8 @@ public:
    * onTransmit used to set the callback in case of dmaSend (tx only). That function
    * will NOT be called in case of TX/RX
    */
-  void onReceive(void(*)(void));
-  void onTransmit(void(*)(void));
+  void onReceive(void(*)());
+  void onTransmit(void(*)());
 
   /*
    * I/O
@@ -327,7 +327,7 @@ public:
    * @brief Get a pointer to the underlying libmaple spi_dev for
    *        this HardwareSPI instance.
    */
-  spi_dev* c_dev(void) { return _currentSetting->spi_d; }
+  spi_dev* c_dev() { return _currentSetting->spi_d; }
 
   spi_dev* dev() { return _currentSetting->spi_d; }
 
@@ -339,7 +339,7 @@ public:
    *     or 1-3 in high density devices.
    */
   void setModule(int spi_num) {
-    _currentSetting=&_settings[spi_num-1];// SPI channels are called 1 2 and 3 but the array is zero indexed
+    _currentSetting = &_settings[spi_num - 1];// SPI channels are called 1 2 and 3 but the array is zero indexed
   }
 
   /* -- The following methods are deprecated --------------------------- */

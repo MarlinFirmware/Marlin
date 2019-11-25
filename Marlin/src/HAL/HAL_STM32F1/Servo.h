@@ -41,7 +41,7 @@ class libServo {
   public:
     libServo();
     bool attach(const int32_t pin, const int32_t minAngle=SERVO_DEFAULT_MIN_ANGLE, const int32_t maxAngle=SERVO_DEFAULT_MAX_ANGLE);
-    bool attached() const { return this->pin != NOT_ATTACHED; }
+    bool attached() const { return pin != NOT_ATTACHED; }
     bool detach();
     void move(const int32_t value);
     int32_t read() const;

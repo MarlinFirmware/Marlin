@@ -53,7 +53,7 @@ static const spi_pins* dev_to_spi_pins(spi_dev *dev);
 static void configure_gpios(spi_dev *dev, bool as_master);
 static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq);
 
-#if (BOARD_NR_SPI >= 3) && !defined(STM32_HIGH_DENSITY)
+#if BOARD_NR_SPI >= 3 && !defined(STM32_HIGH_DENSITY)
   #error "The SPI library is misconfigured: 3 SPI ports only available on high density STM32 devices"
 #endif
 
@@ -213,31 +213,31 @@ void SPIClass::setDataSize(uint32_t datasize) {
 }
 
 void SPIClass::setDataMode(uint8_t dataMode) {
-  /*
-  Notes:
-  As far as we know the AVR numbers for dataMode match the numbers required by the STM32.
-  From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
-
-  SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
-  0       0     0     Falling     Rising
-  1       0     1     Rising      Falling
-  2       1     0     Rising      Falling
-  3       1     1     Falling     Rising
-
-  On the STM32 it appears to be
-
-  bit 1 - CPOL : Clock polarity
-    (This bit should not be changed when communication is ongoing)
-    0 : CLK to 0 when idle
-    1 : CLK to 1 when idle
-
-  bit 0 - CPHA : Clock phase
-    (This bit should not be changed when communication is ongoing)
-    0 : The first clock transition is the first data capture edge
-    1 : The second clock transition is the first data capture edge
-
-  If someone finds this is not the case or sees a logic error with this let me know ;-)
-  */
+  /**
+   * Notes:
+   * As far as we know the AVR numbers for dataMode match the numbers required by the STM32.
+   * From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
+   *
+   * SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
+   * 0       0     0     Falling     Rising
+   * 1       0     1     Rising      Falling
+   * 2       1     0     Rising      Falling
+   * 3       1     1     Falling     Rising
+   *
+   * On the STM32 it appears to be
+   *
+   * bit 1 - CPOL : Clock polarity
+   *   (This bit should not be changed when communication is ongoing)
+   *   0 : CLK to 0 when idle
+   *   1 : CLK to 1 when idle
+   *
+   * bit 0 - CPHA : Clock phase
+   *   (This bit should not be changed when communication is ongoing)
+   *   0 : The first clock transition is the first data capture edge
+   *   1 : The second clock transition is the first data capture edge
+   *
+   * If someone finds this is not the case or sees a logic error with this let me know ;-)
+   */
   _currentSetting->dataMode = dataMode;
   uint32_t cr1 = _currentSetting->spi_d->regs->CR1 & ~(SPI_CR1_CPOL|SPI_CR1_CPHA);
   _currentSetting->spi_d->regs->CR1 = cr1 | (dataMode & (SPI_CR1_CPOL|SPI_CR1_CPHA));
@@ -499,7 +499,7 @@ uint8_t SPIClass::dmaSendAsync(const void * transmitBuf, uint16_t length, bool m
  *  New functions added to manage callbacks.
  *  Victor Perez 2017
  */
-void SPIClass::onReceive(void(*callback)(void)) {
+void SPIClass::onReceive(void(*callback)()) {
   _currentSetting->receiveCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
@@ -527,7 +527,7 @@ void SPIClass::onReceive(void(*callback)(void)) {
   }
 }
 
-void SPIClass::onTransmit(void(*callback)(void)) {
+void SPIClass::onTransmit(void(*callback)()) {
   _currentSetting->transmitCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
@@ -593,7 +593,7 @@ void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
 }
 
-/*
+/**
  * Pin accessors
  */
 
@@ -613,25 +613,14 @@ uint8_t SPIClass::nssPin() {
   return dev_to_spi_pins(_currentSetting->spi_d)->nss;
 }
 
-/*
+/**
  * Deprecated functions
  */
+uint8_t SPIClass::send(uint8_t data)               { write(data); return 1; }
+uint8_t SPIClass::send(uint8_t *buf, uint32_t len) { write(buf, len); return len; }
+uint8_t SPIClass::recv()                           { return read(); }
 
-uint8_t SPIClass::send(uint8_t data) {
-  this->write(data);
-  return 1;
-}
-
-uint8_t SPIClass::send(uint8_t *buf, uint32_t len) {
-  this->write(buf, len);
-  return len;
-}
-
-uint8_t SPIClass::recv() {
-  return this->read();
-}
-
-/*
+/**
  * DMA call back functions, one per port.
  */
 #if BOARD_NR_SPI >= 1
@@ -650,7 +639,7 @@ uint8_t SPIClass::recv() {
   }
 #endif
 
-/*
+/**
  * Auxiliary functions
  */
 static const spi_pins* dev_to_spi_pins(spi_dev *dev) {

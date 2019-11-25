@@ -27,7 +27,7 @@
 
   #include "watchdog.h"
 
-  void watchdog_init(void) {
+  void watchdog_init() {
     // The low-power oscillator used by the WDT runs at 32,768 Hz with
     // a 1:32 prescale, thus 1024 Hz, though probably not super precise.
 
@@ -42,7 +42,7 @@
     WDT->INTENCLR.reg = WDT_INTENCLR_EW;        // Disable early warning interrupt
     WDT->CONFIG.reg = WDT_CONFIG_PER_CYC4096;   // Set at least 4s period for chip reset
 
-    watchdog_reset();
+    HAL_watchdog_refresh();
 
     WDT->CTRLA.reg = WDT_CTRLA_ENABLE;          // Start watchdog now in normal mode
     SYNC(WDT->SYNCBUSY.bit.ENABLE);

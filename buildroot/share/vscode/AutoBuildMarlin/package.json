@@ -2,79 +2,100 @@
   "name": "auto-build",
   "displayName": "Auto Build Marlin",
   "description": "Auto Build Marlin for VS code",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "publisher": "marlinfirmware",
+  "icon": "logo.svg",
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.32.0"
   },
   "enableProposedApi": true,
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onCommand:piobuild",
-    "onCommand:pioclean",
-    "onCommand:pioupload",
-    "onCommand:piotraceback"
+    "onCommand:mfbuild",
+    "onCommand:mfclean",
+    "onCommand:mfupload",
+    "onCommand:mftraceback"
   ],
   "main": "./extension",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "auto-build",
-          "title": "Auto Build Marlin",
-          "icon": "media/AB.svg"
+          "id": "autoBuildVC",
+          "title": "Marlin Build",
+          "icon": "resources/AB.svg"
         }
       ]
     },
     "views": {
-      "auto-build": [
+      "autoBuildVC": [
         {
-          "id": "autobuild",
-          "name": " "
+          "id": "autoBuildView",
+          "name": "Build…"
+        },
+        {
+          "id": "marlinView",
+          "name": "Marlin Info"
         }
       ]
     },
     "commands": [
       {
-        "command": "piobuild",
-        "title": "PIO Build",
-        "icon": "resources/B32x32_white.svg"
+        "command": "mfbuild",
+        "title": "Build",
+        "icon": {
+          "light": "resources/B48x48_light.svg",
+          "dark": "resources/B48x48_dark.svg"
+        }
       },
       {
-        "command": "pioclean",
-        "title": "PIO Clean",
-        "icon": "resources/C32x32_white.svg"
+        "command": "mfupload",
+        "title": "Upload",
+        "icon": {
+          "light": "resources/U48x48_light.svg",
+          "dark": "resources/U48x48_dark.svg"
+        }
       },
       {
-        "command": "pioupload",
-        "title": "PIO Upload",
-        "icon": "resources/U32x32_white.svg"
+        "command": "mftraceback",
+        "title": "Upload (traceback)",
+        "icon": {
+          "light": "resources/T48x48_light.svg",
+          "dark": "resources/T48x48_dark.svg"
+        }
       },
       {
-        "command": "piotraceback",
-        "title": "PIO Upload (traceback)",
-        "icon": "resources/Ut32x32_white.svg"
+        "command": "mfclean",
+        "title": "Clean",
+        "icon": {
+          "light": "resources/C48x48_light.svg",
+          "dark": "resources/C48x48_dark.svg"
+        }
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "piobuild",
-          "group": "navigation@1"
+          "command": "mfbuild",
+          "group": "navigation@1",
+          "when": "view == autoBuildView || view == marlinView"
         },
         {
-          "command": "pioclean",
-          "group": "navigation@2"
+          "command": "mfupload",
+          "group": "navigation@2",
+          "when": "view == autoBuildView || view == marlinView"
         },
         {
-          "command": "pioupload",
-          "group": "navigation@3"
+          "command": "mftraceback",
+          "group": "navigation@3",
+          "when": "view == autoBuildView || view == marlinView"
         },
         {
-          "command": "piotraceback",
-          "group": "navigation@4"
+          "command": "mfclean",
+          "group": "navigation@4",
+          "when": "view == autoBuildView || view == marlinView"
         }
       ]
     }
@@ -87,10 +108,10 @@
     "test": "npm run compile && node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "vscode": "^1.1.17",
-    "typescript": "^2.6.1",
-    "tslint": "^5.8.0",
-    "@types/node": "^7.0.43",
+    "@types/vscode": "^1.34.0",
+    "typescript": "^3.5.1",
+    "tslint": "^5.16.0",
+    "@types/node": "^10.14.17",
     "@types/mocha": "^2.2.42"
   }
 }

@@ -41,4 +41,4 @@ void watchdog_init();
 
 // Reset watchdog. MUST be called at least every 4 seconds after the
 // first watchdog_init or STM32F1 will reset.
-void watchdog_reset();
+void HAL_watchdog_refresh();

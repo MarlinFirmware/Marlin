@@ -28,6 +28,6 @@
  */
 void GcodeSuite::M119() {
 
-  endstops.M119();
+  endstops.report_states();
 
 }

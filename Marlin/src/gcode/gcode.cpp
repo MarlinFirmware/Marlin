@@ -45,16 +45,21 @@ GcodeSuite gcode;
   #include "../feature/power_loss_recovery.h"
 #endif
 
+#if ENABLED(CANCEL_OBJECTS)
+  #include "../feature/cancel_object.h"
+#endif
+
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
 millis_t GcodeSuite::previous_move_ms;
 
-static constexpr bool ar_init[XYZE] = AXIS_RELATIVE_MODES;
+// Relative motion mode for each logical axis
+static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
 uint8_t GcodeSuite::axis_relative = (
-    (ar_init[X_AXIS] ? _BV(REL_X) : 0)
-  | (ar_init[Y_AXIS] ? _BV(REL_Y) : 0)
-  | (ar_init[Z_AXIS] ? _BV(REL_Z) : 0)
-  | (ar_init[E_AXIS] ? _BV(REL_E) : 0)
+    (ar_init.x ? _BV(REL_X) : 0)
+  | (ar_init.y ? _BV(REL_Y) : 0)
+  | (ar_init.z ? _BV(REL_Z) : 0)
+  | (ar_init.e ? _BV(REL_E) : 0)
 );
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -68,7 +73,7 @@ uint8_t GcodeSuite::axis_relative = (
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
   int8_t GcodeSuite::active_coordinate_system = -1; // machine space
-  float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+  xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
 /**
@@ -112,28 +117,47 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
  *  - Set the feedrate, if included
  */
 void GcodeSuite::get_destination_from_command() {
-  bool seen[XYZE] = { false, false, false, false };
-  LOOP_XYZE(i) {
+  xyze_bool_t seen = { false, false, false, false };
+
+  #if ENABLED(CANCEL_OBJECTS)
+    const bool &skip_move = cancelable.skipping;
+  #else
+    constexpr bool skip_move = false;
+  #endif
+
+  // Get new XYZ position, whether absolute or relative
+  LOOP_XYZ(i) {
     if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
-      destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
+      if (skip_move)
+        destination[i] = current_position[i];
+      else
+        destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
   }
 
+  // Get new E position, whether absolute or relative
+  if ( (seen.e = parser.seenval('E')) ) {
+    const float v = parser.value_axis_units(E_AXIS);
+    destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
+  }
+  else
+    destination.e = current_position.e;
+
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
-    if (recovery.enabled && IS_SD_PRINTING() && seen[E_AXIS] && (seen[X_AXIS] || seen[Y_AXIS]))
+    if (recovery.enabled && IS_SD_PRINTING() && seen.e && (seen.x || seen.y))
       recovery.save();
   #endif
 
   if (parser.linearval('F') > 0)
-    feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
+    feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)
-    if (!DEBUGGING(DRYRUN))
-      print_job_timer.incFilamentUsed(destination[E_AXIS] - current_position[E_AXIS]);
+    if (!DEBUGGING(DRYRUN) && !skip_move)
+      print_job_timer.incFilamentUsed(destination.e - current_position.e);
   #endif
 
   // Get ABCDHI mixing factors
@@ -321,6 +345,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     break;
 
     case 'M': switch (parser.codenum) {
+
       #if HAS_RESUME_CONTINUE
         case 0:                                                   // M0: Unconditional stop - Wait for user button press on LCD
         case 1: M0_M1(); break;                                   // M1: Conditional stop - Wait for user button press on LCD
@@ -445,7 +470,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
-        //case 191: M191(); break;                                // M191: Wait for chamber temperature to reach target
+        case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
@@ -470,7 +495,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif // BARICUDA
 
-      #if HAS_POWER_SWITCH
+      #if ENABLED(PSU_CONTROL)
         case 80: M80(); break;                                    // M80: Turn on Power Supply
       #endif
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
@@ -664,6 +689,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_M206_COMMAND
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+      #endif
+
+      #if ENABLED(CANCEL_OBJECTS)
+        case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM

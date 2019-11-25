@@ -103,8 +103,14 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     TMCMarlin(const uint16_t cs_pin, const float RS) :
       TMC(cs_pin, RS)
       {}
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t axis_chain_index) :
+      TMC(cs_pin, RS, axis_chain_index)
+      {}
     TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK,  axis_chain_index)
       {}
     inline uint16_t rms_current() { return TMC::rms_current(); }
     inline void rms_current(uint16_t mA) {
@@ -163,7 +169,7 @@ template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
     TMCMarlin(Stream * SerialPort, const float RS, const uint8_t) :
-      TMC2208Stepper(SerialPort, RS, /*has_rx=*/true)
+      TMC2208Stepper(SerialPort, RS)
       {}
     TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t, const bool has_rx=true) :
       TMC2208Stepper(RX, TX, RS, has_rx)
@@ -267,10 +273,10 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(const uint16_t cs_pin, const float RS) :
+    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
       TMC2660Stepper(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
       TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
     inline uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
@@ -367,9 +373,9 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
     constexpr uint16_t default_sg_guard_duration = 400;
 
     struct slow_homing_t {
-      struct { uint32_t x, y; } acceleration;
+      xy_ulong_t acceleration;
       #if HAS_CLASSIC_JERK
-        struct { float x, y; } jerk;
+        xy_float_t jerk_xy;
       #endif
     };
   #endif
@@ -387,34 +393,16 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
     template<class TMC, char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
     bool TMCMarlin<TMC, AXIS_LETTER, DRIVER_ID, AXIS_ID>::test_stall_status() {
-      uint16_t sg_result = 0;
-
       this->switchCSpin(LOW);
 
-      if (this->TMC_SW_SPI != nullptr) {
-        this->TMC_SW_SPI->transfer(TMC2130_n::DRV_STATUS_t::address);
-        this->TMC_SW_SPI->transfer16(0);
-        // We only care about the last 10 bits
-        sg_result = this->TMC_SW_SPI->transfer(0);
-        sg_result <<= 8;
-        sg_result |= this->TMC_SW_SPI->transfer(0);
-      }
-      else {
-        SPI.beginTransaction(SPISettings(16000000/8, MSBFIRST, SPI_MODE3));
-        // Read DRV_STATUS
-        SPI.transfer(TMC2130_n::DRV_STATUS_t::address);
-        SPI.transfer16(0);
-        // We only care about the last 10 bits
-        sg_result = SPI.transfer(0);
-        sg_result <<= 8;
-        sg_result |= SPI.transfer(0);
-        SPI.endTransaction();
-      }
+      // read stallGuard flag from TMC library, will handle HW and SW SPI
+      TMC2130_n::DRV_STATUS_t drv_status{0};
+      drv_status.sr = this->DRV_STATUS();
+
       this->switchCSpin(HIGH);
 
-      return (sg_result & 0x3FF) == 0;
+      return drv_status.stallGuard;
     }
-
   #endif // SPI_ENDSTOPS
 
 #endif // USE_SENSORLESS

@@ -26,6 +26,283 @@
 
 #line 28 // set __LINE__ to a known value for both passes
 
+// Undefine pins to suppress warnings
+#if !PIN_EXISTS(X_MS1)
+  #undef X_MS1_PIN
+#endif
+#if !PIN_EXISTS(X_MS2)
+  #undef X_MS2_PIN
+#endif
+#if !PIN_EXISTS(X_MS3)
+  #undef X_MS3_PIN
+#endif
+#if !PIN_EXISTS(X2_MS1)
+  #undef X2_MS1_PIN
+#endif
+#if !PIN_EXISTS(X2_MS2)
+  #undef X2_MS2_PIN
+#endif
+#if !PIN_EXISTS(X2_MS3)
+  #undef X2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Y_MS1)
+  #undef Y_MS1_PIN
+#endif
+#if !PIN_EXISTS(Y_MS2)
+  #undef Y_MS2_PIN
+#endif
+#if !PIN_EXISTS(Y_MS3)
+  #undef Y_MS3_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS1)
+  #undef Y2_MS1_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS2)
+  #undef Y2_MS2_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS3)
+  #undef Y2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z_MS1)
+  #undef Z_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z_MS2)
+  #undef Z_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z_MS3)
+  #undef Z_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS1)
+  #undef Z2_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS2)
+  #undef Z2_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS3)
+  #undef Z2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS1)
+  #undef Z3_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS2)
+  #undef Z3_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS3)
+  #undef Z3_MS3_PIN
+#endif
+#if !PIN_EXISTS(E0_MS1)
+  #undef E0_MS1_PIN
+#endif
+#if !PIN_EXISTS(E0_MS2)
+  #undef E0_MS2_PIN
+#endif
+#if !PIN_EXISTS(E0_MS3)
+  #undef E0_MS3_PIN
+#endif
+#if !PIN_EXISTS(E1_MS1)
+  #undef E1_MS1_PIN
+#endif
+#if !PIN_EXISTS(E1_MS2)
+  #undef E1_MS2_PIN
+#endif
+#if !PIN_EXISTS(E1_MS3)
+  #undef E1_MS3_PIN
+#endif
+#if !PIN_EXISTS(E2_MS1)
+  #undef E2_MS1_PIN
+#endif
+#if !PIN_EXISTS(E2_MS2)
+  #undef E2_MS2_PIN
+#endif
+#if !PIN_EXISTS(E2_MS3)
+  #undef E2_MS3_PIN
+#endif
+#if !PIN_EXISTS(E3_MS1)
+  #undef E3_MS1_PIN
+#endif
+#if !PIN_EXISTS(E3_MS2)
+  #undef E3_MS2_PIN
+#endif
+#if !PIN_EXISTS(E3_MS3)
+  #undef E3_MS3_PIN
+#endif
+#if !PIN_EXISTS(E4_MS1)
+  #undef E4_MS1_PIN
+#endif
+#if !PIN_EXISTS(E4_MS2)
+  #undef E4_MS2_PIN
+#endif
+#if !PIN_EXISTS(E4_MS3)
+  #undef E4_MS3_PIN
+#endif
+#if !PIN_EXISTS(E5_MS1)
+  #undef E5_MS1_PIN
+#endif
+#if !PIN_EXISTS(E5_MS2)
+  #undef E5_MS2_PIN
+#endif
+#if !PIN_EXISTS(E5_MS3)
+  #undef E5_MS3_PIN
+#endif
+
+#if !PIN_EXISTS(E0_STEP)
+  #undef E0_STEP_PIN
+#endif
+#if !PIN_EXISTS(E0_DIR)
+  #undef E0_DIR_PIN
+#endif
+#if !PIN_EXISTS(E0_ENABLE)
+  #undef E0_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E1_STEP)
+  #undef E1_STEP_PIN
+#endif
+#if !PIN_EXISTS(E1_DIR)
+  #undef E1_DIR_PIN
+#endif
+#if !PIN_EXISTS(E1_ENABLE)
+  #undef E1_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E2_STEP)
+  #undef E2_STEP_PIN
+#endif
+#if !PIN_EXISTS(E2_DIR)
+  #undef E2_DIR_PIN
+#endif
+#if !PIN_EXISTS(E2_ENABLE)
+  #undef E2_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E3_STEP)
+  #undef E3_STEP_PIN
+#endif
+#if !PIN_EXISTS(E3_DIR)
+  #undef E3_DIR_PIN
+#endif
+#if !PIN_EXISTS(E3_ENABLE)
+  #undef E3_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E4_STEP)
+  #undef E4_STEP_PIN
+#endif
+#if !PIN_EXISTS(E4_DIR)
+  #undef E4_DIR_PIN
+#endif
+#if !PIN_EXISTS(E4_ENABLE)
+  #undef E4_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E5_STEP)
+  #undef E5_STEP_PIN
+#endif
+#if !PIN_EXISTS(E5_DIR)
+  #undef E5_DIR_PIN
+#endif
+#if !PIN_EXISTS(E5_ENABLE)
+  #undef E5_ENABLE_PIN
+#endif
+
+#if !PIN_EXISTS(X_CS)
+  #undef X_CS_PIN
+#endif
+#if !PIN_EXISTS(Y_CS)
+  #undef Y_CS_PIN
+#endif
+#if !PIN_EXISTS(Z_CS)
+  #undef Z_CS_PIN
+#endif
+#if !PIN_EXISTS(E0_CS)
+  #undef E0_CS_PIN
+#endif
+#if !PIN_EXISTS(E1_CS)
+  #undef E1_CS_PIN
+#endif
+#if !PIN_EXISTS(E2_CS)
+  #undef E2_CS_PIN
+#endif
+#if !PIN_EXISTS(E3_CS)
+  #undef E3_CS_PIN
+#endif
+#if !PIN_EXISTS(E4_CS)
+  #undef E4_CS_PIN
+#endif
+#if !PIN_EXISTS(E5_CS)
+  #undef E5_CS_PIN
+#endif
+
+#if !PIN_EXISTS(FAN)
+  #undef FAN_PIN
+#endif
+#define FAN0_PIN FAN_PIN
+#if !PIN_EXISTS(FAN1)
+  #undef FAN1_PIN
+#endif
+#if !PIN_EXISTS(FAN2)
+  #undef FAN2_PIN
+#endif
+#if !PIN_EXISTS(CONTROLLER_FAN)
+  #undef CONTROLLER_FAN_PIN
+#endif
+
+#if !PIN_EXISTS(FANMUX0)
+  #undef FANMUX0_PIN
+#endif
+#if !PIN_EXISTS(FANMUX1)
+  #undef FANMUX1_PIN
+#endif
+#if !PIN_EXISTS(FANMUX2)
+  #undef FANMUX2_PIN
+#endif
+
+#if !PIN_EXISTS(HEATER_0)
+  #undef HEATER_0_PIN
+#endif
+#if !PIN_EXISTS(HEATER_1)
+  #undef HEATER_1_PIN
+#endif
+#if !PIN_EXISTS(HEATER_2)
+  #undef HEATER_2_PIN
+#endif
+#if !PIN_EXISTS(HEATER_3)
+  #undef HEATER_3_PIN
+#endif
+#if !PIN_EXISTS(HEATER_4)
+  #undef HEATER_4_PIN
+#endif
+#if !PIN_EXISTS(HEATER_5)
+  #undef HEATER_5_PIN
+#endif
+#if !PIN_EXISTS(HEATER_BED)
+  #undef HEATER_BED_PIN
+#endif
+
+#if !PIN_EXISTS(TEMP_0)
+  #undef TEMP_0_PIN
+#endif
+#if !PIN_EXISTS(TEMP_1)
+  #undef TEMP_1_PIN
+#endif
+#if !PIN_EXISTS(TEMP_2)
+  #undef TEMP_2_PIN
+#endif
+#if !PIN_EXISTS(TEMP_3)
+  #undef TEMP_3_PIN
+#endif
+#if !PIN_EXISTS(TEMP_4)
+  #undef TEMP_4_PIN
+#endif
+#if !PIN_EXISTS(TEMP_5)
+  #undef TEMP_5_PIN
+#endif
+#if !PIN_EXISTS(TEMP_BED)
+  #undef TEMP_BED_PIN
+#endif
+
+#if !PIN_EXISTS(SD_DETECT)
+  #undef SD_DETECT_PIN
+#endif
+#if !PIN_EXISTS(SDPOWER)
+  #undef SDPOWER_PIN
+#endif
+
 //
 // Analog Pin Assignments
 //

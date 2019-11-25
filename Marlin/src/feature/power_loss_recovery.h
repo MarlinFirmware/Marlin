@@ -44,19 +44,28 @@ typedef struct {
   uint8_t valid_head;
 
   // Machine state
-  float current_position[NUM_AXIS];
+  xyze_pos_t current_position;
 
   #if HAS_HOME_OFFSET
-    float home_offset[XYZ];
+    xyz_pos_t home_offset;
   #endif
   #if HAS_POSITION_SHIFT
-    float position_shift[XYZ];
+    xyz_pos_t position_shift;
   #endif
 
   uint16_t feedrate;
 
   #if EXTRUDERS > 1
     uint8_t active_extruder;
+  #endif
+
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_enabled;
+    #if EXTRUDERS > 1
+      float filament_size[EXTRUDERS];
+    #else
+      float filament_size;
+    #endif
   #endif
 
   #if HOTENDS
@@ -159,7 +168,7 @@ class PrintJobRecovery {
 
   #if PIN_EXISTS(POWER_LOSS)
     static inline void outage() {
-      if (enabled && IS_SD_PRINTING() && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
+      if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
         _outage();
     }
   #endif
@@ -169,11 +178,15 @@ class PrintJobRecovery {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     static void debug(PGM_P const prefix);
   #else
-    static inline void debug(PGM_P const prefix) { UNUSED(prefix); }
+    static inline void debug(PGM_P const) {}
   #endif
 
   private:
     static void write();
+
+  #if ENABLED(BACKUP_POWER_SUPPLY)
+    static void raise_z();
+  #endif
 
   #if PIN_EXISTS(POWER_LOSS)
     static void _outage();

@@ -29,10 +29,20 @@
 #include "../../module/stepper.h"
 
 /**
- *  M3 - Cutter ON (Clockwise)
- *  M4 - Cutter ON (Counter-clockwise)
+ * Laser:
  *
- *    S<power> - Set power. S0 turns it off.
+ *  M3 - Laser ON/Power (Ramped power)
+ *  M4 - Laser ON/Power (Continuous power)
+ *
+ *    S<power> - Set power. S0 will turn the laser off.
+ *    O<ocr>   - Set power and OCR
+ *
+ * Spindle:
+ *
+ *  M3 - Spindle ON (Clockwise)
+ *  M4 - Spindle ON (Counter-clockwise)
+ *
+ *    S<power> - Set power. S0 will turn the spindle off.
  *    O<ocr>   - Set power and OCR
  *
  *  If no PWM pin is defined then M3/M4 just turns it on.
@@ -61,12 +71,14 @@
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
 
-  planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
+  #if ENABLED(SPINDLE_FEATURE)
+    planner.synchronize();   // Wait for movement to complete before changing power
+  #endif
 
   cutter.set_direction(is_M4);
 
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (parser.seen('O'))
+    if (parser.seenval('O'))
       cutter.set_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
     else
       cutter.set_power(parser.intval('S', 255));
@@ -79,7 +91,9 @@ void GcodeSuite::M3_M4(const bool is_M4) {
  * M5 - Cutter OFF
  */
 void GcodeSuite::M5() {
-  planner.synchronize();
+  #if ENABLED(SPINDLE_FEATURE)
+    planner.synchronize();
+  #endif
   cutter.set_enabled(false);
 }
 

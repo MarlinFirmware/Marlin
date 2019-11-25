@@ -38,8 +38,14 @@
  *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (parser.seen('P') && !IS_SD_PRINTING())
-    ui.set_progress(parser.value_byte());
+  if (parser.seen('P'))
+    ui.set_progress((PROGRESS_SCALE) > 1
+      ? parser.value_float() * (PROGRESS_SCALE)
+      : parser.value_byte()
+    );
+  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+    if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
+  #endif
 }
 
 #endif // LCD_SET_PROGRESS_MANUALLY

@@ -43,8 +43,9 @@ namespace ExtUI {
 
   void onIdle() { ScreenHandler.loop(); }
 
-  void onPrinterKilled(const char* msg) {
-    ScreenHandler.sendinfoscreen(PSTR(MSG_HALTED), msg, PSTR(""), PSTR(MSG_PLEASE_RESET), true, true, true, true);
+  void onPrinterKilled(PGM_P error, PGM_P component) {
+    extern const char NUL_STR[];
+    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
@@ -57,9 +58,9 @@ namespace ExtUI {
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
-  void onFilamentRunout() {}
+  void onFilamentRunout(const extruder_t extruder) {}
 
-  void onUserConfirmRequired(const char *msg) {
+  void onUserConfirmRequired(const char * const msg) {
     if (msg) {
       ScreenHandler.sendinfoscreen(PSTR("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
       ScreenHandler.SetupConfirmAction(ExtUI::setUserConfirmed);

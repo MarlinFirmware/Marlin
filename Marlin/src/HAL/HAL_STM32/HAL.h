@@ -147,13 +147,13 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 // Enable hooks into  setup for HAL
-void HAL_init(void);
+void HAL_init();
 
 // Clear reset reason
-void HAL_clear_reset_source (void);
+void HAL_clear_reset_source();
 
 // Reset reason
-uint8_t HAL_get_reset_source(void);
+uint8_t HAL_get_reset_source();
 
 void _delay_ms(const int delay);
 
@@ -185,16 +185,20 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
-inline void HAL_adc_init(void) {}
+inline void HAL_adc_init() {}
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);

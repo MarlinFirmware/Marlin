@@ -20,10 +20,9 @@
  *
  */
 
-#include "backtrace.h"
-
 #if defined(__arm__) || defined(__thumb__)
 
+#include "backtrace.h"
 #include "unwinder.h"
 #include "unwmemaccess.h"
 
@@ -65,7 +64,7 @@ static const UnwindCallbacks UnwCallbacks = {
   #endif
 };
 
-void backtrace(void) {
+void backtrace() {
 
   UnwindFrame btf;
   uint32_t sp = 0, lr = 0, pc = 0;
@@ -95,6 +94,6 @@ void backtrace(void) {
 
 #else // !__arm__ && !__thumb__
 
-void backtrace(void) {}
+void backtrace() {}
 
 #endif

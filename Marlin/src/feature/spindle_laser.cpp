@@ -34,14 +34,16 @@ SpindleLaser cutter;
 
 cutter_power_t SpindleLaser::power; // = 0
 
+#define SPINDLE_LASER_PWM_OFF ((SPINDLE_LASER_PWM_INVERT) ? 255 : 0)
+
 void SpindleLaser::init() {
   OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH); // Init spindle to off
   #if ENABLED(SPINDLE_CHANGE_DIR)
     OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);   // Init rotation to clockwise (M3)
   #endif
-  #if ENABLED(SPINDLE_LASER_PWM) && PIN_EXISTS(SPINDLE_LASER_PWM)
+  #if ENABLED(SPINDLE_LASER_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);
-    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_INVERT ? 255 : 0);  // set to lowest speed
+    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // set to lowest speed
   #endif
 }
 
@@ -54,34 +56,34 @@ void SpindleLaser::init() {
    */
   void SpindleLaser::set_ocr(const uint8_t ocr) {
     WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on (active low)
-    #if ENABLED(SPINDLE_LASER_PWM)
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), (SPINDLE_LASER_PWM_INVERT) ? 255 - ocr : ocr);
-    #endif
+    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
 
 #endif
 
-void SpindleLaser::update_output() {
-  const bool ena = enabled();
+void SpindleLaser::apply_power(const cutter_power_t inpow) {
+  static cutter_power_t last_power_applied = 0;
+  if (inpow == last_power_applied) return;
+  last_power_applied = inpow;
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (ena) {
+    if (enabled()) {
+      #define _scaled(F) ((F - (SPEED_POWER_INTERCEPT)) * inv_slope)
       constexpr float inv_slope = RECIPROCAL(SPEED_POWER_SLOPE),
-                      min_ocr = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * inv_slope,  // Minimum allowed
-                      max_ocr = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * inv_slope;  // Maximum allowed
+                      min_ocr = _scaled(SPEED_POWER_MIN),
+                      max_ocr = _scaled(SPEED_POWER_MAX);
       int16_t ocr_val;
-           if (power <= SPEED_POWER_MIN) ocr_val = min_ocr;                               // Use minimum if set below
-      else if (power >= SPEED_POWER_MAX) ocr_val = max_ocr;                               // Use maximum if set above
-      else ocr_val = (power - (SPEED_POWER_INTERCEPT)) * inv_slope;                       // Use calculated OCR value
-      set_ocr(ocr_val & 0xFF);                                                            // ...limited to Atmel PWM max
+           if (inpow <= SPEED_POWER_MIN) ocr_val = min_ocr;       // Use minimum if set below
+      else if (inpow >= SPEED_POWER_MAX) ocr_val = max_ocr;       // Use maximum if set above
+      else ocr_val = _scaled(inpow);                              // Use calculated OCR value
+      set_ocr(ocr_val & 0xFF);                                    // ...limited to Atmel PWM max
     }
-    else {                                                                                // Convert RPM to PWM duty cycle
-      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off (active low)
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_INVERT ? 255 : 0);      // Only write low byte
+    else {
+      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);   // Turn spindle off (active low)
+      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // Only write low byte
     }
   #else
-    WRITE(SPINDLE_LASER_ENA_PIN, ena ? SPINDLE_LASER_ACTIVE_HIGH : !SPINDLE_LASER_ACTIVE_HIGH);
+    WRITE(SPINDLE_LASER_ENA_PIN, (SPINDLE_LASER_ACTIVE_HIGH) ? enabled() : !enabled());
   #endif
-  power_delay(ena);
 }
 
 #if ENABLED(SPINDLE_CHANGE_DIR)

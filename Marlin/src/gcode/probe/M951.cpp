@@ -28,11 +28,10 @@
 #include "../../module/tool_change.h"
 #include "../../module/motion.h"
 
-
 mpe_settings_t mpe_settings;
 
 inline void mpe_settings_report() {
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Magnetic Parking Extruder");
+  SERIAL_ECHO_MSG("Magnetic Parking Extruder");
   SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("L: Left parking  :", mpe_settings.parking_xpos[0]);
   SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("R: Right parking :", mpe_settings.parking_xpos[1]);
   SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("I: Grab Offset   :", mpe_settings.grab_distance);

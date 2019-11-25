@@ -35,8 +35,8 @@
 #endif
 
 void U8g_delay(int msec);
-void u8g_MicroDelay(void);
-void u8g_10MicroDelay(void);
+void u8g_MicroDelay();
+void u8g_10MicroDelay();
 
 #ifdef __cplusplus
   }

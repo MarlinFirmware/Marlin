@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include <libmaple/timer.h>
+#include "../../core/boards.h"
 
 // ------------------------
 // Defines
@@ -46,6 +47,20 @@ typedef uint16_t hal_timer_t;
 #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 
+/**
+ * Note: Timers may be used by platforms and libraries
+ *
+ * FAN PWMs:
+ *   With FAN_SOFT_PWM disabled the Temperature class uses
+ *   FANx_PIN timers to generate FAN PWM signals.
+ *
+ * Speaker:
+ *   When SPEAKER is enabled, one timer is allocated by maple/tone.cpp.
+ *   - If BEEPER_PIN has a timer channel (and USE_PIN_TIMER is
+ *     defined in tone.cpp) it uses the pin's own timer.
+ *   - Otherwise it uses Timer 8 on boards with STM32_HIGH_DENSITY
+ *     or Timer 4 on other boards.
+ */
 #if defined(MCU_STM32F103CB) || defined(MCU_STM32F103C8)
   #define STEP_TIMER_NUM 4 // For C8/CB boards, use timer 4
 #else
@@ -54,7 +69,17 @@ typedef uint16_t hal_timer_t;
 #define TEMP_TIMER_NUM 2    // index of timer to use for temperature
 //#define TEMP_TIMER_NUM 4  // 2->4, Timer 2 for Stepper Current PWM
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define SERVO0_TIMER_NUM 1  // SERVO0 or BLTOUCH
+
+#if MB(BTT_SKR_MINI_E3_V1_0, BIGTREE_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE)
+  // SKR Mini E3 boards use PA8 as FAN_PIN, so TIMER 1 is used for Fan PWM.
+  #ifdef STM32_HIGH_DENSITY
+    #define SERVO0_TIMER_NUM 8  // tone.cpp uses Timer 4
+  #else
+    #define SERVO0_TIMER_NUM 3  // tone.cpp uses Timer 8
+  #endif
+#else
+  #define SERVO0_TIMER_NUM 1  // SERVO0 or BLTOUCH
+#endif
 
 #define STEP_TIMER_IRQ_PRIO 1
 #define TEMP_TIMER_IRQ_PRIO 2
@@ -86,11 +111,11 @@ timer_dev* get_timer_dev(int number);
 
 // TODO change this
 
-#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler(void)
-#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler(void)
+#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler()
+#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
 
-extern "C" void tempTC_Handler(void);
-extern "C" void stepTC_Handler(void);
+extern "C" void tempTC_Handler();
+extern "C" void stepTC_Handler();
 
 // ------------------------
 // Public Variables

@@ -121,6 +121,19 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
+#define HAS_TMC_E_DRIVER (    HAS_E_DRIVER(TMC2130) \
+                           || HAS_E_DRIVER(TMC2160) \
+                           || HAS_E_DRIVER(TMC2660) \
+                           || HAS_E_DRIVER(TMC2209) \
+                           || HAS_E_DRIVER(TMC5130) \
+                           || HAS_E_DRIVER(TMC5160) )
+
+#define HAS_TMC_STANDALONE_E_DRIVER  (    HAS_E_DRIVER(TMC2130_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC2160_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC2660_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC2209_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC5130_STANDALONE) \
+                                       || HAS_E_DRIVER(TMC5160_STANDALONE) )
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options
 //

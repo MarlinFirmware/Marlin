@@ -65,6 +65,9 @@ PrintJobRecovery recovery;
 #ifndef POWER_LOSS_RETRACT_LEN
   #define POWER_LOSS_RETRACT_LEN 0
 #endif
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2
+#endif
 
 /**
  * Clear the recovery info
@@ -156,7 +159,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
         || ELAPSED(ms, next_save_ms)
       #endif
       // Save if Z is above the last-saved position by some minimum height
-      || current_position[Z_AXIS] > info.current_position[Z_AXIS] + POWER_LOSS_MIN_Z_CHANGE
+      || current_position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
 
@@ -170,17 +173,26 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     info.valid_foot = info.valid_head;
 
     // Machine state
-    COPY(info.current_position, current_position);
+    info.current_position = current_position;
     #if HAS_HOME_OFFSET
-      COPY(info.home_offset, home_offset);
+      info.home_offset = home_offset;
     #endif
     #if HAS_POSITION_SHIFT
-      COPY(info.position_shift, position_shift);
+      info.position_shift = position_shift;
     #endif
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
     #if EXTRUDERS > 1
       info.active_extruder = active_extruder;
+    #endif
+
+    #if DISABLED(NO_VOLUMETRICS)
+      info.volumetric_enabled = parser.volumetric_enabled;
+      #if EXTRUDERS > 1
+        for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
+      #else
+        if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder];
+      #endif
     #endif
 
     #if EXTRUDERS
@@ -226,10 +238,34 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
 }
 
 #if PIN_EXISTS(POWER_LOSS)
+
   void PrintJobRecovery::_outage() {
-    save(true);
-    kill(PSTR(MSG_OUTAGE_RECOVERY));
+    #if ENABLED(BACKUP_POWER_SUPPLY)
+      static bool lock = false;
+      if (lock) return; // No re-entrance from idle() during raise_z()
+      lock = true;
+    #endif
+    if (IS_SD_PRINTING()) save(true);
+    #if ENABLED(BACKUP_POWER_SUPPLY)
+      raise_z();
+    #endif
+
+    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
+
+  #if ENABLED(BACKUP_POWER_SUPPLY)
+
+    void PrintJobRecovery::raise_z() {
+      // Disable all heaters to reduce power loss
+      thermalManager.disable_all_heaters();
+      quickstop_stepper();
+      // Raise Z axis
+      gcode.process_subcommands_now_P(PSTR("G91\nG0 Z" STRINGIFY(POWER_LOSS_ZRAISE)));
+      planner.synchronize();
+    }
+
+  #endif
+
 #endif
 
 /**
@@ -251,8 +287,6 @@ void PrintJobRecovery::write() {
  */
 void PrintJobRecovery::resume() {
 
-  #define RECOVERY_ZRAISE 2
-
   const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
 
   #if HAS_LEVELING
@@ -263,15 +297,27 @@ void PrintJobRecovery::resume() {
   // Reset E, raise Z, home XY...
   gcode.process_subcommands_now_P(PSTR("G92.9 E0"
     #if Z_HOME_DIR > 0
-      // If Z homing goes to max, reset E and home all
-      "\nG28R0"
+
+      // If Z homing goes to max, just reset E and home all
+      "\n"
+      "G28R0"
       #if ENABLED(MARLIN_DEV_MODE)
         "S"
       #endif
-    #else
+
+    #else // "G92.9 E0 ..."
+
       // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
       // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-      "Z0\nG1Z" STRINGIFY(RECOVERY_ZRAISE) "\nG28R0"
+      #if ENABLED(BACKUP_POWER_SUPPLY)
+        "Z" STRINGIFY(POWER_LOSS_ZRAISE)    // Z-axis was already raised at outage
+      #else
+        "Z0\n"                              // Set Z=0
+        "G1Z" STRINGIFY(POWER_LOSS_ZRAISE)  // Raise Z
+      #endif
+      "\n"
+
+      "G28R0"
       #if ENABLED(MARLIN_DEV_MODE)
         "S"
       #elif !IS_KINEMATIC
@@ -289,6 +335,27 @@ void PrintJobRecovery::resume() {
   #if EXTRUDERS > 1
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
+  #endif
+
+  // Recover volumetric extrusion state
+  #if DISABLED(NO_VOLUMETRICS)
+    #if EXTRUDERS > 1
+      for (int8_t e = 0; e < EXTRUDERS; e++) {
+        dtostrf(info.filament_size[e], 1, 3, str_1);
+        sprintf_P(cmd, PSTR("M200 T%i D%s"), e, str_1);
+        gcode.process_subcommands_now(cmd);
+      }
+      if (!info.volumetric_enabled) {
+        sprintf_P(cmd, PSTR("M200 T%i D0"), info.active_extruder);
+        gcode.process_subcommands_now(cmd);
+      }
+    #else
+      if (info.volumetric_enabled) {
+        dtostrf(info.filament_size, 1, 3, str_1);
+        sprintf_P(cmd, PSTR("M200 D%s"), str_1);
+        gcode.process_subcommands_now(cmd);
+      }
+    #endif
   #endif
 
   #if HAS_HEATED_BED
@@ -327,9 +394,10 @@ void PrintJobRecovery::resume() {
   // Restore retract and hop state
   #if ENABLED(FWRETRACT)
     for (uint8_t e = 0; e < EXTRUDERS; e++) {
-      if (info.retract[e] != 0.0)
+      if (info.retract[e] != 0.0) {
         fwretract.current_retract[e] = info.retract[e];
         fwretract.retracted[e] = true;
+      }
     }
     fwretract.current_hop = info.retract_hop;
   #endif
@@ -361,13 +429,13 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved XY
   sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
-    dtostrf(info.current_position[X_AXIS], 1, 3, str_1),
-    dtostrf(info.current_position[Y_AXIS], 1, 3, str_2)
+    dtostrf(info.current_position.x, 1, 3, str_1),
+    dtostrf(info.current_position.y, 1, 3, str_2)
   );
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved Z
-  dtostrf(info.current_position[Z_AXIS], 1, 3, str_1);
+  dtostrf(info.current_position.z, 1, 3, str_1);
   #if Z_HOME_DIR > 0
     sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   #else
@@ -388,27 +456,26 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Restore E position with G92.9
-  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position[E_AXIS], 1, 3, str_1));
+  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
 
+  #if HAS_HOME_OFFSET
+    home_offset = info.home_offset;
+  #endif
+  #if HAS_POSITION_SHIFT
+    position_shift = info.position_shift;
+  #endif
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-    LOOP_XYZ(i) {
-      #if HAS_HOME_OFFSET
-        home_offset[i] = info.home_offset[i];
-      #endif
-      #if HAS_POSITION_SHIFT
-        position_shift[i] = info.position_shift[i];
-      #endif
-      update_workspace_offset((AxisEnum)i);
-    }
+    LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
   #endif
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
-  sprintf_P(cmd, PSTR("M23 %s"), fn);
+  extern const char M23_STR[];
+  sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
