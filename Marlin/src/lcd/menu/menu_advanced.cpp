@@ -299,7 +299,7 @@ void menu_cancelobject();
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_EDIT_MENU_ITEMS(N) \
           _PID_BASE_MENU_ITEMS(N); \
-          EDIT_ITEM(float3, MSG_PID_C_E, N, &PID_PARAM(Kc, N), 1, 9990)
+          EDIT_ITEM_N(float3, N, MSG_PID_C_E, &PID_PARAM(Kc, N), 1, 9990)
       #else
         #define _PID_EDIT_MENU_ITEMS(N) _PID_BASE_MENU_ITEMS(N)
       #endif
