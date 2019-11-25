@@ -34,11 +34,15 @@
   #define INLINE_I_STATE true
 #endif
 
-#if ENABLED(CUTTER_POWER_PROPORTIONAL)
-  inline float get_s_power() { return parser.floatval('S', SPEED_POWER_STARTUP); }
-#else
-  inline int16_t get_s_power() { return parser.intval('S', SPEED_POWER_STARTUP); }
-#endif
+inline cutter_power_t get_s_power() {
+  return cutter_power_t(
+    #if ENABLED(CUTTER_POWER_PROPORTIONAL)
+      parser.floatval('S', SPEED_POWER_STARTUP)
+    #else
+      parser.intval('S', SPEED_POWER_STARTUP)
+    #endif
+  );
+}
 
 /**
  * Laser:
