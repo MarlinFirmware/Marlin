@@ -45,6 +45,8 @@ public:
   static inline bool enabled(const cutter_power_t pwr) { return pwr > 0; }
   static inline bool enabled() { return enabled(power && isOn); }
 
+  static void apply_power(const cutter_power_t inpow);
+
   static inline void set_power(const cutter_power_t pwr) { power = pwr; update_output(); }
 
   //static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before

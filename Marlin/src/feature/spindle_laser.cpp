@@ -81,7 +81,7 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
   if (inpow == last_power_applied) return;
   last_power_applied = inpow;
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (ena)
+    if (enabled())
       set_ocr(translate_power(power));
     else {                                                                                // Convert RPM to PWM duty cycle
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off (active low)
