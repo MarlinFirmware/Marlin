@@ -47,16 +47,14 @@ public:
 
   static void apply_power(const cutter_power_t inpow);
 
-  static inline void set_power(const cutter_power_t pwr) { power = pwr; update_output(); }
+  FORCE_INLINE static void refresh() { if (isOn) apply_power(power); }
 
-  static inline void refresh() { if (isOn) apply_power(power); }
+  FORCE_INLINE static void set_power(const cutter_power_t pwr) { power = pwr; refresh(); }
 
   //static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before
   static inline void set_enabled(const bool enable) { set_power(enable && isOn ? (power ? power : SPEED_POWER_STARTUP) : (power ? power : 0));}
 
   //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
-
-  static void update_output();
 
   #if ENABLED(SPINDLE_LASER_PWM)
     static void set_ocr(const uint8_t ocr);
