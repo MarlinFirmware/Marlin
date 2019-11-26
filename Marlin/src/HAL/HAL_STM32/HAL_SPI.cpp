@@ -84,7 +84,13 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
     spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
     spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
-    SERIAL_ECHO_MSG("Before init");
+    SERIAL_ECHO("Before init: frequency=");
+
+    if (bus_num == 0) //SPI1
+      SERIAL_PRINT(HAL_RCC_GetPCLK2Freq(), DEC);
+    else //SPI2 & 3
+      SERIAL_PRINT(HAL_RCC_GetPCLK1Freq(), DEC);
+
     spiDebug(bus_num);
     spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
     SERIAL_ECHO_MSG("After init");
