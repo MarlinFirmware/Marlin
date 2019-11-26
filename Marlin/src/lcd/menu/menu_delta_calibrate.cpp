@@ -51,6 +51,10 @@ void _man_probe_pt(const xy_pos_t &xy) {
 
   #include "../../gcode/gcode.h"
 
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    #include "../../feature/host_actions.h" // for PROMPT_USER_CONTINUE
+  #endif
+
   float lcd_probe_pt(const xy_pos_t &xy) {
     _man_probe_pt(xy);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
