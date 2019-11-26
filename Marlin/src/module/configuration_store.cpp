@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V72"
+#define EEPROM_VERSION "V73"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -242,7 +242,7 @@ typedef struct SettingsDataStruct {
   //
   // PIDTEMP
   //
-  PIDC_t hotendPID[HOTENDS];                            // M301 En PIDC / M303 En U
+  PIDCF_t hotendPID[HOTENDS];                           // M301 En PIDCF / M303 En U
   int16_t lpq_len;                                      // M301 L
 
   //
@@ -785,13 +785,14 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
-        PIDC_t pidc = {
+        PIDCF_t pidcf = {
                        PID_PARAM(Kp, e),
           unscalePID_i(PID_PARAM(Ki, e)),
           unscalePID_d(PID_PARAM(Kd, e)),
-                       PID_PARAM(Kc, e)
+                       PID_PARAM(Kc, e),
+                       PID_PARAM(Kf, e)
         };
-        EEPROM_WRITE(pidc);
+        EEPROM_WRITE(pidcf);
       }
 
       _FIELD_TEST(lpq_len);
@@ -1586,16 +1587,19 @@ void MarlinSettings::postprocess() {
       //
       {
         HOTEND_LOOP() {
-          PIDC_t pidc;
-          EEPROM_READ(pidc);
+          PIDCF_t pidcf;
+          EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
-            if (!validating && pidc.Kp != DUMMY_PID_VALUE) {
+            if (!validating && pidcf.Kp != DUMMY_PID_VALUE) {
               // Scale PID values since EEPROM values are unscaled
-              PID_PARAM(Kp, e) = pidc.Kp;
-              PID_PARAM(Ki, e) = scalePID_i(pidc.Ki);
-              PID_PARAM(Kd, e) = scalePID_d(pidc.Kd);
+              PID_PARAM(Kp, e) = pidcf.Kp;
+              PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
+              PID_PARAM(Kd, e) = scalePID_d(pidcf.Kd);
               #if ENABLED(PID_EXTRUSION_SCALING)
-                PID_PARAM(Kc, e) = pidc.Kc;
+                PID_PARAM(Kc, e) = pidcf.Kc;
+              #endif
+              #if ENABLED(PID_FAN_SCALING)
+                PID_PARAM(Kf, e) = pidcf.Kf;
               #endif
             }
           #endif
@@ -2446,6 +2450,10 @@ void MarlinSettings::reset() {
       #if ENABLED(PID_EXTRUSION_SCALING)
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
+
+      #if ENABLED(PID_FAN_SCALING)
+        PID_PARAM(Kf, e) = DEFAULT_Kf;
+      #endif
     }
   #endif
 
@@ -3002,6 +3010,9 @@ void MarlinSettings::reset() {
           #if ENABLED(PID_EXTRUSION_SCALING)
             SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
             if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
+          #endif
+          #if ENABLED(PID_FAN_SCALING)
+            SERIAL_ECHOPAIR(" F", PID_PARAM(Kf, e));
           #endif
           SERIAL_EOL();
         }
