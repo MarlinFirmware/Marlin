@@ -1808,6 +1808,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if EXTRUDERS
     delta_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
+  #else
+    delta_mm.e = 0.0f;
   #endif
 
   #if ENABLED(LCD_SHOW_E_TOTAL)
