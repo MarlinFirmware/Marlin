@@ -229,7 +229,9 @@
 
 #ifndef FAN_PIN
   #if EITHER(IS_RAMPS_EFB, IS_RAMPS_EFF)          // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN        RAMPS_D9_PIN
+    #ifndef FAN_PIN
+      #define FAN_PIN      RAMPS_D9_PIN
+    #endif
   #elif EITHER(IS_RAMPS_EEF, IS_RAMPS_SF)         // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN_PIN        RAMPS_D8_PIN
   #elif ENABLED(IS_RAMPS_EEB)                  // Hotend, Hotend, Bed
@@ -576,7 +578,10 @@
       #define BEEPER_PIN        37
       #define BTN_ENC           35
       #define SD_DETECT_PIN     49
-      #define KILL_PIN          41
+
+      #ifndef KILL_PIN
+        #define KILL_PIN        41
+      #endif
 
       #if ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
