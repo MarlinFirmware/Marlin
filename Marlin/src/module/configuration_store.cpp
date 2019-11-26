@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V71"
+#define EEPROM_VERSION "V73"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -223,8 +223,7 @@ typedef struct SettingsDataStruct {
     abc_float_t delta_endstop_adj;                      // M666 XYZ
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
-          delta_segments_per_second,                    // M665 S
-          delta_calibration_radius;                     // M665 B
+          delta_segments_per_second;                    // M665 S
     abc_float_t delta_tower_angle_trim;                 // M665 XYZ
   #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
@@ -243,7 +242,7 @@ typedef struct SettingsDataStruct {
   //
   // PIDTEMP
   //
-  PIDC_t hotendPID[HOTENDS];                            // M301 En PIDC / M303 En U
+  PIDCF_t hotendPID[HOTENDS];                           // M301 En PIDCF / M303 En U
   int16_t lpq_len;                                      // M301 L
 
   //
@@ -724,7 +723,6 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_radius);              // 1 float
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
         EEPROM_WRITE(delta_segments_per_second); // 1 float
-        EEPROM_WRITE(delta_calibration_radius);  // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
 
       #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
@@ -787,13 +785,14 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
-        PIDC_t pidc = {
+        PIDCF_t pidcf = {
                        PID_PARAM(Kp, e),
           unscalePID_i(PID_PARAM(Ki, e)),
           unscalePID_d(PID_PARAM(Kd, e)),
-                       PID_PARAM(Kc, e)
+                       PID_PARAM(Kc, e),
+                       PID_PARAM(Kf, e)
         };
-        EEPROM_WRITE(pidc);
+        EEPROM_WRITE(pidcf);
       }
 
       _FIELD_TEST(lpq_len);
@@ -1534,7 +1533,6 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_radius);              // 1 float
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_segments_per_second); // 1 float
-          EEPROM_READ(delta_calibration_radius);  // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
 
         #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
@@ -1589,16 +1587,19 @@ void MarlinSettings::postprocess() {
       //
       {
         HOTEND_LOOP() {
-          PIDC_t pidc;
-          EEPROM_READ(pidc);
+          PIDCF_t pidcf;
+          EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
-            if (!validating && pidc.Kp != DUMMY_PID_VALUE) {
+            if (!validating && pidcf.Kp != DUMMY_PID_VALUE) {
               // Scale PID values since EEPROM values are unscaled
-              PID_PARAM(Kp, e) = pidc.Kp;
-              PID_PARAM(Ki, e) = scalePID_i(pidc.Ki);
-              PID_PARAM(Kd, e) = scalePID_d(pidc.Kd);
+              PID_PARAM(Kp, e) = pidcf.Kp;
+              PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
+              PID_PARAM(Kd, e) = scalePID_d(pidcf.Kd);
               #if ENABLED(PID_EXTRUSION_SCALING)
-                PID_PARAM(Kc, e) = pidc.Kc;
+                PID_PARAM(Kc, e) = pidcf.Kc;
+              #endif
+              #if ENABLED(PID_FAN_SCALING)
+                PID_PARAM(Kf, e) = pidcf.Kf;
               #endif
             }
           #endif
@@ -2375,7 +2376,6 @@ void MarlinSettings::reset() {
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
-    delta_calibration_radius = DELTA_CALIBRATION_RADIUS;
     delta_tower_angle_trim = dta;
 
   #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
@@ -2449,6 +2449,10 @@ void MarlinSettings::reset() {
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
       #if ENABLED(PID_EXTRUSION_SCALING)
         PID_PARAM(Kc, e) = DEFAULT_Kc;
+      #endif
+
+      #if ENABLED(PID_FAN_SCALING)
+        PID_PARAM(Kf, e) = DEFAULT_Kf;
       #endif
     }
   #endif
@@ -2939,14 +2943,13 @@ void MarlinSettings::reset() {
         , " Z", LINEAR_UNIT(delta_endstop_adj.c)
       );
 
-      CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");
+      CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> XYZ<tower angle corrections>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
           "  M665 L", LINEAR_UNIT(delta_diagonal_rod)
         , " R", LINEAR_UNIT(delta_radius)
         , " H", LINEAR_UNIT(delta_height)
         , " S", delta_segments_per_second
-        , " B", LINEAR_UNIT(delta_calibration_radius)
         , " X", LINEAR_UNIT(delta_tower_angle_trim.a)
         , " Y", LINEAR_UNIT(delta_tower_angle_trim.b)
         , " Z", LINEAR_UNIT(delta_tower_angle_trim.c)
@@ -3007,6 +3010,9 @@ void MarlinSettings::reset() {
           #if ENABLED(PID_EXTRUSION_SCALING)
             SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
             if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
+          #endif
+          #if ENABLED(PID_FAN_SCALING)
+            SERIAL_ECHOPAIR(" F", PID_PARAM(Kf, e));
           #endif
           SERIAL_EOL();
         }

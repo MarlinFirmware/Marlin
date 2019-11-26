@@ -85,7 +85,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
 
   void _goto_tower_a(const float &a) {
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
-    _man_probe_pt(tower_vec * delta_calibration_radius);
+    _man_probe_pt(tower_vec * delta_calibration_radius());
   }
   void _goto_tower_x() { _goto_tower_a(210); }
   void _goto_tower_y() { _goto_tower_a(330); }

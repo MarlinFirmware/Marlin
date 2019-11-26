@@ -353,7 +353,7 @@ void MarlinUI::draw_status_screen() {
     #if ENABLED(DOGM_SD_PERCENT)
       static char progress_string[5];
     #endif
-    static uint8_t lastElapsed = 0, lastProgress = 0;
+    static uint8_t lastElapsed = 0xFF, lastProgress = 0xFF;
     static u8g_uint_t elapsed_x_pos = 0, progress_bar_solid_width = 0;
     static char elapsed_string[16];
     #if ENABLED(SHOW_REMAINING_TIME)
@@ -460,7 +460,7 @@ void MarlinUI::draw_status_screen() {
                 + get_remaining_time()
               #endif
             );
-            if (!timeval) timeval = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+            if (!timeval && progress > 0) timeval = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
             if (!timeval) {
               estimation_string[0] = '\0';
               estimation_x_pos = _SD_INFO_X(0);

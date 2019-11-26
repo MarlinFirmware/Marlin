@@ -16,8 +16,6 @@ for i, flag in enumerate(env["LINKFLAGS"]):
 
 #append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
 def addboot(source,target,env):
-	import os
-
 	firmware = open(target[0].path, "rb")
 	lengthfirmware = os.path.getsize(target[0].path)
 	bootloader_dir = "buildroot/share/PlatformIO/scripts/jgaurora_bootloader.bin"

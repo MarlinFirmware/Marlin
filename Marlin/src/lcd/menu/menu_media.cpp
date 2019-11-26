@@ -34,7 +34,7 @@
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
-  screen_changed = true;
+  ui.screen_changed = true;
   ui.refresh();
 }
 
@@ -52,7 +52,7 @@ void lcd_sd_updir() {
     //  safe_delay(50);
     //  ui.synchronize();
     //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.drawing_screen = screen_changed = true;
+    //  ui.drawing_screen = ui.screen_changed = true;
     //#endif
 
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
@@ -112,7 +112,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
       card.cd(theCard.filename);
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
-      screen_changed = true;
+      ui.screen_changed = true;
       #if HAS_GRAPHICAL_LCD
         ui.drawing_screen = false;
       #endif

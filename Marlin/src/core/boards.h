@@ -270,9 +270,9 @@
 #define BOARD_MKS_ROBIN_NANO          4008  // MKS Robin Nano (STM32F103VET6)
 #define BOARD_MKS_ROBIN_LITE          4009  // MKS Robin Lite/Lite2 (STM32F103RCT6)
 #define BOARD_BIGTREE_SKR_MINI_V1_1   4010  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
-#define BOARD_BIGTREE_SKR_MINI_E3     4011  // BigTreeTech SKR Mini E3 (STM32F103RC)
-#define BOARD_BIGTREE_SKR_E3_DIP      4012  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_2    4013  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_0    4011  // BigTreeTech SKR Mini E3 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_2    4012  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
+#define BOARD_BIGTREE_SKR_E3_DIP      4013  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
 #define BOARD_JGAURORA_A5S_A1         4014  // JGAurora A5S A1 (STM32F103ZET6)
 #define BOARD_FYSETC_AIO_II           4015  // FYSETC AIO_II
 #define BOARD_FYSETC_CHEETAH          4016  // FYSETC Cheetah
@@ -301,7 +301,8 @@
 #define BOARD_BIGTREE_BTT002_V1_0     4208  // BigTreeTech BTT002 v1.0 (STM32F407VE)
 #define BOARD_LERDGE_K                4209  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_X                4210  // Lerdge X (STM32F407VE)
-#define BOARD_FYSETC_S6               4211  // FYSETC S6 board
+#define BOARD_VAKE403D                4211  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4212  // FYSETC S6 board
 
 //
 // ARM Cortex M7

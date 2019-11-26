@@ -113,8 +113,6 @@ def encrypt_file(input, output_file, file_length):
 
 # Encrypt ${PROGNAME}.bin and save it as 'update.cbd'
 def encrypt(source, target, env):
-    import os
-
     firmware = open(target[0].path, "rb")
     update = open(target[0].dir.path +'/update.cbd', "wb")
     length = os.path.getsize(target[0].path)
