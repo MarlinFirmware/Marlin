@@ -96,6 +96,13 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
   SERIAL_ECHO_MSG("After init");
   spiDebug(bus_num);
+
+  if (clock < 700000) {
+    BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+    HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
+    SERIAL_ECHO_MSG("After force");
+    spiDebug(bus_num);
+  }
 }
 
 /**
@@ -161,7 +168,7 @@ void spiSend(uint8_t dev_num, uint8_t b) {
 void spiWriteBus(uint8_t bus_num, uint8_t b) {
   SERIAL_ECHO_MSG("Write");
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  spiDebug(bus_num));
+  spiDebug(bus_num);
 }
 
 /**
