@@ -64,38 +64,38 @@ void spiDebug(const uint8_t bus_num) {
  * @return Nothing
  */
 void spiInit(uint8_t bus_num, uint8_t spiRate) {
-  if (!spiInitialized(bus_num)) {
-    uint32_t clock;
+  if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); //spi was already initialized maybe at a different frequency. de-init & re-init
 
-    switch (spiRate) {
-      case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
-      case SPI_HALF_SPEED:    clock =  5000000; break;
-      case SPI_QUARTER_SPEED: clock =  2500000; break;
-      case SPI_EIGHTH_SPEED:  clock =  1250000; break;
-      case SPI_SPEED_5:       clock =   625000; break;
-      case SPI_SPEED_6:       clock =   300000; break;
-      default:
-        clock = SPI_SPEED_CLOCK_DEFAULT; // Default from the SPI library
-    }
+  uint32_t clock;
 
-    spi[bus_num] = new spi_t();
-    spi[bus_num] -> pin_miso = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MISO]);
-    spi[bus_num] -> pin_mosi = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MOSI]);
-    spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
-    spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
-
-    SERIAL_ECHO("Before init: frequency=");
-
-    if (bus_num == 0) //SPI1
-      SERIAL_PRINT(HAL_RCC_GetPCLK2Freq(), DEC);
-    else //SPI2 & 3
-      SERIAL_PRINT(HAL_RCC_GetPCLK1Freq(), DEC);
-
-    spiDebug(bus_num);
-    spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
-    SERIAL_ECHO_MSG("After init");
-    spiDebug(bus_num);
+  switch (spiRate) {
+    case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
+    case SPI_HALF_SPEED:    clock =  5000000; break;
+    case SPI_QUARTER_SPEED: clock =  2500000; break;
+    case SPI_EIGHTH_SPEED:  clock =  1250000; break;
+    case SPI_SPEED_5:       clock =   625000; break;
+    case SPI_SPEED_6:       clock =   300000; break;
+    default:
+      clock = SPI_SPEED_CLOCK_DEFAULT; // Default from the SPI library
   }
+
+  spi[bus_num] = new spi_t();
+  spi[bus_num] -> pin_miso = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MISO]);
+  spi[bus_num] -> pin_mosi = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MOSI]);
+  spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
+  spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
+
+  SERIAL_ECHO("Before init: frequency=");
+
+  if (bus_num == 0) //SPI1
+    SERIAL_PRINT(HAL_RCC_GetPCLK2Freq(), DEC);
+  else //SPI2 & 3
+    SERIAL_PRINT(HAL_RCC_GetPCLK1Freq(), DEC);
+
+  spiDebug(bus_num);
+  spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
+  SERIAL_ECHO_MSG("After init");
+  spiDebug(bus_num);
 }
 
 /**

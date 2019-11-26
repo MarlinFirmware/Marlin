@@ -176,7 +176,7 @@ void Sd2Card::chipDeselect() {
  * @remarks This shouldn't be used when card access can be multi-threaded. Customize HAL for proper chip selection/deselection at each call
  */
 void Sd2Card::chipSelect() {
-  //spiInit(BUS_OF_DEV(dev_num), spiRate_);
+  spiInit(BUS_OF_DEV(dev_num), spiRate_);
   //extDigitalWrite(CS_OF_DEV(dev_num), LOW);
 }
 
@@ -518,10 +518,6 @@ bool Sd2Card::readStop() {
  * Set the SPI clock rate.
  *
  * \param[in] sckRateID A value in the range [0, 6].
- *
- * The SPI clock will be set to F_CPU/pow(2, 1 + sckRateID). The maximum
- * SPI rate is F_CPU/2 for \a sckRateID = 0 and the minimum rate is F_CPU/128
- * for \a scsRateID = 6.
  *
  * \return The value one, true, is returned for success and the value zero,
  * false, is returned for an invalid value of \a sckRateID.
