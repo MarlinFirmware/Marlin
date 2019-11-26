@@ -674,15 +674,15 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
-        if (zig) { // away from origin
-          inStart = 0;
-          inStop = PR_INNER_END;
-          inInc = 1;
+        if (zig) {                    // Zig away from origin
+          inStart = 0;                // Left or front
+          inStop = PR_INNER_END;      // Right or back
+          inInc = 1;                  // Zig right
         }
-        else {     // towards origin
-          inStart = PR_INNER_END - 1;
-          inStop = -1;
-          inInc = -1;
+        else {                        // Zag towards origin
+          inStart = PR_INNER_END - 1; // Right or back
+          inStop = -1;                // Left or front
+          inInc = -1;                 // Zag left
         }
 
         zig ^= true; // zag
