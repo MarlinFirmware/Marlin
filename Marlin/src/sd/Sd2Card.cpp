@@ -252,17 +252,17 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   watchdog_refresh(); // In case init takes too long
 
-  // Set pin modes
-  //extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
-  //pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
-  //spiBegin(BUS_OF_DEV(dev_num));
-
   // Set SCK rate for initialization commands
   spiRate_ = SPI_SD_INIT_RATE;
   spiInit(BUS_OF_DEV(dev_num), spiRate_);
 
+  // Set pin modes
+  extDigitalWrite(CS_OF_DEV(dev_num), HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
+  pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
+  //spiBegin(BUS_OF_DEV(dev_num));
+
   // Must supply min of 74 clock cycles with CS high.
-  for (uint8_t i = 0; i < 10; i++) spiSend(dev_num, 0xFF);
+  for (uint8_t i = 0; i < 10; i++) spiWrite(BUS_OF_DEV(dev_num), 0xFF);
 
   watchdog_refresh(); // In case init takes too long
 

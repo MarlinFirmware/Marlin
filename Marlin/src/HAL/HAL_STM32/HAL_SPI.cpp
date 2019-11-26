@@ -150,13 +150,18 @@ void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
  * @details
  */
 void spiSend(uint8_t dev_num, uint8_t b) {
+  SERIAL_ECHO_MSG("Send");
   if (spiInitialized(BUS_OF_DEV(dev_num))) return;
 
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  SERIAL_ECHO_MSG("Send");
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  spiDebug(BUS_OF_DEV(dev_num));
+  spiWriteBus(BUS_OF_DEV(dev_num), b);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
+}
+
+void spiWriteBus(uint8_t bus_num, uint8_t b) {
+  SERIAL_ECHO_MSG("Write");
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
+  spiDebug(bus_num));
 }
 
 /**

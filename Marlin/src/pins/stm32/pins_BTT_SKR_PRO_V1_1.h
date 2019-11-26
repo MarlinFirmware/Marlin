@@ -152,7 +152,7 @@
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 // MOSI, MISO, SCK , MODE
-  {PB5 , PA6 , PA5 , SPI_MODE_2}, //BUS0: only connected to onboard SD, mode 2 because pulled up.
+  {PB5 , PA6 , PA5 , SPI_MODE_0}, //BUS0: only connected to onboard SD
   {PB15, PB14, PB13, SPI_MODE_0}, //BUS1: on EXT2 port
   {PC12, PC11, PC10, SPI_MODE_0}  //BUS2: on SPI3 port (when not used by drivers)
 };
@@ -170,8 +170,8 @@ const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 const int SPI_Devices[NUM_SPI_DEVICES][5] = {
 // Device type    , BUS, Selection, Detection PIN, Level when detected
 //                  NR.  PIN        (SD only)      (SD only)
-  {DEVTYPE_SD     ,   0,     PB12,           PF12, ENABLED(SD_DETECT_INVERTED)},
-  {DEVTYPE_SD     ,   1,      PA4,           PB11, LOW},
+  {DEVTYPE_SD     ,   0,      PA4,           PB11, LOW},
+  {DEVTYPE_SD     ,   1,     PB12,           PF12, ENABLED(SD_DETECT_INVERTED)},
   {DEVTYPE_SD     ,   2,     PA15,             NC, NC}, //optional external SD on SPI3
 #if HAS_SPI_LCD
   {DEVTYPE_DISPLAY,   1,     PD11,             NC, NC},
@@ -217,7 +217,7 @@ const int SPI_Devices[NUM_SPI_DEVICES][5] = {
 };
 
 #ifndef SD_SEARCH_ORDER
-  #define SD_SEARCH_ORDER { 1, 0, 2 }
+  #define SD_SEARCH_ORDER { 0, 1, 2 }
 #endif
 
 //
