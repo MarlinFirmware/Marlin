@@ -24,9 +24,14 @@
 #include "../../module/motion.h"
 
 /**
- * M220 Sxxx: Set speed percentage factor, aka "Feed Rate" (M220 S95)
- * M220 B: backup current speed override
- * M220 R: restore previously saved speed override
+ * M220: Set speed percentage factor, aka "Feed Rate"
+ *
+ * Parameters
+ *   S<percent> : Set the feed rate percentage factor
+ *
+ * With PRUSA_MMU2...
+ *   B : Flag to back up the current factor
+ *   R : Flag to restore the last-saved factor
  */
 void GcodeSuite::M220() {
 
