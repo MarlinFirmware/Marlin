@@ -52,7 +52,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
   #include "../../gcode/gcode.h"
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    #include "../../feature/host_actions.h" // for PROMPT_USER_CONTINUE
+    #include "../../feature/host_actions.h" // for host_prompt_do
   #endif
 
   float lcd_probe_pt(const xy_pos_t &xy) {
