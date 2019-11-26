@@ -609,9 +609,9 @@ def get_env(board_name, ver_Marlin):
         get_answer(board_name, 'RCT6 Flash Size?', '512K', '256K')
         if 1 == get_answer_val:
           target_env += '_512K'
-      get_answer(board_name, 'USB Support?', 'No USB', 'USB')
+      get_answer(board_name, 'USB Support?', 'USB', 'No USB')
       if 1 == get_answer_val:
-        target_env += '_NOUSB'
+        target_env += '_USB'
     else:
       invalid_board()
 
