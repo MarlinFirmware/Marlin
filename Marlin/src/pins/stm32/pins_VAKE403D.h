@@ -66,7 +66,7 @@
 #define STEPPER_ENABLE_PIN PB2
 
 #define X_STEP_PIN         PC6   // X_STEP
-#define X_DIR_PIN          PC7   // X_DIR 
+#define X_DIR_PIN          PC7   // X_DIR
 #define X_ENABLE_PIN       PB2   //
 #ifndef X_CS_PIN
   #define X_CS_PIN         PC8   // X_CS
@@ -88,7 +88,7 @@
 
 #define E0_STEP_PIN        PB1
 #define E0_DIR_PIN         PB13
-#define E0_ENABLE_PIN      PB2 
+#define E0_ENABLE_PIN      PB2
 #ifndef E0_CS_PIN
   #define E0_CS_PIN        PE11
 #endif
@@ -100,9 +100,9 @@
   #define E1_CS_PIN        PB0
 #endif
 
-#define SCK_PIN            PE12 //PA5   // SPI1 for SD card
-#define MISO_PIN           PE13 //PA6
-#define MOSI_PIN           PE14 //PA7
+#define SCK_PIN            PE12  // PA5   // SPI1 for SD card
+#define MISO_PIN           PE13  // PA6
+#define MOSI_PIN           PE14  // PA7
 
 // added for SD card : optional or not ???
 //#define SD_CHIP_SELECT_PIN SDSS   // The default chip select pin for the SD card is SS.
