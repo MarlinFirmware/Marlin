@@ -534,6 +534,8 @@
   #include "stm32/pins_THE_BORG.h"              // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32/pins_REMRAM_V1.h"             // STM32F7                                env:STM32F7
+#elif MB(NUCLEO)
+  #include "pins_NUCLEO.h"                      // STM32H7                                env:STM32H7
 
 //
 // Espressif ESP32

@@ -310,6 +310,7 @@
 
 #define BOARD_THE_BORG                5000  // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_REMRAM_V1               5001  // RemRam v1
+#define BOARD_NUCLEO                  5002  // STM32H7 Nucleo Development Board
 
 //
 // Espressif ESP32 WiFi

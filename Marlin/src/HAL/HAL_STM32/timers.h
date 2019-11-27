@@ -70,6 +70,14 @@
     #define TEMP_TIMER 14 // TIM7 is consumed by Software Serial if used.
   #endif
 
+#elif defined(STM32H7xx)
+
+  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
+
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 5
+  #endif
+
 #endif
 
 #ifndef SWSERIAL_TIMER_IRQ_PRIO
