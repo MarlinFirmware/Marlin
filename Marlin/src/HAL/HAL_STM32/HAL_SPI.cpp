@@ -38,21 +38,11 @@ static spi_t* spi[NUM_SPI_BUSES]  = { NULL };
 // Public functions
 // ------------------------
 
-#define spiBegin ; //not used on STM32
+#define spiBegin(UNUSED) do {} while(0) //not used on STM32
 
 bool spiInitialized(uint8_t bus_num)
 {
   return spi[bus_num] != NULL;
-}
-
-void spiDebug(const char* operation, const uint8_t bus_num) {
-  char mess[350];
-
-  HAL_SPI_StateTypeDef state = HAL_SPI_GetState(BUS_SPI_HANDLE(bus_num));
-  uint32_t error = HAL_SPI_GetError(BUS_SPI_HANDLE(bus_num));
-
-  sprintf(mess, PSTR("%s SPI %d: Psc: %lu, State: %d, Error: %lu"), operation, bus_num, BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler, state, error);
-  SERIAL_ECHOLN(mess);
 }
 
 /**
@@ -64,7 +54,7 @@ void spiDebug(const char* operation, const uint8_t bus_num) {
  * @return Nothing
  */
 void spiInit(uint8_t bus_num, uint8_t spiRate) {
-  if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); //spi was already initialized maybe at a different frequency. de-init & re-init
+  if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); //spi was already initialized maybe at a different clock. de-init & re-init
 
   uint32_t clock;
 
@@ -86,29 +76,25 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 1);
-  if (clock < 700000) {
+
+  if (clock < 700000) { //temporary, until STM 1.8.0 is out. Fixes https://github.com/stm32duino/Arduino_Core_STM32/pull/794
     BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
     HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
-    spiDebug(PSTR("After force"), bus_num);
   }
 }
 
 uint8_t spiRec(uint8_t bus_num) {
-  SERIAL_ECHO("R:");
   uint8_t b = 0xff;
   if (!spiInitialized(bus_num)) return b;
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
-  SERIAL_PRINT(b, HEX);
   return b;
 }
 
 void spiSend(uint8_t bus_num, uint8_t b) {
-  SERIAL_ECHO("S:");
   if (!spiInitialized(bus_num)) return;
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  SERIAL_PRINT(b, HEX);
 }
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
@@ -118,9 +104,7 @@ void spiSend(uint8_t bus_num, uint8_t b) {
  * @return Nothing
  */
 void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
-  SERIAL_ECHO("B:");
   if (!spiInitialized(bus_num)) return;
-  SERIAL_PRINT(token, HEX);
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
@@ -137,10 +121,6 @@ void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
  *
  */
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
-  SERIAL_ECHO("Read ");
-  SERIAL_PRINT(nbyte, DEC);
-  SERIAL_ECHOLN(" bytes");
-
   if (!spiInitialized(bus_num)) return;
   if (nbyte == 0) return;
   memset(buf, 0xff, nbyte);
@@ -158,7 +138,6 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
  *
  */
 uint8_t spiRecDevice(uint8_t dev_num) {
-  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   uint8_t b = spiRec(BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
@@ -176,7 +155,6 @@ uint8_t spiRecDevice(uint8_t dev_num) {
  *
  */
 void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
-  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiRead(BUS_OF_DEV(dev_num), buf, nbyte);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
@@ -191,7 +169,6 @@ void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
  * @details
  */
 void spiSendDevice(uint8_t dev_num, uint8_t b) {
-  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiSend(BUS_OF_DEV(dev_num), b);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
@@ -205,7 +182,6 @@ void spiSendDevice(uint8_t dev_num, uint8_t b) {
  * @return Nothing
  */
 void spiSendBlockDevice(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
-  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiSendBlock(BUS_OF_DEV(dev_num), token, buf);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);

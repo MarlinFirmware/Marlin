@@ -152,7 +152,7 @@
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 // MOSI, MISO, SCK , MODE
-  {PB5 , PA6 , PA5 , SPI_MODE_0}, //BUS0: only connected to onboard SD
+  {PB5 , PA6 , PA5 , SPI_MODE_2}, //BUS0: only connected to onboard SD
   {PB15, PB14, PB13, SPI_MODE_0}, //BUS1: on EXT2 port
   {PC12, PC11, PC10, SPI_MODE_0}  //BUS2: on SPI3 port (when not used by drivers)
 };

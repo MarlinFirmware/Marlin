@@ -88,10 +88,7 @@
 
 bool spiInitialized(uint8_t bus_num);
 
-// Initialize SPI bus
-void spiBegin(uint8_t bus_num);
-
-// Configure SPI bus for specified clock speed
+// Initialize and configure SPI bus for specified clock speed
 void spiInit(uint8_t bus_num, uint8_t spiRate);
 
 // Write single byte to SPI bus, regardless of device
