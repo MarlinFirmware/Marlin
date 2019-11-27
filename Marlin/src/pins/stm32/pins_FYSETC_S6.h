@@ -214,9 +214,9 @@
 
 // Alter timing for graphical display
 #if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(103)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(51)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(642)
 #endif
 
 #ifndef RGB_LED_R_PIN
