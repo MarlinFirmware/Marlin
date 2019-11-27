@@ -51,7 +51,7 @@ void spiDebug(const uint8_t bus_num) {
   HAL_SPI_StateTypeDef state = HAL_SPI_GetState(BUS_SPI_HANDLE(bus_num));
   uint32_t error = HAL_SPI_GetError(BUS_SPI_HANDLE(bus_num));
 
-  sprintf(mess, PSTR("SPI %d State: %d, Error: %lu"), bus_num, state, error);
+  sprintf(mess, PSTR("SPI %d: Psc: %lu, State: %d, Error: %lu"), bus_num, BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler, state, error);
   SERIAL_ECHOLN(mess);
 }
 
@@ -85,16 +85,13 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
   spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
-  SERIAL_ECHO("Before init: frequency=");
-
-  if (bus_num == 0) //SPI1
-    SERIAL_PRINT(HAL_RCC_GetPCLK2Freq(), DEC);
-  else //SPI2 & 3
-    SERIAL_PRINT(HAL_RCC_GetPCLK1Freq(), DEC);
+  char mess[250];
+  sprintf(mess, PSTR("Bus %d init: clock: %lu Mhz"), bus_num, (bus_num == 0 ?  HAL_RCC_GetPCLK2Freq() : HAL_RCC_GetPCLK1Freq()));
+  SERIAL_ECHOLN(mess);
 
   spiDebug(bus_num);
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
-  SERIAL_ECHO_MSG("After init");
+  SERIAL_ECHO_MSG("After init:");
   spiDebug(bus_num);
 
   if (clock < 700000) {
@@ -122,6 +119,8 @@ uint8_t spiRec(uint8_t dev_num) {
   HAL_SPI_Receive(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), &b, 1, SPI_TRANSFER_TIMEOUT);
   spiDebug(BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
+  
+  SERIAL_PRINT(b, HEX);
 
   return b;
 }
@@ -159,6 +158,7 @@ void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
 void spiSend(uint8_t dev_num, uint8_t b) {
   SERIAL_ECHO_MSG("Send");
   if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
+  SERIAL_PRINT(b, HEX);
 
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiWriteBus(BUS_OF_DEV(dev_num), b);
