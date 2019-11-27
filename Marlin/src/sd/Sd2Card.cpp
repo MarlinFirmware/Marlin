@@ -258,11 +258,11 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   // Set pin modes
   extDigitalWrite(CS_OF_DEV(dev_num), HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
-  pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
+  pinMode(CS_OF_DEV(dev_num), OUTPUT);        // Solution for #8746 by @benlye
   //spiBegin(BUS_OF_DEV(dev_num));
 
   // Must supply min of 74 clock cycles with CS high.
-  for (uint8_t i = 0; i < 10; i++) spiWrite(BUS_OF_DEV(dev_num), 0xFF);
+  for (uint8_t i = 0; i < 10; i++) spiWriteBus(BUS_OF_DEV(dev_num), 0xFF);
 
   watchdog_refresh(); // In case init takes too long
 
