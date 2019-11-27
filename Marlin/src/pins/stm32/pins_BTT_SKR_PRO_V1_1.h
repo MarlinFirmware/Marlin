@@ -171,7 +171,11 @@ const int SPI_Devices[NUM_SPI_DEVICES][5] = {
 // Device type    , BUS, Selection, Detection PIN, Level when detected
 //                  NR.  PIN        (SD only)      (SD only)
   {DEVTYPE_SD     ,   0,      PA4,           PB11, LOW},
-  {DEVTYPE_SD     ,   1,     PB12,           PF12, ENABLED(SD_DETECT_INVERTED)},
+  {DEVTYPE_SD     ,   1,     PB12,           PF12, 
+#ifdef SD_DETECT_INVERTED
+!
+#endif                        
+                                                   LOW},
   {DEVTYPE_SD     ,   2,     PA15,             NC, NC}, //optional external SD on SPI3
 #if HAS_SPI_LCD
   {DEVTYPE_DISPLAY,   1,     PD11,             NC, NC},
