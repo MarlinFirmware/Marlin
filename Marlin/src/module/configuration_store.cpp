@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V73"
+#define EEPROM_VERSION "V74"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -192,7 +192,7 @@ typedef struct SettingsDataStruct {
   // AUTO_BED_LEVELING_BILINEAR
   //
   uint8_t grid_max_x, grid_max_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
-  xy_int_t bilinear_grid_spacing, bilinear_start;       // G29 L F
+  xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
   #else
@@ -658,7 +658,7 @@ void MarlinSettings::postprocess() {
       #else
         // For disabled Bilinear Grid write an empty 3x3 grid
         const uint8_t grid_max_x = 3, grid_max_y = 3;
-        const xy_int_t bilinear_start{0}, bilinear_grid_spacing{0};
+        const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
         dummy = 0;
         EEPROM_WRITE(grid_max_x);
         EEPROM_WRITE(grid_max_y);
@@ -1469,7 +1469,7 @@ void MarlinSettings::postprocess() {
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
             // Skip past disabled (or stale) Bilinear Grid data
-            xy_int_t bgs, bs;
+            xy_pos_t bgs, bs;
             EEPROM_READ(bgs);
             EEPROM_READ(bs);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
