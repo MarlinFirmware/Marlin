@@ -176,7 +176,7 @@ void Sd2Card::chipDeselect() {
  * @remarks This shouldn't be used when card access can be multi-threaded. Customize HAL for proper chip selection/deselection at each call
  */
 void Sd2Card::chipSelect() {
-  spiInit(BUS_OF_DEV(dev_num), spiRate_);
+  //spiInit(BUS_OF_DEV(dev_num), spiRate_);
   //extDigitalWrite(CS_OF_DEV(dev_num), LOW);
 }
 
@@ -253,8 +253,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   watchdog_refresh(); // In case init takes too long
 
   // Set SCK rate for initialization commands
-  spiRate_ = SPI_SD_INIT_RATE;
-  spiInit(BUS_OF_DEV(dev_num), spiRate_);
+  spiInit(BUS_OF_DEV(dev_num), SPI_SD_INIT_RATE);
 
   // Set pin modes
   extDigitalWrite(CS_OF_DEV(dev_num), HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
@@ -524,7 +523,7 @@ bool Sd2Card::readStop() {
  */
 bool Sd2Card::setSckRate(const uint8_t sckRateID) {
   const bool success = (sckRateID <= 6);
-  if (success) spiRate_ = sckRateID; else error(SD_CARD_ERROR_SCK_RATE);
+  if (success) spiInit(BUS_OF_DEV(dev_num), sckRateID); else error(SD_CARD_ERROR_SCK_RATE);
   return success;
 }
 
