@@ -35,7 +35,7 @@
   #include "../../../lcd/extensible_ui/ui_api.h"
 #endif
 
-xy_int_t bilinear_grid_spacing, bilinear_start;
+xy_pos_t bilinear_grid_spacing, bilinear_start;
 xy_float_t bilinear_grid_factor;
 bed_mesh_t z_values;
 
@@ -153,7 +153,7 @@ void print_bilinear_leveling_grid() {
   #define ABL_TEMP_POINTS_X (GRID_MAX_POINTS_X + 2)
   #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
   float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-  xy_int_t bilinear_grid_spacing_virt;
+  xy_pos_t bilinear_grid_spacing_virt;
   xy_float_t bilinear_grid_factor_virt;
 
   void print_bilinear_leveling_grid_virt() {

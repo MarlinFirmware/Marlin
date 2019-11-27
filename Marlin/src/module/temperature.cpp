@@ -36,19 +36,19 @@
 #if ENABLED(MAX6675_IS_MAX31865)
   #include "Adafruit_MAX31865.h"
   #ifndef MAX31865_CS_PIN
-    #define MAX31865_CS_PIN     CS_PIN      // HW:49   SW:65    for example
+    #define MAX31865_CS_PIN     MAX6675_SS_PIN  // HW:49   SW:65    for example
   #endif
   #ifndef MAX31865_MOSI_PIN
-    #define MAX31865_MOSI_PIN   MOSI_PIN    //            63
+    #define MAX31865_MOSI_PIN   MOSI_PIN        //            63
   #endif
   #ifndef MAX31865_MISO_PIN
-    #define MAX31865_MISO_PIN   MISO_PIN    //            42
+    #define MAX31865_MISO_PIN   MAX6675_DO_PIN  //            42
   #endif
   #ifndef MAX31865_SCK_PIN
-    #define MAX31865_SCK_PIN    SCK_PIN     //            40
+    #define MAX31865_SCK_PIN    MAX6675_SCK_PIN //            40
   #endif
   Adafruit_MAX31865 max31865 = Adafruit_MAX31865(MAX31865_CS_PIN
-    #if MAX31865_CS_PIN != CS_PIN
+    #if MAX31865_CS_PIN != MAX6675_SS_PIN
       , MAX31865_MOSI_PIN           // For software SPI also set MOSI/MISO/SCK
       , MAX31865_MISO_PIN
       , MAX31865_SCK_PIN
