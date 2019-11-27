@@ -95,19 +95,29 @@ void spiBegin(uint8_t bus_num);
 void spiInit(uint8_t bus_num, uint8_t spiRate);
 
 // Write single byte to SPI bus, regardless of device
-void spiWriteBus(uint8_t bus_num, uint8_t b);
+void spiSend(uint8_t bus_num, uint8_t b);
+
+// Read a single byte from SPI bus, regardless of device
+uint8_t spiRec(uint8_t bus_num);
+
+// Read from SPI bus into buffer
+void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
+
+// Write token and then write from 512 byte buffer to SPI bus (for SD card)
+void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf);
+
 
 // Write single byte to SPI device
-void spiSend(uint8_t dev_num, uint8_t b);
+void spiSendDevice(uint8_t dev_num, uint8_t b);
 
 // Read single byte from SPI device
-uint8_t spiRec(uint8_t dev_num);
+uint8_t spiRecDevice(uint8_t dev_num);
 
 // Read from SPI device into buffer
-void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte);
+void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t nbyte);
 
 // Write token and then write from 512 byte buffer to SPI device (for SD card)
-void spiSendBlock(uint8_t dev_num, uint8_t token, const uint8_t* buf);
+void spiSendBlockDevice(uint8_t dev_num, uint8_t token, const uint8_t* buf);
 
 // Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint8_t dev_num, uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);

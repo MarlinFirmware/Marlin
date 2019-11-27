@@ -85,12 +85,7 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
   spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
-  char mess[250];
-  sprintf(mess, PSTR("Init: clock: %lu Mhz, requested: %lu Mhz"), (bus_num == 0 ?  HAL_RCC_GetPCLK2Freq() : HAL_RCC_GetPCLK1Freq()), clock);
-  spiDebug(mess, bus_num);
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
-  spiDebug(PSTR("After init"), bus_num);
-
   if (clock < 700000) {
     BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
     HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
@@ -98,6 +93,62 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   }
 }
 
+uint8_t spiRec(uint8_t bus_num) {
+  SERIAL_ECHO("R:");
+  uint8_t b = 0xff;
+  if (!spiInitialized(bus_num)) return b;
+
+  HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
+  SERIAL_PRINT(b, HEX);
+  return b;
+}
+
+void spiSend(uint8_t bus_num, uint8_t b) {
+  SERIAL_ECHO("S:");
+  if (!spiInitialized(bus_num)) return;
+
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
+  SERIAL_PRINT(b, HEX);
+}
+/**
+ * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
+ *
+ * @param  dev_num Device number (identifies device and bus)
+ * @param  buf     Pointer with buffer start address
+ * @return Nothing
+ */
+void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
+  SERIAL_ECHO("B:");
+  if (!spiInitialized(bus_num)) return;
+  SERIAL_PRINT(token, HEX);
+
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
+}
+
+/**
+ * @brief  Receives a number of bytes from the SPI port to a buffer
+ * 
+ * @param  dev_num Device number (identifies device and bus)
+ * @param  buf     Pointer to starting address of buffer to write to.
+ * @param  nbyte   Number of bytes to receive.
+ * 
+ * @return Nothing
+ *
+ */
+void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
+  SERIAL_ECHO("Read ");
+  SERIAL_PRINT(nbyte, DEC);
+  SERIAL_ECHOLN(" bytes");
+
+  if (!spiInitialized(bus_num)) return;
+  if (nbyte == 0) return;
+  memset(buf, 0xff, nbyte);
+
+  HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, nbyte, SPI_TRANSFER_TIMEOUT);
+}
+
+//Device functions
 /**
  * @brief  Receives a single byte from the SPI device.
  * 
@@ -106,15 +157,10 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
  * @return Byte received
  *
  */
-uint8_t spiRec(uint8_t dev_num) {
-  SERIAL_ECHO("R:");
-  uint8_t b = 0xff;
-  if (!spiInitialized(BUS_OF_DEV(dev_num))) return b;
-
+uint8_t spiRecDevice(uint8_t dev_num) {
+  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  HAL_SPI_Receive(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), &b, 1, SPI_TRANSFER_TIMEOUT);
-  SERIAL_PRINT(b, HEX);
-  spiDebug(PSTR("\nAfter receive"), BUS_OF_DEV(dev_num));
+  uint8_t b = spiRec(BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   return b;
 }
@@ -129,17 +175,10 @@ uint8_t spiRec(uint8_t dev_num) {
  * @return Nothing
  *
  */
-void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
-  SERIAL_ECHO("Read");
-  SERIAL_PRINT(nbyte, DEC);
-  SERIAL_ECHOLN("bytes");
-  if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
-  if (nbyte == 0) return;
-  memset(buf, 0xff, nbyte);
-
+void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
+  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  HAL_SPI_Receive(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), buf, nbyte, SPI_TRANSFER_TIMEOUT);
-  spiDebug(PSTR("After read"), BUS_OF_DEV(dev_num));
+  spiRead(BUS_OF_DEV(dev_num), buf, nbyte);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
@@ -151,40 +190,24 @@ void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
  *
  * @details
  */
-void spiSend(uint8_t dev_num, uint8_t b) {
-  SERIAL_ECHO("S:");
-  if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
-  SERIAL_PRINT(b, HEX);
-
+void spiSendDevice(uint8_t dev_num, uint8_t b) {
+  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiWriteBus(BUS_OF_DEV(dev_num), b);
+  spiSend(BUS_OF_DEV(dev_num), b);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
-void spiWriteBus(uint8_t bus_num, uint8_t b) {
-  if (!spiInitialized(bus_num)) return;
-
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  spiDebug(PSTR("Write"), bus_num);
-}
-
 /**
- * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
+ * @brief  Write token and then write from 512 byte buffer to SPI device (for SD card)
  *
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer with buffer start address
  * @return Nothing
  */
-void spiSendBlock(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
-  SERIAL_ECHO("B:");
-  if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
-  SERIAL_PRINT(token, HEX);
-
+void spiSendBlockDevice(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
+  SERIAL_ECHO("D");
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  spiDebug(PSTR("\nToken"), BUS_OF_DEV(dev_num));
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
-  spiDebug(PSTR("Buffer"), BUS_OF_DEV(dev_num));
+  spiSendBlock(BUS_OF_DEV(dev_num), token, buf);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
