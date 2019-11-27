@@ -153,27 +153,33 @@
     //#define LCD_UART_RX    PD9
   #endif
 
+  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    //
+    // Geeetech's LCD2004A Control Panel is very much like
+    // RepRapDiscount Smart Controller, but adds an FFC40 connector
+    // connected with a flat wire to J2 connector on the board.
+    //
+    #define BTN_EN1          PE8
+    #define BTN_EN2          PE9
+    #define BTN_ENC          PE13
+
+    #define GTM32_PRO_VB_USE_LCD_BEEPER
+    #define GTM32_PRO_VB_USE_EXT_SDCARD
+  #endif
+
   #if HAS_GRAPHICAL_LCD
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
+    #endif
   #endif
 
 #endif // HAS_SPI_LCD
-
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-  //
-  // Geeetech's LCD2004A Control Panel is very much like
-  // RepRapDiscount Smart Controller, but adds an FFC40 connector
-  // connected with a flat wire to J2 connector on the board.
-  //
-  #define BTN_EN1          PE8
-  #define BTN_EN2          PE9
-  #define BTN_ENC          PE13
-
-  #define GTM32_PRO_VB_USE_LCD_BEEPER
-  #define GTM32_PRO_VB_USE_EXT_SDCARD
-#endif
 
 //
 // Beeper
