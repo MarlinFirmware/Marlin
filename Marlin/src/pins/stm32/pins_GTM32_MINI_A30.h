@@ -137,6 +137,7 @@
     // LCD display on J2 FFC40
     // Geeetech's LCD2004A Control Panel is very much like
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
+    // connected with a flat wire to J2 connector on the board.
     //
     #define LCD_PINS_RS    PE6   // CS chip select /SS chip slave select
     #define LCD_PINS_ENABLE PE14 // SID (MOSI)
@@ -145,26 +146,19 @@
     #define LCD_PINS_D6    PD10
     #define LCD_PINS_D7    PE15
 
-  #else
-    //
-    // Serial LCDs can be implemented in ExtUI
-    //
-    //#define LCD_UART_TX    PD8
-    //#define LCD_UART_RX    PD9
-  #endif
-
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-    //
-    // Geeetech's LCD2004A Control Panel is very much like
-    // RepRapDiscount Smart Controller, but adds an FFC40 connector
-    // connected with a flat wire to J2 connector on the board.
-    //
     #define BTN_EN1          PE8
     #define BTN_EN2          PE9
     #define BTN_ENC          PE13
 
     #define GTM32_PRO_VB_USE_LCD_BEEPER
     #define GTM32_PRO_VB_USE_EXT_SDCARD
+
+  #else
+    //
+    // Serial LCDs can be implemented in ExtUI
+    //
+    //#define LCD_UART_TX    PD8
+    //#define LCD_UART_RX    PD9
   #endif
 
   #if HAS_GRAPHICAL_LCD
