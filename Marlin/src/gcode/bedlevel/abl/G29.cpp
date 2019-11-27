@@ -465,7 +465,7 @@ G29_TYPE GcodeSuite::G29() {
         reset_bed_level();
 
         // Initialize a grid with the given dimensions
-        bilinear_grid_spacing = gridSpacing;
+        bilinear_grid_spacing = gridSpacing.asInt();
         bilinear_start = probe_position_lf;
 
         // Can't re-enable (on error) until the new grid is written
@@ -583,7 +583,10 @@ G29_TYPE GcodeSuite::G29() {
 
         if (zig) PR_INNER_VAR = (PR_INNER_END - 1) - PR_INNER_VAR;
 
-        probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
+        const xy_pos_t base = probe_position_lf.asFloat() + gridSpacing * meshCount.asFloat();
+
+        probePos.set(FLOOR(base.x + (base.x < 0 ? 0 : 0.5)),
+                     FLOOR(base.y + (base.y < 0 ? 0 : 0.5)));
 
         #if ENABLED(AUTO_BED_LEVELING_LINEAR)
           indexIntoAB[meshCount.x][meshCount.y] = abl_probe_index;
@@ -691,7 +694,10 @@ G29_TYPE GcodeSuite::G29() {
         // Inner loop is X with PROBE_Y_FIRST disabled
         for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; pt_index++, PR_INNER_VAR += inInc) {
 
-          probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
+          const xy_pos_t base = probe_position_lf.asFloat() + gridSpacing * meshCount.asFloat();
+
+          probePos.set(FLOOR(base.x + (base.x < 0 ? 0 : 0.5)),
+                       FLOOR(base.y + (base.y < 0 ? 0 : 0.5)));
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             indexIntoAB[meshCount.x][meshCount.y] = ++abl_probe_index; // 0...
