@@ -45,13 +45,13 @@ bool spiInitialized(uint8_t bus_num)
   return spi[bus_num] != NULL;
 }
 
-void spiDebug(const uint8_t bus_num) {
-  char mess[150];
+void spiDebug(const char* operation, const uint8_t bus_num) {
+  char mess[350];
 
   HAL_SPI_StateTypeDef state = HAL_SPI_GetState(BUS_SPI_HANDLE(bus_num));
   uint32_t error = HAL_SPI_GetError(BUS_SPI_HANDLE(bus_num));
 
-  sprintf(mess, PSTR("SPI %d: Psc: %lu, State: %d, Error: %lu"), bus_num, BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler, state, error);
+  sprintf(mess, PSTR("%s SPI %d: Psc: %lu, State: %d, Error: %lu"), operation, bus_num, BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler, state, error);
   SERIAL_ECHOLN(mess);
 }
 
@@ -86,19 +86,15 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
   char mess[250];
-  sprintf(mess, PSTR("Bus %d init: clock: %lu Mhz"), bus_num, (bus_num == 0 ?  HAL_RCC_GetPCLK2Freq() : HAL_RCC_GetPCLK1Freq()));
-  SERIAL_ECHOLN(mess);
-
-  spiDebug(bus_num);
+  sprintf(mess, PSTR("Init: clock: %lu Mhz, requested: %lu Mhz"), (bus_num == 0 ?  HAL_RCC_GetPCLK2Freq() : HAL_RCC_GetPCLK1Freq()), clock);
+  spiDebug(mess, bus_num);
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 0);
-  SERIAL_ECHO_MSG("After init:");
-  spiDebug(bus_num);
+  spiDebug(PSTR("After init"), bus_num);
 
   if (clock < 700000) {
     BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
     HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
-    SERIAL_ECHO_MSG("After force");
-    spiDebug(bus_num);
+    spiDebug(PSTR("After force"), bus_num);
   }
 }
 
@@ -111,17 +107,15 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
  *
  */
 uint8_t spiRec(uint8_t dev_num) {
-  SERIAL_ECHO_MSG("Receive");
+  SERIAL_ECHO("R:");
   uint8_t b = 0xff;
   if (!spiInitialized(BUS_OF_DEV(dev_num))) return b;
 
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   HAL_SPI_Receive(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), &b, 1, SPI_TRANSFER_TIMEOUT);
-  spiDebug(BUS_OF_DEV(dev_num));
-  digitalWrite(CS_OF_DEV(dev_num), HIGH);
-  
   SERIAL_PRINT(b, HEX);
-
+  spiDebug(PSTR("\nAfter receive"), BUS_OF_DEV(dev_num));
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
   return b;
 }
 
@@ -136,14 +130,16 @@ uint8_t spiRec(uint8_t dev_num) {
  *
  */
 void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
-  SERIAL_ECHO_MSG("Read");
+  SERIAL_ECHO("Read");
+  SERIAL_PRINT(nbyte, DEC);
+  SERIAL_ECHOLN("bytes");
   if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
   if (nbyte == 0) return;
   memset(buf, 0xff, nbyte);
 
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   HAL_SPI_Receive(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), buf, nbyte, SPI_TRANSFER_TIMEOUT);
-  spiDebug(BUS_OF_DEV(dev_num));
+  spiDebug(PSTR("After read"), BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
@@ -156,7 +152,7 @@ void spiRead(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
  * @details
  */
 void spiSend(uint8_t dev_num, uint8_t b) {
-  SERIAL_ECHO_MSG("Send");
+  SERIAL_ECHO("S:");
   if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
   SERIAL_PRINT(b, HEX);
 
@@ -166,11 +162,10 @@ void spiSend(uint8_t dev_num, uint8_t b) {
 }
 
 void spiWriteBus(uint8_t bus_num, uint8_t b) {
-  SERIAL_ECHO_MSG("Write");
   if (!spiInitialized(bus_num)) return;
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  spiDebug(bus_num);
+  spiDebug(PSTR("Write"), bus_num);
 }
 
 /**
@@ -181,14 +176,15 @@ void spiWriteBus(uint8_t bus_num, uint8_t b) {
  * @return Nothing
  */
 void spiSendBlock(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
-  SERIAL_ECHO_MSG("Block");
+  SERIAL_ECHO("B:");
   if (!spiInitialized(BUS_OF_DEV(dev_num))) return;
-  
+  SERIAL_PRINT(token, HEX);
+
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  spiDebug(BUS_OF_DEV(dev_num));
+  spiDebug(PSTR("\nToken"), BUS_OF_DEV(dev_num));
   HAL_SPI_Transmit(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
-  spiDebug(BUS_OF_DEV(dev_num));
+  spiDebug(PSTR("Buffer"), BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
