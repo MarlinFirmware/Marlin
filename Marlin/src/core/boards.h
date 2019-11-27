@@ -302,6 +302,7 @@
 #define BOARD_LERDGE_K                4209  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_X                4210  // Lerdge X (STM32F407VE)
 #define BOARD_VAKE403D                4211  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4212  // FYSETC S6 board
 
 //
 // ARM Cortex M7

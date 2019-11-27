@@ -359,7 +359,6 @@ void homeaxis(const AxisEnum axis);
 #if !HAS_BED_PROBE
   FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
 #endif
-FORCE_INLINE bool position_is_reachable_by_probe(const xy_int_t &pos) { return position_is_reachable_by_probe(pos.x, pos.y); }
 FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return position_is_reachable_by_probe(pos.x, pos.y); }
 
 /**
