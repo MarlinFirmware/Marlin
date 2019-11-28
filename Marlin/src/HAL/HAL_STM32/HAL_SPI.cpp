@@ -5,6 +5,7 @@
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  * Copyright (c) 2017 Victor Perez
+ * Copyright (c) 2019 Lino Barreca
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,31 +57,31 @@ bool spiInitialized(uint8_t bus_num)
 void spiInit(uint8_t bus_num, uint8_t spiRate) {
   if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); //spi was already initialized maybe at a different clock. de-init & re-init
 
-  uint32_t clock;
+  spi[bus_num] = new spi_t();
+  spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
+  
+  uint32_t clock = spi_getClkFreq(spi[bus_num]);
 
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
-    case SPI_HALF_SPEED:    clock =  5000000; break;
-    case SPI_QUARTER_SPEED: clock =  2500000; break;
-    case SPI_EIGHTH_SPEED:  clock =  1250000; break;
-    case SPI_SPEED_5:       clock =   625000; break;
-    case SPI_SPEED_6:       clock =   300000; break;
+    case SPI_FULL_SPEED:    clock /= 2;   break; //MAX Speed
+    case SPI_HALF_SPEED:    clock /= 4;   break;
+    case SPI_QUARTER_SPEED: clock /= 8;   break;
+    case SPI_EIGHTH_SPEED:  clock /= 16;  break;
+    case SPI_SPEED_5:       clock /= 128; break;
+    case SPI_SPEED_6:       clock /= 256; break; //MIN Speed
     default:
       clock = SPI_SPEED_CLOCK_DEFAULT; // Default from the SPI library
   }
 
-  spi[bus_num] = new spi_t();
   spi[bus_num] -> pin_miso = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MISO]);
   spi[bus_num] -> pin_mosi = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MOSI]);
-  spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
   spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 1);
 
-  if (clock < 700000) { //temporary, until STM 1.8.0 is out. Fixes https://github.com/stm32duino/Arduino_Core_STM32/pull/794
-    BUS_SPI_HANDLE(bus_num)->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
-    HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
-  }
+  char mess[350];
+  sprintf(mess, PSTR("SPI %d Clock: %lu Hz"), bus_num, clock);
+  SERIAL_ECHOLN(mess);
 }
 
 uint8_t spiRec(uint8_t bus_num) {
