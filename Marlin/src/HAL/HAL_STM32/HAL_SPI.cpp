@@ -83,16 +83,25 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
 }
 
 uint8_t spiRec(uint8_t bus_num) {
+  SERIAL_ECHO("R");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO(":");
+
   uint8_t b = 0xff;
   if (!spiInitialized(bus_num)) return b;
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
+  SERIAL_PRINTLN(b, HEX);
   return b;
 }
 
 void spiSend(uint8_t bus_num, uint8_t b) {
+  SERIAL_ECHO("S");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO(":");
   if (!spiInitialized(bus_num)) return;
 
+  SERIAL_PRINTLN(b, HEX);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
 }
 /**
@@ -103,7 +112,12 @@ void spiSend(uint8_t bus_num, uint8_t b) {
  * @return Nothing
  */
 void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
+  SERIAL_ECHO("B");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO(":");
+
   if (!spiInitialized(bus_num)) return;
+  SERIAL_PRINTLN(token, HEX);
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
@@ -120,6 +134,11 @@ void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
  *
  */
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
+  SERIAL_ECHO("D");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO("-");
+  SERIAL_PRINTLN(nbyte, DEC);
+
   if (!spiInitialized(bus_num)) return;
   if (nbyte == 0) return;
   memset(buf, 0xff, nbyte);
