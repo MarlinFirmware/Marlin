@@ -371,13 +371,16 @@ void CardReader::mount() {
       SERIAL_ECHO(mess);
 
       for (uint8_t dev = 0; dev < NUM_SPI_DEVICES && !initOK; dev++)
-        if (BUS_OF_DEV(dev) == order[i] && IS_DEV_SD(dev))
-         if (sd2card.isInserted(dev)) {
+        if (BUS_OF_DEV(dev) == order[i] && IS_DEV_SD(dev)) {
+         if (sd2card.isInserted(dev))
+          for (uint8_t retry = 0; retry < 3 && !initOK; retry++) { //test three times the initialization if card is present
             SERIAL_ECHOLN("IN -> Initializing...");
             sd2card.dev_num = dev;
             initOK = sd2card.init(SPI_SPEED);
-          } else
+          }
+          else
             SERIAL_ECHOLN("OUT.");
+        }
     }
 
     if (!initOK) //card not found.
