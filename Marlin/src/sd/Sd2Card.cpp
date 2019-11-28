@@ -105,7 +105,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   #if ENABLED(SD_CHECK_AND_RETRY)
     CRC7(d, 5);
   #else
-    cmd == CMD0 ? 0x95 : 0x87; // CRC is correct for CMD0 with arg zero or CMD8 with arg 0X1AA
+    (cmd == CMD0) ? 0x95 : 0x87; // CRC is correct for CMD0 with arg zero or CMD8 with arg 0X1AA
   #endif
 
   // Send message
@@ -234,7 +234,6 @@ bool Sd2Card::eraseSingleBlockEnable() {
  * Initialize an SD flash memory card.
  *
  * \param[in] sckRateID SPI clock rate selector. See setSckRate().
- * \param[in] chipSelectPin SD chip select pin number.
  *
  * \return true for success, false for failure.
  * The reason for failure can be determined by calling errorCode() and errorData().

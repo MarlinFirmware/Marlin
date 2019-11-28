@@ -47,8 +47,8 @@ bool spiInitialized(uint8_t bus_num)
 /**
  * Initialize and configure SPI BUS for specified SPI speed
  * 
- * @param bus_num Number of the spi bus
- * @param spiRate Maximum speed of the bus in Mhz
+ * @param bus_num Number of the SPI bus
+ * @param spiRate Speed of the bus (enum)
  * 
  * @return Nothing
  */
@@ -77,7 +77,7 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
 
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 1);
 
-  char mess[350];
+  char mess[50];
   sprintf(mess, PSTR("SPI %d Clock: %lu Hz"), bus_num, clock);
   SERIAL_ECHOLN(mess);
 }
@@ -94,7 +94,6 @@ uint8_t spiRec(uint8_t bus_num) {
   SERIAL_PRINTLN(b, HEX);
   return b;
 }
-
 void spiSend(uint8_t bus_num, uint8_t b) {
   SERIAL_ECHO("S");
   SERIAL_PRINT(bus_num, DEC);
@@ -104,6 +103,7 @@ void spiSend(uint8_t bus_num, uint8_t b) {
   SERIAL_PRINTLN(b, HEX);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
 }
+
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
  *
@@ -122,31 +122,29 @@ void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
 }
-
 /**
- * @brief  Receives a number of bytes from the SPI port to a buffer
+ * @brief  Receives a number of bytes from the SPI bus to a buffer
  * 
- * @param  dev_num Device number (identifies device and bus)
+ * @param  bus_num Bus number
  * @param  buf     Pointer to starting address of buffer to write to.
- * @param  nbyte   Number of bytes to receive.
+ * @param  count   Number of bytes to receive.
  * 
  * @return Nothing
  *
  */
-void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   SERIAL_ECHO("D");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
 
-  if (!spiInitialized(bus_num)) return;
-  if (nbyte == 0) return;
-  memset(buf, 0xff, nbyte);
+  if (count == 0 || !spiInitialized(bus_num)) return;
+  memset(buf, 0xff, count);
 
-  HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, nbyte, SPI_TRANSFER_TIMEOUT);
+  HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 
-  for (uint8_t b = 0; b<nbyte; b++) {
+  for (uint16_t b = 0; b < count; b++) {
     SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO(b < nbyte - 1 ? " ":"\n");
+    //SERIAL_ECHO((b < count - 1) ? " " : "\n");
   }
 }
 /**
@@ -154,25 +152,24 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
  * 
  * @param  bus_num Bus number
  * @param  buf     Pointer to starting address of buffer to send.
- * @param  nbyte   Number of bytes to send.
+ * @param  count   Number of bytes to send.
  * 
  * @return Nothing
  *
  */
-void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
+void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   SERIAL_ECHO("U");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
 
-  if (!spiInitialized(bus_num)) return;
-  if (nbyte == 0) return;
+  if (count == 0 || !spiInitialized(bus_num)) return;
 
-  for (uint8_t b = 0; b < nbyte; b++) {
+  for (uint16_t b = 0; b < count; b++) {
     SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO(b < nbyte - 1 ? " ":"\n");
+    //SERIAL_ECHO((b < count - 1) ? " " : "\n");
   }
 
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, nbyte, SPI_TRANSFER_TIMEOUT);
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 }
 
 //Device functions
@@ -196,14 +193,14 @@ uint8_t spiRecDevice(uint8_t dev_num) {
  * 
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
- * @param  nbyte   Number of bytes to receive.
+ * @param  count   Number of bytes to receive.
  * 
  * @return Nothing
  *
  */
-void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t nbyte) {
+void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiRead(BUS_OF_DEV(dev_num), buf, nbyte);
+  spiRead(BUS_OF_DEV(dev_num), buf, count);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
