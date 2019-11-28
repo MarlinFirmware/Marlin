@@ -39,8 +39,6 @@ static spi_t* spi[NUM_SPI_BUSES]  = { NULL };
 // Public functions
 // ------------------------
 
-#define spiBegin(UNUSED) do {} while(0) //not used on STM32
-
 bool spiInitialized(uint8_t bus_num)
 {
   return spi[bus_num] != NULL;

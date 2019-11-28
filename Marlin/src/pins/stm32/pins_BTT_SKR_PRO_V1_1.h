@@ -167,15 +167,17 @@ const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 #define NUM_SPI_DEVICES 4
 #endif
 
+#ifdef SD_DETECT_INVERTED
+  #define ExtSDLV HIGH
+#else
+  #define ExtSDLV LOW
+#endif
+
 const int SPI_Devices[NUM_SPI_DEVICES][5] = {
 // Device type    , BUS, Selection, Detection PIN, Level when detected
 //                  NR.  PIN        (SD only)      (SD only)
   {DEVTYPE_SD     ,   0,      PA4,           PB11, LOW},
-  {DEVTYPE_SD     ,   1,     PB12,           PF12, 
-#ifdef SD_DETECT_INVERTED
-!
-#endif                        
-                                                   LOW},
+  {DEVTYPE_SD     ,   1,     PB12,           PF12, ExtSDLV},
   {DEVTYPE_SD     ,   2,     PA15,             NC, NC}, //optional external SD on SPI3
 #if HAS_SPI_LCD
   {DEVTYPE_DISPLAY,   1,     PD11,             NC, NC},
@@ -217,11 +219,11 @@ const int SPI_Devices[NUM_SPI_DEVICES][5] = {
   {DEVTYPE_DRIVER ,   2, E1_CS_PIN,           NC, NC}, //E1
   {DEVTYPE_DRIVER ,   2, E2_CS_PIN,           NC, NC}, //E2
 #endif
-  {DEVTYPE_EEPROM ,   2,      PA15,           NC, NC} //optional external EEPROM on SPI3
+  {DEVTYPE_EEPROM ,   2,      PA15,           NC, NC}  //optional external EEPROM on SPI3
 };
 
 #ifndef SD_SEARCH_ORDER
-  #define SD_SEARCH_ORDER { 0, 1, 2 }
+  #define SD_SEARCH_ORDER { 1, 0, 2 }
 #endif
 
 //
