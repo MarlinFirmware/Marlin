@@ -168,9 +168,9 @@ const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 #endif
 
 #ifdef SD_DETECT_INVERTED
-  #define ExtSDLV HIGH
-#else
   #define ExtSDLV LOW
+#else
+  #define ExtSDLV HIGH
 #endif
 
 const int SPI_Devices[NUM_SPI_DEVICES][5] = {
@@ -184,40 +184,14 @@ const int SPI_Devices[NUM_SPI_DEVICES][5] = {
 #endif
 #if ENABLED(TMC_USE_SW_SPI)
 #error todo: comunicate through devices and not pins
-#ifndef X_CS_PIN
-  #define X_CS_PIN         PA15
-#endif
-#ifndef Y_CS_PIN
-  #define Y_CS_PIN         PB8
-#endif
-#ifndef Z_CS_PIN
-  #define Z_CS_PIN         PB9
-#endif
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN        PB3
-#endif
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN        PG15
-#endif
-#ifndef E2_CS_PIN
-  #define E2_CS_PIN        PG12
-#endif
-#ifndef TMC_SW_MOSI
-  #define TMC_SW_MOSI    PC12
-#endif
-#ifndef TMC_SW_MISO
-  #define TMC_SW_MISO    PC11
-#endif
-#ifndef TMC_SW_SCK
-  #define TMC_SW_SCK     PC10
-#endif
-
-  {DEVTYPE_DRIVER ,   2,  X_CS_PIN,           NC, NC}, //X
-  {DEVTYPE_DRIVER ,   2,  Y_CS_PIN,           NC, NC}, //Y
-  {DEVTYPE_DRIVER ,   2,  Z_CS_PIN,           NC, NC}, //Z
-  {DEVTYPE_DRIVER ,   2, E0_CS_PIN,           NC, NC}, //E0
-  {DEVTYPE_DRIVER ,   2, E1_CS_PIN,           NC, NC}, //E1
-  {DEVTYPE_DRIVER ,   2, E2_CS_PIN,           NC, NC}, //E2
+// Device type    , BUS, Selection, Type,            Index (for type)
+//                  NR.  PIN        (Driver only)    (Driver only)
+  {DEVTYPE_DRIVER ,   2,  X_CS_PIN, DRIVER_AXIS    , 0}, //Index 0 is X
+  {DEVTYPE_DRIVER ,   2,  Y_CS_PIN, DRIVER_AXIS    , 1}, //Index 1 is Y
+  {DEVTYPE_DRIVER ,   2,  Z_CS_PIN, DRIVER_AXIS    , 2}, //Index 2 is Z
+  {DEVTYPE_DRIVER ,   2, E0_CS_PIN, DRIVER_EXTRUDER, 0}, //E0
+  {DEVTYPE_DRIVER ,   2, E1_CS_PIN, DRIVER_EXTRUDER, 1}, //E1
+  {DEVTYPE_DRIVER ,   2, E2_CS_PIN, DRIVER_EXTRUDER, 2}, //E2
 #endif
   {DEVTYPE_EEPROM ,   2,      PA15,           NC, NC}  //optional external EEPROM on SPI3
 };

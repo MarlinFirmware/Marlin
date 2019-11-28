@@ -39,8 +39,6 @@
  *  2 :  2 - 2.5 MHz
  *  3 :  1 - 1.25 MHz
  *  4 :  500 - 625 kHz
- *  5 :  250 - 312 kHz
- *  6 :  125 - 156 kHz
  *
  *  On AVR, actual speed is F_CPU/2^(1 + index).
  *  On other platforms, speed should be in range given above where possible.
@@ -51,36 +49,54 @@
 #define SPI_QUARTER_SPEED   2   // Set SCK rate to quarter of max rate
 #define SPI_EIGHTH_SPEED    3   // Set SCK rate to 1/8 of max rate
 #define SPI_SIXTEENTH_SPEED 4   // Set SCK rate to 1/16 of max rate
-#define SPI_SPEED_5         5   // Set SCK rate to 1/32 of max rate
-#define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
+#define SPI_SPEED_5         5   // Set SCK rate to 250 - 312 kHz
+#define SPI_SPEED_6         6   // Set SCK rate to 125 - 156 kHz or lowest value possible for platform
 
-//
-// SPI device access definitions
-//
-#define SPIBUS_MOSI     0
-#define SPIBUS_MISO     1
-#define SPIBUS_CLCK     2
-#define SPIBUS_MODE     3
-
-#define SPIDEV_TYPE     0 //device type
-#define SPIDEV_BUS      1 //attached to bus
-#define SPIDEV_CS       2 //selection
-#define SPIDEV_SW       3 //detection
-#define SPIDEV_DLV      4 //level when detected
-
+//SPI device types
 #define DEVTYPE_SD      0
 #define DEVTYPE_DRIVER  1
 #define DEVTYPE_DISPLAY 2
 #define DEVTYPE_SENSOR  3
 #define DEVTYPE_EEPROM  4
 
+/**
+ * Index accessors
+ */
+
+// SPI bus
+#define SPIBUS_MOSI     0
+#define SPIBUS_MISO     1
+#define SPIBUS_CLCK     2
+#define SPIBUS_MODE     3
+
+//Common SPI device properties
+#define SPIDEV_TYPE     0 //device type
+#define SPIDEV_BUS      1 //attached to bus
+#define SPIDEV_CS       2 //selection
+
+//SPI device properties (by type)
+#define SPIDEV_SW       3 //detection
+#define SPIDEV_DLV      4 //level when detected
+#define SPIDEV_DT       3 //driver type
+#define SPIDEV_DI       4 //driver index
+
+//SPI Device Driver types
+#define DRIVER_AXIS     0
+#define DRIVER_EXTRUDER 1
+
 #define IS_DEV_SD(X)     SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_SD
 #define IS_DEV_EEPROM(X) SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_EEPROM
 
 #define BUS_OF_DEV(X)   SPI_Devices[X][SPIDEV_BUS]
 #define CS_OF_DEV(X)    SPI_Devices[X][SPIDEV_CS]
+
+//SD card
 #define SW_OF_SD(X)     SPI_Devices[X][SPIDEV_SW]
 #define DLV_OF_SD(X)    SPI_Devices[X][SPIDEV_DLV]
+
+//Driver
+#define TYPE_OF_DRIVER(X) SPI_Devices[X][SPIDEV_DT]
+#define IDX_OF_DRIVER(X) SPI_Devices[X][SPIDEV_DI]
 
 //
 // Standard SPI functions
