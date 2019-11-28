@@ -115,6 +115,7 @@ uint8_t spiRec(uint8_t bus_num);
 
 // Read from SPI bus into buffer
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
+void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
 
 // Write token and then write from 512 byte buffer to SPI bus (for SD card)
 void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf);

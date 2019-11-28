@@ -136,14 +136,43 @@ void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
   SERIAL_ECHO("D");
   SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO("-");
-  SERIAL_PRINTLN(nbyte, DEC);
+  SERIAL_ECHO(":");
 
   if (!spiInitialized(bus_num)) return;
   if (nbyte == 0) return;
   memset(buf, 0xff, nbyte);
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, nbyte, SPI_TRANSFER_TIMEOUT);
+
+  for (uint8_t b = 0; b<nbyte; b++) {
+    SERIAL_PRINT(buf[b], HEX);
+    SERIAL_ECHO(b < nbyte - 1 ? " ":"\n");
+  }
+}
+/**
+ * @brief  Sends a number of bytes to the SPI port 
+ * 
+ * @param  bus_num Bus number
+ * @param  buf     Pointer to starting address of buffer to send.
+ * @param  nbyte   Number of bytes to send.
+ * 
+ * @return Nothing
+ *
+ */
+void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t nbyte) {
+  SERIAL_ECHO("U");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO(":");
+
+  if (!spiInitialized(bus_num)) return;
+  if (nbyte == 0) return;
+
+  for (uint8_t b = 0; b < nbyte; b++) {
+    SERIAL_PRINT(buf[b], HEX);
+    SERIAL_ECHO(b < nbyte - 1 ? " ":"\n");
+  }
+
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, nbyte, SPI_TRANSFER_TIMEOUT);
 }
 
 //Device functions

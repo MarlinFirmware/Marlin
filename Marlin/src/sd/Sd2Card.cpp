@@ -97,27 +97,19 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   uint8_t *pa = (uint8_t *)(&arg);
 
+  // Form message
+  uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
+
+  // Add crc at end
+  d[5] =
   #if ENABLED(SD_CHECK_AND_RETRY)
-
-    // Form message
-    uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
-
-    // Add crc
-    d[5] = CRC7(d, 5);
-
-    // Send message
-    for (uint8_t k = 0; k < 6; k++) spiSend(BUS_OF_DEV(dev_num), d[k]);
-
+    CRC7(d, 5);
   #else
-    // Send command
-    spiSend(BUS_OF_DEV(dev_num), cmd | 0x40);
-
-    // Send argument
-    for (int8_t i = 3; i >= 0; i--) spiSend(BUS_OF_DEV(dev_num), pa[i]);
-
-    // Send CRC - correct for CMD0 with arg zero or CMD8 with arg 0X1AA
-    spiSend(BUS_OF_DEV(dev_num), cmd == CMD0 ? 0X95 : 0X87);
+    cmd == CMD0 ? 0x95 : 0x87; // CRC is correct for CMD0 with arg zero or CMD8 with arg 0X1AA
   #endif
+
+  // Send message
+  spiWrite(BUS_OF_DEV(dev_num), d, 6);
 
   // Skip stuff byte for stop read
   if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
