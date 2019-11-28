@@ -144,7 +144,7 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
 
   for (uint16_t b = 0; b < count; b++) {
     SERIAL_PRINT(buf[b], HEX);
-    //SERIAL_ECHO((b < count - 1) ? " " : "\n");
+    SERIAL_ECHO((b < count - 1) ? " " : "\n");
   }
 }
 /**
@@ -166,7 +166,7 @@ void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t count) {
 
   for (uint16_t b = 0; b < count; b++) {
     SERIAL_PRINT(buf[b], HEX);
-    //SERIAL_ECHO((b < count - 1) ? " " : "\n");
+    SERIAL_ECHO((b < count - 1) ? " " : "\n");
   }
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
