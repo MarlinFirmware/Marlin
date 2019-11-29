@@ -31,19 +31,20 @@
 /**
  * Detect an old pins file by checking for old ADC pins values.
  */
-#if PIN_EXISTS(TEMP_BED) && TEMP_BED_PIN <= 7
+#define _OLD_TEMP_PIN(P) PIN_EXISTS(TEMP_BED) && _CAT(P,_PIN) <= 7 && _CAT(P,_PIN) != 2 && _CAT(P,_PIN) != 3
+#if _OLD_TEMP_PIN(TEMP_BED)
   #error "TEMP_BED_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
-#elif PIN_EXISTS(TEMP_0) && TEMP_0_PIN <= 7
+#elif _OLD_TEMP_PIN(TEMP_0)
   #error "TEMP_0_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
-#elif PIN_EXISTS(TEMP_1) && TEMP_1_PIN <= 7
+#elif _OLD_TEMP_PIN(TEMP_1)
   #error "TEMP_1_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
-#elif PIN_EXISTS(TEMP_2) && TEMP_2_PIN <= 7
+#elif _OLD_TEMP_PIN(TEMP_2)
   #error "TEMP_2_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
-#elif PIN_EXISTS(TEMP_3) && TEMP_3_PIN <= 7
+#elif _OLD_TEMP_PIN(TEMP_3)
   #error "TEMP_3_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
-#elif PIN_EXISTS(TEMP_4) && TEMP_4_PIN <= 7
+#elif _OLD_TEMP_PIN(TEMP_4)
   #error "TEMP_4_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
-#elif PIN_EXISTS(TEMP_5) && TEMP_5_PIN <= 7
+#elif _OLD_TEMP_PIN(TEMP_5)
   #error "TEMP_5_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
 #endif
 
