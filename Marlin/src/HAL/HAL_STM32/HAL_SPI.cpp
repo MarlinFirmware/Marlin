@@ -47,8 +47,8 @@ bool spiInitialized(uint8_t bus_num)
 /**
  * Initialize and configure SPI BUS for specified SPI speed
  * 
- * @param bus_num Number of the SPI bus
- * @param spiRate Speed of the bus (enum)
+ * @param bus_num Number of the spi bus
+ * @param spiRate Maximum speed of the bus in Mhz
  * 
  * @return Nothing
  */
@@ -75,7 +75,7 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   spi[bus_num] -> pin_mosi = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MOSI]);
   spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
 
-  spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], 1);
+  spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], SPI_BusConfig[bus_num][SPIBUS_BITO]);
 
   char mess[50];
   sprintf(mess, PSTR("SPI %d Clock: %lu Hz"), bus_num, clock);
@@ -83,27 +83,39 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
 }
 
 uint8_t spiRec(uint8_t bus_num) {
+#ifdef DUMP_SPI
   SERIAL_ECHO("R");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
+#endif
 
   uint8_t b = 0xff;
-  if (!spiInitialized(bus_num)) return b;
+  
+  if (spiInitialized(bus_num)) {
+    HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
 
-  HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
-  SERIAL_PRINTLN(b, HEX);
+#ifdef DUMP_SPI
+    SERIAL_PRINTLN(b, HEX);
+#endif
+  }
+
   return b;
 }
+
 void spiSend(uint8_t bus_num, uint8_t b) {
+#ifdef DUMP_SPI
   SERIAL_ECHO("S");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
+#endif
+
   if (!spiInitialized(bus_num)) return;
 
+#ifdef DUMP_SPI
   SERIAL_PRINTLN(b, HEX);
+#endif
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
 }
-
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
  *
@@ -112,20 +124,26 @@ void spiSend(uint8_t bus_num, uint8_t b) {
  * @return Nothing
  */
 void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
+#ifdef DUMP_SPI
   SERIAL_ECHO("B");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
+#endif
 
   if (!spiInitialized(bus_num)) return;
+
+#ifdef DUMP_SPI
   SERIAL_PRINTLN(token, HEX);
+#endif
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
 }
+
 /**
- * @brief  Receives a number of bytes from the SPI bus to a buffer
+ * @brief  Receives a number of bytes from the SPI port to a buffer
  * 
- * @param  bus_num Bus number
+ * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
  * 
@@ -133,19 +151,23 @@ void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
  *
  */
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
+#ifdef DUMP_SPI
   SERIAL_ECHO("D");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
+#endif
 
   if (count == 0 || !spiInitialized(bus_num)) return;
   memset(buf, 0xff, count);
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 
-  for (uint16_t b = 0; b < count; b++) {
+#ifdef DUMP_SPI
+  for (uint8_t b=0; b<count; b++) {
     SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO((b < count - 1) ? " " : "\n");
+    SERIAL_ECHO(b < count-1 ? " ":"\n");
   }
+#endif
 }
 /**
  * @brief  Sends a number of bytes to the SPI port 
@@ -158,18 +180,22 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
  *
  */
 void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t count) {
+#ifdef DUMP_SPI
   SERIAL_ECHO("U");
   SERIAL_PRINT(bus_num, DEC);
   SERIAL_ECHO(":");
+#endif
 
   if (count == 0 || !spiInitialized(bus_num)) return;
 
-  for (uint16_t b = 0; b < count; b++) {
+#ifdef DUMP_SPI
+  for (uint8_t b = 0; b < count; b++) {
     SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO((b < count - 1) ? " " : "\n");
+    SERIAL_ECHO(b < count-1 ? " ":"\n");
   }
+#endif
 
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
+  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
 }
 
 //Device functions

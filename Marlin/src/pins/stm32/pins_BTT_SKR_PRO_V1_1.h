@@ -149,12 +149,13 @@
 // SPI devices, buses and pins definition
 //
 #define NUM_SPI_BUSES 3   //number of SPI buses in the controller
+#define SPI_HAS_HW_CRC    //we will use hardware CRC
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
-// MOSI, MISO, SCK , MODE
-  {PB5 , PA6 , PA5 , SPI_MODE_0}, //BUS0: only connected to onboard SD
-  {PB15, PB14, PB13, SPI_MODE_0}, //BUS1: on EXT2 port
-  {PC12, PC11, PC10, SPI_MODE_0}  //BUS2: on SPI3 port (when not used by drivers)
+// MOSI, MISO, SCK , Mode      , Bit order
+  {PB5 , PA6 , PA5 , SPI_MODE_0, SPI_MSB}, //BUS0: only connected to onboard SD
+  {PB15, PB14, PB13, SPI_MODE_0, SPI_MSB}, //BUS1: on EXT2 port
+  {PC12, PC11, PC10, SPI_MODE_0, SPI_MSB}  //BUS2: on SPI3 port (when not used by drivers)
 };
 
 #if HAS_SPI_LCD && ENABLED(TMC_USE_SW_SPI)
@@ -173,27 +174,26 @@ const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
   #define ExtSDLV HIGH
 #endif
 
-const int SPI_Devices[NUM_SPI_DEVICES][5] = {
-// Device type    , BUS, Selection, Detection PIN, Level when detected
-//                  NR.  PIN        (SD only)      (SD only)
-  {DEVTYPE_SD     ,   0,      PA4,           PB11, LOW},
-  {DEVTYPE_SD     ,   1,     PB12,           PF12, ExtSDLV},
-  {DEVTYPE_SD     ,   2,     PA15,             NC, NC}, //optional external SD on SPI3
+const int SPI_Devices[NUM_SPI_DEVICES][7] = {
+// Device type      BUS  Phase    Bit     Selection Detect PIN Level when detected
+//                  NR.           Order   PIN        (SD only) (SD only)
+  {DEVTYPE_SD     ,   0,      NC,      NC,     PA4,      PB11, LOW    }, //NC = not change: it's the only device on bus, just use the default
+  {DEVTYPE_SD     ,   1, SPI_LTS, SPI_MSB,    PB12,      PF12, ExtSDLV},
+  {DEVTYPE_SD     ,   2, SPI_LTS, SPI_MSB,    PA15,        NC, NC     }, //optional external SD on SPI3
 #if HAS_SPI_LCD
-  {DEVTYPE_DISPLAY,   1,     PD11,             NC, NC},
+  {DEVTYPE_DISPLAY,   1, SPI_LTS, SPI_MSB,    PD11,        NC, NC     },
 #endif
 #if ENABLED(TMC_USE_SW_SPI)
-#error todo: comunicate through devices and not pins
-// Device type    , BUS, Selection, Type,            Index (for type)
-//                  NR.  PIN        (Driver only)    (Driver only)
-  {DEVTYPE_DRIVER ,   2,  X_CS_PIN, DRIVER_AXIS    , 0}, //Index 0 is X
-  {DEVTYPE_DRIVER ,   2,  Y_CS_PIN, DRIVER_AXIS    , 1}, //Index 1 is Y
-  {DEVTYPE_DRIVER ,   2,  Z_CS_PIN, DRIVER_AXIS    , 2}, //Index 2 is Z
-  {DEVTYPE_DRIVER ,   2, E0_CS_PIN, DRIVER_EXTRUDER, 0}, //E0
-  {DEVTYPE_DRIVER ,   2, E1_CS_PIN, DRIVER_EXTRUDER, 1}, //E1
-  {DEVTYPE_DRIVER ,   2, E2_CS_PIN, DRIVER_EXTRUDER, 2}, //E2
+// Device type      BUS  Phase    Bit     Selection   Type,            Index (for type)
+//                  NR.           Order   PIN         (Driver only)    (Driver only)
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,  X_CS_PIN, DRIVER_AXIS    , 0}, //Index 0 is X
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,  Y_CS_PIN, DRIVER_AXIS    , 1}, //Index 1 is Y
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,  Z_CS_PIN, DRIVER_AXIS    , 2}, //Index 2 is Z
+  {DEVTYPE_DRIVER ,   2,      NC,      NC, E0_CS_PIN, DRIVER_EXTRUDER, 0}, //E0
+  {DEVTYPE_DRIVER ,   2,      NC,      NC, E1_CS_PIN, DRIVER_EXTRUDER, 1}, //E1
+  {DEVTYPE_DRIVER ,   2,      NC,      NC, E2_CS_PIN, DRIVER_EXTRUDER, 2}, //E2
 #endif
-  {DEVTYPE_EEPROM ,   2,      PA15,           NC, NC}  //optional external EEPROM on SPI3
+  {DEVTYPE_EEPROM ,   2,      NC,      NC,      PA15,             NC, NC}  //optional external EEPROM on SPI3
 };
 
 #ifndef SD_SEARCH_ORDER

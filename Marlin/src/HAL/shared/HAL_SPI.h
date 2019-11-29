@@ -52,6 +52,11 @@
 #define SPI_SPEED_5         5   // Set SCK rate to 250 - 312 kHz
 #define SPI_SPEED_6         6   // Set SCK rate to 125 - 156 kHz or lowest value possible for platform
 
+#define SPI_MSB     1   //MSB first
+#define SPI_LSB     0   //LSB first
+#define SPI_LTS     0   //Latch then shift
+#define SPI_STL     1   //Shift then latch
+
 //SPI device types
 #define DEVTYPE_SD      0
 #define DEVTYPE_DRIVER  1
@@ -67,18 +72,21 @@
 #define SPIBUS_MOSI     0
 #define SPIBUS_MISO     1
 #define SPIBUS_CLCK     2
-#define SPIBUS_MODE     3
+#define SPIBUS_MODE     3 //default mode (calls to bus, not directed to a device)
+#define SPIBUS_BITO     4 //default bit order (calls to bus, not directed to a device)
 
 //Common SPI device properties
 #define SPIDEV_TYPE     0 //device type
 #define SPIDEV_BUS      1 //attached to bus
-#define SPIDEV_CS       2 //selection
+#define SPIDEV_PHAS     2 //phase
+#define SPIDEV_BITO     3 //bit order
+#define SPIDEV_CS       4 //selection
 
 //SPI device properties (by type)
-#define SPIDEV_SW       3 //detection
-#define SPIDEV_DLV      4 //level when detected
-#define SPIDEV_DT       3 //driver type
-#define SPIDEV_DI       4 //driver index
+#define SPIDEV_SW       5 //detection
+#define SPIDEV_DLV      6 //level when detected
+#define SPIDEV_DT       5 //driver type
+#define SPIDEV_DI       6 //driver index
 
 //SPI Device Driver types
 #define DRIVER_AXIS     0
@@ -99,7 +107,7 @@
 #define IDX_OF_DRIVER(X) SPI_Devices[X][SPIDEV_DI]
 
 //
-// Standard SPI functions
+// Calls directed to the whole bus
 //
 
 bool spiInitialized(uint8_t bus_num);
@@ -120,6 +128,9 @@ void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
 // Write token and then write from 512 byte buffer to SPI bus (for SD card)
 void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf);
 
+//
+// Calls directed to a device
+//
 
 // Write single byte to SPI device
 void spiSendDevice(uint8_t dev_num, uint8_t b);
