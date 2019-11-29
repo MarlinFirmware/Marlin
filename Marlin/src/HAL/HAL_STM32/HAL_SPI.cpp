@@ -82,6 +82,24 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   SERIAL_ECHOLN(mess);
 }
 
+void spiSetCRC(uint8_t bus_num, uint32_t CRCPol) {
+  SERIAL_ECHO("SPI ");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO(" CRC=");
+
+  if (!spiInitialized(bus_num)) return;
+
+  if (CRCPol == 0)
+    (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  else {
+    (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_ENABLE;
+    (BUS_SPI_HANDLE(bus_num) -> Init).CRCPolynomial = CRCPol;
+  }
+
+  SERIAL_PRINTLN(CRCPol, HEX);
+  HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
+}
+
 uint8_t spiRec(uint8_t bus_num) {
 #ifdef DUMP_SPI
   SERIAL_ECHO("R");
@@ -90,7 +108,7 @@ uint8_t spiRec(uint8_t bus_num) {
 #endif
 
   uint8_t b = 0xff;
-  
+
   if (spiInitialized(bus_num)) {
     HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
 
@@ -196,6 +214,11 @@ void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t count) {
 #endif
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
+}
+
+//CRC functions
+bool spiCRCError(uint8_t bus_num) {
+  return (BUS_SPI_HANDLE(bus_num)->ErrorCode & HAL_SPI_ERROR_CRC) == HAL_SPI_ERROR_CRC;
 }
 
 //Device functions

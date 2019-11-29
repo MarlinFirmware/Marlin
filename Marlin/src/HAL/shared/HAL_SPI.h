@@ -112,8 +112,11 @@
 
 bool spiInitialized(uint8_t bus_num);
 
-// Initialize and configure SPI bus for specified clock speed
+// Initialize and configure SPI bus for specified clock speed and no CRC
 void spiInit(uint8_t bus_num, uint8_t spiRate);
+
+// Configure SPI bus for specified CRC polynomial
+void spiSetCRC(uint8_t bus_num, uint32_t CRCPol);
 
 // Write single byte to SPI bus, regardless of device
 void spiSend(uint8_t bus_num, uint8_t b);
@@ -127,6 +130,9 @@ void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
 
 // Write token and then write from 512 byte buffer to SPI bus (for SD card)
 void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf);
+
+// Returns true if there was a CRC error in reception
+bool spiCRCError(uint8_t bus_num);
 
 //
 // Calls directed to a device

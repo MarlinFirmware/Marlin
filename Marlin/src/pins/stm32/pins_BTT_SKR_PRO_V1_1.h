@@ -149,7 +149,7 @@
 // SPI devices, buses and pins definition
 //
 #define NUM_SPI_BUSES 3   //number of SPI buses in the controller
-#define SPI_HAS_HW_CRC    //we will use hardware CRC
+//#define SPI_HAS_HW_CRC    //use hardware CRC
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 // MOSI, MISO, SCK , Mode      , Bit order
