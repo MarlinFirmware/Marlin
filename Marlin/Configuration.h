@@ -327,7 +327,8 @@
 #if ENABLED(PSU_CONTROL)
   #define PSU_ACTIVE_HIGH false // Set 'false' for ATX (1), 'true' for X-Box (2)
 
-  //#define PS_DEFAULT_OFF      // Keep power off until enabled directly with M80
+  //#define PS_DEFAULT_OFF                // Keep power off until enabled directly with M80
+  //#define PS_STEPPER_RESTORE_DELAY 100  // Wait n Milliseconds after turning on PSU prior attempting stepper driver communication
 
   //#define AUTO_POWER_CONTROL  // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
