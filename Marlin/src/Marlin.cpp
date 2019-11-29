@@ -601,7 +601,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    monitor_tmc_driver();
+    monitor_tmc_drivers();
   #endif
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
