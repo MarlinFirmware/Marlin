@@ -47,6 +47,7 @@
 #elif _OLD_TEMP_PIN(TEMP_5)
   #error "TEMP_5_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
 #endif
+#undef _OLD_TEMP_PIN
 
 /**
  * Because PWM hardware channels all share the same frequency, along with the
