@@ -560,7 +560,7 @@ G29_TYPE GcodeSuite::G29() {
           ExtUI::onMeshUpdate(meshCount, newz);
         #endif
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Save X", meshCount.x, " Y", meshCount.y, " Z", measured_z + zoffset);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_P(PSTR("Save X"), meshCount.x, SP_Y_STR, meshCount.y, SP_Z_STR, measured_z + zoffset);
 
       #endif
     }

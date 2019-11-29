@@ -46,6 +46,8 @@ void host_action(const char * const pstr, const bool eol=true);
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
+  extern const char CONTINUE_STR[];
+
   enum PromptReason : uint8_t {
     PROMPT_NOT_DEFINED,
     PROMPT_FILAMENT_RUNOUT,
