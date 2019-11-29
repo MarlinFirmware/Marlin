@@ -179,6 +179,43 @@
  *              EXP2                                              EXP1
  */
 #if HAS_SPI_LCD
+
+  #if ENABLED(ANET_FULL_GRAPHICS_LCD)
+    /** Be careful! To use this display you have to do some hardware modifications to the wires and the connectors.
+
+    !!! if you are unsure, you better keep your fingers off this change! Your motherboard may be damaged in some circumstances !!!
+
+    1. you have to cut the nose off of the connector "LCD", because you have to install it in the other direction to the SKR 1.3 "EXP1" connector.
+    2. The wire for +5V (Pin2) and the wire for GND (Pin1) at the LCD connector have to be swapped. (Keep in mind, this is the critical Part!)
+    3. The "CLK Signal" (Pin9) at the LCD connector has to be rewired to (Pin7) at the LCD Connector. After the modification (Pin9) has to be open, because on SKR 1.3 Mainboard this pin is open drain
+    4. The reset switch at the Display is wired to (Pin7) at connector "J3" at the display. You only neet a single wire to connect (Pin7) at "J3" from the display to (Pin3) at "EXP2" at the Mainboard.
+
+    Here is the LCD Connector of ANET_FULL_GRAPHICS_LCD before and after the modification.
+
+    before                                            after
+    *                _____                                             _____
+    *           GND | · · | 5V                                     5V | · · | GND
+    *            CS | · · | BTN_EN2                                CS | · · | BTN_EN2
+    *           SID | · · | BTN_EN1                               SID | · · | BTN_EN1
+    *          open | · · | BTN_ENC                               CLK | · · | BTN_ENC
+    *           CLK | · · | Beeper                               open | · · | beeper
+    *                -----                                             -----
+    *                LCD                                               LCD
+    */
+
+    #define LCD_PINS_RS    P1_23
+
+    #define BTN_EN1        P1_20
+    #define BTN_EN2        P1_22
+    #define BTN_ENC        P1_18
+
+    #define LCD_PINS_ENABLE P1_21
+    #define LCD_PINS_D4    P1_19
+
+  #endif
+
+#else
+
   #define BTN_ENC          P0_28   // (58) open-drain
 
   #if ENABLED(CR10_STOCKDISPLAY)
