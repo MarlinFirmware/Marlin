@@ -269,7 +269,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   //Activate Hardware CRC
   #if defined(SD_CHECK_AND_RETRY) && defined(SPI_HAS_HW_CRC)
-    spiSetCRC(BUS_OF_DEV(dev_num), 0x09);
+    spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false);
   #endif
 
   // Command to go idle in SPI mode
@@ -537,7 +537,7 @@ bool Sd2Card::setSckRate(const uint8_t sckRateID) {
   if (success) {
     spiInit(BUS_OF_DEV(dev_num), sckRateID);
     #ifdef SPI_HAS_HW_CRC
-      if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021);
+      if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true);
     #endif
   }
 

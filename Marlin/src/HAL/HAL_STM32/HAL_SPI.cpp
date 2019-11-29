@@ -82,16 +82,20 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   SERIAL_ECHOLN(mess);
 }
 
-void spiSetCRC(uint8_t bus_num, uint32_t CRCPol) {
+void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
   SERIAL_ECHO("SPI ");
   SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO(" CRC=");
+  SERIAL_ECHO("-> CRC=0x");
 
   if (!spiInitialized(bus_num)) return;
 
   if (CRCPol == 0)
+  {
+    (BUS_SPI_HANDLE(bus_num) -> Init).DataSize = SPI_DATASIZE_8BIT;
     (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  }
   else {
+    (BUS_SPI_HANDLE(bus_num) -> Init).DataSize = word ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
     (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_ENABLE;
     (BUS_SPI_HANDLE(bus_num) -> Init).CRCPolynomial = CRCPol;
   }
