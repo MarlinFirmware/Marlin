@@ -52,7 +52,7 @@
  * fallback software channels, FAST_PWM_FAN is incompatible with Servos.
  */
 #if NUM_SERVOS > 0 && ENABLED(FAST_PWM_FAN)
-  #error "Servos and BLTouch are incompatible with FAST_PWM_FAN on LPC176x boards"
+  #error "BLTOUCH and Servos are incompatible with FAST_PWM_FAN on LPC176x boards."
 #endif
 
 /**
