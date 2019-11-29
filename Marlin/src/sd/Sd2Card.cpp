@@ -119,8 +119,9 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   // Skip stuff byte for stop read
   if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
 
-  // Wait for response
-  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i != 0xFF; i++) { /* Intentionally left empty */ }
+  // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
+  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
+
   return status_;
 }
 
