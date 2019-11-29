@@ -103,7 +103,9 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
 
   #ifdef SPI_HAS_HW_CRC
-    spiWrite(BUS_OF_DEV(dev_num), d, 5); // Send message without CRC
+    spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false);  //activate CRC on send
+    spiWrite(BUS_OF_DEV(dev_num), d, 5);          //send message without CRC
+    spiSetCRC(BUS_OF_DEV(dev_num), 0, false);     //deactivate CRC on receive (response doesn't have CRC)
   #else
     // Add crc at end
     d[5] =
@@ -266,11 +268,6 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   for (uint8_t i = 0; i < 10; i++) spiSend(BUS_OF_DEV(dev_num), 0xFF);
 
   watchdog_refresh(); // In case init takes too long
-
-  //Activate Hardware CRC
-  #if defined(SD_CHECK_AND_RETRY) && defined(SPI_HAS_HW_CRC)
-    spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false);
-  #endif
 
   // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
