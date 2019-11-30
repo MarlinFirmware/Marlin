@@ -129,6 +129,8 @@ static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
 static const float     _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
+
 /**
  * Current EEPROM Layout
  *
@@ -2728,40 +2730,40 @@ void MarlinSettings::reset() {
 
     CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
     CONFIG_ECHO_START();
-    SERIAL_ECHOLNPAIR(
-        "  M203 X", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS])
-      , " Y", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS])
-      , " Z", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS])
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS])
+      , SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS])
+      , SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS])
       #if DISABLED(DISTINCT_E_FACTORS)
-        , " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
+        , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
       #endif
     );
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
-        SERIAL_ECHOLNPAIR(
-            "  M203 T", (int)i
-          , " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
+        SERIAL_ECHOLNPAIR_P(
+            PSTR("  M203 T"), (int)i
+          , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
         );
       }
     #endif
 
     CONFIG_ECHO_HEADING("Maximum Acceleration (units/s2):");
     CONFIG_ECHO_START();
-    SERIAL_ECHOLNPAIR(
-        "  M201 X", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS])
-      , " Y", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS])
-      , " Z", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS])
+      , SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS])
+      , SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
       #if DISABLED(DISTINCT_E_FACTORS)
-        , " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
+        , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
       #endif
     );
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++)
-        SERIAL_ECHOLNPAIR(
-            "  M201 T", (int)i
-          , " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
+        SERIAL_ECHOLNPAIR_P(
+            PSTR("  M201 T"), (int)i
+          , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
         );
     #endif
 
@@ -2788,19 +2790,19 @@ void MarlinSettings::reset() {
       SERIAL_EOL();
     }
     CONFIG_ECHO_START();
-    SERIAL_ECHOLNPAIR(
-        "  M205 B", LINEAR_UNIT(planner.settings.min_segment_time_us)
-      , " S", LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
-      , " T", LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
+      , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
+      , PSTR(" T"), LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
       #if DISABLED(CLASSIC_JERK)
-        , " J", LINEAR_UNIT(planner.junction_deviation_mm)
+        , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
       #endif
       #if HAS_CLASSIC_JERK
-        , " X", LINEAR_UNIT(planner.max_jerk.x)
-        , " Y", LINEAR_UNIT(planner.max_jerk.y)
-        , " Z", LINEAR_UNIT(planner.max_jerk.z)
+        , SP_X_STR, LINEAR_UNIT(planner.max_jerk.x)
+        , SP_Y_STR, LINEAR_UNIT(planner.max_jerk.y)
+        , SP_Z_STR, LINEAR_UNIT(planner.max_jerk.z)
         #if HAS_CLASSIC_E_JERK
-          , " E", LINEAR_UNIT(planner.max_jerk.e)
+          , SP_E_STR, LINEAR_UNIT(planner.max_jerk.e)
         #endif
       #endif
     );
@@ -2808,12 +2810,15 @@ void MarlinSettings::reset() {
     #if HAS_M206_COMMAND
       CONFIG_ECHO_HEADING("Home offset:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M206"
+      SERIAL_ECHOLNPAIR_P(
         #if IS_CARTESIAN
-          " X", LINEAR_UNIT(home_offset.x),
-          " Y", LINEAR_UNIT(home_offset.y),
+            PSTR("  M206 X"), LINEAR_UNIT(home_offset.x)
+          , SP_Y_STR, LINEAR_UNIT(home_offset.y)
+          , SP_Z_STR
+        #else
+          PSTR("  M206 Z")
         #endif
-        " Z", LINEAR_UNIT(home_offset.z)
+        , LINEAR_UNIT(home_offset.z)
       );
     #endif
 
@@ -2821,11 +2826,12 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Hotend offsets:");
       CONFIG_ECHO_START();
       for (uint8_t e = 1; e < HOTENDS; e++) {
-        SERIAL_ECHOPAIR(
-          "  M218 T", (int)e,
-          " X", LINEAR_UNIT(hotend_offset[e].x), " Y", LINEAR_UNIT(hotend_offset[e].y)
+        SERIAL_ECHOPAIR_P(
+          PSTR("  M218 T"), (int)e,
+          SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
+          SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y)
         );
-        SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(hotend_offset[e].z), 3);
+        SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(hotend_offset[e].z), 3);
       }
     #endif
 
@@ -2853,10 +2859,10 @@ void MarlinSettings::reset() {
       #endif
 
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-        "  M420 S", planner.leveling_active ? 1 : 0
+      SERIAL_ECHOLNPAIR_P(
+        PSTR("  M420 S"), planner.leveling_active ? 1 : 0
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          , " Z", LINEAR_UNIT(planner.z_fade_height)
+          , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
         #endif
       );
 
@@ -2866,8 +2872,8 @@ void MarlinSettings::reset() {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1, " Y", (int)py + 1);
-              SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(mbl.z_values[px][py]), 5);
+              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 X"), (int)px + 1, SP_Y_STR, (int)py + 1);
+              SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
         }
@@ -2890,7 +2896,7 @@ void MarlinSettings::reset() {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
               CONFIG_ECHO_START();
               SERIAL_ECHOPAIR("  G29 W I", (int)px, " J", (int)py);
-              SERIAL_ECHOLNPAIR_F(" Z", LINEAR_UNIT(z_values[px][py]), 5);
+              SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(z_values[px][py]), 5);
             }
           }
         }
@@ -2926,33 +2932,33 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_HEADING("SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M665 S", delta_segments_per_second
-        , " P", scara_home_offset.a
-        , " T", scara_home_offset.b
-        , " Z", LINEAR_UNIT(scara_home_offset.z)
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M665 S"), delta_segments_per_second
+        , PSTR(" P"), scara_home_offset.a
+        , PSTR(" T"), scara_home_offset.b
+        , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
       );
 
     #elif ENABLED(DELTA)
 
       CONFIG_ECHO_HEADING("Endstop adjustment:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M666 X", LINEAR_UNIT(delta_endstop_adj.a)
-        , " Y", LINEAR_UNIT(delta_endstop_adj.b)
-        , " Z", LINEAR_UNIT(delta_endstop_adj.c)
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
+        , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
+        , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
       );
 
       CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> XYZ<tower angle corrections>");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M665 L", LINEAR_UNIT(delta_diagonal_rod)
-        , " R", LINEAR_UNIT(delta_radius)
-        , " H", LINEAR_UNIT(delta_height)
-        , " S", delta_segments_per_second
-        , " X", LINEAR_UNIT(delta_tower_angle_trim.a)
-        , " Y", LINEAR_UNIT(delta_tower_angle_trim.b)
-        , " Z", LINEAR_UNIT(delta_tower_angle_trim.c)
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
+        , PSTR(" R"), LINEAR_UNIT(delta_radius)
+        , PSTR(" H"), LINEAR_UNIT(delta_height)
+        , PSTR(" S"), delta_segments_per_second
+        , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
+        , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
+        , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
       );
 
     #elif EITHER(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
@@ -2961,17 +2967,17 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOPGM("  M666");
       #if ENABLED(X_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" X", LINEAR_UNIT(endstops.x2_endstop_adj));
+        SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(endstops.x2_endstop_adj));
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(endstops.y2_endstop_adj));
+        SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(endstops.y2_endstop_adj));
       #endif
       #if ENABLED(Z_TRIPLE_ENDSTOPS)
         SERIAL_ECHOLNPAIR("S1 Z", LINEAR_UNIT(endstops.z2_endstop_adj));
         CONFIG_ECHO_START();
         SERIAL_ECHOPAIR("  M666 S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
       #elif ENABLED(Z_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(endstops.z2_endstop_adj));
+        SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(endstops.z2_endstop_adj));
       #endif
       SERIAL_EOL();
 
@@ -2999,13 +3005,16 @@ void MarlinSettings::reset() {
       #if ENABLED(PIDTEMP)
         HOTEND_LOOP() {
           CONFIG_ECHO_START();
-          SERIAL_ECHOPAIR("  M301"
+          SERIAL_ECHOPAIR_P(
             #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
-              " E", e,
+              PSTR("  M301 E"), e,
+              PSTR(" P")
+            #else
+              PSTR("  M301 P")
             #endif
-              " P", PID_PARAM(Kp, e)
-            , " I", unscalePID_i(PID_PARAM(Ki, e))
-            , " D", unscalePID_d(PID_PARAM(Kd, e))
+                        , PID_PARAM(Kp, e)
+            , PSTR(" I"), unscalePID_i(PID_PARAM(Ki, e))
+            , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
           );
           #if ENABLED(PID_EXTRUSION_SCALING)
             SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
@@ -3051,11 +3060,11 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M207 S", LINEAR_UNIT(fwretract.settings.retract_length)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_length)
-        , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
-        , " Z", LINEAR_UNIT(fwretract.settings.retract_zraise)
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
+        , PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
+        , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
+        , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
       );
 
       CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
@@ -3086,9 +3095,9 @@ void MarlinSettings::reset() {
         say_units(true);
       }
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M851 X", LINEAR_UNIT(probe_offset.x),
-                              " Y", LINEAR_UNIT(probe_offset.y),
-                              " Z", LINEAR_UNIT(probe_offset.z));
+      SERIAL_ECHOLNPAIR_P(PSTR("  M851 X"), LINEAR_UNIT(probe_offset.x),
+                                  SP_Y_STR, LINEAR_UNIT(probe_offset.y),
+                                  SP_Z_STR, LINEAR_UNIT(probe_offset.z));
     #endif
 
     /**
@@ -3115,15 +3124,15 @@ void MarlinSettings::reset() {
 
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
         say_M906(forReplay);
-        SERIAL_ECHOLNPAIR(
+        SERIAL_ECHOLNPAIR_P(
           #if AXIS_IS_TMC(X)
-            " X", stepperX.getMilliamps(),
+            SP_X_STR, stepperX.getMilliamps(),
           #endif
           #if AXIS_IS_TMC(Y)
-            " Y", stepperY.getMilliamps(),
+            SP_Y_STR, stepperY.getMilliamps(),
           #endif
           #if AXIS_IS_TMC(Z)
-            " Z", stepperZ.getMilliamps()
+            SP_Z_STR, stepperZ.getMilliamps()
           #endif
         );
       #endif
@@ -3131,15 +3140,15 @@ void MarlinSettings::reset() {
       #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
         say_M906(forReplay);
         SERIAL_ECHOPGM(" I1");
-        SERIAL_ECHOLNPAIR(
+        SERIAL_ECHOLNPAIR_P(
           #if AXIS_IS_TMC(X2)
-            " X", stepperX2.getMilliamps(),
+            SP_X_STR, stepperX2.getMilliamps(),
           #endif
           #if AXIS_IS_TMC(Y2)
-            " Y", stepperY2.getMilliamps(),
+            SP_Y_STR, stepperY2.getMilliamps(),
           #endif
           #if AXIS_IS_TMC(Z2)
-            " Z", stepperZ2.getMilliamps()
+            SP_Z_STR, stepperZ2.getMilliamps()
           #endif
         );
       #endif
@@ -3184,13 +3193,13 @@ void MarlinSettings::reset() {
           say_M913(forReplay);
         #endif
         #if AXIS_HAS_STEALTHCHOP(X)
-          SERIAL_ECHOPAIR(" X", stepperX.get_pwm_thrs());
+          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          SERIAL_ECHOPAIR(" Y", stepperY.get_pwm_thrs());
+          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          SERIAL_ECHOPAIR(" Z", stepperZ.get_pwm_thrs());
+          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
           SERIAL_EOL();
@@ -3201,13 +3210,13 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPGM(" I1");
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2)
-          SERIAL_ECHOPAIR(" X", stepperX2.get_pwm_thrs());
+          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          SERIAL_ECHOPAIR(" Y", stepperY2.get_pwm_thrs());
+          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          SERIAL_ECHOPAIR(" Z", stepperZ2.get_pwm_thrs());
+          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.get_pwm_thrs());
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
           SERIAL_EOL();
@@ -3254,13 +3263,13 @@ void MarlinSettings::reset() {
           CONFIG_ECHO_START();
           say_M914();
           #if X_SENSORLESS
-            SERIAL_ECHOPAIR(" X", stepperX.homing_threshold());
+            SERIAL_ECHOPAIR_P(SP_X_STR, stepperX.homing_threshold());
           #endif
           #if Y_SENSORLESS
-            SERIAL_ECHOPAIR(" Y", stepperY.homing_threshold());
+            SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY.homing_threshold());
           #endif
           #if Z_SENSORLESS
-            SERIAL_ECHOPAIR(" Z", stepperZ.homing_threshold());
+            SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.homing_threshold());
           #endif
           SERIAL_EOL();
         #endif
@@ -3270,13 +3279,13 @@ void MarlinSettings::reset() {
           say_M914();
           SERIAL_ECHOPGM(" I1");
           #if X2_SENSORLESS
-            SERIAL_ECHOPAIR(" X", stepperX2.homing_threshold());
+            SERIAL_ECHOPAIR_P(SP_X_STR, stepperX2.homing_threshold());
           #endif
           #if Y2_SENSORLESS
-            SERIAL_ECHOPAIR(" Y", stepperY2.homing_threshold());
+            SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY2.homing_threshold());
           #endif
           #if Z2_SENSORLESS
-            SERIAL_ECHOPAIR(" Z", stepperZ2.homing_threshold());
+            SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.homing_threshold());
           #endif
           SERIAL_EOL();
         #endif
@@ -3312,9 +3321,9 @@ void MarlinSettings::reset() {
 
         if (chop_x || chop_y || chop_z) {
           say_M569(forReplay);
-          if (chop_x) SERIAL_ECHOPGM(" X");
-          if (chop_y) SERIAL_ECHOPGM(" Y");
-          if (chop_z) SERIAL_ECHOPGM(" Z");
+          if (chop_x) SERIAL_ECHOPGM_P(SP_X_STR);
+          if (chop_y) SERIAL_ECHOPGM_P(SP_Y_STR);
+          if (chop_z) SERIAL_ECHOPGM_P(SP_Z_STR);
           SERIAL_EOL();
         }
 
@@ -3336,9 +3345,9 @@ void MarlinSettings::reset() {
 
         if (chop_x2 || chop_y2 || chop_z2) {
           say_M569(forReplay, PSTR("I1"));
-          if (chop_x2) SERIAL_ECHOPGM(" X");
-          if (chop_y2) SERIAL_ECHOPGM(" Y");
-          if (chop_z2) SERIAL_ECHOPGM(" Z");
+          if (chop_x2) SERIAL_ECHOPGM_P(SP_X_STR);
+          if (chop_y2) SERIAL_ECHOPGM_P(SP_Y_STR);
+          if (chop_z2) SERIAL_ECHOPGM_P(SP_Z_STR);
           SERIAL_EOL();
         }
 
@@ -3386,10 +3395,10 @@ void MarlinSettings::reset() {
     #if HAS_MOTOR_CURRENT_PWM
       CONFIG_ECHO_HEADING("Stepper motor currents:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M907 X", stepper.motor_current_setting[0]
-        , " Z", stepper.motor_current_setting[1]
-        , " E", stepper.motor_current_setting[2]
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M907 X"), stepper.motor_current_setting[0]
+        , SP_Z_STR, stepper.motor_current_setting[1]
+        , SP_E_STR, stepper.motor_current_setting[2]
       );
     #endif
 
@@ -3429,13 +3438,13 @@ void MarlinSettings::reset() {
     #if ENABLED(BACKLASH_GCODE)
       CONFIG_ECHO_HEADING("Backlash compensation:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-        "  M425 F", backlash.get_correction(),
-        " X", LINEAR_UNIT(backlash.distance_mm.x),
-        " Y", LINEAR_UNIT(backlash.distance_mm.y),
-        " Z", LINEAR_UNIT(backlash.distance_mm.z)
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M425 F"), backlash.get_correction()
+        , SP_X_STR, LINEAR_UNIT(backlash.distance_mm.x)
+        , SP_Y_STR, LINEAR_UNIT(backlash.distance_mm.y)
+        , SP_Z_STR, LINEAR_UNIT(backlash.distance_mm.z)
         #ifdef BACKLASH_SMOOTHING_MM
-          , " S", LINEAR_UNIT(backlash.smoothing_mm)
+          , PSTR(" S"), LINEAR_UNIT(backlash.smoothing_mm)
         #endif
       );
     #endif
