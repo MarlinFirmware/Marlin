@@ -103,7 +103,6 @@ void GcodeSuite::M290() {
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
-      #error "Hey!"
       SERIAL_ECHOLNPAIR_P(
         PSTR("Hotend "), int(active_extruder)
         #if ENABLED(BABYSTEP_XY)
