@@ -130,7 +130,7 @@ void GcodeSuite::M290() {
           , SP_Y_STR, babystep.axis_total[Y_AXIS]
           , SP_Z_STR
         #else
-          , PSTR("Babystep Z")
+          PSTR("Babystep Z")
         #endif
         , babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]
       );
