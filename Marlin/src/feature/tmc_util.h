@@ -345,7 +345,7 @@ void tmc_print_current(TMC &st) {
   }
 #endif
 
-void monitor_tmc_driver();
+void monitor_tmc_drivers();
 void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e);
 
 #if ENABLED(TMC_DEBUG)
