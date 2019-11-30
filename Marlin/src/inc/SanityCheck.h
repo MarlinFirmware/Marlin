@@ -416,6 +416,8 @@
   #error "BABYSTEP_MULTIPLICATOR is now BABYSTEP_MULTIPLICATOR_[XY|Z]. Please update Configuration_adv.h."
 #elif defined(LULZBOT_TOUCH_UI)
   #error "LULZBOT_TOUCH_UI is now TOUCH_UI_FTDI_EVE. Please update your configuration."
+#elif defined(PS_DEFAULT_OFF)
+  #error "PS_DEFAULT_OFF is now PSU_DEFAULT_OFF. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13        -1000
@@ -608,7 +610,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !HAS_GRAPHICAL_LCD && !ENABLED(TOUCH_UI_FTDI_EVE)
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !(HAS_GRAPHICAL_LCD || ENABLED(TOUCH_UI_FTDI_EVE))
   #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
   #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
