@@ -330,16 +330,13 @@
     #else
       #define PSU_NAME "ATX"      // ATX style
     #endif
-
     #if DISABLED(AUTO_POWER_CONTROL)
-		#ifndef PS_STEPPER_RESTORE_DELAY
-			#define PS_STEPPER_RESTORE_DELAY 100
-		#endif // PS_STEPPER_RESTORE_DELAY
-	#else
-		#ifdef PS_STEPPER_RESTORE_DELAY
-			#error "PS_STEPPER_RESTORE_DELAY has no effect if AUTO_POWER_CONTROL is enabled."
-		#endif
-	#endif // DISABLED(AUTO_POWER_CONTROL)
+      #ifndef PS_STEPPER_RESTORE_DELAY
+        #define PS_STEPPER_RESTORE_DELAY 100
+      #endif
+    #elif defined(PS_STEPPER_RESTORE_DELAY)
+      #error "PS_STEPPER_RESTORE_DELAY has no effect if AUTO_POWER_CONTROL is enabled."
+    #endif
   #else
     #define PSU_NAME "Generic"    // No control
   #endif
