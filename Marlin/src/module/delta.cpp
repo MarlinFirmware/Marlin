@@ -117,7 +117,7 @@ float delta_calibration_radius() {
  */
 
 #define DELTA_DEBUG(VAR) do { \
-    SERIAL_ECHOLNPAIR("Cartesian X", VAR.x, " Y", VAR.y, " Z", VAR.z);   \
+    SERIAL_ECHOLNPAIR_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
     SERIAL_ECHOLNPAIR("Delta A", delta.a, " B", delta.b, " C", delta.c); \
   }while(0)
 

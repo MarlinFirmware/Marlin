@@ -29,6 +29,35 @@
 #endif
 
 /**
+ * Detect an old pins file by checking for old ADC pins values.
+ */
+#define _OLD_TEMP_PIN(P) PIN_EXISTS(P) && _CAT(P,_PIN) <= 7 && _CAT(P,_PIN) != 2 && _CAT(P,_PIN) != 3
+#if _OLD_TEMP_PIN(TEMP_BED)
+  #error "TEMP_BED_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#elif _OLD_TEMP_PIN(TEMP_0)
+  #error "TEMP_0_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#elif _OLD_TEMP_PIN(TEMP_1)
+  #error "TEMP_1_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#elif _OLD_TEMP_PIN(TEMP_2)
+  #error "TEMP_2_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#elif _OLD_TEMP_PIN(TEMP_3)
+  #error "TEMP_3_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#elif _OLD_TEMP_PIN(TEMP_4)
+  #error "TEMP_4_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#elif _OLD_TEMP_PIN(TEMP_5)
+  #error "TEMP_5_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
+#endif
+#undef _OLD_TEMP_PIN
+
+/**
+ * Because PWM hardware channels all share the same frequency, along with the
+ * fallback software channels, FAST_PWM_FAN is incompatible with Servos.
+ */
+#if NUM_SERVOS > 0 && ENABLED(FAST_PWM_FAN)
+  #error "BLTOUCH and Servos are incompatible with FAST_PWM_FAN on LPC176x boards."
+#endif
+
+/**
  * Test LPC176x-specific configuration values for errors at compile-time.
  */
 

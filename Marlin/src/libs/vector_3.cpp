@@ -78,9 +78,9 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
 
 void vector_3::debug(PGM_P const title) {
   serialprintPGM(title);
-  SERIAL_ECHOPAIR_F(" X", x, 6);
-  SERIAL_ECHOPAIR_F(" Y", y, 6);
-  SERIAL_ECHOLNPAIR_F(" Z", z, 6);
+  SERIAL_ECHOPAIR_F_P(SP_X_STR, x, 6);
+  SERIAL_ECHOPAIR_F_P(SP_Y_STR, y, 6);
+  SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z, 6);
 }
 
 /**
