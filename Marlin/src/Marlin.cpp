@@ -110,7 +110,7 @@
   #include "feature/I2CPositionEncoder.h"
 #endif
 
-#if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
+#if HAS_TRINAMIC && DISABLED(PSU_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
@@ -234,7 +234,7 @@ void setup_powerhold() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
   #if ENABLED(PSU_CONTROL)
-    #if ENABLED(PS_DEFAULT_OFF)
+    #if ENABLED(PSU_DEFAULT_OFF)
       powersupply_on = true;  PSU_OFF();
     #else
       powersupply_on = false; PSU_ON();
@@ -1110,7 +1110,7 @@ void setup() {
     host_action_prompt_end();
   #endif
 
-  #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
+  #if HAS_TRINAMIC && DISABLED(PSU_DEFAULT_OFF)
     test_tmc_connection(true, true, true, true);
   #endif
 

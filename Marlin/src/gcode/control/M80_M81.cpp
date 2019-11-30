@@ -72,7 +72,7 @@
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)
-      delay(100); // Wait for power to settle
+      delay(PSU_POWERUP_DELAY); // Wait for power to settle
       restore_stepper_drivers();
     #endif
 
