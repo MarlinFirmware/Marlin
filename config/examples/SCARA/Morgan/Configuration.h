@@ -62,32 +62,45 @@
  * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
  */
-
-// Specify the specific SCARA model
 #define MORGAN_SCARA
 
-#if ENABLED(MORGAN_SCARA)
+/**
+ * Mostly Printed SCARA is an open source design by Tyler Williams. See:
+ *   https://www.thingiverse.com/thing:2487048
+ *   https://www.thingiverse.com/thing:1241491
+ */
+//#define MP_SCARA
 
-  //#define DEBUG_SCARA_KINEMATICS
-  #define SCARA_FEEDRATE_SCALING // Convert XY feedrate from mm/s to degrees/s on the fly
-
+#if EITHER(MORGAN_SCARA, MP_SCARA)
   // If movement is choppy try lowering this value
   #define SCARA_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
-  #define SCARA_LINKAGE_1 150 //mm
-  #define SCARA_LINKAGE_2 150 //mm
+  #define SCARA_LINKAGE_1 150       // (mm)
+  #define SCARA_LINKAGE_2 150       // (mm)
 
   // SCARA tower offset (position of Tower relative to bed zero position)
   // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
-  #define SCARA_OFFSET_X 100 //mm
-  #define SCARA_OFFSET_Y -56 //mm
+  #define SCARA_OFFSET_X  100       // (mm)
+  #define SCARA_OFFSET_Y  -56       // (mm)
 
-  // Radius around the center where the arm cannot reach
-  #define MIDDLE_DEAD_ZONE_R 0 //mm
+  #if ENABLED(MORGAN_SCARA)
 
-  #define THETA_HOMING_OFFSET 0  //calculatated from Calibration Guide and command M360 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
-  #define PSI_HOMING_OFFSET   0  //calculatated from Calibration Guide and command M364 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
+    //#define DEBUG_SCARA_KINEMATICS
+    #define SCARA_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
+
+    // Radius around the center where the arm cannot reach
+    #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+
+    #define THETA_HOMING_OFFSET  0  // Calculated from Calibration Guide and M360 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+    #define PSI_HOMING_OFFSET    0  // Calculated from Calibration Guide and M364 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+
+  #elif ENABLED(MP_SCARA)
+
+    #define SCARA_OFFSET_THETA1  12 // degrees
+    #define SCARA_OFFSET_THETA2 131 // degrees
+
+  #endif
 
 #endif
 
