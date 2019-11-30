@@ -99,9 +99,9 @@
 #define E2_ENABLE_PIN      PC4
 
 //
-// Heaters / Fans - INFO: Extruders ports are in reverse order. Pin numbers here differ from schematic. Original firmware assumes heater, fan and temp sensor on port EXT0 PB0, PB9, PC2. 
+// Heaters / Fans - INFO: Extruders ports are in reverse order. Pin numbers here differ from schematic. Original firmware assumes heater, fan and temp sensor on port EXT0 PB0, PB9, PC2.
 //
-#define HEATER_0_PIN       PB0   // EXT0 port. 
+#define HEATER_0_PIN       PB0   // EXT0 port.
 #define HEATER_1_PIN       PB5   // EXT1 port
 #define HEATER_2_PIN       PB4   // EXT2 port
 #define HEATER_BED_PIN     PB1   // CON2X3 hotbed port
@@ -204,10 +204,10 @@
   //
   // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
   //
-  #define SS_PIN         PB12 / PC11 
-  #define SCK_PIN          PB13 // PC12 // PC1
-  #define MOSI_PIN         PB15 // PD2  // PD2
-  #define MISO_PIN         PB14 // PC8
+  #define SS_PIN           PB12   // PC11
+  #define SCK_PIN          PB13   // PC12 // PC1
+  #define MOSI_PIN         PB15   // PD2  // PD2
+  #define MISO_PIN         PB14   // PC8
   #define SD_DETECT_PIN    PC7
 
 #else
@@ -216,7 +216,7 @@
   //
   #define SS_PIN           PA4
   #define SCK_PIN          PA5
-  #define MOSI_PIN         PA7  
+  #define MOSI_PIN         PA7
   #define MISO_PIN         PA6 // PA6
   #define SD_DETECT_PIN    -1  // Card detect is not connected
 #endif

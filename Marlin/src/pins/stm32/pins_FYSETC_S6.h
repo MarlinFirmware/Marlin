@@ -39,7 +39,7 @@
 
 //
 // EEPROM Emulation
-// 
+//
 #define FLASH_EEPROM_EMULATION
 //#define SRAM_EEPROM_EMULATION
 
@@ -202,7 +202,7 @@
     #define DOGLCD_CS      PC12
     #define DOGLCD_A0      PD0
   #endif
-  
+
 #endif
 
 #if ENABLED(NEWPANEL)

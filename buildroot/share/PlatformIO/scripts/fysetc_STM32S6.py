@@ -10,7 +10,7 @@ platform = env.PioPlatform()
 board = env.BoardConfig()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoststm32")
-#FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoststm32@3.10500.190327") 
+#FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoststm32@3.10500.190327")
 CMSIS_DIR = os.path.join(FRAMEWORK_DIR, "CMSIS", "CMSIS")
 assert os.path.isdir(FRAMEWORK_DIR)
 assert os.path.isdir(CMSIS_DIR)
@@ -31,7 +31,7 @@ for file_name in os.listdir(source_dir):
     full_file_name = os.path.join(source_dir, file_name)
     if os.path.isfile(full_file_name):
         shutil.copy(full_file_name, variant_dir)
-		
+
 # Relocate firmware from 0x08000000 to 0x08002000
 #env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
 #env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08010000"))
