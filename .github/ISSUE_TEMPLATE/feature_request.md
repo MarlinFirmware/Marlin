@@ -11,19 +11,19 @@ assignees: ''
 
 Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
 
-Do you want to ask a question? Are you looking for support? Please don't post here. Instead please use the Marlin Firmware forum at http://forums.reprap.org/list.php?415 or the Marlin Facebook Group https://www.facebook.com/groups/1049718498464482/.
+Do you want to ask a question? Are you looking for support? Please don't post here. Instead please use one of the support links at https://github.com/MarlinFirmware/Marlin/issues/new/choose
 
-Before filing a feature request be sure to test the 1.1 and/or 2.0 "bugfix" branches to see whether the feature already exists. Do a search of the Issue Queue to see if a similar feature has already been requested.
+Before filing an issue be sure to test the "bugfix" branches to see whether the issue has been resolved.
 
 -->
 
 ### Description
 
-<!-- Description of the bug or requested feature -->
+<!-- Description of the requested feature -->
 
-### Steps to Reproduce
+### Feature Workflow
 
-<!-- Please describe how the feature should work -->
+<!-- Please describe the feature's behavior, user interaction, etc. -->
 
 1. [First Action]
 2. [Second Action]
