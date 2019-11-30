@@ -52,7 +52,7 @@ public:
   FORCE_INLINE static void set_power(const cutter_power_t pwr) { power = pwr; refresh(); }
 
   //static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before
-  static inline void set_enabled(const bool enable) { set_power(power ?: (enable && isOn ? SPEED_POWER_STARTUP : 0);}
+  static inline void set_enabled(const bool enable) { set_power(power ?: (enable && isOn ? SPEED_POWER_STARTUP : 0));}
   
   //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
 
