@@ -62,32 +62,45 @@
  * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
  */
+//#define MORGAN_SCARA
 
-// Specify the specific SCARA model
-#define MORGAN_SCARA
+/**
+ * Mostly Printed SCARA is an open source design by Tyler Williams. See:
+ *   https://www.thingiverse.com/thing:2487048
+ *   https://www.thingiverse.com/thing:1241491
+ */
+#define MP_SCARA
 
-#if ENABLED(MORGAN_SCARA)
-
-  //#define DEBUG_SCARA_KINEMATICS
-  #define SCARA_FEEDRATE_SCALING // Convert XY feedrate from mm/s to degrees/s on the fly
-
+#if EITHER(MORGAN_SCARA, MP_SCARA)
   // If movement is choppy try lowering this value
   #define SCARA_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
-  #define SCARA_LINKAGE_1 150 //mm
-  #define SCARA_LINKAGE_2 150 //mm
+  #define SCARA_LINKAGE_1  98.41    // (mm)
+  #define SCARA_LINKAGE_2 100.66    // (mm)
 
   // SCARA tower offset (position of Tower relative to bed zero position)
   // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
-  #define SCARA_OFFSET_X 100 //mm
-  #define SCARA_OFFSET_Y -56 //mm
+  #define SCARA_OFFSET_X    0       // (mm)
+  #define SCARA_OFFSET_Y    0       // (mm)
 
-  // Radius around the center where the arm cannot reach
-  #define MIDDLE_DEAD_ZONE_R 0 //mm
+  #if ENABLED(MORGAN_SCARA)
 
-  #define THETA_HOMING_OFFSET 0  //calculatated from Calibration Guide and command M360 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
-  #define PSI_HOMING_OFFSET   0  //calculatated from Calibration Guide and command M364 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
+    //#define DEBUG_SCARA_KINEMATICS
+    #define SCARA_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
+
+    // Radius around the center where the arm cannot reach
+    #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+
+    #define THETA_HOMING_OFFSET  0  // Calculated from Calibration Guide and M360 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+    #define PSI_HOMING_OFFSET    0  // Calculated from Calibration Guide and M364 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+
+  #elif ENABLED(MP_SCARA)
+
+    #define SCARA_OFFSET_THETA1  12 // degrees
+    #define SCARA_OFFSET_THETA2 131 // degrees
+
+  #endif
 
 #endif
 
@@ -348,7 +361,7 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-#define PSU_CONTROL
+//#define PSU_CONTROL
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
@@ -379,10 +392,9 @@
  *
  * Temperature sensors available:
  *
- *    -5 : PT100 / PT1000 with MAX31865 (only for sensors 0-1)
- *    -3 : thermocouple with MAX31855 (only for sensors 0-1)
- *    -2 : thermocouple with MAX6675 (only for sensors 0-1)
  *    -4 : thermocouple with AD8495
+ *    -3 : thermocouple with MAX31855 (only for sensor 0)
+ *    -2 : thermocouple with MAX6675 (only for sensor 0)
  *    -1 : thermocouple with AD595
  *     0 : not used
  *     1 : 100k thermistor - best choice for EPCOS 100k (4.7k pullup)
@@ -612,23 +624,23 @@
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
-//#define USE_XMIN_PLUG
+#define USE_XMIN_PLUG
 //#define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
-#define USE_XMAX_PLUG
+//#define USE_XMAX_PLUG
 #define USE_YMAX_PLUG
-//#define USE_ZMAX_PLUG
+#define USE_ZMAX_PLUG
 
 // Enable pullup for all endstops to prevent a floating state
-//#define ENDSTOPPULLUPS
+#define ENDSTOPPULLUPS
 #if DISABLED(ENDSTOPPULLUPS)
   // Disable ENDSTOPPULLUPS to set pullups individually
-  #define ENDSTOPPULLUP_XMAX
-  #define ENDSTOPPULLUP_YMAX
+  //#define ENDSTOPPULLUP_XMAX
+  //#define ENDSTOPPULLUP_YMAX
   //#define ENDSTOPPULLUP_ZMAX  // open pin, inverted
   //#define ENDSTOPPULLUP_XMIN  // open pin, inverted
   //#define ENDSTOPPULLUP_YMIN  // open pin, inverted
-  #define ENDSTOPPULLUP_ZMIN
+  //#define ENDSTOPPULLUP_ZMIN
   //#define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
@@ -646,13 +658,13 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true  // Set to true to invert the logic of the probe.
+#define X_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Y_MAX_ENDSTOP_INVERTING  true // Set to true to invert the logic of the endstop.
+#define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
 /**
  * Stepper Drivers
@@ -724,16 +736,16 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2...]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 103.69, 106.65, 200/1.25, 1000 }  // default steps per unit for SCARA
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 28.6738351, 28.6738351, 1600, 93 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2...]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 30, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 2.5, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -744,9 +756,9 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2...]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 300, 300, 20, 1000 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 10, 20000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -761,9 +773,10 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          400    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   400    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
+
 
 /**
  * Default Jerk limits (mm/s)
@@ -963,7 +976,7 @@
  *
  * Use these settings to specify the distance (mm) to raise the probe (or
  * lower the bed). The values set here apply over and above any (negative)
- * probe Z Offset set with NOZZLE_TO_PROBE_OFFSET, M851, or the LCD.
+ * probe Z Offset set with Z_PROBE_OFFSET_FROM_EXTRUDER, M851, or the LCD.
  * Only integer values >= 1 are valid here.
  *
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
@@ -1029,8 +1042,8 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+#define INVERT_Y_DIR true
+#define INVERT_Z_DIR false
 
 // @section extruder
 
@@ -1053,9 +1066,9 @@
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
-#define X_HOME_DIR 1
+#define X_HOME_DIR -1
 #define Y_HOME_DIR 1
-#define Z_HOME_DIR -1
+#define Z_HOME_DIR 1
 
 // @section machine
 
@@ -1066,10 +1079,10 @@
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
-#define Z_MIN_POS MANUAL_Z_HOME_POS
+#define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 225
+#define Y_MAX_POS X_BED_SIZE
+#define Z_MAX_POS 100
 
 /**
  * Software Endstops
@@ -1275,6 +1288,19 @@
 #endif // BED_LEVELING
 
 /**
+ * Points to probe for all 3-point Leveling procedures.
+ * Override if the automatically selected points are inadequate.
+ */
+#if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
+  //#define PROBE_PT_1_X 15
+  //#define PROBE_PT_1_Y 180
+  //#define PROBE_PT_2_X 15
+  //#define PROBE_PT_2_Y 20
+  //#define PROBE_PT_3_X 170
+  //#define PROBE_PT_3_Y 20
+#endif
+
+/**
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
@@ -1310,9 +1336,9 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS -22
-#define MANUAL_Y_HOME_POS -52
-#define MANUAL_Z_HOME_POS 0.1
+#define MANUAL_X_HOME_POS 0
+#define MANUAL_Y_HOME_POS 199.07
+//#define MANUAL_Z_HOME_POS 0
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1331,8 +1357,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (40*60)
-#define HOMING_FEEDRATE_Z  (10*60)
+#define HOMING_FEEDRATE_XY (20*60)
+#define HOMING_FEEDRATE_Z  (4*60)
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -2036,10 +2062,10 @@
 //#define MALYAN_LCD
 
 //
-// Touch UI for FTDI EVE (FT800/FT810) displays
+// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
 // See Configuration_adv.h for all configuration options.
 //
-//#define TOUCH_UI_FTDI_EVE
+//#define LULZBOT_TOUCH_UI
 
 //
 // Third-party or vendor-customized controller interfaces.
