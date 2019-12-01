@@ -333,14 +333,8 @@
   #endif
 #endif
 
-#if ENABLED(PSU_CONTROL)
-  #if DISABLED(AUTO_POWER_CONTROL)
-    #ifndef PSU_POWERUP_DELAY
-      #define PSU_POWERUP_DELAY 100
-    #endif
-  #elif defined(PSU_POWERUP_DELAY)
-    #error "PSU_POWERUP_DELAY has no effect if AUTO_POWER_CONTROL is enabled."
-  #endif
+#if !defined(PSU_POWERUP_DELAY) && ENABLED(PSU_CONTROL) && DISABLED(AUTO_POWER_CONTROL)
+  #define PSU_POWERUP_DELAY 100
 #endif
 
 /**
