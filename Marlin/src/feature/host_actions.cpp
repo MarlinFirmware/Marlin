@@ -72,6 +72,12 @@ void host_action(const char * const pstr, const bool eol) {
 
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
 
+  void host_action_notify(const char * const message) {
+    host_action(PSTR("notification "), false);
+    serialprintPGM(message);
+    SERIAL_EOL();
+  }
+
   void host_action_prompt(const char * const ptype, const bool eol=true) {
     host_action(PSTR("prompt_"), false);
     serialprintPGM(ptype);
