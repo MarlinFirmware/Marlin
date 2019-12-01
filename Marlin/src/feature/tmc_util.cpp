@@ -349,58 +349,58 @@
       #if AXIS_IS_TMC(X)
         if (monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(X2)
-            step_current_down(stepperX2)
+            step_current_down(stepperX2);
           #endif
         }
       #endif
       #if AXIS_IS_TMC(X2)
         if (monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(X)
-            step_current_down(stepperX)
+            step_current_down(stepperX);
           #endif
         }
       #endif
       #if AXIS_IS_TMC(Y)
         if (monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(Y2)
-            step_current_down(stepperY2)
+            step_current_down(stepperY2);
           #endif
         }
       #endif
       #if AXIS_IS_TMC(Y2)
         if (monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(Y)
-            step_current_down(stepperY)
+            step_current_down(stepperY);
           #endif
         }
       #endif
       #if AXIS_IS_TMC(Z)
         if (monitor_tmc_driver(stepperZ, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(Z2)
-            step_current_down(stepperZ2)
+            step_current_down(stepperZ2);
           #endif
           #if AXIS_IS_TMC(Z3)
-            step_current_down(stepperZ3)
+            step_current_down(stepperZ3);
           #endif
         }
       #endif
       #if AXIS_IS_TMC(Z2)
         if (monitor_tmc_driver(stepperZ2, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(Z)
-            step_current_down(stepperZ)
+            step_current_down(stepperZ);
           #endif
           #if AXIS_IS_TMC(Z3)
-            step_current_down(stepperZ3)
+            step_current_down(stepperZ3);
           #endif
         }
       #endif
       #if AXIS_IS_TMC(Z3)
         if (monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting)) {
           #if AXIS_IS_TMC(Z)
-            step_current_down(stepperZ)
+            step_current_down(stepperZ);
           #endif
           #if AXIS_IS_TMC(Z2)
-            step_current_down(stepperZ2)
+            step_current_down(stepperZ2);
           #endif
         }
       #endif
