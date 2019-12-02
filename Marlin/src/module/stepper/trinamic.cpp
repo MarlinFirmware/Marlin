@@ -47,7 +47,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #if ENABLED(TMC_USE_SW_SPI)
   #define __TMC_SPI_DEFINE(IC, ST, L, AI, IX) TMCMarlin<IC##Stepper, L, AI> stepper##ST(CS_OF_DEV(IX), ST##_RSENSE, SPI_BusConfig[BUS_OF_DEV(IX)][SPIBUS_MOSI], SPI_BusConfig[BUS_OF_DEV(IX)][SPIBUS_MISO], SPI_BusConfig[BUS_OF_DEV(IX)][SPIBUS_CLCK], ST##_CHAIN_POS)
 #else
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI, IX) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, ST##_RSENSE, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI, IX) TMCMarlin<IC##Stepper, L, AI> stepper##ST(CS_OF_DEV(IX), ST##_RSENSE, ST##_CHAIN_POS)
 #endif
 
 #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE, ST##_SLAVE_ADDRESS)
