@@ -3126,12 +3126,18 @@ void MarlinSettings::reset() {
         say_M906(forReplay);
         SERIAL_ECHOLNPAIR_P(
           #if AXIS_IS_TMC(X)
-            SP_X_STR, stepperX.getMilliamps(),
+            SP_X_STR, stepperX.getMilliamps()
           #endif
           #if AXIS_IS_TMC(Y)
-            SP_Y_STR, stepperY.getMilliamps(),
+            #if AXIS_IS_TMC(X)
+              ,
+            #endif
+            SP_Y_STR, stepperY.getMilliamps()
           #endif
           #if AXIS_IS_TMC(Z)
+            #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y)
+              ,
+            #endif
             SP_Z_STR, stepperZ.getMilliamps()
           #endif
         );
@@ -3142,12 +3148,18 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM(" I1");
         SERIAL_ECHOLNPAIR_P(
           #if AXIS_IS_TMC(X2)
-            SP_X_STR, stepperX2.getMilliamps(),
+            SP_X_STR, stepperX2.getMilliamps()
           #endif
           #if AXIS_IS_TMC(Y2)
-            SP_Y_STR, stepperY2.getMilliamps(),
+            #if AXIS_IS_TMC(X2)
+              ,
+            #endif
+            SP_Y_STR, stepperY2.getMilliamps()
           #endif
           #if AXIS_IS_TMC(Z2)
+            #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2)
+              ,
+            #endif
             SP_Z_STR, stepperZ2.getMilliamps()
           #endif
         );
