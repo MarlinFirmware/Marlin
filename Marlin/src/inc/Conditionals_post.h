@@ -321,25 +321,20 @@
 #endif
 
 /**
- * Power Supply Control
+ * Power Supply
  */
 #ifndef PSU_NAME
-  #if ENABLED(PSU_CONTROL)
-    #if PSU_ACTIVE_HIGH
-      #define PSU_NAME "XBox"     // X-Box 360 (203W)
-    #else
-      #define PSU_NAME "ATX"      // ATX style
-    #endif
-    #if DISABLED(AUTO_POWER_CONTROL)
-      #ifndef PSU_POWERUP_DELAY
-        #define PSU_POWERUP_DELAY 100
-      #endif
-    #elif defined(PSU_POWERUP_DELAY)
-      #error "PSU_POWERUP_DELAY has no effect if AUTO_POWER_CONTROL is enabled."
-    #endif
+  #if DISABLED(PSU_CONTROL)
+    #define PSU_NAME "Generic"  // No control
+  #elif PSU_ACTIVE_HIGH
+    #define PSU_NAME "XBox"     // X-Box 360 (203W)
   #else
-    #define PSU_NAME "Generic"    // No control
+    #define PSU_NAME "ATX"      // ATX style
   #endif
+#endif
+
+#if !defined(PSU_POWERUP_DELAY) && ENABLED(PSU_CONTROL)
+  #define PSU_POWERUP_DELAY 100
 #endif
 
 /**

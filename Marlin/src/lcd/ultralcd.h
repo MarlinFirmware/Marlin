@@ -406,14 +406,16 @@ public:
 
   #else // No LCD
 
+    // Send status to host as a notification
+    void set_status(const char* message, const bool=false);
+    void set_status_P(PGM_P message, const int8_t=0);
+    void status_printf_P(const uint8_t, PGM_P message, ...);
+
     static inline void init() {}
     static inline void update() {}
     static inline void refresh() {}
     static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P const) {}
-    static inline void set_status(const char* const, const bool=false) {}
-    static inline void set_status_P(PGM_P const, const int8_t=0) {}
-    static inline void status_printf_P(const uint8_t, PGM_P const, ...) {}
     static inline void reset_status() {}
     static inline void reset_alert_level() {}
     static constexpr bool has_status() { return false; }

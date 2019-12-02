@@ -14,7 +14,6 @@ env:
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="megaatmega2560"
-  - TEST_PLATFORM="STM32F103RE"
   - TEST_PLATFORM="teensy31"
   - TEST_PLATFORM="teensy35"
 
@@ -28,6 +27,8 @@ env:
   # Extended STM32 Environments
   - TEST_PLATFORM="STM32F103RC_bigtree"
   - TEST_PLATFORM="STM32F103RC_bigtree_USB"
+  - TEST_PLATFORM="STM32F103RE_bigtree"
+  - TEST_PLATFORM="STM32F103RE_bigtree_USB"
   - TEST_PLATFORM="STM32F103RC_fysetc"
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"
