@@ -103,7 +103,6 @@ void GcodeSuite::M290() {
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
-      #error "Hey!"
       SERIAL_ECHOLNPAIR_P(
         PSTR("Hotend "), int(active_extruder)
         #if ENABLED(BABYSTEP_XY)
@@ -130,7 +129,7 @@ void GcodeSuite::M290() {
           , SP_Y_STR, babystep.axis_total[Y_AXIS]
           , SP_Z_STR
         #else
-          , PSTR("Babystep Z")
+          PSTR("Babystep Z")
         #endif
         , babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]
       );
