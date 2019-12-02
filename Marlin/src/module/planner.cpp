@@ -920,7 +920,7 @@ void Planner::reverse_pass() {
     block_t *current = &block_buffer[block_index];
 
     // Only consider non sync blocks
-    if (!TEST(current->flag, BLOCK_BIT_SYNC_POSITION)) {
+    if (!TEST(current->flag, BLOCK_BIT_SYNC_POSITION) && !TEST(current->flag, BLOCK_BIT_SYNC_FANS)) {
       reverse_pass_kernel(current, next);
       next = current;
     }
@@ -1015,7 +1015,7 @@ void Planner::forward_pass() {
     block = &block_buffer[block_index];
 
     // Skip SYNC blocks
-    if (!TEST(block->flag, BLOCK_BIT_SYNC_POSITION)) {
+    if (!TEST(block->flag, BLOCK_BIT_SYNC_POSITION) && !TEST(block->flag, BLOCK_BIT_SYNC_FANS)) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
       // the previous block became BUSY, so assume the current block's
@@ -1051,7 +1051,7 @@ void Planner::recalculate_trapezoids() {
     block_t *prev = &block_buffer[prev_index];
 
     // If not dealing with a sync block, we are done. The last block is not a SYNC block
-    if (!TEST(prev->flag, BLOCK_BIT_SYNC_POSITION)) break;
+    if (!TEST(prev->flag, BLOCK_BIT_SYNC_POSITION) && !TEST(prev->flag, BLOCK_BIT_SYNC_FANS)) break;
 
     // Examine the previous block. This and all following are SYNC blocks
     head_block_index = prev_index;
@@ -1065,7 +1065,7 @@ void Planner::recalculate_trapezoids() {
     next = &block_buffer[block_index];
 
     // Skip sync blocks
-    if (!TEST(next->flag, BLOCK_BIT_SYNC_POSITION)) {
+    if (!TEST(next->flag, BLOCK_BIT_SYNC_POSITION) && !TEST(next->flag, BLOCK_BIT_SYNC_FANS)) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
       if (block) {
