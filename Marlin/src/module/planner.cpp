@@ -1187,8 +1187,10 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if FAN_COUNT > 0
-    uint8_t tail_fan_speed[FAN_COUNT];
+  #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
+    #if FAN_COUNT > 0
+      uint8_t tail_fan_speed[FAN_COUNT];
+    #endif
   #endif
 
   #if ENABLED(BARICUDA)
@@ -1202,13 +1204,14 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if FAN_COUNT > 0 || ENABLED(BARICUDA)
+    #if (DISABLED(LASER_SYNCHRONOUS_M106_M107) && FAN_COUNT > 0) || ENABLED(BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
-    #if FAN_COUNT > 0
-      FANS_LOOP(i)
-        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+    #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
+      #if FAN_COUNT > 0
+        FANS_LOOP(i) tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+      #endif
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1233,9 +1236,10 @@ void Planner::check_axes_activity() {
       cutter.refresh();
     #endif
 
-    #if FAN_COUNT > 0
-      FANS_LOOP(i)
-        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
+    #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
+      #if FAN_COUNT > 0
+        FANS_LOOP(i) tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
+      #endif
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1266,28 +1270,52 @@ void Planner::check_axes_activity() {
 
   //
   // Update Fan speeds
+  // Only if synchronous M106/M107 is disabled
   //
-  #if FAN_COUNT > 0
+  #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
+    #if FAN_COUNT > 0
+      sync_fan_speeds(tail_fan_speed);
+    #endif
+  #endif
 
+  #if ENABLED(AUTOTEMP)
+    getHighESpeed();
+  #endif
+
+  #if ENABLED(BARICUDA)
+    #if HAS_HEATER_1
+      analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure);
+    #endif
+    #if HAS_HEATER_2
+      analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure);
+    #endif
+  #endif
+}
+
+/**
+ * Apply fan speeds
+ */
+#if FAN_COUNT > 0
+  void Planner::sync_fan_speeds(uint8_t fan_speed[FAN_COUNT]) {
     #if FAN_KICKSTART_TIME > 0
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
       #define KICKSTART_FAN(f)                         \
-        if (tail_fan_speed[f]) {                       \
+        if (fan_speed[f]) {                       \
           millis_t ms = millis();                      \
           if (fan_kick_end[f] == 0) {                  \
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
-            tail_fan_speed[f] = 255;                   \
+            fan_speed[f] = 255;                   \
           } else if (PENDING(ms, fan_kick_end[f]))     \
-            tail_fan_speed[f] = 255;                   \
+            fan_speed[f] = 255;                   \
         } else fan_kick_end[f] = 0
     #else
       #define KICKSTART_FAN(f) NOOP
     #endif
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
+      #define CALC_FAN_SPEED(f) (fan_speed[f] ? map(fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
     #else
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ?: FAN_OFF_PWM)
+      #define CALC_FAN_SPEED(f) (fan_speed[f] ?: FAN_OFF_PWM)
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -1308,22 +1336,8 @@ void Planner::check_axes_activity() {
     #if HAS_FAN2
       FAN_SET(2);
     #endif
-
-  #endif // FAN_COUNT > 0
-
-  #if ENABLED(AUTOTEMP)
-    getHighESpeed();
-  #endif
-
-  #if ENABLED(BARICUDA)
-    #if HAS_HEATER_1
-      analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure);
-    #endif
-    #if HAS_HEATER_2
-      analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure);
-    #endif
-  #endif
-}
+  }
+#endif
 
 #if DISABLED(NO_VOLUMETRICS)
 
@@ -2457,7 +2471,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
  * Planner::buffer_sync_block
  * Add a block to the buffer that just updates the position
  */
-void Planner::buffer_sync_block() {
+void Planner::buffer_sync_block(
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+    uint8_t sync_type = BLOCK_FLAG_SYNC_POSITION
+  #endif
+) {
   // Wait for the next available block
   uint8_t next_buffer_head;
   block_t * const block = get_next_free_block(next_buffer_head);
@@ -2465,9 +2483,17 @@ void Planner::buffer_sync_block() {
   // Clear block
   memset(block, 0, sizeof(block_t));
 
-  block->flag = BLOCK_FLAG_SYNC_POSITION;
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+    block->flag = sync_type;
+  #else
+    block->flag = BLOCK_FLAG_SYNC_POSITION;
+  #endif
 
   block->position = position;
+
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107) && FAN_COUNT > 0
+    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
+  #endif
 
   // If this is the first added movement, reload the delay, otherwise, cancel it.
   if (block_buffer_head == block_buffer_tail) {

@@ -73,14 +73,18 @@ enum BlockFlagBit : char {
   BLOCK_BIT_CONTINUED,
 
   // Sync the stepper counts from the block
-  BLOCK_BIT_SYNC_POSITION
+  BLOCK_BIT_SYNC_POSITION,
+
+  // Sync the fan speeds from the block
+  BLOCK_BIT_SYNC_FANS
 };
 
 enum BlockFlag : char {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
   BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
-  BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
+  BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION),
+  BLOCK_FLAG_SYNC_FANS            = _BV(BLOCK_BIT_SYNC_FANS)
 };
 
 /**
@@ -383,6 +387,11 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
+    // Apply fan speeds
+    #if FAN_COUNT > 0
+      static void sync_fan_speeds(uint8_t fan_speed[FAN_COUNT]);
+    #endif
+
     // Update multipliers based on new diameter measurements
     static void calculate_volumetric_multipliers();
 
@@ -620,7 +629,11 @@ class Planner {
      * Planner::buffer_sync_block
      * Add a block to the buffer that just updates the position
      */
-    static void buffer_sync_block();
+    static void buffer_sync_block(
+      #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+        uint8_t sync_type
+      #endif
+    );
 
   #if IS_KINEMATIC
     private:
