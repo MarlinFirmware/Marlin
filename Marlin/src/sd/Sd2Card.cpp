@@ -113,11 +113,27 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message with CRC
 
-  // Skip stuff byte for stop read
-  if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
+  int resXtra; //sets extra response bytes to ignore
+  switch (cmd) {
+    case CMD8 : resXtra = 4; break; //R7 = R1 + voltage specifications (4 bytes)
+    case CMD12:
+    //case CMD28: not handled at the moment
+    //case CMD29: not handled at the moment
+    case CMD38: resXtra = -1; break;//R1b = R1 + any number of bytes until 0xff
+    case CMD13: resXtra = 1; break; //R2 = R1 + status
+    case CMD58: resXtra = 4; break; //R3 = R1 + OCR (4 bytes)
+    default   : resXtra = 0; break; //R1
+  }
 
   // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
   for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
+  //first byte received contains R1
+
+  //discard command response too
+  if (resXtra >= 0)
+    for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
+  else
+    while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
 
   return status_;
 }

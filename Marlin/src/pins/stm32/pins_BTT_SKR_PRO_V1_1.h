@@ -197,10 +197,10 @@ const int SPI_Devices[][7] = {
 #if AXIS_HAS_SPI(E2)
   {DEVTYPE_DRIVER ,   2,      NC,      NC,    PG12, DRIVER_EXTRUDER, 2}, //E2
 #endif
-  {DEVTYPE_EEPROM ,   2,      NC,      NC,    PA15,              NC, NC}  //optional external EEPROM on SPI3
+  {DEVTYPE_EEPROM ,   2,      NC,      NC,    PA15,              NC, NC} //optional external EEPROM on SPI3
 };
 
-#define NUM_SPI_DEVICES sizeof(SPI_Devices)/sizeof(SPI_Devices[0])
+#define NUM_SPI_DEVICES (sizeof(SPI_Devices) / sizeof(SPI_Devices[0])) //easier than defining it beforehand
 
 #ifndef SD_SEARCH_ORDER
   #define SD_SEARCH_ORDER { 1, 0, 2 }
