@@ -125,15 +125,23 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
     default   : resXtra = 0; break; //R1
   }
 
+  SERIAL_ECHO("CMD");
+  SERIAL_PRINT(cmd, DEC);
+  SERIAL_ECHO(", should discard ");
+  SERIAL_PRINT(resXtra, DEC);
+  SERIAL_ECHO(" bytes.");
+
   // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
-  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
+  //for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
   //first byte received contains R1
 
   //discard command response too
-  if (resXtra >= 0)
-    for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
-  else
-    while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
+  //if (resXtra >= 0)
+  //  for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
+  //else
+  //  while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
+
+for (uint8_t i = 0; ((status_ = spiRec()) & 0x80) && i != 0xFF; i++) { /* Intentionally left empty */ }
 
   return status_;
 }
