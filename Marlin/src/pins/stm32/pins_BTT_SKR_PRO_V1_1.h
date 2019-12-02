@@ -149,7 +149,7 @@
 // SPI devices, buses and pins definition
 //
 #define NUM_SPI_BUSES 3   //number of SPI buses in the controller
-#define SPI_HAS_HW_CRC    //use hardware CRC
+//#define SPI_HAS_HW_CRC    //use hardware CRC for SD-Card checksum
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 // MOSI, MISO, SCK , Mode      , Bit order
@@ -184,16 +184,19 @@ const int SPI_Devices[NUM_SPI_DEVICES][7] = {
   {DEVTYPE_DISPLAY,   1, SPI_LTS, SPI_MSB,    PD11,        NC, NC     },
 #endif
 #if ENABLED(TMC_USE_SW_SPI)
-// Device type      BUS  Phase    Bit     Selection   Type,            Index (for type)
-//                  NR.           Order   PIN         (Driver only)    (Driver only)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,  X_CS_PIN, DRIVER_AXIS    , 0}, //Index 0 is X
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,  Y_CS_PIN, DRIVER_AXIS    , 1}, //Index 1 is Y
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,  Z_CS_PIN, DRIVER_AXIS    , 2}, //Index 2 is Z
-  {DEVTYPE_DRIVER ,   2,      NC,      NC, E0_CS_PIN, DRIVER_EXTRUDER, 0}, //E0
-  {DEVTYPE_DRIVER ,   2,      NC,      NC, E1_CS_PIN, DRIVER_EXTRUDER, 1}, //E1
-  {DEVTYPE_DRIVER ,   2,      NC,      NC, E2_CS_PIN, DRIVER_EXTRUDER, 2}, //E2
+//Drivers on this board are hard-wired.
+//Users can't change the CS so we disallow the user-redefinition of the CS_PIN
+
+// Device type      BUS  Phase    Bit     Selection Type,            Index (for type)
+//                  NR.           Order   PIN       (Driver only)    (Driver only)
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,    PA15, DRIVER_AXIS    , 0}, //Index 0 is X
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,     PB8, DRIVER_AXIS    , 1}, //Index 1 is Y
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,     PB9, DRIVER_AXIS    , 2}, //Index 2 is Z
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,     PB3, DRIVER_EXTRUDER, 0}, //E0
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,    PG15, DRIVER_EXTRUDER, 1}, //E1
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,    PG12, DRIVER_EXTRUDER, 2}, //E2
 #endif
-  {DEVTYPE_EEPROM ,   2,      NC,      NC,      PA15,             NC, NC}  //optional external EEPROM on SPI3
+  {DEVTYPE_EEPROM ,   2,      NC,      NC,    PA15,              NC, NC}  //optional external EEPROM on SPI3
 };
 
 #ifndef SD_SEARCH_ORDER
@@ -219,17 +222,17 @@ const int SPI_Devices[NUM_SPI_DEVICES][7] = {
 // LCDs and Controllers
 //
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       PG4
-  #define BTN_ENC          PA8
+  #define BEEPER_PIN        PG4
+  #define BTN_ENC           PA8
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS    PG6
+    #define LCD_PINS_RS     PG6
 
-    #define BTN_EN1        PD11
-    #define BTN_EN2        PG2
+    #define BTN_EN1         PD11
+    #define BTN_EN2         PG2
 
     #define LCD_PINS_ENABLE PG7
-    #define LCD_PINS_D4    PG3
+    #define LCD_PINS_D4     PG3
 
     // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
     // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
@@ -239,17 +242,17 @@ const int SPI_Devices[NUM_SPI_DEVICES][7] = {
 
   #else
 
-    #define LCD_PINS_RS    PD10
+    #define LCD_PINS_RS     PD10
 
-    #define BTN_EN1        PG10
-    #define BTN_EN2        PF11
+    #define BTN_EN1         PG10
+    #define BTN_EN2         PF11
 
     #define LCD_PINS_ENABLE PD11
-    #define LCD_PINS_D4    PG2
+    #define LCD_PINS_D4     PG2
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS    PD11
-      #define DOGLCD_A0    PD10
+      #define DOGLCD_CS     PD11
+      #define DOGLCD_A0     PD10
       //#define LCD_BACKLIGHT_PIN -1
       #define LCD_RESET_PIN PG2   // Must be high or open for LCD to operate normally.
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
@@ -268,9 +271,9 @@ const int SPI_Devices[NUM_SPI_DEVICES][7] = {
     #endif // !FYSETC_MINI_12864
 
     #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5  PG3
-      #define LCD_PINS_D6  PG6
-      #define LCD_PINS_D7  PG7
+      #define LCD_PINS_D5   PG3
+      #define LCD_PINS_D6   PG6
+      #define LCD_PINS_D7   PG7
     #endif
 
   #endif

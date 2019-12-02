@@ -94,17 +94,20 @@
 
 #define IS_DEV_SD(X)     SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_SD
 #define IS_DEV_EEPROM(X) SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_EEPROM
+#define IS_DEV_DRIVER(X) SPI_Devices[X][SPIDEV_TYPE] == DEVTYPE_DRIVER
 
-#define BUS_OF_DEV(X)   SPI_Devices[X][SPIDEV_BUS]
-#define CS_OF_DEV(X)    SPI_Devices[X][SPIDEV_CS]
+#define BUS_OF_DEV(X)       SPI_Devices[X][SPIDEV_BUS]
+#define CS_OF_DEV(X)        SPI_Devices[X][SPIDEV_CS]
+#define TYPE_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DT]
+#define AXIS_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DI]
 
 //SD card
 #define SW_OF_SD(X)     SPI_Devices[X][SPIDEV_SW]
 #define DLV_OF_SD(X)    SPI_Devices[X][SPIDEV_DLV]
 
 //Driver
-#define TYPE_OF_DRIVER(X) SPI_Devices[X][SPIDEV_DT]
-#define IDX_OF_DRIVER(X) SPI_Devices[X][SPIDEV_DI]
+#define TYPE_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DT]
+#define IDX_OF_DRIVER(X)    SPI_Devices[X][SPIDEV_DI]
 
 //
 // Calls directed to the whole bus
