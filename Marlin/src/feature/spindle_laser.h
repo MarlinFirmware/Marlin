@@ -38,23 +38,20 @@ class SpindleLaser {
 public:
   static cutter_power_t power;
   static cutter_power_t isOn;
-
+  static cutter_power_t setPower;
   static void init();
 
   // Modifying this function should update everywhere
   static inline bool enabled(const cutter_power_t pwr) { return pwr > 0; }
-  static inline bool enabled() { return enabled(power && isOn); }
+  static inline bool enabled() { return enabled(power); }
+  static inline uint8_t powerPercent(const uint8_t pp) { return ui8_to_percent(pp); } // for display
 
   static void apply_power(const cutter_power_t inpow);
 
-  FORCE_INLINE static void refresh() { if (isOn) apply_power(power); }
-
+  FORCE_INLINE static void refresh() { apply_power(power); }
   FORCE_INLINE static void set_power(const cutter_power_t pwr) { power = pwr; refresh(); }
 
-  //static inline void set_enabled(const bool enable) { set_power(enable ? SPEED_POWER_STARTUP : 0); } //before
-  static inline void set_enabled(const bool enable) { set_power(power ?: (enable && isOn ? SPEED_POWER_STARTUP : 0));}
-  
-  //static bool active() { return READ(SPINDLE_LASER_ENA_PIN) == SPINDLE_LASER_ACTIVE_HIGH; }
+  static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: SPEED_POWER_STARTUP) : 0); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
     static void set_ocr(const uint8_t ocr);
@@ -76,15 +73,15 @@ public:
   #endif
 
   static inline void disable() { isOn = false; set_enabled(false); }
-  static inline void enable_forward() { isOn = true; set_direction(false); set_enabled(true); }
-  static inline void enable_reverse() { isOn = true; set_direction(true); set_enabled(true); }
+  static inline void enable_forward() { isOn = true; setPower ? power = setPower : (power = SPEED_POWER_STARTUP, setPower = SPEED_POWER_STARTUP); set_direction(false); set_enabled(true); }
+  static inline void enable_reverse() { isOn = true; setPower ? power = setPower : (power = SPEED_POWER_STARTUP, setPower = SPEED_POWER_STARTUP); set_direction(true); set_enabled(true); }
 
   #if ENABLED(LASER_POWER_INLINE)
     // Force disengage planner power control
-    static inline void inline_disable() { planner.settings.laser.status = 0; planner.settings.laser.power = 0; }
+    static inline void inline_disable() { planner.settings.laser.status = 0; planner.settings.laser.power = 0; isOn = false;}
 
     // Inline modes of all other functions; all enable planner inline power control
-    static inline void inline_enabled(const bool enable) { enable ? inline_power(translate_power(SPEED_POWER_STARTUP)) : inline_ocr_power(0); }
+    static inline void inline_enabled(const bool enable) { enable ? inline_power(translate_power(SPEED_POWER_STARTUP)) : inline_ocr_power(0); setPower = 0; }
 
     static void inline_power(const cutter_power_t pwr) {
       #if ENABLED(SPINDLE_LASER_PWM)
