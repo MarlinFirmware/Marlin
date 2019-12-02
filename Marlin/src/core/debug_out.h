@@ -35,9 +35,7 @@
 #undef DEBUG_ECHO_F
 #undef DEBUG_ECHOLN
 #undef DEBUG_ECHOPGM
-#undef DEBUG_ECHOPGM_P
 #undef DEBUG_ECHOLNPGM
-#undef DEBUG_ECHOLNPGM_P
 #undef DEBUG_ECHOPAIR
 #undef DEBUG_ECHOPAIR_P
 #undef DEBUG_ECHOPAIR_F
@@ -62,9 +60,7 @@
   #define DEBUG_ECHO_F            SERIAL_ECHO_F
   #define DEBUG_ECHOLN            SERIAL_ECHOLN
   #define DEBUG_ECHOPGM           SERIAL_ECHOPGM
-  #define DEBUG_ECHOPGM_P         SERIAL_ECHOPGM_P
   #define DEBUG_ECHOLNPGM         SERIAL_ECHOLNPGM
-  #define DEBUG_ECHOLNPGM_P       SERIAL_ECHOLNPGM_P
   #define DEBUG_ECHOPAIR          SERIAL_ECHOPAIR
   #define DEBUG_ECHOPAIR_P        SERIAL_ECHOPAIR_P
   #define DEBUG_ECHOPAIR_F        SERIAL_ECHOPAIR_F
@@ -88,9 +84,7 @@
   #define DEBUG_ECHO_F(...)         NOOP
   #define DEBUG_ECHOLN(...)         NOOP
   #define DEBUG_ECHOPGM(...)        NOOP
-  #define DEBUG_ECHOPGM_P(...)      NOOP
   #define DEBUG_ECHOLNPGM(...)      NOOP
-  #define DEBUG_ECHOLNPGM_P(...)    NOOP
   #define DEBUG_ECHOPAIR(...)       NOOP
   #define DEBUG_ECHOPAIR_P(...)     NOOP
   #define DEBUG_ECHOPAIR_F(...)     NOOP
