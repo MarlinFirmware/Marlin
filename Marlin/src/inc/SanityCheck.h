@@ -2486,8 +2486,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PSU_CONTROL requires PSU_ACTIVE_HIGH to be defined as 'true' or 'false'."
   #elif !PIN_EXISTS(PS_ON)
     #error "PSU_CONTROL requires PS_ON_PIN."
-  #elif defined(PSU_POWERUP_DELAY) && ENABLED(AUTO_POWER_CONTROL)
-    #error "PSU_POWERUP_DELAY has no effect with AUTO_POWER_CONTROL enabled."
   #endif
 #elif ENABLED(AUTO_POWER_CONTROL)
   #error "AUTO_POWER_CONTROL requires PSU_CONTROL."
