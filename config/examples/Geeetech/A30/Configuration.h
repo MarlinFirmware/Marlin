@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -476,7 +476,7 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   //FIND YOUR OWN: "M303 C8 S200 U" HOTEND PID
-  
+
   #define  DEFAULT_Kp 45.80
   #define  DEFAULT_Ki 3.61
   #define  DEFAULT_Kd 145.39
@@ -515,7 +515,7 @@
 #if ENABLED(PIDTEMPBED)
   //#define MIN_BED_POWER 0
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
-  
+
   #define  DEFAULT_bedKp 369.610
   #define  DEFAULT_bedKi 54.132
   #define  DEFAULT_bedKd 602.870
@@ -1087,7 +1087,7 @@
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_PIN      66
-  #define FIL_RUNOUT_INVERTING true  // set to true to invert the logic of the sensors. - some of the geeetech filament sensors are false 
+  #define FIL_RUNOUT_INVERTING true  // set to true to invert the logic of the sensors. - some of the geeetech filament sensors are false
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
