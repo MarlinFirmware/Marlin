@@ -1462,7 +1462,8 @@
 
 #else // HOTENDS == 0
 
-  //#error "Incomplete status header"
+  #define STATUS_HOTEND_TEXT_X(N) 0
+  #define STATUS_HEATERS_Y 0
 
 #endif
 
