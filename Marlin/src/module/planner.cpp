@@ -2469,11 +2469,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
 /**
  * Planner::buffer_sync_block
- * Add a block to the buffer that just updates the position
+* Add a block to the buffer that just updates the position or in
+* case of LASER_SYNCHRONOUS_M106_M107 the fan pwm
  */
 void Planner::buffer_sync_block(
   #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    uint8_t sync_type = BLOCK_FLAG_SYNC_POSITION
+    uint8_t sync_flag = BLOCK_FLAG_SYNC_POSITION
   #endif
 ) {
   // Wait for the next available block
@@ -2484,7 +2485,7 @@ void Planner::buffer_sync_block(
   memset(block, 0, sizeof(block_t));
 
   #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    block->flag = sync_type;
+    block->flag = sync_flag;
   #else
     block->flag = BLOCK_FLAG_SYNC_POSITION;
   #endif
