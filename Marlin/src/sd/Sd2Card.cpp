@@ -140,8 +140,9 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   //  for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
   //else
   //  while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
-
-for (uint8_t i = 0; ((status_ = spiRec()) & 0x80) && i != 0xFF; i++) { /* Intentionally left empty */ }
+  
+  if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
+  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num)) & 0x80) && i != 0xFF; i++) { /* Intentionally left empty */ }
 
   return status_;
 }
