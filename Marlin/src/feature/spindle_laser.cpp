@@ -34,6 +34,7 @@ SpindleLaser cutter;
 
 cutter_power_t SpindleLaser::power; // = 0
 cutter_power_t SpindleLaser::isOn = false;
+cutter_power_t SpindleLaser::setPower; // = 0
 
 #define SPINDLE_LASER_PWM_OFF ((SPINDLE_LASER_PWM_INVERT) ? 255 : 0)
 
