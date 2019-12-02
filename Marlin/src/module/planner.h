@@ -627,11 +627,12 @@ class Planner {
 
     /**
      * Planner::buffer_sync_block
-     * Add a block to the buffer that just updates the position
+     * Add a block to the buffer that just updates the position or in
+     * case of LASER_SYNCHRONOUS_M106_M107 the fan pwm
      */
     static void buffer_sync_block(
       #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-        uint8_t sync_type
+        uint8_t sync_flag
       #endif
     );
 
