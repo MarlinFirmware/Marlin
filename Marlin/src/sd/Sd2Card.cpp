@@ -494,17 +494,23 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
-    spiRead(BUS_OF_DEV(dev_num), dst, count);                      // Transfer data
-
-    #if ENABLED(SD_CHECK_AND_RETRY)
-      #ifdef SPI_HAS_HW_CRC
-        success = !spiCRCError(BUS_OF_DEV(dev_num));
-      #else //software CRC
-        const uint16_t recvCrc = (spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num));
-        success = (!crcSupported) || recvCrc == CRC_CCITT(dst, count);
-      #endif
-      if (!success) error(SD_CARD_ERROR_READ_CRC);
+    #ifdef SPI_HAS_HW_CRC
+      if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), count * 8 -1, true); //degree of polynomial= data bits-1
     #endif
+
+    spiRead(BUS_OF_DEV(dev_num), dst, count);       // Transfer data
+    success = (!crcSupported)                       //if CRC is not supported don't do anything else.
+      #if ENABLED(SD_CHECK_AND_RETRY)
+        ||
+        #ifdef SPI_HAS_HW_CRC
+          !spiCRCError(BUS_OF_DEV(dev_num));        //If there's HW crc check on hardware
+          spiSetCRC(BUS_OF_DEV(dev_num), 0, false); //and disable it for next command.
+        #else //software CRC: compare the two next bytes to expected CRC
+          ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num))) == CRC_CCITT(dst, count);
+        #endif
+        
+        if (!success) error(SD_CARD_ERROR_READ_CRC);
+      #endif
   }
   else
     error(SD_CARD_ERROR_READ);
@@ -567,12 +573,8 @@ bool Sd2Card::readStop() {
  */
 bool Sd2Card::setSckRate(const uint8_t sckRateID) {
   const bool success = (sckRateID <= 6);
-  if (success) {
+  if (success)
     spiInit(BUS_OF_DEV(dev_num), sckRateID);
-    #ifdef SPI_HAS_HW_CRC
-      if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true);
-    #endif
-  }
   else
     error(SD_CARD_ERROR_SCK_RATE);
 
