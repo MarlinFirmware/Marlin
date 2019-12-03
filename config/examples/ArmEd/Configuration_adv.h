@@ -2443,20 +2443,12 @@
 #endif
 
 /**
- * Synchronous M106/M107 laser control
- * 
- * By default Marlin will set M106/M107 fan speed as fast as possible on the fan
- * ports. Considering time needed for fans to spin up/down this is normally fine.
- * HOWEVER, when the fan header of a board is used in conjunction with controller
- * a PWM/TTL laser, this means that the control of the laser is out of sync with
- * the movement systems in X/Y axis.
- * 
- * To synchronize the M106/M107 commands with motion, you can enable the 
- * LASER_SYNCHRONOUS_FAN_CONTROL option below.
- * 
- * Enabling this comes as a minor sacrifice to setting fan speeds on a part cooling
- * fan, however, in most cases the effect will be so minor, that is most like not
- * even noticeable.
+ * Synchronous Laser Control with M106/M107
+ *
+ * By default M106 / M107 applies the new fan speed immediately. This is fine
+ * for fans, but unsuitable for a PWM/TTL laser attached to the fan header.
+ *
+ * NOTE: This option sacrifices some cooling fan speed options.
  */
 //#define LASER_SYNCHRONOUS_M106_M107
 
