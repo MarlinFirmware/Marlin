@@ -138,8 +138,8 @@
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
   //#define ANYCUBIC_4MAX_VG3R
-  #define ANYCUBIC_4MAX_7OF9
-  //#define ANYCUBIC_4MAX_DEFAULT
+  //#define ANYCUBIC_4MAX_7OF9
+  #define ANYCUBIC_4MAX_DEFAULT
 
 // TMC2208 with UART where TX is on SERVO0_PIN and RX is on PS_ON_PIN
 // Info: Just for Testing.
