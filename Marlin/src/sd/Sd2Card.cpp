@@ -115,13 +115,13 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   int resXtra; //sets extra response bytes to ignore
   switch (cmd) {
-    case CMD8 : resXtra = 4; break; //R7 = R1 + voltage specifications (4 bytes)
+    case CMD8 : resXtra = 4; break; //R7  = R1 + voltage specifications (4 bytes)
     case CMD12:
     //case CMD28: not handled at the moment
     //case CMD29: not handled at the moment
-    case CMD38: resXtra = -1; break;//R1b = R1 + any number of bytes until 0xff
-    case CMD13: resXtra = 1; break; //R2 = R1 + status
-    case CMD58: resXtra = 4; break; //R3 = R1 + OCR (4 bytes)
+    case CMD38: resXtra =-1; break; //R1b = R1 + any number of bytes until 0xFF
+    case CMD13: resXtra = 1; break; //R2  = R1 + status
+    case CMD58: resXtra = 4; break; //R3  = R1 + OCR (4 bytes)
     default   : resXtra = 0; break; //R1
   }
 
@@ -129,7 +129,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   SERIAL_PRINT(cmd, DEC);
   SERIAL_ECHO(", should discard ");
   SERIAL_PRINT(resXtra, DEC);
-  SERIAL_ECHO(" bytes.");
+  SERIAL_ECHOLN(" bytes.");
 
   // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
   //for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
@@ -142,7 +142,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   //  while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
   
   if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
-  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num)) & 0x80) && i != 0xFF; i++) { /* Intentionally left empty */ }
+  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i != 0xFF; i++) ;
 
   return status_;
 }
@@ -485,7 +485,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
         success = !spiCRCError(BUS_OF_DEV(dev_num));
       #else //software CRC
         const uint16_t recvCrc = (spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num));
-        success = !crcSupported || recvCrc == CRC_CCITT(dst, count);
+        success = (!crcSupported) || recvCrc == CRC_CCITT(dst, count);
       #endif
       if (!success) error(SD_CARD_ERROR_READ_CRC);
     #endif
