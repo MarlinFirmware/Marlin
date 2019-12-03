@@ -18,7 +18,7 @@ env:
   - TEST_PLATFORM="teensy35"
 
   # Extended AVR Environments
-  - TEST_PLATFORM="fysetc_f6_13"
+  - TEST_PLATFORM="FYSETC_F6_13"
   - TEST_PLATFORM="megaatmega1280"
   - TEST_PLATFORM="rambo"
   - TEST_PLATFORM="sanguino_atmega1284p"
