@@ -99,6 +99,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if HAS_TOOL_TYPES
+  #include "../feature/tool_types.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -346,6 +350,14 @@ volatile bool Temperature::temp_meas_ready = false;
    * temperature to succeed.
    */
   void Temperature::PID_autotune(const float &target, const heater_ind_t heater, const int8_t ncycles, const bool set_result/*=false*/) {
+
+    #if HAS_TOOL_TYPES
+      if (tool_type != TOOL_TYPE_EXTRUDER) {
+        SERIAL_ERROR_MSG(MSG_ERR_WRONG_TOOL);
+        return;
+      }
+    #endif
+
     float current_temp = 0.0;
     int cycles = 0;
     bool heating = true;

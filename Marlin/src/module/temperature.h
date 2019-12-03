@@ -705,6 +705,14 @@ class Temperature {
      */
     static void disable_all_heaters();
 
+    #if HAS_TOOL_TYPES
+
+      static inline void tool_changed() {
+        disable_all_heaters();  // Also cuts off the laser power
+      }
+
+    #endif
+
     /**
      * Perform auto-tuning for hotend or bed in response to M303
      */
