@@ -372,19 +372,17 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   return false;
 }
 
+#ifdef SPI_HAS_HW_CRC
 void Sd2Card::ActivateHWCRC(const uint16_t count)
 {
-  #ifdef SPI_HAS_HW_CRC
     if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), count * 8 -1, true); //degree of polynomial= data bits-1
-  #endif
 }
 
 void Sd2Card::DeactivateHWCRC()
 {
-  #ifdef SPI_HAS_HW_CRC
     if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0, false);
-  #endif
 }
+#endif
 
 /**
  * Read a 512 byte block from an SD card.
@@ -508,7 +506,9 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
-    ActivateHWCRC(count);
+    #ifdef SPI_HAS_HW_CRC
+      ActivateHWCRC(count);
+    #endif
 
     spiRead(BUS_OF_DEV(dev_num), dst, count); // Transfer data
     success = (!crcSupported)                 //if CRC is not supported don't do anything else.
@@ -557,8 +557,11 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
 
   const bool success = !cardCommand(CMD18, blockNumber);
-  if (success)
-    ActivateHWCRC(512);
+  if (success) {
+    #ifdef SPI_HAS_HW_CRC
+      ActivateHWCRC(512);
+    #endif
+    }
   else
     error(SD_CARD_ERROR_CMD18);
 
@@ -656,12 +659,17 @@ bool Sd2Card::writeData(const uint8_t* src) {
 
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
-  spiSend(BUS_OF_DEV(dev_num), token);
-  ActivateHWCRC(512);
-  spiWrite(BUS_OF_DEV(dev_num), src, 512);
-  DeactivateHWCRC();
+  spiSend(BUS_OF_DEV(dev_num), token); //token isn't included in CRC
 
-#ifndef SPI_HAS_HW_CRC
+#ifdef SPI_HAS_HW_CRC
+  ActivateHWCRC(512);
+#endif
+
+  spiWrite(BUS_OF_DEV(dev_num), src, 512);
+
+#ifdef SPI_HAS_HW_CRC
+  DeactivateHWCRC();
+#else
   uint16_t crc =
     #if ENABLED(SD_CHECK_AND_RETRY)
       CRC_CCITT(src, 512)
