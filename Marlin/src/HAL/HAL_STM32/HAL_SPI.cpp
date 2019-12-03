@@ -138,29 +138,6 @@ void spiSend(uint8_t bus_num, uint8_t b) {
 #endif
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
 }
-/**
- * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
- *
- * @param  dev_num Device number (identifies device and bus)
- * @param  buf     Pointer with buffer start address
- * @return Nothing
- */
-void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf) {
-#ifdef DUMP_SPI
-  SERIAL_ECHO("B");
-  SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO(":");
-#endif
-
-  if (!spiInitialized(bus_num)) return;
-
-#ifdef DUMP_SPI
-  SERIAL_PRINTLN(token, HEX);
-#endif
-
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &token, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
-  HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, 512, SPI_TRANSFER_TIMEOUT);
-}
 
 /**
  * @brief  Receives a number of bytes from the SPI port to a buffer
@@ -185,10 +162,10 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 
 #ifdef DUMP_SPI
-  for (uint8_t b=0; b<count; b++) {
-    SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO(b < count-1 ? " ":"\n");
-  }
+//  for (uint8_t b=0; b<count; b++) {
+//    SERIAL_PRINT(buf[b], HEX);
+//    SERIAL_ECHO(b < count-1 ? " ":"\n");
+//  }
 #endif
 }
 /**
@@ -201,7 +178,7 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
  * @return Nothing
  *
  */
-void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t count) {
+void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
 #ifdef DUMP_SPI
   SERIAL_ECHO("U");
   SERIAL_PRINT(bus_num, DEC);
@@ -211,10 +188,10 @@ void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   if (count == 0 || !spiInitialized(bus_num)) return;
 
 #ifdef DUMP_SPI
-  for (uint8_t b = 0; b < count; b++) {
-    SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO(b < count-1 ? " ":"\n");
-  }
+//  for (uint8_t b = 0; b < count; b++) {
+//    SERIAL_PRINT(buf[b], HEX);
+//    SERIAL_ECHO(b < count-1 ? " ":"\n");
+//  }
 #endif
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
@@ -268,19 +245,6 @@ void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
 void spiSendDevice(uint8_t dev_num, uint8_t b) {
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiSend(BUS_OF_DEV(dev_num), b);
-  digitalWrite(CS_OF_DEV(dev_num), HIGH);
-}
-
-/**
- * @brief  Write token and then write from 512 byte buffer to SPI device (for SD card)
- *
- * @param  dev_num Device number (identifies device and bus)
- * @param  buf     Pointer with buffer start address
- * @return Nothing
- */
-void spiSendBlockDevice(uint8_t dev_num, uint8_t token, const uint8_t* buf) {
-  digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiSendBlock(BUS_OF_DEV(dev_num), token, buf);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 

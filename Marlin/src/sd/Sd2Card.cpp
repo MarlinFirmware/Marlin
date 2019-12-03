@@ -656,8 +656,9 @@ bool Sd2Card::writeData(const uint8_t* src) {
 
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
+  spiSend(BUS_OF_DEV(dev_num), token);
   ActivateHWCRC(512);
-  spiSendBlock(BUS_OF_DEV(dev_num), token, src);
+  spiWrite(BUS_OF_DEV(dev_num), src, 512);
   DeactivateHWCRC();
 
 #ifndef SPI_HAS_HW_CRC

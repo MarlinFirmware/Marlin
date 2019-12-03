@@ -128,11 +128,10 @@ void spiSend(uint8_t bus_num, uint8_t b);
 uint8_t spiRec(uint8_t bus_num);
 
 // Read from SPI bus into buffer
-void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
-void spiWrite(uint8_t bus_num, uint8_t* buf, uint16_t nbyte);
+void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count);
 
-// Write token and then write from 512 byte buffer to SPI bus (for SD card)
-void spiSendBlock(uint8_t bus_num, uint8_t token, const uint8_t* buf);
+// Write from buffer to SPI bus
+void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count);
 
 // Returns true if there was a CRC error in reception
 bool spiCRCError(uint8_t bus_num);
@@ -148,10 +147,7 @@ void spiSendDevice(uint8_t dev_num, uint8_t b);
 uint8_t spiRecDevice(uint8_t dev_num);
 
 // Read from SPI device into buffer
-void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t nbyte);
-
-// Write token and then write from 512 byte buffer to SPI device (for SD card)
-void spiSendBlockDevice(uint8_t dev_num, uint8_t token, const uint8_t* buf);
+void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count);
 
 // Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint8_t dev_num, uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
