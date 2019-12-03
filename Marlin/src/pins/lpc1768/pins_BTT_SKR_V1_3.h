@@ -23,6 +23,36 @@
 
 #define BOARD_INFO_NAME "BIGTREE SKR 1.3"
 
+/**
+ * Limit Switches
+ *
+ * For Stallguard homing to max swap the min / max pins so
+ * the MAX physical connectors can be used for other things.
+ */
+#if X_HOME_DIR == -1 || !X_STALL_SENSITIVITY
+  #define X_MIN_PIN          P1_29   // X_MIN
+  #define X_MAX_PIN          P1_28   // X_MAX
+#else
+  #define X_MIN_PIN          P1_28   // X_MAX
+  #define X_MAX_PIN          P1_29   // X_MIN
+#endif
+
+#if Y_HOME_DIR == -1 || !Y_STALL_SENSITIVITY
+  #define Y_MIN_PIN          P1_27   // Y_MIN
+  #define Y_MAX_PIN          P1_26   // Y_MAX
+#else
+  #define Y_MIN_PIN          P1_26   // Y_MAX
+  #define Y_MAX_PIN          P1_27   // Y_MIN
+#endif
+
+#if Z_HOME_DIR == -1 || !Z_STALL_SENSITIVITY
+  #define Z_MIN_PIN          P1_25   // Z_MIN
+  #define Z_MAX_PIN          P1_24   // Z_MAX
+#else
+  #define Z_MIN_PIN          P1_24   // Z_MAX
+  #define Z_MAX_PIN          P1_25   // Z_MIN
+#endif
+
 //
 // Servos
 //
@@ -139,32 +169,69 @@
 #endif
 
 /**
- *              _____                                             _____
- *          NC | · · | GND                                    5V | · · | GND
- *       RESET | · · | 1.31(SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *  (MOSI)0.18 | · · | 3.25(BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
- * (SD_SS)0.16 | · · | 3.26(BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
- *   (SCK)0.15 | · · | 0.17(MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
- *              -----                                             -----
- *              EXP2                                              EXP1
+ *               _____                                              _____
+ *           NC | · · | GND                                     5V | · · | GND
+ *        RESET | · · | 1.31 (SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
+ *  (MOSI) 0.18 | · · | 3.25 (BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
+ * (SD_SS) 0.16 | · · | 3.26 (BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
+ *   (SCK) 0.15 | · · | 0.17 (MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
+ *               -----                                              -----
+ *               EXP2                                               EXP1
  */
 #if HAS_SPI_LCD
-  #define BTN_ENC          P0_28   // (58) open-drain
 
-  #if ENABLED(CR10_STOCKDISPLAY)
+  #if ENABLED(ANET_FULL_GRAPHICS_LCD)
+
+    #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
+
+   /**
+    * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+    * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
+    * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
+    *
+    * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+    *
+    * The ANET_FULL_GRAPHICS_LCD connector plug:
+    *
+    *                  BEFORE                          AFTER
+    *                  _____                           _____
+    *           GND 1 | · · |  2 5V              5V 1 | · · |  2 GND
+    *            CS 3 | · · |  4 BTN_EN2         CS 3 | · · |  4 BTN_EN2
+    *           SID 5 | · · |  6 BTN_EN1        SID 5 | · · |  6 BTN_EN1
+    *          open 7 | · · |  8 BTN_ENC        CLK 7 | · · |  8 BTN_ENC
+    *           CLK 9 | · · | 10 Beeper        open 9 | · · | 10 Beeper
+    *                  -----                           -----
+    *                   LCD                             LCD
+    */
+
+    #define LCD_PINS_RS    P1_23
+
+    #define BTN_EN1        P1_20
+    #define BTN_EN2        P1_22
+    #define BTN_ENC        P1_18
+
+    #define LCD_PINS_ENABLE P1_21
+    #define LCD_PINS_D4    P1_19
+
+  #elif ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS    P1_22
 
     #define BTN_EN1        P1_18
     #define BTN_EN2        P1_20
+    #define BTN_ENC        P0_28   // (58) open-drain
 
     #define LCD_PINS_ENABLE P1_23
     #define LCD_PINS_D4    P1_21
 
-  #else
+  #else // !CR10_STOCKDISPLAY
+
     #define LCD_PINS_RS    P1_19
 
     #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
     #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
+    #define BTN_ENC        P0_28   // (58) open-drain
 
     #define LCD_PINS_ENABLE P1_18
     #define LCD_PINS_D4    P1_20
@@ -217,7 +284,7 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif
+  #endif // !CR10_STOCKDISPLAY
 
 #endif // HAS_SPI_LCD
 

@@ -444,8 +444,8 @@ typedef struct
 #define ENABLE    1
 #ifndef __cplusplus
 #ifndef __bool_true_false_are_defined
-#define false 0
-#define true 1
+#define false (1==0)
+#define true (1==1)
 #endif
 #endif
 #ifndef PASS

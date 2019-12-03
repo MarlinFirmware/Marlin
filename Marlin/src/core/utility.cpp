@@ -79,7 +79,7 @@ void safe_delay(millis_t ms) {
     );
 
     #if HAS_BED_PROBE
-      SERIAL_ECHOPAIR("Probe Offset X", probe_offset.x, " Y", probe_offset.y, " Z", probe_offset.z);
+      SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR, probe_offset.z);
       if (probe_offset.x > 0)
         SERIAL_ECHOPGM(" (Right");
       else if (probe_offset.x < 0)

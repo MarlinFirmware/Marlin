@@ -62,54 +62,60 @@
 
 #if HAS_BED_PROBE || ENABLED(PROBE_MANUALLY)
   #if IS_KINEMATIC
-    constexpr float printable_radius =
+    constexpr float printable_radius = (
       #if ENABLED(DELTA)
-        DELTA_PRINTABLE_RADIUS;
+        DELTA_PRINTABLE_RADIUS
       #elif IS_SCARA
-        SCARA_PRINTABLE_RADIUS;
+        SCARA_PRINTABLE_RADIUS
       #endif
-    
+    );
+
     inline float probe_radius() {
-      return printable_radius -
+      return printable_radius - (
         #if HAS_BED_PROBE
-          _MAX(MIN_PROBE_EDGE, HYPOT(probe_offset.x, probe_offset.y));
+          _MAX(MIN_PROBE_EDGE, HYPOT(probe_offset.x, probe_offset.y))
         #else
-          MIN_PROBE_EDGE;
+          MIN_PROBE_EDGE
         #endif
+      );
     }
   #endif
 
   inline float probe_min_x() {
-    return
+    return (
       #if IS_KINEMATIC
-        (X_CENTER) - probe_radius();
+        (X_CENTER) - probe_radius()
       #else
-        _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x);
+        _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x)
       #endif
+    );
   }
   inline float probe_max_x() {
-    return
+    return (
       #if IS_KINEMATIC
-        (X_CENTER) + probe_radius();
+        (X_CENTER) + probe_radius()
       #else
-        _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x);
+        _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x)
       #endif
+    );
   }
   inline float probe_min_y() {
-    return 
+    return (
       #if IS_KINEMATIC
-        (Y_CENTER) - probe_radius();
+        (Y_CENTER) - probe_radius()
       #else
-        _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y);
+        _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y)
       #endif
+    );
   }
   inline float probe_max_y() {
-    return 
+    return (
       #if IS_KINEMATIC
-        (Y_CENTER) + probe_radius();
+        (Y_CENTER) + probe_radius()
       #else
-        _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y);
+        _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y)
       #endif
+    );
   }
 
   #if NEEDS_THREE_PROBE_POINTS

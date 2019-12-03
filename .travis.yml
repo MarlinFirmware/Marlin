@@ -14,12 +14,11 @@ env:
   - TEST_PLATFORM="esp32"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="megaatmega2560"
-  - TEST_PLATFORM="STM32F103RE"
   - TEST_PLATFORM="teensy31"
   - TEST_PLATFORM="teensy35"
 
   # Extended AVR Environments
-  - TEST_PLATFORM="fysetc_f6_13"
+  - TEST_PLATFORM="FYSETC_F6_13"
   - TEST_PLATFORM="megaatmega1280"
   - TEST_PLATFORM="rambo"
   - TEST_PLATFORM="sanguino_atmega1284p"
@@ -27,7 +26,9 @@ env:
 
   # Extended STM32 Environments
   - TEST_PLATFORM="STM32F103RC_bigtree"
-  - TEST_PLATFORM="STM32F103RC_bigtree_NOUSB"
+  - TEST_PLATFORM="STM32F103RC_bigtree_USB"
+  - TEST_PLATFORM="STM32F103RE_bigtree"
+  - TEST_PLATFORM="STM32F103RE_bigtree_USB"
   - TEST_PLATFORM="STM32F103RC_fysetc"
   - TEST_PLATFORM="jgaurora_a5s_a1"
   - TEST_PLATFORM="STM32F103VE_longer"

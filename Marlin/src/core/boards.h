@@ -278,6 +278,9 @@
 #define BOARD_FYSETC_CHEETAH          4016  // FYSETC Cheetah
 #define BOARD_FYSETC_CHEETAH_V12      4017  // FYSETC Cheetah V1.2
 #define BOARD_LONGER3D_LK             4018  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_GTM32_MINI              4019  // STM32F103VET6 controller
+#define BOARD_GTM32_MINI_A30          4020  // STM32F103VET6 controller
+#define BOARD_GTM32_REV_B             4021  // STM32F103VET6 controller
 
 //
 // ARM Cortex-M4F
@@ -301,6 +304,8 @@
 #define BOARD_BIGTREE_BTT002_V1_0     4208  // BigTreeTech BTT002 v1.0 (STM32F407VE)
 #define BOARD_LERDGE_K                4209  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_X                4210  // Lerdge X (STM32F407VE)
+#define BOARD_VAKE403D                4211  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4212  // FYSETC S6 board
 
 //
 // ARM Cortex M7

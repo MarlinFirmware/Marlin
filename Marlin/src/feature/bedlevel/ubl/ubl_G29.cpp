@@ -790,9 +790,13 @@
 
       } while (best.pos.x >= 0 && --count);
 
-      ui.release();
+      #if HAS_LCD_MENU
+        ui.release();
+      #endif
       STOW_PROBE(); // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
 
       #ifdef Z_AFTER_PROBING
         move_z_after_probing();
@@ -851,7 +855,9 @@
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -890,8 +896,9 @@
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
-
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to_xy_z(current_position, z_clearance);
@@ -919,7 +926,9 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        ui.capture();
+        #if HAS_LCD_MENU
+          ui.capture();
+        #endif
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -986,8 +995,9 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      ui.capture();                                         // Take over control of the LCD encoder
-
+      #if HAS_LCD_MENU
+        ui.capture();                                         // Take over control of the LCD encoder
+      #endif
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
