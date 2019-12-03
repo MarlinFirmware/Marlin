@@ -476,7 +476,7 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   //FIND YOUR OWN: "M303 C8 S200 U" HOTEND PID
-  
+
   #define  DEFAULT_Kp 45.80
   #define  DEFAULT_Ki 3.61
   #define  DEFAULT_Kd 145.39
@@ -515,7 +515,6 @@
 #if ENABLED(PIDTEMPBED)
   //#define MIN_BED_POWER 0
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
-  
 
   // FIND YOUR OWN: "M303 E-1 C8 S60"
 #endif // PIDTEMPBED
@@ -1084,7 +1083,7 @@
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_PIN      66
-  #define FIL_RUNOUT_INVERTING true  // set to true to invert the logic of the sensors. - some of the geeetech filament sensors are false 
+  #define FIL_RUNOUT_INVERTING true  // set to true to invert the logic of the sensors. - some of the geeetech filament sensors are false
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 

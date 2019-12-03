@@ -460,7 +460,7 @@
 #elif MB(GTM32_MINI_A30)
   #include "stm32/pins_GTM32_MINI_A30.h"        // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI)
-  #include "stm32/pins_GTM32_MINI.h"            // STM32F1                                env:STM32F103RE 
+  #include "stm32/pins_GTM32_MINI.h"            // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_REV_B)
   #include "stm32/pins_GTM32_REV_B.h"           // STM32F1                                env:STM32F103RE
 #elif MB(MORPHEUS)

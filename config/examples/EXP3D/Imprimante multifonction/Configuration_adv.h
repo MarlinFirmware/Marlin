@@ -1426,12 +1426,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-      #define PROBE_PT_1_X 15
-      #define PROBE_PT_1_Y 180
-      #define PROBE_PT_2_X 15
-      #define PROBE_PT_2_Y 20
-      #define PROBE_PT_3_X 170
-      #define PROBE_PT_3_Y 20
+  #define PROBE_PT_1_X 15
+  #define PROBE_PT_1_Y 180
+  #define PROBE_PT_2_X 15
+  #define PROBE_PT_2_Y 20
+  #define PROBE_PT_3_X 170
+  #define PROBE_PT_3_Y 20
 #endif
 
 /**
@@ -2598,7 +2598,7 @@
 
   #define USER_DESC_3 "K0.3"
   #define USER_GCODE_3 "M900 K0.3\nM500"
-  
+
   #define USER_DESC_4 "K0.4"
   #define USER_GCODE_4 "M900 K0.4\nM500"
 
