@@ -523,6 +523,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
         
         if (!success) error(SD_CARD_ERROR_READ_CRC);
       #endif
+    ;
   }
   else
     error(SD_CARD_ERROR_READ);
