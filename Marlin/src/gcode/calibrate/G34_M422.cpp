@@ -362,10 +362,10 @@ void GcodeSuite::G34() {
 void GcodeSuite::M422() {
   if (!parser.seen_any()) {
     for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i)
-      SERIAL_ECHOLNPAIR("M422 S", i + 1, " X", z_auto_align_pos[i].x, " Y", z_auto_align_pos[i].y);
+      SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + 1, SP_X_STR, z_auto_align_pos[i].x, SP_Y_STR, z_auto_align_pos[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i)
-        SERIAL_ECHOLNPAIR("M422 W", i + 1, " X", z_stepper_pos[i].x, " Y", z_stepper_pos[i].y);
+        SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + 1, SP_X_STR, z_stepper_pos[i].x, SP_Y_STR, z_stepper_pos[i].y);
     #endif
     return;
   }

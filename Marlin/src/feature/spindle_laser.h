@@ -36,9 +36,11 @@
 
 class SpindleLaser {
 public:
-  static cutter_power_t power;
-  static cutter_power_t isOn;
-  static cutter_power_t setPower;
+  static cutter_power_t power, setPower;
+  static bool isOn;
+
+  static inline uint8_t powerPercent(const uint8_t pp) { return ui8_to_percent(pp); } // for display
+
   static void init();
 
   // Modifying this function should update everywhere

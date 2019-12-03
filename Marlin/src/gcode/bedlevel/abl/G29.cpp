@@ -465,7 +465,7 @@ G29_TYPE GcodeSuite::G29() {
         reset_bed_level();
 
         // Initialize a grid with the given dimensions
-        bilinear_grid_spacing = gridSpacing.asInt();
+        bilinear_grid_spacing = gridSpacing;
         bilinear_start = probe_position_lf;
 
         // Can't re-enable (on error) until the new grid is written
@@ -560,7 +560,7 @@ G29_TYPE GcodeSuite::G29() {
           ExtUI::onMeshUpdate(meshCount, newz);
         #endif
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Save X", meshCount.x, " Y", meshCount.y, " Z", measured_z + zoffset);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_P(PSTR("Save X"), meshCount.x, SP_Y_STR, meshCount.y, SP_Z_STR, measured_z + zoffset);
 
       #endif
     }
@@ -583,10 +583,7 @@ G29_TYPE GcodeSuite::G29() {
 
         if (zig) PR_INNER_VAR = (PR_INNER_END - 1) - PR_INNER_VAR;
 
-        const xy_pos_t base = probe_position_lf.asFloat() + gridSpacing * meshCount.asFloat();
-
-        probePos.set(FLOOR(base.x + (base.x < 0 ? 0 : 0.5)),
-                     FLOOR(base.y + (base.y < 0 ? 0 : 0.5)));
+        probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
 
         #if ENABLED(AUTO_BED_LEVELING_LINEAR)
           indexIntoAB[meshCount.x][meshCount.y] = abl_probe_index;
@@ -674,15 +671,15 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
-        if (zig) { // away from origin
-          inStart = 0;
-          inStop = PR_INNER_END;
-          inInc = 1;
+        if (zig) {                    // Zig away from origin
+          inStart = 0;                // Left or front
+          inStop = PR_INNER_END;      // Right or back
+          inInc = 1;                  // Zig right
         }
-        else {     // towards origin
-          inStart = PR_INNER_END - 1;
-          inStop = -1;
-          inInc = -1;
+        else {                        // Zag towards origin
+          inStart = PR_INNER_END - 1; // Right or back
+          inStop = -1;                // Left or front
+          inInc = -1;                 // Zag left
         }
 
         zig ^= true; // zag
@@ -694,10 +691,7 @@ G29_TYPE GcodeSuite::G29() {
         // Inner loop is X with PROBE_Y_FIRST disabled
         for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; pt_index++, PR_INNER_VAR += inInc) {
 
-          const xy_pos_t base = probe_position_lf.asFloat() + gridSpacing * meshCount.asFloat();
-
-          probePos.set(FLOOR(base.x + (base.x < 0 ? 0 : 0.5)),
-                       FLOOR(base.y + (base.y < 0 ? 0 : 0.5)));
+          probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             indexIntoAB[meshCount.x][meshCount.y] = ++abl_probe_index; // 0...
@@ -752,7 +746,7 @@ G29_TYPE GcodeSuite::G29() {
       for (uint8_t i = 0; i < 3; ++i) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
+          ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
         #endif
 
         // Retain the last probe position

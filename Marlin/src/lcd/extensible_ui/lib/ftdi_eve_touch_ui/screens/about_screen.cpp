@@ -58,11 +58,11 @@ void AboutScreen::onRedraw(draw_mode_t) {
     char about_str[
       strlen_P(GET_TEXT(FIRMWARE_FOR_TOOLHEAD)) +
       strlen_P(TOOLHEAD_NAME) +
-      strlen_P(GET_TEXT(ABOUT_TOUCH_PANEL_2)) + 1
+      strlen_P(GET_TEXT(MSG_ABOUT_TOUCH_PANEL_2)) + 1
     ];
 
-    sprintf_P(about_str, GET_TEXT(FIRMWARE_FOR_TOOLHEAD), TOOLHEAD_NAME);
-    strcat_P (about_str, GET_TEXT(ABOUT_TOUCH_PANEL_2));
+    sprintf_P(about_str, GET_TEXT(MSG_FIRMWARE_FOR_TOOLHEAD), TOOLHEAD_NAME);
+    strcat_P (about_str, GET_TEXT(MSG_ABOUT_TOUCH_PANEL_2));
   #endif
 
   cmd.tag(2);
