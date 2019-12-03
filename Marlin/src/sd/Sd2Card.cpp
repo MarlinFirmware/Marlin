@@ -115,40 +115,34 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   int resXtra; //sets extra response bytes to ignore
   switch (cmd) {
-    case CMD8 : resXtra = 4; break; //R7  = R1 + voltage specifications (4 bytes)
+    //case CMD8 : resXtra = 4; break; //R7  = R1 + voltage specifications (4 bytes) (CMD8 response is read and parsed outside)
     case CMD12:
     //case CMD28: not handled at the moment
     //case CMD29: not handled at the moment
-    case CMD38: resXtra =-1; break; //R1b = R1 + any number of bytes until 0xFF
-    case CMD13: resXtra = 1; break; //R2  = R1 + status
-    case CMD58: resXtra = 4; break; //R3  = R1 + OCR (4 bytes)
+    //case CMD38: //waited outside until timeout
+      resXtra =-1; break; //R1b = R1 + any number of bytes until 0xFF
+    //case CMD13: resXtra = 1; break; //R2  = R1 + status (1 byte) status is checked outside 
+    //case CMD58: resXtra = 4; break; //R3  = R1 + OCR (4 bytes) OCR is read outside
     default   : resXtra = 0; break; //R1
   }
 
   SERIAL_ECHO("CMD");
-  SERIAL_PRINT(cmd, DEC);
-  SERIAL_ECHO(", discarding ");
+  SERIAL_PRINTLN(cmd, DEC);
 
   // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
   for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
   //first byte received contains R1
 
-  //discard command response too
-  if (resXtra >= 0)
-  {
+  //discard command response if not needed
+  if (resXtra < 0) {
+    SERIAL_ECHOLN("discarding until 0xFF.");
+    while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
+  } /*else {
     SERIAL_PRINT(resXtra, DEC);
     SERIAL_ECHOLN(" extra bytes.");
 
     for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
-  }
-  else
-  {
-    SERIAL_ECHOLN("until 0xFF.");
-    while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
-  }
-  
-  //if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
-  //for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i != 0xFF; i++) ;
+  }*/
 
   return status_;
 }
@@ -408,9 +402,8 @@ bool Sd2Card::readData(uint8_t* dst) {
   return readData(dst, 512);
 }
 
-#if ENABLED(SD_CHECK_AND_RETRY)
-  #ifndef SPI_HAS_HW_CRC
-    #ifdef FAST_CRC
+#if ENABLED(SD_CHECK_AND_RETRY) && !defined(SPI_HAS_HW_CRC)
+  #ifdef FAST_CRC
     static const uint16_t crctab16[] PROGMEM = {
       0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
       0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -454,23 +447,22 @@ bool Sd2Card::readData(uint8_t* dst) {
 
       return crc;
     }
-    #else
-      // slower CRC-CCITT
-      // uses the x^16,x^12,x^5,x^1 polynomial.
-      static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
-        uint16_t crc = 0;
-        for (size_t i = 0; i < n; i++) {
-          crc = (uint8_t)(crc >> 8) | (crc << 8);
-          crc ^= data[i];
-          crc ^= (uint8_t)(crc & 0xFF) >> 4;
-          crc ^= crc << 12;
-          crc ^= (crc & 0xFF) << 5;
-        }
-        return crc;
+  #else
+    // slower CRC-CCITT
+    // uses the x^16,x^12,x^5,x^1 polynomial.
+    static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
+      uint16_t crc = 0;
+      for (size_t i = 0; i < n; i++) {
+        crc = (uint8_t)(crc >> 8) | (crc << 8);
+        crc ^= data[i];
+        crc ^= (uint8_t)(crc & 0xFF) >> 4;
+        crc ^= crc << 12;
+        crc ^= (crc & 0xFF) << 5;
       }
-    #endif
+      return crc;
+    }
   #endif
-#endif // SD_CHECK_AND_RETRY
+#endif // !SPI_HAS_HW_CRC && SD_CHECK_AND_RETRY
 
 bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   bool success = false;
