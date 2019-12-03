@@ -372,6 +372,20 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   return false;
 }
 
+void Sd2Card::ActivateHWCRC(const uint16_t count)
+{
+  #ifdef SPI_HAS_HW_CRC
+    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), count * 8 -1, true); //degree of polynomial= data bits-1
+  #endif
+}
+
+void Sd2Card::DeactivateHWCRC()
+{
+  #ifdef SPI_HAS_HW_CRC
+    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0, false);
+  #endif
+}
+
 /**
  * Read a 512 byte block from an SD card.
  *
@@ -494,17 +508,15 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
-    #ifdef SPI_HAS_HW_CRC
-      if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), count * 8 -1, true); //degree of polynomial= data bits-1
-    #endif
+    ActivateHWCRC(count);
 
-    spiRead(BUS_OF_DEV(dev_num), dst, count);       // Transfer data
-    success = (!crcSupported)                       //if CRC is not supported don't do anything else.
+    spiRead(BUS_OF_DEV(dev_num), dst, count); // Transfer data
+    success = (!crcSupported)                 //if CRC is not supported don't do anything else.
       #if ENABLED(SD_CHECK_AND_RETRY)
         ||
         #ifdef SPI_HAS_HW_CRC
-          !spiCRCError(BUS_OF_DEV(dev_num));        //If there's HW crc check on hardware
-          spiSetCRC(BUS_OF_DEV(dev_num), 0, false); //and disable it for next command.
+          !spiCRCError(BUS_OF_DEV(dev_num));  //If there's HW crc check on hardware
+          DeactivateHWCRC();                  //and disable it for next command.
         #else //software CRC: compare the two next bytes to expected CRC
           ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num))) == CRC_CCITT(dst, count);
         #endif
@@ -545,7 +557,11 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
 
   const bool success = !cardCommand(CMD18, blockNumber);
-  if (!success) error(SD_CARD_ERROR_CMD18);
+  if (success)
+    ActivateHWCRC(512);
+  else
+    error(SD_CARD_ERROR_CMD18);
+
   chipDeselect();
   return success;
 }
@@ -557,6 +573,7 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
  */
 bool Sd2Card::readStop() {
   chipSelect();
+  DeactivateHWCRC();
   const bool success = !cardCommand(CMD12, 0);
   if (!success) error(SD_CARD_ERROR_CMD12);
   chipDeselect();
@@ -639,7 +656,9 @@ bool Sd2Card::writeData(const uint8_t* src) {
 
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
+  ActivateHWCRC(512);
   spiSendBlock(BUS_OF_DEV(dev_num), token, src);
+  DeactivateHWCRC();
 
 #ifndef SPI_HAS_HW_CRC
   uint16_t crc =
