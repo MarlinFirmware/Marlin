@@ -1657,27 +1657,22 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // Anything in the buffer?
     if ((current_block = planner.get_current_block())) {
 
-      // Sync position block? Sync the stepper counts and return
-      while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
-        _set_position(current_block->position);
+      // Sync block? Sync the stepper counts and return
+      while (current_block->flag & BLOCK_MASK_SYNC) {
+
+        #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+          if (TEST(current_block->flag, BLOCK_BIT_SYNC_FANS))
+            planner.sync_fan_speeds(current_block->fan_speed);
+          else
+        #endif
+            _set_position(current_block->position);
+
         planner.discard_current_block();
 
         // Try to get a new block
         if (!(current_block = planner.get_current_block()))
           return interval; // No more queued movements!
       }
-
-      // Sync fans block? Sync the fans and return
-      #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-        while (TEST(current_block->flag, BLOCK_BIT_SYNC_FANS)) {
-          planner.sync_fan_speeds(current_block->fan_speed);
-          planner.discard_current_block();
-
-          // Try to get a new block
-          if (!(current_block = planner.get_current_block()))
-            return interval; // No more queue movements!
-        }
-      #endif
 
       #if HAS_CUTTER
         cutter.apply_power(current_block->cutter_power);

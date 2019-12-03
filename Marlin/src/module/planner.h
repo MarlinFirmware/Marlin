@@ -87,6 +87,8 @@ enum BlockFlag : char {
   BLOCK_FLAG_SYNC_FANS            = _BV(BLOCK_BIT_SYNC_FANS)
 };
 
+#define BLOCK_MASK_SYNC (BLOCK_FLAG_SYNC_POSITION|BLOCK_FLAG_SYNC_FANS)
+
 /**
  * struct block_t
  *
@@ -390,6 +392,11 @@ class Planner {
     // Apply fan speeds
     #if FAN_COUNT > 0
       static void sync_fan_speeds(uint8_t fan_speed[FAN_COUNT]);
+      #if FAN_KICKSTART_TIME
+        static void kickstart_fan(const millis_t &ms, const uint8_t f);
+      #else
+        FORCE_INLINE static void kickstart_fan(const millis_t &, const uint8_t) {}
+      #endif
     #endif
 
     // Update multipliers based on new diameter measurements
@@ -632,7 +639,7 @@ class Planner {
      */
     static void buffer_sync_block(
       #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-        uint8_t sync_flag
+        uint8_t sync_flag=BLOCK_FLAG_SYNC_POSITION
       #endif
     );
 

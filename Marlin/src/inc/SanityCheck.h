@@ -1022,24 +1022,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Synchronous M106/M107 for laser vs kickstart fan ports
- * This is highly ill-advised, as the sychronous M106/M107 is for explict use with lasers,
- * kickstarting them can have unexpected side effects.
+ * Synchronous M106/M107 checks
  */
-#if BOTH(LASER_SYNCHRONOUS_M106_M107, FAN_KICKSTART_TIME)
-  #error "Do not use FAN_KICKSTART_TIME in conjunction with LASER_SYNCHRONOUS_M106_M107 as this would start laser in full-power when it's turned on."
+#if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+  #if FAN_KICKSTART_TIME
+    #error "FAN_KICKSTART_TIME must be 0 with LASER_SYNCHRONOUS_M106_M107 (because the laser will always come on at FULL power)."
+  #elif FAN_MIN_PWM
+    #error "FAN_MIN_PWM must be 0 with LASER_SYNCHRONOUS_M106_M107 (otherwise the laser will never turn OFF)."
+  #endif
 #endif
-
-/**
- * Synchronous M106/M107 for laser vs defined or non zero FAN_MIN_PWM
- * Laser should not be run with a FAN_MIN_PWM, as this would mean the laser can never
- * be turned off fully. Note that FAN_MAX_PWM can be permissible (and perhaps needed)
- * in order to limit power to the laser under certain conditions.
- */
-#if ENABLED(LASER_SYNCHRONOUS_M106_M107) && FAN_MIN_PWM > 0
-  #error "Do not use FAN_MIN_PWM in conjuction with LASER_SYNCHRONOUS_M106_M107 as this disallows the laser to be fully off."
-#endif
-
 
 /**
  * Kinematics

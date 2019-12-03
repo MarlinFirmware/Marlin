@@ -26,10 +26,11 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
+#include "../../module/temperature.h"
+
 #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
   #include "../../module/planner.h"
 #endif
-#include "../../module/temperature.h"
 
 #if ENABLED(SINGLENOZZLE)
   #define _ALT_P active_extruder
@@ -66,6 +67,7 @@ void GcodeSuite::M106() {
     NOMORE(s, 255U);
 
     thermalManager.set_fan_speed(p, s);
+
     #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
       planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS);
     #endif
