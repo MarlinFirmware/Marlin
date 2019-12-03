@@ -100,7 +100,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   // Form message
   uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
 
-  uint8_t crcerrors = 0; //crc error counter
+  uint8_t crcErrors = 0; //crc error counter
 
   // Add crc at end
   switch (cmd) {
@@ -121,23 +121,21 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
     spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message with CRC
 
-    // Specs:"Wait for response at most 16 clock cycles" = 2 bytes
+    // Specs: "Wait for response at most 16 clock cycles" (= 2 bytes)
     uint8_t i = 0;
     do
       status_ = spiRec(BUS_OF_DEV(dev_num));
-    while ((status_ == 0xff) && (i++ < 3)); //(we wait 3, just to be sure)
+    while ((status_ == 0xff) && (i++ < 3)); //wait 3 bytes, just to be sure
     //Here status_ contains R1
-
-    //for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) == 0xFF) && (i < 3); i++); /* Intentionally left empty */
-
+  
     //check if R1 has crc error.
-    if (status_ && 0b1000 == 0b1000) { //crc error.
+    if (status_ & 0b1000) {
       #ifdef TRACE_SD
         SERIAL_ECHOLN("CRC error from card. Retrying.");
       #endif
-      crcerrors++;
+      crcErrors++;
     }
-  } while (crcerrors > 0 && crcerrors < 3); //if we had a CRC error retry at most three times
+  } while (crcErrors > 0 && crcErrors < 3); //if we had a CRC error retry at most three times
 
   uint8_t reply;
   switch (cmd) {
