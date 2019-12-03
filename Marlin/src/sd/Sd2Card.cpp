@@ -127,22 +127,28 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   SERIAL_ECHO("CMD");
   SERIAL_PRINT(cmd, DEC);
-  SERIAL_ECHO(", should discard ");
-  SERIAL_PRINT(resXtra, DEC);
-  SERIAL_ECHOLN(" bytes.");
+  SERIAL_ECHO(", discarding ");
 
   // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
-  //for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
+  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
   //first byte received contains R1
 
   //discard command response too
-  //if (resXtra >= 0)
-  //  for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
-  //else
-  //  while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
+  if (resXtra >= 0)
+  {
+    SERIAL_PRINT(resXtra, DEC);
+    SERIAL_ECHOLN(" extra bytes.");
+
+    for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
+  }
+  else
+  {
+    SERIAL_ECHOLN("until 0xFF.");
+    while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
+  }
   
-  if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
-  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i != 0xFF; i++) ;
+  //if (cmd == CMD12) spiRec(BUS_OF_DEV(dev_num));
+  //for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i != 0xFF; i++) ;
 
   return status_;
 }
