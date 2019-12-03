@@ -149,7 +149,10 @@
 // SPI devices, buses and pins definition
 //
 #define NUM_SPI_BUSES 3   //number of SPI buses in the controller
-//#define SPI_HAS_HW_CRC    //use hardware CRC for SD-Card checksum
+#undef SPI_HAS_HW_CRC    //use hardware CRC for SD-Card checksum
+#define SD_CHECK_AND_RETRY
+#define DUMP_SPI
+#define TRACE_SD
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 // MOSI, MISO, SCK , Mode      , Bit order

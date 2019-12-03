@@ -105,7 +105,13 @@ public:
    *  Set SD error code.
    *  \param[in] code value for error code.
    */
-  inline void error(const uint8_t code) { errorCode_ = code; SERIAL_ECHO("Error "); SERIAL_PRINTLN(code, DEC);}
+  inline void error(const uint8_t code) {
+    errorCode_ = code;
+    #ifdef TRACE_SD
+      SERIAL_ECHO("Error ");
+      SERIAL_PRINTLN(code, DEC);
+    #endif
+    }
 
   /**
    * \return error code for last error. See Sd2Card.h for a list of error codes.

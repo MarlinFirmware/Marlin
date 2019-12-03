@@ -113,36 +113,36 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message with CRC
 
-  int resXtra; //sets extra response bytes to ignore
+  uint8_t reply;
   switch (cmd) {
-    //case CMD8 : resXtra = 4; break; //R7  = R1 + voltage specifications (4 bytes) (CMD8 response is read and parsed outside)
-    case CMD12:
+    case CMD8  : reply = R7;  break; //R7  = R1 + voltage specifications (4 bytes) (R7 is read and parsed outside)
+    //case CMD38: wait is handled externally
     //case CMD28: not handled at the moment
     //case CMD29: not handled at the moment
-    //case CMD38: //waited outside until timeout
-      resXtra =-1; break; //R1b = R1 + any number of bytes until 0xFF
-    //case CMD13: resXtra = 1; break; //R2  = R1 + status (1 byte) status is checked outside 
-    //case CMD58: resXtra = 4; break; //R3  = R1 + OCR (4 bytes) OCR is read outside
-    default   : resXtra = 0; break; //R1
+    case CMD12 : reply = R1b; break; //R1b = R1 + busy (any number of bytes until 0xFF)
+    case CMD13 : reply = R2;  break; //R2  = R1 + status (1 byte) status is checked outside 
+    case CMD58 :
+    case ACMD41:
+                 reply = R3;  break; //R3  = R1 + OCR (4 bytes) OCR is read outside
+    default    : reply = R1;  break; 
   }
 
+#ifdef TRACE_SD
   SERIAL_ECHO("CMD");
   SERIAL_PRINTLN(cmd, DEC);
+#endif
 
   // Wait for response at most 16 clock cycles = 2 bytes (we wait 3, just to be sure)
-  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) & 0x80) && i < 3; i++); /* Intentionally left empty */
+  for (uint8_t i = 0; ((status_ = spiRec(BUS_OF_DEV(dev_num))) == 0xFF) && (i < 3); i++); /* Intentionally left empty */
   //first byte received contains R1
 
   //discard command response if not needed
-  if (resXtra < 0) {
+  if (reply == R1b) {
+#ifdef TRACE_SD
     SERIAL_ECHOLN("discarding until 0xFF.");
+#endif
     while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
-  } /*else {
-    SERIAL_PRINT(resXtra, DEC);
-    SERIAL_ECHOLN(" extra bytes.");
-
-    for (uint8_t i = 1; i < resXtra; i++) spiRec(BUS_OF_DEV(dev_num)); //receive extra response bytes (not handled)
-  }*/
+  }
 
   return status_;
 }
@@ -290,7 +290,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   watchdog_refresh(); // In case init takes too long
 
   // Command to go idle in SPI mode
-  while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
+  while (cardCommand(CMD0, 0) != R1_IDLE_STATE) {
     if (ELAPSED(millis(), init_timeout)) {
       error(SD_CARD_ERROR_CMD0);
       goto FAIL;
