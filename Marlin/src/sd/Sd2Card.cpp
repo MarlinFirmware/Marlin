@@ -114,10 +114,10 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   }
 
   do {
-  #ifdef TRACE_SD
-    SERIAL_ECHO("CMD");
-    SERIAL_PRINTLN(cmd, DEC);
-  #endif
+    #ifdef TRACE_SD
+      SERIAL_ECHO("CMD");
+      SERIAL_PRINTLN(cmd, DEC);
+    #endif
 
     spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message with CRC
 
@@ -147,15 +147,17 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
     case CMD13 : reply = R2;  break; //R2  = R1 + status (1 byte) status is checked outside 
     case CMD58 :
     case ACMD41:
-                 reply = R3;  break; //R3  = R1 + OCR (4 bytes) OCR is read outside
+                 reply = R3;  break; //R3  = R1 + OCR/CSS (4 bytes) OCR/CSS is read outside
     default    : reply = R1;  break; 
   }
 
+  //TODO: add extra bytes parsing here.
+
   //discard command response if not needed
   if (reply == R1b) {
-#ifdef TRACE_SD
-    SERIAL_ECHOLN("discarding until 0xFF.");
-#endif
+    #ifdef TRACE_SD
+      SERIAL_ECHOLN("discarding until 0xFF.");
+    #endif
     while (spiRec(BUS_OF_DEV(dev_num)) != 0xFF); //undefined wait: loop until 0xFF received
   }
 
@@ -304,7 +306,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   watchdog_refresh(); // In case init takes too long
 
-  // Command to go idle in SPI mode
+  // CMD0: Command to go idle in SPI mode 
   while (cardCommand(CMD0, 0) != R1_IDLE_STATE) {
     if (ELAPSED(millis(), init_timeout)) {
       error(SD_CARD_ERROR_CMD0);
@@ -312,13 +314,14 @@ bool Sd2Card::init(const uint8_t sckRateID) {
     }
   }
 
+  //CMD59: Enable CRC check
   #if ENABLED(SD_CHECK_AND_RETRY)
     crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
   #endif
 
   watchdog_refresh(); // In case init takes too long
 
-  // check SD version
+  //CMD8: Check SD version
   for (;;) {
     if (cardCommand(CMD8, 0x1AA) == (R1_ILLEGAL_COMMAND | R1_IDLE_STATE)) {
       type(SD_CARD_TYPE_SD1);
@@ -570,8 +573,9 @@ bool Sd2Card::setSckRate(const uint8_t sckRateID) {
       if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true);
     #endif
   }
+  else
+    error(SD_CARD_ERROR_SCK_RATE);
 
-  error(SD_CARD_ERROR_SCK_RATE);
   return success;
 }
 
