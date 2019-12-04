@@ -467,6 +467,12 @@ private:
   #if ENABLED(GCODE_MOTION_MODES)
     static void G80();
   #endif
+            
+  #if ENABLED(DRILLING_CANNED_CYCLES)
+    static void G81();
+    static void G82();
+    static void G83();
+  #endif          
 
   static void G92();
 
@@ -654,6 +660,10 @@ private:
       static void M166();
     #endif
   #endif
+            
+  #if ENABLED(CNC_5X)
+      static void M168();
+  #endif          
 
   static void M200();
   static void M201();
