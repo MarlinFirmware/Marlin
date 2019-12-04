@@ -68,6 +68,9 @@
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
+ * G81  - Drilling Cycles - drilling (Requires DRILLING_CANNED_CYCLES)
+ * G82  - Drilling Cycles - spot drill (Requires DRILLING_CANNED_CYCLES)
+ * G83  - Drilling Cycles - pecking (Requires DRILLING_CANNED_CYCLES)		
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
  * G92  - Set current position to coordinates given
@@ -157,6 +160,7 @@
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
  * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M166 - Set the Gradient Mix for the mixing extruder. (Requires GRADIENT_MIX)
+ * M168 - Use 5x Movement (developing)
  * M190 - S<temp> Wait for bed current temp to reach target temp. ** Wait only when heating! **
  *        R<temp> Wait for bed current temp to reach target temp. ** Wait for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
