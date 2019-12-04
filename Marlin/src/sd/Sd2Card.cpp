@@ -95,14 +95,13 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
   // Wait up to 300 ms if busy
   waitNotBusy(SD_WRITE_TIMEOUT);
 
-  uint8_t *pa = (uint8_t *)(&arg);
+  uint8_t
+    crcErrors = 0,            //crc error counter
+    reply,                    //expected reply format
+    *pa = (uint8_t *)(&arg),  //pointer to arguments
+    d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] }; //Message: Command + Parameters + CRC(=0, set below)
 
-  // Form message
-  uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
-
-  uint8_t crcErrors = 0; //crc error counter
-
-  // Add crc at end
+  // Set crc at end of message
   switch (cmd) {
     case CMD0: d[5] = 0x95; break; //with arg zero
     case CMD8: d[5] = 0x87; break; //with arg 0X1AA
@@ -113,13 +112,26 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
       break;
   }
 
+  switch (cmd) {
+    case CMD8  : reply = R7;  break; //R7  = R1 + voltage specifications (4 bytes) (R7 is read and parsed outside)
+    //case CMD38: wait is handled externally
+    //case CMD28: not handled at the moment
+    //case CMD29: not handled at the moment
+    case CMD12 : reply = R1b; break; //R1b = R1 + busy (any number of bytes until 0xFF)
+    case CMD13 : reply = R2;  break; //R2  = R1 + status (1 byte) status is checked outside 
+    case CMD58 :
+    case ACMD41:
+                 reply = R3;  break; //R3  = R1 + OCR/CSS (4 bytes) OCR/CSS is read outside
+    default    : reply = R1;  break; 
+  }
+
   do {
     #ifdef TRACE_SD
       SERIAL_ECHO("CMD");
       SERIAL_PRINTLN(cmd, DEC);
     #endif
 
-    spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message with CRC
+    spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message
 
     // Specs: "Wait for response at most 16 clock cycles" (= 2 bytes)
     uint8_t i = 0;
@@ -137,21 +149,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
     }
   } while (crcErrors > 0 && crcErrors < 3); //if we had a CRC error retry at most three times
 
-  uint8_t reply;
-  switch (cmd) {
-    case CMD8  : reply = R7;  break; //R7  = R1 + voltage specifications (4 bytes) (R7 is read and parsed outside)
-    //case CMD38: wait is handled externally
-    //case CMD28: not handled at the moment
-    //case CMD29: not handled at the moment
-    case CMD12 : reply = R1b; break; //R1b = R1 + busy (any number of bytes until 0xFF)
-    case CMD13 : reply = R2;  break; //R2  = R1 + status (1 byte) status is checked outside 
-    case CMD58 :
-    case ACMD41:
-                 reply = R3;  break; //R3  = R1 + OCR/CSS (4 bytes) OCR/CSS is read outside
-    default    : reply = R1;  break; 
-  }
-
-  //TODO: add extra bytes parsing here.
+  //TODO, if needed: add extra response parsing here
 
   //discard command response if not needed
   if (reply == R1b) {
@@ -506,6 +504,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
+    SERIAL_ECHOLN("Data ready.");
     #ifdef SPI_HAS_HW_CRC
       ActivateHWCRC(count);
     #endif

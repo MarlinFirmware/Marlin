@@ -109,7 +109,7 @@ public:
     errorCode_ = code;
     #ifdef TRACE_SD
       SERIAL_ECHO("Error ");
-      SERIAL_PRINTLN(code, DEC);
+      SERIAL_PRINTLN(code, HEX);
     #endif
     }
 

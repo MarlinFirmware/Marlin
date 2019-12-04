@@ -162,10 +162,11 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 
 #ifdef DUMP_SPI
-//  for (uint8_t b=0; b<count; b++) {
-//    SERIAL_PRINT(buf[b], HEX);
-//    SERIAL_ECHO(b < count-1 ? " ":"\n");
-//  }
+  for (uint8_t b=0; b<count && b<=DUMP_SPI; b++) {
+    SERIAL_PRINT(buf[b], HEX);
+    SERIAL_ECHO(b==DUMP_SPI ? "...":" ");
+  }
+  SERIAL_ECHOLN();
 #endif
 }
 /**
@@ -188,10 +189,11 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
   if (count == 0 || !spiInitialized(bus_num)) return;
 
 #ifdef DUMP_SPI
-//  for (uint8_t b = 0; b < count; b++) {
-//    SERIAL_PRINT(buf[b], HEX);
-//    SERIAL_ECHO(b < count-1 ? " ":"\n");
-//  }
+  for (uint8_t b=0; b<count && b<=DUMP_SPI; b++) {
+    SERIAL_PRINT(buf[b], HEX);
+    SERIAL_ECHO(b==DUMP_SPI ? "...":" ");
+  }
+  SERIAL_ECHOLN();
 #endif
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
@@ -199,6 +201,21 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
 
 //CRC functions
 bool spiCRCError(uint8_t bus_num) {
+  if (!spiInitialized(bus_num)) return false;
+
+#ifdef DUMP_SPI
+  SERIAL_ECHO("SPI");
+  SERIAL_PRINT(bus_num, DEC);
+  SERIAL_ECHO(" RX:");
+  SERIAL_PRINT(BUS_SPI_HANDLE(bus_num)->RxXferCount, DEC);
+  SERIAL_ECHO(" (");
+  SERIAL_PRINT(BUS_SPI_HANDLE(bus_num)->RxXferSize, DEC);
+  SERIAL_ECHO("b) State=");
+  SERIAL_PRINT(BUS_SPI_HANDLE(bus_num)->State, DEC);
+  SERIAL_ECHO(" Error=");
+  SERIAL_PRINTLN(BUS_SPI_HANDLE(bus_num)->ErrorCode, DEC);
+#endif
+
   return (BUS_SPI_HANDLE(bus_num)->ErrorCode & HAL_SPI_ERROR_CRC) == HAL_SPI_ERROR_CRC;
 }
 
