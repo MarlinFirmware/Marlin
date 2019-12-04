@@ -2606,17 +2606,18 @@
 #endif
 
 /**
- * User-defined menu items that execute custom GCode CNC User
+ * User-defined menu items that execute custom GCode
  */
 //#define CUSTOM_USER_MENUS
 
 #if ENABLED(CUSTOM_USER_MENUS)
+  
+ #if ENABLED(SPINDLE_FEATURE)
+
   #define CUSTOM_USER_MENU_TITLE "CNC Zeros"
   #define USER_SCRIPT_DONE "Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
-
-#if ENABLED(SPINDLE_FEATURE)
 
   #define USER_DESC_1 "Set G53"
   #define USER_GCODE_1 "G28 \nG53 G92 X0 Y0 Z300 \nM500 \nG54 "
@@ -2666,7 +2667,12 @@
   #define USER_DESC_16 "Set Zero G92 Z"
   #define USER_GCODE_16 "G92 Z0 \nM500"
 
-#else
+ #else
+  
+  //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
+  #define USER_SCRIPT_DONE "M117 User Script Done"
+  #define USER_SCRIPT_AUDIBLE_FEEDBACK
+  //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
