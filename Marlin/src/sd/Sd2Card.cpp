@@ -371,15 +371,19 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 }
 
 #ifdef SPI_HAS_HW_CRC
-void Sd2Card::ActivateHWCRC(const uint16_t count)
-{
-    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), count * 8 -1, true); //degree of polynomial= data bits-1
-}
+  void Sd2Card::ActivateHWCRC(const uint16_t count)
+  {
+    //SD specs:
+    //"The degree n of the polynomial denotes the number of bits of the data block decreased by one".
+    //if we pass count*8-1 we get a crc error
+    //STM32 specs don't specify what they need as parameter.
+    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true); //let's try to pass the function
+  }
 
-void Sd2Card::DeactivateHWCRC()
-{
+  void Sd2Card::DeactivateHWCRC()
+  {
     if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0, false);
-}
+  }
 #endif
 
 /**
