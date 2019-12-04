@@ -788,11 +788,16 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
         PIDCF_t pidcf = {
-                       PID_PARAM(Kp, e),
-          unscalePID_i(PID_PARAM(Ki, e)),
-          unscalePID_d(PID_PARAM(Kd, e)),
-                       PID_PARAM(Kc, e),
-                       PID_PARAM(Kf, e)
+          #if DISABLED(PIDTEMP)
+            DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE,
+            DUMMY_PID_VALUE, DUMMY_PID_VALUE
+          #else
+                         PID_PARAM(Kp, e),
+            unscalePID_i(PID_PARAM(Ki, e)),
+            unscalePID_d(PID_PARAM(Kd, e)),
+                         PID_PARAM(Kc, e),
+                         PID_PARAM(Kf, e)
+          #endif
         };
         EEPROM_WRITE(pidcf);
       }
