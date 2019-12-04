@@ -1988,7 +1988,7 @@
 //
 // SSD1306 OLED full graphics generic display
 //
-#define U8GLIB_SSD1306
+//#define U8GLIB_SSD1306
 #define LCD_WIDTH 22
 #define LCD_HEIGHT 5
 #define LCD_RESET_PIN 5
