@@ -2503,7 +2503,7 @@
 //#define DRILLING_CANNED_CYCLES
 
 /**
- * Simple 5x Conversion (developing)
+ * 5x Conversion (developing)
  * 
  * Enables M168 for 5 axis control
  * 
