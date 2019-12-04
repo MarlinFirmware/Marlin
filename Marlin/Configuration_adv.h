@@ -2606,14 +2606,67 @@
 #endif
 
 /**
- * User-defined menu items that execute custom GCode
+ * User-defined menu items that execute custom GCode CNC User
  */
 //#define CUSTOM_USER_MENUS
+
 #if ENABLED(CUSTOM_USER_MENUS)
-  //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
-  #define USER_SCRIPT_DONE "M117 User Script Done"
+  #define CUSTOM_USER_MENU_TITLE "CNC Zeros"
+  #define USER_SCRIPT_DONE "Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
+
+#if ENABLED(SPINDLE_FEATURE)
+
+  #define USER_DESC_1 "Set G53"
+  #define USER_GCODE_1 "G28 \nG53 G92 X0 Y0 Z300 \nM500 \nG54 "
+
+  #define USER_DESC_2 "Set Zero G92 X Y"
+  #define USER_GCODE_2 "G92 X0 Y0 \nM500"
+
+  #define USER_DESC_3 "Probe Z"
+  #define USER_GCODE_3 "G91 \nG38.2 F200 Z-50 \nG92 Z20.2 \nG91 \nG1 Z3 \nG91 \nG38.2 F30 Z-10 \nG92 Z20.2 \nG91 \nG0 Z5 \nG90 \nM500"
+
+  #define USER_DESC_4 "Probe X+"
+  #define USER_GCODE_4 "G91 \nG38.2 F200 X50 Z-0.001 \nG92 X-20.2 \nG91 \nG1 X-3 \nG91 \nG38.2 F30 X10 Z-0.001 \nG92 X-20.2 \nG91 \nG0 X-5 \nG90 \nM500"
+
+  #define USER_DESC_5 "Probe Y+"
+  #define USER_GCODE_5 "G91 \nG38.2 F200 Y50 Z-0.001 \nG92 Y-20.2 \nG91 \nG1 Y-3 \nG91 \nG38.2 F30 Y10 Z-0.001 \nG92 Y-20.2 \nG91 \nG0 Y-5 \nG90 \nM500"
+
+  #define USER_DESC_6 "Probe X-"
+  #define USER_GCODE_6 "G91 \nG38.2 F200 X-50 Z-0.001 \nG92 X20.2 \nG91 \nG1 X3 \nG91 \nG38.2 F30 X-10 Z-0.001 \nG92 X20.2 \nG91 \nG0 X5 \nG90 \nM500"
+
+  #define USER_DESC_7 "Probe Y-"
+  #define USER_GCODE_7 "G91 \nG38.2 F200 Y-50 Z-0.001 \nG92 Y20.2 \nG91 \nG1 Y3 \nG91 \nG38.2 F30 Y-10 Z-0.001 \nG92 Y20.2 \nG91 \nG0 Y5 \nG90 \nM500"
+
+  #define USER_DESC_8 "Select G54"
+  #define USER_GCODE_8 "G54"
+
+  #define USER_DESC_9 "Select G55"
+  #define USER_GCODE_9 "G55"
+
+  #define USER_DESC_10 "Select G56"
+  #define USER_GCODE_10 "G56"
+
+  #define USER_DESC_11 "Select G57"
+  #define USER_GCODE_11 "G57"
+
+  #define USER_DESC_12 "Select G58"
+  #define USER_GCODE_12 "G58"
+
+  #define USER_DESC_13 "Select G59"
+  #define USER_GCODE_13 "G59"
+
+  #define USER_DESC_14 "Move X0 Y0"
+  #define USER_GCODE_14 "G00 X0 Y0"
+
+  #define USER_DESC_15 "Move Z0"
+  #define USER_GCODE_15 "G00 Z0"
+
+  #define USER_DESC_16 "Set Zero G92 Z"
+  #define USER_GCODE_16 "G92 Z0 \nM500"
+
+#else
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
@@ -2629,6 +2682,8 @@
 
   #define USER_DESC_5 "Home & Info"
   #define USER_GCODE_5 "G28\nM503"
+#endif
+
 #endif
 
 /**
