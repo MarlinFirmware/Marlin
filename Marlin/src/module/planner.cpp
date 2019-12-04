@@ -1291,7 +1291,7 @@ void Planner::check_axes_activity() {
  */
 #if FAN_COUNT
 
-  void Planner::sync_fan_speeds(uint8_t fan_speed[FAN_COUNT]) {
+  void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
       #define CALC_FAN_SPEED(f) (fan_speed[f] ? map(fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
@@ -1306,7 +1306,7 @@ void Planner::check_axes_activity() {
     #else
       #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
-    #define FAN_SET(F) do{ kickstart_fan(ms, F); _FAN_SET(F); }while(0)
+    #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
     const millis_t ms = millis();
     FAN_SET(0);
@@ -1320,7 +1320,7 @@ void Planner::check_axes_activity() {
 
   #if FAN_KICKSTART_TIME
 
-    void Planner::kickstart_fan(const millis_t &ms, const uint8_t f) {
+    void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
       if (fan_speed[f]) {
         if (fan_kick_end[f] == 0) {
@@ -1331,7 +1331,7 @@ void Planner::check_axes_activity() {
           fan_speed[f] = 255;
       }
       else
-        fan_kick_end[f] = 0
+        fan_kick_end[f] = 0;
     }
 
   #endif
