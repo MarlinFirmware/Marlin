@@ -2495,6 +2495,27 @@
 //#define CNC_COORDINATE_SYSTEMS
 
 /**
+ * Drilling canned cycles
+ * 
+ * Enables G81, G82, G83 for CNC Drilling
+ * 
+ */
+//#define DRILLING_CANNED_CYCLES
+
+/**
+ * Simple 5x Conversion (developing)
+ * 
+ * Enables M168 for 5 axis control
+ * 
+ */
+//#define CNC_5X
+  #if ENABLED(CNC_5X)
+    #define A_5x         // Enable A axis 
+    //#define B_5x         // Enable B axis 
+    #define C_5x         // Enable C axis 
+  #endif
+
+/**
  * Auto-report temperatures with M155 S<seconds>
  */
 #define AUTO_REPORT_TEMPERATURES
