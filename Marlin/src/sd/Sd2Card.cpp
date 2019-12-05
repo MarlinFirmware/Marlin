@@ -135,7 +135,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
     #ifdef SPI_HAS_HW_CRC
       spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false); //enable CRC7 for command
-      spiWrite(BUS_OF_DEV(dev_num), d, 5); // Send message without crc
+      spiWrite2(BUS_OF_DEV(dev_num), d, 5); // Send message without crc
       spiSetCRC(BUS_OF_DEV(dev_num), 0, false); //disable CRC7 for response
     #else
       spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message

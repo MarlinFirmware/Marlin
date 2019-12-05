@@ -26,6 +26,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #include <spi_com.h> //use this as helper for SPI peripheral Init configuration
+#include <stm32f4xx_ll_spi.h>
 
 #define SPI_TRANSFER_TIMEOUT 1000
 #define BUS_SPI_HANDLE(BUS_NUM) (&(spi[BUS_NUM] -> handle))
@@ -84,20 +85,26 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
 
 #ifdef DUMP_SPI
 void spiDumpRegisters(SPI_TypeDef* Instance) {
-  SERIAL_ECHO(" CFG=");
-  SERIAL_PRINT(Instance->CR1, BIN);
-  SERIAL_ECHO(" POL=");
-  SERIAL_PRINTLN(Instance->CRCPR, BIN);
+  SERIAL_ECHO("CRC ");
+  SERIAL_ECHO(LL_SPI_IsEnabledCRC(Instance) ? "ON":"OFF");
+  SERIAL_ECHO(", ");
+  SERIAL_ECHO((Instance->CR1 & 0b01000000000000) ? "CRCNEXT":"Data");
+  SERIAL_ECHO(", ");
+  SERIAL_ECHO(LL_SPI_GetDataWidth(Instance) ? "8":"16");
+  SERIAL_ECHOLN("bit");
 
-  SERIAL_ECHO(" DAT=");
-  SERIAL_PRINT(Instance->DR, BIN);
+  SERIAL_ECHO(" POL=");
+  SERIAL_PRINTLN(Instance->CRCPR, HEX);
+
   SERIAL_ECHO(" STS=");
   SERIAL_PRINTLN(Instance->SR, BIN);
+  SERIAL_ECHO(" DAT=");
+  SERIAL_PRINT(Instance->DR, HEX);
 
   SERIAL_ECHO(" RCRC=");
-  SERIAL_PRINT(Instance->RXCRCR, BIN);
+  SERIAL_PRINT(Instance->RXCRCR, HEX);
   SERIAL_ECHO(" TCRC=");
-  SERIAL_PRINTLN(Instance->TXCRCR, BIN);
+  SERIAL_PRINTLN(Instance->TXCRCR, HEX);
 }
 #endif
 
@@ -105,8 +112,9 @@ void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
   #ifdef DUMP_SPI
     SERIAL_ECHO("SPI ");
     SERIAL_PRINT(bus_num, DEC);
-    SERIAL_ECHO("-> CRC=0x");
-  #endif
+    SERIAL_ECHO(" before");
+    spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
+#endif
 
   if (!spiInitialized(bus_num)) return;
 
@@ -122,10 +130,9 @@ void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
   HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
 
   #ifdef DUMP_SPI
-    SERIAL_PRINT(CRCPol, HEX);
-    SERIAL_ECHO(" ");
-    SERIAL_ECHO(word ? "16":"8");
-    SERIAL_ECHOLN("bit, Registers:");
+    SERIAL_ECHO("SPI ");
+    SERIAL_PRINT(bus_num, DEC);
+    SERIAL_ECHO(" after");
     spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
   #endif
 }
@@ -243,6 +250,45 @@ bool spiCRCError(uint8_t bus_num) {
 #endif
 
   return (BUS_SPI_HANDLE(bus_num)->ErrorCode & HAL_SPI_ERROR_CRC) == HAL_SPI_ERROR_CRC;
+}
+
+//trace functions
+void spiWrite2(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
+  if (count == 0 || !spiInitialized(bus_num)) return;
+
+  SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
+
+  spiDumpRegisters(hspi);
+  SERIAL_ECHO("Sending ");
+  SERIAL_PRINT(count, DEC);
+  SERIAL_ECHOLN(" bytes");
+
+  SERIAL_ECHOLN("Clearing old CRC");
+  LL_SPI_Disable(hspi);
+  LL_SPI_DisableCRC(hspi);
+  LL_SPI_EnableCRC(hspi);
+  LL_SPI_Enable(hspi);
+  spiDumpRegisters(hspi);
+
+  SERIAL_ECHOLN("Loop:");
+  while (count > 0)
+    if (LL_SPI_IsActiveFlag_TXE(hspi))
+    {
+      spiDumpRegisters(hspi);
+      SERIAL_ECHO("Sending ");
+      SERIAL_PRINTLN(buf[0], HEX);
+      *((__IO uint8_t *)&hspi->DR) = buf[0];
+      buf += sizeof(uint8_t);
+      count--;
+    }
+  
+  SERIAL_ECHOLN("Send complete.");
+  spiDumpRegisters(hspi);
+  SERIAL_ECHOLN("Sending CRC...");
+  LL_SPI_SetCRCNext(hspi);
+  LL_SPI_ClearFlag_OVR(hspi);
+  SERIAL_ECHOLN("CRC sent.");
+  spiDumpRegisters(hspi);
 }
 
 //Device functions

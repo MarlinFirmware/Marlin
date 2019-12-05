@@ -132,6 +132,7 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count);
 
 // Write from buffer to SPI bus
 void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count);
+void spiWrite2(uint8_t bus_num, const uint8_t* buf, uint16_t count); //debug function
 
 // Returns true if there was a CRC error in reception
 bool spiCRCError(uint8_t bus_num);
