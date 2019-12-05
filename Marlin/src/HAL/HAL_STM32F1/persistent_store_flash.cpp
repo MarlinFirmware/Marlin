@@ -47,9 +47,14 @@ static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 
 bool PersistentStore::access_start() {
-  for (size_t i = 0; i < EEPROM_SIZE; i++) {
-    uint8_t v = *(uint16_t *)(EEPROM_PAGE0_BASE + i * 2);
-    ram_eeprom[i] = v;
+  const uint32_t* source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
+  uint32_t* destination = reinterpret_cast<uint32_t*>(ram_eeprom);
+
+  static_assert(0 == EEPROM_SIZE % 4); // Ensure copying as uint32_t is safe
+  constexpr size_t eeprom_size_u32 = EEPROM_SIZE / 4;
+
+  for (size_t i = 0; i < eeprom_size_u32; ++i, ++destination, ++source) {
+    *destination = *source;
   }
   eeprom_dirty = false;
   return true;
@@ -73,8 +78,9 @@ bool PersistentStore::access_finish() {
     status = FLASH_ErasePage(EEPROM_PAGE1_BASE);
     if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
 
-    for (size_t i = 0; i < EEPROM_SIZE; i++) {
-      if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i * 2, ram_eeprom[i]) != FLASH_COMPLETE)
+    const uint16_t *source = reinterpret_cast<const uint16_t*>(ram_eeprom);
+    for (size_t i = 0; i < EEPROM_SIZE; i += 2, ++source) {
+      if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i, *source) != FLASH_COMPLETE)
         ACCESS_FINISHED(false);
     }
 
@@ -85,7 +91,7 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  for (size_t i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
+  for (size_t i = 0; i < size; ++i) ram_eeprom[pos + i] = value[i];
   eeprom_dirty = true;
   crc16(crc, value, size);
   pos += size;
