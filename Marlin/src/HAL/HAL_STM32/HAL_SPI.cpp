@@ -82,26 +82,52 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   SERIAL_ECHOLN(mess);
 }
 
+#ifdef DUMP_SPI
+void spiDumpRegisters(SPI_TypeDef* Instance) {
+  SERIAL_ECHO(" CFG=");
+  SERIAL_PRINT(Instance->CR1, BIN);
+  SERIAL_ECHO(" POL=");
+  SERIAL_PRINTLN(Instance->CRCPR, BIN);
+
+  SERIAL_ECHO(" DAT=");
+  SERIAL_PRINT(Instance->DR, BIN);
+  SERIAL_ECHO(" STS=");
+  SERIAL_PRINTLN(Instance->SR, BIN);
+
+  SERIAL_ECHO(" RCRC=");
+  SERIAL_PRINT(Instance->RXCRCR, BIN);
+  SERIAL_ECHO(" TCRC=");
+  SERIAL_PRINTLN(Instance->TXCRCR, BIN);
+}
+#endif
+
 void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
-  SERIAL_ECHO("SPI ");
-  SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO("-> CRC=0x");
+  #ifdef DUMP_SPI
+    SERIAL_ECHO("SPI ");
+    SERIAL_PRINT(bus_num, DEC);
+    SERIAL_ECHO("-> CRC=0x");
+  #endif
 
   if (!spiInitialized(bus_num)) return;
 
-  if (CRCPol == 0)
-  {
-    (BUS_SPI_HANDLE(bus_num) -> Init).DataSize = SPI_DATASIZE_8BIT;
-    (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  }
-  else {
-    (BUS_SPI_HANDLE(bus_num) -> Init).DataSize = word ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
+  (BUS_SPI_HANDLE(bus_num) -> Init).DataSize = word ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
+
+  if (CRCPol) {
     (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_ENABLE;
     (BUS_SPI_HANDLE(bus_num) -> Init).CRCPolynomial = CRCPol;
+  } else {
+    (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   }
 
-  SERIAL_PRINTLN(CRCPol, HEX);
   HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
+
+  #ifdef DUMP_SPI
+    SERIAL_PRINT(CRCPol, HEX);
+    SERIAL_ECHO(" ");
+    SERIAL_ECHO(word ? "16":"8");
+    SERIAL_ECHOLN("bit, Registers:");
+    spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
+  #endif
 }
 
 uint8_t spiRec(uint8_t bus_num) {
