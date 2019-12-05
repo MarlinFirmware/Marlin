@@ -101,7 +101,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
     *pa = (uint8_t *)(&arg),  //pointer to arguments
     d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] }; //Message: Command + Parameters + CRC(=0, set below)
 
-  #ifndef SPI_HAS_HW_CRC
+//  #ifndef SPI_HAS_HW_CRC
   // Set crc at end of message
   switch (cmd) {
     case CMD0: d[5] = 0x95; break; //with arg zero
@@ -112,7 +112,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
       #endif
       break;
   }
-  #endif
+//  #endif
 
   switch (cmd) {
     case CMD8  : reply = R7;  break; //R7  = R1 + voltage specifications (4 bytes) (R7 is read and parsed outside)
@@ -133,13 +133,13 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
       SERIAL_PRINTLN(cmd, DEC);
     #endif
 
-    #ifdef SPI_HAS_HW_CRC
-      spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false); //enable CRC7 for command
-      spiWrite2(BUS_OF_DEV(dev_num), d, 5); // Send message without crc
-      spiSetCRC(BUS_OF_DEV(dev_num), 0, false); //disable CRC7 for response
-    #else
+//    #ifdef SPI_HAS_HW_CRC
+//      spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false); //enable CRC7 for command
+//      spiWrite8(BUS_OF_DEV(dev_num), d, 5); // Send message without crc
+//      spiSetCRC(BUS_OF_DEV(dev_num), 0, false); //disable CRC7 for response
+//    #else
       spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message
-    #endif
+//    #endif
 
     // Specs: "Wait for response at most 16 clock cycles" (= 2 bytes)
     uint8_t i = 0;
@@ -380,13 +380,10 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 }
 
 #ifdef SPI_HAS_HW_CRC
-  void Sd2Card::ActivateHWCRC(const uint16_t count)
+  void Sd2Card::ActivateHWCRC()
   {
-    //SD specs:
-    //"The degree n of the polynomial denotes the number of bits of the data block decreased by one".
-    //if we pass count*8-1 we get a crc error
-    //STM32 specs don't specify what they need as parameter.
-    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true); //let's try to pass the function
+    //0x1021 is the normal polynomial for CRC16-CCITT
+    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true);
   }
 
   void Sd2Card::DeactivateHWCRC()
@@ -519,10 +516,10 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   if (status_ == DATA_START_BLOCK) {
     SERIAL_ECHOLN("Data ready.");
     #ifdef SPI_HAS_HW_CRC
-      ActivateHWCRC(count);
+      ActivateHWCRC();
     #endif
 
-    spiRead(BUS_OF_DEV(dev_num), dst, count); // Transfer data
+    spiRead16(BUS_OF_DEV(dev_num), dst, count); // Transfer data
     success = (!crcSupported)                 //if CRC is not supported don't do anything else.
       #if ENABLED(SD_CHECK_AND_RETRY)
         ||
@@ -572,7 +569,7 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
   const bool success = !cardCommand(CMD18, blockNumber);
   if (success) {
     #ifdef SPI_HAS_HW_CRC
-      ActivateHWCRC(512);
+      ActivateHWCRC();
     #endif
     }
   else
@@ -675,7 +672,7 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiSend(BUS_OF_DEV(dev_num), token); //token isn't included in CRC
 
 #ifdef SPI_HAS_HW_CRC
-  ActivateHWCRC(512);
+  ActivateHWCRC();
 #endif
 
   spiWrite(BUS_OF_DEV(dev_num), src, 512);
@@ -690,8 +687,8 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
       0xFFFF
     #endif
   ;
-  spiSend(BUS_OF_DEV(dev_num), crc >> 8);
-  spiSend(BUS_OF_DEV(dev_num), crc & 0xFF);
+  //spiSend(BUS_OF_DEV(dev_num), crc >> 8);
+  //spiSend(BUS_OF_DEV(dev_num), crc & 0xFF);
 #endif
 
   status_ = spiRec(BUS_OF_DEV(dev_num));
