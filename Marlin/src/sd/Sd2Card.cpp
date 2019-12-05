@@ -146,7 +146,8 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
         SERIAL_ECHOLN("CRC error from card. Retrying.");
       #endif
       crcErrors++;
-    }
+    } else
+      break;
   } while (crcErrors > 0 && crcErrors < 3); //if we had a CRC error retry at most three times
 
   //TODO, if needed: add extra response parsing here
