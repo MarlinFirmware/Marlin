@@ -2505,6 +2505,11 @@
 #define EXTENDED_CAPABILITIES_REPORT
 
 /**
+ * Include fan speeds in temperature report
+ */
+ #define INCLUDE_FAN_SPEEDS
+ 
+/**
  * Expected Printer Check
  * Add the M16 G-code to compare a string to the MACHINE_NAME.
  * M16 with a non-matching string causes the printer to halt.
