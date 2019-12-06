@@ -187,6 +187,7 @@ private:
   uint8_t cardCommand(const uint8_t cmd, const uint32_t arg);
 
   bool readData(uint8_t* dst, const uint16_t count);
+  bool readData2(uint8_t* dst, const uint16_t count);
   bool readRegister(const uint8_t cmd, void* buf);
   void chipDeselect();
   void chipSelect();

@@ -405,10 +405,29 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
   #if ENABLED(SD_CHECK_AND_RETRY)
     uint8_t retryCnt = 3;
     for (;;) {
+      /* original code
       if (cardCommand(CMD17, blockNumber))
         error(SD_CARD_ERROR_CMD17);
       else if (readData(dst, 512))
-        return true;
+        return true;*/
+
+      if (cardCommand(CMD17, blockNumber))
+        error(SD_CARD_ERROR_CMD17);
+      else if (readData(dst, 512))
+      {
+        uint8_t dst2[512];
+        if (cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
+        {
+          for (uint8_t idx=0; idx<512; idx++)
+            if (dst[idx] != dst2[idx])
+            {
+              SERIAL_ECHO("DATA MISMATCH at ");
+              SERIAL_PRINTLN(idx, DEC);
+              return false;
+            }
+          return true;
+        }
+      }
 
       chipDeselect();
       if (!--retryCnt) break;
@@ -440,7 +459,8 @@ bool Sd2Card::readData(uint8_t* dst) {
   return readData(dst, 512);
 }
 
-#if ENABLED(SD_CHECK_AND_RETRY) && !defined(SPI_HAS_HW_CRC)
+#if ENABLED(SD_CHECK_AND_RETRY)
+ //&& !defined(SPI_HAS_HW_CRC)
   #ifdef FAST_CRC
     static const uint16_t crctab16[] PROGMEM = {
       0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
@@ -502,6 +522,67 @@ bool Sd2Card::readData(uint8_t* dst) {
   #endif
 #endif // !SPI_HAS_HW_CRC && SD_CHECK_AND_RETRY
 
+
+bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
+  bool success = false;
+
+  const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+  while ((status_ = spiRec(BUS_OF_DEV(dev_num))) == 0xFF) {      // Wait for start block token
+    if (ELAPSED(millis(), read_timeout)) {
+      error(SD_CARD_ERROR_READ_TIMEOUT);
+      goto FAIL;
+    }
+  }
+
+  if (status_ == DATA_START_BLOCK) {
+    SERIAL_ECHOLN("Data ready.");
+    spiRead(BUS_OF_DEV(dev_num), dst, count); // Transfer data
+    uint16_t crcExpected = CRC_CCITT(dst, count), crcReceived = ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num)));
+    SERIAL_ECHO("CRC - calculated=0x");
+    SERIAL_PRINT(crcExpected, HEX);
+    SERIAL_ECHO(" received=0x");
+    SERIAL_PRINT(crcReceived, HEX);
+    
+    success = (!crcSupported) ||(crcExpected==crcReceived); 
+    #if ENABLED(SD_CHECK_AND_RETRY)
+      if (!success) error(SD_CARD_ERROR_READ_CRC);
+    #endif
+  }
+  else
+    error(SD_CARD_ERROR_READ);
+
+  FAIL:
+  chipDeselect();
+  return success;
+}
+bool Sd2Card::readData2(uint8_t* dst, const uint16_t count) {
+  bool success = false;
+
+  const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+  while ((status_ = spiRec(BUS_OF_DEV(dev_num))) == 0xFF) {      // Wait for start block token
+    if (ELAPSED(millis(), read_timeout)) {
+      error(SD_CARD_ERROR_READ_TIMEOUT);
+      goto FAIL;
+    }
+  }
+
+  if (status_ == DATA_START_BLOCK) {
+    SERIAL_ECHOLN("Data ready.");
+    ActivateHWCRC();
+    spiRead16(BUS_OF_DEV(dev_num), (uint16_t*)dst, count); // Transfer data
+    success = (!crcSupported) || !spiCRCError(BUS_OF_DEV(dev_num));  //If there's HW crc check on hardware
+    DeactivateHWCRC();                  //and disable it for next command.        
+    if (!success) error(SD_CARD_ERROR_READ_CRC);
+  }
+  else
+    error(SD_CARD_ERROR_READ);
+
+  FAIL:
+  chipDeselect();
+  return success;
+}
+
+#ifdef THISISTOKEEPTHEORIGINALCODE
 bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   bool success = false;
 
@@ -541,6 +622,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   chipDeselect();
   return success;
 }
+#endif
 
 /** read CID or CSR register */
 bool Sd2Card::readRegister(const uint8_t cmd, void* buf) {
