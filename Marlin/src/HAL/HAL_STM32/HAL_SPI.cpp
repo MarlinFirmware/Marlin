@@ -317,15 +317,15 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) //if transmit buffer is empty and whe need to send
     {
-      spiDumpRegisters(hspi);
-      idxT=wcnt-remT;
+      idxT = wcnt - remT;
       SERIAL_ECHO("Sending idx");
       SERIAL_PRINT(idxT, DEC);
-      SERIAL_ECHO(", value=");
-      SERIAL_PRINTLN(buf[idxT], HEX);
+      SERIAL_ECHO(", value=FFFF");
+      //SERIAL_PRINTLN(buf[idxT], HEX);
 
-      LL_SPI_TransmitData16(hspi, buf[idxT]);
+      LL_SPI_TransmitData16(hspi, 0xffff);
 
+      spiDumpRegisters(hspi);
       remT--;
       send = false;
 
@@ -337,7 +337,7 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
     if (LL_SPI_IsActiveFlag_RXNE(hspi) && remR > 0) //if receive buffer is not empty and we need to receive
     {
-      idxR=wcnt-remR;
+      idxR = wcnt - remR;
 
       buf[idxR] = LL_SPI_ReceiveData16(hspi);
 
