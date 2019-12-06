@@ -153,7 +153,7 @@
 
 //these are temporary and shouldn't be defined here
 #define SD_CHECK_AND_RETRY //or the above one can't be tested
-#define DUMP_SPI 6        //dump at most 6 byte for each SPI call, to see what's going on in the bus
+//#define DUMP_SPI 6        //dump at most 6 byte for each SPI call, to see what's going on in the bus
 #define TRACE_SD          //to check which calls cause troubles
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
