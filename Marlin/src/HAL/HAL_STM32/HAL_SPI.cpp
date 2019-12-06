@@ -305,7 +305,7 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
 
   bool send = true;
-  uint16_t wcnt = count/2, remT = wcnt, remR = wcnt, idxT, idxR;
+  uint16_t wcnt = count/2, remT = wcnt, remR = wcnt;
 
   spiDumpRegisters(hspi);
   SERIAL_ECHO("Receiving ");
@@ -325,13 +325,12 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and whe need to send
-      idxT = wcnt - remT;
       SERIAL_ECHO("Sending idx");
-      SERIAL_PRINT(idxT, DEC);
-      SERIAL_ECHOLN(", value=FFFF");
-      //SERIAL_PRINTLN(buf[idxT], HEX);
+      SERIAL_PRINT(wcnt - remT, DEC);
+      SERIAL_ECHOLN(", value=");
+      SERIAL_PRINTLN(buf[wcnt - remT], HEX);
 
-      LL_SPI_TransmitData16(hspi, 0xffff);
+      LL_SPI_TransmitData16(hspi, buf[wcnt - remT]);
 
       if (--remT == 0) { //transmitted everything
         SERIAL_ECHOLN("Sending CRC...");
@@ -344,14 +343,12 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
       SERIAL_ECHO(".");
 
     if (LL_SPI_IsActiveFlag_RXNE(hspi) && remR > 0) { //if receive buffer is not empty and we need to receive
-      idxR = wcnt - remR;
-
-      buf[idxR] = LL_SPI_ReceiveData16(hspi);
+      buf[wcnt - remR] = LL_SPI_ReceiveData16(hspi);
 
       SERIAL_ECHO("Received idx");
-      SERIAL_PRINT(idxR, DEC);
+      SERIAL_PRINT(wcnt - remR, DEC);
       SERIAL_ECHO(", value=");
-      SERIAL_PRINTLN(buf[idxR], HEX);
+      SERIAL_PRINTLN(buf[wcnt - remR], HEX);
       spiDumpRegisters(hspi);
 
       remR--;
