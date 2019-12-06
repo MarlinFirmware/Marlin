@@ -110,6 +110,7 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
 
   //SERIAL_ECHO("\n Last DATA=0x");
   //SERIAL_PRINTLN(Instance->DR, HEX);
+  SERIAL_ECHOLN();
 
   if (crcEnabled)
   {
@@ -343,17 +344,15 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
       spiDumpRegisters(hspi);
       send = false;
     } else
-      SERIAL_ECHO(".");
+      SERIAL_ECHO("."); SERIAL_FLUSH();
 
     if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
       SERIAL_ECHO("Receiving idx");
-      SERIAL_PRINT(wcnt - remR, DEC); SERIAL_FLUSH();
-      uint16_t rcv = LL_SPI_ReceiveData16(hspi);
-      buf[wcnt - remR] = rcv;
-
-      SERIAL_ECHO(", value="); SERIAL_FLUSH();
-      SERIAL_PRINTLN(buf[wcnt - remR], HEX); SERIAL_FLUSH();
-      spiDumpRegisters(hspi); SERIAL_FLUSH();
+      SERIAL_PRINT(wcnt - remR, DEC);
+      buf[wcnt - remR] = LL_SPI_ReceiveData16(hspi);
+      SERIAL_ECHO(", value=");
+      SERIAL_PRINTLN(buf[wcnt - remR], HEX);
+      spiDumpRegisters(hspi);
 
       remR--;
       send = true;
@@ -361,7 +360,7 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
       SERIAL_ECHO(",");
   }
 
-  SERIAL_ECHOLN("Receive complete.");
+  SERIAL_ECHOLN("Receive complete."); SERIAL_FLUSH();
   spiDumpRegisters(hspi);
 
   /*SERIAL_ECHOLN("Waiting for CRC...");
@@ -370,17 +369,20 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   SERIAL_ECHOLN("Receiving CRC...");
   uint16_t crc = LL_SPI_ReceiveData16(hspi);
 
-  SERIAL_ECHO("CRC received:");
   SERIAL_PRINTLN(crc, HEX);
   spiDumpRegisters(hspi);*/
+  SERIAL_ECHO("CRC received:");
+  SERIAL_PRINTLN(hspi->DR, HEX); SERIAL_FLUSH();
 
-  LL_SPI_ClearFlag_OVR(hspi);
-  spiDumpRegisters(hspi);
+  if (LL_SPI_IsActiveFlag_OVR(hspi)) {
+    LL_SPI_ClearFlag_OVR(hspi);
+    spiDumpRegisters(hspi);
+  }
 
-  SERIAL_ECHO("Data for cross-check on website:");
+  SERIAL_ECHO("Data for cross-check on website:"); SERIAL_FLUSH();
   for (uint8_t b=0; b<count; b++) {
-    SERIAL_ECHO(" 0x");
-    SERIAL_PRINT(((uint8_t*)buf)[b], HEX);
+    SERIAL_ECHO(" 0x"); SERIAL_FLUSH();
+    SERIAL_PRINT(((uint8_t*)buf)[b], HEX); SERIAL_FLUSH();
   }
 }
 
