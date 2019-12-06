@@ -88,13 +88,17 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
   uint32_t crcEnabled = LL_SPI_IsEnabledCRC(Instance);
 
   SERIAL_ECHO("CRC ");
-  SERIAL_ECHO(crcEnabled ? "ON":"OFF");
-  SERIAL_ECHO(",  POL=0x");
-  SERIAL_PRINT(Instance->CRCPR, HEX);
-  SERIAL_ECHO(", ");
-  SERIAL_ECHO(LL_SPI_GetDataWidth(Instance) == LL_SPI_DATAWIDTH_8BIT ? "8":"16");
-  SERIAL_ECHO("bit - Phase:");
-  SERIAL_ECHOLN((Instance->CR1 & 0b01000000000000) ? "CRCNEXT":"Data");
+  if (!crcEnabled)
+    SERIAL_ECHO("OFF");
+  else {
+    SERIAL_ECHO("ON (POL=0x");
+    SERIAL_PRINT(Instance->CRCPR, HEX);
+    SERIAL_ECHO(")");
+  }
+  SERIAL_ECHO(", Phase:");
+  SERIAL_ECHO((Instance->CR1 & 0b01000000000000) ? "CRCNEXT":"Data");
+  SERIAL_ECHO(LL_SPI_GetDataWidth(Instance) == LL_SPI_DATAWIDTH_8BIT ? " (8":" (16");
+  SERIAL_ECHOLN("bit)");
 
   SERIAL_ECHO("STATUS=");
   if (LL_SPI_IsActiveFlag_BSY(Instance)) SERIAL_ECHO(" BSY");
@@ -322,12 +326,11 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   spiDumpRegisters(hspi);
 
   SERIAL_ECHOLN("Loop:");
-
   while (remR > 0) {
-    if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and whe need to send
+    if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
       SERIAL_ECHO("Sending idx");
       SERIAL_PRINT(wcnt - remT, DEC);
-      SERIAL_ECHOLN(", value=");
+      SERIAL_ECHO(", value=");
       SERIAL_PRINTLN(buf[wcnt - remT], HEX);
 
       LL_SPI_TransmitData16(hspi, buf[wcnt - remT]);
@@ -342,11 +345,12 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
     } else
       SERIAL_ECHO(".");
 
-    if (LL_SPI_IsActiveFlag_RXNE(hspi) && remR > 0) { //if receive buffer is not empty and we need to receive
+    if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
+      SERIAL_ECHO("Receiving idx");
+      SERIAL_PRINT(wcnt - remR, DEC);
+      
       buf[wcnt - remR] = LL_SPI_ReceiveData16(hspi);
 
-      SERIAL_ECHO("Received idx");
-      SERIAL_PRINT(wcnt - remR, DEC);
       SERIAL_ECHO(", value=");
       SERIAL_PRINTLN(buf[wcnt - remR], HEX);
       spiDumpRegisters(hspi);
