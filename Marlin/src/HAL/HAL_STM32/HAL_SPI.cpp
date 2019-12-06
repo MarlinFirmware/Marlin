@@ -341,19 +341,24 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
       }
 
       spiDumpRegisters(hspi);
+      SERIAL_ECHOLN("1"); SERIAL_FLUSH();
+
       send = false;
     } else
       SERIAL_ECHO(".");
 
-    if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
-      SERIAL_ECHO("Receiving idx");
-      SERIAL_PRINT(wcnt - remR, DEC);
-      
-      buf[wcnt - remR] = LL_SPI_ReceiveData16(hspi);
+    SERIAL_ECHOLN("2"); SERIAL_FLUSH();
 
-      SERIAL_ECHO(", value=");
-      SERIAL_PRINTLN(buf[wcnt - remR], HEX);
-      spiDumpRegisters(hspi);
+    if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
+      SERIAL_ECHO("Receiving idx"); SERIAL_FLUSH();
+      SERIAL_PRINT(wcnt - remR, DEC); SERIAL_FLUSH();
+      uint16_t rcv = LL_SPI_ReceiveData16(hspi);
+      SERIAL_ECHOLN("3"); SERIAL_FLUSH();
+      buf[wcnt - remR] = rcv;
+
+      SERIAL_ECHO(", value="); SERIAL_FLUSH();
+      SERIAL_PRINTLN(buf[wcnt - remR], HEX); SERIAL_FLUSH();
+      spiDumpRegisters(hspi); SERIAL_FLUSH();
 
       remR--;
       send = true;
