@@ -321,6 +321,14 @@
 #define TEMP_SENSOR_AD8495_GAIN   1.0
 
 /**
+ * 
+ * Limit check_axes_activity frequency to 10Hz
+ * Affects M106
+ * Undefine this if laser engraving with M106 produces blurry results
+*/
+// #define LIMIT_FREQUENCY
+
+/**
  * Controller Fan
  * To cool down the stepper drivers and MOSFETs.
  *
