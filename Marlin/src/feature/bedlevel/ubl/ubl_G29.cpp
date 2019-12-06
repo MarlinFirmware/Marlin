@@ -741,13 +741,13 @@
      * This attempts to fill in locations closest to the nozzle's start location first.
      */
     void unified_bed_leveling::probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
+      DEPLOY_PROBE(); // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
+
       #if HAS_LCD_MENU
         ui.capture();
       #endif
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-      DEPLOY_PROBE();
-
       uint8_t count = GRID_MAX_POINTS;
 
       mesh_index_pair best;
@@ -764,10 +764,10 @@
           if (ui.button_pressed()) {
             ui.quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_ECHOLNPGM("\nMesh only partially populated.\n");
-            STOW_PROBE();
             ui.wait_for_release();
             ui.quick_feedback();
             ui.release();
+            STOW_PROBE(); // Release UI before stow to allow for PAUSE_BEFORE_DEPLOY_STOW
             return restore_ubl_active_state_and_leave();
           }
         #endif
@@ -790,7 +790,13 @@
 
       } while (best.pos.x >= 0 && --count);
 
-      STOW_PROBE();
+      #if HAS_LCD_MENU
+        ui.release();
+      #endif
+      STOW_PROBE(); // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
 
       #ifdef Z_AFTER_PROBING
         move_z_after_probing();
@@ -849,7 +855,9 @@
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -888,8 +896,9 @@
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
-
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to_xy_z(current_position, z_clearance);
@@ -917,7 +926,9 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        ui.capture();
+        #if HAS_LCD_MENU
+          ui.capture();
+        #endif
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -984,8 +995,9 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      ui.capture();                                         // Take over control of the LCD encoder
-
+      #if HAS_LCD_MENU
+        ui.capture();                                         // Take over control of the LCD encoder
+      #endif
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
@@ -1385,17 +1397,8 @@
                   dx = (x_max - x_min) / (g29_grid_size - 1),
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
-      const vector_3 points[3] = {
-        #if ENABLED(HAS_FIXED_3POINT)
-          { PROBE_PT_1_X, PROBE_PT_1_Y, 0 },
-          { PROBE_PT_2_X, PROBE_PT_2_Y, 0 },
-          { PROBE_PT_3_X, PROBE_PT_3_Y, 0 }
-        #else
-          { x_min, y_min, 0 },
-          { x_max, y_min, 0 },
-          { (x_max - x_min) / 2, y_max, 0 }
-        #endif
-      };
+      xy_float_t points[3];
+      get_three_probe_points(points);
 
       float measured_z;
       bool abort_flag = false;
@@ -1504,18 +1507,20 @@
 
               abort_flag = isnan(measured_z);
 
-              if (DEBUGGING(LEVELING)) {
-                const xy_pos_t lpos = rpos.asLogical();
-                DEBUG_CHAR('(');
-                DEBUG_ECHO_F(rpos.x, 7);
-                DEBUG_CHAR(',');
-                DEBUG_ECHO_F(rpos.y, 7);
-                DEBUG_ECHOPAIR_F(")   logical: (", lpos.x, 7);
-                DEBUG_CHAR(',');
-                DEBUG_ECHO_F(lpos.y, 7);
-                DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
-                DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rpos), 7);
-              }
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(LEVELING)) {
+                  const xy_pos_t lpos = rpos.asLogical();
+                  DEBUG_CHAR('(');
+                  DEBUG_ECHO_F(rpos.x, 7);
+                  DEBUG_CHAR(',');
+                  DEBUG_ECHO_F(rpos.y, 7);
+                  DEBUG_ECHOPAIR_F(")   logical: (", lpos.x, 7);
+                  DEBUG_CHAR(',');
+                  DEBUG_ECHO_F(lpos.y, 7);
+                  DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
+                  DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rpos), 7);
+                }
+              #endif
 
               measured_z -= get_z_correction(rpos) /* + probe_offset.z */ ;
 

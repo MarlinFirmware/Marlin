@@ -265,10 +265,30 @@
     SERIAL_CHAR('\t');
   }
 
+  #if CURRENT_STEP_DOWN > 0
+
+    template<typename TMC>
+    void step_current_down(TMC &st) {
+      if (st.isEnabled()) {
+        const uint16_t I_rms = st.getMilliamps() - (CURRENT_STEP_DOWN);
+        if (I_rms > 50) {
+          st.rms_current(I_rms);
+          #if ENABLED(REPORT_CURRENT_CHANGE)
+            st.printLabel();
+            SERIAL_ECHOLNPAIR(" current decreased to ", I_rms);
+          #endif
+        }
+      }
+    }
+
+  #endif
+
   template<typename TMC>
-  void monitor_tmc_driver(TMC &st, const bool need_update_error_counters, const bool need_debug_reporting) {
+  bool monitor_tmc_driver(TMC &st, const bool need_update_error_counters, const bool need_debug_reporting) {
     TMC_driver_data data = get_driver_data(st);
-    if (data.drv_status == 0xFFFFFFFF || data.drv_status == 0x0) return;
+    if (data.drv_status == 0xFFFFFFFF || data.drv_status == 0x0) return false;
+
+    bool did_step_down = false;
 
     if (need_update_error_counters) {
       if (data.is_ot /* | data.s2ga | data.s2gb*/) st.error_count++;
@@ -288,15 +308,9 @@
 
       #if CURRENT_STEP_DOWN > 0
         // Decrease current if is_otpw is true and driver is enabled and there's been more than 4 warnings
-        if (data.is_otpw && st.otpw_count > 4) {
-          uint16_t I_rms = st.getMilliamps();
-          if (st.isEnabled() && I_rms > 100) {
-            st.rms_current(I_rms - (CURRENT_STEP_DOWN));
-            #if ENABLED(REPORT_CURRENT_CHANGE)
-              st.printLabel();
-              SERIAL_ECHOLNPAIR(" current decreased to ", st.getMilliamps());
-            #endif
-          }
+        if (data.is_otpw && st.otpw_count > 4 && st.isEnabled()) {
+          step_current_down(st);
+          did_step_down = true;
         }
       #endif
 
@@ -308,64 +322,105 @@
     }
 
     #if ENABLED(TMC_DEBUG)
-      if (need_debug_reporting)
-        report_polled_driver_data(st, data);
+      if (need_debug_reporting) report_polled_driver_data(st, data);
     #endif
+
+    return did_step_down;
   }
 
-  void monitor_tmc_driver() {
-    static millis_t next_poll = 0;
+  void monitor_tmc_drivers() {
     const millis_t ms = millis();
-    bool need_update_error_counters = ELAPSED(ms, next_poll);
-    bool need_debug_reporting = false;
-    if (need_update_error_counters)
-      next_poll = ms + MONITOR_DRIVER_STATUS_INTERVAL_MS;
+
+    // Poll TMC drivers at the configured interval
+    static millis_t next_poll = 0;
+    const bool need_update_error_counters = ELAPSED(ms, next_poll);
+    if (need_update_error_counters) next_poll = ms + MONITOR_DRIVER_STATUS_INTERVAL_MS;
+
+    // Also poll at intervals for debugging
     #if ENABLED(TMC_DEBUG)
       static millis_t next_debug_reporting = 0;
-      if (report_tmc_status_interval && ELAPSED(ms, next_debug_reporting)) {
-        need_debug_reporting = true;
-        next_debug_reporting = ms + report_tmc_status_interval;
-      }
+      const bool need_debug_reporting = report_tmc_status_interval && ELAPSED(ms, next_debug_reporting);
+      if (need_debug_reporting) next_debug_reporting = ms + report_tmc_status_interval;
+    #else
+      constexpr bool need_debug_reporting = false;
     #endif
+
     if (need_update_error_counters || need_debug_reporting) {
       #if AXIS_IS_TMC(X)
-        monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(Y)
-        monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(Z)
-        monitor_tmc_driver(stepperZ, need_update_error_counters, need_debug_reporting);
+        if (monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(X2)
+            step_current_down(stepperX2);
+          #endif
+        }
       #endif
       #if AXIS_IS_TMC(X2)
-        monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting);
+        if (monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(X)
+            step_current_down(stepperX);
+          #endif
+        }
+      #endif
+      #if AXIS_IS_TMC(Y)
+        if (monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(Y2)
+            step_current_down(stepperY2);
+          #endif
+        }
       #endif
       #if AXIS_IS_TMC(Y2)
-        monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting);
+        if (monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(Y)
+            step_current_down(stepperY);
+          #endif
+        }
+      #endif
+      #if AXIS_IS_TMC(Z)
+        if (monitor_tmc_driver(stepperZ, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(Z2)
+            step_current_down(stepperZ2);
+          #endif
+          #if AXIS_IS_TMC(Z3)
+            step_current_down(stepperZ3);
+          #endif
+        }
       #endif
       #if AXIS_IS_TMC(Z2)
-        monitor_tmc_driver(stepperZ2, need_update_error_counters, need_debug_reporting);
+        if (monitor_tmc_driver(stepperZ2, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(Z)
+            step_current_down(stepperZ);
+          #endif
+          #if AXIS_IS_TMC(Z3)
+            step_current_down(stepperZ3);
+          #endif
+        }
       #endif
       #if AXIS_IS_TMC(Z3)
-        monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting);
+        if (monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting)) {
+          #if AXIS_IS_TMC(Z)
+            step_current_down(stepperZ);
+          #endif
+          #if AXIS_IS_TMC(Z2)
+            step_current_down(stepperZ2);
+          #endif
+        }
       #endif
       #if AXIS_IS_TMC(E0)
-        monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting);
+        (void)monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting);
       #endif
       #if AXIS_IS_TMC(E1)
-        monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting);
+        (void)monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting);
       #endif
       #if AXIS_IS_TMC(E2)
-        monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting);
+        (void)monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting);
       #endif
       #if AXIS_IS_TMC(E3)
-        monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting);
+        (void)monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting);
       #endif
       #if AXIS_IS_TMC(E4)
-        monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting);
+        (void)monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting);
       #endif
       #if AXIS_IS_TMC(E5)
-        monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting);
+        (void)monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting);
       #endif
 
       #if ENABLED(TMC_DEBUG)

@@ -126,6 +126,7 @@ namespace ExtUI {
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
   float getFeedrate_percent();
+  int16_t getFlowPercentage(const extruder_t);
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
 
@@ -137,8 +138,8 @@ namespace ExtUI {
       bed_mesh_t& getMeshArray();
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const float zval);
-      void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval);
-      inline void onMeshUpdate(const xy_uint8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
+      void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+      inline void onMeshUpdate(const xy_int8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
     #endif
   #endif
 
@@ -172,6 +173,7 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float);
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
+  void setFlow_percent(const int16_t, const extruder_t);
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
@@ -228,6 +230,16 @@ namespace ExtUI {
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm();
       void setFilamentRunoutDistance_mm(const float);
+    #endif
+  #endif
+
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    bool getCaseLightState();
+    void setCaseLightState(const bool);
+
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      float getCaseLightBrightness_percent();
+      void setCaseLightBrightness_percent(const float);
     #endif
   #endif
 

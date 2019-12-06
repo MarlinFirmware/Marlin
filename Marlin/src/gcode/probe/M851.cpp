@@ -28,6 +28,8 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+extern const char SP_Y_STR[], SP_Z_STR[];
+
 /**
  * M851: Set the nozzle-to-probe offsets in current units
  */
@@ -35,7 +37,7 @@ void GcodeSuite::M851() {
 
   // Show usage with no parameters
   if (!parser.seen("XYZ")) {
-    SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " X", probe_offset.x, " Y", probe_offset.y, " Z", probe_offset.z);
+    SERIAL_ECHOLNPAIR_P(PSTR(MSG_PROBE_OFFSET " X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR, probe_offset.z);
     return;
   }
 

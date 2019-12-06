@@ -89,7 +89,7 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  void onMeshUpdate(const uint8_t xpos, const uint8_t ypos, const float zval) {
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
     // This is called when any mesh points are updated
   }
 }
