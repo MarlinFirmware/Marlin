@@ -90,9 +90,9 @@ class MenuItem_sdfile : public MenuItem_sdbase {
           char buffer[strlen(longest) + 2];
           buffer[0] = ' ';
           strcpy(buffer + 1, longest);
-          MenuItem_confirm::select_screen(
-            GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-            sdcard_start_selected_file, ui.goto_previous_screen,
+          MenuItem_confirm::select_screen( GET_TEXT(MSG_BUTTON_CANCEL),
+            GET_TEXT(MSG_BUTTON_PRINT), 
+            ui.goto_previous_screen, sdcard_start_selected_file, 
             GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
           );
         });
