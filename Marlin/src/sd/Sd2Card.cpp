@@ -416,7 +416,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       else if (readData(dst, 512))
       {
         uint8_t dst2[512];
-        if (cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
+        if (!cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
         {
           for (uint8_t idx=0; idx<512; idx++)
             if (dst[idx] != dst2[idx])
