@@ -108,8 +108,8 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
   if (LL_SPI_IsActiveFlag_TXE(Instance)) SERIAL_ECHO(" TXE");
   if (LL_SPI_IsActiveFlag_RXNE(Instance)) SERIAL_ECHO(" RXNE");
 
-  SERIAL_ECHO("\n Last DATA=0x");
-  SERIAL_PRINTLN(Instance->DR, HEX);
+  //SERIAL_ECHO("\n Last DATA=0x");
+  //SERIAL_PRINTLN(Instance->DR, HEX);
 
   if (crcEnabled)
   {
@@ -341,19 +341,14 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
       }
 
       spiDumpRegisters(hspi);
-      SERIAL_ECHOLN("1"); SERIAL_FLUSH();
-
       send = false;
     } else
       SERIAL_ECHO(".");
 
-    SERIAL_ECHOLN("2"); SERIAL_FLUSH();
-
     if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
-      SERIAL_ECHO("Receiving idx"); SERIAL_FLUSH();
+      SERIAL_ECHO("Receiving idx");
       SERIAL_PRINT(wcnt - remR, DEC); SERIAL_FLUSH();
       uint16_t rcv = LL_SPI_ReceiveData16(hspi);
-      SERIAL_ECHOLN("3"); SERIAL_FLUSH();
       buf[wcnt - remR] = rcv;
 
       SERIAL_ECHO(", value="); SERIAL_FLUSH();
