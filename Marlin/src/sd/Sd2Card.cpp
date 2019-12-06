@@ -519,7 +519,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
       ActivateHWCRC();
     #endif
 
-    spiRead16(BUS_OF_DEV(dev_num), dst, count); // Transfer data
+    spiRead16(BUS_OF_DEV(dev_num), (uint16_t*)dst, count); // Transfer data
     success = (!crcSupported)                 //if CRC is not supported don't do anything else.
       #if ENABLED(SD_CHECK_AND_RETRY)
         ||

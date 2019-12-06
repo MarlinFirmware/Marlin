@@ -129,7 +129,7 @@ uint8_t spiRec(uint8_t bus_num);
 
 // Read from SPI bus into buffer
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count);
-void spiRead16(uint8_t bus_num, uint8_t* buf, uint16_t count); //debug function
+void spiRead16(uint8_t bus_num, uint16_t* buf, uint16_t count); //debug function
 
 // Write from buffer to SPI bus
 void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count);
