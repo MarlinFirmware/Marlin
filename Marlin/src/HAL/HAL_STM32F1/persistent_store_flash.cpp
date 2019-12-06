@@ -41,7 +41,7 @@
 
 // Store settings in the last two pages
 #define EEPROM_SIZE (EEPROM_PAGE_SIZE * 2)
-#define ACCESS_FINISHED(VAR)         do{ FLASH_Lock();eeprom_dirty=false;return VAR; }while(0)
+#define ACCESS_FINISHED(TF) do{ FLASH_Lock(); eeprom_dirty = false; return TF; }while(0)
 
 static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
