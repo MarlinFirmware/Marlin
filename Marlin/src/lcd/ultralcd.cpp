@@ -879,11 +879,13 @@ void MarlinUI::update() {
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
     #if ENABLED(TOUCH_BUTTONS)
-      if (on_status_screen())
-        next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
-      #if HAS_LCD_MENU
+
+      if (on_status_screen()) next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
+
+      #if HAS_ENCODER_ACTION
         touch_buttons = touch.read_buttons();
       #endif
+
     #endif
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -1237,7 +1239,7 @@ void MarlinUI::update() {
           #if HAS_SLOW_BUTTONS
             | slow_buttons
           #endif
-          #if HAS_LCD_MENU && ENABLED(TOUCH_BUTTONS)
+          #if ENABLED(TOUCH_BUTTONS) && HAS_ENCODER_ACTION
             | touch_buttons
           #endif
         );
