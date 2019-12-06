@@ -169,7 +169,6 @@
 #endif
 
 /**
-<<<<<<< HEAD:Marlin/src/pins/lpc1768/pins_BIGTREE_SKR_V1.3.h
  *              _____                                              _____
  *          NC | · · | GND                                     5V | · · | GND
  *       RESET | · · | 1.31(SD_DETECT)             (BTN_EN1) 1.23 | · · | 1.22 (LCD_RS)
@@ -180,20 +179,6 @@
  *              EXP2                                               EXP1
  */
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       P0_28  //P1_30   // (37) not 5V tolerant
-  #define BTN_ENC          P1_19 //P0_28   // (58) open-drain
-=======
- *               _____                                              _____
- *           NC | · · | GND                                     5V | · · | GND
- *        RESET | · · | 1.31 (SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | · · | 3.25 (BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
- * (SD_SS) 0.16 | · · | 3.26 (BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
- *   (SCK) 0.15 | · · | 0.17 (MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
- *               -----                                              -----
- *               EXP2                                               EXP1
- */
-#if HAS_SPI_LCD
->>>>>>> f3155af4442b6560a9f53dd3f67b5769ecb978bc:Marlin/src/pins/lpc1768/pins_BTT_SKR_V1_3.h
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
@@ -240,21 +225,13 @@
     #define LCD_PINS_ENABLE P1_23
     #define LCD_PINS_D4    P1_21
 
-<<<<<<< HEAD:Marlin/src/pins/lpc1768/pins_BIGTREE_SKR_V1.3.h
-  #else
+  #else // !CR10_STOCKDISPLAY
+  
     #define LCD_PINS_RS    P1_22 //P1_19
 
     #define BTN_EN1        P1_23   //P3_26   // (31) J3-2 & AUX-4
-    #define BTN_EN2        P1_21   //P3_25    (33) J3-4 & AUX-4 
-=======
-  #else // !CR10_STOCKDISPLAY
-
-    #define LCD_PINS_RS    P1_19
-
-    #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
-    #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
-    #define BTN_ENC        P0_28   // (58) open-drain
->>>>>>> f3155af4442b6560a9f53dd3f67b5769ecb978bc:Marlin/src/pins/lpc1768/pins_BTT_SKR_V1_3.h
+    #define BTN_EN2        P1_21   //P3_25    (33) J3-4 & AUX-4
+    #define BTN_ENC        P1_19 //P0_28   // (58) open-drain 
 
     #define LCD_PINS_ENABLE P1_20  // P1_18
     #define LCD_PINS_D4    P1_30   //P1_20
