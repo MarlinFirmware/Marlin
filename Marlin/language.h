@@ -68,8 +68,10 @@
 // it         Italian
 // kana       Japanese
 // kana_utf8  Japanese (UTF8)
+// ko_kr      Korean
 // nl         Dutch
 // pl         Polish
+// pl_utf8    Polish (UTF8)
 // pt         Portuguese
 // pt-br      Portuguese (Brazilian)
 // pt-br_utf8 Portuguese (Brazilian) (UTF8)
@@ -320,6 +322,7 @@
  && DISABLED(DISPLAY_CHARSET_ISO10646_1) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
+ && DISABLED(DISPLAY_CHARSET_ISO10646_KO_KR) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_CN) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_TR) \
