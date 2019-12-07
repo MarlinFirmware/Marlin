@@ -26,12 +26,9 @@
  * Defines that depend on configuration but are not editable.
  */
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 ( \
-     MB(BQ_ZUM_MEGA_3D)                 \
-  || MB(MIGHTYBOARD_REVE)               \
-  || MB(MINIRAMBO)                      \
-  || MB(SCOOVO_X9H)                     \
-)
+#ifdef GITHUB_ACTIONS
+  // Extras for CI testing
+#endif
 
 #ifdef TEENSYDUINO
   #undef max

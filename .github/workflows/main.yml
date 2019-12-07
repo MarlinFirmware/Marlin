@@ -20,7 +20,8 @@ jobs:
     strategy:
       matrix:
         test-platform:
-      # Base Environments
+        # Base Environments
+
         - DUE
         - esp32
         - linux_native
@@ -28,14 +29,16 @@ jobs:
         - teensy31
         - teensy35
 
-      # Extended AVR Environments
+        # Extended AVR Environments
+
         - FYSETC_F6_13
         - megaatmega1280
         - rambo
         - sanguino_atmega1284p
         - sanguino_atmega644p
 
-      # Extended STM32 Environments
+        # Extended STM32 Environments
+
         - STM32F103RC_bigtree
         - STM32F103RC_bigtree_USB
         - STM32F103RE_bigtree
@@ -48,15 +51,18 @@ jobs:
         - mks_robin
         - ARMED
 
-      # Put lengthy tests last
+        # Put lengthy tests last
+
         - LPC1768
         - LPC1769
 
-      # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
+        # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
+
         #- STM32F4
         #- STM32F7
 
-      # Non-working environment tests
+        # Non-working environment tests
+
         #- BIGTREE_BTT002
         #- at90usb1286_cdc
         #- at90usb1286_dfu
@@ -67,13 +73,21 @@ jobs:
         #- SAMD51_grandcentral_m4
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
-    - with:
+    - name: Select Python 3.7
+      uses: actions/setup-python@v1
+      with:
         python-version: '3.7' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-    - env:
-        TEST_PLATFORM: ${{ matrix.test-platform }}
-        PATH: ${{ GITHUB_WORKSPACE }}/buildroot/bin/:${{ GITHUB_WORKSPACE }}/buildroot/share/tests/:${{ PATH }}
-    - name: CI Test ${{ TEST_PLATFORM }}
-      run: run_tests ${HOME} ${TEST_PLATFORM}
+    - name: Install PlatformIO
+      run: pip install -U https://github.com/platformio/platformio-core/archive/master.zip
+    - name: Update PlatformIO
+      run: platformio update
+    - name: Check out the PR
+      uses: actions/checkout@v1
+    - name: Run ${{ matrix.test-platform }} Tests
+      run: |
+        export PATH=$GITHUB_WORKSPACE/buildroot/bin/:$GITHUB_WORKSPACE/buildroot/share/tests/:$PATH
+        cd $GITHUB_WORKSPACE/.. ; pwd
+        ls
+        env
+        run_tests ${HOME} ${{ matrix.test-platform }}
