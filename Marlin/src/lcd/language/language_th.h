@@ -29,256 +29,564 @@
  *
  */
 
-#define CHARSIZE 1
+ namespace Language_th {
+  using namespace Language_en; // Inherit undefined strings from English
 
-  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" พร้อม")
-  #define MSG_YES                             _UxGT("ตกลง")
-  #define MSG_NO                              _UxGT("ยกเลิก")
-  #define MSG_BACK                            _UxGT("กลับ")
-  #define MSG_SD_INSERTED                     _UxGT("การ์ดถูกใส่แล้ว")
-  #define MSG_SD_REMOVED                      _UxGT("การ์ดถูกถอดแล้ว")
-  #define MSG_SD_RELEASED                     _UxGT("การ์ดถูกปลดแล้ว")
-  #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
-  #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Soft Endstops")
-  #define MSG_MAIN                            _UxGT("หลัก")
-  #define MSG_ADVANCED_SETTINGS               _UxGT("การตั้งค่าเพิ่มเติม")
-  #define MSG_CONFIGURATION                   _UxGT("การตั้งค่า")
-  #define MSG_AUTOSTART                       _UxGT("เริ่มอัตโนมัติ")
-  #define MSG_DISABLE_STEPPERS                _UxGT("ปลดมอเตอร์")
-  #define MSG_DEBUG_MENU                      _UxGT("Debug Menu")
-  #define MSG_PROGRESS_BAR_TEST               _UxGT("Progress Bar Test")
-  #define MSG_AUTO_HOME                       _UxGT("Auto Home")
-  #define MSG_AUTO_HOME_X                     _UxGT("Home X")
-  #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
-  #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
-  #define MSG_AUTO_Z_ALIGN                    _UxGT("Auto Z-Align")
-  #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
-  #define MSG_LEVEL_BED_WAITING               _UxGT("กดเพื่อเริ่ม")
-  #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("จุดถัดไป")
-  #define MSG_LEVEL_BED_DONE                  _UxGT("เสร็จสิ้นการปรับระดับฐาน!")
-  #define MSG_Z_FADE_HEIGHT                   _UxGT("ความสูง Fade")
-  #define MSG_SET_HOME_OFFSETS                _UxGT("ตั้ง Home Offsets")
-  #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets ถูกนำไปใช้แล้ว")
-  #define MSG_SET_ORIGIN                      _UxGT("ตั้งจุดเริ่มต้น")
-  #define MSG_PREHEAT_1                       _UxGT("อุ่นเครื่อง " PREHEAT_1_LABEL)
-  #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
-  #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" ทั้งหมด")
-  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" ที่หัวฉีด")
-  #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" ที่ฐาน")
-  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" ตั้งค่า")
-  #define MSG_PREHEAT_2                       _UxGT("อุ่นเครื่อง " PREHEAT_2_LABEL)
-  #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
-  #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" ทั้งหมด")
-  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" ที่หัวฉีด")
-  #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" ที่ฐาน")
-  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" ตั้งค่า")
-  #define MSG_PREHEAT_CUSTOM                  _UxGT("ตั้งค่าอุ่นเครื่องเอง")
-  #define MSG_COOLDOWN                        _UxGT("ลดอุณหภูมิ")
-  #define MSG_EXTRUDE                         _UxGT("ฉีด")
-  #define MSG_RETRACT                         _UxGT("ดึงกลับ")
-  #define MSG_MOVE_AXIS                       _UxGT("เลื่อนแกน")
-  #define MSG_BED_LEVELING                    _UxGT("การปรับระดับฐาน")
-  #define MSG_LEVEL_BED                       _UxGT("ปรับระดับฐาน")
-  #define MSG_LEVEL_CORNERS                   _UxGT("ปรับระดับฐานที่มุม")
-  #define MSG_NEXT_CORNER                     _UxGT("มุมถัดไป")
-  #define MSG_EDIT_MESH                       _UxGT("แก้ไข Mesh")
-  #define MSG_EDITING_STOPPED                 _UxGT("หยุดการแก้ไข Mesh")
-  #define MSG_USER_MENU                       _UxGT("แก้ไขคำสั่งเอง")
-  #define MSG_UBL_UNHOMED                     _UxGT("กรุณา Home XYZ")
-  #define MSG_UBL_TOOLS                       _UxGT("เครื่องมือ UBL")
-  #define MSG_UBL_MANUAL_MESH                 _UxGT("สร้าง Mesh เอง")
-  #define MSG_UBL_ACTIVATE_MESH               _UxGT("เริ่มการใช้งาน UBL")
-  #define MSG_UBL_DEACTIVATE_MESH             _UxGT("ยกเลิกการใช้งาน UBL")
-  #define MSG_UBL_SET_TEMP_BED                _UxGT("อุณหภูมิฐาน")
-  #define MSG_UBL_SET_TEMP_HOTEND             _UxGT("อุณหภูมิหัวฉีด")
-  #define MSG_UBL_MESH_EDIT                   _UxGT("แก้ไข Mesh")
-  #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("แก้ไข Mesh เอง")
-  #define MSG_UBL_FINE_TUNE_MESH              _UxGT("แก้ไข Mesh อย่างละเอียด")
-  #define MSG_UBL_DONE_EDITING_MESH           _UxGT("สิ้นสุดการแก้ไข Mesh")
-  #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("สร้าง Custom Mesh")
-  #define MSG_UBL_BUILD_MESH_MENU             _UxGT("สร้าง Mesh")
-  #define MSG_UBL_BUILD_MESH_M1               _UxGT("สร้าง Mesh (" PREHEAT_1_LABEL ")")
-  #define MSG_UBL_BUILD_MESH_M2               _UxGT("สร้าง Mesh (" PREHEAT_2_LABEL ")")
-  #define MSG_UBL_BUILD_COLD_MESH             _UxGT("สร้าง Cold Mesh")
-  #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("ปรับความสูง  Mesh")
-  #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("ระยะความสูง")
-  #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("ตรวจสอบ Mesh")
-  #define MSG_UBL_VALIDATE_MESH_M1            _UxGT("ตรวจสอบ Mesh (" PREHEAT_1_LABEL ")")
-  #define MSG_UBL_VALIDATE_MESH_M2            _UxGT("ตรวจสอบ Mesh (" PREHEAT_2_LABEL ")")
-  #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("ตรวจสอบ Custom Mesh")
-  #define MSG_UBL_CONTINUE_MESH               _UxGT("ดำเนินการต่อ Bed Mesh")
-  #define MSG_UBL_MESH_LEVELING               _UxGT("การปรับระดับ Mesh")
-  #define MSG_UBL_3POINT_MESH_LEVELING        _UxGT("ปรับระดับแบบ 3-Point")
-  #define MSG_UBL_GRID_MESH_LEVELING          _UxGT("ปรับระดับแบบ Grid Mesh")
-  #define MSG_UBL_MESH_LEVEL                  _UxGT("ปรับระดับ Mesh")
-  #define MSG_UBL_MAP_TYPE                    _UxGT("ชนิด Map")
-  #define MSG_UBL_OUTPUT_MAP                  _UxGT("แสดง Mesh Map")
-  #define MSG_UBL_OUTPUT_MAP_HOST             _UxGT("แสดงสำหรับ Host")
-  #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("แสดงสำหรับ CSV")
-  #define MSG_UBL_INFO_UBL                    _UxGT("แสดงข้อมูล UBL")
-  #define MSG_UBL_MANUAL_FILLIN               _UxGT("เพิ่ม Fill-in เอง")
-  #define MSG_UBL_FINE_TUNE_ALL               _UxGT("จูนละเอียดทั้งหมด")
-  #define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("จูนละเอียดตำแหน่งใกล้สุด")
-  #define MSG_UBL_STORAGE_MESH_MENU           _UxGT("ช่องใช้งาน Mesh")
-  #define MSG_UBL_LOAD_MESH                   _UxGT("ดึงข้อมูลฐาน Mesh")
-  #define MSG_UBL_SAVE_MESH                   _UxGT("บันทึกข้อมูลฐาน Mesh")
-  #define MSG_MESH_LOADED                     _UxGT("Mesh %i ดึงสำเร็จ")
-  #define MSG_MESH_SAVED                      _UxGT("Mesh %i บันทึกสำเร็จ")
+  constexpr uint8_t    CHARSIZE                            = 1;
+# PROGMEM Language_Str LANGUAGE                            = _UxGT("Thai");
 
-//LED Control
-  #define MSG_LED_CONTROL                     _UxGT("การควบคุม LED")
-  #define MSG_LEDS                            _UxGT("ระบบไฟ")
-  #define MSG_LED_PRESETS                     _UxGT("Preset ระบบไฟ")
-  #define MSG_SET_LEDS_RED                    _UxGT("สีแดง")
-  #define MSG_SET_LEDS_ORANGE                 _UxGT("สีส้ม")
-  #define MSG_SET_LEDS_YELLOW                 _UxGT("สีเหลือง")
-  #define MSG_SET_LEDS_GREEN                  _UxGT("สีเขียว")
-  #define MSG_SET_LEDS_BLUE                   _UxGT("สีน้ำเงิน")
-  #define MSG_SET_LEDS_VIOLET                 _UxGT("สีม่วง")
-  #define MSG_SET_LEDS_WHITE                  _UxGT("สีขาว")
-  #define MSG_SET_LEDS_DEFAULT                _UxGT("การตั้งค่าเริ่มต้น")
-  #define MSG_CUSTOM_LEDS                     _UxGT("ระบบไฟกำหนดเอง")
-  #define MSG_INTENSITY_R                     _UxGT("ความเข้มสีแดง")
-  #define MSG_INTENSITY_G                     _UxGT("ความเข้มสีเขียว")
-  #define MSG_INTENSITY_B                     _UxGT("ความเข้มสีน้ำเงิน")
-  #define MSG_INTENSITY_W                     _UxGT("ความเข้มสีขาว")
-  #define MSG_LED_BRIGHTNESS                  _UxGT("ความสว่าง")
-
-//Motion
-  #define MSG_MOVING                          _UxGT("กำลังเลื่อน...")
-  #define MSG_FREE_XY                         _UxGT("ปลดแกน XY")
-  #define MSG_MOVE_X                          _UxGT("เลื่อนแกน X")
-  #define MSG_MOVE_Y                          _UxGT("เลื่อนแกน Y")
-  #define MSG_MOVE_Z                          _UxGT("เลื่อนแกน Z")
-  #define MSG_MOVE_E                          _UxGT("หัวฉีด")
-  #define MSG_HOTEND_TOO_COLD                 _UxGT("หัวฉีดเย็นเกินไป")
-  #define MSG_MOVE_Z_DIST                     _UxGT("เลื่อน %smm")
-  #define MSG_MOVE_01MM                       _UxGT("เลื่อน 0.1mm")
-  #define MSG_MOVE_1MM                        _UxGT("เลื่อน 1mm")
-  #define MSG_MOVE_10MM                       _UxGT("เลื่อน 10mm")
-  #define MSG_SPEED                           _UxGT("ความเร็ว")
-  #define MSG_BED_Z                           _UxGT("ระยะฐานกับแกน Z")
-  #define MSG_NOZZLE                          _UxGT("หัวฉีด")
-  #define MSG_BED                             _UxGT("ฐาน")
-  #define MSG_FAN_SPEED                       _UxGT("ความเร็วพัดลม")
-  #define MSG_EXTRA_FAN_SPEED                 _UxGT("ความเร็วพัดลมเพิ่มเติม")
-  #define MSG_FLOW                            _UxGT("การไหล")
-  #define MSG_CONTROL                         _UxGT("การควบตุม")
-  #define MSG_LCD_ON                          _UxGT("เปิด")
-  #define MSG_LCD_OFF                         _UxGT("ปิด")
-
-#if IS_KINEMATIC
-
-#else
-
-#endif
-
-  #define MSG_VELOCITY                        _UxGT("ความเร็ว")
-  #define MSG_ACCELERATION                    _UxGT("ความเร่ง")
-
-#if IS_KINEMATIC
-  
-#else
+  PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" พร้อม")
  
+  PROGMEM Language_Str MSG_YES                             = _UxGT("ตกลง");
+  PROGMEM Language_Str MSG_NO                              = _UxGT("ยกเลิก");
+  PROGMEM Language_Str MSG_BACK                            = _UxGT("กลับ");
+# PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Aborting...");
+# PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media Inserted");
+# PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media Removed");
+# PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Media Released");
+# PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Waiting for media");
+# PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Media read error");
+# PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB device removed");
+# PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB start failed");
+# PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
+# PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Soft Endstops");
+  PROGMEM Language_Str MSG_MAIN                            = _UxGT("หลัก");
+  PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("การตั้งค่าเพิ่มเติม");
+  PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("การตั้งค่า");
+  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("เริ่มอัตโนมัติ");
+  PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("ปลดมอเตอร์");
+# PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu");
+# PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Progress Bar Test");
+# PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Auto Home");
+# PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Home X");
+# PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
+# PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
+# PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
+# PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Homing XYZ");  
+  PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("กดเพื่อเริ่ม");
+  PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("จุดถัดไป");
+  PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("เสร็จสิ้นการปรับระดับฐาน!");
+  PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("ความสูง Fade");
+  PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("ตั้ง Home Offsets");
+  PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets ถูกนำไปใช้แล้ว");
+  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("ตั้งจุดเริ่มต้น");
+# PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preheat ") PREHEAT_1_LABEL;
+# PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";
+# PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End");
+# PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ~");
+# PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" All");
+# PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Bed");
+# PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Conf");
+# PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preheat ") PREHEAT_2_LABEL;
+# PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preheat ") PREHEAT_2_LABEL " ~";
+# PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End");
+# PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ~");
+# PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" All");
+# PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Bed");
+# PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Conf");
+# PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("ตั้งค่าอุ่นเครื่องเอง");
+# PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("ลดอุณหภูมิ");
+# PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser Control");
+# PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser Off");
+# PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser On");
+# PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laser Power");
+# PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindle Control");
+# PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindle Off");
+# PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindle On");
+# PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Power");
+# PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindle Reverse");
+# PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Switch Power On");
+# PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Switch Power Off");
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("ฉีด");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("ดึงกลับ");
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("เลื่อนแกน");
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("การปรับระดับฐาน");
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("ปรับระดับฐาน");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("ปรับระดับฐานที่มุม");
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("มุมถัดไป");
+# PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editor");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("แก้ไข Mesh");
+  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("หยุดการแก้ไข Mesh");
+# PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Probing Point");
+# PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
+# PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
+# PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Value");
+  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("แก้ไขคำสั่งเอง");
+# PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
+# PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
+# PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviation");
+# PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX Mode");
+# PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Tool Offsets");
+# PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Park");
+# PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplication");
+# PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Mirrored Copy");
+# PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Full Control");
+# PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2nd Nozzle X");
+# PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2nd Nozzle Y");
+# PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2nd Nozzle Z");
+# PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Doing G29");
+  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("เครื่องมือ UBL");
+# PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
+# PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Tilting Point");
+# PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("สร้าง Mesh เอง");
+# PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Place Shim & Measure");
+# PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Measure");
+# PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Remove & Measure Bed");
+# PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Moving to next");
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("เริ่มการใช้งาน UBL");
+  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("ยกเลิกการใช้งาน UBL");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("อุณหภูมิฐาน");
+# PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Bed Temp");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("อุณหภูมิหัวฉีด");
+# PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Hotend Temp");
+  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("แก้ไข Mesh");
+  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("แก้ไข Mesh เอง");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("แก้ไข Mesh อย่างละเอียด");
+  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("สิ้นสุดการแก้ไข Mesh");
+  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("สร้าง Custom Mesh");
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("สร้าง Mesh");
+# PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Build Mesh (") PREHEAT_1_LABEL _UxGT(")");
+# PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Build Mesh (") PREHEAT_2_LABEL _UxGT(")");
+  PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("สร้าง Cold Mesh");
+  PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("ปรับความสูง  Mesh");
+  PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("ระยะความสูง");
+  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("ตรวจสอบ Mesh");
+# PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Validate Mesh (") PREHEAT_1_LABEL _UxGT(")");
+# PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Validate Mesh (") PREHEAT_2_LABEL _UxGT(")");
+  PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("ตรวจสอบ Custom Mesh");
+# PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Heating Bed");
+# PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Heating Nozzle");
+# PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Manual priming...");
+# PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Fixed Length Prime");
+# PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("Done Priming");
+# PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26 Canceled");
+# PROGMEM Language_Str MSG_G26_LEAVING                     = _UxGT("Leaving G26");
+  PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("ดำเนินการต่อ Bed Mesh");
+  PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("การปรับระดับ Mesh");
+  PROGMEM Language_Str MSG_UBL_3POINT_MESH_LEVELING        = _UxGT("ปรับระดับแบบ 3-Point");
+  PROGMEM Language_Str MSG_UBL_GRID_MESH_LEVELING          = _UxGT("ปรับระดับแบบ Grid Mesh");
+  PROGMEM Language_Str MSG_UBL_MESH_LEVEL                  = _UxGT("ปรับระดับ Mesh");
+# PROGMEM Language_Str MSG_UBL_SIDE_POINTS                 = _UxGT("Side Points");;
+  PROGMEM Language_Str MSG_UBL_MAP_TYPE                    = _UxGT("ชนิด Map");
+  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP                  = _UxGT("แสดง Mesh Map");
+  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP_HOST             = _UxGT("แสดงสำหรับ Host");
+  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP_CSV              = _UxGT("แสดงสำหรับ CSV");
+# PROGMEM Language_Str MSG_UBL_OUTPUT_MAP_BACKUP           = _UxGT("Off Printer Backup");
+  PROGMEM Language_Str MSG_UBL_INFO_UBL                    = _UxGT("แสดงข้อมูล UBL");
+# PROGMEM Language_Str MSG_UBL_FILLIN_AMOUNT               = _UxGT("Fill-in Amount");
+  PROGMEM Language_Str MSG_UBL_MANUAL_FILLIN               = _UxGT("เพิ่ม Fill-in เอง");
+# PROGMEM Language_Str MSG_UBL_SMART_FILLIN                = _UxGT("Smart Fill-in");
+# PROGMEM Language_Str MSG_UBL_FILLIN_MESH                 = _UxGT("Fill-in Mesh");
+# PROGMEM Language_Str MSG_UBL_INVALIDATE_ALL              = _UxGT("Invalidate All");
+# PROGMEM Language_Str MSG_UBL_INVALIDATE_CLOSEST          = _UxGT("Invalidate Closest");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_ALL               = _UxGT("จูนละเอียดทั้งหมด");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_CLOSEST           = _UxGT("จูนละเอียดตำแหน่งใกล้สุด");
+  PROGMEM Language_Str MSG_UBL_STORAGE_MESH_MENU           = _UxGT("ช่องใช้งาน Mesh");
+# PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Memory Slot");
+  PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("ดึงข้อมูลฐาน Mesh");
+  PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("บันทึกข้อมูลฐาน Mesh");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Mesh %i ดึงสำเร็จ");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Mesh %i บันทึกสำเร็จ");
+# PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("No Storage");
+# PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Err: UBL Save");
+# PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Err: UBL Restore");
+# PROGMEM Language_Str MSG_UBL_Z_OFFSET                    = _UxGT("Z-Offset: ");
+# PROGMEM Language_Str MSG_UBL_Z_OFFSET_STOPPED            = _UxGT("Z-Offset Stopped");
+# PROGMEM Language_Str MSG_UBL_STEP_BY_STEP_MENU           = _UxGT("Step-By-Step UBL");
+# PROGMEM Language_Str MSG_UBL_1_BUILD_COLD_MESH           = _UxGT("1. Build Cold Mesh");
+# PROGMEM Language_Str MSG_UBL_2_SMART_FILLIN              = _UxGT("2. Smart Fill-in");
+# PROGMEM Language_Str MSG_UBL_3_VALIDATE_MESH_MENU        = _UxGT("3. Validate Mesh");
+# PROGMEM Language_Str MSG_UBL_4_FINE_TUNE_ALL             = _UxGT("4. Fine Tune All");
+# PROGMEM Language_Str MSG_UBL_5_VALIDATE_MESH_MENU        = _UxGT("5. Validate Mesh");
+# PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6. Fine Tune All");
+# PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7. Save Bed Mesh");
+
+  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("การควบคุม LED");
+  PROGMEM Language_Str MSG_LEDS                            = _UxGT("ระบบไฟ");
+  PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("Preset ระบบไฟ");
+  PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("สีแดง");
+  PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("สีส้ม");
+  PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("สีเหลือง");
+  PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("สีเขียว");
+  PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("สีน้ำเงิน");
+# PROGMEM Language_Str MSG_SET_LEDS_INDIGO                 = _UxGT("Indigo");
+  PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("สีม่วง");
+  PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("สีขาว");
+  PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("การตั้งค่าเริ่มต้น");
+  PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("ระบบไฟกำหนดเอง");
+  PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("ความเข้มสีแดง");
+  PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("ความเข้มสีเขียว");
+  PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("ความเข้มสีน้ำเงิน");
+  PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("ความเข้มสีขาว");
+  PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("ความสว่าง");
+
+  PROGMEM Language_Str MSG_MOVING                          = _UxGT("กำลังเลื่อน...");
+  PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("ปลดแกน XY");
+  PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("เลื่อนแกน X");
+  PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("เลื่อนแกน Y");
+  PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("เลื่อนแกน Z");
+  PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("หัวฉีด");
+# PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
+  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("หัวฉีดเย็นเกินไป");
+  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("เลื่อน %smm");
+  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("เลื่อน 0.1mm");
+  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("เลื่อน 1mm");
+  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("เลื่อน 10mm");
+  PROGMEM Language_Str MSG_SPEED                           = _UxGT("ความเร็ว");
+  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("ระยะฐานกับแกน Z");
+  PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("หัวฉีด");
+# PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
+  PROGMEM Language_Str MSG_BED                             = _UxGT("ฐาน");
+# PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
+  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("ความเร็วพัดลม");
+# PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed =");
+# PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("ความเร็วพัดลมเพิ่มเติม");
+# PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed =");
+  PROGMEM Language_Str MSG_FLOW                            = _UxGT("การไหล");
+# PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
+  PROGMEM Language_Str MSG_CONTROL                         = _UxGT("การควบตุม");
+# PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER _UxGT(" Min");
+# PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER _UxGT(" Max");
+# PROGMEM Language_Str MSG_FACTOR                          = " " LCD_STR_THERMOMETER _UxGT(" Fact");
+# PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Autotemp");
+  PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("เปิด");
+  PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("ปิด");
+# PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
+# PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
+# PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
+# PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
+# PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
+# PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
+# PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
+# PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
+# PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
+# PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
+# PROGMEM Language_Str MSG_SELECT                          = _UxGT("Select");
+# PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Select *");
+# PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
+# PROGMEM Language_Str MSG_JERK                            = _UxGT("Jerk");
+# PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("V") LCD_STR_A _UxGT("-Jerk");
+# PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("V") LCD_STR_B _UxGT("-Jerk");
+# PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("V") LCD_STR_C _UxGT("-Jerk");
+# PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("Ve-Jerk");
+# PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Junction Dev");
+  PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("ความเร็ว");
+# PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("Vmax ") LCD_STR_A;
+# PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("Vmax ") LCD_STR_B;
+# PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("Vmax ") LCD_STR_C;
+# PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Vmax ") LCD_STR_E;
+# PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("Vmax *");
+# PROGMEM Language_Str MSG_VMIN                            = _UxGT("Vmin");
+# PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VTrav Min");
+  PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("ความเร่ง");
+# PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Amax ") LCD_STR_A;
+# PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Amax ") LCD_STR_B;
+# PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Amax ") LCD_STR_C;
+# PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Amax ") LCD_STR_E;
+# PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Amax *");
+# PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-Retract");
+# PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-Travel");
+# PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Steps/mm");
+# PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("steps/mm");
+# PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("steps/mm");
+# PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("steps/mm");
+# PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("Esteps/mm");
+# PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("*steps/mm");
+  PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("อุณหภูมิ");
+  PROGMEM Language_Str MSG_MOTION                          = _UxGT("การเคลื่อนที่");
+# PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
+# PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+# PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
+# PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
+# PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Unload mm");
+# PROGMEM Language_Str MSG_FILAMENT_LOAD                   = _UxGT("Load mm");
+# PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");
+# PROGMEM Language_Str MSG_ADVANCE_K_E                     = _UxGT("Advance K *");
+# PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD Contrast");
+  PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("บันทึกการตั้งค่า");
+  PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("ดึงข้อมูลการตั้งค่า");
+# PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restore failsafe");
+  PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("เริ่มต้น EEPROM");
+# PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Media Update");
+# PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset Printer");
+# PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Refresh");
+  PROGMEM Language_Str MSG_WATCH                           = _UxGT("หน้าแสดงข้อมูล");
+  PROGMEM Language_Str MSG_PREPARE                         = _UxGT("เตรียมพร้อม");
+  PROGMEM Language_Str MSG_TUNE                            = _UxGT("จูน");
+  PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("เริ่มปริ้น");
+  PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("ถัดไป");
+# PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("Init");
+  PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("หยุด");
+# PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("Print");
+# PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("ยกเลิก");
+  PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("เสร็จสิ้น");
+# PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Back");
+# PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Proceed");
+# PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("หยุดชั่วคราว");
+  PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("เริ่มต่อ");
+  PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("หยุด");
+# PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Printing Object");
+# PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancel Object");
+# PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Cancel Object =");
+  PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("การกู้คืน");
+# PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Print from Media");
+# PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("No Media");
+# PROGMEM Language_Str MSG_DWELL                           = _UxGT("Sleep...");                     
+  PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("กดเพื่อเริ่ม...");
+  PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("หยุดชั่วคราว");
+  PROGMEM Language_Str MSG_PRINTING                        = _UxGT("กำลังทำงาน...");
+  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("หยุดการทำงาน");
+# PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("No Move.");
+# PROGMEM Language_Str MSG_KILLED                          = _UxGT("KILLED. ");
+# PROGMEM Language_Str MSG_STOPPED                         = _UxGT("STOPPED. ");                
+  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("ดึงกลับ mm");
+# PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Swap Re.mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("ดึงกลับ  V");
+# PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");
+# PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
+# PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S UnRet mm");
+# PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
+# PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
+# PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
+# PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Swap Length");
+# PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Purge Length");
+# PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Tool Change");
+# PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Raise");
+# PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Prime Speed");
+# PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Retract Speed");
+# PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
+  PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("เปลี่ยน Filament");
+# PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Change Filament *");
+  PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("ดึง Filament");
+# PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Load Filament *");
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("ถอน Filament");
+# PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Unload Filament *");
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("ถอนทั้งหมด");
+# PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. Media");
+# PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Change Media");
+# PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Release Media");
+# PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z Probe Past Bed");
+# PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Skew Factor");
+# PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
+# PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Self-Test");
+# PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reset");
+# PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Stow");
+# PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Deploy");
+# PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: SW-Mode");
+# PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: 5V-Mode");
+# PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: OD-Mode");
+# PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: Mode-Store");
+# PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Set BLTouch to 5V");
+# PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Set BLTouch to OD");
+# PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Report Drain");
+# PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?");
+# PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
+# PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("Init TouchMI");
+# PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Z Offset Test");
+# PROGMEM Language_Str MSG_TOUCHMI_SAVE                    = _UxGT("Save");
+# PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("Deploy TouchMI");
+# PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Deploy Z-Probe");
+# PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
+# PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s First");
+# PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Probe Z Offset");
+# PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
+# PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
+# PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
+# PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
+# PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop Abort");
+# PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Heating Failed");
+# PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Bed Heating Failed");
+# PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Chamber Heating Fail");
+# PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Err: REDUNDANT TEMP");
+# PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("THERMAL RUNAWAY");
+# PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("BED THERMAL RUNAWAY");
+# PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("CHAMBER T. RUNAWAY");
+# PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: MAXTEMP");
+# PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: MINTEMP");
+# PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: MAXTEMP BED");
+# PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: MINTEMP BED");
+# PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: MAXTEMP CHAMBER");
+# PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: MINTEMP CHAMBER");
+# PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY First");
+# PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER HALTED");
+# PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Please Reset");
+# PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
+# PROGMEM Language_Str MSG_SHORT_HOUR                      = _UxGT("h"); // One character only
+# PROGMEM Language_Str MSG_SHORT_MINUTE                    = _UxGT("m"); // One character only
+# PROGMEM Language_Str MSG_HEATING                         = _UxGT("Heating...");
+# PROGMEM Language_Str MSG_COOLING                         = _UxGT("Cooling...");
+# PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Bed Heating...");
+# PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Bed Cooling...");
+# PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Chamber Heating...");
+# PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Chamber Cooling...");
+# PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Delta Calibration");
+# PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Calibrate X");
+# PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Calibrate Y");
+# PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Calibrate Z");
+# PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Calibrate Center");
+# PROGMEM Language_Str MSG_DELTA_SETTINGS                  = _UxGT("Delta Settings");
+# PROGMEM Language_Str MSG_DELTA_AUTO_CALIBRATE            = _UxGT("Auto Calibration");
+# PROGMEM Language_Str MSG_DELTA_HEIGHT_CALIBRATE          = _UxGT("Set Delta Height");
+# PROGMEM Language_Str MSG_DELTA_Z_OFFSET_CALIBRATE        = _UxGT("Probe Z-offset");
+# PROGMEM Language_Str MSG_DELTA_DIAG_ROD                  = _UxGT("Diag Rod");
+# PROGMEM Language_Str MSG_DELTA_HEIGHT                    = _UxGT("Height");
+# PROGMEM Language_Str MSG_DELTA_RADIUS                    = _UxGT("Radius");
+# PROGMEM Language_Str MSG_INFO_MENU                       = _UxGT("About Printer");
+# PROGMEM Language_Str MSG_INFO_PRINTER_MENU               = _UxGT("Printer Info");
+# PROGMEM Language_Str MSG_3POINT_LEVELING                 = _UxGT("3-Point Leveling");
+# PROGMEM Language_Str MSG_LINEAR_LEVELING                 = _UxGT("Linear Leveling");
+# PROGMEM Language_Str MSG_BILINEAR_LEVELING               = _UxGT("Bilinear Leveling");
+# PROGMEM Language_Str MSG_UBL_LEVELING                    = _UxGT("Unified Bed Leveling");
+# PROGMEM Language_Str MSG_MESH_LEVELING                   = _UxGT("Mesh Leveling");
+# PROGMEM Language_Str MSG_INFO_STATS_MENU                 = _UxGT("Printer Stats");
+# PROGMEM Language_Str MSG_INFO_BOARD_MENU                 = _UxGT("Board Info");
+# PROGMEM Language_Str MSG_INFO_THERMISTOR_MENU            = _UxGT("Thermistors";;
+# PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("Extruders");
+# PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Baud");
+# PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocol");
+# PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Runaway Watch: OFF");
+# PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Runaway Watch: ON");
+
+# PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Case Light");
+# PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Light Brightness");
+# PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("INCORRECT PRINTER");
+
+  #if LCD_WIDTH >= 20
+#   PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Print Count");
+    PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("เสร็จสิ้น");
+#   PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("Total Print time");
+#   PROGMEM Language_Str MSG_INFO_PRINT_LONGEST            = _UxGT("Longest Job Time");
+#   PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT           = _UxGT("Extruded Total");
+  #else
+#   PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Prints");
+#   PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Completed");
+#   PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("Total");
+#   PROGMEM Language_Str MSG_INFO_PRINT_LONGEST            = _UxGT("Longest");
+#   PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT           = _UxGT("Extruded");
+  #endif
+
+# PROGMEM Language_Str MSG_INFO_MIN_TEMP                   = _UxGT("Min Temp");
+# PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Temp");
+# PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");
+# PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Drive Strength");
+# PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");
+# PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC CONNECTION ERROR");
+# PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");
+# PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("FILAMENT CHANGE");
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("หยุดชั่วคราว");
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("ดึง FILAMENT");
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_UNLOAD   = _UxGT("ถอน FILAMENT");
+# PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_HEADER   = _UxGT("RESUME OPTIONS:");
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("ฉีดเพิ่ม");
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("เริ่มต่อ");
+# PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
+# PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
+# PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
+# PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Homing Failed");
+# PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
+# PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Too Cold");
+
+# PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
+# PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
+# PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
+# PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Needs Attention.");
+# PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Resume Print");
+# PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Resuming...");
+# PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Load Filament");
+# PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Load All");
+# PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("Load to Nozzle");
+# PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Eject Filament");
+# PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Eject Filament ~");
+# PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("Unload Filament");
+# PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Loading Fil. %i...");
+# PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Ejecting Fil. ...");
+# PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("Unloading Fil....");
+# PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("All");
+# PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("Filament ~");
+# PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("Reset MMU");
+# PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("Resetting MMU...");
+# PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Remove, click");
+
+# PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
+# PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Component =");
+# PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixer");
+# PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
+# PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Full Gradient");
+# PROGMEM Language_Str MSG_TOGGLE_MIX                      = _UxGT("Toggle Mix");
+# PROGMEM Language_Str MSG_CYCLE_MIX                       = _UxGT("Cycle Mix");
+# PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("Gradient Mix");
+# PROGMEM Language_Str MSG_REVERSE_GRADIENT                = _UxGT("Reverse Gradient");
+# PROGMEM Language_Str MSG_ACTIVE_VTOOL                    = _UxGT("Active V-tool");
+# PROGMEM Language_Str MSG_START_VTOOL                     = _UxGT("Start V-tool");
+# PROGMEM Language_Str MSG_END_VTOOL                       = _UxGT("  End V-tool");
+# PROGMEM Language_Str MSG_GRADIENT_ALIAS                  = _UxGT("Alias V-tool");
+# PROGMEM Language_Str MSG_RESET_VTOOLS                    = _UxGT("Reset V-tools");
+# PROGMEM Language_Str MSG_COMMIT_VTOOL                    = _UxGT("Commit V-tool Mix");
+# PROGMEM Language_Str MSG_VTOOLS_RESET                    = _UxGT("V-tools Were Reset");
+# PROGMEM Language_Str MSG_START_Z                         = _UxGT("Start Z:");
+# PROGMEM Language_Str MSG_END_Z                           = _UxGT("  End Z:");
+
+# PROGMEM Language_Str MSG_GAMES                           = _UxGT("Games");
+# PROGMEM Language_Str MSG_BRICKOUT                        = _UxGT("Brickout");
+# PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
+# PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Snake");
+# PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
+
+  #define MSG_1_LINE(A)     A "\0"   "\0"
+  #define MSG_2_LINE(A,B)   A "\0" B "\0"
+  #define MSG_3_LINE(A,B,C) A "\0" B "\0" C
+
+  //
+  // Filament Change screens show up to 3 lines on a 4-line display
+  //                        ...or up to 2 lines on a 3-line display
+  //
+  #if LCD_HEIGHT >= 4
+#   PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Press Button", "to resume print"));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT("กำลังจอด...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT("รอ");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT("กรุณาใส่ filament");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT("กดปุ่ม");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT("กำลังอุ่นหัวฉีด");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT("รอ");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT("รอ");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT("รอ");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT("กดเพื่อสิ้นสุด");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT("รอการทำงาน");
+  #else
+    PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT("กดเพื่อเริ่มต่อ");
+    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT("กำลังจอด...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT("กรุณารอ...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT("ใส่แล้วกดปุ่ม");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT("กดปุ่มเพื่ออุ่น");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT("กำลังอุ่น...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT("กำลังถอน...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT("กำลังดึง...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT("กำลังฉีด...");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT("กดเพื่อสิ้นสุด");
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT("กำลังเริ่มต่อ...");
 #endif
+#   PROGMEM Language_Str MSG_TMC_DRIVERS                   = _UxGT("TMC Drivers");
+    PROGMEM Language_Str MSG_TMC_CURRENT                   = _UxGT("กระแส Driver");
+#   PROGMEM Language_Str MSG_TMC_HYBRID_THRS               = _UxGT("Hybrid Threshold");
+#   PROGMEM Language_Str MSG_TMC_HOMING_THRS               = _UxGT("Sensorless Homing");
+#   PROGMEM Language_Str MSG_TMC_STEPPING_MODE             = _UxGT("Stepping Mode");
+#   PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED           = _UxGT("StealthChop Enabled");
+#   PROGMEM Language_Str MSG_SERVICE_RESET                 = _UxGT("Reset");
+#   PROGMEM Language_Str MSG_SERVICE_IN                    = _UxGT(" in:");
+#   PROGMEM Language_Str MSG_BACKLASH                      = _UxGT("Backlash");
+#   PROGMEM Language_Str MSG_BACKLASH_A                    = LCD_STR_A;
+#   PROGMEM Language_Str MSG_BACKLASH_B                    = LCD_STR_B;
+#   PROGMEM Language_Str MSG_BACKLASH_C                    = LCD_STR_C;
+#   PROGMEM Language_Str MSG_BACKLASH_CORRECTION           = _UxGT("Correction");
+#   PROGMEM Language_Str MSG_BACKLASH_SMOOTHING            = _UxGT("Smoothing");
+}
 
-  #define MSG_TEMPERATURE                     _UxGT("อุณหภูมิ")
-  #define MSG_MOTION                          _UxGT("การเคลื่อนที่")
-  #define MSG_STORE_EEPROM                    _UxGT("บันทึกการตั้งค่า")
-  #define MSG_LOAD_EEPROM                     _UxGT("ดึงข้อมูลการตั้งค่า")
-  #define MSG_INIT_EEPROM                     _UxGT("เริ่มต้น EEPROM")
-  #define MSG_WATCH                           _UxGT("หน้าแสดงข้อมูล")
-  #define MSG_PREPARE                         _UxGT("เตรียมพร้อม")
-  #define MSG_TUNE                            _UxGT("จูน")
-  #define MSG_START_PRINT                     _UxGT("เริ่มปริ้น")
-  #define MSG_BUTTON_NEXT                     _UxGT("ถัดไป")
-  #define MSG_BUTTON_STOP                     _UxGT("หยุด")
-  #define MSG_BUTTON_CANCEL                   _UxGT("ยกเลิก")
-  #define MSG_BUTTON_DONE                     _UxGT("เสร็จสิ้น")
-  #define MSG_PAUSE_PRINT                     _UxGT("หยุดชั่วคราว")
-  #define MSG_RESUME_PRINT                    _UxGT("เริ่มต่อ")
-  #define MSG_STOP_PRINT                      _UxGT("หยุด")
-  #define MSG_OUTAGE_RECOVERY                 _UxGT("การกู้คืน")
-  #define MSG_CARD_MENU                       _UxGT("ปริ้นจากการ์ด")
-  #define MSG_NO_CARD                         _UxGT("ไม่พบ SD Card")
-  #define MSG_USERWAIT                        _UxGT("กดเพื่อเริ่ม...")
-  #define MSG_PRINT_PAUSED                    _UxGT("หยุดชั่วคราว")
-  #define MSG_PRINTING                        _UxGT("กำลังทำงาน...")
-  #define MSG_PRINT_ABORTED                   _UxGT("หยุดการทำงาน")
-  #define MSG_CONTROL_RETRACT                 _UxGT("ดึงกลับ mm")
-  #define MSG_CONTROL_RETRACTF                _UxGT("ดึงกลับ  V")
-  #define MSG_FILAMENTCHANGE                  _UxGT("เปลี่ยน Filament")
-  #define MSG_FILAMENTLOAD                    _UxGT("ดึง Filament")
-  #define MSG_FILAMENTUNLOAD                  _UxGT("ถอน Filament")
-  #define MSG_FILAMENTUNLOAD_ALL              _UxGT("ถอนทั้งหมด")
-  #define MSG_INIT_SDCARD                     _UxGT("ค้นหา SD Card")
-  #define MSG_CHANGE_SDCARD                   _UxGT("เปลี่ยน SD Card")
-  #define MSG_RELEASE_SDCARD                  _UxGT("ปลด SD Card")
-  #define MSG_BLTOUCH_MODE_CHANGE             _UxGT("อันตราย: การตั้งค่าสามารถสร้างความเสียหายได้! ต้องการดำเนินการต่อหรือไม่?")
-  #define MSG_TOUCHMI_SAVE                    _UxGT("บันทึก")
-  #define MSG_FIRST                           _UxGT("ก่อน")
-  #define MSG_HEATING_FAILED_LCD              _UxGT("ไม่สามารถอุ่นได้")
-  #define MSG_HEATING_FAILED_LCD_BED          _UxGT("ไม่สามารถอุ่นฐานได้")
-  #define MSG_HALTED                          _UxGT("PRINTER ถูกยกเลิกการทำงาน")
-  #define MSG_PLEASE_RESET                    _UxGT("กรุณา Reset")
-  #define MSG_HEATING                         _UxGT("กำลังอุ่น...")
-  #define MSG_COOLING                         _UxGT("กำลังเย็นตัว...")
-  #define MSG_BED_HEATING                     _UxGT("กำลังอุ่นฐาน...")
-  #define MSG_BED_COOLING                     _UxGT("ฐานกำลังเย็นตัว...")
-  #define MSG_DELTA_HEIGHT                    _UxGT("ความสูง")
-  #define MSG_DELTA_RADIUS                    _UxGT("รัศมี")
-  #define MSG_INFO_MENU                       _UxGT("เกี่ยวกับ Printer")
-  #define MSG_INFO_PRINTER_MENU               _UxGT("ข้อมูล Printer")
-
-
-#if LCD_WIDTH >= 20
-    #define MSG_INFO_COMPLETED_PRINTS         _UxGT("เสร็จสิ้น")
+#if FAN_COUNT == 1
+  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
-
+  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
+  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif
-
-  #define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("หยุดชั่วคราว")
-  #define MSG_FILAMENT_CHANGE_HEADER_LOAD     _UxGT("ดึง FILAMENT")
-  #define MSG_FILAMENT_CHANGE_HEADER_UNLOAD   _UxGT("ถอน FILAMENT")
-  #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("ฉีดเพิ่ม")
-  #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("เริ่มต่อ")
-
-#if LCD_HEIGHT >= 4
-    #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("กดปุ่ม")
-    #define MSG_ADVANCED_PAUSE_WAITING_2      _UxGT("เพื่อเริ่มการทำงานต่อ")
-    #define MSG_PAUSE_PRINT_INIT_1            _UxGT("กำลังจอด...")
-    #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("รอ")
-    #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("การเปลี่ยน Filament")
-    #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("เพื่อเริ่ม")
-    #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("กรุณาใส่ filament")
-    #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("แล้วกดปุ่ม")
-    #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("เพื่อเริ่มต่อ")
-    #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("กดปุ่ม")
-    #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("เพื่ออุ่นหัวฉีด")
-    #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("กำลังอุ่นหัวฉีด")
-    #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("กรุณารอ...")
-    #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("รอ")
-    #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("ถอน Filament")
-    #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("รอ")
-    #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("ดึง Filament")
-    #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("รอ")
-    #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("Filament ฉีดทดสอบ")
-    #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("กดเพื่อสิ้นสุด")
-    #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("ฉีดทดสอบ Filament")
-    #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("รอการทำงาน")
-    #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("เพื่อเริ่มต่อ...")
-#else // LCD_HEIGHT < 4
-    #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("กดเพื่อเริ่มต่อ")
-    #define MSG_PAUSE_PRINT_INIT_1            _UxGT("กำลังจอด...")
-    #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("กรุณารอ...")
-    #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("ใส่แล้วกดปุ่ม")
-    #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("กดปุ่มเพื่ออุ่น")
-    #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("กำลังอุ่น...")
-    #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("กำลังถอน...")
-    #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("กำลังดึง...")
-    #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("กำลังฉีด...")
-    #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("กดเพื่อสิ้นสุด")
-    #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("กำลังเริ่มต่อ...")
-#endif // LCD_HEIGHT < 4
-
-  #define MSG_TMC_CURRENT                     _UxGT("กระแส Driver")
