@@ -71,6 +71,7 @@
 // vi         Vietnamese
 // zh_CN      Chinese (Simplified)
 // zh_TW      Chinese (Traditional)
+// th         Thai
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
