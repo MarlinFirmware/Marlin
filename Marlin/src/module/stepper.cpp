@@ -338,10 +338,10 @@ xyze_int8_t Stepper::count_direction{0};
 #if DISABLED(MIXING_EXTRUDER)
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
-constexpr uint32_t timer_setup_ns = CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES);
+#define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
 
-constexpr hal_timer_t pulse_high_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, timer_setup_ns));
-constexpr hal_timer_t pulse_low_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, timer_setup_ns));
+const hal_timer_t pulse_high_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS));
+const hal_timer_t pulse_low_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS));
 
 #define START_TIMED_PULSE(DIR) \
   do { \

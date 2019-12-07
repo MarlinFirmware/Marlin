@@ -182,7 +182,7 @@
 //   1. PULSE_TIMER_TICKS_PER_US rounds to an integer, which loses 20% of the count for a 2.5 MHz pulse tick (such as for LPC1768)
 //   2. The math currently rounds down to the closes tick. Perhaps should round up.
 constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return PULSE_TIMER_TICKS_PER_US * (NS) / 1000UL; }
-constexpr uint32_t CYCLES_TO_NS(uint32_t CYC) { return 1000UL * CYC / (F_CPU / 1000000); }
+#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
 
 // But the user could be enforcing a minimum time, so the loop time is
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
@@ -213,14 +213,14 @@ constexpr uint32_t CYCLES_TO_NS(uint32_t CYC) { return 1000UL * CYC / (F_CPU / 1
 #define ISR_EXECUTION_CYCLES(R) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + (ISR_LOOP_CYCLES) * (R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / (R))
 
 // The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_128X = F_CPU / ISR_EXECUTION_CYCLES(128);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_64X  = F_CPU / ISR_EXECUTION_CYCLES(64);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_32X  = F_CPU / ISR_EXECUTION_CYCLES(32);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_16X  = F_CPU / ISR_EXECUTION_CYCLES(16);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_8X   = F_CPU / ISR_EXECUTION_CYCLES(8);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_4X   = F_CPU / ISR_EXECUTION_CYCLES(4);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_2X   = F_CPU / ISR_EXECUTION_CYCLES(2);
-constexpr uint32_t MAX_STEP_ISR_FREQUENCY_1X   = F_CPU / ISR_EXECUTION_CYCLES(1);
+#define MAX_STEP_ISR_FREQUENCY_128X ((F_CPU) / ISR_EXECUTION_CYCLES(128))
+#define MAX_STEP_ISR_FREQUENCY_64X  ((F_CPU) / ISR_EXECUTION_CYCLES(64))
+#define MAX_STEP_ISR_FREQUENCY_32X  ((F_CPU) / ISR_EXECUTION_CYCLES(32))
+#define MAX_STEP_ISR_FREQUENCY_16X  ((F_CPU) / ISR_EXECUTION_CYCLES(16))
+#define MAX_STEP_ISR_FREQUENCY_8X   ((F_CPU) / ISR_EXECUTION_CYCLES(8))
+#define MAX_STEP_ISR_FREQUENCY_4X   ((F_CPU) / ISR_EXECUTION_CYCLES(4))
+#define MAX_STEP_ISR_FREQUENCY_2X   ((F_CPU) / ISR_EXECUTION_CYCLES(2))
+#define MAX_STEP_ISR_FREQUENCY_1X   ((F_CPU) / ISR_EXECUTION_CYCLES(1))
 
 // The minimum allowable frequency for step smoothing will be 1/10 of the maximum nominal frequency (in Hz)
 #define MIN_STEP_ISR_FREQUENCY MAX_STEP_ISR_FREQUENCY_1X
