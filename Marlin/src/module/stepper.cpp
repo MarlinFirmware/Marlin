@@ -343,20 +343,12 @@ xyze_int8_t Stepper::count_direction{0};
 const hal_timer_t pulse_high_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS));
 const hal_timer_t pulse_low_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS));
 
-#define START_TIMED_PULSE(DIR) \
-  do { \
-    end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + (pulse_##DIR##_tick_count); \
-  }  while (0);
-
-#define FINISH_TIMED_PULSE() \
-  do { \
-    while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count){}; \
-  } while (0);
-
-  #define START_HIGH_PULSE() START_TIMED_PULSE(high)
-  #define START_LOW_PULSE() START_TIMED_PULSE(low)
-  #define FINISH_HIGH_PULSE() FINISH_TIMED_PULSE()
-  #define FINISH_LOW_PULSE() FINISH_TIMED_PULSE()
+#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + pulse_##DIR##_tick_count)
+#define FINISH_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
+#define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
+#define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
+#define FINISH_HIGH_PULSE() FINISH_TIMED_PULSE()
+#define FINISH_LOW_PULSE()  FINISH_TIMED_PULSE()
 
 void Stepper::wake_up() {
   // TCNT1 = 0;
