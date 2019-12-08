@@ -239,10 +239,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ugello ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Piatto");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Camera");
-  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventola"); // Max 15 characters
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola ="); // Max 15 characters
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent."); // Max 15 characters
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. ="); // Max 15 characters
+  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventola");     // Max 15 characters
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola =");   // Max 15 characters
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. =");   // Max 15 characters
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent.");  // Max 15 characters
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. =");  // Max 15 characters
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flusso");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flusso ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controllo");
