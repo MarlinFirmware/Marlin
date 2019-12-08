@@ -340,10 +340,10 @@ xyze_int8_t Stepper::count_direction{0};
 #endif
 #define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
 
-const hal_timer_t pulse_high_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS));
-const hal_timer_t pulse_low_tick_count = NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS));
+#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
+#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
 
-#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + pulse_##DIR##_tick_count)
+#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_##DIR##_TICK_COUNT)
 #define AWAIT_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
 #define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
 #define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
@@ -1430,7 +1430,7 @@ void Stepper::stepper_pulse_phase_isr() {
   // Take multiple steps per interrupt (For high speed moves)
   bool firstStep = true;
   xyze_bool_t step_needed{0};
-  hal_timer_t end_tick_count, current_count;
+  hal_timer_t end_tick_count;
 
   do {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
@@ -1941,7 +1941,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     // Step E stepper if we have steps
     bool firstStep = true;
-    hal_timer_t end_tick_count, current_count;
+    hal_timer_t end_tick_count;
 
     while (LA_steps) {
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
