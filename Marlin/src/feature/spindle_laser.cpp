@@ -34,7 +34,9 @@ SpindleLaser cutter;
 
 cutter_power_t SpindleLaser::power; // = 0
 cutter_power_t SpindleLaser::isOn = false;
-cutter_power_t SpindleLaser::setPower; // = 0
+#if HAS_LCD_MENU
+  cutter_power_t SpindleLaser::menuLaserPower; // = 0
+#endif
 
 #define SPINDLE_LASER_PWM_OFF ((SPINDLE_LASER_PWM_INVERT) ? 255 : 0)
 
@@ -64,7 +66,6 @@ void SpindleLaser::init() {
     WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
-
   //
   // Translate power from the configured value range to a PWM value
   //
