@@ -33,5 +33,4 @@ class libServo : public Servo {
   private:
     typedef Servo super;
     uint16_t min_ticks, max_ticks;
-    uint8_t servoIndex;               // index into the channel data for this servo
 };
