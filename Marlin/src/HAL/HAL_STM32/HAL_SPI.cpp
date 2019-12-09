@@ -377,14 +377,6 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
     LL_SPI_ClearFlag_OVR(hspi);
     spiDumpRegisters(hspi);
   }
-
-  SERIAL_ECHO("Data for cross-check on website:"); SERIAL_FLUSH();
-  for (uint8_t b=0; b<count; b++) {
-    SERIAL_ECHO(" ");
-    SERIAL_PRINT(((uint8_t*)buf)[b+1], HEX); SERIAL_FLUSH();
-    SERIAL_ECHO(" ");
-    SERIAL_PRINT(((uint8_t*)buf)[b++], HEX); SERIAL_FLUSH();
-  }
 }
 
 //Device functions

@@ -415,15 +415,29 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
         error(SD_CARD_ERROR_CMD17);
       else if (readData(dst, 512))
       {
+        SERIAL_ECHOLN("Data1:");
+        for (uint16_t b=0; b<512; b++) {
+          SERIAL_ECHO(" ");
+          SERIAL_PRINT(dst[b], HEX); SERIAL_FLUSH();
+        }
+        SERIAL_ECHOLN(" ");
+
         uint8_t dst2[512] = {0};
         if (!cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
         {
-          for (uint8_t idx=0; idx<512; idx++)
+          SERIAL_ECHOLN("Data2:");
+          for (uint16_t b=0; b<512; b++) {
+            SERIAL_ECHO(" ");
+            SERIAL_PRINT(dst2[b], HEX); SERIAL_FLUSH();
+          }
+          SERIAL_ECHOLN(" ");
+
+          for (uint16_t idx=0; idx<512; idx++)
             if (dst[idx] != dst2[idx])
             {
               SERIAL_ECHO("DATA MISMATCH at ");
               SERIAL_PRINTLN(idx, DEC);
-              return false;
+              break;
             }
           return true;
         }
