@@ -127,7 +127,7 @@ void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
     SERIAL_PRINT(bus_num, DEC);
     SERIAL_ECHO(" before: ");
     spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
-#endif
+  #endif
 
   if (!spiInitialized(bus_num)) return;
 
@@ -365,8 +365,8 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   LL_SPI_SetCRCPolynomial(hspi, 0x1021);
   LL_SPI_EnableCRC(hspi);
   LL_SPI_Enable(hspi);
-  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW);
-  spiDumpRegisters(hspi);*/
+  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW);*/
+  spiDumpRegisters(hspi); SERIAL_FLUSH();
 
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
@@ -382,17 +382,17 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
     if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
       SERIAL_ECHO("Receiving w");
-      SERIAL_PRINT(count - remR, DEC);
+      SERIAL_PRINT(count - remR, DEC); SERIAL_FLUSH();
       buf[count - remR] = LL_SPI_ReceiveData16(hspi);
       SERIAL_ECHO("=");
-      SERIAL_PRINTLN(buf[count - remR], HEX);
+      SERIAL_PRINTLN(buf[count - remR], HEX); SERIAL_FLUSH();
 
       remR--;
       send = true; //and send next
     }
   }
 
-  SERIAL_ECHOLN("Receive complete.");
+  SERIAL_ECHOLN("Receive complete."); SERIAL_FLUSH();
   return (uint16_t) LL_SPI_GetRxCRC(hspi); //return HW-computed crc
 }
 
