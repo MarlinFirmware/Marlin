@@ -122,9 +122,6 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
 //#endif
 
 void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
-  HAL_SPI_Init(BUS_SPI_HANDLE(bus_num)); //just reinit the spi with the same parameters (no change)
-  return;
-
   #ifdef DUMP_SPI
     SERIAL_ECHO("SPI ");
     SERIAL_PRINT(bus_num, DEC);
@@ -351,27 +348,29 @@ void spiRead8(uint8_t bus_num, uint8_t* buf, const uint16_t count) {
   }
 }
 
-void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
+uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   if (count == 0 || !spiInitialized(bus_num)) return;
 
   SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
 
   bool send = true;
-  uint16_t wcnt = count/2, remT = wcnt, remR = wcnt;
+  uint16_t remT = count, remR = count;
 
-  SERIAL_ECHOLN("Setting up CRC");
+  /*SERIAL_ECHOLN("Setting up CRC");
   spiDumpRegisters(hspi);
+  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), HIGH);
   LL_SPI_Disable(hspi);
-  //LL_SPI_DisableCRC(hspi);
+  LL_SPI_DisableCRC(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetCRCPolynomial(hspi, 0x1021);
   LL_SPI_EnableCRC(hspi);
   LL_SPI_Enable(hspi);
-  spiDumpRegisters(hspi);
+  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW);
+  spiDumpRegisters(hspi);*/
 
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
-      LL_SPI_TransmitData16(hspi, buf[wcnt - remT--]);
+      LL_SPI_TransmitData16(hspi, buf[count - remT--]);
 
       /*if (remT == 0) { //transmitted everything
         SERIAL_ECHOLN("Sending CRC...");
@@ -382,11 +381,11 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
     }
 
     if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
-      SERIAL_ECHO("Receiving idx");
-      SERIAL_PRINT(wcnt - remR, DEC);
-      buf[wcnt - remR] = LL_SPI_ReceiveData16(hspi);
-      SERIAL_ECHO(", value=");
-      SERIAL_PRINTLN(buf[wcnt - remR], HEX);
+      SERIAL_ECHO("Receiving w");
+      SERIAL_PRINT(count - remR, DEC);
+      buf[count - remR] = LL_SPI_ReceiveData16(hspi);
+      SERIAL_ECHO("=");
+      SERIAL_PRINTLN(buf[count - remR], HEX);
 
       remR--;
       send = true; //and send next
@@ -394,7 +393,7 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   }
 
   SERIAL_ECHOLN("Receive complete.");
-  spiDumpRegisters(hspi);
+  return (uint16_t) LL_SPI_GetRxCRC(hspi); //return HW-computed crc
 }
 
 //Device functions
