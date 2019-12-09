@@ -110,7 +110,7 @@
   #include "feature/I2CPositionEncoder.h"
 #endif
 
-#if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
+#if HAS_TRINAMIC && DISABLED(PSU_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
@@ -181,11 +181,15 @@
   #include "libs/L6470/L6470_Marlin.h"
 #endif
 
-const char G28_STR[] PROGMEM = "G28",
+const char NUL_STR[] PROGMEM = "",
+           G28_STR[] PROGMEM = "G28",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
            M24_STR[] PROGMEM = "M24",
-           NUL_STR[] PROGMEM = "";
+           SP_X_STR[] PROGMEM = " X",
+           SP_Y_STR[] PROGMEM = " Y",
+           SP_Z_STR[] PROGMEM = " Z",
+           SP_E_STR[] PROGMEM = " E";
 
 bool Running = true;
 
@@ -230,7 +234,7 @@ void setup_powerhold() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
   #if ENABLED(PSU_CONTROL)
-    #if ENABLED(PS_DEFAULT_OFF)
+    #if ENABLED(PSU_DEFAULT_OFF)
       powersupply_on = true;  PSU_OFF();
     #else
       powersupply_on = false; PSU_ON();
@@ -597,7 +601,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    monitor_tmc_driver();
+    monitor_tmc_drivers();
   #endif
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
@@ -720,7 +724,6 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
-    extern const char NUL_STR[];
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
     UNUSED(lcd_error);
@@ -1107,7 +1110,7 @@ void setup() {
     host_action_prompt_end();
   #endif
 
-  #if HAS_TRINAMIC && DISABLED(PS_DEFAULT_OFF)
+  #if HAS_TRINAMIC && DISABLED(PSU_DEFAULT_OFF)
     test_tmc_connection(true, true, true, true);
   #endif
 

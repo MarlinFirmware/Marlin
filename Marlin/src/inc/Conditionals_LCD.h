@@ -290,7 +290,7 @@
 
 #ifndef STD_ENCODER_PULSES_PER_STEP
   #if ENABLED(TOUCH_BUTTONS)
-    #define STD_ENCODER_PULSES_PER_STEP 1
+    #define STD_ENCODER_PULSES_PER_STEP 2
   #else
     #define STD_ENCODER_PULSES_PER_STEP 5
   #endif
@@ -347,7 +347,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if ANY(MALYAN_LCD, DGUS_LCD, LULZBOT_TOUCH_UI)
+#if ANY(MALYAN_LCD, DGUS_LCD, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif

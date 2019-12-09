@@ -325,9 +325,10 @@
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
-  #define PSU_ACTIVE_HIGH false // Set 'false' for ATX (1), 'true' for X-Box (2)
+  #define PSU_ACTIVE_HIGH false     // Set 'false' for ATX, 'true' for X-Box
 
-  //#define PS_DEFAULT_OFF      // Keep power off until enabled directly with M80
+  //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
+  //#define PSU_POWERUP_DELAY 100   // (ms) Delay for the PSU to warm up to full power
 
   //#define AUTO_POWER_CONTROL  // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
@@ -352,9 +353,10 @@
  *
  * Temperature sensors available:
  *
+ *    -5 : PT100 / PT1000 with MAX31865 (only for sensors 0-1)
+ *    -3 : thermocouple with MAX31855 (only for sensors 0-1)
+ *    -2 : thermocouple with MAX6675 (only for sensors 0-1)
  *    -4 : thermocouple with AD8495
- *    -3 : thermocouple with MAX31855 (only for sensor 0)
- *    -2 : thermocouple with MAX6675 (only for sensor 0)
  *    -1 : thermocouple with AD595
  *     0 : not used
  *     1 : 100k thermistor - best choice for EPCOS 100k (4.7k pullup)
@@ -938,10 +940,17 @@
 // Feedrate (mm/m) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
-// The number of probes to perform at each point.
-//   Set to 2 for a fast/slow probe, using the second probe result.
-//   Set to 3 or more for slow probes, averaging the results.
+/**
+ * Multiple Probing
+ *
+ * You may get improved results by probing 2 or more times.
+ * With EXTRA_PROBING the more atypical reading(s) will be disregarded.
+ *
+ * A total of 2 does fast/slow probes with a weighted average.
+ * A total of 3 or more adds more slow probes, taking the average.
+ */
 //#define MULTIPLE_PROBING 2
+//#define EXTRA_PROBING    1
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1957,7 +1966,7 @@
 
 //
 // AZSMZ 12864 LCD with SD
-// https://www.aliexpress.com/store/product/3D-printer-smart-controller-SMART-RAMPS-OR-RAMPS-1-4-LCD-12864-LCD-control-panel-green/2179173_32213636460.html
+// https://www.aliexpress.com/item/32837222770.html
 //
 //#define AZSMZ_12864
 
@@ -2024,10 +2033,10 @@
 //#define MALYAN_LCD
 
 //
-// LulzBot Color Touch UI for FTDI EVE (FT800/FT810) displays
+// Touch UI for FTDI EVE (FT800/FT810) displays
 // See Configuration_adv.h for all configuration options.
 //
-//#define LULZBOT_TOUCH_UI
+//#define TOUCH_UI_FTDI_EVE
 
 //
 // Third-party or vendor-customized controller interfaces.

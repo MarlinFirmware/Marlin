@@ -35,9 +35,9 @@
  * lcd_put_u8str_ind_P
  * Print a string with an index substituted within it
  */
-uint8_t lcd_put_u8str_ind_P(PGM_P const pstr, const uint8_t ind, const uint8_t maxlen/*=LCD_WIDTH*/) {
+lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const uint8_t ind, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   uint8_t *p = (uint8_t*)pstr;
-  uint8_t n = maxlen;
+  lcd_uint_t n = maxlen;
   for (; n; n--) {
     wchar_t ch;
     p = get_utf8_value_cb(p, read_byte_rom, &ch);

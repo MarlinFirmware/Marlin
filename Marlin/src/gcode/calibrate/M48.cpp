@@ -178,12 +178,12 @@ void GcodeSuite::M48() {
             while (!position_is_reachable_by_probe(next_pos)) {
               next_pos *= 0.8f;
               if (verbose_level > 3)
-                SERIAL_ECHOLNPAIR("Moving inward: X", next_pos.x, " Y", next_pos.y);
+                SERIAL_ECHOLNPAIR_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
             }
           #endif
 
           if (verbose_level > 3)
-            SERIAL_ECHOLNPAIR("Going to: X", next_pos.x, " Y", next_pos.y);
+            SERIAL_ECHOLNPAIR_P(PSTR("Going to: X"), next_pos.x, SP_Y_STR, next_pos.y);
 
           do_blocking_move_to_xy(next_pos);
         } // n_legs loop

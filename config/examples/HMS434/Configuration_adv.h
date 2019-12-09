@@ -197,6 +197,56 @@
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
     #define LPQ_MAX_LEN 50
   #endif
+
+  /**
+   * Add an experimental additional term to the heater power, proportional to the fan speed.
+   * A well-chosen Kf value should add just enough power to compensate for power-loss from the cooling fan.
+   * You can either just add a constant compensation with the DEFAULT_Kf value
+   * or follow the instruction below to get speed-dependent compensation.
+   *
+   * Constant compensation (use only with fanspeeds of 0% and 100%)
+   * ---------------------------------------------------------------------
+   * A good starting point for the Kf-value comes from the calculation:
+   *   kf = (power_fan * eff_fan) / power_heater * 255
+   * where eff_fan is between 0.0 and 1.0, based on fan-efficiency and airflow to the nozzle / heater.
+   *
+   * Example:
+   *   Heater: 40W, Fan: 0.1A * 24V = 2.4W, eff_fan = 0.8
+   *   Kf = (2.4W * 0.8) / 40W * 255 = 12.24
+   *
+   * Fan-speed dependent compensation
+   * --------------------------------
+   * 1. To find a good Kf value, set the hotend temperature, wait for it to settle, and enable the fan (100%).
+   *    Make sure PID_FAN_SCALING_LIN_FACTOR is 0 and PID_FAN_SCALING_ALTERNATIVE_DEFINITION is not enabled.
+   *    If you see the temperature drop repeat the test, increasing the Kf value slowly, until the temperature
+   *    drop goes away. If the temperature overshoots after enabling the fan, the Kf value is too big.
+   * 2. Note the Kf-value for fan-speed at 100%
+   * 3. Determine a good value for PID_FAN_SCALING_MIN_SPEED, which is around the speed, where the fan starts moving.
+   * 4. Repeat step 1. and 2. for this fan speed.
+   * 5. Enable PID_FAN_SCALING_ALTERNATIVE_DEFINITION and enter the two identified Kf-values in
+   *    PID_FAN_SCALING_AT_FULL_SPEED and PID_FAN_SCALING_AT_MIN_SPEED. Enter the minimum speed in PID_FAN_SCALING_MIN_SPEED
+   */
+  //#define PID_FAN_SCALING
+  #if ENABLED(PID_FAN_SCALING)
+    //#define PID_FAN_SCALING_ALTERNATIVE_DEFINITION
+    #if ENABLED(PID_FAN_SCALING_ALTERNATIVE_DEFINITION)
+      // The alternative definition is used for an easier configuration.
+      // Just figure out Kf at fullspeed (255) and PID_FAN_SCALING_MIN_SPEED.
+      // DEFAULT_Kf and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
+
+      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_Kf
+      #define PID_FAN_SCALING_AT_MIN_SPEED 6.0          //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_Kf
+      #define PID_FAN_SCALING_MIN_SPEED 10.0            // Minimum fan speed at which to enable PID_FAN_SCALING
+
+      #define DEFAULT_Kf (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
+      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_Kf)/255.0
+
+    #else
+      #define PID_FAN_SCALING_LIN_FACTOR (0)             // Power loss due to cooling = Kf * (fan_speed)
+      #define DEFAULT_Kf 10                              // A constant value added to the PID-tuner
+      #define PID_FAN_SCALING_MIN_SPEED 10               // Minimum fan speed at which to enable PID_FAN_SCALING
+    #endif
+  #endif
 #endif
 
 /**
@@ -655,8 +705,8 @@
 
 //#define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
 
-// minimum time in microseconds that a movement needs to take if the buffer is emptied.
-#define DEFAULT_MINSEGMENTTIME        20000
+// Minimum time that a segment needs to take if the buffer is emptied
+#define DEFAULT_MINSEGMENTTIME        20000   // (ms)
 
 // If defined the movements slow down when the look ahead buffer is only half full
 #define SLOWDOWN
@@ -855,11 +905,35 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
-// Include a page of printer information in the LCD Main Menu
-//#define LCD_INFO_MENU
-#if ENABLED(LCD_INFO_MENU)
-  //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
-#endif
+#if HAS_LCD_MENU
+
+  // Include a page of printer information in the LCD Main Menu
+  //#define LCD_INFO_MENU
+  #if ENABLED(LCD_INFO_MENU)
+    //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
+  #endif
+
+  // BACK menu items keep the highlight at the top
+  //#define TURBO_BACK_MENU_ITEM
+
+  /**
+   * LED Control Menu
+   * Add LED Control to the LCD menu
+   */
+  //#define LED_CONTROL_MENU
+  #if ENABLED(LED_CONTROL_MENU)
+    #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
+    #if ENABLED(LED_COLOR_PRESETS)
+      #define LED_USER_PRESET_RED        255  // User defined RED value
+      #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
+      #define LED_USER_PRESET_BLUE         0  // User defined BLUE value
+      #define LED_USER_PRESET_WHITE      255  // User defined WHITE value
+      #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
+      //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
+    #endif
+  #endif
+
+#endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
@@ -896,23 +970,6 @@
   #endif
 #endif
 
-/**
- * LED Control Menu
- * Enable this feature to add LED Control to the LCD menu
- */
-//#define LED_CONTROL_MENU
-#if ENABLED(LED_CONTROL_MENU)
-  #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
-  #if ENABLED(LED_COLOR_PRESETS)
-    #define LED_USER_PRESET_RED        255  // User defined RED value
-    #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
-    #define LED_USER_PRESET_BLUE         0  // User defined BLUE value
-    #define LED_USER_PRESET_WHITE      255  // User defined WHITE value
-    #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
-    //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
-  #endif
-#endif // LED_CONTROL_MENU
-
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
@@ -945,8 +1002,11 @@
    */
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
+    //#define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
+    //#define POWER_LOSS_ZRAISE       2 // (mm) Z axis raise on resume (on power loss with UPS)
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
+    //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
     //#define POWER_LOSS_PURGE_LEN   20 // (mm) Length of filament to purge on resume
     //#define POWER_LOSS_RETRACT_LEN 10 // (mm) Length of filament to retract on fail. Requires backup power.
 
@@ -1165,6 +1225,7 @@
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
+  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
 
   // Frivolous Game Options
   //#define MARLIN_BRICKOUT
@@ -1175,9 +1236,9 @@
 #endif // HAS_GRAPHICAL_LCD
 
 //
-// Lulzbot Touch UI
+// Touch UI for the FTDI Embedded Video Engine (EVE)
 //
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
   // Display board used
   //#define LCD_FTDI_VM800B35A        // FTDI 3.5" with FT800 (320x240)
   //#define LCD_4DSYSTEMS_4DLCD_FT843 // 4D Systems 4.3" (480x272)
@@ -1242,8 +1303,12 @@
   // Use a smaller font when labels don't fit buttons
   #define TOUCH_UI_FIT_TEXT
 
-  // Runtime language selection (otherwise LCD_LANGUAGE)
-  //#define TOUCH_UI_LANGUAGE_MENU
+  // Allow language selection from menu at run-time (otherwise use LCD_LANGUAGE)
+  //#define LCD_LANGUAGE_1 en
+  //#define LCD_LANGUAGE_2 fr
+  //#define LCD_LANGUAGE_3 de
+  //#define LCD_LANGUAGE_4 es
+  //#define LCD_LANGUAGE_5 it
 
   // Use a numeric passcode for "Screen lock" keypad.
   // (recommended for smaller displays)
@@ -2432,6 +2497,13 @@
 #define EXTENDED_CAPABILITIES_REPORT
 
 /**
+ * Expected Printer Check
+ * Add the M16 G-code to compare a string to the MACHINE_NAME.
+ * M16 with a non-matching string causes the printer to halt.
+ */
+//#define EXPECTED_PRINTER_CHECK
+
+/**
  * Disable all Volumetric extrusion options
  */
 //#define NO_VOLUMETRICS
@@ -2484,6 +2556,13 @@
 #ifdef G0_FEEDRATE
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
+
+/**
+ * Startup commands
+ *
+ * Execute certain G-code commands immediately after power-on.
+ */
+//#define STARTUP_COMMANDS "M17 Z"
 
 /**
  * G-code Macros

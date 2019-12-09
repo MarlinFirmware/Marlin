@@ -200,9 +200,9 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_UBL_1_BUILD_COLD_MESH           = _UxGT("1.Studená sieť bodov");
   PROGMEM Language_Str MSG_UBL_2_SMART_FILLIN              = _UxGT("2.Chytré vyplnenie");
   PROGMEM Language_Str MSG_UBL_3_VALIDATE_MESH_MENU        = _UxGT("3.Skontrolovať sieť");
-  PROGMEM Language_Str MSG_UBL_4_FINE_TUNE_ALL             = _UxGT("4.Точная настр. всего");
+  PROGMEM Language_Str MSG_UBL_4_FINE_TUNE_ALL             = _UxGT("4.Upraviť všetky");
   PROGMEM Language_Str MSG_UBL_5_VALIDATE_MESH_MENU        = _UxGT("5.Skontrolovať sieť");
-  PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6.Точная настр. всего");
+  PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6.Upraviť všetky");
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7.Uložiť sieť bodov");
 
   PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("Nastavenie LED");
@@ -325,9 +325,14 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Vynulovať");
   PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Zrušiť");
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Hotovo");
+  PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Naspäť");
+  PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Pokračovať");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pozastaviť tlač");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Obnoviť tlač");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Zastaviť tlač");
+  PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Tlačím objekt");
+  PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Zrušiť objekt");
+  PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Zrušiť objekt =");
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Obnova po výp. nap.");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Tlačiť z SD");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Žiadna SD karta");
