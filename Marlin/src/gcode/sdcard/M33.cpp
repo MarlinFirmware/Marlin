@@ -42,6 +42,7 @@
 void GcodeSuite::M33() {
 
   card.printLongPath(parser.string_arg);
+  SERIAL_EOL();
 
 }
 

@@ -32,7 +32,11 @@
  */
 void GcodeSuite::M20() {
   SERIAL_ECHOLNPGM(MSG_BEGIN_FILE_LIST);
-  card.ls();
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    card.ls(parser.boolval('L')); // output long filenames
+  #else
+    card.ls();
+  #endif
   SERIAL_ECHOLNPGM(MSG_END_FILE_LIST);
 }
 

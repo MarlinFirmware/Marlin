@@ -71,7 +71,11 @@ public:
   static void mount();
   static void release();
   static inline bool isMounted() { return flag.mounted; }
-  static void ls();
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    static void ls(const bool outputLongFilenames=false);
+  #else
+    static void ls();
+  #endif
 
   // SD Card Logging
   static void openLogFile(char * const path);
@@ -264,7 +268,11 @@ private:
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
-  static void printListing(SdFile parent, const char * const prepend=nullptr);
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    static void printListing(SdFile parent, const char * const prepend=nullptr, const bool outputLongFilenames=false);
+  #else
+    static void printListing(SdFile parent, const char * const prepend=nullptr);
+  #endif
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();

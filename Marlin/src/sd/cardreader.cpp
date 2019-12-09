@@ -219,7 +219,12 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
 //
 // Recursive method to list all files within a folder
 //
-void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/) {
+#if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+  void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/, const bool outputLongFilenames)
+#else
+  void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/)
+#endif
+{
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
@@ -249,13 +254,31 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPAIR(MSG_SD_CANT_OPEN_SUBDIR, dosFilename);
       }
-      printListing(child, path);
+#if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+        printListing(child, path, outputLongFilenames);
+#else
+        printListing(child, path);
+#endif
       // close() is done automatically by destructor of SdFile
     }
     else if (is_dir_or_gcode(p)) {
       createFilename(filename, p);
+#if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+      if (outputLongFilenames) {
+        const bool prepend_is_empty = (!prepend || prepend[0] == '\0');
+        const int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(filename) + 1 + 1;
+        char path[len];
+        strcpy(path, prepend_is_empty ? "/" : prepend);
+        strcat(path, filename);
+        printLongPath(path);
+      } else {
+        if (prepend) SERIAL_ECHO(prepend);
+        SERIAL_ECHO(filename);
+      }
+#else
       if (prepend) SERIAL_ECHO(prepend);
       SERIAL_ECHO(filename);
+#endif
       SERIAL_CHAR(' ');
       SERIAL_ECHOLN(p.fileSize);
     }
@@ -265,9 +288,17 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 //
 // List all files on the SD card
 //
-void CardReader::ls() {
+#if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+  void CardReader::ls(const bool outputLongFilenames) {
+#else
+  void CardReader::ls() {
+#endif
   root.rewind();
+#if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+  printListing(root, NULL, outputLongFilenames);
+#else
   printListing(root);
+#endif
 }
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -305,7 +336,7 @@ void CardReader::ls() {
 
       // Print /LongNamePart to serial output
       SERIAL_CHAR('/');
-      SERIAL_ECHO(longFilename[0] ? longFilename : "???");
+      SERIAL_ECHO(longFilename[0] ? longFilename : segment);
 
       // If the filename was printed then that's it
       if (!flag.filenameIsDir) break;
@@ -325,8 +356,6 @@ void CardReader::ls() {
       diveDir = dir;
 
     } // while i<pathLen
-
-    SERIAL_EOL();
   }
 
 #endif // LONG_FILENAME_HOST_SUPPORT
