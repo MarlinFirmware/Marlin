@@ -383,7 +383,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   void Sd2Card::ActivateHWCRC()
   {
     //0x1021 is the normal polynomial for CRC16-CCITT
-    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true);
+    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0, true);
   }
 
   void Sd2Card::DeactivateHWCRC()
