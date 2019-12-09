@@ -413,7 +413,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
 
       if (cardCommand(CMD17, blockNumber))
         error(SD_CARD_ERROR_CMD17);
-      else if (readData2(dst, 512))
+      else if (readData(dst, 512))
       {
         SERIAL_ECHOLN("Data1:");
         for (uint16_t b=0; b<512; b++) {
@@ -423,7 +423,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
         SERIAL_ECHOLN(" ");
 
         uint8_t dst2[512] = {0};
-        if (!cardCommand(CMD17, blockNumber) && readData(dst2, 512))
+        if (!cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
         {
           SERIAL_ECHOLN("Data2:");
           for (uint16_t b=0; b<512; b++) {
@@ -549,6 +549,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
+    spiSetCRC(BUS_OF_DEV(dev_num),0,0); //reinit the spi to see if the subsequent data is corrupted
     SERIAL_ECHOLN("Data ready (SW)");
     spiRead(BUS_OF_DEV(dev_num), dst, count); // Transfer data
     uint16_t crcExpected = CRC_CCITT(dst, count), crcReceived = ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num)));
@@ -582,11 +583,11 @@ bool Sd2Card::readData2(uint8_t* dst, const uint16_t count) {
 
   if (status_ == DATA_START_BLOCK) {
     SERIAL_ECHOLN("Data ready (HW)");
-    ActivateHWCRC();
-    spiRead(BUS_OF_DEV(dev_num), dst, count/2); // Transfer data
+    //ActivateHWCRC();
+    spiRead16(BUS_OF_DEV(dev_num), (uint16_t*)dst, count/2); // Transfer data
     //spiRead8(BUS_OF_DEV(dev_num), dst, count); // Transfer data
     success = (!crcSupported) || true; //!spiCRCError(BUS_OF_DEV(dev_num));  //If there's HW crc check on hardware
-    DeactivateHWCRC();                  //and disable it for next command.        
+    //DeactivateHWCRC();                  //and disable it for next command.        
     if (!success) error(SD_CARD_ERROR_READ_CRC);
   }
   else

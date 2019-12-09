@@ -108,9 +108,8 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
   if (LL_SPI_IsActiveFlag_TXE(Instance)) SERIAL_ECHO(" TXE");
   if (LL_SPI_IsActiveFlag_RXNE(Instance)) SERIAL_ECHO(" RXNE");
 
-  //SERIAL_ECHO("\n Last DATA=0x");
-  //SERIAL_PRINTLN(Instance->DR, HEX);
-  SERIAL_ECHOLN();
+  SERIAL_ECHO("\n Last DATA=0x");
+  SERIAL_PRINTLN(Instance->DR, HEX);
 
   if (crcEnabled)
   {
@@ -123,6 +122,9 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
 //#endif
 
 void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
+  HAL_SPI_Init(BUS_SPI_HANDLE(bus_num)); //just reinit the spi with the same parameters (no change)
+  return;
+
   #ifdef DUMP_SPI
     SERIAL_ECHO("SPI ");
     SERIAL_PRINT(bus_num, DEC);
@@ -207,9 +209,6 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   memset(buf, 0xff, count);
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
-
-  if ((BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation == SPI_CRCCALCULATION_ENABLE)
-    spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
 
 #ifdef DUMP_SPI
   for (uint16_t b=0; b<count && b<=DUMP_SPI; b++) {
@@ -360,9 +359,12 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   bool send = true;
   uint16_t wcnt = count/2, remT = wcnt, remR = wcnt;
 
-  SERIAL_ECHOLN("Clearing old CRC");
+  SERIAL_ECHOLN("Setting up CRC");
+  spiDumpRegisters(hspi);
   LL_SPI_Disable(hspi);
-  LL_SPI_DisableCRC(hspi);
+  //LL_SPI_DisableCRC(hspi);
+  LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
+  LL_SPI_SetCRCPolynomial(hspi, 0x1021);
   LL_SPI_EnableCRC(hspi);
   LL_SPI_Enable(hspi);
   spiDumpRegisters(hspi);
@@ -371,11 +373,11 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
       LL_SPI_TransmitData16(hspi, buf[wcnt - remT--]);
 
-      if (remT == 0) { //transmitted everything
+      /*if (remT == 0) { //transmitted everything
         SERIAL_ECHOLN("Sending CRC...");
         LL_SPI_SetCRCNext(hspi);
         spiDumpRegisters(hspi);
-      }
+      }*/
       send = false; //and wait
     }
 
@@ -393,12 +395,6 @@ void spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
   SERIAL_ECHOLN("Receive complete.");
   spiDumpRegisters(hspi);
-
-  if (LL_SPI_IsActiveFlag_OVR(hspi)) {
-    SERIAL_ECHOLN("Clearing OVR");
-    LL_SPI_ClearFlag_OVR(hspi);
-    spiDumpRegisters(hspi);
-  }
 }
 
 //Device functions
