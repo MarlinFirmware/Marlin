@@ -413,7 +413,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
 
       if (cardCommand(CMD17, blockNumber))
         error(SD_CARD_ERROR_CMD17);
-      else if (readData(dst, 512))
+      else if (readData2(dst, 512))
       {
         SERIAL_ECHOLN("Data1:");
         for (uint16_t b=0; b<512; b++) {
@@ -423,7 +423,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
         SERIAL_ECHOLN(" ");
 
         uint8_t dst2[512] = {0};
-        if (!cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
+        if (!cardCommand(CMD17, blockNumber) && readData(dst2, 512))
         {
           SERIAL_ECHOLN("Data2:");
           for (uint16_t b=0; b<512; b++) {
