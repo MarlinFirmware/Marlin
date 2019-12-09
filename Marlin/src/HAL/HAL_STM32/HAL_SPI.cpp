@@ -208,8 +208,11 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 
+  if ((BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation == SPI_CRCCALCULATION_ENABLE)
+    spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
+
 #ifdef DUMP_SPI
-  for (uint8_t b=0; b<count && b<=DUMP_SPI; b++) {
+  for (uint16_t b=0; b<count && b<=DUMP_SPI; b++) {
     SERIAL_PRINT(buf[b], HEX);
     SERIAL_ECHO(b==DUMP_SPI ? "...":" ");
   }
@@ -236,7 +239,7 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
   if (count == 0 || !spiInitialized(bus_num)) return;
 
 #ifdef DUMP_SPI
-  for (uint8_t b=0; b<count && b<=DUMP_SPI; b++) {
+  for (uint16_t b=0; b<count && b<=DUMP_SPI; b++) {
     SERIAL_PRINT(buf[b], HEX);
     SERIAL_ECHO(b==DUMP_SPI ? "...":" ");
   }

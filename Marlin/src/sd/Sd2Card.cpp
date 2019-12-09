@@ -383,7 +383,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
   void Sd2Card::ActivateHWCRC()
   {
     //0x1021 is the normal polynomial for CRC16-CCITT
-    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, false);
+    if (crcSupported) spiSetCRC(BUS_OF_DEV(dev_num), 0x1021, true);
   }
 
   void Sd2Card::DeactivateHWCRC()
@@ -583,8 +583,9 @@ bool Sd2Card::readData2(uint8_t* dst, const uint16_t count) {
   if (status_ == DATA_START_BLOCK) {
     SERIAL_ECHOLN("Data ready (HW)");
     ActivateHWCRC();
-    spiRead8(BUS_OF_DEV(dev_num), dst, count); // Transfer data
-    success = (!crcSupported) || !spiCRCError(BUS_OF_DEV(dev_num));  //If there's HW crc check on hardware
+    spiRead(BUS_OF_DEV(dev_num), dst, count/2); // Transfer data
+    //spiRead8(BUS_OF_DEV(dev_num), dst, count); // Transfer data
+    success = (!crcSupported) || true; //!spiCRCError(BUS_OF_DEV(dev_num));  //If there's HW crc check on hardware
     DeactivateHWCRC();                  //and disable it for next command.        
     if (!success) error(SD_CARD_ERROR_READ_CRC);
   }
