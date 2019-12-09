@@ -349,7 +349,7 @@ void spiRead8(uint8_t bus_num, uint8_t* buf, const uint16_t count) {
 }
 
 uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
-  if (count == 0 || !spiInitialized(bus_num)) return;
+  if (count == 0 || !spiInitialized(bus_num)) return 0;
 
   SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
 
