@@ -73,6 +73,7 @@
 // Author info of this build printed to the host during boot and M115
 #define STRING_CONFIG_H_AUTHOR "AJMartel"  // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
+#define WEBSITE_URL "http://3DFabXYZ.com"
 
 /**
  * *** VENDORS PLEASE READ ***

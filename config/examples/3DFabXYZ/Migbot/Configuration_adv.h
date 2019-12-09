@@ -327,11 +327,11 @@
  * The fan will turn on automatically whenever any stepper is enabled
  * and turn off after a set period after all steppers are turned off.
  */
-//#define USE_CONTROLLER_FAN
+#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
-  #define CONTROLLER_FAN_PIN 9              // Set a custom pin for the controller fan
+  #define CONTROLLER_FAN_PIN 7              // Set a custom pin for the controller fan
   #define CONTROLLERFAN_SECS 60             // Duration in seconds for the fan to run after all motors are disabled
-  #define CONTROLLERFAN_SPEED 255           // 255 == full speed
+  #define CONTROLLERFAN_SPEED 127           // 255 == full speed
   //#define CONTROLLERFAN_SPEED_Z_ONLY 127  // Reduce noise on machines that keep Z enabled
 #endif
 
@@ -2589,13 +2589,22 @@
  */
 #define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
-  #define CUSTOM_USER_MENU_TITLE "Test"
-  #define USER_SCRIPT_DONE "M117 Script Done"
+  #define CUSTOM_USER_MENU_TITLE "Tools"
+  #define USER_SCRIPT_DONE "M117 Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1 "Test Print"
-  #define USER_GCODE_1 "G28\nG29\nG26"
+  #define USER_DESC_1 "Probe Mesh&Save"
+  #define USER_GCODE_1 "G28\nG29 P1\nG29 P3 T0\nG29 S0 A F10\nG29 J2\nM500"
+
+  #define USER_DESC_2 "Manual Mesh&Save"
+  #define USER_GCODE_2 "G28\nG29 P4 R999 T\nG29 S0 A F10\nM500"
+
+  #define USER_DESC_3 "Print Test Pattern"
+  #define USER_GCODE_3 "G26 C P O2.25" //Do a typical test sequence
+
+  #define USER_DESC_4 "Move Bed Forward"
+  #define USER_GCODE_4 "G28 X0 Y0\nG1 X0 Y180 F3000\nM84" //move X/Y to min endstops & Feed the bed forward & steppers off
 
   /*
   #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
