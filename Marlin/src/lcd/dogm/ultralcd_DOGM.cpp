@@ -244,7 +244,7 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-
+#if DISABLED(MKS_LCD12864B)
   #if PIN_EXISTS(LCD_BACKLIGHT)
     OUT_WRITE(LCD_BACKLIGHT_PIN, (
       #if ENABLED(DELAYED_BACKLIGHT_INIT)
@@ -286,7 +286,7 @@ void MarlinUI::init_lcd() {
   #elif ENABLED(LCD_SCREEN_ROT_270)
     u8g.setRot270();
   #endif
-
+#endif
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
 
