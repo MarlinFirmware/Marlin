@@ -214,7 +214,10 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");  //accepted English term in Dutch
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Motorstroom");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");  //accepted English term in Dutch
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC Opslaan");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Hervat print");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT(" Nozzle: "); //accepeted English term
