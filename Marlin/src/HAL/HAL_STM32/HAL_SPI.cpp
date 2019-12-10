@@ -370,13 +370,15 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
-      LL_SPI_TransmitData16(hspi, buf[count - remT--]);
+      LL_SPI_TransmitData16(hspi, buf[count - remT]);
 
       /*if (remT == 0) { //transmitted everything
         SERIAL_ECHOLN("Sending CRC...");
         LL_SPI_SetCRCNext(hspi);
         spiDumpRegisters(hspi);
       }*/
+
+      remT--;
       send = false; //and wait
     }
 
