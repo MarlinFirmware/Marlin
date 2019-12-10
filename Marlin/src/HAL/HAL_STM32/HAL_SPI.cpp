@@ -121,35 +121,6 @@ void spiDumpRegisters(SPI_TypeDef* Instance) {
 }
 //#endif
 
-void spiSetCRC(uint8_t bus_num, uint32_t CRCPol, bool word) {
-  #ifdef DUMP_SPI
-    SERIAL_ECHO("SPI ");
-    SERIAL_PRINT(bus_num, DEC);
-    SERIAL_ECHO(" before: ");
-    spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
-  #endif
-
-  if (!spiInitialized(bus_num)) return;
-
-  (BUS_SPI_HANDLE(bus_num) -> Init).DataSize = word ? SPI_DATASIZE_16BIT : SPI_DATASIZE_8BIT;
-
-  if (CRCPol) {
-    (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_ENABLE;
-    (BUS_SPI_HANDLE(bus_num) -> Init).CRCPolynomial = CRCPol;
-  } else {
-    (BUS_SPI_HANDLE(bus_num) -> Init).CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  }
-
-  HAL_SPI_Init(BUS_SPI_HANDLE(bus_num));
-
-  #ifdef DUMP_SPI
-    SERIAL_ECHO("SPI ");
-    SERIAL_PRINT(bus_num, DEC);
-    SERIAL_ECHO(" after: ");
-    spiDumpRegisters(BUS_SPI_HANDLE(bus_num) -> Instance);
-  #endif
-}
-
 uint8_t spiRec(uint8_t bus_num) {
 #ifdef DUMP_SPI
   SERIAL_ECHO("R");
@@ -265,110 +236,26 @@ bool spiCRCError(uint8_t bus_num) {
   return (BUS_SPI_HANDLE(bus_num)->ErrorCode & HAL_SPI_ERROR_CRC) == HAL_SPI_ERROR_CRC;
 }
 
-//trace functions
-void spiWrite8(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
-  if (count == 0 || !spiInitialized(bus_num)) return;
+uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
+  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0;
+  digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
-  SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
+  SPI_TypeDef * hspi = BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)) -> Instance;
 
-  spiDumpRegisters(hspi);
-  SERIAL_ECHO("Sending ");
-  SERIAL_PRINT(count, DEC);
-  SERIAL_ECHOLN(" bytes");
-
-  SERIAL_ECHOLN("Clearing old CRC");
+  SERIAL_ECHOLN("Activating CRC"); //this call is necessary to avoid a spurious clock when disabling/enabling the spi
   LL_SPI_Disable(hspi);
-  LL_SPI_DisableCRC(hspi);
+  //TODO: configure other device parameters for transaction
+  LL_SPI_DisableCRC(hspi); //to clear CRC registers
+  LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
+  LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
   LL_SPI_EnableCRC(hspi);
   LL_SPI_Enable(hspi);
-  spiDumpRegisters(hspi);
 
-  SERIAL_ECHOLN("Loop:");
-  while (count > 0)
-    if (LL_SPI_IsActiveFlag_TXE(hspi))
-    {
-      spiDumpRegisters(hspi);
-      SERIAL_ECHO("Sending ");
-      SERIAL_PRINTLN(buf[0], HEX);
-      LL_SPI_TransmitData8(hspi, buf[0]);
-      buf += sizeof(uint8_t);
-      count--;
-    }
-  
-  SERIAL_ECHOLN("Send complete.");
-  spiDumpRegisters(hspi);
-  SERIAL_ECHOLN("Sending CRC...");
-  LL_SPI_SetCRCNext(hspi);
-  LL_SPI_ClearFlag_OVR(hspi);
-  SERIAL_ECHOLN("CRC sent.");
-  spiDumpRegisters(hspi);
-}
-void spiRead8(uint8_t bus_num, uint8_t* buf, const uint16_t count) {
-  if (count == 0 || !spiInitialized(bus_num)) return;
-
-  SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
-
-  bool send = true;
-  uint16_t wcnt = count, remT = wcnt, remR = wcnt;
-
-  SERIAL_ECHOLN("Clearing old CRC");
-  LL_SPI_Disable(hspi);
-  LL_SPI_DisableCRC(hspi);
-  LL_SPI_EnableCRC(hspi);
-  LL_SPI_Enable(hspi);
-  spiDumpRegisters(hspi);
-
-  while (remR > 0) {
-    if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
-      LL_SPI_TransmitData8(hspi, buf[wcnt - remT--]);
-
-      send = false; //and wait
-    }
-
-    if (LL_SPI_IsActiveFlag_RXNE(hspi)) { //if receive buffer is not empty
-      SERIAL_ECHO("Receiving idx");
-      SERIAL_PRINT(wcnt - remR, DEC);
-      buf[wcnt - remR] = LL_SPI_ReceiveData8(hspi);
-      SERIAL_ECHO(", value=");
-      SERIAL_PRINTLN(buf[wcnt - remR], HEX);
-      spiDumpRegisters(hspi);
-
-      remR--;
-      send = true; //and send next
-    }
-  }
-
-  SERIAL_ECHOLN("Receive complete.");
-  spiDumpRegisters(hspi);
-
-  if (LL_SPI_IsActiveFlag_OVR(hspi)) {
-    SERIAL_ECHOLN("Clearing OVR");
-    LL_SPI_ClearFlag_OVR(hspi);
-    spiDumpRegisters(hspi);
-  }
-}
-
-uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
-  if (count == 0 || !spiInitialized(bus_num)) return 0;
-
-  SPI_TypeDef * hspi = BUS_SPI_HANDLE(bus_num) -> Instance;
+  digitalWrite(CS_OF_DEV(dev_num), LOW);
+  spiDumpRegisters(hspi); SERIAL_FLUSH();
 
   bool send = true;
   uint16_t remT = count, remR = count;
-
-  /*SERIAL_ECHOLN("Activating CRC");
-  //this call is necessary to avoid a spurious clock when disabling/enabling the spi
-  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), HIGH); //this is temporary until the SD card calls will be by device and not by bus. by then the CS will already be high
-  LL_SPI_Disable(hspi);
-  LL_SPI_DisableCRC(hspi);
-  LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
-  LL_SPI_SetCRCPolynomial(hspi, 0x1021);
-  LL_SPI_EnableCRC(hspi);
-  LL_SPI_Enable(hspi);
-  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW);*/
-  SERIAL_ECHO("CS is ");
-  SERIAL_PRINTLN(digitalRead(CS_OF_DEV(0)), DEC);
-  spiDumpRegisters(hspi); SERIAL_FLUSH();
 
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
@@ -403,17 +290,21 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
   SERIAL_ECHOLN("Receive complete."); SERIAL_FLUSH();
   uint32_t calcCRC = LL_SPI_GetRxCRC(hspi);
-  SERIAL_ECHOLN("Deactivating CRC."); SERIAL_FLUSH();
 
-  digitalWrite(CS_OF_DEV(0), HIGH); //replace 0 with dev number
+  SERIAL_ECHOLN("Deactivating CRC."); SERIAL_FLUSH();
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
   LL_SPI_DisableCRC(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_8BIT);
   LL_SPI_Enable(hspi);
-  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW); //this is temporary until the SD card calls will be by device and not by bus. by then the CS will need to be left high
 
-  //deactivate CS
+  digitalWrite(CS_OF_DEV(dev_num), LOW); //this is temporary until all the SD card calls will be by device and not by bus. by then the CS will need to be left high
+
   return (uint16_t) calcCRC; //return HW-computed crc
+}
+
+void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
+  //TODO.
 }
 
 //Device functions

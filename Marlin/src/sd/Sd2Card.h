@@ -132,9 +132,6 @@ public:
   static bool anyInserted();
   static bool isInserted(const uint8_t dev_num);
 
-  void ActivateHWCRC();
-  void DeactivateHWCRC();
-
   bool readBlock(uint32_t block, uint8_t* dst);
 
   /**

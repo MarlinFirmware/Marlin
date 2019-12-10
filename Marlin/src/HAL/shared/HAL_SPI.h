@@ -129,12 +129,9 @@ uint8_t spiRec(uint8_t bus_num);
 
 // Read from SPI bus into buffer
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count);
-uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, uint16_t count); //debug function
-void spiRead8(uint8_t bus_num, uint8_t* buf, uint16_t count); //debug function
 
 // Write from buffer to SPI bus
 void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count);
-void spiWrite8(uint8_t bus_num, const uint8_t* buf, uint16_t count); //debug function
 
 // Returns true if there was a CRC error in reception
 bool spiCRCError(uint8_t bus_num);
@@ -142,6 +139,9 @@ bool spiCRCError(uint8_t bus_num);
 //
 // Calls directed to a device
 //
+
+uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count); //debug function
+void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count); //debug function
 
 // Write single byte to SPI device
 void spiSendDevice(uint8_t dev_num, uint8_t b);
