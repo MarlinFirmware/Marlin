@@ -159,6 +159,8 @@ public:
   bool writeStart(uint32_t blockNumber, const uint32_t eraseCount);
   bool writeStop();
 
+  bool waitNotBusy(const millis_t timeout_ms);
+
 private:
   uint8_t chipSelectPin_,
           errorCode_,
@@ -178,6 +180,5 @@ private:
   void chipDeselect();
   void chipSelect();
   inline void type(const uint8_t value) { type_ = value; }
-  bool waitNotBusy(const millis_t timeout_ms);
   bool writeData(const uint8_t token, const uint8_t* src);
 };

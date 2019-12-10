@@ -36,6 +36,7 @@
 void GcodeSuite::M23() {
   // Simplify3D includes the size, so zero out all spaces (#7227)
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
+
   card.openFile(parser.string_arg, true);
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)

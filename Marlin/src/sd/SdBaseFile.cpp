@@ -579,6 +579,8 @@ bool SdBaseFile::open(SdBaseFile* dirFile, const char* path, uint8_t oflag) {
 
   for (;;) {
     if (!make83Name(path, dname, &path)) return false;
+    SERIAL_ECHOLNPAIR("path=", path);
+    SERIAL_ECHOLNPAIR("  dname=", dname); SERIAL_EOL();
     while (*path == '/') path++;
     if (!*path) break;
     if (!sub->open(parent, dname, O_READ)) return false;
