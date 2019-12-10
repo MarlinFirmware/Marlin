@@ -157,12 +157,11 @@
 #define TRACE_SD          //to check which calls cause troubles
 
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
-// MOSI, MISO, SCK , Mode      , Bit order
+// MOSI, MISO, SCK , Mode (def), Bit order (default)
   {PB5 , PA6 , PA5 , SPI_MODE_0, SPI_MSB}, //BUS0: only connected to onboard SD
   {PB15, PB14, PB13, SPI_MODE_0, SPI_MSB}, //BUS1: on EXT2 port
   {PC12, PC11, PC10, SPI_MODE_0, SPI_MSB}  //BUS2: on SPI3 port (when not used by drivers)
 };
-
 
 #ifdef SD_DETECT_INVERTED
   #define ExtSDLV LOW
@@ -170,39 +169,40 @@ const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
   #define ExtSDLV HIGH
 #endif
 
-const int SPI_Devices[][7] = {
-// Device type      BUS  Phase    Bit     Selection Detect PIN Level when detected
-//                  NR.           Order   PIN        (SD only) (SD only)
-  {DEVTYPE_SD     ,   0,      NC,      NC,     PA4,      PB11, LOW    }, //NC = not change: it's the only device on bus, just use the default
-  {DEVTYPE_SD     ,   1, SPI_LTS, SPI_MSB,    PB12,      PF12, ExtSDLV},
-  {DEVTYPE_SD     ,   2, SPI_LTS, SPI_MSB,    PA15,        NC, NC     }, //optional external SD on SPI3
+const int SPI_Devices[][8] = {
+// Device type      BUS  Polarity Phase    Bit     Selection Detect PIN Level when detected
+//                  NR.                    Order   PIN        (SD only) (SD only)
+{DEVTYPE_SD     ,   0, SPI_PHI, SPI_STL, SPI_MSB,     PA4,      PB11, LOW    }, //this is how it should be configured because of R5, we'll see it later
+//  {DEVTYPE_SD     ,   0, SPI_PLO, SPI_LTS, SPI_MSB,     PA4,      PB11, LOW    }, 
+  {DEVTYPE_SD     ,   1, SPI_PLO, SPI_LTS, SPI_MSB,    PB12,      PF12, ExtSDLV},
+  {DEVTYPE_SD     ,   2, SPI_PLO, SPI_LTS, SPI_MSB,    PA15,        NC, NC     }, //optional external SD on SPI3
 #if HAS_SPI_LCD
-  {DEVTYPE_DISPLAY,   1, SPI_LTS, SPI_MSB,    PD11,        NC, NC     },
+  {DEVTYPE_DISPLAY,   1, SPI_PLO, SPI_LTS, SPI_MSB,    PD11,        NC, NC     },
 #endif
 //Drivers on this board are hard-wired.
 //Users can't change the CS so we disallow the user-redefinition of the CS_PIN
 
-// Device type      BUS  Phase    Bit     Selection Type,            Index (for type)
-//                  NR.           Order   PIN       (Driver only)    (Driver only)
-#if AXIS_HAS_SPI(X)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,    PA15, DRIVER_AXIS    , 0}, //Index 0 is X
+// Device type      BUS  Polarity Phase    Bit     Selection Type,            Index (for type)
+//                  NR.                    Order   PIN       (Driver only)    (Driver only)
+#if AXIS_HAS_SPI(X)         //NC = not change: use the default for the bus
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,      NC,    PA15, DRIVER_AXIS    , 0}, //Index 0 is X
 #endif
 #if AXIS_HAS_SPI(Y)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,     PB8, DRIVER_AXIS    , 1}, //Index 1 is Y
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,      NC,     PB8, DRIVER_AXIS    , 1}, //Index 1 is Y
 #endif
 #if AXIS_HAS_SPI(Z)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,     PB9, DRIVER_AXIS    , 2}, //Index 2 is Z
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,      NC,     PB9, DRIVER_AXIS    , 2}, //Index 2 is Z
 #endif
 #if AXIS_HAS_SPI(E0)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,     PB3, DRIVER_EXTRUDER, 0}, //E0
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,      NC,     PB3, DRIVER_EXTRUDER, 0}, //E0
 #endif
 #if AXIS_HAS_SPI(E1)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,    PG15, DRIVER_EXTRUDER, 1}, //E1
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,      NC,    PG15, DRIVER_EXTRUDER, 1}, //E1
 #endif
 #if AXIS_HAS_SPI(E2)
-  {DEVTYPE_DRIVER ,   2,      NC,      NC,    PG12, DRIVER_EXTRUDER, 2}, //E2
+  {DEVTYPE_DRIVER ,   2,      NC,      NC,      NC,    PG12, DRIVER_EXTRUDER, 2}, //E2
 #endif
-  {DEVTYPE_EEPROM ,   2,      NC,      NC,    PA15,              NC, NC} //optional external EEPROM on SPI3
+  {DEVTYPE_EEPROM ,   2,      NC,      NC,      NC,    PA15,              NC, NC} //optional external EEPROM on SPI3
 };
 
 #define NUM_SPI_DEVICES (sizeof(SPI_Devices) / sizeof(SPI_Devices[0])) //easier than defining it beforehand

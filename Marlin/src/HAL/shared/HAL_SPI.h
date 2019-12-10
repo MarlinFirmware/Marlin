@@ -52,8 +52,10 @@
 #define SPI_SPEED_5         5   // Set SCK rate to 250 - 312 kHz
 #define SPI_SPEED_6         6   // Set SCK rate to 125 - 156 kHz or lowest value possible for platform
 
-#define SPI_MSB     1   //MSB first
 #define SPI_LSB     0   //LSB first
+#define SPI_MSB     1   //MSB first
+#define SPI_PLO     0   //Low polarity
+#define SPI_PHI     1   //High polarity
 #define SPI_LTS     0   //Latch then shift
 #define SPI_STL     1   //Shift then latch
 
@@ -72,21 +74,22 @@
 #define SPIBUS_MOSI     0
 #define SPIBUS_MISO     1
 #define SPIBUS_CLCK     2
-#define SPIBUS_MODE     3 //default mode (calls to bus, not directed to a device)
-#define SPIBUS_BITO     4 //default bit order (calls to bus, not directed to a device)
+#define SPIBUS_MODE     3 //default mode (calls to bus, not directed to a device. Temporary for SD card, will be removed)
+#define SPIBUS_BITO     4 //default bit order (calls to bus, not directed to a device. Temporary for SD card, will be removed)
 
 //Common SPI device properties
 #define SPIDEV_TYPE     0 //device type
 #define SPIDEV_BUS      1 //attached to bus
-#define SPIDEV_PHAS     2 //phase
-#define SPIDEV_BITO     3 //bit order
-#define SPIDEV_CS       4 //selection
+#define SPIDEV_CPOL     2 //polarity
+#define SPIDEV_CPHA     3 //phase
+#define SPIDEV_BITO     4 //bit order
+#define SPIDEV_CS       5 //selection
 
 //SPI device properties (by type)
-#define SPIDEV_SW       5 //detection
-#define SPIDEV_DLV      6 //level when detected
-#define SPIDEV_DT       5 //driver type
-#define SPIDEV_DI       6 //driver index
+#define SPIDEV_SW       6 //detection
+#define SPIDEV_DLV      7 //level when detected
+#define SPIDEV_DT       6 //driver type
+#define SPIDEV_DI       7 //driver index
 
 //SPI Device Driver types
 #define DRIVER_AXIS     0
@@ -98,6 +101,10 @@
 
 #define BUS_OF_DEV(X)       SPI_Devices[X][SPIDEV_BUS]
 #define CS_OF_DEV(X)        SPI_Devices[X][SPIDEV_CS]
+#define CPOL_OF_DEV(X)      SPI_Devices[X][SPIDEV_CPOL]
+#define CPHA_OF_DEV(X)      SPI_Devices[X][SPIDEV_CPHA]
+#define BITO_OF_DEV(X)      SPI_Devices[X][SPIDEV_BITO]
+
 #define TYPE_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DT]
 #define AXIS_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DI]
 
@@ -132,9 +139,6 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count);
 
 // Write from buffer to SPI bus
 void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count);
-
-// Returns true if there was a CRC error in reception
-bool spiCRCError(uint8_t bus_num);
 
 //
 // Calls directed to a device
