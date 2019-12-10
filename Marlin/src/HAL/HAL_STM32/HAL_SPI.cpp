@@ -227,8 +227,8 @@ SPI_TypeDef* spiSetBus(uint8_t dev_num) {
   SPI_TypeDef* hspi = BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)) -> Instance;
   
   LL_SPI_Disable(hspi);
-  LL_SPI_SetClockPolarity(hspi, CPOL_OF_DEV(dev_num));
-  LL_SPI_SetClockPhase(hspi, CPHA_OF_DEV(dev_num));
+  LL_SPI_SetClockPolarity(hspi, CPOL_OF_DEV(dev_num) == SPI_PLO ? LL_SPI_POLARITY_LOW : LL_SPI_POLARITY_HIGH);
+  LL_SPI_SetClockPhase(hspi, CPHA_OF_DEV(dev_num) == SPI_LTS ? LL_SPI_PHASE_1EDGE : LL_SPI_PHASE_2EDGE);
   LL_SPI_SetTransferBitOrder(hspi, BITO_OF_DEV(dev_num) == SPI_LSB ?  LL_SPI_LSB_FIRST : LL_SPI_MSB_FIRST);
   //TODO: configure speed per device
 
