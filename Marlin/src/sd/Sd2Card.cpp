@@ -410,8 +410,9 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
         SERIAL_ECHOLN(" ");
 
         uint8_t dst2[512] = {0};
-        if (!cardCommand(CMD17, blockNumber) && readData2(dst2, 512))
+        if (!cardCommand(CMD17, blockNumber))
         {
+          readData2(dst2, 512);
           SERIAL_ECHOLN("Data2:");
           for (uint16_t b=0; b<512; b++) {
             SERIAL_ECHO(" ");
@@ -572,9 +573,9 @@ bool Sd2Card::readData2(uint8_t* dst, const uint16_t count) {
     uint16_t crcExpected = spiReadCRC16(dev_num, (uint16_t*)dst, count/2);
     uint16_t crcReceived = ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num)));
 
-    SERIAL_ECHO("CRC expected: ");
+    SERIAL_ECHO("CRC: expected=");
     SERIAL_PRINT(crcExpected, HEX);
-    SERIAL_ECHO("CRC received: ");
+    SERIAL_ECHO(" received=");
     SERIAL_PRINTLN(crcReceived, HEX);
 
     success = (!crcSupported) || (crcExpected==crcReceived);
