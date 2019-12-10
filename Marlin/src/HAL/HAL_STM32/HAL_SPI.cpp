@@ -257,7 +257,7 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
     }
 
     if (LL_SPI_IsActiveFlag_RXNE(hspi)) {               //if receive buffer is not empty
-      buf[count - remR--] = LL_SPI_ReceiveData16(hspi); //receive
+      buf[count - remR--] = __REV16(LL_SPI_ReceiveData16(hspi)); //receive
       send = true;                                      //and send next
     }
   }
