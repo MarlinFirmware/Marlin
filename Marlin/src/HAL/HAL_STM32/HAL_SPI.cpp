@@ -356,9 +356,9 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   bool send = true;
   uint16_t remT = count, remR = count;
 
-  /*SERIAL_ECHOLN("Setting up CRC");
-  spiDumpRegisters(hspi);
-  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), HIGH);
+  /*SERIAL_ECHOLN("Activating CRC");
+  //this call is necessary to avoid a spurious clock when disabling/enabling the spi
+  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), HIGH); //this is temporary until the SD card calls will be by device and not by bus. by then the CS will already be high
   LL_SPI_Disable(hspi);
   LL_SPI_DisableCRC(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
@@ -366,10 +366,17 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
   LL_SPI_EnableCRC(hspi);
   LL_SPI_Enable(hspi);
   if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW);*/
+  SERIAL_ECHO("CS is ");
+  SERIAL_PRINTLN(digitalRead(CS_OF_DEV(0)), DEC);
   spiDumpRegisters(hspi); SERIAL_FLUSH();
 
   while (remR > 0) {
     if (LL_SPI_IsActiveFlag_TXE(hspi) && send && remT > 0) { //if transmit buffer is empty and we need to send
+      SERIAL_ECHO("Transmitting w");
+      SERIAL_PRINT(count - remT, DEC);
+      SERIAL_ECHO("=");
+      SERIAL_PRINTLN(buf[count - remT], HEX); SERIAL_FLUSH();
+
       LL_SPI_TransmitData16(hspi, buf[count - remT]);
 
       /*if (remT == 0) { //transmitted everything
@@ -391,11 +398,22 @@ uint16_t spiRead16(uint8_t bus_num, uint16_t* buf, const uint16_t count) {
 
       remR--;
       send = true; //and send next
-    }
+    } else {SERIAL_ECHO("."); SERIAL_FLUSH();}
   }
 
   SERIAL_ECHOLN("Receive complete."); SERIAL_FLUSH();
-  return (uint16_t) LL_SPI_GetRxCRC(hspi); //return HW-computed crc
+  uint32_t calcCRC = LL_SPI_GetRxCRC(hspi);
+  SERIAL_ECHOLN("Deactivating CRC."); SERIAL_FLUSH();
+
+  digitalWrite(CS_OF_DEV(0), HIGH); //replace 0 with dev number
+  LL_SPI_Disable(hspi);
+  LL_SPI_DisableCRC(hspi);
+  LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_8BIT);
+  LL_SPI_Enable(hspi);
+  if (bus_num == 0) digitalWrite(CS_OF_DEV(0), LOW); //this is temporary until the SD card calls will be by device and not by bus. by then the CS will need to be left high
+
+  //deactivate CS
+  return (uint16_t) calcCRC; //return HW-computed crc
 }
 
 //Device functions
