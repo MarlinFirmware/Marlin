@@ -211,15 +211,16 @@
     #define SD_DETECT_PIN  P0_27
 
     #if ENABLED(MKS_12864OLED_SSD1306)
-        #define LCD_PINS_DC  P0_17
-	      #define DOGLCD_CS    P0_16
-        #define DOGLCD_A0    LCD_PINS_DC
-        #define DOGLCD_SCK   P0_15
-        #define DOGLCD_MOSI  P0_18
 
-	      #define LCD_PINS_RS  P1_00
-      	#define LCD_PINS_D7  P1_22
-	      #define KILL_PIN     -1 // NC
+      #define LCD_PINS_DC  P0_17
+      #define DOGLCD_CS    P0_16
+      #define DOGLCD_A0    LCD_PINS_DC
+      #define DOGLCD_SCK   P0_15
+      #define DOGLCD_MOSI  P0_18
+
+      #define LCD_PINS_RS  P1_00
+      #define LCD_PINS_D7  P1_22
+      #define KILL_PIN     -1 // NC
 
     #else
 
