@@ -21,11 +21,13 @@
  */
 #pragma once
 
+/**
+ * MKS Robin Lite 3 (STM32F103RCT6) board pin assignments
+ */
+
 #ifndef __STM32F1__
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
-
-#if HOTENDS > 2 || E_STEPPERS > 2
+#elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -38,7 +40,9 @@
 #define DISABLE_JTAG
 #define ENABLE_SPI2
 
-//Servo
+//
+// Servos
+//
 #define SERVO0_PIN         PA3
 
 //

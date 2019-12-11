@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin nano (STM32F130ZET6) board pin assignments
+ * MKS Robin pro (STM32F103ZET6) board pin assignments
  */
 
 #ifndef __STM32F1__
@@ -43,6 +43,7 @@
 //
 //#define SPI_MODULE 2
 #define ENABLE_SPI2
+
 //
 // Servos
 //
