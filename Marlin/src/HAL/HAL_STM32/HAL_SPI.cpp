@@ -275,7 +275,7 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
 }
 
 void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
-  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0;
+  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return;
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiSetBus(dev_num);

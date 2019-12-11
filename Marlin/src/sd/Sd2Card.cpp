@@ -101,7 +101,6 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
     *pa = (uint8_t *)(&arg),  //pointer to arguments
     d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] }; //Message: Command + Parameters + CRC(=0, set below)
 
-//  #ifndef SPI_HAS_HW_CRC
   // Set crc at end of message
   switch (cmd) {
     case CMD0: d[5] = 0x95; break; //with arg zero
@@ -112,7 +111,6 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
       #endif
       break;
   }
-//  #endif
 
   switch (cmd) {
     case CMD8  : reply = R7;  break; //R7  = R1 + voltage specifications (4 bytes) (R7 is read and parsed outside)
@@ -133,13 +131,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
       SERIAL_PRINTLN(cmd, DEC);
     #endif
 
-//    #ifdef SPI_HAS_HW_CRC
-//      spiSetCRC(BUS_OF_DEV(dev_num), 0x09, false); //enable CRC7 for command
-//      spiWrite8(BUS_OF_DEV(dev_num), d, 5); // Send message without crc
-//      spiSetCRC(BUS_OF_DEV(dev_num), 0, false); //disable CRC7 for response
-//    #else
-      spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message
-//    #endif
+    spiWrite(BUS_OF_DEV(dev_num), d, 6); // Send message
 
     // Specs: "Wait for response at most 16 clock cycles" (= 2 bytes)
     uint8_t i = 0;
@@ -547,8 +539,7 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
 
   const bool success = !cardCommand(CMD18, blockNumber);
-  if (!success)
-    error(SD_CARD_ERROR_CMD18);
+  if (!success) error(SD_CARD_ERROR_CMD18);
 
   chipDeselect();
   return success;

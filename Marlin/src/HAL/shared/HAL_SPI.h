@@ -144,20 +144,22 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count);
 // Calls directed to a device
 //
 
-uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count); //debug function
-void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count); //debug function
-
 // Write single byte to SPI device
 void spiSendDevice(uint8_t dev_num, uint8_t b);
-
 // Read single byte from SPI device
 uint8_t spiRecDevice(uint8_t dev_num);
 
 // Read from SPI device into buffer
 void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count);
+// Read from SPI device into buffer and return HW calculated CRC16 on data
+uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count);
+
+// Write from buffer to SPI bus and sends HW calculated CRC16 on data
+void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count);
 
 // Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint8_t dev_num, uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
+
 
 //
 // Extended SPI functions taking a channel number (Hardware SPI only)
