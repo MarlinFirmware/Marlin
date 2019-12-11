@@ -408,7 +408,10 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Макс. Т");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("БП");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Сила привода");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Привод %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Привод %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Привод %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Привод %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Привод %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Запись DAC EEPROM");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("ПЕЧАТЬ НА ПАУЗЕ");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("ЗАГРУЗКА ФИЛАМЕНТА");

@@ -223,7 +223,10 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Джерело жив.");
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Сила мотору");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("% мотору");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X % мотору");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y % мотору");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z % мотору");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E % мотору");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Запис ЦАП на ПЗП");
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Відновити друк");
