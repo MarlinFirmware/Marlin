@@ -141,7 +141,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Рух");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Волокно");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Діам. волок.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Діам. волок. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("контраст LCD");

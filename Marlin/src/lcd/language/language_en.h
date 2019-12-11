@@ -39,12 +39,6 @@ namespace Language_en {
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("English");
 
-  #ifdef NOT_EXTENDED_ISO10646_1_5X7
-    PROGMEM Language_Str MSG_CUBED                         = _UxGT("^3");
-  #else
-    PROGMEM Language_Str MSG_CUBED                         = _UxGT("³");
-  #endif
-
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Ready.");
   PROGMEM Language_Str MSG_YES                             = _UxGT("YES");
   PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
