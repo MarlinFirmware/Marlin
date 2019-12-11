@@ -1931,10 +1931,6 @@
 // https://reprap.org/wiki/MKS_MINI_12864
 //
 //#define MKS_MINI_12864
-#if ENABLED(MKS_MINI_12864)
-// if use MKS Robin Lite3 Board, you need enable MKS_LCD12864B and disable SHOW_BOOTSCREEN
-#define MKS_LCD12864B
-#endif
 
 //
 // FYSETC variant of the MINI12864 graphic controller with SD support
