@@ -71,6 +71,7 @@
 // ko_kr      Korean
 // nl         Dutch
 // pl         Polish
+// pl_utf8    Polish (UTF8)
 // pt         Portuguese
 // pt-br      Portuguese (Brazilian)
 // pt-br_utf8 Portuguese (Brazilian) (UTF8)
