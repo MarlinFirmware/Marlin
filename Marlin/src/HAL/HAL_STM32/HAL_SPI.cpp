@@ -289,7 +289,7 @@ void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
 
   while (remT > 0) 
     if (LL_SPI_IsActiveFlag_TXE(hspi))                  //if transmit buffer is empty
-      LL_SPI_TransmitData16(hspi, buf[count - remT--]); //send
+      LL_SPI_TransmitData16(hspi, __REV16(buf[count - remT--])); //send
 
   LL_SPI_SetCRCNext(hspi);
 
