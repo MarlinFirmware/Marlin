@@ -30,11 +30,12 @@
 
 #include "L6470_Marlin.h"
 
-L6470_Marlin L6470;
+L6470_Marlin l6470_marlin;
 
 #include "../../module/stepper/indirection.h"
 #include "../../module/planner.h"
 #include "../../gcode/gcode.h"
+#include "../../../src/HAL/shared/HAL_spi_L6470.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
@@ -138,8 +139,8 @@ void L6470_Marlin::init() {               // Set up SPI and then init chips
     OUT_WRITE(L6470_RESET_CHAIN_PIN, HIGH);
     delay(1);                     // need about 650uS for the chip to fully start up
   #endif
-  populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
-  L6470_spi_init();               // Set up L6470 soft SPI pins
+  l6470_marlin.populate_chain_array();   // Set up array to control where in the SPI transfer sequence a particular stepper's data goes
+  hal_spi_l6470.L6470_spi_init();               // Set up L6470 soft SPI pins
   init_to_defaults();             // init the chips
 }
 
@@ -433,7 +434,7 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
 
   DEBUG_ECHOPGM("Monitoring:");
   for (j = 0; j < driver_count; j++) DEBUG_ECHOPAIR("  ", axis_mon[j]);
-  L6470_EOL();
+  // L6470_EOL();
 
   // now have a list of driver(s) to monitor
 

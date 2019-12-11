@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
+#include "../../../src/HAL/shared/HAL_spi_L6470.h"
 
 #include <L6470.h>
 
@@ -29,7 +30,7 @@
 
 enum L6470_driver_enum : unsigned char { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5, MAX_L6470 };
 
-#define L6470_ERROR_MASK  (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)
+#define L6470_ERROR_MASK  (L6470::STATUS_UVLO | L6470::STATUS_TH_WRN | L6470::STATUS_TH_SD  | L6470::STATUS_OCD | L6470::STATUS_STEP_LOSS_A | L6470::STATUS_STEP_LOSS_B)
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
 
@@ -69,4 +70,4 @@ private:
   void populate_chain_array();
 };
 
-extern L6470_Marlin L6470;
+extern L6470_Marlin l6470_marlin;

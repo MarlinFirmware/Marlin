@@ -80,9 +80,9 @@
 #define _L6470_INIT_CHIP(Q) do{                             \
   stepper##Q.resetDev();                                    \
   stepper##Q.softFree();                                    \
-  stepper##Q.SetParam(L6470_CONFIG, CONFIG_PWM_DIV_1        \
+  stepper##Q.SetParam(L6470::L64XX_CONFIG, CONFIG_PWM_DIV_1 \
                                   | CONFIG_PWM_MUL_2        \
-                                  | CONFIG_SR_290V_us       \
+                                  | CONFIG_SR_260V_us       \
                                   | CONFIG_OC_SD_DISABLE    \
                                   | CONFIG_VS_COMP_DISABLE  \
                                   | CONFIG_SW_HARD_STOP     \

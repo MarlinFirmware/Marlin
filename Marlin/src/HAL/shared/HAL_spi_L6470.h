@@ -19,35 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * stepper/indirection.cpp
- *
- * Stepper motor driver indirection to allow some stepper functions to
- * be done via SPI/I2c instead of direct pin manipulation.
- *
- * Copyright (c) 2015 Dominik Wenger
- */
+class HAL_spi_L6470 {
+  public:
+    uint8_t L6470_SpiTransfer_Mode_0(uint8_t b);
+    uint8_t L6470_SpiTransfer_Mode_3(uint8_t b);
+    uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_position);
+    void L6470_transfer(uint8_t L6470_buf[], const uint8_t length);
+    void L6470_spi_init();
+  private:
+};
 
-#include "../../inc/MarlinConfig.h"
-#include "indirection.h"
-
-void restore_stepper_drivers() {
-  #if HAS_TRINAMIC
-    restore_trinamic_drivers();
-  #endif
-}
-
-void reset_stepper_drivers() {
-  #if HAS_DRIVER(TMC26X)
-    tmc26x_init_to_defaults();
-  #endif
-
-  #if HAS_DRIVER(L6470)
-    l6470_marlin.init_to_defaults();
-  #endif
-
-  #if HAS_TRINAMIC
-    reset_trinamic_drivers();
-  #endif
-}
+extern HAL_spi_L6470 hal_spi_l6470;

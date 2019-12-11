@@ -25,14 +25,19 @@
  * Copyright (c) 2009 by William Greiman
  */
 
-#include "../../inc/MarlinConfig.h"
 
+#include "../../inc/MarlinConfig.h"
 #if HAS_DRIVER(L6470)
 
-#include "Delay.h"
-
 #include "../../core/serial.h"
+#include "../../HAL/shared/Delay.h"
+
+#include "HAL_spi_L6470.h"
 #include "../../libs/L6470/L6470_Marlin.h"
+
+#include <string> 
+
+HAL_spi_L6470 hal_spi_l6470;
 
 // Make sure GCC optimizes this file.
 // Note that this line triggers a bug in GCC which is fixed by casting.
@@ -40,7 +45,7 @@
 #pragma GCC optimize (3)
 
 // run at ~4Mhz
-uint8_t L6470_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
+uint8_t HAL_spi_L6470::L6470_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
   for (uint8_t bits = 8; bits--;) {
     WRITE(L6470_CHAIN_MOSI_PIN, b & 0x80);
     b <<= 1;        // little setup time
@@ -56,7 +61,7 @@ uint8_t L6470_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
   return b;
 }
 
-uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
+uint8_t HAL_spi_L6470::L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
   for (uint8_t bits = 8; bits--;) {
     WRITE(L6470_CHAIN_SCK_PIN, LOW);
     WRITE(L6470_CHAIN_MOSI_PIN, b & 0x80);
@@ -79,28 +84,37 @@ uint8_t L6470_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
  * defined by the client (Marlin) to provide an SPI interface.
  */
 
-uint8_t L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_position) {
+uint8_t HAL_spi_L6470::L6470_transfer(uint8_t data, int16_t ss_pin, const uint8_t chain_position) {
+  DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
+
   uint8_t data_out = 0;
 
   // first device in chain has data sent last
   extDigitalWrite(ss_pin, LOW);
-
-  for (uint8_t i = L6470::chain[0]; (i >= 1) && !spi_abort; i--) {    // stop sending data if spi_abort is active
-    DISABLE_ISRS();  // disable interrupts during SPI transfer (can't allow partial command to chips)
+  
+  for (uint8_t i = L6470::chain[0]; (i >= 1) && !l6470_marlin.spi_abort; i--) {    // stop sending data if spi_abort is active
     uint8_t temp = L6470_SpiTransfer_Mode_3(uint8_t(i == chain_position ? data : dSPIN_NOP));
-    ENABLE_ISRS();  // enable interrupts
     if (i == chain_position) data_out = temp;
   }
 
+  // char buffer [10];
+  // itoa (data_out,buffer,16);   //10 == int, 16 == hex, 2 == bin
+  // SERIAL_ECHOPGM("0x");
+  // SERIAL_ECHOLN(buffer);
+
   extDigitalWrite(ss_pin, HIGH);
+
+  ENABLE_ISRS();  // enable interrupts
   return data_out;
 }
 
-void L6470_transfer(uint8_t L6470_buf[], const uint8_t length) {
+void HAL_spi_L6470::L6470_transfer(uint8_t L6470_buf[], const uint8_t length) {
   // first device in chain has data sent last
 
-  if (spi_active) {                    // interrupted SPI transfer so need to
-    WRITE(L6470_CHAIN_SS_PIN, HIGH);   // guarantee min high of 650nS
+  uint8_t data_out = 0;
+
+  if (l6470_marlin.spi_active) {                    // interrupted SPI transfer so need to
+    WRITE(L6470_CHAIN_SS_PIN, HIGH);                // guarantee min high of 650nS
     DELAY_US(1);
   }
 
@@ -110,7 +124,7 @@ void L6470_transfer(uint8_t L6470_buf[], const uint8_t length) {
   WRITE(L6470_CHAIN_SS_PIN, HIGH);
 }
 
-void L6470_spi_init() {
+void HAL_spi_L6470::L6470_spi_init() {
   OUT_WRITE(L6470_CHAIN_SS_PIN, HIGH);
   OUT_WRITE(L6470_CHAIN_SCK_PIN, HIGH);
   OUT_WRITE(L6470_CHAIN_MOSI_PIN, HIGH);

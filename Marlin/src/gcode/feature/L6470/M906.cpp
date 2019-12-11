@@ -83,7 +83,7 @@
  */
 
 void L6470_report_current(L6470 &motor, const uint8_t axis) {
-  if (L6470.spi_abort) return;  // don't do anything if set_directions() has occurred
+  if (l6470_marlin.spi_abort) return;  // don't do anything if set_directions() has occurred
   const uint16_t status = motor.getStatus() ;
   const uint8_t overcurrent_threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
                 stall_threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
@@ -93,7 +93,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   const float comp_coef = 1600.0f / adc_out_limited;
   const int microsteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
   char temp_buf[80];
-  L6470.say_axis(axis);
+  l6470_marlin.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
     DEBUG_ECHO(temp_buf);
@@ -122,7 +122,7 @@ void L6470_report_current(L6470 &motor, const uint8_t axis) {
   SERIAL_ECHOPAIR("...microsteps: ", microsteps);
   SERIAL_ECHOPAIR("   ADC_OUT: ", adc_out);
   SERIAL_ECHOPGM("   Vs_compensation: ");
-  serialprintPGM((motor.GetParam(L6470_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
+  serialprintPGM((motor.GetParam(L6470::L64XX_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
 
   SERIAL_ECHOLNPAIR("   Compensation coefficient: ", dtostrf(comp_coef * 0.01f, 7, 2, numstr));
   SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD));
@@ -234,7 +234,7 @@ void GcodeSuite::M906() {
   if (report_current) {
     #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
 
-    L6470.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+    l6470_marlin.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
 
     #if AXIS_DRIVER_TYPE_X(L6470)
       L6470_REPORT_CURRENT(X);
@@ -276,8 +276,8 @@ void GcodeSuite::M906() {
       L6470_REPORT_CURRENT(E5);
     #endif
 
-    L6470.spi_active = false;   // done with all SPI transfers - clear handshake flags
-    L6470.spi_abort = false;
+    l6470_marlin.spi_active = false;   // done with all SPI transfers - clear handshake flags
+    l6470_marlin.spi_abort = false;
   }
 }
 

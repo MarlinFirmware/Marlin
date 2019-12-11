@@ -601,7 +601,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
-    L6470.monitor_driver();
+    l6470_marlin.monitor_driver();
   #endif
 
   // Limit check_axes_activity frequency to 10Hz
@@ -820,7 +820,7 @@ void setup() {
   HAL_init();
 
   #if HAS_DRIVER(L6470)
-    L6470.init();         // setup SPI and then init chips
+    l6470_marlin.init();         // setup SPI and then init chips
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
