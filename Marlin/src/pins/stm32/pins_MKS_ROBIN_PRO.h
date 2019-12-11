@@ -195,42 +195,44 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-    #define ENABLE_SPI2
-    #define SD_DETECT_PIN      PG3
-    #define SCK_PIN            PB13
-    #define MISO_PIN           PB14
-    #define MOSI_PIN           PB15
-    #define SS_PIN             PG6
+  #define ENABLE_SPI2
+  #define SD_DETECT_PIN    PG3
+  #define SCK_PIN          PB13
+  #define MISO_PIN         PB14
+  #define MOSI_PIN         PB15
+  #define SS_PIN           PG6
 #elif SD_CONNECTION_IS(ONBOARD)
-    #define SDIO_SUPPORT
-    #define SD_DETECT_PIN      PD12
+  #define SDIO_SUPPORT
+  #define SD_DETECT_PIN    PD12
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
+
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
 #if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define FSMC_CS_PIN        PD7    // NE4
-  #define FSMC_RS_PIN        PD11   // A0
+  #define FSMC_CS_PIN      PD7    // NE4
+  #define FSMC_RS_PIN      PD11   // A0
 
-  #define LCD_RESET_PIN      PF6
+  #define LCD_RESET_PIN    PF6
   #define NO_LCD_REINIT             // Suppress LCD re-initialization
 
-  #define LCD_BACKLIGHT_PIN  PD13
+  #define LCD_BACKLIGHT_PIN PD13
 
   #if ENABLED(TOUCH_BUTTONS)
-    #define TOUCH_CS_PIN     PA7
+    #define TOUCH_CS_PIN   PA7
   #else
-    #define BEEPER_PIN       PC5
-    #define BTN_ENC          PG2
-    #define BTN_EN1          PG5
-    #define BTN_EN2          PG4
+    #define BEEPER_PIN     PC5
+    #define BTN_ENC        PG2
+    #define BTN_EN1        PG5
+    #define BTN_EN2        PG4
   #endif
+
 #elif HAS_SPI_LCD
-  //public Button
+
   #define BEEPER_PIN       PC5
   #define BTN_ENC          PG2
   #define LCD_PINS_ENABLE  PG0
@@ -238,8 +240,9 @@
   #define BTN_EN1          PG5
   #define BTN_EN2          PG4
 
-  //MKS MINI12864 and MKS LCD12864B; if use MKS LCD12864A(Need to remove RPK2 resistor)
+  // MKS MINI12864 and MKS LCD12864B. If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
+
     #define LCD_BACKLIGHT_PIN -1
     #define LCD_RESET_PIN  -1
     #define DOGLCD_A0      PF12
@@ -248,6 +251,7 @@
     #define DOGLCD_MOSI    PB15
 
   #else // !MKS_MINI_12864
+
     #define LCD_PINS_D4    PF14
     #if ENABLED(ULTIPANEL)
       #define LCD_PINS_D5  PF15
