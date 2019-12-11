@@ -24,25 +24,25 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && ENABLED(FLASH_EEPROM_EMULATION)
+#if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
 
 #include "../shared/persistent_store_api.h"
 
-/*
-  The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
-  even have multiple "banks" of flash.
-
-  This code is a bit of a mashup of
-    framework-arduinoststm32/cores/arduino/stm32/stm32_eeprom.c
-    hal/hal_lpc1768/persistent_store_flash.cpp
-
-  This has only be written against those that use a single "sector" design. Probably all the
-  STM32F4 chips, but I don't know. Expect the F42/43, those have to worry about banks too.
-
-  Those that deal with "pages" could be made to work. Looking at the STM32F07 for example, there are
-  128 "pages", each 2kB in size. If we continued with our EEPROM being 4Kb, we'd always need to operate
-  on 2 of these pages. Each write, we'd use 2 different pages from a pool of pages until we are done.
-*/
+/**
+ * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
+ * even have multiple "banks" of flash.
+ *
+ * This code is a bit of a mashup of
+ *   framework-arduinoststm32/cores/arduino/stm32/stm32_eeprom.c
+ *   hal/hal_lpc1768/persistent_store_flash.cpp
+ *
+ * This has only be written against those that use a single "sector" design. Probably all the
+ * STM32F4 chips, but I don't know. Expect the F42/43, those have to worry about banks too.
+ *
+ * Those that deal with "pages" could be made to work. Looking at the STM32F07 for example, there are
+ * 128 "pages", each 2kB in size. If we continued with our EEPROM being 4Kb, we'd always need to operate
+ * on 2 of these pages. Each write, we'd use 2 different pages from a pool of pages until we are done.
+ */
 #if ENABLED(FLASH_EEPROM_LEVELING) && (defined(STM32F407xx) || defined(STM32F446xx))
 
   #include "stm32_def.h"
@@ -91,7 +91,7 @@ static bool eeprom_data_written = false;
 
 bool PersistentStore::access_start() {
 
-  #if defined(FLASH_EEPROM_LEVELING)
+  #ifdef FLASH_EEPROM_LEVELING
 
     static_assert(true == IS_FLASH_SECTOR(FLASH_SECTOR), "FLASH_SECTOR is invalid");
     static_assert(0 == EEPROM_SIZE % 4, "EEPROM_SIZE must be a multiple of 4"); // Ensure copying as uint32_t is safe
@@ -136,7 +136,7 @@ bool PersistentStore::access_finish() {
 
   if (eeprom_data_written) {
 
-    #if defined(FLASH_EEPROM_LEVELING)
+    #ifdef FLASH_EEPROM_LEVELING
 
       HAL_StatusTypeDef status = HAL_ERROR;
       bool flash_unlocked = false;
@@ -211,7 +211,7 @@ bool PersistentStore::access_finish() {
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     uint8_t v = *value;
-    #if defined(FLASH_EEPROM_LEVELING)
+    #ifdef FLASH_EEPROM_LEVELING
       ram_eeprom[pos] = v;
     #else
       eeprom_buffered_write_byte(pos, v);
@@ -228,7 +228,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     const uint8_t c = (
-      #if defined(FLASH_EEPROM_LEVELING)
+      #ifdef FLASH_EEPROM_LEVELING
         ram_eeprom[pos]
       #else
         eeprom_buffered_read_byte(pos)
@@ -244,7 +244,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() {
   return (
-    #if defined(FLASH_EEPROM_LEVELING)
+    #ifdef FLASH_EEPROM_LEVELING
       EEPROM_SIZE
     #else
       E2END + 1
@@ -252,5 +252,5 @@ size_t PersistentStore::capacity() {
   );
 }
 
-#endif // ENABLED(EEPROM_SETTINGS) && ENABLED(FLASH_EEPROM_EMULATION)
+#endif // EEPROM_SETTINGS && FLASH_EEPROM_EMULATION
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
