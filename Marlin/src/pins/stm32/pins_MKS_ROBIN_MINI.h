@@ -46,15 +46,13 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PA15
-#define X_MAX_PIN          PA15
-#define Y_MIN_PIN          PA12
-#define Y_MAX_PIN          PA12
+#define X_STOP_PIN         PA15
+#define Y_STOP_PIN         PA12
 #define Z_MIN_PIN          PA11
 #define Z_MAX_PIN          PC4
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PF11  // MT_DET
+  #define FIL_RUNOUT_PIN   PA4  // MT_DET
 #endif
 
 //
@@ -119,13 +117,16 @@
   #define FSMC_CS_PIN      PD7    // NE4
   #define FSMC_RS_PIN      PD11   // A0
 
-  #define LCD_RESET_PIN    PF6
+  #define LCD_RESET_PIN    PC6
   #define NO_LCD_REINIT           // Suppress LCD re-initialization
 
   #define LCD_BACKLIGHT_PIN PD13
 
   #if ENABLED(TOUCH_BUTTONS)
     #define TOUCH_CS_PIN   PC2
+    #define TOUCH_SCK_PIN  PB13
+    #define TOUCH_MOSI_PIN PB15
+    #define TOUCH_MISO_PIN PB14
   #endif
 #endif
 
