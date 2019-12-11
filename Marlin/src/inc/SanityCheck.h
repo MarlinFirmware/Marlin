@@ -2081,6 +2081,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TMC2208 Software Serial is supported only on AVR, LPC1768, STM32F1 and STM32F4 platforms."
 #endif
 
+#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
+  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
   // is necessary in order to reset the stallGuard indication between the initial movement of all three
@@ -2235,10 +2239,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #undef CS_COMPARE
 #endif
 #undef IN_CHAIN
-
-#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
-  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
-#endif
 
 /**
  * Digipot requirement
