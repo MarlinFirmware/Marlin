@@ -240,10 +240,9 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiSetBus(dev_num);
-  LL_SPI_DisableCRC(hspi); //to clear CRC registers
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
-  LL_SPI_EnableCRC(hspi);
+  LL_SPI_EnableCRC(hspi); //to clear CRC registers
   LL_SPI_Enable(hspi);
   digitalWrite(CS_OF_DEV(dev_num), LOW); //leave after LL_SPI_Enable
 
@@ -276,7 +275,31 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
 }
 
 void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
-  //TODO.
+  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0;
+  digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
+
+  SPI_TypeDef * hspi = spiSetBus(dev_num);
+  LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
+  LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
+  LL_SPI_EnableCRC(hspi); //to clear CRC registers
+  LL_SPI_Enable(hspi);
+  digitalWrite(CS_OF_DEV(dev_num), LOW); //leave after LL_SPI_Enable
+
+  uint16_t remT = count;
+
+  while (remT > 0) 
+    if (LL_SPI_IsActiveFlag_TXE(hspi))                  //if transmit buffer is empty
+      LL_SPI_TransmitData16(hspi, buf[count - remT--]); //send
+
+  LL_SPI_SetCRCNext(hspi);
+
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
+  LL_SPI_Disable(hspi);
+  LL_SPI_DisableCRC(hspi);
+  LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_8BIT);
+  LL_SPI_Enable(hspi);
+
+  digitalWrite(CS_OF_DEV(dev_num), LOW); //this is temporary until all the SD card calls will be by device and not by bus. by then the CS will need to be left high
 }
 
 /**
