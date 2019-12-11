@@ -224,16 +224,17 @@
 
     #else // !MKS_12864OLED_SSD1306
 
-      #define LCD_PINS_RS    P0_16
+      #define LCD_PINS_RS  P0_16
 
       #define LCD_PINS_ENABLE P0_18
-      #define LCD_PINS_D4    P0_15
+      #define LCD_PINS_D4  P0_15
 
       #if ENABLED(FYSETC_MINI_12864)
-        #define DOGLCD_CS    P0_18
-        #define DOGLCD_A0    P0_16
-        #define DOGLCD_SCK   P0_07
-        #define DOGLCD_MOSI  P1_20
+
+        #define DOGLCD_CS  P0_18
+        #define DOGLCD_A0  P0_16
+        #define DOGLCD_SCK P0_07
+        #define DOGLCD_MOSI P1_20
 
         #define LCD_BACKLIGHT_PIN -1
 
