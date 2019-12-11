@@ -77,6 +77,12 @@
  *
  */
 
+#ifdef TARGET_LPC1768
+  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
+#elif defined(__STM32F1__)
+  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
+#endif
+
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega644' or 'ATmega644P' in 'Tools > Processor.'"
 #endif
