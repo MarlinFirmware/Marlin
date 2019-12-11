@@ -123,7 +123,7 @@
   #define FSMC_CS_PIN        PD7    // NE4
   #define FSMC_RS_PIN        PD11   // A0
 
-  #define LCD_RESET_PIN      PC6 //should be PC6
+  #define LCD_RESET_PIN      PC6
   #define NO_LCD_REINIT             // Suppress LCD re-initialization
 
   #define LCD_BACKLIGHT_PIN  PD13
