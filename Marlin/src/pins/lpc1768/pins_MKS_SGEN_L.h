@@ -222,7 +222,7 @@
       #define LCD_PINS_D7  P1_22
       #define KILL_PIN     -1 // NC
 
-    #else
+    #else // !MKS_12864OLED_SSD1306
 
       #define LCD_PINS_RS    P0_16
 
@@ -271,7 +271,7 @@
 
       #endif // !FYSETC_MINI_12864
 
-    #endif //MKS_12864OLED_SSD1306
+    #endif // !MKS_12864OLED_SSD1306
 
   #endif // !CR10_STOCKDISPLAY
 
