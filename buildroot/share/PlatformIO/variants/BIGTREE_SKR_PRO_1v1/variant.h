@@ -246,11 +246,11 @@ extern "C" {
 
 // Timer Definitions
 //Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
-#define TIMER_TONE              TIM6
+#define TIMER_TONE              TIM2
 #define TIMER_SERIAL            TIM7
 
 // Do not use basic timer: OC is required
-#define TIMER_SERVO             TIM2  //TODO: advanced-control timers don't work
+#define TIMER_SERVO             TIM6  //TODO: advanced-control timers don't work
 
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
