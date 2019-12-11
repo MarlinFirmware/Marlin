@@ -258,7 +258,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Движение");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Филамент");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Диаметр филамента");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Диаметр филамента *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Загрузка мм");
