@@ -20,6 +20,7 @@ exec_test $1 $2 "Default Configuration"
 #
 # Full size Rambo Dual Endstop CNC
 #
+restore_configs
 opt_set MOTHERBOARD BOARD_RAMBO
 opt_set EXTRUDERS 0
 opt_set TEMP_SENSOR_0 999
