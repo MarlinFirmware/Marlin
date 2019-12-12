@@ -2189,7 +2189,6 @@
 
 // @section extras
 
-
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
 
