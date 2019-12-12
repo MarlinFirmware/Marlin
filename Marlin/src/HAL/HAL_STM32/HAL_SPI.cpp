@@ -293,7 +293,7 @@ void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
 
   //LL_SPI_SetCRCNext(hspi);
   SERIAL_ECHO("HW CRC calculated: ");
-  SERIAL_PRINT(LL_SPI_GetRxCRC(hspi), HEX);
+  SERIAL_PRINT(LL_SPI_GetTxCRC(hspi), HEX);
 
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
