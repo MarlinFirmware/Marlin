@@ -291,7 +291,9 @@ void spiWriteCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
     if (LL_SPI_IsActiveFlag_TXE(hspi))                  //if transmit buffer is empty
       LL_SPI_TransmitData16(hspi, __REV16(buf[count - remT--])); //send
 
-  LL_SPI_SetCRCNext(hspi);
+  //LL_SPI_SetCRCNext(hspi);
+  SERIAL_ECHO("HW CRC calculated: ");
+  SERIAL_PRINT(LL_SPI_GetRxCRC(hspi), HEX);
 
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
