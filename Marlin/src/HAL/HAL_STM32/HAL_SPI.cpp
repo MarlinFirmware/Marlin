@@ -236,7 +236,7 @@ SPI_TypeDef* spiSetBus(uint8_t dev_num) {
 }
 
 uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
-  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0;
+  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiSetBus(dev_num);
@@ -274,8 +274,8 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   return (uint16_t)calcCRC; //return HW-computed crc
 }
 
-void spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
-  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return;
+uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
+  if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiSetBus(dev_num);
@@ -291,7 +291,8 @@ void spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
     if (LL_SPI_IsActiveFlag_TXE(hspi))                  //if transmit buffer is empty
       LL_SPI_TransmitData16(hspi, __REV16(buf[count - remT--])); //send
 
-  LL_SPI_SetCRCNext(hspi);
+  //LL_SPI_SetCRCNext(hspi);
+  uint32_t calcCRC = LL_SPI_GetTxCRC(hspi);             //get running CRC
 
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
@@ -300,6 +301,7 @@ void spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
   LL_SPI_Enable(hspi);
 
   digitalWrite(CS_OF_DEV(dev_num), LOW); //this is temporary until all the SD card calls will be by device and not by bus. by then the CS will need to be left high
+  return (uint16_t)calcCRC; //return HW-computed crc
 }
 
 /**

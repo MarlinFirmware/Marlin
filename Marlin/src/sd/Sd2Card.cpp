@@ -636,20 +636,21 @@ bool Sd2Card::writeData(const uint8_t* src) {
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiSend(BUS_OF_DEV(dev_num), token); //token isn't included in CRC
 
+  uint16_t crc =
 #if defined(SPI_HAS_HW_CRC) && ENABLED(SD_CHECK_AND_RETRY)
   spiWriteCRC16(dev_num, (uint16_t*)src, 256);
 #else
-  spiWrite(BUS_OF_DEV(dev_num), src, 512);
-  uint16_t crc =
     #if ENABLED(SD_CHECK_AND_RETRY)
       CRC_CCITT(src, 512)
     #else
       0xFFFF
     #endif
   ;
+  spiWrite(BUS_OF_DEV(dev_num), src, 512);
+#endif
+
   spiSend(BUS_OF_DEV(dev_num), crc >> 8);
   spiSend(BUS_OF_DEV(dev_num), crc & 0xFF);
-#endif
 
   status_ = spiRec(BUS_OF_DEV(dev_num));
   if ((status_ & DATA_RES_MASK) != DATA_RES_ACCEPTED) {
