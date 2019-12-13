@@ -4,7 +4,7 @@ This directory contains the default stock configuration examples for [Creality](
 ## Environments
 In addition to the environments in [platform.ini](../../../../platformio.ini) this folder offers in [printer.ini](../Creality/Ender-3/printer.ini) completed envs:
 
-  | Environment | Board<br/>Features |
+  | Environment | Board<br/>Config |
   | :-- | --: |
   | [env:__printer_creality_ender_3__] | Creality Melzi default stock board<br />with onboard A4988 steppers |
   | [env:printer_creality_ender_3_with_bigtreetech_skr_mini_e3_v1_0] | Bigtreetech Skr Mini E3 1.0 replacement board<br />with onboard TMC2209 steppers |
