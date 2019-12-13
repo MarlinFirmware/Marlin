@@ -35,7 +35,9 @@
 
 #include <stdint.h>
 
-#include "FlushableUsbSerial.h"
+#ifdef USBCON
+  #include <USBSerial.h>
+#endif
 
 // ------------------------
 // Defines
@@ -49,7 +51,7 @@
   #error "SERIAL_PORT must be from -1 to 6"
 #endif
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 flushableUsbSerial
+  #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 2
@@ -76,7 +78,7 @@
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 flushableUsbSerial
+    #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 2
