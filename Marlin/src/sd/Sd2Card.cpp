@@ -419,8 +419,7 @@ bool Sd2Card::readData(uint8_t* dst) {
   return readData(dst, 512);
 }
 
-#if ENABLED(SD_CHECK_AND_RETRY)
-// && !defined(SPI_HAS_HW_CRC)
+#if ENABLED(SD_CHECK_AND_RETRY) && !defined(SPI_HAS_HW_CRC)
   #ifdef FAST_CRC
     static const uint16_t crctab16[] PROGMEM = {
       0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
@@ -641,7 +640,6 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiWriteCRC16(dev_num, (uint16_t*)src, 256);
 #else
   spiWrite(BUS_OF_DEV(dev_num), src, 512);
-#endif
   uint16_t crc =
     #if ENABLED(SD_CHECK_AND_RETRY)
       CRC_CCITT(src, 512)
@@ -649,11 +647,9 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
       0xFFFF
     #endif
   ;
-  SERIAL_ECHO("SW CRC calculated: ");
-  SERIAL_PRINT(crc >> 8, HEX);
-  SERIAL_PRINTLN(crc & 0xFF, HEX);
   spiSend(BUS_OF_DEV(dev_num), crc >> 8);
   spiSend(BUS_OF_DEV(dev_num), crc & 0xFF);
+#endif
 
   status_ = spiRec(BUS_OF_DEV(dev_num));
   if ((status_ & DATA_RES_MASK) != DATA_RES_ACCEPTED) {

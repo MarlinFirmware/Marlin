@@ -279,13 +279,11 @@ void spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiSetBus(dev_num);
-  spiDumpRegisters(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
   LL_SPI_EnableCRC(hspi); //to clear CRC registers
   LL_SPI_Enable(hspi);
   digitalWrite(CS_OF_DEV(dev_num), LOW); //leave after LL_SPI_Enable
-  spiDumpRegisters(hspi);
 
   uint16_t remT = count;
 
@@ -293,10 +291,7 @@ void spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
     if (LL_SPI_IsActiveFlag_TXE(hspi))                  //if transmit buffer is empty
       LL_SPI_TransmitData16(hspi, __REV16(buf[count - remT--])); //send
 
-  //LL_SPI_SetCRCNext(hspi);
-  spiDumpRegisters(hspi);
-  SERIAL_ECHO("HW CRC calculated: ");
-  SERIAL_PRINTLN(LL_SPI_GetTxCRC(hspi), HEX);
+  LL_SPI_SetCRCNext(hspi);
 
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
