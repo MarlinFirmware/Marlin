@@ -418,6 +418,10 @@
   #error "LULZBOT_TOUCH_UI is now TOUCH_UI_FTDI_EVE. Please update your configuration."
 #elif defined(PS_DEFAULT_OFF)
   #error "PS_DEFAULT_OFF is now PSU_DEFAULT_OFF. Please update your configuration."
+#elif defined(FILAMENT_UNLOAD_RETRACT_LENGTH)
+  #error "FILAMENT_UNLOAD_RETRACT_LENGTH is now FILAMENT_UNLOAD_PURGE_RETRACT. Please update Configuration_adv.h."
+#elif defined(FILAMENT_UNLOAD_DELAY)
+  #error "FILAMENT_UNLOAD_DELAY is now FILAMENT_UNLOAD_PURGE_DELAY. Please update Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13        -1000
