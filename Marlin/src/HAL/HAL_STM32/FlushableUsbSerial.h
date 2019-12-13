@@ -28,7 +28,7 @@
 class FlushableUsbSerial : public USBSerial {
 public:
   FlushableUsbSerial();
-  inline void flushTX() { /* No need to flush the usb serial, but defined here for compatibility. */ }
+  inline void flushTX() { flush(); }
 };
 
 extern FlushableUsbSerial flushableUsbSerial;
