@@ -2821,13 +2821,11 @@ void Temperature::tick() {
         , H_CHAMBER
       );
     #endif // HAS_TEMP_CHAMBER
+
     #if ENABLED(INCLUDE_FAN_SPEEDS)
-      FANS_LOOP(f){
-        SERIAL_ECHO(" ");
-        SERIAL_ECHOPAIR("F",f);
-        SERIAL_ECHOPAIR(":", fan_speed[f]);
-      }    
-    #endif // INCLUDE FAN SPEEDS
+      FANS_LOOP(f) SERIAL_ECHOPAIR(" F", f, ":", fan_speed[f]);
+    #endif
+
     #if HOTENDS > 1
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
