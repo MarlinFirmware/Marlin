@@ -1,6 +1,7 @@
 # Creality Ender 3
 
 This directory contains the default stock configuration examples for [Creality](../Creality) [Ender 3](../Creality/Ender-3).
+
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
 
 ## Environments
