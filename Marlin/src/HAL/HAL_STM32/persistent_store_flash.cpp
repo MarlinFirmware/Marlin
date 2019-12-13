@@ -36,19 +36,22 @@
  *   framework-arduinoststm32/cores/arduino/stm32/stm32_eeprom.c
  *   hal/hal_lpc1768/persistent_store_flash.cpp
  *
- * This has only be written against those that use a single "sector" design. Probably all the
- * STM32F4 chips, but I don't know. Expect the F42/43, those have to worry about banks too.
+ * This has only be written against those that use a single "sector" design.
  *
  * Those that deal with "pages" could be made to work. Looking at the STM32F07 for example, there are
  * 128 "pages", each 2kB in size. If we continued with our EEPROM being 4Kb, we'd always need to operate
  * on 2 of these pages. Each write, we'd use 2 different pages from a pool of pages until we are done.
  */
-#if ENABLED(FLASH_EEPROM_LEVELING) && (defined(STM32F407xx) || defined(STM32F446xx))
+#if ENABLED(FLASH_EEPROM_LEVELING) && defined(STM32F4xx))
 
   #include "stm32_def.h"
 
-  #define DEBUG_OUT ENABLED(FLASH_DEBUG)
+  #define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
   #include "src/core/debug_out.h"
+
+  #ifndef EEPROM_SIZE
+    #define EEPROM_SIZE           0x1000    // 4kB, we could bump this up if we want to go crazy with ubl meshes
+  #endif
 
   #ifndef FLASH_SECTOR
     #define FLASH_SECTOR          (FLASH_SECTOR_TOTAL - 1)
@@ -56,19 +59,12 @@
   #ifndef FLASH_UNIT_SIZE
     #define FLASH_UNIT_SIZE       0x20000 // 128kB
   #endif
-  #ifndef FLASH_ADDRESS_START
-    #define FLASH_ADDRESS_START   0x080E0000
-  #endif
-  #ifndef EEPROM_SIZE
-    #define EEPROM_SIZE           0x1000    // 4kB, we could bump this up if we want to go crazy with ubl meshes
-  #endif
 
-  #define FLASH_ADDRESS_END       (FLASH_ADDRESS_START + FLASH_UNIT_SIZE)
+  #define FLASH_ADDRESS_START     (FLASH_END - ((FLASH_SECTOR_TOTAL - FLASH_SECTOR) * FLASH_UNIT_SIZE) + 1)
+  #define FLASH_ADDRESS_END       (FLASH_ADDRESS_START + FLASH_UNIT_SIZE  - 1)
+
   #define EEPROM_SLOTS            (FLASH_UNIT_SIZE/EEPROM_SIZE)
   #define SLOT_ADDRESS(slot)      (FLASH_ADDRESS_START + (slot * EEPROM_SIZE))
-
-  //#define DISABLE_IRQ()         prim = __get_PRIMASK();__disable_irq()
-  //#define ENABLE_IRQ()          if (!prim) __enable_irq()
 
   #define UNLOCK_FLASH()          if (!flash_unlocked) { \
                                     HAL_FLASH_Unlock(); \
@@ -82,7 +78,14 @@
   #define EMPTY_UINT8             ((uint8_t)-1)
 
   static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
-  static int current_slot = 0;
+  static int current_slot = -1;
+
+  static_assert(0 == EEPROM_SIZE % 4, "EEPROM_SIZE must be a multiple of 4"); // Ensure copying as uint32_t is safe
+  static_assert(0 == FLASH_UNIT_SIZE % EEPROM_SIZE, "EEPROM_SIZE must divide evenly into your FLASH_UNIT_SIZE");
+  static_assert(FLASH_UNIT_SIZE >= EEPROM_SIZE, "FLASH_UNIT_SIZE must be greater than or equal to your EEPROM_SIZE");
+  static_assert(IS_FLASH_SECTOR(FLASH_SECTOR), "FLASH_SECTOR is invalid");
+  static_assert(IS_POWER_OF_2(FLASH_UNIT_SIZE), "FLASH_UNIT_SIZE should be a power of 2, please check your chip's spec sheet");
+
 #else
   #undef FLASH_EEPROM_LEVELING
 #endif
@@ -93,37 +96,33 @@ bool PersistentStore::access_start() {
 
   #ifdef FLASH_EEPROM_LEVELING
 
-    static_assert(true == IS_FLASH_SECTOR(FLASH_SECTOR), "FLASH_SECTOR is invalid");
-    static_assert(0 == EEPROM_SIZE % 4, "EEPROM_SIZE must be a multiple of 4"); // Ensure copying as uint32_t is safe
-    static_assert(0 == (FLASH_UNIT_SIZE & (FLASH_UNIT_SIZE - 1)), "FLASH_UNIT_SIZE should be a power of 2, please check your chips spec sheet");
-    static_assert(0 == FLASH_UNIT_SIZE % EEPROM_SIZE, "EEPROM_SIZE must divide evenly into your FLASH_UNIT_SIZE");
-
-    current_slot = -1;
-
-    // Look to see if we have any data stored yet, and where
-    uint32_t address = FLASH_ADDRESS_START;
-    while (address < FLASH_ADDRESS_END) {
-      uint32_t address_value = (*(__IO uint32_t*)address);
-      if (address_value != EMPTY_UINT32) {
-        current_slot = (address - FLASH_ADDRESS_START) / EEPROM_SIZE;
-        break;
+    if (current_slot == -1 || eeprom_data_written) {
+      // This must be the first time since power on that we have accessed the storage, or someone
+      // loaded and called write_data and never called access_finish.
+      // Lets go looking for the slot that holds our configuration.
+      if (eeprom_data_written) DEBUG_ECHOLN("Dangling EEPROM write_data");
+      uint32_t address = FLASH_ADDRESS_START;
+      while (address <= FLASH_ADDRESS_END) {
+        uint32_t address_value = (*(__IO uint32_t*)address);
+        if (address_value != EMPTY_UINT32) {
+          current_slot = (address - FLASH_ADDRESS_START) / EEPROM_SIZE;
+          break;
+        }
+        address += sizeof(uint32_t);
       }
-      address += sizeof(uint32_t);
+      if (current_slot == -1) {
+        // We didn't find anything, so we'll just intialize to empty
+        for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EMPTY_UINT8;
+        current_slot = EEPROM_SLOTS;
+      }
+      else {
+        // load current settings
+        uint8_t *eeprom_data = (uint8_t *)SLOT_ADDRESS(current_slot);
+        for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
+        DEBUG_ECHOLNPAIR("EEPROM loaded from slot ", current_slot, ".");
+      }
+      eeprom_data_written = false;
     }
-
-    if (current_slot == -1) {
-      // we have no data yet, so we'll just intialize to empty
-      for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EMPTY_UINT8;
-      current_slot = EEPROM_SLOTS;
-    }
-    else {
-      // load current settings
-      uint8_t *eeprom_data = (uint8_t *)SLOT_ADDRESS(current_slot);
-      for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
-    }
-
-    DEBUG_ECHOLNPAIR("Slot=", current_slot);
-    eeprom_data_written = false;
 
   #else
     eeprom_buffer_fill();
@@ -174,10 +173,6 @@ bool PersistentStore::access_finish() {
 
       bool success = true;
 
-      DEBUG_ECHOLNPAIR("current_slot=", current_slot);
-      DEBUG_ECHOLNPAIR("address=", address);
-      DEBUG_ECHOLNPAIR("address_end=", address_end);
-
       while (address < address_end) {
         memcpy(&data, ram_eeprom + offset, sizeof(uint32_t));
         status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, data);
@@ -196,7 +191,11 @@ bool PersistentStore::access_finish() {
 
       LOCK_FLASH();
 
-      if (success) eeprom_data_written = false;
+      if (success) {
+        eeprom_data_written = false;
+        DEBUG_ECHOLNPAIR("EEPROM saved to slot ", current_slot, ".");
+      }
+
       return success;
 
     #else
@@ -212,15 +211,20 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   while (size--) {
     uint8_t v = *value;
     #ifdef FLASH_EEPROM_LEVELING
-      ram_eeprom[pos] = v;
+      if (v != ram_eeprom[pos]) {
+        ram_eeprom[pos] = v;
+        eeprom_data_written = true;
+      }
     #else
-      eeprom_buffered_write_byte(pos, v);
+      if (v != eeprom_buffered_read_byte(pos)) {
+        eeprom_buffered_write_byte(pos, v);
+        eeprom_data_written = true;
+      }
     #endif
     crc16(crc, &v, 1);
     pos++;
     value++;
   }
-  eeprom_data_written = true;
   return false;
 
 }
