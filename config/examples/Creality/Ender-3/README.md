@@ -6,9 +6,9 @@ In addition to the environments in [platform.ini](../../../../platformio.ini) th
 
   | Environment | Board<br/>Config |
   | :-- | --: |
-  | [env:__printer_creality_ender_3__](printer.ini#L1) | Creality Melzi default stock board<br />with onboard A4988 steppers |
-  | [env:printer_creality_ender_3_with_bigtreetech_skr_mini_e3_v1_0](printer.ini#L5) | Bigtreetech Skr Mini E3 1.0 replacement board<br />with onboard TMC2209 steppers |
-  | [env:printer_creality_ender_3_with_bigtreetech_skr_mini_e3_v1_2](printer.ini#L9) | Bigtreetech Skr Mini E3 1.2 replacement board<br />with onboard TMC2209 steppers |
+  | [[env:__printer_creality_ender_3__]](printer.ini#L1) | Creality Melzi default stock board<br />with onboard A4988 steppers |
+  | [[env:printer_creality_ender_3_with_bigtreetech_skr_mini_e3_v1_0]](printer.ini#L5) | Bigtreetech Skr Mini E3 1.0 replacement board<br />with onboard TMC2209 steppers |
+  | [[env:printer_creality_ender_3_with_bigtreetech_skr_mini_e3_v1_2]](printer.ini#L9) | Bigtreetech Skr Mini E3 1.2 replacement board<br />with onboard TMC2209 steppers |
 
 ## Configurations
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
