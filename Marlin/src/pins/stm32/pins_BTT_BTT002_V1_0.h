@@ -156,7 +156,7 @@
 #define FAN1_PIN           PB8   // Fan1
 
 // HAL SPI1 pins 
-#define BTT002_SPI_PIN
+#define BTT002_SPI1_PIN
 
 #if ENABLED(BTT002_SPI1_PIN)
 #define SCK_PIN            PA5   // SPI1 SCLK
