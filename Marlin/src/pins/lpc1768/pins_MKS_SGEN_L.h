@@ -283,18 +283,16 @@
 
 #define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
-#if SD_CONNECTION_IS(LCD)
+#if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_28
-#elif SD_CONNECTION_IS(ONBOARD)
-  #define SD_DETECT_PIN    P0_27
-  #define SCK_PIN          P0_07
-  #define MISO_PIN         P0_08
-  #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS_PIN
+  #if SD_CONNECTION_IS(ONBOARD)
+    #define SS_PIN         ONBOARD_SD_CS_PIN
+  #else
+    #define SS_PIN         P0_28
+  #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
