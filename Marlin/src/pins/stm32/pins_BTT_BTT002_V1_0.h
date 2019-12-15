@@ -150,20 +150,20 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PE6  // Heater0
+#define HEATER_0_PIN       PE6   // Heater0
 #define HEATER_BED_PIN     PE5   // Hotbed
 #define FAN_PIN            PB9   // Fan0
 #define FAN1_PIN           PB8   // Fan1
 
 // HAL SPI1 pins 
-#define BTT002_SPI1_PIN
-
-#if ENABLED(BTT002_SPI1_PIN)
-#define SCK_PIN            PA5   // SPI1 SCLK
-#define SS_PIN             PA4   // SPI1 SSEL
-#define MISO_PIN           PA6   // SPI1 MISO
-#define MOSI_PIN           PA7   // SPI1 MOSI
+#define CUSTOM_SPI_PINS
+#if ENABLED(CUSTOM_SPI_PINS)
+  #define SCK_PIN          PA5   // SPI1 SCLK
+  #define SS_PIN           PA4   // SPI1 SSEL
+  #define MISO_PIN         PA6   // SPI1 MISO
+  #define MOSI_PIN         PA7   // SPI1 MOSI
 #endif
+
 //
 // Misc. Functions
 //
