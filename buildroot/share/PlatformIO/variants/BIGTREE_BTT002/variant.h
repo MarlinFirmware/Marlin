@@ -208,7 +208,6 @@ extern "C" {
   #define PI7   (115+STM32F4X_ADC_NUM) //1:TIM8_CH3
 #endif
 
-
 // This must be a literal
 #define NUM_DIGITAL_PINS        (STM32F4X_GPIO_NUM)
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
