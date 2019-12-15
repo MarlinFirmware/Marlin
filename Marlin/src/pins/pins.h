@@ -493,6 +493,10 @@
   #include "stm32/pins_FYSETC_CHEETAH_V12.h"    // STM32F1                                env:STM32F103RC_fysetc
 #elif MB(LONGER3D_LK)
   #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:STM32F103VE_longer
+#elif MB(MKS_ROBIN_LITE3)
+  #include "stm32/pins_MKS_ROBIN_LITE3.h"       // STM32F1                                env:mks_robin_lite3
+#elif MB(MKS_ROBIN_PRO)
+  #include "stm32/pins_MKS_ROBIN_PRO.h"         // STM32F1                                env:mks_robin_pro
 
 //
 // ARM Cortex-M4F
@@ -531,7 +535,6 @@
   #include "stm32/pins_VAKE403D.h"              // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
   #include "stm32/pins_FYSETC_S6.h"             // STM32F4                                env:FYSETC_S6
-
 //
 // ARM Cortex M7
 //

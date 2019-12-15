@@ -38,6 +38,12 @@
 //
 #define DISABLE_DEBUG
 
+#define FLASH_EEPROM_EMULATION
+// 2K in a AT24C16N
+#define EEPROM_PAGE_SIZE	(uint16)0x800 // 2048
+#define EEPROM_START_ADDRESS	((uint32)(0x8000000 + 512 * 1024 - 2 * EEPROM_PAGE_SIZE))
+#define E2END (EEPROM_PAGE_SIZE - 1) 
+
 //
 // Note: MKS Robin mini board is using SPI2 interface.
 //
@@ -46,10 +52,8 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PA15
-#define X_MAX_PIN          PA15
-#define Y_MIN_PIN          PA12
-#define Y_MAX_PIN          PA12
+#define X_STOP_PIN         PA15
+#define Y_STOP_PIN         PA12
 #define Z_MIN_PIN          PA11
 #define Z_MAX_PIN          PC4
 
