@@ -19,7 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_ESP32)
+
+#ifdef ARDUINO_ARCH_ESP32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -40,21 +41,18 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  
   for (size_t i = 0; i < size; i++) {
-      EEPROM.write(pos, value[i]);
-      crc16(crc, &value[i], 1);
-      pos++;
+    EEPROM.write(pos++, value[i]);
+    crc16(crc, &value[i], 1);
   }
   return false;
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (size_t i = 0; i < size; i++) {
-    uint8_t c = EEPROM.read(pos);
+    uint8_t c = EEPROM.read(pos++);
     if (writing) value[i] = c;
     crc16(crc, &c, 1);
-    pos++;
   }
   return false;
 }

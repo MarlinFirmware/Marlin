@@ -22,11 +22,13 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" {
+  extern "C" {
 #endif
-esp_err_t esp_task_wdt_reset();
+
+    esp_err_t esp_task_wdt_reset();
+
 #ifdef __cplusplus
-}
+  }
 #endif
 
 // Initialize watchdog with a 4 second interrupt time
