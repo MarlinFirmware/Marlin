@@ -27,15 +27,15 @@
 
 #define XSTR_(M) #M
 #define XSTR(M) XSTR_(M)
-#ifdef CONFIGURATION
-  #define CONF_PATH(BASE,FILE) XSTR(BASE/../../config/CONFIGURATION/FILE)
+#ifdef CONFIG
+  #define CNF_PATH(BASE,FILE) XSTR(BASE/../../config/CONFIG/FILE)
 #else
-  #define CONF_PATH(BASE,FILE) XSTR(BASE/../FILE)
+  #define CNF_PATH(BASE,FILE) XSTR(BASE/../FILE)
 #endif
-#define CONFIGURATION_PATH = CONF_PATH(..,Configuration.h)
-#define CONFIGURATION_ADV_PATH = CONF_PATH(..,Configuration_adv.h)
-#define _BOOTSCREEN_PATH = #include CONF_PATH(../..,_Bootscreen.h)
-#define _STATUSSCREEN_PATH = #include CONF_PATH(../..,_Statusscreen.h)
+#define CONFIGURATION_PATH = CNF_PATH(..,Configuration.h)
+#define CONFIGURATION_ADV_PATH = CNF_PATH(..,Configuration_adv.h)
+#define _BOOTSCREEN_PATH = #include CNF_PATH(../..,_Bootscreen.h)
+#define _STATUSSCREEN_PATH = #include CNF_PATH(../..,_Statusscreen.h)
 
 //
 // Prefix header to acquire configurations
@@ -48,7 +48,7 @@
 #include "../core/macros.h"
 
 //#include CONFIGURATION_PATH
-#include CONF_PATH(..,Configuration.h)
+#include CNF_PATH(..,Configuration.h)
   
 #ifdef CUSTOM_VERSION_FILE
   #if defined(__has_include)
@@ -67,7 +67,7 @@
 
 #include "../core/drivers.h"
 //#include CONFIGURATION_ADV_PATH
-#include CONF_PATH(..,Configuration_adv.h)
+#include CNF_PATH(..,Configuration_adv.h)
 
 #include "Conditionals_adv.h"
 #include HAL_PATH(../HAL, inc/Conditionals_adv.h)
