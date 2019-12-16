@@ -649,16 +649,23 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiWrite(BUS_OF_DEV(dev_num), src, 512);
 #endif
 
+  SERIAL_ECHOLN("Sending CRC");
   spiSend(BUS_OF_DEV(dev_num), crc >> 8);
   spiSend(BUS_OF_DEV(dev_num), crc & 0xFF);
 
-  status_ = spiRec(BUS_OF_DEV(dev_num));
-  if ((status_ & DATA_RES_MASK) != DATA_RES_ACCEPTED) {
-    error(SD_CARD_ERROR_WRITE);
-    chipDeselect();
-    return false;
-  }
-  return true;
+  SERIAL_ECHOLN("Waiting for reply");
+  millis_t wait_timeout = millis() + SD_WRITE_TIMEOUT;
+  while ((status_ = spiRec(BUS_OF_DEV(dev_num))) == 0xFF) if (ELAPSED(millis(), wait_timeout)) goto error;
+
+  if ((status_ & DATA_RES_MASK) == DATA_RES_ACCEPTED)
+    return true;
+
+  SERIAL_ECHOLN("Wrong reply received");
+
+error:
+  error(SD_CARD_ERROR_WRITE);
+  chipDeselect();
+  return false;
 }
 
 /**
