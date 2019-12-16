@@ -3,9 +3,6 @@ In addition to the board and platform related environments in [platform.ini](../
 
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
 
-## Creality
-### Ender 3
-
   | Manufacturer<br />Printer series | Configuration<br />Environment | Motherboard<br />Description |
   | :---------- | :------------ | :---------- |
   | Creality<br />Ender 3 | [config/examples/Creality/Ender-3](Creality/Ender-3)<br />`printer_creality_ender_3` | [Creality](Creality) __[Melzi](../../Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h)__<br />default stock board<br />with onboard A4988 steppers |
