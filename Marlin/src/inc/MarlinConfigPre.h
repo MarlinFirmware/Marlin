@@ -32,7 +32,7 @@
 #else
   #define CONF_PATH(BASE,FILE) XSTR(BASE/../FILE)
 #endif
-#define CONFIGURATION_PATH = CONF_PATH(..,Configuration.h
+#define CONFIGURATION_PATH = CONF_PATH(..,Configuration.h)
 #define CONFIGURATION_ADV_PATH = CONF_PATH(..,Configuration_adv.h)
 #define _BOOTSCREEN_PATH = #include CONF_PATH(../..,_Bootscreen.h)
 #define _STATUSSCREEN_PATH = #include CONF_PATH(../..,_Statusscreen.h)
@@ -46,8 +46,10 @@
 
 #include "../core/boards.h"
 #include "../core/macros.h"
-#include CONFIGURATION_PATH
 
+//#include CONFIGURATION_PATH
+#include CONF_PATH(..,Configuration.h)
+  
 #ifdef CUSTOM_VERSION_FILE
   #if defined(__has_include)
     #if __has_include(XSTR(../../CUSTOM_VERSION_FILE))
@@ -64,7 +66,8 @@
 #include HAL_PATH(../HAL, inc/Conditionals_LCD.h)
 
 #include "../core/drivers.h"
-#include CONFIGURATION_ADV_PATH
+//#include CONFIGURATION_ADV_PATH
+#include CONF_PATH(..,Configuration_adv.h)
 
 #include "Conditionals_adv.h"
 #include HAL_PATH(../HAL, inc/Conditionals_adv.h)
