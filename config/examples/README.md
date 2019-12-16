@@ -3,8 +3,8 @@ In addition to the board and platform related environments in [platform.ini](../
 
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
 
-##### Creality
-###### Ender 3
+## Creality
+### Ender 3
 
   | Configuration<br />Environment | Motherboard<br />Description |
   | :---------- | :------------ |
