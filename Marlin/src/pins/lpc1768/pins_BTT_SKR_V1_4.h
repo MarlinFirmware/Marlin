@@ -24,18 +24,16 @@
 #define BOARD_INFO_NAME "BIGTREE SKR 1.4"
 
 //
-// SD Support
+// SD Connection
 //
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION LCD
 #endif
 
-#if SD_CONNECTION_IS(LCD)
-  #define SS_PIN           P0_16
-#endif
-
-// Include common SKR pins
-#include "pins_BTT_SKR.h"
+//
+// Servos
+//
+#define SERVO0_PIN         P2_00
 
 //
 // Limit Switches
@@ -43,11 +41,6 @@
 #define X_STOP_PIN         P1_29
 #define Y_STOP_PIN         P1_28
 #define Z_STOP_PIN         P1_27
-
-//
-// Servos
-//
-#define SERVO0_PIN         P2_00
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -70,7 +63,7 @@
 #endif
 
 //
-// Backup Power Supply
+// Power Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN   P1_00
@@ -107,9 +100,6 @@
   #define E0_CS_PIN        P1_04
 #endif
 
-#undef E1_STEP_PIN // undef pins defined in "pin_BTT_SKR.h"
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
 #define E1_STEP_PIN        P1_15
 #define E1_DIR_PIN         P1_14
 #define E1_ENABLE_PIN      P1_16
@@ -117,10 +107,13 @@
   #define E1_CS_PIN        P1_01
 #endif
 
-#undef TEMP_BED_PIN
-#undef TEMP_1_PIN
-#define TEMP_BED_PIN       P0_25_A2   // A0 (T0) - (67) - TEMP_BED_PIN
 #define TEMP_1_PIN         P0_23_A0   // A2 (T2) - (69) - TEMP_1_PIN
+#define TEMP_BED_PIN       P0_25_A2   // A0 (T0) - (67) - TEMP_BED_PIN
+
+//
+// Include common SKR pins
+//
+#include "pins_BTT_SKR.h"
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -179,6 +172,13 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
+#endif
+
+//
+// SD Connection
+//
+#if SD_CONNECTION_IS(LCD)
+  #define SS_PIN           P0_16
 #endif
 
 /**
@@ -264,7 +264,6 @@
 
 #endif // HAS_SPI_LCD
 
-
 /**
  * Special pins
  *   P1_30  (37) (NOT 5V tolerant)
@@ -272,5 +271,3 @@
  *   P0_27  (57) (Open collector)
  *   P0_28  (58) (Open collector)
  */
-
-
