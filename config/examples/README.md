@@ -6,6 +6,7 @@ If you want to start optimization, tuning and adoption, the following configurat
   | Manufacturer<br />Printer | Configuration<br />Environment | Description<br />Motherboard |
   | :------------------------ | :----------------------------- | :--------------------------- |
   | Creality<br />__CR-8__ | [config/examples/Creality/CR-8](Creality/CR-8)<br />`printer_creality_cr_8` | [Creality](Creality) __[Ramps](../../Marlin/src/pins/ramps/pins_RAMPS_ENDER_4.h)__ (w/ A4988)<br />`BOARD_RAMPS_ENDER_4` |
+  | Creality<br />__CR-10__ | [config/examples/Creality/CR-10](Creality/CR-10)<br />`N/A` | [Creality](Creality) __[Melzi](../../Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h)__ (w/ A4988)<br />`BOARD_MELZI_CREALITY` |
   | Creality<br />__CR-10S__ | [config/examples/Creality/CR-10S](Creality/CR-10S)<br />`N/A` | [Creality](Creality) __[Ramps](../../Marlin/src/pins/ramps/pins_BOARD_RAMPS_CREALITY.h)__ (w/ A4988)<br />`BOARD_RAMPS_CREALITY` |
   | Creality<br />__CR-10 S5__ | [config/examples/Creality/CR-10_5S](Creality/CR-10%5FS5)<br />`N/A` | [Creality](Creality) __[Ramps](../../Marlin/src/pins/ramps/pins_BOARD_RAMPS_CREALITY.h)__ (w/ A4988)<br />`BOARD_RAMPS_CREALITY` |
   | Creality<br />__CR-20__ | [config/examples/Creality/CR-20](Creality/CR-20)<br />`N/A` | [Creality](Creality) __[Ramps](../../Marlin/src/pins/ramps/pins_BOARD_RAMPS_14_EFB.h)__ (w/ A4988)<br />`BOARD__RAMPS_14_EFB` |
