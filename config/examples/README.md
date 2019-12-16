@@ -1,4 +1,4 @@
-# Predefined stock printer environments
+# Predefined printer environments
 In addition to the board and platform related environments in [platform.ini](../../platformio.ini) the file [printer.ini](printer.ini) defines final example environments picking up example configurations of the subfolders.
 
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
