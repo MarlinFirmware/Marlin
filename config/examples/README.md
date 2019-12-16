@@ -3,7 +3,7 @@ In addition to the board and platform related environments in [platform.ini](../
 
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
 
-  | Manufacturer<br />Printer | Configuration<br />Environment | <br />Motherboard |
+  | Manufacturer<br />Printer | Configuration<br />Environment | Description<br />Motherboard |
   | :------------------------ | :----------------------------- | :--------------------------- |
   | Creality<br />__Ender 2__ | [config/examples/Creality/Ender-2](Creality/Ender-2)<br />`printer_creality_ender_2` | [Creality](Creality) __[Melzi](../../Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h)__ (w/ A4988)<br />`BOARD_MELZI_CREALITY` |
   | Creality<br />__Ender 3__ | [config/examples/Creality/Ender-3](Creality/Ender-3)<br />`printer_creality_ender_3` | [Creality](Creality) __[Melzi](../../Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h)__ (w/ A4988)<br />`BOARD_MELZI_CREALITY` |
