@@ -1010,12 +1010,12 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
-#define INVERT_E2_DIR false
-#define INVERT_E3_DIR false
-#define INVERT_E4_DIR false
-#define INVERT_E5_DIR false
+#define INVERT_E0_DIR true
+#define INVERT_E1_DIR false  // unused, the A10 only has one extruder by default
+#define INVERT_E2_DIR false  // unused, the A10 only has one extruder by default
+#define INVERT_E3_DIR false  // unused, the A10 only has one extruder by default
+#define INVERT_E4_DIR false  // unused, the A10 only has one extruder by default
+#define INVERT_E5_DIR false  // unused, the A10 only has one extruder by default
 
 // @section homing
 
@@ -1946,7 +1946,7 @@
 
 //
 // AZSMZ 12864 LCD with SD
-// https://www.aliexpress.com/store/product/3D-printer-smart-controller-SMART-RAMPS-OR-RAMPS-1-4-LCD-12864-LCD-control-panel-green/2179173_32213636460.html
+// https://www.aliexpress.com/item/32837222770.html
 //
 //#define AZSMZ_12864
 
