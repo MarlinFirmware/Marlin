@@ -3,12 +3,10 @@ In addition to the board and platform related environments in [platform.ini](../
 
 If you want to start optimization, tuning and adoption, the following configurations are a good starting point.
 
-#### Creality
-...
+##### Creality
+###### Ender 3
 
-###### Creality<br>Ender 3
-
-  | Configuration<br />`Environment` | Motherboard<br />Description |
+  | Configuration<br />Environment | Motherboard<br />Description |
   | :---------- | :------------ |
   | [config/examples/Creality/Ender-3](Creality/Ender-3)<br />`printer_creality_ender_3` | [Creality](Creality) __[Melzi](../../Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h)__<br />default stock board<br />with onboard A4988 steppers |
   | [config/examples/SKR Mini E3 V1.0](BigTreeTech/SKR%20Mini%20E3%201.0)<br />`printer_creality_ender_3_with_skr_mini_e3_v1_0` | [Bigtreetech](BigTreeTech) __[SKR Mini E3 1.0](../../Marlin/src/pins/stm32/pins_BTT_SKR_MINI_E3_V1_0.h)__<br />replacement board<br />with onboard TMC2209 steppers |
