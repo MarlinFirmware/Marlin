@@ -153,9 +153,9 @@ uint8_t spiRecDevice(uint8_t dev_num);
 void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count);
 
 // Read from SPI device into buffer and return true if crc is OK
-bool spiReadCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count);
-// Write from buffer to SPI bus and sends HW calculated CRC16 on data
-void spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, uint16_t count);
+uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count);
+// Write from buffer to SPI bus and returns HW calculated CRC16 on data
+uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, uint16_t count);
 
 // Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint8_t dev_num, uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
