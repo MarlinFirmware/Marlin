@@ -74,6 +74,7 @@
 //
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN   P1_28
+  #define FIL_RUNOUT2_PIN  P1_26
 #endif
 
 //
