@@ -32,7 +32,6 @@
 
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
-//  #include _BOOTSCREEN_PATH
   #include CNF_PATH(../..,_Bootscreen.h)
   
   #ifndef CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH

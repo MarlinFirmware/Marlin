@@ -32,10 +32,6 @@
 #else
   #define CNF_PATH(BASE,FILE) XSTR(BASE/../FILE)
 #endif
-#define CONFIGURATION_PATH = CNF_PATH(..,Configuration.h)
-#define CONFIGURATION_ADV_PATH = CNF_PATH(..,Configuration_adv.h)
-#define _BOOTSCREEN_PATH = CNF_PATH(../..,_Bootscreen.h)
-#define _STATUSSCREEN_PATH = CNF_PATH(../..,_Statusscreen.h)
 
 //
 // Prefix header to acquire configurations
@@ -47,7 +43,6 @@
 #include "../core/boards.h"
 #include "../core/macros.h"
 
-//#include CONFIGURATION_PATH
 #include CNF_PATH(..,Configuration.h)
   
 #ifdef CUSTOM_VERSION_FILE
@@ -66,7 +61,6 @@
 #include HAL_PATH(../HAL, inc/Conditionals_LCD.h)
 
 #include "../core/drivers.h"
-//#include CONFIGURATION_ADV_PATH
 #include CNF_PATH(..,Configuration_adv.h)
 
 #include "Conditionals_adv.h"
