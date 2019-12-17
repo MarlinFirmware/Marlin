@@ -45,8 +45,10 @@
    *
    * See the included examples for guidance
    */
-  #include _STATUSSCREEN_PATH
 
+//  #include _STATUSSCREEN_PATH
+  #include CNF_PATH(../..,_Statusscreen.h)
+  
   #ifdef STATUS_SCREENWIDTH
     #error "Your custom _Statusscreen.h needs to be converted for Marlin 2.0."
   #endif

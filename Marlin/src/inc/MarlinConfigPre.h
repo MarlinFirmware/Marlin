@@ -34,8 +34,8 @@
 #endif
 #define CONFIGURATION_PATH = CNF_PATH(..,Configuration.h)
 #define CONFIGURATION_ADV_PATH = CNF_PATH(..,Configuration_adv.h)
-#define _BOOTSCREEN_PATH = #include CNF_PATH(../..,_Bootscreen.h)
-#define _STATUSSCREEN_PATH = #include CNF_PATH(../..,_Statusscreen.h)
+#define _BOOTSCREEN_PATH = CNF_PATH(../..,_Bootscreen.h)
+#define _STATUSSCREEN_PATH = CNF_PATH(../..,_Statusscreen.h)
 
 //
 // Prefix header to acquire configurations
