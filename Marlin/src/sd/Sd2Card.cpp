@@ -493,12 +493,19 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
+    uint16_t crcExpected;
+
     #ifdef SPI_HAS_HW_CRC
-      success = (!crcSupported) || spiReadCRC16(dev_num, (uint16_t*)dst, count/2);
+      crcExpected = spiReadCRC16(dev_num, (uint16_t*)dst, count/2);
     #else
       spiRead(BUS_OF_DEV(dev_num), dst, count);
-      success = (!crcSupported) || (CRC_CCITT(dst, count) == ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num)))); 
+      #if ENABLED(SD_CHECK_AND_RETRY)
+        if (crcSupported) crcExpected = CRC_CCITT(dst, count);
+      #endif
     #endif
+
+    uint16_t crcReceived = ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num))); //read bytes from bus anyway
+    success = (!crcSupported) || crcExpected == crcReceived;
 
     #if ENABLED(SD_CHECK_AND_RETRY)
       if (!success) error(SD_CARD_ERROR_READ_CRC);
@@ -634,28 +641,28 @@ bool Sd2Card::writeData(const uint8_t* src) {
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiSend(BUS_OF_DEV(dev_num), token); //token isn't included in CRC
 
+  uint16_t crc =
 #if defined(SPI_HAS_HW_CRC) && ENABLED(SD_CHECK_AND_RETRY)
   spiWriteCRC16(dev_num, (uint16_t*)src, 256);
 #else
   spiWrite(BUS_OF_DEV(dev_num), src, 512);
 
-  uint16_t crc =
     #if ENABLED(SD_CHECK_AND_RETRY)
       CRC_CCITT(src, 512)
     #else
       0xFFFF
     #endif
   ;
+#endif
 
   spiSend(BUS_OF_DEV(dev_num), crc >> 8);
   spiSend(BUS_OF_DEV(dev_num), crc & 0xFF);
-#endif
 
-  //wait for reply
+  //wait for reply. consider only bit 4-0
   millis_t wait_timeout = millis() + SD_WRITE_TIMEOUT;
-  while ((status_ = spiRec(BUS_OF_DEV(dev_num))) == 0xFF) if (ELAPSED(millis(), wait_timeout)) goto error;
+  while ((status_ = (spiRec(BUS_OF_DEV(dev_num)) & DATA_RES_MASK)) == DATA_RES_MASK) if (ELAPSED(millis(), wait_timeout)) goto error;
 
-  if ((status_ & DATA_RES_MASK) == DATA_RES_ACCEPTED)
+  if (status_ == DATA_RES_ACCEPTED)
     return true;
 
 error:
