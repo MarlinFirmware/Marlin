@@ -264,6 +264,12 @@
 
 #endif // HAS_SPI_LCD
 
+//
+// Neopixel LED
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN     P1_24
+#endif
 /**
  * Special pins
  *   P1_30  (37) (NOT 5V tolerant)
