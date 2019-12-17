@@ -119,7 +119,7 @@
 
 #define BOARD_CNCONTROLS_11           1300  // Cartesio CN Controls V11
 #define BOARD_CNCONTROLS_12           1301  // Cartesio CN Controls V12
-#define BOARD_CNCONTROLS_15           1302  // Cartesio CN Controls V15
+#define BOARD_CNCONTROLS_15M          1302  // Cartesio CN Controls V15 with MEGA
 #define BOARD_CHEAPTRONIC             1303  // Cheaptronic v1.0
 #define BOARD_CHEAPTRONIC_V2          1304  // Cheaptronic v2.0
 #define BOARD_MIGHTYBOARD_REVE        1305  // Makerbot Mightyboard Revision E
@@ -247,7 +247,7 @@
 #define BOARD_ARCHIM1                 3023  // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2                 3024  // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR               3025  // Alligator Board R2
-#define BOARD_CNCONTROLS_15D          3026  // Cartesio CN Controls V15 on DUE
+#define BOARD_CNCONTROLS_15D          3026  // Cartesio CN Controls V15 with Due
 
 //
 // SAM3X8C ARM Cortex M3
