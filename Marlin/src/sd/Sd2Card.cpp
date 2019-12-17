@@ -305,7 +305,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   watchdog_refresh(); // In case init takes too long
 
-  // CMD0: Command to go idle in SPI mode 
+  // CMD0: Command to go idle in SPI mode
   while (cardCommand(CMD0, 0) != R1_IDLE_STATE) {
     if (ELAPSED(millis(), init_timeout)) {
       error(SD_CARD_ERROR_CMD0);
@@ -367,7 +367,6 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   FAIL:
   chipDeselect();
-
   return false;
 }
 
@@ -455,8 +454,8 @@ bool Sd2Card::readData(uint8_t* dst) {
       0xEF1F, 0xFF3E, 0xCF5D, 0xDF7C, 0xAF9B, 0xBFBA, 0x8FD9, 0x9FF8,
       0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
     };
-      // faster CRC-CCITT
-      // uses the x^16,x^12,x^5,x^1 polynomial.
+    // faster CRC-CCITT
+    // uses the x^16,x^12,x^5,x^1 polynomial.
     static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
       uint16_t crc = 0;
       for (size_t i = 0; i < n; i++)
@@ -493,19 +492,19 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
   }
 
   if (status_ == DATA_START_BLOCK) {
-    uint16_t crcExpected;
+    uint16_t expCrc;
 
     #ifdef SPI_HAS_HW_CRC
-      crcExpected = spiReadCRC16(dev_num, (uint16_t*)dst, count/2);
+      expCrc = spiReadCRC16(dev_num, (uint16_t*)dst, count/2);
     #else
       spiRead(BUS_OF_DEV(dev_num), dst, count);
       #if ENABLED(SD_CHECK_AND_RETRY)
-        if (crcSupported) crcExpected = CRC_CCITT(dst, count);
+        expCrc = crcSupported ? CRC_CCITT(dst, count) : 0xFFFF;
       #endif
     #endif
 
-    uint16_t crcReceived = ((uint16_t)(spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num))); //read bytes from bus anyway
-    success = (!crcSupported) || crcExpected == crcReceived;
+    const uint16_t recvCrc = (spiRec(BUS_OF_DEV(dev_num)) << 8) | spiRec(BUS_OF_DEV(dev_num)); //read bytes from bus anyway
+    success = (!crcSupported) || expCrc == recvCrc;
 
     #if ENABLED(SD_CHECK_AND_RETRY)
       if (!success) error(SD_CARD_ERROR_READ_CRC);
@@ -545,7 +544,6 @@ bool Sd2Card::readStart(uint32_t blockNumber) {
 
   const bool success = !cardCommand(CMD18, blockNumber);
   if (!success) error(SD_CARD_ERROR_CMD18);
-
   chipDeselect();
   return success;
 }
@@ -573,10 +571,7 @@ bool Sd2Card::readStop() {
  */
 bool Sd2Card::setSckRate(const uint8_t sckRateID) {
   const bool success = (sckRateID <= 6);
-  if (success)
-    spiInit(BUS_OF_DEV(dev_num), sckRateID);
-  else
-    error(SD_CARD_ERROR_SCK_RATE);
+  if (success) spiInit(BUS_OF_DEV(dev_num), sckRateID); else error(SD_CARD_ERROR_SCK_RATE);
 
   return success;
 }
@@ -605,7 +600,7 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   bool success = false;
   if (!cardCommand(CMD24, blockNumber)) {
     if (writeData(DATA_START_BLOCK, src)) {
-      if (waitNotBusy(SD_WRITE_TIMEOUT)) {              // Wait for flashing to complete
+      if (waitNotBusy(SD_WRITE_TIMEOUT)) {                                 // Wait for flashing to complete
         success = !(cardCommand(CMD13, 0) || spiRec(BUS_OF_DEV(dev_num))); // Response is r2 so get and check two bytes for nonzero
         if (!success) error(SD_CARD_ERROR_WRITE_PROGRAMMING);
       }
@@ -645,14 +640,13 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
 #if defined(SPI_HAS_HW_CRC) && ENABLED(SD_CHECK_AND_RETRY)
   spiWriteCRC16(dev_num, (uint16_t*)src, 256);
 #else
-  spiWrite(BUS_OF_DEV(dev_num), src, 512);
-
-    #if ENABLED(SD_CHECK_AND_RETRY)
-      CRC_CCITT(src, 512)
-    #else
-      0xFFFF
-    #endif
+  #if ENABLED(SD_CHECK_AND_RETRY)
+    CRC_CCITT(src, 512)
+  #else
+    0xFFFF
+  #endif
   ;
+  spiWrite(BUS_OF_DEV(dev_num), src, 512);
 #endif
 
   spiSend(BUS_OF_DEV(dev_num), crc >> 8);
