@@ -65,6 +65,21 @@ void menu_user() {
   #if defined(USER_DESC_5) && defined(USER_GCODE_5)
     ACTION_ITEM_P(PSTR(USER_DESC_5), []{ _lcd_user_gcode(PSTR(USER_GCODE_5 _DONE_SCRIPT)); });
   #endif
+  #if defined(USER_DESC_6) && defined(USER_GCODE_6)
+    ACTION_ITEM_P(PSTR(USER_DESC_6), []{ _lcd_user_gcode(PSTR(USER_GCODE_6 _DONE_SCRIPT)); });
+  #endif
+  #if defined(USER_DESC_7) && defined(USER_GCODE_7)
+    ACTION_ITEM_P(PSTR(USER_DESC_7), []{ _lcd_user_gcode(PSTR(USER_GCODE_7 _DONE_SCRIPT)); });
+  #endif
+  #if defined(USER_DESC_8) && defined(USER_GCODE_8)
+    ACTION_ITEM_P(PSTR(USER_DESC_8), []{ _lcd_user_gcode(PSTR(USER_GCODE_8 _DONE_SCRIPT)); });
+  #endif
+  #if defined(USER_DESC_9) && defined(USER_GCODE_9)
+    ACTION_ITEM_P(PSTR(USER_DESC_9), []{ _lcd_user_gcode(PSTR(USER_GCODE_9 _DONE_SCRIPT)); });
+  #endif
+  #if defined(USER_DESC_10) && defined(USER_GCODE_10)
+    ACTION_ITEM_P(PSTR(USER_DESC_10), []{ _lcd_user_gcode(PSTR(USER_GCODE_10 _DONE_SCRIPT)); });
+  #endif
   END_MENU();
 }
 
