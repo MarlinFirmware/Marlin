@@ -128,6 +128,8 @@
 
   #elif ENABLED(ZONESTAR_LCD)     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
+    #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
+
     #define LCD_PINS_RS    PB9
     #define LCD_PINS_ENABLE PB6
     #define LCD_PINS_D4    PB8
