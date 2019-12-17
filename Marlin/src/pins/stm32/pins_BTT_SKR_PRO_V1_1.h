@@ -151,14 +151,9 @@
 #define NUM_SPI_BUSES 3   //number of SPI buses in the controller
 #define SPI_HAS_HW_CRC    //board supports hardware CRC
 
-//these are temporary and shouldn't be defined here
-#define SD_CHECK_AND_RETRY //or the above one can't be tested
-//#define DUMP_SPI 6        //dump at most 6 byte for each SPI call, to see what's going on in the bus
-#define TRACE_SD          //to check which calls cause troubles
-
 const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 // MOSI, MISO, SCK , Mode (def), Bit order (default)
-  {PB5 , PA6 , PA5 , SPI_MODE_0, SPI_MSB}, //BUS0: only connected to onboard SD
+  {PB5 , PA6 , PA5 , SPI_MODE_3, SPI_MSB}, //BUS0: only connected to onboard SD
   {PB15, PB14, PB13, SPI_MODE_0, SPI_MSB}, //BUS1: on EXT2 port
   {PC12, PC11, PC10, SPI_MODE_0, SPI_MSB}  //BUS2: on SPI3 port (when not used by drivers)
 };
@@ -172,7 +167,7 @@ const int SPI_BusConfig[NUM_SPI_BUSES][5] = {
 const int SPI_Devices[][8] = {
 // Device type      BUS  Polarity Phase    Bit     Selection Detect PIN Level when detected
 //                  NR.                    Order   PIN        (SD only) (SD only)
-  {DEVTYPE_SD     ,   0, SPI_PHI, SPI_LTS, SPI_MSB,     PA4,      PB11, LOW    },
+  {DEVTYPE_SD     ,   0, SPI_PHI, SPI_STL, SPI_MSB,     PA4,      PB11, LOW    },
   {DEVTYPE_SD     ,   1, SPI_PLO, SPI_LTS, SPI_MSB,    PB12,      PF12, ExtSDLV},
   {DEVTYPE_SD     ,   2, SPI_PLO, SPI_LTS, SPI_MSB,    PA15,        NC, NC     }, //optional external SD on SPI3
 #if HAS_SPI_LCD
