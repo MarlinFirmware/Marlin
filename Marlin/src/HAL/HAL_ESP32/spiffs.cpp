@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EITHER(WEBSUPPORT, EEPROM_SETTINGS)
+#if ENABLED(WEBSUPPORT)
 
 #include "../../core/serial.h"
 

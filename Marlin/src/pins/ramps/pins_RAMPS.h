@@ -593,7 +593,7 @@
         //#define LCD_SCREEN_ROT_270
 
         // not connected to a pin
-        #define LCD_BACKLIGHT_PIN 65   // backlight LED on A11/D65
+        #define LCD_BACKLIGHT_PIN -1  // 65 (MKS mini12864 can't adjust backlight by software!)
 
         #define BTN_EN1         31
         #define BTN_EN2         33
