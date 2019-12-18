@@ -69,13 +69,13 @@
 #define E0_ENABLE_PIN      PC4
 
 #if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
+  #ifndef TMC_SW_SCK
     #define TMC_SW_SCK     PB3
   #endif
   #ifndef TMC_SW_MISO
     #define TMC_SW_MISO    PB4
   #endif
-  #ifndef TMC_SW_SCK
+  #ifndef TMC_SW_MOSI
     #define TMC_SW_MOSI    PB5
   #endif
 #endif

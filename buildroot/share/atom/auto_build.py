@@ -142,8 +142,9 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
 
   root_get_answer = tk.Tk()
   root_get_answer.title('')
-  root_get_answer.withdraw()
-  root_get_answer.deiconify()
+  #root_get_answer.withdraw()
+  #root_get_answer.deiconify()
+  root_get_answer.attributes("-topmost", True)
 
   def disable_event():
     pass
@@ -609,9 +610,9 @@ def get_env(board_name, ver_Marlin):
         get_answer(board_name, 'RCT6 Flash Size?', '512K', '256K')
         if 1 == get_answer_val:
           target_env += '_512K'
-      get_answer(board_name, 'USB Support?', 'No USB', 'USB')
+      get_answer(board_name, 'USB Support?', 'USB', 'No USB')
       if 1 == get_answer_val:
-        target_env += '_NOUSB'
+        target_env += '_USB'
     else:
       invalid_board()
 

@@ -326,12 +326,12 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   inline void report_measured_center(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Center:");
     #if HAS_X_CENTER
-      SERIAL_ECHOLNPAIR(" X", m.obj_center.x);
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, m.obj_center.x);
     #endif
     #if HAS_Y_CENTER
-      SERIAL_ECHOLNPAIR(" Y", m.obj_center.y);
+      SERIAL_ECHOLNPAIR_P(SP_Y_STR, m.obj_center.y);
     #endif
-    SERIAL_ECHOLNPAIR(" Z", m.obj_center.z);
+    SERIAL_ECHOLNPAIR_P(SP_Z_STR, m.obj_center.z);
     SERIAL_EOL();
   }
 
@@ -358,12 +358,12 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_ECHO(int(active_extruder));
     SERIAL_ECHOLNPGM(" Positional Error:");
     #if HAS_X_CENTER
-      SERIAL_ECHOLNPAIR(" X", m.pos_error.x);
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, m.pos_error.x);
     #endif
     #if HAS_Y_CENTER
-      SERIAL_ECHOLNPAIR(" Y", m.pos_error.y);
+      SERIAL_ECHOLNPAIR_P(SP_Y_STR, m.pos_error.y);
     #endif
-    SERIAL_ECHOLNPAIR(" Z", m.pos_error.z);
+    SERIAL_ECHOLNPAIR_P(SP_Z_STR, m.pos_error.z);
     SERIAL_EOL();
   }
 
@@ -371,10 +371,10 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_ECHOLNPGM("Nozzle Tip Outer Dimensions:");
     #if HAS_X_CENTER || HAS_Y_CENTER
       #if HAS_X_CENTER
-        SERIAL_ECHOLNPAIR(" X", m.nozzle_outer_dimension.x);
+        SERIAL_ECHOLNPAIR_P(SP_X_STR, m.nozzle_outer_dimension.x);
       #endif
       #if HAS_Y_CENTER
-        SERIAL_ECHOLNPAIR(" Y", m.nozzle_outer_dimension.y);
+        SERIAL_ECHOLNPAIR_P(SP_Y_STR, m.nozzle_outer_dimension.y);
       #endif
     #else
       UNUSED(m);
@@ -388,7 +388,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     //
     inline void report_hotend_offsets() {
       for (uint8_t e = 1; e < HOTENDS; e++)
-        SERIAL_ECHOLNPAIR("T", int(e), " Hotend Offset X", hotend_offset[e].x, " Y", hotend_offset[e].y, " Z", hotend_offset[e].z);
+        SERIAL_ECHOLNPAIR_P(PSTR("T"), int(e), PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif
 

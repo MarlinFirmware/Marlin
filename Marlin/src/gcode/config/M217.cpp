@@ -27,18 +27,22 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
+#include "../../Marlin.h" // for SP_X_STR, etc.
+
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
+
 void M217_report(const bool eeprom=false) {
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
-    SERIAL_ECHOPAIR(" E", LINEAR_UNIT(toolchange_settings.extra_prime));
+    SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime));
     SERIAL_ECHOPAIR(" P", LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
 
     #if ENABLED(TOOLCHANGE_PARK)
-      SERIAL_ECHOPAIR(" X", LINEAR_UNIT(toolchange_settings.change_point.x));
-      SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(toolchange_settings.change_point.y));
+      SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
+      SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
 
   #else
@@ -47,7 +51,7 @@ void M217_report(const bool eeprom=false) {
 
   #endif
 
-  SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(toolchange_settings.z_raise));
+  SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
   SERIAL_EOL();
 }
 
