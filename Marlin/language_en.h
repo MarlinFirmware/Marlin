@@ -112,42 +112,207 @@
 #ifndef MSG_SET_ORIGIN
   #define MSG_SET_ORIGIN                      _UxGT("Set origin")
 #endif
-#ifndef MSG_PREHEAT_1
-  #define MSG_PREHEAT_1                       _UxGT("Preheat PLA")
-#endif
-#ifndef MSG_PREHEAT_1_N
-  #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
-#endif
-#ifndef MSG_PREHEAT_1_ALL
-  #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
-#endif
-#ifndef MSG_PREHEAT_1_END
-  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
-#endif
-#ifndef MSG_PREHEAT_1_BEDONLY
-  #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
-#endif
-#ifndef MSG_PREHEAT_1_SETTINGS
-  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" conf")
-#endif
-#ifndef MSG_PREHEAT_2
-  #define MSG_PREHEAT_2                       _UxGT("Preheat ABS")
-#endif
-#ifndef MSG_PREHEAT_2_N
-  #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
-#endif
-#ifndef MSG_PREHEAT_2_ALL
-  #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
-#endif
-#ifndef MSG_PREHEAT_2_END
-  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
-#endif
-#ifndef MSG_PREHEAT_2_BEDONLY
-  #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
-#endif
-#ifndef MSG_PREHEAT_2_SETTINGS
-  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
-#endif
+#if PREHEAT_MATERIAL_COUNT>0
+  #ifndef MSG_PREHEAT_1
+    #define MSG_PREHEAT_1                       _UxGT("Preheat ")  PREHEAT_1_NAME
+  #endif
+  #ifndef MSG_PREHEAT_1_N
+    #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_1_ALL
+    #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_1_END
+    #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_1_BEDONLY
+    #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_1_SETTINGS
+    #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" conf")
+  #endif
+  #if PREHEAT_MATERIAL_COUNT>1
+  #ifndef MSG_PREHEAT_2
+    #define MSG_PREHEAT_2                       _UxGT("Preheat ") PREHEAT_2_NAME
+  #endif
+  #ifndef MSG_PREHEAT_2_N
+    #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_2_ALL
+    #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_2_END
+    #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_2_BEDONLY
+    #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_2_SETTINGS
+    #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>2
+  #ifndef MSG_PREHEAT_3
+    #define MSG_PREHEAT_3                       _UxGT("Preheat ")  PREHEAT_3_NAME
+  #endif
+  #ifndef MSG_PREHEAT_3_N
+    #define MSG_PREHEAT_3_N                     MSG_PREHEAT_3 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_3_ALL
+    #define MSG_PREHEAT_3_ALL                   MSG_PREHEAT_3 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_3_END
+    #define MSG_PREHEAT_3_END                   MSG_PREHEAT_3 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_3_BEDONLY
+    #define MSG_PREHEAT_3_BEDONLY               MSG_PREHEAT_3 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_3_SETTINGS
+    #define MSG_PREHEAT_3_SETTINGS              MSG_PREHEAT_3 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>3
+  #ifndef MSG_PREHEAT_4
+    #define MSG_PREHEAT_4                       _UxGT("Preheat ")  PREHEAT_4_NAME
+  #endif
+  #ifndef MSG_PREHEAT_4_N
+    #define MSG_PREHEAT_4_N                     MSG_PREHEAT_4 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_4_ALL
+    #define MSG_PREHEAT_4_ALL                   MSG_PREHEAT_4 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_4_END
+    #define MSG_PREHEAT_4_END                   MSG_PREHEAT_4 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_4_BEDONLY
+    #define MSG_PREHEAT_4_BEDONLY               MSG_PREHEAT_4 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_4_SETTINGS
+    #define MSG_PREHEAT_4_SETTINGS              MSG_PREHEAT_4 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>4
+  #ifndef MSG_PREHEAT_5
+    #define MSG_PREHEAT_5                       _UxGT("Preheat ")  PREHEAT_5_NAME
+  #endif
+  #ifndef MSG_PREHEAT_5_N
+    #define MSG_PREHEAT_5_N                     MSG_PREHEAT_5 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_5_ALL
+    #define MSG_PREHEAT_5_ALL                   MSG_PREHEAT_5 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_5_END
+    #define MSG_PREHEAT_5_END                   MSG_PREHEAT_5 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_5_BEDONLY
+    #define MSG_PREHEAT_5_BEDONLY               MSG_PREHEAT_5 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_5_SETTINGS
+    #define MSG_PREHEAT_5_SETTINGS              MSG_PREHEAT_5 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>5
+  #ifndef MSG_PREHEAT_6
+    #define MSG_PREHEAT_6                       _UxGT("Preheat ") PREHEAT_6_NAME
+  #endif
+  #ifndef MSG_PREHEAT_6_N
+    #define MSG_PREHEAT_6_N                     MSG_PREHEAT_6 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_6_ALL
+    #define MSG_PREHEAT_6_ALL                   MSG_PREHEAT_6 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_6_END
+    #define MSG_PREHEAT_6_END                   MSG_PREHEAT_6 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_6_BEDONLY
+    #define MSG_PREHEAT_6_BEDONLY               MSG_PREHEAT_6 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_6_SETTINGS
+    #define MSG_PREHEAT_6_SETTINGS              MSG_PREHEAT_6 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>6
+  #ifndef MSG_PREHEAT_7
+    #define MSG_PREHEAT_7                       _UxGT("Preheat ")  PREHEAT_7_NAME
+  #endif
+  #ifndef MSG_PREHEAT_7_N
+    #define MSG_PREHEAT_7_N                     MSG_PREHEAT_7 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_7_ALL
+    #define MSG_PREHEAT_7_ALL                   MSG_PREHEAT_7 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_7_END
+    #define MSG_PREHEAT_7_END                   MSG_PREHEAT_7 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_7_BEDONLY
+    #define MSG_PREHEAT_7_BEDONLY               MSG_PREHEAT_7 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_7_SETTINGS
+    #define MSG_PREHEAT_7_SETTINGS              MSG_PREHEAT_7 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>7
+  #ifndef MSG_PREHEAT_8
+    #define MSG_PREHEAT_8                       _UxGT("Preheat ")  PREHEAT_8_NAME
+  #endif
+  #ifndef MSG_PREHEAT_8_N
+    #define MSG_PREHEAT_8_N                     MSG_PREHEAT_8 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_8_ALL
+    #define MSG_PREHEAT_8_ALL                   MSG_PREHEAT_8 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_8_END
+    #define MSG_PREHEAT_8_END                   MSG_PREHEAT_8 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_8_BEDONLY
+    #define MSG_PREHEAT_8_BEDONLY               MSG_PREHEAT_8 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_8_SETTINGS
+    #define MSG_PREHEAT_8_SETTINGS              MSG_PREHEAT_8 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>8
+  #ifndef MSG_PREHEAT_9
+    #define MSG_PREHEAT_9                       _UxGT("Preheat ")  PREHEAT_9_NAME
+  #endif
+  #ifndef MSG_PREHEAT_9_N
+    #define MSG_PREHEAT_9_N                     MSG_PREHEAT_9 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_9_ALL
+    #define MSG_PREHEAT_9_ALL                   MSG_PREHEAT_9 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_9_END
+    #define MSG_PREHEAT_9_END                   MSG_PREHEAT_9 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_9_BEDONLY
+    #define MSG_PREHEAT_9_BEDONLY               MSG_PREHEAT_9 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_9_SETTINGS
+    #define MSG_PREHEAT_9_SETTINGS              MSG_PREHEAT_9 _UxGT(" conf")
+  #endif
+#if PREHEAT_MATERIAL_COUNT>9
+  #ifndef MSG_PREHEAT_10
+    #define MSG_PREHEAT_10                       _UxGT("Preheat ")  PREHEAT_10_NAME
+  #endif
+  #ifndef MSG_PREHEAT_10_N
+    #define MSG_PREHEAT_10_N                     MSG_PREHEAT_10 _UxGT(" ")
+  #endif
+  #ifndef MSG_PREHEAT_10_ALL
+    #define MSG_PREHEAT_10_ALL                   MSG_PREHEAT_10 _UxGT(" All")
+  #endif
+  #ifndef MSG_PREHEAT_10_END
+    #define MSG_PREHEAT_10_END                   MSG_PREHEAT_10 _UxGT(" End")
+  #endif
+  #ifndef MSG_PREHEAT_10_BEDONLY
+    #define MSG_PREHEAT_10_BEDONLY               MSG_PREHEAT_10 _UxGT(" Bed")
+  #endif
+  #ifndef MSG_PREHEAT_10_SETTINGS
+    #define MSG_PREHEAT_10_SETTINGS              MSG_PREHEAT_10 _UxGT(" conf")
+  #endif
+#endif //COUNT>9
+#endif //COUNT>8
+#endif //COUNT>7
+#endif //COUNT>6
+#endif //COUNT>5
+#endif //COUNT>4
+#endif //COUNT>3
+#endif //COUNT>2
+#endif //COUNT>1
+#endif //COUNT>0
+
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
 #endif
@@ -247,11 +412,35 @@
 #ifndef MSG_UBL_BUILD_MESH_MENU
   #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Build Mesh")
 #endif
-#ifndef MSG_UBL_BUILD_PLA_MESH
-  #define MSG_UBL_BUILD_PLA_MESH              _UxGT("Build PLA Mesh")
+#ifndef MSG_UBL_BUILD_MESH_1
+  #define MSG_UBL_BUILD_MESH_1              _UxGT("Build Mesh") PREHEAT_1_NAME
 #endif
-#ifndef MSG_UBL_BUILD_ABS_MESH
-  #define MSG_UBL_BUILD_ABS_MESH              _UxGT("Build ABS Mesh")
+#ifndef MSG_UBL_BUILD_MESH_2
+  #define MSG_UBL_BUILD_MESH_2              _UxGT("Build Mesh") PREHEAT_2_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_3
+  #define MSG_UBL_BUILD_MESH_3              _UxGT("Build Mesh") PREHEAT_3_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_4
+  #define MSG_UBL_BUILD_MESH_4              _UxGT("Build Mesh") PREHEAT_4_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_5
+  #define MSG_UBL_BUILD_MESH_5              _UxGT("Build Mesh") PREHEAT_5_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_6
+  #define MSG_UBL_BUILD_MESH_6              _UxGT("Build Mesh") PREHEAT_6_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_7
+  #define MSG_UBL_BUILD_MESH_7              _UxGT("Build Mesh") PREHEAT_7_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_8
+  #define MSG_UBL_BUILD_MESH_8              _UxGT("Build Mesh") PREHEAT_8_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_9
+  #define MSG_UBL_BUILD_MESH_9              _UxGT("Build Mesh") PREHEAT_9_NAME
+#endif
+#ifndef MSG_UBL_BUILD_MESH_10
+  #define MSG_UBL_BUILD_MESH_10              _UxGT("Build Mesh") PREHEAT_10_NAME
 #endif
 #ifndef MSG_UBL_BUILD_COLD_MESH
   #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Build Cold Mesh")
@@ -265,11 +454,35 @@
 #ifndef MSG_UBL_VALIDATE_MESH_MENU
   #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Validate Mesh")
 #endif
-#ifndef MSG_UBL_VALIDATE_PLA_MESH
-  #define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("Validate PLA Mesh")
+#ifndef MSG_UBL_VALIDATE_MESH_1
+  #define MSG_UBL_VALIDATE_MESH_1           _UxGT("Validate Mesh") PREHEAT_1_NAME
 #endif
-#ifndef MSG_UBL_VALIDATE_ABS_MESH
-  #define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Validate ABS Mesh")
+#ifndef MSG_UBL_VALIDATE_MESH_2
+  #define MSG_UBL_VALIDATE_MESH_2           _UxGT("Validate Mesh") PREHEAT_2_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_3
+  #define MSG_UBL_VALIDATE_MESH_3           _UxGT("Validate PETG Mesh") PREHEAT_3_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_4
+  #define MSG_UBL_VALIDATE_MESH_4           _UxGT("Validate Mesh") PREHEAT_4_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_5
+  #define MSG_UBL_VALIDATE_MESH_5           _UxGT("Validate Mesh") PREHEAT_5_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_6
+  #define MSG_UBL_VALIDATE_MESH_6           _UxGT("Validate PETG Mesh") PREHEAT_6_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_7
+  #define MSG_UBL_VALIDATE_MESH_7           _UxGT("Validate Mesh") PREHEAT_7_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_8
+  #define MSG_UBL_VALIDATE_MESH_8           _UxGT("Validate Mesh") PREHEAT_8_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_9
+  #define MSG_UBL_VALIDATE_MESH_9           _UxGT("Validate PETG Mesh") PREHEAT_9_NAME
+#endif
+#ifndef MSG_UBL_VALIDATE_MESH_10
+  #define MSG_UBL_VALIDATE_MESH_10          _UxGT("Validate Mesh") PREHEAT_10_NAME
 #endif
 #ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
   #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")

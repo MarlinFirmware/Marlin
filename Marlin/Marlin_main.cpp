@@ -147,7 +147,7 @@
  * M128 - EtoP Open. (Requires BARICUDA)
  * M129 - EtoP Closed. (Requires BARICUDA)
  * M140 - Set bed target temp. S<temp>
- * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
+ * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0... PREHEAT_MATERIAL_COUNT)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set Status LED Color as R<red> U<green> B<blue> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, or PCA9632).
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
@@ -8989,7 +8989,7 @@ inline void gcode_M111() {
   /**
    * M145: Set the heatup state for a material in the LCD menu
    *
-   *   S<material> (0=PLA, 1=ABS)
+   *   S<material> (0... PREHEAT_MATERIAL_COUNT)
    *   H<hotend temp>
    *   B<bed temp>
    *   F<fan speed>
@@ -9422,7 +9422,11 @@ inline void gcode_M115() {
     );
     cap_line(PSTR("CASE_LIGHT_BRIGHTNESS")
       #if HAS_CASE_LIGHT
-        , USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)
+        #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+          ,true
+        #elif DEFINED(CASE_LIGHT_PIN)
+          , USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)
+        #endif
       #endif
     );
 
@@ -12141,24 +12145,40 @@ inline void gcode_M907() {
   bool case_light_on;
 
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
-    LEDColor case_light_color =
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE)||ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)
+      CaselightColor case_light_color =
       #ifdef CASE_LIGHT_NEOPIXEL_COLOR
         CASE_LIGHT_NEOPIXEL_COLOR
       #else
         { 255, 255, 255, 255 }
       #endif
-    ;
+      ;
+    #else
+      LEDColor case_light_color =
+      #ifdef CASE_LIGHT_NEOPIXEL_COLOR
+        CASE_LIGHT_NEOPIXEL_COLOR
+      #else
+        { 255, 255, 255, 255 }
+      #endif
+      ;
+    #endif
   #endif
 
   void update_case_light() {
     const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
 
     #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
-
-      leds.set_color(
-        MakeLEDColor(case_light_color.r, case_light_color.g, case_light_color.b, case_light_color.w, n10ct),
-        false
-      );
+      #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE)||ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)
+        caselight.set_color(
+          MakeCaselightColor(case_light_color.r, case_light_color.g, case_light_color.b, case_light_color.w, n10ct),
+          false
+          );
+      #else
+        leds.set_color(
+          MakeLEDColor(case_light_color.r, case_light_color.g, case_light_color.b, case_light_color.w, n10ct),
+          false
+          );
+     #endif
 
     #else // !CASE_LIGHT_USE_NEOPIXEL
 
@@ -12180,6 +12200,13 @@ inline void gcode_M907() {
  *   P<byte>  Set case light brightness (PWM pin required - ignored otherwise)
  *
  *   S<bool>  Set case light on/off
+ *   
+ *   NEOPIXEL EXCLUSIVE orr NEOPIXEL SPLIT
+ *    Colorsettings like M150 
+ *    R empty or <byte> Set red to full or value
+ *    U empty or <byte> Set green to full or value
+ *    B empty or <byte> Set blue to full or value
+ *    W empty or <byte> Set white to full or Value (RGBW)
  *
  *   When S turns on the light on a PWM pin then the current brightness level is used/restored
  *
@@ -12191,6 +12218,41 @@ inline void gcode_M355() {
     uint8_t args = 0;
     if (parser.seenval('P')) ++args, case_light_brightness = parser.value_byte();
     if (parser.seenval('S')) ++args, case_light_on = parser.value_bool();
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIV) || ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)
+      CaselightColor case_light_color_temp;
+      bool setcolor = false; 
+      if (parser.seen('R')){
+        setcolor = true;
+        if (parser.has_value()) case_light_color_temp.r = parser.value_byte();
+        else case_light_color_temp.r = 255;
+      }
+      else case_light_color_temp.r = 0;
+      if (parser.seen('U')) {
+        setcolor = true;
+        if (parser.has_value()) case_light_color_temp.g = parser.value_byte();
+        else case_light_color_temp.g = 255;
+      }   
+      else case_light_color_temp.g = 0;
+      if (parser.seen('B')) {
+        setcolor = true;
+        if (parser.has_value()) case_light_color_temp.b = parser.value_byte();
+        else case_light_color_temp.b = 255;
+      }
+      else case_light_color_temp.b = 0;
+      if (parser.seen('W')) {
+        setcolor = true;
+        if (parser.has_value()) case_light_color_temp.w = parser.value_byte();
+        else case_light_color_temp.w = 255;
+      }
+      else case_light_color_temp.w = 0;
+      if (setcolor) {
+        args++;
+        case_light_on = true;
+        case_light_color = case_light_color_temp;
+        case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
+        setcolor = false;
+      }
+    #endif
     if (args) update_case_light();
 
     // always report case light status
@@ -12199,10 +12261,14 @@ inline void gcode_M355() {
       SERIAL_ECHOLNPGM("Case light: off");
     }
     else {
-      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
-      else SERIAL_ECHOLNPAIR("Case light: ", int(case_light_brightness));
+      #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+        SERIAL_ECHOLNPGM("Case light: on");
+        SERIAL_ECHOLNPAIR("Case light: ", int(case_light_brightness));
+      #elif DEFINED(CASE_LIGHT_PIN)
+        if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
+        else SERIAL_ECHOLNPAIR("Case light: ", int(case_light_brightness));
+      #endif
     }
-
   #else
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);

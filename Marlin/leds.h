@@ -33,7 +33,7 @@
   #include "neopixel.h"
 #endif
 
-#define HAS_WHITE_LED (ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED))
+#define HAS_WHITE_LED (ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED) || ENABLED(CASE_LIGHT_USE_NEOPIXEL))
 
 /**
  * LEDcolor type for use with leds.set_color
@@ -117,6 +117,7 @@ typedef struct LEDColor {
   #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B)
   #define LEDColorWhite() LEDColor(255, 255, 255)
 #endif
+#define LEDColorDefault() LEDColor(LED_DEFAULT_COLOR)
 #define LEDColorOff()     LEDColor(  0,   0,   0)
 #define LEDColorRed()     LEDColor(255,   0,   0)
 #define LEDColorOrange()  LEDColor(255,  80,   0)
@@ -161,8 +162,7 @@ public:
   FORCE_INLINE static void set_green() { set_color(LEDColorGreen()); }
 
   #if ENABLED(LED_COLOR_PRESETS)
-    static const LEDColor defaultLEDColor;
-    FORCE_INLINE static void set_default()  { set_color(defaultLEDColor); }
+    FORCE_INLINE static void set_default()  { set_color(LEDColorDefault()); }
     FORCE_INLINE static void set_red()      { set_color(LEDColorRed()); }
     FORCE_INLINE static void set_orange()   { set_color(LEDColorOrange()); }
     FORCE_INLINE static void set_yellow()   { set_color(LEDColorYellow()); }
@@ -179,6 +179,76 @@ public:
   #endif
 };
 
+
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE) || ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT) 
+  typedef struct CaselightColor {
+    uint8_t r, g, b, w, i;
+    CaselightColor() : r(255), g(255), b(255), w(255), i(NEOPIXEL_BRIGHTNESS) {}
+    CaselightColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w=0, uint8_t i=NEOPIXEL_BRIGHTNESS ) : r(r), g(g), b(b), w(w), i(i) {}
+    CaselightColor(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2]), w(rgbw[3]), i(NEOPIXEL_BRIGHTNESS) {}
+    CaselightColor& operator=(const uint8_t (&rgbw)[4]) {
+      r = rgbw[0]; g = rgbw[1]; b = rgbw[2]; w = rgbw[3];
+      return *this;
+    }
+    CaselightColor& operator=(const CaselightColor &right) {
+      if (this != &right) memcpy(this, &right, sizeof(CaselightColor));
+      return *this;
+    }
+    bool operator==(const CaselightColor &right) {
+      if (this == &right) return true;
+      return 0 == memcmp(this, &right, sizeof(CaselightColor));
+    }
+    bool operator!=(const CaselightColor &right) { return !operator==(right); }
+    bool is_off() const {
+      return 3 > r + g + b + w ;
+    }
+  } CaselightColor;
+  /**
+   * Color helpers and presets
+   */
+ 
+  #define MakeCaselightColor(R,G,B,W,I) CaselightColor(R, G, B, W, I)
+  #define CaselightColorDefault() CaselightColor(CASE_LIGHT_NEOPIXEL_COLOR)
+  #define CaselightColorWhite() CaselightColor(0, 0, 0, 255)
+  #define CaselightColorOff()     CaselightColor(  0,   0,   0,  0)
+  #define CaselightColorRed()     CaselightColor(255,   0,   0)
+  #define CaselightColorOrange()  CaselightColor(255,  80,   0)
+  #define CaselightColorYellow()  CaselightColor(255, 255,   0)
+  #define CaselightColorGreen()   CaselightColor(  0, 255,   0)
+  #define CaselightColorBlue()    CaselightColor(  0,   0, 255)
+  #define CaselightColorIndigo()  CaselightColor(  0, 255, 255)
+  #define CaselightColorViolet()  CaselightColor(255,   0, 255)
+
+  class CaselightLights {
+    public:
+      CaselightLights() {} 
+      static void setup(); // init()
+      static void set_color(const CaselightColor &color, bool isSequence=false );
+      FORCE_INLINE void set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w=0, uint8_t i=NEOPIXEL_BRIGHTNESS, bool isSequence=false) {
+        set_color(MakeCaselightColor(r, g, b, w, i) , isSequence );
+      }
+      static void set_white();
+      FORCE_INLINE static void set_off()   { set_color(CaselightColorOff()); }
+      FORCE_INLINE static void set_default()  { set_color(CaselightColorDefault()); }
+      #if ENABLED(CASE_LIGHT_COLOR_PRESETS)
+        static const CaselightColor defaultCaselightColor;
+        FORCE_INLINE static void set_red()      { set_color(CaselightColorRed()); }
+        FORCE_INLINE static void set_orange()   { set_color(CaselightColorOrange()); }
+        FORCE_INLINE static void set_yellow()   { set_color(CaselightColorYellow()); }
+        FORCE_INLINE static void set_blue()     { set_color(CaselightColorBlue()); }
+        FORCE_INLINE static void set_green() { set_color(CaselightColorGreen()); }
+        FORCE_INLINE static void set_indigo()   { set_color(CaselightColorIndigo()); }
+        FORCE_INLINE static void set_violet()   { set_color(CaselightColorViolet()); }
+      #endif
+      #if ENABLED(CASE_LIGHT_COLOR_CONTROL_MENU) 
+        static CaselightColor color; // last non-off color
+        static bool lights_on; // the last set color was "on"
+        static void toggle();  // swap "off" with color
+        FORCE_INLINE static void update() { set_color(color); }
+      #endif
+  };
+  extern CaselightLights caselight;
+#endif
 extern LEDLights leds;
 
 #endif // __LEDS_H__

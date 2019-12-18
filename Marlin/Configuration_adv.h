@@ -260,18 +260,30 @@
 /**
  * M355 Case Light on-off / brightness
  */
-//#define CASE_LIGHT_ENABLE
+#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
   //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
-  //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
-    #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
-  #endif
-#endif
+  #define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  #define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+      #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // Standard Color for Neopixel Caselight{ Red, Green, Blue, White }
+      #define CASE_LIGHT_COLOR_CONTROL_MENU     // Add a Case Light Color option to the LCD Case Light menu
+      #define CASE_LIGHT_COLOR_PRESETS          // Add Presets for color control option
+      
+      #define CASE_LIGHT_USE_NEOPIXEL_SPLIT  //splitted Pixelbus, first Pixels NEOPIXEL_LED and extra Neopixels for Caselight in same Pixelbus behind Neopixel-LED
+      //#define CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE //second Pixelbus, exclusive for CASE_LIGHT
+
+        #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)
+          #define NEOPIXEL_CASE_LIGHT_PIXELS 22  //pixels in Neopixel bus behind Neopixel leds
+        #elif ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE)
+          #define NEOPIXEL_CASE_LIGHT_PIN    4        // Caselight-Neopixels driving pin on motherboard
+          #define NEOPIXEL_CASE_LIGHT_PIXELS 30       // Number of LEDs in the strip
+        #endif //SPLIT or EXCLUSIVE
+    #endif //USE NEOPIXEL
+#endif //CASE_LIGHT_ENABLE
 
 //===========================================================================
 //============================ Mechanical Settings ==========================
@@ -612,14 +624,11 @@
  * LED Control Menu
  * Enable this feature to add LED Control to the LCD menu
  */
-//#define LED_CONTROL_MENU
+#define LED_CONTROL_MENU
 #if ENABLED(LED_CONTROL_MENU)
   #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
   #if ENABLED(LED_COLOR_PRESETS)
-    #define LED_USER_PRESET_RED        255  // User defined RED value
-    #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
-    #define LED_USER_PRESET_BLUE         0  // User defined BLUE value
-    #define LED_USER_PRESET_WHITE      255  // User defined WHITE value
+    #define LED_DEFAULT_COLOR { 255, 128, 0, 255 } // User defined RED, GREEN, BLUE, WHITE
     #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
     //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
   #endif
@@ -1037,7 +1046,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -1543,26 +1552,41 @@
 /**
  * User-defined menu items that execute custom GCode
  */
-//#define CUSTOM_USER_MENUS
+#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
   #define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1 "Home & UBL Info"
-  #define USER_GCODE_1 "G28\nG29 W"
+  //#define USER_DESC_1 "Home & UBL Info"
+  //#define USER_GCODE_1 "G28\nG29 W"
 
-  #define USER_DESC_2 "Preheat for PLA"
-  #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+  #if PREHEAT_MATERIAL_COUNT > 0
+    //#define USER_DESC_2 "Preheat for " PREHEAT_1_NAME
+    //#define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+  #endif
+  
+  #if PREHEAT_MATERIAL_COUNT > 1
+    //#define USER_DESC_3 "Preheat for "PREHEAT_2_NAME
+    //#define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+  #endif
+  
+  #if PREHEAT_MATERIAL_COUNT > 2
+    //#define USER_DESC_4 "Preheat for "PREHEAT_3_NAME
+    //#define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_3_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_3_TEMP_HOTEND)
+  #endif
+  
+  #define USER_DESC_5 "Heat Bed/Home/Level"
+  #define USER_GCODE_5 "G28 \n M18 \n"
+  
+  #if DISABLED(DISABLE_M503)
+  #define USER_DESC_6 "Home & Info"
+  #define USER_GCODE_6 "G28\n M503"
+  #endif
 
-  #define USER_DESC_3 "Preheat for ABS"
-  #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+  #define USER_DESC_7 "Z-Up"
+  #define USER_GCODE_7 "G92 Z0 \n G0 Z10\n"
 
-  #define USER_DESC_4 "Heat Bed/Home/Level"
-  #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
-
-  #define USER_DESC_5 "Home & Info"
-  #define USER_GCODE_5 "G28\nM503"
 #endif
 
 /**

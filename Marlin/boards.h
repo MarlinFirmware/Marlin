@@ -124,6 +124,7 @@
 #define BOARD_MELZI_CREALITY    89    // Melzi Creality3D board (for CR-10 etc)
 #define BOARD_MELZI_MALYAN      92    // Melzi Malyan M150 board
 #define BOARD_MELZI_TRONXY      505   // Tronxy X5S
+#define BOARD_MELZI_ENDER2      631   // new Melzi Creality3D board (for Ender2, CR-10S etc)
 #define BOARD_STB_11            64    // STB V1.1
 #define BOARD_AZTEEG_X1         65    // Azteeg X1
 #define BOARD_ANET_10           69    // Anet 1.0 (Melzi clone)

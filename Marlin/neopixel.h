@@ -41,4 +41,10 @@
 void setup_neopixel();
 void set_neopixel_color(const uint32_t color);
 
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  void set_neopixel_cl_color(const uint32_t color);
+#endif
 extern Adafruit_NeoPixel pixels;
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE)
+  extern Adafruit_NeoPixel pixels_cl;
+#endif

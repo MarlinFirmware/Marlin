@@ -38,16 +38,6 @@
   #include "pca9632.h"
 #endif
 
-#if ENABLED(LED_COLOR_PRESETS)
-  const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
-    LED_USER_PRESET_RED,
-    LED_USER_PRESET_GREEN,
-    LED_USER_PRESET_BLUE,
-    LED_USER_PRESET_WHITE,
-    LED_USER_PRESET_BRIGHTNESS
-  );
-#endif
-
 #if ENABLED(LED_CONTROL_MENU)
   LEDColor LEDLights::color;
   bool LEDLights::lights_on;
@@ -56,7 +46,7 @@
 LEDLights leds;
 
 void LEDLights::setup() {
-  #if ENABLED(NEOPIXEL_LED)
+  #if ENABLED(NEOPIXEL_LED)||ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE)
     setup_neopixel();
   #endif
   #if ENABLED(LED_USER_PRESET_STARTUP)
@@ -81,7 +71,11 @@ void LEDLights::set_color(const LEDColor &incol
     else {
       pixels.setPixelColor(nextLed, neocolor);
       pixels.show();
-      if (++nextLed >= pixels.numPixels()) nextLed = 0;
+      #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT) 
+        if (++nextLed >= NEOPIXEL_PIXELS) nextLed = 0;
+      #else
+        if (++nextLed >= pixels.numPixels()) nextLed = 0;
+      #endif
       return;
     }
 
@@ -136,5 +130,58 @@ void LEDLights::set_white() {
 #if ENABLED(LED_CONTROL_MENU)
   void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
 #endif
+
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE) || ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)
+  CaselightLights caselight;
+  #if ENABLED(CASE_LIGHT_COLOR_CONTROL_MENU)
+    CaselightColor CaselightLights::color;
+    bool CaselightLights::lights_on;
+  #endif
+  void CaselightLights::setup() { 
+    setup_neopixel();
+    set_default();
+  }
+  void CaselightLights::set_color(const CaselightColor &incol, bool isSequence/*=false*/ ) {
+    const uint32_t neocolor_cl = pixels.Color(incol.r, incol.g, incol.b, incol.w);
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE)    
+	  static uint16_t nextLed = 0;
+      pixels_cl.setBrightness(incol.i);
+      if (!isSequence)
+        set_neopixel_cl_color(neocolor_cl);
+      else {
+        pixels_cl.setPixelColor(nextLed, neocolor_cl);
+        pixels_cl.show();
+        if (++nextLed >= pixels_cl.numPixels()) nextLed = 0;
+      }
+    #elif ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)   
+	  static uint16_t nextLed = NEOPIXEL_PIXELS; 
+      pixels.setBrightness(incol.i);
+      if (!isSequence)
+        set_neopixel_cl_color(neocolor_cl);
+      else {
+        pixels.setPixelColor(nextLed, neocolor_cl);
+        pixels.show();
+        if (++nextLed >= NEOPIXEL_PIXELS + NEOPIXEL_CASE_LIGHT_PIXELS) nextLed = NEOPIXEL_PIXELS;
+      }
+    #endif
+	return;
+    #if ENABLED(CASE_LIGHT_COLOR_CONTROL_MENU) 
+    // Don't update the color when OFF
+      lights_on = !incol.is_off();
+      if (lights_on) color = incol;
+    #endif
+  }
+  void CaselightLights::set_white() {
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL_EXCLUSIVE) 
+	  set_neopixel_cl_color(pixels_cl.Color(NEO_WHITE));
+	#elif ENABLED(CASE_LIGHT_USE_NEOPIXEL_SPLIT)
+	  set_neopixel_cl_color(pixels.Color(NEO_WHITE));
+    #endif
+  }
+  #if ENABLED(CASE_LIGHT_COLOR_CONTROL_MENU) 
+    void CaselightLights::toggle() { if (lights_on) set_off(); else update(); }
+  #endif
+
+#endif //CASE_LIGHT_NEO
 
 #endif // HAS_COLOR_LEDS
