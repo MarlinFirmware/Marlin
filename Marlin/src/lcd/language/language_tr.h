@@ -391,7 +391,10 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Sıc.");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Güç Kaynağı");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Sürücü Gücü");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Sürücü %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Yaz");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("BASKI DURAKLATILDI");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("FILAMAN YüKLE");

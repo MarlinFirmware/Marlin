@@ -256,7 +256,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Teplota");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Pohyb");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Prum.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Prum. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Vysunout mm");
@@ -410,7 +410,10 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Teplota max");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Nap. zdroj");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Buzení motorů");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Motor %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Motor %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Motor %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Motor %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Motor %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Uložit do EEPROM");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("VÝMĚNA FILAMENTU");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("TISK POZASTAVEN");
