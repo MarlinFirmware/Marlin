@@ -2081,6 +2081,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TMC2208 Software Serial is supported only on AVR, LPC1768, STM32F1 and STM32F4 platforms."
 #endif
 
+#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
+  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
   // is necessary in order to reset the stallGuard indication between the initial movement of all three
@@ -2236,10 +2240,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 #undef IN_CHAIN
 
-#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
-  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
-#endif
-
 /**
  * Digipot requirement
  */
@@ -2353,24 +2353,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-
   #if !Z_MULTI_STEPPER_DRIVERS
     #error "Z_STEPPER_AUTO_ALIGN requires Z_DUAL_STEPPER_DRIVERS or Z_TRIPLE_STEPPER_DRIVERS."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
+  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
+    #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
   #endif
-
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-    #if DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
-    #endif
-    constexpr float sanity_arr_screw_xy[][2] = Z_STEPPER_ALIGN_STEPPER_XY;
-    static_assert(
-      COUNT(sanity_arr_screw_xy) == Z_STEPPER_COUNT,
-      "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
-    );
-  #endif
-
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
@@ -2560,13 +2549,5 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
   #elif ENABLED(SHOW_REMAINING_TIME)
     #error "SHOW_REMAINING_TIME currently requires a Graphical LCD."
-  #endif
-#endif
-
-#if ENABLED(LIN_ADVANCE) && MINIMUM_STEPPER_PULSE < 1
-  #if HAS_TMC_STANDALONE_E_DRIVER
-    #error "LIN_ADVANCE with TMC standalone driver on extruder requires MIMIMUM_STEPPER_PULSE >= 1"
-  #elif HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)
-    #error "LIN_ADVANCE with TMC driver on extruder requires SQUARE_WAVE_STEPPING or MINIMUM_STEPPER_PULSE >= 1"
   #endif
 #endif
