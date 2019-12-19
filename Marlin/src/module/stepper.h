@@ -56,7 +56,7 @@
 // Estimate the amount of time the Stepper ISR will take to execute
 //
 
-/* 
+/**
  * The method of calculating these cycle-constants is unclear.
  * Most of them are no longer used directly for pulse timing, and exist
  * only to estimate a maximum step rate based on the user's configuration.
@@ -65,15 +65,13 @@
  */
 
 #ifdef CPU_32_BIT
-  /*
-   * Cycles to perform actions in START_TIMED_PULSE
+  /**
+   * Duration of START_TIMED_PULSE
    * 
-   * This was measured on an LPC1768 using a GPIO output surrounding
-   * START_TIMED_PULSE, with the resulting timespan converted to cycles.
-   * This value is incorrect for other 32-bit processors. This is ok, as
-   * long as other processors takes longer, so pulses will grow instead
-   * of shrink. As an example, an SKR Pro running an stm32f407zgt6
-   * processor actually requires approximately 60 cyles.
+   * ...as measured on an LPC1768 with a scope and converted to cycles.
+   * Not applicable to other 32-bit processors, but as long as others
+   * take longer, pulses will be longer. For example the SKR Pro
+   * (stm32f407zgt6) requires ~60 cyles.
    */
   #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
