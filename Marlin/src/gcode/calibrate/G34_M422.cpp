@@ -76,16 +76,16 @@ constexpr xy_pos_t test_z_stepper_align_xy[] = Z_STEPPER_ALIGN_XY;
 
 constexpr xyz_pos_t dpo = NOZZLE_TO_PROBE_OFFSET;
 
-#define LTEST(N) (test_z_stepper_align_xy[N].x >= _MAX(X_MIN_BED + MIN_PROBE_EDGE_LEFT,  X_MIN_POS + dpo.x))
-#define RTEST(N) (test_z_stepper_align_xy[N].x <= _MIN(X_MAX_BED - MIN_PROBE_EDGE_RIGHT, X_MAX_POS + dpo.x))
-#define FTEST(N) (test_z_stepper_align_xy[N].y >= _MAX(Y_MIN_BED + MIN_PROBE_EDGE_FRONT, Y_MIN_POS + dpo.y))
-#define BTEST(N) (test_z_stepper_align_xy[N].y <= _MIN(Y_MAX_BED - MIN_PROBE_EDGE_BACK,  Y_MAX_POS + dpo.y))
+#define LTEST(N) (test_z_stepper_align_xy[N].x >= _MAX(X_MIN_BED + MIN_PROBE_EDGE_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
+#define RTEST(N) (test_z_stepper_align_xy[N].x <= _MIN(X_MAX_BED - MIN_PROBE_EDGE_RIGHT, X_MAX_POS + dpo.x) + 0.00001f)
+#define FTEST(N) (test_z_stepper_align_xy[N].y >= _MAX(Y_MIN_BED + MIN_PROBE_EDGE_FRONT, Y_MIN_POS + dpo.y) - 0.00001f)
+#define BTEST(N) (test_z_stepper_align_xy[N].y <= _MIN(Y_MAX_BED - MIN_PROBE_EDGE_BACK,  Y_MAX_POS + dpo.y) + 0.00001f)
 
 static_assert(LTEST(0) && RTEST(0), "The 1st Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-static_assert(LTEST(1) && RTEST(1), "The 2nd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-static_assert(LTEST(2) && RTEST(2), "The 3rd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
 static_assert(FTEST(0) && BTEST(0), "The 1st Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
+static_assert(LTEST(1) && RTEST(1), "The 2nd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
 static_assert(FTEST(1) && BTEST(1), "The 2nd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
+static_assert(LTEST(2) && RTEST(2), "The 3rd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
 static_assert(FTEST(2) && BTEST(2), "The 3rd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
 
 //
