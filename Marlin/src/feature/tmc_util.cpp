@@ -1038,9 +1038,10 @@
 
   bool tmc_enable_stallguard(TMC2209Stepper &st) {
     st.TCOOLTHRS(0xFFFFF);
-    return true;
+    return stealthchop_was_enabled;
   }
-  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth _UNUSED) {
+  void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth) {
+    st.en_spreadCycle(!restore_stealth);
     st.TCOOLTHRS(0);
   }
 
