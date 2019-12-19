@@ -53,6 +53,8 @@
   #define Z_MAX_PIN          P1_25   // Z_MIN
 #endif
 
+#define ONBOARD_ENDSTOPPULLUPS     // Board has built-in pullups
+
 //
 // Servos
 //
