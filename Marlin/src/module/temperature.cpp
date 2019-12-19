@@ -2716,7 +2716,7 @@ void Temperature::tick() {
       case Measure_ADC_KEY:
         if (!HAL_ADC_READY())
           next_sensor_state = adc_sensor_state; // redo this state
-        else if (ADCKey_count < 16) {
+        else if (ADCKey_count < ADC_BUTTON_DEBOUCE_DELAY) {
           raw_ADCKey_value = HAL_READ_ADC();
           if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
             NOMORE(current_ADCKey_raw, raw_ADCKey_value);
@@ -2730,7 +2730,7 @@ void Temperature::tick() {
             }
           }
         }
-        if (ADCKey_count == 16) ADCKey_pressed = true;
+        if (ADCKey_count == ADC_BUTTON_DEBOUCE_DELAY) ADCKey_pressed = true;
         break;
     #endif // ADC_KEYPAD
 
