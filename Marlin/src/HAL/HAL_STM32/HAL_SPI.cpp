@@ -83,6 +83,13 @@ void spiInit(uint8_t spiRate) {
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
+  #if ENABLED(CUSTOM_SPI_PINS)
+    SPI.setMISO(MISO_PIN);
+    SPI.setMOSI(MOSI_PIN);
+    SPI.setSCLK(SCK_PIN);
+    SPI.setSSEL(SS_PIN);
+  #endif
+
   SPI.begin();
 }
 

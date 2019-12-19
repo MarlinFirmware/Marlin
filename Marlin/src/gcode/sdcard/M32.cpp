@@ -26,8 +26,7 @@
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
-#include "../../module/printcounter.h"
-#include "../../module/planner.h"
+#include "../../module/planner.h" // for synchronize()
 
 #include "../../Marlin.h" // for startOrResumeJob
 
@@ -45,9 +44,9 @@ void GcodeSuite::M32() {
   if (IS_SD_PRINTING()) planner.synchronize();
 
   if (card.isMounted()) {
-    const bool call_procedure = parser.boolval('P');
+    const uint8_t call_procedure = parser.boolval('P');
 
-    card.openFile(parser.string_arg, true, call_procedure);
+    card.openFileRead(parser.string_arg, call_procedure);
 
     if (parser.seenval('S')) card.setIndex(parser.value_long());
 
