@@ -245,10 +245,10 @@
     #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
-        #define DOGLCD_CS    P1_21
-        #define DOGLCD_A0    P1_22
-        #define DOGLCD_SCK   P0_15
-        #define DOGLCD_MOSI  P0_18
+        #define DOGLCD_CS   P1_21
+        #define DOGLCD_A0   P1_22
+        #define DOGLCD_SCK  P0_15
+        #define DOGLCD_MOSI P0_18
         #define FORCE_SOFT_SPI
       #endif
 
@@ -268,8 +268,9 @@
 // Neopixel LED
 //
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN     P1_24
+  #define NEOPIXEL_PIN      P1_24
 #endif
+
 /**
  * Special pins
  *   P1_30  (37) (NOT 5V tolerant)
