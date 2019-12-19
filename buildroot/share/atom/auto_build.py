@@ -142,8 +142,9 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
 
   root_get_answer = tk.Tk()
   root_get_answer.title('')
-  root_get_answer.withdraw()
-  root_get_answer.deiconify()
+  #root_get_answer.withdraw()
+  #root_get_answer.deiconify()
+  root_get_answer.attributes("-topmost", True)
 
   def disable_event():
     pass

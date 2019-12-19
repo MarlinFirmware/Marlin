@@ -130,7 +130,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Θερμοκρασία");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Κίνηση");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Νήμα");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Διάμετρος νήματος");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Διάμετρος νήματος *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");

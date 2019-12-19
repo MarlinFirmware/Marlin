@@ -398,7 +398,10 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Nhiệt độ tối đa");                      // Max temp
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Bộ nguồn");                             // PSU
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Sức mạnh ổ đĩa");                       // Drive Strength
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("% trình điều khiển");                   // Driver %
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X % trình điều khiển");                 // X Driver %
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y % trình điều khiển");                 // Y Driver %
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z % trình điều khiển");                 // Z Driver %
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E % trình điều khiển");                 // E Driver %
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Ghi DAC EEPROM");                       // DAC EEPROM Write
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("In tạm dừng");                          // PRINT PAUSED
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("Nạp dây nhựa");
