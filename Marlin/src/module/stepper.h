@@ -56,7 +56,25 @@
 // Estimate the amount of time the Stepper ISR will take to execute
 //
 
+/* 
+ * The method of calculating these cycle-constants is unclear.
+ * Most of them are no longer used directly for pulse timing, and exist
+ * only to estimate a maximum step rate based on the user's configuration.
+ * As 32-bit processors continue to diverge, maintaining cycle counts
+ * will become increasingly difficult and error-prone.
+ */
+
 #ifdef CPU_32_BIT
+  /*
+   * Cycles to perform actions in START_TIMED_PULSE
+   * 
+   * This was measured on an LPC1768 using a GPIO output surrounding
+   * START_TIMED_PULSE, with the resulting timespan converted to cycles.
+   * This value is incorrect for other 32-bit processors. This is ok, as
+   * long as other processors takes longer, so pulses will grow instead
+   * of shrink. As an example, an SKR Pro running an stm32f407zgt6
+   * processor actually requires approximately 60 cyles.
+   */
   #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
   // The base ISR takes 792 cycles
@@ -86,6 +104,7 @@
   #define ISR_STEPPER_CYCLES 16UL
 
 #else
+  // Cycles to perform actions in START_TIMED_PULSE
   #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
 
   // The base ISR takes 752 cycles
@@ -157,17 +176,13 @@
   #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
 #endif
 
-// Calculate the minimum ticks of the PULSE timer that must elapse with the step pulse enabled
-// adding the "start stepper pulse" code section execution cycles to account for that not all
-// pulses start at the beginning of the loop, so an extra time must be added to compensate so
-// the last generated pulse (usually the extruder stepper) has the right length
+// Calculate the minimum pulse times (high and low)
 #if MINIMUM_STEPPER_PULSE && MAXIMUM_STEPPER_RATE
   constexpr uint32_t _MIN_STEP_PERIOD_NS = 1000000000UL / MAXIMUM_STEPPER_RATE;
   constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MAX((_MIN_STEP_PERIOD_NS - _MIN(_MIN_STEP_PERIOD_NS, _MIN_PULSE_HIGH_NS)), _MIN_PULSE_HIGH_NS);
 #elif MINIMUM_STEPPER_PULSE
   // Assume 50% duty cycle
-  constexpr uint32_t _MIN_STEP_PERIOD_NS = 1000000000UL / MAXIMUM_STEPPER_RATE;
   constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
   constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
 #elif MAXIMUM_STEPPER_RATE
@@ -178,11 +193,6 @@
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
 
-// TODO: NS_TO_PULSE_TIMER_TICKS has some rounding issues:
-//   1. PULSE_TIMER_TICKS_PER_US rounds to an integer, which loses 20% of the count for a 2.5 MHz pulse tick (such as for LPC1768)
-//   2. The math currently rounds down to the closes tick. Perhaps should round up.
-constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return PULSE_TIMER_TICKS_PER_US * (NS) / 1000UL; }
-#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
 
 // But the user could be enforcing a minimum time, so the loop time is
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
