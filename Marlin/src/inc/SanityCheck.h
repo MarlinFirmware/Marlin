@@ -2353,36 +2353,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-
   #if !Z_MULTI_STEPPER_DRIVERS
     #error "Z_STEPPER_AUTO_ALIGN requires Z_DUAL_STEPPER_DRIVERS or Z_TRIPLE_STEPPER_DRIVERS."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
+  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
+    #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
   #endif
-
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-    #if DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
-    #endif
-    constexpr float sanity_arr_screw_stepper_xy[][2] = Z_STEPPER_ALIGN_STEPPER_XY;
-    static_assert(
-      COUNT(sanity_arr_screw_stepper_xy) == Z_STEPPER_COUNT,
-      "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
-    );
-  #endif
-
-  // Make sure probe points are probeable
-  constexpr int sanity_arr_screw_xy[][2] = Z_STEPPER_ALIGN_XY;
-  constexpr float sanity_arr_probe_offset[3] = NOZZLE_TO_PROBE_OFFSET;
-  #define SAFEX(X) (WITHIN(X, X_MIN_POS + sanity_arr_probe_offset[0], X_MAX_POS - sanity_arr_probe_offset[0]))
-  #define SAFEY(Y) (WITHIN(Y, Y_MIN_POS + sanity_arr_probe_offset[1], Y_MAX_POS - sanity_arr_probe_offset[1]))
-  #define _ARR_SCREW_XY(I) (sanity_arr_screw_xy[_MIN(I,int(COUNT(sanity_arr_screw_xy))-1)])
-  #define _ARR_SCREW_XY_TEST(I) (SAFEX(_ARR_SCREW_XY(I)[0]) && SAFEY(_ARR_SCREW_XY(I)[1]))
-  static_assert(   _ARR_SCREW_XY_TEST(0) && _ARR_SCREW_XY_TEST(1) && _ARR_SCREW_XY_TEST(2)
-                && _ARR_SCREW_XY_TEST(3) && _ARR_SCREW_XY_TEST(4) && _ARR_SCREW_XY_TEST(5)
-                && _ARR_SCREW_XY_TEST(6) && _ARR_SCREW_XY_TEST(7) && _ARR_SCREW_XY_TEST(8),
-                "Z_STEPPER_ALIGN_XY coordinates must be probeable (check NOZZLE_TO_PROBE_OFFSET)");
-
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
