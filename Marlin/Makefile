@@ -188,7 +188,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1109)
 else ifeq ($(HARDWARE_MOTHERBOARD),1110)
 # zrib V2.0 control board (Chinese knock off RAMPS replica)
 else ifeq ($(HARDWARE_MOTHERBOARD),1111)
-# Bigtreetech or BIQU KFB2.0
+# BigTreeTech or BIQU KFB2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1112)
 # Felix 2.0+ Electronics Board (RAMPS like)
 else ifeq ($(HARDWARE_MOTHERBOARD),1113)
