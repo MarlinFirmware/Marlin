@@ -30,7 +30,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EITHER(EEPROM_SETTINGS, WEBSUPPORT)
+#if ENABLED(WEBSUPPORT)
   #include "spiffs.h"
 #endif
 
@@ -83,7 +83,7 @@ void HAL_init() {
 }
 
 void HAL_init_board() {
-  #if EITHER(EEPROM_SETTINGS, WEBSUPPORT)
+  #if ENABLED(WEBSUPPORT)
     spiffs_init();
   #endif
 
