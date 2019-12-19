@@ -354,14 +354,16 @@
   #include "lpc1768/pins_BIQU_BQ111_A4.h"       // LPC1768                                env:LPC1768
 #elif MB(SELENA_COMPACT)
   #include "lpc1768/pins_SELENA_COMPACT.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_1)
-  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_3)
-  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_1)
+  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_3)
+  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_4)
+  #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
 
 //
 // LPC1769 ARM Cortex M3

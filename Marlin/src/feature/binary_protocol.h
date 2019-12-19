@@ -77,7 +77,7 @@ private:
   static bool file_open(char* filename) {
     if (!dummy_transfer) {
       card.mount();
-      card.openFile(filename, false);
+      card.openFileWrite(filename);
       if (!card.isFileOpen()) return false;
     }
     transfer_active = true;
