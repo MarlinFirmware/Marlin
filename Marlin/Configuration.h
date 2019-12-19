@@ -1799,7 +1799,7 @@
 //
 #if EITHER(ZONESTAR_LCD, ULTRA_LCD)                                  
   //#define ADC_BUTTON_DEBOUCE_DELAY 16   // If buttons bounce or repeats too quickly, uncomment and increase this number. 
-                                        // Default 16; Max 255
+                                        // Min (default) 16; Max 255
 #endif
 
 //=============================================================================
