@@ -45,21 +45,48 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
-// Sanity-check the count of Z_STEPPER_ALIGN_XY points
-constexpr xy_pos_t sanity_arr_z_align[] = Z_STEPPER_ALIGN_XY;
+//
+// Sanity check G34 / M422 settings
+//
+constexpr xy_pos_t test_z_stepper_align_xy[] = Z_STEPPER_ALIGN_XY;
+
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  static_assert(COUNT(sanity_arr_z_align) >= Z_STEPPER_COUNT,
+
+  static_assert(COUNT(test_z_stepper_align_xy) >= Z_STEPPER_COUNT,
     "Z_STEPPER_ALIGN_XY requires at least three {X,Y} entries (Z, Z2, Z3, ...)."
   );
+
+  constexpr float test_z_stepper_align_stepper_xy[][XY] = Z_STEPPER_ALIGN_STEPPER_XY;
+  static_assert(
+    COUNT(test_z_stepper_align_stepper_xy) == Z_STEPPER_COUNT,
+    "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
+  );
+
 #else
-  static_assert(COUNT(sanity_arr_z_align) == Z_STEPPER_COUNT,
+
+  static_assert(COUNT(test_z_stepper_align_xy) == Z_STEPPER_COUNT,
     #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
       "Z_STEPPER_ALIGN_XY requires three {X,Y} entries (Z, Z2, and Z3)."
     #else
       "Z_STEPPER_ALIGN_XY requires two {X,Y} entries (Z and Z2)."
     #endif
   );
+
 #endif
+
+constexpr xyz_pos_t dpo = NOZZLE_TO_PROBE_OFFSET;
+
+#define LTEST(N) (test_z_stepper_align_xy[N].x >= _MAX(X_MIN_BED + MIN_PROBE_EDGE_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
+#define RTEST(N) (test_z_stepper_align_xy[N].x <= _MIN(X_MAX_BED - MIN_PROBE_EDGE_RIGHT, X_MAX_POS + dpo.x) + 0.00001f)
+#define FTEST(N) (test_z_stepper_align_xy[N].y >= _MAX(Y_MIN_BED + MIN_PROBE_EDGE_FRONT, Y_MIN_POS + dpo.y) - 0.00001f)
+#define BTEST(N) (test_z_stepper_align_xy[N].y <= _MIN(Y_MAX_BED - MIN_PROBE_EDGE_BACK,  Y_MAX_POS + dpo.y) + 0.00001f)
+
+static_assert(LTEST(0) && RTEST(0), "The 1st Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
+static_assert(FTEST(0) && BTEST(0), "The 1st Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
+static_assert(LTEST(1) && RTEST(1), "The 2nd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
+static_assert(FTEST(1) && BTEST(1), "The 2nd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
+static_assert(LTEST(2) && RTEST(2), "The 3rd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
+static_assert(FTEST(2) && BTEST(2), "The 3rd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
 
 //
 // G34 / M422 shared data
