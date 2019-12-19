@@ -44,7 +44,9 @@ void tmc_set_stealthChop(TMC &st, const bool enable) {
 static void set_stealth_status(const bool enable, const int8_t target_extruder) {
   #define TMC_SET_STEALTH(Q) tmc_set_stealthChop(stepper##Q, enable)
 
-  #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z) || AXIS_HAS_STEALTHCHOP(Z2) || AXIS_HAS_STEALTHCHOP(Z3)
+  #if    AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(X2) \
+      || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Y2) \
+      || AXIS_HAS_STEALTHCHOP(Z) || AXIS_HAS_STEALTHCHOP(Z2) || AXIS_HAS_STEALTHCHOP(Z3)
     const uint8_t index = parser.byteval('I');
   #endif
 
