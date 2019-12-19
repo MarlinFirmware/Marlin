@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
@@ -27,6 +28,12 @@
 #if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
 
 #include "../shared/persistent_store_api.h"
+
+
+// Only STM32F4 can support wear leveling at this time
+#ifndef STM32F4xx
+  #undef FLASH_EEPROM_LEVELING
+#endif
 
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
@@ -42,7 +49,8 @@
  * 128 "pages", each 2kB in size. If we continued with our EEPROM being 4Kb, we'd always need to operate
  * on 2 of these pages. Each write, we'd use 2 different pages from a pool of pages until we are done.
  */
-#if ENABLED(FLASH_EEPROM_LEVELING) && defined(STM32F4xx))
+
+#if ENABLED(FLASH_EEPROM_LEVELING)
 
   #include "stm32_def.h"
 
@@ -50,7 +58,7 @@
   #include "src/core/debug_out.h"
 
   #ifndef EEPROM_SIZE
-    #define EEPROM_SIZE           0x1000    // 4kB, we could bump this up if we want to go crazy with ubl meshes
+    #define EEPROM_SIZE           0x1000  // 4kB
   #endif
 
   #ifndef FLASH_SECTOR
@@ -86,15 +94,13 @@
   static_assert(IS_FLASH_SECTOR(FLASH_SECTOR), "FLASH_SECTOR is invalid");
   static_assert(IS_POWER_OF_2(FLASH_UNIT_SIZE), "FLASH_UNIT_SIZE should be a power of 2, please check your chip's spec sheet");
 
-#else
-  #undef FLASH_EEPROM_LEVELING
 #endif
 
 static bool eeprom_data_written = false;
 
 bool PersistentStore::access_start() {
 
-  #ifdef FLASH_EEPROM_LEVELING
+  #if ENABLED(FLASH_EEPROM_LEVELING)
 
     if (current_slot == -1 || eeprom_data_written) {
       // This must be the first time since power on that we have accessed the storage, or someone
@@ -135,7 +141,7 @@ bool PersistentStore::access_finish() {
 
   if (eeprom_data_written) {
 
-    #ifdef FLASH_EEPROM_LEVELING
+    #if ENABLED(FLASH_EEPROM_LEVELING)
 
       HAL_StatusTypeDef status = HAL_ERROR;
       bool flash_unlocked = false;
@@ -210,7 +216,7 @@ bool PersistentStore::access_finish() {
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     uint8_t v = *value;
-    #ifdef FLASH_EEPROM_LEVELING
+    #if ENABLED(FLASH_EEPROM_LEVELING)
       if (v != ram_eeprom[pos]) {
         ram_eeprom[pos] = v;
         eeprom_data_written = true;
@@ -226,13 +232,12 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     value++;
   }
   return false;
-
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     const uint8_t c = (
-      #ifdef FLASH_EEPROM_LEVELING
+      #if ENABLED(FLASH_EEPROM_LEVELING)
         ram_eeprom[pos]
       #else
         eeprom_buffered_read_byte(pos)
@@ -248,7 +253,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() {
   return (
-    #ifdef FLASH_EEPROM_LEVELING
+    #if ENABLED(FLASH_EEPROM_LEVELING)
       EEPROM_SIZE
     #else
       E2END + 1
