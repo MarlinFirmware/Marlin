@@ -64,7 +64,7 @@
 #define BOARD_MKS_BASE_HEROIC         1108  // MKS BASE 1.0 with Heroic HR4982 stepper drivers
 #define BOARD_MKS_GEN_13              1109  // MKS GEN v1.3 or 1.4
 #define BOARD_MKS_GEN_L               1110  // MKS GEN L
-#define BOARD_KFB_2                   1111  // Bigtreetech or BIQU KFB2.0
+#define BOARD_KFB_2                   1111  // BigTreeTech or BIQU KFB2.0
 #define BOARD_ZRIB_V20                1112  // zrib V2.0 control board (Chinese knock off RAMPS replica)
 #define BOARD_FELIX2                  1113  // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_RIGIDBOARD              1114  // Invent-A-Part RigidBoard
@@ -208,14 +208,15 @@
 #define BOARD_COHESION3D_MINI         2011  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD           2012  // Smoothieboard
 #define BOARD_AZTEEG_X5_MINI_WIFI     2013  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_BIGTREE_SKR_V1_1        2014  // BIGTREE SKR_V1.1 (Power outputs: Hotend0,Hotend1, Fan, Bed)
-#define BOARD_BIQU_B300_V1_0          2015  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
-#define BOARD_BIGTREE_SKR_V1_3        2016  // BIGTREE SKR_V1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_AZTEEG_X5_MINI          2017  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_MKS_SGEN                2018  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_MKS_SGEN_L              2019  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_TH3D_EZBOARD            2020  // TH3D EZBoard v1.0
-#define BOARD_GMARSH_X6_REV1          2021  // GMARSH X6 board, revision 1 prototype
+#define BOARD_BIQU_B300_V1_0          2014  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
+#define BOARD_AZTEEG_X5_MINI          2015  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_MKS_SGEN                2016  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_MKS_SGEN_L              2017  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_TH3D_EZBOARD            2018  // TH3D EZBoard v1.0
+#define BOARD_GMARSH_X6_REV1          2019  // GMARSH X6 board, revision 1 prototype
+#define BOARD_BIGTREE_SKR_V1_1        2020  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BIGTREE_SKR_V1_3        2021  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BIGTREE_SKR_V1_4        2022  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 //
 // SAM3X8E ARM Cortex M3
