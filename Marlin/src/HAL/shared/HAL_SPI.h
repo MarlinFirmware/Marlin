@@ -76,6 +76,7 @@
 #define SPIBUS_CLCK     2
 #define SPIBUS_MODE     3 //default mode (calls to bus, not directed to a device. Temporary for SD card, will be removed)
 #define SPIBUS_BITO     4 //default bit order (calls to bus, not directed to a device. Temporary for SD card, will be removed)
+#define SPIBUS_DSPD     5 //default speed (calls to bus, not directed to a device. Temporary for SD card, will be removed)
 
 //Common SPI device properties
 #define SPIDEV_TYPE     0 //device type
@@ -83,13 +84,14 @@
 #define SPIDEV_CPOL     2 //polarity
 #define SPIDEV_CPHA     3 //phase
 #define SPIDEV_BITO     4 //bit order
-#define SPIDEV_CS       5 //selection
+#define SPIDEV_SPD      5 //speed
+#define SPIDEV_CS       6 //selection
 
 //SPI device properties (by type)
-#define SPIDEV_SW       6 //detection
-#define SPIDEV_DLV      7 //level when detected
-#define SPIDEV_DT       6 //driver type
-#define SPIDEV_DI       7 //driver index
+#define SPIDEV_SW       7 //detection
+#define SPIDEV_DLV      8 //level when detected
+#define SPIDEV_DT       7 //driver type
+#define SPIDEV_DI       8 //driver index
 
 //SPI Device Driver types
 #define DRIVER_AXIS     0
@@ -104,6 +106,7 @@
 #define CPOL_OF_DEV(X)      SPI_Devices[X][SPIDEV_CPOL]
 #define CPHA_OF_DEV(X)      SPI_Devices[X][SPIDEV_CPHA]
 #define BITO_OF_DEV(X)      SPI_Devices[X][SPIDEV_BITO]
+#define SPD_OF_DEV(X)       SPI_Devices[X][SPIDEV_SPD]
 
 #define TYPE_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DT]
 #define AXIS_OF_DRIVER(X)   SPI_Devices[X][SPIDEV_DI]

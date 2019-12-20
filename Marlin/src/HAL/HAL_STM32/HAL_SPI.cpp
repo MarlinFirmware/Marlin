@@ -25,8 +25,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <spi_com.h> //use this as helper for SPI peripheral Init configuration
+#include <spi_com.h> //use this as helper for SPI peripheral Init configuration (temporary)
+
+#ifdef SPI_HAS_HW_CRC
+//add proper LL includes for board controller
 #include <stm32f4xx_ll_spi.h>
+#endif
 
 #define SPI_TRANSFER_TIMEOUT 1000
 #define BUS_SPI_HANDLE(BUS_NUM) (&(spi[BUS_NUM] -> handle))
@@ -40,8 +44,7 @@ static spi_t* spi[NUM_SPI_BUSES]  = { NULL };
 // Public functions
 // ------------------------
 
-bool spiInitialized(uint8_t bus_num)
-{
+bool spiInitialized(uint8_t bus_num) {
   return spi[bus_num] != NULL;
 }
 
@@ -82,44 +85,6 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   sprintf(mess, PSTR("SPI %d Clock: %lu Hz"), bus_num, clock);
   SERIAL_ECHOLN(mess);
 }
-
-//#ifdef DUMP_SPI
-void spiDumpRegisters(SPI_TypeDef* Instance) {
-  uint32_t crcEnabled = LL_SPI_IsEnabledCRC(Instance);
-
-  SERIAL_ECHO("CRC ");
-  if (!crcEnabled)
-    SERIAL_ECHO("OFF");
-  else {
-    SERIAL_ECHO("ON (POL=0x");
-    SERIAL_PRINT(Instance->CRCPR, HEX);
-    SERIAL_ECHO(")");
-  }
-  SERIAL_ECHO(", Phase:");
-  SERIAL_ECHO((Instance->CR1 & 0b01000000000000) ? "CRCNEXT":"Data");
-  SERIAL_ECHO(LL_SPI_GetDataWidth(Instance) == LL_SPI_DATAWIDTH_8BIT ? " (8":" (16");
-  SERIAL_ECHOLN("bit)");
-
-  SERIAL_ECHO("STATUS=");
-  if (LL_SPI_IsActiveFlag_BSY(Instance)) SERIAL_ECHO(" BSY");
-  if (LL_SPI_IsActiveFlag_OVR(Instance)) SERIAL_ECHO(" OVR");
-  if (LL_SPI_IsActiveFlag_MODF(Instance)) SERIAL_ECHO(" MODF");
-  if (LL_SPI_IsActiveFlag_CRCERR(Instance)) SERIAL_ECHO(" CRCERR");
-  if (LL_SPI_IsActiveFlag_TXE(Instance)) SERIAL_ECHO(" TXE");
-  if (LL_SPI_IsActiveFlag_RXNE(Instance)) SERIAL_ECHO(" RXNE");
-
-  SERIAL_ECHO("\n Last DATA=0x");
-  SERIAL_PRINTLN(Instance->DR, HEX);
-
-  if (crcEnabled)
-  {
-    SERIAL_ECHO("CRCs: RX=0x");
-    SERIAL_PRINT(Instance->RXCRCR, HEX);
-    SERIAL_ECHO(" TX=0x");
-    SERIAL_PRINTLN(Instance->TXCRCR, HEX);
-  }
-}
-//#endif
 
 uint8_t spiRec(uint8_t bus_num) {
 #ifdef DUMP_SPI
@@ -218,12 +183,13 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
 
 //Device functions
 
+#ifdef SPI_HAS_HW_CRC
 /**
  * @brief  Configures the parameters of the bus to the required ones for the device
  * @param  dev_num Device number (identifies device and bus)
  * @return LL handle to the bus for additional configuration and start
  */
-SPI_TypeDef* spiSetBus(uint8_t dev_num) {
+SPI_TypeDef* spiLLSetBus(uint8_t dev_num) {
   SPI_TypeDef* hspi = BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)) -> Instance;
   
   LL_SPI_Disable(hspi);
@@ -239,7 +205,7 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
-  SPI_TypeDef * hspi = spiSetBus(dev_num);
+  SPI_TypeDef * hspi = spiLLSetBus(dev_num);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
   LL_SPI_EnableCRC(hspi); //to clear CRC registers
@@ -282,7 +248,7 @@ uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t coun
   if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
   digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
-  SPI_TypeDef * hspi = spiSetBus(dev_num);
+  SPI_TypeDef * hspi = spiLLSetBus(dev_num);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
   LL_SPI_EnableCRC(hspi); //to clear CRC registers
@@ -311,6 +277,34 @@ uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t coun
 
   return hwCRC; //return HW-computed CRC
 }
+#endif
+
+//converts Marlin speed enum to STM prescaler
+uint32_t getPrescaler(uint8_t spiRate) {
+  switch (spiRate)
+  {
+    case SPI_FULL_SPEED:    return SPI_BAUDRATEPRESCALER_2; //MAX Speed
+    case SPI_HALF_SPEED:    return SPI_BAUDRATEPRESCALER_4;
+    case SPI_QUARTER_SPEED: return SPI_BAUDRATEPRESCALER_8;
+    case SPI_EIGHTH_SPEED:  return SPI_BAUDRATEPRESCALER_16;
+    case SPI_SPEED_5:       return SPI_BAUDRATEPRESCALER_128;
+    case SPI_SPEED_6:       return SPI_BAUDRATEPRESCALER_256; //MIN Speed
+    default:                return -1;
+  }
+}
+
+void spiSetBus(uint8_t dev_num) {
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPolarity = CPOL_OF_DEV(dev_num) == SPI_PLO ? SPI_POLARITY_LOW : SPI_POLARITY_HIGH;
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPhase = CPHA_OF_DEV(dev_num) == SPI_LTS ? SPI_PHASE_1EDGE : SPI_PHASE_2EDGE;
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.FirstBit = BITO_OF_DEV(dev_num) == SPI_LSB ?  SPI_FIRSTBIT_LSB : SPI_FIRSTBIT_MSB;
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.BaudRatePrescaler = getPrescaler(
+    (SPD_OF_DEV(dev_num) == NC) ?
+    SPI_BusConfig[BUS_OF_DEV(dev_num)][SPIBUS_DSPD] : //take default bus speed
+    SPD_OF_DEV(dev_num)                               //use device speed
+  );
+
+  HAL_SPI_Init(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)));
+}
 
 /**
  * @brief  Receives a single byte from the SPI device.
@@ -321,7 +315,7 @@ uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t coun
  *
  */
 uint8_t spiRecDevice(uint8_t dev_num) {
-  LL_SPI_Enable(spiSetBus(dev_num));
+  spiSetBus(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   uint8_t b = spiRec(BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
@@ -339,7 +333,7 @@ uint8_t spiRecDevice(uint8_t dev_num) {
  *
  */
 void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
-  LL_SPI_Enable(spiSetBus(dev_num));
+  spiSetBus(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiRead(BUS_OF_DEV(dev_num), buf, count);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
@@ -354,7 +348,7 @@ void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
  * @details
  */
 void spiSendDevice(uint8_t dev_num, uint8_t b) {
-  LL_SPI_Enable(spiSetBus(dev_num));
+  spiSetBus(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
   spiSend(BUS_OF_DEV(dev_num), b);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
