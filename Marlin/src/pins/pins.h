@@ -537,6 +537,8 @@
   #include "stm32/pins_VAKE403D.h"              // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
   #include "stm32/pins_FYSETC_S6.h"             // STM32F4                                env:FYSETC_S6
+#elif MB(MKS_ROBIN2)
+  #include "pins_MKS_ROBIN2.h"                  // STM32F4                                env:MKS_ROBIN2
 //
 // ARM Cortex M7
 //
