@@ -36,7 +36,7 @@
 #endif
 
 #if ENABLED(SDIO_SUPPORT)
-  #error "SDIO_SUPPORT is not supported."
+  #error "SDIO_SUPPORT is not supported on SAMD51."
 #endif
 
 #if ENABLED(FAST_PWM_FAN)
