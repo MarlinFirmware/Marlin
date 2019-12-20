@@ -86,6 +86,7 @@ jobs:
       uses: actions/checkout@v1
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
-        pwd
-        ls
-        env
+        chmod +x buildroot/bin/*
+        chmod +x buildroot/share/tests/*
+        export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
+        run_tests . ${{ matrix.test-platform }}
