@@ -192,7 +192,6 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
  * @return LL handle to the bus for additional configuration and start
  */
 SPI_TypeDef* spiLLSetBus(uint8_t dev_num) {
-  if (last_dev[BUS_OF_DEV(dev_num)] == dev_num) return;
   last_dev[BUS_OF_DEV(dev_num)] = dev_num;
 
   SPI_TypeDef* hspi = BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)) -> Instance;
@@ -237,14 +236,15 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   while (LL_SPI_IsActiveFlag_BSY(hspi));                //wait for CRC to be ready
   uint16_t hwCRC = (uint16_t)LL_SPI_GetRxCRC(hspi);     //get CRC
 
-  //bus reset
+  //bus reset (not necessary when every call will be transacted)
+  {
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
   LL_SPI_DisableCRC(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_8BIT);
   LL_SPI_Enable(hspi);
-
   digitalWrite(CS_OF_DEV(dev_num), LOW); //this is temporary until all the SD card calls will be by device and not by bus. by then the CS will need to be left high
+  }
 
   return hwCRC; //return HW-computed CRC
 }
