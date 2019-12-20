@@ -95,6 +95,14 @@ void tmc26x_init_to_defaults();
   #define Z3_ENABLE_READ() stepperZ3.isEnabled()
 #endif
 
+// Z4 Stepper
+#if HAS_Z4_ENABLE && AXIS_DRIVER_TYPE_Z4(TMC26X)
+  extern TMC26XStepper stepperZ4;
+  #define Z4_ENABLE_INIT() NOOP
+  #define Z4_ENABLE_WRITE(STATE) stepperZ4.setEnabled(STATE)
+  #define Z4_ENABLE_READ() stepperZ4.isEnabled()
+#endif
+
 // E0 Stepper
 #if AXIS_DRIVER_TYPE_E0(TMC26X)
   extern TMC26XStepper stepperE0;

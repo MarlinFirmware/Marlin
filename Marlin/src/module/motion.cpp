@@ -1156,6 +1156,9 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Z3)
             stealth_states.z3 = tmc_enable_stallguard(stepperZ3);
           #endif
+          #if AXIS_HAS_STALLGUARD(Z4)
+            stealth_states.z4 = tmc_enable_stallguard(stepperZ4);
+          #endif
           #if CORE_IS_XZ && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Y_SENSORLESS
@@ -1224,6 +1227,9 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #endif
           #if AXIS_HAS_STALLGUARD(Z3)
             tmc_disable_stallguard(stepperZ3, enable_stealth.z3);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Z4)
+            tmc_disable_stallguard(stepperZ4, enable_stealth.z4);
           #endif
           #if CORE_IS_XZ && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
@@ -1509,7 +1515,7 @@ void homeaxis(const AxisEnum axis) {
       #if ENABLED(Y_DUAL_ENDSTOPS)
         case Y_AXIS:
       #endif
-      #if Z_MULTI_ENDSTOPS
+      #if ENABLED(Z_MULTI_ENDSTOPS)
         case Z_AXIS:
       #endif
       stepper.set_separate_multi_axis(true);
@@ -1593,77 +1599,119 @@ void homeaxis(const AxisEnum axis) {
         }
       }
     #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+
+    #if ENABLED(Z_MULTI_ENDSTOPS)
       if (axis == Z_AXIS) {
-        const float adj = ABS(endstops.z2_endstop_adj);
-        if (adj) {
-          if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-          do_homing_move(axis, pos_dir ? -adj : adj);
+
+        #if NUM_Z_STEPPER_DRIVERS == 2
+
+          const float adj = ABS(endstops.z2_endstop_adj);
+          if (adj) {
+            if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+            do_homing_move(axis, pos_dir ? -adj : adj);
+            stepper.set_z_lock(false);
+            stepper.set_z2_lock(false);
+          }
+
+        #else
+
+          // Handy arrays of stepper lock function pointers
+
+          typedef void (*adjustFunc_t)(const bool);
+
+          adjustFunc_t lock[] = {
+            stepper.set_z_lock, stepper.set_z2_lock, stepper.set_z3_lock
+            #if NUM_Z_STEPPER_DRIVERS >= 4
+              , stepper.set_z4_lock
+            #endif
+          };
+          float adj[] = {
+            0, endstops.z2_endstop_adj, endstops.z3_endstop_adj
+            #if NUM_Z_STEPPER_DRIVERS >= 4
+              , endstops.z4_endstop_adj
+            #endif
+          };
+
+          adjustFunc_t tempLock;
+          float tempAdj;
+
+          // Manual bubble sort by adjust value
+          if (adj[1] < adj[0]) {
+            tempLock = lock[0], tempAdj = adj[0];
+            lock[0] = lock[1], adj[0] = adj[1];
+            lock[1] = tempLock, adj[1] = tempAdj;
+          }
+          if (adj[2] < adj[1]) {
+            tempLock = lock[1], tempAdj = adj[1];
+            lock[1] = lock[2], adj[1] = adj[2];
+            lock[2] = tempLock, adj[2] = tempAdj;
+          }
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            if (adj[3] < adj[2]) {
+              tempLock = lock[2], tempAdj = adj[2];
+              lock[2] = lock[3], adj[2] = adj[3];
+              lock[3] = tempLock, adj[3] = tempAdj;
+            }
+            if (adj[2] < adj[1]) {
+              tempLock = lock[1], tempAdj = adj[1];
+              lock[1] = lock[2], adj[1] = adj[2];
+              lock[2] = tempLock, adj[2] = tempAdj;
+            }
+          #endif
+          if (adj[1] < adj[0]) {
+            tempLock = lock[0], tempAdj = adj[0];
+            lock[0] = lock[1], adj[0] = adj[1];
+            lock[1] = tempLock, adj[1] = tempAdj;
+          }
+
+          if (pos_dir) {
+            // normalize adj to smallest value and do the first move
+            (*lock[0])(true);
+            do_homing_move(axis, adj[1] - adj[0]);
+            // lock the second stepper for the final correction
+            (*lock[1])(true);
+            do_homing_move(axis, adj[2] - adj[1]);
+            #if NUM_Z_STEPPER_DRIVERS >= 4
+              // lock the third stepper for the final correction
+              (*lock[2])(true);
+              do_homing_move(axis, adj[3] - adj[2]);
+            #endif
+          }
+          else {
+            #if NUM_Z_STEPPER_DRIVERS >= 4
+              (*lock[3])(true);
+              do_homing_move(axis, adj[2] - adj[3]);
+            #endif
+            (*lock[2])(true);
+            do_homing_move(axis, adj[1] - adj[2]);
+            (*lock[1])(true);
+            do_homing_move(axis, adj[0] - adj[1]);
+          }
+
           stepper.set_z_lock(false);
           stepper.set_z2_lock(false);
-        }
-      }
-    #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS)
-      if (axis == Z_AXIS) {
-        // we push the function pointers for the stepper lock function into an array
-        void (*lock[3]) (bool)= {&stepper.set_z_lock, &stepper.set_z2_lock, &stepper.set_z3_lock};
-        float adj[3] = {0, endstops.z2_endstop_adj, endstops.z3_endstop_adj};
+          stepper.set_z3_lock(false);
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            stepper.set_z4_lock(false);
+          #endif
 
-        void (*tempLock) (bool);
-        float tempAdj;
-
-        // manual bubble sort by adjust value
-        if (adj[1] < adj[0]) {
-          tempLock = lock[0], tempAdj = adj[0];
-          lock[0] = lock[1], adj[0] = adj[1];
-          lock[1] = tempLock, adj[1] = tempAdj;
-        }
-        if (adj[2] < adj[1]) {
-          tempLock = lock[1], tempAdj = adj[1];
-          lock[1] = lock[2], adj[1] = adj[2];
-          lock[2] = tempLock, adj[2] = tempAdj;
-        }
-        if (adj[1] < adj[0]) {
-          tempLock = lock[0], tempAdj = adj[0];
-          lock[0] = lock[1], adj[0] = adj[1];
-          lock[1] = tempLock, adj[1] = tempAdj;
-        }
-
-        if (pos_dir) {
-          // normalize adj to smallest value and do the first move
-          (*lock[0])(true);
-          do_homing_move(axis, adj[1] - adj[0]);
-          // lock the second stepper for the final correction
-          (*lock[1])(true);
-          do_homing_move(axis, adj[2] - adj[1]);
-        }
-        else {
-          (*lock[2])(true);
-          do_homing_move(axis, adj[1] - adj[2]);
-          (*lock[1])(true);
-          do_homing_move(axis, adj[0] - adj[1]);
-        }
-
-        stepper.set_z_lock(false);
-        stepper.set_z2_lock(false);
-        stepper.set_z3_lock(false);
+        #endif
       }
     #endif
 
     // Reset flags for X, Y, Z motor locking
     switch (axis) {
+      default: break;
       #if ENABLED(X_DUAL_ENDSTOPS)
         case X_AXIS:
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
         case Y_AXIS:
       #endif
-      #if Z_MULTI_ENDSTOPS
+      #if ENABLED(Z_MULTI_ENDSTOPS)
         case Z_AXIS:
       #endif
-      stepper.set_separate_multi_axis(false);
-      default: break;
+          stepper.set_separate_multi_axis(false);
     }
   #endif
 

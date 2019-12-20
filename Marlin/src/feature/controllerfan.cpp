@@ -55,6 +55,9 @@ void controllerfan_update() {
       #if HAS_Z3_ENABLE
         || Z3_ENABLE_READ() == bool(Z_ENABLE_ON)
       #endif
+      #if HAS_Z4_ENABLE
+        || Z4_ENABLE_READ() == bool(Z_ENABLE_ON)
+      #endif
       #if E_STEPPERS
         #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == bool(E_ENABLE_ON)
         REPEAT(E_STEPPERS, _OR_ENABLED_E)

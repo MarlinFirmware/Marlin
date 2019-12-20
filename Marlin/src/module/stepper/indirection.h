@@ -180,6 +180,27 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z3_DIR_WRITE(STATE) NOOP
 #endif
 
+// Z4 Stepper
+#if HAS_Z4_ENABLE
+  #ifndef Z4_ENABLE_INIT
+    #define Z4_ENABLE_INIT() SET_OUTPUT(Z4_ENABLE_PIN)
+    #define Z4_ENABLE_WRITE(STATE) WRITE(Z4_ENABLE_PIN,STATE)
+    #define Z4_ENABLE_READ() READ(Z4_ENABLE_PIN)
+  #endif
+  #ifndef Z4_DIR_INIT
+    #define Z4_DIR_INIT() SET_OUTPUT(Z4_DIR_PIN)
+    #define Z4_DIR_WRITE(STATE) WRITE(Z4_DIR_PIN,STATE)
+    #define Z4_DIR_READ() READ(Z4_DIR_PIN)
+  #endif
+  #define Z4_STEP_INIT SET_OUTPUT(Z4_STEP_PIN)
+  #ifndef Z4_STEP_WRITE
+    #define Z4_STEP_WRITE(STATE) WRITE(Z4_STEP_PIN,STATE)
+  #endif
+  #define Z4_STEP_READ READ(Z4_STEP_PIN)
+#else
+  #define Z4_DIR_WRITE(STATE) NOOP
+#endif
+
 // E0 Stepper
 #ifndef E0_ENABLE_INIT
   #define E0_ENABLE_INIT() SET_OUTPUT(E0_ENABLE_PIN)
@@ -491,8 +512,20 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z3_disable() NOOP
 #endif
 
-#define  enable_Z() do{ Z_enable();  Z2_enable();  Z3_enable();  }while(0)
-#define disable_Z() do{ Z_disable(); Z2_disable(); Z3_disable(); CBI(axis_known_position, Z_AXIS); }while(0)
+#if AXIS_DRIVER_TYPE_Z4(L6470)
+  extern L6470 stepperZ4;
+  #define Z4_enable()  NOOP
+  #define Z4_disable() stepperZ4.free()
+#elif HAS_Z4_ENABLE
+  #define Z4_enable()  Z4_ENABLE_WRITE( Z_ENABLE_ON)
+  #define Z4_disable() Z4_ENABLE_WRITE(!Z_ENABLE_ON)
+#else
+  #define Z4_enable()  NOOP
+  #define Z4_disable() NOOP
+#endif
+
+#define  enable_Z() do{ Z_enable();  Z2_enable();  Z3_enable();  Z4_enable(); }while(0)
+#define disable_Z() do{ Z_disable(); Z2_disable(); Z3_disable(); Z4_disable(); CBI(axis_known_position, Z_AXIS); }while(0)
 
 //
 // Extruder Stepper enable / disable

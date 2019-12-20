@@ -687,9 +687,6 @@
   #endif
 #endif
 
-// Is an endstop plug used for the X2 endstop?
-#define IS_X2_ENDSTOP(A,M) (ENABLED(X_DUAL_ENDSTOPS) && X2_USE_ENDSTOP == _##A##M##_)
-
 /**
  * Y_DUAL_ENDSTOPS endstop reassignment
  */
@@ -743,13 +740,11 @@
   #endif
 #endif
 
-// Is an endstop plug used for the Y2 endstop or the bed probe?
-#define IS_Y2_ENDSTOP(A,M) (ENABLED(Y_DUAL_ENDSTOPS) && Y2_USE_ENDSTOP == _##A##M##_)
-
 /**
- * Z_DUAL_ENDSTOPS endstop reassignment
+ * Z_MULTI_ENDSTOPS endstop reassignment
  */
-#if Z_MULTI_ENDSTOPS
+#if ENABLED(Z_MULTI_ENDSTOPS)
+
   #if Z_HOME_DIR > 0
     #if Z2_USE_ENDSTOP == _XMIN_
       #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -797,67 +792,108 @@
     #endif
     #define Z2_MAX_ENDSTOP_INVERTING false
   #endif
-#endif
 
-#if ENABLED(Z_TRIPLE_ENDSTOPS)
-  #if Z_HOME_DIR > 0
-    #if Z3_USE_ENDSTOP == _XMIN_
-      #define Z3_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
-      #define Z3_MAX_PIN X_MIN_PIN
-    #elif Z3_USE_ENDSTOP == _XMAX_
-      #define Z3_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
-      #define Z3_MAX_PIN X_MAX_PIN
-    #elif Z3_USE_ENDSTOP == _YMIN_
-      #define Z3_MAX_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
-      #define Z3_MAX_PIN Y_MIN_PIN
-    #elif Z3_USE_ENDSTOP == _YMAX_
-      #define Z3_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
-      #define Z3_MAX_PIN Y_MAX_PIN
-    #elif Z3_USE_ENDSTOP == _ZMIN_
-      #define Z3_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
-      #define Z3_MAX_PIN Z_MIN_PIN
-    #elif Z3_USE_ENDSTOP == _ZMAX_
-      #define Z3_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #define Z3_MAX_PIN Z_MAX_PIN
+  #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if Z_HOME_DIR > 0
+      #if Z3_USE_ENDSTOP == _XMIN_
+        #define Z3_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+        #define Z3_MAX_PIN X_MIN_PIN
+      #elif Z3_USE_ENDSTOP == _XMAX_
+        #define Z3_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+        #define Z3_MAX_PIN X_MAX_PIN
+      #elif Z3_USE_ENDSTOP == _YMIN_
+        #define Z3_MAX_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+        #define Z3_MAX_PIN Y_MIN_PIN
+      #elif Z3_USE_ENDSTOP == _YMAX_
+        #define Z3_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+        #define Z3_MAX_PIN Y_MAX_PIN
+      #elif Z3_USE_ENDSTOP == _ZMIN_
+        #define Z3_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+        #define Z3_MAX_PIN Z_MIN_PIN
+      #elif Z3_USE_ENDSTOP == _ZMAX_
+        #define Z3_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+        #define Z3_MAX_PIN Z_MAX_PIN
+      #else
+        #define Z3_MAX_ENDSTOP_INVERTING false
+      #endif
+      #define Z3_MIN_ENDSTOP_INVERTING false
     #else
+      #if Z3_USE_ENDSTOP == _XMIN_
+        #define Z3_MIN_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+        #define Z3_MIN_PIN X_MIN_PIN
+      #elif Z3_USE_ENDSTOP == _XMAX_
+        #define Z3_MIN_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+        #define Z3_MIN_PIN X_MAX_PIN
+      #elif Z3_USE_ENDSTOP == _YMIN_
+        #define Z3_MIN_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+        #define Z3_MIN_PIN Y_MIN_PIN
+      #elif Z3_USE_ENDSTOP == _YMAX_
+        #define Z3_MIN_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+        #define Z3_MIN_PIN Y_MAX_PIN
+      #elif Z3_USE_ENDSTOP == _ZMIN_
+        #define Z3_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+        #define Z3_MIN_PIN Z_MIN_PIN
+      #elif Z3_USE_ENDSTOP == _ZMAX_
+        #define Z3_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+        #define Z3_MIN_PIN Z_MAX_PIN
+      #else
+        #define Z3_MIN_ENDSTOP_INVERTING false
+      #endif
       #define Z3_MAX_ENDSTOP_INVERTING false
     #endif
-    #define Z3_MIN_ENDSTOP_INVERTING false
-  #else
-    #if Z3_USE_ENDSTOP == _XMIN_
-      #define Z3_MIN_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
-      #define Z3_MIN_PIN X_MIN_PIN
-    #elif Z3_USE_ENDSTOP == _XMAX_
-      #define Z3_MIN_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
-      #define Z3_MIN_PIN X_MAX_PIN
-    #elif Z3_USE_ENDSTOP == _YMIN_
-      #define Z3_MIN_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
-      #define Z3_MIN_PIN Y_MIN_PIN
-    #elif Z3_USE_ENDSTOP == _YMAX_
-      #define Z3_MIN_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
-      #define Z3_MIN_PIN Y_MAX_PIN
-    #elif Z3_USE_ENDSTOP == _ZMIN_
-      #define Z3_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
-      #define Z3_MIN_PIN Z_MIN_PIN
-    #elif Z3_USE_ENDSTOP == _ZMAX_
-      #define Z3_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #define Z3_MIN_PIN Z_MAX_PIN
-    #else
-      #define Z3_MIN_ENDSTOP_INVERTING false
-    #endif
-    #define Z3_MAX_ENDSTOP_INVERTING false
   #endif
-#endif
 
-// Is an endstop plug used for the Z2 endstop or the bed probe?
-#define IS_Z2_OR_PROBE(A,M) ( \
-     (Z_MULTI_ENDSTOPS && Z2_USE_ENDSTOP == _##A##M##_) \
-  || (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
+  #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if Z_HOME_DIR > 0
+      #if Z4_USE_ENDSTOP == _XMIN_
+        #define Z4_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+        #define Z4_MAX_PIN X_MIN_PIN
+      #elif Z4_USE_ENDSTOP == _XMAX_
+        #define Z4_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+        #define Z4_MAX_PIN X_MAX_PIN
+      #elif Z4_USE_ENDSTOP == _YMIN_
+        #define Z4_MAX_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+        #define Z4_MAX_PIN Y_MIN_PIN
+      #elif Z4_USE_ENDSTOP == _YMAX_
+        #define Z4_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+        #define Z4_MAX_PIN Y_MAX_PIN
+      #elif Z4_USE_ENDSTOP == _ZMIN_
+        #define Z4_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+        #define Z4_MAX_PIN Z_MIN_PIN
+      #elif Z4_USE_ENDSTOP == _ZMAX_
+        #define Z4_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+        #define Z4_MAX_PIN Z_MAX_PIN
+      #else
+        #define Z4_MAX_ENDSTOP_INVERTING false
+      #endif
+      #define Z4_MIN_ENDSTOP_INVERTING false
+    #else
+      #if Z4_USE_ENDSTOP == _XMIN_
+        #define Z4_MIN_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+        #define Z4_MIN_PIN X_MIN_PIN
+      #elif Z4_USE_ENDSTOP == _XMAX_
+        #define Z4_MIN_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+        #define Z4_MIN_PIN X_MAX_PIN
+      #elif Z4_USE_ENDSTOP == _YMIN_
+        #define Z4_MIN_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+        #define Z4_MIN_PIN Y_MIN_PIN
+      #elif Z4_USE_ENDSTOP == _YMAX_
+        #define Z4_MIN_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+        #define Z4_MIN_PIN Y_MAX_PIN
+      #elif Z4_USE_ENDSTOP == _ZMIN_
+        #define Z4_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+        #define Z4_MIN_PIN Z_MIN_PIN
+      #elif Z4_USE_ENDSTOP == _ZMAX_
+        #define Z4_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+        #define Z4_MIN_PIN Z_MAX_PIN
+      #else
+        #define Z4_MIN_ENDSTOP_INVERTING false
+      #endif
+      #define Z4_MAX_ENDSTOP_INVERTING false
+    #endif
+  #endif
 
-// Is an endstop plug used for the Z3 endstop or the bed probe?
-#define IS_Z3_OR_PROBE(A,M) ( \
-     (ENABLED(Z_TRIPLE_ENDSTOPS) && Z3_USE_ENDSTOP == _##A##M##_) \
-  || (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
+#endif // Z_MULTI_ENDSTOPS
 
 /**
  * Set ENDSTOPPULLUPS for active endstop switches
@@ -947,6 +983,11 @@
 #define HAS_Z3_STEP       (PIN_EXISTS(Z3_STEP))
 #define HAS_Z3_MICROSTEPS (PIN_EXISTS(Z3_MS1))
 
+#define HAS_Z4_ENABLE     (PIN_EXISTS(Z4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z4)))
+#define HAS_Z4_DIR        (PIN_EXISTS(Z4_DIR))
+#define HAS_Z4_STEP       (PIN_EXISTS(Z4_STEP))
+#define HAS_Z4_MICROSTEPS (PIN_EXISTS(Z4_MS1))
+
 // Extruder steppers and solenoids
 #define HAS_E0_ENABLE     (PIN_EXISTS(E0_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0)))
 #define HAS_E0_DIR        (PIN_EXISTS(E0_DIR))
@@ -999,6 +1040,7 @@
   #define Z_SENSORLESS  (AXIS_HAS_STALLGUARD(Z)  && defined(Z_STALL_SENSITIVITY))
   #define Z2_SENSORLESS (AXIS_HAS_STALLGUARD(Z2) && defined(Z2_STALL_SENSITIVITY))
   #define Z3_SENSORLESS (AXIS_HAS_STALLGUARD(Z3) && defined(Z3_STALL_SENSITIVITY))
+  #define Z4_SENSORLESS (AXIS_HAS_STALLGUARD(Z4) && defined(Z4_STALL_SENSITIVITY))
   #if ENABLED(SPI_ENDSTOPS)
     #define X_SPI_SENSORLESS X_SENSORLESS
     #define Y_SPI_SENSORLESS Y_SENSORLESS
@@ -1011,8 +1053,19 @@
     && E0_ENABLE_PIN != Y_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN ) \
 )
 
+//
 // Endstops and bed probe
-#define _HAS_STOP(A,M) (PIN_EXISTS(A##_##M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_OR_PROBE(A,M))
+//
+
+// Is an endstop plug used for extra Z endstops or the probe?
+#define IS_PROBE_PIN(A,M) (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == P)
+#define IS_X2_ENDSTOP(A,M) (ENABLED(X_DUAL_ENDSTOPS) && X2_USE_ENDSTOP == _##A##M##_)
+#define IS_Y2_ENDSTOP(A,M) (ENABLED(Y_DUAL_ENDSTOPS) && Y2_USE_ENDSTOP == _##A##M##_)
+#define IS_Z2_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && Z2_USE_ENDSTOP == _##A##M##_)
+#define IS_Z3_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && Z3_USE_ENDSTOP == _##A##M##_)
+#define IS_Z4_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && Z4_USE_ENDSTOP == _##A##M##_)
+
+#define _HAS_STOP(A,M) (PIN_EXISTS(A##_##M) && !IS_PROBE_PIN(A,M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_ENDSTOP(A,M) && !IS_Z3_ENDSTOP(A,M) && !IS_Z4_ENDSTOP(A,M))
 #define HAS_X_MIN _HAS_STOP(X,MIN)
 #define HAS_X_MAX _HAS_STOP(X,MAX)
 #define HAS_Y_MIN _HAS_STOP(Y,MIN)
@@ -1027,6 +1080,8 @@
 #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
 #define HAS_Z3_MIN (PIN_EXISTS(Z3_MIN))
 #define HAS_Z3_MAX (PIN_EXISTS(Z3_MAX))
+#define HAS_Z4_MIN (PIN_EXISTS(Z4_MIN))
+#define HAS_Z4_MAX (PIN_EXISTS(Z4_MAX))
 #define HAS_Z_MIN_PROBE_PIN (HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE))
 #define HAS_CALIBRATION_PIN (PIN_EXISTS(CALIBRATION))
 
@@ -1147,7 +1202,7 @@
 #define HAS_DIGIPOTSS         (PIN_EXISTS(DIGIPOTSS))
 #define HAS_MOTOR_CURRENT_PWM ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
 
-#define HAS_SOME_Z_MICROSTEPS (HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS)
+#define HAS_SOME_Z_MICROSTEPS (HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS || HAS_Z4_MICROSTEPS)
 #define HAS_SOME_E_MICROSTEPS (HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS || HAS_E5_MICROSTEPS)
 #define HAS_MICROSTEPS (HAS_X_MICROSTEPS || HAS_X2_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Y2_MICROSTEPS || HAS_SOME_Z_MICROSTEPS || HAS_SOME_E_MICROSTEPS)
 
@@ -1752,14 +1807,6 @@
 
 // If platform requires early initialization of watchdog to properly boot
 #define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
-
-#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-  #define Z_STEPPER_COUNT 3
-#elif ENABLED(Z_DUAL_STEPPER_DRIVERS)
-  #define Z_STEPPER_COUNT 2
-#else
-  #define Z_STEPPER_COUNT 1
-#endif
 
 #if HAS_SPI_LCD
   // Get LCD character width/height, which may be overridden by pins, configs, etc.

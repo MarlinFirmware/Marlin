@@ -39,7 +39,7 @@ L64XX_Marlin L64xxManager;
 
 void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }
 
-char L64XX_Marlin::index_to_axis[MAX_L64XX][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
+char L64XX_Marlin::index_to_axis[MAX_L64XX][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "Z4", "E0", "E1", "E2", "E3", "E4", "E5" };
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
@@ -61,12 +61,14 @@ uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = { (INVERT_X_DIR),               
                                                   #endif
                                                   (INVERT_Z_DIR),                         //  5 Z2
                                                   (INVERT_Z_DIR),                         //  6 Z3
-                                                  (INVERT_E0_DIR),                        //  7 E0
-                                                  (INVERT_E1_DIR),                        //  8 E1
-                                                  (INVERT_E2_DIR),                        //  9 E2
-                                                  (INVERT_E3_DIR),                        // 10 E3
-                                                  (INVERT_E4_DIR),                        // 11 E4
-                                                  (INVERT_E5_DIR),                        // 12 E5
+                                                  (INVERT_Z_DIR),                         //  7 Z4
+
+                                                  (INVERT_E0_DIR),                        //  8 E0
+                                                  (INVERT_E1_DIR),                        //  9 E1
+                                                  (INVERT_E2_DIR),                        // 10 E2
+                                                  (INVERT_E3_DIR),                        // 11 E3
+                                                  (INVERT_E4_DIR),                        // 12 E4
+                                                  (INVERT_E5_DIR),                        // 13 E5
                                                 };
 
 volatile uint8_t L64XX_Marlin::spi_abort = false;
@@ -100,6 +102,9 @@ void L6470_populate_chain_array() {
   #endif
   #if AXIS_IS_L64XX(Z3)
     _L6470_INIT_SPI(Z3);
+  #endif
+  #if AXIS_IS_L64XX(Z4)
+    _L6470_INIT_SPI(Z4);
   #endif
   #if AXIS_IS_L64XX(E0)
     _L6470_INIT_SPI(E0);
@@ -211,6 +216,9 @@ uint16_t L64XX_Marlin::get_status(const L64XX_axis_t axis) {
     #if AXIS_IS_L64XX(Z3)
       case Z3: return STATUS_L6470(Z3);
     #endif
+    #if AXIS_IS_L64XX(Z4)
+      case Z4: return STATUS_L6470(Z4);
+    #endif
     #if AXIS_IS_L64XX(E0)
       case E0: return STATUS_L6470(E0);
     #endif
@@ -261,6 +269,9 @@ uint32_t L64XX_Marlin::get_param(const L64XX_axis_t axis, const uint8_t param) {
     #if AXIS_IS_L64XX(Z3)
       case Z3: return GET_L6470_PARAM(Z3);
     #endif
+    #if AXIS_IS_L64XX(Z4)
+      case Z4: return GET_L6470_PARAM(Z4);
+    #endif
     #if AXIS_IS_L64XX(E0)
       case E0: return GET_L6470_PARAM(E0);
     #endif
@@ -310,6 +321,9 @@ void L64XX_Marlin::set_param(const L64XX_axis_t axis, const uint8_t param, const
     #endif
     #if AXIS_IS_L64XX(Z3)
       case Z3: SET_L6470_PARAM(Z3); break;
+    #endif
+    #if AXIS_IS_L64XX(Z4)
+      case Z4: SET_L6470_PARAM(Z4); break;
     #endif
     #if AXIS_IS_L64XX(E0)
       case E0: SET_L6470_PARAM(E0); break;
@@ -684,6 +698,9 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
     #if AXIS_IS_L64XX(Z3)
       {  6, 0, 0, 0, 0, 0, 0 },
     #endif
+    #if AXIS_IS_L64XX(Z4)
+      {  6, 0, 0, 0, 0, 0, 0 },
+    #endif
     #if AXIS_IS_L64XX(E0)
       {  7, 0, 0, 0, 0, 0, 0 },
     #endif
@@ -857,6 +874,9 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
         #endif
         #if AXIS_IS_L64XX(Z3)
           monitor_update(Z3);
+        #endif
+        #if AXIS_IS_L64XX(Z4)
+          monitor_update(Z4);
         #endif
         #if AXIS_IS_L64XX(E0)
           monitor_update(E0);

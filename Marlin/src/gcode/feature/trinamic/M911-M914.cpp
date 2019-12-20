@@ -37,7 +37,7 @@
 
   #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
   #define M91x_SOME_Y (M91x_USE(Y) || M91x_USE(Y2))
-  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3))
+  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3) || M91x_USE(Z4))
   #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
@@ -70,6 +70,9 @@
     #if M91x_USE(Z3)
       tmc_report_otpw(stepperZ3);
     #endif
+    #if M91x_USE(Z4)
+      tmc_report_otpw(stepperZ4);
+    #endif
     #if M91x_USE_E(0)
       tmc_report_otpw(stepperE0);
     #endif
@@ -92,7 +95,7 @@
 
   /**
    * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
-   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3 and E[index].
+   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4 and E[index].
    *       If no axes are given, clear all.
    *
    * Examples:
@@ -160,6 +163,9 @@
       #if M91x_USE(Z3)
         if (hasNone || zval == 3 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ3);
       #endif
+      #if M91x_USE(Z4)
+        if (hasNone || zval == 4 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ4);
+      #endif
     #endif
 
     #if M91x_SOME_E
@@ -198,7 +204,7 @@
     #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
-    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
+    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
       const uint8_t index = parser.byteval('I');
     #endif
     LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
@@ -229,6 +235,9 @@
           #endif
           #if AXIS_HAS_STEALTHCHOP(Z3)
             if (index == 0 || index == 3) TMC_SET_PWMTHRS(Z,Z3);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z4)
+            if (index == 0 || index == 4) TMC_SET_PWMTHRS(Z,Z4);
           #endif
           break;
         case E_AXIS: {
@@ -281,6 +290,9 @@
       #endif
       #if AXIS_HAS_STEALTHCHOP(Z3)
         TMC_SAY_PWMTHRS(Z,Z3);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z4)
+        TMC_SAY_PWMTHRS(Z,Z4);
       #endif
       #if E_STEPPERS && AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
@@ -347,6 +359,9 @@
             #if AXIS_HAS_STALLGUARD(Z3)
               if (index == 0 || index == 3) stepperZ3.homing_threshold(value);
             #endif
+            #if AXIS_HAS_STALLGUARD(Z4)
+              if (index == 0 || index == 4) stepperZ4.homing_threshold(value);
+            #endif
             break;
         #endif
       }
@@ -378,6 +393,9 @@
         #endif
         #if AXIS_HAS_STALLGUARD(Z3)
           tmc_print_sgt(stepperZ3);
+        #endif
+        #if AXIS_HAS_STALLGUARD(Z4)
+          tmc_print_sgt(stepperZ4);
         #endif
       #endif
     }

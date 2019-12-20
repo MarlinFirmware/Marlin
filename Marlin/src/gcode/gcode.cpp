@@ -566,8 +566,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 665: M665(); break;                                  // M665: Set delta configurations
       #endif
 
-      #if ANY(DELTA, X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS, Z_DUAL_ENDSTOPS)
-        case 666: M666(); break;                                  // M666: Set delta or dual endstop adjustment
+      #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
+        case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
       #endif
 
       #if ENABLED(FWRETRACT)
