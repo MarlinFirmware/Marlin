@@ -39,6 +39,7 @@
 // Public Variables
 // ------------------------
 static spi_t* spi[NUM_SPI_BUSES]  = { NULL };
+static uint8_t last_dev[NUM_SPI_BUSES];
 
 // ------------------------
 // Public functions
@@ -84,6 +85,7 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   char mess[50];
   sprintf(mess, PSTR("SPI %d Clock: %lu Hz"), bus_num, clock);
   SERIAL_ECHOLN(mess);
+  last_dev[bus_num] = -1;
 }
 
 uint8_t spiRec(uint8_t bus_num) {
@@ -190,6 +192,9 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
  * @return LL handle to the bus for additional configuration and start
  */
 SPI_TypeDef* spiLLSetBus(uint8_t dev_num) {
+  if (last_dev[BUS_OF_DEV(dev_num)] == dev_num) return;
+  last_dev[BUS_OF_DEV(dev_num)] = dev_num;
+
   SPI_TypeDef* hspi = BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)) -> Instance;
   
   LL_SPI_Disable(hspi);
@@ -293,7 +298,14 @@ uint32_t getPrescaler(uint8_t spiRate) {
   }
 }
 
+/**
+ * @brief  Configures the parameters of the bus to the required ones for the device
+ * @param  dev_num Device number (identifies device and bus)
+ */
 void spiSetBus(uint8_t dev_num) {
+  if (last_dev[BUS_OF_DEV(dev_num)] == dev_num) return;
+  last_dev[BUS_OF_DEV(dev_num)] = dev_num;
+
   BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPolarity = CPOL_OF_DEV(dev_num) == SPI_PLO ? SPI_POLARITY_LOW : SPI_POLARITY_HIGH;
   BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPhase = CPHA_OF_DEV(dev_num) == SPI_LTS ? SPI_PHASE_1EDGE : SPI_PHASE_2EDGE;
   BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.FirstBit = BITO_OF_DEV(dev_num) == SPI_LSB ?  SPI_FIRSTBIT_LSB : SPI_FIRSTBIT_MSB;
