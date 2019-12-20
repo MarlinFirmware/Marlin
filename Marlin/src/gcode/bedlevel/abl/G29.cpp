@@ -36,6 +36,11 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
+#if ENABLED(USE_TEMP_COMPENSATION)
+  #include "../../../feature/temp_comp.h"
+  #include "../../../module/temperature.h"
+#endif
+
 #if HAS_DISPLAY
   #include "../../../lcd/ultralcd.h"
 #endif
@@ -713,6 +718,15 @@ G29_TYPE GcodeSuite::G29() {
             set_bed_leveling_enabled(abl_should_enable);
             break; // Breaks out of both loops
           }
+
+          #if ENABLED(USE_TEMP_COMPENSATION)
+            measured_z = temp_comp.compensate_measurement(TempComp::TEMP_COMP_BED, thermalManager.degBed(), measured_z);
+            measured_z = temp_comp.compensate_measurement(TempComp::TEMP_COMP_PROBE, thermalManager.degProbe(), measured_z);
+            
+            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+              measured_z = temp_comp.compensate_measurement(TempComp::TEMP_COMP_EXT, thermalManager.degHotend(), measured_z);
+            #endif
+          #endif
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 

@@ -633,6 +633,9 @@ void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep/*=false*/
   #endif
+  #if ENABLED(USE_TEMP_COMPENSATION) // we send temperature, so no need to spam keepalive
+    ,bool no_keepalive/*=false*/  
+  #endif
 ) {
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
     recovery.outage();
@@ -655,7 +658,12 @@ void idle(
 
   ui.update();
 
-  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+  #if ENABLED(USE_TEMP_COMPENSATION)
+    #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    if (!no_keepalive)
+      gcode.host_keepalive();
+    #endif
+  #else
     gcode.host_keepalive();
   #endif
 

@@ -44,23 +44,27 @@
 #define TEMP_0_PIN         P0_24_A1   // A1 (T1) - (68) - TEMP_0_PIN
 #define TEMP_1_PIN         P0_25_A2   // A2 (T2) - (69) - TEMP_1_PIN
 
+#if TEMP_SENSOR_PROBE != 0
+  #define TEMP_PROBE_PIN TEMP_1_PIN
+#endif
+
 //
 // Heaters / Fans
 //
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN     P2_07
 #endif
-#if HOTENDS == 1
+#if HOTENDS == 1 // motor controller fan
   #ifndef FAN1_PIN
-    #define FAN1_PIN       P2_04
+    #define FAN1_PIN       P2_03 //P2_04 swapped due to connectors
   #endif
 #else
   #ifndef HEATER_1_PIN
     #define HEATER_1_PIN   P2_04
   #endif
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN          P2_03
+#ifndef FAN_PIN // print-part fan
+  #define FAN_PIN          P2_04 //P2_03 swapped due to connectors
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN   P2_05

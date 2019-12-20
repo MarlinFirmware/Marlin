@@ -42,6 +42,9 @@ void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
+  #if ENABLED(USE_TEMP_COMPENSATION)
+    ,bool no_keepalive=false       // pass true to suppress keepalive messages to be sent
+  #endif
 );
 
 void manage_inactivity(const bool ignore_stepper_queue=false);

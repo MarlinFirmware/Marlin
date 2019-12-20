@@ -109,6 +109,10 @@
   #include "../feature/bltouch.h"
 #endif
 
+#if ENABLED(USE_TEMP_COMPENSATION)
+  #include "../feature/temp_comp.h"
+#endif
+
 #if HAS_TRINAMIC
   #include "stepper/indirection.h"
   #include "../feature/tmc_util.h"
@@ -211,6 +215,15 @@ typedef struct SettingsDataStruct {
   // SERVO_ANGLES
   //
   uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+
+  //
+  // Temperature first layer compensation values
+  //
+  #if ENABLED(USE_TEMP_COMPENSATION)  // G76 and M871
+    int16_t z_offsets_probe[TEMP_COMP_PROBE_MEASUREMENTS];
+    int16_t z_offsets_bed[TEMP_COMP_BED_MEASUREMENTS];
+    int16_t z_offsets_ext[TEMP_COMP_EXT_MEASUREMENTS];
+  #endif
 
   //
   // BLTOUCH
@@ -698,6 +711,15 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(servo_angles);
     }
+
+    //
+    // Thermal first layer compensation values
+    //
+    #if ENABLED(USE_TEMP_COMPENSATION)
+      EEPROM_WRITE(temp_comp.z_offsets_probe);
+      EEPROM_WRITE(temp_comp.z_offsets_bed);
+      EEPROM_WRITE(temp_comp.z_offsets_ext);
+    #endif
 
     //
     // BLTOUCH
@@ -1508,6 +1530,15 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_READ(servo_angles_arr);
       }
+
+      //
+      // Thermal first layer compensation values
+      //
+      #if ENABLED(USE_TEMP_COMPENSATION)
+        EEPROM_READ(temp_comp.z_offsets_probe);
+        EEPROM_READ(temp_comp.z_offsets_bed);
+        EEPROM_READ(temp_comp.z_offsets_ext);
+      #endif
 
       //
       // BLTOUCH
