@@ -86,8 +86,6 @@ jobs:
       uses: actions/checkout@v1
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
-        export PATH=$GITHUB_WORKSPACE/buildroot/bin/:$GITHUB_WORKSPACE/buildroot/share/tests/:$PATH
-        cd $GITHUB_WORKSPACE/.. ; pwd
+        pwd
         ls
         env
-        run_tests ${HOME} ${{ matrix.test-platform }}
