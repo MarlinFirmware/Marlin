@@ -333,7 +333,7 @@ void GcodeSuite::G76() {
 /**
  * M871: Print/reset current temperature compensation offsets.
  *       Note: this does not effect values in EEPROM until initiating M500.
- *       M871 [ R | C ]
+ *       M871 [ R | B | P | E ]
  *        - no flag - Print current offset values.
  *        - `R` - Set offsets to all zeros, i.e. disabling compensation.
  *        - `B` - Manually set offset for bed
