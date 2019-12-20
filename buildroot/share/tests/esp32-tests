@@ -12,8 +12,8 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_ESPRESSIF_ESP32
 opt_enable WIFISUPPORT GCODE_MACROS BAUD_RATE_GCODE
-opt_set "WIFI_SSID \"ssid\""
-opt_set "WIFI_PWD \"password\""
+opt_set WIFI_SSID "\"ssid\""
+opt_set WIFI_PWD "\"password\""
 opt_set TX_BUFFER_SIZE 64
 opt_add WEBSUPPORT
 exec_test $1 $2 "ESP32 with WIFISUPPORT and WEBSUPPORT"
