@@ -1,0 +1,27 @@
+#
+# test-builds.yml
+# Do test builds to catch compile errors
+#
+
+name: Close PR
+
+on:
+  pull_request:
+    branches:
+    - 1.0.x
+    - 1.1.x
+    - 2.0.x
+
+jobs:
+  close_pr:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Comment and Close
+      uses: superbrothers/auto-close-action
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        env:
+        - COMMENT: "<p>Thanks for your contribution! Unfortunately we can't accept PRs directed at release branches. We make patches to the bugfix branches and only later do we push them out as releases. Please redo this PR starting with the `bugfix-2.0.x` branch and be careful to target `bugfix-2.0.x` when resubmitting the PR. It may help to set your fork's default branch to `bugfix-2.0.x`.</p><p>See http://marlinfw.org/docs/development/getting_started_pull_requests.html for full instructions.</p>"
