@@ -26,7 +26,10 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
+#define AVR_ATmega2560_FAMILY_PLUS_70 MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H)
+
 #if AVR_AT90USB1286_FAMILY
+
   // Working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
   // Can't use the "digitalPinToPort" function from the Teensyduino type IDEs
@@ -35,7 +38,9 @@
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort_Teensy(p)
   #define GET_PINMODE(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
+
 #elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70
+
   #include "pinsDebug_plus_70.h"
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer_plus_70(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask_plus_70(p)
@@ -43,11 +48,13 @@
   bool GET_PINMODE(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
 
 #else
+
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
   bool GET_PINMODE(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
   #define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
+
 #endif
 
 #define VALID_PIN(pin) (pin >= 0 && pin < NUM_DIGITAL_PINS ? 1 : 0)
