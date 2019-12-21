@@ -84,6 +84,15 @@ jobs:
         python-version: '3.7' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
+    - name: Cache PIO Installation
+      uses: actions/cache@v1
+      with:
+        path: ~/.platformio
+        key: pio-install-latest
+        restore-keys: |
+          pio-install-
+          pio-
+
     - name: Install PlatformIO
       run: |
         pip install -U https://github.com/platformio/platformio-core/archive/master.zip
