@@ -50,9 +50,9 @@
 //
 // Servos
 //
-#define SERVO0_PIN         PB0    //XS2-5
-#define SERVO1_PIN         PF7    //XS1-5
-#define SERVO2_PIN         PF8    //XS1-6
+#define SERVO0_PIN         PB0   // XS2-5
+#define SERVO1_PIN         PF7   // XS1-5
+#define SERVO2_PIN         PF8   // XS1-6
 
 //
 // Steppers
@@ -81,22 +81,22 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PC1  // T1 <-> E0
-#define TEMP_1_PIN         PC2  // T2 <-> E1
-#define TEMP_BED_PIN       PC0  // T0 <-> Bed
+#define TEMP_0_PIN         PC1   // T1 <-> E0
+#define TEMP_1_PIN         PC2   // T2 <-> E1
+#define TEMP_BED_PIN       PC0   // T0 <-> Bed
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PF3  // Heater0
-#define HEATER_1_PIN       PF2 // Heater1
-#define HEATER_BED_PIN     PF4 // Hotbed
-#define FAN_PIN            PA7  // Fan0
+#define HEATER_0_PIN       PF3   // Heater0
+#define HEATER_1_PIN       PF2   // Heater1
+#define HEATER_BED_PIN     PF4   // Hotbed
+#define FAN_PIN            PA7   // Fan0
 
 //
 // Misc. Functions
 //
-#define SDSS               -1//PB12
+#define SDSS               -1   //PB12
 
 #define SD_DETECT_PIN      PF9
 #define BEEPER_PIN         PG2
