@@ -26,6 +26,9 @@
  * Defines that depend on configuration but are not editable.
  */
 
+#ifdef GITHUB_ACTIONS
+  // Extras for CI testing
+#endif
 
 #ifdef TEENSYDUINO
   #undef max

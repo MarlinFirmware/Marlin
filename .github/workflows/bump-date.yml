@@ -1,0 +1,25 @@
+#
+# bump-date.yml
+# Bump the distribution date once per day
+#
+
+name: Bump Distribution Date
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  bump_date:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Check out bugfix-2.0.x
+      uses: actions/checkout@v2
+      with:
+        ref: bugfix-2.0.x
+
+    - name: Bump Distribution Date
+      run: source ./buildroot/bin/bump_date
