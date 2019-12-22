@@ -2239,7 +2239,12 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
       (axis == CORE_AXIS_2
         ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
         : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-      ) * 0.5f
+      ) * 
+      #ifdef ARDUINO_ARCH_ESP32
+		 (double)0.5
+	  #else 
+		 0.5f
+	  #endif
     #else // !IS_CORE
       count_position[axis]
     #endif
