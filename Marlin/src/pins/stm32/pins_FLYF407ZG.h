@@ -21,19 +21,23 @@
  */
 #pragma once
 
-
-
-#if HOTENDS > 6 || E_STEPPERS > 6
+#if !defined(STM32F4) && !defined(STM32F4xx)
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#elif HOTENDS > 6 || E_STEPPERS > 6
   #error "FLYF407ZG supports up to 6 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"
-#define DEFAULT_MACHINE_NAME "FLYF407ZG"
+#define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-
-#undef E2END 
+#undef E2END
 #define E2END 0xFFF // 4KB
 
+//
+// Servos
+//
+#define SERVO0_PIN         PE11
 
 //
 // Limit Switches
@@ -44,12 +48,12 @@
 #define Y_MAX_PIN          PF1
 #define Z_MIN_PIN          PF0
 #define Z_MAX_PIN          PC15
-#define Z3_PIN             PC14
+
 //
 // Z Probe (when not Z_MIN_PIN)
 //
+#define Z_MIN_PROBE_PIN    PC14   // Z3_PIN
 
- 
 //
 // Steppers
 //
@@ -79,47 +83,78 @@
 #define E0_DIR_PIN         PD3
 #define E0_ENABLE_PIN      PD4
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN         PD1
+  #define E0_CS_PIN        PD1
 #endif
 
 #define E1_STEP_PIN        PC6
-#define E1_DIR_PIN         PA15 
+#define E1_DIR_PIN         PA15
 #define E1_ENABLE_PIN      PD0
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN         PA14
+  #define E1_CS_PIN        PA14
 #endif
-
 
 #define E2_STEP_PIN        PD15
 #define E2_DIR_PIN         PG7
 #define E2_ENABLE_PIN      PG8
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN         PG6
+  #define E2_CS_PIN        PG6
 #endif
-
 
 #define E3_STEP_PIN        PD14
 #define E3_DIR_PIN         PG4
 #define E3_ENABLE_PIN      PG5
 #ifndef E3_CS_PIN
-  #define E3_CS_PIN         PG3
+  #define E3_CS_PIN        PG3
 #endif
 
 #define E4_STEP_PIN        PD13
 #define E4_DIR_PIN         PD11
 #define E4_ENABLE_PIN      PG2
 #ifndef E4_CS_PIN
-  #define E4_CS_PIN         PD10
+  #define E4_CS_PIN        PD10
 #endif
 
 #define E5_STEP_PIN        PD12
 #define E5_DIR_PIN         PD8
 #define E5_ENABLE_PIN      PD9
 #ifndef E5_CS_PIN
-  #define E5_CS_PIN         PB12
+  #define E5_CS_PIN        PB12
 #endif
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN         PA0   // Analog Input
+#define TEMP_1_PIN         PC1   // Analog Input
+#define TEMP_2_PIN         PC0   // Analog Input
+#define TEMP_3_PIN         PF10  // Analog Input
+#define TEMP_4_PIN         PF5   // Analog Input
+#define TEMP_5_PIN         PF4   // Analog Input
+#define TEMP_BED_PIN       PF3   // Analog Input
 
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       PF7
+#define HEATER_1_PIN       PF6
+#define HEATER_2_PIN       PE6
+#define HEATER_3_PIN       PE5
+#define HEATER_4_PIN       PE4
+#define HEATER_5_PIN       PA2
+#define HEATER_BED_PIN     PE2
+
+#ifndef FAN_PIN
+  #define FAN_PIN          PF8
+#endif
+#define FAN1_PIN           PF9
+#define FAN2_PIN           PE3
+#define FAN3_PIN           PA1
+#define FAN4_PIN           PE13
+#define FAN5_PIN           PB11
+
+//
+// Trinamic Software SPI
+//
 
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
@@ -132,6 +167,10 @@
     #define TMC_SW_SCK     PB13
   #endif
 #endif
+
+//
+// Trinamic Software Serial
+//
 
 #if HAS_TMC220x
   #define X_SERIAL_TX_PIN  PG13
@@ -151,63 +190,18 @@
 
   #define E2_SERIAL_TX_PIN PG6
   #define E2_SERIAL_RX_PIN PG6
- 
+
   #define E3_SERIAL_TX_PIN PG3
-  #define E3_SERIAL_RX_PIN PG3  
-  
+  #define E3_SERIAL_RX_PIN PG3
+
   #define E4_SERIAL_TX_PIN PD10
-  #define E4_SERIAL_RX_PIN PD10 
-  
+  #define E4_SERIAL_RX_PIN PD10
+
   #define E5_SERIAL_TX_PIN PB12
   #define E5_SERIAL_RX_PIN PB12
-  
+
 #endif
 
-
-
-//
-// Temperature Sensors
-//
-
-#define TEMP_0_PIN         PA0   // Analog Input
-#define TEMP_1_PIN         PC1   // Analog Input
-#define TEMP_2_PIN         PC0   // Analog Input
-#define TEMP_3_PIN         PF10  // Analog Input
-#define TEMP_4_PIN         PF5   // Analog Input
-#define TEMP_5_PIN         PF4   // Analog Input
-#define TEMP_BED_PIN       PF3   // Analog Input
-
-
-
-//
-// Heaters / Fans
-//
-
-#define HEATER_0_PIN       PF7
-#define HEATER_1_PIN       PF6
-#define HEATER_2_PIN       PE6
-#define HEATER_3_PIN       PE5
-#define HEATER_4_PIN       PE4
-#define HEATER_5_PIN       PA2
-#define HEATER_BED_PIN     PE2
-
-#ifndef FAN_PIN
-  #define FAN_PIN          PF8
-#endif
-#define FAN1_PIN           PF9
-#define FAN2_PIN           PE3
-#define FAN3_PIN           PA1
-#define FAN4_PIN           PE13
-#define FAN5_PIN           PB11
-
-
- 
-//
-// Servos
-//
-
-#define SERVO0_PIN         PE11
- 
 
 //
 // LCD / Controller
@@ -227,6 +221,7 @@
 #define BTN_EN1            PC4
 #define BTN_EN2            PC5
 #define BTN_ENC            PE15
+
 //
 // Filament runout
 //
@@ -239,11 +234,9 @@
 #ifndef ST7920_DELAY_1
   #define ST7920_DELAY_1 DELAY_NS(96)
 #endif
-
 #ifndef ST7920_DELAY_2
   #define ST7920_DELAY_2 DELAY_NS(48)
 #endif
-
 #ifndef ST7920_DELAY_3
   #define ST7920_DELAY_3 DELAY_NS(715)
 #endif
