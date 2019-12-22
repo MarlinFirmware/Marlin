@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 /**
@@ -29,7 +28,11 @@
  */
 
 #ifndef ARDUINO_ARCH_ESP32
-  "Oops! Select an ESP32 board in 'Tools > Board.'"
+  #error "Oops! Select an ESP32 board in 'Tools > Board.'"
+#elif EXTRUDERS > 1 || E_STEPPERS > 1
+  #error "MRR ESPA only supports one E Stepper. Comment out this line to continue."
+#elif HOTENDS > 1
+  #error "MRR ESPA currently supports only one hotend. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "MRR ESPA"
