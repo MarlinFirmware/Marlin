@@ -537,6 +537,9 @@
   #include "stm32/pins_VAKE403D.h"              // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
   #include "stm32/pins_FYSETC_S6.h"             // STM32F4                                env:FYSETC_S6
+#elif MB(FLYF407ZG)
+  #include "stm32/pins_FLYF407ZG.h"             // STM32F4                                env:FLYF407ZG
+
 //
 // ARM Cortex M7
 //
@@ -553,6 +556,10 @@
 #elif MB(ESPRESSIF_ESP32)
 
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
+#elif MB(MRR_ESPA)
+  #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
+#elif MB(MRR_ESPE)
+  #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
