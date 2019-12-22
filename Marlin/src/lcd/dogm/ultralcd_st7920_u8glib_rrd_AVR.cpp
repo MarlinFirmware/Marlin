@@ -25,7 +25,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if !defined(U8G_HAL_LINKS) && ANY(__AVR__, ARDUINO_ARCH_STM32)
+#if !defined(U8G_HAL_LINKS) && ANY(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32)
 
 #include "../../inc/MarlinConfig.h"
 
