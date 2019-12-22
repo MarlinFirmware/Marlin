@@ -25,13 +25,13 @@
 
 #include <Stream.h>
 
-#ifndef RX_BUFFER_SIZE
+#if !defined(RX_BUFFER_SIZE) && ENABLED(WIFISUPPORT)
   #define RX_BUFFER_SIZE 128
 #endif
 #ifndef TX_BUFFER_SIZE
   #define TX_BUFFER_SIZE 32
 #endif
-#if TX_BUFFER_SIZE <= 0
+#if (TX_BUFFER_SIZE <= 0) && ENABLED(WIFISUPPORT)
   #error "TX_BUFFER_SIZE is required for the WebSocket."
 #endif
 
