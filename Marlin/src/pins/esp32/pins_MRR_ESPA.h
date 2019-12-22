@@ -35,9 +35,9 @@
   #error "MRR ESPA currently supports only one hotend. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "MRR ESPA"
-#define BOARD_WEBSITE_URL "github.com/maplerainresearch/MRR_ESPA"
-#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#define BOARD_INFO_NAME       "MRR ESPA"
+#define BOARD_WEBSITE_URL     "github.com/maplerainresearch/MRR_ESPA"
+#define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
 
 //
 // Disable I2S stepper stream
@@ -52,9 +52,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          34
-#define Y_MIN_PIN          35
-#define Z_MIN_PIN          15
+#define X_STOP_PIN         34
+#define Y_STOP_PIN         35
+#define Z_STOP_PIN         15
 
 //
 // Steppers
