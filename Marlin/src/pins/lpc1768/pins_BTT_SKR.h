@@ -58,6 +58,9 @@
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN     P0_23_A0   // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
+#if HOTENDS == 1 && TEMP_SENSOR_PROBE != 0
+  #define TEMP_PROBE_PIN TEMP_1_PIN
+#endif
 
 //
 // Heaters / Fans
@@ -67,7 +70,7 @@
 #endif
 #if HOTENDS == 1
   #ifndef FAN1_PIN
-    #define FAN1_PIN       P2_04
+    #define FAN1_PIN       P2_03 // Swapped due to different plugs
   #endif
 #else
   #ifndef HEATER_1_PIN
@@ -75,7 +78,7 @@
   #endif
 #endif
 #ifndef FAN_PIN
-  #define FAN_PIN          P2_03
+  #define FAN_PIN          P2_04 // Swapped due to different plugs
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN   P2_05

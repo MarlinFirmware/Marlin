@@ -47,8 +47,8 @@
 
 // Identifiers for other heaters
 typedef enum : int8_t {
-  INDEX_NONE = -4,
-  H_REDUNDANT, H_CHAMBER, H_BED,
+  INDEX_NONE = -5,
+  H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
   H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
 } heater_ind_t;
 
@@ -113,6 +113,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_CHAMBER
     PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
+  #endif
+  #if HAS_TEMP_PROBE
+    PrepareTemp_PROBE, MeasureTemp_PROBE,
   #endif
   #if HAS_TEMP_ADC_1
     PrepareTemp_1, MeasureTemp_1,
@@ -207,6 +210,9 @@ struct PIDHeaterInfo : public HeaterInfo {
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
 #endif
+#if HAS_TEMP_PROBE
+  typedef temp_info_t probe_info_t;
+#endif
 
 // Heater idle handling
 typedef struct {
@@ -261,6 +267,9 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
     #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
       CTI_CHAMBER,
     #endif
+    #if ENABLED(HEATER_PROBE_USER_THERMISTOR)
+      CTI_PROBE,
+    #endif
     USER_THERMISTORS
   };
 
@@ -296,6 +305,10 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       static chamber_info_t temp_chamber;
+    #endif
+
+    #if HAS_TEMP_PROBE
+      static probe_info_t temp_probe;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -469,6 +482,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_CHAMBER
       static float analog_to_celsius_chamber(const int raw);
+    #endif
+    #if HAS_TEMP_PROBE
+      static float analog_to_celsius_probe(const int raw);
     #endif
 
     #if FAN_COUNT > 0
@@ -694,6 +710,19 @@ class Temperature {
         start_watching_chamber();
       }
     #endif // HAS_HEATED_CHAMBER
+
+    #if HAS_TEMP_PROBE
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
+      #endif
+      FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
+    #endif // HAS_TEMP_PROBE
+
+    #if WATCH_PROBE
+      static void start_watching_probe();
+    #else
+      static inline void start_watching_probe() {}
+    #endif // WATCH_PROBE
 
     /**
      * The software PWM power for a heater
