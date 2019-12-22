@@ -338,6 +338,13 @@ xyze_int8_t Stepper::count_direction{0};
 #if DISABLED(MIXING_EXTRUDER)
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
+
+#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
+constexpr uint32_t NS_PER_PULSE_TIMER_TICK = 1000000000UL / (STEPPER_TIMER_RATE);
+
+// Round up when converting from ns to timer ticks
+constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK); }
+
 #define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
 
 #define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
@@ -1430,7 +1437,7 @@ void Stepper::stepper_pulse_phase_isr() {
   // Take multiple steps per interrupt (For high speed moves)
   bool firstStep = true;
   xyze_bool_t step_needed{0};
-  hal_timer_t end_tick_count;
+  hal_timer_t end_tick_count = 0;
 
   do {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
@@ -1941,7 +1948,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     // Step E stepper if we have steps
     bool firstStep = true;
-    hal_timer_t end_tick_count;
+    hal_timer_t end_tick_count = 0;
 
     while (LA_steps) {
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
