@@ -180,7 +180,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driv %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driv %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driv %");
-  
+
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Skriv");
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Forsæt print");
