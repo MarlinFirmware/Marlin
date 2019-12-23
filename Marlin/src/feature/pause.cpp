@@ -694,6 +694,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     thermalManager.set_fans_paused(false);
   #endif
 
+  #if HAS_FILAMENT_SENSOR
+    runout.reset();
+  #endif
+
   // Resume the print job timer if it was running
   if (print_job_timer.isPaused()) print_job_timer.start();
 
