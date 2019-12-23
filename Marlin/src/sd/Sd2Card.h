@@ -185,8 +185,6 @@ private:
 
   bool readData(uint8_t* dst, const uint16_t count);
   bool readRegister(const uint8_t cmd, void* buf);
-  void chipDeselect();
-  void chipSelect();
   inline void type(const uint8_t value) { type_ = value; }
   bool waitNotBusy(const millis_t timeout_ms);
   bool writeData(const uint8_t token, const uint8_t* src);
