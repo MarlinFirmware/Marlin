@@ -311,6 +311,7 @@
 #define BOARD_VAKE403D                4211  // VAkE 403D (STM32F446VET6)
 #define BOARD_FYSETC_S6               4212  // FYSETC S6 board
 #define BOARD_FLYF407ZG               4213  // FLYF407ZG board (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4214  // MKS_ROBIN2 (STM32F407ZE)
 
 //
 // ARM Cortex M7
