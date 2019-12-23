@@ -28,8 +28,8 @@
 #include <spi_com.h> //use this as helper for SPI peripheral Init configuration (temporary)
 
 #ifdef SPI_HAS_HW_CRC
-//add proper LL includes for board controller
-#include <stm32f4xx_ll_spi.h>
+  // Add proper LL includes for board controller
+  #include <stm32f4xx_ll_spi.h>
 #endif
 
 #define SPI_TRANSFER_TIMEOUT 1000
@@ -58,7 +58,7 @@ bool spiInitialized(uint8_t bus_num) {
  * @return Nothing
  */
 void spiInit(uint8_t bus_num, uint8_t spiRate) {
-  if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); //spi was already initialized maybe at a different clock. de-init & re-init
+  if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); // SPI already initialized (maybe at a different clock). De-init & re-init.
 
   spi[bus_num] = new spi_t();
   spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
@@ -66,19 +66,19 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   uint32_t clock = spi_getClkFreq(spi[bus_num]);
 
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock /= 2;   break; //MAX Speed
+    case SPI_FULL_SPEED:    clock /= 2;   break; // MAX Speed
     case SPI_HALF_SPEED:    clock /= 4;   break;
     case SPI_QUARTER_SPEED: clock /= 8;   break;
     case SPI_EIGHTH_SPEED:  clock /= 16;  break;
     case SPI_SPEED_5:       clock /= 128; break;
-    case SPI_SPEED_6:       clock /= 256; break; //MIN Speed
+    case SPI_SPEED_6:       clock /= 256; break; // MIN Speed
     default:
       clock = SPI_SPEED_CLOCK_DEFAULT; // Default from the SPI library
   }
 
   spi[bus_num] -> pin_miso = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MISO]);
   spi[bus_num] -> pin_mosi = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_MOSI]);
-  spi[bus_num] -> pin_ssel = NC; //this is choosen "manually" at each read/write to/from device
+  spi[bus_num] -> pin_ssel = NC; // Chosen "manually" for each device transaction
 
   spi_init(spi[bus_num], clock, (spi_mode_e)SPI_BusConfig[bus_num][SPIBUS_MODE], SPI_BusConfig[bus_num][SPIBUS_BITO]);
 
@@ -89,96 +89,95 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
 }
 
 uint8_t spiRec(uint8_t bus_num) {
-#ifdef DUMP_SPI
-  SERIAL_ECHO("R");
-  SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO(":");
-#endif
+  #ifdef DUMP_SPI
+    SERIAL_CHAR('R');
+    SERIAL_PRINT(bus_num, DEC);
+    SERIAL_CHAR(':');
+  #endif
 
-  uint8_t b = 0xff;
+  uint8_t b = 0xFF;
 
   if (spiInitialized(bus_num)) {
     HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), &b, 1, SPI_TRANSFER_TIMEOUT);
 
-#ifdef DUMP_SPI
-    SERIAL_PRINTLN(b, HEX);
-#endif
+    #ifdef DUMP_SPI
+      SERIAL_PRINTLN(b, HEX);
+    #endif
   }
 
   return b;
 }
 
 void spiSend(uint8_t bus_num, uint8_t b) {
-#ifdef DUMP_SPI
-  SERIAL_ECHO("S");
-  SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO(":");
-#endif
+  #ifdef DUMP_SPI
+    SERIAL_CHAR('S');
+    SERIAL_PRINT(bus_num, DEC);
+    SERIAL_CHAR(':');
+  #endif
 
   if (!spiInitialized(bus_num)) return;
 
-#ifdef DUMP_SPI
-  SERIAL_PRINTLN(b, HEX);
-#endif
+  #ifdef DUMP_SPI
+    SERIAL_PRINTLN(b, HEX);
+  #endif
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), &b, sizeof(uint8_t), SPI_TRANSFER_TIMEOUT);
 }
 
 /**
- * @brief  Receives a number of bytes from the SPI port to a buffer
+ * @brief  Receive a number of bytes from the SPI port to a buffer
  * 
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
  * 
  * @return Nothing
- *
  */
 void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
-#ifdef DUMP_SPI
-  SERIAL_ECHO("D");
-  SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO(":");
-#endif
+  #ifdef DUMP_SPI
+    SERIAL_CHAR('D');
+    SERIAL_PRINT(bus_num, DEC);
+    SERIAL_CHAR(':');
+  #endif
 
   if (count == 0 || !spiInitialized(bus_num)) return;
-  memset(buf, 0xff, count);
+  memset(buf, 0xFF, count);
 
   HAL_SPI_Receive(BUS_SPI_HANDLE(bus_num), buf, count, SPI_TRANSFER_TIMEOUT);
 
-#ifdef DUMP_SPI
-  for (uint16_t b=0; b<count && b<=DUMP_SPI; b++) {
-    SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO(b==DUMP_SPI ? "...":" ");
-  }
-  SERIAL_ECHOLN();
-#endif
+  #ifdef DUMP_SPI
+    for (uint16_t b = 0; b < count && b <= DUMP_SPI; b++) {
+      SERIAL_PRINT(buf[b], HEX);
+      serialprintPGM(b == DUMP_SPI ? PSTR("...") : PSTR(" "));
+    }
+    SERIAL_EOL();
+  #endif
 }
+
 /**
- * @brief  Sends a number of bytes to the SPI port 
+ * @brief  Send a number of bytes to the SPI port 
  * 
  * @param  bus_num Bus number
  * @param  buf     Pointer to starting address of buffer to send.
  * @param  count   Number of bytes to send.
  * 
  * @return Nothing
- *
  */
 void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
-#ifdef DUMP_SPI
-  SERIAL_ECHO("U");
-  SERIAL_PRINT(bus_num, DEC);
-  SERIAL_ECHO(":");
-#endif
+  #ifdef DUMP_SPI
+    SERIAL_CHAR('U');
+    SERIAL_PRINT(bus_num, DEC);
+    SERIAL_CHAR(':');
+  #endif
 
   if (count == 0 || !spiInitialized(bus_num)) return;
 
-#ifdef DUMP_SPI
-  for (uint16_t b=0; b<count && b<=DUMP_SPI; b++) {
-    SERIAL_PRINT(buf[b], HEX);
-    SERIAL_ECHO(b==DUMP_SPI ? "...":" ");
-  }
-  SERIAL_ECHOLN();
-#endif
+  #ifdef DUMP_SPI
+    for (uint16_t b = 0; b < count && b <= DUMP_SPI; b++) {
+      SERIAL_PRINT(buf[b], HEX);
+      serialprintPGM(b == DUMP_SPI ? PSTR("...") : PSTR(" "));
+    }
+    SERIAL_EOL();
+  #endif
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
 }
@@ -186,6 +185,7 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
 //Device functions
 
 #ifdef SPI_HAS_HW_CRC
+
 /**
  * @brief  Configures the parameters of the bus to the required ones for the device
  * @param  dev_num Device number (identifies device and bus)
@@ -207,7 +207,6 @@ SPI_TypeDef* spiLLSetBus(uint8_t dev_num) {
 
 uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
-  digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiLLSetBus(dev_num);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
@@ -219,87 +218,80 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   bool send = true;
   uint16_t remR = count;
 
-  //data send
+  // data send
   while (remR > 0) {
-    if (LL_SPI_IsActiveFlag_TXE(hspi) && send) {        //if transmit buffer is empty and we need to send
-      LL_SPI_TransmitData16(hspi, 0xFFFF);              //send
-      send = false;                                     //and wait
+    if (LL_SPI_IsActiveFlag_TXE(hspi) && send) {        // if transmit buffer is empty and we need to send
+      LL_SPI_TransmitData16(hspi, 0xFFFF);              // send
+      send = false;                                     // and wait
     }
 
-    if (LL_SPI_IsActiveFlag_RXNE(hspi)) {               //if receive buffer is not empty
-      buf[count - remR--] = __REV16(LL_SPI_ReceiveData16(hspi)); //receive
-      send = true;                                      //and send next
+    if (LL_SPI_IsActiveFlag_RXNE(hspi)) {               // if receive buffer is not empty
+      buf[count - remR--] = __REV16(LL_SPI_ReceiveData16(hspi)); // receive
+      send = true;                                      // and send next
     }
   }
 
-  //CRC
-  while (LL_SPI_IsActiveFlag_BSY(hspi));                //wait for CRC to be ready
-  uint16_t hwCRC = (uint16_t)LL_SPI_GetRxCRC(hspi);     //get CRC
+  // CRC
+  while (LL_SPI_IsActiveFlag_BSY(hspi));                // wait for CRC to be ready
+  uint16_t hwCRC = (uint16_t)LL_SPI_GetRxCRC(hspi);     // get CRC
 
-  //bus reset (not necessary when every call will be transacted)
-  {
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
   LL_SPI_DisableCRC(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_8BIT);
   LL_SPI_Enable(hspi);
-  digitalWrite(CS_OF_DEV(dev_num), LOW); //this is temporary until all the SD card calls will be by device and not by bus. by then the CS will need to be left high
-  }
 
-  return hwCRC; //return HW-computed CRC
+  return hwCRC; // Return HW-computed CRC
 }
 
 uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
   if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
-  digitalWrite(CS_OF_DEV(dev_num), HIGH); //this is temporary until ALL SD card calls will be by device and not by bus. by then the CS will already be high when entering this
 
   SPI_TypeDef * hspi = spiLLSetBus(dev_num);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_16BIT);
-  LL_SPI_SetCRCPolynomial(hspi, 0x1021); //0x1021 is the normal polynomial for CRC16-CCITT
-  LL_SPI_EnableCRC(hspi); //to clear CRC registers
+  LL_SPI_SetCRCPolynomial(hspi, 0x1021); // 0x1021 is the normal polynomial for CRC16-CCITT
+  LL_SPI_EnableCRC(hspi); // to clear CRC registers
   LL_SPI_Enable(hspi);
   digitalWrite(CS_OF_DEV(dev_num), LOW); //leave after LL_SPI_Enable
 
   uint16_t remT = count;
 
   while (remT > 0)
-    if (LL_SPI_IsActiveFlag_TXE(hspi))                           //if transmit buffer is empty
-      LL_SPI_TransmitData16(hspi, __REV16(buf[count - remT--])); //send next
+    if (LL_SPI_IsActiveFlag_TXE(hspi))                           // if transmit buffer is empty
+      LL_SPI_TransmitData16(hspi, __REV16(buf[count - remT--])); // send next
 
-  //send complete. CRC's turn
-  //LL_SPI_SetCRCNext(hspi); do not send it now. we need the reply externally
-  while (LL_SPI_IsActiveFlag_BSY(hspi) || !LL_SPI_IsActiveFlag_TXE(hspi)); //wait for empty send buffer
-  uint16_t hwCRC = LL_SPI_GetTxCRC(hspi);                                  //get running CRC
+  // send complete. CRC's turn
+  //LL_SPI_SetCRCNext(hspi); // do not send it now. we need the reply externally
+  while (LL_SPI_IsActiveFlag_BSY(hspi) || !LL_SPI_IsActiveFlag_TXE(hspi)); // wait for empty send buffer
+  uint16_t hwCRC = LL_SPI_GetTxCRC(hspi);                                  // get running CRC
 
-  //bus reset
+  // bus reset
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   LL_SPI_Disable(hspi);
   LL_SPI_DisableCRC(hspi);
   LL_SPI_SetDataWidth(hspi, LL_SPI_DATAWIDTH_8BIT);
   LL_SPI_Enable(hspi);
 
-  digitalWrite(CS_OF_DEV(dev_num), LOW); //this is temporary until all the SD card calls will be by device and not by bus. by then the CS will need to be left high
-
-  return hwCRC; //return HW-computed CRC
+  return hwCRC; // Return HW-computed CRC
 }
-#endif
 
-//converts Marlin speed enum to STM prescaler
+#endif // SPI_HAS_HW_CRC
+
+// Convert Marlin speed enum to STM prescaler
 uint32_t getPrescaler(uint8_t spiRate) {
-  switch (spiRate)
-  {
-    case SPI_FULL_SPEED:    return SPI_BAUDRATEPRESCALER_2; //MAX Speed
+  switch (spiRate) {
+    case SPI_FULL_SPEED:    return SPI_BAUDRATEPRESCALER_2; // MAX Speed
     case SPI_HALF_SPEED:    return SPI_BAUDRATEPRESCALER_4;
     case SPI_QUARTER_SPEED: return SPI_BAUDRATEPRESCALER_8;
     case SPI_EIGHTH_SPEED:  return SPI_BAUDRATEPRESCALER_16;
     case SPI_SPEED_5:       return SPI_BAUDRATEPRESCALER_128;
-    case SPI_SPEED_6:       return SPI_BAUDRATEPRESCALER_256; //MIN Speed
+    case SPI_SPEED_6:       return SPI_BAUDRATEPRESCALER_256; // MIN Speed
     default:                return -1;
   }
 }
 
 /**
- * @brief  Configures the parameters of the bus to the required ones for the device
+ * @brief  Configure the bus parameters to those required for the device
  * @param  dev_num Device number (identifies device and bus)
  */
 void spiSetBus(uint8_t dev_num) {
@@ -311,20 +303,19 @@ void spiSetBus(uint8_t dev_num) {
   BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.FirstBit = BITO_OF_DEV(dev_num) == SPI_LSB ?  SPI_FIRSTBIT_LSB : SPI_FIRSTBIT_MSB;
   BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.BaudRatePrescaler = getPrescaler(
     (SPD_OF_DEV(dev_num) == NC) ?
-    SPI_BusConfig[BUS_OF_DEV(dev_num)][SPIBUS_DSPD] : //take default bus speed
-    SPD_OF_DEV(dev_num)                               //use device speed
+    SPI_BusConfig[BUS_OF_DEV(dev_num)][SPIBUS_DSPD] : // take default bus speed
+    SPD_OF_DEV(dev_num)                               // use device speed
   );
 
   HAL_SPI_Init(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)));
 }
 
 /**
- * @brief  Receives a single byte from the SPI device.
+ * @brief  Receive a single byte from the SPI device.
  * 
  * @param  dev_num Device number (identifies device and bus)
  * 
  * @return Byte received
- *
  */
 uint8_t spiRecDevice(uint8_t dev_num) {
   spiSetBus(dev_num);
@@ -335,14 +326,26 @@ uint8_t spiRecDevice(uint8_t dev_num) {
 }
 
 /**
- * @brief  Receives a number of bytes from the SPI port to a buffer
+ * @brief  Send a single byte to a SPI device
+ * 
+ * @param  dev_num Device number (identifies device and bus)
+ * @param  b Byte to send
+ */
+void spiSendDevice(uint8_t dev_num, uint8_t b) {
+  spiSetBus(dev_num);
+  digitalWrite(CS_OF_DEV(dev_num), LOW);
+  spiSend(BUS_OF_DEV(dev_num), b);
+  digitalWrite(CS_OF_DEV(dev_num), HIGH);
+}
+
+/**
+ * @brief  Get a number of bytes from the SPI device into a buffer
  * 
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
  * 
  * @return Nothing
- *
  */
 void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
   spiSetBus(dev_num);
@@ -352,17 +355,18 @@ void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
 }
 
 /**
- * @brief  Sends a single byte to a SPI device
+ * @brief  Write a number of bytes from the buffer to a SPI device
  * 
  * @param  dev_num Device number (identifies device and bus)
- * @param  b Byte to send
- *
- * @details
+ * @param  buf     Pointer to starting address of buffer to write to.
+ * @param  count   Number of bytes to receive.
+ * 
+ * @return Nothing
  */
-void spiSendDevice(uint8_t dev_num, uint8_t b) {
+void spiWriteDevice(uint8_t dev_num, const uint8_t* buf, uint16_t count) {
   spiSetBus(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiSend(BUS_OF_DEV(dev_num), b);
+  spiWrite(BUS_OF_DEV(dev_num), buf, count);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 

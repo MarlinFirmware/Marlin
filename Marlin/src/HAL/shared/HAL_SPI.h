@@ -154,6 +154,8 @@ uint8_t spiRecDevice(uint8_t dev_num);
 
 // Read from SPI device into buffer
 void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count);
+// Write from buffer to SPI device
+void spiWriteDevice(uint8_t dev_num, const uint8_t* buf, uint16_t count);
 
 // Read from SPI device into buffer and return true if crc is OK
 uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, uint16_t count);
