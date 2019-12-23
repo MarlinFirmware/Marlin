@@ -323,7 +323,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 59: G59(); break;
       #endif
 
-      #if ENABLED(USE_TEMP_COMPENSATION)
+      #if ENABLED(PROBE_TEMP_COMPENSATION)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
@@ -757,7 +757,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         M810_819(); break;                                        // M810-M819: Define/execute G-code macro
       #endif
 
-      #if ENABLED(USE_TEMP_COMPENSATION)
+      #if ENABLED(PROBE_TEMP_COMPENSATION)
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 

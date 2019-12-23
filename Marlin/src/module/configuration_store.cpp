@@ -114,8 +114,8 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(USE_TEMP_COMPENSATION)
-  #include "../feature/temp_comp.h"
+#if ENABLED(PROBE_TEMP_COMPENSATION)
+  #include "../feature/probe_temp_compensation.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -219,10 +219,13 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(USE_TEMP_COMPENSATION)  // G76 and M871
-    int16_t z_offsets_probe[TEMP_COMP_PROBE_MEASUREMENTS];
-    int16_t z_offsets_bed[TEMP_COMP_BED_MEASUREMENTS];
-    int16_t z_offsets_ext[TEMP_COMP_EXT_MEASUREMENTS];
+  #if ENABLED(PROBE_TEMP_COMPENSATION)
+    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
+            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
+            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
+            #endif
+          ;
   #endif
 
   //
@@ -715,10 +718,14 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(USE_TEMP_COMPENSATION)
+    #if ENABLED(PROBE_TEMP_COMPENSATION)
       EEPROM_WRITE(temp_comp.z_offsets_probe);
       EEPROM_WRITE(temp_comp.z_offsets_bed);
-      EEPROM_WRITE(temp_comp.z_offsets_ext);
+      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+        EEPROM_WRITE(temp_comp.z_offsets_ext);
+      #endif
+    #else
+      // No placeholder data for this feature
     #endif
 
     //
@@ -1539,11 +1546,15 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(USE_TEMP_COMPENSATION)
+      #if ENABLED(PROBE_TEMP_COMPENSATION)
         EEPROM_READ(temp_comp.z_offsets_probe);
         EEPROM_READ(temp_comp.z_offsets_bed);
-        EEPROM_READ(temp_comp.z_offsets_ext);
+        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+          EEPROM_READ(temp_comp.z_offsets_ext);
+        #endif
         temp_comp.reset_index();
+      #else
+        // No placeholder data for this feature
       #endif
 
       //

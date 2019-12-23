@@ -36,8 +36,8 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if ENABLED(USE_TEMP_COMPENSATION)
-  #include "../../../feature/temp_comp.h"
+#if ENABLED(PROBE_TEMP_COMPENSATION)
+  #include "../../../feature/probe_temp_compensation.h"
   #include "../../../module/temperature.h"
 #endif
 
@@ -719,12 +719,11 @@ G29_TYPE GcodeSuite::G29() {
             break; // Breaks out of both loops
           }
 
-          #if ENABLED(USE_TEMP_COMPENSATION)
-            measured_z = temp_comp.compensate_measurement(TempComp::TEMP_COMP_BED, thermalManager.degBed(), measured_z);
-            measured_z = temp_comp.compensate_measurement(TempComp::TEMP_COMP_PROBE, thermalManager.degProbe(), measured_z);
-            
+          #if ENABLED(PROBE_TEMP_COMPENSATION)
+            temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), measured_z);
+            temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), measured_z);
             #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              measured_z = temp_comp.compensate_measurement(TempComp::TEMP_COMP_EXT, thermalManager.degHotend(), measured_z);
+              temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(), measured_z);
             #endif
           #endif
 

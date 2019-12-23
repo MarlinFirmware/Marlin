@@ -205,13 +205,13 @@ struct PIDHeaterInfo : public HeaterInfo {
     typedef heater_info_t bed_info_t;
   #endif
 #endif
+#if HAS_TEMP_PROBE
+  typedef temp_info_t probe_info_t;
+#endif
 #if HAS_HEATED_CHAMBER
   typedef heater_info_t chamber_info_t;
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
-#endif
-#if HAS_TEMP_PROBE
-  typedef temp_info_t probe_info_t;
 #endif
 
 // Heater idle handling
@@ -264,11 +264,11 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
     #if ENABLED(HEATER_BED_USER_THERMISTOR)
       CTI_BED,
     #endif
-    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
-      CTI_CHAMBER,
-    #endif
     #if ENABLED(HEATER_PROBE_USER_THERMISTOR)
       CTI_PROBE,
+    #endif
+    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
+      CTI_CHAMBER,
     #endif
     USER_THERMISTORS
   };
@@ -298,23 +298,19 @@ class Temperature {
       #endif
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
     #endif
-
     #if HAS_HEATED_BED
       static bed_info_t temp_bed;
     #endif
-
-    #if HAS_TEMP_CHAMBER
-      static chamber_info_t temp_chamber;
-    #endif
-
     #if HAS_TEMP_PROBE
       static probe_info_t temp_probe;
+    #endif
+    #if HAS_TEMP_CHAMBER
+      static chamber_info_t temp_chamber;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
       static uint8_t autofan_speed[HOTENDS];
     #endif
-
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
       static uint8_t chamberfan_speed;
     #endif
@@ -480,11 +476,11 @@ class Temperature {
     #if HAS_HEATED_BED
       static float analog_to_celsius_bed(const int raw);
     #endif
-    #if HAS_TEMP_CHAMBER
-      static float analog_to_celsius_chamber(const int raw);
-    #endif
     #if HAS_TEMP_PROBE
       static float analog_to_celsius_probe(const int raw);
+    #endif
+    #if HAS_TEMP_CHAMBER
+      static float analog_to_celsius_chamber(const int raw);
     #endif
 
     #if FAN_COUNT > 0
@@ -678,6 +674,19 @@ class Temperature {
 
     #endif // HAS_HEATED_BED
 
+    #if HAS_TEMP_PROBE
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
+      #endif
+      FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
+    #endif
+
+    #if WATCH_PROBE
+      static void start_watching_probe();
+    #else
+      static inline void start_watching_probe() {}
+    #endif
+
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
@@ -710,19 +719,6 @@ class Temperature {
         start_watching_chamber();
       }
     #endif // HAS_HEATED_CHAMBER
-
-    #if HAS_TEMP_PROBE
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
-      #endif
-      FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
-    #endif // HAS_TEMP_PROBE
-
-    #if WATCH_PROBE
-      static void start_watching_probe();
-    #else
-      static inline void start_watching_probe() {}
-    #endif // WATCH_PROBE
 
     /**
      * The software PWM power for a heater

@@ -412,14 +412,8 @@
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_BED 0
-#define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_PROBE 0
-/* Don't forget to set a pin for your probe thermistor
- * In my pins_BTT_SKR.h I have added:
- * #if HOTENDS == 1 && TEMP_SENSOR_PROBE != 0
- *   #define TEMP_PROBE_PIN TEMP_1_PIN
- * #endif
- */
+#define TEMP_SENSOR_CHAMBER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -586,43 +580,6 @@
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 #define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
-
-//===========================================================================
-//====================== Thermal First Layer Compensation ===================
-//===========================================================================
-
-/**
- * Thermal first layer compensation for mesh bed leveling. Compensation z-offset
- * values will be added to the probing measurements when running G29 command.
- * Calibrate bed and probe using G76. Modify values manually using M871.
- * Find a more detailed explaination of the calibration process in file
- * src/gcode/calibrate/G76_M871.cpp
- */
-#if TEMP_SENSOR_BED != 0 && TEMP_SENSOR_PROBE != 0
-  // Enable thermal first layer compensation using bed and probe temperatures
-  #define USE_TEMP_COMPENSATION
-
-  // Max temperature that can be reached by heated bed.
-  // This is required only for the calibration process.
-  #define TEMP_COMPENSATION_MAX_BED_TEMP 110
-  
-  // Add additional compensation depending on hotend temperature
-  // Note: this values cannot be calibrated and have to be set manually
-  #ifdef USE_TEMP_COMPENSATION
-    // Park position to wait for probe cooldown
-    #define TEMP_COMPENSATION_PARK_POS_X 0.0F
-    #define TEMP_COMPENSATION_PARK_POS_Y 0.0F
-    #define TEMP_COMPENSATION_PARK_POS_Z 100.0F
-
-    // Probe position to probe and wait for probe to reach target temperature
-    #define TEMP_COMPENSATION_PROBE_POS_X  90.0F
-    #define TEMP_COMPENSATION_PROBE_POS_Y 100.0F
-
-    // Enable additional compensation using hotend temperature
-    // Note: this values cannot be calibrated automatically but have to be set manually
-    //#define USE_TEMP_EXT_COMPENSATION
-  #endif
-#endif
 
 //===========================================================================
 //============================= Mechanical Settings =========================

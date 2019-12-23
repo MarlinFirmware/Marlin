@@ -264,7 +264,7 @@ Temperature thermalManager;
 
 #if HAS_TEMP_PROBE
   probe_info_t Temperature::temp_probe; // = { 0 }
-#endif // HAS_TEMP_PROBE
+#endif
 
 // Initialized by settings.load()
 #if ENABLED(PIDTEMP)
@@ -658,11 +658,11 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
       case H_CHAMBER: return temp_chamber.soft_pwm_amount;
     #endif
     default:
-      #if HOTENDS
-        return temp_hotend[heater_id].soft_pwm_amount;
-      #else
-        return 0;
-      #endif
+      return (0
+        #if HOTENDS
+          + temp_hotend[heater_id].soft_pwm_amount
+        #endif
+      );
   }
 }
 
@@ -1402,7 +1402,7 @@ void Temperature::manage_heater() {
         SERIAL_ECHO((int)e);
         SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER_NUM);
         kill();
-        return 0.0;
+        return 0;
       }
 
     switch (e) {
@@ -1502,6 +1502,7 @@ void Temperature::manage_heater() {
     #elif ENABLED(HEATER_BED_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
+      UNUSED(raw);
       return 0;
     #endif
   }
@@ -1520,6 +1521,7 @@ void Temperature::manage_heater() {
     #elif ENABLED(HEATER_CHAMBER_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
+      UNUSED(raw);
       return 0;
     #endif
   }
@@ -1538,6 +1540,7 @@ void Temperature::manage_heater() {
     #elif ENABLED(PROBE_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
+      UNUSED(raw);
       return 0;
     #endif
   }
