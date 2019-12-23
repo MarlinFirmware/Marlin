@@ -121,6 +121,34 @@
   #define NUM_SERIAL 1
 #endif
 
+#ifdef DGUS_SERIAL
+  #if !WITHIN(DGUS_SERIAL_PORT, -1, 5)
+    #error "DGUS_SERIAL_PORT must be from -1 to 5"
+  #elif DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT"
+    #ifdef SERIAL_PORT_2
+      #elif DGUS_SERIAL_PORT == SERIAL_PORT_2
+        #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2"
+    #endif
+  #endif
+  #if DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL UsbSerial
+  #elif DGUS_SERIAL_PORT == 0
+  #error "Serial port 0 does not exist"
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL MSerial1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL MSerial2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL MSerial3
+  #elif DGUS_SERIAL_PORT == 4
+    #define DGUS_SERIAL MSerial4
+  #elif DGUS_SERIAL_PORT == 5
+    #define DGUS_SERIAL MSerial5
+  #endif
+#endif
+
+
 // Set interrupt grouping for this MCU
 void HAL_init();
 #define HAL_IDLETASK 1

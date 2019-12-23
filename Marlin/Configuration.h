@@ -2028,6 +2028,12 @@
 // DGUS Touch Display with DWIN OS
 //
 //#define DGUS_LCD
+#if ENABLED(DGUS_LCD)
+  // You can only choose one of following UI design
+  #define DGUS_UI_ORIGIN
+  //#define DGUS_UI_FYSETC
+  //#define DGUS_UI_HIPRECY
+#endif
 
 //
 // Touch-screen LCD for Malyan M200 printers

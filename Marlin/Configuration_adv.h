@@ -1008,7 +1008,7 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  //#define POWER_LOSS_RECOVERY
+  #define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     //#define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
     //#define POWER_LOSS_ZRAISE       2 // (mm) Z axis raise on resume (on power loss with UPS)
@@ -2853,6 +2853,60 @@
   //#define SERVICE_INTERVAL_2  200 // print hours
   //#define SERVICE_NAME_3      "Service 3"
   //#define SERVICE_INTERVAL_3    1 // print hours
+#endif
+
+/**
+ * DGUS_LCD
+ * Enable in Configuration.h
+ */
+#if ENABLED(DGUS_LCD)
+
+  #define DGUS_SERIAL_PORT 2
+  #define DGUS_BAUDRATE 115200
+
+  #define DGUS_RX_BUFFER_SIZE 128
+  #define DGUS_TX_BUFFER_SIZE 48
+
+  #define DGUS_UPDATE_INTERVAL_MS 500
+
+  #define BOOTSCREEN_TIMEOUT 3000  
+
+  #if ENABLED(DGUS_UI_FYSETC)      
+    #define DGUS_PRINT_FILENAME // Send the selected filename to DGUS ,so we can see the filename durning printing
+    //#define DUGS_UI_MOVE_DIS_OPTION
+    #define DGUS_PREHEAT_UI
+    #define DGUS_FILAMENT_LOADUNLOAD
+    #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
+      #define DGUS_FILAMENT_PURGE_LENGTH 10
+      #define DGUS_FILAMENT_LOAD_LENGTH_PER_TIME 0.5 // Need to tweak according DGUS_UPDATE_INTERVAL_MS value
+    #endif 
+
+    #define DGUS_UI_WAITING // It may need a waiting screen between some screens jumping
+    #if ENABLED(DGUS_UI_WAITING)
+      #define DGUS_UI_WAITING_STATUS 10
+      #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
+    #endif
+  #endif
+
+  #if ENABLED(DGUS_UI_HIPRECY)
+    #define DGUS_PRINT_FILENAME // Send the selected filename to DGUS ,so we can see the filename durning printing      
+    #define DUGS_UI_MOVE_DIS_OPTION
+    #define DGUS_PREHEAT_UI
+    #define DGUS_FILAMENT_LOADUNLOAD
+    #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
+      #define DGUS_FILAMENT_PURGE_LENGTH 10
+      #define DGUS_FILAMENT_LOAD_LENGTH_PER_TIME 0.5 // Need to tweak according DGUS_UPDATE_INTERVAL_MS value
+    #endif
+      
+    #define DGUS_UI_WAITING // It may need a waiting screen between screen jumping
+    #if ENABLED(DGUS_UI_WAITING)
+      #define DGUS_UI_WAITING_STATUS 10
+      #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
+    #endif
+  #endif
+
+  // Deal with rx overrun situation , ONLY works in AVR now
+  //#define DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS
 #endif
 
 // @section develop

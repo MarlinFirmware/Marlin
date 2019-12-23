@@ -757,6 +757,34 @@
 
 #endif
 
+#ifdef DGUS_SERIAL_PORT
+
+ template<typename Cfg>
+    typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {
+      const ring_buffer_pos_t t = tx_buffer.tail,  // next byte to send.
+                              h = tx_buffer.head;  // next pos for queue.
+      int ret = t - h - 1;
+      if (ret < 0) ret += Cfg::TX_SIZE + 1;
+      return ret;
+    }
+
+
+  ISR(SERIAL_REGNAME(USART,DGUS_SERIAL_PORT,_RX_vect)) {
+    MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>>::store_rxd_char();
+  }
+
+  ISR(SERIAL_REGNAME(USART,DGUS_SERIAL_PORT,_UDRE_vect)) {
+    MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>>::_tx_udr_empty_irq();
+  }
+
+  // Preinstantiate
+  template class MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>>;
+
+  // Instantiate
+  MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
+
+#endif
+
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;
