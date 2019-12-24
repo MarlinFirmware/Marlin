@@ -56,7 +56,24 @@
 // Estimate the amount of time the Stepper ISR will take to execute
 //
 
+/**
+ * The method of calculating these cycle-constants is unclear.
+ * Most of them are no longer used directly for pulse timing, and exist
+ * only to estimate a maximum step rate based on the user's configuration.
+ * As 32-bit processors continue to diverge, maintaining cycle counts
+ * will become increasingly difficult and error-prone.
+ */
+
 #ifdef CPU_32_BIT
+  /**
+   * Duration of START_TIMED_PULSE
+   * 
+   * ...as measured on an LPC1768 with a scope and converted to cycles.
+   * Not applicable to other 32-bit processors, but as long as others
+   * take longer, pulses will be longer. For example the SKR Pro
+   * (stm32f407zgt6) requires ~60 cyles.
+   */
+  #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
   // The base ISR takes 792 cycles
   #define ISR_BASE_CYCLES  792UL
@@ -85,6 +102,8 @@
   #define ISR_STEPPER_CYCLES 16UL
 
 #else
+  // Cycles to perform actions in START_TIMED_PULSE
+  #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
 
   // The base ISR takes 752 cycles
   #define ISR_BASE_CYCLES  752UL
@@ -116,42 +135,31 @@
 
 // Add time for each stepper
 #if HAS_X_STEP
-  #define ISR_START_X_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
   #define ISR_X_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
-  #define ISR_START_X_STEPPER_CYCLES 0UL
   #define ISR_X_STEPPER_CYCLES       0UL
 #endif
 #if HAS_Y_STEP
-  #define ISR_START_Y_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
   #define ISR_Y_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
   #define ISR_START_Y_STEPPER_CYCLES 0UL
   #define ISR_Y_STEPPER_CYCLES       0UL
 #endif
 #if HAS_Z_STEP
-  #define ISR_START_Z_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
   #define ISR_Z_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
-  #define ISR_START_Z_STEPPER_CYCLES 0UL
   #define ISR_Z_STEPPER_CYCLES       0UL
 #endif
 
 // E is always interpolated, even for mixing extruders
-#define ISR_START_E_STEPPER_CYCLES   ISR_START_STEPPER_CYCLES
 #define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
 // If linear advance is disabled, the loop also handles them
 #if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
-  #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
 #else
-  #define ISR_START_MIXING_STEPPER_CYCLES 0UL
   #define ISR_MIXING_STEPPER_CYCLES  0UL
 #endif
-
-// Calculate the minimum time to start all stepper pulses in the ISR loop
-#define MIN_ISR_START_LOOP_CYCLES (ISR_START_X_STEPPER_CYCLES + ISR_START_Y_STEPPER_CYCLES + ISR_START_Z_STEPPER_CYCLES + ISR_START_E_STEPPER_CYCLES + ISR_START_MIXING_STEPPER_CYCLES)
 
 // And the total minimum loop time, not including the base
 #define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
@@ -166,18 +174,23 @@
   #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
 #endif
 
-// Calculate the minimum ticks of the PULSE timer that must elapse with the step pulse enabled
-// adding the "start stepper pulse" code section execution cycles to account for that not all
-// pulses start at the beginning of the loop, so an extra time must be added to compensate so
-// the last generated pulse (usually the extruder stepper) has the right length
-#if HAS_DRIVER(LV8729) && MINIMUM_STEPPER_PULSE == 0
-  #define MIN_PULSE_TICKS ((((PULSE_TIMER_TICKS_PER_US) + 1) / 2) + ((MIN_ISR_START_LOOP_CYCLES) / uint32_t(PULSE_TIMER_PRESCALE)))
+// Calculate the minimum pulse times (high and low)
+#if MINIMUM_STEPPER_PULSE && MAXIMUM_STEPPER_RATE
+  constexpr uint32_t _MIN_STEP_PERIOD_NS = 1000000000UL / MAXIMUM_STEPPER_RATE;
+  constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
+  constexpr uint32_t _MIN_PULSE_LOW_NS = _MAX((_MIN_STEP_PERIOD_NS - _MIN(_MIN_STEP_PERIOD_NS, _MIN_PULSE_HIGH_NS)), _MIN_PULSE_HIGH_NS);
+#elif MINIMUM_STEPPER_PULSE
+  // Assume 50% duty cycle
+  constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
+  constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
+#elif MAXIMUM_STEPPER_RATE
+  // Assume 50% duty cycle
+  constexpr uint32_t _MIN_PULSE_HIGH_NS = 500000000UL / MAXIMUM_STEPPER_RATE;
+  constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
 #else
-  #define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * uint32_t(MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / uint32_t(PULSE_TIMER_PRESCALE)))
+  #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
 
-// Calculate the extra ticks of the PULSE timer between step pulses
-#define ADDED_STEP_TICKS (((MIN_STEPPER_PULSE_CYCLES) / (PULSE_TIMER_PRESCALE)) - (MIN_PULSE_TICKS))
 
 // But the user could be enforcing a minimum time, so the loop time is
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))

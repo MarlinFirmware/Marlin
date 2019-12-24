@@ -656,7 +656,7 @@
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   // Define probe X and Y positions for Z1, Z2 [, Z3]
-  #define Z_STEPPER_ALIGN_XY { {  10, 290 }, { 150,  10 }, { 290, 290 } }
+  #define Z_STEPPER_ALIGN_XY { {  10, 190 }, { 100,  10 }, { 190, 190 } }
 
   // Provide Z stepper positions for more rapid convergence in bed alignment.
   // Currently requires triple stepper drivers.
@@ -1550,12 +1550,12 @@
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
  *  If undefined, defaults to 1MHz / (2 * MINIMUM_STEPPER_PULSE)
- *  500000 : Maximum for A4988 stepper driver
- *  400000 : Maximum for TMC2xxx stepper drivers
- *  250000 : Maximum for DRV8825 stepper driver
- *  200000 : Maximum for LV8729 stepper driver
- *  150000 : Maximum for TB6600 stepper driver
- *   15000 : Maximum for TB6560 stepper driver
+ *  5000000 : Maximum for TMC2xxx stepper drivers
+ *  1000000 : Maximum for LV8729 stepper driver
+ *  500000  : Maximum for A4988 stepper driver
+ *  250000  : Maximum for DRV8825 stepper driver
+ *  150000  : Maximum for TB6600 stepper driver
+ *   15000  : Maximum for TB6560 stepper driver
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
@@ -1753,8 +1753,8 @@
   //#define ADVANCED_PAUSE_FANS_PAUSE             // Turn off print-cooling fans while the machine is paused.
 
                                                   // Filament Unload does a Retract, Delay, and Purge first:
-  #define FILAMENT_UNLOAD_RETRACT_LENGTH      13  // (mm) Unload initial retract length.
-  #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
+  #define FILAMENT_UNLOAD_PURGE_RETRACT       13  // (mm) Unload initial retract length.
+  #define FILAMENT_UNLOAD_PURGE_DELAY       5000  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         8  // (mm) An unretract is done, then this length is purged.
 
   #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
@@ -2130,8 +2130,6 @@
    *
    * IMPROVE_HOMING_RELIABILITY tunes acceleration and jerk when
    * homing and adds a guard period for endstop triggering.
-   *
-   * TMC2209 requires STEALTHCHOP enabled for SENSORLESS_HOMING
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
@@ -2150,7 +2148,6 @@
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
-    //#define HOME_USING_SPREADCYCLE
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 

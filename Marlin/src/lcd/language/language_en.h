@@ -39,12 +39,6 @@ namespace Language_en {
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("English");
 
-  #ifdef NOT_EXTENDED_ISO10646_1_5X7
-    PROGMEM Language_Str MSG_CUBED                         = _UxGT("^3");
-  #else
-    PROGMEM Language_Str MSG_CUBED                         = _UxGT("³");
-  #endif
-
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Ready.");
   PROGMEM Language_Str MSG_YES                             = _UxGT("YES");
   PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
@@ -480,7 +474,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Temp");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Drive Strength");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC CONNECTION ERROR");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("FILAMENT CHANGE");

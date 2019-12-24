@@ -788,11 +788,16 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
         PIDCF_t pidcf = {
-                       PID_PARAM(Kp, e),
-          unscalePID_i(PID_PARAM(Ki, e)),
-          unscalePID_d(PID_PARAM(Kd, e)),
-                       PID_PARAM(Kc, e),
-                       PID_PARAM(Kf, e)
+          #if DISABLED(PIDTEMP)
+            DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE,
+            DUMMY_PID_VALUE, DUMMY_PID_VALUE
+          #else
+                         PID_PARAM(Kp, e),
+            unscalePID_i(PID_PARAM(Ki, e)),
+            unscalePID_d(PID_PARAM(Kd, e)),
+                         PID_PARAM(Kc, e),
+                         PID_PARAM(Kf, e)
+          #endif
         };
         EEPROM_WRITE(pidcf);
       }
@@ -2872,10 +2877,12 @@ void MarlinSettings::reset() {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 X"), (int)px + 1, SP_Y_STR, (int)py + 1);
+              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), (int)px, PSTR(" J"), (int)py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
+          CONFIG_ECHO_START();
+          SERIAL_ECHOLNPAIR_F_P(PSTR("  G29 S4 Z"), LINEAR_UNIT(mbl.z_offset), 5);
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)

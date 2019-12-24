@@ -113,7 +113,9 @@ xyz_pos_t probe_offset; // Initialized by settings.load()
 
   // Move to the magnet to unlock the probe
   void run_deploy_moves_script() {
-    #if TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
+    #ifndef TOUCH_MI_DEPLOY_XPOS
+      #define TOUCH_MI_DEPLOY_XPOS X_MIN_POS
+    #elif TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
       TemporaryGlobalEndstopsState unlock_x(false);
     #endif
     #if TOUCH_MI_DEPLOY_YPOS > Y_MAX_BED
@@ -356,7 +358,7 @@ bool set_probe_deployed(const bool deploy) {
   // Make room for probe to deploy (or stow)
   // Fix-mounted probe should only raise for deploy
   // unless PAUSE_BEFORE_DEPLOY_STOW is enabled
-  #if ENABLED(FIX_MOUNTED_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+  #if EITHER(FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
     const bool deploy_stow_condition = deploy;
   #else
     constexpr bool deploy_stow_condition = true;
