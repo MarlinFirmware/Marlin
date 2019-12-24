@@ -865,8 +865,8 @@
 #define FIX_MOUNTED_PROBE
 
 /**
- * Utilize the nozzle as a probe for systems such as the Lulzbot
- * conductive nozzle or a Piezeo Electric smart effector
+ * Use the nozzle as the probe, as with a conductive
+ * nozzle system or a piezo-electric smart effector.
  */
 //#define NOZZLE_AS_PROBE
 
