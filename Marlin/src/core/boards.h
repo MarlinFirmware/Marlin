@@ -101,6 +101,7 @@
 #define BOARD_HJC2560C_REV2           1145  // ADIMLab Gantry v2
 #define BOARD_TANGO                   1146  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1147  // MKS GEN L V2
+#define BOARD_FYSETC_F6_14            1148  // FYSETC F6 V1.4
 
 //
 // RAMBo and derivatives

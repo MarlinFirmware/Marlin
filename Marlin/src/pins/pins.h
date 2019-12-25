@@ -184,7 +184,8 @@
   #include "ramps/pins_TANGO.h"                 // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_GEN_L_V2)
   #include "ramps/pins_MKS_GEN_L_V2.h"          // ATmega2560                             env:megaatmega2560
-
+#elif MB(FYSETC_F6_14)
+  #include "ramps/pins_FYSETC_F6_14.h"          // ATmega2560                             env:FYSETC_F6_14
 
 //
 // RAMBo and derivatives
