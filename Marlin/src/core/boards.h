@@ -219,6 +219,13 @@
 #define BOARD_BIGTREE_SKR_V1_4        2022  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 //
+// LPC1769 ARM Cortex M3
+//
+
+#define BOARD_BIGTREE_SKR_V1_4_PRO    2500  // BigTreeTech SKR v1.4 PRO (Power outputs: Hotend0, Hotend1, Fan, Bed)
+
+
+//
 // SAM3X8E ARM Cortex M3
 //
 
