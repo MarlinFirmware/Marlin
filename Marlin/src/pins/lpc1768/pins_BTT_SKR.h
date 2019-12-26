@@ -21,9 +21,18 @@
  */
 #pragma once
 
-#ifndef MCU_LPC1768
+#ifndef SKR_HAS_LPC1789
+#ifndef MCU_LPC1768 
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
+#endif
+
+#ifdef SKR_HAS_LPC1789
+#ifndef MCU_LPC1769 
+  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
+#endif
+#endif
+
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
