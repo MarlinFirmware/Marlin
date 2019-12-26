@@ -358,7 +358,13 @@ void menu_configuration() {
   //
   #if ENABLED(CASE_LIGHT_MENU)
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (PWM_PIN(CASE_LIGHT_PIN))
+      if (
+        #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+          true
+        #else
+          PWM_PIN(CASE_LIGHT_PIN)
+        #endif
+        )
         SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif
