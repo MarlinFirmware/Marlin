@@ -26,12 +26,9 @@
  * Defines that depend on configuration but are not editable.
  */
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 ( \
-     MB(BQ_ZUM_MEGA_3D)                 \
-  || MB(MIGHTYBOARD_REVE)               \
-  || MB(MINIRAMBO)                      \
-  || MB(SCOOVO_X9H)                     \
-)
+#ifdef GITHUB_ACTIONS
+  // Extras for CI testing
+#endif
 
 #ifdef TEENSYDUINO
   #undef max
@@ -1486,6 +1483,10 @@
   #undef MIN_PROBE_EDGE_RIGHT
   #undef MIN_PROBE_EDGE_FRONT
   #undef MIN_PROBE_EDGE_BACK
+  #define MIN_PROBE_EDGE_LEFT 0
+  #define MIN_PROBE_EDGE_RIGHT 0
+  #define MIN_PROBE_EDGE_FRONT 0
+  #define MIN_PROBE_EDGE_BACK 0
 #else
   #ifndef MIN_PROBE_EDGE_LEFT
     #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE

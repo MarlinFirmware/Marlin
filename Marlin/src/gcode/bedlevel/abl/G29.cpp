@@ -403,13 +403,14 @@ G29_TYPE GcodeSuite::G29() {
       }
       else {
         probe_position_lf.set(
-          parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - (X_BED_SIZE) / 2,      x_min),
-          parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - (Y_BED_SIZE) / 2,      y_min)
+          parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : (_MAX(x_min, X_CENTER - (X_BED_SIZE) / 2)      + MIN_PROBE_EDGE_LEFT),
+          parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : (_MAX(y_min, Y_CENTER - (Y_BED_SIZE) / 2)      + MIN_PROBE_EDGE_FRONT)
         );
         probe_position_rb.set(
-          parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(probe_position_lf.x + X_BED_SIZE, x_max),
-          parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(probe_position_lf.y + Y_BED_SIZE, y_max)
+          parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : (_MIN(x_max, probe_position_lf.x + X_BED_SIZE) - MIN_PROBE_EDGE_RIGHT),
+          parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : (_MIN(y_max, probe_position_lf.y + Y_BED_SIZE) - MIN_PROBE_EDGE_BACK)
         );
+        SERIAL_ECHOLN("Set Trail 1");
       }
 
       if (

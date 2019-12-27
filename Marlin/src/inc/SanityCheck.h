@@ -422,6 +422,8 @@
   #error "FILAMENT_UNLOAD_RETRACT_LENGTH is now FILAMENT_UNLOAD_PURGE_RETRACT. Please update Configuration_adv.h."
 #elif defined(FILAMENT_UNLOAD_DELAY)
   #error "FILAMENT_UNLOAD_DELAY is now FILAMENT_UNLOAD_PURGE_DELAY. Please update Configuration_adv.h."
+#elif defined(HOME_USING_SPREADCYCLE)
+  #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13        -1000
@@ -1080,6 +1082,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if 1 < 0 \
   + ENABLED(PROBE_MANUALLY) \
   + ENABLED(FIX_MOUNTED_PROBE) \
+  + ENABLED(NOZZLE_AS_PROBE) \
   + (HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)) \
   + ENABLED(BLTOUCH) \
   + ENABLED(TOUCH_MI_PROBE) \
@@ -1088,7 +1091,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(Z_PROBE_SLED) \
   + ENABLED(RACK_AND_PINION_PROBE) \
   + ENABLED(SENSORLESS_PROBING)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 #endif
 
 #if HAS_BED_PROBE
@@ -1219,11 +1222,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL_NOT_UBL && !PROBE_SELECTED
-    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
   #endif
 
 #endif
@@ -1957,7 +1960,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Check existing CS pins against enabled TMC SPI drivers.
  */
-#define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI && !PIN_EXISTS(ST##_CS))
+#define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI(ST) && !PIN_EXISTS(ST##_CS))
 #if INVALID_TMC_SPI(X)
   #error "An SPI driven TMC driver on X requires X_CS_PIN."
 #elif INVALID_TMC_SPI(X2)
