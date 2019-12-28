@@ -85,8 +85,6 @@
     return (
       #if IS_KINEMATIC
         (X_CENTER) - probe_radius()
-      #elif ENABLED(NOZZLE_AS_PROBE)
-        _MAX(MIN_PROBE_EDGE_LEFT, X_MIN_POS)
       #else
         _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x)
       #endif
@@ -96,8 +94,6 @@
     return (
       #if IS_KINEMATIC
         (X_CENTER) + probe_radius()
-      #elif ENABLED(NOZZLE_AS_PROBE)
-        _MAX(MIN_PROBE_EDGE_RIGHT, X_MAX_POS)
       #else
         _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x)
       #endif
@@ -107,8 +103,6 @@
     return (
       #if IS_KINEMATIC
         (Y_CENTER) - probe_radius()
-      #elif ENABLED(NOZZLE_AS_PROBE)
-        _MIN(MIN_PROBE_EDGE_FRONT, Y_MIN_POS)
       #else
         _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y)
       #endif
@@ -118,8 +112,6 @@
     return (
       #if IS_KINEMATIC
         (Y_CENTER) + probe_radius()
-      #elif ENABLED(NOZZLE_AS_PROBE)
-        _MAX(MIN_PROBE_EDGE_BACK, Y_MAX_POS)
       #else
         _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y)
       #endif
