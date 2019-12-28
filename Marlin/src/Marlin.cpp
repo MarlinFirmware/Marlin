@@ -153,6 +153,10 @@
   #include "feature/runout.h"
 #endif
 
+#if ENABLED(FCP_ENABLE)
+  #include "feature/FCP.h"
+#endif
+
 #if ENABLED(TEMP_STAT_LEDS)
   #include "feature/leds/tempstat.h"
 #endif
@@ -531,6 +535,9 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(AUTO_POWER_CONTROL)
     powerManager.check();
+  #endif
+ #if ENABLED(FCP_ENABLE)
+    fcp_update();
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
