@@ -1435,9 +1435,11 @@ void Stepper::stepper_pulse_phase_isr() {
   step_events_completed += events_to_do;
 
   // Take multiple steps per interrupt (For high speed moves)
-  bool firstStep = true;
+  #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    bool firstStep = true;
+    hal_timer_t end_tick_count = 0;
+  #endif
   xyze_bool_t step_needed{0};
-  hal_timer_t end_tick_count = 0;
 
   do {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
@@ -1947,8 +1949,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
     //const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
-    bool firstStep = true;
-    hal_timer_t end_tick_count = 0;
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      bool firstStep = true;
+      hal_timer_t end_tick_count = 0;
+    #endif
 
     while (LA_steps) {
       #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
