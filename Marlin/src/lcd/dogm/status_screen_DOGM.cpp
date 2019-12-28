@@ -235,14 +235,13 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       UNUSED(blink);
     #endif
 
-    const bool isHeat = BED_ALT();
-
     const uint8_t tx = STATUS_BED_TEXT_X;
 
     const float temp = thermalManager.degBed(),
               target = thermalManager.degTargetBed();
 
     #if DO_DRAW_BED && DISABLED(STATUS_BED_ANIM)
+`     const bool isHeat = BED_ALT();
       #define STATIC_BED    true
       #define BED_DOT       isHeat
     #else
