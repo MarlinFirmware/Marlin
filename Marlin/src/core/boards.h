@@ -222,7 +222,7 @@
 // LPC1769 ARM Cortex M3
 //
 
-#define BOARD_BIGTREE_SKR_V1_4_TURBO    2500  // BigTreeTech SKR v1.4 PRO (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BIGTREE_SKR_V1_4_TURBO  2500  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 
 //
