@@ -31,7 +31,7 @@
 #if (__cplusplus == 201703L) && defined(__has_include)
   #define HAS_SWSERIAL __has_include(<SoftwareSerial.h>)
 #else
-  #define HAS_SWSERIAL HAS_TMC220x
+  #define HAS_SWSERIAL TMC_HAS_SW_SERIAL
 #endif
 
 #if HAS_SWSERIAL

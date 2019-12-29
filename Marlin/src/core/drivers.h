@@ -107,6 +107,8 @@
 #define AXIS_HAS_UART(A) (    AXIS_DRIVER_TYPE(A,TMC2208) \
                            || AXIS_DRIVER_TYPE(A,TMC2209) )
 
+#define AXIS_HAS_SW_SERIAL(A) ((AXIS_HAS_UART(A) && !defined(A##_HARDWARE_SERIAL)))
+
 #define AXIS_HAS_STALLGUARD(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) \
                                    || AXIS_DRIVER_TYPE(A,TMC2160) \
                                    || AXIS_DRIVER_TYPE(A,TMC2209) \
@@ -134,6 +136,17 @@
                                        || HAS_E_DRIVER(TMC2209_STANDALONE) \
                                        || HAS_E_DRIVER(TMC5130_STANDALONE) \
                                        || HAS_E_DRIVER(TMC5160_STANDALONE) )
+
+#define ANY_AXIS_HAS(T) (    AXIS_HAS_##T(X)  || AXIS_HAS_##T(X2) \
+                          || AXIS_HAS_##T(Y)  || AXIS_HAS_##T(Y2) \
+                          || AXIS_HAS_##T(Z)  || AXIS_HAS_##T(Z2) \
+                          || AXIS_HAS_##T(Z3) \
+                          || AXIS_HAS_##T(E0) || AXIS_HAS_##T(E1) \
+                          || AXIS_HAS_##T(E2) || AXIS_HAS_##T(E3) \
+                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) )
+
+#define TMC_HAS_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
+
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options
 //
