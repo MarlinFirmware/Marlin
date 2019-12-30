@@ -262,7 +262,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if HAS_HOMING_CURRENT
     auto debug_current = [](const char * const s, const int16_t a, const int16_t b){
-      DEBUG_ECHO(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+      DEBUG_ECHO(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -284,11 +284,6 @@ void GcodeSuite::G28(const bool always_home_all) {
       stepperY2.rms_current(Y2_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current("Y2", tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
-  #endif
-
-  #if BOTH(STEALTHCHOP_XY, HOME_USING_SPREADCYCLE)
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set XY to spreadCycle...");
-    process_subcommands_now_P(PSTR("M569S0XY"));
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -513,11 +508,6 @@ void GcodeSuite::G28(const bool always_home_all) {
     #if HAS_CURRENT_HOME(Y2)
       stepperY2.rms_current(tmc_save_current_Y2);
     #endif
-  #endif
-
-  #if BOTH(STEALTHCHOP_XY, HOME_USING_SPREADCYCLE)
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set XY to StealthChop...");
-    process_subcommands_now_P(PSTR("M569S1XY"));
   #endif
 
   ui.refresh();

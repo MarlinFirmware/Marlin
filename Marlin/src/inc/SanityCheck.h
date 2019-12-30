@@ -229,6 +229,8 @@
   #error "LCD_PIN_RESET is now LCD_RESET_PIN. Please update your pins definitions."
 #elif defined(EXTRUDER_0_AUTO_FAN_PIN) || defined(EXTRUDER_1_AUTO_FAN_PIN) || defined(EXTRUDER_2_AUTO_FAN_PIN) || defined(EXTRUDER_3_AUTO_FAN_PIN)
   #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
+#elif defined(PID_FAN_SCALING) && FAN_COUNT <= 0
+  #error "PID_FAN_SCALING needs at least one fan enabled."
 #elif defined(min_software_endstops) || defined(max_software_endstops)
   #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
 #elif ENABLED(Z_PROBE_SLED) && defined(SLED_PIN)
@@ -412,6 +414,16 @@
   #error "JUNCTION_DEVIATION is no longer required. (See CLASSIC_JERK). Please remove it from Configuration.h."
 #elif defined(BABYSTEP_MULTIPLICATOR)
   #error "BABYSTEP_MULTIPLICATOR is now BABYSTEP_MULTIPLICATOR_[XY|Z]. Please update Configuration_adv.h."
+#elif defined(LULZBOT_TOUCH_UI)
+  #error "LULZBOT_TOUCH_UI is now TOUCH_UI_FTDI_EVE. Please update your configuration."
+#elif defined(PS_DEFAULT_OFF)
+  #error "PS_DEFAULT_OFF is now PSU_DEFAULT_OFF. Please update your configuration."
+#elif defined(FILAMENT_UNLOAD_RETRACT_LENGTH)
+  #error "FILAMENT_UNLOAD_RETRACT_LENGTH is now FILAMENT_UNLOAD_PURGE_RETRACT. Please update Configuration_adv.h."
+#elif defined(FILAMENT_UNLOAD_DELAY)
+  #error "FILAMENT_UNLOAD_DELAY is now FILAMENT_UNLOAD_PURGE_DELAY. Please update Configuration_adv.h."
+#elif defined(HOME_USING_SPREADCYCLE)
+  #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13        -1000
@@ -604,8 +616,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !HAS_GRAPHICAL_LCD && !ENABLED(LULZBOT_TOUCH_UI)
-  #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or LULZBOT_TOUCH_UI."
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !(HAS_GRAPHICAL_LCD || ENABLED(TOUCH_UI_FTDI_EVE))
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
   #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
 #endif
@@ -1070,6 +1082,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if 1 < 0 \
   + ENABLED(PROBE_MANUALLY) \
   + ENABLED(FIX_MOUNTED_PROBE) \
+  + ENABLED(NOZZLE_AS_PROBE) \
   + (HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)) \
   + ENABLED(BLTOUCH) \
   + ENABLED(TOUCH_MI_PROBE) \
@@ -1078,7 +1091,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(Z_PROBE_SLED) \
   + ENABLED(RACK_AND_PINION_PROBE) \
   + ENABLED(SENSORLESS_PROBING)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 #endif
 
 #if HAS_BED_PROBE
@@ -1123,7 +1136,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if ENABLED(BLTOUCH)
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
-    #elif DISABLED(BLTOUCH_SET_5V_MODE) && NONE(ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+    #elif DISABLED(BLTOUCH_SET_5V_MODE) && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
       #error "BLTOUCH without BLTOUCH_SET_5V_MODE requires ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN or ENDSTOPPULLUP_ZMIN_PROBE."
     #endif
   #endif
@@ -1209,11 +1222,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL_NOT_UBL && !PROBE_SELECTED
-    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
   #endif
 
 #endif
@@ -1599,7 +1612,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * LED Backlight Timeout
  */
-#if defined(LED_BACKLIGHT_TIMEOUT) && !(EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && ENABLED(PSU_CONTROL))
+#if defined(LED_BACKLIGHT_TIMEOUT) && !(ENABLED(PSU_CONTROL) && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1))
   #error "LED_BACKLIGHT_TIMEOUT requires a FYSETC Mini Panel and a Power Switch."
 #endif
 
@@ -1922,7 +1935,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(OVERLORD_OLED) \
   + ENABLED(DGUS_LCD) \
   + ENABLED(MALYAN_LCD) \
-  + ENABLED(LULZBOT_TOUCH_UI) \
+  + ENABLED(TOUCH_UI_FTDI_EVE) \
   + ENABLED(FSMC_GRAPHICAL_TFT)
   #error "Please select no more than one LCD controller option."
 #endif
@@ -1947,7 +1960,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Check existing CS pins against enabled TMC SPI drivers.
  */
-#define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI && !PIN_EXISTS(ST##_CS))
+#define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI(ST) && !PIN_EXISTS(ST##_CS))
 #if INVALID_TMC_SPI(X)
   #error "An SPI driven TMC driver on X requires X_CS_PIN."
 #elif INVALID_TMC_SPI(X2)
@@ -2071,6 +2084,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TMC2208 Software Serial is supported only on AVR, LPC1768, STM32F1 and STM32F4 platforms."
 #endif
 
+#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
+  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
   // is necessary in order to reset the stallGuard indication between the initial movement of all three
@@ -2085,17 +2102,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
   #if ENABLED(DELTA) && !BOTH(STEALTHCHOP_XY, STEALTHCHOP_Z)
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP_XY and STEALTHCHOP_Z."
-  #elif X_SENSORLESS && X_HOME_DIR < 0 && DISABLED(ENDSTOPPULLUPS, ENDSTOPPULLUP_XMIN)
+  #elif X_SENSORLESS && X_HOME_DIR < 0 && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_XMIN)
     #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_XMIN (or ENDSTOPPULLUPS) when homing to X_MIN."
-  #elif X_SENSORLESS && X_HOME_DIR > 0 && DISABLED(ENDSTOPPULLUPS, ENDSTOPPULLUP_XMAX)
+  #elif X_SENSORLESS && X_HOME_DIR > 0 && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_XMAX)
     #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_XMAX (or ENDSTOPPULLUPS) when homing to X_MAX."
-  #elif Y_SENSORLESS && Y_HOME_DIR < 0 && DISABLED(ENDSTOPPULLUPS, ENDSTOPPULLUP_YMIN)
+  #elif Y_SENSORLESS && Y_HOME_DIR < 0 && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_YMIN)
     #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_YMIN (or ENDSTOPPULLUPS) when homing to Y_MIN."
-  #elif Y_SENSORLESS && Y_HOME_DIR > 0 && DISABLED(ENDSTOPPULLUPS, ENDSTOPPULLUP_YMAX)
+  #elif Y_SENSORLESS && Y_HOME_DIR > 0 && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_YMAX)
     #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_YMAX (or ENDSTOPPULLUPS) when homing to Y_MAX."
-  #elif Z_SENSORLESS && Z_HOME_DIR < 0 && DISABLED(ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN)
+  #elif Z_SENSORLESS && Z_HOME_DIR < 0 && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN)
     #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_ZMIN (or ENDSTOPPULLUPS) when homing to Z_MIN."
-  #elif Z_SENSORLESS && Z_HOME_DIR > 0 && DISABLED(ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMAX)
+  #elif Z_SENSORLESS && Z_HOME_DIR > 0 && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMAX)
     #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_ZMAX (or ENDSTOPPULLUPS) when homing to Z_MAX."
   #elif X_SENSORLESS && X_HOME_DIR < 0 && X_MIN_ENDSTOP_INVERTING != X_ENDSTOP_INVERTING
     #if X_ENDSTOP_INVERTING
@@ -2226,10 +2243,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 #undef IN_CHAIN
 
-#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
-  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
-#endif
-
 /**
  * Digipot requirement
  */
@@ -2343,24 +2356,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-
   #if !Z_MULTI_STEPPER_DRIVERS
     #error "Z_STEPPER_AUTO_ALIGN requires Z_DUAL_STEPPER_DRIVERS or Z_TRIPLE_STEPPER_DRIVERS."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
+  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
+    #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
   #endif
-
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-    #if DISABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires Z_TRIPLE_STEPPER_DRIVERS."
-    #endif
-    constexpr float sanity_arr_screw_xy[][2] = Z_STEPPER_ALIGN_STEPPER_XY;
-    static_assert(
-      COUNT(sanity_arr_screw_xy) == Z_STEPPER_COUNT,
-      "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
-    );
-  #endif
-
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
@@ -2550,13 +2552,5 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
   #elif ENABLED(SHOW_REMAINING_TIME)
     #error "SHOW_REMAINING_TIME currently requires a Graphical LCD."
-  #endif
-#endif
-
-#if ENABLED(LIN_ADVANCE) && MINIMUM_STEPPER_PULSE < 1
-  #if HAS_TMC_STANDALONE_E_DRIVER
-    #error "LIN_ADVANCE with TMC standalone driver on extruder requires MIMIMUM_STEPPER_PULSE >= 1"
-  #elif HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)
-    #error "LIN_ADVANCE with TMC driver on extruder requires SQUARE_WAVE_STEPPING or MINIMUM_STEPPER_PULSE >= 1"
   #endif
 #endif

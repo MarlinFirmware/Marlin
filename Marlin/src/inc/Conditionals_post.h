@@ -26,12 +26,9 @@
  * Defines that depend on configuration but are not editable.
  */
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 ( \
-     MB(BQ_ZUM_MEGA_3D)                 \
-  || MB(MIGHTYBOARD_REVE)               \
-  || MB(MINIRAMBO)                      \
-  || MB(SCOOVO_X9H)                     \
-)
+#ifdef GITHUB_ACTIONS
+  // Extras for CI testing
+#endif
 
 #ifdef TEENSYDUINO
   #undef max
@@ -44,7 +41,7 @@
 #endif
 
 #define HAS_CLASSIC_JERK (ENABLED(CLASSIC_JERK) || IS_KINEMATIC)
-#define HAS_CLASSIC_E_JERK (HAS_CLASSIC_JERK && DISABLED(LIN_ADVANCE))
+#define HAS_CLASSIC_E_JERK (ENABLED(CLASSIC_JERK) || DISABLED(LIN_ADVANCE))
 
 /**
  * Axis lengths and center
@@ -259,6 +256,9 @@
 #elif ENABLED(AZSMZ_12864)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 190
+#elif ENABLED(MKS_LCD12864B)
+  #define _LCD_CONTRAST_MIN  120
+  #define _LCD_CONTRAST_INIT 205
 #elif ENABLED(MKS_MINI_12864)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 195
@@ -321,18 +321,20 @@
 #endif
 
 /**
- * Power Supply Control
+ * Power Supply
  */
 #ifndef PSU_NAME
-  #if ENABLED(PSU_CONTROL)
-    #if PSU_ACTIVE_HIGH
-      #define PSU_NAME "XBox"     // X-Box 360 (203W)
-    #else
-      #define PSU_NAME "ATX"      // ATX style
-    #endif
+  #if DISABLED(PSU_CONTROL)
+    #define PSU_NAME "Generic"  // No control
+  #elif PSU_ACTIVE_HIGH
+    #define PSU_NAME "XBox"     // X-Box 360 (203W)
   #else
-    #define PSU_NAME "Generic"    // No control
+    #define PSU_NAME "ATX"      // ATX style
   #endif
+#endif
+
+#if !defined(PSU_POWERUP_DELAY) && ENABLED(PSU_CONTROL)
+  #define PSU_POWERUP_DELAY 100
 #endif
 
 /**
@@ -590,11 +592,7 @@
   #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
     #define MINIMUM_STEPPER_PULSE 1
   #elif TRINAMICS
-    #if ENABLED(LIN_ADVANCE) && (HAS_TMC_STANDALONE_E_DRIVER || (HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)))
-      #define MINIMUM_STEPPER_PULSE 1
-    #else
-      #define MINIMUM_STEPPER_PULSE 0
-    #endif
+    #define MINIMUM_STEPPER_PULSE 0
   #elif HAS_DRIVER(LV8729)
     #define MINIMUM_STEPPER_PULSE 0
   #else
@@ -607,14 +605,14 @@
     #define MAXIMUM_STEPPER_RATE 15000
   #elif HAS_DRIVER(TB6600)
     #define MAXIMUM_STEPPER_RATE 150000
-  #elif HAS_DRIVER(LV8729)
-    #define MAXIMUM_STEPPER_RATE 200000
   #elif HAS_DRIVER(DRV8825)
     #define MAXIMUM_STEPPER_RATE 250000
-  #elif TRINAMICS
-    #define MAXIMUM_STEPPER_RATE 400000
   #elif HAS_DRIVER(A4988)
     #define MAXIMUM_STEPPER_RATE 500000
+  #elif HAS_DRIVER(LV8729)
+    #define MAXIMUM_STEPPER_RATE 1000000
+  #elif TRINAMICS
+    #define MAXIMUM_STEPPER_RATE 5000000
   #else
     #define MAXIMUM_STEPPER_RATE 250000
   #endif
@@ -1485,6 +1483,10 @@
   #undef MIN_PROBE_EDGE_RIGHT
   #undef MIN_PROBE_EDGE_FRONT
   #undef MIN_PROBE_EDGE_BACK
+  #define MIN_PROBE_EDGE_LEFT 0
+  #define MIN_PROBE_EDGE_RIGHT 0
+  #define MIN_PROBE_EDGE_FRONT 0
+  #define MIN_PROBE_EDGE_BACK 0
 #else
   #ifndef MIN_PROBE_EDGE_LEFT
     #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE

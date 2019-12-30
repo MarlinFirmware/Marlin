@@ -197,6 +197,56 @@
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
     #define LPQ_MAX_LEN 50
   #endif
+
+  /**
+   * Add an experimental additional term to the heater power, proportional to the fan speed.
+   * A well-chosen Kf value should add just enough power to compensate for power-loss from the cooling fan.
+   * You can either just add a constant compensation with the DEFAULT_Kf value
+   * or follow the instruction below to get speed-dependent compensation.
+   *
+   * Constant compensation (use only with fanspeeds of 0% and 100%)
+   * ---------------------------------------------------------------------
+   * A good starting point for the Kf-value comes from the calculation:
+   *   kf = (power_fan * eff_fan) / power_heater * 255
+   * where eff_fan is between 0.0 and 1.0, based on fan-efficiency and airflow to the nozzle / heater.
+   *
+   * Example:
+   *   Heater: 40W, Fan: 0.1A * 24V = 2.4W, eff_fan = 0.8
+   *   Kf = (2.4W * 0.8) / 40W * 255 = 12.24
+   *
+   * Fan-speed dependent compensation
+   * --------------------------------
+   * 1. To find a good Kf value, set the hotend temperature, wait for it to settle, and enable the fan (100%).
+   *    Make sure PID_FAN_SCALING_LIN_FACTOR is 0 and PID_FAN_SCALING_ALTERNATIVE_DEFINITION is not enabled.
+   *    If you see the temperature drop repeat the test, increasing the Kf value slowly, until the temperature
+   *    drop goes away. If the temperature overshoots after enabling the fan, the Kf value is too big.
+   * 2. Note the Kf-value for fan-speed at 100%
+   * 3. Determine a good value for PID_FAN_SCALING_MIN_SPEED, which is around the speed, where the fan starts moving.
+   * 4. Repeat step 1. and 2. for this fan speed.
+   * 5. Enable PID_FAN_SCALING_ALTERNATIVE_DEFINITION and enter the two identified Kf-values in
+   *    PID_FAN_SCALING_AT_FULL_SPEED and PID_FAN_SCALING_AT_MIN_SPEED. Enter the minimum speed in PID_FAN_SCALING_MIN_SPEED
+   */
+  //#define PID_FAN_SCALING
+  #if ENABLED(PID_FAN_SCALING)
+    //#define PID_FAN_SCALING_ALTERNATIVE_DEFINITION
+    #if ENABLED(PID_FAN_SCALING_ALTERNATIVE_DEFINITION)
+      // The alternative definition is used for an easier configuration.
+      // Just figure out Kf at fullspeed (255) and PID_FAN_SCALING_MIN_SPEED.
+      // DEFAULT_Kf and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
+
+      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_Kf
+      #define PID_FAN_SCALING_AT_MIN_SPEED 6.0          //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_Kf
+      #define PID_FAN_SCALING_MIN_SPEED 10.0            // Minimum fan speed at which to enable PID_FAN_SCALING
+
+      #define DEFAULT_Kf (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
+      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_Kf)/255.0
+
+    #else
+      #define PID_FAN_SCALING_LIN_FACTOR (0)             // Power loss due to cooling = Kf * (fan_speed)
+      #define DEFAULT_Kf 10                              // A constant value added to the PID-tuner
+      #define PID_FAN_SCALING_MIN_SPEED 10               // Minimum fan speed at which to enable PID_FAN_SCALING
+    #endif
+  #endif
 #endif
 
 /**
@@ -606,7 +656,7 @@
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   // Define probe X and Y positions for Z1, Z2 [, Z3]
-  #define Z_STEPPER_ALIGN_XY { {  10, 290 }, { 150,  10 }, { 290, 290 } }
+  #define Z_STEPPER_ALIGN_XY { {  10, 190 }, { 100,  10 }, { 190, 190 } }
 
   // Provide Z stepper positions for more rapid convergence in bed alignment.
   // Currently requires triple stepper drivers.
@@ -960,6 +1010,8 @@
    */
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
+    //#define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
+    //#define POWER_LOSS_ZRAISE       2 // (mm) Z axis raise on resume (on power loss with UPS)
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
     //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
@@ -1098,7 +1150,7 @@
      *
      * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
      */
-    //#define SDCARD_CONNECTION LCD
+    #define SDCARD_CONNECTION ONBOARD
   #endif
 
 #endif // SDSUPPORT
@@ -1192,9 +1244,9 @@
 #endif // HAS_GRAPHICAL_LCD
 
 //
-// Lulzbot Touch UI
+// Touch UI for the FTDI Embedded Video Engine (EVE)
 //
-#if ENABLED(LULZBOT_TOUCH_UI)
+#if ENABLED(TOUCH_UI_FTDI_EVE)
   // Display board used
   //#define LCD_FTDI_VM800B35A        // FTDI 3.5" with FT800 (320x240)
   //#define LCD_4DSYSTEMS_4DLCD_FT843 // 4D Systems 4.3" (480x272)
@@ -1496,12 +1548,12 @@
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
  *  If undefined, defaults to 1MHz / (2 * MINIMUM_STEPPER_PULSE)
- *  500000 : Maximum for A4988 stepper driver
- *  400000 : Maximum for TMC2xxx stepper drivers
- *  250000 : Maximum for DRV8825 stepper driver
- *  200000 : Maximum for LV8729 stepper driver
- *  150000 : Maximum for TB6600 stepper driver
- *   15000 : Maximum for TB6560 stepper driver
+ *  5000000 : Maximum for TMC2xxx stepper drivers
+ *  1000000 : Maximum for LV8729 stepper driver
+ *  500000  : Maximum for A4988 stepper driver
+ *  250000  : Maximum for DRV8825 stepper driver
+ *  150000  : Maximum for TB6600 stepper driver
+ *   15000  : Maximum for TB6560 stepper driver
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
@@ -1521,16 +1573,16 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+  #define BLOCK_BUFFER_SIZE 32 // maximize block buffer
 #endif
 
 // @section serial
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define BUFSIZE 32
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -1539,7 +1591,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 32
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1670,7 +1722,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -1699,8 +1751,8 @@
   //#define ADVANCED_PAUSE_FANS_PAUSE             // Turn off print-cooling fans while the machine is paused.
 
                                                   // Filament Unload does a Retract, Delay, and Purge first:
-  #define FILAMENT_UNLOAD_RETRACT_LENGTH      13  // (mm) Unload initial retract length.
-  #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
+  #define FILAMENT_UNLOAD_PURGE_RETRACT       13  // (mm) Unload initial retract length.
+  #define FILAMENT_UNLOAD_PURGE_DELAY       5000  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         8  // (mm) An unretract is done, then this length is purged.
 
   #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
@@ -2038,7 +2090,7 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-  //#define HYBRID_THRESHOLD
+  #define HYBRID_THRESHOLD
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
@@ -2076,8 +2128,6 @@
    *
    * IMPROVE_HOMING_RELIABILITY tunes acceleration and jerk when
    * homing and adds a guard period for endstop triggering.
-   *
-   * TMC2209 requires STEALTHCHOP enabled for SENSORLESS_HOMING
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
@@ -2096,7 +2146,6 @@
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
-    //#define HOME_USING_SPREADCYCLE
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 

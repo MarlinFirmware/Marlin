@@ -65,7 +65,7 @@ void menu_cancelobject();
     LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i);
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
-    #define EDIT_DAC_PERCENT(A) EDIT_ITEM_P(uint8, PSTR(MSG_##A " " MSG_DAC_PERCENT), &driverPercent[_AXIS(A)], 0, 100, []{ dac_current_set_percents(driverPercent); })
+    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ dac_current_set_percents(driverPercent); })
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
@@ -289,7 +289,7 @@ void menu_cancelobject();
     //
 
     #if ENABLED(PID_EDIT_MENU)
-      #define _PID_BASE_MENU_ITEMS(N) \
+      #define __PID_BASE_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
         EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &PID_PARAM(Kp, N), 1, 9990); \
@@ -297,9 +297,17 @@ void menu_cancelobject();
         EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
+        #define _PID_BASE_MENU_ITEMS(N) \
+          __PID_BASE_MENU_ITEMS(N); \
+          EDIT_ITEM_N(float3, N, MSG_PID_C_E, &PID_PARAM(Kc, N), 1, 9990)
+      #else
+        #define _PID_BASE_MENU_ITEMS(N) __PID_BASE_MENU_ITEMS(N)
+      #endif
+
+      #if ENABLED(PID_FAN_SCALING)
         #define _PID_EDIT_MENU_ITEMS(N) \
           _PID_BASE_MENU_ITEMS(N); \
-          EDIT_ITEM(float3, MSG_PID_C_E, N, &PID_PARAM(Kc, N), 1, 9990)
+          EDIT_ITEM(float3, PID_LABEL(MSG_PID_F,N), &PID_PARAM(Kf, N), 1, 9990)
       #else
         #define _PID_EDIT_MENU_ITEMS(N) _PID_BASE_MENU_ITEMS(N)
       #endif

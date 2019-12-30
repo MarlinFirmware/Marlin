@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# bump_date
+#
+# Bump the Distribution Date in Version.h
+#
+
+VERSION_FILE=Marlin/src/inc/Version.h
+
+SED=$(which gsed || which sed)
+
+DIST=$( date +"%Y-%m-%d" )
+
+eval "${SED} -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' $VERSION_FILE" || exit 1
+
+git add "$VERSION_FILE" || exit 1
+git commit -m "[cron] Bump distribution date ($DIST)"

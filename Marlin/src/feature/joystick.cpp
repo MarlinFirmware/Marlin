@@ -54,13 +54,13 @@ Joystick joystick;
   void Joystick::report() {
     SERIAL_ECHOPGM("Joystick");
     #if HAS_JOY_ADC_X
-      SERIAL_ECHOPAIR(" X", x.raw);
+      SERIAL_ECHOPAIR_P(SP_X_STR, x.raw);
     #endif
     #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPAIR(" Y", y.raw);
+      SERIAL_ECHOPAIR_P(SP_Y_STR, y.raw);
     #endif
     #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPAIR(" Z", z.raw);
+      SERIAL_ECHOPAIR_P(SP_Z_STR, z.raw);
     #endif
     #if HAS_JOY_ADC_EN
       SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");

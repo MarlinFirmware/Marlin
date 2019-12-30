@@ -339,6 +339,24 @@ xyze_int8_t Stepper::count_direction{0};
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
 
+#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
+constexpr uint32_t NS_PER_PULSE_TIMER_TICK = 1000000000UL / (STEPPER_TIMER_RATE);
+
+// Round up when converting from ns to timer ticks
+constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK); }
+
+#define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
+
+#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
+#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
+
+#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_##DIR##_TICK_COUNT)
+#define AWAIT_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
+#define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
+#define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
+#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE()
+#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE()
+
 void Stepper::wake_up() {
   // TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
@@ -1416,33 +1434,72 @@ void Stepper::stepper_pulse_phase_isr() {
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
 
-  // Get the timer count and estimate the end of the pulse
-  hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
-
-  const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
-
   // Take multiple steps per interrupt (For high speed moves)
-  do {
+  bool firstStep = true;
+  xyze_bool_t step_needed{0};
+  hal_timer_t end_tick_count = 0;
 
+  do {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
+    // Determine if pulses are needed
+    #define PULSE_PREP(AXIS) do{ \
+      delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
+      step_needed[_AXIS(AXIS)] = (delta_error[_AXIS(AXIS)] >= 0); \
+      if (step_needed[_AXIS(AXIS)]) { \
+        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+        delta_error[_AXIS(AXIS)] -= advance_divisor; \
+      } \
+    }while(0)
+
     // Start an active pulse, if Bresenham says so, and update position
     #define PULSE_START(AXIS) do{ \
-      delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
-      if (delta_error[_AXIS(AXIS)] >= 0) { \
+      if (step_needed[_AXIS(AXIS)]) { \
         _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
     }while(0)
 
     // Stop an active pulse, if any, and adjust error term
     #define PULSE_STOP(AXIS) do { \
-      if (delta_error[_AXIS(AXIS)] >= 0) { \
-        delta_error[_AXIS(AXIS)] -= advance_divisor; \
+      if (step_needed[_AXIS(AXIS)]) { \
         _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
+
+    // Determine if pulses are needed
+    #if HAS_X_STEP
+      PULSE_PREP(X);
+    #endif
+    #if HAS_Y_STEP
+      PULSE_PREP(Y);
+    #endif
+    #if HAS_Z_STEP
+      PULSE_PREP(Z);
+    #endif
+
+    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
+      delta_error.e += advance_dividend.e;
+      if (delta_error.e >= 0) {
+        count_position.e += count_direction.e;
+        #if ENABLED(LIN_ADVANCE)
+          delta_error.e -= advance_divisor;
+          // Don't step E here - But remember the number of steps to perform
+          motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
+        #else
+          step_needed[E_AXIS] = delta_error.e >= 0;
+        #endif
+      }
+    #elif HAS_E0_STEP
+      PULSE_PREP(E);
+    #endif
+
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      if (firstStep)
+        firstStep = false;
+      else
+        AWAIT_LOW_PULSE();
+    #endif
 
     // Pulse start
     #if HAS_X_STEP
@@ -1455,24 +1512,10 @@ void Stepper::stepper_pulse_phase_isr() {
       PULSE_START(Z);
     #endif
 
-    // Pulse Extruders
-    // Tick the E axis, correct error term and update position
-    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
-      delta_error.e += advance_dividend.e;
-      if (delta_error.e >= 0) {
-        count_position.e += count_direction.e;
-        #if ENABLED(LIN_ADVANCE)
-          delta_error.e -= advance_divisor;
-          // Don't step E here - But remember the number of steps to perform
-          motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
-        #else // !LIN_ADVANCE && MIXING_EXTRUDER
-          // Don't adjust delta_error.e here!
-          // Being positive is the criteria for ending the pulse.
-          E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
-        #endif
-      }
-    #else // !LIN_ADVANCE && !MIXING_EXTRUDER
-      #if HAS_E0_STEP
+    #if DISABLED(LIN_ADVANCE)
+      #if ENABLED(MIXING_EXTRUDER)
+        if (step_needed[E_AXIS]) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+      #elif HAS_E0_STEP
         PULSE_START(E);
       #endif
     #endif
@@ -1482,13 +1525,10 @@ void Stepper::stepper_pulse_phase_isr() {
     #endif
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
-      // Just wait for the requested pulse duration
-      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      START_HIGH_PULSE();
+      AWAIT_HIGH_PULSE();
     #endif
-
-    // Add the delay needed to ensure the maximum driver rate is enforced
-    if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
 
     // Pulse stop
     #if HAS_X_STEP
@@ -1503,31 +1543,26 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
+
         if (delta_error.e >= 0) {
           delta_error.e -= advance_divisor;
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
+
       #else // !MIXING_EXTRUDER
+
         #if HAS_E0_STEP
           PULSE_STOP(E);
         #endif
-      #endif
+
+      #endif  // !MIXING_EXTRUDER
     #endif // !LIN_ADVANCE
 
-    // Decrement the count of pending pulses to do
-    --events_to_do;
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      if (events_to_do) START_LOW_PULSE();
+    #endif
 
-    // For minimum pulse time wait after stopping pulses also
-    if (events_to_do) {
-      // Just wait for the requested pulse duration
-      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      #if MINIMUM_STEPPER_PULSE
-        // Add to the value, the time that the pulse must be active (to be used on the next loop)
-        pulse_end += hal_timer_t(MIN_PULSE_TICKS);
-      #endif
-    }
-
-  } while (events_to_do);
+  } while (--events_to_do);
 }
 
 // This is the last half of the stepper interrupt: This one processes and
@@ -1909,13 +1944,19 @@ uint32_t Stepper::stepper_block_phase_isr() {
       DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
     #endif
 
-    // Get the timer count and estimate the end of the pulse
-    hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
-
-    const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
+    //const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
+    bool firstStep = true;
+    hal_timer_t end_tick_count = 0;
+
     while (LA_steps) {
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+        if (firstStep)
+          firstStep = false;
+        else
+          AWAIT_LOW_PULSE();
+      #endif
 
       // Set the STEP pulse ON
       #if ENABLED(MIXING_EXTRUDER)
@@ -1925,15 +1966,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
-      #if MINIMUM_STEPPER_PULSE
-        // Just wait for the requested pulse duration
-        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+        START_HIGH_PULSE();
       #endif
 
-      // Add the delay needed to ensure the maximum driver rate is enforced
-      if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
-
       LA_steps < 0 ? ++LA_steps : --LA_steps;
+
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+        AWAIT_HIGH_PULSE();
+      #endif
 
       // Set the STEP pulse OFF
       #if ENABLED(MIXING_EXTRUDER)
@@ -1944,13 +1985,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
-      if (LA_steps) {
-        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-        #if MINIMUM_STEPPER_PULSE
-          // Add to the value, the time that the pulse must be active (to be used on the next loop)
-          pulse_end += hal_timer_t(MIN_PULSE_TICKS);
-        #endif
-      }
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+        if (LA_steps) START_LOW_PULSE();
+      #endif
     } // LA_steps
 
     return interval;
@@ -2239,7 +2276,7 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
       (axis == CORE_AXIS_2
         ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
         : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-      ) * 0.5f
+      ) * double(0.5)
     #else // !IS_CORE
       count_position[axis]
     #endif

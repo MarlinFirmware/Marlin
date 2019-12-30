@@ -64,11 +64,19 @@ void host_action(const char * const pstr, const bool eol) {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
+  const char CONTINUE_STR[] PROGMEM = "Continue";
+
   #if HAS_RESUME_CONTINUE
     extern bool wait_for_user;
   #endif
 
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
+
+  void host_action_notify(const char * const message) {
+    host_action(PSTR("notification "), false);
+    serialprintPGM(message);
+    SERIAL_EOL();
+  }
 
   void host_action_prompt(const char * const ptype, const bool eol=true) {
     host_action(PSTR("prompt_"), false);
@@ -126,7 +134,7 @@ void host_action(const char * const pstr, const bool eol) {
             host_action_prompt_button(PSTR("DisableRunout"));
           else {
             host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
-            host_action_prompt_button(PSTR("Continue"));
+            host_action_prompt_button(CONTINUE_STR);
           }
           host_action_prompt_show();
         }

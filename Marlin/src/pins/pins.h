@@ -169,7 +169,7 @@
 #elif MB(RAMPS_DAGOMA)
   #include "ramps/pins_RAMPS_DAGOMA.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(FYSETC_F6_13)
-  #include "ramps/pins_FYSETC_F6_13.h"          // ATmega2560                             env:fysetc_f6_13
+  #include "ramps/pins_FYSETC_F6_13.h"          // ATmega2560                             env:FYSETC_F6_13
 #elif MB(DUPLICATOR_I3_PLUS)
   #include "ramps/pins_DUPLICATOR_I3_PLUS.h"    // ATmega2560                             env:megaatmega2560
 #elif MB(VORON)
@@ -354,14 +354,16 @@
   #include "lpc1768/pins_BIQU_BQ111_A4.h"       // LPC1768                                env:LPC1768
 #elif MB(SELENA_COMPACT)
   #include "lpc1768/pins_SELENA_COMPACT.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_1)
-  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_3)
-  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_1)
+  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_3)
+  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_4)
+  #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
 
 //
 // LPC1769 ARM Cortex M3
@@ -457,6 +459,12 @@
   #include "stm32/pins_STM3R_MINI.h"            // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_PRO_VB)
   #include "stm32/pins_GTM32_PRO_VB.h"          // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_MINI_A30)
+  #include "stm32/pins_GTM32_MINI_A30.h"        // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_MINI)
+  #include "stm32/pins_GTM32_MINI.h"            // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_REV_B)
+  #include "stm32/pins_GTM32_REV_B.h"           // STM32F1                                env:STM32F103RE
 #elif MB(MORPHEUS)
   #include "stm32/pins_MORPHEUS.h"              // STM32F1                                env:STM32F103RE
 #elif MB(CHITU3D)
@@ -470,13 +478,13 @@
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
 #elif MB(BIGTREE_SKR_MINI_V1_1)
-  #include "stm32/pins_BTT_SKR_MINI_V1_1.h"     // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
+  #include "stm32/pins_BTT_SKR_MINI_V1_1.h"     // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_0)
-  #include "stm32/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
+  #include "stm32/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
-  #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB
+  #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BIGTREE_SKR_E3_DIP)
-  #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_NOUSB env:STM32F103RC_bigtree_512K_NOUSB env:STM32F103RE_bigtree
+  #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RE_bigtree env:STM32F103RE_bigtree_USB env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
@@ -487,6 +495,10 @@
   #include "stm32/pins_FYSETC_CHEETAH_V12.h"    // STM32F1                                env:STM32F103RC_fysetc
 #elif MB(LONGER3D_LK)
   #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:STM32F103VE_longer
+#elif MB(MKS_ROBIN_LITE3)
+  #include "stm32/pins_MKS_ROBIN_LITE3.h"       // STM32F1                                env:mks_robin_lite3
+#elif MB(MKS_ROBIN_PRO)
+  #include "stm32/pins_MKS_ROBIN_PRO.h"         // STM32F1                                env:mks_robin_pro
 
 //
 // ARM Cortex-M4F
@@ -521,6 +533,14 @@
   #include "stm32/pins_LERDGE_K.h"              // STM32F4                                env:STM32F4
 #elif MB(LERDGE_X)
   #include "stm32/pins_LERDGE_X.h"              // STM32F4                                env:STM32F4
+#elif MB(VAKE403D)
+  #include "stm32/pins_VAKE403D.h"              // STM32F4                                env:STM32F4
+#elif MB(FYSETC_S6)
+  #include "stm32/pins_FYSETC_S6.h"             // STM32F4                                env:FYSETC_S6
+#elif MB(FLYF407ZG)
+  #include "stm32/pins_FLYF407ZG.h"             // STM32F4                                env:FLYF407ZG
+#elif MB(MKS_ROBIN2)
+  #include "pins_MKS_ROBIN2.h"                  // STM32F4                                env:MKS_ROBIN2
 
 //
 // ARM Cortex M7
@@ -538,6 +558,10 @@
 #elif MB(ESPRESSIF_ESP32)
 
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
+#elif MB(MRR_ESPA)
+  #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
+#elif MB(MRR_ESPE)
+  #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board

@@ -1808,6 +1808,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if EXTRUDERS
     delta_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
+  #else
+    delta_mm.e = 0.0f;
   #endif
 
   #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -1997,7 +1999,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
   #endif
 
-  block->nominal_speed_sqr = sq(block->millimeters * inverse_secs);   //   (mm/sec)^2 Always > 0
+  block->nominal_speed_sqr = sq(block->millimeters * inverse_secs);   // (mm/sec)^2 Always > 0
   block->nominal_rate = CEIL(block->step_event_count * inverse_secs); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -2005,27 +2007,37 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       filwidth.advance_e(delta_mm.e);
   #endif
 
-  // Calculate and limit speed in mm/sec for each axis
+  // Calculate and limit speed in mm/sec
+
   xyze_float_t current_speed;
   float speed_factor = 1.0f; // factor <1 decreases speed
-  LOOP_XYZE(i) {
-    #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
-      // In worst case, only one extruder running, no change is needed.
-      // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
-      float delta_mm_i = 0;
-      if (i == E_AXIS && mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
-        delta_mm_i = delta_mm.e / MIXING_STEPPERS;
-      else
-        delta_mm_i = delta_mm.e;
-    #else
-      const float delta_mm_i = delta_mm[i];
-    #endif
-    const feedRate_t cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
-    #if ENABLED(DISTINCT_E_FACTORS)
-      if (i == E_AXIS) i += extruder;
-    #endif
-    if (cs > settings.max_feedrate_mm_s[i]) NOMORE(speed_factor, settings.max_feedrate_mm_s[i] / cs);
+
+  // Linear axes first with less logic
+  LOOP_XYZ(i) {
+    current_speed[i] = delta_mm[i] * inverse_secs;
+    const feedRate_t cs = ABS(current_speed[i]),
+                 max_fr = settings.max_feedrate_mm_s[i];
+    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
   }
+
+  // Limit speed on extruders, if any
+  #if EXTRUDERS
+    {
+      current_speed.e = delta_mm.e * inverse_secs;
+      #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+        // Move all mixing extruders at the specified rate
+        if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
+          current_speed.e *= MIXING_STEPPERS;
+      #endif
+      const feedRate_t cs = ABS(current_speed.e),
+                   max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
+                              #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+                                * MIXING_STEPPERS
+                              #endif
+                            );
+      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
+    }
+  #endif
 
   // Max segment time in µs.
   #ifdef XY_FREQUENCY_LIMIT
@@ -2608,13 +2620,15 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     if (mm == 0.0)
       mm = (delta_mm_cart.x != 0.0 || delta_mm_cart.y != 0.0) ? delta_mm_cart.magnitude() : ABS(delta_mm_cart.z);
 
+    // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float duration_recip = inv_duration ?: fr_mm_s / mm;
-      const feedRate_t feedrate = HYPOT(delta.a - position_float.a, delta.b - position_float.b) * duration_recip;
+      const xyz_pos_t diff = delta - position_float;
+      const feedRate_t feedrate = diff.magnitude() * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
     #endif
@@ -2750,8 +2764,8 @@ void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
       constexpr xyze_float_t max_accel_edit = MAX_ACCEL_EDIT_VALUES;
       const xyze_float_t &max_acc_edit_scaled = max_accel_edit;
     #else
-      constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION,
-                             max_acc_edit_scaled = max_accel_edit * 2;
+      constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION;
+      const xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
   #endif
@@ -2767,8 +2781,8 @@ void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
       constexpr xyze_float_t max_fr_edit = MAX_FEEDRATE_EDIT_VALUES;
       const xyze_float_t &max_fr_edit_scaled = max_fr_edit;
     #else
-      constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE,
-                             max_fr_edit_scaled = max_fr_edit * 2;
+      constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE;
+      const xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
   #endif

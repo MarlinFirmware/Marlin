@@ -113,7 +113,9 @@ xyz_pos_t probe_offset; // Initialized by settings.load()
 
   // Move to the magnet to unlock the probe
   void run_deploy_moves_script() {
-    #if TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
+    #ifndef TOUCH_MI_DEPLOY_XPOS
+      #define TOUCH_MI_DEPLOY_XPOS X_MIN_POS
+    #elif TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
       TemporaryGlobalEndstopsState unlock_x(false);
     #endif
     #if TOUCH_MI_DEPLOY_YPOS > Y_MAX_BED
@@ -129,7 +131,7 @@ xyz_pos_t probe_offset; // Initialized by settings.load()
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true; // LCD click or M108 will clear this
       #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), PSTR("Continue"));
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), CONTINUE_STR);
       #endif
       while (wait_for_user) idle();
       ui.reset_status();
@@ -290,7 +292,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), PSTR("Continue"));
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR);
       #endif
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe"));
@@ -356,7 +358,7 @@ bool set_probe_deployed(const bool deploy) {
   // Make room for probe to deploy (or stow)
   // Fix-mounted probe should only raise for deploy
   // unless PAUSE_BEFORE_DEPLOY_STOW is enabled
-  #if ENABLED(FIX_MOUNTED_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+  #if EITHER(FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
     const bool deploy_stow_condition = deploy;
   #else
     constexpr bool deploy_stow_condition = true;

@@ -223,7 +223,10 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("セッテイサイコウオン");              // "Max Temp"
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("デンゲンシュベツ");                // "Power Supply"
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("モータークドウリョク");              // "Drive Strength"
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("DACシュツリョク %");               // "Driver %"
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X DACシュツリョク %");               // "X Driver %"
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y DACシュツリョク %");               // "Y Driver %"
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z DACシュツリョク %");               // "Z Driver %"
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E DACシュツリョク %");               // "E Driver %"
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("EEPROMヘホゾン");               // "Store memory"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("イチジテイシ");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("プリントサイカイ");                // "Resume print"

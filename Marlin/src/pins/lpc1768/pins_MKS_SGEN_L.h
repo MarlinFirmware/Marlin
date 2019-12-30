@@ -166,7 +166,15 @@
 //
 #define HEATER_BED_PIN     P2_05
 #define HEATER_0_PIN       P2_07
-#define HEATER_1_PIN       P2_06
+#if HOTENDS == 1
+  #ifndef FAN1_PIN
+    #define FAN1_PIN       P2_06
+  #endif
+#else
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN   P2_06
+  #endif
+#endif
 #ifndef FAN_PIN
   #define FAN_PIN          P2_04
 #endif
@@ -203,60 +211,77 @@
     #define LCD_PINS_D4    P0_17
 
   #else
-    #define LCD_PINS_RS    P0_16
 
     #define BTN_EN1        P3_25
     #define BTN_EN2        P3_26
 
-    #define LCD_PINS_ENABLE P0_18
-    #define LCD_PINS_D4    P0_15
-
     #define LCD_SDSS       P0_28
-    #define SD_DETECT_PIN  P0_27
 
-    #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS    P0_18
-      #define DOGLCD_A0    P0_16
-      #define DOGLCD_SCK   P0_07
-      #define DOGLCD_MOSI  P1_20
+    #if ENABLED(MKS_12864OLED_SSD1306)
 
-      #define LCD_BACKLIGHT_PIN -1
+      #define LCD_PINS_DC  P0_17
+      #define DOGLCD_CS    P0_16
+      #define DOGLCD_A0    LCD_PINS_DC
+      #define DOGLCD_SCK   P0_15
+      #define DOGLCD_MOSI  P0_18
 
-      #define FORCE_SOFT_SPI      // Use this if default of hardware SPI causes display problems
-                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+      #define LCD_PINS_RS  P1_00
+      #define LCD_PINS_D7  P1_22
+      #define KILL_PIN     -1 // NC
 
-      #define LCD_RESET_PIN P0_15   // Must be high or open for LCD to operate normally.
+    #else // !MKS_12864OLED_SSD1306
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-        #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN P0_17
+      #define LCD_PINS_RS  P0_16
+
+      #define LCD_PINS_ENABLE P0_18
+      #define LCD_PINS_D4  P0_15
+
+      #if ENABLED(FYSETC_MINI_12864)
+
+        #define DOGLCD_CS  P0_18
+        #define DOGLCD_A0  P0_16
+        #define DOGLCD_SCK P0_07
+        #define DOGLCD_MOSI P1_20
+
+        #define LCD_BACKLIGHT_PIN -1
+
+        #define FORCE_SOFT_SPI      // Use this if default of hardware SPI causes display problems
+                                    //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+        #define LCD_RESET_PIN P0_15   // Must be high or open for LCD to operate normally.
+
+        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+          #ifndef RGB_LED_R_PIN
+            #define RGB_LED_R_PIN P0_17
+          #endif
+          #ifndef RGB_LED_G_PIN
+            #define RGB_LED_G_PIN P1_00
+          #endif
+          #ifndef RGB_LED_B_PIN
+            #define RGB_LED_B_PIN P1_22
+          #endif
+        #elif ENABLED(FYSETC_MINI_12864_2_1)
+          #define NEOPIXEL_PIN    P0_17
         #endif
-        #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN P1_00
+
+      #else // !FYSETC_MINI_12864
+
+        #if ENABLED(MKS_MINI_12864)
+          #define DOGLCD_CS  P0_17
+          #define DOGLCD_A0  P1_00
         #endif
-        #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN P1_22
+
+        #if ENABLED(ULTIPANEL)
+          #define LCD_PINS_D5 P0_17
+          #define LCD_PINS_D6 P1_00
+          #define LCD_PINS_D7 P1_22
         #endif
-      #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN    P0_17
-      #endif
 
-    #else // !FYSETC_MINI_12864
+      #endif // !FYSETC_MINI_12864
 
-      #if ENABLED(MKS_MINI_12864)
-        #define DOGLCD_CS  P0_17
-        #define DOGLCD_A0  P1_00
-      #endif
+    #endif // !MKS_12864OLED_SSD1306
 
-      #if ENABLED(ULTIPANEL)
-        #define LCD_PINS_D5 P0_17
-        #define LCD_PINS_D6 P1_00
-        #define LCD_PINS_D7 P1_22
-      #endif
-
-    #endif // !FYSETC_MINI_12864
-
-  #endif
+  #endif // !CR10_STOCKDISPLAY
 
 #endif // HAS_SPI_LCD
 
@@ -266,17 +291,16 @@
 
 #define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
 
-#if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN          P0_07
-  #define MISO_PIN         P0_08
-  #define MOSI_PIN         P0_09
-  #define SS_PIN           P0_28
-#elif SD_CONNECTION_IS(ONBOARD)
+#if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN    P0_27
   #define SCK_PIN          P0_07
   #define MISO_PIN         P0_08
   #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS_PIN
+  #if SD_CONNECTION_IS(ONBOARD)
+    #define SS_PIN         ONBOARD_SD_CS_PIN
+  #else
+    #define SS_PIN         P0_28
+  #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
