@@ -467,7 +467,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
     #ifdef SPI_HAS_HW_CRC
       expCrc = spiReadCRC16(dev_num, (uint16_t*)dst, count/2);
     #else
-      spiRecDevice(dev_num), dst, count);
+      spiReadDevice(dev_num, dst, count);
       #if ENABLED(SD_CHECK_AND_RETRY)
         expCrc = crcSupported ? CRC_CCITT(dst, count) : 0xFFFF;
       #endif
@@ -607,7 +607,7 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
     0xFFFF
   #endif
   ;
-  spiWrite(BUS_OF_DEV(dev_num), src, 512);
+  spiWriteDevice(dev_num, src, 512);
 #endif
 
   spiSendDevice(dev_num, crc >> 8);
