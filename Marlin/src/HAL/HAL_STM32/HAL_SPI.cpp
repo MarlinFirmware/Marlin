@@ -57,7 +57,7 @@ bool spiInitialized(uint8_t bus_num) {
  * 
  * @return Nothing
  */
-void spiInit(uint8_t bus_num, uint8_t spiRate) {
+void spiBusInit(uint8_t bus_num, uint8_t spiRate) {
   if (spiInitialized(bus_num)) spi_deinit(spi[bus_num]); // SPI already initialized (maybe at a different clock). De-init & re-init.
 
   spi[bus_num] = new spi_t();
@@ -88,7 +88,7 @@ void spiInit(uint8_t bus_num, uint8_t spiRate) {
   last_dev[bus_num] = -1;
 }
 
-uint8_t spiRec(uint8_t bus_num) {
+uint8_t spiBusRec(uint8_t bus_num) {
   #ifdef DUMP_SPI
     SERIAL_CHAR('R');
     SERIAL_PRINT(bus_num, DEC);
@@ -108,7 +108,7 @@ uint8_t spiRec(uint8_t bus_num) {
   return b;
 }
 
-void spiSend(uint8_t bus_num, uint8_t b) {
+void spiBusSend(uint8_t bus_num, uint8_t b) {
   #ifdef DUMP_SPI
     SERIAL_CHAR('S');
     SERIAL_PRINT(bus_num, DEC);
@@ -132,7 +132,7 @@ void spiSend(uint8_t bus_num, uint8_t b) {
  * 
  * @return Nothing
  */
-void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
+void spiBusRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
   #ifdef DUMP_SPI
     SERIAL_CHAR('D');
     SERIAL_PRINT(bus_num, DEC);
@@ -162,7 +162,7 @@ void spiRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
  * 
  * @return Nothing
  */
-void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
+void spiBusWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
   #ifdef DUMP_SPI
     SERIAL_CHAR('U');
     SERIAL_PRINT(bus_num, DEC);
@@ -180,6 +180,39 @@ void spiWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
   #endif
 
   HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
+}
+
+// Convert Marlin speed enum to STM prescaler
+uint32_t getPrescaler(uint8_t spiRate) {
+  switch (spiRate) {
+    case SPI_FULL_SPEED:    return SPI_BAUDRATEPRESCALER_2; // MAX Speed
+    case SPI_HALF_SPEED:    return SPI_BAUDRATEPRESCALER_4;
+    case SPI_QUARTER_SPEED: return SPI_BAUDRATEPRESCALER_8;
+    case SPI_EIGHTH_SPEED:  return SPI_BAUDRATEPRESCALER_16;
+    case SPI_SPEED_5:       return SPI_BAUDRATEPRESCALER_128;
+    case SPI_SPEED_6:       return SPI_BAUDRATEPRESCALER_256; // MIN Speed
+    default:                return -1;
+  }
+}
+
+/**
+ * @brief  Configure the bus parameters to those required for the device
+ * @param  dev_num Device number (identifies device and bus)
+ */
+void spiBusSet(uint8_t dev_num) {
+  if (last_dev[BUS_OF_DEV(dev_num)] == dev_num) return;
+  last_dev[BUS_OF_DEV(dev_num)] = dev_num;
+
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPolarity = CPOL_OF_DEV(dev_num) == SPI_PLO ? SPI_POLARITY_LOW : SPI_POLARITY_HIGH;
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPhase = CPHA_OF_DEV(dev_num) == SPI_LTS ? SPI_PHASE_1EDGE : SPI_PHASE_2EDGE;
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.FirstBit = BITO_OF_DEV(dev_num) == SPI_LSB ?  SPI_FIRSTBIT_LSB : SPI_FIRSTBIT_MSB;
+  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.BaudRatePrescaler = getPrescaler(
+    (SPD_OF_DEV(dev_num) == NC) ?
+    SPI_BusConfig[BUS_OF_DEV(dev_num)][SPIBUS_DSPD] : // take default bus speed
+    SPD_OF_DEV(dev_num)                               // use device speed
+  );
+
+  HAL_SPI_Init(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)));
 }
 
 //Device functions
@@ -205,7 +238,7 @@ SPI_TypeDef* spiLLSetBus(uint8_t dev_num) {
   return hspi;
 }
 
-uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
+uint16_t spiDevReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
 
   SPI_TypeDef * hspi = spiLLSetBus(dev_num);
@@ -244,7 +277,7 @@ uint16_t spiReadCRC16(uint8_t dev_num, uint16_t* buf, const uint16_t count) {
   return hwCRC; // Return HW-computed CRC
 }
 
-uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
+uint16_t spiDevWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t count) {
   if (count == 0 || !spiInitialized(BUS_OF_DEV(dev_num))) return 0xFFFF;
 
   SPI_TypeDef * hspi = spiLLSetBus(dev_num);
@@ -277,39 +310,6 @@ uint16_t spiWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t coun
 
 #endif // SPI_HAS_HW_CRC
 
-// Convert Marlin speed enum to STM prescaler
-uint32_t getPrescaler(uint8_t spiRate) {
-  switch (spiRate) {
-    case SPI_FULL_SPEED:    return SPI_BAUDRATEPRESCALER_2; // MAX Speed
-    case SPI_HALF_SPEED:    return SPI_BAUDRATEPRESCALER_4;
-    case SPI_QUARTER_SPEED: return SPI_BAUDRATEPRESCALER_8;
-    case SPI_EIGHTH_SPEED:  return SPI_BAUDRATEPRESCALER_16;
-    case SPI_SPEED_5:       return SPI_BAUDRATEPRESCALER_128;
-    case SPI_SPEED_6:       return SPI_BAUDRATEPRESCALER_256; // MIN Speed
-    default:                return -1;
-  }
-}
-
-/**
- * @brief  Configure the bus parameters to those required for the device
- * @param  dev_num Device number (identifies device and bus)
- */
-void spiSetBus(uint8_t dev_num) {
-  if (last_dev[BUS_OF_DEV(dev_num)] == dev_num) return;
-  last_dev[BUS_OF_DEV(dev_num)] = dev_num;
-
-  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPolarity = CPOL_OF_DEV(dev_num) == SPI_PLO ? SPI_POLARITY_LOW : SPI_POLARITY_HIGH;
-  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.CLKPhase = CPHA_OF_DEV(dev_num) == SPI_LTS ? SPI_PHASE_1EDGE : SPI_PHASE_2EDGE;
-  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.FirstBit = BITO_OF_DEV(dev_num) == SPI_LSB ?  SPI_FIRSTBIT_LSB : SPI_FIRSTBIT_MSB;
-  BUS_SPI_HANDLE(BUS_OF_DEV(dev_num))->Init.BaudRatePrescaler = getPrescaler(
-    (SPD_OF_DEV(dev_num) == NC) ?
-    SPI_BusConfig[BUS_OF_DEV(dev_num)][SPIBUS_DSPD] : // take default bus speed
-    SPD_OF_DEV(dev_num)                               // use device speed
-  );
-
-  HAL_SPI_Init(BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)));
-}
-
 /**
  * @brief  Receive a single byte from the SPI device.
  * 
@@ -317,10 +317,10 @@ void spiSetBus(uint8_t dev_num) {
  * 
  * @return Byte received
  */
-uint8_t spiRecDevice(uint8_t dev_num) {
-  spiSetBus(dev_num);
+uint8_t spiDevRec(uint8_t dev_num) {
+  spiBusSet(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  uint8_t b = spiRec(BUS_OF_DEV(dev_num));
+  uint8_t b = spiBusRec(BUS_OF_DEV(dev_num));
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
   return b;
 }
@@ -331,10 +331,10 @@ uint8_t spiRecDevice(uint8_t dev_num) {
  * @param  dev_num Device number (identifies device and bus)
  * @param  b Byte to send
  */
-void spiSendDevice(uint8_t dev_num, uint8_t b) {
-  spiSetBus(dev_num);
+void spiDevSend(uint8_t dev_num, uint8_t b) {
+  spiBusSet(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiSend(BUS_OF_DEV(dev_num), b);
+  spiBusSend(BUS_OF_DEV(dev_num), b);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
@@ -347,10 +347,10 @@ void spiSendDevice(uint8_t dev_num, uint8_t b) {
  * 
  * @return Nothing
  */
-void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
-  spiSetBus(dev_num);
+void spiDevRead(uint8_t dev_num, uint8_t* buf, uint16_t count) {
+  spiBusSet(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiRead(BUS_OF_DEV(dev_num), buf, count);
+  spiBusRead(BUS_OF_DEV(dev_num), buf, count);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
@@ -363,10 +363,10 @@ void spiReadDevice(uint8_t dev_num, uint8_t* buf, uint16_t count) {
  * 
  * @return Nothing
  */
-void spiWriteDevice(uint8_t dev_num, const uint8_t* buf, uint16_t count) {
-  spiSetBus(dev_num);
+void spiDevWrite(uint8_t dev_num, const uint8_t* buf, uint16_t count) {
+  spiBusSet(dev_num);
   digitalWrite(CS_OF_DEV(dev_num), LOW);
-  spiWrite(BUS_OF_DEV(dev_num), buf, count);
+  spiBusWrite(BUS_OF_DEV(dev_num), buf, count);
   digitalWrite(CS_OF_DEV(dev_num), HIGH);
 }
 
