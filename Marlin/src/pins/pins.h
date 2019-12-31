@@ -523,8 +523,8 @@
   #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:RUMBA32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
-#elif MB(STEVAL)
-  #include "stm32/pins_STEVAL.h"                // STM32F4                                env:STM32F4
+#elif MB(STEVAL_3DP001V1)
+  #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BIGTREE_BTT002_V1_0)
