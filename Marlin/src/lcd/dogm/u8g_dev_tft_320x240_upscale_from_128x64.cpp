@@ -295,7 +295,9 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
 #endif
 
 static const uint16_t st7789v_init[] = {
-  ESC_REG(0x0010), ESC_DELAY(10), ESC_REG(0x01), ESC_DELAY(200), ESC_REG(0x11), ESC_DELAY(120),
+  ESC_REG(0x0010), ESC_DELAY(10),
+  ESC_REG(0x0001), ESC_DELAY(200),
+  ESC_REG(0x0011), ESC_DELAY(120),
   ESC_REG(0x0036), 0x00A0,
   ESC_REG(0x003A), 0x0055,
   ESC_REG(0x002A), 0x0000, 0x0000, 0x0001, 0x003F,
@@ -362,7 +364,8 @@ static const uint16_t ili9328_init[] = {
 };
 
 static const uint16_t ili9341_init[] = {
-  ESC_REG(0x0010), ESC_DELAY(10), ESC_REG(0x01), ESC_DELAY(200),
+  ESC_REG(0x0010), ESC_DELAY(10),
+  ESC_REG(0x0001), ESC_DELAY(200),
   ESC_REG(0x0036), 0x00E8,
   ESC_REG(0x003A), 0x0055,
   ESC_REG(0x002A), 0x0000, 0x0000, 0x0001, 0x003F,
