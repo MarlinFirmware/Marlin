@@ -247,6 +247,8 @@
   #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:megaatmega2560
 #elif MB(HJC2560C_REV2)
   #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
+#elif MB(LEAPFROG_XEED2015)
+  #include "mega/pins_LEAPFROG_XEED2015.h"      // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
