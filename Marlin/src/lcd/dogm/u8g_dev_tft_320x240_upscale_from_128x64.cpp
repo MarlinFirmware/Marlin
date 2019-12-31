@@ -131,74 +131,90 @@
 
 static uint32_t lcd_id = 0;
 
-static void setWindow_x20_x21_x22(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
+#define ST7789V_CASET       0x2A   /* Column address register */
+#define ST7789V_RASET       0x2B   /* Row address register */
+#define ST7789V_WRITE_RAM   0x2C   /* Write data to GRAM */
+
+
+/* Mind the mess: with landscape screen orientation 'Horizontal' is Y and 'Vertical' is X */
+#define ILI9328_HASET       0x20   /* Horizontal GRAM address register (0-255) */
+#define ILI9328_VASET       0x21   /* Vertical GRAM address register (0-511)*/
+#define ILI9328_WRITE_RAM   0x22   /* Write data to GRAM */
+
+#define ILI9328_HASTART     0x50   /* Horizontal address start position (0-255) */
+#define ILI9328_HAEND       0x51   /* Horizontal address end position (0-255) */
+#define ILI9328_VASTART     0x52   /* Vertical address start position (0-511) */
+#define ILI9328_VAEND       0x53   /* Vertical address end position (0-511) */
+
+
+static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
   #ifdef LCD_USE_DMA_FSMC
-    LCD_IO_WriteReg(0x50);
+    LCD_IO_WriteReg(ILI9328_HASTART);
     LCD_IO_WriteData(Ymin);
-    LCD_IO_WriteReg(0x51);
+    LCD_IO_WriteReg(ILI9328_HAEND);
     LCD_IO_WriteData(Ymax);
-    LCD_IO_WriteReg(0x52);
+    LCD_IO_WriteReg(ILI9328_VASTART);
     LCD_IO_WriteData(Xmin);
-    LCD_IO_WriteReg(0x53);
+    LCD_IO_WriteReg(ILI9328_VAEND);
     LCD_IO_WriteData(Xmax);
 
-    LCD_IO_WriteReg(0x20);
+    LCD_IO_WriteReg(ILI9328_HASET);
     LCD_IO_WriteData(Ymin);
-    LCD_IO_WriteReg(0x21);
+    LCD_IO_WriteReg(ILI9328_VASET);
     LCD_IO_WriteData(Xmin);
 
-    LCD_IO_WriteReg(0x22);
+    LCD_IO_WriteReg(ILI9328_WRITE_RAM);
   #else
     u8g_SetAddress(u8g, dev, 0);
 
-    u8g_WriteByte(u8g, dev, 0x50);
+    u8g_WriteByte(u8g, dev, ILI9328_HASTART);
     u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Ymin);
-    u8g_WriteByte(u8g, dev, 0x51);
+    u8g_WriteByte(u8g, dev, ILI9328_HAEND);
     u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Ymax);
-    u8g_WriteByte(u8g, dev, 0x52);
+    u8g_WriteByte(u8g, dev, ILI9328_VASTART);
     u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Xmin);
-    u8g_WriteByte(u8g, dev, 0x53);
+    u8g_WriteByte(u8g, dev, ILI9328_VAEND);
     u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Xmax);
 
-    u8g_WriteByte(u8g, dev, 0x20);
+    u8g_WriteByte(u8g, dev, ILI9328_HASET);
     u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Ymin);
-    u8g_WriteByte(u8g, dev, 0x21);
+    u8g_WriteByte(u8g, dev, ILI9328_VASET);
     u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Xmin);
 
-    u8g_WriteByte(u8g, dev, 0x22);
+    u8g_WriteByte(u8g, dev, ILI9328_WRITE_RAM);
     u8g_SetAddress(u8g, dev, 1);
   #endif
 }
 
-static void setWindow_x2a_x2b_x2c(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
+static void setWindow_st7789v(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
   #ifdef LCD_USE_DMA_FSMC
-    LCD_IO_WriteReg(0x2A);
+    LCD_IO_WriteReg(ST7789V_CASET);
     LCD_IO_WriteData((Xmin >> 8) & 0xFF);
     LCD_IO_WriteData(Xmin & 0xFF);
     LCD_IO_WriteData((Xmax >> 8) & 0xFF);
     LCD_IO_WriteData(Xmax & 0xFF);
 
-    LCD_IO_WriteReg(0x2B);
+    LCD_IO_WriteReg(ST7789V_RASET);
     LCD_IO_WriteData((Ymin >> 8) & 0xFF);
     LCD_IO_WriteData(Ymin & 0xFF);
     LCD_IO_WriteData((Ymax >> 8) & 0xFF);
     LCD_IO_WriteData(Ymax & 0xFF);
 
-    LCD_IO_WriteReg(0x2C);
+    LCD_IO_WriteReg(ST7789V_WRITE_RAM);
   #else
-    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, 0x2A); u8g_SetAddress(u8g, dev, 1);
+    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_CASET); u8g_SetAddress(u8g, dev, 1);
     u8g_WriteByte(u8g, dev, (Xmin >> 8) & 0xFF);
     u8g_WriteByte(u8g, dev, Xmin & 0xFF);
     u8g_WriteByte(u8g, dev, (Xmax >> 8) & 0xFF);
     u8g_WriteByte(u8g, dev, Xmax & 0xFF);
 
-    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, 0x2B); u8g_SetAddress(u8g, dev, 1);
+    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_RASET); u8g_SetAddress(u8g, dev, 1);
     u8g_WriteByte(u8g, dev, (Ymin >> 8) & 0xFF);
     u8g_WriteByte(u8g, dev, Ymin & 0xFF);
     u8g_WriteByte(u8g, dev, (Ymax >> 8) & 0xFF);
     u8g_WriteByte(u8g, dev, Ymax & 0xFF);
 
-    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, 0x2C); u8g_SetAddress(u8g, dev, 1);
+    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_WRITE_RAM); u8g_SetAddress(u8g, dev, 1);
   #endif
 }
 
@@ -567,7 +583,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           #else
             writeEscSequence8(u8g, dev, st7789v_init);
           #endif
-          setWindow = setWindow_x2a_x2b_x2c;
+          setWindow = setWindow_st7789v;
           break;
         case 0x9328:  // ILI9328
           #ifdef LCD_USE_DMA_FSMC
@@ -575,7 +591,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           #else
             writeEscSequence16(u8g, dev, ili9328_init);
           #endif
-          setWindow = setWindow_x20_x21_x22;
+          setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
           #ifdef LCD_USE_DMA_FSMC
@@ -583,7 +599,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           #else
             writeEscSequence8(u8g, dev, ili9341_init);
           #endif
-          setWindow = setWindow_x2a_x2b_x2c;
+          setWindow = setWindow_st7789v;
           break;
         case 0x0404:  // No connected display on FSMC
           lcd_id = 0;
@@ -593,9 +609,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           return 0;
         default:
           if (lcd_id && 0xFF000000)
-            setWindow = setWindow_x2a_x2b_x2c;
+            setWindow = setWindow_st7789v;
           else
-            setWindow = setWindow_x20_x21_x22;
+            setWindow = setWindow_ili9328;
           break;
       }
 
