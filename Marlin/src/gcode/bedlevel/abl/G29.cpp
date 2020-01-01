@@ -910,8 +910,8 @@ G29_TYPE GcodeSuite::G29() {
         planner.force_unapply_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position.x, probePos.x - probe_offset.x)
-          && NEAR(current_position.y, probePos.y - probe_offset.y)
+        if ( NEAR(current_position.x, probePos.x - probe_offset_xy.x)
+          && NEAR(current_position.y, probePos.y - probe_offset_xy.y)
         ) {
           const float simple_z = current_position.z - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);

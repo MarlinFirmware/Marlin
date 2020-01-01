@@ -1190,13 +1190,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if ENABLED(NOZZLE_AS_PROBE)
     constexpr float sanity_nozzle_to_probe_offset[] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(sanity_nozzle_to_probe_offset[0] == 0.0 && sanity_nozzle_to_probe_offset[1] == 0.0,
-                  "NOZZLE AS PROBE requires zero X/Y offsets in NOZZLE_TO_PROBE_OFFSET");
-  #else
-    static_assert(MIN_PROBE_EDGE >= 0.0, "MIN_PROBE_EDGE may not be negative");
-    static_assert(MIN_PROBE_EDGE_BACK >= 0.0, "MIN_PROBE_EDGE_BACK may not be negative");
-    static_assert(MIN_PROBE_EDGE_FRONT >= 0.0, "MIN_PROBE_EDGE_FRONT may not be negative");
-    static_assert(MIN_PROBE_EDGE_LEFT >= 0.0, "MIN_PROBE_EDGE_LEFT may not be negative");
-    static_assert(MIN_PROBE_EDGE_RIGHT >= 0.0, "MIN_PROBE_EDGE_RIGHT may not be negative");
+                  "NOZZLE_AS_PROBE requires the X,Y offsets in NOZZLE_TO_PROBE_OFFSET to be 0,0.");
+  #endif
+
+  #if DISABLED(NOZZLE_AS_PROBE)
+    static_assert(MIN_PROBE_EDGE >= 0, "MIN_PROBE_EDGE must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_BACK >= 0, "MIN_PROBE_EDGE_BACK must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_FRONT >= 0, "MIN_PROBE_EDGE_FRONT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_LEFT >= 0, "MIN_PROBE_EDGE_LEFT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_RIGHT >= 0, "MIN_PROBE_EDGE_RIGHT must be >= 0.");
   #endif
 
   /**
