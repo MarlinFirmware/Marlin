@@ -101,7 +101,7 @@
 
   #if ENABLED(NEWPANEL)
 
-    #if ENABLED(MKS_MINI_12864)
+    #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
       #define DOGLCD_A0     5
       #define DOGLCD_CS    21
       #define BTN_EN1      40

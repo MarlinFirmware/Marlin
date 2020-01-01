@@ -246,7 +246,7 @@
 
     #else // !FYSETC_MINI_12864
 
-      #if ENABLED(MKS_MINI_12864)
+      #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
         #define DOGLCD_CS   P1_21
         #define DOGLCD_A0   P1_22
         #define DOGLCD_SCK  P0_15

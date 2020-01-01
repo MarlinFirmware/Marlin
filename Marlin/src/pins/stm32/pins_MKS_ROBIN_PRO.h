@@ -242,7 +242,7 @@
   #define BTN_EN2          PG4
 
   // MKS MINI12864 and MKS LCD12864B. If using MKS LCD12864A (Need to remove RPK2 resistor)
-  #if ENABLED(MKS_MINI_12864)
+  #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define LCD_BACKLIGHT_PIN -1
     #define LCD_RESET_PIN  -1
@@ -251,7 +251,7 @@
     #define DOGLCD_SCK     PB13
     #define DOGLCD_MOSI    PB15
 
-  #else // !MKS_MINI_12864
+  #else // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
     #define LCD_PINS_D4    PF14
     #if ENABLED(ULTIPANEL)
@@ -260,7 +260,7 @@
       #define LCD_PINS_D7  PF13
     #endif
 
-  #endif // !MKS_MINI_12864
+  #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 #endif
 
 #ifndef ST7920_DELAY_1

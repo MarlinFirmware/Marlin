@@ -270,18 +270,19 @@
 
     #else // !FYSETC_MINI_12864
 
-      #if ENABLED(MKS_MINI_12864)
-       
-    /** Creality Ender-2 display pinout
-     *                   _____
-     *               5V | · · | GND
-     *     (MOSI) P1_23 | · · | P1_22 (LCD_CS)
-     *   (LCD_A0) P1_21 | · · | P1_20 (BTN_EN2)
-     *      RESET P1.19 | · · | P1_18 (BTN_EN1)
-     *  (BTN_ENC) P0_28 | · · | P1_30 (SCK)
-     *                   -----
-     *                    EXP1
-     */
+      #if ENABLED(ENDER2_STOCKDISPLAY)
+
+        /**
+         * Creality Ender-2 display pinout
+         *                   _____
+         *               5V | · · | GND
+         *     (MOSI) P1_23 | · · | P1_22 (LCD_CS)
+         *   (LCD_A0) P1_21 | · · | P1_20 (BTN_EN2)
+         *      RESET P1.19 | · · | P1_18 (BTN_EN1)
+         *  (BTN_ENC) P0_28 | · · | P1_30 (SCK)
+         *                   -----
+         *                    EXP1
+         */
 
         #define BTN_EN1      P1_18
         #define BTN_EN2      P1_20

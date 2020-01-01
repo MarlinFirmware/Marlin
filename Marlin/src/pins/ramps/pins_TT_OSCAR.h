@@ -430,7 +430,7 @@
       #define SD_DETECT_PIN 49
       //#define KILL_PIN     41
 
-    #elif ENABLED(MKS_MINI_12864)
+    #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
       #define DOGLCD_A0    27
       #define DOGLCD_CS    25

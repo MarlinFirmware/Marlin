@@ -238,7 +238,7 @@
       #define NEOPIXEL_PIN    50   // D5
     #endif
 
-  #elif ENABLED(MKS_MINI_12864)
+  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define ORIG_BEEPER_PIN 62
 
