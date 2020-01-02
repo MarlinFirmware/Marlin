@@ -125,7 +125,7 @@ public:
   // Hook for manual extrude.
   static void HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for motor lock and unlook
-  static void HandleMotorLockUnlok(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr);
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Hook for power loss recovery.
     static void HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr);
@@ -134,9 +134,9 @@ public:
   static void HandleSettings(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
-  #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-  	// Hook for "Change this temperture PID para"
-    static void HandleTemperturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #if HAS_PID_HEATING
+  	// Hook for "Change this temperature PID para"
+    static void HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);
     // Hook for PID autotune
     static void HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr);
   #endif
@@ -208,7 +208,7 @@ public:
   static void DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendTemperturePID(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendTemperaturePID(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var);
   #if ENABLED(PRINTCOUNTER)
@@ -265,14 +265,14 @@ public:
       DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
       f *= cpow(10, decimals);
       union { int16_t i; char lb[2]; } endian;
-  
+
       char tmp[2];
       endian.i = f;
       tmp[0] = endian.lb[1];
       tmp[1] = endian.lb[0];
       dgusdisplay.WriteVariable(var.VP, tmp, 2);
     }
-  } 
+  }
 
   /// Force an update of all VP on the current screen.
   static inline void ForceCompleteUpdate() { update_ptr = 0; ScreenComplete = false; }

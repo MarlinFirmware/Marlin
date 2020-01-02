@@ -564,7 +564,7 @@ volatile bool Temperature::temp_meas_ready = false;
       #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TUNIGN_TIMEOUT);
+          ExtUI::OnPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
         #endif
         SERIAL_ECHOLNPGM(MSG_PID_TIMEOUT);
         break;

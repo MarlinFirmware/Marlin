@@ -89,7 +89,7 @@ namespace ExtUI {
 
   void onFactoryReset() {}
   void onStoreSettings(char *buff) {
-    // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
+    // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
 
@@ -99,7 +99,7 @@ namespace ExtUI {
   }
 
   void onLoadSettings(const char *buff) {
-    // This is called while loading settings from EEPROM. If the ExtUI
+    // Called while loading settings from EEPROM. If the ExtUI
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
 
@@ -109,30 +109,30 @@ namespace ExtUI {
   }
 
   void onConfigurationStoreWritten(bool success) {
-    // This is called after the entire EEPROM has been written,
+    // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
   void onConfigurationStoreRead(bool success) {
-    // This is called after the entire EEPROM has been read,
+    // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-    // This is called when any mesh points are updated
+    // Called when any mesh points are updated
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void OnPowerLossResume() {
-      // This is called when resuming from power loss
+      // Called on resume from power-loss
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
     }
   #endif
 
-  
-  #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-    void OnPidTuning(result_t rst) {
-      // This is called temperture PID is tuning
+
+  #if HAS_PID_HEATING
+    void OnPidTuning(const result_t rst) {
+      // Called for temperature PID tuning result
       SERIAL_ECHOLNPAIR("OnPidTuning:",rst);
       switch(rst) {
         case PID_BAD_EXTRUDER_NUM:
@@ -141,9 +141,9 @@ namespace ExtUI {
         case PID_TEMP_TOO_HIGH:
           ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_TEMP_TOO_HIGH));
           break;
-        case PID_TUNIGN_TIMEOUT:
+        case PID_TUNING_TIMEOUT:
           ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_TIMEOUT));
-          break;        
+          break;
         case PID_DONE:
           ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_AUTOTUNE_FINISHED));
           break;

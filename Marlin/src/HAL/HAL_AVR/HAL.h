@@ -111,13 +111,11 @@ typedef int8_t pin_t;
 
 #ifdef DGUS_SERIAL_PORT
   #if !WITHIN(DGUS_SERIAL_PORT, -1, 3)
-    #error "DGUS_SERIAL_PORT must be from -1 to 3"
+    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT"
-    #ifdef SERIAL_PORT_2
-      #elif DGUS_SERIAL_PORT == SERIAL_PORT_2
-        #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2"
-    #endif
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #endif
   #define DGUS_SERIAL internalDgusSerial
 

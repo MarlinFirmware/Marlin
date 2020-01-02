@@ -24,7 +24,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_UI_ORIGIN)
+#if ENABLED(DGUS_LCD_UI_ORIGIN)
 
 #include "DGUSDisplayDefinition.h"
 #include "DGUSDisplay.h"
@@ -54,7 +54,7 @@ const uint16_t VPList_Temp[] PROGMEM = {
     VP_T_E0_Is, VP_T_E0_Set,
   #endif
   #if HOTENDS >= 2
-    VP_T_E1_I, VP_T_E1_S,
+    VP_T_E1_Is, VP_T_E1_Set,
   #endif
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
@@ -68,16 +68,16 @@ const uint16_t VPList_Status[] PROGMEM = {
     VP_T_E0_Is, VP_T_E0_Set,
   #endif
   #if HOTENDS >= 2
-    VP_T_E1_I, VP_T_E1_S,
+    VP_T_E1_Is, VP_T_E1_Set,
   #endif
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   #if FAN_COUNT > 0
-    VP_Fan_Percentage,
+    VP_Fan0_Percentage,
   #endif
   VP_XPos, VP_YPos, VP_ZPos,
-  VP_Fan_Percentage,
+  VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
   VP_PrintProgress_Percentage,
   0x0000
@@ -107,7 +107,7 @@ const uint16_t VPList_ManualExtrude[] PROGMEM = {
 };
 
 const uint16_t VPList_FanAndFeedrate[] PROGMEM = {
-  VP_Feedrate_Percentage, VP_Fan_Percentage,
+  VP_Feedrate_Percentage, VP_Fan0_Percentage,
   0x0000
 };
 
@@ -177,7 +177,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_HOME_ALL, nullptr, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
   #endif
 
-  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, &DGUSScreenVariableHandler::HandleMotorLockUnlok, nullptr),
+  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, &DGUSScreenVariableHandler::HandleMotorLockUnlock, nullptr),
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, &DGUSScreenVariableHandler::HandlePowerLossRecovery, nullptr),
   #endif
@@ -200,9 +200,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       VPHELPER(VP_E0_BED_PREHEAT, nullptr, &DGUSScreenVariableHandler::HandlePreheat, nullptr),
     #endif
     #if ENABLED(PIDTEMP)
-      VPHELPER(VP_E_PID_P, &thermalManager.temp_hotend[0].pid.Kp, DGUSScreenVariableHandler::HandleTemperturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperturePID),
-      VPHELPER(VP_E_PID_I, &thermalManager.temp_hotend[0].pid.Ki, DGUSScreenVariableHandler::HandleTemperturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperturePID),
-      VPHELPER(VP_E_PID_D, &thermalManager.temp_hotend[0].pid.Kd, DGUSScreenVariableHandler::HandleTemperturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperturePID),
+      VPHELPER(VP_E0_PID_P, &thermalManager.temp_hotend[0].pid.Kp, DGUSScreenVariableHandler::HandleTemperaturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperaturePID),
+      VPHELPER(VP_E0_PID_I, &thermalManager.temp_hotend[0].pid.Ki, DGUSScreenVariableHandler::HandleTemperaturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperaturePID),
+      VPHELPER(VP_E0_PID_D, &thermalManager.temp_hotend[0].pid.Kd, DGUSScreenVariableHandler::HandleTemperaturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperaturePID),
       VPHELPER(VP_PID_AUTOTUNE_E0, nullptr, &DGUSScreenVariableHandler::HandlePIDAutotune, nullptr),
     #endif
     #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
@@ -210,8 +210,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #endif
   #endif
   #if HOTENDS >= 2
-    VPHELPER(VP_T_E1_I, &thermalManager.temp_hotend[1].celsius, nullptr, DGUSLCD_SendFloatAsLongValueToDisplay<0>),
-    VPHELPER(VP_T_E1_S, &thermalManager.temp_hotend[1].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, DGUSLCD_SendFloatAsLongValueToDisplay<0>),
+    VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E1, nullptr, DGUSScreenVariableHandler::HandleFlowRateChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_MOVE_E1, nullptr, &DGUSScreenVariableHandler::HandleManualExtrude, nullptr),
     VPHELPER(VP_E1_CONTROL, &thermalManager.temp_hotend[1].target, &DGUSScreenVariableHandler::HandleHeaterControl, nullptr),
@@ -220,53 +220,36 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       VPHELPER(VP_PID_AUTOTUNE_E1, nullptr, &DGUSScreenVariableHandler::HandlePIDAutotune, nullptr),
     #endif
   #endif
-  #if HOTENDS >= 3
-    #error More than 2 Hotends currently not implemented on the Display UI design.
-  #endif
   #if HAS_HEATED_BED
     VPHELPER(VP_T_Bed_Is, &thermalManager.temp_bed.celsius, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_BED_CONTROL, &thermalManager.temp_bed.target, &DGUSScreenVariableHandler::HandleHeaterControl, nullptr),
     VPHELPER(VP_BED_STATUS, &thermalManager.temp_bed.target, nullptr, &DGUSScreenVariableHandler::DGUSLCD_SendHeaterStatusToDisplay),
     #if ENABLED(PIDTEMPBED)
-      VPHELPER(VP_BED_PID_P, &thermalManager.temp_bed.pid.Kp, DGUSScreenVariableHandler::HandleTemperturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperturePID),
-      VPHELPER(VP_BED_PID_I, &thermalManager.temp_bed.pid.Ki, DGUSScreenVariableHandler::HandleTemperturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperturePID),
-      VPHELPER(VP_BED_PID_D, &thermalManager.temp_bed.pid.Kd, DGUSScreenVariableHandler::HandleTemperturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperturePID),      
+      VPHELPER(VP_BED_PID_P, &thermalManager.temp_bed.pid.Kp, DGUSScreenVariableHandler::HandleTemperaturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperaturePID),
+      VPHELPER(VP_BED_PID_I, &thermalManager.temp_bed.pid.Ki, DGUSScreenVariableHandler::HandleTemperaturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperaturePID),
+      VPHELPER(VP_BED_PID_D, &thermalManager.temp_bed.pid.Kd, DGUSScreenVariableHandler::HandleTemperaturePIDChanged, DGUSScreenVariableHandler::DGUSLCD_SendTemperaturePID),
     #endif
   #endif
 
-  // Fan Data.
-  #if FAN_COUNT > 0
-      VPHELPER(VP_Fan_Percentage, &thermalManager.fan_speed[0], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay),
-      VPHELPER(VP_FAN_CONTROL, &thermalManager.fan_speed[0], &DGUSScreenVariableHandler::HandleFanControl, nullptr),
-      VPHELPER(VP_FAN_STATUS, &thermalManager.fan_speed[0], nullptr, &DGUSScreenVariableHandler::DGUSLCD_SendFanStatusToDisplay),
-    #if FAN_COUNT > 1
-        VPHELPER(VP_Fan1_Percentage, &thermalManager.fan_speed[1], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay),
-        VPHELPER(VP_FAN1_CONTROL, &thermalManager.fan_speed[1], &DGUSScreenVariableHandler::HandleFanControl, nullptr),
-        VPHELPER(VP_FAN1_STATUS, &thermalManager.fan_speed[1], nullptr, &DGUSScreenVariableHandler::DGUSLCD_SendFanStatusToDisplay),
-      #if FAN_COUNT > 2
-          VPHELPER(VP_Fan2_Percentage, &thermalManager.fan_speed[2], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay),
-          VPHELPER(VP_FAN2_CONTROL, &thermalManager.fan_speed[2], &DGUSScreenVariableHandler::HandleFanControl, nullptr),
-          VPHELPER(VP_FAN2_STATUS, &thermalManager.fan_speed[2], nullptr, &DGUSScreenVariableHandler::DGUSLCD_SendFanStatusToDisplay),
-        #if FAN_COUNT > 3
-            VPHELPER(VP_Fan3_Percentage, &thermalManager.fan_speed[3], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay),
-            VPHELPER(VP_FAN3_CONTROL, &thermalManager.fan_speed[3], &DGUSScreenVariableHandler::HandleFanControl, nullptr),
-            VPHELPER(VP_FAN3_STATUS, &thermalManager.fan_speed[3], nullptr, &DGUSScreenVariableHandler::DGUSLCD_SendFanStatusToDisplay),
-        #endif
-      #endif
-    #endif
+  // Fan Data
+  #if FAN_COUNT
+    #define FAN_VPHELPER(N) \
+      VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay), \
+      VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], &DGUSScreenVariableHandler::HandleFanControl, nullptr), \
+      VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, &DGUSScreenVariableHandler::DGUSLCD_SendFanStatusToDisplay),
+    REPEAT(FAN_COUNT, FAN_VPHELPER)
   #endif
 
-
-  // Feedrate.
+  // Feedrate
   VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, DGUSScreenVariableHandler::DGUSLCD_SetValueDirectly<int16_t>, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
 
-  // Position Data.
+  // Position Data
   VPHELPER(VP_XPos, &current_position.x, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
   VPHELPER(VP_YPos, &current_position.y, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
   VPHELPER(VP_ZPos, &current_position.z, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
-  // Print Progress.
+  // Print Progress
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
     VPHELPER(VP_PrintProgress_Percentage, &ui.progress_override, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
   #endif
@@ -282,10 +265,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], DGUSScreenVariableHandler::HandleStepPerMMChanged, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], DGUSScreenVariableHandler::HandleStepPerMMChanged, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   #if HOTENDS >= 1
-    VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E0_AXIS], DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+    VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   #endif
   #if HOTENDS >= 2
-    VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E1_AXIS], DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+    VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   #endif
 
   // SDCard File listing.
@@ -299,7 +282,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER_STR(VP_SD_FileName3,  nullptr, VP_SD_FileName_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_SendFilename ),
     VPHELPER_STR(VP_SD_FileName4,  nullptr, VP_SD_FileName_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_SendFilename ),
     VPHELPER(VP_SD_ResumePauseAbort, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_ResumePauseAbort, nullptr),
-    VPHELPER(VP_SD_AbortPrintConfirmed, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_ReallyAbort, nullptr),    
+    VPHELPER(VP_SD_AbortPrintConfirmed, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_ReallyAbort, nullptr),
     VPHELPER(VP_SD_Print_Setting, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_PrintTune, nullptr),
     #if HAS_BED_PROBE
       VPHELPER(VP_SD_Print_ProbeOffsetZ, &probe_offset.z, DGUSScreenVariableHandler::HandleProbeOffsetZChanged, &DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<2>),
@@ -322,4 +305,4 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(0, 0, 0, 0)  // must be last entry.
 };
 
-#endif // DGUS_LCD
+#endif // DGUS_LCD_UI_ORIGIN

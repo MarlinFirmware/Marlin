@@ -95,13 +95,13 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void OnPowerLossResume() {
-      // This is called when resume from power loss
+      // Called on resume from power-loss
     }
   #endif
 
-  #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-    void OnPidTuning(result_t rst) {
-      // This is called temperture PID is tuning
+  #if HAS_PID_HEATING
+    void OnPidTuning(const result_t rst) {
+      // Called for temperature PID tuning result
     }
   #endif
 }

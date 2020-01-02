@@ -77,12 +77,9 @@
 #ifdef DGUS_SERIAL_PORT
   #if DGUS_SERIAL_PORT == SERIAL_PORT
     #error "DGUS_SERIAL_PORT must be different from SERIAL_PORT. Please update your configuration."
-    #ifdef SERIAL_PORT_2
-      #if DGUS_SERIAL_PORT == SERIAL_PORT_2
-        #error "DGUS_SERIAL_PORT must be different from SERIAL_PORT_2. Please update your configuration."
-    #endif
-  #endif
-  #if DGUS_SERIAL_PORT == -1
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL internalDgusSerial
   #elif DGUS_SERIAL_PORT == 0
     #define DGUS_SERIAL Serial

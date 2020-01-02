@@ -97,16 +97,11 @@ extern "C" volatile uint32_t _millis;
 #endif
 
 #ifdef DGUS_SERIAL_PORT
-  #if !WITHIN(DGUS_SERIAL_PORT, -1, 3)
-    #error "DGUS_SERIAL_PORT must be from -1 to 3"
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT"
-    #ifdef SERIAL_PORT2
-      #elif DGUS_SERIAL_PORT == SERIAL_PORT_2
-      #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2"
-    #endif
-  #endif
-  #if DGUS_SERIAL_PORT == -1
+  #if DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL UsbSerial
   #elif DGUS_SERIAL_PORT == 0
     #define DGUS_SERIAL MSerial
@@ -116,6 +111,8 @@ extern "C" volatile uint32_t _millis;
     #define DGUS_SERIAL MSerial2
   #elif DGUS_SERIAL_PORT == 3
     #define DGUS_SERIAL MSerial3
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 #endif
 

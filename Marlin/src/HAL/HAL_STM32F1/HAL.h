@@ -122,19 +122,14 @@
 #endif
 
 #ifdef DGUS_SERIAL
-  #if !WITHIN(DGUS_SERIAL_PORT, -1, 5)
-    #error "DGUS_SERIAL_PORT must be from -1 to 5"
+  #if DGUS_SERIAL_PORT == 0
+    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
   #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT"
-    #ifdef SERIAL_PORT_2
-      #elif DGUS_SERIAL_PORT == SERIAL_PORT_2
-        #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2"
-    #endif
-  #endif
-  #if DGUS_SERIAL_PORT == -1
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL UsbSerial
-  #elif DGUS_SERIAL_PORT == 0
-  #error "Serial port 0 does not exist"
   #elif DGUS_SERIAL_PORT == 1
     #define DGUS_SERIAL MSerial1
   #elif DGUS_SERIAL_PORT == 2
@@ -145,6 +140,8 @@
     #define DGUS_SERIAL MSerial4
   #elif DGUS_SERIAL_PORT == 5
     #define DGUS_SERIAL MSerial5
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 5. Please update your configuration."
   #endif
 #endif
 
