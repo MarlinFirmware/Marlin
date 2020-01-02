@@ -28,7 +28,7 @@
 
 Nozzle nozzle;
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../module/motion.h"
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)

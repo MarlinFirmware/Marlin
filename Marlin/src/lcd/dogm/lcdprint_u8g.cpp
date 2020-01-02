@@ -14,7 +14,7 @@
 #include "ultralcd_DOGM.h"
 
 #include "../ultralcd.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 #include "../fontutils.h"
 #include "u8g_fontutf8.h"

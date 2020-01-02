@@ -35,7 +35,7 @@
 #include "planner.h"
 #include "endstops.h"
 #include "../lcd/ultralcd.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_BED_PROBE
   #include "probe.h"

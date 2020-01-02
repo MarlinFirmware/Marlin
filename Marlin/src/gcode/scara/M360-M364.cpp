@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/scara.h"
 #include "../../module/motion.h"
-#include "../../Marlin.h" // for IsRunning()
+#include "../../MarlinCore.h" // for IsRunning()
 
 inline bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
   if (IsRunning()) {

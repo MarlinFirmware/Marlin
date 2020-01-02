@@ -34,7 +34,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #endif
 
 #include "printcounter.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../HAL/shared/persistent_store_api.h"
 
 #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0

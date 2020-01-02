@@ -213,7 +213,7 @@ void MenuItem_bool::action(PGM_P const, bool * const ptr, screenFunc_t callback)
 ///////////////// Menu Tree ////////////////
 ////////////////////////////////////////////
 
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 bool printer_busy() {
   return planner.movesplanned() || printingIsActive();

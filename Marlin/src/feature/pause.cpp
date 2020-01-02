@@ -29,7 +29,7 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
 #include "../module/planner.h"

@@ -22,7 +22,7 @@
 
 #include "utility.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../module/temperature.h"
 
 void safe_delay(millis_t ms) {

@@ -70,7 +70,7 @@
 #include "../core/language.h"
 #include "../gcode/parser.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
