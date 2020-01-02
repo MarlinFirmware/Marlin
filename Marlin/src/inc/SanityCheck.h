@@ -2059,7 +2059,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * TMC2208/2209 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
-#if HAS_TMC220x && !defined(TARGET_LPC1768) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+#if HAS_TMC220x && !defined(TARGET_LPC1768) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !defined(TARGET_STM32F1) && !defined(TARGET_STM32F4) && !( \
        defined(X_HARDWARE_SERIAL ) || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) || defined(Y2_HARDWARE_SERIAL) \
     || defined(Z_HARDWARE_SERIAL ) || defined(Z2_HARDWARE_SERIAL) \
