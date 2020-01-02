@@ -41,10 +41,10 @@ extern const struct VPMapping VPMap[];
 // List of VPs handled by Marlin / The Display.
 extern const struct DGUS_VP_Variable ListOfVP[];
 
-#if defined(DGUS_UI_ORIGIN)
+#if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "DGUSDisplayDefinitionOrigin.h"
-#elif defined(DGUS_UI_FYSETC)
+#elif ENABLED(DGUS_LCD_UI_FYSETC)
   #include "DGUSDisplayDefinitionFYSETC.h"
-#elif defined(DGUS_UI_HIPRECY)
+#elif ENABLED(DGUS_LCD_UI_HIPRECY)
   #include "DGUSDisplayDefinitionHIPRECY.h"
 #endif

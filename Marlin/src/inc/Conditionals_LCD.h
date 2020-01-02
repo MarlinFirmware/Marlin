@@ -359,6 +359,7 @@
 #define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 #define HAS_ADC_BUTTONS      ENABLED(ADC_KEYPAD)
+#define HAS_DGUS_LCD         ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
 
 /**
  * Extruders have some combination of stepper motors and hotends

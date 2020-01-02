@@ -59,7 +59,7 @@ constexpr bool
     #endif
   );
 
-#if ENABLED(DGUS_LCD)
+#if HAS_DGUS_LCD
 constexpr bool
   bDGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS = (false
     #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)

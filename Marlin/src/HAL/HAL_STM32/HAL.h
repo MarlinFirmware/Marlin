@@ -90,7 +90,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#if ENABLED(DGUS_LCD)
+#if HAS_DGUS_LCD
   #if !WITHIN(DGUS_SERIAL_PORT, -1, 6)
     #error "DGUS_SERIAL_PORT must be from -1 to 6"
   #elif DGUS_SERIAL_PORT == SERIAL_PORT
