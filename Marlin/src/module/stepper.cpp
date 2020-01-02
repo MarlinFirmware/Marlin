@@ -1436,7 +1436,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
-  
+
   // Take multiple steps per interrupt (For high speed moves)
   #if ISR_MULTI_STEPS
     bool firstStep = true;
