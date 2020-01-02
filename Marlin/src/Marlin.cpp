@@ -536,7 +536,8 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #if ENABLED(AUTO_POWER_CONTROL)
     powerManager.check();
   #endif
- #if ENABLED(FCP_ENABLE)
+
+  #if ENABLED(FCP_ENABLE)
     fcp_update();
   #endif
 
