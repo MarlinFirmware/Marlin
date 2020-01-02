@@ -912,7 +912,7 @@ void ST7920_Lite_Status_Screen::on_exit() {
   ncs();
 }
 
-// This is called prior to the KILL screen to
+// Called prior to the KILL screen to
 // clear the screen, preventing a garbled display.
 void ST7920_Lite_Status_Screen::clear_text_buffer() {
   cs();

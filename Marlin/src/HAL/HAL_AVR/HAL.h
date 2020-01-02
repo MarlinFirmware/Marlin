@@ -91,19 +91,19 @@ typedef int8_t pin_t;
   #define NUM_SERIAL 1
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)
-    #error "SERIAL_PORT must be from -1 to 3"
+    #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 
   #define MYSERIAL0 customizedSerial1
 
   #ifdef SERIAL_PORT_2
     #if !WITHIN(SERIAL_PORT_2, -1, 3)
-      #error "SERIAL_PORT_2 must be from -1 to 3"
+      #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
     #elif SERIAL_PORT_2 == SERIAL_PORT
-      #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
+      #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
     #endif
-    #define NUM_SERIAL 2
     #define MYSERIAL1 customizedSerial2
+    #define NUM_SERIAL 2
   #else
     #define NUM_SERIAL 1
   #endif

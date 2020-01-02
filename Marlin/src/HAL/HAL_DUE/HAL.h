@@ -56,8 +56,7 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #endif
-  #if SERIAL_PORT_2 == -1
+  #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 customizedSerial2
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
