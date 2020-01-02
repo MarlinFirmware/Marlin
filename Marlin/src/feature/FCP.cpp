@@ -25,7 +25,7 @@
  * Prevent nozzle jam/clog as result from carbonized filament (which happens if the nozzle stay hot too long without extrusion) 
  * 
  * Logic:
- * Check if extruder have not moved during FCP_TIMEOUT(minutes), check if temperature is above FCP_MIN_TRIGGER(celsius)
+ * Check if extruder hasn't moved during FCP_TIMEOUT(minutes), check if temperature is above FCP_MIN_TRIGGER(celsius)
  * if both conditions are true, then set nozzle and bed to their respective FCP_NOZZLE_TARGET and FCP_BED_TARGET
  */
 
@@ -33,7 +33,6 @@
 
 #if ENABLED(FCP_ENABLE)
 
-#include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 #include "../module/motion.h"
 #include "../gcode/gcode.h"
