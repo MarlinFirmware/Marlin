@@ -27,7 +27,7 @@
  * Logic:
  * Check if extruder have not moved during FCP_TIMEOUT(minutes), check if temperature is above FCP_MIN_TRIGGER(celsius)
  * if both conditions are true, then set nozzle and bed to their respective FCP_NOZZLE_TARGET and FCP_BED_TARGET
-*/
+ */
 
 #include "../inc/MarlinConfig.h"
 
@@ -39,30 +39,30 @@
 #include "../gcode/queue.h"
 #include "../gcode/gcode.h"
 #include "../gcode/parser.h"
-static float old_position = 0;
-unsigned long interval = FCP_TIMEOUT * 60000; // timeout in minutes to milisseconds
-static unsigned long previousMillis = 0;
 
-//for some reason beyond my understanding, the ELAPSED macro did not work duo overflows, so i used another method to
-//compare time, if someone can make it work would be nice
+constexpr millis_t fcp_interval = (FCP_TIMEOUT) * 1000UL * 60UL; // convert minutes to ms
 
-void fcp_update(){
-    unsigned long currentMillis = millis();
-    if ((unsigned long)(currentMillis - previousMillis) >= interval)    {
-        if (old_position == (current_position.e))        {
-            if ((thermalManager.degHotend(0)) >= FCP_MIN_TRIGGER || (thermalManager.degHotend(1)) >= FCP_MIN_TRIGGER)            {
-                SERIAL_ECHOPGM("WARNING: FCP WATCHDOG TRIGGERED\n");
-                gcode.process_subcommands_now_P(PSTR("M117 FCP WATCHDOG TRIG"));
+void fcp_update() {
+  millis_t ms = millis();
+  static millis_t nextMillis = ms + fcp_interval;
+  static float old_e_position = 0;
+  if (old_e_position != current_position.e) {
+    old_e_position == current_position.e;
+    nextMillis = ms + fcp_interval;
+  }
+  else if (nextMillis && ELAPSED(ms, nextMillis)) {
+    bool trigger = false;
+    HOTEND_LOOP() if (thermalManager.degHotend(e) >= (FCP_MIN_TRIGGER)) trigger = true;
+    if (trigger) {
+      SERIAL_ECHOLNPGM("WARNING: FCP WATCHDOG TRIGGERED");
+      gcode.process_subcommands_now_P(PSTR("M117 FCP WATCHDOG TRIG"));
 
-                thermalManager.setTargetBed(FCP_BED_TARGET);
-                thermalManager.setTargetHotend(FCP_NOZZLE_TARGET, 0);
-                thermalManager.setTargetHotend(FCP_NOZZLE_TARGET, 1);
-            }
-        }
-        old_position = (current_position.e);
-        previousMillis = millis();
-        //SERIAL_ECHOPGM("FCP WATCHDOG MONITORING\n");
+      HOTEND_LOOP() thermalManager.setTargetHotend(FCP_NOZZLE_TARGET, e);
+      thermalManager.setTargetBed(FCP_BED_TARGET);
     }
+    nextMillis = 0;
+    //SERIAL_ECHOLNPGM("FCP WATCHDOG MONITORING");
+  }
 }
 
-#endif // ENABLED(FCP_ENABLE)
+#endif // FCP_ENABLE
