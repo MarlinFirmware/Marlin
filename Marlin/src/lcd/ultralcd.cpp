@@ -786,6 +786,9 @@ void MarlinUI::update() {
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (buttons & EN_A) encoderDiff *= -1;
             next_button_update_ms = ms + repeat_delay;    // Assume the repeat delay
+            #if ENABLED(AUTO_BED_LEVELING_UBL)
+              ubl.encoder_diff = encoderDiff;
+            #endif
             if (!wait_for_unclick) {
               next_button_update_ms += 250;               // Longer delay on first press
               wait_for_unclick = true;                    // Avoid Back/Select click while repeating
