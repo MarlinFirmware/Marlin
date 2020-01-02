@@ -1029,7 +1029,8 @@
  * not giving someone a head crash. Use something like G29 Z-0.2 to adjust as needed.
  */
 
-// Certain types of probes need to stay away from edges
+// Most probes should stay away from the edges of the bed, but
+// with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
