@@ -36,9 +36,7 @@
 #include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 #include "../module/motion.h"
-#include "../gcode/queue.h"
 #include "../gcode/gcode.h"
-#include "../gcode/parser.h"
 
 constexpr millis_t fcp_interval = (FCP_TIMEOUT) * 1000UL * 60UL; // convert minutes to ms
 
