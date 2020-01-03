@@ -253,6 +253,8 @@ extern "C" {
 #define TIMER_SERVO             TIM6  //TODO: advanced-control timers don't work
 
 // UART Definitions
+#define ENABLE_HWSERIAL3
+#define ENABLE_HWSERIAL6
 
 // Define here Serial instance number to map on Serial generic name
 #define SERIAL_UART_INSTANCE    1 //ex: 2 for Serial2 (USART2)
