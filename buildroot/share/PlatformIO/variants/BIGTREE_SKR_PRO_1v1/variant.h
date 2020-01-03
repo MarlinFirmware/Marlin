@@ -290,6 +290,8 @@ extern "C" {
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_MONITOR     Serial
-#define SERIAL_PORT_HARDWARE    Serial1
+#define SERIAL_PORT_MONITOR         Serial
+#define SERIAL_PORT_HARDWARE        Serial1
+#define SERIAL_PORT_HARDWARE_OPEN   Serial3
+#define SERIAL_PORT_HARDWARE_OPEN1  Serial6
 #endif
