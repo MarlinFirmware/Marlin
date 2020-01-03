@@ -253,6 +253,7 @@ extern "C" {
 #define TIMER_SERVO             TIM6  //TODO: advanced-control timers don't work
 
 // UART Definitions
+
 // Define here Serial instance number to map on Serial generic name
 #define SERIAL_UART_INSTANCE    1 //ex: 2 for Serial2 (USART2)
 // DEBUG_UART could be redefined to print on another instance than 'Serial'
@@ -266,6 +267,16 @@ extern "C" {
 // Mandatory for Firmata
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
+// Optional PIN_SERIALn_RX and PIN_SERIALn_TX where 'n' is the U(S)ART number
+// Used when user instanciate a hardware Serial using its peripheral name.
+// Example: HardwareSerial mySerial(USART3);
+// will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
+#define PIN_SERIAL3_RX          PD9
+#define PIN_SERIAL3_TX          PD8
+#define PIN_SERIAL6_RX          PC7
+#define PIN_SERIAL6_TX          PC6
+//#define PIN_SERIALLP1_RX        x // For LPUART1 RX
+//#define PIN_SERIALLP1_TX        x // For LPUART1 TX
 
 #ifdef __cplusplus
 } // extern "C"
