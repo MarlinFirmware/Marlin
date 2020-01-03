@@ -11,7 +11,7 @@
 
 #if HAS_SPI_LCD
   #include "ultralcd.h"
-  #include "../Marlin.h"
+  #include "../MarlinCore.h"
 #endif
 
 #include "fontutils.h"

@@ -32,7 +32,7 @@
 
 #include "../../ui_api.h"
 
-#include "../../../../Marlin.h"
+#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
 #include "../../../../gcode/queue.h"

@@ -32,7 +32,7 @@
 #endif
 
 #if defined(PHOTO_POSITION) && PHOTO_DELAY_MS > 0
-  #include "../../../Marlin.h" // for idle()
+  #include "../../../MarlinCore.h" // for idle()
 #endif
 
 #ifdef PHOTO_RETRACT_MM

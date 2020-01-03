@@ -30,11 +30,13 @@
   #include "../feature/host_actions.h"
 #endif
 
+// All displays share the MarlinUI class
 #include "ultralcd.h"
 MarlinUI ui;
 
-// All displays share the MarlinUI class
 #if HAS_DISPLAY
+  #include "../module/printcounter.h"
+  #include "../MarlinCore.h"
   #include "../gcode/queue.h"
   #include "fontutils.h"
   #include "../sd/cardreader.h"
@@ -91,10 +93,7 @@ MarlinUI ui;
 #include "../sd/cardreader.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
-#include "../module/printcounter.h"
 #include "../module/motion.h"
-
-#include "../Marlin.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/power_loss_recovery.h"
@@ -1442,9 +1441,6 @@ void MarlinUI::update() {
       return_to_status();
     #endif
   }
-
-  #include "../Marlin.h"
-  #include "../module/printcounter.h"
 
   PGM_P print_paused = GET_TEXT(MSG_PRINT_PAUSED);
 

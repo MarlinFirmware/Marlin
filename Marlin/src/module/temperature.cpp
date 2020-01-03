@@ -27,7 +27,7 @@
 #include "temperature.h"
 #include "endstops.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../core/language.h"

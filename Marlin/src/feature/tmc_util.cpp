@@ -25,7 +25,7 @@
 #if HAS_TRINAMIC
 
 #include "tmc_util.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"

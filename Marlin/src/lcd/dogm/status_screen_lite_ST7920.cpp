@@ -60,7 +60,7 @@
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
-  #include "../../Marlin.h" // for printingIsActive
+  #include "../../MarlinCore.h" // for printingIsActive
 #endif
 
 #define TEXT_MODE_LCD_WIDTH 16
