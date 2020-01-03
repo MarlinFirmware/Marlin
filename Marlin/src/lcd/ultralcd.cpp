@@ -787,7 +787,8 @@ void MarlinUI::update() {
             if (buttons & EN_A) encoderDiff *= -1;
             next_button_update_ms = ms + repeat_delay;    // Assume the repeat delay
             #if ENABLED(AUTO_BED_LEVELING_UBL)
-              ubl.encoder_diff = encoderDiff;
+              if (external_control)
+                ubl.encoder_diff = encoderDiff;
             #endif
             if (!wait_for_unclick) {
               next_button_update_ms += 250;               // Longer delay on first press
