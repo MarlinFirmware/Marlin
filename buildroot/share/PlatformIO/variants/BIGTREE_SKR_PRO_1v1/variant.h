@@ -232,6 +232,10 @@ extern "C" {
 //#define PWM_RESOLUTION          8
 //#define PWM_MAX_DUTY_CYCLE      255
 
+// On-board LED pin number
+#define LED_BUILTIN             PA7
+//#define LED_GREEN             LED_BUILTIN   should be defined here but omitted to avoid redefinition in SailfishRGB_LED
+
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one
 // SPI Definitions
@@ -257,7 +261,7 @@ extern "C" {
 #define ENABLE_HWSERIAL3
 #define ENABLE_HWSERIAL6
 
-// Define here Serial instance number to map on Serial generic name
+// Define here Serial instance number to map on Serial generic name (if not already used by SerialUSB)
 #define SERIAL_UART_INSTANCE    1 //1 for Serial = Serial1 (USART1)
 
 // DEBUG_UART could be redefined to print on another instance than 'Serial'
