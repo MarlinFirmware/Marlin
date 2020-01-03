@@ -581,7 +581,7 @@
         #define KILL_PIN        41
       #endif
 
-      #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)   // Added in Marlin 1.1.6
+      #if ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
         #define DOGLCD_A0       27
         #define DOGLCD_CS       25

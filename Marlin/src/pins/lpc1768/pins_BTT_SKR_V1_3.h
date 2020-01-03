@@ -270,7 +270,14 @@
 
     #else // !FYSETC_MINI_12864
 
-      #if ENABLED(ENDER2_STOCKDISPLAY)
+      #if ENABLED(MKS_MINI_12864)
+
+        #define DOGLCD_CS    P1_21
+        #define DOGLCD_A0    P1_22
+        #define DOGLCD_SCK   P0_15
+        #define DOGLCD_MOSI  P0_18
+
+      #elif ENABLED(ENDER2_STOCKDISPLAY)
 
         /**
          * Creality Ender-2 display pinout

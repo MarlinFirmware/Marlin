@@ -77,7 +77,7 @@
   #define LCD_PINS_ENABLE  P0_18
   #define LCD_PINS_D4      P0_15
 
-  #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #if ENABLED(MKS_MINI_12864)
     #define DOGLCD_CS      P2_06
     #define DOGLCD_A0      P0_16
   #endif
