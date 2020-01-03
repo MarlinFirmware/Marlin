@@ -86,6 +86,18 @@
                        || HAS_DRIVER(TMC5130) \
                        || HAS_DRIVER(TMC5160) )
 
+#define HAS_TRINAMIC_STANDALONE (    HAS_DRIVER(TMC2130_STANDALONE) \
+                                  || HAS_DRIVER(TMC2208_STANDALONE) \
+                                  || HAS_DRIVER(TMC2209_STANDALONE) \
+                                  || HAS_DRIVER(TMC26X_STANDALONE)  \
+                                  || HAS_DRIVER(TMC2660_STANDALONE) \
+                                  || HAS_DRIVER(TMC5130_STANDALONE) \
+                                  || HAS_DRIVER(TMC5160_STANDALONE) \
+                                  || HAS_DRIVER(TMC2160_STANDALONE) )
+
+#define HAS_TMCX1X0 (    HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) \
+                      || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160))
+
 #define HAS_TMC220x (HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2209))
 
 #define AXIS_IS_TMC(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) \
@@ -107,6 +119,8 @@
 #define AXIS_HAS_UART(A) (    AXIS_DRIVER_TYPE(A,TMC2208) \
                            || AXIS_DRIVER_TYPE(A,TMC2209) )
 
+#define AXIS_HAS_SW_SERIAL(A) ((AXIS_HAS_UART(A) && !defined(A##_HARDWARE_SERIAL)))
+
 #define AXIS_HAS_STALLGUARD(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) \
                                    || AXIS_DRIVER_TYPE(A,TMC2160) \
                                    || AXIS_DRIVER_TYPE(A,TMC2209) \
@@ -121,19 +135,19 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
-#define HAS_TMC_E_DRIVER (    HAS_E_DRIVER(TMC2130) \
-                           || HAS_E_DRIVER(TMC2160) \
-                           || HAS_E_DRIVER(TMC2660) \
-                           || HAS_E_DRIVER(TMC2209) \
-                           || HAS_E_DRIVER(TMC5130) \
-                           || HAS_E_DRIVER(TMC5160) )
+#define ANY_AXIS_HAS(T) (    AXIS_HAS_##T(X)  || AXIS_HAS_##T(X2) \
+                          || AXIS_HAS_##T(Y)  || AXIS_HAS_##T(Y2) \
+                          || AXIS_HAS_##T(Z)  || AXIS_HAS_##T(Z2) \
+                          || AXIS_HAS_##T(Z3) \
+                          || AXIS_HAS_##T(E0) || AXIS_HAS_##T(E1) \
+                          || AXIS_HAS_##T(E2) || AXIS_HAS_##T(E3) \
+                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) )
 
-#define HAS_TMC_STANDALONE_E_DRIVER  (    HAS_E_DRIVER(TMC2130_STANDALONE) \
-                                       || HAS_E_DRIVER(TMC2160_STANDALONE) \
-                                       || HAS_E_DRIVER(TMC2660_STANDALONE) \
-                                       || HAS_E_DRIVER(TMC2209_STANDALONE) \
-                                       || HAS_E_DRIVER(TMC5130_STANDALONE) \
-                                       || HAS_E_DRIVER(TMC5160_STANDALONE) )
+#define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
+#define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)
+#define TMC_HAS_SPI        ANY_AXIS_HAS(SPI)
+#define TMC_HAS_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
+
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options
 //

@@ -1131,10 +1131,9 @@ void setup() {
  *  - Call inactivity manager
  */
 void loop() {
+  do {
 
-  for (;;) {
-
-    idle(); // Do an idle first so boot is slightly faster
+    idle();
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
@@ -1144,5 +1143,10 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
-  }
+
+  } while (false        // Return to caller for best compatibility
+    #ifdef __AVR__
+      || true           // Loop forever on slower (AVR) boards
+    #endif
+  );
 }
