@@ -24,49 +24,164 @@
 #include "../../inc/MarlinConfig.h"
 
 #include <L6470.h>
+#if !(L6470_LIBRARY_VERSION >= 0x000800)
+  #error 'L6470_LIBRARY_VERSION 0x000800 or later required'
+#endif
 
 #define L6470_GETPARAM(P,Q) stepper##Q.GetParam(P)
 
-enum L6470_driver_enum : unsigned char { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5, MAX_L6470 };
+#define MAX_L6470  (7 + MAX_EXTRUDERS) // Maximum number of axes in Marlin
 
-#define L6470_ERROR_MASK  (STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B)
+#define dSPIN_STEP_CLOCK      0x58
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
+#define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
 
-class L6470_Marlin {
+typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470_axis_t;
+
+class L64XX_Marlin : public L64XXHelper {
 public:
-  static bool index_to_dir[MAX_L6470];
-  static uint8_t axis_xref[MAX_L6470];
   static char index_to_axis[MAX_L6470][3];
+
+  static uint8_t index_to_dir[MAX_L6470];
   static uint8_t dir_commands[MAX_L6470];
 
   // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
-  static volatile bool spi_abort;
-  static bool spi_active;
+  static volatile uint8_t spi_abort;
+  static uint8_t spi_active;
 
-  L6470_Marlin() {}
-
-  static uint16_t get_status(const uint8_t axis);
-
-  static uint32_t get_param(uint8_t axis, uint8_t param);
-
-  static void set_param(uint8_t axis, uint8_t param, uint32_t value);
-
-  static bool get_user_input(uint8_t &driver_count, uint8_t axis_index[3], char axis_mon[3][3],
-                             float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
-                             bool over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
-
-  static void error_status_decode(const uint16_t status, const uint8_t axis);
-
-  static void monitor_driver();
+  L64XX_Marlin() {}
 
   static void init();
   static void init_to_defaults();
 
-  static void say_axis(const uint8_t axis, const bool label=true);
+  static uint16_t get_stepper_status(L64XX &st);
 
-private:
-  void populate_chain_array();
+  static uint16_t get_status(const L6470_axis_t axis);
+
+  static uint32_t get_param(const L6470_axis_t axis, const uint8_t param);
+
+  static void set_param(const L6470_axis_t axis, const uint8_t param, const uint32_t value);
+
+  //static void send_command(const L6470_axis_t axis, uint8_t command);
+
+  static uint8_t get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char axis_mon[3][3],
+                            float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
+                            uint8_t over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
+
+  static void monitor_update(L6470_axis_t stepper_index);
+
+  static void monitor_driver();
+
+  static void transfer(uint8_t L6470_buf[], const uint8_t length);
+
+  //static char* index_to_axis(const uint8_t index);
+  static void say_axis(const L6470_axis_t axis, const uint8_t label=true);
+  static void error_status_decode(const uint16_t status, const L6470_axis_t axis,
+      const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
+      const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
+      const uint16_t _status_axis_ocd, const uint8_t _status_axis_layout);
+
+  // ~40 bytes SRAM to simplify status decode routines
+  typedef struct {
+    uint8_t STATUS_AXIS_LAYOUT;              // Copy of L6470_status_layout
+    uint8_t AXIS_OCD_TH_MAX;              // Size of OCD_TH field
+    uint8_t AXIS_STALL_TH_MAX;            // Size of STALL_TH field
+    float AXIS_OCD_CURRENT_CONSTANT_INV;   // mA per count
+    float AXIS_STALL_CURRENT_CONSTANT_INV; // mA per count
+    uint8_t L6470_AXIS_CONFIG,            // Address of the CONFIG register
+            L6470_AXIS_STATUS;            // Address of the STATUS register
+    uint16_t L6470_ERROR_MASK,            // STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD | STATUS_STEP_LOSS_A | STATUS_STEP_LOSS_B
+             L6474_ERROR_MASK,            // STATUS_UVLO | STATUS_TH_WRN | STATUS_TH_SD  | STATUS_OCD
+             STATUS_AXIS_RAW,             // Copy of status register contents
+             STATUS_AXIS,                 // Copy of status register contents but with all error bits active low
+             STATUS_AXIS_OCD,             // Overcurrent detected bit position
+             STATUS_AXIS_SCK_MOD,         // Step clock mode is active bit position
+             STATUS_AXIS_STEP_LOSS_A,     // Stall detected on A bridge bit position
+             STATUS_AXIS_STEP_LOSS_B,     // Stall detected on B bridge bit position
+             STATUS_AXIS_TH_SD,           // Thermal shutdown bit position
+             STATUS_AXIS_TH_WRN,          // Thermal warning bit position
+             STATUS_AXIS_UVLO,            // Undervoltage lockout is active bit position
+             STATUS_AXIS_WRONG_CMD,       // Last command not valid bit position
+             STATUS_AXIS_CMD_ERR,         // Command error bit position
+             STATUS_AXIS_NOTPERF_CMD;     // Last command not performed bit position
+  } L64XX_shadow_t;
+
+  static L64XX_shadow_t shadow;
+
+//protected:
+  // L64XXHelper methods
+  static void spi_init();
+  static uint8_t transfer_single(uint8_t data, int16_t ss_pin);
+  static uint8_t transfer_chain(uint8_t data, int16_t ss_pin, uint8_t chain_position);
+
 };
 
-extern L6470_Marlin L6470;
+extern L64XX_Marlin L64xx_MARLIN;
+
+extern uint8_t L64xx_active;
+
+// X Stepper
+#if AXIS_IS_L64XX(X)
+  extern X_DRIVER_TYPE stepperX;
+#endif
+
+// Y Stepper
+#if AXIS_IS_L64XX(Y)
+  extern Y_DRIVER_TYPE stepperY;
+#endif
+
+// Z Stepper
+#if AXIS_IS_L64XX(Z)
+  extern Z_DRIVER_TYPE stepperZ;
+#endif
+
+// X2 Stepper
+#if HAS_X2_ENABLE && AXIS_IS_L64XX(X2)
+  extern X2_DRIVER_TYPE stepperX2;
+#endif
+
+// Y2 Stepper
+#if HAS_Y2_ENABLE && AXIS_IS_L64XX(Y2)
+  extern Y2_DRIVER_TYPE stepperY2;
+#endif
+
+// Z2 Stepper
+#if HAS_Z2_ENABLE && AXIS_IS_L64XX(Z2)
+  extern Z2_DRIVER_TYPE stepperZ2;
+#endif
+
+// Z3 Stepper
+#if HAS_Z3_ENABLE && AXIS_IS_L64XX(Z3)
+  extern Z3_DRIVER_TYPE stepperZ3;
+#endif
+
+// E0 Stepper
+#if AXIS_IS_L64XX(E0)
+  extern E0_DRIVER_TYPE stepperE0;
+#endif
+
+// E1 Stepper
+#if AXIS_IS_L64XX(E1)
+  extern E1_DRIVER_TYPE stepperE1;
+#endif
+
+// E2 Stepper
+#if AXIS_IS_L64XX(E2)
+  extern E2_DRIVER_TYPE stepperE2;
+#endif
+
+// E3 Stepper
+#if AXIS_IS_L64XX(E3)
+  extern E3_DRIVER_TYPE stepperE3;
+#endif
+
+// E4 Stepper
+#if AXIS_IS_L64XX(E4)
+  extern E4_DRIVER_TYPE stepperE4;
+#endif
+
+// E5 Stepper
+#if AXIS_IS_L64XX(E5)
+  extern E5_DRIVER_TYPE stepperE5;
+#endif

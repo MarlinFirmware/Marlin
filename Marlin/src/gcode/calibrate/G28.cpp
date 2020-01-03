@@ -47,7 +47,7 @@
 
 #include "../../lcd/ultralcd.h"
 
-#if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
+#if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L6470/L6470_Marlin.h"
 #endif
 
@@ -526,11 +526,18 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
     // Set L6470 absolute position registers to counts
-    for (uint8_t j = 1; j <= L6470::chain[0]; j++) {
-      const uint8_t cv = L6470::chain[j];
-      L6470.set_param(cv, L6470_ABS_POS, stepper.position((AxisEnum)L6470.axis_xref[cv]));
+    // constexpr *might* move this to PROGMEM.
+    // If not, this will need a PROGMEM directive and an accessor.
+    static constexpr AxisEnum L6470_axis_xref[MAX_L6470] = {
+      X_AXIS, Y_AXIS, Z_AXIS,
+      X_AXIS, Y_AXIS, Z_AXIS, Z_AXIS,
+      E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS
+    };
+    for (uint8_t j = 1; j <= L64XX::chain[0]; j++) {
+      const uint8_t cv = L64XX::chain[j];
+      L64xx_MARLIN.set_param((L6470_axis_t)cv, L6470_ABS_POS, stepper.position(L6470_axis_xref[cv]));
     }
   #endif
 }
