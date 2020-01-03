@@ -48,8 +48,8 @@ extern portMUX_TYPE spinlock;
 #define MYSERIAL0 flushableSerial
 
 #if ENABLED(WIFISUPPORT)
-  #define NUM_SERIAL 2
   #define MYSERIAL1 webSocketSerial
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
 #endif

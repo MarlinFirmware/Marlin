@@ -88,6 +88,10 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Следующий угол");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Редактировать сетку");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Ред. сетки завершено");
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Точка сетки:");
+  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Индекс X");
+  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Индекс Y");
+  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значение Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Свои команды");
 
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Проверка датчика Z");
@@ -195,6 +199,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Движение по Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Экструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Экструдер *");
+  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Сопло не нагрето");
   PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Движение %sмм");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Движение 0.1мм");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Движение 1мм");
@@ -328,8 +333,8 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Тестирование BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Сброс BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Установка BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Набивка BLTouch");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Опустить BLTouch");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Поднять BLTouch");
 
   // TODO: TouchMI Probe, Manual deploy/stow
 

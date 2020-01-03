@@ -28,7 +28,7 @@
 
 #include "watchdog.h"
 
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 // Initialize watchdog with 8s timeout, if possible. Otherwise, make it 4s.
 void watchdog_init() {

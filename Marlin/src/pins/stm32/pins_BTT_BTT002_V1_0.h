@@ -155,7 +155,7 @@
 #define FAN_PIN            PB9   // Fan0
 #define FAN1_PIN           PB8   // Fan1
 
-// HAL SPI1 pins 
+// HAL SPI1 pins
 #define CUSTOM_SPI_PINS
 #if ENABLED(CUSTOM_SPI_PINS)
   #define SCK_PIN          PA5   // SPI1 SCLK

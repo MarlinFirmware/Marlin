@@ -25,7 +25,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#include "../../../../Marlin.h"
+#include "../../../../MarlinCore.h"
 #include "DGUSVPVariable.h"
 
 enum DGUSLCD_Screens : uint8_t;

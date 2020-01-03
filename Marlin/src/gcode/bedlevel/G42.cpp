@@ -25,7 +25,7 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for IsRunning()
+#include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
 #include "../../module/probe.h" // for probe_offset
 #include "../../feature/bedlevel/bedlevel.h"

@@ -34,6 +34,8 @@
 #include "extensible_ui/lib/dgus/DGUSDisplay.h"
 #include "extensible_ui/lib/dgus/DGUSDisplayDefinition.h"
 
+extern const char NUL_STR[];
+
 namespace ExtUI {
 
   void onStartup() {
@@ -44,15 +46,26 @@ namespace ExtUI {
   void onIdle() { ScreenHandler.loop(); }
 
   void onPrinterKilled(PGM_P error, PGM_P component) {
-    extern const char NUL_STR[];
     ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
 
-  void onMediaInserted() { ScreenHandler.SDCardInserted(); }
-  void onMediaError()    { ScreenHandler.SDCardError(); }
-  void onMediaRemoved()  { ScreenHandler.SDCardRemoved(); }
+  void onMediaInserted() {
+    #if ENABLED(SDSUPPORT)
+      ScreenHandler.SDCardInserted();
+    #endif
+  }
+  void onMediaError()    {
+    #if ENABLED(SDSUPPORT)
+      ScreenHandler.SDCardError();
+    #endif
+  }
+  void onMediaRemoved()  {
+    #if ENABLED(SDSUPPORT)
+      ScreenHandler.SDCardRemoved();
+    #endif
+  }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}

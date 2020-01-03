@@ -45,7 +45,7 @@
 
 #include "../module/planner.h"
 #include "../module/stepper.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
 #define HAS_SIDE_BY_SIDE (ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1)

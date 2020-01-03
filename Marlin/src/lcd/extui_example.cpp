@@ -60,7 +60,7 @@ namespace ExtUI {
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
-    // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
+    // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
 
@@ -70,7 +70,7 @@ namespace ExtUI {
   }
 
   void onLoadSettings(const char *buff) {
-    // This is called while loading settings from EEPROM. If the ExtUI
+    // Called while loading settings from EEPROM. If the ExtUI
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
 
@@ -80,17 +80,17 @@ namespace ExtUI {
   }
 
   void onConfigurationStoreWritten(bool success) {
-    // This is called after the entire EEPROM has been written,
+    // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
   void onConfigurationStoreRead(bool success) {
-    // This is called after the entire EEPROM has been read,
+    // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-    // This is called when any mesh points are updated
+    // Called when any mesh points are updated
   }
 }
 

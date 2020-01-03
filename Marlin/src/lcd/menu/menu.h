@@ -47,6 +47,14 @@ typedef void (*selectFunc_t)();
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
+#if Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+  #define LCD_Z_OFFSET_FUNC(N) ftostr54sign(N)
+  #define LCD_Z_OFFSET_TYPE float43
+#else
+  #define LCD_Z_OFFSET_FUNC(N) ftostr52sign(N)
+  #define LCD_Z_OFFSET_TYPE float52
+#endif
+
 ////////////////////////////////////////////
 ///////////// Base Menu Items //////////////
 ////////////////////////////////////////////
