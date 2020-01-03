@@ -50,9 +50,10 @@
 //
 #if defined(Z_STEPPER_ALIGN_XY)
   constexpr xy_pos_t test_z_stepper_align_xy[] = Z_STEPPER_ALIGN_XY;
-#endif  
+#endif
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+
   #if defined(Z_STEPPER_ALIGN_XY)
     static_assert(COUNT(test_z_stepper_align_xy) >= Z_STEPPER_COUNT,
       "Z_STEPPER_ALIGN_XY requires at least three {X,Y} entries (Z, Z2, Z3, ...)."
@@ -412,8 +413,10 @@ void GcodeSuite::M422() {
   #endif
 
   if (!parser.seen_any()) {
-    for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i)
-      SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + 1, SP_X_STR, z_stepper_align_pos[i].x, SP_Y_STR, z_stepper_align_pos[i].y);
+    #ifdef Z_STEPPER_ALIGN_XY
+      for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i)
+        SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + 1, SP_X_STR, z_stepper_align_pos[i].x, SP_Y_STR, z_stepper_align_pos[i].y);
+    #endif
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i)
         SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + 1, SP_X_STR, z_stepper_align_stepper_pos[i].x, SP_Y_STR, z_stepper_align_stepper_pos[i].y);
@@ -429,7 +432,12 @@ void GcodeSuite::M422() {
     false;    
   #endif
 
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && defined(Z_STEPPER_ALIGN_XY)
+  #ifndef Z_STEPPER_ALIGN_XY
+    if (is_probe_point) {
+      SERIAL_ECHOLNPGM("?(S) is incompatible with auto-selected probe points");
+      return;
+    }
+  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
     if (is_probe_point && parser.seen('W')) {
       SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
       return;
@@ -449,10 +457,12 @@ void GcodeSuite::M422() {
     #endif
   ) {
     SERIAL_ECHOLNPGM(
-      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && defined Z_STEPPER_ALIGN_XY
         "?(S) or (W) is required."
-      #else
+      #elif defined(Z_STEPPER_ALIGN_XY)
         "?(S) is required."
+      #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        "?(W) is required."
       #endif
     );
     return;
@@ -461,11 +471,13 @@ void GcodeSuite::M422() {
   // Get the Probe Position Index or Z Stepper Index
   int8_t position_index;
   if (is_probe_point) {
-    position_index = parser.intval('S') - 1;
-    if (!WITHIN(position_index, 0, int8_t(G34_PROBE_COUNT) - 1)) {
-      SERIAL_ECHOLNPGM("?(S) Z-ProbePosition index invalid.");
-      return;
-    }
+    #ifdef Z_STEPPER_ALIGN_XY
+      position_index = parser.intval('S') - 1;
+      if (!WITHIN(position_index, 0, int8_t(G34_PROBE_COUNT) - 1)) {
+        SERIAL_ECHOLNPGM("?(S) Z-ProbePosition index invalid.");
+        return;
+      }
+    #endif
   }
   else {
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
