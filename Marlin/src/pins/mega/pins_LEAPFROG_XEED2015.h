@@ -24,7 +24,7 @@
 /**
  * Leapfrog Xeed Driver board pin assignments
  *
- * This board is used by other Leapfrom printers in addition to the Xeed,
+ * This board is used by other Leapfrog printers in addition to the Xeed,
  * such as the Creatr HS and Bolt. The pin assignments vary wildly between
  * printer models. As such this file is currently specific to the Xeed.
  */
@@ -38,9 +38,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          47 // 'X Min' Connector
-#define Y_MAX_PIN          48 // 'Y Min' Connector
-#define Z_MIN_PIN          49 // 'Z Min' Connector
+#define X_STOP_PIN         47   // 'X Min'
+#define Y_STOP_PIN         48   // 'Y Min'
+#define Z_STOP_PIN         49   // 'Z Min'
 
 //
 // Steppers
@@ -53,12 +53,12 @@
 // X-axis signal-level connector
 #define X_STEP_PIN         65
 #define X_DIR_PIN          64
-#define X_ENABLE_PIN       66 // Not actually used on Xeed, could be repurposed
+#define X_ENABLE_PIN       66   // Not actually used on Xeed, could be repurposed
 
 // Y-axis signal-level connector
 #define Y_STEP_PIN         23
 #define Y_DIR_PIN          22
-#define Y_ENABLE_PIN       24 // Not actually used on Xeed, could be repurposed
+#define Y_ENABLE_PIN       24   // Not actually used on Xeed, could be repurposed
 
 // ZMOT connector (Front Right Z Motor)
 #define Z_STEP_PIN         31
@@ -76,18 +76,20 @@
 #define Z3_ENABLE_PIN      39
 
 // EMOT2 connector
-#define E0_STEP_PIN         37
-#define E0_DIR_PIN          40
-#define E0_ENABLE_PIN       36
+#define E0_STEP_PIN        37
+#define E0_DIR_PIN         40
+#define E0_ENABLE_PIN      36
 
 // EMOT connector
-#define E1_STEP_PIN         34
-#define E1_DIR_PIN          35
-#define E1_ENABLE_PIN       33
+#define E1_STEP_PIN        34
+#define E1_DIR_PIN         35
+#define E1_ENABLE_PIN      33
 
-// Filament movement sensors
-#define FIL_RUNOUT_PIN     42 // ROT2 Connector
-#define FIL_RUNOUT2_PIN    44 // ROT1 Connector
+//
+// Filament runout
+//
+#define FIL_RUNOUT_PIN     42   // ROT2 Connector
+#define FIL_RUNOUT2_PIN    44   // ROT1 Connector
 
 //
 // Temperature Sensors
@@ -99,16 +101,15 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        8 // Misc Connector, pins 3 and 4 (Out2)
-#define HEATER_1_PIN        9 // Misc Connector, pins 5 and 6 (Out3)
-#define HEATER_BED_PIN      6 // Misc Connector, pins 9(-) and 10(+) (OutA)
+#define HEATER_0_PIN        8   // Misc Connector, pins 3 and 4 (Out2)
+#define HEATER_1_PIN        9   // Misc Connector, pins 5 and 6 (Out3)
+#define HEATER_BED_PIN      6   // Misc Connector, pins 9(-) and 10(+) (OutA)
 
-// Door Closed Sensor
-// #define DOOR_PIN           45 // HM1 Connector
-
-#define FAN_PIN            10 // Misc Connector, pins 7(-) and 8 (+) (Out4)
+#define FAN_PIN            10   // Misc Connector, pins 7(-) and 8 (+) (Out4)
 
 #define LED_PIN            13
 
-#define SOL1_PIN           7 // Misc Connector, pins 1(-) and 2(+) (Out1)
+#define SOL1_PIN            7   // Misc Connector, pins 1(-) and 2(+) (Out1)
 
+// Door Closed Sensor
+//#define DOOR_PIN           45 // HM1 Connector
