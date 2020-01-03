@@ -50,7 +50,7 @@
 #define Z_MAX_PIN          PD1
 
 //
-// Z Probe must be this pins  ##
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  PD1
@@ -67,7 +67,7 @@
 // Power Loss Detection
 //
 #ifndef POWER_LOSS_PIN
- #define POWER_LOSS_PIN    PD4
+  #define POWER_LOSS_PIN   PD4
 #endif
 
 //
