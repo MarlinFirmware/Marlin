@@ -458,7 +458,7 @@
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
 // Allow duplication mode with a basic dual-nozzle extruder
-//#define DUAL_NOZZLE_DUPLICATION_MODE
+#define DUAL_NOZZLE_DUPLICATION_MODE
 
 // By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
