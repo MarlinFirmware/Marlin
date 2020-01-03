@@ -429,18 +429,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          #if (Z_PROBE_OFFSET_RANGE_MIN < -9 || Z_PROBE_OFFSET_RANGE_MAX > 9)
-            MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr52sign(hotend_offset[active_extruder].z));
-          #else
-            MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
-          #endif
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), LCD_Z_OFFSET_FUNC(hotend_offset[active_extruder].z));
         else
       #endif
-          #if (Z_PROBE_OFFSET_RANGE_MIN < -9 || Z_PROBE_OFFSET_RANGE_MAX > 9)
-            MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr52sign(probe_offset.z));
-          #else
-            MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr54sign(probe_offset.z));
-          #endif
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), LCD_Z_OFFSET_FUNC(probe_offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
         if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
