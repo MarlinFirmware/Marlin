@@ -509,6 +509,7 @@ void menu_cancelobject();
     END_MENU();
   }
 
+  // M851 - Z Probe Offsets
   #if HAS_BED_PROBE
     void menu_probe_offsets() {
       START_MENU();
