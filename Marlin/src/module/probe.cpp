@@ -702,8 +702,11 @@ float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_
 
   // TODO: Adapt for SCARA, where the offset rotates
   xyz_pos_t npos = { rx, ry };
-  if (probe_relative) {
-    if (!position_is_reachable_by_probe(npos)) return NAN;  // The given position is in terms of the probe
+  if (probe_relative) {                                     // The given position is in terms of the probe
+    if (!position_is_reachable_by_probe(npos)) {
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
+      return NAN;
+    }
     npos -= probe_offset_xy;                                // Get the nozzle position
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
