@@ -424,9 +424,7 @@ inline bool prime_nozzle() {
     #endif
 
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
-      #if HAS_LCD_MENU
-        ui.capture();
-      #endif
+      ui.capture();
       ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
@@ -439,7 +437,10 @@ inline bool prime_nozzle() {
         destination.e += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
-          if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
+          if (Total_Prime >= EXTRUDE_MAXLENGTH) {
+            ui.release();
+            return G26_ERR;
+          }
         #endif
         prepare_internal_move_to_destination(fr_slow_e);
         destination = current_position;
