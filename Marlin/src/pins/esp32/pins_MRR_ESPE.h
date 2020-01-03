@@ -107,8 +107,8 @@
 #define HEATER_BED_PIN    144 // 4
 
 #define CONTROLLER_FAN_PIN 147
-//#define E0_AUTO_FAN_PIN 148 // need to update Configuration_adv.h @section extruder 
-//#define E1_AUTO_FAN_PIN 149 // need to update Configuration_adv.h @section extruder 
+//#define E0_AUTO_FAN_PIN 148 // need to update Configuration_adv.h @section extruder
+//#define E1_AUTO_FAN_PIN 149 // need to update Configuration_adv.h @section extruder
 #define FAN1_PIN 149
 
 //

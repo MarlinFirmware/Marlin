@@ -44,17 +44,12 @@
 // Defines
 // ------------------------
 
-//Serial override
+// Serial override
 //extern HalSerial usb_serial;
 
 #if defined(STM32F4) && SERIAL_PORT == 0
-  #error "Serial port 0 does not exist"
-#endif
-
-#if !WITHIN(SERIAL_PORT, -1, 6)
-  #error "SERIAL_PORT must be from -1 to 6"
-#endif
-#if SERIAL_PORT == -1
+  #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+#elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 SerialUART1
@@ -68,19 +63,16 @@
   #define MYSERIAL0 SerialUART5
 #elif SERIAL_PORT == 6
   #define MYSERIAL0 SerialUART6
+#else
+  #error "SERIAL_PORT must be from -1 to 6. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if defined(STM32F4) && SERIAL_PORT_2 == 0
-    #error "Serial port 0 does not exist"
-  #endif
-  #if !WITHIN(SERIAL_PORT_2, -1, 6)
-    #error "SERIAL_PORT_2 must be from -1 to 6"
+    #error "SERIAL_PORT_2 cannot be 0. (Port 0 does not exist.) Please update your configuration."
   #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
-  #endif
-  #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == -1
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
+  #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 SerialUART1
@@ -94,7 +86,10 @@
     #define MYSERIAL1 SerialUART5
   #elif SERIAL_PORT_2 == 6
     #define MYSERIAL1 SerialUART6
+  #else
+    #error "SERIAL_PORT_2 must be from -1 to 6. Please update your configuration."
   #endif
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
 #endif

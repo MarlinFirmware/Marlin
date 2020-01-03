@@ -352,7 +352,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
 
   // Quickly purge
   do_pause_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
-                  planner.settings.max_feedrate_mm_s[E_AXIS] * mix_multiplier);
+                  (FILAMENT_UNLOAD_PURGE_FEEDRATE) * mix_multiplier);
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
