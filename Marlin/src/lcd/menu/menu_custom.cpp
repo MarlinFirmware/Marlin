@@ -50,80 +50,82 @@ void _lcd_user_gcode(PGM_P const cmd) {
 void menu_user() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
-  #if defined(USER_DESC_1) && defined(USER_GCODE_1)
-    ACTION_ITEM_P(PSTR(USER_DESC_1), []{ _lcd_user_gcode(PSTR(USER_GCODE_1 _DONE_SCRIPT)); });
+  #define HAS_USER_ITEM(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define USER_ITEM(N) ACTION_ITEM_P(PSTR(USER_DESC_##N), []{ _lcd_user_gcode(PSTR(USER_GCODE_##N _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(1)
+    USER_ITEM(1);
   #endif
-  #if defined(USER_DESC_2) && defined(USER_GCODE_2)
-    ACTION_ITEM_P(PSTR(USER_DESC_2), []{ _lcd_user_gcode(PSTR(USER_GCODE_2 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(2)
+    USER_ITEM(2);
   #endif
-  #if defined(USER_DESC_3) && defined(USER_GCODE_3)
-    ACTION_ITEM_P(PSTR(USER_DESC_3), []{ _lcd_user_gcode(PSTR(USER_GCODE_3 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(3)
+    USER_ITEM(3);
   #endif
-  #if defined(USER_DESC_4) && defined(USER_GCODE_4)
-    ACTION_ITEM_P(PSTR(USER_DESC_4), []{ _lcd_user_gcode(PSTR(USER_GCODE_4 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(4)
+    USER_ITEM(4);
   #endif
-  #if defined(USER_DESC_5) && defined(USER_GCODE_5)
-    ACTION_ITEM_P(PSTR(USER_DESC_5), []{ _lcd_user_gcode(PSTR(USER_GCODE_5 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(5)
+    USER_ITEM(5);
   #endif
-  #if defined(USER_DESC_6) && defined(USER_GCODE_6)
-    ACTION_ITEM_P(PSTR(USER_DESC_6), []{ _lcd_user_gcode(PSTR(USER_GCODE_6 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(6)
+    USER_ITEM(6);
   #endif
-  #if defined(USER_DESC_7) && defined(USER_GCODE_7)
-    ACTION_ITEM_P(PSTR(USER_DESC_7), []{ _lcd_user_gcode(PSTR(USER_GCODE_7 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(7)
+    USER_ITEM(7);
   #endif
-  #if defined(USER_DESC_8) && defined(USER_GCODE_8)
-    ACTION_ITEM_P(PSTR(USER_DESC_8), []{ _lcd_user_gcode(PSTR(USER_GCODE_8 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(8)
+    USER_ITEM(8);
   #endif
-  #if defined(USER_DESC_9) && defined(USER_GCODE_9)
-    ACTION_ITEM_P(PSTR(USER_DESC_9), []{ _lcd_user_gcode(PSTR(USER_GCODE_9 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(9)
+    USER_ITEM(9);
   #endif
-  #if defined(USER_DESC_10) && defined(USER_GCODE_10)
-    ACTION_ITEM_P(PSTR(USER_DESC_10), []{ _lcd_user_gcode(PSTR(USER_GCODE_10 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(10)
+    USER_ITEM(10);
   #endif
-  #if defined(USER_DESC_11) && defined(USER_GCODE_11)
-    ACTION_ITEM_P(PSTR(USER_DESC_11), []{ _lcd_user_gcode(PSTR(USER_GCODE_11 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(11)
+    USER_ITEM(11);
   #endif
-  #if defined(USER_DESC_12) && defined(USER_GCODE_12)
-    ACTION_ITEM_P(PSTR(USER_DESC_12), []{ _lcd_user_gcode(PSTR(USER_GCODE_12 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(12)
+    USER_ITEM(12);
   #endif
-  #if defined(USER_DESC_13) && defined(USER_GCODE_13)
-    ACTION_ITEM_P(PSTR(USER_DESC_13), []{ _lcd_user_gcode(PSTR(USER_GCODE_13 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(13)
+    USER_ITEM(13);
   #endif
-  #if defined(USER_DESC_14) && defined(USER_GCODE_14)
-    ACTION_ITEM_P(PSTR(USER_DESC_14), []{ _lcd_user_gcode(PSTR(USER_GCODE_14 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(14)
+    USER_ITEM(14);
   #endif
-  #if defined(USER_DESC_15) && defined(USER_GCODE_15)
-    ACTION_ITEM_P(PSTR(USER_DESC_15), []{ _lcd_user_gcode(PSTR(USER_GCODE_15 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(15)
+    USER_ITEM(15);
   #endif
-  #if defined(USER_DESC_16) && defined(USER_GCODE_16)
-    ACTION_ITEM_P(PSTR(USER_DESC_16), []{ _lcd_user_gcode(PSTR(USER_GCODE_16 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(16)
+    USER_ITEM(16);
   #endif
-  #if defined(USER_DESC_17) && defined(USER_GCODE_17)
-    ACTION_ITEM_P(PSTR(USER_DESC_17), []{ _lcd_user_gcode(PSTR(USER_GCODE_17 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(17)
+    USER_ITEM(17);
   #endif
-  #if defined(USER_DESC_18) && defined(USER_GCODE_18)
-    ACTION_ITEM_P(PSTR(USER_DESC_18), []{ _lcd_user_gcode(PSTR(USER_GCODE_18 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(18)
+    USER_ITEM(18);
   #endif
-  #if defined(USER_DESC_19) && defined(USER_GCODE_19)
-    ACTION_ITEM_P(PSTR(USER_DESC_19), []{ _lcd_user_gcode(PSTR(USER_GCODE_19 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(19)
+    USER_ITEM(19);
   #endif
-  #if defined(USER_DESC_20) && defined(USER_GCODE_20)
-    ACTION_ITEM_P(PSTR(USER_DESC_20), []{ _lcd_user_gcode(PSTR(USER_GCODE_20 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(20)
+    USER_ITEM(20);
   #endif
-    #if defined(USER_DESC_21) && defined(USER_GCODE_21)
-    ACTION_ITEM_P(PSTR(USER_DESC_21), []{ _lcd_user_gcode(PSTR(USER_GCODE_21 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(21)
+    USER_ITEM(21);
   #endif
-  #if defined(USER_DESC_22) && defined(USER_GCODE_22)
-    ACTION_ITEM_P(PSTR(USER_DESC_22), []{ _lcd_user_gcode(PSTR(USER_GCODE_22 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(22)
+    USER_ITEM(22);
   #endif
-  #if defined(USER_DESC_23) && defined(USER_GCODE_23)
-    ACTION_ITEM_P(PSTR(USER_DESC_23), []{ _lcd_user_gcode(PSTR(USER_GCODE_23 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(23)
+    USER_ITEM(23);
   #endif
-  #if defined(USER_DESC_24) && defined(USER_GCODE_24)
-    ACTION_ITEM_P(PSTR(USER_DESC_24), []{ _lcd_user_gcode(PSTR(USER_GCODE_24 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(24)
+    USER_ITEM(24);
   #endif
-  #if defined(USER_DESC_25) && defined(USER_GCODE_25)
-    ACTION_ITEM_P(PSTR(USER_DESC_25), []{ _lcd_user_gcode(PSTR(USER_GCODE_25 _DONE_SCRIPT)); });
+  #if HAS_USER_ITEM(25)
+    USER_ITEM(25);
   #endif
   END_MENU();
 }
