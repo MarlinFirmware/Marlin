@@ -16,7 +16,7 @@
     ],
     "ldscript": "stm32f407xg.ld",
     "mcu": "stm32f407vet6",
-    "variant": "BIGTREE_GENERIC_STM32F407_5X"
+    "variant": "BIGTREE_BTT002"
   },
   "debug": {
     "jlink_device": "STM32F407VE",
@@ -24,9 +24,7 @@
     "svd_path": "STM32F40x.svd"
   },
   "frameworks": [
-    "arduino",
-    "cmsis",
-    "stm32cube"
+    "arduino"
   ],
   "name": "STM32F407VE (192k RAM. 512k Flash)",
   "upload": {

@@ -59,7 +59,7 @@
 
 #if HAS_GRAPHICAL_LCD && DISABLED(U8GLIB_ST7920)
 
-#include "SoftwareSPI.h"
+#include <SoftwareSPI.h>
 
 #undef SPI_SPEED
 #define SPI_SPEED 2  // About 2 MHz
@@ -75,25 +75,25 @@ uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck
 
   for (uint8_t i = 0; i < 8; i++) {
     if (spi_speed == 0) {
-      gpio_set(mosi_pin, !!(b & 0x80));
-      gpio_set(sck_pin, HIGH);
+      LPC176x::gpio_set(mosi_pin, !!(b & 0x80));
+      LPC176x::gpio_set(sck_pin, HIGH);
       b <<= 1;
-      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
-      gpio_set(sck_pin, LOW);
+      if (miso_pin >= 0 && LPC176x::gpio_get(miso_pin)) b |= 1;
+      LPC176x::gpio_set(sck_pin, LOW);
     }
     else {
       const uint8_t state = (b & 0x80) ? HIGH : LOW;
       for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(mosi_pin, state);
+        LPC176x::gpio_set(mosi_pin, state);
 
       for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
-        gpio_set(sck_pin, HIGH);
+        LPC176x::gpio_set(sck_pin, HIGH);
 
       b <<= 1;
-      if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+      if (miso_pin >= 0 && LPC176x::gpio_get(miso_pin)) b |= 1;
 
       for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(sck_pin, LOW);
+        LPC176x::gpio_set(sck_pin, LOW);
     }
   }
 
@@ -105,23 +105,23 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
   for (uint8_t i = 0; i < 8; i++) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
     if (spi_speed == 0) {
-      gpio_set(sck_pin, LOW);
-      gpio_set(mosi_pin, state);
-      gpio_set(mosi_pin, state);  // need some setup time
-      gpio_set(sck_pin, HIGH);
+      LPC176x::gpio_set(sck_pin, LOW);
+      LPC176x::gpio_set(mosi_pin, state);
+      LPC176x::gpio_set(mosi_pin, state);  // need some setup time
+      LPC176x::gpio_set(sck_pin, HIGH);
     }
     else {
       for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
-        gpio_set(sck_pin, LOW);
+        LPC176x::gpio_set(sck_pin, LOW);
 
       for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(mosi_pin, state);
+        LPC176x::gpio_set(mosi_pin, state);
 
       for (uint8_t j = 0; j < spi_speed; j++)
-        gpio_set(sck_pin, HIGH);
+        LPC176x::gpio_set(sck_pin, HIGH);
     }
     b <<= 1;
-    if (miso_pin >= 0 && gpio_get(miso_pin)) b |= 1;
+    if (miso_pin >= 0 && LPC176x::gpio_get(miso_pin)) b |= 1;
   }
 
   return b;
@@ -130,7 +130,7 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
 static uint8_t SPI_speed = 0;
 
 static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
-  #if ENABLED(FYSETC_MINI_12864)
+  #if EITHER(FYSETC_MINI_12864, MKS_MINI_12864)
     swSpiTransfer_mode_3(val, SPI_speed, clockPin, -1, dataPin);
   #else
     swSpiTransfer_mode_0(val, SPI_speed, clockPin, -1, dataPin);
@@ -158,10 +158,10 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
-      #if ENABLED(FYSETC_MINI_12864)           // LCD SPI is running mode 3 while SD card is running mode 0
-        if (arg_val) {                         //   SCK idle state needs to be set to the proper idle state before
-                                               //   the next chip select goes active
-          u8g_SetPILevel(u8g, U8G_PI_SCK, 1);  // Set SCK to mode 3 idle state before CS goes active
+      #if EITHER(FYSETC_MINI_12864, MKS_MINI_12864)  // LCD SPI is running mode 3 while SD card is running mode 0
+        if (arg_val) {                               //   SCK idle state needs to be set to the proper idle state before
+                                                     //   the next chip select goes active
+          u8g_SetPILevel(u8g, U8G_PI_SCK, 1);        // Set SCK to mode 3 idle state before CS goes active
           u8g_SetPILevel(u8g, U8G_PI_CS, LOW);
         }
         else {

@@ -71,14 +71,18 @@ void vector_3::normalize() {
 // Apply a rotation to the matrix
 void vector_3::apply_rotation(const matrix_3x3 &matrix) {
   const float _x = x, _y = y, _z = z;
-  *this = matrix.vectors[0] * _x + matrix.vectors[1] * _y + matrix.vectors[2] * _z;
+  *this = { matrix.vectors[0][0] * _x + matrix.vectors[1][0] * _y + matrix.vectors[2][0] * _z,
+            matrix.vectors[0][1] * _x + matrix.vectors[1][1] * _y + matrix.vectors[2][1] * _z,
+            matrix.vectors[0][2] * _x + matrix.vectors[1][2] * _y + matrix.vectors[2][2] * _z };
 }
+
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
 void vector_3::debug(PGM_P const title) {
   serialprintPGM(title);
-  SERIAL_ECHOPAIR_F(" X", x, 6);
-  SERIAL_ECHOPAIR_F(" Y", y, 6);
-  SERIAL_ECHOLNPAIR_F(" Z", z, 6);
+  SERIAL_ECHOPAIR_F_P(SP_X_STR, x, 6);
+  SERIAL_ECHOPAIR_F_P(SP_Y_STR, y, 6);
+  SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z, 6);
 }
 
 /**

@@ -28,11 +28,15 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+#if TMC_HAS_SW_SERIAL
+  #include "SoftwareSerial.h"
+#endif
+
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
-    #include "stm32f7xx_ll_pwr.h"
+    #include <stm32f7xx_ll_pwr.h>
   #elif STM32F4xx
-    #include "stm32f4xx_ll_pwr.h"
+    #include <stm32f4xx_ll_pwr.h>
   #else
     #error "SRAM_EEPROM_EMULATION is currently only supported for STM32F4xx and STM32F7xx"
   #endif
@@ -82,6 +86,10 @@ void HAL_init() {
   // Wait until backup regulator is initialized
   while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
+
+  #if TMC_HAS_SW_SERIAL
+    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
+  #endif
 }
 
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }

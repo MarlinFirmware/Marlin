@@ -25,7 +25,7 @@
 #if ENABLED(EXPECTED_PRINTER_CHECK)
 
 #include "../gcode.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 /**
  * M16: Expected Printer Check
@@ -33,7 +33,7 @@
 void GcodeSuite::M16() {
 
   if (strcmp_P(parser.string_arg, PSTR(MACHINE_NAME)))
-    kill(PSTR(MSG_EXPECTED_PRINTER));
+    kill(GET_TEXT(MSG_EXPECTED_PRINTER));
 
 }
 

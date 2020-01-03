@@ -42,12 +42,6 @@
 #define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
 #define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
 
-#if MACHINE_CAN_STOP
-  void menu_abort_confirm() {
-    do_select_screen(PSTR(MSG_BUTTON_STOP), PSTR(MSG_BACK), ui.abort_print, ui.goto_previous_screen, PSTR(MSG_STOP_PRINT), nullptr, PSTR("?"));
-  }
-#endif // MACHINE_CAN_STOP
-
 #if ENABLED(PRUSA_MMU2)
   #include "../../lcd/menu/menu_mmu2.h"
 #endif
@@ -62,7 +56,7 @@ void menu_configuration();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void menu_temp_e0_filament_change();
+  void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
 #endif
 
@@ -83,17 +77,7 @@ void menu_configuration();
   void menu_mixer();
 #endif
 
-#if HAS_SERVICE_INTERVALS
-  #if SERVICE_INTERVAL_1 > 0
-    void menu_service1();
-  #endif
-  #if SERVICE_INTERVAL_2 > 0
-    void menu_service2();
-  #endif
-  #if SERVICE_INTERVAL_3 > 0
-    void menu_service3();
-  #endif
-#endif
+extern const char M21_STR[];
 
 void menu_main() {
   START_MENU();
@@ -111,12 +95,22 @@ void menu_main() {
       ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
     #endif
     #if MACHINE_CAN_STOP
-      SUBMENU(MSG_STOP_PRINT, menu_abort_confirm);
+      SUBMENU(MSG_STOP_PRINT, []{
+        MenuItem_confirm::select_screen(
+          GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
+          ui.abort_print, ui.goto_previous_screen,
+          GET_TEXT(MSG_STOP_PRINT), (PGM_P)nullptr, PSTR("?")
+        );
+      });
     #endif
     SUBMENU(MSG_TUNE, menu_tune);
   }
   else {
+
     #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+
+      // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
+
       //
       // Autostart
       //
@@ -129,7 +123,7 @@ void menu_main() {
           SUBMENU(MSG_MEDIA_MENU, menu_media);
           MENU_ITEM(gcode,
             #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, PSTR("M21")
+              MSG_CHANGE_MEDIA, M21_STR
             #else
               MSG_RELEASE_MEDIA, PSTR("M22")
             #endif
@@ -140,10 +134,11 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_INIT_MEDIA, PSTR("M21"));
+          GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
           ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
         #endif
       }
+
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
     #if MACHINE_CAN_PAUSE
@@ -170,7 +165,11 @@ void menu_main() {
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
-    SUBMENU(MSG_USER_MENU, menu_user);
+    #ifdef CUSTOM_USER_MENU_TITLE
+      SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+    #else
+      SUBMENU(MSG_USER_MENU, menu_user);
+    #endif
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -178,7 +177,7 @@ void menu_main() {
       if (thermalManager.targetHotEnoughToExtrude(active_extruder))
         GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
       else
-        SUBMENU(MSG_FILAMENTCHANGE, menu_temp_e0_filament_change);
+        SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
@@ -195,7 +194,7 @@ void menu_main() {
   //
   // Switch power on/off
   //
-  #if HAS_POWER_SWITCH
+  #if ENABLED(PSU_CONTROL)
     if (powersupply_on)
       GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
     else
@@ -203,6 +202,9 @@ void menu_main() {
   #endif
 
   #if HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+
+    // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
+
     //
     // Autostart
     //
@@ -214,7 +216,7 @@ void menu_main() {
       if (!card_open) {
         MENU_ITEM(gcode,
           #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_MEDIA, PSTR("M21")
+            MSG_CHANGE_MEDIA, M21_STR
           #else
             MSG_RELEASE_MEDIA, PSTR("M22")
           #endif
@@ -226,21 +228,42 @@ void menu_main() {
       #if PIN_EXISTS(SD_DETECT)
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);
       #else
-        GCODES_ITEM(MSG_INIT_MEDIA, PSTR("M21"));
+        GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
         ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
       #endif
     }
+
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
 
   #if HAS_SERVICE_INTERVALS
+    static auto _service_reset = [](const int index) {
+      print_job_timer.resetServiceInterval(index);
+      #if HAS_BUZZER
+        ui.completion_feedback();
+      #endif
+      ui.reset_status();
+      ui.return_to_status();
+    };
     #if SERVICE_INTERVAL_1 > 0
-      SUBMENU(SERVICE_NAME_1, menu_service1);
+      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
+        MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+        []{ _service_reset(1); }, ui.goto_previous_screen,
+        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
+      );
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      SUBMENU(SERVICE_NAME_2, menu_service2);
+      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
+        MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+        []{ _service_reset(2); }, ui.goto_previous_screen,
+        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
+      );
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      SUBMENU(SERVICE_NAME_3, menu_service3);
+      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
+        MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+        []{ _service_reset(3); }, ui.goto_previous_screen,
+        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
+      );
     #endif
   #endif
 
@@ -248,20 +271,24 @@ void menu_main() {
     #if ENABLED(GAMES_EASTER_EGG)
       SKIP_ITEM();
       SKIP_ITEM();
+      SKIP_ITEM();
     #endif
-    SUBMENU(MSG_GAMES, (
-      #if HAS_GAME_MENU
-        menu_game
-      #elif ENABLED(MARLIN_BRICKOUT)
-        brickout.enter_game
-      #elif ENABLED(MARLIN_INVADERS)
-        invaders.enter_game
-      #elif ENABLED(MARLIN_SNAKE)
-        snake.enter_game
-      #elif ENABLED(MARLIN_MAZE)
-        maze.enter_game
-      #endif
-    ));
+    // Game sub-menu or the individual game
+    {
+      SUBMENU(
+        #if HAS_GAME_MENU
+          MSG_GAMES, menu_game
+        #elif ENABLED(MARLIN_BRICKOUT)
+          MSG_BRICKOUT, brickout.enter_game
+        #elif ENABLED(MARLIN_INVADERS)
+          MSG_INVADERS, invaders.enter_game
+        #elif ENABLED(MARLIN_SNAKE)
+          MSG_SNAKE, snake.enter_game
+        #elif ENABLED(MARLIN_MAZE)
+          MSG_MAZE, maze.enter_game
+        #endif
+      );
+    }
   #endif
 
   END_MENU();

@@ -59,6 +59,15 @@ typedef struct {
     uint8_t active_extruder;
   #endif
 
+  #if DISABLED(NO_VOLUMETRICS)
+    bool volumetric_enabled;
+    #if EXTRUDERS > 1
+      float filament_size[EXTRUDERS];
+    #else
+      float filament_size;
+    #endif
+  #endif
+
   #if HOTENDS
     int16_t target_temperature[HOTENDS];
   #endif
@@ -159,7 +168,7 @@ class PrintJobRecovery {
 
   #if PIN_EXISTS(POWER_LOSS)
     static inline void outage() {
-      if (enabled && IS_SD_PRINTING() && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
+      if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
         _outage();
     }
   #endif
@@ -174,6 +183,10 @@ class PrintJobRecovery {
 
   private:
     static void write();
+
+  #if ENABLED(BACKUP_POWER_SUPPLY)
+    static void raise_z();
+  #endif
 
   #if PIN_EXISTS(POWER_LOSS)
     static void _outage();

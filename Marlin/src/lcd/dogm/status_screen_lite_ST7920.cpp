@@ -59,6 +59,10 @@
   #include "../../sd/cardreader.h"
 #endif
 
+#if ENABLED(LCD_SHOW_E_TOTAL)
+  #include "../../MarlinCore.h" // for printingIsActive
+#endif
+
 #define TEXT_MODE_LCD_WIDTH 16
 
 #define BUFFER_WIDTH   256
@@ -660,7 +664,7 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
   #endif
 }
 
-void ST7920_Lite_Status_Screen::draw_position(const xyz_pos_t &pos, const bool position_known) {
+void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool position_known) {
   char str[7];
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
@@ -668,11 +672,25 @@ void ST7920_Lite_Status_Screen::draw_position(const xyz_pos_t &pos, const bool p
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_known ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  write_byte(alt_label ? alt_label : 'X');
-  write_str(dtostrf(pos.x, -4, 0, str), 4);
+  if (true
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      && !printingIsActive()
+    #endif
+  ) {
+    write_byte(alt_label ? alt_label : 'X');
+    write_str(dtostrf(pos.x, -4, 0, str), 4);
 
-  write_byte(alt_label ? alt_label : 'Y');
-  write_str(dtostrf(pos.y, -4, 0, str), 4);
+    write_byte(alt_label ? alt_label : 'Y');
+    write_str(dtostrf(pos.y, -4, 0, str), 4);
+  }
+  else {
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      char tmp[15];
+      const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
+      sprintf_P(tmp, PSTR("E%-7ld%cm "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
+      write_str(tmp);
+    #endif
+  }
 
   write_byte(alt_label ? alt_label : 'Z');
   write_str(dtostrf(pos.z, -5, 1, str), 5);
@@ -850,7 +868,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
     // when an update is actually necessary.
 
     static uint8_t last_progress = 0;
-    const uint8_t progress = ui.get_progress();
+    const uint8_t progress = ui.get_progress_percent();
     if (forceUpdate || last_progress != progress) {
       last_progress = progress;
       draw_progress_bar(progress);
@@ -894,7 +912,7 @@ void ST7920_Lite_Status_Screen::on_exit() {
   ncs();
 }
 
-// This is called prior to the KILL screen to
+// Called prior to the KILL screen to
 // clear the screen, preventing a garbled display.
 void ST7920_Lite_Status_Screen::clear_text_buffer() {
   cs();

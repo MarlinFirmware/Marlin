@@ -83,7 +83,8 @@ public:
   static void checkautostart();
 
   // Basic file ops
-  static void openFile(char * const path, const bool read, const bool subcall=false);
+  static void openFileRead(char * const path, const uint8_t subcall=0);
+  static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
   static void removeFile(const char * const name);
 
@@ -118,6 +119,9 @@ public:
   static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
   static inline bool isPrinting() { return flag.sdprinting; }
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    static inline uint16_t permyriadDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 9999) / 10000) : 0; }
+  #endif
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
@@ -292,5 +296,7 @@ extern CardReader card;
 #define IS_SD_PRINTING()  false
 #define IS_SD_PAUSED()    false
 #define IS_SD_FILE_OPEN() false
+
+#define LONG_FILENAME_LENGTH 0
 
 #endif // !SDSUPPORT

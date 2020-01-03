@@ -40,53 +40,73 @@
 #include <EEPROM.h>
 
 // Store settings in the last two pages
-// Flash pages must be erased before writing, so keep track.
-bool firstWrite = false;
+#define EEPROM_SIZE (EEPROM_PAGE_SIZE * 2)
+#define ACCESS_FINISHED(TF) do{ FLASH_Lock(); eeprom_dirty = false; return TF; }while(0)
+
+static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
+static bool eeprom_dirty = false;
 
 bool PersistentStore::access_start() {
-  firstWrite = true;
+  const uint32_t* source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
+  uint32_t* destination = reinterpret_cast<uint32_t*>(ram_eeprom);
+
+  static_assert(0 == EEPROM_SIZE % 4, "EEPROM_SIZE is corrupted. (Must be a multiple of 4.)"); // Ensure copying as uint32_t is safe
+  constexpr size_t eeprom_size_u32 = EEPROM_SIZE / 4;
+
+  for (size_t i = 0; i < eeprom_size_u32; ++i, ++destination, ++source)
+    *destination = *source;
+
+  eeprom_dirty = false;
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  FLASH_Lock();
-  firstWrite = false;
+
+  if (eeprom_dirty) {
+    FLASH_Status status;
+
+    // Instead of erasing all (both) pages, maybe in the loop we check what page we are in, and if the
+    // data has changed in that page. We then erase the first time we "detect" a change. In theory, if
+    // nothing changed in a page, we wouldn't need to erase/write it.
+    // Or, instead of checking at this point, turn eeprom_dirty into an array of bool the size of number
+    // of pages. Inside write_data, we set the flag to true at that time if something in that
+    // page changes...either way, something to look at later.
+    FLASH_Unlock();
+
+    status = FLASH_ErasePage(EEPROM_PAGE0_BASE);
+    if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
+    status = FLASH_ErasePage(EEPROM_PAGE1_BASE);
+    if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
+
+    const uint16_t *source = reinterpret_cast<const uint16_t*>(ram_eeprom);
+    for (size_t i = 0; i < EEPROM_SIZE; i += 2, ++source) {
+      if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i, *source) != FLASH_COMPLETE)
+        ACCESS_FINISHED(false);
+    }
+
+    ACCESS_FINISHED(true);
+  }
+
   return true;
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  FLASH_Status status;
-
-  if (firstWrite) {
-    FLASH_Unlock();
-    status = FLASH_ErasePage(EEPROM_PAGE0_BASE);
-    if (status != FLASH_COMPLETE) return true;
-    status = FLASH_ErasePage(EEPROM_PAGE1_BASE);
-    if (status != FLASH_COMPLETE) return true;
-    firstWrite = false;
-  }
-
-  for (size_t i = 0; i < size; i++) {
-    if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + (pos + i) * 2, value[i]) != FLASH_COMPLETE)
-      return true;
-  }
-
+  for (size_t i = 0; i < size; ++i) ram_eeprom[pos + i] = value[i];
+  eeprom_dirty = true;
   crc16(crc, value, size);
   pos += size;
-  return false;
+  return false;  // return true for any error
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
-  for (size_t i = 0; i < size; i++) {
-    uint8_t v = *(uint16_t *)(EEPROM_PAGE0_BASE + (pos + i) * 2);
-    if (writing) value[i] = v;
-    crc16(crc, &v, 1);
-  }
+  const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
+  if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
+  crc16(crc, buff, size);
   pos += size;
-  return false;
+  return false;  // return true for any error
 }
 
-size_t PersistentStore::capacity() { return size_t(E2END + 1); }
+size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__

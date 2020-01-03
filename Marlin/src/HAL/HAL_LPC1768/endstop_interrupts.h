@@ -42,6 +42,8 @@ void endstop_ISR() { endstops.update(); }
 
 void setup_endstop_interrupts() {
   #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
+  #define LPC1768_PIN_INTERRUPT_M(pin) ((pin >> 0x5 & 0x7) == 0 || (pin >> 0x5 & 0x7) == 2)
+
   #if HAS_X_MAX
     #if !LPC1768_PIN_INTERRUPT_M(X_MAX_PIN)
       #error "X_MAX_PIN is not INTERRUPT-capable."

@@ -94,6 +94,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(BABYSTEPPING)
   #include "../../feature/babystep.h"
 #endif
@@ -263,36 +267,42 @@ namespace ExtUI {
     #endif
   }
 
+  #ifdef TOUCH_UI_LCD_TEMP_SCALING
+    #define GET_TEMP_ADJUSTMENT(A) float(A)/TOUCH_UI_LCD_TEMP_SCALING
+  #else
+    #define GET_TEMP_ADJUSTMENT(A) A
+  #endif
+
   float getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if HAS_HEATED_BED
-        case BED: return thermalManager.degBed();
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
       #endif
       #if HAS_HEATED_CHAMBER
-        case CHAMBER: return thermalManager.degChamber();
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
       #endif
-      default: return thermalManager.degHotend(heater - H0);
+      default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
     }
   }
 
   float getActualTemp_celsius(const extruder_t extruder) {
-    return thermalManager.degHotend(extruder - E0);
+    return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(extruder - E0));
   }
 
   float getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if HAS_HEATED_BED
-        case BED: return thermalManager.degTargetBed();
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
       #endif
       #if HAS_HEATED_CHAMBER
-        case CHAMBER: return thermalManager.degTargetChamber();
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
       #endif
-      default: return thermalManager.degTargetHotend(heater - H0);
+      default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
     }
   }
 
   float getTargetTemp_celsius(const extruder_t extruder) {
-    return thermalManager.degTargetHotend(extruder - E0);
+    return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
   float getTargetFan_percent(const fan_t fan) {
@@ -581,6 +591,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.set_max_feedrate(E_AXIS_N(extruder - E0), value);
   }
 
@@ -598,6 +609,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
+    UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
@@ -608,6 +620,22 @@ namespace ExtUI {
     #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
       void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(constrain(value, 0, 999)); }
+    #endif
+  #endif
+
+  #if HAS_CASE_LIGHT
+    bool getCaseLightState()                 { return case_light_on; }
+    void setCaseLightState(const bool value) {
+      case_light_on = value;
+      update_case_light();
+    }
+
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      float getCaseLightBrightness_percent()                 { return ui8_to_percent(case_light_brightness); }
+      void setCaseLightBrightness_percent(const float value) {
+         case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
+         update_case_light();
+      }
     #endif
   #endif
 
@@ -622,7 +650,7 @@ namespace ExtUI {
     }
   #endif
 
-  #if ENABLED(JUNCTION_DEVIATION)
+  #if DISABLED(CLASSIC_JERK)
 
     float getJunctionDeviation_mm() {
       return planner.junction_deviation_mm;
@@ -655,12 +683,17 @@ namespace ExtUI {
   #endif
 
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
+  int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
   feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
   void setFeedrate_mm_s(const feedRate_t fr)          { feedrate_mm_s = fr; }
+  void setFlow_percent(const int16_t flow, const extruder_t extr) {
+    planner.flow_percentage[extr] = flow;
+    planner.refresh_e_factor(extr);
+  }
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
@@ -740,7 +773,7 @@ namespace ExtUI {
     #if HAS_BED_PROBE
       return probe_offset.z;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      return babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
+      return (planner.steps_to_mm[Z_AXIS] * babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]);
     #else
       return 0.0;
     #endif
@@ -751,7 +784,7 @@ namespace ExtUI {
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe_offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      babystep.add_mm(Z_AXIS, (value - babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1]));
+      babystep.add_mm(Z_AXIS, (value - getZOffset_mm()));
     #else
       UNUSED(value);
     #endif
@@ -796,7 +829,7 @@ namespace ExtUI {
   #endif
 
   uint8_t getProgress_percent() {
-    return ui.get_progress();
+    return ui.get_progress_percent();
   }
 
   uint32_t getProgress_seconds_elapsed() {
@@ -863,27 +896,38 @@ namespace ExtUI {
   }
 
   void setTargetTemp_celsius(float value, const heater_t heater) {
+    #ifdef TOUCH_UI_LCD_TEMP_SCALING
+      value *= TOUCH_UI_LCD_TEMP_SCALING;
+    #endif
     enableHeater(heater);
+    #if HAS_HEATED_CHAMBER
+      if (heater == CHAMBER)
+        thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10)));
+      else
+    #endif
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(constrain(value, 0, BED_MAXTEMP - 10));
+        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAXTEMP - 10)));
       else
     #endif
       {
         #if HOTENDS
           static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
+          thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
         #endif
       }
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
+    #ifdef TOUCH_UI_LCD_TEMP_SCALING
+      value *= TOUCH_UI_LCD_TEMP_SCALING;
+    #endif
     #if HOTENDS
       constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(constrain(value, 0, heater_maxtemp[e] - 15), e);
+      thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
     #endif
   }
 
@@ -908,6 +952,7 @@ namespace ExtUI {
   }
 
   void printFile(const char *filename) {
+    UNUSED(filename);
     IFSD(card.openAndPrintFile(filename), NOOP);
   }
 
@@ -939,6 +984,12 @@ namespace ExtUI {
     ui.abort_print();
   }
 
+  void onUserConfirmRequired_P(PGM_P const pstr) {
+    char msg[strlen_P(pstr) + 1];
+    strcpy_P(msg, pstr);
+    onUserConfirmRequired(msg);
+  }
+
   FileList::FileList() { refresh(); }
 
   void FileList::refresh() { num_files = 0xFFFF; }
@@ -955,6 +1006,8 @@ namespace ExtUI {
       card.getfilename_sorted(nr);
       return card.filename[0] != '\0';
     #else
+      UNUSED(pos);
+      UNUSED(skip_range_check);
       return false;
     #endif
   }
@@ -998,6 +1051,8 @@ namespace ExtUI {
     #if ENABLED(SDSUPPORT)
       card.cd(dirname);
       num_files = 0xFFFF;
+    #else
+      UNUSED(dirname);
     #endif
   }
 
@@ -1036,11 +1091,11 @@ void MarlinUI::update() {
   ExtUI::onIdle();
 }
 
-void MarlinUI::kill_screen(PGM_P const msg) {
+void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
   using namespace ExtUI;
   if (!flags.printer_killed) {
     flags.printer_killed = true;
-    onPrinterKilled(msg);
+    onPrinterKilled(error, component);
   }
 }
 

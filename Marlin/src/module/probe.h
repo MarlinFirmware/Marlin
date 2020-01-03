@@ -29,8 +29,6 @@
 
 #if HAS_BED_PROBE
 
-  constexpr xyz_pos_t nozzle_to_probe_offset = NOZZLE_TO_PROBE_OFFSET;
-
   extern xyz_pos_t probe_offset;
 
   bool set_probe_deployed(const bool deploy);
@@ -62,48 +60,95 @@
 
 #endif
 
-#if HAS_LEVELING && HAS_BED_PROBE
+#if HAS_BED_PROBE || ENABLED(PROBE_MANUALLY)
+  #if IS_KINEMATIC
+    constexpr float printable_radius = (
+      #if ENABLED(DELTA)
+        DELTA_PRINTABLE_RADIUS
+      #elif IS_SCARA
+        SCARA_PRINTABLE_RADIUS
+      #endif
+    );
+
+    inline float probe_radius() {
+      return printable_radius - (
+        #if HAS_BED_PROBE
+          _MAX(MIN_PROBE_EDGE, HYPOT(probe_offset.x, probe_offset.y))
+        #else
+          MIN_PROBE_EDGE
+        #endif
+      );
+    }
+  #endif
+
   inline float probe_min_x() {
-    return _MAX(
+    return (
       #if IS_KINEMATIC
-        PROBE_X_MIN, MESH_MIN_X
+        (X_CENTER) - probe_radius()
+      #elif ENABLED(NOZZLE_AS_PROBE)
+        _MAX(MIN_PROBE_EDGE_LEFT, X_MIN_POS)
       #else
-        (X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x
+        _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + probe_offset.x)
       #endif
     );
   }
   inline float probe_max_x() {
-    return _MIN(
+    return (
       #if IS_KINEMATIC
-        PROBE_X_MAX, MESH_MAX_X
+        (X_CENTER) + probe_radius()
+      #elif ENABLED(NOZZLE_AS_PROBE)
+        _MAX(MIN_PROBE_EDGE_RIGHT, X_MAX_POS)
       #else
-        (X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x
+        _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + probe_offset.x)
       #endif
     );
   }
   inline float probe_min_y() {
-    return _MAX(
+    return (
       #if IS_KINEMATIC
-        PROBE_Y_MIN, MESH_MIN_Y
+        (Y_CENTER) - probe_radius()
+      #elif ENABLED(NOZZLE_AS_PROBE)
+        _MIN(MIN_PROBE_EDGE_FRONT, Y_MIN_POS)
       #else
-        (Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y
+        _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + probe_offset.y)
       #endif
     );
   }
   inline float probe_max_y() {
-    return _MIN(
+    return (
       #if IS_KINEMATIC
-        PROBE_Y_MAX, MESH_MAX_Y
+        (Y_CENTER) + probe_radius()
+      #elif ENABLED(NOZZLE_AS_PROBE)
+        _MAX(MIN_PROBE_EDGE_BACK, Y_MAX_POS)
       #else
-        (Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y
+        _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + probe_offset.y)
       #endif
     );
   }
-#else
-  inline float probe_min_x() { return 0; };
-  inline float probe_max_x() { return 0; };
-  inline float probe_min_y() { return 0; };
-  inline float probe_max_y() { return 0; };
+
+  #if NEEDS_THREE_PROBE_POINTS
+    // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
+    template <typename T>
+    inline void get_three_probe_points(T points[3]) {
+      #if ENABLED(HAS_FIXED_3POINT)
+        points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
+        points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
+        points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
+      #else
+        #if IS_KINEMATIC
+          constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
+                          COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
+          points[0].set((X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0);
+          points[1].set((X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120);
+          points[2].set((X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240);
+        #else
+          points[0].set(probe_min_x(), probe_min_y());
+          points[1].set(probe_max_x(), probe_min_y());
+          points[2].set((probe_max_x() - probe_min_x()) / 2, probe_max_y());
+        #endif
+      #endif
+    }
+  #endif
 #endif
 
 #if HAS_Z_SERVO_PROBE

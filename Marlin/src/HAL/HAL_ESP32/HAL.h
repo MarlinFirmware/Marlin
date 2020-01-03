@@ -48,8 +48,8 @@ extern portMUX_TYPE spinlock;
 #define MYSERIAL0 flushableSerial
 
 #if ENABLED(WIFISUPPORT)
-  #define NUM_SERIAL 2
   #define MYSERIAL1 webSocketSerial
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
 #endif
@@ -111,6 +111,7 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 

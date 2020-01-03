@@ -50,19 +50,13 @@
 #include "extensible_ui/ui_api.h"
 
 #include "ultralcd.h"
+#include "../sd/cardreader.h"
 #include "../module/temperature.h"
 #include "../module/stepper.h"
 #include "../module/motion.h"
 #include "../libs/duration_t.h"
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
-
-#if ENABLED(SDSUPPORT)
-  #include "../sd/cardreader.h"
-  #include "../sd/SdFatConfig.h"
-#else
-  #define LONG_FILENAME_LENGTH 0
-#endif
 
 #define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
 #include "../core/debug_out.h"
@@ -254,7 +248,7 @@ void process_lcd_p_command(const char* command) {
         ExtUI::stopPrint();
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
         break;
-    case 'H': queue.enqueue_now_P(PSTR("G28")); break; // Home all axes
+    case 'H': queue.enqueue_now_P(G28_STR); break; // Home all axes
     default: {
       #if ENABLED(SDSUPPORT)
         // Print file 000 - a three digit number indicating which
@@ -402,8 +396,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != SerialUSB || forceUpdate) {
-    last_usb_connected_status = SerialUSB;
+  if (last_usb_connected_status != MYSERIAL0 || forceUpdate) {
+    last_usb_connected_status = MYSERIAL0;
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
@@ -464,9 +458,11 @@ namespace ExtUI {
   }
 
   // {E:<msg>} is for error states.
-  void onPrinterKilled(PGM_P msg) {
+  void onPrinterKilled(PGM_P error, PGM_P component) {
     write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd_P(msg);
+    write_to_lcd_P(error);
+    write_to_lcd_P(PSTR(" "));
+    write_to_lcd_P(component);
     write_to_lcd_P("}");
   }
 

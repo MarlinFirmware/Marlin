@@ -25,9 +25,10 @@
 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
 
 #include "../../gcode.h"
-#include "../../../Marlin.h"
+#include "../../../MarlinCore.h"
 #include "../../../module/motion.h"
 #include "../../../module/temperature.h"
+#include "../../../feature/pause.h"
 
 #if EXTRUDERS > 1
   #include "../../../module/tool_change.h"

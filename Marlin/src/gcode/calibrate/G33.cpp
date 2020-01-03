@@ -190,7 +190,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
+    return probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
   #else
     UNUSED(stow);
     return lcd_probe_pt(xy);
@@ -222,6 +222,8 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
 
   if (!_0p_calibration) {
 
+    const float dcr = delta_calibration_radius();
+
     if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
       const xy_pos_t center{0};
       z_pt[CEN] += calibration_probe(center, stow_after_each);
@@ -233,7 +235,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                   steps  = _7p_9_center ? _4P_STEP / 3.0f : _7p_6_center ? _7P_STEP : _4P_STEP;
       I_LOOP_CAL_PT(rad, start, steps) {
         const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                    r = delta_calibration_radius * 0.1;
+                    r = dcr * 0.1;
         const xy_pos_t vec = { cos(a), sin(a) };
         z_pt[CEN] += calibration_probe(vec * r, stow_after_each);
         if (isnan(z_pt[CEN])) return false;
@@ -257,7 +259,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         const int8_t offset = _7p_9_center ? 2 : 0;
         for (int8_t circle = 0; circle <= offset; circle++) {
           const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                      r = delta_calibration_radius * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
+                      r = dcr * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
                       interpol = FMOD(rad, 1);
           const xy_pos_t vec = { cos(a), sin(a) };
           const float z_temp = calibration_probe(vec * r, stow_after_each);
@@ -287,9 +289,10 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
 static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_at_pt_axis[NPP + 1]) {
   xyz_pos_t pos{0};
 
+  const float dcr = delta_calibration_radius();
   LOOP_CAL_ALL(rad) {
     const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                r = (rad == CEN ? 0.0f : delta_calibration_radius);
+                r = (rad == CEN ? 0.0f : dcr);
     pos.set(cos(a) * r, sin(a) * r, z_pt[rad]);
     inverse_kinematics(pos);
     mm_at_pt_axis[rad] = delta;
@@ -297,7 +300,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_
 }
 
 static void forward_kinematics_probe_points(abc_float_t mm_at_pt_axis[NPP + 1], float z_pt[NPP + 1]) {
-  const float r_quot = delta_calibration_radius / delta_radius;
+  const float r_quot = delta_calibration_radius() / delta_radius;
 
   #define ZPP(N,I,A) (((1.0f + r_quot * (N)) / 3.0f) * mm_at_pt_axis[I].A)
   #define Z00(I, A) ZPP( 0, I, A)
@@ -338,7 +341,7 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], abc_float_t d
 }
 
 static float auto_tune_h() {
-  const float r_quot = delta_calibration_radius / delta_radius;
+  const float r_quot = delta_calibration_radius() / delta_radius;
   return RECIPROCAL(r_quot / (2.0f / 3.0f));  // (2/3)/CR
 }
 
@@ -450,12 +453,13 @@ void GcodeSuite::G33() {
 
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
+  const float dcr = delta_calibration_radius();
+
   if (!_1p_calibration && !_0p_calibration) { // test if the outer radius is reachable
     LOOP_CAL_RAD(axis) {
-      const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
-                  r = delta_calibration_radius;
-      if (!position_is_reachable(cos(a) * r, sin(a) * r)) {
-        SERIAL_ECHOLNPGM("?(M665 B)ed radius implausible.");
+      const float a = RADIANS(210 + (360 / NPP) *  (axis - 1));
+      if (!position_is_reachable(cos(a) * dcr, sin(a) * dcr)) {
+        SERIAL_ECHOLNPGM("?Bed calibration radius implausible.");
         return;
       }
     }
@@ -522,12 +526,11 @@ void GcodeSuite::G33() {
       #define Z0(I) ZP(0, I)
 
       // calculate factors
-      const float cr_old = delta_calibration_radius;
-      if (_7p_9_center) delta_calibration_radius *= 0.9f;
+      if (_7p_9_center) calibration_radius_factor = 0.9f;
       h_factor = auto_tune_h();
       r_factor = auto_tune_r();
       a_factor = auto_tune_a();
-      delta_calibration_radius = cr_old;
+      calibration_radius_factor = 1.0f;
 
       switch (probe_points) {
         case 0:

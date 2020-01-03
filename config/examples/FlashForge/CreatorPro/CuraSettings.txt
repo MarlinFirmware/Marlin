@@ -117,7 +117,7 @@ Extruder 2 -
 
 ;START G-CODE;
 M104 T0 S{material_print_temperature, 0}
-M104 T1 S{material_print_temperature , 1}
+M104 T1 S{material_print_temperature, 1}
 M140 S{material_bed_temperature}
 G28
 ;purge right
@@ -136,9 +136,9 @@ G92 E0
 ;purge left
 T1
 ;M104 T0 S{material_standby_temperature, 0}
-M104 T1 S{material_print_temperature ,1}
+M104 T1 S{material_print_temperature, 1}
 G1 X-110 Y-70 Z30 F4800
-M109 T1 S{material_print_temperature , 1}
+M109 T1 S{material_print_temperature, 1}
 G92 E0
 G1 Z0.4 F1800
 G1 X-67 Y-70 E25 F300 ; purge nozzle

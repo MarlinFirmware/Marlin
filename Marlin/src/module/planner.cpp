@@ -70,7 +70,7 @@
 #include "../core/language.h"
 #include "../gcode/parser.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -96,8 +96,16 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(CANCEL_OBJECTS)
+  #include "../feature/cancel_object.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/power_loss_recovery.h"
+#endif
+
+#if HAS_CUTTER
+  #include "../feature/spindle_laser.h"
 #endif
 
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
@@ -125,7 +133,7 @@ uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived 
 
 float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 
-#if ENABLED(JUNCTION_DEVIATION)
+#if DISABLED(CLASSIC_JERK)
   float Planner::junction_deviation_mm;       // (mm) M205 J
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -136,7 +144,7 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
   #endif
 #endif
 #if HAS_CLASSIC_JERK
-  #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+  #if HAS_LINEAR_E_JERK
     xyz_pos_t Planner::max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
   #else
     xyze_pos_t Planner::max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -1220,6 +1228,11 @@ void Planner::check_axes_activity() {
     #endif
   }
   else {
+
+    #if HAS_CUTTER
+      cutter.refresh();
+    #endif
+
     #if FAN_COUNT > 0
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
@@ -1235,6 +1248,9 @@ void Planner::check_axes_activity() {
     #endif
   }
 
+  //
+  // Disable inactive axes
+  //
   #if ENABLED(DISABLE_X)
     if (!axis_active.x) disable_X();
   #endif
@@ -1248,6 +1264,9 @@ void Planner::check_axes_activity() {
     if (!axis_active.e) disable_e_steppers();
   #endif
 
+  //
+  // Update Fan speeds
+  //
   #if FAN_COUNT > 0
 
     #if FAN_KICKSTART_TIME > 0
@@ -1266,9 +1285,9 @@ void Planner::check_axes_activity() {
     #endif
 
     #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : 0)
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
     #else
-      #define CALC_FAN_SPEED(f) tail_fan_speed[f]
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ?: FAN_OFF_PWM)
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -1350,6 +1369,15 @@ void Planner::check_axes_activity() {
 #endif
 
 #if HAS_LEVELING
+
+  constexpr xy_pos_t level_fulcrum = {
+    #if ENABLED(Z_SAFE_HOMING)
+      Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT
+    #else
+      X_HOME_POS, Y_HOME_POS
+    #endif
+  };
+
   /**
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
@@ -1555,7 +1583,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   #if HAS_POSITION_FLOAT
     , const xyze_pos_t &target_float
   #endif
-  #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+  #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
     , const xyze_float_t &delta_mm_cart
   #endif
   , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
@@ -1573,7 +1601,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     #if HAS_POSITION_FLOAT
       , target_float
     #endif
-    #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+    #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
       , delta_mm_cart
     #endif
     , fr_mm_s, extruder, millimeters
@@ -1619,7 +1647,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if HAS_POSITION_FLOAT
     , const xyze_pos_t &target_float
   #endif
-  #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+  #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
     , const xyze_float_t &delta_mm_cart
   #endif
   , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
@@ -1780,6 +1808,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if EXTRUDERS
     delta_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
+  #else
+    delta_mm.e = 0.0f;
+  #endif
+
+  #if ENABLED(LCD_SHOW_E_TOTAL)
+    e_move_accumulator += delta_mm.e;
   #endif
 
   if (block->steps.a < MIN_STEPS_PER_SEGMENT && block->steps.b < MIN_STEPS_PER_SEGMENT && block->steps.c < MIN_STEPS_PER_SEGMENT) {
@@ -1830,6 +1864,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(MIXING_EXTRUDER)
     MIXER_POPULATE_BLOCK();
+  #endif
+
+  #if HAS_CUTTER
+    block->cutter_power = cutter.power;
   #endif
 
   #if FAN_COUNT > 0
@@ -1888,121 +1926,32 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-        #define DISABLE_IDLE_E(N) if (!g_uc_extruder_last_move[N]) disable_E##N();
-
         for (uint8_t i = 0; i < EXTRUDERS; i++)
           if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
-        switch (extruder) {
-          case 0:
-            #if EXTRUDERS > 1
-              DISABLE_IDLE_E(1);
-              #if EXTRUDERS > 2
-                DISABLE_IDLE_E(2);
-                #if EXTRUDERS > 3
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif // EXTRUDERS > 5
-                  #endif // EXTRUDERS > 4
-                #endif // EXTRUDERS > 3
-              #endif // EXTRUDERS > 2
-            #endif // EXTRUDERS > 1
-            enable_E0();
-            g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-            #if HAS_DUPLICATION_MODE
-              if (extruder_duplication_enabled) {
-                enable_E1();
-                g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-              }
-            #endif
-          break;
-          #if EXTRUDERS > 1
-            case 1:
-              DISABLE_IDLE_E(0);
-              #if EXTRUDERS > 2
-                DISABLE_IDLE_E(2);
-                #if EXTRUDERS > 3
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif // EXTRUDERS > 5
-                  #endif // EXTRUDERS > 4
-                #endif // EXTRUDERS > 3
-              #endif // EXTRUDERS > 2
-              enable_E1();
-              g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            break;
-            #if EXTRUDERS > 2
-              case 2:
-                DISABLE_IDLE_E(0);
-                DISABLE_IDLE_E(1);
-                #if EXTRUDERS > 3
-                  DISABLE_IDLE_E(3);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif
-                  #endif
-                #endif
-                enable_E2();
-                g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
-              break;
-              #if EXTRUDERS > 3
-                case 3:
-                  DISABLE_IDLE_E(0);
-                  DISABLE_IDLE_E(1);
-                  DISABLE_IDLE_E(2);
-                  #if EXTRUDERS > 4
-                    DISABLE_IDLE_E(4);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif
-                  #endif
-                  enable_E3();
-                  g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
-                break;
-                #if EXTRUDERS > 4
-                  case 4:
-                    DISABLE_IDLE_E(0);
-                    DISABLE_IDLE_E(1);
-                    DISABLE_IDLE_E(2);
-                    DISABLE_IDLE_E(3);
-                    #if EXTRUDERS > 5
-                      DISABLE_IDLE_E(5);
-                    #endif
-                    enable_E4();
-                    g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
-                  break;
-                  #if EXTRUDERS > 5
-                    case 5:
-                      DISABLE_IDLE_E(0);
-                      DISABLE_IDLE_E(1);
-                      DISABLE_IDLE_E(2);
-                      DISABLE_IDLE_E(3);
-                      DISABLE_IDLE_E(4);
-                      enable_E5();
-                      g_uc_extruder_last_move[5] = (BLOCK_BUFFER_SIZE) * 2;
-                    break;
-                  #endif // EXTRUDERS > 5
-                #endif // EXTRUDERS > 4
-              #endif // EXTRUDERS > 3
-            #endif // EXTRUDERS > 2
-          #endif // EXTRUDERS > 1
-        }
+        #if HAS_DUPLICATION_MODE
+          if (extruder_duplication_enabled && extruder == 0) {
+            enable_E1();
+            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
+          }
+        #endif
+
+        #define ENABLE_ONE_E(N) do{ \
+          if (extruder == N) { \
+            enable_E##N(); \
+            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
+          } \
+          else if (!g_uc_extruder_last_move[N]) \
+            disable_E##N(); \
+        }while(0);
+
       #else
-        enable_E0();
-        enable_E1();
-        enable_E2();
-        enable_E3();
-        enable_E4();
-        enable_E5();
+
+        #define ENABLE_ONE_E(N) enable_E##N();
+
       #endif
+
+      REPEAT(EXTRUDERS, ENABLE_ONE_E);
     }
   #endif // EXTRUDERS
 
@@ -2050,7 +1999,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
   #endif
 
-  block->nominal_speed_sqr = sq(block->millimeters * inverse_secs);   //   (mm/sec)^2 Always > 0
+  block->nominal_speed_sqr = sq(block->millimeters * inverse_secs);   // (mm/sec)^2 Always > 0
   block->nominal_rate = CEIL(block->step_event_count * inverse_secs); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -2058,27 +2007,37 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       filwidth.advance_e(delta_mm.e);
   #endif
 
-  // Calculate and limit speed in mm/sec for each axis
+  // Calculate and limit speed in mm/sec
+
   xyze_float_t current_speed;
   float speed_factor = 1.0f; // factor <1 decreases speed
-  LOOP_XYZE(i) {
-    #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
-      // In worst case, only one extruder running, no change is needed.
-      // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
-      float delta_mm_i = 0;
-      if (i == E_AXIS && mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
-        delta_mm_i = delta_mm.e / MIXING_STEPPERS;
-      else
-        delta_mm_i = delta_mm.e;
-    #else
-      const float delta_mm_i = delta_mm[i];
-    #endif
-    const feedRate_t cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
-    #if ENABLED(DISTINCT_E_FACTORS)
-      if (i == E_AXIS) i += extruder;
-    #endif
-    if (cs > settings.max_feedrate_mm_s[i]) NOMORE(speed_factor, settings.max_feedrate_mm_s[i] / cs);
+
+  // Linear axes first with less logic
+  LOOP_XYZ(i) {
+    current_speed[i] = delta_mm[i] * inverse_secs;
+    const feedRate_t cs = ABS(current_speed[i]),
+                 max_fr = settings.max_feedrate_mm_s[i];
+    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
   }
+
+  // Limit speed on extruders, if any
+  #if EXTRUDERS
+    {
+      current_speed.e = delta_mm.e * inverse_secs;
+      #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+        // Move all mixing extruders at the specified rate
+        if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
+          current_speed.e *= MIXING_STEPPERS;
+      #endif
+      const feedRate_t cs = ABS(current_speed.e),
+                   max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
+                              #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+                                * MIXING_STEPPERS
+                              #endif
+                            );
+      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
+    }
+  #endif
 
   // Max segment time in µs.
   #ifdef XY_FREQUENCY_LIMIT
@@ -2155,7 +2114,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     #if ENABLED(LIN_ADVANCE)
 
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         #if ENABLED(DISTINCT_E_FACTORS)
           #define MAX_E_JERK max_e_jerk[extruder]
         #else
@@ -2243,7 +2202,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
-  #if ENABLED(JUNCTION_DEVIATION)
+  #if DISABLED(CLASSIC_JERK)
     /**
      * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
      * Let a circle be tangent to both previous and current path line segments, where the junction
@@ -2282,7 +2241,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     static xyze_float_t prev_unit_vec;
 
     xyze_float_t unit_vec =
-      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         delta_mm_cart
       #else
         { delta_mm.x, delta_mm.y, delta_mm.z, delta_mm.e }
@@ -2290,7 +2249,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     ;
     unit_vec *= inverse_millimeters;
 
-    #if IS_CORE && ENABLED(JUNCTION_DEVIATION)
+    #if IS_CORE && DISABLED(CLASSIC_JERK)
       /**
        * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
        * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
@@ -2345,13 +2304,21 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #endif
 
+  #ifdef USE_CACHED_SQRT
+    #define CACHED_SQRT(N, V) \
+      static float saved_V, N; \
+      if (V != saved_V) { N = SQRT(V); saved_V = V; }
+  #else
+    #define CACHED_SQRT(N, V) const float N = SQRT(V)
+  #endif
+
   #if HAS_CLASSIC_JERK
 
     /**
      * Adapted from Průša MKS firmware
      * https://github.com/prusa3d/Prusa-Firmware
      */
-    const float nominal_speed = SQRT(block->nominal_speed_sqr);
+    CACHED_SQRT(nominal_speed, block->nominal_speed_sqr);
 
     // Exit speed limited by a jerk to full halt of a previous last segment
     static float previous_safe_speed;
@@ -2360,7 +2327,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     float safe_speed = nominal_speed;
 
     uint8_t limited = 0;
-    #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+    #if HAS_LINEAR_E_JERK
       LOOP_XYZ(i)
     #else
       LOOP_XYZE(i)
@@ -2392,12 +2359,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
       // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
-      const float previous_nominal_speed = SQRT(previous_nominal_speed_sqr);
+      CACHED_SQRT(previous_nominal_speed, previous_nominal_speed_sqr);
+
       vmax_junction = _MIN(nominal_speed, previous_nominal_speed);
 
       // Now limit the jerk in all axes.
       const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
-      #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+      #if HAS_LINEAR_E_JERK
         LOOP_XYZ(axis)
       #else
         LOOP_XYZE(axis)
@@ -2435,7 +2403,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     previous_safe_speed = safe_speed;
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    #if DISABLED(CLASSIC_JERK)
       vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
     #else
       vmax_junction_sqr = sq(vmax_junction);
@@ -2529,7 +2497,7 @@ void Planner::buffer_sync_block() {
  *  millimeters - the length of the movement, if known
  */
 bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e
-  #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+  #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
     , const xyze_float_t &delta_mm_cart
   #endif
   , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
@@ -2560,7 +2528,11 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   #endif
 
   // DRYRUN prevents E moves from taking place
-  if (DEBUGGING(DRYRUN)) {
+  if (DEBUGGING(DRYRUN)
+    #if ENABLED(CANCEL_OBJECTS)
+      || cancelable.skipping
+    #endif
+  ) {
     position.e = target.e;
     #if HAS_POSITION_FLOAT
       position_float.e = e;
@@ -2601,7 +2573,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
       #if HAS_POSITION_FLOAT
         , target_float
       #endif
-      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         , delta_mm_cart
       #endif
       , fr_mm_s, extruder, millimeters
@@ -2635,7 +2607,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
 
   #if IS_KINEMATIC
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    #if DISABLED(CLASSIC_JERK)
       const xyze_pos_t delta_mm_cart = {
         rx - position_cart.x, ry - position_cart.y,
         rz - position_cart.z, e  - position_cart.e
@@ -2648,18 +2620,20 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     if (mm == 0.0)
       mm = (delta_mm_cart.x != 0.0 || delta_mm_cart.y != 0.0) ? delta_mm_cart.magnitude() : ABS(delta_mm_cart.z);
 
+    // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float duration_recip = inv_duration ?: fr_mm_s / mm;
-      const feedRate_t feedrate = HYPOT(delta.a - position_float.a, delta.b - position_float.b) * duration_recip;
+      const xyz_pos_t diff = delta - position_float;
+      const feedRate_t feedrate = diff.magnitude() * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
     #endif
     if (buffer_segment(delta.a, delta.b, delta.c, machine.e
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if DISABLED(CLASSIC_JERK)
         , delta_mm_cart
       #endif
       , feedrate, extruder, mm
@@ -2760,7 +2734,7 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
-  #if BOTH(JUNCTION_DEVIATION, LIN_ADVANCE)
+  #if HAS_LINEAR_E_JERK
     recalculate_max_e_jerk();
   #endif
 }
@@ -2775,7 +2749,7 @@ void Planner::refresh_positioning() {
 inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = axis > E_AXIS ? E_AXIS : axis;
   const float before = val;
-  LIMIT(val, 1, max_limit[lim_axis]);
+  LIMIT(val, 0.1, max_limit[lim_axis]);
   if (before != val) {
     SERIAL_CHAR(axis_codes[lim_axis]);
     SERIAL_ECHOPGM(" Max ");
@@ -2790,8 +2764,8 @@ void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
       constexpr xyze_float_t max_accel_edit = MAX_ACCEL_EDIT_VALUES;
       const xyze_float_t &max_acc_edit_scaled = max_accel_edit;
     #else
-      constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION,
-                             max_acc_edit_scaled = max_accel_edit * 2;
+      constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION;
+      const xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
   #endif
@@ -2807,8 +2781,8 @@ void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
       constexpr xyze_float_t max_fr_edit = MAX_FEEDRATE_EDIT_VALUES;
       const xyze_float_t &max_fr_edit_scaled = max_fr_edit;
     #else
-      constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE,
-                             max_fr_edit_scaled = max_fr_edit * 2;
+      constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE;
+      const xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
   #endif

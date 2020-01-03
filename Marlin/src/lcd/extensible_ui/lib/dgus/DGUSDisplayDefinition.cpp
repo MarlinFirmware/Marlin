@@ -46,10 +46,10 @@ const uint16_t VPList_Main[] PROGMEM = {
 
 const uint16_t VPList_Temp[] PROGMEM = {
   #if HOTENDS >= 1
-    VP_T_E1_Is, VP_T_E1_Set,
+    VP_T_E0_Is, VP_T_E0_Set,
   #endif
   #if HOTENDS >= 2
-    VP_T_E2_I, VP_T_E2_S,
+    VP_T_E1_I, VP_T_E1_S,
   #endif
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
@@ -60,10 +60,10 @@ const uint16_t VPList_Temp[] PROGMEM = {
 const uint16_t VPList_Status[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded */
   #if HOTENDS >= 1
-    VP_T_E1_Is, VP_T_E1_Set,
+    VP_T_E0_Is, VP_T_E0_Set,
   #endif
   #if HOTENDS >= 2
-    VP_T_E2_I, VP_T_E2_S,
+    VP_T_E1_I, VP_T_E1_S,
   #endif
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
@@ -81,10 +81,10 @@ const uint16_t VPList_Status[] PROGMEM = {
 const uint16_t VPList_Status2[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded */
   #if HOTENDS >= 1
-    VP_Flowrate_E1,
+    VP_Flowrate_E0,
   #endif
   #if HOTENDS >= 2
-    VP_Flowrate_E2,
+    VP_Flowrate_E1,
   #endif
   VP_PrintProgress_Percentage,
   VP_PrintTime,
@@ -107,7 +107,7 @@ const uint16_t VPList_FanAndFeedrate[] PROGMEM = {
 };
 
 const uint16_t VPList_SD_FlowRates[] PROGMEM = {
-  VP_Flowrate_E1, VP_Flowrate_E2,
+  VP_Flowrate_E0, VP_Flowrate_E1,
   0x0000
 };
 
@@ -166,17 +166,17 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Temperature Data
   #if HOTENDS >= 1
-    VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[0].celsius, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<0>),
-    VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[0].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E1, nullptr, DGUSScreenVariableHandler::HandleFlowRateChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<0>),
+    VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E0, nullptr, DGUSScreenVariableHandler::HandleFlowRateChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_EPos, &destination.e, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
-    VPHELPER(VP_MOVE_E1, nullptr, &DGUSScreenVariableHandler::HandleManualExtrude, nullptr),
+    VPHELPER(VP_MOVE_E0, nullptr, &DGUSScreenVariableHandler::HandleManualExtrude, nullptr),
   #endif
   #if HOTENDS >= 2
-    VPHELPER(VP_T_E2_I, &thermalManager.temp_hotend[1].celsius, nullptr, DGUSLCD_SendFloatAsLongValueToDisplay<0>),
-    VPHELPER(VP_T_E2_S, &thermalManager.temp_hotend[1].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E2, nullptr, DGUSScreenVariableHandler::HandleFlowRateChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_MOVE_E2, nullptr, &DGUSScreenVariableHandler::HandleManualExtrude, nullptr),
+    VPHELPER(VP_T_E1_I, &thermalManager.temp_hotend[1].celsius, nullptr, DGUSLCD_SendFloatAsLongValueToDisplay<0>),
+    VPHELPER(VP_T_E1_S, &thermalManager.temp_hotend[1].target, DGUSScreenVariableHandler::HandleTemperatureChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E1, nullptr, DGUSScreenVariableHandler::HandleFlowRateChanged, &DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_MOVE_E1, nullptr, &DGUSScreenVariableHandler::HandleManualExtrude, nullptr),
   #endif
   #if HOTENDS >= 3
     #error More than 2 Hotends currently not implemented on the Display UI design.
@@ -200,7 +200,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZPos, &current_position.z, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Print Progress.
-  VPHELPER(VP_PrintProgress_Percentage, &ui.progress_bar_percent, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
+  VPHELPER(VP_PrintProgress_Percentage, &ui.progress_override, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
 
   // Print Time
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay ),

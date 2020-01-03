@@ -64,11 +64,19 @@ void host_action(const char * const pstr, const bool eol) {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
+  const char CONTINUE_STR[] PROGMEM = "Continue";
+
   #if HAS_RESUME_CONTINUE
     extern bool wait_for_user;
   #endif
 
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
+
+  void host_action_notify(const char * const message) {
+    host_action(PSTR("notification "), false);
+    serialprintPGM(message);
+    SERIAL_EOL();
+  }
 
   void host_action_prompt(const char * const ptype, const bool eol=true) {
     host_action(PSTR("prompt_"), false);
@@ -102,8 +110,8 @@ void host_action(const char * const pstr, const bool eol) {
 
   void host_response_handler(const uint8_t response) {
     #ifdef DEBUG_HOST_ACTIONS
-      SERIAL_ECHOLNPAIR("M86 Handle Reason: ", host_prompt_reason);
-      SERIAL_ECHOLNPAIR("M86 Handle Response: ", response);
+      SERIAL_ECHOLNPAIR("M876 Handle Reason: ", host_prompt_reason);
+      SERIAL_ECHOLNPAIR("M876 Handle Response: ", response);
     #endif
     const char *msg = PSTR("UNKNOWN STATE");
     const PromptReason hpr = host_prompt_reason;
@@ -126,7 +134,7 @@ void host_action(const char * const pstr, const bool eol) {
             host_action_prompt_button(PSTR("DisableRunout"));
           else {
             host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
-            host_action_prompt_button(PSTR("Continue"));
+            host_action_prompt_button(CONTINUE_STR);
           }
           host_action_prompt_show();
         }
@@ -151,7 +159,8 @@ void host_action(const char * const pstr, const bool eol) {
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          queue.inject_P(PSTR("M24"));
+          extern const char M24_STR[];
+          queue.inject_P(M24_STR);
         #endif
         break;
       case PROMPT_INFO:

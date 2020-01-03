@@ -64,7 +64,7 @@ extern "C" {
 // return free memory between end of heap (or end bss) and whatever is current
 
 /*
-#include "wirish/syscalls.c"
+#include <wirish/syscalls.c>
 //extern caddr_t _sbrk(int incr);
 #ifndef CONFIG_HEAP_END
 extern char _lm_heap_end;
