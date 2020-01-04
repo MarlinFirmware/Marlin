@@ -90,17 +90,18 @@
 #define BOARD_RAMPS_ENDER_4           1134  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1135  // Creality: CR10S, CR20, CR-X
 #define BOARD_RAMPS_DAGOMA            1136  // Dagoma F5
-#define BOARD_FYSETC_F6_13            1137  // FYSETC F6
-#define BOARD_DUPLICATOR_I3_PLUS      1138  // Wanhao Duplicator i3 Plus
-#define BOARD_VORON                   1139  // VORON Design
-#define BOARD_TRONXY_V3_1_0           1140  // Tronxy TRONXY-V3-1.0
-#define BOARD_Z_BOLT_X_SERIES         1141  // Z-Bolt X Series
-#define BOARD_TT_OSCAR                1142  // TT OSCAR
-#define BOARD_OVERLORD                1143  // Overlord/Overlord Pro
-#define BOARD_HJC2560C_REV1           1144  // ADIMLab Gantry v1
-#define BOARD_HJC2560C_REV2           1145  // ADIMLab Gantry v2
-#define BOARD_TANGO                   1146  // BIQU Tango V1
-#define BOARD_MKS_GEN_L_V2            1147  // MKS GEN L V2
+#define BOARD_FYSETC_F6_13            1137  // FYSETC F6 1.3
+#define BOARD_FYSETC_F6_14            1138  // FYSETC F6 1.4
+#define BOARD_DUPLICATOR_I3_PLUS      1139  // Wanhao Duplicator i3 Plus
+#define BOARD_VORON                   1140  // VORON Design
+#define BOARD_TRONXY_V3_1_0           1141  // Tronxy TRONXY-V3-1.0
+#define BOARD_Z_BOLT_X_SERIES         1142  // Z-Bolt X Series
+#define BOARD_TT_OSCAR                1143  // TT OSCAR
+#define BOARD_OVERLORD                1144  // Overlord/Overlord Pro
+#define BOARD_HJC2560C_REV1           1145  // ADIMLab Gantry v1
+#define BOARD_HJC2560C_REV2           1146  // ADIMLab Gantry v2
+#define BOARD_TANGO                   1147  // BIQU Tango V1
+#define BOARD_MKS_GEN_L_V2            1148  // MKS GEN L V2
 
 //
 // RAMBo and derivatives
