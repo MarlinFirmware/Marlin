@@ -25,7 +25,7 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for IsRunning()
+#include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
 #include "../../module/probe.h" // for probe_offset
 #include "../../feature/bedlevel/bedlevel.h"
@@ -45,20 +45,21 @@ void GcodeSuite::G42() {
       return;
     }
 
+    // Move to current_position, as modified by I, J, P parameters
     destination = current_position;
 
     if (hasI) destination.x = _GET_MESH_X(ix);
     if (hasJ) destination.y = _GET_MESH_Y(iy);
 
-    #if HAS_BED_PROBE
+    #if HAS_PROBE_XY_OFFSET
       if (parser.boolval('P')) {
-        if (hasI) destination.x -= probe_offset.x;
-        if (hasJ) destination.y -= probe_offset.y;
+        if (hasI) destination.x -= probe_offset_xy.x;
+        if (hasJ) destination.y -= probe_offset_xy.y;
       }
     #endif
 
     const feedRate_t fval = parser.linearval('F'),
-                     fr_mm_s = fval > 0 ? MMM_TO_MMS(fval) : 0.0f;
+                     fr_mm_s = MMM_TO_MMS(fval > 0 ? fval : 0.0f);
 
     // SCARA kinematic has "safe" XY raw moves
     #if IS_SCARA

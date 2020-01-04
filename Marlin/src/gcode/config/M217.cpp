@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#include "../../Marlin.h" // for SP_X_STR, etc.
+#include "../../MarlinCore.h" // for SP_X_STR, etc.
 
 extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 

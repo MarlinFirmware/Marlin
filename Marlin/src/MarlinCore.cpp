@@ -28,7 +28,7 @@
  *  - https://github.com/grbl/grbl
  */
 
-#include "Marlin.h"
+#include "MarlinCore.h"
 
 #include "core/utility.h"
 #include "lcd/ultralcd.h"

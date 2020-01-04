@@ -31,7 +31,7 @@
 #include "power.h"
 #include "../module/temperature.h"
 #include "../module/stepper/indirection.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 Power powerManager;
 
