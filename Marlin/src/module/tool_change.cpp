@@ -929,11 +929,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS   // Switching Nozzle (single servo)
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
-        current_position.z += _MAX(-diff.z, 0.0) + toolchange_settings.z_raise;
-        #if HAS_SOFTWARE_ENDSTOPS
-          NOMORE(current_position.z, soft_endstop.max.z);
-        #endif
-        if (!no_move) fast_line_to_current(Z_AXIS);
+        current_position.z += _MAX(-diff.z, 0.0);
+        if (!no_move) {
+          current_position.z += toolchange_settings.z_raise;
+          #if HAS_SOFTWARE_ENDSTOPS
+            NOMORE(current_position.z, soft_endstop.max.z);
+          #endif
+          fast_line_to_current(Z_AXIS);
+        }
         move_nozzle_servo(new_tool);
       #endif
 
