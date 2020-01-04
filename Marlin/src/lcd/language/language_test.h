@@ -122,7 +122,7 @@ namespace Language_test {
   #if ENABLED(DISPLAYTEST)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("Display test");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Display test");
     PROGMEM Language_Str MSG_PREPARE                         = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_CONTROL                         = STRG_OKTAL_c;
   #endif
@@ -130,7 +130,7 @@ namespace Language_test {
   #if ENABLED(WEST)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -167,7 +167,7 @@ namespace Language_test {
   #if ENABLED(CYRIL)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -203,7 +203,7 @@ namespace Language_test {
   #if ENABLED(KANA)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 

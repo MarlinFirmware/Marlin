@@ -278,7 +278,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Обновление прошивки");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Сброс принтера");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Обновить");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Информационный экран");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Информационный экран");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Подготовить");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Настроить");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Начало печати");

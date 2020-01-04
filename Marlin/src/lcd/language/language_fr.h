@@ -287,7 +287,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("MaJ Firmware SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("RaZ imprimante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualiser");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Surveiller");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Surveiller");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Préparer");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Régler");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Démarrer impression");
