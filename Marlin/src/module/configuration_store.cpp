@@ -1934,12 +1934,14 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
       {
-        float extruder_advance_K[EXTRUDERS];
         _FIELD_TEST(planner_extruder_advance_K);
-        EEPROM_READ(extruder_advance_K);
-        #if ENABLED(LIN_ADVANCE)
-          if (!validating)
-            COPY(planner.extruder_advance_K, extruder_advance_K);
+        #if EXTRUDERS
+          float extruder_advance_K[EXTRUDERS];
+          EEPROM_READ(extruder_advance_K);
+          #if ENABLED(LIN_ADVANCE)
+            if (!validating)
+              COPY(planner.extruder_advance_K, extruder_advance_K);
+          #endif
         #endif
       }
 
