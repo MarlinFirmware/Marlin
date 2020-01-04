@@ -185,7 +185,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Фиолетовый свет");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("Белый свет");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Свет по умолчанию");
-  PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Свой цвет света");
+  PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Свой цвет подсветки");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Уровень красного");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Уровень зелёного");
   PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("Уровень синего");
