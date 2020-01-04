@@ -24,44 +24,27 @@
 //
 // FYSETC F6 v1.4 pin assignments
 //
-#include "pins_FYSETC_F6_13.h"
 
-#undef BOARD_NAME
 #define BOARD_NAME "FYSETC F6 1.4"
 
-#undef Z_MAX_PIN
 #define Z_MAX_PIN           2
 
-#undef Z_MIN_PROBE_PIN
-#define Z_MIN_PROBE_PIN     9
-
 #if HAS_TMC220x
-   /**
+  /**
    * TMC2208/TMC2209 stepper drivers
    */
-  #undef X_SERIAL_RX_PIN
-  #undef X_SERIAL_TX_PIN
-  #undef Y_SERIAL_RX_PIN
-  #undef Y_SERIAL_TX_PIN
-  #undef Z_SERIAL_RX_PIN
-  #undef Z_SERIAL_TX_PIN
-  #undef E0_SERIAL_RX_PIN
-  #undef E0_SERIAL_TX_PIN
-  #undef E1_SERIAL_RX_PIN
-  #undef E1_SERIAL_TX_PIN
-  #undef E2_SERIAL_RX_PIN
-  #undef E2_SERIAL_TX_PIN
-
-  #define X_SERIAL_RX_PIN       72
-  #define X_SERIAL_TX_PIN       71
-  #define Y_SERIAL_RX_PIN       73
-  #define Y_SERIAL_TX_PIN       78
-  #define Z_SERIAL_RX_PIN       75
-  #define Z_SERIAL_TX_PIN       79
-  #define E0_SERIAL_RX_PIN      77
-  #define E0_SERIAL_TX_PIN      81
-  #define E1_SERIAL_RX_PIN      76
-  #define E1_SERIAL_TX_PIN      80
-  #define E2_SERIAL_RX_PIN      62
-  #define E2_SERIAL_TX_PIN      82
+  #define X_SERIAL_RX_PIN  72
+  #define X_SERIAL_TX_PIN  71
+  #define Y_SERIAL_RX_PIN  73
+  #define Y_SERIAL_TX_PIN  78
+  #define Z_SERIAL_RX_PIN  75
+  #define Z_SERIAL_TX_PIN  79
+  #define E0_SERIAL_RX_PIN 77
+  #define E0_SERIAL_TX_PIN 81
+  #define E1_SERIAL_RX_PIN 76
+  #define E1_SERIAL_TX_PIN 80
+  #define E2_SERIAL_RX_PIN 62
+  #define E2_SERIAL_TX_PIN 82
 #endif
+
+#include "pins_FYSETC_F6_13.h"
