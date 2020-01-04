@@ -173,17 +173,17 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6.Точная настр. всего");
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7.Сохранить сетку стола");
 
-  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("Настройки LED");
+  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("Настройка подсветки");
   PROGMEM Language_Str MSG_LEDS                            = _UxGT("Подсветка");
   PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("Предустановки света");
-  PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("Красный свет");
-  PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("Оранжевый свет");
-  PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("Жёлтый свет");
-  PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("Зелёный свет");
-  PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("Синий свет");
-  PROGMEM Language_Str MSG_SET_LEDS_INDIGO                 = _UxGT("Индиго свет");
-  PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Фиолетовый свет");
-  PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("Белый свет");
+  PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("Красный");
+  PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("Оранжевый");
+  PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("Жёлтый");
+  PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("Зелёный");
+  PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("Синий");
+  PROGMEM Language_Str MSG_SET_LEDS_INDIGO                 = _UxGT("Индиго");
+  PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Фиолетовый");
+  PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("Белый");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Свет по умолчанию");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Свой цвет подсветки");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Уровень красного");
