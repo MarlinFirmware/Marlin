@@ -97,13 +97,14 @@
   #endif
 #endif
 
-  // G34 / M422 shared data
-  static xy_pos_t z_stepper_align_pos
-    #ifdef Z_STEPPER_ALIGN_XY
-      [] = Z_STEPPER_ALIGN_XY;
-    #else
-      [3];
-    #endif
+// G34 / M422 shared data
+static xy_pos_t z_stepper_align_pos[] =
+  #ifdef Z_STEPPER_ALIGN_XY
+    Z_STEPPER_ALIGN_XY
+  #else
+    { 0, 0, 0 }
+  #endif
+;
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   static xy_pos_t z_stepper_align_stepper_pos[] = Z_STEPPER_ALIGN_STEPPER_XY;
@@ -255,8 +256,8 @@ void GcodeSuite::G34() {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(iprobe + 1), " measured position is ", z_measured[iprobe]);
 
         // Remember the minimum measurement to calculate the correction later on
-        z_measured_min = _MIN(z_measured_min, z_measured[iprobe]);
-        z_measured_max = _MAX(z_measured_max, z_measured[iprobe]);
+        NOMORE(z_measured_min, z_measured[iprobe]);
+        NOLESS(z_measured_max, z_measured[iprobe]);
       } // for (i)
 
       if (err_break) break;
@@ -289,7 +290,7 @@ void GcodeSuite::G34() {
         z_measured_min = 100000.0f;
         for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i) {
           z_measured[i] = -(lfd.A * z_stepper_align_stepper_pos[i].x + lfd.B * z_stepper_align_stepper_pos[i].y);
-          z_measured_min = _MIN(z_measured_min, z_measured[i]);
+          NOMORE(z_measured_min, z_measured[i]);
         }
 
         SERIAL_ECHOLNPAIR("CALCULATED STEPPER POSITIONS: Z1=", z_measured[0], " Z2=", z_measured[1], " Z3=", z_measured[2]);
