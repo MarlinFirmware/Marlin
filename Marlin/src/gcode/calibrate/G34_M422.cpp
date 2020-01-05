@@ -102,7 +102,7 @@ static xy_pos_t z_stepper_align_pos[] =
   #ifdef Z_STEPPER_ALIGN_XY
     Z_STEPPER_ALIGN_XY
   #else
-    { 0, 0, 0 }
+    { { 0, 0 }, { 0, 0 }, { 0, 0 } }
   #endif
 ;
 
