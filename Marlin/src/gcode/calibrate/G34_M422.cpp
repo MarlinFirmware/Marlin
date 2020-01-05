@@ -58,12 +58,6 @@
       "Z_STEPPER_ALIGN_XY requires at least three {X,Y} entries (Z, Z2, Z3, ...)."
     );
 
-    constexpr float test_z_stepper_align_stepper_xy[][XY] = Z_STEPPER_ALIGN_STEPPER_XY;
-    static_assert(
-      COUNT(test_z_stepper_align_stepper_xy) == NUM_Z_STEPPER_DRIVERS,
-      "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
-    );
-
   #else
 
     static_assert(COUNT(test_z_stepper_align_xy) == NUM_Z_STEPPER_DRIVERS,
@@ -100,6 +94,17 @@
 #endif
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  constexpr float test_z_stepper_align_stepper_xy[][XY] = Z_STEPPER_ALIGN_STEPPER_XY;
+  static_assert(
+    COUNT(test_z_stepper_align_stepper_xy) == NUM_Z_STEPPER_DRIVERS,
+    #if NUM_Z_STEPPER_DRIVERS == 4
+      "Z_STEPPER_ALIGN_STEPPER_XY requires four {X,Y} entries (Z, Z2, Z3, and Z4)."
+    #elif NUM_Z_STEPPER_DRIVERS == 3
+      "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (Z, Z2, and Z3)."
+    #else
+      "Z_STEPPER_ALIGN_STEPPER_XY requires two {X,Y} entries (Z and Z2)."
+    #endif
+  );
   static xy_pos_t z_stepper_align_stepper_pos[] = Z_STEPPER_ALIGN_STEPPER_XY;
 #endif
 
@@ -130,7 +135,7 @@ void GcodeSuite::G34() {
   }
 
   xy_pos_t z_stepper_align_pos[] =
-  #if defined(Z_STEPPER_ALIGN_XY) || ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #ifdef Z_STEPPER_ALIGN_XY
     Z_STEPPER_ALIGN_XY
   #else
     #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
@@ -441,7 +446,7 @@ void GcodeSuite::G34() {
  */
 void GcodeSuite::M422() {
   xy_pos_t z_stepper_align_pos[] =
-  #if defined(Z_STEPPER_ALIGN_XY) || ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #ifdef Z_STEPPER_ALIGN_XY
     Z_STEPPER_ALIGN_XY
   #else
     #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
