@@ -39,9 +39,8 @@
  *   E   Engage the probe for each probe (default 1)
  */
 void GcodeSuite::G30() {
-
-  const xy_pos_t pos = { parser.linearval('X', current_position.x + probe_offset_xy.x),
-                         parser.linearval('Y', current_position.y + probe_offset_xy.y) };
+  const xy_pos_t pos = { parser.linearval('X', current_position.x + probe_offset.x),
+                         parser.linearval('Y', current_position.y + probe_offset.y) };
 
   if (!position_is_reachable_by_probe(pos)) return;
 

@@ -133,7 +133,7 @@
     destination.set(safe_homing_xy, current_position.z);
 
     #if HOMING_Z_WITH_PROBE
-      destination -= probe_offset_xy;
+      destination -= probe_offset;
     #endif
 
     if (position_is_reachable(destination)) {

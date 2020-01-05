@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
+#include "../../Marlin.h" // for pin_is_protected
 #include "../../inc/MarlinConfig.h"
 
 #if FAN_COUNT > 0

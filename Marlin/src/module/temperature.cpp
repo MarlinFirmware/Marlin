@@ -27,14 +27,11 @@
 #include "temperature.h"
 #include "endstops.h"
 
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 #include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
-#endif
 
 #if ENABLED(MAX6675_IS_MAX31865)
   #include "Adafruit_MAX31865.h"
@@ -402,9 +399,6 @@ volatile bool Temperature::temp_meas_ready = false;
 
     if (target > GHV(BED_MAXTEMP - 10, temp_range[heater].maxtemp - 15)) {
       SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
-      #endif
       return;
     }
 
@@ -518,9 +512,6 @@ volatile bool Temperature::temp_meas_ready = false;
       #endif
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
-        #endif
         break;
       }
 
@@ -563,9 +554,6 @@ volatile bool Temperature::temp_meas_ready = false;
         #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
       #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
-        #endif
         SERIAL_ECHOLNPGM(MSG_PID_TIMEOUT);
         break;
       }
@@ -614,9 +602,6 @@ volatile bool Temperature::temp_meas_ready = false;
         #if ENABLED(PRINTER_EVENT_LEDS)
           printerEventLEDs.onPidTuningDone(color);
         #endif
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
-        #endif
 
         goto EXIT_M303;
       }
@@ -627,9 +612,6 @@ volatile bool Temperature::temp_meas_ready = false;
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       printerEventLEDs.onPidTuningDone(color);
-    #endif
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
     #endif
 
     EXIT_M303:

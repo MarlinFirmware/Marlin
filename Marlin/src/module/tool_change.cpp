@@ -29,7 +29,7 @@
 #include "planner.h"
 #include "temperature.h"
 
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"

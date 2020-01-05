@@ -32,7 +32,7 @@
   #include "../../../module/delta.h"
 #endif
 
-#include "../../../MarlinCore.h"
+#include "../../../Marlin.h"
 #include <math.h>
 
 #if !UBL_SEGMENTED

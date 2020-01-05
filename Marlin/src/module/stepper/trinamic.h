@@ -34,37 +34,15 @@
 #include "../../inc/MarlinConfig.h"
 #include "../../feature/tmc_util.h"
 
-#define CLASS_TMC2130 TMC2130Stepper
-#define CLASS_TMC2160 TMC2160Stepper
-#define CLASS_TMC2208 TMC2208Stepper
-#define CLASS_TMC2209 TMC2209Stepper
-#define CLASS_TMC2660 TMC2660Stepper
-#define CLASS_TMC5130 TMC5130Stepper
-#define CLASS_TMC5160 TMC5160Stepper
-
-#define TMC_X_LABEL 'X', '0'
-#define TMC_Y_LABEL 'Y', '0'
-#define TMC_Z_LABEL 'Z', '0'
-
-#define TMC_X2_LABEL 'X', '2'
-#define TMC_Y2_LABEL 'Y', '2'
-#define TMC_Z2_LABEL 'Z', '2'
-#define TMC_Z3_LABEL 'Z', '3'
-
-#define TMC_E0_LABEL 'E', '0'
-#define TMC_E1_LABEL 'E', '1'
-#define TMC_E2_LABEL 'E', '2'
-#define TMC_E3_LABEL 'E', '3'
-#define TMC_E4_LABEL 'E', '4'
-#define TMC_E5_LABEL 'E', '5'
-
-#define __TMC_CLASS(TYPE, L, I, A) TMCMarlin<CLASS_##TYPE, L, I, A>
-#define _TMC_CLASS(TYPE, LandI, A) __TMC_CLASS(TYPE, LandI, A)
+#define ____TMC_CLASS(MODEL, A, I, E) TMCMarlin<TMC##MODEL##Stepper, A, I, E>
+#define ___TMC_CLASS(MODEL, A, I, E) ____TMC_CLASS(MODEL, A, I, E)
+#define __TMC_CLASS(MODEL, A, I, E) ___TMC_CLASS(_##MODEL, A, I, E)
+#define _TMC_CLASS(MODEL, L, E) __TMC_CLASS(MODEL, L, E)
 #define TMC_CLASS(ST, A) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL, A##_AXIS)
 #if ENABLED(DISTINCT_E_FACTORS)
-  #define TMC_CLASS_E(N) TMC_CLASS(E##N, E##N)
+  #define TMC_CLASS_E(I) TMC_CLASS(E##I, E##I)
 #else
-  #define TMC_CLASS_E(N) TMC_CLASS(E##N, E)
+  #define TMC_CLASS_E(I) TMC_CLASS(E##I, E)
 #endif
 
 typedef struct {

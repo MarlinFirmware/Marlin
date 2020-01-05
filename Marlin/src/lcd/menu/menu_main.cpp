@@ -81,7 +81,7 @@ extern const char M21_STR[];
 
 void menu_main() {
   START_MENU();
-  BACK_ITEM(MSG_INFO_SCREEN);
+  BACK_ITEM(MSG_WATCH);
 
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)

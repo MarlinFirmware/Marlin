@@ -32,7 +32,7 @@
 #endif
 
 #if HAS_SUICIDE
-  #include "../../MarlinCore.h"
+  #include "../../Marlin.h"
 #endif
 
 #if ENABLED(PSU_CONTROL)

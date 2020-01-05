@@ -34,7 +34,7 @@
 #include "../../gcode/gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 #include "../../module/motion.h"

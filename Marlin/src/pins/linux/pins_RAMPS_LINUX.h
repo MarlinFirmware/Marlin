@@ -529,7 +529,7 @@
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
-    #elif ENABLED(MKS_MINI_12864)
+    #elif ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
       #define DOGLCD_A0         27
       #define DOGLCD_CS         25
