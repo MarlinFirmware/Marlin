@@ -80,10 +80,11 @@ uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
       LCD_IO_Init(u8g->pin_list[U8G_PI_CS], u8g->pin_list[U8G_PI_A0]);
       u8g_Delay(50);
 
-      if (arg_ptr)
+      if (arg_ptr) {
         *((uint32_t *)arg_ptr) = LCD_IO_ReadData(0x0000);
         if (*((uint32_t *)arg_ptr) == 0)
           *((uint32_t *)arg_ptr) = (LCD_READ_ID << 24) | LCD_IO_ReadData(LCD_READ_ID, 3);
+      }
       isCommand = 0;
       break;
 

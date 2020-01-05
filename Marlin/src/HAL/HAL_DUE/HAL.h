@@ -56,8 +56,7 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #endif
-  #if SERIAL_PORT_2 == -1
+  #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 customizedSerial2
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
@@ -74,6 +73,27 @@
 #else
   #define NUM_SERIAL 1
 #endif
+
+#ifdef DGUS_SERIAL_PORT
+  #if DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different from SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL internalDgusSerial
+  #elif DGUS_SERIAL_PORT == 0
+    #define DGUS_SERIAL Serial
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL Serial1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL Serial2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL Serial3
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #endif
+#endif
+
 
 #include "MarlinSerial.h"
 #include "MarlinSerialUSB.h"

@@ -1179,7 +1179,7 @@ void CLCD::default_display_orientation() {
       #endif
     }
   #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
-    #error PORTRAIT or MIRRORED orientation not supported on the FT800
+    #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)
     mem_write_32(REG::ROTATE, 1);
   #endif

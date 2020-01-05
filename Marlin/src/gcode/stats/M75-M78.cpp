@@ -24,7 +24,7 @@
 #include "../../module/printcounter.h"
 #include "../../lcd/ultralcd.h"
 
-#include "../../Marlin.h" // for startOrResumeJob
+#include "../../MarlinCore.h" // for startOrResumeJob
 
 /**
  * M75: Start print timer

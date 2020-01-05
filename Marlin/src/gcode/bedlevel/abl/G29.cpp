@@ -228,7 +228,7 @@ G29_TYPE GcodeSuite::G29() {
       ABL_VAR xy_int8_t meshCount;
     #endif
 
-    ABL_VAR xy_float_t probe_position_lf, probe_position_rb;
+    ABL_VAR xy_pos_t probe_position_lf, probe_position_rb;
     ABL_VAR xy_float_t gridSpacing = { 0, 0 };
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -403,14 +403,13 @@ G29_TYPE GcodeSuite::G29() {
       }
       else {
         probe_position_lf.set(
-          parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : (_MAX(x_min, X_CENTER - (X_BED_SIZE) / 2)      + MIN_PROBE_EDGE_LEFT),
-          parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : (_MAX(y_min, Y_CENTER - (Y_BED_SIZE) / 2)      + MIN_PROBE_EDGE_FRONT)
+          parser.seenval('L') ? RAW_X_POSITION(parser.value_linear_units()) : x_min,
+          parser.seenval('F') ? RAW_Y_POSITION(parser.value_linear_units()) : y_min
         );
         probe_position_rb.set(
-          parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : (_MIN(x_max, probe_position_lf.x + X_BED_SIZE) - MIN_PROBE_EDGE_RIGHT),
-          parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : (_MIN(y_max, probe_position_lf.y + Y_BED_SIZE) - MIN_PROBE_EDGE_BACK)
+          parser.seenval('R') ? RAW_X_POSITION(parser.value_linear_units()) : x_max,
+          parser.seenval('B') ? RAW_Y_POSITION(parser.value_linear_units()) : y_max
         );
-        SERIAL_ECHOLN("Set Trail 1");
       }
 
       if (
@@ -911,8 +910,8 @@ G29_TYPE GcodeSuite::G29() {
         planner.force_unapply_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position.x, probePos.x - probe_offset.x)
-          && NEAR(current_position.y, probePos.y - probe_offset.y)
+        if ( NEAR(current_position.x, probePos.x - probe_offset_xy.x)
+          && NEAR(current_position.y, probePos.y - probe_offset_xy.y)
         ) {
           const float simple_z = current_position.z - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);

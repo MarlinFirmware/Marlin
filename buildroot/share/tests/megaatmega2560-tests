@@ -322,7 +322,7 @@ exec_test $1 $2 "RAMPS 1.3 | DELTA | FLSUN AC Config"
 #exec_test $1 $2 "Stuff"
 
 #
-# SCARA with TMC2130
+# SCARA with Mixed TMC
 #
 use_example_configs SCARA/Morgan
 opt_set LCD_LANGUAGE es
@@ -332,7 +332,7 @@ opt_enable USE_ZMIN_PLUG FIX_MOUNTED_PROBE AUTO_BED_LEVELING_BILINEAR PAUSE_BEFO
 opt_set X_MAX_ENDSTOP_INVERTING false
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2130
-opt_set Z_DRIVER_TYPE TMC2130
+opt_set Z_DRIVER_TYPE TMC2130_STANDALONE
 opt_set E0_DRIVER_TYPE TMC2660
 exec_test $1 $2 "RAMPS | SCARA | Mixed TMC | EEPROM"
 
@@ -343,7 +343,7 @@ restore_configs
 opt_set LCD_LANGUAGE vi
 opt_set X_DRIVER_TYPE TMC2160
 opt_set Y_DRIVER_TYPE TMC5160
-opt_set Z_DRIVER_TYPE TMC2208
+opt_set Z_DRIVER_TYPE TMC2208_STANDALONE
 opt_set E0_DRIVER_TYPE TMC2130
 opt_set X_MIN_ENDSTOP_INVERTING true
 opt_set Y_MIN_ENDSTOP_INVERTING true

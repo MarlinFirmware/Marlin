@@ -50,10 +50,24 @@
 #define Z_MAX_PIN          PD1
 
 //
-// Z Probe must be this pins  ##
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  PD1
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA15
+#endif
+
+//
+// Power Loss Detection
+//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN   PD4
 #endif
 
 //
@@ -155,7 +169,7 @@
 #define FAN_PIN            PB9   // Fan0
 #define FAN1_PIN           PB8   // Fan1
 
-// HAL SPI1 pins 
+// HAL SPI1 pins
 #define CUSTOM_SPI_PINS
 #if ENABLED(CUSTOM_SPI_PINS)
   #define SCK_PIN          PA5   // SPI1 SCLK
@@ -226,3 +240,19 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// RGB LEDs
+//
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN    PB5
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN    PB4
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN    PB3
+#endif
+#ifndef RGB_LED_W_PIN
+  #define RGB_LED_W_PIN    -1
+#endif

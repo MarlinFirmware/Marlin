@@ -55,7 +55,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
         .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISABLE_STEPPERS))
         .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_TEMPERATURE))
         .enabled(
-          #if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
+          #if NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
             1
           #endif
         )
