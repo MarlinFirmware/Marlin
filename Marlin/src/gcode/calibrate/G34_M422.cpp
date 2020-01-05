@@ -397,10 +397,10 @@ void GcodeSuite::G34() {
  * M422: Set a Z-Stepper automatic alignment XY point.
  *       Use repeatedly to set multiple points.
  *
- *   S<index> : Index of the probe point to set
+ *   S<index> : 1-based index of the probe point to set
  *
  * With Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS:
- *   W<index> : Index of the Z stepper position to set
+ *   W<index> : 1-based index of the Z stepper position to set.
  *              The W and S parameters may not be combined.
  *
  * S and W require an X and/or Y parameter
@@ -425,24 +425,41 @@ void GcodeSuite::M422() {
     return;
   }
 
-  // If using automatically selected points, allow printing the probe points but not setting them.
-  const bool is_probe_point = (false
-    #ifdef Z_STEPPER_ALIGN_XY
-      || parser.seen('S')
-    #endif
-  );
-
-  #ifndef Z_STEPPER_ALIGN_XY
-    if (is_probe_point) {
-      SERIAL_ECHOLNPGM("?(S) is incompatible with auto-selected probe points");
-      return;
-    }
-  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-    if (is_probe_point && parser.seen('W')) {
-      SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
-      return;
-    }
+  // If using automatically selected points, allow printing points but not setting them.
+  #ifdef Z_STEPPER_ALIGN_XY
+    const bool is_probe_point = parser.seen('S');
+  #else
+    constexpr bool is_probe_point = false;
   #endif
+
+  #if defined(Z_STEPPER_ALIGN_XY) || ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+
+    #if defined(Z_STEPPER_ALIGN_XY) && ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      if (is_probe_point && parser.seen('W')) {
+        SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
+        return;
+      }
+    #endif
+
+    if (!is_probe_point
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        && !parser.seen('W')
+      #endif
+    ) {
+      SERIAL_ECHOLNPGM("?("
+        #if defined(Z_STEPPER_ALIGN_XY) && ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          "S) or (W"
+        #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          "W"
+        #else
+          "S"
+        #endif
+        ") is required."
+      );
+      return;
+    }
+
+  #endif // Z_STEPPER_ALIGN_XY || Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS
 
   xy_pos_t *pos_dest = (
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
@@ -450,23 +467,6 @@ void GcodeSuite::M422() {
     #endif
     z_stepper_align_pos
   );
-
-  if (!is_probe_point
-    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-      && !parser.seen('W')
-    #endif
-  ) {
-    SERIAL_ECHOLNPGM(
-      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && defined Z_STEPPER_ALIGN_XY
-        "?(S) or (W) is required."
-      #elif defined(Z_STEPPER_ALIGN_XY)
-        "?(S) is required."
-      #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-        "?(W) is required."
-      #endif
-    );
-    return;
-  }
 
   // Get the Probe Position Index or Z Stepper Index
   int8_t position_index;
