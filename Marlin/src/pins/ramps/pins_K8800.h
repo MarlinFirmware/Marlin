@@ -29,8 +29,9 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME      "K8800"
-#define DEFAULT_MACHINE_NAME "Vertex Delta"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "K8800"
+#endif
 
 //#define LCD_SCREEN_ROT_180
 

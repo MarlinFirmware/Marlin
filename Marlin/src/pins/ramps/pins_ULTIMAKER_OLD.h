@@ -64,6 +64,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
+#ifndef BOARD_INFO_NAME
 #ifdef BOARD_REV_1_1_TO_1_3
   #define BOARD_INFO_NAME       "Ultimaker 1.1-1.3"
 #elif defined(BOARD_REV_1_0)
@@ -73,8 +74,11 @@
 #else
   #define BOARD_INFO_NAME       "Ultimaker 1.5.4+"
 #endif
-#define DEFAULT_MACHINE_NAME    "Ultimaker"
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#endif
+
+#ifndef DEFAULT_SOURCE_CODE_URL
+  #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#endif
 
 //
 // Limit Switches

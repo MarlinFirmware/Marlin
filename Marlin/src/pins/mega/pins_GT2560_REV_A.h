@@ -34,7 +34,6 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 Rev.A"
 #endif
-#define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
 
 //
 // Limit Switches

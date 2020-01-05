@@ -29,7 +29,9 @@
   #error "Felix 2.0+ supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "Felix 2.0+"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Felix 2.0+"
+#endif
 
 //
 // Heaters / Fans

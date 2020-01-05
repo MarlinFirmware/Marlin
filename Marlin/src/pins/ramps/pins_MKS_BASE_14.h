@@ -29,7 +29,9 @@
   #error "MKS BASE 1.4 only supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "MKS BASE 1.4"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS BASE 1.4"
+#endif
 
 //
 // Heaters / Fans

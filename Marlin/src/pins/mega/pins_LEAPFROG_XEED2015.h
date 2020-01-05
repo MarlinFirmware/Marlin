@@ -33,7 +33,9 @@
   #error "Oops! Select 'Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "Leapfrog Xeed 2015"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Leapfrog Xeed 2015"
+#endif
 
 //
 // Limit Switches

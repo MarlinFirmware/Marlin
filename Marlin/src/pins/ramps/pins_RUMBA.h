@@ -34,9 +34,6 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Rumba"
 #endif
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
-#endif
 
 //
 // Servos

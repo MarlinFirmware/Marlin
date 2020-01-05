@@ -31,7 +31,9 @@
   #error "MKS Robin pro supports up to 3 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "MKS Robin pro"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS Robin pro"
+#endif
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role

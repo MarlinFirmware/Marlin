@@ -29,7 +29,9 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "Scoovo X9H"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Scoovo X9H"
+#endif
 
 //
 // Servos

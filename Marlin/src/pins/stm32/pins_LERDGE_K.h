@@ -24,8 +24,9 @@
   #error "LERDGE K supports up to 2 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME      "Lerdge K"
-#define DEFAULT_MACHINE_NAME "LERDGE"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "Lerdge K"
+#endif
 
 #define I2C_EEPROM
 

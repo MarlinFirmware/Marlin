@@ -30,9 +30,6 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "FYSETC_S6"
 #endif
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
-#endif
 
 // change the prio to 3 , 2 is for software serial
 //#define TEMP_TIMER_IRQ_PRIO 3

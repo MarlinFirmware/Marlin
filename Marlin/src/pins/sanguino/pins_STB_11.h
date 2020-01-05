@@ -24,7 +24,8 @@
 /**
  * STB V1.1 pin assignments
  */
-
-#define BOARD_INFO_NAME "STB V1.1"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "STB V1.1"
+#ifndef BOARD_INFO_NAME
 
 #include "pins_SANGUINOLOLU_12.h"

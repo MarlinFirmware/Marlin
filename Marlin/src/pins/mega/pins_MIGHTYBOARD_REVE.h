@@ -41,8 +41,9 @@
   #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME      "Mightyboard"
-#define DEFAULT_MACHINE_NAME "MB Replicator"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "Mightyboard"
+#endif
 
 //
 // Servos

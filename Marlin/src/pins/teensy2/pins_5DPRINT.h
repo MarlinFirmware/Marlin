@@ -72,8 +72,9 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#define DEFAULT_MACHINE_NAME "Makibox"
-#define BOARD_INFO_NAME      "5DPrint D8"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "5DPrint D8"
+#endif
 
 //
 // Servos

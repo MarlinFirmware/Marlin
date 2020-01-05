@@ -21,7 +21,10 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.4 TURBO"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BIGTREE SKR 1.4 TURBO"
+#endif
+
 #define SKR_HAS_LPC1769
 
 //

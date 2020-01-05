@@ -29,7 +29,9 @@
   #error "MKS GEN L V2 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "MKS GEN L V2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS GEN L V2"
+#endif
 
 //
 // Heaters / Fans

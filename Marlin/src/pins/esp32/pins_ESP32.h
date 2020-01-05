@@ -29,7 +29,9 @@
   "Oops! Select an ESP32 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "Espressif ESP32"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Espressif ESP32"
+#endif
 
 //
 // I2S (steppers & other output-only pins)

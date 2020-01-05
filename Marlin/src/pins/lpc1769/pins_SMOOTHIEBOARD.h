@@ -29,8 +29,13 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_INFO_NAME   "Smoothieboard"
-#define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME   "Smoothieboard"
+#endif
+
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
+#endif
 
 //
 // Servos

@@ -29,7 +29,9 @@
   #error "Oops! Select an STM32 board in your IDE."
 #endif
 
-#define BOARD_INFO_NAME "Malyan M200"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Malyan M200"
+#endif
 
 // Enable EEPROM Emulation for this board
 // This setting should probably be in configuration.h

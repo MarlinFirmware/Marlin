@@ -28,7 +28,9 @@
  * Use 1k thermistor tables
  */
 
-#define BOARD_INFO_NAME "RAMPS-FD v2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RAMPS-FD v2"
+#endif
 
 #ifndef E0_CS_PIN
   #define E0_CS_PIN        69 // moved from A13 to A15 on v2.2, if not earlier

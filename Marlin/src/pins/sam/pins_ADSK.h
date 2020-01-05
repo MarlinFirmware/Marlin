@@ -25,7 +25,9 @@
  * Arduino DUE Shield Kit (ADSK) pin assignments
  */
 
-#define BOARD_INFO_NAME "ADSK"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "ADSK"
+#endif
 
 #if !defined(__SAM3X8E__) && !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"

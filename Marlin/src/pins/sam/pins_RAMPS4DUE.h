@@ -43,7 +43,10 @@
   #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "RAMPS4DUE"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "RAMPS4DUE"
+#endif
+
 #define IS_RAMPS4DUE
 
 //

@@ -32,7 +32,9 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Azteeg X5 MINI"
 #endif
-#define BOARD_WEBSITE_URL "tiny.cc/x5_mini"
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL "tiny.cc/x5_mini"
+#endif
 
 //
 // LED

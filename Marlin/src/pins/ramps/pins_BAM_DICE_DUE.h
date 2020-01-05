@@ -29,7 +29,9 @@
   #error "2PrintBeta Due supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "2PrintBeta Due"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "2PrintBeta Due"
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

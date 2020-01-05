@@ -21,6 +21,12 @@
  */
 #pragma once
 
+
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BIGTREE SKR"
+#endif
+
+
 #ifdef SKR_HAS_LPC1769
   #ifndef MCU_LPC1769
     #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."

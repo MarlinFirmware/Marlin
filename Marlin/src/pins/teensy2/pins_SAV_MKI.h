@@ -66,9 +66,13 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME         "SAV MkI"
-#define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
-#define DEFAULT_SOURCE_CODE_URL "https://tinyurl.com/onru38b"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME         "SAV MkI"
+#endif
+
+#ifndef DEFAULT_SOURCE_CODE_URL
+  #define DEFAULT_SOURCE_CODE_URL "https://tinyurl.com/onru38b"
+#endif
 
 //
 // Servos

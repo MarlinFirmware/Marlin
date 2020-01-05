@@ -30,7 +30,9 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME    "Alligator Board R2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME    "Alligator Board R2"
+#endif
 
 //
 // Servos

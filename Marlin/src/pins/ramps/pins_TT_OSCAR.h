@@ -28,8 +28,9 @@
   #error "TTOSCAR supports up to 5 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME      "TT OSCAR"
-#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "TT OSCAR"
+#endif
 
 //
 // Servos

@@ -31,7 +31,9 @@
   #error "TRONXY-V3-1.0 supports only 2 hotends/E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "TRONXY-V3-1.0"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "TRONXY-V3-1.0"
+#endif
 
 //
 // Servos

@@ -36,9 +36,14 @@
   #error "MRR ESPE currently supports only one hotend. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME      "MRR ESPE"
-#define BOARD_WEBSITE_URL    "github.com/maplerainresearch/MRR_ESPE"
-#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "MRR ESPE"
+#endif
+
+
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL    "github.com/maplerainresearch/MRR_ESPE"
+#endif
 
 //
 // Limit Switches

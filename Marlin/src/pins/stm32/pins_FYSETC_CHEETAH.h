@@ -25,10 +25,13 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define DEFAULT_MACHINE_NAME "3D Printer"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME   "FYSETC Cheetah"
+#endif
 
-#define BOARD_INFO_NAME   "FYSETC Cheetah"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL "fysetc.com"
+#endif
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

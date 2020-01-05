@@ -27,8 +27,9 @@
   #error "The-Borg supports up to 3 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME      "The-Borge"
-#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "The-Borge"
+#endif
 
 #define E2END 0xFFF   // EEPROM end address
 

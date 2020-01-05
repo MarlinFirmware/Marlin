@@ -56,7 +56,9 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644', 'ATmega644P', or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
-#define BOARD_INFO_NAME "Gen7 v1.4"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Gen7 v1.4"
+#endif
 
 #define GEN7_VERSION 14   // v1.4
 

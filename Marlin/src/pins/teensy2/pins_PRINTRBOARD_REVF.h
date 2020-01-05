@@ -71,7 +71,9 @@
   #error "USBCON should be defined by the platform for this board."
 #endif
 
-#define BOARD_INFO_NAME "Printrboard Rev.F"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Printrboard Rev.F"
+#endif
 
 // Disable JTAG pins so EXP1 pins work correctly
 // (Its pins are used for the Extrudrboard and filament sensor, for example).

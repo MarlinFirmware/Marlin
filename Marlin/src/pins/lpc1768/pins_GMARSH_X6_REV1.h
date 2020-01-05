@@ -25,8 +25,10 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#define BOARD_INFO_NAME "GMARSH X6 REV1"
-
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "GMARSH X6 REV1"
+#endif
+ 
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 

@@ -29,10 +29,6 @@
   #define BOARD_INFO_NAME "3Drag"
 #endif
 
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
-#endif
-
 #ifndef DEFAULT_SOURCE_CODE_URL
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif

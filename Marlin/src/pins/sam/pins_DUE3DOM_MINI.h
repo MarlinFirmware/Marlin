@@ -29,7 +29,9 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "DUE3DOM MINI"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "DUE3DOM MINI"
+#endif
 
 //
 // Servos

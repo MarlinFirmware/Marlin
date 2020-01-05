@@ -29,7 +29,9 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_INFO_NAME "Azteeg X5 MINI WIFI"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Azteeg X5 MINI WIFI"
+#endif
 
 //
 // DIGIPOT slave addresses

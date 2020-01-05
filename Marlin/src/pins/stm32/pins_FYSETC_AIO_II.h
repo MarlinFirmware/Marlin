@@ -25,8 +25,13 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME   "FYSETC AIO II"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME   "FYSETC AIO II"
+#endif
+
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL "fysetc.com"
+#endif
 
 #define DISABLE_JTAG
 

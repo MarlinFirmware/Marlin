@@ -29,8 +29,13 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
+#ifndef BOARD_INFO_NAME
 #define BOARD_INFO_NAME   "TH3D EZBoard"
-#define BOARD_WEBSITE_URL "th3dstudio.com"
+#endif
+
+#ifndef BOARD_WEBSITE_URL
+  #define BOARD_WEBSITE_URL "th3dstudio.com"
+#endif
 
 //
 // Servos

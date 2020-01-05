@@ -24,8 +24,9 @@
 /**
  * Arduino Mega with RAMPS v1.3 for Anycubic
  */
-
-#define BOARD_INFO_NAME "Anycubic RAMPS 1.3"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Anycubic RAMPS 1.3"
+#endif
 
 #define IS_RAMPS_EFB
 #define RAMPS_D9_PIN         44

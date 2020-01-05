@@ -38,7 +38,10 @@
   #error "Minitronics supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "Minitronics v1.0/1.1"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Minitronics v1.0/1.1"
+#endif
+
 //
 // Limit Switches
 //

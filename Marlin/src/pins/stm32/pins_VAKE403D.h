@@ -27,8 +27,10 @@
   #error "STM32F4 supports up to 2 hotends / E-steppers."
 #endif
 
-#define DEFAULT_MACHINE_NAME "STM32F446VET6"
-#define BOARD_NAME           "STM32F4 VAkE"
+// "STM32F446VET6"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME           "STM32F4 VAkE"
+#endif
 
 //#define I2C_EEPROM
 

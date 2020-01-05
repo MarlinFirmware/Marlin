@@ -29,7 +29,9 @@
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
-#define BOARD_INFO_NAME "Cohesion3D ReMix"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Cohesion3D ReMix"
+#endif
 
 //
 // Servos

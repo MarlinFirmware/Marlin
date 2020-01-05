@@ -41,7 +41,9 @@
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "Archim 1.0"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Archim 1.0"
+#endif
 
 //
 // Timers
