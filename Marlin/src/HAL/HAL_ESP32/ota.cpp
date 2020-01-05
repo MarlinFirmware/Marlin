@@ -21,7 +21,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(OTASUPPORT)
+#if ENABLED(OTASUPPORT) && ENABLED(WIFISUPPORT)
 
 #include <WiFi.h>
 #include <ESPmDNS.h>

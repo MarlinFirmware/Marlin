@@ -28,6 +28,9 @@
 #include "gcode.h"
 GcodeSuite gcode;
 
+#if ENABLED(CUSTOM_COMMAND)
+	extern bool custom_command(char * command_ptr);
+#endif
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
@@ -841,7 +844,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
     case 'T': T(parser.codenum); break;                           // Tn: Tool Change
 
-    default: parser.unknown_command_error();
+    default:
+    #if ENABLED(CUSTOM_COMMAND)
+	      if (custom_command(parser.command_ptr))break;
+    #endif
+	      parser.unknown_command_error();
   }
 
   if (!no_ok) queue.ok_to_send();

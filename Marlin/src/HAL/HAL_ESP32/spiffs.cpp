@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(WEBSUPPORT)
+#if ENABLED(WEBSUPPORT) && ENABLED(WIFISUPPORT)
 
 #include "../../core/serial.h"
 

@@ -35,8 +35,13 @@
 #include "i2s.h"
 
 #include "timers.h"
+#if ENABLED(WIFISUPPORT)
+	#include "WebSocketSerial.h"
+#endif
+#if ENABLED(ESP3D_WIFISUPPORT)
+	#include "esp3dlib.h"
+#endif
 
-#include "WebSocketSerial.h"
 #include "FlushableHardwareSerial.h"
 
 // ------------------------
@@ -47,10 +52,15 @@ extern portMUX_TYPE spinlock;
 
 #define MYSERIAL0 flushableSerial
 
-#if ENABLED(WIFISUPPORT)
-  #define MYSERIAL1 webSocketSerial
+#if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #define NUM_SERIAL 2
-#else
+  #if ENABLED(WIFISUPPORT)
+    #define MYSERIAL1 webSocketSerial
+  #endif
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    #define MYSERIAL1 Serial2Socket
+  #endif
+#else 
   #define NUM_SERIAL 1
 #endif
 

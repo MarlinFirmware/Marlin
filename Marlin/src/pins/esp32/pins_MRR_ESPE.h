@@ -135,7 +135,7 @@
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define BEEPER_PIN      152
+    #define BEEPER_PIN      151
 
     //#define LCD_PINS_D5     150
     //#define LCD_PINS_D6     151
