@@ -60,7 +60,7 @@
     );
   #endif
 
-  constexpr xy_pos_t test_z_stepper_align_stepper_xy[][XY] = Z_STEPPER_ALIGN_STEPPER_XY;
+  constexpr xy_pos_t test_z_stepper_align_stepper_xy[] = Z_STEPPER_ALIGN_STEPPER_XY;
   static_assert(
     COUNT(test_z_stepper_align_stepper_xy) == Z_STEPPER_COUNT,
     "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
