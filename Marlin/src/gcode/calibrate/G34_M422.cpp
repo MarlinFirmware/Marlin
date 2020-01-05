@@ -48,13 +48,13 @@
 //
 // Sanity check G34 / M422 settings
 //
-#if defined(Z_STEPPER_ALIGN_XY)
+#ifdef Z_STEPPER_ALIGN_XY
   constexpr xy_pos_t test_z_stepper_align_xy[] = Z_STEPPER_ALIGN_XY;
 #endif
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
 
-  #if defined(Z_STEPPER_ALIGN_XY)
+  #ifdef Z_STEPPER_ALIGN_XY
     static_assert(COUNT(test_z_stepper_align_xy) >= Z_STEPPER_COUNT,
       "Z_STEPPER_ALIGN_XY requires at least three {X,Y} entries (Z, Z2, Z3, ...)."
     );
@@ -78,7 +78,7 @@
 
 #endif
 
-#if defined(Z_STEPPER_ALIGN_XY)
+#ifdef Z_STEPPER_ALIGN_XY
   constexpr xyz_pos_t dpo = NOZZLE_TO_PROBE_OFFSET;
 
   #define LTEST(N) (test_z_stepper_align_xy[N].x >= _MAX(X_MIN_BED + MIN_PROBE_EDGE_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
@@ -426,12 +426,11 @@ void GcodeSuite::M422() {
   }
 
   // If using automatically selected points, allow printing the probe points but not setting them.
-  const bool is_probe_point =
-  #if defined(Z_STEPPER_ALIGN_XY)
-    parser.seen('S');
-  #else
-    false;    
-  #endif
+  const bool is_probe_point = (false
+    #ifdef Z_STEPPER_ALIGN_XY
+      || parser.seen('S')
+    #endif
+  );
 
   #ifndef Z_STEPPER_ALIGN_XY
     if (is_probe_point) {
