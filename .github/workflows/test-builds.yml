@@ -94,6 +94,8 @@ jobs:
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
+        # Inline tests script
+        [[ "$GITHUB_ACTOR" == 'MarlinFirmware' ]] || exit 0
         chmod +x buildroot/bin/*
         chmod +x buildroot/share/tests/*
         export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}

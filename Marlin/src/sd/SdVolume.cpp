@@ -33,7 +33,7 @@
 
 #include "SdVolume.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if !USE_MULTIPLE_CARDS
   // raw block cache

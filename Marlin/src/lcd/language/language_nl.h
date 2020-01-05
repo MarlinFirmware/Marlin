@@ -125,7 +125,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Geheugen laden");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Noodstop reset");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ververs");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info scherm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info scherm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Voorbereiden");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Afstellen");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Print pauzeren");

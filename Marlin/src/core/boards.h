@@ -90,17 +90,18 @@
 #define BOARD_RAMPS_ENDER_4           1134  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1135  // Creality: CR10S, CR20, CR-X
 #define BOARD_RAMPS_DAGOMA            1136  // Dagoma F5
-#define BOARD_FYSETC_F6_13            1137  // FYSETC F6
-#define BOARD_DUPLICATOR_I3_PLUS      1138  // Wanhao Duplicator i3 Plus
-#define BOARD_VORON                   1139  // VORON Design
-#define BOARD_TRONXY_V3_1_0           1140  // Tronxy TRONXY-V3-1.0
-#define BOARD_Z_BOLT_X_SERIES         1141  // Z-Bolt X Series
-#define BOARD_TT_OSCAR                1142  // TT OSCAR
-#define BOARD_OVERLORD                1143  // Overlord/Overlord Pro
-#define BOARD_HJC2560C_REV1           1144  // ADIMLab Gantry v1
-#define BOARD_HJC2560C_REV2           1145  // ADIMLab Gantry v2
-#define BOARD_TANGO                   1146  // BIQU Tango V1
-#define BOARD_MKS_GEN_L_V2            1147  // MKS GEN L V2
+#define BOARD_FYSETC_F6_13            1137  // FYSETC F6 1.3
+#define BOARD_FYSETC_F6_14            1138  // FYSETC F6 1.4
+#define BOARD_DUPLICATOR_I3_PLUS      1139  // Wanhao Duplicator i3 Plus
+#define BOARD_VORON                   1140  // VORON Design
+#define BOARD_TRONXY_V3_1_0           1141  // Tronxy TRONXY-V3-1.0
+#define BOARD_Z_BOLT_X_SERIES         1142  // Z-Bolt X Series
+#define BOARD_TT_OSCAR                1143  // TT OSCAR
+#define BOARD_OVERLORD                1144  // Overlord/Overlord Pro
+#define BOARD_HJC2560C_REV1           1145  // ADIMLab Gantry v1
+#define BOARD_HJC2560C_REV2           1146  // ADIMLab Gantry v2
+#define BOARD_TANGO                   1147  // BIQU Tango V1
+#define BOARD_MKS_GEN_L_V2            1148  // MKS GEN L V2
 
 //
 // RAMBo and derivatives
@@ -138,6 +139,7 @@
 #define BOARD_GT2560_V3_A20           1318  // Geeetech GT2560 Rev B for A20(M/D)
 #define BOARD_EINSTART_S              1319  // Einstart retrofit
 #define BOARD_WANHAO_ONEPLUS          1320  // Wanhao 0ne+ i3 Mini
+#define BOARD_LEAPFROG_XEED2015       1321  // Leapfrog Xeed 2015
 
 //
 // ATmega1281, ATmega2561
@@ -201,22 +203,28 @@
 #define BOARD_RAMPS_14_RE_ARM_SF      2004  // Re-ARM with RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
 #define BOARD_MKS_SBASE               2005  // MKS-Sbase (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_AZSMZ_MINI              2006  // AZSMZ Mini
-#define BOARD_AZTEEG_X5_GT            2007  // Azteeg X5 GT (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_BIQU_BQ111_A4           2008  // BIQU BQ111-A4 (Power outputs: Hotend, Fan, Bed)
-#define BOARD_SELENA_COMPACT          2009  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
-#define BOARD_COHESION3D_REMIX        2010  // Cohesion3D ReMix
-#define BOARD_COHESION3D_MINI         2011  // Cohesion3D Mini
-#define BOARD_SMOOTHIEBOARD           2012  // Smoothieboard
-#define BOARD_AZTEEG_X5_MINI_WIFI     2013  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_BIQU_B300_V1_0          2014  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
-#define BOARD_AZTEEG_X5_MINI          2015  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_MKS_SGEN                2016  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_MKS_SGEN_L              2017  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_TH3D_EZBOARD            2018  // TH3D EZBoard v1.0
-#define BOARD_GMARSH_X6_REV1          2019  // GMARSH X6 board, revision 1 prototype
-#define BOARD_BIGTREE_SKR_V1_1        2020  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_BIGTREE_SKR_V1_3        2021  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_BIGTREE_SKR_V1_4        2022  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BIQU_BQ111_A4           2007  // BIQU BQ111-A4 (Power outputs: Hotend, Fan, Bed)
+#define BOARD_SELENA_COMPACT          2008  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
+#define BOARD_BIQU_B300_V1_0          2009  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
+#define BOARD_MKS_SGEN_L              2010  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_GMARSH_X6_REV1          2011  // GMARSH X6 board, revision 1 prototype
+#define BOARD_BIGTREE_SKR_V1_1        2012  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BIGTREE_SKR_V1_3        2013  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BIGTREE_SKR_V1_4        2014  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+
+//
+// LPC1769 ARM Cortex M3
+//
+
+#define BOARD_MKS_SGEN                2500  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_AZTEEG_X5_GT            2501  // Azteeg X5 GT (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_AZTEEG_X5_MINI          2502  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_AZTEEG_X5_MINI_WIFI     2503  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_COHESION3D_REMIX        2504  // Cohesion3D ReMix
+#define BOARD_COHESION3D_MINI         2505  // Cohesion3D Mini
+#define BOARD_SMOOTHIEBOARD           2506  // Smoothieboard
+#define BOARD_TH3D_EZBOARD            2507  // TH3D EZBoard v1.0
+#define BOARD_BIGTREE_SKR_V1_4_TURBO  2508  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 //
 // SAM3X8E ARM Cortex M3

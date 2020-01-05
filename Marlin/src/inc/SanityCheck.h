@@ -424,6 +424,8 @@
   #error "FILAMENT_UNLOAD_DELAY is now FILAMENT_UNLOAD_PURGE_DELAY. Please update Configuration_adv.h."
 #elif defined(HOME_USING_SPREADCYCLE)
   #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
+#elif defined(DGUS_LCD)
+  #error "DGUS_LCD is now DGUS_LCD_UI_(ORIGIN|FYSETC|HIPRECY). Please update your configuration."
 #endif
 
 /**
@@ -1149,6 +1151,20 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_MIN_PROBE_PIN must be defined if Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is not enabled."
   #endif
 
+  #if ENABLED(NOZZLE_AS_PROBE)
+    constexpr float sanity_nozzle_to_probe_offset[] = NOZZLE_TO_PROBE_OFFSET;
+    static_assert(sanity_nozzle_to_probe_offset[0] == 0.0 && sanity_nozzle_to_probe_offset[1] == 0.0,
+                  "NOZZLE_AS_PROBE requires the X,Y offsets in NOZZLE_TO_PROBE_OFFSET to be 0,0.");
+  #endif
+
+  #if DISABLED(NOZZLE_AS_PROBE)
+    static_assert(MIN_PROBE_EDGE >= 0, "MIN_PROBE_EDGE must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_BACK >= 0, "MIN_PROBE_EDGE_BACK must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_FRONT >= 0, "MIN_PROBE_EDGE_FRONT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_LEFT >= 0, "MIN_PROBE_EDGE_LEFT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_RIGHT >= 0, "MIN_PROBE_EDGE_RIGHT must be >= 0.");
+  #endif
+
   /**
    * Make sure Z raise values are set
    */
@@ -1852,7 +1868,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(IS_RRD_FG_SC)) \
   + (ENABLED(ULTRA_LCD) && DISABLED(IS_ULTRA_LCD)) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
-  + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)) \
+  + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
   + (ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(IS_RRW_KEYPAD)) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (ENABLED(ULTIPANEL) && DISABLED(IS_ULTIPANEL)) \
@@ -1881,6 +1897,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(LCD_FOR_MELZI) \
   + ENABLED(ULTI_CONTROLLER) \
   + ENABLED(MKS_MINI_12864) \
+  + ENABLED(ENDER2_STOCKDISPLAY) \
   + ENABLED(FYSETC_MINI_12864_X_X) \
   + ENABLED(FYSETC_MINI_12864_1_2) \
   + ENABLED(FYSETC_MINI_12864_2_0) \
@@ -1895,7 +1912,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(OVERLORD_OLED) \
-  + ENABLED(DGUS_LCD) \
+  + ENABLED(DGUS_LCD_UI_ORIGIN) \
+  + ENABLED(DGUS_LCD_UI_FYSETC) \
+  + ENABLED(DGUS_LCD_UI_HIPRECY) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(TOUCH_UI_FTDI_EVE) \
   + ENABLED(FSMC_GRAPHICAL_TFT)

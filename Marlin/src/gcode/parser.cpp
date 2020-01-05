@@ -26,7 +26,7 @@
 
 #include "parser.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if NUM_SERIAL > 1
   #include "queue.h"
