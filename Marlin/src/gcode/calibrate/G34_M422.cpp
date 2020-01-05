@@ -252,7 +252,9 @@ void GcodeSuite::G34() {
     uint8_t iteration;
     bool err_break = false;
 
-    bool adjustment_reverse = false;
+    #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      bool adjustment_reverse = false;
+    #endif
 
     for (iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> probing all positions.");
@@ -355,7 +357,12 @@ void GcodeSuite::G34() {
         // Check for less accuracy compared to last move
         if (last_z_align_move[zstepper] < z_align_abs -  z_auto_align_accuracy)  {
           SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
-          adjustment_reverse = !adjustment_reverse;
+          #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+            adjustment_reverse = !adjustment_reverse;
+          #else
+            err_break = true;
+            break;
+          #endif
         }
 
         // Remember the alignment for the next iteration
@@ -376,10 +383,12 @@ void GcodeSuite::G34() {
           #endif
         }
 
-        // Decreasing accuracy was detected so move was inverted.
-        // Will match reversed Z steppers on dual steppers. Triple will need more work to map.
-        if (adjustment_reverse)
-          z_align_move = -z_align_move;
+        #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          // Decreasing accuracy was detected so move was inverted.
+          // Will match reversed Z steppers on dual steppers. Triple will need more work to map.
+          if (adjustment_reverse)
+            z_align_move = -z_align_move;
+        #endif
 
         // Do a move to correct part of the misalignment for the current stepper
         do_blocking_move_to_z(amplification * z_align_move + current_position.z);
