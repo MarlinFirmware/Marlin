@@ -29,8 +29,3 @@ jobs:
               Please redo this PR starting with the `bugfix-2.0.x` branch and be careful to target `bugfix-2.0.x` when resubmitting the PR.</p> \
               <p>It may help to set your fork's default branch to `bugfix-2.0.x`.</p> \
               <p>See <a href='http://marlinfw.org/docs/development/getting_started_pull_requests.html' target='_blank'>this page</a> for full instructions.</p>"
-
-    - name: Apply Labels
-      uses: actions/labeler@v2
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
