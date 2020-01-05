@@ -99,7 +99,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Lataa muistista");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Palauta oletus");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Päivitä");
-  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Seuraa");
+  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Seuraa");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Valmistele");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Säädä");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Keskeytä tulostus");

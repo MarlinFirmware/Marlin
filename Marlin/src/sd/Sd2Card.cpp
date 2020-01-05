@@ -38,7 +38,7 @@
 
 #include "Sd2Card.h"
 
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 
 #if ENABLED(SD_CHECK_AND_RETRY)
   static bool crcSupported = true;

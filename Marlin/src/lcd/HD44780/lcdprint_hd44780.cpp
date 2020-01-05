@@ -17,7 +17,7 @@
 #if HAS_CHARACTER_LCD
 
 #include "../ultralcd.h"
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 
 #include "ultralcd_HD44780.h"
 

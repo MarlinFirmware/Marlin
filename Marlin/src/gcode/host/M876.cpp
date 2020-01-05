@@ -25,7 +25,7 @@
 
 #include "../../feature/host_actions.h"
 #include "../gcode.h"
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 
 /**
  * M876: Handle Prompt Response

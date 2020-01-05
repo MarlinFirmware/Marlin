@@ -33,7 +33,7 @@ GCodeQueue queue;
 #include "../sd/cardreader.h"
 #include "../module/planner.h"
 #include "../module/temperature.h"
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"

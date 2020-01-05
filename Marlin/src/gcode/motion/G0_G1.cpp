@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 
 #if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
   #include "../../feature/fwretract.h"

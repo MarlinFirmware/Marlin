@@ -138,7 +138,7 @@
     #define LCD_PINS_D7    PB5
     #define ADC_KEYPAD_PIN PA1    // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ENABLED(MKS_MINI_12864)
 
     /** Creality Ender-2 display pinout
      *                   _____
@@ -163,7 +163,7 @@
 
   #else
 
-    #error "Only ZONESTAR_LCD, MKS_MINI_12864, ENDER2_STOCKDISPLAY, and CR10_STOCKDISPLAY are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3."
 
   #endif
 

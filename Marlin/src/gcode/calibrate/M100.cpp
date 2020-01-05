@@ -28,7 +28,7 @@
 #include "../queue.h"
 #include "../../libs/hex_print_routines.h"
 
-#include "../../MarlinCore.h" // for idle()
+#include "../../Marlin.h" // for idle()
 
 /**
  * M100 Free Memory Watcher

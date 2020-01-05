@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 #include "../../module/planner.h"
 
 #if DISABLED(NO_VOLUMETRICS)

@@ -25,7 +25,7 @@
 #if ENABLED(PINS_DEBUGGING)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
+#include "../../Marlin.h" // for pin_is_protected
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 

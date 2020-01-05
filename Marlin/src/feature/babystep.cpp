@@ -25,7 +25,7 @@
 #if ENABLED(BABYSTEPPING)
 
 #include "babystep.h"
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 #include "../module/planner.h"
 #include "../module/stepper.h"
 

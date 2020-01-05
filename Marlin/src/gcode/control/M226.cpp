@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected and idle()
+#include "../../Marlin.h" // for pin_is_protected and idle()
 #include "../../module/stepper.h"
 
 /**

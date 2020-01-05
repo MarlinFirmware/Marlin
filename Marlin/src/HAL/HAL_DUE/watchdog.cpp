@@ -23,7 +23,7 @@
 #ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 #include "watchdog.h"
 
 // Override Arduino runtime to either config or disable the watchdog

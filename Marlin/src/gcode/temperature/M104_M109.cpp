@@ -30,7 +30,7 @@
 #include "../../module/planner.h"
 #include "../../lcd/ultralcd.h"
 
-#include "../../MarlinCore.h" // for startOrResumeJob, etc.
+#include "../../Marlin.h" // for startOrResumeJob, etc.
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"

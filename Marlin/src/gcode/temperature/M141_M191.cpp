@@ -38,7 +38,7 @@
   #include "../../feature/leds/leds.h"
 #endif
 
-#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
+#include "../../Marlin.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
  * M141: Set chamber temperature

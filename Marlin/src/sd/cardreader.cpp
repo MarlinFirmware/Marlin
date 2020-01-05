@@ -26,7 +26,7 @@
 
 #include "cardreader.h"
 
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 #include "../lcd/ultralcd.h"
 #include "../module/planner.h"
 #include "../module/printcounter.h"

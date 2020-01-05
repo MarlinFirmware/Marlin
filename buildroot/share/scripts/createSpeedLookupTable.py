@@ -22,7 +22,7 @@ timer_freq = cpu_freq / args.divider
 print("#ifndef SPEED_LOOKUPTABLE_H")
 print("#define SPEED_LOOKUPTABLE_H")
 print()
-print('#include "MarlinCore.h"')
+print('#include "Marlin.h"')
 print()
 
 print("const uint16_t speed_lookuptable_fast[256][2] PROGMEM = {")
