@@ -98,7 +98,7 @@ Stepper stepper; // Singleton
 #include "../core/language.h"
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
 #if MB(ALLIGATOR)
@@ -1405,6 +1405,9 @@ void Stepper::isr() {
   ENABLE_ISRS();
 }
 
+#define ISR_PULSE_CONTROL (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+#define ISR_MULTI_STEPS (ISR_PULSE_CONTROL && DISABLED(I2S_STEPPER_STREAM))
+
 /**
  * This phase of the ISR should ONLY create the pulses for the steppers.
  * This prevents jitter caused by the interval between the start of the
@@ -1435,9 +1438,11 @@ void Stepper::stepper_pulse_phase_isr() {
   step_events_completed += events_to_do;
 
   // Take multiple steps per interrupt (For high speed moves)
-  bool firstStep = true;
+  #if ISR_MULTI_STEPS
+    bool firstStep = true;
+    hal_timer_t end_tick_count = 0;
+  #endif
   xyze_bool_t step_needed{0};
-  hal_timer_t end_tick_count = 0;
 
   do {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
@@ -1494,7 +1499,7 @@ void Stepper::stepper_pulse_phase_isr() {
       PULSE_PREP(E);
     #endif
 
-    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    #if ISR_MULTI_STEPS
       if (firstStep)
         firstStep = false;
       else
@@ -1525,7 +1530,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #endif
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    #if ISR_MULTI_STEPS
       START_HIGH_PULSE();
       AWAIT_HIGH_PULSE();
     #endif
@@ -1558,7 +1563,7 @@ void Stepper::stepper_pulse_phase_isr() {
       #endif  // !MIXING_EXTRUDER
     #endif // !LIN_ADVANCE
 
-    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    #if ISR_MULTI_STEPS
       if (events_to_do) START_LOW_PULSE();
     #endif
 
@@ -1947,11 +1952,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
     //const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
-    bool firstStep = true;
-    hal_timer_t end_tick_count = 0;
+    #if ISR_MULTI_STEPS
+      bool firstStep = true;
+      hal_timer_t end_tick_count = 0;
+    #endif
 
     while (LA_steps) {
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      #if ISR_MULTI_STEPS
         if (firstStep)
           firstStep = false;
         else
@@ -1966,13 +1973,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+      #if ISR_PULSE_CONTROL
         START_HIGH_PULSE();
       #endif
 
       LA_steps < 0 ? ++LA_steps : --LA_steps;
 
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+      #if ISR_PULSE_CONTROL
         AWAIT_HIGH_PULSE();
       #endif
 
@@ -1985,7 +1992,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+      #if ISR_PULSE_CONTROL
         if (LA_steps) START_LOW_PULSE();
       #endif
     } // LA_steps

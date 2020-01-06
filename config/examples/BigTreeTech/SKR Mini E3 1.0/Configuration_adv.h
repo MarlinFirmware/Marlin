@@ -1150,7 +1150,7 @@
      *
      * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
      */
-    //#define SDCARD_CONNECTION LCD
+    #define SDCARD_CONNECTION ONBOARD
   #endif
 
 #endif // SDSUPPORT
@@ -1242,6 +1242,44 @@
   //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_GRAPHICAL_LCD
+
+//
+// Additional options for DGUS / DWIN displays
+//
+#if HAS_DGUS_LCD
+  #define DGUS_SERIAL_PORT 2
+  #define DGUS_BAUDRATE 115200
+
+  #define DGUS_RX_BUFFER_SIZE 128
+  #define DGUS_TX_BUFFER_SIZE 48
+  //#define DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS  // Fix Rx overrun situation (Currently only for AVR)
+
+  #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
+  #define BOOTSCREEN_TIMEOUT      3000    // (ms) Duration to display the boot screen
+
+  #if EITHER(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+    #define DGUS_PRINT_FILENAME           // Display the filename during printing
+    #define DGUS_PREHEAT_UI               // Display a preheat screen during heatup
+
+    #if ENABLED(DGUS_LCD_UI_FYSETC)
+      //#define DUGS_UI_MOVE_DIS_OPTION   // Disabled by default for UI_FYSETC
+    #else
+      #define DUGS_UI_MOVE_DIS_OPTION     // Enabled by default for UI_HIPRECY
+    #endif
+
+    #define DGUS_FILAMENT_LOADUNLOAD
+    #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
+      #define DGUS_FILAMENT_PURGE_LENGTH 10
+      #define DGUS_FILAMENT_LOAD_LENGTH_PER_TIME 0.5 // (mm) Adjust in proportion to DGUS_UPDATE_INTERVAL_MS
+    #endif
+
+    #define DGUS_UI_WAITING               // Show a "waiting" screen between some screens
+    #if ENABLED(DGUS_UI_WAITING)
+      #define DGUS_UI_WAITING_STATUS 10
+      #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
+    #endif
+  #endif
+#endif // HAS_DGUS_LCD
 
 //
 // Touch UI for the FTDI Embedded Video Engine (EVE)
@@ -1438,7 +1476,8 @@
  * Override MIN_PROBE_EDGE for each side of the build plate
  * Useful to get probe points to exact positions on targets or
  * to allow leveling to avoid plate clamps on only specific
- * sides of the bed.
+ * sides of the bed. With NOZZLE_AS_PROBE negative values are
+ * allowed, to permit probing outside the bed.
  *
  * If you are replacing the prior *_PROBE_BED_POSITION options,
  * LEFT and FRONT values in most cases will map directly over
@@ -1573,16 +1612,16 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+  #define BLOCK_BUFFER_SIZE 32 // maximize block buffer
 #endif
 
 // @section serial
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define BUFSIZE 32
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -1591,7 +1630,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 32
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1754,6 +1793,7 @@
   #define FILAMENT_UNLOAD_PURGE_RETRACT       13  // (mm) Unload initial retract length.
   #define FILAMENT_UNLOAD_PURGE_DELAY       5000  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         8  // (mm) An unretract is done, then this length is purged.
+  #define FILAMENT_UNLOAD_PURGE_FEEDRATE      25  // (mm/s) feedrate to purge before unload
 
   #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
   #define FILAMENT_CHANGE_ALERT_BEEPS         10  // Number of alert beeps to play when a response is needed.
@@ -2723,7 +2763,11 @@
   #define JOY_Z_PIN   12  // RAMPS: Suggested pin A12 on AUX2
   #define JOY_EN_PIN  44  // RAMPS: Suggested pin D44 on AUX2
 
-  // Use M119 to find reasonable values after connecting your hardware:
+  //#define INVERT_JOY_X  // Enable if X direction is reversed
+  //#define INVERT_JOY_Y  // Enable if Y direction is reversed
+  //#define INVERT_JOY_Z  // Enable if Z direction is reversed
+
+  // Use M119 with JOYSTICK_DEBUG to find reasonable values after connecting:
   #define JOY_X_LIMITS { 5600, 8190-100, 8190+100, 10800 } // min, deadzone start, deadzone end, max
   #define JOY_Y_LIMITS { 5600, 8250-100, 8250+100, 11000 }
   #define JOY_Z_LIMITS { 4800, 8080-100, 8080+100, 11550 }

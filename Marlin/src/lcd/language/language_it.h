@@ -312,7 +312,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Schermata info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Schermata info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Regola");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Avvia stampa");

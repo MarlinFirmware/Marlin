@@ -516,9 +516,9 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 10.00
-  #define DEFAULT_bedKi .023
-  #define DEFAULT_bedKd 305.4
+  //#define DEFAULT_bedKp 10.00
+  //#define DEFAULT_bedKi .023
+  //#define DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -527,6 +527,9 @@
   //#define DEFAULT_bedKd 1675.16
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+  #define DEFAULT_bedKp 50.71
+  #define DEFAULT_bedKi 9.88
+  #define DEFAULT_bedKd 173.43
 #endif // PIDTEMPBED
 
 // @section extruder
@@ -845,6 +848,12 @@
 //#define FIX_MOUNTED_PROBE
 
 /**
+ * Use the nozzle as the probe, as with a conductive
+ * nozzle system or a piezo-electric smart effector.
+ */
+//#define NOZZLE_AS_PROBE
+
+/**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
 //#define Z_PROBE_SERVO_NR 0       // Defaults to SERVO 0 connector.
@@ -912,7 +921,8 @@
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 
-// Certain types of probes need to stay away from edges
+// Most probes should stay away from the edges of the bed, but
+// with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
@@ -1199,7 +1209,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 5
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1940,6 +1950,11 @@
 #define CR10_STOCKDISPLAY
 
 //
+// Ender-2 OEM display, a variant of the MKS_MINI_12864
+//
+//#define ENDER2_STOCKDISPLAY
+
+//
 // ANET and Tronxy Graphical Controller
 //
 // Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
@@ -2007,9 +2022,11 @@
 //=============================================================================
 
 //
-// DGUS Touch Display with DWIN OS
+// DGUS Touch Display with DWIN OS. (Choose one.)
 //
-//#define DGUS_LCD
+//#define DGUS_LCD_UI_ORIGIN
+//#define DGUS_LCD_UI_FYSETC
+//#define DGUS_LCD_UI_HIPRECY
 
 //
 // Touch-screen LCD for Malyan M200 printers

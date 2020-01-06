@@ -28,6 +28,13 @@
 #include "../../inc/MarlinConfigPre.h"
 
 constexpr bool
+  #if HAS_DGUS_LCD
+    bDGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS = (false
+      #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
+        || true
+      #endif
+    ),
+  #endif
   bSERIAL_XON_XOFF = (false
     #if ENABLED(SERIAL_XON_XOFF)
       || true

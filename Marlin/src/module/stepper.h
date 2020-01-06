@@ -67,7 +67,7 @@
 #ifdef CPU_32_BIT
   /**
    * Duration of START_TIMED_PULSE
-   * 
+   *
    * ...as measured on an LPC1768 with a scope and converted to cycles.
    * Not applicable to other 32-bit processors, but as long as others
    * take longer, pulses will be longer. For example the SKR Pro
