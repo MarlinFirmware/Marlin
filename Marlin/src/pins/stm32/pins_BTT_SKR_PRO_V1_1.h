@@ -79,19 +79,33 @@
   #define Z_CS_PIN         PB9
 #endif
 
-#define E0_STEP_PIN        PE14
-#define E0_DIR_PIN         PA0
-#define E0_ENABLE_PIN      PC3
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN        PB3
+#define Z2_STEP_PIN        PE14
+#define Z2_DIR_PIN         PA0
+#define Z2_ENABLE_PIN      PC3
+#ifndef Z2_CS_PIN
+  #define Z2_CS_PIN        PB3
 #endif
 
-#define E1_STEP_PIN        PD15
-#define E1_DIR_PIN         PE7
-#define E1_ENABLE_PIN      PA3
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN        PG15
+#define E0_STEP_PIN        PD15
+#define E0_DIR_PIN         PE7
+#define E0_ENABLE_PIN      PA3
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        PG15
 #endif
+
+// #define E0_STEP_PIN        PE14
+// #define E0_DIR_PIN         PA0
+// #define E0_ENABLE_PIN      PC3
+// #ifndef E0_CS_PIN
+//   #define E0_CS_PIN        PB3
+// #endif
+
+// #define E1_STEP_PIN        PD15
+// #define E1_DIR_PIN         PE7
+// #define E1_ENABLE_PIN      PA3
+// #ifndef E1_CS_PIN
+//   #define E1_CS_PIN        PG15
+// #endif
 
 #define E2_STEP_PIN        PD13
 #define E2_DIR_PIN         PG9
