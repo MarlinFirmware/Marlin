@@ -58,16 +58,16 @@ static inline void _lcd_goto_next_corner() {
   line_to_z(LEVEL_CORNERS_Z_HOP);
   switch (bed_corner) {
     case 0:
-      current_position.set(X_MIN_BED + LEVEL_CORNERS_INSET, Y_MIN_BED + LEVEL_CORNERS_INSET);
+      current_position.set(X_MIN_BED + _MAX(LEVEL_CORNERS_INSET, LEVEL_CORNERS_INSET_LEFT), Y_MIN_BED + _MAX(LEVEL_CORNERS_INSET, LEVEL_CORNERS_INSET_FRONT));
       break;
     case 1:
-      current_position.x = X_MAX_BED - (LEVEL_CORNERS_INSET);
+      current_position.x = X_MAX_BED - (_MAX(LEVEL_CORNERS_INSET, LEVEL_CORNERS_INSET_RIGHT));
       break;
     case 2:
-      current_position.y = Y_MAX_BED - (LEVEL_CORNERS_INSET);
+      current_position.y = Y_MAX_BED - (_MAX(LEVEL_CORNERS_INSET, LEVEL_CORNERS_INSET_BACK));
       break;
     case 3:
-      current_position.x = X_MIN_BED + LEVEL_CORNERS_INSET;
+      current_position.x = X_MIN_BED + _MAX(LEVEL_CORNERS_INSET, LEVEL_CORNERS_INSET_LEFT);
       break;
     #if ENABLED(LEVEL_CENTER_TOO)
       case 4:
