@@ -1289,7 +1289,7 @@
 //#define LEVEL_BED_CORNERS
 
 #if ENABLED(LEVEL_BED_CORNERS)
-   #define LEVEL_CORNERS_INSET  0 // (mm) An inset for all sides corner leveling if this value is larger then the individual sides it is used
+  #define LEVEL_CORNERS_INSET  0 // (mm) An inset for all sides corner leveling if this value is larger then the individual sides it is used
   #define LEVEL_CORNERS_INSET_LEFT  30 // (mm) An inset left for corner leveling
   #define LEVEL_CORNERS_INSET_RIGHT  30 // (mm) An inset right for corner leveling
   #define LEVEL_CORNERS_INSET_FRONT  30 // (mm) An inset front for corner leveling
