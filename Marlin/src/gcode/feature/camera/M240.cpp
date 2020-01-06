@@ -31,8 +31,8 @@
   millis_t chdk_timeout; // = 0
 #endif
 
-#ifdef PHOTO_POSITION && PHOTO_DELAY_MS > 0
-  #include "../../../Marlin.h" // for idle()
+#if defined(PHOTO_POSITION) && PHOTO_DELAY_MS > 0
+  #include "../../../MarlinCore.h" // for idle()
 #endif
 
 #ifdef PHOTO_RETRACT_MM

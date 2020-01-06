@@ -51,7 +51,7 @@
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START();
           SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
-          SERIAL_ECHOLNPAIR_F(" Z", z_values[x][y], 4);
+          SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
           serial_delay(75); // Prevent Printrun from exploding
         }
   }
@@ -176,7 +176,7 @@
     // Add XY probe offset from extruder because probe_at_point() subtracts them when
     // moving to the XY position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
-    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + xy_pos_t(probe_offset));
+    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe_offset_xy);
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {

@@ -303,7 +303,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("FW Update vom Medium");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Drucker neustarten");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Aktualisieren");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Vorbereitung");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Justierung");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Starte Druck");
@@ -456,7 +456,10 @@ namespace Language_de {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Temp");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Netzteil");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Motorleistung");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Treiber %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Treiber %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Treiber %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Treiber %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Treiber %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC Verbindungsfehler");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Werte speichern");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("FILAMENT WECHSEL");

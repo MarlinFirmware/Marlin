@@ -61,10 +61,6 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
-#endif
-
 #if SERIAL_PORT == -1
   #define MYSERIAL0 UsbSerial
 #elif SERIAL_PORT == 0
@@ -75,16 +71,14 @@ extern "C" volatile uint32_t _millis;
   #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
   #define MYSERIAL0 MSerial3
+#else
+  #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
-  #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
-  #endif
-  #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == -1
+  #if SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
+  #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 UsbSerial
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 MSerial
@@ -94,9 +88,32 @@ extern "C" volatile uint32_t _millis;
     #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
     #define MYSERIAL1 MSerial3
+  #else
+    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
+#endif
+
+#ifdef DGUS_SERIAL_PORT
+  #if DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL UsbSerial
+  #elif DGUS_SERIAL_PORT == 0
+    #define DGUS_SERIAL MSerial
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL MSerial1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL MSerial2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL MSerial3
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #endif
 #endif
 
 //

@@ -228,7 +228,7 @@ G29_TYPE GcodeSuite::G29() {
       ABL_VAR xy_int8_t meshCount;
     #endif
 
-    ABL_VAR xy_float_t probe_position_lf, probe_position_rb;
+    ABL_VAR xy_pos_t probe_position_lf, probe_position_rb;
     ABL_VAR xy_float_t gridSpacing = { 0, 0 };
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -403,12 +403,12 @@ G29_TYPE GcodeSuite::G29() {
       }
       else {
         probe_position_lf.set(
-          parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MAX(X_CENTER - (X_BED_SIZE) / 2,      x_min),
-          parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MAX(Y_CENTER - (Y_BED_SIZE) / 2,      y_min)
+          parser.seenval('L') ? RAW_X_POSITION(parser.value_linear_units()) : x_min,
+          parser.seenval('F') ? RAW_Y_POSITION(parser.value_linear_units()) : y_min
         );
         probe_position_rb.set(
-          parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : _MIN(probe_position_lf.x + X_BED_SIZE, x_max),
-          parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : _MIN(probe_position_lf.y + Y_BED_SIZE, y_max)
+          parser.seenval('R') ? RAW_X_POSITION(parser.value_linear_units()) : x_max,
+          parser.seenval('B') ? RAW_Y_POSITION(parser.value_linear_units()) : y_max
         );
       }
 
@@ -465,7 +465,7 @@ G29_TYPE GcodeSuite::G29() {
         reset_bed_level();
 
         // Initialize a grid with the given dimensions
-        bilinear_grid_spacing = gridSpacing.asInt();
+        bilinear_grid_spacing = gridSpacing;
         bilinear_start = probe_position_lf;
 
         // Can't re-enable (on error) until the new grid is written
@@ -560,7 +560,7 @@ G29_TYPE GcodeSuite::G29() {
           ExtUI::onMeshUpdate(meshCount, newz);
         #endif
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Save X", meshCount.x, " Y", meshCount.y, " Z", measured_z + zoffset);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_P(PSTR("Save X"), meshCount.x, SP_Y_STR, meshCount.y, SP_Z_STR, measured_z + zoffset);
 
       #endif
     }
@@ -583,10 +583,7 @@ G29_TYPE GcodeSuite::G29() {
 
         if (zig) PR_INNER_VAR = (PR_INNER_END - 1) - PR_INNER_VAR;
 
-        const xy_pos_t base = probe_position_lf.asFloat() + gridSpacing * meshCount.asFloat();
-
-        probePos.set(FLOOR(base.x + (base.x < 0 ? 0 : 0.5)),
-                     FLOOR(base.y + (base.y < 0 ? 0 : 0.5)));
+        probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
 
         #if ENABLED(AUTO_BED_LEVELING_LINEAR)
           indexIntoAB[meshCount.x][meshCount.y] = abl_probe_index;
@@ -674,15 +671,15 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
-        if (zig) { // away from origin
-          inStart = 0;
-          inStop = PR_INNER_END;
-          inInc = 1;
+        if (zig) {                    // Zig away from origin
+          inStart = 0;                // Left or front
+          inStop = PR_INNER_END;      // Right or back
+          inInc = 1;                  // Zig right
         }
-        else {     // towards origin
-          inStart = PR_INNER_END - 1;
-          inStop = -1;
-          inInc = -1;
+        else {                        // Zag towards origin
+          inStart = PR_INNER_END - 1; // Right or back
+          inStop = -1;                // Left or front
+          inInc = -1;                 // Zag left
         }
 
         zig ^= true; // zag
@@ -694,10 +691,7 @@ G29_TYPE GcodeSuite::G29() {
         // Inner loop is X with PROBE_Y_FIRST disabled
         for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; pt_index++, PR_INNER_VAR += inInc) {
 
-          const xy_pos_t base = probe_position_lf.asFloat() + gridSpacing * meshCount.asFloat();
-
-          probePos.set(FLOOR(base.x + (base.x < 0 ? 0 : 0.5)),
-                       FLOOR(base.y + (base.y < 0 ? 0 : 0.5)));
+          probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             indexIntoAB[meshCount.x][meshCount.y] = ++abl_probe_index; // 0...
@@ -752,7 +746,7 @@ G29_TYPE GcodeSuite::G29() {
       for (uint8_t i = 0; i < 3; ++i) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
         #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(S_FMT" %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
+          ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
         #endif
 
         // Retain the last probe position
@@ -916,8 +910,8 @@ G29_TYPE GcodeSuite::G29() {
         planner.force_unapply_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position.x, probePos.x - probe_offset.x)
-          && NEAR(current_position.y, probePos.y - probe_offset.y)
+        if ( NEAR(current_position.x, probePos.x - probe_offset_xy.x)
+          && NEAR(current_position.y, probePos.y - probe_offset_xy.y)
         ) {
           const float simple_z = current_position.z - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);

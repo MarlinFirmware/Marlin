@@ -26,7 +26,7 @@
 
   #include "../bedlevel.h"
 
-  #include "../../../Marlin.h"
+  #include "../../../MarlinCore.h"
   #include "../../../HAL/shared/persistent_store_api.h"
   #include "../../../libs/hex_print_routines.h"
   #include "../../../module/configuration_store.h"
@@ -450,7 +450,7 @@
               SERIAL_ECHO(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
-            const xy_pos_t near = g29_pos + probe_offset;
+            const xy_pos_t near = g29_pos + probe_offset_xy;
             probe_entire_mesh(near, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
@@ -468,6 +468,7 @@
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
             if (parser.seen('C') && !xy_seen) {
+
               /**
                * Use a good default location for the path.
                * The flipped > and < operators in these comparisons is intentional.
@@ -479,8 +480,8 @@
                 #if IS_KINEMATIC
                   X_HOME_POS, Y_HOME_POS
                 #else
-                  probe_offset.x > 0 ? X_BED_SIZE : 0,
-                  probe_offset.y < 0 ? Y_BED_SIZE : 0
+                  probe_offset_xy.x > 0 ? X_BED_SIZE : 0,
+                  probe_offset_xy.y < 0 ? Y_BED_SIZE : 0
                 #endif
               );
             }
@@ -790,9 +791,13 @@
 
       } while (best.pos.x >= 0 && --count);
 
-      ui.release();
+      #if HAS_LCD_MENU
+        ui.release();
+      #endif
       STOW_PROBE(); // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
 
       #ifdef Z_AFTER_PROBING
         move_z_after_probing();
@@ -801,8 +806,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(near.x - probe_offset.x, MESH_MIN_X, MESH_MAX_X),
-        constrain(near.y - probe_offset.y, MESH_MIN_Y, MESH_MAX_Y)
+        constrain(near.x - probe_offset_xy.x, MESH_MIN_X, MESH_MAX_X),
+        constrain(near.y - probe_offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -851,7 +856,9 @@
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -890,8 +897,9 @@
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
-
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to_xy_z(current_position, z_clearance);
@@ -919,7 +927,9 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        ui.capture();
+        #if HAS_LCD_MENU
+          ui.capture();
+        #endif
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -986,8 +996,9 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      ui.capture();                                         // Take over control of the LCD encoder
-
+      #if HAS_LCD_MENU
+        ui.capture();                                         // Take over control of the LCD encoder
+      #endif
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
@@ -1283,7 +1294,7 @@
     closest.distance = -99999.9f;
 
     // Get the reference position, either nozzle or probe
-    const xy_pos_t ref = probe_relative ? pos + probe_offset : pos;
+    const xy_pos_t ref = probe_relative ? pos + probe_offset_xy : pos;
 
     float best_so_far = 99999.99f;
 

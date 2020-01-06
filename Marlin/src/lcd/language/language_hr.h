@@ -92,7 +92,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Odaberi *");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperature");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Gibanje");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD-a");
@@ -100,7 +100,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Učitaj memoriju");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Učitaj failsafe");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Osvježi");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info screen");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info screen");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Pripremi");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pauziraj print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Nastavi print");

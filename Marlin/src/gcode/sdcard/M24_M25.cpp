@@ -42,7 +42,7 @@
   #include "../../feature/power_loss_recovery.h"
 #endif
 
-#include "../../Marlin.h" // for startOrResumeJob
+#include "../../MarlinCore.h" // for startOrResumeJob
 
 /**
  * M24: Start or Resume SD Print

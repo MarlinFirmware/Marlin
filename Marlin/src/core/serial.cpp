@@ -67,8 +67,10 @@ void print_bin(const uint16_t val) {
   }
 }
 
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
+
 void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
   serialprintPGM(prefix);
-  SERIAL_ECHOPAIR(" " MSG_X, x, " " MSG_Y, y, " " MSG_Z, z);
+  SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }

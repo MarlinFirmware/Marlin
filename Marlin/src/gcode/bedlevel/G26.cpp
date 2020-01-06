@@ -34,7 +34,7 @@
 #include "../../gcode/gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 #include "../../module/motion.h"
@@ -424,8 +424,9 @@ inline bool prime_nozzle() {
     #endif
 
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
-
-      ui.capture();
+      #if HAS_LCD_MENU
+        ui.capture();
+      #endif
       ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 

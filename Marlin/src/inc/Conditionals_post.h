@@ -26,12 +26,9 @@
  * Defines that depend on configuration but are not editable.
  */
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 ( \
-     MB(BQ_ZUM_MEGA_3D)                 \
-  || MB(MIGHTYBOARD_REVE)               \
-  || MB(MINIRAMBO)                      \
-  || MB(SCOOVO_X9H)                     \
-)
+#ifdef GITHUB_ACTIONS
+  // Extras for CI testing
+#endif
 
 #ifdef TEENSYDUINO
   #undef max
@@ -44,7 +41,7 @@
 #endif
 
 #define HAS_CLASSIC_JERK (ENABLED(CLASSIC_JERK) || IS_KINEMATIC)
-#define HAS_CLASSIC_E_JERK (HAS_CLASSIC_JERK && DISABLED(LIN_ADVANCE))
+#define HAS_CLASSIC_E_JERK (ENABLED(CLASSIC_JERK) || DISABLED(LIN_ADVANCE))
 
 /**
  * Axis lengths and center
@@ -259,7 +256,10 @@
 #elif ENABLED(AZSMZ_12864)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 190
-#elif ENABLED(MKS_MINI_12864)
+#elif ENABLED(MKS_LCD12864B)
+  #define _LCD_CONTRAST_MIN  120
+  #define _LCD_CONTRAST_INIT 205
+#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 195
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
@@ -321,18 +321,20 @@
 #endif
 
 /**
- * Power Supply Control
+ * Power Supply
  */
 #ifndef PSU_NAME
-  #if ENABLED(PSU_CONTROL)
-    #if PSU_ACTIVE_HIGH
-      #define PSU_NAME "XBox"     // X-Box 360 (203W)
-    #else
-      #define PSU_NAME "ATX"      // ATX style
-    #endif
+  #if DISABLED(PSU_CONTROL)
+    #define PSU_NAME "Generic"  // No control
+  #elif PSU_ACTIVE_HIGH
+    #define PSU_NAME "XBox"     // X-Box 360 (203W)
   #else
-    #define PSU_NAME "Generic"    // No control
+    #define PSU_NAME "ATX"      // ATX style
   #endif
+#endif
+
+#if !defined(PSU_POWERUP_DELAY) && ENABLED(PSU_CONTROL)
+  #define PSU_POWERUP_DELAY 100
 #endif
 
 /**
@@ -554,8 +556,6 @@
  *       Preserve this ordering when adding new drivers.
  */
 
-#define TRINAMICS (HAS_TRINAMIC || HAS_DRIVER(TMC2130_STANDALONE) || HAS_DRIVER(TMC2208_STANDALONE) || HAS_DRIVER(TMC2209_STANDALONE) || HAS_DRIVER(TMC26X_STANDALONE) || HAS_DRIVER(TMC2660_STANDALONE) || HAS_DRIVER(TMC5130_STANDALONE) || HAS_DRIVER(TMC5160_STANDALONE) || HAS_DRIVER(TMC2160_STANDALONE))
-
 #ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
@@ -569,7 +569,7 @@
     #define MINIMUM_STEPPER_POST_DIR_DELAY 400
   #elif HAS_DRIVER(A4988)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 200
-  #elif TRINAMICS
+  #elif HAS_TRINAMIC || HAS_TRINAMIC_STANDALONE
     #define MINIMUM_STEPPER_POST_DIR_DELAY 20
   #else
     #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
@@ -590,11 +590,7 @@
   #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
     #define MINIMUM_STEPPER_PULSE 1
   #elif TRINAMICS
-    #if ENABLED(LIN_ADVANCE) && (HAS_TMC_STANDALONE_E_DRIVER || (HAS_TMC_E_DRIVER && DISABLED(SQUARE_WAVE_STEPPING)))
-      #define MINIMUM_STEPPER_PULSE 1
-    #else
-      #define MINIMUM_STEPPER_PULSE 0
-    #endif
+    #define MINIMUM_STEPPER_PULSE 0
   #elif HAS_DRIVER(LV8729)
     #define MINIMUM_STEPPER_PULSE 0
   #else
@@ -607,14 +603,14 @@
     #define MAXIMUM_STEPPER_RATE 15000
   #elif HAS_DRIVER(TB6600)
     #define MAXIMUM_STEPPER_RATE 150000
-  #elif HAS_DRIVER(LV8729)
-    #define MAXIMUM_STEPPER_RATE 200000
   #elif HAS_DRIVER(DRV8825)
     #define MAXIMUM_STEPPER_RATE 250000
-  #elif TRINAMICS
-    #define MAXIMUM_STEPPER_RATE 400000
   #elif HAS_DRIVER(A4988)
     #define MAXIMUM_STEPPER_RATE 500000
+  #elif HAS_DRIVER(LV8729)
+    #define MAXIMUM_STEPPER_RATE 1000000
+  #elif TRINAMICS
+    #define MAXIMUM_STEPPER_RATE 5000000
   #else
     #define MAXIMUM_STEPPER_RATE 250000
   #endif
@@ -972,11 +968,6 @@
 
 // Trinamic Stepper Drivers
 #if HAS_TRINAMIC
-  #define HAS_TMCX1X0       (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5130) || HAS_DRIVER(TMC5160))
-  #define TMC_HAS_SPI       (HAS_TMCX1X0 || HAS_DRIVER(TMC2660))
-  #define HAS_STALLGUARD    (HAS_TMCX1X0 || HAS_DRIVER(TMC2209) || HAS_DRIVER(TMC2660))
-  #define HAS_STEALTHCHOP   (HAS_TMCX1X0 || HAS_TMC220x)
-
   #define STEALTHCHOP_ENABLED ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
   #define USE_SENSORLESS EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
@@ -1485,6 +1476,10 @@
   #undef MIN_PROBE_EDGE_RIGHT
   #undef MIN_PROBE_EDGE_FRONT
   #undef MIN_PROBE_EDGE_BACK
+  #define MIN_PROBE_EDGE_LEFT 0
+  #define MIN_PROBE_EDGE_RIGHT 0
+  #define MIN_PROBE_EDGE_FRONT 0
+  #define MIN_PROBE_EDGE_BACK 0
 #else
   #ifndef MIN_PROBE_EDGE_LEFT
     #define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
