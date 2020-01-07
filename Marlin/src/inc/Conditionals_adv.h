@@ -142,3 +142,8 @@
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
 #endif
+
+// G60/G61 Position Save
+#if SAVED_POSITIONS > 256
+  #error "SAVED_POSITIONS must be an integer from 0 to 256."
+#endif
