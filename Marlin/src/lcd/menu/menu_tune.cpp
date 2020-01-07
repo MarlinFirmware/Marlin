@@ -189,6 +189,19 @@ void menu_tune() {
   #endif
 
   //
+  // Advance K:
+  //
+  #if ENABLED(LIN_ADVANCE)
+    #if EXTRUDERS == 1
+      EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+    #elif EXTRUDERS > 1
+      #define EDIT_ADVANCE_K(N) EDIT_ITEM_N(float52, N, MSG_ADVANCE_K_E, &planner.extruder_advance_K[N], 0, 999)
+      for (uint8_t n = 0; n < EXTRUDERS; n++)
+        EDIT_ADVANCE_K(n);
+    #endif
+  #endif
+
+  //
   // Babystep X:
   // Babystep Y:
   // Babystep Z:
