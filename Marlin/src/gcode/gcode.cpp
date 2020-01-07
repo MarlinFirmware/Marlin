@@ -89,6 +89,9 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
     return -1;
   }
+  #if ENABLED(SINGLENOZZLE)
+    if(active_extruder<0) return 0;
+  #endif
   return active_extruder;
 }
 
@@ -319,6 +322,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 59: G59(); break;
       #endif
 
+      case 60: G60(); break;                                      // G60:  save current position
+      case 61: G61(); break;                                      // G61:  Apply/restore saved coordinates.
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif

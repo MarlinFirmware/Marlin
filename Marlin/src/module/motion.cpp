@@ -109,9 +109,11 @@ xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
  */
 xyze_pos_t destination; // {0}
 
+xyze_pos_t stored_position[NUM_POSITON_SLOTS];
+
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
-  uint8_t active_extruder; // = 0
+  uint8_t active_extruder = 0; // = 0
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
