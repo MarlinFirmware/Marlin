@@ -251,10 +251,8 @@ extern "C" {
 // Timer Definitions
 //Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 #define TIMER_TONE              TIM2
+#define TIMER_SERVO             TIM5 //we only have 1 servo PIN on SKR-PRO. Use the same timer as the one defined in PeripheralPins
 #define TIMER_SERIAL            TIM7
-
-// Do not use basic timer: OC is required
-#define TIMER_SERVO             TIM6  //TODO: advanced-control timers don't work
 
 // UART Definitions
 //#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
