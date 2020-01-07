@@ -29,22 +29,6 @@
 #include <TMCStepper.h>
 #include "../module/planner.h"
 
-#define TMC_X_LABEL 'X', '0'
-#define TMC_Y_LABEL 'Y', '0'
-#define TMC_Z_LABEL 'Z', '0'
-
-#define TMC_X2_LABEL 'X', '2'
-#define TMC_Y2_LABEL 'Y', '2'
-#define TMC_Z2_LABEL 'Z', '2'
-#define TMC_Z3_LABEL 'Z', '3'
-
-#define TMC_E0_LABEL 'E', '0'
-#define TMC_E1_LABEL 'E', '1'
-#define TMC_E2_LABEL 'E', '2'
-#define TMC_E3_LABEL 'E', '3'
-#define TMC_E4_LABEL 'E', '4'
-#define TMC_E5_LABEL 'E', '5'
-
 #define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
 #define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
 #define CHOPPER_DEFAULT_24V  { 4,  2, 1 }

@@ -38,7 +38,7 @@
 
 #include "Sd2Card.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 static bool crcSupported = false;
 

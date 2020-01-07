@@ -232,7 +232,7 @@ class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_
     static void enqueueAndWait_P(const progmem_str message, const progmem_str commands);
 };
 
-#if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
+#if NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
 class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,STATUS_SCREEN_DL_SIZE> {
   private:
     static void draw_axis_position(draw_mode_t);

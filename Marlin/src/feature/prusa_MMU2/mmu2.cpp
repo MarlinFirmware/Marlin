@@ -36,7 +36,7 @@ MMU2 mmu2;
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 #include "../../module/stepper/indirection.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../../feature/host_actions.h"

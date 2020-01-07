@@ -81,7 +81,7 @@ extern const char M21_STR[];
 
 void menu_main() {
   START_MENU();
-  BACK_ITEM(MSG_WATCH);
+  BACK_ITEM(MSG_INFO_SCREEN);
 
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
@@ -271,20 +271,24 @@ void menu_main() {
     #if ENABLED(GAMES_EASTER_EGG)
       SKIP_ITEM();
       SKIP_ITEM();
+      SKIP_ITEM();
     #endif
-    SUBMENU(MSG_GAMES, (
-      #if HAS_GAME_MENU
-        menu_game
-      #elif ENABLED(MARLIN_BRICKOUT)
-        brickout.enter_game
-      #elif ENABLED(MARLIN_INVADERS)
-        invaders.enter_game
-      #elif ENABLED(MARLIN_SNAKE)
-        snake.enter_game
-      #elif ENABLED(MARLIN_MAZE)
-        maze.enter_game
-      #endif
-    ));
+    // Game sub-menu or the individual game
+    {
+      SUBMENU(
+        #if HAS_GAME_MENU
+          MSG_GAMES, menu_game
+        #elif ENABLED(MARLIN_BRICKOUT)
+          MSG_BRICKOUT, brickout.enter_game
+        #elif ENABLED(MARLIN_INVADERS)
+          MSG_INVADERS, invaders.enter_game
+        #elif ENABLED(MARLIN_SNAKE)
+          MSG_SNAKE, snake.enter_game
+        #elif ENABLED(MARLIN_MAZE)
+          MSG_MAZE, maze.enter_game
+        #endif
+      );
+    }
   #endif
 
   END_MENU();

@@ -271,7 +271,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("SD Güncellemesi");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Yazıcıyı Resetle");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Yenile");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Bilgi Ekranı");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Bilgi Ekranı");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Hazırlık");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ayar");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Duraklat");

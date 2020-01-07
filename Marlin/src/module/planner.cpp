@@ -70,7 +70,7 @@
 #include "../core/language.h"
 #include "../gcode/parser.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -2749,7 +2749,7 @@ void Planner::refresh_positioning() {
 inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = axis > E_AXIS ? E_AXIS : axis;
   const float before = val;
-  LIMIT(val, 1, max_limit[lim_axis]);
+  LIMIT(val, 0.1, max_limit[lim_axis]);
   if (before != val) {
     SERIAL_CHAR(axis_codes[lim_axis]);
     SERIAL_ECHOPGM(" Max ");

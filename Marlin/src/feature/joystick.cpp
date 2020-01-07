@@ -42,25 +42,40 @@ Joystick joystick;
 
 #if HAS_JOY_ADC_X
   temp_info_t Joystick::x; // = { 0 }
+  #if ENABLED(INVERT_JOY_X)
+    #define JOY_X(N) (16383 - (N))
+  #else
+    #define JOY_X(N) (N)
+  #endif
 #endif
 #if HAS_JOY_ADC_Y
   temp_info_t Joystick::y; // = { 0 }
+  #if ENABLED(INVERT_JOY_Y)
+    #define JOY_Y(N) (16383 - (N))
+  #else
+    #define JOY_Y(N) (N)
+  #endif
 #endif
 #if HAS_JOY_ADC_Z
   temp_info_t Joystick::z; // = { 0 }
+  #if ENABLED(INVERT_JOY_Z)
+    #define JOY_Z(N) (16383 - (N))
+  #else
+    #define JOY_Z(N) (N)
+  #endif
 #endif
 
 #if ENABLED(JOYSTICK_DEBUG)
   void Joystick::report() {
     SERIAL_ECHOPGM("Joystick");
     #if HAS_JOY_ADC_X
-      SERIAL_ECHOPAIR_P(SP_X_STR, x.raw);
+      SERIAL_ECHOPAIR_P(SP_X_STR, JOY_X(x.raw));
     #endif
     #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPAIR_P(SP_Y_STR, y.raw);
+      SERIAL_ECHOPAIR_P(SP_Y_STR, JOY_Y(y.raw));
     #endif
     #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPAIR_P(SP_Z_STR, z.raw);
+      SERIAL_ECHOPAIR_P(SP_Z_STR, JOY_Z(z.raw));
     #endif
     #if HAS_JOY_ADC_EN
       SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
@@ -91,15 +106,15 @@ Joystick joystick;
 
     #if HAS_JOY_ADC_X
       static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
-      _normalize_joy(norm_jog.x, x.raw, joy_x_limits);
+      _normalize_joy(norm_jog.x, JOY_X(x.raw), joy_x_limits);
     #endif
     #if HAS_JOY_ADC_Y
       static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
-      _normalize_joy(norm_jog.y, y.raw, joy_y_limits);
+      _normalize_joy(norm_jog.y, JOY_Y(y.raw), joy_y_limits);
     #endif
     #if HAS_JOY_ADC_Z
       static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
-      _normalize_joy(norm_jog.z, z.raw, joy_z_limits);
+      _normalize_joy(norm_jog.z, JOY_Z(z.raw), joy_z_limits);
     #endif
   }
 

@@ -424,45 +424,9 @@
   #error "FILAMENT_UNLOAD_DELAY is now FILAMENT_UNLOAD_PURGE_DELAY. Please update Configuration_adv.h."
 #elif defined(HOME_USING_SPREADCYCLE)
   #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
+#elif defined(DGUS_LCD)
+  #error "DGUS_LCD is now DGUS_LCD_UI_(ORIGIN|FYSETC|HIPRECY). Please update your configuration."
 #endif
-
-#define BOARD_MKS_13        -1000
-#define BOARD_TRIGORILLA    -1001
-#define BOARD_RURAMPS4D     -1002
-#define BOARD_FORMBOT_TREX2 -1003
-#define BOARD_BIQU_SKR_V1_1 -1004
-#define BOARD_STM32F1R      -1005
-#define BOARD_STM32F103R    -1006
-#define BOARD_ESP32         -1007
-#define BOARD_BIGTREE_SKR_MINI_E3 -1008
-#if MB(MKS_13)
-  #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
-#elif MB(TRIGORILLA)
-  #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
-#elif MB(RURAMPS4D)
-  #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
-#elif MB(FORMBOT_TREX2)
-  #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
-#elif MB(BIQU_SKR_V1_1)
-  #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
-#elif MB(STM32F1R)
-  #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
-#elif MB(STM32F103R)
-  #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
-#elif MOTHERBOARD == BOARD_ESP32
-  #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
-#elif MOTHERBOARD == BOARD_BIGTREE_SKR_MINI_E3
-  #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
-#endif
-#undef BOARD_MKS_13
-#undef BOARD_TRIGORILLA
-#undef BOARD_RURAMPS4D
-#undef BOARD_FORMBOT_TREX2
-#undef BOARD_BIQU_SKR_V1_1
-#undef BOARD_STM32F1R
-#undef BOARD_STM32F103R
-#undef BOARD_ESP32
-#undef BOARD_BIGTREE_SKR_MINI_E3
 
 /**
  * Marlin release, version and default string
@@ -1187,6 +1151,20 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_MIN_PROBE_PIN must be defined if Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is not enabled."
   #endif
 
+  #if ENABLED(NOZZLE_AS_PROBE)
+    constexpr float sanity_nozzle_to_probe_offset[] = NOZZLE_TO_PROBE_OFFSET;
+    static_assert(sanity_nozzle_to_probe_offset[0] == 0.0 && sanity_nozzle_to_probe_offset[1] == 0.0,
+                  "NOZZLE_AS_PROBE requires the X,Y offsets in NOZZLE_TO_PROBE_OFFSET to be 0,0.");
+  #endif
+
+  #if DISABLED(NOZZLE_AS_PROBE)
+    static_assert(MIN_PROBE_EDGE >= 0, "MIN_PROBE_EDGE must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_BACK >= 0, "MIN_PROBE_EDGE_BACK must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_FRONT >= 0, "MIN_PROBE_EDGE_FRONT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_LEFT >= 0, "MIN_PROBE_EDGE_LEFT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_RIGHT >= 0, "MIN_PROBE_EDGE_RIGHT must be >= 0.");
+  #endif
+
   /**
    * Make sure Z raise values are set
    */
@@ -1890,7 +1868,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(IS_RRD_FG_SC)) \
   + (ENABLED(ULTRA_LCD) && DISABLED(IS_ULTRA_LCD)) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
-  + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)) \
+  + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
   + (ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(IS_RRW_KEYPAD)) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (ENABLED(ULTIPANEL) && DISABLED(IS_ULTIPANEL)) \
@@ -1919,6 +1897,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(LCD_FOR_MELZI) \
   + ENABLED(ULTI_CONTROLLER) \
   + ENABLED(MKS_MINI_12864) \
+  + ENABLED(ENDER2_STOCKDISPLAY) \
   + ENABLED(FYSETC_MINI_12864_X_X) \
   + ENABLED(FYSETC_MINI_12864_1_2) \
   + ENABLED(FYSETC_MINI_12864_2_0) \
@@ -1933,7 +1912,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(OVERLORD_OLED) \
-  + ENABLED(DGUS_LCD) \
+  + ENABLED(DGUS_LCD_UI_ORIGIN) \
+  + ENABLED(DGUS_LCD_UI_FYSETC) \
+  + ENABLED(DGUS_LCD_UI_HIPRECY) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(TOUCH_UI_FTDI_EVE) \
   + ENABLED(FSMC_GRAPHICAL_TFT)
@@ -2055,34 +2036,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   INVALID_TMC_ADDRESS(E5);
 #endif
 #undef INVALID_TMC_ADDRESS
-
-/**
- * TMC2208/2209 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
- */
-#if HAS_TMC220x && !defined(TARGET_LPC1768) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       defined(X_HARDWARE_SERIAL ) || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) || defined(Z2_HARDWARE_SERIAL) \
-    || defined(Z3_HARDWARE_SERIAL) || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) || defined(E4_HARDWARE_SERIAL) \
-    || defined(E5_HARDWARE_SERIAL) )
-  #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
-#endif
-
-/**
- * TMC2208/2209 software UART is only supported on AVR, LPC, STM32F1 and STM32F4
- */
-#if HAS_TMC220x && !defined(__AVR__) && !defined(TARGET_LPC1768) && !defined(TARGET_STM32F1) && !defined(TARGET_STM32F4) && !( \
-       defined(X_HARDWARE_SERIAL ) || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) || defined(Z2_HARDWARE_SERIAL) \
-    || defined(Z3_HARDWARE_SERIAL) || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) || defined(E4_HARDWARE_SERIAL) \
-    || defined(E5_HARDWARE_SERIAL) )
-  #error "TMC2208 Software Serial is supported only on AVR, LPC1768, STM32F1 and STM32F4 platforms."
-#endif
 
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
