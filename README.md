@@ -25,6 +25,8 @@ To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino
 
   #### AVR (8-bit)
 
+  #### AVR (8-bit)
+
   board|processor|speed|flash|sram|logic|fpu
   ----|---------|-----|-----|----|-----|---
   [Arduino AVR](https://www.arduino.cc/)|ATmega, ATTiny, etc.|16-20MHz|64-256k|2-16k|5V|no
