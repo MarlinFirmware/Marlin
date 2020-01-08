@@ -1,5 +1,7 @@
-*.o
 applet/
+.vscode/
+.pio/
+*.o
 *~
 *.orig
 *.rej
