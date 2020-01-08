@@ -57,7 +57,7 @@ void GcodeSuite::G61(void) {
       destination[i] = parser.value_axis_units((AxisEnum)i) + stored_position[slot][i];
     }
     else {
-      destination[i] = stored_position[slot][i]; //current_position[i];
+      destination[i] = current_position[i];
     }
     SERIAL_ECHOPAIR_F(" ", axis_codes[i]);
     SERIAL_ECHOPAIR_F(":", destination[i]);
