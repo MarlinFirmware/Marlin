@@ -2296,7 +2296,7 @@
     #define Z2_SLEW_RATE       1
   #endif
 
-  #if AXIS_DRIVER_TYPE_Z3(L6470)
+  #if AXIS_IS_L64XX(Z3)
     #define Z3_MICROSTEPS      128
     #define Z3_OVERCURRENT    2000
     #define Z3_STALLCURRENT   1500
@@ -2304,7 +2304,7 @@
     #define Z3_CHAIN_POS        -1
   #endif
 
-  #if AXIS_DRIVER_TYPE_E0(L6470)
+  #if AXIS_IS_L64XX(E0)
     #define E0_MICROSTEPS      128
     #define E0_OVERCURRENT    2000
     #define E0_STALLCURRENT   1500
@@ -2312,7 +2312,7 @@
     #define E0_CHAIN_POS        -1
   #endif
 
-  #if AXIS_DRIVER_TYPE_E1(L6470)
+  #if AXIS_IS_L64XX(E1)
     #define E1_MICROSTEPS      128
     #define E1_OVERCURRENT    2000
     #define E1_STALLCURRENT   1500
@@ -2320,7 +2320,7 @@
     #define E1_CHAIN_POS        -1
   #endif
 
-  #if AXIS_DRIVER_TYPE_E2(L6470)
+  #if AXIS_IS_L64XX(E2)
     #define E2_MICROSTEPS      128
     #define E2_OVERCURRENT    2000
     #define E2_STALLCURRENT   1500
@@ -2328,7 +2328,7 @@
     #define E2_CHAIN_POS        -1
   #endif
 
-  #if AXIS_DRIVER_TYPE_E3(L6470)
+  #if AXIS_IS_L64XX(E3)
     #define E3_MICROSTEPS      128
     #define E3_OVERCURRENT    2000
     #define E3_STALLCURRENT   1500
@@ -2336,7 +2336,7 @@
     #define E3_CHAIN_POS        -1
   #endif
 
-  #if AXIS_DRIVER_TYPE_E4(L6470)
+  #if AXIS_IS_L64XX(E4)
     #define E4_MICROSTEPS      128
     #define E4_OVERCURRENT    2000
     #define E4_STALLCURRENT   1500
@@ -2344,7 +2344,7 @@
     #define E4_CHAIN_POS        -1
   #endif
 
-  #if AXIS_DRIVER_TYPE_E5(L6470)
+  #if AXIS_IS_L64XX(E5)
     #define E5_MICROSTEPS      128
     #define E5_OVERCURRENT    2000
     #define E5_STALLCURRENT   1500

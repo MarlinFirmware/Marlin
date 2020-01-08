@@ -37,7 +37,7 @@
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
 #define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
 
-typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L6470_axis_t;
+typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L64XX_axis_t;
 
 class L64XX_Marlin : public L64XXHelper {
 public:
@@ -57,30 +57,37 @@ public:
 
   static uint16_t get_stepper_status(L64XX &st);
 
-  static uint16_t get_status(const L6470_axis_t axis);
+  static uint16_t get_status(const L64XX_axis_t axis);
 
-  static uint32_t get_param(const L6470_axis_t axis, const uint8_t param);
+  static uint32_t get_param(const L64XX_axis_t axis, const uint8_t param);
 
-  static void set_param(const L6470_axis_t axis, const uint8_t param, const uint32_t value);
+  static void set_param(const L64XX_axis_t axis, const uint8_t param, const uint32_t value);
 
-  //static void send_command(const L6470_axis_t axis, uint8_t command);
+  //static void send_command(const L64XX_axis_t axis, uint8_t command);
 
-  static uint8_t get_user_input(uint8_t &driver_count, L6470_axis_t axis_index[3], char axis_mon[3][3],
+  static uint8_t get_user_input(uint8_t &driver_count, L64XX_axis_t axis_index[3], char axis_mon[3][3],
                             float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
                             uint8_t over_current_flag, uint8_t &OCD_TH_val, uint8_t &STALL_TH_val, uint16_t &over_current_threshold);
-
-  static void monitor_update(L6470_axis_t stepper_index);
-
-  static void monitor_driver();
 
   static void transfer(uint8_t L6470_buf[], const uint8_t length);
 
   //static char* index_to_axis(const uint8_t index);
-  static void say_axis(const L6470_axis_t axis, const uint8_t label=true);
-  static void error_status_decode(const uint16_t status, const L6470_axis_t axis,
+  static void say_axis(const L64XX_axis_t axis, const uint8_t label=true);
+  #if ENABLED(L6470_CHITCHAT)
+    static void error_status_decode(
+      const uint16_t status, const L64XX_axis_t axis,
       const uint16_t _status_axis_th_sd, const uint16_t _status_axis_th_wrn,
       const uint16_t _status_axis_step_loss_a, const uint16_t _status_axis_step_loss_b,
-      const uint16_t _status_axis_ocd, const uint8_t _status_axis_layout);
+      const uint16_t _status_axis_ocd, const uint8_t _status_axis_layout
+    );
+  #else
+    FORCE_INLINE static void error_status_decode(
+      const uint16_t, const L64XX_axis_t,
+      const uint16_t, const uint16_t,
+      const uint16_t, const uint16_t,
+      const uint16_t, const uint8_t
+    ){}
+  #endif
 
   // ~40 bytes SRAM to simplify status decode routines
   typedef struct {
@@ -109,79 +116,26 @@ public:
 
   static L64XX_shadow_t shadow;
 
+  #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
+    static bool monitor_paused;
+    static inline void pause_monitor(const bool p) { monitor_paused = p; }
+    static void monitor_update(L64XX_axis_t stepper_index);
+    static void monitor_driver();
+  #else
+    static inline void pause_monitor(const bool) {}
+  #endif
+
 //protected:
   // L64XXHelper methods
   static void spi_init();
   static uint8_t transfer_single(uint8_t data, int16_t ss_pin);
   static uint8_t transfer_chain(uint8_t data, int16_t ss_pin, uint8_t chain_position);
 
+private:
+  static void append_stepper_err(char* &p, const uint8_t stepper_index, const char * const err=nullptr);
+
 };
 
-extern L64XX_Marlin L64xx_MARLIN;
+void echo_yes_no(const bool yes);
 
-extern uint8_t L64xx_active;
-
-// X Stepper
-#if AXIS_IS_L64XX(X)
-  extern X_DRIVER_TYPE stepperX;
-#endif
-
-// Y Stepper
-#if AXIS_IS_L64XX(Y)
-  extern Y_DRIVER_TYPE stepperY;
-#endif
-
-// Z Stepper
-#if AXIS_IS_L64XX(Z)
-  extern Z_DRIVER_TYPE stepperZ;
-#endif
-
-// X2 Stepper
-#if HAS_X2_ENABLE && AXIS_IS_L64XX(X2)
-  extern X2_DRIVER_TYPE stepperX2;
-#endif
-
-// Y2 Stepper
-#if HAS_Y2_ENABLE && AXIS_IS_L64XX(Y2)
-  extern Y2_DRIVER_TYPE stepperY2;
-#endif
-
-// Z2 Stepper
-#if HAS_Z2_ENABLE && AXIS_IS_L64XX(Z2)
-  extern Z2_DRIVER_TYPE stepperZ2;
-#endif
-
-// Z3 Stepper
-#if HAS_Z3_ENABLE && AXIS_IS_L64XX(Z3)
-  extern Z3_DRIVER_TYPE stepperZ3;
-#endif
-
-// E0 Stepper
-#if AXIS_IS_L64XX(E0)
-  extern E0_DRIVER_TYPE stepperE0;
-#endif
-
-// E1 Stepper
-#if AXIS_IS_L64XX(E1)
-  extern E1_DRIVER_TYPE stepperE1;
-#endif
-
-// E2 Stepper
-#if AXIS_IS_L64XX(E2)
-  extern E2_DRIVER_TYPE stepperE2;
-#endif
-
-// E3 Stepper
-#if AXIS_IS_L64XX(E3)
-  extern E3_DRIVER_TYPE stepperE3;
-#endif
-
-// E4 Stepper
-#if AXIS_IS_L64XX(E4)
-  extern E4_DRIVER_TYPE stepperE4;
-#endif
-
-// E5 Stepper
-#if AXIS_IS_L64XX(E5)
-  extern E5_DRIVER_TYPE stepperE5;
-#endif
+extern L64XX_Marlin L64xxManager;

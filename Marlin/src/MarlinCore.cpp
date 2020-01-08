@@ -178,7 +178,7 @@
 #endif
 
 #if HAS_L64XX
-  #include "libs/L6470/L6470_Marlin.h"
+  #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
 const char NUL_STR[] PROGMEM = "",
@@ -605,7 +605,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
-    L64xx_MARLIN.monitor_driver();
+    L64xxManager.monitor_driver();
   #endif
 
   // Limit check_axes_activity frequency to 10Hz
@@ -823,7 +823,7 @@ void setup() {
   HAL_init();
 
   #if HAS_L64XX
-    L64xx_MARLIN.init();         // setup SPI and init chips
+    L64xxManager.init();  // Set up SPI, init drivers
   #endif
 
   #if ENABLED(MAX7219_DEBUG)

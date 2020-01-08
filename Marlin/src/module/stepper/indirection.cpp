@@ -44,7 +44,7 @@ void reset_stepper_drivers() {
   #endif
 
   #if HAS_L64XX
-    L64xx_MARLIN.init_to_defaults();
+    L64xxManager.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC

@@ -48,7 +48,7 @@
 #include "../../lcd/ultralcd.h"
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
-  #include "../../libs/L6470/L6470_Marlin.h"
+  #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -537,7 +537,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     };
     for (uint8_t j = 1; j <= L64XX::chain[0]; j++) {
       const uint8_t cv = L64XX::chain[j];
-      L64xx_MARLIN.set_param((L6470_axis_t)cv, L6470_ABS_POS, stepper.position(L6470_axis_xref[cv]));
+      L64xxManager.set_param((L64XX_axis_t)cv, L6470_ABS_POS, stepper.position(L6470_axis_xref[cv]));
     }
   #endif
 }

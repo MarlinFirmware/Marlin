@@ -29,7 +29,7 @@
 #if ENABLED(M114_DETAIL)
 
   #if HAS_L64XX
-    #include "../../libs/L6470/L6470_Marlin.h"
+    #include "../../libs/L64XX/L64XX_Marlin.h"
     #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
     #include "../../core/debug_out.h"
   #endif
@@ -92,7 +92,7 @@
       //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
       #define ABS_POS_SIGN_MASK 0b11111111111000000000000000000000
       #define REPORT_ABSOLUTE_POS(Q) do{                            \
-          L64xx_MARLIN.say_axis(Q, false);                          \
+          L64xxManager.say_axis(Q, false);                          \
           temp = L6470_GETPARAM(L6470_ABS_POS,Q);                   \
           if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK;  \
           sprintf_P(temp_buf, PSTR(":%8ld   "), temp);              \

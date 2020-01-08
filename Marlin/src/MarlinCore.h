@@ -32,7 +32,7 @@
 #include <stdlib.h>
 
 #if HAS_L64XX
-  #include "libs/L6470/L6470_Marlin.h"
+  #include "libs/L64XX/L64XX_Marlin.h"
   extern uint8_t axis_known_position;
 #endif
 

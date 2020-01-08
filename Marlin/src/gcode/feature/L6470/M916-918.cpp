@@ -20,7 +20,9 @@
  *
  */
 
-//  all tests assume that an axis has the same driver chip for each stepper on that axis
+//
+// NOTE: All tests assume each axis uses matching driver chips.
+//
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -29,7 +31,7 @@
 #include "../../gcode.h"
 #include "../../../module/stepper/indirection.h"
 #include "../../../module/planner.h"
-#include "../../../libs/L6470/L6470_Marlin.h"
+#include "../../../libs/L64XX/L64XX_Marlin.h"
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../../core/debug_out.h"
@@ -72,11 +74,11 @@ void GcodeSuite::M916() {
 
   DEBUG_ECHOLNPGM("M916");
 
-  L64xx_active = true;               //  keep monitor_driver() from stealing status
+  L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
 
-  // Variables used by L64xx_MARLIN.get_user_input function - some may not be used
+  // Variables used by L64xxManager.get_user_input function - some may not be used
   char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
-  L6470_axis_t axis_index[3];
+  L64XX_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max;
@@ -92,16 +94,16 @@ void GcodeSuite::M916() {
 
   uint8_t j;   // general purpose counter
 
-  if (L64xx_MARLIN.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
+  if (L64xxManager.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
 
-  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xxManager.shadow;
   for (j = 0; j < driver_count; j++)
-    L64xx_MARLIN.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64xxManager.get_status(axis_index[j]);  // clear out any pre-existing error flags
 
   char temp_axis_string[] = " ";
   temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
@@ -112,11 +114,10 @@ void GcodeSuite::M916() {
   uint16_t M91x_counter_max;
   if (sh.STATUS_AXIS_LAYOUT == 1) {
     M91x_counter_max = 128;  // TVAL is 7 bits
-    LIMIT(M91x_counter, 0, 127);
+    LIMIT(M91x_counter, 0U, 127U);
   }
-  else {
+  else
     M91x_counter_max = 256;  // KVAL_HOLD is 8 bits
-  }
 
   uint8_t M91x_delay_s = parser.byteval('D');   // get delay in seconds
   millis_t M91x_delay_ms = M91x_delay_s * 60 * 1000;
@@ -132,26 +133,26 @@ void GcodeSuite::M916() {
       DEBUG_ECHOLNPAIR("kval_hold = ", M91x_counter);                                   // report KVAL_HOLD for this run
 
     for (j = 0; j < driver_count; j++)
-      L64xx_MARLIN.set_param(axis_index[j], L6470_KVAL_HOLD, M91x_counter);  //set KVAL_HOLD or TVAL (same register address)
+      L64xxManager.set_param(axis_index[j], L6470_KVAL_HOLD, M91x_counter);  //set KVAL_HOLD or TVAL (same register address)
 
     M91x_delay_end = millis() + M91x_delay_ms;
     do {
-        // turn the motor(s) both directions
-        sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_min), uint16_t(final_feedrate));
-        gcode.process_subcommands_now_P(gcode_string);
+      // turn the motor(s) both directions
+      sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_min), uint16_t(final_feedrate));
+      gcode.process_subcommands_now_P(gcode_string);
 
-        sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_max), uint16_t(final_feedrate));
-        gcode.process_subcommands_now_P(gcode_string);
+      sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_max), uint16_t(final_feedrate));
+      gcode.process_subcommands_now_P(gcode_string);
 
-        // get the status after the motors have stopped
-        planner.synchronize();
+      // get the status after the motors have stopped
+      planner.synchronize();
 
-        status_composite = 0;    // clear out the old bits
+      status_composite = 0;    // clear out the old bits
 
-        for (j = 0; j < driver_count; j++) {
-          axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
-          status_composite |= axis_status[j] ;
-        }
+      for (j = 0; j < driver_count; j++) {
+        axis_status[j] = (~L64xxManager.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
+        status_composite |= axis_status[j] ;
+      }
 
       if (status_composite) break;
     } while (millis() < M91x_delay_end);
@@ -164,22 +165,24 @@ void GcodeSuite::M916() {
 
   DEBUG_ECHOLNPGM(".");
 
-  if (status_composite) {
-    L64xx_MARLIN.error_status_decode(status_composite, axis_index[0],
-      sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
-      sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
-      sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
-    DEBUG_ECHOLNPGM(".");
-  }
+  #if ENABLED(L6470_CHITCHAT)
+    if (status_composite) {
+      L64xxManager.error_status_decode(status_composite, axis_index[0],
+        sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+        sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+        sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
+      DEBUG_ECHOLNPGM(".");
+    }
+  #endif
 
   if ((status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)))
-      DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Thermal warning/shutdown has occurred");
+    DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Thermal warning/shutdown has occurred");
   else if (status_composite)
     DEBUG_ECHOLNPGM(".\n.\nTest completed abnormally - non-thermal error has occured");
   else
     DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Unable to get to thermal warning/shutdown");
 
-  L64xx_active = false;
+  L64xxManager.pause_monitor(false);
 }
 
 /**
@@ -216,10 +219,10 @@ void GcodeSuite::M917() {
 
   DEBUG_ECHOLNPGM("M917");
 
-  L64xx_active = true;               //  keep monitor_driver() from stealing status
+  L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
 
   char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
-  L6470_axis_t axis_index[3];
+  L64XX_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max;
@@ -233,26 +236,25 @@ void GcodeSuite::M917() {
 
   uint8_t j;   // general purpose counter
 
-  if (L64xx_MARLIN.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
+  if (L64xxManager.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
   DEBUG_ECHOLNPAIR("feedrate = ", final_feedrate);
 
   planner.synchronize();                             // wait for all current movement commands to complete
 
-  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xxManager.shadow;
   for (j = 0; j < driver_count; j++)
-    L64xx_MARLIN.get_status(axis_index[j]);  // clear out any pre-existing error flags
+    L64xxManager.get_status(axis_index[j]);  // clear error flags
   char temp_axis_string[] = " ";
-  temp_axis_string[0] = axis_mon[0][0];  // need to have a string for use within sprintf format section
+  temp_axis_string[0] = axis_mon[0][0];   // need a sprintf format string
   char gcode_string[80];
   uint16_t status_composite = 0;
-  uint8_t test_phase = 0;
-        // 0 - decreasing OCD - exit when OCD warning occurs (ignore STALL)
-        // 1 - increasing OCD - exit when OCD warning stops (ignore STALL) -
-        // 2 - OCD finalized - decreasing STALL - exit when STALL warning happens
-        // 3 - OCD finalized - increasing STALL - exit when STALL warning stop
-        // 4 - all testing completed
+  uint8_t test_phase = 0;                 // 0 - decreasing OCD - exit when OCD warning occurs (ignore STALL)
+                                          // 1 - increasing OCD - exit when OCD warning stops (ignore STALL)
+                                          // 2 - OCD finalized - decreasing STALL - exit when STALL warning happens
+                                          // 3 - OCD finalized - increasing STALL - exit when STALL warning stop
+                                          // 4 - all testing completed
   DEBUG_ECHOPAIR(".\n.\n.\nover_current threshold : ", (OCD_TH_val + 1) * 375);   // first status display
   DEBUG_ECHOPAIR("  (OCD_TH:  : ", OCD_TH_val);
   if (sh.STATUS_AXIS_LAYOUT != 1) {
@@ -277,19 +279,21 @@ void GcodeSuite::M917() {
     status_composite = 0;    // clear out the old bits
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
+      axis_status[j] = (~L64xxManager.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
       status_composite |= axis_status[j];
     }
 
     if (status_composite && (status_composite & sh.STATUS_AXIS_UVLO)) {
       DEBUG_ECHOLNPGM("Test aborted (Undervoltage lockout active)");
-      for (j = 0; j < driver_count; j++) {
-        DEBUG_ECHOPGM("...");
-        L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
-          sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
-          sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
-          sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
-      }
+      #if ENABLED(L6470_CHITCHAT)
+        for (j = 0; j < driver_count; j++) {
+          if (j) DEBUG_ECHOPGM("...");
+          L64xxManager.error_status_decode(axis_status[j], axis_index[j],
+            sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+            sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+            sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
+        }
+      #endif
       return;
     }
 
@@ -304,7 +308,7 @@ void GcodeSuite::M917() {
           DEBUG_EOL();
           DEBUG_ECHOLNPAIR("Lowering KVAL_HOLD by about 5% to ", kval_hold);
           for (j = 0; j < driver_count; j++)
-            L64xx_MARLIN.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
+            L64xxManager.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
         gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
@@ -312,7 +316,7 @@ void GcodeSuite::M917() {
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
-          axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
+          axis_status[j] = (~L64xxManager.get_status(axis_index[j])) & sh.L6470_ERROR_MASK;    // bits of interest are all active low
           status_composite_temp |= axis_status[j];
         }
       }
@@ -486,10 +490,10 @@ void GcodeSuite::M917() {
 
     if (test_phase != 4) {
       for (j = 0; j < driver_count; j++) {                       // update threshold(s)
-        L64xx_MARLIN.set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val);
-        if (sh.STATUS_AXIS_LAYOUT != 1) L64xx_MARLIN.set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val);
-        if (L64xx_MARLIN.get_param(axis_index[j], L6470_OCD_TH) != OCD_TH_val) DEBUG_ECHOLNPGM("OCD mismatch");
-        if ((L64xx_MARLIN.get_param(axis_index[j], L6470_STALL_TH) != STALL_TH_val) && (sh.STATUS_AXIS_LAYOUT != 1)) DEBUG_ECHOLNPGM("STALL mismatch");
+        L64xxManager.set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val);
+        if (sh.STATUS_AXIS_LAYOUT != 1) L64xxManager.set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val);
+        if (L64xxManager.get_param(axis_index[j], L6470_OCD_TH) != OCD_TH_val) DEBUG_ECHOLNPGM("OCD mismatch");
+        if ((L64xxManager.get_param(axis_index[j], L6470_STALL_TH) != STALL_TH_val) && (sh.STATUS_AXIS_LAYOUT != 1)) DEBUG_ECHOLNPGM("STALL mismatch");
       }
     }
 
@@ -497,21 +501,24 @@ void GcodeSuite::M917() {
 
   DEBUG_ECHOLNPGM(".");
   if (status_composite) {
-    for (j = 0; j < driver_count; j++) {
-      DEBUG_ECHOPGM("...");
-      L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
-        sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
-        sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
-        sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
-    }
-    DEBUG_ECHOLNPGM(".");
+    #if ENABLED(L6470_CHITCHAT)
+      for (j = 0; j < driver_count; j++) {
+        if (j) DEBUG_ECHOPGM("...");
+        L64xxManager.error_status_decode(axis_status[j], axis_index[j],
+          sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+          sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+          sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
+      }
+      DEBUG_ECHOLNPGM(".");
+    #endif
     DEBUG_ECHOLNPGM("Completed with errors");
   }
   else
     DEBUG_ECHOLNPGM("Completed with no errors");
   DEBUG_ECHOLNPGM(".");
-  L64xx_active = false;
-} // M917
+
+  L64xxManager.pause_monitor(false);
+}
 
 /**
  *
@@ -541,10 +548,10 @@ void GcodeSuite::M918() {
 
   DEBUG_ECHOLNPGM("M918");
 
-  L64xx_active = true;               //  keep monitor_driver() from stealing status
+  L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
 
   char axis_mon[3][3] = { {"  "}, {"  "}, {"  "} };   // list of Axes to be monitored
-  L6470_axis_t axis_index[3];
+  L64XX_axis_t axis_index[3];
   uint16_t axis_status[3];
   uint8_t driver_count = 1;
   float position_max, position_min;
@@ -555,20 +562,19 @@ void GcodeSuite::M918() {
   uint16_t over_current_threshold;
   constexpr uint8_t over_current_flag = true;
 
-  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xxManager.shadow;
 
   uint8_t j;   // general purpose counter
 
-  if (L64xx_MARLIN.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
+  if (L64xxManager.get_user_input(driver_count, axis_index, axis_mon, position_max, position_min, final_feedrate, kval_hold, over_current_flag, OCD_TH_val, STALL_TH_val, over_current_threshold))
     return;  // quit if invalid user input
 
-  L64xx_MARLIN.get_status(axis_index[0]); // populate shadow array
+  L64xxManager.get_status(axis_index[0]); // populate shadow array
 
   uint8_t m_steps = parser.byteval('M');
 
   if (m_steps != 0) {
-    if (sh.STATUS_AXIS_LAYOUT == 1) LIMIT(m_steps, 1, 16);  // L6474
-    else                            LIMIT(m_steps, 1, 128);
+    LIMIT(m_steps, 1, sh.STATUS_AXIS_LAYOUT == 1 ? 16 : 128);  // L6474
 
     uint8_t stepVal;
     for (stepVal = 0; stepVal < 8; stepVal++) {  // convert to L64xx register value
@@ -577,37 +583,37 @@ void GcodeSuite::M918() {
     }
 
     if (sh.STATUS_AXIS_LAYOUT == 1)
-      stepVal |= 0x98 ;  //no sync
+      stepVal |= 0x98;  // NO SYNC
     else
       stepVal |= (!SYNC_EN) | SYNC_SEL_1 | stepVal;
 
     for (j = 0; j < driver_count; j++) {
-      L64xx_MARLIN.set_param(axis_index[j], dSPIN_HARD_HIZ, 0);          // can't write STEP register if stepper being powered
+      L64xxManager.set_param(axis_index[j], dSPIN_HARD_HIZ, 0);          // can't write STEP register if stepper being powered
                                                                          //   results in an extra NOOP being sent (data 00)
-      L64xx_MARLIN.set_param(axis_index[j], L6470_STEP_MODE, stepVal);   // set microsteps
+      L64xxManager.set_param(axis_index[j], L6470_STEP_MODE, stepVal);   // set microsteps
     }
   }
-  m_steps = L64xx_MARLIN.get_param(axis_index[0], L6470_STEP_MODE) & 0x07;   // get microsteps
+  m_steps = L64xxManager.get_param(axis_index[0], L6470_STEP_MODE) & 0x07;   // get microsteps
 
   DEBUG_ECHOLNPAIR("Microsteps = ", _BV(m_steps));
+  DEBUG_ECHOLNPAIR("target (maximum) feedrate = ", final_feedrate);
 
-  DEBUG_ECHOLNPAIR("target (maximum) feedrate = ",final_feedrate);
+  const float feedrate_inc = final_feedrate / 10,   // Start at 1/10 of max & go up by 1/10 per step
+              fr_limit = final_feedrate * 0.99f;    // Rounding-safe comparison value
+  float current_feedrate = 0;
 
-  float feedrate_inc = final_feedrate / 10, // start at 1/10 of max & go up by 1/10 per step)
-        current_feedrate = 0;
-
-  planner.synchronize();                  // wait for all current movement commands to complete
+  planner.synchronize();                            // Wait for moves to complete
 
   for (j = 0; j < driver_count; j++)
-    L64xx_MARLIN.get_status(axis_index[j]);      // clear all error flags
+    L64xxManager.get_status(axis_index[j]);         // Clear error flags
 
   char temp_axis_string[2] = " ";
-  temp_axis_string[0] = axis_mon[0][0];   // need to have a string for use within sprintf format section
+  temp_axis_string[0] = axis_mon[0][0];             // Need a sprintf format string
   //temp_axis_string[1] = '\n';
 
-  char gcode_string[80];//
+  char gcode_string[80];
   uint16_t status_composite = 0;
-  DEBUG_ECHOLNPGM(".\n.\n.");            // make the feedrate prints easier to see
+  DEBUG_ECHOLNPGM(".\n.\n.");                       // Make feedrate outputs easier to read
 
   do {
     current_feedrate += feedrate_inc;
@@ -622,27 +628,29 @@ void GcodeSuite::M918() {
     planner.synchronize();
 
     for (j = 0; j < driver_count; j++) {
-      axis_status[j] = (~L64xx_MARLIN.get_status(axis_index[j])) & 0x0800;    // bits of interest are all active low
+      axis_status[j] = (~L64xxManager.get_status(axis_index[j])) & 0x0800;  // Bits of interest are all active LOW
       status_composite |= axis_status[j];
     }
-    if (status_composite) break;       // quit if any errors flags are raised
-  } while (current_feedrate < final_feedrate * 0.99);
+    if (status_composite) break;              // Break on any error
+  } while (current_feedrate < fr_limit);
 
   DEBUG_ECHOPGM("Completed with ");
   if (status_composite) {
     DEBUG_ECHOLNPGM("errors");
-    for (j = 0; j < driver_count; j++) {
-      DEBUG_ECHOPGM("...");
-      L64xx_MARLIN.error_status_decode(axis_status[j], axis_index[j],
-        sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
-        sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
-        sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
-    }
+    #if ENABLED(L6470_CHITCHAT)
+      for (j = 0; j < driver_count; j++) {
+        if (j) DEBUG_ECHOPGM("...");
+        L64xxManager.error_status_decode(axis_status[j], axis_index[j],
+          sh.STATUS_AXIS_TH_SD, sh.STATUS_AXIS_TH_WRN,
+          sh.STATUS_AXIS_STEP_LOSS_A, sh.STATUS_AXIS_STEP_LOSS_B,
+          sh.STATUS_AXIS_OCD, sh.STATUS_AXIS_LAYOUT);
+      }
+    #endif
   }
   else
     DEBUG_ECHOLNPGM("no errors");
 
-  L64xx_active = false;
-} // M918
+  L64xxManager.pause_monitor(false);
+}
 
 #endif // HAS_L64XX

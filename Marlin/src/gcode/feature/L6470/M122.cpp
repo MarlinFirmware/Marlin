@@ -25,32 +25,32 @@
 #if HAS_L64XX
 
 #include "../../gcode.h"
-#include "../../../libs/L6470/L6470_Marlin.h"
+#include "../../../libs/L64XX/L64XX_Marlin.h"
 #include "../../../module/stepper/indirection.h"
 
-inline void echo_yes_no(uint32_t yes) { uint8_t _yes = !(yes == 0); serialprintPGM(_yes ? PSTR(" YES") : PSTR(" NO ")); }
+void echo_yes_no(const bool yes);
 
-inline void L6470_say_status(const L6470_axis_t axis) {
-  if (L64xx_MARLIN.spi_abort) return;
-  const L64XX_Marlin::L64XX_shadow_t &sh = L64xx_MARLIN.shadow;
-  L64xx_MARLIN.get_status(axis);
-  L64xx_MARLIN.say_axis(axis);
+inline void L6470_say_status(const L64XX_axis_t axis) {
+  if (L64xxManager.spi_abort) return;
+  const L64XX_Marlin::L64XX_shadow_t &sh = L64xxManager.shadow;
+  L64xxManager.get_status(axis);
+  L64xxManager.say_axis(axis);
   #if ENABLED(L6470_CHITCHAT)
     char temp_buf[20];
     sprintf_P(temp_buf, PSTR("   status: %4x   "), sh.STATUS_AXIS_RAW);
     SERIAL_ECHO(temp_buf);
     print_bin(sh.STATUS_AXIS_RAW);
     switch (sh.STATUS_AXIS_LAYOUT) {
-      case 0: {serialprintPGM(PSTR("   L6470")); break;}
-      case 1: {serialprintPGM(PSTR("   L6474")); break;}
-      case 2: {serialprintPGM(PSTR("   L6480/powerSTEP01")); break;}
+      case 0: { serialprintPGM(PSTR("   L6470")); break; }
+      case 1: { serialprintPGM(PSTR("   L6474")); break; }
+      case 2: { serialprintPGM(PSTR("   L6480/powerSTEP01")); break; }
     }
   #endif
   SERIAL_ECHOPGM("\n...OUTPUT: ");
   serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
-  SERIAL_ECHOPGM("   BUSY: "); echo_yes_no(!(sh.STATUS_AXIS & STATUS_BUSY));
+  SERIAL_ECHOPGM("   BUSY: "); echo_yes_no((sh.STATUS_AXIS & STATUS_BUSY) == 0);
   SERIAL_ECHOPGM("   DIR: ");
-  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xx_MARLIN.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
   SERIAL_ECHOPGM("   Last Command: ");
   if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("IN");
   SERIAL_ECHOPGM("VALID    ");
@@ -67,30 +67,28 @@ inline void L6470_say_status(const L6470_axis_t axis) {
     serialprintPGM(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  PSTR("COMPLETED    ") : PSTR("Not PERFORMED"));
     SERIAL_ECHOPAIR("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
   }
-  SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_OCD));
+  SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_OCD) == 0);
   if (sh.STATUS_AXIS_LAYOUT != 1) {
-    SERIAL_ECHOPGM("   STALL:"); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_A) || !(sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_B));
-    SERIAL_ECHOPGM("   STEP-CLOCK MODE:"); echo_yes_no(sh.STATUS_AXIS & sh.STATUS_AXIS_SCK_MOD);
+    SERIAL_ECHOPGM("   STALL:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_A) == 0 || (sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_B) == 0);
+    SERIAL_ECHOPGM("   STEP-CLOCK MODE:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_SCK_MOD) != 0);
   }
   else {
-    SERIAL_ECHOPGM("   STALL: NA ");
-    SERIAL_ECHOPGM("   STEP-CLOCK MODE: NA");
-    SERIAL_ECHOPGM("   UNDER VOLTAGE LOCKOUT: "); echo_yes_no(!(sh.STATUS_AXIS & sh.STATUS_AXIS_UVLO));
+    SERIAL_ECHOPGM("   STALL: NA "
+                   "   STEP-CLOCK MODE: NA"
+                   "   UNDER VOLTAGE LOCKOUT: "); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_UVLO) == 0);
   }
   SERIAL_EOL();
 }
-
-
 
 /**
  * M122: Debug L6470 drivers
  */
 void GcodeSuite::M122() {
-  L64xx_active = true;               //  keep monitor_driver() from stealing status
-  L64xx_MARLIN.spi_active = true;    // let set_directions() know we're in the middle of a series of SPI transfers
+  L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
+  L64xxManager.spi_active = true;   // Tell set_directions() a series of SPI transfers is underway
 
   //if (parser.seen('S'))
-  // tmc_set_report_interval(parser.value_bool());
+  //  tmc_set_report_interval(parser.value_bool());
   //else
 
   #if AXIS_IS_L64XX(X)
@@ -133,9 +131,9 @@ void GcodeSuite::M122() {
     L6470_say_status(E5);
   #endif
 
-  L64xx_MARLIN.spi_active = false;   // done with all SPI transfers - clear handshake flags
-  L64xx_MARLIN.spi_abort = false;
-  L64xx_active = false;
+  L64xxManager.spi_active = false;   // done with all SPI transfers - clear handshake flags
+  L64xxManager.spi_abort = false;
+  L64xxManager.pause_monitor(false);
 }
 
 #endif // HAS_L64XX

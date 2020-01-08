@@ -118,7 +118,7 @@ Stepper stepper; // Singleton
 #endif
 
 #if HAS_L64XX
-  #include "../libs/L6470/L6470_Marlin.h"
+  #include "../libs/L64XX/L64XX_Marlin.h"
   uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
   bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
 #endif
@@ -379,11 +379,11 @@ void Stepper::set_directions() {
 
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
-      A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
+      A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
       count_direction[_AXIS(A)] = -1;           \
     }                                           \
     else {                                      \
-      A##_APPLY_DIR(!INVERT_## A##_DIR, false); \
+      A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
       count_direction[_AXIS(A)] = 1;            \
     }
 
@@ -425,22 +425,22 @@ void Stepper::set_directions() {
 
   #if HAS_L64XX
     if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
-      if (L64xx_MARLIN.spi_active) {
-        L64xx_MARLIN.spi_abort = true;                      // Interrupted a SPI transfer - need to shut it down gracefully
+      if (L64xxManager.spi_active) {
+        L64xxManager.spi_abort = true;                    // Interrupted SPI transfer needs to shut down gracefully
         for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-          L6470_buf[j] = dSPIN_NOP;                       // Fill buffer with NOOP commands
-        L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
-        L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);
-        L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);
+          L6470_buf[j] = dSPIN_NOP;                         // Fill buffer with NOOPs
+        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
+        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
+        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
       }
 
-      // L64xx_MARLIN.dir_commands[] is an array that holds direction command for each stepper
+      // L64xxManager.dir_commands[] is an array that holds direction command for each stepper
 
-      // Scan command array, copy matches into L64xx_MARLIN.transfer
+      // Scan command array, copy matches into L64xxManager.transfer
       for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-        L6470_buf[j] = L64xx_MARLIN.dir_commands[L64XX::chain[j]];
+        L6470_buf[j] = L64xxManager.dir_commands[L64XX::chain[j]];
 
-      L64xx_MARLIN.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
+      L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
     }
   #endif
 
