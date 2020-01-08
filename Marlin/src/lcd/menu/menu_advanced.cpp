@@ -114,9 +114,8 @@ void menu_cancelobject();
       #if EXTRUDERS == 1
         EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
       #elif EXTRUDERS > 1
-        #define EDIT_ADVANCE_K(N) EDIT_ITEM_N(float52, N, MSG_ADVANCE_K_E, &planner.extruder_advance_K[N], 0, 999)
         for (uint8_t n = 0; n < EXTRUDERS; n++)
-          EDIT_ADVANCE_K(n);
+          EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
       #endif
     #endif
 
@@ -571,8 +570,8 @@ void menu_advanced_settings() {
     #if EXTRUDERS == 1
       EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      #define EDIT_ADVANCE_K(N) EDIT_ITEM_N(float52, N, MSG_ADVANCE_K_E, &planner.extruder_advance_K[N], 0, 999)
-      for (uint8_t n = 0; n < E_STEPPERS; n++) EDIT_ADVANCE_K(n);
+      for (uint8_t n = 0; n < E_STEPPERS; n++)
+        EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
   #endif
 

@@ -182,22 +182,21 @@ void menu_tune() {
   //
   #if EXTRUDERS == 1
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, []{ planner.refresh_e_factor(0); });
-  #elif EXTRUDERS
+  #elif EXTRUDERS > 1
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
-    #define EDIT_FLOW(N) EDIT_ITEM_N(int3, N, MSG_FLOW_N, &planner.flow_percentage[N], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); })
-    for (uint8_t n = 0; n < EXTRUDERS; n++) EDIT_FLOW(n);
+    for (uint8_t n = 0; n < EXTRUDERS; n++)
+      EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
   #endif
 
   //
   // Advance K:
   //
-  #if ENABLED(LIN_ADVANCE)
+  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
     #if EXTRUDERS == 1
       EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      #define EDIT_ADVANCE_K(N) EDIT_ITEM_N(float52, N, MSG_ADVANCE_K_E, &planner.extruder_advance_K[N], 0, 999)
       for (uint8_t n = 0; n < EXTRUDERS; n++)
-        EDIT_ADVANCE_K(n);
+        EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
   #endif
 
