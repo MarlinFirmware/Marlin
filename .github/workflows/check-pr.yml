@@ -1,6 +1,6 @@
 #
 # check-pr.yml
-# Automatically close the PR if it's directed to a release branch
+# Add a comment to the PR if it's directed to a release branch
 #
 
 name: Check PR
