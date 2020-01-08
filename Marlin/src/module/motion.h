@@ -72,9 +72,10 @@ extern xyze_pos_t current_position,  // High-level current tool position
  */
 extern xyze_pos_t stored_position[NUM_POSITON_SLOTS];
 // Various flag bit 1 PosSaved
-static bool PosSaved;
-FORCE_INLINE void setPosSaved(const bool onoff) { PosSaved = onoff; }
-FORCE_INLINE bool isPosSaved() { return PosSaved; }
+//static bool PosSaved;
+extern bool isPosSaved;
+//FORCE_INLINE void setPosSaved(const bool onoff) { PosSaved = onoff; }
+//FORCE_INLINE bool isPosSaved() { return PosSaved; }
 
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
