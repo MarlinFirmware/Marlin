@@ -5,7 +5,7 @@
     #undef  digitalPinToPCICR
     #define digitalPinToPCICR(p)    ( ((p) >= 10 && (p) <= 15) || \
                                       ((p) >= 50 && (p) <= 53) || \
-                                      ((p) >= 62 && (p) <= 69) ? &PCICR : nullptr)
+                                      ((p) >= 62 && (p) <= 69) ? (&PCICR) : nullptr)
 #endif
 
 void setup() {

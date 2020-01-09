@@ -178,7 +178,7 @@ FORCE_INLINE void MarlinSerial<Cfg>::store_rxd_char() {
 }
 
 template<typename Cfg>
-FORCE_INLINE void MarlinSerial<Cfg>::_tx_thr_empty_irq(void) {
+FORCE_INLINE void MarlinSerial<Cfg>::_tx_thr_empty_irq() {
   if (Cfg::TX_SIZE > 0) {
     // Read positions
     uint8_t t = tx_buffer.tail;
@@ -221,7 +221,7 @@ FORCE_INLINE void MarlinSerial<Cfg>::_tx_thr_empty_irq(void) {
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::UART_ISR(void) {
+void MarlinSerial<Cfg>::UART_ISR() {
   const uint32_t status = HWUART->UART_SR;
 
   // Data received?
@@ -308,13 +308,13 @@ void MarlinSerial<Cfg>::end() {
 }
 
 template<typename Cfg>
-int MarlinSerial<Cfg>::peek(void) {
+int MarlinSerial<Cfg>::peek() {
   const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
   return v;
 }
 
 template<typename Cfg>
-int MarlinSerial<Cfg>::read(void) {
+int MarlinSerial<Cfg>::read() {
 
   const ring_buffer_pos_t h = rx_buffer.head;
   ring_buffer_pos_t t = rx_buffer.tail;
@@ -354,13 +354,13 @@ int MarlinSerial<Cfg>::read(void) {
 }
 
 template<typename Cfg>
-typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::available(void) {
+typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::available() {
   const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
   return (ring_buffer_pos_t)(Cfg::RX_SIZE + h - t) & (Cfg::RX_SIZE - 1);
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::flush(void) {
+void MarlinSerial<Cfg>::flush() {
   rx_buffer.tail = rx_buffer.head;
 
   if (Cfg::XONOFF) {
@@ -431,7 +431,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::flushTX(void) {
+void MarlinSerial<Cfg>::flushTX() {
   // TX
 
   if (Cfg::TX_SIZE == 0) {
@@ -520,7 +520,7 @@ void MarlinSerial<Cfg>::print(double n, int digits) {
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::println(void) {
+void MarlinSerial<Cfg>::println() {
   print('\r');
   print('\n');
 }

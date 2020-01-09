@@ -22,8 +22,8 @@
 #ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
-#include "Adafruit_ZeroDMA.h"
-#include "wiring_private.h"
+#include <Adafruit_ZeroDMA.h>
+#include <wiring_private.h>
 
 // ------------------------
 // Local defines
@@ -368,12 +368,13 @@ uint16_t HAL_adc_result;
 // ------------------------
 
 // HAL initialization task
-void HAL_init(void) {
+void HAL_init() {
   #if DMA_IS_REQUIRED
     dma_init();
   #endif
   #if ENABLED(SDSUPPORT)
-    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)    // SD_DETECT_PIN may be remove when NO_SD_HOST_DRIVE is not defined in configuration_adv
+    // SD_DETECT_PIN may be removed if NO_SD_HOST_DRIVE is not defined in Configuration_adv.h
+    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
@@ -382,15 +383,15 @@ void HAL_init(void) {
 
 // HAL idle task
 /*
-void HAL_idletask(void) {
+void HAL_idletask() {
 }
 */
 
-void HAL_clear_reset_source(void) { }
+void HAL_clear_reset_source() { }
 
 #pragma push_macro("WDT")
 #undef WDT    // Required to be able to use '.bit.WDT'. Compiler wrongly replace struct field with WDT define
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   RSTC_RCAUSE_Type resetCause;
 
   resetCause.reg = REG_RSTC_RCAUSE;
@@ -413,14 +414,14 @@ extern "C" {
 // Return free memory between end of heap (or end bss) and whatever is current
 int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
-  return (int)&free_memory - (heap_end ? heap_end : (int)&__bss_end__);
+  return (int)&free_memory - (heap_end ?: (int)&__bss_end__);
 }
 
 // ------------------------
 // ADC
 // ------------------------
 
-void HAL_adc_init(void) {
+void HAL_adc_init() {
   #if ADC_IS_REQUIRED
     memset(HAL_adc_results, 0xFF, sizeof(HAL_adc_results));                 // Fill result with invalid values
 
@@ -441,9 +442,11 @@ void HAL_adc_init(void) {
       // Preloaded data (fixed for all ADC instances hence not loaded by DMA)
       adc->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;               // VRefA pin
       SYNC(adc->SYNCBUSY.bit.REFCTRL);
-      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
       SYNC(adc->SYNCBUSY.bit.CTRLB);
       adc->SAMPCTRL.bit.SAMPLEN = (6 - 1);                                  // Sampling clocks
+      adc->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_16 | ADC_AVGCTRL_ADJRES(4);  // 16 Accumulated conversions and shift 4 to get oversampled 12 bits result
+      SYNC(adc->SYNCBUSY.bit.AVGCTRL);
       // Registers loaded by DMA
       adc->DSEQCTRL.bit.INPUTCTRL = true;
 
@@ -468,7 +471,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   HAL_adc_result = 0xFFFF;
 }
 
-uint16_t HAL_adc_get_result(void) {
+uint16_t HAL_adc_get_result() {
   return HAL_adc_result;
 }
 

@@ -80,7 +80,10 @@ void GcodeSuite::M0_M1() {
 
   #elif ENABLED(EXTENSIBLE_UI)
 
-    ExtUI::onUserConfirmRequired(has_message ? args : MSG_USERWAIT); // SRAM string
+    if (has_message)
+      ExtUI::onUserConfirmRequired(args); // Can this take an SRAM string??
+    else
+      ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
 
   #else
 
@@ -95,10 +98,7 @@ void GcodeSuite::M0_M1() {
   wait_for_user = true;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), PSTR("Continue"));
-  #endif
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onUserConfirmRequired(PSTR("M0/1 Break Called"));
+    host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), CONTINUE_STR);
   #endif
 
   if (ms > 0) {

@@ -59,6 +59,10 @@
   #include "../../sd/cardreader.h"
 #endif
 
+#if ENABLED(LCD_SHOW_E_TOTAL)
+  #include "../../Marlin.h" // for printingIsActive
+#endif
+
 #define TEXT_MODE_LCD_WIDTH 16
 
 #define BUFFER_WIDTH   256
@@ -612,6 +616,8 @@ void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint16_t percenta
     begin_data();
     write_number(percentage, 3);
     write_byte('%');
+  #else
+    UNUSED(percentage);
   #endif
 }
 
@@ -658,7 +664,7 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
   #endif
 }
 
-void ST7920_Lite_Status_Screen::draw_position(const float x, const float y, const float z, bool position_known) {
+void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool position_known) {
   char str[7];
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
@@ -666,14 +672,28 @@ void ST7920_Lite_Status_Screen::draw_position(const float x, const float y, cons
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_known ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  write_byte(alt_label ? alt_label : 'X');
-  write_str(dtostrf(x, -4, 0, str), 4);
+  if (true
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      && !printingIsActive()
+    #endif
+  ) {
+    write_byte(alt_label ? alt_label : 'X');
+    write_str(dtostrf(pos.x, -4, 0, str), 4);
 
-  write_byte(alt_label ? alt_label : 'Y');
-  write_str(dtostrf(y, -4, 0, str), 4);
+    write_byte(alt_label ? alt_label : 'Y');
+    write_str(dtostrf(pos.y, -4, 0, str), 4);
+  }
+  else {
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      char tmp[15];
+      const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
+      sprintf_P(tmp, PSTR("E%-7ld%cm "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
+      write_str(tmp);
+    #endif
+  }
 
   write_byte(alt_label ? alt_label : 'Z');
-  write_str(dtostrf(z, -5, 1, str), 5);
+  write_str(dtostrf(pos.z, -5, 1, str), 5);
 }
 
 bool ST7920_Lite_Status_Screen::indicators_changed() {
@@ -748,8 +768,8 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 }
 
 bool ST7920_Lite_Status_Screen::position_changed() {
-  const float x_pos = current_position[X_AXIS], y_pos = current_position[Y_AXIS], z_pos = current_position[Z_AXIS];
-  const uint8_t checksum = uint8_t(x_pos) ^ uint8_t(y_pos) ^ uint8_t(z_pos);
+  const xyz_pos_t pos = current_position;
+  const uint8_t checksum = uint8_t(pos.x) ^ uint8_t(pos.y) ^ uint8_t(pos.z);
   static uint8_t last_checksum = 0, changed = last_checksum != checksum;
   if (changed) last_checksum = checksum;
   return changed;
@@ -826,16 +846,14 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
       }
     }
 
-    if (countdown == 0 && (forceUpdate || position_changed() ||
+    if (countdown == 0 && (forceUpdate || position_changed()
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        blink_changed()
+        || blink_changed()
       #endif
     )) {
-      draw_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-        #if ENABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-          true
-        #else
-          all_axes_known()
+      draw_position(current_position, true
+        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+          && all_axes_known()
         #endif
       );
     }
@@ -850,7 +868,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
     // when an update is actually necessary.
 
     static uint8_t last_progress = 0;
-    const uint8_t progress = ui.get_progress();
+    const uint8_t progress = ui.get_progress_percent();
     if (forceUpdate || last_progress != progress) {
       last_progress = progress;
       draw_progress_bar(progress);

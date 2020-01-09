@@ -44,28 +44,32 @@ struct linear_fit_data {
         A, B, D, N;
 };
 
-void inline incremental_LSF_reset(struct linear_fit_data *lsf) {
+inline void incremental_LSF_reset(struct linear_fit_data *lsf) {
   memset(lsf, 0, sizeof(linear_fit_data));
 }
 
-void inline incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
+inline void incremental_WLSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z, const float &w) {
   // weight each accumulator by factor w, including the "number" of samples
   // (analogous to calling inc_LSF twice with same values to weight it by 2X)
-  lsf->xbar  += w * x;
-  lsf->ybar  += w * y;
-  lsf->zbar  += w * z;
-  lsf->x2bar += w * x * x;  // don't use sq(x) -- let compiler re-use w*x four times
-  lsf->y2bar += w * y * y;
-  lsf->z2bar += w * z * z;
-  lsf->xybar += w * x * y;
-  lsf->xzbar += w * x * z;
-  lsf->yzbar += w * y * z;
+  const float wx = w * x, wy = w * y, wz = w * z;
+  lsf->xbar  += wx;
+  lsf->ybar  += wy;
+  lsf->zbar  += wz;
+  lsf->x2bar += wx * x;
+  lsf->y2bar += wy * y;
+  lsf->z2bar += wz * z;
+  lsf->xybar += wx * y;
+  lsf->xzbar += wx * z;
+  lsf->yzbar += wy * z;
   lsf->N     += w;
-  lsf->max_absx = _MAX(ABS(w * x), lsf->max_absx);
-  lsf->max_absy = _MAX(ABS(w * y), lsf->max_absy);
+  lsf->max_absx = _MAX(ABS(wx), lsf->max_absx);
+  lsf->max_absy = _MAX(ABS(wy), lsf->max_absy);
+}
+inline void incremental_WLSF(struct linear_fit_data *lsf, const xy_pos_t &pos, const float &z, const float &w) {
+  incremental_WLSF(lsf, pos.x, pos.y, z, w);
 }
 
-void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
+inline void incremental_LSF(struct linear_fit_data *lsf, const float &x, const float &y, const float &z) {
   lsf->xbar += x;
   lsf->ybar += y;
   lsf->zbar += z;
@@ -78,6 +82,9 @@ void inline incremental_LSF(struct linear_fit_data *lsf, const float &x, const f
   lsf->max_absx = _MAX(ABS(x), lsf->max_absx);
   lsf->max_absy = _MAX(ABS(y), lsf->max_absy);
   lsf->N += 1.0;
+}
+inline void incremental_LSF(struct linear_fit_data *lsf, const xy_pos_t &pos, const float &z) {
+  incremental_LSF(lsf, pos.x, pos.y, z);
 }
 
 int finish_incremental_LSF(struct linear_fit_data *);

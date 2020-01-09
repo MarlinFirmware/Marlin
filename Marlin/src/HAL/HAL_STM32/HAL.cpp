@@ -28,11 +28,21 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+#if (__cplusplus == 201703L) && defined(__has_include)
+  #define HAS_SWSERIAL __has_include(<SoftwareSerial.h>)
+#else
+  #define HAS_SWSERIAL HAS_TMC220x
+#endif
+
+#if HAS_SWSERIAL
+  #include "SoftwareSerial.h"
+#endif
+
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
-    #include "stm32f7xx_ll_pwr.h"
+    #include <stm32f7xx_ll_pwr.h>
   #elif STM32F4xx
-    #include "stm32f4xx_ll_pwr.h"
+    #include <stm32f4xx_ll_pwr.h>
   #else
     #error "SRAM_EEPROM_EMULATION is currently only supported for STM32F4xx and STM32F7xx"
   #endif
@@ -60,7 +70,7 @@ uint16_t HAL_adc_result;
 #endif
 
 // HAL initialization task
-void HAL_init(void) {
+void HAL_init() {
   FastIO_init();
 
   #if ENABLED(SDSUPPORT)
@@ -82,11 +92,15 @@ void HAL_init(void) {
   // Wait until backup regulator is initialized
   while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
+
+  #if HAS_SWSERIAL
+    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
+  #endif
 }
 
-void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
+void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
-uint8_t HAL_get_reset_source(void) {
+uint8_t HAL_get_reset_source() {
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)  return RST_EXTERNAL;
@@ -104,12 +118,11 @@ extern "C" {
 // ADC
 // ------------------------
 
-void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  HAL_adc_result = analogRead(adc_pin);
-}
+// TODO: Make sure this doesn't cause any delay
+void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
 
-uint16_t HAL_adc_get_result(void) {
-  return HAL_adc_result;
-}
+uint16_t HAL_adc_get_result() { return HAL_adc_result; }
+
+void flashFirmware(int16_t) { NVIC_SystemReset(); }
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

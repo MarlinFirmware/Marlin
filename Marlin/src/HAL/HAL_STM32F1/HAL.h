@@ -42,11 +42,22 @@
 #include <util/atomic.h>
 
 #include "../../inc/MarlinConfigPre.h"
-#include "msc_sd.h"
+
+#ifdef USE_USB_COMPOSITE
+  #include "msc_sd.h"
+#endif
 
 // ------------------------
 // Defines
 // ------------------------
+
+#ifndef STM32_FLASH_SIZE
+  #ifdef MCU_STM32F103RE
+    #define STM32_FLASH_SIZE 512
+  #else
+    #define STM32_FLASH_SIZE 256
+  #endif
+#endif
 
 #ifdef SERIAL_USB
   #ifndef USE_USB_COMPOSITE
@@ -60,12 +71,6 @@
   #define MSerial4  Serial4
   #define MSerial5  Serial5
 #else
-  #ifndef USE_USB_COMPOSITE
-    extern USBSerial SerialUSB;
-    #define UsbSerial SerialUSB
-  #else
-    #define UsbSerial MarlinCompositeSerial
-  #endif
   #define MSerial1  Serial
   #define MSerial2  Serial1
   #define MSerial3  Serial2
@@ -119,9 +124,9 @@
 #endif
 
 // Set interrupt grouping for this MCU
-void HAL_init(void);
+void HAL_init();
 #define HAL_IDLETASK 1
-void HAL_idletask(void);
+void HAL_idletask();
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -186,10 +191,10 @@ extern uint16_t HAL_adc_result;
 #define __bss_end __bss_end__
 
 // Clear reset reason
-void HAL_clear_reset_source(void);
+void HAL_clear_reset_source();
 
 // Reset reason
-uint8_t HAL_get_reset_source(void);
+uint8_t HAL_get_reset_source();
 
 void _delay_ms(const int delay);
 
@@ -198,7 +203,7 @@ void _delay_ms(const int delay);
 
 /*
 extern "C" {
-  int freeMemory(void);
+  int freeMemory();
 }
 */
 
@@ -238,14 +243,15 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
 
-void HAL_adc_init(void);
+void HAL_adc_init();
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
+uint16_t HAL_adc_get_result();
 
 uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
 void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
@@ -256,3 +262,6 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(int16_t value);

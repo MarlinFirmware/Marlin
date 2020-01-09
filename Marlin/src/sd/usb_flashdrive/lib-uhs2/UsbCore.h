@@ -216,7 +216,7 @@ class USB : public MAX3421E {
   uint8_t bmHubPre;
 
 public:
-  USB(void);
+  USB();
 
   void SetHubPreMask() {
     bmHubPre |= bmHUBPRE;
@@ -243,7 +243,7 @@ public:
   void ForEachUsbDevice(UsbDeviceHandleFunc pfunc) {
     addrPool.ForEachUsbDevice(pfunc);
   };
-  uint8_t getUsbTaskState(void);
+  uint8_t getUsbTaskState();
   void setUsbTaskState(uint8_t state);
 
   EpInfo* getEpInfoEntry(uint8_t addr, uint8_t ep);
@@ -265,7 +265,7 @@ public:
   uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data);
   uint8_t dispatchPkt(uint8_t token, uint8_t ep, uint16_t nak_limit);
 
-  void Task(void);
+  void Task();
 
   uint8_t DefaultAddressing(uint8_t parent, uint8_t port, bool lowspeed);
   uint8_t Configuring(uint8_t parent, uint8_t port, bool lowspeed);

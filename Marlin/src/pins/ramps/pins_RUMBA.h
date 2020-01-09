@@ -120,7 +120,10 @@
 
 // Optional for extruder 4 or chamber:
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
-//#define TEMP_CHAMBER_PIN   12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
+
+#ifndef TEMP_CHAMBER_PIN
+  //#define TEMP_CHAMBER_PIN 12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
+#endif
 
 #if TEMP_SENSOR_BED == -1
   #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
@@ -140,7 +143,9 @@
 #ifndef FAN_PIN
   #define FAN_PIN           7
 #endif
-#define FAN1_PIN            8
+#ifndef FAN1_PIN
+  #define FAN1_PIN          8
+#endif
 
 //
 // Misc. Functions
@@ -157,7 +162,7 @@
   #define SPINDLE_LASER_PWM_PIN 4   // Hardware PWM. Pin 4 interrupts OC0* and OC1* always in use?
 #endif
 #ifndef SPINDLE_LASER_ENA_PIN
-  #define SPINDLE_LASER_ENA_PIN    14   // Pullup!
+  #define SPINDLE_LASER_ENA_PIN 14   // Pullup!
 #endif
 #ifndef SPINDLE_DIR_PIN
   #define SPINDLE_DIR_PIN  15

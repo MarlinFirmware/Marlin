@@ -92,6 +92,9 @@ U8GLIB             ?= 1
 # this defines whether to include the Trinamic TMCStepper library
 TMC                ?= 1
 
+# this defines whether to include the AdaFruit NeoPixel library
+NEOPIXEL           ?= 0
+
 ############
 # Try to automatically determine whether RELOC_WORKAROUND is needed based
 # on GCC versions:
@@ -185,7 +188,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1109)
 else ifeq ($(HARDWARE_MOTHERBOARD),1110)
 # zrib V2.0 control board (Chinese knock off RAMPS replica)
 else ifeq ($(HARDWARE_MOTHERBOARD),1111)
-# Bigtreetech or BIQU KFB2.0
+# BigTreeTech or BIQU KFB2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1112)
 # Felix 2.0+ Electronics Board (RAMPS like)
 else ifeq ($(HARDWARE_MOTHERBOARD),1113)
@@ -255,6 +258,10 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1143)
 else ifeq ($(HARDWARE_MOTHERBOARD),1144)
 # ADIMLab Gantry v2
 else ifeq ($(HARDWARE_MOTHERBOARD),1145)
+# BIQU Tango V1
+else ifeq ($(HARDWARE_MOTHERBOARD),1146)
+# MKS GEN L V2
+else ifeq ($(HARDWARE_MOTHERBOARD),1147)
 
 #
 # RAMBo and derivatives
@@ -693,7 +700,7 @@ CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
 CWARN   = -Wall -Wstrict-prototypes -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter
 CXXWARN = -Wall                     -Wno-packed-bitfield-compat -Wno-pragmas -Wunused-parameter
-CTUNING = -fsigned-char -funsigned-bitfields -fpack-struct -fno-exceptions \
+CTUNING = -fsigned-char -funsigned-bitfields -fno-exceptions \
           -fshort-enums -ffunction-sections -fdata-sections
 ifneq ($(HARDWARE_MOTHERBOARD),)
   CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}

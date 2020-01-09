@@ -58,26 +58,24 @@ static inline void _lcd_goto_next_corner() {
   line_to_z(LEVEL_CORNERS_Z_HOP);
   switch (bed_corner) {
     case 0:
-      current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-      current_position[Y_AXIS] = Y_MIN_BED + LEVEL_CORNERS_INSET;
+      current_position.set(X_MIN_BED + LEVEL_CORNERS_INSET, Y_MIN_BED + LEVEL_CORNERS_INSET);
       break;
     case 1:
-      current_position[X_AXIS] = X_MAX_BED - LEVEL_CORNERS_INSET;
+      current_position.x = X_MAX_BED - (LEVEL_CORNERS_INSET);
       break;
     case 2:
-      current_position[Y_AXIS] = Y_MAX_BED - LEVEL_CORNERS_INSET;
+      current_position.y = Y_MAX_BED - (LEVEL_CORNERS_INSET);
       break;
     case 3:
-      current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
+      current_position.x = X_MIN_BED + LEVEL_CORNERS_INSET;
       break;
     #if ENABLED(LEVEL_CENTER_TOO)
       case 4:
-        current_position[X_AXIS] = X_CENTER;
-        current_position[Y_AXIS] = Y_CENTER;
+        current_position.set(X_CENTER, Y_CENTER);
         break;
     #endif
   }
-  planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+  line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.x));
   line_to_z(LEVEL_CORNERS_HEIGHT);
   if (++bed_corner > 3
     #if ENABLED(LEVEL_CENTER_TOO)
@@ -86,31 +84,29 @@ static inline void _lcd_goto_next_corner() {
   ) bed_corner = 0;
 }
 
-static inline void menu_level_bed_corners() {
-  do_select_screen(
-    PSTR(MSG_BUTTON_NEXT), PSTR(MSG_BUTTON_DONE),
-    _lcd_goto_next_corner,
-    []{
-      #if HAS_LEVELING
-        set_bed_leveling_enabled(leveling_was_active);
-      #endif
-      ui.goto_previous_screen_no_defer();
-    },
-    PSTR(
-      #if ENABLED(LEVEL_CENTER_TOO)
-        MSG_LEVEL_BED_NEXT_POINT
-      #else
-        MSG_NEXT_CORNER
-      #endif
-    ), nullptr, PSTR("?")
-  );
-}
-
 static inline void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (all_axes_homed()) {
     bed_corner = 0;
-    ui.goto_screen(menu_level_bed_corners);
+    ui.goto_screen([]{
+      MenuItem_confirm::select_screen(
+        GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE),
+        _lcd_goto_next_corner,
+        []{
+          #if HAS_LEVELING
+            set_bed_leveling_enabled(leveling_was_active);
+          #endif
+          ui.goto_previous_screen_no_defer();
+        },
+        GET_TEXT(
+          #if ENABLED(LEVEL_CENTER_TOO)
+            MSG_LEVEL_BED_NEXT_POINT
+          #else
+            MSG_NEXT_CORNER
+          #endif
+        ), (PGM_P)nullptr, PSTR("?")
+      );
+    });
     ui.set_selection(true);
     _lcd_goto_next_corner();
   }
@@ -120,7 +116,7 @@ void _lcd_level_bed_corners() {
   ui.defer_status_screen();
   if (!all_axes_known()) {
     set_all_unhomed();
-    queue.inject_P(PSTR("G28"));
+    queue.inject_P(G28_STR);
   }
 
   // Disable leveling so the planner won't mess with us

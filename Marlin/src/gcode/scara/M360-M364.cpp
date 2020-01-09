@@ -32,7 +32,7 @@
 inline bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
   if (IsRunning()) {
     forward_kinematics_SCARA(delta_a, delta_b);
-    do_blocking_move_to_xy(cartes[X_AXIS], cartes[Y_AXIS]);
+    do_blocking_move_to_xy(cartes);
     return true;
   }
   return false;

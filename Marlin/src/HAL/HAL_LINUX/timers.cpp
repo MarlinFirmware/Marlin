@@ -37,7 +37,7 @@ HAL_TEMP_TIMER_ISR();
 
 Timer timers[2];
 
-void HAL_timer_init(void) {
+void HAL_timer_init() {
   timers[0].init(0, STEPPER_TIMER_RATE, TIMER0_IRQHandler);
   timers[1].init(1, TEMP_TIMER_RATE, TIMER1_IRQHandler);
 }

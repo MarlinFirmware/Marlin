@@ -66,7 +66,7 @@
 //
 #ifndef SERVO0_PIN
   #ifdef IS_RAMPS_13
-    #define SERVO0_PIN      7   // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
+    #define SERVO0_PIN      7
   #else
     #define SERVO0_PIN     11
   #endif
@@ -531,8 +531,8 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1           22   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
-      #define BTN_EN2            7   // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
+      #define BTN_EN1           40   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN2           42
       #define BTN_ENC           -1
 
       #define LCD_SDSS          SDSS
@@ -552,7 +552,7 @@
       #define BTN_EN2            7
       #define BTN_ENC           39
 
-      #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
+      #define SD_DETECT_PIN     -1   // Pin 49 for display SD interface, 72 for easy adapter board
       #define KILL_PIN          31
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -576,7 +576,10 @@
       #define BEEPER_PIN        37
       #define BTN_ENC           35
       #define SD_DETECT_PIN     49
-      #define KILL_PIN          41
+
+      #ifndef KILL_PIN
+        #define KILL_PIN        41
+      #endif
 
       #if ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
@@ -590,7 +593,7 @@
         //#define LCD_SCREEN_ROT_270
 
         // not connected to a pin
-        #define LCD_BACKLIGHT_PIN 65   // backlight LED on A11/D65
+        #define LCD_BACKLIGHT_PIN -1  // 65 (MKS mini12864 can't adjust backlight by software!)
 
         #define BTN_EN1         31
         #define BTN_EN2         33

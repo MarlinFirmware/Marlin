@@ -59,7 +59,7 @@ static SPISettings spiConfig;
  *
  * @details Only configures SS pin since stm32duino creates and initialize the SPI object
  */
-void spiBegin(void) {
+void spiBegin() {
   #if !PIN_EXISTS(SS)
     #error "SS_PIN not defined!"
   #endif
@@ -83,6 +83,13 @@ void spiInit(uint8_t spiRate) {
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
+  #if ENABLED(CUSTOM_SPI_PINS)
+    SPI.setMISO(MISO_PIN);
+    SPI.setMOSI(MOSI_PIN);
+    SPI.setSCLK(SCK_PIN);
+    SPI.setSSEL(SS_PIN);
+  #endif
+
   SPI.begin();
 }
 
@@ -93,7 +100,7 @@ void spiInit(uint8_t spiRate) {
  *
  * @details
  */
-uint8_t spiRec(void) {
+uint8_t spiRec() {
   SPI.beginTransaction(spiConfig);
   uint8_t returnByte = SPI.transfer(0xFF);
   SPI.endTransaction();

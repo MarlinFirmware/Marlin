@@ -25,23 +25,34 @@
  * delta.h - Delta-specific functions
  */
 
-extern float delta_height,
-             delta_endstop_adj[ABC],
-             delta_radius,
-             delta_diagonal_rod,
-             delta_segments_per_second,
-             delta_calibration_radius,
-             delta_tower_angle_trim[ABC];
+#include "../core/types.h"
 
-extern float delta_tower[ABC][2],
-             delta_diagonal_rod_2_tower[ABC],
-             delta_clip_start_height;
+extern float delta_height;
+extern abc_float_t delta_endstop_adj;
+extern float delta_radius,
+             delta_diagonal_rod,
+             delta_segments_per_second;
+extern abc_float_t delta_tower_angle_trim;
+extern xy_float_t delta_tower[ABC];
+extern abc_float_t delta_diagonal_rod_2_tower;
+extern float delta_clip_start_height;
 
 /**
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings();
+
+/**
+ * Get a safe radius for calibration
+ */
+#if ENABLED(DELTA_AUTO_CALIBRATION)
+  extern float calibration_radius_factor;
+#else
+  constexpr float calibration_radius_factor = 1;
+#endif
+
+float delta_calibration_radius();
 
 /**
  * Delta Inverse Kinematics
@@ -63,24 +74,16 @@ void recalc_delta_settings();
  */
 
 // Macro to obtain the Z position of an individual tower
-#define DELTA_Z(V,T) V[Z_AXIS] + SQRT(    \
+#define DELTA_Z(V,T) V.z + SQRT(          \
   delta_diagonal_rod_2_tower[T] - HYPOT2( \
-      delta_tower[T][X_AXIS] - V[X_AXIS], \
-      delta_tower[T][Y_AXIS] - V[Y_AXIS]  \
+      delta_tower[T].x - V.x,             \
+      delta_tower[T].y - V.y              \
     )                                     \
   )
 
-#define DELTA_IK(V) do {              \
-  delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
-  delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
-  delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
-}while(0)
+#define DELTA_IK(V) delta.set(DELTA_Z(V, A_AXIS), DELTA_Z(V, B_AXIS), DELTA_Z(V, C_AXIS))
 
-void inverse_kinematics(const float (&raw)[XYZ]);
-FORCE_INLINE void inverse_kinematics(const float (&raw)[XYZE]) {
-  const float raw_xyz[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
-  inverse_kinematics(raw_xyz);
-}
+void inverse_kinematics(const xyz_pos_t &raw);
 
 /**
  * Calculate the highest Z position where the
@@ -115,8 +118,8 @@ float delta_safe_distance_from_top();
  */
 void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(const float (&point)[ABC]) {
-  forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
+FORCE_INLINE void forward_kinematics_DELTA(const abc_float_t &point) {
+  forward_kinematics_DELTA(point.a, point.b, point.c);
 }
 
 void home_delta();

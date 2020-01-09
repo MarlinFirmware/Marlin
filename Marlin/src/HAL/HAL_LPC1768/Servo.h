@@ -57,11 +57,11 @@ class libServo: public Servo {
     constexpr uint16_t servo_delay[] = SERVO_DELAY;
     static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
 
-    if (this->attach(servo_info[this->servoIndex].Pin.nbr) >= 0) {    // try to reattach
-      this->write(value);
-      safe_delay(servo_delay[this->servoIndex]); // delay to allow servo to reach position
+    if (attach(servo_info[servoIndex].Pin.nbr) >= 0) {    // try to reattach
+      write(value);
+      safe_delay(servo_delay[servoIndex]); // delay to allow servo to reach position
       #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-        this->detach();
+        detach();
       #endif
     }
 

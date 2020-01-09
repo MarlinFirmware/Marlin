@@ -25,7 +25,7 @@
  * MKS SGen pin assignments
  */
 
-#ifndef LPC1769
+#ifndef MCU_LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
@@ -61,4 +61,7 @@
   #define Z_SERIAL_RX_PIN  P2_11   // J8-4
   #define E0_SERIAL_TX_PIN P2_13   // J8-5
   #define E0_SERIAL_RX_PIN P2_13   // J8-5
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif

@@ -34,25 +34,29 @@
   #include "../../core/serial.h"
 #endif
 
+#if ENABLED(MESH_BED_LEVELING)
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
+  FORCE_INLINE void mod_probe_offset(const float &offs) {
     if (true
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         && active_extruder == 0
       #endif
     ) {
-      zprobe_zoffset += offs;
+      probe_offset.z += offs;
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", probe_offset.z);
     }
-    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-      else {
-        hotend_offset[Z_AXIS][active_extruder] -= offs;
+    else {
+      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+        hotend_offset[active_extruder].z -= offs;
         SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(MSG_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
-      }
-    #endif
+        SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET MSG_Z ": ", hotend_offset[active_extruder].z);
+      #endif
+    }
   }
 
 #endif
@@ -60,13 +64,15 @@
 /**
  * M290: Babystepping
  *
+ * Send 'R' or no parameters for a report.
+ *
  *  X<linear> - Distance to step X
  *  Y<linear> - Distance to step Y
  *  Z<linear> - Distance to step Z
  *  S<linear> - Distance to step Z (alias for Z)
  *
  * With BABYSTEP_ZPROBE_OFFSET:
- *         P0 - Don't adjust the Z probe offset.
+ *  P0 - Don't adjust the Z probe offset
  */
 void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
@@ -75,7 +81,7 @@ void GcodeSuite::M290() {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         babystep.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_zprobe_zoffset(offs);
+          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
         #endif
       }
   #else
@@ -83,10 +89,53 @@ void GcodeSuite::M290() {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
       babystep.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_zprobe_zoffset(offs);
+        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
       #endif
     }
   #endif
+
+  if (!parser.seen("XYZ") || parser.seen('R')) {
+    SERIAL_ECHO_START();
+
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      SERIAL_ECHOLNPAIR(MSG_PROBE_OFFSET " " MSG_Z, probe_offset.z);
+    #endif
+
+    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+    {
+      SERIAL_ECHOLNPAIR_P(
+        PSTR("Hotend "), int(active_extruder)
+        #if ENABLED(BABYSTEP_XY)
+          , PSTR("Offset X"), hotend_offset[active_extruder].x
+          , SP_Y_STR, hotend_offset[active_extruder].y
+          , SP_Z_STR
+        #else
+          , PSTR("Offset Z")
+        #endif
+        , hotend_offset[active_extruder].z
+      );
+    }
+    #endif
+
+    #if ENABLED(MESH_BED_LEVELING)
+      SERIAL_ECHOLNPAIR("MBL Adjust Z", mbl.z_offset);
+    #endif
+
+    #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+    {
+      SERIAL_ECHOLNPAIR_P(
+        #if ENABLED(BABYSTEP_XY)
+            PSTR("Babystep X"), babystep.axis_total[X_AXIS]
+          , SP_Y_STR, babystep.axis_total[Y_AXIS]
+          , SP_Z_STR
+        #else
+          PSTR("Babystep Z")
+        #endif
+        , babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]
+      );
+    }
+    #endif
+  }
 }
 
 #endif // BABYSTEPPING

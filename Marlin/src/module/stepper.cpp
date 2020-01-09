@@ -121,6 +121,10 @@ Stepper stepper; // Singleton
   #include "../libs/L6470/L6470_Marlin.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 // public:
 
 #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -165,13 +169,13 @@ uint8_t Stepper::steps_per_isr;
 #endif
     uint8_t Stepper::oversampling_factor;
 
-int32_t Stepper::delta_error[XYZE] = { 0 };
+xyze_long_t Stepper::delta_error{0};
 
-uint32_t Stepper::advance_dividend[XYZE] = { 0 },
-         Stepper::advance_divisor = 0,
+xyze_ulong_t Stepper::advance_dividend{0};
+uint32_t Stepper::advance_divisor = 0,
          Stepper::step_events_completed = 0, // The number of step events executed in the current block
-         Stepper::accelerate_until,          // The point from where we need to stop acceleration
-         Stepper::decelerate_after,          // The point from where we need to start decelerating
+         Stepper::accelerate_until,          // The count at which to stop accelerating
+         Stepper::decelerate_after,          // The count at which to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
 #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
@@ -214,10 +218,9 @@ int32_t Stepper::ticks_nominal = -1;
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
-volatile int32_t Stepper::endstops_trigsteps[XYZ];
-
-volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
-int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
+xyz_long_t Stepper::endstops_trigsteps;
+xyze_long_t Stepper::count_position{0};
+xyze_int8_t Stepper::count_direction{0};
 
 #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
   if (separate_multi_axis) {                                                                                                \
@@ -336,6 +339,24 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
 
+#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
+constexpr uint32_t NS_PER_PULSE_TIMER_TICK = 1000000000UL / (STEPPER_TIMER_RATE);
+
+// Round up when converting from ns to timer ticks
+constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK); }
+
+#define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
+
+#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
+#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
+
+#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_##DIR##_TICK_COUNT)
+#define AWAIT_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
+#define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
+#define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
+#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE()
+#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE()
+
 void Stepper::wake_up() {
   // TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
@@ -352,6 +373,10 @@ void Stepper::set_directions() {
 
   #if HAS_DRIVER(L6470)
     uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+  #endif
+
+  #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+    DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
   #endif
 
   #define SET_STEP_DIR(A)                       \
@@ -382,20 +407,20 @@ void Stepper::set_directions() {
        // what e-steppers will step. Likely all. Set all.
       if (motor_direction(E_AXIS)) {
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
-        count_direction[E_AXIS] = -1;
+        count_direction.e = -1;
       }
       else {
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-        count_direction[E_AXIS] = 1;
+        count_direction.e = 1;
       }
     #else
       if (motor_direction(E_AXIS)) {
         REV_E_DIR(stepper_extruder);
-        count_direction[E_AXIS] = -1;
+        count_direction.e = -1;
       }
       else {
         NORM_E_DIR(stepper_extruder);
-        count_direction[E_AXIS] = 1;
+        count_direction.e = 1;
       }
     #endif
   #endif // !LIN_ADVANCE
@@ -422,8 +447,8 @@ void Stepper::set_directions() {
   #endif
 
   // A small delay may be needed after changing direction
-  #if MINIMUM_STEPPER_DIR_DELAY > 0
-    DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+  #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+    DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
   #endif
 }
 
@@ -1409,33 +1434,72 @@ void Stepper::stepper_pulse_phase_isr() {
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
 
-  // Get the timer count and estimate the end of the pulse
-  hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
-
-  const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
-
   // Take multiple steps per interrupt (For high speed moves)
-  do {
+  bool firstStep = true;
+  xyze_bool_t step_needed{0};
+  hal_timer_t end_tick_count = 0;
 
+  do {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
+    // Determine if pulses are needed
+    #define PULSE_PREP(AXIS) do{ \
+      delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
+      step_needed[_AXIS(AXIS)] = (delta_error[_AXIS(AXIS)] >= 0); \
+      if (step_needed[_AXIS(AXIS)]) { \
+        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+        delta_error[_AXIS(AXIS)] -= advance_divisor; \
+      } \
+    }while(0)
+
     // Start an active pulse, if Bresenham says so, and update position
     #define PULSE_START(AXIS) do{ \
-      delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
-      if (delta_error[_AXIS(AXIS)] >= 0) { \
+      if (step_needed[_AXIS(AXIS)]) { \
         _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
     }while(0)
 
     // Stop an active pulse, if any, and adjust error term
     #define PULSE_STOP(AXIS) do { \
-      if (delta_error[_AXIS(AXIS)] >= 0) { \
-        delta_error[_AXIS(AXIS)] -= advance_divisor; \
+      if (step_needed[_AXIS(AXIS)]) { \
         _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
+
+    // Determine if pulses are needed
+    #if HAS_X_STEP
+      PULSE_PREP(X);
+    #endif
+    #if HAS_Y_STEP
+      PULSE_PREP(Y);
+    #endif
+    #if HAS_Z_STEP
+      PULSE_PREP(Z);
+    #endif
+
+    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
+      delta_error.e += advance_dividend.e;
+      if (delta_error.e >= 0) {
+        count_position.e += count_direction.e;
+        #if ENABLED(LIN_ADVANCE)
+          delta_error.e -= advance_divisor;
+          // Don't step E here - But remember the number of steps to perform
+          motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
+        #else
+          step_needed[E_AXIS] = delta_error.e >= 0;
+        #endif
+      }
+    #elif HAS_E0_STEP
+      PULSE_PREP(E);
+    #endif
+
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      if (firstStep)
+        firstStep = false;
+      else
+        AWAIT_LOW_PULSE();
+    #endif
 
     // Pulse start
     #if HAS_X_STEP
@@ -1448,24 +1512,10 @@ void Stepper::stepper_pulse_phase_isr() {
       PULSE_START(Z);
     #endif
 
-    // Pulse Extruders
-    // Tick the E axis, correct error term and update position
-    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
-      delta_error[E_AXIS] += advance_dividend[E_AXIS];
-      if (delta_error[E_AXIS] >= 0) {
-        count_position[E_AXIS] += count_direction[E_AXIS];
-        #if ENABLED(LIN_ADVANCE)
-          delta_error[E_AXIS] -= advance_divisor;
-          // Don't step E here - But remember the number of steps to perform
-          motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
-        #else // !LIN_ADVANCE && MIXING_EXTRUDER
-          // Don't adjust delta_error[E_AXIS] here!
-          // Being positive is the criteria for ending the pulse.
-          E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
-        #endif
-      }
-    #else // !LIN_ADVANCE && !MIXING_EXTRUDER
-      #if HAS_E0_STEP
+    #if DISABLED(LIN_ADVANCE)
+      #if ENABLED(MIXING_EXTRUDER)
+        if (step_needed[E_AXIS]) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+      #elif HAS_E0_STEP
         PULSE_START(E);
       #endif
     #endif
@@ -1475,13 +1525,10 @@ void Stepper::stepper_pulse_phase_isr() {
     #endif
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if MINIMUM_STEPPER_PULSE && DISABLED(I2S_STEPPER_STREAM)
-      // Just wait for the requested pulse duration
-      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      START_HIGH_PULSE();
+      AWAIT_HIGH_PULSE();
     #endif
-
-    // Add the delay needed to ensure the maximum driver rate is enforced
-    if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
 
     // Pulse stop
     #if HAS_X_STEP
@@ -1496,31 +1543,26 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-        if (delta_error[E_AXIS] >= 0) {
-          delta_error[E_AXIS] -= advance_divisor;
+
+        if (delta_error.e >= 0) {
+          delta_error.e -= advance_divisor;
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
+
       #else // !MIXING_EXTRUDER
+
         #if HAS_E0_STEP
           PULSE_STOP(E);
         #endif
-      #endif
+
+      #endif  // !MIXING_EXTRUDER
     #endif // !LIN_ADVANCE
 
-    // Decrement the count of pending pulses to do
-    --events_to_do;
+    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      if (events_to_do) START_LOW_PULSE();
+    #endif
 
-    // For minimum pulse time wait after stopping pulses also
-    if (events_to_do) {
-      // Just wait for the requested pulse duration
-      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      #if MINIMUM_STEPPER_PULSE
-        // Add to the value, the time that the pulse must be active (to be used on the next loop)
-        pulse_end += hal_timer_t(MIN_PULSE_TICKS);
-      #endif
-    }
-
-  } while (events_to_do);
+  } while (--events_to_do);
 }
 
 // This is the last half of the stepper interrupt: This one processes and
@@ -1530,7 +1572,7 @@ void Stepper::stepper_pulse_phase_isr() {
 uint32_t Stepper::stepper_block_phase_isr() {
 
   // If no queued movements, just wait 1ms for the next move
-  uint32_t interval = (STEPPER_TIMER_RATE / 1000);
+  uint32_t interval = (STEPPER_TIMER_RATE) / 1000;
 
   // If there is a current block
   if (current_block) {
@@ -1652,16 +1694,21 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // Sync block? Sync the stepper counts and return
       while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
-        _set_position(
-          current_block->position[A_AXIS], current_block->position[B_AXIS],
-          current_block->position[C_AXIS], current_block->position[E_AXIS]
-        );
+        _set_position(current_block->position);
         planner.discard_current_block();
 
         // Try to get a new block
         if (!(current_block = planner.get_current_block()))
           return interval; // No more queued movements!
       }
+
+      #if HAS_CUTTER
+        cutter.apply_power(current_block->cutter_power);
+      #endif
+
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        recovery.info.sdpos = current_block->sdpos;
+      #endif
 
       // Flag all moving axes for proper endstop handling
 
@@ -1686,7 +1733,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) X_CMP D_(2)) )
       #else
-        #define X_MOVE_TEST !!current_block->steps[A_AXIS]
+        #define X_MOVE_TEST !!current_block->steps.a
       #endif
 
       #if CORE_IS_XY || CORE_IS_YZ
@@ -1704,7 +1751,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Y_CMP D_(2)) )
       #else
-        #define Y_MOVE_TEST !!current_block->steps[B_AXIS]
+        #define Y_MOVE_TEST !!current_block->steps.b
       #endif
 
       #if CORE_IS_XZ || CORE_IS_YZ
@@ -1722,17 +1769,17 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Z_CMP D_(2)) )
       #else
-        #define Z_MOVE_TEST !!current_block->steps[C_AXIS]
+        #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
       uint8_t axis_bits = 0;
       if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
-      //if (!!current_block->steps[E_AXIS]) SBI(axis_bits, E_AXIS);
-      //if (!!current_block->steps[A_AXIS]) SBI(axis_bits, X_HEAD);
-      //if (!!current_block->steps[B_AXIS]) SBI(axis_bits, Y_HEAD);
-      //if (!!current_block->steps[C_AXIS]) SBI(axis_bits, Z_HEAD);
+      //if (!!current_block->steps.e) SBI(axis_bits, E_AXIS);
+      //if (!!current_block->steps.a) SBI(axis_bits, X_HEAD);
+      //if (!!current_block->steps.b) SBI(axis_bits, Y_HEAD);
+      //if (!!current_block->steps.c) SBI(axis_bits, Z_HEAD);
       axis_did_move = axis_bits;
 
       // No acceleration / deceleration time elapsed so far
@@ -1755,15 +1802,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
       step_event_count = current_block->step_event_count << oversampling;
 
       // Initialize Bresenham delta errors to 1/2
-      delta_error[X_AXIS] = delta_error[Y_AXIS] = delta_error[Z_AXIS] = delta_error[E_AXIS] = -int32_t(step_event_count);
+      delta_error = -int32_t(step_event_count);
 
-      // Calculate Bresenham dividends
-      advance_dividend[X_AXIS] = current_block->steps[X_AXIS] << 1;
-      advance_dividend[Y_AXIS] = current_block->steps[Y_AXIS] << 1;
-      advance_dividend[Z_AXIS] = current_block->steps[Z_AXIS] << 1;
-      advance_dividend[E_AXIS] = current_block->steps[E_AXIS] << 1;
-
-      // Calculate Bresenham divisor
+      // Calculate Bresenham dividends and divisors
+      advance_dividend = current_block->steps << 1;
       advance_divisor = step_event_count << 1;
 
       // No step events completed so far
@@ -1828,7 +1870,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps[Z_AXIS]) enable_Z();
+        if (current_block->steps.z) enable_Z();
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -1879,6 +1921,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
     else
       interval = LA_ADV_NEVER;
 
+    #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
+    #endif
+
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
@@ -1894,17 +1940,23 @@ uint32_t Stepper::stepper_block_phase_isr() {
     #endif
 
     // A small delay may be needed after changing direction
-    #if MINIMUM_STEPPER_DIR_DELAY > 0
-      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+    #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
     #endif
 
-    // Get the timer count and estimate the end of the pulse
-    hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
-
-    const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
+    //const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
+    bool firstStep = true;
+    hal_timer_t end_tick_count = 0;
+
     while (LA_steps) {
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+        if (firstStep)
+          firstStep = false;
+        else
+          AWAIT_LOW_PULSE();
+      #endif
 
       // Set the STEP pulse ON
       #if ENABLED(MIXING_EXTRUDER)
@@ -1914,15 +1966,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
-      #if MINIMUM_STEPPER_PULSE
-        // Just wait for the requested pulse duration
-        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+        START_HIGH_PULSE();
       #endif
 
-      // Add the delay needed to ensure the maximum driver rate is enforced
-      if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
-
       LA_steps < 0 ? ++LA_steps : --LA_steps;
+
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+        AWAIT_HIGH_PULSE();
+      #endif
 
       // Set the STEP pulse OFF
       #if ENABLED(MIXING_EXTRUDER)
@@ -1933,13 +1985,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
-      if (LA_steps) {
-        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-        #if MINIMUM_STEPPER_PULSE
-          // Add to the value, the time that the pulse must be active (to be used on the next loop)
-          pulse_end += hal_timer_t(MIN_PULSE_TICKS);
-        #endif
-      }
+      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+        if (LA_steps) START_LOW_PULSE();
+      #endif
     } // LA_steps
 
     return interval;
@@ -2179,26 +2227,18 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
   #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    count_position[A_AXIS] = a + b;
-    count_position[B_AXIS] = CORESIGN(a - b);
-    count_position[Z_AXIS] = c;
+    count_position.set(a + b, CORESIGN(a - b), c);
   #elif CORE_IS_XZ
     // corexz planning
-    count_position[A_AXIS] = a + c;
-    count_position[Y_AXIS] = b;
-    count_position[C_AXIS] = CORESIGN(a - c);
+    count_position.set(a + c, b, CORESIGN(a - c));
   #elif CORE_IS_YZ
     // coreyz planning
-    count_position[X_AXIS] = a;
-    count_position[B_AXIS] = b + c;
-    count_position[C_AXIS] = CORESIGN(b - c);
+    count_position.set(a, b + c, CORESIGN(b - c));
   #else
     // default non-h-bot planning
-    count_position[X_AXIS] = a;
-    count_position[Y_AXIS] = b;
-    count_position[Z_AXIS] = c;
+    count_position.set(a, b, c);
   #endif
-  count_position[E_AXIS] = e;
+  count_position.e = e;
 }
 
 /**
@@ -2226,24 +2266,21 @@ int32_t Stepper::position(const AxisEnum axis) {
 // be very careful here. If the interrupt being preempted was the
 // Stepper ISR (this CAN happen with the endstop limits ISR) then
 // when the stepper ISR resumes, we must be very sure that the movement
-// is properly cancelled
+// is properly canceled
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-
-  #if IS_CORE
-
-    endstops_trigsteps[axis] = 0.5f * (
-      axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
-                          : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-    );
-
-  #else // !COREXY && !COREXZ && !COREYZ
-
-    endstops_trigsteps[axis] = count_position[axis];
-
-  #endif // !COREXY && !COREXZ && !COREYZ
+  endstops_trigsteps[axis] = (
+    #if IS_CORE
+      (axis == CORE_AXIS_2
+        ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+        : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+      ) * double(0.5)
+    #else // !IS_CORE
+      count_position[axis]
+    #endif
+  );
 
   // Discard the rest of the move if there is a current block
   quick_stop();
@@ -2271,38 +2308,28 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_positions() {
 
-  // Protect the access to the position.
-  const bool was_enabled = STEPPER_ISR_ENABLED();
-  if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  #ifdef __AVR__
+    // Protect the access to the position.
+    const bool was_enabled = STEPPER_ISR_ENABLED();
+    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  #endif
 
-  const int32_t xpos = count_position[X_AXIS],
-                ypos = count_position[Y_AXIS],
-                zpos = count_position[Z_AXIS];
+  const xyz_long_t pos = count_position;
 
-  if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #ifdef __AVR__
+    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #endif
 
   #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_ECHOPGM(MSG_COUNT_A);
+    SERIAL_ECHOPAIR(MSG_COUNT_A, pos.x, " B:", pos.y);
   #else
-    SERIAL_ECHOPGM(MSG_COUNT_X);
+    SERIAL_ECHOPAIR(MSG_COUNT_X, pos.x, " Y:", pos.y);
   #endif
-  SERIAL_ECHO(xpos);
-
-  #if CORE_IS_XY || CORE_IS_YZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_ECHOPGM(" B:");
-  #else
-    SERIAL_ECHOPGM(" Y:");
-  #endif
-  SERIAL_ECHO(ypos);
-
   #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
-    SERIAL_ECHOPGM(" C:");
+    SERIAL_ECHOLNPAIR(" C:", pos.z);
   #else
-    SERIAL_ECHOPGM(" Z:");
+    SERIAL_ECHOLNPAIR(" Z:", pos.z);
   #endif
-  SERIAL_ECHO(zpos);
-
-  SERIAL_EOL();
 }
 
 #if ENABLED(BABYSTEPPING)
@@ -2344,8 +2371,9 @@ void Stepper::report_positions() {
   #define BABYSTEP_AXIS(AXIS, INVERT, DIR) {            \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
       _ENABLE(AXIS);                                    \
+      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);              \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);              \
+      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);              \
       _SAVE_START;                                      \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT;                                      \
@@ -2409,6 +2437,10 @@ void Stepper::report_positions() {
           enable_Y();
           enable_Z();
 
+          #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+            DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
+          #endif
+
           const uint8_t old_x_dir_pin = X_DIR_READ(),
                         old_y_dir_pin = Y_DIR_READ(),
                         old_z_dir_pin = Z_DIR_READ();
@@ -2417,8 +2449,8 @@ void Stepper::report_positions() {
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
 
-          #if MINIMUM_STEPPER_DIR_DELAY > 0
-            DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+          #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+            DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
           #endif
 
           _SAVE_START;
@@ -2589,9 +2621,9 @@ void Stepper::report_positions() {
 
   #endif
 
-#else
+#else // PRINTRBOARD_G2
 
-  #include "../HAL/HAL_DUE/G2_PWM.h"
+  #include HAL_PATH(../HAL, fastio/G2_PWM.h)
 
 #endif
 

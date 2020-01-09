@@ -31,7 +31,7 @@
 #include "tempstat.h"
 #include "../../module/temperature.h"
 
-void handle_status_leds(void) {
+void handle_status_leds() {
   static int8_t old_red = -1;  // Invalid value to force LED initialization
   static millis_t next_status_led_update_ms = 0;
   if (ELAPSED(millis(), next_status_led_update_ms)) {

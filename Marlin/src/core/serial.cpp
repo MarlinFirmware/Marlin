@@ -22,7 +22,6 @@
 
 #include "serial.h"
 #include "language.h"
-#include "enum.h"
 
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
@@ -68,15 +67,10 @@ void print_bin(const uint16_t val) {
   }
 }
 
-void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z) {
-  serialprintPGM(prefix);
-  SERIAL_CHAR('(');
-  SERIAL_ECHO(x);
-  SERIAL_ECHOPAIR(", ", y, ", ", z);
-  SERIAL_CHAR(')');
-  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
-}
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
-void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]) {
-  print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
+void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+  serialprintPGM(prefix);
+  SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
+  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }

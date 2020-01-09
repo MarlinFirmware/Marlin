@@ -53,7 +53,7 @@ static const spi_pins* dev_to_spi_pins(spi_dev *dev);
 static void configure_gpios(spi_dev *dev, bool as_master);
 static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq);
 
-#if (BOARD_NR_SPI >= 3) && !defined(STM32_HIGH_DENSITY)
+#if BOARD_NR_SPI >= 3 && !defined(STM32_HIGH_DENSITY)
   #error "The SPI library is misconfigured: 3 SPI ports only available on high density STM32 devices"
 #endif
 
@@ -178,8 +178,7 @@ void SPIClass::end() {
     // FIXME [0.1.0] remove this once you have an interrupt based driver
     volatile uint16_t rx __attribute__((unused)) = spi_rx_reg(_currentSetting->spi_d);
   }
-  while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ }
-  while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ }
+  waitSpiTxEnd(_currentSetting->spi_d);
 
   spi_peripheral_disable(_currentSetting->spi_d);
   // added for DMA callbacks.
@@ -214,31 +213,31 @@ void SPIClass::setDataSize(uint32_t datasize) {
 }
 
 void SPIClass::setDataMode(uint8_t dataMode) {
-  /*
-  Notes:
-  As far as we know the AVR numbers for dataMode match the numbers required by the STM32.
-  From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
-
-  SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
-  0       0     0     Falling     Rising
-  1       0     1     Rising      Falling
-  2       1     0     Rising      Falling
-  3       1     1     Falling     Rising
-
-  On the STM32 it appears to be
-
-  bit 1 - CPOL : Clock polarity
-    (This bit should not be changed when communication is ongoing)
-    0 : CLK to 0 when idle
-    1 : CLK to 1 when idle
-
-  bit 0 - CPHA : Clock phase
-    (This bit should not be changed when communication is ongoing)
-    0 : The first clock transition is the first data capture edge
-    1 : The second clock transition is the first data capture edge
-
-  If someone finds this is not the case or sees a logic error with this let me know ;-)
-  */
+  /**
+   * Notes:
+   * As far as we know the AVR numbers for dataMode match the numbers required by the STM32.
+   * From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
+   *
+   * SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
+   * 0       0     0     Falling     Rising
+   * 1       0     1     Rising      Falling
+   * 2       1     0     Rising      Falling
+   * 3       1     1     Falling     Rising
+   *
+   * On the STM32 it appears to be
+   *
+   * bit 1 - CPOL : Clock polarity
+   *   (This bit should not be changed when communication is ongoing)
+   *   0 : CLK to 0 when idle
+   *   1 : CLK to 1 when idle
+   *
+   * bit 0 - CPHA : Clock phase
+   *   (This bit should not be changed when communication is ongoing)
+   *   0 : The first clock transition is the first data capture edge
+   *   1 : The second clock transition is the first data capture edge
+   *
+   * If someone finds this is not the case or sees a logic error with this let me know ;-)
+   */
   _currentSetting->dataMode = dataMode;
   uint32_t cr1 = _currentSetting->spi_d->regs->CR1 & ~(SPI_CR1_CPOL|SPI_CR1_CPHA);
   _currentSetting->spi_d->regs->CR1 = cr1 | (dataMode & (SPI_CR1_CPOL|SPI_CR1_CPHA));
@@ -297,8 +296,7 @@ void SPIClass::write(uint16_t data) {
    * This almost doubles the speed of this function.
    */
   spi_tx_reg(_currentSetting->spi_d, data); // write the data to be transmitted into the SPI_DR register (this clears the TXE flag)
-  while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-  while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ } // "... and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(_currentSetting->spi_d);
 }
 
 void SPIClass::write16(uint16_t data) {
@@ -306,8 +304,7 @@ void SPIClass::write16(uint16_t data) {
   spi_tx_reg(_currentSetting->spi_d, data>>8); // write high byte
   while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // Wait until TXE=1
   spi_tx_reg(_currentSetting->spi_d, data); // write low byte
-  while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // Wait until TXE=1
-  while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ } // wait until BSY=0
+  waitSpiTxEnd(_currentSetting->spi_d);
 }
 
 void SPIClass::write(uint16_t data, uint32_t n) {
@@ -323,16 +320,14 @@ void SPIClass::write(uint16_t data, uint32_t n) {
 void SPIClass::write(const void *data, uint32_t length) {
   spi_dev * spi_d = _currentSetting->spi_d;
   spi_tx(spi_d, data, length); // data can be array of bytes or words
-  while (!spi_is_tx_empty(spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-  while (spi_is_busy(spi_d)) { /* nada */ } // "... and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(spi_d);
 }
 
 uint8_t SPIClass::transfer(uint8_t byte) const {
   spi_dev * spi_d = _currentSetting->spi_d;
   spi_rx_reg(spi_d); // read any previous data
   spi_tx_reg(spi_d, byte); // Write the data item to be transmitted into the SPI_DR register
-  while (!spi_is_tx_empty(spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-  while (spi_is_busy(spi_d)) { /* nada */ } // "... and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(spi_d);
   return (uint8)spi_rx_reg(spi_d); // "... and read the last received data."
 }
 
@@ -342,12 +337,10 @@ uint16_t SPIClass::transfer16(uint16_t data) const {
   spi_dev * spi_d = _currentSetting->spi_d;
   spi_rx_reg(spi_d);                              // read any previous data
   spi_tx_reg(spi_d, data>>8);                     // write high byte
-  while (!spi_is_tx_empty(spi_d)) { /* nada */ }  // wait until TXE=1
-  while (spi_is_busy(spi_d)) { /* nada */ }       // wait until BSY=0
+  waitSpiTxEnd(spi_d);                            // wait until TXE=1 and then wait until BSY=0
   uint16_t ret = spi_rx_reg(spi_d)<<8;            // read and shift high byte
   spi_tx_reg(spi_d, data);                        // write low byte
-  while (!spi_is_tx_empty(spi_d)) { /* nada */ }  // wait until TXE=1
-  while (spi_is_busy(spi_d)) { /* nada */ }       // wait until BSY=0
+  waitSpiTxEnd(spi_d);                            // wait until TXE=1 and then wait until BSY=0
   ret += spi_rx_reg(spi_d);                       // read low byte
   return ret;
 }
@@ -400,8 +393,7 @@ uint8_t SPIClass::dmaTransferRepeat(uint16_t length) {
     if ((millis() - m) > DMA_TIMEOUT) { b = 2; break; }
   }
 
-  while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-  while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ } // "... and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(_currentSetting->spi_d); // until TXE=1 and BSY=0
   spi_tx_dma_disable(_currentSetting->spi_d);
   spi_rx_dma_disable(_currentSetting->spi_d);
   dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
@@ -456,8 +448,7 @@ uint8_t SPIClass::dmaSendRepeat(uint16_t length) {
     // Avoid interrupts and just loop waiting for the flag to be set.
     if ((millis() - m) > DMA_TIMEOUT) { b = 2; break; }
   }
-  while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-  while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ } // "... and then wait until BSY=0 before disabling the SPI."
+  waitSpiTxEnd(_currentSetting->spi_d); // until TXE=1 and BSY=0
   spi_tx_dma_disable(_currentSetting->spi_d);
   dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
   dma_clear_isr_bits(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
@@ -480,9 +471,7 @@ uint8_t SPIClass::dmaSendAsync(const void * transmitBuf, uint16_t length, bool m
       //delayMicroseconds(10);
       if ((millis() - m) > DMA_TIMEOUT) { b = 2; break; }
     }
-
-    while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-    while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ } // "... and then wait until BSY=0 before disabling the SPI."
+    waitSpiTxEnd(_currentSetting->spi_d); // until TXE=1 and BSY=0
     spi_tx_dma_disable(_currentSetting->spi_d);
     dma_disable(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel);
     _currentSetting->state = SPI_STATE_READY;
@@ -510,7 +499,7 @@ uint8_t SPIClass::dmaSendAsync(const void * transmitBuf, uint16_t length, bool m
  *  New functions added to manage callbacks.
  *  Victor Perez 2017
  */
-void SPIClass::onReceive(void(*callback)(void)) {
+void SPIClass::onReceive(void(*callback)()) {
   _currentSetting->receiveCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
@@ -538,7 +527,7 @@ void SPIClass::onReceive(void(*callback)(void)) {
   }
 }
 
-void SPIClass::onTransmit(void(*callback)(void)) {
+void SPIClass::onTransmit(void(*callback)()) {
   _currentSetting->transmitCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
@@ -572,8 +561,7 @@ void SPIClass::onTransmit(void(*callback)(void)) {
  * during the initial setup and only set the callback to EventCallback if they are set.
  */
 void SPIClass::EventCallback() {
-  while (!spi_is_tx_empty(_currentSetting->spi_d)) { /* nada */ } // "5. Wait until TXE=1 ..."
-  while (spi_is_busy(_currentSetting->spi_d)) { /* nada */ } // "... and then wait until BSY=0"
+  waitSpiTxEnd(_currentSetting->spi_d);
   switch (_currentSetting->state) {
   case SPI_STATE_TRANSFER:
     while (spi_is_rx_nonempty(_currentSetting->spi_d)) { /* nada */ }
@@ -605,7 +593,7 @@ void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
 }
 
-/*
+/**
  * Pin accessors
  */
 
@@ -625,25 +613,14 @@ uint8_t SPIClass::nssPin() {
   return dev_to_spi_pins(_currentSetting->spi_d)->nss;
 }
 
-/*
+/**
  * Deprecated functions
  */
+uint8_t SPIClass::send(uint8_t data)               { write(data); return 1; }
+uint8_t SPIClass::send(uint8_t *buf, uint32_t len) { write(buf, len); return len; }
+uint8_t SPIClass::recv()                           { return read(); }
 
-uint8_t SPIClass::send(uint8_t data) {
-  this->write(data);
-  return 1;
-}
-
-uint8_t SPIClass::send(uint8_t *buf, uint32_t len) {
-  this->write(buf, len);
-  return len;
-}
-
-uint8_t SPIClass::recv() {
-  return this->read();
-}
-
-/*
+/**
  * DMA call back functions, one per port.
  */
 #if BOARD_NR_SPI >= 1
@@ -662,7 +639,7 @@ uint8_t SPIClass::recv() {
   }
 #endif
 
-/*
+/**
  * Auxiliary functions
  */
 static const spi_pins* dev_to_spi_pins(spi_dev *dev) {

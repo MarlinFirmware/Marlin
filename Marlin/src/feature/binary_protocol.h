@@ -76,8 +76,8 @@ private:
 
   static bool file_open(char* filename) {
     if (!dummy_transfer) {
-      card.initsd();
-      card.openFile(filename, false);
+      card.mount();
+      card.openFileWrite(filename);
       if (!card.isFileOpen()) return false;
     }
     transfer_active = true;
@@ -306,6 +306,9 @@ public:
       PORT_REDIRECT(card.transfer_port_index);
     #endif
 
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Warray-bounds"
+
     while (PENDING(millis(), transfer_window)) {
       switch (stream_state) {
          /**
@@ -439,6 +442,8 @@ public:
           break;
       }
     }
+
+    #pragma GCC diagnostic pop
   }
 
   void dispatch() {
