@@ -148,8 +148,7 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
             float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
-            SERIAL_CHAR(' ');
-            SERIAL_CHAR('X' + char(a));
+            SERIAL_CHAR(' ', 'X' + char(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_ECHO(v);
           }
