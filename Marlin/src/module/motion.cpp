@@ -1254,7 +1254,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
       serialprintPGM(msg_wait_for_bed_heating);
       #if HAS_DISPLAY
-         LCD_MESSAGEPGM(MSG_BED_HEATING);
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
       #endif
       thermalManager.wait_for_bed();
       #if HAS_DISPLAY
