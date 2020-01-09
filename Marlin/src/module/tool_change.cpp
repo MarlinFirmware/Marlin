@@ -931,6 +931,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         current_position.z += _MAX(-diff.z, 0.0);
         if (!no_move) {
+          // Check if Z has space to compensate at least z_offset, if not enough space abort tool change
+          if (current_position.z > soft_endstop.max.z) return
+
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
             NOMORE(current_position.z, soft_endstop.max.z);
