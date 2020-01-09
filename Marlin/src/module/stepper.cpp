@@ -1492,7 +1492,7 @@ void Stepper::stepper_pulse_phase_isr() {
           // Don't step E here - But remember the number of steps to perform
           motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
         #else
-          step_needed[E_AXIS] = delta_error.e >= 0;
+          step_needed.e = delta_error.e >= 0;
         #endif
       }
     #elif HAS_E0_STEP
@@ -1519,7 +1519,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-        if (step_needed[E_AXIS]) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+        if (step_needed.e) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
       #elif HAS_E0_STEP
         PULSE_START(E);
       #endif
