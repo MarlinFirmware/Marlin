@@ -32,3 +32,7 @@
 #if TMC_HAS_SW_SERIAL
   #error "TMC220x Software Serial is not supported on this platform."
 #endif
+
+#if ENABLED(WIFISUPPORT) && ENABLED(ESP3D_WIFISUPPORT)
+  #error "Only enable one WiFi support: WIFISUPPORT or ESP3D_WIFISUPPORT."
+#endif
