@@ -1534,6 +1534,9 @@
   #define N_ARC_CORRECTION   25   // Number of interpolated segments between corrections
   //#define ARC_P_CIRCLES         // Enable the 'P' parameter to specify complete circles
   //#define CNC_WORKSPACE_PLANES  // Allow G2/G3 to operate in XY, ZX, or YZ planes
+
+  // SEC_PER_ARC_SEGMENT treats MM_PER_ARC_SEGMENT as minimum segment length for very slow feed rates
+  //#define SEC_PER_ARC_SEGMENT 0.020  // Use feed rate to determine segment length, recommend low value for MM_PER_ARC_SEGMENT
 #endif
 
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
