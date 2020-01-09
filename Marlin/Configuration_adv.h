@@ -2832,7 +2832,7 @@
 // ESP3D Library WiFi management
 // https://github.com/luc-github/ESP3DLib.git
 //
-#define ESP3D_WIFISUPPORT
+//#define ESP3D_WIFISUPPORT
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #define WIFI_SSID "Wifi SSID"
