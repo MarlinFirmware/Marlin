@@ -103,7 +103,16 @@ void plan_arc(
               mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001f) return;
 
-  uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
+  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
+
+  #if defined(SEC_PER_ARC_SEGMENT)
+    float seg_length = scaled_fr_mm_s * SEC_PER_ARC_SEGMENT;
+    NOLESS(seg_length, MM_PER_ARC_SEGMENT);
+    #define EFFECTIVE_SEGMENT_LENGTH seg_length
+  #else
+    #define EFFECTIVE_SEGMENT_LENGTH MM_PER_ARC_SEGMENT
+  #endif
+  uint16_t segments = FLOOR(mm_of_travel / (EFFECTIVE_SEGMENT_LENGTH));
   NOLESS(segments, min_segments);
 
   /**
@@ -146,10 +155,9 @@ void plan_arc(
   // Initialize the extruder axis
   raw.e = current_position.e;
 
-  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = scaled_fr_mm_s / MM_PER_ARC_SEGMENT;
+    const float inv_duration = scaled_fr_mm_s / EFFECTIVE_SEGMENT_LENGTH;
   #endif
 
   millis_t next_idle_ms = millis() + 200UL;
@@ -206,7 +214,7 @@ void plan_arc(
       planner.apply_leveling(raw);
     #endif
 
-    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, EFFECTIVE_SEGMENT_LENGTH
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
@@ -226,7 +234,7 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, EFFECTIVE_SEGMENT_LENGTH
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
