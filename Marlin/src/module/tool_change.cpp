@@ -929,8 +929,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS   // Switching Nozzle (single servo)
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
-        const float newz = current_position.z + _MAX(-diff.z, 0.0);
         if (!no_move) {
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
 
           #if HAS_SOFTWARE_ENDSTOPS
             // Check if Z has space to compensate at least z_offset, and if not, just abort now
