@@ -501,6 +501,18 @@ void menu_cancelobject();
     END_MENU();
   }
 
+  // M851 - Z Probe Offsets
+  #if HAS_BED_PROBE
+    void menu_probe_offsets() {
+      START_MENU();
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
+      EDIT_ITEM(float51, MSG_ZPROBE_XOFFSET, &probe_offset.x, -(X_BED_SIZE), X_BED_SIZE);
+      EDIT_ITEM(float51, MSG_ZPROBE_YOFFSET, &probe_offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
+      EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      END_MENU();
+    }
+  #endif
+
 #endif // !SLIM_LCD_MENUS
 
 void menu_advanced_settings() {
@@ -531,6 +543,11 @@ void menu_advanced_settings() {
     if (!printer_busy()) {
       // M92 - Steps Per mm
       SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+
+      #if HAS_BED_PROBE
+        // M851 - Z Probe Offsets
+        SUBMENU(MSG_ZPROBE_OFFSETS, menu_probe_offsets);
+      #endif
     }
   #endif // !SLIM_LCD_MENUS
 
