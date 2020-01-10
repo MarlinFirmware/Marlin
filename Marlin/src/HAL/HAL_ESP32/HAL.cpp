@@ -30,10 +30,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(WEBSUPPORT)
-  #include "spiffs.h"
-#endif
-
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
   #include "wifi.h"
@@ -41,6 +37,7 @@
     #include "ota.h"
   #endif
   #if ENABLED(WEBSUPPORT)
+    #include "spiffs.h"
     #include "web.h"
   #endif
 #endif
@@ -78,21 +75,32 @@ volatile int numPWMUsed = 0,
 // Public functions
 // ------------------------
 
-void HAL_init() {
-  i2s_init();
-}
+#if ENABLED(WIFI_CUSTOM_COMMAND)
+
+  bool wifi_custom_command(char * const command_ptr) {
+    #if ENABLED(ESP3D_WIFISUPPORT)
+      return esp3dlib.parse(command_ptr);
+    #else
+      UNUSED(command_ptr);
+      return false;
+    #endif
+  }
+
+#endif
+
+void HAL_init() { i2s_init(); }
 
 void HAL_init_board() {
-  #if ENABLED(WEBSUPPORT)
-    spiffs_init();
-  #endif
 
-  #if ENABLED(WIFISUPPORT)
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.init();
+  #elif ENABLED(WIFISUPPORT)
     wifi_init();
     #if ENABLED(OTASUPPORT)
       OTA_init();
     #endif
     #if ENABLED(WEBSUPPORT)
+      spiffs_init();
       web_init();
     #endif
     server.begin();
@@ -100,7 +108,7 @@ void HAL_init_board() {
 }
 
 void HAL_idletask() {
-  #if ENABLED(OTASUPPORT)
+  #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
 }

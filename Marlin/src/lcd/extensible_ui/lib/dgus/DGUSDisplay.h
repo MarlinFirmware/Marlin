@@ -135,7 +135,7 @@ public:
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
   #if HAS_PID_HEATING
-  	// Hook for "Change this temperature PID para"
+    // Hook for "Change this temperature PID para"
     static void HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);
     // Hook for PID autotune
     static void HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr);
