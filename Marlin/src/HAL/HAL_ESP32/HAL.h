@@ -55,13 +55,12 @@ extern portMUX_TYPE spinlock;
 #define MYSERIAL0 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
-  #define NUM_SERIAL 2
-  #if ENABLED(WIFISUPPORT)
-    #define MYSERIAL1 webSocketSerial
-  #endif
   #if ENABLED(ESP3D_WIFISUPPORT)
     #define MYSERIAL1 Serial2Socket
+  #else
+    #define MYSERIAL1 webSocketSerial
   #endif
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
 #endif
@@ -71,7 +70,6 @@ extern portMUX_TYPE spinlock;
 #define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
 #define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
 #define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
-
 
 // Fix bug in pgm_read_ptr
 #undef pgm_read_ptr

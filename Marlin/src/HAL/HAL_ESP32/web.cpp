@@ -22,10 +22,10 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-
-
 #include "../../inc/MarlinConfigPre.h"
-#if ENABLED(WEBSUPPORT) && ENABLED(WIFISUPPORT)
+
+#if BOTH(WIFISUPPORT, WEBSUPPORT)
+
 #undef DISABLED  // esp32-hal-gpio.h
 #include <SPIFFS.h>
 #include "wifi.h"
@@ -42,5 +42,5 @@ void web_init() {
   server.onNotFound(onNotFound);
 }
 
-#endif // WEBSUPPORT
+#endif // WIFISUPPORT && WEBSUPPORT
 #endif // ARDUINO_ARCH_ESP32

@@ -91,8 +91,10 @@ volatile int numPWMUsed = 0,
 void HAL_init() { i2s_init(); }
 
 void HAL_init_board() {
-  
-  #if ENABLED(WIFISUPPORT)
+
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.init();
+  #elif ENABLED(WIFISUPPORT)
     wifi_init();
     #if ENABLED(OTASUPPORT)
       OTA_init();
@@ -103,13 +105,10 @@ void HAL_init_board() {
     #endif
     server.begin();
   #endif
-  #if ENABLED(ESP3D_WIFISUPPORT)
-    esp3dlib.init();
-  #endif
 }
 
 void HAL_idletask() {
-  #if ENABLED(OTASUPPORT) && ENABLED(WIFISUPPORT)
+  #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
 }
