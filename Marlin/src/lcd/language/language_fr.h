@@ -365,6 +365,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Déployer Sonde Z");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Ranger Sonde Z");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Origine %s%s%s Premier");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Position sonde Z");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Décalage X");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Décalage Y");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Décalage Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Butée abandon");
