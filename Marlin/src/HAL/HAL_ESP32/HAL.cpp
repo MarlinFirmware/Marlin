@@ -75,17 +75,20 @@ volatile int numPWMUsed = 0,
 // Public functions
 // ------------------------
 
-#if ENABLED(CUSTOM_COMMAND) 
-bool custom_command(char * command_ptr) {
-#if ENABLED(ESP3D_WIFISUPPORT)
-  return 	esp3dlib.parse(command_ptr);
+#if ENABLED(CUSTOM_COMMAND)
+
+  bool custom_command(char * const command_ptr) {
+    #if ENABLED(ESP3D_WIFISUPPORT)
+      return esp3dlib.parse(command_ptr);
+    #else
+      UNUSED(command_ptr);
+      return false;
+    #endif
+  }
+
 #endif
-	return false;
-}
-#endif
-void HAL_init() {
-  i2s_init();
-}
+
+void HAL_init() { i2s_init(); }
 
 void HAL_init_board() {
   
@@ -101,7 +104,7 @@ void HAL_init_board() {
     server.begin();
   #endif
   #if ENABLED(ESP3D_WIFISUPPORT)
-	esp3dlib.init();
+    esp3dlib.init();
   #endif
 }
 
