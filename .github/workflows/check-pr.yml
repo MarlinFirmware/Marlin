@@ -1,0 +1,31 @@
+#
+# check-pr.yml
+# Add a comment to the PR if it's directed to a release branch
+#
+
+name: Check PR
+
+on:
+  pull_request:
+    branches:
+    - 1.0.x
+    - 1.1.x
+    - 2.0.x
+
+jobs:
+  check_pr:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Comment on PR
+      uses: unsplash/comment-on-pr@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        msg: "<p>Thanks for your contribution! \
+              Unfortunately we can't accept PRs directed at release branches. \
+              We make patches to the bugfix branches and only later do we push them out as releases. \
+              Please redo this PR starting with the `bugfix-2.0.x` branch and be careful to target `bugfix-2.0.x` when resubmitting the PR.</p> \
+              <p>It may help to set your fork's default branch to `bugfix-2.0.x`.</p> \
+              <p>See <a href='http://marlinfw.org/docs/development/getting_started_pull_requests.html' target='_blank'>this page</a> for full instructions.</p>"
