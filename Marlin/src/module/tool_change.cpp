@@ -929,17 +929,21 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS   // Switching Nozzle (single servo)
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
-        current_position.z += _MAX(-diff.z, 0.0);
+        const float newz = current_position.z + _MAX(-diff.z, 0.0);
         if (!no_move) {
+
           #if HAS_SOFTWARE_ENDSTOPS
-            // Check if Z has space to compensate at least z_offset, if not enough space abort tool change
-            if (current_position.z > soft_endstop.max.z) return
+            // Check if Z has space to compensate at least z_offset, and if not, just abort now
+            if (newz > soft_endstop.max.z) return;
           #endif
 
-          current_position.z += toolchange_settings.z_raise;
+          newz += toolchange_settings.z_raise;
+
           #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position.z, soft_endstop.max.z);
+            NOMORE(newz, soft_endstop.max.z);
           #endif
+
+          current_position.z = newz;
           fast_line_to_current(Z_AXIS);
         }
         move_nozzle_servo(new_tool);
@@ -950,7 +954,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // The newly-selected extruder XYZ is actually at...
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Offset Tool XY by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
       current_position += diff;
 
       // Tell the planner the new "current position"
