@@ -1794,14 +1794,6 @@
 //
 //#define ULTRA_LCD
 
-//
-// Analog Button De-Bounce and repeat speed (ZONESTAR_LCD or ULTRA_LCD)
-//
-#if EITHER(ZONESTAR_LCD, ULTRA_LCD)                                  
-  //#define ADC_BUTTON_DEBOUCE_DELAY 16   // If buttons bounce or repeats too quickly, uncomment and increase this number. 
-                                        // Min (default) 16; Max 255
-#endif
-
 //=============================================================================
 //======================== LCD / Controller Selection =========================
 //=====================   (I2C and Shift-Register LCDs)   =====================

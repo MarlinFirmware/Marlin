@@ -413,9 +413,6 @@ class Temperature {
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
       static uint8_t ADCKey_count;
-	  #ifndef ADC_BUTTON_DEBOUCE_DELAY
-		#define ADC_BUTTON_DEBOUCE_DELAY 16
-	  #endif
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)

@@ -2518,8 +2518,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#ifdef ADC_BUTTON_DEBOUCE_DELAY
-  #if (ADC_BUTTON_DEBOUCE_DELAY < 16) || (ADC_BUTTON_DEBOUCE_DELAY > 255)
-    #error "ADC_BUTTON_DEBOUCE_DELAY must have value 16 to 255"
-  #endif
+#if HAS_ADC_BUTTONS && defined(ADC_BUTTON_DEBOUNCE_DELAY) && !WITHIN(ADC_BUTTON_DEBOUNCE_DELAY, 16, 255)
+  #error "ADC_BUTTON_DEBOUNCE_DELAY must be an integer from 16 to 255."
 #endif
