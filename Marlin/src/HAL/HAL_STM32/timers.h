@@ -63,7 +63,7 @@
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 5
+    #define STEP_TIMER 6
   #endif
 
   #ifndef TEMP_TIMER

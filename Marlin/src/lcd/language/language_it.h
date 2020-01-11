@@ -312,7 +312,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Schermata info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Schermata info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Regola");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Avvia stampa");
@@ -391,7 +391,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Ritrai BLTouch");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Ritrai Sonda-Z");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s prima");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset sonda Z");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Offsets sonda");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Offset X sonda");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Offset Y sonda");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset Z sonda");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");

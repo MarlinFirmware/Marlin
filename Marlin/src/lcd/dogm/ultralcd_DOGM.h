@@ -147,7 +147,7 @@
 
   #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
 
-#elif ENABLED(MKS_MINI_12864)
+#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
   // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
   // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with

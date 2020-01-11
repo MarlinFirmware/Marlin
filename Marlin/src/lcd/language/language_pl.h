@@ -311,7 +311,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Uaktualnij kartę");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetuj drukarkę");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Odswież");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Ekran główny");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Ekran główny");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Przygotuj");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Strojenie");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Start wydruku");
