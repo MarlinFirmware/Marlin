@@ -61,7 +61,7 @@ void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : P
 void print_bin(const uint16_t val) {
   uint16_t mask = 0x8000;
   for (uint8_t i = 16; i--;) {
-    if (i && !(i % 4)) SERIAL_CHAR(' ');
+  if (i && !((i + 1) % 4)) SERIAL_CHAR(' ');
     SERIAL_CHAR((val & mask) ? '1' : '0');
     mask >>= 1;
   }

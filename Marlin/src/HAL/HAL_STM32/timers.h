@@ -63,7 +63,7 @@
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 6
+    #define STEP_TIMER 9  // timers 6 - 8 do not exist on the STM32F401 chips
   #endif
 
   #ifndef TEMP_TIMER

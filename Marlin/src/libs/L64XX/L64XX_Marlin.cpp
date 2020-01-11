@@ -364,10 +364,22 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
     displacement = _displacement;
     uint8_t axis_offset = parser.byteval('J');
     axis_mon[0][0] = axis_codes[i];   // axis ASCII value (target character)
-    if (axis_offset >= 2 || axis_mon[0][0] == 'E')  // Single axis, E0, or E1
+    uint8_t driver_count_local = 0;         // Can't use "driver_count" directly as a subscript because it's passed by reference
+    if (axis_offset >= 2 || axis_mon[0][0] == 'E') {  // Single axis, E0, or E1
       axis_mon[0][1] = axis_offset + '0';
+      for (j = 0; j < MAX_L6470; j++) {       // See how many drivers on this axis
+        const char * const str = index_to_axis[j];
+        if (axis_mon[0][0] == str[0]) {
+          char * const mon = axis_mon[driver_count_local];
+          mon[0] = str[0];
+          mon[1] = str[1];
+          mon[2] = str[2];   // append end of string
+          axis_index[driver_count_local] = (L64XX_axis_t)j;        // set axis index
+          driver_count_local++;
+        }
+      }
+    }
     else if (axis_offset == 0) {              // One or more axes
-      uint8_t driver_count_local = 0;         // Can't use "driver_count" directly as a subscript because it's passed by reference
       for (j = 0; j < MAX_L6470; j++) {       // See how many drivers on this axis
         const char * const str = index_to_axis[j];
         if (axis_mon[0][0] == str[0]) {

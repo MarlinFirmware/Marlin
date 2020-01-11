@@ -38,7 +38,7 @@
 #define _L64XX_CLASS(TYPE)  __L64XX_CLASS(TYPE)
 #define L64XX_CLASS(ST)     _L64XX_CLASS(ST##_DRIVER_TYPE)
 
-#define L6474_DIR_WRITE(A,STATE) do{ L64xxManager.dir_commands[A] = dSPIN_L6474_ENABLE; WRITE(X_DIR_PIN, STATE); }while(0)
+#define L6474_DIR_WRITE(A,STATE) do{ L64xxManager.dir_commands[A] = dSPIN_L6474_ENABLE; WRITE(A##_DIR_PIN, STATE); }while(0)
 #define L64XX_DIR_WRITE(A,STATE) do{ L64xxManager.dir_commands[A] = (STATE) ? dSPIN_STEP_CLOCK_REV : dSPIN_STEP_CLOCK_FWD; }while(0)
 
 // X Stepper

@@ -188,13 +188,12 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
       sprintf_P(temp_buf, PSTR("   TVAL: %2d ("),  L6474_TVAL_val);
       SERIAL_ECHO(temp_buf);
       SERIAL_ECHO((L6474_TVAL_val + 1) * motor.STALL_CURRENT_CONSTANT_INV);
-      SERIAL_ECHOPGM(" mA)");
+      SERIAL_ECHOLNPGM(" mA   Motor Status: NA)");
 
-      SERIAL_ECHOLNPAIR("   Motor Status: NA"
-                        "...MicroSteps: ", MicroSteps,
-                        "   ADC_OUT: ", L6470_ADC_out);
-      SERIAL_ECHOLNPGM("   Vs_compensation: NA"
-                       "...KVAL_HOLD: NA"
+      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+                      "   ADC_OUT: ", L6470_ADC_out);
+      SERIAL_ECHOLNPGM("   Vs_compensation: NA");
+      SERIAL_ECHOLNPGM("...KVAL_HOLD: NA"
                        "   KVAL_RUN : NA"
                        "   KVAL_ACC: NA"
                        "   KVAL_DEC: NA"
