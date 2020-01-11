@@ -2823,12 +2823,15 @@
 /**
  * WiFi Support (Espressif ESP32 WiFi)
  */
-//#define WIFISUPPORT
-#if ENABLED(WIFISUPPORT)
+//#define WIFISUPPORT         // Marlin embedded WiFi managenent
+//#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
+
+#if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #define WIFI_SSID "Wifi SSID"
   #define WIFI_PWD  "Wifi Password"
-  //#define WEBSUPPORT        // Start a webserver with auto-discovery
-  //#define OTASUPPORT        // Support over-the-air firmware updates
+  //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery)
+  //#define OTASUPPORT          // Support over-the-air firmware updates
+  //#define WIFI_CUSTOM_COMMAND // Accept feature config commands (e.g., WiFi ESP3D) from the host
 #endif
 
 /**
