@@ -83,31 +83,43 @@
  *    KVAL_DEC
  *    Vs compensation (if enabled)
  */
-
 void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
+
   if (L64xxManager.spi_abort) return;  // don't do anything if set_directions() has occurred
+
   const L64XX_Marlin::L64XX_shadow_t &sh = L64xxManager.shadow;
   const uint16_t status = L64xxManager.get_status(axis);    //also populates shadow structure
+  const uint8_t OverCurrent_Threshold = uint8_t(motor.GetParam(L6470_OCD_TH));
+
+  auto say_axis_status = [](const L64XX_axis_t axis, const uint16_t status) {
+    L64xxManager.say_axis(axis);
+    #if ENABLED(L6470_CHITCHAT)
+      char tmp[10];
+      sprintf_P(tmp, PSTR("%4x   "), status);
+      DEBUG_ECHOPAIR("   status: ", tmp);
+      print_bin(status);
+    #else
+      UNUSED(status);
+    #endif
+    SERIAL_EOL();
+  };
+
+  char temp_buf[10];
 
   switch (sh.STATUS_AXIS_LAYOUT) {
     case 0:       // L6470
     case 2: {     // L7480 & powerstep01
-      const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
-                    Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
-                    motor_status = (status  & (STATUS_MOT_STATUS)) >> 5,
-                    L6470_ADC_out = motor.GetParam(L6470_ADC_OUT),
-                    L6470_ADC_out_limited = constrain(L6470_ADC_out, 8, 24);
+      const uint16_t Stall_Threshold = (uint8_t)motor.GetParam(L6470_STALL_TH),
+                     motor_status = (status & (STATUS_MOT_STATUS)) >> 5,
+                     L6470_ADC_out = motor.GetParam(L6470_ADC_OUT),
+                     L6470_ADC_out_limited = constrain(L6470_ADC_out, 8, 24);
       const float comp_coef = 1600.0f / L6470_ADC_out_limited;
-      const int MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
-      char temp_buf[80];
-      const L64XX_Marlin::L64XX_shadow_t &sh = L64xxManager.shadow;
-      L64xxManager.say_axis(axis);
-      #if ENABLED(L6470_CHITCHAT)
-        sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
-        DEBUG_ECHO(temp_buf);
-        print_bin(status);
-      #endif
-      sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d ("), OverCurrent_Threshold);
+      const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
+
+      say_axis_status(axis, status);
+
+      SERIAL_ECHOPGM("...OverCurrent Threshold: ");
+      sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
       SERIAL_ECHO(temp_buf);
       SERIAL_ECHO((OverCurrent_Threshold + 1) * motor.OCD_CURRENT_CONSTANT_INV);
       SERIAL_ECHOPGM(" mA)");
@@ -124,16 +136,18 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
         case 3: SERIAL_ECHOPGM("at constant speed"); break;
       }
       SERIAL_EOL();
+
       SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
                       "   ADC_OUT: ", L6470_ADC_out);
       SERIAL_ECHOPGM("   Vs_compensation: ");
       serialprintPGM((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
       SERIAL_ECHOLNPAIR("   Compensation coefficient: ~", comp_coef * 0.01f);
+
       SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),
                       "   KVAL_RUN : ", motor.GetParam(L6470_KVAL_RUN),
                       "   KVAL_ACC: ", motor.GetParam(L6470_KVAL_ACC),
                       "   KVAL_DEC: ", motor.GetParam(L6470_KVAL_DEC),
-                      "   V motor max =  ");
+                      "   V motor max = ");
       switch (motor_status) {
         case 0: SERIAL_ECHO(motor.GetParam(L6470_KVAL_HOLD) * 100 / 256); SERIAL_ECHOPGM("% (KVAL_HOLD)"); break;
         case 1: SERIAL_ECHO(motor.GetParam(L6470_KVAL_RUN)  * 100 / 256); SERIAL_ECHOPGM("% (KVAL_RUN)"); break;
@@ -141,25 +155,26 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
         case 3: SERIAL_ECHO(motor.GetParam(L6470_KVAL_DEC)  * 100 / 256); SERIAL_ECHOPGM("% (KVAL_HOLD)"); break;
       }
       SERIAL_EOL();
+
       #if ENABLED(L6470_CHITCHAT)
-        SERIAL_ECHOPGM("...SLEW RATE: ");
+        DEBUG_ECHOPGM("...SLEW RATE: ");
         switch (sh.STATUS_AXIS_LAYOUT) {
           case 0:  {
             switch ((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT) {
-              case 0: { SERIAL_ECHOLNPGM("320V/uS") ; break; }
-              case 1: { SERIAL_ECHOLNPGM("75V/uS")  ; break; }
-              case 2: { SERIAL_ECHOLNPGM("110V/uS") ; break; }
-              case 3: { SERIAL_ECHOLNPGM("260V/uS") ; break; }
+              case 0: { DEBUG_ECHOLNPGM("320V/uS") ; break; }
+              case 1: { DEBUG_ECHOLNPGM("75V/uS")  ; break; }
+              case 2: { DEBUG_ECHOLNPGM("110V/uS") ; break; }
+              case 3: { DEBUG_ECHOLNPGM("260V/uS") ; break; }
             }
             break;
           }
         case 2:  {
             switch (motor.GetParam(L6470_GATECFG1) & CONFIG1_SR ) {
-              case CONFIG1_SR_220V_us: { SERIAL_ECHOLNPGM("220V/uS") ; break; }
-              case CONFIG1_SR_400V_us: { SERIAL_ECHOLNPGM("400V/uS") ; break; }
-              case CONFIG1_SR_520V_us: { SERIAL_ECHOLNPGM("520V/uS") ; break; }
-              case CONFIG1_SR_980V_us: { SERIAL_ECHOLNPGM("980V/uS") ; break; }
-              default: { SERIAL_ECHOLNPGM("unknown") ; break; }
+              case CONFIG1_SR_220V_us: { DEBUG_ECHOLNPGM("220V/uS") ; break; }
+              case CONFIG1_SR_400V_us: { DEBUG_ECHOLNPGM("400V/uS") ; break; }
+              case CONFIG1_SR_520V_us: { DEBUG_ECHOLNPGM("520V/uS") ; break; }
+              case CONFIG1_SR_980V_us: { DEBUG_ECHOLNPGM("980V/uS") ; break; }
+              default: { DEBUG_ECHOLNPGM("unknown") ; break; }
             }
           }
         }
@@ -169,43 +184,41 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
     }
 
     case 1:  {  // L6474
-      const uint8_t OverCurrent_Threshold = (uint8_t)motor.GetParam(L6470_OCD_TH),
-                    L6470_ADC_out = motor.GetParam(L6470_ADC_OUT) & 0x1F,
-                    L6474_TVAL_val = motor.GetParam(L6474_TVAL) & 0x7F;
-      uint8_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
-      //NOMORE(MicroSteps, 16);
-      char temp_buf[80];
-      L64xxManager.say_axis(axis);
-      #if ENABLED(L6470_CHITCHAT)
-        sprintf_P(temp_buf, PSTR("   status: %4x   "), status);
-        DEBUG_ECHO(temp_buf);
-        print_bin(status);
-      #endif
-      sprintf_P(temp_buf, PSTR("\n...OverCurrent Threshold: %2d ("), OverCurrent_Threshold);
+      const uint16_t L6470_ADC_out = motor.GetParam(L6470_ADC_OUT) & 0x1F,
+                     L6474_TVAL_val = motor.GetParam(L6474_TVAL) & 0x7F;
+
+      say_axis_status(axis, status);
+
+      SERIAL_ECHOPGM("...OverCurrent Threshold: ");
+      sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
       SERIAL_ECHO(temp_buf);
       SERIAL_ECHO((OverCurrent_Threshold + 1) * motor.OCD_CURRENT_CONSTANT_INV);
       SERIAL_ECHOPGM(" mA)");
-      sprintf_P(temp_buf, PSTR("   TVAL: %2d ("),  L6474_TVAL_val);
+      SERIAL_ECHOPGM("   TVAL: ");
+      sprintf_P(temp_buf, PSTR("%2d ("), L6474_TVAL_val);
       SERIAL_ECHO(temp_buf);
       SERIAL_ECHO((L6474_TVAL_val + 1) * motor.STALL_CURRENT_CONSTANT_INV);
       SERIAL_ECHOLNPGM(" mA   Motor Status: NA)");
 
-      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
-                      "   ADC_OUT: ", L6470_ADC_out);
-      SERIAL_ECHOLNPGM("   Vs_compensation: NA");
-      SERIAL_ECHOLNPGM("...KVAL_HOLD: NA"
+      const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
+      SERIAL_ECHOLNPAIR("...MicroSteps: ", MicroSteps,
+                        "   ADC_OUT: ", L6470_ADC_out);
+
+      SERIAL_ECHOLNPGM("   Vs_compensation: NA\n"
+                       "...KVAL_HOLD: NA"
                        "   KVAL_RUN : NA"
                        "   KVAL_ACC: NA"
                        "   KVAL_DEC: NA"
                        "   V motor max =  NA");
+
       #if ENABLED(L6470_CHITCHAT)
-        SERIAL_ECHOPGM("...SLEW RATE: ");
+        DEBUG_ECHOPGM("...SLEW RATE: ");
         switch ((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT) {
-          case 0: { SERIAL_ECHOLNPGM("320V/uS") ; break; }
-          case 1: { SERIAL_ECHOLNPGM("75V/uS")  ; break; }
-          case 2: { SERIAL_ECHOLNPGM("110V/uS") ; break; }
-          case 3: { SERIAL_ECHOLNPGM("260V/uS") ; break; }
-          default: { SERIAL_ECHOLNPAIR("slew rate: ", (motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT) ; break; }
+          case 0:  { DEBUG_ECHOLNPGM("320V/uS") ; break; }
+          case 1:  { DEBUG_ECHOLNPGM("75V/uS")  ; break; }
+          case 2:  { DEBUG_ECHOLNPGM("110V/uS") ; break; }
+          case 3:  { DEBUG_ECHOLNPGM("260V/uS") ; break; }
+          default: { DEBUG_ECHOLNPAIR("slew rate: ", (motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT); break; }
         }
       #endif
       SERIAL_EOL();
