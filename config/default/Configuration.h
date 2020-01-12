@@ -1289,7 +1289,11 @@
 //#define LEVEL_BED_CORNERS
 
 #if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET 30    // (mm) An inset for corner leveling
+  #define LEVEL_CORNERS_INSET  0 // (mm) An inset for all sides corner leveling if this value is larger then the individual sides it is used
+  #define LEVEL_CORNERS_INSET_LEFT  30 // (mm) An inset left for corner leveling
+  #define LEVEL_CORNERS_INSET_RIGHT  30 // (mm) An inset right for corner leveling
+  #define LEVEL_CORNERS_INSET_FRONT  30 // (mm) An inset front for corner leveling
+  #define LEVEL_CORNERS_INSET_BACK  30 // (mm) An inset back for corner leveling
   #define LEVEL_CORNERS_Z_HOP  4.0  // (mm) Move nozzle up before moving between corners
   #define LEVEL_CORNERS_HEIGHT 0.0  // (mm) Z height of nozzle at leveling points
   //#define LEVEL_CENTER_TOO        // Move to the center after the last corner
