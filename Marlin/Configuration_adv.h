@@ -2444,6 +2444,23 @@
 
   // Duration to hold the switch or keep CHDK_PIN high
   //#define PHOTO_SWITCH_MS   50 // (ms) (M240 D)
+
+  #define PHOTO_NIKON
+  // Nikon
+  // Data from: https://www.christidis.info/index.php/personal-projects/arduino-nikon-infrared-command-code
+  // IR Wiring: https://github.com/outofjungle/NikonRemote/blob/master/NikonRemote.cpp
+  #if ENABLED(PHOTO_GCODE)
+    // Pulses, might need tweaking depending on board
+    // make sure to use a PHOTOGRAPH_PIN which can rise and fall quick enough. 
+    // On MKS SBase, temp sensor pin was too slow used P1.23 on J8
+    // pin requires to be running at 48.4khz
+
+    // how long the 48.4khz pulses last going high then low {HIGH,LOW,HIGH,LOW,...}
+    #define PHOTO_PULSES_MS {2000,27850,400,1580,400,3580,400}  
+
+    // Delay during HIGH pulses to create the 48.4khz frequency HIGH delay LOW DELAY repeat for the pulse duration
+    #define PHOTO_PULES_DELAY 13
+  #endif
 #endif
 
 /**
