@@ -37,7 +37,7 @@ Servo::Servo() {
 
 int8_t Servo::attach(const int inPin) {
   if (channel >= CHANNEL_MAX_NUM) return -1;
-  if (pin > 0) pin = inPin;
+  if (inPin > 0) pin = inPin;
 
   ledcSetup(channel, 50, 16); // channel X, 50 Hz, 16-bit depth
   ledcAttachPin(pin, channel);
