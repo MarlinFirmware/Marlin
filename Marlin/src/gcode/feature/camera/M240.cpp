@@ -62,7 +62,7 @@
 #endif
 
 #if PIN_EXISTS(PHOTOGRAPH)
-  #if ENABLED(PHOTO_GCODE)
+  #if ENABLED(PHOTO_NIKON)
     inline void pulse(unsigned long duration, uint8_t state) {  
       if(state == HIGH)
       {
@@ -80,8 +80,7 @@
       }        
     }
   
-  inline void spin_photo_pin() {     
-    #if ENABLED(PHOTO_NIKON)
+    inline void spin_photo_pin() {     
       unsigned long sequence[] = PHOTO_PULSES_MS;
       int seq_l;
 
@@ -90,11 +89,7 @@
       int i;
 		  for(i=0;i<seq_l;i++) {
   			pulse(sequence[i], i%2==0);
-	  	}
-    #else
-      for (uint8_t i = NUM_PULSES; i--;) tweak_photo_pin();     
-    #endif
-    
+	  	}    
     }
   #else
     constexpr uint8_t NUM_PULSES = 16;

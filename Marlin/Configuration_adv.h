@@ -2449,7 +2449,7 @@
   // Nikon
   // Data from: https://www.christidis.info/index.php/personal-projects/arduino-nikon-infrared-command-code
   // IR Wiring: https://github.com/outofjungle/NikonRemote/blob/master/NikonRemote.cpp
-  #if ENABLED(PHOTO_GCODE)
+  #if ENABLED(PHOTO_NIKON)
     // Pulses, might need tweaking depending on board
     // make sure to use a PHOTOGRAPH_PIN which can rise and fall quick enough. 
     // On MKS SBase, temp sensor pin was too slow used P1.23 on J8
