@@ -1533,9 +1533,10 @@
 //
 #define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
-  #define MM_PER_ARC_SEGMENT  1   // Length of each arc segment
-  #define MIN_ARC_SEGMENTS   24   // Minimum number of segments in a complete circle
-  #define N_ARC_CORRECTION   25   // Number of interpolated segments between corrections
+  #define MM_PER_ARC_SEGMENT    1 // (mm) Length (or minimum length) of each arc segment
+  #define MIN_ARC_SEGMENTS     24 // Minimum number of segments in a complete circle
+  //#define ARC_SEGMENTS_PER_SEC 50 // Use feedrate to choose segment length (with MM_PER_ARC_SEGMENT as the minimum)
+  #define N_ARC_CORRECTION     25 // Number of interpolated segments between corrections
   //#define ARC_P_CIRCLES         // Enable the 'P' parameter to specify complete circles
   //#define CNC_WORKSPACE_PLANES  // Allow G2/G3 to operate in XY, ZX, or YZ planes
 #endif
@@ -2826,12 +2827,15 @@
 /**
  * WiFi Support (Espressif ESP32 WiFi)
  */
-//#define WIFISUPPORT
-#if ENABLED(WIFISUPPORT)
+//#define WIFISUPPORT         // Marlin embedded WiFi managenent
+//#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
+
+#if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #define WIFI_SSID "Wifi SSID"
   #define WIFI_PWD  "Wifi Password"
-  //#define WEBSUPPORT        // Start a webserver with auto-discovery
-  //#define OTASUPPORT        // Support over-the-air firmware updates
+  //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery)
+  //#define OTASUPPORT          // Support over-the-air firmware updates
+  //#define WIFI_CUSTOM_COMMAND // Accept feature config commands (e.g., WiFi ESP3D) from the host
 #endif
 
 /**

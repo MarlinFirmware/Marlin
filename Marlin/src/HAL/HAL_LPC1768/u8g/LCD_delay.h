@@ -26,8 +26,8 @@
  *
  * These are based on the LPC1768 routines.
  *
- * Couldn't just call exact copies because the overhead resulted in the
- * one microsecond delay being about 4uS.
+ * Couldn't just call exact copies because the overhead
+ * results in a one microsecond delay taking about 4µS.
  */
 
 #ifdef __cplusplus

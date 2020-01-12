@@ -531,7 +531,6 @@ void _lcd_ubl_output_map_lcd_cmd() {
  *  Output for Host
  *  Output for CSV
  *  Off Printer Backup
- *  Output Mesh Map
  */
 void _lcd_ubl_output_map() {
   START_MENU();
@@ -539,7 +538,6 @@ void _lcd_ubl_output_map() {
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_HOST, PSTR("G29 T0"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_CSV, PSTR("G29 T1"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_BACKUP, PSTR("G29 S-1"));
-  ACTION_ITEM(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map_lcd_cmd);
   END_MENU();
 }
 
