@@ -310,6 +310,13 @@ opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 Z_PROBE_ALLEN_KEY EE
 exec_test $1 $2 "RAMPS | DELTA | OLED_PANEL_TINYBOY2 | UBL | Allen Key | EEPROM"
 
 #
+# Delta Config (generic) + Probeless
+#
+use_example_configs delta/generic
+opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_AUTO_CALIBRATION DELTA_CALIBRATION_MENU
+exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBRATION_MENU"
+
+#
 # Delta Config (FLSUN AC because it's complex)
 #
 use_example_configs delta/FLSUN/auto_calibrate

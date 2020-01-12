@@ -539,10 +539,7 @@ bool L6470_Marlin::get_user_input(uint8_t &driver_count, uint8_t axis_index[3], 
 
 void L6470_Marlin::say_axis(const uint8_t axis, const bool label/*=true*/) {
   if (label) SERIAL_ECHOPGM("AXIS:");
-  SERIAL_CHAR(' ');
-  SERIAL_CHAR(index_to_axis[axis][0]);
-  SERIAL_CHAR(index_to_axis[axis][1]);
-  SERIAL_CHAR(' ');
+  SERIAL_CHAR(' ', index_to_axis[axis][0], index_to_axis[axis][1], ' ');
 }
 
 void L6470_Marlin::error_status_decode(const uint16_t status, const uint8_t axis) {  // assumes status bits have been inverted

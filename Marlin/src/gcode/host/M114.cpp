@@ -39,9 +39,7 @@
   void report_xyze(const xyze_pos_t &pos, const uint8_t n=4, const uint8_t precision=3) {
     char str[12];
     for (uint8_t a = 0; a < n; a++) {
-      SERIAL_CHAR(' ');
-      SERIAL_CHAR(axis_codes[a]);
-      SERIAL_CHAR(':');
+      SERIAL_CHAR(' ', axis_codes[a], ':');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();
@@ -50,9 +48,7 @@
   void report_xyz(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
     for (uint8_t a = X_AXIS; a <= Z_AXIS; a++) {
-      SERIAL_CHAR(' ');
-      SERIAL_CHAR(axis_codes[a]);
-      SERIAL_CHAR(':');
+      SERIAL_CHAR(' ', axis_codes[a], ':');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();
@@ -150,9 +146,7 @@
 
     SERIAL_ECHOPGM("Stepper:");
     LOOP_XYZE(i) {
-      SERIAL_CHAR(' ');
-      SERIAL_CHAR(axis_codes[i]);
-      SERIAL_CHAR(':');
+      SERIAL_CHAR(' ', axis_codes[i], ':');
       SERIAL_ECHO(stepper.position((AxisEnum)i));
     }
     SERIAL_EOL();
