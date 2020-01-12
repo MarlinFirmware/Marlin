@@ -64,40 +64,40 @@
 #if PIN_EXISTS(PHOTOGRAPH)
   #if ENABLED(PHOTO_NIKON)
     inline void pulse(unsigned long duration, uint8_t state) {  
-      if(state == HIGH)
-      {
-        unsigned long stop = micros() + duration;  
-        while( micros() < stop ) {
-            digitalWrite( PHOTOGRAPH_PIN, HIGH );
-            delayMicroseconds(PHOTO_PULES_DELAY);
-            digitalWrite( PHOTOGRAPH_PIN, LOW );
-            delayMicroseconds(PHOTO_PULES_DELAY);
-        }
+    if(state == HIGH)
+    {
+      unsigned long stop = micros() + duration;  
+      while( micros() < stop ) {
+          digitalWrite( PHOTOGRAPH_PIN, HIGH );
+          delayMicroseconds(PHOTO_PULES_DELAY_US);
+          digitalWrite( PHOTOGRAPH_PIN, LOW );
+          delayMicroseconds(PHOTO_PULES_DELAY_US);
       }
-      else
-      {
-        delayMicroseconds(duration);
-      }        
     }
+    else
+    {
+      delayMicroseconds(duration);
+    }        
+  }
   
-    inline void spin_photo_pin() {     
-      unsigned long sequence[] = PHOTO_PULSES_MS;
-      int seq_l;
+  inline void spin_photo_pin() {     
+    unsigned long sequence[] = PHOTO_PULSES_US;
+    int seq_l;
 
-      seq_l = sizeof(sequence)/sizeof(unsigned long);
+    seq_l = sizeof(sequence)/sizeof(unsigned long);
 
-      int i;
-		  for(i=0;i<seq_l;i++) {
-  			pulse(sequence[i], i%2==0);
-	  	}    
-    }
+    int i;
+    for(i=0;i<seq_l;i++) {
+      pulse(sequence[i], i%2==0);
+    }    
+  }
   #else
     constexpr uint8_t NUM_PULSES = 16;
     constexpr float PULSE_LENGTH = 0.01524;
     inline void set_photo_pin(const uint8_t state) { WRITE(PHOTOGRAPH_PIN, state); _delay_ms(PULSE_LENGTH); }
     inline void tweak_photo_pin() { set_photo_pin(HIGH); set_photo_pin(LOW); }
     inline void spin_photo_pin() {for (uint8_t i = NUM_PULSES; i--;) tweak_photo_pin();}
-  #endif  
+  #endif    
 #endif
 
 /**

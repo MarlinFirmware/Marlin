@@ -2445,7 +2445,7 @@
   // Duration to hold the switch or keep CHDK_PIN high
   //#define PHOTO_SWITCH_MS   50 // (ms) (M240 D)
 
-  #define PHOTO_NIKON
+  //#define PHOTO_NIKON
   // Nikon
   // Data from: https://www.christidis.info/index.php/personal-projects/arduino-nikon-infrared-command-code
   // IR Wiring: https://github.com/outofjungle/NikonRemote/blob/master/NikonRemote.cpp
@@ -2456,10 +2456,10 @@
     // pin requires to be running at 48.4khz
 
     // how long the 48.4khz pulses last going high then low {HIGH,LOW,HIGH,LOW,...}
-    #define PHOTO_PULSES_MS {2000,27850,400,1580,400,3580,400}  
+    #define PHOTO_PULSES_US {2000,27850,400,1580,400,3580,400}  
 
-    // Delay during HIGH pulses to create the 48.4khz frequency HIGH delay LOW DELAY repeat for the pulse duration
-    #define PHOTO_PULES_DELAY 13
+    // Delay during HIGH pulses to create the 48.4khz frequency HIGH delay LOW delay, repeat for the pulse duration from PHOTO_PULSES_US
+    #define PHOTO_PULES_DELAY_US 13
   #endif
 #endif
 
