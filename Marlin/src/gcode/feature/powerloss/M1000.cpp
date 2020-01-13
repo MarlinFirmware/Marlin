@@ -64,6 +64,15 @@ void GcodeSuite::M1000() {
         SERIAL_ECHO_MSG("Resume requires LCD.");
       #endif
     }
+    else if (parser.seen('C')) {
+      card.removeJobRecoveryFile();
+      card.autostart_index = 0;
+      #if HAS_LCD_MENU
+        ui.return_to_status();
+      #elif ENABLED(EXTENSIBLE_UI)
+        ExtUI::onPrintTimerStopped();
+      #endif
+    }
     else
       recovery.resume();
   }
