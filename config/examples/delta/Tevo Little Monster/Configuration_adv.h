@@ -2241,11 +2241,15 @@
 
   #if AXIS_IS_L64XX(X)
     #define X_MICROSTEPS       128  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128) - L6474 max is 16
-    #define X_OVERCURRENT     2000  // (mA) Current where the driver detects an over current (VALID: 375 x (1 - 16) - 6A max - rounds down)
+    #define X_OVERCURRENT     2000  // (mA) Current where the driver detects an over current
+                                    //   L6470 & L6474 - VALID: 375 x (1 - 16) - 6A max - rounds down
+                                    //   POWERSTEP01: VALID: 1000 x (1 - 32) - 32A max - rounds down
     #define X_STALLCURRENT    1500  // (mA) Current where the driver detects a stall (VALID: 31.25 * (1-128) -  4A max - rounds down)
-                                    // On L6474 STALLCURRENT setting is used to set the nominal (TVAL) current
+                                    //   L6470 & L6474 - VALID: 31.25 * (1-128) -  4A max - rounds down
+                                    //   POWERSTEP01: VALID: 200 x (1 - 32) - 6.4A max - rounds down
+                                    //   L6474 - STALLCURRENT setting is used to set the nominal (TVAL) current
     #define X_MAX_VOLTAGE      127  // 0-255, Maximum effective voltage seen by stepper - not used by L6474
-    #define X_CHAIN_POS          0  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
+    #define X_CHAIN_POS         -1  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
     #define X_SLEW_RATE          1  // 0-3, Slew 0 is slowest, 3 is fastest
   #endif
 
@@ -2254,7 +2258,7 @@
     #define X2_OVERCURRENT    2000
     #define X2_STALLCURRENT   1500
     #define X2_MAX_VOLTAGE     127
-    #define X2_CHAIN_POS         0
+    #define X2_CHAIN_POS        -1
     #define X2_SLEW_RATE         1
   #endif
 
@@ -2263,7 +2267,7 @@
     #define Y_OVERCURRENT     2000
     #define Y_STALLCURRENT    1500
     #define Y_MAX_VOLTAGE      127
-    #define Y_CHAIN_POS          0
+    #define Y_CHAIN_POS         -1
     #define Y_SLEW_RATE          1
   #endif
 
@@ -2272,7 +2276,7 @@
     #define Y2_OVERCURRENT    2000
     #define Y2_STALLCURRENT   1500
     #define Y2_MAX_VOLTAGE     127
-    #define Y2_CHAIN_POS         0
+    #define Y2_CHAIN_POS        -1
     #define Y2_SLEW_RATE         1
   #endif
 
@@ -2281,7 +2285,7 @@
     #define Z_OVERCURRENT     2000
     #define Z_STALLCURRENT    1500
     #define Z_MAX_VOLTAGE      127
-    #define Z_CHAIN_POS          0
+    #define Z_CHAIN_POS         -1
     #define Z_SLEW_RATE          1
   #endif
 
@@ -2290,7 +2294,7 @@
     #define Z2_OVERCURRENT    2000
     #define Z2_STALLCURRENT   1500
     #define Z2_MAX_VOLTAGE     127
-    #define Z2_CHAIN_POS         0
+    #define Z2_CHAIN_POS        -1
     #define Z2_SLEW_RATE         1
   #endif
 
@@ -2299,7 +2303,7 @@
     #define Z3_OVERCURRENT    2000
     #define Z3_STALLCURRENT   1500
     #define Z3_MAX_VOLTAGE     127
-    #define Z3_CHAIN_POS         0
+    #define Z3_CHAIN_POS        -1
     #define Z3_SLEW_RATE         1
   #endif
 
@@ -2308,7 +2312,7 @@
     #define E0_OVERCURRENT    2000
     #define E0_STALLCURRENT   1500
     #define E0_MAX_VOLTAGE     127
-    #define E0_CHAIN_POS         0
+    #define E0_CHAIN_POS        -1
     #define E0_SLEW_RATE         1
   #endif
 
@@ -2317,7 +2321,7 @@
     #define E1_OVERCURRENT    2000
     #define E1_STALLCURRENT   1500
     #define E1_MAX_VOLTAGE     127
-    #define E1_CHAIN_POS         0
+    #define E1_CHAIN_POS        -1
     #define E1_SLEW_RATE         1
   #endif
 
@@ -2326,7 +2330,7 @@
     #define E2_OVERCURRENT    2000
     #define E2_STALLCURRENT   1500
     #define E2_MAX_VOLTAGE     127
-    #define E2_CHAIN_POS         0
+    #define E2_CHAIN_POS        -1
     #define E2_SLEW_RATE         1
   #endif
 
@@ -2335,7 +2339,7 @@
     #define E3_OVERCURRENT    2000
     #define E3_STALLCURRENT   1500
     #define E3_MAX_VOLTAGE     127
-    #define E3_CHAIN_POS         0
+    #define E3_CHAIN_POS        -1
     #define E3_SLEW_RATE         1
   #endif
 
@@ -2344,7 +2348,7 @@
     #define E4_OVERCURRENT    2000
     #define E4_STALLCURRENT   1500
     #define E4_MAX_VOLTAGE     127
-    #define E4_CHAIN_POS         0
+    #define E4_CHAIN_POS        -1
     #define E4_SLEW_RATE         1
   #endif
 
@@ -2353,7 +2357,7 @@
     #define E5_OVERCURRENT    2000
     #define E5_STALLCURRENT   1500
     #define E5_MAX_VOLTAGE     127
-    #define E5_CHAIN_POS         0
+    #define E5_CHAIN_POS        -1
     #define E5_SLEW_RATE         1
   #endif
 

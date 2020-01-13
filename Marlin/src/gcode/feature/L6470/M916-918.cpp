@@ -112,7 +112,7 @@ void GcodeSuite::M916() {
 
   uint16_t M91x_counter = kval_hold;
   uint16_t M91x_counter_max;
-  if (sh.STATUS_AXIS_LAYOUT == 1) {
+  if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {
     M91x_counter_max = 128;  // TVAL is 7 bits
     LIMIT(M91x_counter, 0U, 127U);
   }
@@ -127,7 +127,7 @@ void GcodeSuite::M916() {
 
   do {
 
-    if (sh.STATUS_AXIS_LAYOUT == 1)
+    if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT)
       DEBUG_ECHOLNPAIR("TVAL current (mA) = ", (M91x_counter + 1) * sh.AXIS_STALL_CURRENT_CONSTANT_INV);        // report TVAL current for this run
     else
       DEBUG_ECHOLNPAIR("kval_hold = ", M91x_counter);                                   // report KVAL_HOLD for this run
@@ -257,7 +257,7 @@ void GcodeSuite::M917() {
                                           // 4 - all testing completed
   DEBUG_ECHOPAIR(".\n.\n.\nover_current threshold : ", (OCD_TH_val + 1) * 375);   // first status display
   DEBUG_ECHOPAIR("  (OCD_TH:  : ", OCD_TH_val);
-  if (sh.STATUS_AXIS_LAYOUT != 1) {
+  if (sh.STATUS_AXIS_LAYOUT != L6474_STATUS_LAYOUT) {
     DEBUG_ECHOPAIR(")   Stall threshold: ", (STALL_TH_val + 1) * 31.25);
     DEBUG_ECHOPAIR("  (STALL_TH: ", STALL_TH_val);
   }
@@ -265,7 +265,7 @@ void GcodeSuite::M917() {
 
   do {
 
-    if (sh.STATUS_AXIS_LAYOUT != 1) DEBUG_ECHOPAIR("STALL threshold : ", (STALL_TH_val + 1) * 31.25);
+    if (sh.STATUS_AXIS_LAYOUT != L6474_STATUS_LAYOUT) DEBUG_ECHOPAIR("STALL threshold : ", (STALL_TH_val + 1) * 31.25);
     DEBUG_ECHOLNPAIR("   OCD threshold : ", (OCD_TH_val + 1) * 375);
 
     sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_min), uint16_t(final_feedrate));
@@ -379,7 +379,7 @@ void GcodeSuite::M917() {
         } break;
 
         case 2: {
-          if (sh.STATUS_AXIS_LAYOUT == 1) {  // skip all STALL_TH steps if L6474
+          if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // skip all STALL_TH steps if L6474
             test_phase = 4;
             break;
           }
@@ -413,7 +413,7 @@ void GcodeSuite::M917() {
         } break;
 
         case 3: {
-          if (sh.STATUS_AXIS_LAYOUT == 1) {  // skip all STALL_TH steps if L6474
+          if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // skip all STALL_TH steps if L6474
             test_phase = 4;
             break;
           }
@@ -460,7 +460,7 @@ void GcodeSuite::M917() {
                 DEBUG_ECHOLNPGM("OCD finalized");
 
         case 2: { // phase 2 without stall warning - keep on decrementing if can
-          if (sh.STATUS_AXIS_LAYOUT == 1) {  // skip all STALL_TH steps if L6474
+          if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // skip all STALL_TH steps if L6474
             test_phase = 4;
             break;
           }
@@ -477,7 +477,7 @@ void GcodeSuite::M917() {
         } break;
 
         case 3: {
-          if (sh.STATUS_AXIS_LAYOUT == 1) {  // skip all STALL_TH steps if L6474
+          if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // skip all STALL_TH steps if L6474
             test_phase = 4;
             break;
           }
@@ -491,9 +491,9 @@ void GcodeSuite::M917() {
     if (test_phase != 4) {
       for (j = 0; j < driver_count; j++) {                       // update threshold(s)
         L64xxManager.set_param(axis_index[j], L6470_OCD_TH, OCD_TH_val);
-        if (sh.STATUS_AXIS_LAYOUT != 1) L64xxManager.set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val);
+        if (sh.STATUS_AXIS_LAYOUT != L6474_STATUS_LAYOUT) L64xxManager.set_param(axis_index[j], L6470_STALL_TH, STALL_TH_val);
         if (L64xxManager.get_param(axis_index[j], L6470_OCD_TH) != OCD_TH_val) DEBUG_ECHOLNPGM("OCD mismatch");
-        if ((L64xxManager.get_param(axis_index[j], L6470_STALL_TH) != STALL_TH_val) && (sh.STATUS_AXIS_LAYOUT != 1)) DEBUG_ECHOLNPGM("STALL mismatch");
+        if ((L64xxManager.get_param(axis_index[j], L6470_STALL_TH) != STALL_TH_val) && (sh.STATUS_AXIS_LAYOUT != L6474_STATUS_LAYOUT)) DEBUG_ECHOLNPGM("STALL mismatch");
       }
     }
 
@@ -574,7 +574,7 @@ void GcodeSuite::M918() {
   uint8_t m_steps = parser.byteval('M');
 
   if (m_steps != 0) {
-    LIMIT(m_steps, 1, sh.STATUS_AXIS_LAYOUT == 1 ? 16 : 128);  // L6474
+    LIMIT(m_steps, 1, sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT ? 16 : 128);  // L6474
 
     uint8_t stepVal;
     for (stepVal = 0; stepVal < 8; stepVal++) {  // convert to L64xx register value
@@ -582,7 +582,7 @@ void GcodeSuite::M918() {
       m_steps >>= 1;
     }
 
-    if (sh.STATUS_AXIS_LAYOUT == 1)
+    if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT)
       stepVal |= 0x98;  // NO SYNC
     else
       stepVal |= (!SYNC_EN) | SYNC_SEL_1 | stepVal;

@@ -41,9 +41,9 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     SERIAL_ECHO(temp_buf);
     print_bin(sh.STATUS_AXIS_RAW);
     switch (sh.STATUS_AXIS_LAYOUT) {
-      case 0: { serialprintPGM(PSTR("   L6470")); break; }
-      case 1: { serialprintPGM(PSTR("   L6474")); break; }
-      case 2: { serialprintPGM(PSTR("   L6480/powerSTEP01")); break; }
+      case L6470_STATUS_LAYOUT: { serialprintPGM(PSTR("   L6470")); break; }
+      case L6474_STATUS_LAYOUT: { serialprintPGM(PSTR("   L6474")); break; }
+      case L6480_STATUS_LAYOUT: { serialprintPGM(PSTR("   L6480/powerSTEP01")); break; }
     }
   #endif
   SERIAL_ECHOPGM("\n...OUTPUT: ");
@@ -51,10 +51,9 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no((sh.STATUS_AXIS & STATUS_BUSY) == 0);
   SERIAL_ECHOPGM("   DIR: ");
   serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
-  SERIAL_ECHOPGM("   Last Command: ");
-  if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("IN");
-  SERIAL_ECHOPGM("VALID    ");
-  if (sh.STATUS_AXIS_LAYOUT == 2) {
+  if (sh.STATUS_AXIS_LAYOUT == L6480_STATUS_LAYOUT) {
+    if (!(sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD)) SERIAL_ECHOPGM("   Last Command: ERROR");
+    else                                              SERIAL_ECHOPGM("   Last Command: VALID");
     SERIAL_ECHOPGM("\n...THERMAL: ");
     switch ((sh.STATUS_AXIS & (sh.STATUS_AXIS_TH_SD | sh.STATUS_AXIS_TH_WRN)) >> 11) {
       case 0: SERIAL_ECHOPGM("DEVICE SHUTDOWN"); break;
@@ -64,11 +63,14 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     }
   }
   else {
+    SERIAL_ECHOPGM("   Last Command: ");
+    if (!(sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD)) SERIAL_ECHOPGM("IN");
+    SERIAL_ECHOPGM("VALID    ");
     serialprintPGM(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  PSTR("COMPLETED    ") : PSTR("Not PERFORMED"));
     SERIAL_ECHOPAIR("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
   }
   SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_OCD) == 0);
-  if (sh.STATUS_AXIS_LAYOUT != 1) {
+  if (sh.STATUS_AXIS_LAYOUT != L6474_STATUS_LAYOUT) {
     SERIAL_ECHOPGM("   STALL:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_A) == 0 || (sh.STATUS_AXIS & sh.STATUS_AXIS_STEP_LOSS_B) == 0);
     SERIAL_ECHOPGM("   STEP-CLOCK MODE:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_SCK_MOD) != 0);
   }

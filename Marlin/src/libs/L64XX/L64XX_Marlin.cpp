@@ -152,19 +152,19 @@ uint16_t L64XX_Marlin::get_stepper_status(L64XX &st) {
   shadow.STATUS_AXIS_NOTPERF_CMD   = st.STATUS_NOTPERF_CMD;
 
   switch (shadow.STATUS_AXIS_LAYOUT) {
-    case 0: {   // L6470
+    case L6470_STATUS_LAYOUT: {   // L6470
       shadow.L6470_ERROR_MASK      = shadow.STATUS_AXIS_UVLO | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD | shadow.STATUS_AXIS_OCD | shadow.STATUS_AXIS_STEP_LOSS_A | shadow.STATUS_AXIS_STEP_LOSS_B;
-      shadow.STATUS_AXIS           ^= (shadow.STATUS_AXIS_CMD_ERR | shadow.STATUS_AXIS_NOTPERF_CMD);  // invert just error bits that are active high
+      shadow.STATUS_AXIS           ^= (shadow.STATUS_AXIS_WRONG_CMD | shadow.STATUS_AXIS_NOTPERF_CMD);  // invert just error bits that are active high
       break;
     }
-    case 1: {   // L6474
+    case L6474_STATUS_LAYOUT: {   // L6474
       shadow.L6470_ERROR_MASK      = shadow.STATUS_AXIS_UVLO | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD | shadow.STATUS_AXIS_OCD ;
-      shadow.STATUS_AXIS           ^= (shadow.STATUS_AXIS_CMD_ERR | shadow.STATUS_AXIS_NOTPERF_CMD);  // invert just error bits that are active high
+      shadow.STATUS_AXIS           ^= (shadow.STATUS_AXIS_WRONG_CMD | shadow.STATUS_AXIS_NOTPERF_CMD);  // invert just error bits that are active high
       break;
     }
-    case 2: {   // L6480 & powerSTEP01
+    case L6480_STATUS_LAYOUT: {   // L6480 & powerSTEP01
       shadow.L6470_ERROR_MASK      = shadow.STATUS_AXIS_UVLO | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD | shadow.STATUS_AXIS_OCD | shadow.STATUS_AXIS_STEP_LOSS_A | shadow.STATUS_AXIS_STEP_LOSS_B;
-      shadow.STATUS_AXIS           ^= (shadow.STATUS_AXIS_CMD_ERR | shadow.STATUS_AXIS_NOTPERF_CMD | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD);  // invert just error bits that are active high
+      shadow.STATUS_AXIS           ^= (shadow.STATUS_AXIS_CMD_ERR | shadow.STATUS_AXIS_TH_WRN | shadow.STATUS_AXIS_TH_SD);  // invert just error bits that are active high
       break;
     }
   }
@@ -342,7 +342,7 @@ inline void echo_oct_used(const float &oct, const uint8_t stall) {
   serialprintPGM(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
   DEBUG_ECHOLNPGM(" threshold)");
 }
-inline void err_out_of_bounds() { DEBUG_ECHOLNPGM("ERROR - motion out of bounds"); }
+inline void err_out_of_bounds() { DEBUG_ECHOLNPGM("Test aborted - motion out of bounds"); }
 
 uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_index[3],  char axis_mon[3][3],
                                  float &position_max, float &position_min, float &final_feedrate, uint8_t &kval_hold,
@@ -354,8 +354,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   uint8_t j;   // general purpose counter
 
   if (!all_axes_homed()) {
-    DEBUG_ECHOLNPGM("ERROR - home all before running this command");
-    //return true;
+    DEBUG_ECHOLNPGM("Test aborted - home all before running this command");
+    return true;
   }
 
   uint8_t found_displacement = false;
@@ -397,7 +397,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   }
 
   if (!found_displacement) {
-    DEBUG_ECHOLNPGM("ERROR - AXIS with displacement is required");
+    DEBUG_ECHOLNPGM("Test aborted - AXIS with displacement is required");
     return true;
   }
 
@@ -492,7 +492,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   }
 
   if (driver_count == 0) {
-    DEBUG_ECHOLNPGM("ERROR - not a L6470 axis");
+    DEBUG_ECHOLNPGM("Test aborted - not a L6470 axis");
     return true;
   }
 
@@ -508,7 +508,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   const L64XX_shadow_t &sh = shadow;
   get_status(axis_index[0]); // populate shadow array
 
-  if (sh.STATUS_AXIS_LAYOUT == 1) {  // L6474 - use TVAL
+  if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // L6474 - use TVAL
     uint16_t TVAL_current = parser.ushortval('T');
     if (TVAL_current) {
       uint8_t TVAL_count = (TVAL_current /  sh.AXIS_STALL_CURRENT_CONSTANT_INV) - 1;
@@ -559,7 +559,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       }
 
       DEBUG_ECHOLNPAIR("over_current_threshold specified: ", over_current_threshold);
-      if (!(sh.STATUS_AXIS_LAYOUT == 1)) echo_oct_used((STALL_TH_val_local + 1) * 31.25, true);
+      if (!(sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT)) echo_oct_used((STALL_TH_val_local + 1) * 31.25, true);
       echo_oct_used((OCD_TH_val_local + 1) * 375, false);
 
       #define SET_OVER_CURRENT(Q) do { stepper##Q.SetParam(L6470_STALL_TH, STALL_TH_val_local); stepper##Q.SetParam(L6470_OCD_TH, OCD_TH_val_local);} while (0)
@@ -574,7 +574,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       STALL_TH_val_local = get_param(axis_index[0], L6470_STALL_TH);
       OCD_TH_val_local = get_param(axis_index[0], L6470_OCD_TH);
 
-      if (!(sh.STATUS_AXIS_LAYOUT == 1)) echo_oct_used((STALL_TH_val_local + 1) * 31.25, true);
+      if (!(sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT)) echo_oct_used((STALL_TH_val_local + 1) * 31.25, true);
       echo_oct_used((OCD_TH_val_local + 1) * 375, false);
     } // over_current_threshold
 
@@ -633,7 +633,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
     serialprintPGM((status & _status_axis_th_sd) ? PSTR("SHUTDOWN") : (status & _status_axis_th_wrn) ? PSTR("WARNING ") : PSTR("OK      "));
     DEBUG_ECHOPGM("   OVERCURRENT: ");
     echo_yes_no((status & _status_axis_ocd) != 0);
-    if (!(_status_axis_layout == 1)) {  // L6474 doesn't have these bits
+    if (!(_status_axis_layout == L6474_STATUS_LAYOUT)) {  // L6474 doesn't have these bits
       DEBUG_ECHOPGM("   STALL: ");
       echo_yes_no((status & (_status_axis_step_loss_a | _status_axis_step_loss_b)) != 0);
     }
@@ -757,7 +757,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
             if (_status & sh.STATUS_AXIS_TH_WRN) {                    // over current shutdown
               p += sprintf_P(p, PSTR("%cdue to over temperature"), ' ');
               driver_L6470_data[j].is_ot = true;
-              if (sh.STATUS_AXIS_LAYOUT == 1) {  // L6474
+              if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // L6474
                 tval = get_param(stepper_index, L6474_TVAL) - 2 * KVAL_HOLD_STEP_DOWN;
               set_param(stepper_index, L6474_TVAL, tval);     // reduce TVAL
                 p += sprintf_P(p, PSTR(" - TVAL reduced by %d to %d mA"), uint16_t (2 * KVAL_HOLD_STEP_DOWN * sh.AXIS_STALL_CURRENT_CONSTANT_INV), uint16_t ((tval + 1) * sh.AXIS_STALL_CURRENT_CONSTANT_INV));   // let user know
@@ -781,7 +781,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
               if (driver_L6470_data[j].otw_counter > 4) {  // otw present for 2 - 2.5 seconds, reduce KVAL_HOLD
                 driver_L6470_data[j].otw_counter = 0;
                 driver_L6470_data[j].is_otw = true;
-                if (sh.STATUS_AXIS_LAYOUT == 1) {  // L6474
+                if (sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT) {  // L6474
                   tval = get_param(stepper_index, L6474_TVAL) - KVAL_HOLD_STEP_DOWN;
                   set_param(stepper_index, L6474_TVAL, tval);     // reduce TVAL
                   p += sprintf_P(p, PSTR(" - TVAL reduced by %d to %d mA"), uint16_t (KVAL_HOLD_STEP_DOWN * sh.AXIS_STALL_CURRENT_CONSTANT_INV), uint16_t ((tval + 1) * sh.AXIS_STALL_CURRENT_CONSTANT_INV));   // let user know
