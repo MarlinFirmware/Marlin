@@ -396,7 +396,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Протокол");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Контроль темп.: Выкл");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Контроль темп.: Вкл");
-  
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Подсветка корпуса");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яркость подсветки");
   PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неверный принтер");
