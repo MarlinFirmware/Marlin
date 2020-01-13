@@ -35,15 +35,15 @@
  */
 void GcodeSuite::G61(void) {
 
-  if (!isPosSaved) return;
-
   const uint8_t slot = parser.byteval('S');
-
+  
   if (slot >= NUM_POSITON_SLOTS) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR_F(MSG_INVALID_POS_SLOT, NUM_POSITON_SLOTS);
     return;
   }
+
+  if (!isPosSaved[slot]) return;
 
   SERIAL_ECHOPGM(MSG_RESTORING_POS);
   SERIAL_ECHOPAIR_F(" S", int(slot));

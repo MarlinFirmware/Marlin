@@ -39,7 +39,7 @@ void GcodeSuite::G60() {
     return;
   } 
   stored_position[slot] = current_position;
-  isPosSaved = true;
+  isPosSaved[slot] = true;
   //setPosSaved(true);
 
   SERIAL_ECHOPGM(MSG_SAVED_POS);
