@@ -41,9 +41,9 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     SERIAL_ECHO(temp_buf);
     print_bin(sh.STATUS_AXIS_RAW);
     switch (sh.STATUS_AXIS_LAYOUT) {
-      case L6470_STATUS_LAYOUT: { serialprintPGM(PSTR("   L6470")); break; }
-      case L6474_STATUS_LAYOUT: { serialprintPGM(PSTR("   L6474")); break; }
-      case L6480_STATUS_LAYOUT: { serialprintPGM(PSTR("   L6480/powerSTEP01")); break; }
+      case L6470_STATUS_LAYOUT: serialprintPGM(PSTR("   L6470")); break;
+      case L6474_STATUS_LAYOUT: serialprintPGM(PSTR("   L6474")); break;
+      case L6480_STATUS_LAYOUT: serialprintPGM(PSTR("   L6480/powerSTEP01")); break;
     }
   #endif
   SERIAL_ECHOPGM("\n...OUTPUT: ");
@@ -52,8 +52,9 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
   SERIAL_ECHOPGM("   DIR: ");
   serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
   if (sh.STATUS_AXIS_LAYOUT == L6480_STATUS_LAYOUT) {
-    if (!(sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD)) SERIAL_ECHOPGM("   Last Command: ERROR");
-    else                                              SERIAL_ECHOPGM("   Last Command: VALID");
+    SERIAL_ECHOPGM("   Last Command: ");
+    if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("VALID");
+    else                                           SERIAL_ECHOPGM("ERROR");
     SERIAL_ECHOPGM("\n...THERMAL: ");
     switch ((sh.STATUS_AXIS & (sh.STATUS_AXIS_TH_SD | sh.STATUS_AXIS_TH_WRN)) >> 11) {
       case 0: SERIAL_ECHOPGM("DEVICE SHUTDOWN"); break;
