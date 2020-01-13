@@ -240,7 +240,7 @@
   }
 
   // all the others
-  static uint32_t spiDelayCyclesX4 = (F_CPU) / 1000000; // 4uS => 125khz
+  static uint32_t spiDelayCyclesX4 = (F_CPU) / 1000000; // 4µs => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;

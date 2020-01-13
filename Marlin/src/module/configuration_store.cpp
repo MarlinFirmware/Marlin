@@ -1145,7 +1145,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(planner.extruder_advance_K);
       #else
         dummy = 0;
-        for (uint8_t q = _MIN(EXTRUDERS, 1); q--;) EEPROM_WRITE(dummy);
+        for (uint8_t q = _MAX(EXTRUDERS, 1); q--;) EEPROM_WRITE(dummy);
       #endif
     }
 
@@ -1934,7 +1934,7 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
       {
-        float extruder_advance_K[_MIN(EXTRUDERS, 1)];
+        float extruder_advance_K[_MAX(EXTRUDERS, 1)];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
         #if ENABLED(LIN_ADVANCE)
@@ -2352,7 +2352,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_BED_PROBE
-    constexpr float dpo[XYZ] = NOZZLE_TO_PROBE_OFFSET;
+    constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == 3, "NOZZLE_TO_PROBE_OFFSET must contain offsets for X, Y, and Z.");
     #if HAS_PROBE_XY_OFFSET
       LOOP_XYZ(a) probe_offset[a] = dpo[a];
