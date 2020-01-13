@@ -94,7 +94,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значение Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Свои команды");
 
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Проверка датчика Z");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Проверка Z-датчика");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Отклонение");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("Измерение");
 
@@ -328,7 +328,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Активировать SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Сменить SD карту");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Деактивировать SD");
-  PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z датчик вне стола");
+  PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-датчик вне стола");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Фактор наклона");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Тестирование BLTouch");
@@ -339,7 +339,10 @@ namespace Language_ru {
   // TODO: TouchMI Probe, Manual deploy/stow
 
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Паркуй %s%s%s сначала");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Смещение Z");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Отступы Z-датчика");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Смещение по X");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Смещение по Y");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Смещение по Z");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Микрошаг X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Микрошаг Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Микрошаг Z");
@@ -393,7 +396,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Протокол");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Контроль темп.: Выкл");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Контроль темп.: Вкл");
-  
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Подсветка корпуса");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яркость подсветки");
   PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неверный принтер");
