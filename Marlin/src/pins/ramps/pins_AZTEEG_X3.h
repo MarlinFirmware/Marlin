@@ -34,10 +34,7 @@
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
   #define CASE_LIGHT_PIN    6   // Define before RAMPS pins include
 #endif
-
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Azteeg X3"
-#endif
+#define BOARD_INFO_NAME "Azteeg X3"
 
 //
 // Servos

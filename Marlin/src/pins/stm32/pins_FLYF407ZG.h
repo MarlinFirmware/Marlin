@@ -27,13 +27,9 @@
   #error "FLYF407ZG supports up to 6 hotends / E-steppers."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "FLYF407ZG"
-#endif
-
-#ifndef BOARD_WEBSITE_URL
-  #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
-#endif
+#define BOARD_INFO_NAME      "FLYF407ZG"
+#define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #undef E2END
 #define E2END 0xFFF // 4KB

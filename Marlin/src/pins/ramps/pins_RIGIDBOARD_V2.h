@@ -25,9 +25,7 @@
  * RIGIDBOARD V2 Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "RigidBoard V2"
-#endif
+#define BOARD_INFO_NAME "RigidBoard V2"
 
 #include "pins_RIGIDBOARD.h"
 

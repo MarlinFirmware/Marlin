@@ -27,9 +27,7 @@
   #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
-#endif
+#define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
 #define SRAM_EEPROM_EMULATION
 

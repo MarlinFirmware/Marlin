@@ -29,12 +29,10 @@
   #error "Oops! Select 'RAMBo' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
 #if MB(MINIRAMBO_10A)
   #define BOARD_INFO_NAME "Mini RAMBo 1.0a"
 #else
   #define BOARD_INFO_NAME "Mini RAMBo"
-#endif
 #endif
 
 //

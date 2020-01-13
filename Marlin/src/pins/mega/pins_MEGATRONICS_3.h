@@ -29,14 +29,12 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
 #if MB(MEGATRONICS_32)
   #define BOARD_INFO_NAME "Megatronics v3.2"
 #elif MB(MEGATRONICS_31)
   #define BOARD_INFO_NAME "Megatronics v3.1"
 #else
   #define BOARD_INFO_NAME "Megatronics v3.0"
-#endif
 #endif
 
 //

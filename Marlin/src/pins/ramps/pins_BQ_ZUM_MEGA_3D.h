@@ -29,9 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "ZUM Mega 3D"
-#endif
+#define BOARD_INFO_NAME "ZUM Mega 3D"
 
 //
 // Heaters / Fans

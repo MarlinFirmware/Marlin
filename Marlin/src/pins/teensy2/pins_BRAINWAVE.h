@@ -72,9 +72,7 @@
   #error "Oops! Select 'AT90USB646_TEENSYPP' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Brainwave"
-#endif
+#define BOARD_INFO_NAME "Brainwave"
 
 //
 // Limit Switches

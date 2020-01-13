@@ -24,9 +24,8 @@
 //
 // FYSETC F6 v1.4 pin assignments
 //
-#ifndef BOARD_INFO_NAME
-  #define BOARD_NAME "FYSETC F6 1.4"
-#endif
+
+#define BOARD_NAME "FYSETC F6 1.4"
 
 #define Z_MAX_PIN           2
 

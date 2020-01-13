@@ -25,9 +25,7 @@
   #error "Creality3D RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Creality3D RAMPS"
-#endif
+#define BOARD_INFO_NAME "Creality3D RAMPS"
 
 //
 // Heaters / Fans

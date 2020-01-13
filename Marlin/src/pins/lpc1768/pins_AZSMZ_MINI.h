@@ -29,9 +29,7 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "AZSMZ MINI"
-#endif 
+#define BOARD_INFO_NAME "AZSMZ MINI"
 
 //
 // Servos

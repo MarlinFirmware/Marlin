@@ -29,9 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "RAMPS <1.2"
-#endif
+#define BOARD_INFO_NAME "RAMPS <1.2"
 
 // Uncomment the following line for RAMPS v1.0
 //#define RAMPS_V_1_0

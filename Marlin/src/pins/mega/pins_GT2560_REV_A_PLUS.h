@@ -25,9 +25,7 @@
  * Geeetech GT2560 Revision A+ board pin assignments
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "GT2560 Rev.A+"
-#endif
+#define BOARD_INFO_NAME "GT2560 Rev.A+"
 
 #include "pins_GT2560_REV_A.h"
 

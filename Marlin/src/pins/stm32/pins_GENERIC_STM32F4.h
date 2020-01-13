@@ -21,7 +21,7 @@
  */
 #pragma once
 
-/** "STM32F407VET6"
+/**
  * To build with Arduino IDE use "Discovery F407VG"
  * To build with PlatformIO use environment "STM32F4"
  */
@@ -31,9 +31,8 @@
   #error "STM32F4 supports up to 2 hotends / E-steppers."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "Misc. STM32F4"
-#endif
+#define BOARD_INFO_NAME      "Misc. STM32F4"
+#define DEFAULT_MACHINE_NAME "STM32F407VET6"
 
 //#define I2C_EEPROM
 

@@ -55,9 +55,7 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Gen3+"
-#endif
+#define BOARD_INFO_NAME "Gen3+"
 
 //
 // Limit Switches

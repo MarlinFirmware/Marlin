@@ -31,9 +31,7 @@
   #error "Mega Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Mega Controller"
-#endif
+#define BOARD_INFO_NAME "Mega Controller"
 
 //
 // Servos

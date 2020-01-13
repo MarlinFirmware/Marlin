@@ -77,9 +77,7 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Teensylu"
-#endif
+#define BOARD_INFO_NAME "Teensylu"
 
 //
 // Limit Switch definitions that match the SCHEMATIC

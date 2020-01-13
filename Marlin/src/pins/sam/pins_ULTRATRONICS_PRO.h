@@ -29,9 +29,7 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Ultratronics v1.0"
-#endif
+#define BOARD_INFO_NAME "Ultratronics v1.0"
 
 //
 // Servos

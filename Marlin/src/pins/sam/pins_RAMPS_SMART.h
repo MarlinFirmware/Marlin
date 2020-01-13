@@ -64,9 +64,7 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "RAMPS-SMART"
-#endif
+#define BOARD_INFO_NAME "RAMPS-SMART"
 
 #define IS_RAMPS_SMART
 #include "../ramps/pins_RAMPS.h"

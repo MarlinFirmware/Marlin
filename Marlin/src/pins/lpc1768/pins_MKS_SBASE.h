@@ -34,7 +34,6 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME   "MKS SBASE"
 #endif
-
 #ifndef BOARD_WEBSITE_URL
   #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SBASE"
 #endif

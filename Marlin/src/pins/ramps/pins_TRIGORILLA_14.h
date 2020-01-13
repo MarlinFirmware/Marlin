@@ -24,9 +24,8 @@
 /**
  * Arduino Mega with RAMPS v1.4 for Anycubic
  */
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Anycubic RAMPS 1.4"
-#endif
+
+#define BOARD_INFO_NAME "Anycubic RAMPS 1.4"
 
 //
 // Servos

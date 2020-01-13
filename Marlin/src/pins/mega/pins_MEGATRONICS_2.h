@@ -29,10 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Megatronics v2.0"
-#endif
-
+#define BOARD_INFO_NAME "Megatronics v2.0"
 //
 // Limit Switches
 //

@@ -26,9 +26,7 @@
  * See https://github.com/mzbotreprap/VORON/blob/master/Firmware/Marlin/pins_RAMPS_VORON.h
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "VORON Design v2"
-#endif
+#define BOARD_INFO_NAME "VORON Design v2"
 
 #define RAMPS_D8_PIN       11
 

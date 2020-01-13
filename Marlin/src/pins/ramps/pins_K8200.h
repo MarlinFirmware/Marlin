@@ -26,12 +26,8 @@
  * Identical to 3DRAG
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME         "Velleman K8200"
-#endif
-
-#ifndef DEFAULT_SOURCE_CODE_URL
-  #define DEFAULT_SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"
-#endif
+#define BOARD_INFO_NAME         "Velleman K8200"
+#define DEFAULT_MACHINE_NAME    "K8200"
+#define DEFAULT_SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"
 
 #include "pins_3DRAG.h"

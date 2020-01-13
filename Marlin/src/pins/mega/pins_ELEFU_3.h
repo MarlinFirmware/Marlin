@@ -29,9 +29,7 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Elefu Ra v3"
-#endif
+#define BOARD_INFO_NAME "Elefu Ra v3"
 
 //
 // Limit Switches

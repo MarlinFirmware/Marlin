@@ -31,9 +31,7 @@
   #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Azteeg X3 Pro"
-#endif
+#define BOARD_INFO_NAME "Azteeg X3 Pro"
 
 //
 // RAMPS pins overrides

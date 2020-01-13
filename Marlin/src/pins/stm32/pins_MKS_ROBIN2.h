@@ -31,6 +31,10 @@
   #define BOARD_NAME "MKS_ROBIN2"
 #endif
 
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#endif
+
 #define SRAM_EEPROM_EMULATION
 
 //

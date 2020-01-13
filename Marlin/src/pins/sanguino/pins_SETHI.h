@@ -54,9 +54,7 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644', 'ATmega644P', or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Sethi 3D_1"
-#endif
+#define BOARD_INFO_NAME "Sethi 3D_1"
 
 #ifndef GEN7_VERSION
   #define GEN7_VERSION 12   // v1.x

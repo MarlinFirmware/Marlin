@@ -34,10 +34,7 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "MKS Robin Lite3"
 #endif
-
-#ifndef BOARD_WEBSITE_URL
-  #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
-#endif
+#define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG

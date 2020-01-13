@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "MAKEboard Mini"
-#endif
+#define BOARD_INFO_NAME "MAKEboard Mini"
 
 //
 // Only 3 Limit Switch plugs on Micromake C1

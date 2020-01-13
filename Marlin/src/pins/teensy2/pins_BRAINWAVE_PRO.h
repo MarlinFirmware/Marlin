@@ -79,9 +79,7 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Brainwave Pro"
-#endif
+#define BOARD_INFO_NAME "Brainwave Pro"
 
 //
 // Limit Switches

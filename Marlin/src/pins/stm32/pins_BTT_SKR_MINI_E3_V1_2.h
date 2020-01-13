@@ -23,9 +23,7 @@
 
 #include "pins_BTT_SKR_MINI_E3.h"
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BIGTREE SKR Mini E3 V1.2"
-#endif
+#define BOARD_INFO_NAME "BIGTREE SKR Mini E3 V1.2"
 
 #define NEOPIXEL_PIN       PC7  // LED driving pin
 

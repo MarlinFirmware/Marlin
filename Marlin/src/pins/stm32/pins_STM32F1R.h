@@ -28,11 +28,9 @@
 /**
  * 21017 Victor Perez Marlin for stm32f1 test
  */
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "Misc. STM32F1R"
-#endif
 
-// "STM32F103RET6"
+#define BOARD_INFO_NAME      "Misc. STM32F1R"
+#define DEFAULT_MACHINE_NAME "STM32F103RET6"
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

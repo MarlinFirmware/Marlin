@@ -54,10 +54,7 @@
   #error "Oops! Select 'Sanguino' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Gen3 Monolithic"
-#endif
-
+#define BOARD_INFO_NAME "Gen3 Monolithic"
 #define DEBUG_PIN 0
 
 //

@@ -24,10 +24,8 @@
 /**
  * Melzi (Malyan M150) pin assignments
  */
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Melzi (Malyan)"
-#endif
 
+#define BOARD_INFO_NAME "Melzi (Malyan)"
 #include "pins_MELZI.h"
 
 #undef LCD_SDSS

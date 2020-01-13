@@ -25,8 +25,6 @@
  * Azteeg X1 pin assignments
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Azteeg X1"
-#endif
+#define BOARD_INFO_NAME "Azteeg X1"
 
 #include "pins_SANGUINOLOLU_12.h"

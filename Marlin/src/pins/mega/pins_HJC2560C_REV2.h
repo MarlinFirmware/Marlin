@@ -29,9 +29,9 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "HJC2560-C"
-#endif
+#define DEFAULT_MACHINE_NAME "ADIMLab Gantry v2"
+#define BOARD_INFO_NAME      "HJC2560-C"
+
 //
 // Servos
 //

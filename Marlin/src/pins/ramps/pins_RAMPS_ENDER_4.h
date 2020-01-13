@@ -25,9 +25,7 @@
   #error "Ender-4 supports only 1 hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Ender-4"
-#endif
+#define BOARD_INFO_NAME "Ender-4"
 
 #include "pins_RAMPS.h"
 

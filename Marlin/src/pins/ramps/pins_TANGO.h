@@ -25,9 +25,7 @@
  * BIQU Tango pin assignments
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Tango"
-#endif
+#define BOARD_INFO_NAME "Tango"
 
 #define FAN_PIN             8
 #define FAN1_PIN           -1

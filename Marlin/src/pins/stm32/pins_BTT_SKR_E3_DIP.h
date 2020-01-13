@@ -25,9 +25,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BIGTREE SKR E3 DIP V1.0"
-#endif
+#define BOARD_INFO_NAME "BIGTREE SKR E3 DIP V1.0"
 
 // Release PB3/PB4 (TMC_SW Pins) from JTAG pins
 #define DISABLE_JTAG

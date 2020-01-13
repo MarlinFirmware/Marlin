@@ -34,9 +34,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Bluepill based board"
-#endif
+#define BOARD_INFO_NAME "Bluepill based board"
 
 //
 // Limit Switches
