@@ -1067,6 +1067,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       fanmux_switch(active_extruder);
     #endif
 
+    #if defined(TOOLCHANGE_POST_PROCESS)
+      gcode.process_subcommands_now_P(TOOLCHANGE_POST_PROCESS);
+    #endif
+
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
 
