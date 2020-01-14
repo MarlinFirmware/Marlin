@@ -98,6 +98,12 @@ uint8_t HAL_get_reset_source() {
   #ifdef RCC_FLAG_IWDGRST //only if supported by the MCU/HAL
     if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
   #endif
+  #ifdef RCC_FLAG_IWDG1RST //only if supported by the MCU/HAL
+    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDG1RST) != RESET) return RST_WATCHDOG;
+  #endif
+  #ifdef RCC_FLAG_IWDG2RST //only if supported by the MCU/HAL
+    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDG2RST) != RESET) return RST_WATCHDOG;
+  #endif
   #ifdef RCC_FLAG_SFTRST //only if supported by the MCU/HAL
     if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
   #endif
