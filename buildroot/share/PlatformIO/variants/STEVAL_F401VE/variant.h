@@ -190,13 +190,8 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
-
 // Timer Definitions
-//Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
-#define TIMER_TONE              TIM10
-
-// Do not use basic timer: OC is required
-#define TIMER_SERVO             TIM11  //TODO: advanced-control timers don't work
+#define TIMER_SERVO             TIM4  // TIMER_SERVO must be defined in this file
 
 /* SD detect signal */
 /*
