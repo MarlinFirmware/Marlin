@@ -47,6 +47,10 @@ inline void plr_error(PGM_P const prefix) {
   #endif
 }
 
+#if HAS_LCD_MENU
+  void lcd_power_loss_recovery_cancel();
+#endif
+
 /**
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
@@ -65,11 +69,13 @@ void GcodeSuite::M1000() {
       #endif
     }
     else if (parser.seen('C')) {
-      card.removeJobRecoveryFile();
-      card.autostart_index = 0;
       #if HAS_LCD_MENU
-        ui.return_to_status();
-      #elif ENABLED(EXTENSIBLE_UI)
+        lcd_power_loss_recovery_cancel();
+      #else
+        card.removeJobRecoveryFile();
+        card.autostart_index = 0;
+      #endif
+      #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onPrintTimerStopped();
       #endif
     }
