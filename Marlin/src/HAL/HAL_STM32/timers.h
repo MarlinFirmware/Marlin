@@ -33,7 +33,6 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
-
 #ifdef STM32F0xx
 
   #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
@@ -63,7 +62,7 @@
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 6
+    #define STEP_TIMER 9  // STM32F401 has no TIM6, TIM7, or TIM8
   #endif
 
   #ifndef TEMP_TIMER

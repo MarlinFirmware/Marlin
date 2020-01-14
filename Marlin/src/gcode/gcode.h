@@ -896,7 +896,7 @@ private:
     #endif
   #endif
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
     static void M122();
     static void M906();
     static void M916();

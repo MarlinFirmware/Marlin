@@ -28,6 +28,9 @@
 #define _DRV8825            0x8825
 #define _LV8729             0x8729
 #define _L6470              0x6470
+#define _L6474              0x6474
+#define _L6480              0x6480
+#define _POWERSTEP01        0xF00D
 #define _TB6560             0x6560
 #define _TB6600             0x6600
 #define _TMC2100            0x2100
@@ -156,3 +159,8 @@
 #define _SDCARD_CUSTOM_CABLE 3
 #define _SDCARD_ID(V) _CAT(_SDCARD_, V)
 #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
+
+#define HAS_L64XX (HAS_DRIVER(L6470) || HAS_DRIVER(L6474) || HAS_DRIVER(L6480) || HAS_DRIVER(POWERSTEP01))
+#define HAS_L64XX_NOT_L6474 (HAS_L64XX && !HAS_DRIVER(L6474))
+
+#define AXIS_IS_L64XX(A) (AXIS_DRIVER_TYPE_##A(L6470) || AXIS_DRIVER_TYPE_##A(L6474) ||  AXIS_DRIVER_TYPE_##A(L6480) || AXIS_DRIVER_TYPE_##A(POWERSTEP01))
