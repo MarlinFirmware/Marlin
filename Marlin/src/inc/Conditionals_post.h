@@ -1582,18 +1582,6 @@
 #endif
 
 /**
- * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
- */
-#if HAS_GRAPHICAL_LCD
-  #ifndef DOGLCD_SCK
-    #define DOGLCD_SCK  SCK_PIN
-  #endif
-  #ifndef DOGLCD_MOSI
-    #define DOGLCD_MOSI MOSI_PIN
-  #endif
-#endif
-
-/**
  * Z_HOMING_HEIGHT / Z_CLEARANCE_BETWEEN_PROBES
  */
 #ifndef Z_HOMING_HEIGHT
