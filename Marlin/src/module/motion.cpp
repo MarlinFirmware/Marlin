@@ -592,9 +592,13 @@ void restore_feedrate_and_scaling() {
    */
   void apply_motion_limits(xyz_pos_t &target) {
 
-    if (!soft_endstops_enabled || !all_axes_homed()) return;
+    if (!soft_endstops_enabled) return;
 
     #if IS_KINEMATIC
+
+      #if ENABLED(DELTA)
+        if (!all_axes_homed()) return;
+      #endif
 
       #if HAS_HOTEND_OFFSET && ENABLED(DELTA)
         // The effector center position will be the target minus the hotend offset.
@@ -604,33 +608,46 @@ void restore_feedrate_and_scaling() {
         constexpr xy_pos_t offs{0};
       #endif
 
-      const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
-      if (dist_2 > delta_max_radius_2)
-        target *= delta_max_radius / SQRT(dist_2); // 200 / 300 = 0.66
+      if (true
+        #if IS_SCARA
+          && TEST(axis_homed, X_AXIS) && TEST(axis_homed, Y_AXIS)
+        #endif
+      ) {
+        const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+        if (dist_2 > delta_max_radius_2)
+          target *= delta_max_radius / SQRT(dist_2); // 200 / 300 = 0.66
+      }
 
     #else
 
-      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-        NOLESS(target.x, soft_endstop.min.x);
-      #endif
-      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-        NOMORE(target.x, soft_endstop.max.x);
-      #endif
-      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-        NOLESS(target.y, soft_endstop.min.y);
-      #endif
-      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-        NOMORE(target.y, soft_endstop.max.y);
-      #endif
+      if (TEST(axis_homed, X_AXIS)) {
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+          NOLESS(target.x, soft_endstop.min.x);
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+          NOMORE(target.x, soft_endstop.max.x);
+        #endif
+      }
+
+      if (TEST(axis_homed, Y_AXIS)) {
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+          NOLESS(target.y, soft_endstop.min.y);
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+          NOMORE(target.y, soft_endstop.max.y);
+        #endif
+      }
 
     #endif
 
-    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-      NOLESS(target.z, soft_endstop.min.z);
-    #endif
-    #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-      NOMORE(target.z, soft_endstop.max.z);
-    #endif
+    if (TEST(axis_homed, Z_AXIS)) {
+      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+        NOLESS(target.z, soft_endstop.min.z);
+      #endif
+      #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+        NOMORE(target.z, soft_endstop.max.z);
+      #endif
+    }
   }
 
 #endif // HAS_SOFTWARE_ENDSTOPS

@@ -786,7 +786,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if HAS_DRIVER(L6470)
+      #if HAS_L64XX
         case 122: M122(); break;                                   // M122: Report status
         case 906: M906(); break;                                   // M906: Set or get motor drive level
         case 916: M916(); break;                                   // M916: L6470 tuning: Increase drive level until thermal warning

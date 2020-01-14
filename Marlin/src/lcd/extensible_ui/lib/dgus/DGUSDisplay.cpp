@@ -702,6 +702,7 @@ void DGUSScreenVariableHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, voi
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)
+
   void DGUSScreenVariableHandler::HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t value = swap16(*(uint16_t*)val_ptr);
     if (value) {
@@ -709,11 +710,11 @@ void DGUSScreenVariableHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, voi
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION);
     }
     else {
-      card.removeJobRecoveryFile();
-      card.autostart_index = 0;
+      recovery.cancel();
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_STATUS);
     }
   }
+
 #endif
 
 void DGUSScreenVariableHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {

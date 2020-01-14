@@ -107,10 +107,10 @@ else:
       get_com_port('usbmodem', 'Description:', 13)
 
 #      avrdude_conf_path =  env.get("PIOHOME_DIR") + '/packages/toolchain-atmelavr/etc/avrdude.conf'
-      avrdude_conf_path =  'buildroot/share/atom/avrdude_macOS.conf'
+      avrdude_conf_path =  'buildroot/share/vscode/avrdude_macOS.conf'
 
 
-      avrdude_exe_path =  'buildroot/share/atom/avrdude_5.10_macOS'
+      avrdude_exe_path =  'buildroot/share/vscode/avrdude_5.10_macOS'
 
 #      source_path = env.get("PROJECTBUILD_DIR") + '/' + env.get("PIOENV") + '/firmware.hex'
       source_path = '.pio/build/' + env.get("PIOENV") + '/firmware.hex'
@@ -127,10 +127,10 @@ else:
       get_com_port('/dev/tty', 'Description:', 13)
 
 #      avrdude_conf_path =  env.get("PIOHOME_DIR") + '/packages/toolchain-atmelavr/etc/avrdude.conf'
-      avrdude_conf_path =  'buildroot/share/atom/avrdude_linux.conf'
+      avrdude_conf_path =  'buildroot/share/vscode/avrdude_linux.conf'
 
 
-      avrdude_exe_path =  'buildroot/share/atom/avrdude_5.10_linux'
+      avrdude_exe_path =  'buildroot/share/vscode/avrdude_5.10_linux'
 #      source_path = env.get("PROJECTBUILD_DIR") + '/' + env.get("PIOENV") + '/firmware.hex'
       source_path = '.pio/build/' + env.get("PIOENV") + '/firmware.hex'
 

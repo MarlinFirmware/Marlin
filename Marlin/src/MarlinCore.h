@@ -31,8 +31,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if HAS_DRIVER(L6470)
-  #include "libs/L6470/L6470_Marlin.h"
+#if HAS_L64XX
+  #include "libs/L64XX/L64XX_Marlin.h"
   extern uint8_t axis_known_position;
 #endif
 
@@ -49,8 +49,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 //
 // X, Y, Z Stepper enable / disable
 //
-#if AXIS_DRIVER_TYPE_X(L6470)
-  extern L6470 stepperX;
+#if AXIS_IS_L64XX(X)
   #define X_enable()  NOOP
   #define X_disable() stepperX.free()
 #elif HAS_X_ENABLE
@@ -61,8 +60,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define X_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_X2(L6470)
-  extern L6470 stepperX2;
+#if AXIS_IS_L64XX(X2)
   #define X2_enable()  NOOP
   #define X2_disable() stepperX2.free()
 #elif HAS_X2_ENABLE
@@ -76,8 +74,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 #define  enable_X() do{ X_enable(); X2_enable(); }while(0)
 #define disable_X() do{ X_disable(); X2_disable(); CBI(axis_known_position, X_AXIS); }while(0)
 
-#if AXIS_DRIVER_TYPE_Y(L6470)
-  extern L6470 stepperY;
+#if AXIS_IS_L64XX(Y)
   #define Y_enable()  NOOP
   #define Y_disable() stepperY.free()
 #elif HAS_Y_ENABLE
@@ -88,8 +85,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define Y_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_Y2(L6470)
-  extern L6470 stepperY2;
+#if AXIS_IS_L64XX(Y2)
   #define Y2_enable()  NOOP
   #define Y2_disable() stepperY2.free()
 #elif HAS_Y2_ENABLE
@@ -103,8 +99,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 #define  enable_Y() do{ Y_enable(); Y2_enable(); }while(0)
 #define disable_Y() do{ Y_disable(); Y2_disable(); CBI(axis_known_position, Y_AXIS); }while(0)
 
-#if AXIS_DRIVER_TYPE_Z(L6470)
-  extern L6470 stepperZ;
+#if AXIS_IS_L64XX(Z)
   #define Z_enable()  NOOP
   #define Z_disable() stepperZ.free()
 #elif HAS_Z_ENABLE
@@ -115,8 +110,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define Z_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_Z2(L6470)
-  extern L6470 stepperZ2;
+#if AXIS_IS_L64XX(Z2)
   #define Z2_enable()  NOOP
   #define Z2_disable() stepperZ2.free()
 #elif HAS_Z2_ENABLE
@@ -127,8 +121,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define Z2_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_Z3(L6470)
-  extern L6470 stepperZ3;
+#if AXIS_IS_L64XX(Z3)
   #define Z3_enable()  NOOP
   #define Z3_disable() stepperZ3.free()
 #elif HAS_Z3_ENABLE
@@ -147,8 +140,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 //
 
 // define the individual enables/disables
-#if AXIS_DRIVER_TYPE_E0(L6470)
-  extern L6470 stepperE0;
+#if AXIS_IS_L64XX(E0)
   #define  E0_enable() NOOP
   #define E0_disable() do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif HAS_E0_ENABLE
@@ -159,8 +151,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define E0_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_E1(L6470)
-  extern L6470 stepperE1;
+#if AXIS_IS_L64XX(E1)
   #define  E1_enable() NOOP
   #define E1_disable() do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 1 && HAS_E1_ENABLE
@@ -171,8 +162,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define E1_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_E2(L6470)
-  extern L6470 stepperE2;
+#if AXIS_IS_L64XX(E2)
   #define  E2_enable() NOOP
   #define E2_disable() do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 2 && HAS_E2_ENABLE
@@ -183,8 +173,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define E2_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_E3(L6470)
-  extern L6470 stepperE3;
+#if AXIS_IS_L64XX(E3)
   #define  E3_enable() NOOP
   #define E3_disable() do{ stepperE3.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 3 && HAS_E3_ENABLE
@@ -195,8 +184,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define E3_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_E4(L6470)
-  extern L6470 stepperE4;
+#if AXIS_IS_L64XX(E4)
   #define  E4_enable() NOOP
   #define E4_disable() do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 4 && HAS_E4_ENABLE
@@ -207,8 +195,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define E4_disable() NOOP
 #endif
 
-#if AXIS_DRIVER_TYPE_E5(L6470)
-  extern L6470 stepperE5;
+#if AXIS_IS_L64XX(E5)
   #define  E5_enable() NOOP
   #define E5_disable() do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
 #elif E_STEPPERS > 5 && HAS_E5_ENABLE
@@ -253,7 +240,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
 
 #else // !MIXING_EXTRUDER
 
-  #if HAS_E0_ENABLE
+  #if (HAS_E0_ENABLE || AXIS_IS_L64XX(E0))
     #define  enable_E0() E0_enable()
     #define disable_E0() E0_disable()
   #else
@@ -261,7 +248,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_E0() NOOP
   #endif
 
-  #if E_STEPPERS > 1 && HAS_E1_ENABLE
+  #if E_STEPPERS > 1 && (HAS_E1_ENABLE || AXIS_IS_L64XX(E1))
     #define  enable_E1() E1_enable()
     #define disable_E1() E1_disable()
   #else
@@ -269,7 +256,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_E1() NOOP
   #endif
 
-  #if E_STEPPERS > 2 && HAS_E2_ENABLE
+  #if E_STEPPERS > 2 && (HAS_E2_ENABLE || AXIS_IS_L64XX(E2))
     #define  enable_E2() E2_enable()
     #define disable_E2() E2_disable()
   #else
@@ -277,7 +264,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_E2() NOOP
   #endif
 
-  #if E_STEPPERS > 3 && HAS_E3_ENABLE
+  #if E_STEPPERS > 3 && (HAS_E3_ENABLE || AXIS_IS_L64XX(E3))
     #define  enable_E3() E3_enable()
     #define disable_E3() E3_disable()
   #else
@@ -285,7 +272,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_E3() NOOP
   #endif
 
-  #if E_STEPPERS > 4 && HAS_E4_ENABLE
+  #if E_STEPPERS > 4 && (HAS_E4_ENABLE || AXIS_IS_L64XX(E4))
     #define  enable_E4() E4_enable()
     #define disable_E4() E4_disable()
   #else
@@ -293,7 +280,7 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_E4() NOOP
   #endif
 
-  #if E_STEPPERS > 5 && HAS_E5_ENABLE
+  #if E_STEPPERS > 5 && (HAS_E5_ENABLE || AXIS_IS_L64XX(E5))
     #define  enable_E5() E5_enable()
     #define disable_E5() E5_disable()
   #else

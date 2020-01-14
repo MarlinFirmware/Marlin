@@ -95,10 +95,6 @@ MarlinUI ui;
 #include "../module/planner.h"
 #include "../module/motion.h"
 
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
 #endif
@@ -1517,10 +1513,6 @@ void MarlinUI::update() {
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
       synchronize(GET_TEXT(MSG_PAUSE_PRINT));
-    #endif
-
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      if (recovery.enabled) recovery.save(true, false);
     #endif
 
     #if ENABLED(HOST_PROMPT_SUPPORT)

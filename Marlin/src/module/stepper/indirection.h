@@ -32,8 +32,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_DRIVER(L6470)
-  #include "L6470.h"
+#if HAS_L64XX
+  #include "L64xx.h"
 #endif
 
 #if HAS_DRIVER(TMC26X)
