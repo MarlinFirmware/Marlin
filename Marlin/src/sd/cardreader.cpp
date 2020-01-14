@@ -1071,7 +1071,7 @@ void CardReader::printingHasFinished() {
     stopSDPrint();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
-      removeJobRecoveryFile();
+      recovery.purge();
     #endif
 
     #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
