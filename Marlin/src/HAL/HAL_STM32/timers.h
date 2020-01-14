@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  *
  * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -62,7 +62,7 @@
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 9  // STM32F401 has no TIM6, TIM7, or TIM8
+    #define STEP_TIMER 6  // the RIGHT timer!
   #endif
 
   #ifndef TEMP_TIMER
