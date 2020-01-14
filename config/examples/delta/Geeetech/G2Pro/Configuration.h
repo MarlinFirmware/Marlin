@@ -641,19 +641,19 @@
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
-// Horizontal offset from middle of printer to smooth rod center.
-//#define DELTA_SMOOTH_ROD_OFFSET 160 // mm
+  // Horizontal offset from middle of printer to smooth rod center.
+  //#define DELTA_SMOOTH_ROD_OFFSET 160 // mm
 
-// Horizontal offset of the universal joints on the end effector.
-//#define DELTA_EFFECTOR_OFFSET 36 // mm  //34 G2 frame
+  // Horizontal offset of the universal joints on the end effector.
+  //#define DELTA_EFFECTOR_OFFSET 36 // mm  //34 G2 frame
 
-// Horizontal offset of the universal joints on the carriages.
-//#define DELTA_CARRIAGE_OFFSET 33 // mm  //25 G2 frame
+  // Horizontal offset of the universal joints on the carriages.
+  //#define DELTA_CARRIAGE_OFFSET 33 // mm  //25 G2 frame
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-//#define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET+1) //+2 G2 frame
+  //#define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET+1) //+2 G2 frame
   #define DELTA_RADIUS 90.0            // (mm) Get this value from G33 auto calibrate
-  
+
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
   // measured in degrees anticlockwise looking from above the printer
