@@ -406,7 +406,7 @@ void startOrResumeJob() {
     thermalManager.zero_fan_speeds();
     wait_for_heatup = false;
     #if ENABLED(POWER_LOSS_RECOVERY)
-      card.removeJobRecoveryFile();
+      recovery.purge();
     #endif
     #ifdef EVENT_GCODE_SD_STOP
       queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
