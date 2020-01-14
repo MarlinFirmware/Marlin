@@ -93,9 +93,6 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
     return -1;
   }
-  #if ENABLED(SINGLENOZZLE)
-    if(active_extruder<0) return 0;
-  #endif
   return active_extruder;
 }
 
@@ -317,17 +314,20 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        case 53: G53(); break;
-        case 54: G54(); break;
-        case 55: G55(); break;
-        case 56: G56(); break;
-        case 57: G57(); break;
-        case 58: G58(); break;
-        case 59: G59(); break;
+        case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
+        case 54: G54(); break;                                    // G54: Switch to Workspace 1
+        case 55: G55(); break;                                    // G55: Switch to Workspace 2
+        case 56: G56(); break;                                    // G56: Switch to Workspace 3
+        case 57: G57(); break;                                    // G57: Switch to Workspace 4
+        case 58: G58(); break;                                    // G58: Switch to Workspace 5
+        case 59: G59(); break;                                    // G59.0 - G59.3: Switch to Workspace 6-9
       #endif
 
-      case 60: G60(); break;                                      // G60:  save current position
-      case 61: G61(); break;                                      // G61:  Apply/restore saved coordinates.
+      #if NUM_POSITION_SLOTS
+        case 60: G60(); break;                                    // G60:  save current position
+        case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
+      #endif
+
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif

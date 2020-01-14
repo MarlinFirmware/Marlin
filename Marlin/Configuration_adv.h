@@ -1524,9 +1524,10 @@
 
 // @section extras
 
-// Defines the number of memory slots for saving/restoring position (G60/G61)
-// The values should not be less than 1
-#define NUM_POSITON_SLOTS 1
+//
+// G60/G61 Position Save and Return
+//
+//#define NUM_POSITION_SLOTS 1    // Enable up to 5 position save slots
 
 //
 // G2/G3 Arc Support

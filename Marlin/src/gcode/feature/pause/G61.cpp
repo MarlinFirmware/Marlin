@@ -20,51 +20,50 @@
  *
  */
 
-
 #include "../../../inc/MarlinConfig.h"
+
+#if NUM_POSITION_SLOTS
+
 #include "../../../core/language.h"
 #include "../../module/planner.h"
 #include "../../gcode.h"
 #include "../../../module/motion.h"
 
 /**
- * G61:  Apply/restore saved coordinates.
- *        X Y Z E - Value to add at stored coordinates.
- *        F<speed> - Set Feedrate.
- *        S<slot> specifies memory slot # (0-based) to save into (default 0).
+ * G61: Return to saved position
+ *
+ *   F<rate>  - Feedrate (optional) for the move back.
+ *   S<slot>  - Slot # (0-based) to restore from (default 0).
+ *   X Y Z E  - Axes to restore. At least one is required.
  */
 void GcodeSuite::G61(void) {
 
   const uint8_t slot = parser.byteval('S');
-  
-  if (slot >= NUM_POSITON_SLOTS) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR_F(MSG_INVALID_POS_SLOT, NUM_POSITON_SLOTS);
+
+  if (slot >= NUM_POSITION_SLOTS) {
+    SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(NUM_POSITION_SLOTS));
     return;
   }
 
-  if (!isPosSaved[slot]) return;
+  // No saved position? No axes being restored?
+  if (!TEST(saved_slots, slot) || !parser.seen("XYZE")) return;
 
-  SERIAL_ECHOPGM(MSG_RESTORING_POS);
-  SERIAL_ECHOPAIR_F(" S", int(slot));
-  SERIAL_ECHOPGM("->");
+  // Apply any given feedrate over 0.0
+  const float fr = parser.linearval('F');
+  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
-  if (parser.seen('F') && parser.value_linear_units() > 0.0)
-    feedrate_mm_s = MMM_TO_MMS(parser.value_linear_units());
-
+  SERIAL_ECHOPAIR_F(MSG_RESTORING_POS " S", int(slot));
   LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i])) {
-      destination[i] = parser.value_axis_units((AxisEnum)i) + stored_position[slot][i];
-    }
-    else {
-      destination[i] = current_position[i];
-    }
-    SERIAL_ECHOPAIR_F(" ", axis_codes[i]);
-    SERIAL_ECHOPAIR_F(":", destination[i]);
+    destination[i] = parser.seen(axis_codes[i])
+      ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
+      : current_position[i];
+    SERIAL_CHAR(' ', axis_codes[i]);
+    SERIAL_ECHO_F(destination[i]);
   }
   SERIAL_EOL();
 
-  // finish moves
+  // Move to the saved position
   prepare_move_to_destination();
-  planner.synchronize();
-} 
+}
+
+#endif // NUM_POSITION_SLOTS

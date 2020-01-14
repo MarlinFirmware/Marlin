@@ -220,10 +220,9 @@
 #define MSG_SOFT_MIN                        "  Min: "
 #define MSG_SOFT_MAX                        "  Max: "
 
-// Slot
-#define MSG_SAVED_POS                      "Saved position"
-#define MSG_RESTORING_POS                  "Restoring position"
-#define MSG_INVALID_POS_SLOT               "Invalid slot, total slots:"
+#define MSG_SAVED_POS                       "Position saved"
+#define MSG_RESTORING_POS                   "Restoring position"
+#define MSG_INVALID_POS_SLOT                "Invalid slot. Total: "
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"

@@ -20,34 +20,41 @@
  *
  */
 
-
 #include "../../../inc/MarlinConfig.h"
+
+#if NUM_POSITION_SLOTS
+
 #include "../../../core/language.h"
 #include "../../gcode.h"
 #include "../../../module/motion.h"
 
+#define DEBUG_OUT ENABLED(SAVED_POSITIONS_DEBUG)
+#include "../../../core/debug_out.h"
+
 /**
- * G60:  save current position
- *        S<slot> specifies memory slot # (0-based) to save into (default 0)
+ * G60: Save current position
+ *
+ *   S<slot> - Memory slot # (0-based) to save into (default 0)
  */
 void GcodeSuite::G60() {
   const uint8_t slot = parser.byteval('S');
 
-  if (slot >= NUM_POSITON_SLOTS) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR_F(MSG_INVALID_POS_SLOT, NUM_POSITON_SLOTS);
+  if (slot >= NUM_POSITION_SLOTS) {
+    SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(NUM_POSITION_SLOTS));
     return;
-  } 
-  stored_position[slot] = current_position;
-  isPosSaved[slot] = true;
-  //setPosSaved(true);
+  }
 
-  SERIAL_ECHOPGM(MSG_SAVED_POS);
-  SERIAL_ECHOPAIR_F(" S", slot);
-  SERIAL_ECHOPAIR_F("<-X:", stored_position[slot].x);
-  SERIAL_ECHOPAIR_F(" Y:", stored_position[slot].y);
-  SERIAL_ECHOPAIR_F(" Z:", stored_position[slot].z);
-  SERIAL_ECHOLNPAIR_F(" E:", stored_position[slot].e);
-  
+  stored_position[slot] = current_position;
+  SBI(saved_slots, slot);
+
+  #if ENABLED(SAVED_POSITIONS_DEBUG)
+    const xyze_pos_t &pos = stored_position[slot];
+    DEBUG_ECHOPAIR_F(MSG_SAVED_POS " S", slot);
+    DEBUG_ECHOPAIR_F(" : X", pos.x);
+    DEBUG_ECHOPAIR_F_P(SP_Y_STR, pos.y);
+    DEBUG_ECHOPAIR_F_P(SP_Z_STR, pos.z);
+    DEBUG_ECHOLNPAIR_P(SP_E_STR, pos.e);
+  #endif
 }
 
+#endif // NUM_POSITION_SLOTS

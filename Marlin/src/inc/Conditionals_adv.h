@@ -136,8 +136,7 @@
   #define POLL_JOG
 #endif
 
-// Number of memory slots for saving/restoring position (G60/G61) should be between 1 and 5.
-#if NUM_POSITON_SLOTS < 1 || NUM_POSITON_SLOTS > 5
-  #error "Number of memory slots for saving/restoring position (G60/G61) should be between 1 and 5."
+// G60/G61 Position Save
+#if NUM_POSITION_SLOTS > 5
+  #error "NUM_POSITION_SLOTS must be an integer from 1 to 5."
 #endif
-

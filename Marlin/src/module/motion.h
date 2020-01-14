@@ -65,15 +65,11 @@ extern bool relative_mode;
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 
-/**
- * Stored Position
- *   Used to save native machine position as moves are queued.
- *   Used by G60 for stored.
- *   Used by G61 for move to.
- */
-extern xyze_pos_t stored_position[NUM_POSITON_SLOTS];
-// Various flag bit 1 PosSaved
-extern bool isPosSaved[NUM_POSITON_SLOTS];
+// G60/G61 Position Save and Return
+#if NUM_POSITION_SLOTS
+  extern uint8_t saved_slots;
+  extern xyze_pos_t stored_position[NUM_POSITION_SLOTS];
+#endif
 
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
