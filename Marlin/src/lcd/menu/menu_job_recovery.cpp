@@ -39,8 +39,7 @@ static void lcd_power_loss_recovery_resume() {
 }
 
 void lcd_power_loss_recovery_cancel() {
-  card.removeJobRecoveryFile();
-  card.autostart_index = 0;
+  recovery.cancel();
   ui.return_to_status();
 }
 

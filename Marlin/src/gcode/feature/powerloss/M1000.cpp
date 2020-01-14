@@ -72,8 +72,7 @@ void GcodeSuite::M1000() {
       #if HAS_LCD_MENU
         lcd_power_loss_recovery_cancel();
       #else
-        card.removeJobRecoveryFile();
-        card.autostart_index = 0;
+        recovery.cancel();
       #endif
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onPrintTimerStopped();

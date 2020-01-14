@@ -148,14 +148,16 @@ class PrintJobRecovery {
     static void enable(const bool onoff);
     static void changed();
 
-    static void check();
-    static void resume();
-
     static inline bool exists() { return card.jobRecoverFileExists(); }
     static inline void open(const bool read) { card.openJobRecoveryFile(read); }
     static inline void close() { file.close(); }
 
+    static void check();
+    static void resume();
     static void purge();
+
+    static inline void cancel() { purge(); card.autostart_index = 0; }
+
     static void load();
     static void save(const bool force=
       #if ENABLED(SAVE_EACH_CMD_MODE)
