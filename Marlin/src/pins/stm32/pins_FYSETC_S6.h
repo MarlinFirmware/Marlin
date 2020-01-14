@@ -201,7 +201,9 @@
      // See https://wiki.fysetc.com/Mini12864_Panel
       #define DOGLCD_CS    PC11
       #define DOGLCD_A0    PD2
-      //#define LCD_BACKLIGHT_PIN -1
+      #if ENABLED(FYSETC_GENERIC_12864_1_1)
+        #define LCD_BACKLIGHT_PIN PD0
+      #endif
       #define LCD_RESET_PIN PC10   // Must be high or open for LCD to operate normally.
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
