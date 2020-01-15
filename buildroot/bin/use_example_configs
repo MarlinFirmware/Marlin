@@ -6,9 +6,10 @@ EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/master
 
 cd Marlin
 
-wget "$EXAMPLES/$@/Configuration.h" -O Configuration.h
-wget "$EXAMPLES/$@/Configuration_adv.h" -O Configuration_adv.h
-wget "$EXAMPLES/$@/_Bootscreen.h" -O _Bootscreen.h
-wget "$EXAMPLES/$@/_Statusscreen.h" -O _Statusscreen.h
+wget -q "$EXAMPLES/$@/Configuration.h"     -O wgot && mv wgot Configuration.h
+wget -q "$EXAMPLES/$@/Configuration_adv.h" -O wgot && mv wgot Configuration_adv.h
+wget -q "$EXAMPLES/$@/_Bootscreen.h"       -O wgot && mv wgot _Bootscreen.h
+wget -q "$EXAMPLES/$@/_Statusscreen.h"     -O wgot && mv wgot _Statusscreen.h
+rm -f wgot
 
 cd - >/dev/null
