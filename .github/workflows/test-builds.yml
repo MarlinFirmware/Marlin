@@ -54,6 +54,7 @@ jobs:
         - BIGTREE_SKR_PRO
         - mks_robin
         - ARMED
+        - FYSETC_S6
 
         # Put lengthy tests last
 
