@@ -71,7 +71,6 @@
     #define TEMP_TIMER 10
   #endif
 
-
 #endif
 
 #ifndef SWSERIAL_TIMER_IRQ_PRIO
