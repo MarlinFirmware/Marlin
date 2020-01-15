@@ -112,7 +112,7 @@ uint8_t HAL_get_reset_source() {
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)   ? RST_EXTERNAL :
     #endif
     #ifdef RCC_FLAG_PORRST
-      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST))  ? RST_POWER_ON :
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)   ? RST_POWER_ON :
     #endif
     0
   ;
