@@ -95,23 +95,23 @@ void HAL_init() {
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
 uint8_t HAL_get_reset_source() {
-  #ifdef RCC_FLAG_IWDGRST //only if supported by the MCU/HAL
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
+  #ifdef RCC_FLAG_IWDGRST // Some sources may not exist...
+    if (RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST))  return RST_WATCHDOG;
   #endif
-  #ifdef RCC_FLAG_IWDG1RST //only if supported by the MCU/HAL
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDG1RST) != RESET) return RST_WATCHDOG;
+  #ifdef RCC_FLAG_IWDG1RST
+    if (RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDG1RST)) return RST_WATCHDOG;
   #endif
-  #ifdef RCC_FLAG_IWDG2RST //only if supported by the MCU/HAL
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDG2RST) != RESET) return RST_WATCHDOG;
+  #ifdef RCC_FLAG_IWDG2RST
+    if (RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDG2RST)) return RST_WATCHDOG;
   #endif
-  #ifdef RCC_FLAG_SFTRST //only if supported by the MCU/HAL
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
+  #ifdef RCC_FLAG_SFTRST
+    if (RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST))   return RST_SOFTWARE;
   #endif
-  #ifdef RCC_FLAG_PINRST //only if supported by the MCU/HAL
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)  return RST_EXTERNAL;
+  #ifdef RCC_FLAG_PINRST
+    if (RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PINRST))   return RST_EXTERNAL;
   #endif
-  #ifdef RCC_FLAG_PORRST //only if supported by the MCU/HAL
-    if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST) != RESET)  return RST_POWER_ON;
+  #ifdef RCC_FLAG_PORRST
+    if (RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST))   return RST_POWER_ON;
   #endif
   return 0;
 }
