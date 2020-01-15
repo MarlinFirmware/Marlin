@@ -53,20 +53,20 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN         39  // PD8   X_STOP
-#define Y_MIN_PIN         40  // PD9   Y_STOP
-#define Z_MIN_PIN         41  // PD10  Z_STOP
+#define X_MIN_PIN          39   // PD8   X_STOP
+#define Y_MIN_PIN          40   // PD9   Y_STOP
+#define Z_MIN_PIN          41   // PD10  Z_STOP
 
-#define X_MAX_PIN         44  // PD0    W_STOP
-#define Y_MAX_PIN         43  // PA8    V_STOP
-#define Z_MAX_PIN         42  // PD11   U_STOP
+#define X_MAX_PIN          44   // PD0   W_STOP
+#define Y_MAX_PIN          43   // PA8   V_STOP
+#define Z_MAX_PIN          42   // PD11  U_STOP
 
 //
 // Z Probe (when not Z_MIN_PIN
 //
-// #ifndef Z_MIN_PROBE_PIN
-//   #define Z_MIN_PROBE_PIN  16  // PA4
-// #endif
+//#ifndef Z_MIN_PROBE_PIN
+//  #define Z_MIN_PROBE_PIN  16  // PA4
+//#endif
 
 #define SCK_PIN            13   // PB13    SPI_S
 #define MISO_PIN           12   // PB14    SPI_M
