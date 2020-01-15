@@ -368,7 +368,7 @@
  * FAST_PWM_FAN_FREQUENCY [undefined by default]
  *   Set this to your desired frequency.
  *   If left undefined this defaults to F = F_CPU/(2*255*1)
- *   ie F = 31.4 Khz on 16 MHz microcontrollers or F = 39.2 KHz on 20 MHz microcontrollers
+ *   i.e., F = 31.4kHz on 16MHz microcontrollers or F = 39.2kHz on 20MHz microcontrollers.
  *   These defaults are the same as with the old FAST_PWM_FAN implementation - no migration is required
  *   NOTE: Setting very low frequencies (< 10 Hz) may result in unexpected timer behavior.
  *
@@ -2444,6 +2444,20 @@
 
   // Duration to hold the switch or keep CHDK_PIN high
   //#define PHOTO_SWITCH_MS   50 // (ms) (M240 D)
+
+  /**
+   * PHOTO_PULSES_US may need adjustment depending on board and camera model.
+   * Pin must be running at 48.4kHz.
+   * Be sure to use a PHOTOGRAPH_PIN which can rise and fall quick enough.
+   * (e.g., MKS SBase temp sensor pin was too slow, so used P1.23 on J8.)
+   *
+   *  Example pulse data for Nikon: https://bit.ly/2FKD0Aq
+   *                     IR Wiring: https://git.io/JvJf7
+   */
+  //#define PHOTO_PULSES_US { 2000, 27850, 400, 1580, 400, 3580, 400 }  // (µs) Durations for each 48.4kHz oscillation
+  #ifdef PHOTO_PULSES_US
+    #define PHOTO_PULSE_DELAY_US 13 // (µs) Approximate duration of each HIGH and LOW pulse in the oscillation
+  #endif
 #endif
 
 /**
