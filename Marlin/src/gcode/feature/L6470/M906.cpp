@@ -39,22 +39,16 @@
  *
  * On L6474 this sets the TVAL register (same address).
  *
- * J - select which driver(s) to monitor on multi-driver axis
- *     0 - (default) monitor all drivers on the axis or E0
+ * I - select which driver(s) to change on multi-driver axis
+ *     0 - (default) all drivers on the axis or E0
  *     1 - monitor only X, Y, Z or E1
  *     2 - monitor only X2, Y2, Z2 or E2
  *     3 - monitor only Z3 or E3
  *     4 - monitor only E4
  *     5 - monitor only E5
- * Xxxx, Yxxx, Zxxx, Exxx - axis to be monitored with displacement
- *     xxx (1-255) is distance moved on either side of current position
- *
- * I - over current threshold
- *     optional - will report current value from driver if not specified
- *
- * K - value for KVAL_HOLD (0 - 255) (optional)
- *     optional - will report current value from driver if not specified
- *
+ * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
+ *     L6474 - current in mA (4A max)
+ *     All others - 0-255
  */
 
 /**
@@ -202,10 +196,12 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
 
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
       SERIAL_ECHOLNPAIR("...MicroSteps: ", MicroSteps,
-                        "   ADC_OUT: ", L6470_ADC_out);
+                        "   ADC_OUT: ", L6470_ADC_out,
+                        "   Vs_compensation: NA");
 
-      SERIAL_ECHOLNPGM("   Vs_compensation: NA\n"
-                       "...KVAL_HOLD: NA"
+      SERIAL_EOL();
+
+      SERIAL_ECHOLNPGM("...KVAL_HOLD: NA"
                        "   KVAL_RUN : NA"
                        "   KVAL_ACC: NA"
                        "   KVAL_DEC: NA"
@@ -232,7 +228,7 @@ void GcodeSuite::M906() {
 
   L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
 
-  #define L6470_SET_KVAL_HOLD(Q) stepper##Q.SetParam(L6470_KVAL_HOLD, value)
+  #define L6470_SET_KVAL_HOLD(Q) (AXIS_IS_L64XX(Q) ? stepper##Q.setTVALCurrent(value) : stepper##Q.SetParam(L6470_KVAL_HOLD, uint8_t(value)))
 
   DEBUG_ECHOLNPGM("M906");
 
@@ -242,7 +238,7 @@ void GcodeSuite::M906() {
     const uint8_t index = parser.byteval('I');
   #endif
 
-  LOOP_XYZE(i) if (uint8_t value = parser.byteval(axis_codes[i])) {
+  LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
 
     report_current = false;
 
