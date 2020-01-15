@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-cp config/default/Configuration*.h Marlin
+RESTORE="https://raw.githubusercontent.com/MarlinFirmware/Configurations/master/config/default"
 
-PINS="Marlin/src/pins"
+cd Marlin
+
+rm -f *.h
+
+PINS="src/pins"
 RAMPS="$PINS/ramps/pins_RAMPS.h"
 BKUP="$PINS/ramps/pins_RAMPS.backup.h"
 [ -f $BKUP ] && { cp "$BKUP" "$RAMPS" ; rm -f $BKUP ; }
 
-rm -f Marlin/_Bootscreen.h
-rm -f Marlin/_Statusscreen.h
+wget "$RESTORE/Configuration.h" -O Configuration.h
+wget "$RESTORE/Configuration_adv.h" -O Configuration_adv.h
+
+cd - >/dev/null
