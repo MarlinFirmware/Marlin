@@ -127,8 +127,8 @@
 /**
  * macro to reset/enable L6474 chips
  *
- * IMPORTANT - to disable (bypass a L6474, install the corresponding
- *             resistor (R11 - R17 and change the "V" to zero for the
+ * IMPORTANT - to disable (bypass) a L6474, install the corresponding
+ *             resistor (R11 - R17) and change the "V" to zero for the
  *             corresponding pin.
  */
 #define ENABLE_RESET_L64XX_CHIPS(V)   do{OUT_WRITE(X_ENABLE_PIN, V);\
