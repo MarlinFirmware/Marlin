@@ -69,9 +69,9 @@
 //   #define Z_MIN_PROBE_PIN  16  // PA4
 // #endif
 
-#define SCK_PIN            13   // PB13   (SPI_S)
-#define MISO_PIN           12   // PB14   (SPI_M)
-#define MOSI_PIN           11   // PB15   (SPI_M)
+//#define SCK_PIN            13   // PB13    SPI_S
+//#define MISO_PIN           12   // PB14    SPI_M
+//#define MOSI_PIN           11   // PB15    SPI_M
 
 #define L6470_CHAIN_SCK_PIN  17   // PA5
 #define L6470_CHAIN_MISO_PIN 18   // PA6
@@ -226,14 +226,28 @@
 // 21   // PA14 (JTAG_TCK/SWCLK)
 // 22   // PB3  (JTAG_TDO/SWO)
 
-// SDCARD
-// 23   // PC8  (SDIO_D0)
-// 24   // PC9  (SDIO_D1)
-// 25   // PA15 (SD_CARD_DETECT)
-// 26   // PC10 (SDIO_D2)
-// 27   // PC11 (SDIO_D3)
-// 28   // PC12 (SDIO_CK)
-// 29   // PD2  (SDIO_CMD)
+// 20   // PA13  JTAG_TMS/SWDIO
+// 21   // PA14  JTAG_TCK/SWCLK
+// 22   // PB3   JTAG_TDO/SWO
+
+
+//
+// SD support
+//
+//#define SDIO_SUPPORT
+// 23   // PC8   SDIO_D0
+// 24   // PC9   SDIO_D1
+// 25   // PA15  SD_CARD_DETECT
+// 26   // PC10  SDIO_D2
+// 27   // PC11  SDIO_D3
+// 28   // PC12  SDIO_CK
+// 29   // PD2   SDIO_CMD
+
+#define SOFTWARE_SPI            // use soft SPI to drive on-board SD card
+#define SDSS               27   // PC11  SDIO_D3
+#define SCK_PIN            28   // PC12  SDIO_CK
+#define MISO_PIN           23   // PC8   SDIO_D0
+#define MOSI_PIN           29   // PD2   SDIO_CMD
 
 // OTG
 // 30   // PA11 (OTG_DM)
