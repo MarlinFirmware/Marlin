@@ -678,7 +678,7 @@ void CardReader::selectFileByIndex(const uint16_t nr) {
 //
 void CardReader::selectFileByName(const char * const match) {
   #if ENABLED(SDSORT_CACHE_NAMES)
-    for (int nr = 0; nr < sort_count; nr++)
+    for (uint16_t nr = 0; nr < sort_count; nr++)
       if (strcasecmp(match, sortshort[nr]) == 0) {
         strcpy(filename, sortshort[nr]);
         strcpy(longFilename, sortnames[nr]);
