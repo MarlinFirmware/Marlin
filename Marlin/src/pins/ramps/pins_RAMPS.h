@@ -508,7 +508,9 @@
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN   49
       #endif
-      #define KILL_PIN          41
+      #ifndef KILL_PIN
+        #define KILL_PIN        41
+      #endif
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         #define LCD_BACKLIGHT_PIN 39

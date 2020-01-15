@@ -2909,6 +2909,7 @@ void Temperature::tick() {
     ) {
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
+        bool first_loop = true;
         // Loop until the temperature has stabilized
         #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
       #else
@@ -2926,7 +2927,7 @@ void Temperature::tick() {
       #endif
 
       float target_temp = -1.0, old_temp = 9999.0;
-      bool wants_to_cool = false, first_loop = true;
+      bool wants_to_cool = false;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       do {
@@ -2979,6 +2980,8 @@ void Temperature::tick() {
             residency_start_ms = now;
           }
 
+          first_loop = false;
+
         #endif
 
         // Prevent a wait-forever situation if R is misused i.e. M109 R0
@@ -2998,8 +3001,6 @@ void Temperature::tick() {
             ui.quick_feedback();
           }
         #endif
-
-        first_loop = false;
 
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
@@ -3148,6 +3149,7 @@ void Temperature::tick() {
     bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) {
       #if TEMP_CHAMBER_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
+        bool first_loop = true;
         // Loop until the temperature has stabilized
         #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL))
       #else
@@ -3156,7 +3158,7 @@ void Temperature::tick() {
       #endif
 
       float target_temp = -1, old_temp = 9999;
-      bool wants_to_cool = false, first_loop = true;
+      bool wants_to_cool = false;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
@@ -3209,6 +3211,7 @@ void Temperature::tick() {
             residency_start_ms = now;
           }
 
+          first_loop = false;
         #endif // TEMP_CHAMBER_RESIDENCY_TIME > 0
 
         // Prevent a wait-forever situation if R is misused i.e. M191 R0
@@ -3221,9 +3224,6 @@ void Temperature::tick() {
             old_temp = temp;
           }
         }
-
-        first_loop = false;
-
       } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
 
       if (wait_for_heatup) ui.reset_status();

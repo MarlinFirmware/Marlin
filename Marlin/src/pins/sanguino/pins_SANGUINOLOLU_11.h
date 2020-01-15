@@ -156,7 +156,7 @@
 //
 #if HAS_SPI_LCD
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_GRAPHICAL_LCD && DISABLED(LCD_FOR_MELZI)
 
     #if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
@@ -201,12 +201,11 @@
     #endif
 
     // Uncomment screen orientation
-    #define LCD_SCREEN_ROT_0
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
 
-  #else // !HAS_GRAPHICAL_LCD
+  #elif NONE(LCD_FOR_MELZI, ZONESTAR_LCD)
 
     #define LCD_PINS_RS          4
     #define LCD_PINS_ENABLE     17

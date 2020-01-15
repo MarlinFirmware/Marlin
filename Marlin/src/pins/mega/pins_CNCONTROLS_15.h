@@ -2,6 +2,8 @@
  * CNControls V15 for HMS434 pin assignments
  */
 
+#pragma once
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
@@ -64,7 +66,7 @@
 //
 // Fans
 //
-#define FAN0_PIN              8
+#define FAN_PIN               8
 #define ORIG_E0_AUTO_FAN_PIN 30
 #define ORIG_E1_AUTO_FAN_PIN 30
 #define ORIG_E2_AUTO_FAN_PIN 30
