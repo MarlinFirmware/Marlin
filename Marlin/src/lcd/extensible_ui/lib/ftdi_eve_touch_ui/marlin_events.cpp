@@ -151,7 +151,7 @@ namespace ExtUI {
       }
       GOTO_SCREEN(StatusScreen);
     }
-  #endif //HAS_PID_HEATING
+  #endif // HAS_PID_HEATING
 }
 
 #endif // TOUCH_UI_FTDI_EVE
