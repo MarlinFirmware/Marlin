@@ -120,3 +120,13 @@
   #define  USB_DEVICE_PRODUCT_NAME        MACHINE_NAME
 #endif
 #define  USB_DEVICE_SERIAL_NAME           "123985739853"
+
+/**
+ * Set the I2C master id to be used
+ * This can be used for LPC176x boards only
+ */
+#ifdef TARGET_LPC1768
+  #ifndef USEDI2CDEV_M
+    #define USEDI2CDEV_M 1
+  #endif
+#endif
