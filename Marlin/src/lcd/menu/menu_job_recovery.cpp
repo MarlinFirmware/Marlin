@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,21 +35,22 @@
 
 static void lcd_power_loss_recovery_resume() {
   ui.return_to_status();
-  enqueue_and_echo_commands_P(PSTR("M1000"));
+  queue.inject_P(PSTR("M1000"));
 }
 
-static void lcd_power_loss_recovery_cancel() {
-  card.removeJobRecoveryFile();
-  card.autostart_index = 0;
+void lcd_power_loss_recovery_cancel() {
+  recovery.cancel();
   ui.return_to_status();
 }
 
+// TODO: Display long filename with Cancel/Resume buttons
+//       Requires supporting methods in PLR class.
 void menu_job_recovery() {
-  ui.defer_status_screen(true);
+  ui.defer_status_screen();
   START_MENU();
   STATIC_ITEM(MSG_OUTAGE_RECOVERY);
-  MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
-  MENU_ITEM(function, MSG_STOP_PRINT, lcd_power_loss_recovery_cancel);
+  ACTION_ITEM(MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
+  ACTION_ITEM(MSG_STOP_PRINT, lcd_power_loss_recovery_cancel);
   END_MENU();
 }
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,17 +36,17 @@
   void menu_led_presets() {
     START_MENU();
     #if LCD_HEIGHT > 2
-      STATIC_ITEM(MSG_LED_PRESETS, true, true);
+      STATIC_ITEM(MSG_LED_PRESETS, SS_CENTER|SS_INVERT);
     #endif
-    MENU_BACK(MSG_LED_CONTROL);
-    MENU_ITEM(function, MSG_SET_LEDS_WHITE, leds.set_white);
-    MENU_ITEM(function, MSG_SET_LEDS_RED, leds.set_red);
-    MENU_ITEM(function, MSG_SET_LEDS_ORANGE, leds.set_orange);
-    MENU_ITEM(function, MSG_SET_LEDS_YELLOW,leds.set_yellow);
-    MENU_ITEM(function, MSG_SET_LEDS_GREEN, leds.set_green);
-    MENU_ITEM(function, MSG_SET_LEDS_BLUE, leds.set_blue);
-    MENU_ITEM(function, MSG_SET_LEDS_INDIGO, leds.set_indigo);
-    MENU_ITEM(function, MSG_SET_LEDS_VIOLET, leds.set_violet);
+    BACK_ITEM(MSG_LED_CONTROL);
+    ACTION_ITEM(MSG_SET_LEDS_WHITE, leds.set_white);
+    ACTION_ITEM(MSG_SET_LEDS_RED, leds.set_red);
+    ACTION_ITEM(MSG_SET_LEDS_ORANGE, leds.set_orange);
+    ACTION_ITEM(MSG_SET_LEDS_YELLOW,leds.set_yellow);
+    ACTION_ITEM(MSG_SET_LEDS_GREEN, leds.set_green);
+    ACTION_ITEM(MSG_SET_LEDS_BLUE, leds.set_blue);
+    ACTION_ITEM(MSG_SET_LEDS_INDIGO, leds.set_indigo);
+    ACTION_ITEM(MSG_SET_LEDS_VIOLET, leds.set_violet);
     END_MENU();
   }
 
@@ -54,14 +54,14 @@
 
 void menu_led_custom() {
   START_MENU();
-  MENU_BACK(MSG_LED_CONTROL);
-  MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
-  MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
-  MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
+  BACK_ITEM(MSG_LED_CONTROL);
+  EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
+  EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
+  EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
   #if EITHER(RGBW_LED, NEOPIXEL_LED)
-    MENU_ITEM_EDIT_CALLBACK(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
+    EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
     #if ENABLED(NEOPIXEL_LED)
-      MENU_ITEM_EDIT_CALLBACK(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
+      EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
     #endif
   #endif
   END_MENU();
@@ -69,14 +69,14 @@ void menu_led_custom() {
 
 void menu_led() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
   bool led_on = leds.lights_on;
-  MENU_ITEM_EDIT_CALLBACK(bool, MSG_LEDS, &led_on, leds.toggle);
-  MENU_ITEM(function, MSG_SET_LEDS_DEFAULT, leds.set_default);
+  EDIT_ITEM(bool, MSG_LEDS, &led_on, leds.toggle);
+  ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
   #if ENABLED(LED_COLOR_PRESETS)
-    MENU_ITEM(submenu, MSG_LED_PRESETS, menu_led_presets);
+    SUBMENU(MSG_LED_PRESETS, menu_led_presets);
   #endif
-  MENU_ITEM(submenu, MSG_CUSTOM_LEDS, menu_led_custom);
+  SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
   END_MENU();
 }
 

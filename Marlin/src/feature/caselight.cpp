@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,9 @@ void update_case_light() {
   if (case_light_arg_flag && case_light_on)
     case_light_brightness = case_light_brightness_sav;  // restore last brightens if this is an S1 argument
 
-  const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
+  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) || NONE(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_NO_BRIGHTNESS)
+    const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
+  #endif
 
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
 
@@ -69,12 +71,21 @@ void update_case_light() {
 
   #else // !CASE_LIGHT_USE_NEOPIXEL
 
-    if (PWM_PIN(CASE_LIGHT_PIN))
-      analogWrite(CASE_LIGHT_PIN, n10ct);
-    else {
-      const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
-      WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
-    }
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      if (PWM_PIN(CASE_LIGHT_PIN))
+        analogWrite(pin_t(CASE_LIGHT_PIN), (
+          #if CASE_LIGHT_MAX_PWM == 255
+            n10ct
+          #else
+            map(n10ct, 0, 255, 0, CASE_LIGHT_MAX_PWM)
+          #endif
+        ));
+      else
+    #endif
+      {
+        const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
+        WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
+      }
 
   #endif // !CASE_LIGHT_USE_NEOPIXEL
 }

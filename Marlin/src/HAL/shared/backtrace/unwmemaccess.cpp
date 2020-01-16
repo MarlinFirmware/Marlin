@@ -52,8 +52,8 @@
 #define END_FLASH_ADDR    0x00020000
 #endif
 
-#ifdef __STM32F1__
-// For STM32F103ZET6/STM32F103VET6
+#if defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx)
+// For STM32F103ZET6/STM32F103VET6/STM32F0xx
 //  SRAM  (0x20000000 - 0x20010000) (64kb)
 //  FLASH (0x00000000 - 0x00080000) (512kb)
 //
@@ -127,6 +127,17 @@
 #define END_SRAM_ADDR     0x20030000
 #define START_FLASH_ADDR  0x00000000
 #define END_FLASH_ADDR    0x00140000
+#endif
+
+#ifdef __SAMD51P20A__
+// For SAMD51x20, valid address ranges are
+//  SRAM  (0x20000000 - 0x20040000) (256kb)
+//  FLASH (0x00000000 - 0x00100000) (1024kb)
+//
+#define START_SRAM_ADDR   0x20000000
+#define END_SRAM_ADDR     0x20040000
+#define START_FLASH_ADDR  0x00000000
+#define END_FLASH_ADDR    0x00100000
 #endif
 
 static bool validate_addr(uint32_t addr) {

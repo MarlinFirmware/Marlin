@@ -9,10 +9,11 @@
 #pragma once
 
 #include <stdlib.h>
-#include <Arduino.h>
-#include "../core/macros.h"
 #include <stddef.h> // wchar_t
 #include <stdint.h> // uint32_t
+
+#include "../HAL/shared/Marduino.h"
+#include "../core/macros.h"
 
 // read a byte from ROM or RAM
 typedef uint8_t (*read_byte_cb_t)(uint8_t * str);

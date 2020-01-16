@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,18 +25,11 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
-#endif
-
 /**
  * M500: Store settings in EEPROM
  */
 void GcodeSuite::M500() {
   (void)settings.save();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onStoreSettings();
-  #endif
 }
 
 /**
@@ -44,9 +37,6 @@ void GcodeSuite::M500() {
  */
 void GcodeSuite::M501() {
   (void)settings.load();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onLoadSettings();
-  #endif
 }
 
 /**
@@ -54,9 +44,6 @@ void GcodeSuite::M501() {
  */
 void GcodeSuite::M502() {
   (void)settings.reset();
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onFactoryReset();
-  #endif
 }
 
 #if DISABLED(DISABLE_M503)
@@ -65,7 +52,7 @@ void GcodeSuite::M502() {
    * M503: print settings currently in memory
    */
   void GcodeSuite::M503() {
-    (void)settings.report(parser.boolval('S', true));
+    (void)settings.report(!parser.boolval('S', true));
   }
 
 #endif // !DISABLE_M503

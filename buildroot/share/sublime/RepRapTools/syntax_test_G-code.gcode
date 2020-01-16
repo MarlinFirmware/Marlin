@@ -9,6 +9,14 @@ G1 X100 Y100 ; Move to 100,100
 ;   ^constant.numeric.param.gcode
 ;              ^comment
 
+T0 (This is a comment) S12
+;^entity.command.gcode
+;  ^punctuation.paren.comment.open
+;   ^paren.comment.gcode
+;                    ^punctuation.paren.comment.close
+;                      ^keyword.param.gcode
+;                       ^constant.numeric.param.gcode
+
 M20 P'/path/to/macro/macro.g' R12
 ;<-entity.command.gcode
 ;^constant.numeric.command.gcode
@@ -16,6 +24,8 @@ M20 P'/path/to/macro/macro.g' R12
 ;    ^punctuation.quote.single.open.gcode
 ;       ^string.quoted.single.gcode
 ;                           ^punctuation.quote.single.close.gcode
+;                             ^keyword.param.gcode
+;                              ^constant.numeric.param.gcode
 
 M117 This is a message   ; and comment
 ;<-entity.command.gcode
@@ -83,6 +93,14 @@ N234 G1 X-5 Y+2 *64 error
 ;                ^constant.numeric.checksum.gcode
 ;                  ^invalid.error.syntax.gcode
 
-N234 M107 *64
+N234 M107 *64     
 ;              ^-invalid.error.syntax.gcode
 
+M92 E304.5:304.5:420:420:420:420 ; EOL Comment
+;<-entity.command.gcode
+;^constant.numeric.command.gcode
+;   ^keyword.param.gcode
+;    ^constant.numeric.param.gcode
+;             ^constant.numeric.param.gcode
+;                                ^punctuation.comment.eol.start
+;                                 ^comment.gcode

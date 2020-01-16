@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,17 +28,27 @@
 #include "../../../feature/power_loss_recovery.h"
 #include "../../../module/motion.h"
 #include "../../../lcd/ultralcd.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
+
+#define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+#include "../../../core/debug_out.h"
 
 void menu_job_recovery();
 
-#if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-
-  inline void plr_error(PGM_P const prefix) {
-    SERIAL_ECHO_START();
+inline void plr_error(PGM_P const prefix) {
+  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+    DEBUG_ECHO_START();
     serialprintPGM(prefix);
-    SERIAL_ECHOLNPGM(" Power-Loss Recovery Data");
-  }
+    DEBUG_ECHOLNPGM(" Power-Loss Recovery Data");
+  #else
+    UNUSED(prefix);
+  #endif
+}
 
+#if HAS_LCD_MENU
+  void lcd_power_loss_recovery_cancel();
 #endif
 
 /**
@@ -49,16 +59,30 @@ void menu_job_recovery();
 void GcodeSuite::M1000() {
 
   if (recovery.valid()) {
-    if (parser.seen('S'))
-      ui.goto_screen(menu_job_recovery);
+    if (parser.seen('S')) {
+      #if HAS_LCD_MENU
+        ui.goto_screen(menu_job_recovery);
+      #elif ENABLED(EXTENSIBLE_UI)
+        ExtUI::OnPowerLossResume();
+      #else
+        SERIAL_ECHO_MSG("Resume requires LCD.");
+      #endif
+    }
+    else if (parser.seen('C')) {
+      #if HAS_LCD_MENU
+        lcd_power_loss_recovery_cancel();
+      #else
+        recovery.cancel();
+      #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onPrintTimerStopped();
+      #endif
+    }
     else
       recovery.resume();
   }
-  else {
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      plr_error(recovery.info.valid_head ? PSTR("No") : PSTR("Invalid"));
-    #endif
-  }
+  else
+    plr_error(recovery.info.valid_head ? PSTR("No") : PSTR("Invalid"));
 
 }
 

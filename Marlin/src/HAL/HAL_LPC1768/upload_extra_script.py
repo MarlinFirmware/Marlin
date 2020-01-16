@@ -3,20 +3,23 @@
 #  if target_filename is found then that drive is used
 #  else if target_drive is found then that drive is used
 #
+from __future__ import print_function
 
 target_filename = "FIRMWARE.CUR"
 target_drive = "REARM"
 
 import os
+import getpass
 import platform
+
 current_OS = platform.system()
 Import("env")
 
-def detect_error(e):
-    print '\nUnable to find destination disk (' + e + ')\n' \
+def print_error(e):
+    print('\nUnable to find destination disk (' + e + ')\n' \
           'Please select it in platformio.ini using the upload_port keyword ' \
-          '(https://docs.platformio.org/en/latest/projectconf/section_env_upload.html)\n' \
-          'or copy the firmware (.pioenvs/' + env.get('PIOENV') + '/firmware.bin) manually to the appropriate disk\n'
+          '(https://docs.platformio.org/en/latest/projectconf/section_env_upload.html) ' \
+          'or copy the firmware (.pio/build/' + env.get('PIOENV') + '/firmware.bin) manually to the appropriate disk\n')
 
 try:
     if current_OS == 'Windows':
@@ -30,9 +33,11 @@ try:
         #
         import subprocess
         # typical result (string): 'Drives: C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
-        driveStr = subprocess.check_output("fsutil fsinfo drives")
+        driveStr = str(subprocess.check_output("fsutil fsinfo drives"))
         # typical result (string): 'C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
-        driveStr = driveStr.strip().lstrip('Drives: ')
+        # driveStr = driveStr.strip().lstrip('Drives: ') <- Doesn't work in other Languages as English. In German is "Drives:" = "Laufwerke:"
+        FirstFound = driveStr.find(':',0,-1)         # Find the first ":" and
+        driveStr = driveStr[FirstFound + 1 : -1]     # truncate to the rest
         # typical result (array of stings): ['C:\\', 'D:\\', 'E:\\', 'F:\\',
         # 'G:\\', 'H:\\', 'I:\\', 'J:\\', 'K:\\', 'L:\\', 'M:\\', 'Y:\\', 'Z:\\']
         drives = driveStr.split()
@@ -43,7 +48,7 @@ try:
         for drive in drives:
             final_drive_name = drive.strip().rstrip('\\')   # typical result (string): 'C:'
             try:
-                volume_info = subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT)
+                volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))
             except Exception as e:
                 continue
             else:
@@ -63,9 +68,9 @@ try:
             env.Replace(
                 UPLOAD_PORT=upload_disk
             )
-            print 'upload disk: ', upload_disk
+            print('upload disk: ', upload_disk)
         else:
-            detect_error('Autodetect Error')
+            print_error('Autodetect Error')
 
     elif current_OS == 'Linux':
         #
@@ -74,35 +79,33 @@ try:
         upload_disk = 'Disk not found'
         target_file_found = False
         target_drive_found = False
-        medias = os.listdir('/media')  #
-        for media in medias:
-            drives = os.listdir('/media/' + media)  #
-            if target_drive in drives and target_file_found == False:  # set upload if not found target file yet
-                target_drive_found = True
-                upload_disk = '/media/' + media + '/' + target_drive + '/'
+        drives = os.listdir(os.path.join(os.sep, 'media', getpass.getuser()))
+        if target_drive in drives:  # If target drive is found, use it.
+            target_drive_found = True
+            upload_disk = os.path.join(os.sep, 'media', getpass.getuser(), target_drive) + os.sep
+        else:
             for drive in drives:
                 try:
-                    files = os.listdir('/media/' + media + '/' + drive)
+                    files = os.listdir(os.path.join(os.sep, 'media', getpass.getuser(), drive))
                 except:
                     continue
                 else:
                     if target_filename in files:
-                        if target_file_found == False:
-                            upload_disk = '/media/' + media + '/' + drive + '/'
-                            target_file_found = True
-
+                        upload_disk = os.path.join(os.sep, 'media', getpass.getuser(), drive) + os.sep
+                        target_file_found = True
+                        break
         #
         # set upload_port to drive if found
         #
 
-        if target_file_found == True or target_drive_found == True:
+        if target_file_found or target_drive_found:
             env.Replace(
                 UPLOAD_FLAGS="-P$UPLOAD_PORT",
                 UPLOAD_PORT=upload_disk
             )
-            print 'upload disk: ', upload_disk
+            print('upload disk: ', upload_disk)
         else:
-            detect_error('Autodetect Error')
+            print_error('Autodetect Error')
 
     elif current_OS == 'Darwin':  # MAC
         #
@@ -133,9 +136,9 @@ try:
             env.Replace(
                 UPLOAD_PORT=upload_disk
             )
-            print '\nupload disk: ', upload_disk, '\n'
+            print('\nupload disk: ', upload_disk, '\n')
         else:
-            detect_error('Autodetect Error')
+            print_error('Autodetect Error')
 
 except Exception as e:
-    detect_error(str(e))
+    print_error(str(e))

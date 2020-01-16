@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +28,10 @@
 #include "../../module/tool_change.h"
 #include "../../module/motion.h"
 
-
 mpe_settings_t mpe_settings;
 
 inline void mpe_settings_report() {
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Magnetic Parking Extruder");
+  SERIAL_ECHO_MSG("Magnetic Parking Extruder");
   SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("L: Left parking  :", mpe_settings.parking_xpos[0]);
   SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("R: Right parking :", mpe_settings.parking_xpos[1]);
   SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("I: Grab Offset   :", mpe_settings.grab_distance);

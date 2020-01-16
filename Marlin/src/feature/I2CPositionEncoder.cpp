@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@
 #include "../module/temperature.h"
 #include "../module/stepper.h"
 #include "../gcode/parser.h"
+
+#include "../feature/babystep.h"
 
 #include <Wire.h>
 
@@ -166,10 +168,10 @@ void I2CPositionEncoder::update() {
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
             float sumP = 0;
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
-            const int32_t errorP = int32_t(sumP * (1.0f / (I2CPE_ERR_PRST_ARRAY_SIZE)));
+            const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_ECHO(axis_codes[encoderAxis]);
             SERIAL_ECHOLNPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis], "mm; correcting!");
-            thermalManager.babystepsTodo[encoderAxis] = -LROUND(errorP);
+            babystep.add_steps(encoderAxis, -LROUND(errorP));
             errPrstIdx = 0;
           }
         }
@@ -180,7 +182,7 @@ void I2CPositionEncoder::update() {
       if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //SERIAL_ECHOLN(error);
         //SERIAL_ECHOLN(position);
-        thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
+        babystep.add_steps(encoderAxis, -LROUND(error / 2));
       }
     #endif
 
@@ -227,13 +229,11 @@ bool I2CPositionEncoder::passes_test(const bool report) {
   if (report) {
     if (H != I2CPE_MAG_SIG_GOOD) SERIAL_ECHOPGM("Warning. ");
     SERIAL_ECHO(axis_codes[encoderAxis]);
-    SERIAL_ECHOPGM(" axis ");
-    serialprintPGM(H == I2CPE_MAG_SIG_BAD ? PSTR("magnetic strip ") : PSTR("encoder "));
+    serial_ternary(H == I2CPE_MAG_SIG_BAD, PSTR(" axis "), PSTR("magnetic strip "), PSTR("encoder "));
     switch (H) {
       case I2CPE_MAG_SIG_GOOD:
       case I2CPE_MAG_SIG_MID:
-        SERIAL_ECHOLNPGM("passes test; field strength ");
-        serialprintPGM(H == I2CPE_MAG_SIG_GOOD ? PSTR("good.\n") : PSTR("fair.\n"));
+        SERIAL_ECHO_TERNARY(H == I2CPE_MAG_SIG_GOOD, "passes test; field strength ", "good", "fair", ".\n");
         break;
       default:
         SERIAL_ECHOLNPGM("not detected!");
@@ -326,26 +326,23 @@ bool I2CPositionEncoder::test_axis() {
   //only works on XYZ cartesian machines for the time being
   if (!(encoderAxis == X_AXIS || encoderAxis == Y_AXIS || encoderAxis == Z_AXIS)) return false;
 
-  float startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
-
-  const float startPosition = soft_endstop[encoderAxis].min + 10,
-              endPosition = soft_endstop[encoderAxis].max - 10,
-              feedrate = FLOOR(MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY));
+  const float startPosition = soft_endstop.min[encoderAxis] + 10,
+              endPosition = soft_endstop.max[encoderAxis] - 10;
+  const feedRate_t fr_mm_s = FLOOR(MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY));
 
   ec = false;
 
-  LOOP_NA(i) {
-    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+  xyze_pos_t startCoord, endCoord;
+  LOOP_XYZ(a) {
+    startCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
+    endCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
   }
-
   startCoord[encoderAxis] = startPosition;
   endCoord[encoderAxis] = endPosition;
 
   planner.synchronize();
-
-  planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                      planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+  startCoord.e = planner.get_axis_position_mm(E_AXIS);
+  planner.buffer_line(startCoord, fr_mm_s, 0);
   planner.synchronize();
 
   // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
@@ -356,8 +353,8 @@ bool I2CPositionEncoder::test_axis() {
   }
 
   if (trusted) { // if trusted, commence test
-    planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    endCoord.e = planner.get_axis_position_mm(E_AXIS);
+    planner.buffer_line(endCoord, fr_mm_s, 0);
     planner.synchronize();
   }
 
@@ -377,44 +374,41 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   float old_steps_mm, new_steps_mm,
         startDistance, endDistance,
-        travelDistance, travelledDistance, total = 0,
-        startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
-
-  float feedrate;
+        travelDistance, travelledDistance, total = 0;
 
   int32_t startCount, stopCount;
 
-  feedrate = MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY);
+  const feedRate_t fr_mm_s = MMM_TO_MMS((encoderAxis == Z_AXIS) ? HOMING_FEEDRATE_Z : HOMING_FEEDRATE_XY);
 
   bool oldec = ec;
   ec = false;
 
   startDistance = 20;
-  endDistance = soft_endstop[encoderAxis].max - 20;
+  endDistance = soft_endstop.max[encoderAxis] - 20;
   travelDistance = endDistance - startDistance;
 
-  LOOP_NA(i) {
-    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+  xyze_pos_t startCoord, endCoord;
+  LOOP_XYZ(a) {
+    startCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
+    endCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
   }
-
   startCoord[encoderAxis] = startDistance;
   endCoord[encoderAxis] = endDistance;
 
   planner.synchronize();
 
   LOOP_L_N(i, iter) {
-    planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    startCoord.e = planner.get_axis_position_mm(E_AXIS);
+    planner.buffer_line(startCoord, fr_mm_s, 0);
     planner.synchronize();
 
     delay(250);
     startCount = get_position();
 
-    //do_blocking_move_to(endCoord[X_AXIS],endCoord[Y_AXIS],endCoord[Z_AXIS]);
+    //do_blocking_move_to(endCoord);
 
-    planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    endCoord.e = planner.get_axis_position_mm(E_AXIS);
+    planner.buffer_line(endCoord, fr_mm_s, 0);
     planner.synchronize();
 
     //Read encoder distance
@@ -424,7 +418,6 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
     SERIAL_ECHOLNPAIR("Attempted travel: ", travelDistance, "mm");
-
     SERIAL_ECHOLNPAIR("   Actual travel:  ", travelledDistance, "mm");
 
     //Calculate new axis steps per unit
@@ -441,7 +434,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
       total += new_steps_mm;
 
       // swap start and end points so next loop runs from current position
-      float tempCoord = startCoord[encoderAxis];
+      const float tempCoord = startCoord[encoderAxis];
       startCoord[encoderAxis] = endCoord[encoderAxis];
       endCoord[encoderAxis] = tempCoord;
     }

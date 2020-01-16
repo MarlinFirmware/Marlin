@@ -15,6 +15,9 @@
  */
 #pragma once
 
+#include "../../HAL/shared/HAL_ST7920.h"
+
+#include "../../core/types.h"
 #include "../../core/macros.h"
 #include "../../libs/duration_t.h"
 
@@ -28,11 +31,11 @@ class ST7920_Lite_Status_Screen {
       uint8_t sa       : 1;
     } current_bits;
 
-    static void cs();
-    static void ncs();
-    static void sync_cmd();
-    static void sync_dat();
-    static void write_byte(const uint8_t w);
+    static void cs()                        { ST7920_cs(); current_bits.synced = false; }
+    static void ncs()                       { ST7920_cs(); current_bits.synced = false; }
+    static void sync_cmd()                  { ST7920_set_cmd(); }
+    static void sync_dat()                  { ST7920_set_dat(); }
+    static void write_byte(const uint8_t w) { ST7920_write_byte(w); }
 
     FORCE_INLINE static void write_word(const uint16_t w) {
       write_byte((w >> 8) & 0xFF);
@@ -84,7 +87,7 @@ class ST7920_Lite_Status_Screen {
     static void draw_print_time(const duration_t &elapsed);
     static void draw_feedrate_percentage(const uint16_t percentage);
     static void draw_status_message();
-    static void draw_position(const float x, const float y, const float z, bool position_known = true);
+    static void draw_position(const xyze_pos_t &pos, bool position_known = true);
 
     static bool indicators_changed();
     static bool position_changed();

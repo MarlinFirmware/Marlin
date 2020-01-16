@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Endstop Interrupts
@@ -34,53 +35,43 @@
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
 
-#pragma once
-
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.update(); }
+void endstop_ISR() { endstops.update(); }
 
 /**
  *  Endstop interrupts for Due based targets.
  *  On Due, all pins support external interrupt capability.
  */
 
-void setup_endstop_interrupts( void ) {
-
+void setup_endstop_interrupts() {
+  #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
   #if HAS_X_MAX
-    attachInterrupt(digitalPinToInterrupt(X_MAX_PIN), endstop_ISR, CHANGE); // assign it
+    _ATTACH(X_MAX_PIN);
   #endif
-
   #if HAS_X_MIN
-    attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(X_MIN_PIN);
   #endif
-
   #if HAS_Y_MAX
-    attachInterrupt(digitalPinToInterrupt(Y_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Y_MAX_PIN);
   #endif
-
   #if HAS_Y_MIN
-    attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Y_MIN_PIN);
   #endif
-
   #if HAS_Z_MAX
-    attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z_MAX_PIN);
   #endif
-
   #if HAS_Z_MIN
-     attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), endstop_ISR, CHANGE);
+     _ATTACH(Z_MIN_PIN);
   #endif
-
   #if HAS_Z2_MAX
-    attachInterrupt(digitalPinToInterrupt(Z2_MAX_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z2_MAX_PIN);
   #endif
-
   #if HAS_Z2_MIN
-    attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z2_MIN_PIN);
   #endif
-
   #if HAS_Z_MIN_PROBE_PIN
-    attachInterrupt(digitalPinToInterrupt(Z_MIN_PROBE_PIN), endstop_ISR, CHANGE);
+    _ATTACH(Z_MIN_PROBE_PIN);
   #endif
 }

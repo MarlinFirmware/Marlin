@@ -94,11 +94,11 @@ typedef struct {
 	uint16_t payload_size;
 
 	//! Callback called after reception of ZLP from setup request
-	void (*callback) (void);
+	void (*callback)(void);
 
 	//! Callback called when the buffer given (.payload) is full or empty.
 	//! This one return false to abort data transfer, or true with a new buffer in .payload.
-	bool(*over_under_run) (void);
+	bool (*over_under_run)(void);
 } udd_ctrl_request_t;
 extern udd_ctrl_request_t udd_g_ctrlreq;
 
@@ -123,7 +123,7 @@ extern udd_ctrl_request_t udd_g_ctrlreq;
  * Registered by routine udd_ep_wait_stall_clear()
  * Callback called when endpoint stall is cleared.
  */
-typedef void (*udd_callback_halt_cleared_t) (void);
+typedef void (*udd_callback_halt_cleared_t)(void);
 
 /**
  * \brief End of transfer callback function type.

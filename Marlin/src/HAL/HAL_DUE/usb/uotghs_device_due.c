@@ -40,6 +40,7 @@
  * \asf_license_stop
  *
  */
+
 /*
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
@@ -505,7 +506,7 @@ static bool udd_ep_interrupt(void);
 //@}
 
 
-//--------------------------------------------------------
+// ------------------------
 //--- INTERNAL ROUTINES TO MANAGED GLOBAL EVENTS
 
 /**
@@ -1306,7 +1307,7 @@ void udd_test_mode_packet(void)
 
 
 
-//--------------------------------------------------------
+// ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE CONTROL ENDPOINT
 
 static void udd_reset_ep_ctrl(void)
@@ -1478,7 +1479,7 @@ static void udd_ctrl_in_sent(void)
 	// The IN data don't must be written in endpoint 0 DPRAM during
 	// a next setup reception in same endpoint 0 DPRAM.
 	// Thereby, an OUT ZLP reception must check before IN data write
-	// and if no OUT ZLP is recevied the data must be written quickly (800us)
+	// and if no OUT ZLP is received the data must be written quickly (800µs)
 	// before an eventually ZLP OUT and SETUP reception
 	flags = cpu_irq_save();
 	if (Is_udd_out_received(0)) {
@@ -1728,7 +1729,7 @@ static bool udd_ctrl_interrupt(void)
 }
 
 
-//--------------------------------------------------------
+// ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE BULK/INTERRUPT/ISOCHRONOUS ENDPOINTS
 
 #if (0 != USB_DEVICE_MAX_EP)
@@ -1904,7 +1905,7 @@ static void udd_ep_in_sent(udd_ep_id_t ep)
 		ptr_src = &ptr_job->buf[ptr_job->buf_cnt];
 		nb_remain = ptr_job->buf_size - ptr_job->buf_cnt;
 		// Fill a bank even if no data (ZLP)
-		nb_data = MIN(nb_remain, pkt_size);
+		nb_data = min(nb_remain, pkt_size);
 		// Modify job information
 		ptr_job->buf_cnt += nb_data;
 		ptr_job->buf_load = nb_data;

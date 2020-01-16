@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,284 @@
 
 // Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
 
-#line 31 // set __LINE__ to a known value for both passes
+#line 28 // set __LINE__ to a known value for both passes
+
+// Undefine pins to suppress warnings
+#if !PIN_EXISTS(X_MS1)
+  #undef X_MS1_PIN
+#endif
+#if !PIN_EXISTS(X_MS2)
+  #undef X_MS2_PIN
+#endif
+#if !PIN_EXISTS(X_MS3)
+  #undef X_MS3_PIN
+#endif
+#if !PIN_EXISTS(X2_MS1)
+  #undef X2_MS1_PIN
+#endif
+#if !PIN_EXISTS(X2_MS2)
+  #undef X2_MS2_PIN
+#endif
+#if !PIN_EXISTS(X2_MS3)
+  #undef X2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Y_MS1)
+  #undef Y_MS1_PIN
+#endif
+#if !PIN_EXISTS(Y_MS2)
+  #undef Y_MS2_PIN
+#endif
+#if !PIN_EXISTS(Y_MS3)
+  #undef Y_MS3_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS1)
+  #undef Y2_MS1_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS2)
+  #undef Y2_MS2_PIN
+#endif
+#if !PIN_EXISTS(Y2_MS3)
+  #undef Y2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z_MS1)
+  #undef Z_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z_MS2)
+  #undef Z_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z_MS3)
+  #undef Z_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS1)
+  #undef Z2_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS2)
+  #undef Z2_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z2_MS3)
+  #undef Z2_MS3_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS1)
+  #undef Z3_MS1_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS2)
+  #undef Z3_MS2_PIN
+#endif
+#if !PIN_EXISTS(Z3_MS3)
+  #undef Z3_MS3_PIN
+#endif
+#if !PIN_EXISTS(E0_MS1)
+  #undef E0_MS1_PIN
+#endif
+#if !PIN_EXISTS(E0_MS2)
+  #undef E0_MS2_PIN
+#endif
+#if !PIN_EXISTS(E0_MS3)
+  #undef E0_MS3_PIN
+#endif
+#if !PIN_EXISTS(E1_MS1)
+  #undef E1_MS1_PIN
+#endif
+#if !PIN_EXISTS(E1_MS2)
+  #undef E1_MS2_PIN
+#endif
+#if !PIN_EXISTS(E1_MS3)
+  #undef E1_MS3_PIN
+#endif
+#if !PIN_EXISTS(E2_MS1)
+  #undef E2_MS1_PIN
+#endif
+#if !PIN_EXISTS(E2_MS2)
+  #undef E2_MS2_PIN
+#endif
+#if !PIN_EXISTS(E2_MS3)
+  #undef E2_MS3_PIN
+#endif
+#if !PIN_EXISTS(E3_MS1)
+  #undef E3_MS1_PIN
+#endif
+#if !PIN_EXISTS(E3_MS2)
+  #undef E3_MS2_PIN
+#endif
+#if !PIN_EXISTS(E3_MS3)
+  #undef E3_MS3_PIN
+#endif
+#if !PIN_EXISTS(E4_MS1)
+  #undef E4_MS1_PIN
+#endif
+#if !PIN_EXISTS(E4_MS2)
+  #undef E4_MS2_PIN
+#endif
+#if !PIN_EXISTS(E4_MS3)
+  #undef E4_MS3_PIN
+#endif
+#if !PIN_EXISTS(E5_MS1)
+  #undef E5_MS1_PIN
+#endif
+#if !PIN_EXISTS(E5_MS2)
+  #undef E5_MS2_PIN
+#endif
+#if !PIN_EXISTS(E5_MS3)
+  #undef E5_MS3_PIN
+#endif
+
+#if !PIN_EXISTS(E0_STEP)
+  #undef E0_STEP_PIN
+#endif
+#if !PIN_EXISTS(E0_DIR)
+  #undef E0_DIR_PIN
+#endif
+#if !PIN_EXISTS(E0_ENABLE)
+  #undef E0_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E1_STEP)
+  #undef E1_STEP_PIN
+#endif
+#if !PIN_EXISTS(E1_DIR)
+  #undef E1_DIR_PIN
+#endif
+#if !PIN_EXISTS(E1_ENABLE)
+  #undef E1_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E2_STEP)
+  #undef E2_STEP_PIN
+#endif
+#if !PIN_EXISTS(E2_DIR)
+  #undef E2_DIR_PIN
+#endif
+#if !PIN_EXISTS(E2_ENABLE)
+  #undef E2_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E3_STEP)
+  #undef E3_STEP_PIN
+#endif
+#if !PIN_EXISTS(E3_DIR)
+  #undef E3_DIR_PIN
+#endif
+#if !PIN_EXISTS(E3_ENABLE)
+  #undef E3_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E4_STEP)
+  #undef E4_STEP_PIN
+#endif
+#if !PIN_EXISTS(E4_DIR)
+  #undef E4_DIR_PIN
+#endif
+#if !PIN_EXISTS(E4_ENABLE)
+  #undef E4_ENABLE_PIN
+#endif
+#if !PIN_EXISTS(E5_STEP)
+  #undef E5_STEP_PIN
+#endif
+#if !PIN_EXISTS(E5_DIR)
+  #undef E5_DIR_PIN
+#endif
+#if !PIN_EXISTS(E5_ENABLE)
+  #undef E5_ENABLE_PIN
+#endif
+
+#if !PIN_EXISTS(X_CS)
+  #undef X_CS_PIN
+#endif
+#if !PIN_EXISTS(Y_CS)
+  #undef Y_CS_PIN
+#endif
+#if !PIN_EXISTS(Z_CS)
+  #undef Z_CS_PIN
+#endif
+#if !PIN_EXISTS(E0_CS)
+  #undef E0_CS_PIN
+#endif
+#if !PIN_EXISTS(E1_CS)
+  #undef E1_CS_PIN
+#endif
+#if !PIN_EXISTS(E2_CS)
+  #undef E2_CS_PIN
+#endif
+#if !PIN_EXISTS(E3_CS)
+  #undef E3_CS_PIN
+#endif
+#if !PIN_EXISTS(E4_CS)
+  #undef E4_CS_PIN
+#endif
+#if !PIN_EXISTS(E5_CS)
+  #undef E5_CS_PIN
+#endif
+
+#if !PIN_EXISTS(FAN)
+  #undef FAN_PIN
+#endif
+#define FAN0_PIN FAN_PIN
+#if !PIN_EXISTS(FAN1)
+  #undef FAN1_PIN
+#endif
+#if !PIN_EXISTS(FAN2)
+  #undef FAN2_PIN
+#endif
+#if !PIN_EXISTS(CONTROLLER_FAN)
+  #undef CONTROLLER_FAN_PIN
+#endif
+
+#if !PIN_EXISTS(FANMUX0)
+  #undef FANMUX0_PIN
+#endif
+#if !PIN_EXISTS(FANMUX1)
+  #undef FANMUX1_PIN
+#endif
+#if !PIN_EXISTS(FANMUX2)
+  #undef FANMUX2_PIN
+#endif
+
+#if !PIN_EXISTS(HEATER_0)
+  #undef HEATER_0_PIN
+#endif
+#if !PIN_EXISTS(HEATER_1)
+  #undef HEATER_1_PIN
+#endif
+#if !PIN_EXISTS(HEATER_2)
+  #undef HEATER_2_PIN
+#endif
+#if !PIN_EXISTS(HEATER_3)
+  #undef HEATER_3_PIN
+#endif
+#if !PIN_EXISTS(HEATER_4)
+  #undef HEATER_4_PIN
+#endif
+#if !PIN_EXISTS(HEATER_5)
+  #undef HEATER_5_PIN
+#endif
+#if !PIN_EXISTS(HEATER_BED)
+  #undef HEATER_BED_PIN
+#endif
+
+#if !PIN_EXISTS(TEMP_0)
+  #undef TEMP_0_PIN
+#endif
+#if !PIN_EXISTS(TEMP_1)
+  #undef TEMP_1_PIN
+#endif
+#if !PIN_EXISTS(TEMP_2)
+  #undef TEMP_2_PIN
+#endif
+#if !PIN_EXISTS(TEMP_3)
+  #undef TEMP_3_PIN
+#endif
+#if !PIN_EXISTS(TEMP_4)
+  #undef TEMP_4_PIN
+#endif
+#if !PIN_EXISTS(TEMP_5)
+  #undef TEMP_5_PIN
+#endif
+#if !PIN_EXISTS(TEMP_BED)
+  #undef TEMP_BED_PIN
+#endif
+
+#if !PIN_EXISTS(SD_DETECT)
+  #undef SD_DETECT_PIN
+#endif
+#if !PIN_EXISTS(SDPOWER)
+  #undef SDPOWER_PIN
+#endif
 
 //
 // Analog Pin Assignments
@@ -54,7 +328,7 @@
 #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) && MAIN_VOLTAGE_MEASURE_PIN < NUM_ANALOG_INPUTS
   REPORT_NAME_ANALOG(__LINE__, MAIN_VOLTAGE_MEASURE_PIN)
 #endif
-#if !defined(ARDUINO_ARCH_SAM)  //TC1 & TC2 are macros in the SAM tool chain
+#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD)  //TC1 & TC2 are macros in the SAM/SAMD tool chain
   #if defined(TC1) && TC1 >= 0 && TC1 < NUM_ANALOG_INPUTS
     REPORT_NAME_ANALOG(__LINE__, TC1)
   #endif
@@ -171,6 +445,12 @@
 #endif
 #if PIN_EXISTS(CONTROLLER_FAN)
   REPORT_NAME_DIGITAL(__LINE__, CONTROLLER_FAN_PIN)
+#endif
+#if PIN_EXISTS(COOLANT_FLOOD)
+  REPORT_NAME_DIGITAL(__LINE__, COOLANT_FLOOD_PIN)
+#endif
+#if PIN_EXISTS(COOLANT_MIST)
+  REPORT_NAME_DIGITAL(__LINE__, COOLANT_MIST_PIN)
 #endif
 #if PIN_EXISTS(CUTOFF_RESET)
   REPORT_NAME_DIGITAL(__LINE__, CUTOFF_RESET_PIN)
@@ -704,8 +984,8 @@
 // #if defined(SDA) && SDA >= 0
 //   REPORT_NAME_DIGITAL(__LINE__, SDA)
 // #endif
-#if defined(SDPOWER) && SDPOWER >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SDPOWER)
+#if PIN_EXISTS(SDPOWER)
+  REPORT_NAME_DIGITAL(__LINE__, SDPOWER_PIN)
 #endif
 #if defined(SDSS) && SDSS >= 0
   REPORT_NAME_DIGITAL(__LINE__, SDSS)
@@ -764,15 +1044,6 @@
 #if defined(SPARE_IO) && SPARE_IO >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPARE_IO)
 #endif
-#if defined(SPI_CHAN_DAC) && SPI_CHAN_DAC >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_CHAN_DAC)
-#endif
-#if defined(SPI_CHAN_EEPROM1) && SPI_CHAN_EEPROM1 >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_CHAN_EEPROM1)
-#endif
-#if defined(SPI_EEPROM) && SPI_EEPROM >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM)
-#endif
 #if defined(SPI_EEPROM1_CS) && SPI_EEPROM1_CS >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM1_CS)
 #endif
@@ -788,8 +1059,8 @@
 #if PIN_EXISTS(SPINDLE_ENABLE)
   REPORT_NAME_DIGITAL(__LINE__, SPINDLE_ENABLE_PIN)
 #endif
-#if PIN_EXISTS(SPINDLE_LASER_ENABLE)
-  REPORT_NAME_DIGITAL(__LINE__, SPINDLE_LASER_ENABLE_PIN)
+#if PIN_EXISTS(SPINDLE_LASER_ENA)
+  REPORT_NAME_DIGITAL(__LINE__, SPINDLE_LASER_ENA_PIN)
 #endif
 #if PIN_EXISTS(SPINDLE_LASER_PWM)
   REPORT_NAME_DIGITAL(__LINE__, SPINDLE_LASER_PWM_PIN)
@@ -1165,4 +1436,19 @@
 #endif
 #if PIN_EXISTS(FET_SAFETY)
   REPORT_NAME_DIGITAL(__LINE__, FET_SAFETY_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_MISO)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_MISO_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_MOSI)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_MOSI_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_SCK)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_SCK_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_CS)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_CS_PIN)
+#endif
+#if PIN_EXISTS(TOUCH_INT)
+  REPORT_NAME_DIGITAL(__LINE__, TOUCH_INT_PIN)
 #endif

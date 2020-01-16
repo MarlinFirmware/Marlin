@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
-/*
 #include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 
@@ -39,8 +38,7 @@
   #include "../../feature/leds/leds.h"
 #endif
 
-#include "../../Marlin.h" // for wait_for_heatup and idle()
-*/
+#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
  * M141: Set chamber temperature
@@ -54,24 +52,24 @@ void GcodeSuite::M141() {
  * M191: Sxxx Wait for chamber current temp to reach target temp. Waits only when heating
  *       Rxxx Wait for chamber current temp to reach target temp. Waits when heating and cooling
  */
-/*
 void GcodeSuite::M191() {
   if (DEBUGGING(DRYRUN)) return;
 
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
-    thermalManager.setTargetBed(parser.value_celsius());
+    thermalManager.setTargetChamber(parser.value_celsius());
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-      if (parser.value_celsius() > BED_MINTEMP)
-        print_job_timer.start();
+      if (parser.value_celsius() > CHAMBER_MINTEMP)
+        startOrResumeJob();
     #endif
   }
   else return;
 
-  lcd_setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
-
-  thermalManager.wait_for_bed(no_wait_for_cooling);
+  const bool is_heating = thermalManager.isHeatingChamber();
+  if (is_heating || !no_wait_for_cooling) {
+    ui.set_status_P(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
+    thermalManager.wait_for_chamber(false);
+  }
 }
-*/
 
 #endif // HAS_HEATED_CHAMBER

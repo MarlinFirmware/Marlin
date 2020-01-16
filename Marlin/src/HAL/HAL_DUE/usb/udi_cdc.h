@@ -55,7 +55,7 @@
 #include "udi.h"
 
 // Check the number of port
-#ifndef  UDI_CDC_PORT_NB
+#ifndef UDI_CDC_PORT_NB
 # define  UDI_CDC_PORT_NB 1
 #endif
 #if (UDI_CDC_PORT_NB < 1) || (UDI_CDC_PORT_NB > 7)

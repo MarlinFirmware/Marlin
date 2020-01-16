@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 
+#if EXTRUDERS
+
 /**
  * M221: Set extrusion percentage (M221 T0 S95)
  */
@@ -37,10 +39,11 @@ void GcodeSuite::M221() {
   }
   else {
     SERIAL_ECHO_START();
-    SERIAL_CHAR('E');
-    SERIAL_CHAR('0' + target_extruder);
+    SERIAL_CHAR('E', '0' + target_extruder);
     SERIAL_ECHOPAIR(" Flow: ", planner.flow_percentage[target_extruder]);
     SERIAL_CHAR('%');
     SERIAL_EOL();
   }
 }
+
+#endif // EXTRUDERS

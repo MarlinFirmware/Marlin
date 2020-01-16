@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,11 @@
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
 #include "../../gcode.h"
-#include "../../../feature/bedlevel/abl/abl.h"
+#include "../../../feature/bedlevel/bedlevel.h"
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
 
 /**
  * M421: Set a single Mesh Bed Leveling Z coordinate

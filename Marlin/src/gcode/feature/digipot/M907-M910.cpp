@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,8 +65,10 @@ void GcodeSuite::M907() {
   #if ENABLED(DIGIPOT_I2C)
     // this one uses actual amps in floating point
     LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) digipot_i2c_set_current(i, parser.value_float());
-    // for each additional extruder (named B,C,D,E..., channels 4,5,6,7...)
-    for (uint8_t i = NUM_AXIS; i < DIGIPOT_I2C_NUM_CHANNELS; i++) if (parser.seenval('B' + i - (NUM_AXIS))) digipot_i2c_set_current(i, parser.value_float());
+    // Additional extruders use B,C,D for channels 4,5,6.
+    // TODO: Change these parameters because 'E' is used. B<index>?
+    for (uint8_t i = E_AXIS + 1; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
+      if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c_set_current(i, parser.value_float());
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
@@ -85,16 +87,10 @@ void GcodeSuite::M907() {
    */
   void GcodeSuite::M908() {
     #if HAS_DIGIPOTSS
-      stepper.digitalPotWrite(
-        parser.intval('P'),
-        parser.intval('S')
-      );
+      stepper.digitalPotWrite(parser.intval('P'), parser.intval('S'));
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
-      dac_current_raw(
-        parser.byteval('P', -1),
-        parser.ushortval('S', 0)
-      );
+      dac_current_raw(parser.byteval('P', -1), parser.ushortval('S', 0));
     #endif
   }
 

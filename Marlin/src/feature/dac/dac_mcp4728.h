@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,27 @@
  * Arduino library for MicroChip MCP4728 I2C D/A converter.
  */
 
+#include "../../core/types.h"
+
 #include <Wire.h>
+
+/**
+ * The following three macros are only used in this piece of code related to mcp4728.
+ * They are defined in the standard Arduino framework but could be undefined in 32 bits Arduino frameworks.
+ * (For instance not defined in Arduino lpc176x framework)
+ * So we have to define them if needed.
+ */
+#ifndef word
+  #define word(h, l)  ((uint8_t) ((h << 8) | l))
+#endif
+
+#ifndef lowByte
+  #define lowByte(w)  ((uint8_t) ((w) & 0xff))
+#endif
+
+#ifndef highByte
+  #define highByte(w) ((uint8_t) ((w) >> 8))
+#endif
 
 #define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref
 #define BASE_ADDR      0x60
@@ -46,12 +66,12 @@
 #define DAC_DEV_ADDRESS (BASE_ADDR | DAC_OR_ADDRESS)
 
 void mcp4728_init();
-uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value);
+uint8_t mcp4728_analogWrite(const uint8_t channel, const uint16_t value);
 uint8_t mcp4728_eepromWrite();
-uint8_t mcp4728_setVref_all(uint8_t value);
-uint8_t mcp4728_setGain_all(uint8_t value);
-uint16_t mcp4728_getValue(uint8_t channel);
+uint8_t mcp4728_setVref_all(const uint8_t value);
+uint8_t mcp4728_setGain_all(const uint8_t value);
+uint16_t mcp4728_getValue(const uint8_t channel);
 uint8_t mcp4728_fastWrite();
-uint8_t mcp4728_simpleCommand(byte simpleCommand);
-uint8_t mcp4728_getDrvPct(uint8_t channel);
-void mcp4728_setDrvPct(uint8_t pct[XYZE]);
+uint8_t mcp4728_simpleCommand(const byte simpleCommand);
+uint8_t mcp4728_getDrvPct(const uint8_t channel);
+void mcp4728_setDrvPct(xyze_uint8_t &pct);

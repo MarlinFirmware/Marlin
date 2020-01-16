@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -27,7 +27,6 @@
  */
 
 #define CPU_32_BIT
-#define HAL_INIT
 
 void HAL_init();
 
@@ -35,19 +34,19 @@ void HAL_init();
 #include <stdarg.h>
 #include <algorithm>
 
-extern "C" volatile millis_t _millis;
+extern "C" volatile uint32_t _millis;
 
-#include <Arduino.h>
-#include <pinmapping.h>
-#include <CDCSerial.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-#include <adc.h>
 #include "watchdog.h"
-#include "HAL_timers.h"
+#include "timers.h"
 #include "MarlinSerial.h"
+
+#include <adc.h>
+#include <pinmapping.h>
+#include <CDCSerial.h>
 
 //
 // Default graphical display delays
@@ -62,10 +61,6 @@ extern "C" volatile millis_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
-#endif
-
 #if SERIAL_PORT == -1
   #define MYSERIAL0 UsbSerial
 #elif SERIAL_PORT == 0
@@ -76,16 +71,14 @@ extern "C" volatile millis_t _millis;
   #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
   #define MYSERIAL0 MSerial3
+#else
+  #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
-  #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
-  #endif
-  #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == -1
+  #if SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
+  #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 UsbSerial
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 MSerial
@@ -95,9 +88,32 @@ extern "C" volatile millis_t _millis;
     #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
     #define MYSERIAL1 MSerial3
+  #else
+    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
+#endif
+
+#ifdef DGUS_SERIAL_PORT
+  #if DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL UsbSerial
+  #elif DGUS_SERIAL_PORT == 0
+    #define DGUS_SERIAL MSerial
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL MSerial1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL MSerial2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL MSerial3
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #endif
 #endif
 
 //
@@ -112,18 +128,10 @@ extern "C" volatile millis_t _millis;
 //
 // Utility functions
 //
-int freeMemory(void);
-
-//
-// SPI: Extended functions taking a channel number (Hardware SPI only)
-//
-
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+int freeMemory();
+#pragma GCC diagnostic pop
 
 //
 // ADC API
@@ -134,18 +142,49 @@ uint8_t spiRec(uint32_t chan);
                                     // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
                                     // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
-#define ADC_LOWPASS_K_VALUE    (6)  // Higher values increase rise time
+#define ADC_LOWPASS_K_VALUE    (2)  // Higher values increase rise time
                                     // Rise time sample delays for 100% signal convergence on full range step
                                     // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
+#define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
+#define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
+
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
-#define HAL_adc_init()         FilteredADC::init()
+extern uint32_t HAL_adc_reading;
+[[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
+  HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
+}
+[[gnu::always_inline]] inline uint16_t HAL_read_adc() {
+  return HAL_adc_reading;
+}
+
+#define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     FilteredADC::start_conversion(pin)
-#define HAL_READ_ADC()         FilteredADC::get_result()
-#define HAL_ADC_READY()        FilteredADC::finished_conversion()
+#define HAL_START_ADC(pin)     HAL_start_adc(pin)
+#define HAL_READ_ADC()         HAL_read_adc()
+#define HAL_ADC_READY()        (true)
+
+// Test whether the pin is valid
+constexpr bool VALID_PIN(const pin_t pin) {
+  return LPC176x::pin_is_valid(pin);
+}
+
+// Get the analog index for a digital pin
+constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t pin) {
+  return (LPC176x::pin_is_valid(pin) && LPC176x::pin_has_adc(pin)) ? pin : -1;
+}
+
+// Return the index of a pin number
+constexpr int16_t GET_PIN_MAP_INDEX(const pin_t pin) {
+  return LPC176x::pin_index(pin);
+}
+
+// Get the pin number at the given index
+constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
+  return LPC176x::pin_index(index);
+}
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
@@ -153,7 +192,27 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 #define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
 
 #define HAL_IDLETASK 1
-void HAL_idletask(void);
+void HAL_idletask();
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(int16_t value);
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Hardware PWM pins run at the same frequency and all
+ *  Software PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+// Reset source
+void HAL_clear_reset_source(void);
+uint8_t HAL_get_reset_source(void);

@@ -291,7 +291,7 @@ extern "C" {
   //! available greater size, then applies register format of UOTGHS controller
   //! for endpoint size bit-field.
 #undef udd_format_endpoint_size
-#define udd_format_endpoint_size(size)            (32 - clz(((uint32_t)MIN(MAX(size, 8), 1024) << 1) - 1) - 1 - 3)
+#define udd_format_endpoint_size(size)            (32 - clz(((uint32_t)min(max(size, 8), 1024) << 1) - 1) - 1 - 3)
   //! Configures the selected endpoint size
 #define udd_configure_endpoint_size(ep, size)     (Wr_bitfield(UOTGHS_ARRAY(UOTGHS_DEVEPTCFG[0], ep), UOTGHS_DEVEPTCFG_EPSIZE_Msk, udd_format_endpoint_size(size)))
   //! Gets the configured selected endpoint size

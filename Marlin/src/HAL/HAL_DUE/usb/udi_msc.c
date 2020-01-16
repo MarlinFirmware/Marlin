@@ -457,7 +457,7 @@ uint8_t udi_msc_getsetting(void)
 }
 
 
-//---------------------------------------------
+// ------------------------
 //------- Routines to process CBW packet
 
 static void udi_msc_cbw_invalid(void)
@@ -613,7 +613,7 @@ static bool udi_msc_cbw_validate(uint32_t alloc_len, uint8_t dir_flag)
 }
 
 
-//---------------------------------------------
+// ------------------------
 //------- Routines to process small data packet
 
 static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size)
@@ -645,7 +645,7 @@ static void udi_msc_data_sent(udd_ep_status_t status, iram_size_t nb_sent,
 }
 
 
-//---------------------------------------------
+// ------------------------
 //------- Routines to process CSW packet
 
 static void udi_msc_csw_process(void)
@@ -691,7 +691,7 @@ static void udi_msc_csw_sent(udd_ep_status_t status, iram_size_t nb_sent,
 }
 
 
-//---------------------------------------------
+// ------------------------
 //------- Routines manage sense data
 
 static void udi_msc_clear_sense(void)
@@ -757,7 +757,7 @@ static void udi_msc_sense_command_invalid(void)
 }
 
 
-//---------------------------------------------
+// ------------------------
 //------- Routines manage SCSI Commands
 
 static void udi_msc_spc_requestsense(void)

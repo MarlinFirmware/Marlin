@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ void GcodeSuite::T(const uint8_t tool_index) {
 
   #if ENABLED(PRUSA_MMU2)
     if (parser.string_arg) {
-      mmu2.toolChange(parser.string_arg);   // Special commands T?/Tx/Tc
+      mmu2.tool_change(parser.string_arg);   // Special commands T?/Tx/Tc
       return;
     }
   #endif
@@ -68,7 +68,6 @@ void GcodeSuite::T(const uint8_t tool_index) {
 
     tool_change(
       tool_index,
-      MMM_TO_MMS(parser.linearval('F')),
       (tool_index == active_extruder) || parser.boolval('S')
     );
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +31,12 @@
  * M412: Enable / Disable filament runout detection
  */
 void GcodeSuite::M412() {
-  if (parser.seen("HS"
+  if (parser.seen("RS"
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      "D"
+    #endif
     #if ENABLED(HOST_ACTION_COMMANDS)
-      "R"
+      "H"
     #endif
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
@@ -42,11 +45,17 @@ void GcodeSuite::M412() {
     const bool seenR = parser.seen('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      if (parser.seen('D')) runout.set_runout_distance(parser.value_linear_units());
+    #endif
   }
   else {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Filament runout ");
     serialprintln_onoff(runout.enabled);
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", runout.runout_distance());
+    #endif
   }
 }
 

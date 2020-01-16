@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,9 +32,8 @@
 #define digitalRead_mod(p)  digitalRead(p)
 #define PRINT_PORT(p)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
-#define NAME_FORMAT(p) PSTR("%-##p##s")
-#define PRINT_ARRAY_NAME(x)  do {sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer);} while (0)
-#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer);} while (0)
+#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 // active ADC function/mode/code values for PINSEL registers

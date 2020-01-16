@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,4 +93,17 @@ public:
   U8GLIB_TFT_320X240_UPSCALE_FROM_128X64(uint8_t cs, uint8_t rs, uint8_t reset = U8G_PIN_NONE)
   : U8GLIB(&u8g_dev_tft_320x240_upscale_from_128x64, cs, rs, reset)
   { }
+};
+
+
+extern u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, u8g_dev_uc1701_mini12864_HAL_2x_hw_spi;
+
+class U8GLIB_MINI12864_2X_HAL : public U8GLIB {
+public:
+  U8GLIB_MINI12864_2X_HAL(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
+    : U8GLIB(&u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, sck, mosi, cs, a0, reset)
+    { }
+  U8GLIB_MINI12864_2X_HAL(uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
+    : U8GLIB(&u8g_dev_uc1701_mini12864_HAL_2x_hw_spi, cs, a0, reset)
+    { }
 };

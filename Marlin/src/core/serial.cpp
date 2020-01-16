@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,33 +49,26 @@ void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P)
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
+void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=nullptr*/) {
+  if (pre) serialprintPGM(pre);
+  serialprintPGM(onoff ? on : off);
+  if (post) serialprintPGM(post);
+}
 void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) : PSTR(MSG_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
+void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : PSTR("false")); }
 
-void print_bin(const uint16_t val) {
-  uint16_t mask = 0x8000;
+void print_bin(uint16_t val) {
   for (uint8_t i = 16; i--;) {
-    if (i && !(i % 4)) SERIAL_CHAR(' ');
-    SERIAL_CHAR((val & mask) ? '1' : '0');
-    mask >>= 1;
+    SERIAL_CHAR('0' + TEST(val, i));
+    if (!(i & 0x3) && i) SERIAL_CHAR(' ');
   }
 }
 
-#if ENABLED(DEBUG_LEVELING_FEATURE)
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
-  #include "enum.h"
-
-  void print_xyz(PGM_P const prefix, PGM_P const suffix, const float x, const float y, const float z) {
-    serialprintPGM(prefix);
-    SERIAL_CHAR('(');
-    SERIAL_ECHO(x);
-    SERIAL_ECHOPAIR(", ", y, ", ", z);
-    SERIAL_CHAR(')');
-    if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
-  }
-
-  void print_xyz(PGM_P const prefix, PGM_P const suffix, const float xyz[]) {
-    print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
-  }
-
-#endif
+void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+  serialprintPGM(prefix);
+  SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
+  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
+}

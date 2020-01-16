@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,28 +27,28 @@
 
 #if (defined(SERIAL_PORT) && SERIAL_PORT == 0) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 0)
   MarlinSerial MSerial(LPC_UART0);
-  extern "C" void UART0_IRQHandler(void) {
+  extern "C" void UART0_IRQHandler() {
     MSerial.IRQHandler();
   }
 #endif
 
 #if (defined(SERIAL_PORT) && SERIAL_PORT == 1) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 1)
   MarlinSerial MSerial1((LPC_UART_TypeDef *) LPC_UART1);
-  extern "C" void UART1_IRQHandler(void) {
+  extern "C" void UART1_IRQHandler() {
     MSerial1.IRQHandler();
   }
 #endif
 
 #if (defined(SERIAL_PORT) && SERIAL_PORT == 2) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 2)
   MarlinSerial MSerial2(LPC_UART2);
-  extern "C" void UART2_IRQHandler(void) {
+  extern "C" void UART2_IRQHandler() {
     MSerial2.IRQHandler();
   }
 #endif
 
 #if (defined(SERIAL_PORT) && SERIAL_PORT == 3) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 3)
   MarlinSerial MSerial3(LPC_UART3);
-  extern "C" void UART3_IRQHandler(void) {
+  extern "C" void UART3_IRQHandler() {
     MSerial3.IRQHandler();
   }
 #endif

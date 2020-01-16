@@ -27,7 +27,7 @@ extern "C" const UnwTabEntry __exidx_start[];
 extern "C" const UnwTabEntry __exidx_end[];
 
 // Detect if unwind information is present or not
-static int HasUnwindTableInfo(void) {
+static int HasUnwindTableInfo() {
   // > 16 because there are default entries we can't supress
   return ((char*)(&__exidx_end) - (char*)(&__exidx_start)) > 16 ? 1 : 0;
 }

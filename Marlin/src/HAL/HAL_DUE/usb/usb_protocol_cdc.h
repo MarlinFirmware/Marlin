@@ -61,6 +61,8 @@
 #define  CDC_CLASS_DEVICE     0x02	//!< USB Communication Device Class
 #define  CDC_CLASS_COMM       0x02	//!< CDC Communication Class Interface
 #define  CDC_CLASS_DATA       0x0A	//!< CDC Data Class Interface
+#define  CDC_CLASS_MULTI      0xEF      //!< CDC Multi-interface Function
+
 //@}
 
 //! \name USB CDC Subclass IDs

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ void fanmux_switch(const uint8_t e) {
   #endif
 }
 
-void fanmux_init(void) {
+void fanmux_init() {
   SET_OUTPUT(FANMUX0_PIN);
   #if PIN_EXISTS(FANMUX1)
     SET_OUTPUT(FANMUX1_PIN);

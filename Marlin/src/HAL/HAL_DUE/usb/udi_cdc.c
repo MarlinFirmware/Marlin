@@ -458,7 +458,7 @@ void udi_cdc_data_sof_notify(void)
 }
 
 
-//-------------------------------------------------
+// ------------------------
 //------- Internal routines to control serial line
 
 static uint8_t udi_cdc_setup_to_port(void)
@@ -579,7 +579,7 @@ static void udi_cdc_serial_state_msg_sent(udd_ep_status_t status, iram_size_t n,
 }
 
 
-//-------------------------------------------------
+// ------------------------
 //------- Internal routines to process data transfer
 
 
@@ -781,7 +781,7 @@ static void udi_cdc_tx_send(uint8_t port)
 }
 
 
-//---------------------------------------------
+// ------------------------
 //------- Application interface
 
 

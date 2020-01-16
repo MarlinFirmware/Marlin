@@ -1,71 +1,56 @@
-/* **************************************************************************
-
- Marlin 3D Printer Firmware
- Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-
- Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-****************************************************************************/
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifdef __AVR__
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
-// --------------------------------------------------------------------------
-// Externals
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Local defines
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public Variables
-// --------------------------------------------------------------------------
+// ------------------------
 
 //uint8_t MCUSR;
 
-// --------------------------------------------------------------------------
-// Private Variables
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Function prototypes
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Private functions
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
+// ------------------------
 // Public functions
-// --------------------------------------------------------------------------
+// ------------------------
+
+void HAL_init() {
+  // Init Servo Pins
+  #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
+  #if HAS_SERVO_0
+    INIT_SERVO(0);
+  #endif
+  #if HAS_SERVO_1
+    INIT_SERVO(1);
+  #endif
+  #if HAS_SERVO_2
+    INIT_SERVO(2);
+  #endif
+  #if HAS_SERVO_3
+    INIT_SERVO(3);
+  #endif
+}
 
 #if ENABLED(SDSUPPORT)
 

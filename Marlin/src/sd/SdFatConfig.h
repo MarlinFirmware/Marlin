@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 /**
  * SdFatConfig.h
  * Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
@@ -89,12 +89,6 @@
 
 // Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
 #define USE_SOFTWARE_SPI 0
-
-// Define software SPI pins so Mega can use unmodified 168/328 shields
-#define SOFT_SPI_CS_PIN   10 // Software SPI chip select pin for the SD
-#define SOFT_SPI_MOSI_PIN 11 // Software SPI Master Out Slave In pin
-#define SOFT_SPI_MISO_PIN 12 // Software SPI Master In Slave Out pin
-#define SOFT_SPI_SCK_PIN  13 // Software SPI Clock pin
 
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when

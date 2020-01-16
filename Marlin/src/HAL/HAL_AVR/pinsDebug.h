@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,10 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
+#define AVR_ATmega2560_FAMILY_PLUS_70 MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H)
+
 #if AVR_AT90USB1286_FAMILY
+
   // Working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
   // Can't use the "digitalPinToPort" function from the Teensyduino type IDEs
@@ -38,7 +38,9 @@
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort_Teensy(p)
   #define GET_PINMODE(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
+
 #elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70
+
   #include "pinsDebug_plus_70.h"
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer_plus_70(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask_plus_70(p)
@@ -46,11 +48,13 @@
   bool GET_PINMODE(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
 
 #else
+
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
   bool GET_PINMODE(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
   #define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
+
 #endif
 
 #define VALID_PIN(pin) (pin >= 0 && pin < NUM_DIGITAL_PINS ? 1 : 0)
@@ -230,18 +234,8 @@ static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); 
 void com_print(uint8_t N, uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_ECHOPGM("    COM");
-  SERIAL_CHAR(N + '0');
-  switch (Z) {
-    case 'A':
-      SERIAL_ECHOPAIR("A: ", ((*TCCRA & (_BV(7) | _BV(6))) >> 6));
-      break;
-    case 'B':
-      SERIAL_ECHOPAIR("B: ", ((*TCCRA & (_BV(5) | _BV(4))) >> 4));
-      break;
-    case 'C':
-      SERIAL_ECHOPAIR("C: ", ((*TCCRA & (_BV(3) | _BV(2))) >> 2));
-      break;
-  }
+  SERIAL_CHAR('0' + N, 'A' + Z);
+  SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
 }
 
 void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
@@ -252,8 +246,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
   SERIAL_ECHOPGM("    TIMER");
-  SERIAL_CHAR(T + '0');
-  SERIAL_CHAR(L);
+  SERIAL_CHAR(T + '0', L);
   SERIAL_ECHO_SP(3);
 
   if (N == 3) {
@@ -356,6 +349,8 @@ static void pwm_details(uint8_t pin) {
         timer_prefix(0, 'A', 3);
       #endif
     }
+  #else
+    UNUSED(print_is_also_tied);
   #endif
 } // pwm_details
 
@@ -403,4 +398,4 @@ static void pwm_details(uint8_t pin) {
 
 #endif
 
-#define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer);} while (0)
+#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)

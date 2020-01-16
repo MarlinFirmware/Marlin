@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,8 +57,6 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include <U8glib.h>
-
 #include "HAL_LCD_com_defines.h"
 
 #define LCD_PIXEL_WIDTH  128
@@ -76,7 +74,7 @@ static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
 
   0x038,              // 8 Bit interface (DL=1), basic instruction set (RE=0)
   0x00C,              // display on, cursor & blink off; 0x08: all off
-  0x006,              // Entry mode: Cursor move to right ,DDRAM address counter (AC) plus 1, no shift
+  0x006,              // Entry mode: Cursor move to right, DDRAM address counter (AC) plus 1, no shift
   0x002,              // disable scroll, enable CGRAM adress
   0x001,              // clear RAM, needs 1.6 ms
   U8G_ESC_DLY(100),   // delay 100 ms
@@ -203,7 +201,7 @@ u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_f
 U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_hw_spi, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_HAL_fn, U8G_COM_ST7920_HAL_HW_SPI);
 u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_HW_SPI };
 
-#if defined(U8G_HAL_LINKS) || defined(__SAM3X8E__)
+#if NONE(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32) || defined(U8G_HAL_LINKS)
   // Also use this device for HAL version of rrd class. This results in the same device being used
   // for the ST7920 for HAL systems no matter what is selected in ultralcd_impl_DOGM.h.
   u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };

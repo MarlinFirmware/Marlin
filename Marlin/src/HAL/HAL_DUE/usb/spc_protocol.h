@@ -43,12 +43,12 @@
  * \asf_license_stop
  *
  */
+
 /*
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
-#ifndef  _SPC_PROTOCOL_H_
-#define  _SPC_PROTOCOL_H_
-
+#ifndef _SPC_PROTOCOL_H_
+#define _SPC_PROTOCOL_H_
 
 /**
  * \ingroup usb_msc_protocol

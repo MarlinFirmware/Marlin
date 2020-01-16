@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // NOTE - the HAL version of the rrd device uses a generic ST7920 device.  See the
 // file u8g_dev_st7920_128x64_HAL.cpp for the HAL version.
 
 #include "../../inc/MarlinConfig.h"
-
-#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
-
 #include "../../HAL/shared/Delay.h"
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
@@ -51,11 +49,11 @@
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(50)
-#elif MB(3DRAG) || MB(K8200) || MB(K8400) || MB(SILVER_GATE)
+#elif MB(3DRAG, K8200, K8400, SILVER_GATE)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(188)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)
-#elif MB(MINIRAMBO) || MB(EINSY_RAMBO) || MB(EINSY_RETRO)
+#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(250)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)
@@ -93,5 +91,3 @@ void ST7920_SWSPI_SND_8BIT(uint8_t val);
 #define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); U8G_DELAY(); }
 #define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4u)); U8G_DELAY(); }
 #define ST7920_WRITE_BYTES(p,l)  { for (uint8_t i = l + 1; --i;) { ST7920_SWSPI_SND_8BIT(*p&0xF0); ST7920_SWSPI_SND_8BIT(*p<<4); p++; } U8G_DELAY(); }
-
-#endif // U8GLIB_ST7920 && !U8G_HAL_LINKS && !__SAM3X8E__
