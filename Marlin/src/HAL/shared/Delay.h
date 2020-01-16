@@ -145,7 +145,7 @@
   }
   #undef nop
 
-#elif ANY(__PLAT_LINUX__, ESP32)
+#elif defined(__PLAT_LINUX__) || defined(ESP32)
 
   // specified inside platform
 
