@@ -1948,8 +1948,7 @@
 //#define FYSETC_MINI_12864_1_2    // Type C/D/E/F. Simple RGB Backlight (always on)
 //#define FYSETC_MINI_12864_2_0    // Type A/B. Discreet RGB Backlight
 //#define FYSETC_MINI_12864_2_1    // Type A/B. Neopixel RGB Backlight
-#define FYSETC_GENERIC_12864_1_1 // Like FYSETC_MINI_12864 but bigger and need to control backlight
-
+//#define FYSETC_GENERIC_12864_1_1 // Larger display with basic ON/OFF backlight.
 
 //
 // Factory display for Creality CR-10

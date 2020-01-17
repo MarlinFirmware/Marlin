@@ -39,7 +39,7 @@
 
 //
 // EEPROM Emulation
-// 
+//
 #define FLASH_EEPROM_EMULATION
 //#define SRAM_EEPROM_EMULATION
 //#define I2C_EEPROM
@@ -98,10 +98,9 @@
 #define E2_CS_PIN          PC15
 
 #if HAS_TMC220x
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   *
-   */
+  //
+  // TMC2208/TMC2209 stepper drivers
+  //
 
   //
   // Software serial
@@ -197,7 +196,7 @@
     #define LCD_PINS_ENABLE PC11
     #define LCD_PINS_D4    PC10
 
-    #if ENABLED(FYSETC_MINI_12864)    
+    #if ENABLED(FYSETC_MINI_12864)
      // See https://wiki.fysetc.com/Mini12864_Panel
       #define DOGLCD_CS    PC11
       #define DOGLCD_A0    PD2
