@@ -44,12 +44,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PD3
-#define X_MAX_PIN          PD3
-#define Y_MIN_PIN          PD2
-#define Y_MAX_PIN          PD2
-#define Z_MIN_PIN          PD1
-#define Z_MAX_PIN          PD1
+#define X_STOP_PIN          PD3
+#define Y_STOP_PIN          PD2
+#define Z_STOP_PIN          PD1
 
 //
 // Z Probe must be this pin
