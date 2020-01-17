@@ -751,7 +751,7 @@ void minkill(const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
   // Power off all steppers (for M112) or just the E steppers
-  steppers_off ? disable_all_steppers() : disable_e_steppers();
+  steppers_off ? disable_e_steppers() : disable_all_steppers();
 
   #if ENABLED(PSU_CONTROL)
     PSU_OFF();
