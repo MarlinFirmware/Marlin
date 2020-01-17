@@ -34,8 +34,8 @@ enum TempSensorID : uint8_t {
 
 typedef struct {
   uint8_t measurements; // Max. number of measurements to be stored (35 - 80°C)
-  float   start_temp,   // Base measurement; z-offset == 0
-          temp_res,     // Resolution in °C between measurements
+  float   temp_res,     // Resolution in °C between measurements
+          start_temp,   // Base measurement; z-offset == 0
           end_temp;
 } temp_calib_t;
 
@@ -48,10 +48,10 @@ class ProbeTempComp {
   public:
 
     static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-      { 10,  30,  5, 10 + ( 30 *  5) },       // Probe
-      { 10,  60,  5, 10 + ( 60 *  5) },       // Bed
+        {  30, 10,  5,  30 + 10 *  5 },       // Probe
+        {  60, 10,  5,  60 + 10 *  5 },       // Bed
       #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        {  5, 180, 20,  5 + (180 * 20) }      // Extruder
+        { 180,  5, 20, 180 +  5 * 20 }        // Extruder
       #endif
     };
     static const temp_calib_t cali_info[TSI_COUNT];
