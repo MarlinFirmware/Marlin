@@ -1571,6 +1571,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_SENSOR_5 shouldn't be set with only 1 HOTEND."
 #endif
 
+#if TEMP_SENSOR_PROBE
+  #if !PIN_EXISTS(TEMP_PROBE)
+    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
+  #elif !HAS_TEMP_ADC_PROBE
+    #error "TEMP_PROBE_PIN must be an ADC pin."
+  #elif !ENABLED(FIX_MOUNTED_PROBE)
+    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
+  #endif
+#endif
+
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
 #endif
