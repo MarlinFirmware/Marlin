@@ -486,6 +486,10 @@
     TMC_GLOBAL_SCALER,
     TMC_CS_ACTUAL,
     TMC_PWM_SCALE,
+    TMC_PWM_SCALE_SUM,
+    TMC_PWM_SCALE_AUTO,
+    TMC_PWM_OFS_AUTO,
+    TMC_PWM_GRAD_AUTO,
     TMC_VSENSE,
     TMC_STEALTHCHOP,
     TMC_MICROSTEPS,
@@ -598,7 +602,10 @@
   #if HAS_TMC220x
     static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
-        case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
+        case TMC_PWM_SCALE_SUM: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
+        case TMC_PWM_SCALE_AUTO: SERIAL_PRINT(st.pwm_scale_auto(), DEC); break;
+        case TMC_PWM_OFS_AUTO: SERIAL_PRINT(st.pwm_ofs_auto(), DEC); break;
+        case TMC_PWM_GRAD_AUTO: SERIAL_PRINT(st.pwm_grad_auto(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
         case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
@@ -900,6 +907,14 @@
       TMC_REPORT("OT prewarn has\n"
                  "been triggered",   TMC_OTPW_TRIGGERED);
     #endif
+
+    #if HAS_TMC220x
+      TMC_REPORT("pwm scale sum",     TMC_PWM_SCALE_SUM);
+      TMC_REPORT("pwm scale auto",    TMC_PWM_SCALE_AUTO);
+      TMC_REPORT("pwm offset auto",   TMC_PWM_OFS_AUTO);
+      TMC_REPORT("pwm grad auto",     TMC_PWM_GRAD_AUTO);
+    #endif
+
     TMC_REPORT("off time",           TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
     TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
