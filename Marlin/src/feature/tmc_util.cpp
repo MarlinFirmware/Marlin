@@ -498,7 +498,8 @@
     TMC_TBL,
     TMC_HEND,
     TMC_HSTRT,
-    TMC_SGT
+    TMC_SGT,
+    TMC_MSCNT
   };
   enum TMC_drv_status_enum : char {
     TMC_DRV_CODES,
@@ -677,6 +678,7 @@
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
       case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
       case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
+      case TMC_MSCNT: SERIAL_PRINT(st.MSCNT(), DEC); break;
       default: _tmc_status(st, i); break;
     }
   }
@@ -903,6 +905,8 @@
     TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
     TMC_REPORT("-start\t",           TMC_HSTRT);
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
+
+    TMC_REPORT("Microstep count",    TMC_MSCNT);
 
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
     #if HAS_TMCX1X0
