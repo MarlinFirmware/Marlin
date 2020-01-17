@@ -159,17 +159,17 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // T1 <-> E0
-#define TEMP_1_PIN         PA1   // T2 <-> E1
-#define TEMP_BED_PIN       PA2   // T0 <-> Bed
+#define TEMP_0_PIN         PA2  // T0 <-> E0
+#define TEMP_1_PIN         PA0  // T1 <-> E1  // Not used on the MK3
+#define TEMP_BED_PIN       PA1  // T2 <-> Bed
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       PE6   // Heater0
 #define HEATER_BED_PIN     PE5   // Hotbed
-#define FAN_PIN            PB9   // Fan0
-#define FAN1_PIN           PB8   // Fan1
+#define FAN_PIN            PB8   // Fan1
+#define FAN1_PIN           PB9   // Fan0
 
 // HAL SPI1 pins
 #define CUSTOM_SPI_PINS
