@@ -43,7 +43,7 @@ xyze_uint_t mcp4728_values;
  */
 void mcp4728_init() {
   Wire.begin();
-  Wire.requestFrom(int(DAC_DEV_ADDRESS), 24);
+  Wire.requestFrom(I2C_ADDRESS(DAC_DEV_ADDRESS), 24);
   while (Wire.available()) {
     char deviceID = Wire.read(),
          hiByte = Wire.read(),

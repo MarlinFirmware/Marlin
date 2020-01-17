@@ -118,7 +118,7 @@
 #define MISO_PIN           19
 #define SCK_PIN            18
 #define SDSS                5
-#define HAS_SHARED_SPI  // SPI is shared by SD card with TMC SPI drivers
+#define USES_SHARED_SPI  // SPI is shared by SD card with TMC SPI drivers
 
 //////////////////////////
 // LCDs and Controllers //
