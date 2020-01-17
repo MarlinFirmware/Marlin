@@ -125,7 +125,7 @@ void HAL_adc_init();
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
-void HAL_adc_start_conversion(uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
