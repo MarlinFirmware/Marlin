@@ -227,8 +227,6 @@
 
   #if ENABLED(FYSETC_GENERIC_12864_1_1)
     #define LCD_BACKLIGHT_PIN 27
-  #else
-    #define LCD_BACKLIGHT_PIN -1
   #endif
   #define KILL_PIN         41
 
