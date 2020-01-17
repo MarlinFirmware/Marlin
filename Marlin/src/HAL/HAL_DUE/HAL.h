@@ -148,16 +148,16 @@ extern uint16_t HAL_adc_result;     // result of last ADC conversion
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif
 
-#define HAL_ANALOG_SELECT(pin)
+#define HAL_ANALOG_SELECT(ch)
 
 inline void HAL_adc_init() {}//todo
 
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_START_ADC(ch)   HAL_adc_start_conversion(ch)
 #define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
-void HAL_adc_start_conversion(const uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t ch);
 uint16_t HAL_adc_get_result();
 
 //
