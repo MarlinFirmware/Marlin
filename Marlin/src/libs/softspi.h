@@ -66,7 +66,8 @@
      * @return value read
      */
     FORCE_INLINE static bool fastDigitalRead(uint8_t pin) {
-      return g_APinDescription[pin].pPort->PIO_PDSR & g_APinDescription[pin].ulPin;
+      return digitalRead(pin);
+      //return g_APinDescription[pin].pPort->PIO_PDSR & g_APinDescription[pin].ulPin;
     }
 
     /**
@@ -75,10 +76,12 @@
      * @param[in] level value to write
      */
     FORCE_INLINE static void fastDigitalWrite(uint8_t pin, bool value) {
-      if (value)
+      digitalWrite(pin, value);
+    /*  if (value)
         g_APinDescription[pin].pPort->PIO_SODR = g_APinDescription[pin].ulPin;
       else
         g_APinDescription[pin].pPort->PIO_CODR = g_APinDescription[pin].ulPin;
+        */
     }
 
   #endif // !CORE_TEENSY

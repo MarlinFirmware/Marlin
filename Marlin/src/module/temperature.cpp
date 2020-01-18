@@ -39,19 +39,19 @@
 #if ENABLED(MAX6675_IS_MAX31865)
   #include "Adafruit_MAX31865.h"
   #ifndef MAX31865_CS_PIN
-    #define MAX31865_CS_PIN     MAX6675_SS_PIN  // HW:49   SW:65    for example
+    #define MAX31865_CS_PIN     CS_PIN      // HW:49   SW:65    for example
   #endif
   #ifndef MAX31865_MOSI_PIN
-    #define MAX31865_MOSI_PIN   MOSI_PIN        //            63
+    #define MAX31865_MOSI_PIN   MOSI_PIN    //            63
   #endif
   #ifndef MAX31865_MISO_PIN
-    #define MAX31865_MISO_PIN   MAX6675_DO_PIN  //            42
+    #define MAX31865_MISO_PIN   MISO_PIN    //            42
   #endif
   #ifndef MAX31865_SCK_PIN
-    #define MAX31865_SCK_PIN    MAX6675_SCK_PIN //            40
+    #define MAX31865_SCK_PIN    SCK_PIN     //            40
   #endif
   Adafruit_MAX31865 max31865 = Adafruit_MAX31865(MAX31865_CS_PIN
-    #if MAX31865_CS_PIN != MAX6675_SS_PIN
+    #if MAX31865_CS_PIN != CS_PIN
       , MAX31865_MOSI_PIN           // For software SPI also set MOSI/MISO/SCK
       , MAX31865_MISO_PIN
       , MAX31865_SCK_PIN
@@ -893,7 +893,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
               pid_output += work_pid[ee].Kc;
             }
           #endif // PID_EXTRUSION_SCALING
-
           #if ENABLED(PID_FAN_SCALING)
             if (thermalManager.fan_speed[active_extruder] > PID_FAN_SCALING_MIN_SPEED) {
               work_pid[ee].Kf = PID_PARAM(Kf, ee) + (PID_FAN_SCALING_LIN_FACTOR) * thermalManager.fan_speed[active_extruder];
@@ -902,7 +901,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
             //pid_output -= work_pid[ee].Ki;
             //pid_output += work_pid[ee].Ki * work_pid[ee].Kf
           #endif // PID_FAN_SCALING
-
           LIMIT(pid_output, 0, PID_MAX);
         }
         temp_dState[ee] = temp_hotend[ee].celsius;
@@ -1689,6 +1687,15 @@ void Temperature::init() {
   #endif
   #if HAS_FAN2
     INIT_FAN_PIN(FAN2_PIN);
+  #endif
+    #if HAS_FAN3
+    INIT_FAN_PIN(FAN3_PIN);
+  #endif
+  #if HAS_FAN4
+    INIT_FAN_PIN(FAN4_PIN);
+  #endif
+  #if HAS_FAN5
+    INIT_FAN_PIN(FAN5_PIN);
   #endif
   #if ENABLED(USE_CONTROLLER_FAN)
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
@@ -2508,6 +2515,15 @@ void Temperature::tick() {
         #if HAS_FAN2
           _FAN_PWM(2);
         #endif
+        #if HAS_FAN3
+          _FAN_PWM(3);
+        #endif
+        #if HAS_FAN4
+          _FAN_PWM(4);
+        #endif
+        #if HAS_FAN5
+          _FAN_PWM(5);
+        #endif
       #endif
     }
     else {
@@ -2534,6 +2550,15 @@ void Temperature::tick() {
         #endif
         #if HAS_FAN2
           if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
+        #endif
+        #if HAS_FAN3
+          if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
+        #endif
+        #if HAS_FAN4
+          if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW);
+        #endif
+        #if HAS_FAN5
+          if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
         #endif
       #endif
     }
@@ -2599,6 +2624,15 @@ void Temperature::tick() {
         #if HAS_FAN2
           _PWM_FAN(2);
         #endif
+        #if HAS_FAN3
+          _FAN_PWM(3);
+        #endif
+        #if HAS_FAN4
+          _FAN_PWM(4);
+        #endif
+        #if HAS_FAN5
+          _FAN_PWM(5);
+        #endif
       }
       #if HAS_FAN0
         if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
@@ -2608,6 +2642,15 @@ void Temperature::tick() {
       #endif
       #if HAS_FAN2
         if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
+      #endif
+      #if HAS_FAN3
+        if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
+      #endif
+      #if HAS_FAN4
+        if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW);
+      #endif
+      #if HAS_FAN5
+        if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
       #endif
     #endif // FAN_SOFT_PWM
 

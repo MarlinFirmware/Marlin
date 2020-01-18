@@ -532,6 +532,8 @@
   #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BIGTREE_GTR_V1_0)
+  #include "stm32/pins_BTT_GTR_V1_0.h"          // STM32F4                                env:BIGTREE_GTR
 #elif MB(BIGTREE_BTT002_V1_0)
   #include "stm32/pins_BTT_BTT002_V1_0.h"       // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
