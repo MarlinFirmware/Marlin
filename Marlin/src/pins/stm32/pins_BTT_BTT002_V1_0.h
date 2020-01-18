@@ -29,7 +29,9 @@
 
 #define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
-#define SRAM_EEPROM_EMULATION
+// Use one of these or SDCard-based Emulation will be used
+//#define SRAM_EEPROM_EMULATION   // Use BackSRAM-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION  // Use Flash-based EEPROM emulation
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

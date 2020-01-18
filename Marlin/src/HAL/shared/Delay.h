@@ -145,21 +145,7 @@
   }
   #undef nop
 
-#elif defined(ESP32)
-
-  FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
-    unsigned long ccount, stop;
-
-    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
-
-    stop = ccount + x; // This can overflow
-
-    while (ccount < stop) { // This doesn't deal with overflows
-      __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
-    }
-  }
-
-#elif defined(__PLAT_LINUX__)
+#elif defined(__PLAT_LINUX__) || defined(ESP32)
 
   // specified inside platform
 

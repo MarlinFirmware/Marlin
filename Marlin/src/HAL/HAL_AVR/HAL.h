@@ -358,9 +358,9 @@ void TIMER0_COMPB_vect_bottom()
 
 // ADC
 #ifdef DIDR2
-  #define HAL_ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin & 0x07); }while(0)
+  #define HAL_ANALOG_SELECT(ind) do{ if (ind < 8) SBI(DIDR0, ind); else SBI(DIDR2, ind & 0x07); }while(0)
 #else
-  #define HAL_ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
+  #define HAL_ANALOG_SELECT(ind) SBI(DIDR0, ind);
 #endif
 
 inline void HAL_adc_init() {
@@ -371,11 +371,11 @@ inline void HAL_adc_init() {
   #endif
 }
 
-#define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
+#define SET_ADMUX_ADCSRA(ch) ADMUX = _BV(REFS0) | (ch & 0x07); SBI(ADCSRA, ADSC)
 #ifdef MUX5
-  #define HAL_START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+  #define HAL_START_ADC(ch) if (ch > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
 #else
-  #define HAL_START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+  #define HAL_START_ADC(ch) ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
 #endif
 
 #define HAL_ADC_RESOLUTION 10

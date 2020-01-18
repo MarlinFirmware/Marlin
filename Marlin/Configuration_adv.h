@@ -368,7 +368,7 @@
  * FAST_PWM_FAN_FREQUENCY [undefined by default]
  *   Set this to your desired frequency.
  *   If left undefined this defaults to F = F_CPU/(2*255*1)
- *   ie F = 31.4 Khz on 16 MHz microcontrollers or F = 39.2 KHz on 20 MHz microcontrollers
+ *   i.e., F = 31.4kHz on 16MHz microcontrollers or F = 39.2kHz on 20MHz microcontrollers.
  *   These defaults are the same as with the old FAST_PWM_FAN implementation - no migration is required
  *   NOTE: Setting very low frequencies (< 10 Hz) may result in unexpected timer behavior.
  *
@@ -1379,6 +1379,13 @@
   //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
 #endif
 
+//
+// ADC Button Debounce
+//
+#if HAS_ADC_BUTTONS
+  #define ADC_BUTTON_DEBOUNCE_DELAY 16  // (ms) Increase if buttons bounce or repeat too fast
+#endif
+
 // @section safety
 
 /**
@@ -1520,6 +1527,38 @@
   #define G29_RECOVER_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
   #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG4 S1"
 
+#endif
+
+/**
+ * Thermal Probe Compensation
+ * Probe measurements are adjusted to compensate for temperature distortion.
+ * Use G76 to calibrate this feature. Use M871 to set values manually.
+ * For a more detailed explanation of the process see G76_M871.cpp.
+ */
+#if HAS_BED_PROBE && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+  // Enable thermal first layer compensation using bed and probe temperatures
+  #define PROBE_TEMP_COMPENSATION
+
+  // Add additional compensation depending on hotend temperature
+  // Note: this values cannot be calibrated and have to be set manually
+  #ifdef PROBE_TEMP_COMPENSATION
+    // Max temperature that can be reached by heated bed.
+    // This is required only for the calibration process.
+    #define PTC_MAX_BED_TEMP 110
+
+    // Park position to wait for probe cooldown
+    #define PTC_PARK_POS_X 0.0F
+    #define PTC_PARK_POS_Y 0.0F
+    #define PTC_PARK_POS_Z 100.0F
+
+    // Probe position to probe and wait for probe to reach target temperature
+    #define PTC_PROBE_POS_X  90.0F
+    #define PTC_PROBE_POS_Y 100.0F
+
+    // Enable additional compensation using hotend temperature
+    // Note: this values cannot be calibrated automatically but have to be set manually
+    //#define USE_TEMP_EXT_COMPENSATION
+  #endif
 #endif
 
 // @section extras
@@ -2252,7 +2291,7 @@
                                     //   POWERSTEP01: VALID: 200 x (1 - 32) - 6.4A max - rounds down
                                     //   L6474 - STALLCURRENT setting is used to set the nominal (TVAL) current
     #define X_MAX_VOLTAGE      127  // 0-255, Maximum effective voltage seen by stepper - not used by L6474
-    #define X_CHAIN_POS          0  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
+    #define X_CHAIN_POS         -1  // Position in SPI chain, 0=Not in chain, 1=Nearest MOSI
     #define X_SLEW_RATE          1  // 0-3, Slew 0 is slowest, 3 is fastest
   #endif
 
@@ -2261,7 +2300,7 @@
     #define X2_OVERCURRENT    2000
     #define X2_STALLCURRENT   1500
     #define X2_MAX_VOLTAGE     127
-    #define X2_CHAIN_POS         0
+    #define X2_CHAIN_POS        -1
     #define X2_SLEW_RATE         1
   #endif
 
@@ -2270,7 +2309,7 @@
     #define Y_OVERCURRENT     2000
     #define Y_STALLCURRENT    1500
     #define Y_MAX_VOLTAGE      127
-    #define Y_CHAIN_POS          0
+    #define Y_CHAIN_POS         -1
     #define Y_SLEW_RATE          1
   #endif
 
@@ -2279,7 +2318,7 @@
     #define Y2_OVERCURRENT    2000
     #define Y2_STALLCURRENT   1500
     #define Y2_MAX_VOLTAGE     127
-    #define Y2_CHAIN_POS         0
+    #define Y2_CHAIN_POS        -1
     #define Y2_SLEW_RATE         1
   #endif
 
@@ -2288,7 +2327,7 @@
     #define Z_OVERCURRENT     2000
     #define Z_STALLCURRENT    1500
     #define Z_MAX_VOLTAGE      127
-    #define Z_CHAIN_POS          0
+    #define Z_CHAIN_POS         -1
     #define Z_SLEW_RATE          1
   #endif
 
@@ -2297,7 +2336,7 @@
     #define Z2_OVERCURRENT    2000
     #define Z2_STALLCURRENT   1500
     #define Z2_MAX_VOLTAGE     127
-    #define Z2_CHAIN_POS         0
+    #define Z2_CHAIN_POS        -1
     #define Z2_SLEW_RATE         1
   #endif
 
@@ -2306,7 +2345,7 @@
     #define Z3_OVERCURRENT    2000
     #define Z3_STALLCURRENT   1500
     #define Z3_MAX_VOLTAGE     127
-    #define Z3_CHAIN_POS         0
+    #define Z3_CHAIN_POS        -1
     #define Z3_SLEW_RATE         1
   #endif
 
@@ -2315,7 +2354,7 @@
     #define E0_OVERCURRENT    2000
     #define E0_STALLCURRENT   1500
     #define E0_MAX_VOLTAGE     127
-    #define E0_CHAIN_POS         0
+    #define E0_CHAIN_POS        -1
     #define E0_SLEW_RATE         1
   #endif
 
@@ -2324,7 +2363,7 @@
     #define E1_OVERCURRENT    2000
     #define E1_STALLCURRENT   1500
     #define E1_MAX_VOLTAGE     127
-    #define E1_CHAIN_POS         0
+    #define E1_CHAIN_POS        -1
     #define E1_SLEW_RATE         1
   #endif
 
@@ -2333,7 +2372,7 @@
     #define E2_OVERCURRENT    2000
     #define E2_STALLCURRENT   1500
     #define E2_MAX_VOLTAGE     127
-    #define E2_CHAIN_POS         0
+    #define E2_CHAIN_POS        -1
     #define E2_SLEW_RATE         1
   #endif
 
@@ -2342,7 +2381,7 @@
     #define E3_OVERCURRENT    2000
     #define E3_STALLCURRENT   1500
     #define E3_MAX_VOLTAGE     127
-    #define E3_CHAIN_POS         0
+    #define E3_CHAIN_POS        -1
     #define E3_SLEW_RATE         1
   #endif
 
@@ -2351,7 +2390,7 @@
     #define E4_OVERCURRENT    2000
     #define E4_STALLCURRENT   1500
     #define E4_MAX_VOLTAGE     127
-    #define E4_CHAIN_POS         0
+    #define E4_CHAIN_POS        -1
     #define E4_SLEW_RATE         1
   #endif
 
@@ -2360,7 +2399,7 @@
     #define E5_OVERCURRENT    2000
     #define E5_STALLCURRENT   1500
     #define E5_MAX_VOLTAGE     127
-    #define E5_CHAIN_POS         0
+    #define E5_CHAIN_POS        -1
     #define E5_SLEW_RATE         1
   #endif
 
@@ -2449,6 +2488,20 @@
 
   // Duration to hold the switch or keep CHDK_PIN high
   //#define PHOTO_SWITCH_MS   50 // (ms) (M240 D)
+
+  /**
+   * PHOTO_PULSES_US may need adjustment depending on board and camera model.
+   * Pin must be running at 48.4kHz.
+   * Be sure to use a PHOTOGRAPH_PIN which can rise and fall quick enough.
+   * (e.g., MKS SBase temp sensor pin was too slow, so used P1.23 on J8.)
+   *
+   *  Example pulse data for Nikon: https://bit.ly/2FKD0Aq
+   *                     IR Wiring: https://git.io/JvJf7
+   */
+  //#define PHOTO_PULSES_US { 2000, 27850, 400, 1580, 400, 3580, 400 }  // (µs) Durations for each 48.4kHz oscillation
+  #ifdef PHOTO_PULSES_US
+    #define PHOTO_PULSE_DELAY_US 13 // (µs) Approximate duration of each HIGH and LOW pulse in the oscillation
+  #endif
 #endif
 
 /**

@@ -6,8 +6,6 @@
 # exit on first failure
 set -e
 
-backup_ramps     # pins_set is used below...
-
 restore_configs
 opt_set LCD_LANGUAGE bg
 opt_set MOTHERBOARD BOARD_RAMPS4DUE_EFB
