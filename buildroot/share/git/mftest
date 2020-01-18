@@ -34,6 +34,7 @@ case $TESTENV in
      f1)  TESTENV='STM32F103RE' ;;
      f4)  TESTENV='STM32F4' ;;
      f7)  TESTENV='STM32F7' ;;
+     s6)  TESTENV='FYSETC_S6' ;;
   teensy) TESTENV='teensy31' ;;
      t31) TESTENV='teensy31' ;;
      t32) TESTENV='teensy31' ;;

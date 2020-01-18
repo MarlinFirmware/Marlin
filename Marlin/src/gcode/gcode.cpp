@@ -323,6 +323,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 59: G59(); break;
       #endif
 
+      #if ENABLED(PROBE_TEMP_COMPENSATION)
+        case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
+      #endif
+
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
@@ -753,6 +757,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         M810_819(); break;                                        // M810-M819: Define/execute G-code macro
       #endif
 
+      #if ENABLED(PROBE_TEMP_COMPENSATION)
+        case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
+      #endif
+
       #if ENABLED(LIN_ADVANCE)
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
@@ -786,7 +794,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if HAS_DRIVER(L6470)
+      #if HAS_L64XX
         case 122: M122(); break;                                   // M122: Report status
         case 906: M906(); break;                                   // M906: Set or get motor drive level
         case 916: M916(); break;                                   // M916: L6470 tuning: Increase drive level until thermal warning

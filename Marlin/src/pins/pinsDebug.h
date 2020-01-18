@@ -55,7 +55,7 @@
   #elif SERIAL_PORT == 2
     static const char RXD_NAME_2[] PROGMEM = { "RXD2" };
     static const char TXD_NAME_2[] PROGMEM = { "TXD2" };
-  #elif SERIAL_PORT == 3 
+  #elif SERIAL_PORT == 3
     static const char RXD_NAME_3[] PROGMEM = { "RXD3" };
     static const char TXD_NAME_3[] PROGMEM = { "TXD3" };
   #endif

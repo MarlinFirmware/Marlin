@@ -68,7 +68,7 @@ void dac_current_percent(uint8_t channel, float val) {
 void dac_current_raw(uint8_t channel, uint16_t val) {
   if (!dac_present) return;
 
-  NOMORE(val, DAC_STEPPER_MAX);
+  NOMORE(val, uint16_t(DAC_STEPPER_MAX));
 
   mcp4728_analogWrite(dac_order[channel], val);
   mcp4728_simpleCommand(UPDATE);

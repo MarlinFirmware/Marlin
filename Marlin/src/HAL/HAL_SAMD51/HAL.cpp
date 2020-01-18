@@ -426,7 +426,7 @@ void HAL_adc_init() {
     memset(HAL_adc_results, 0xFF, sizeof(HAL_adc_results));                 // Fill result with invalid values
 
     for (uint8_t pi = 0; pi < COUNT(adc_pins); ++pi)
-        pinPeripheral(adc_pins[pi], PIO_ANALOG);
+      pinPeripheral(adc_pins[pi], PIO_ANALOG);
 
     for (uint8_t ai = FIRST_ADC; ai <= LAST_ADC; ++ai) {
       Adc* adc = ((Adc*[])ADC_INSTS)[ai];
@@ -469,10 +469,6 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   #endif
 
   HAL_adc_result = 0xFFFF;
-}
-
-uint16_t HAL_adc_get_result() {
-  return HAL_adc_result;
 }
 
 #endif // __SAMD51__

@@ -94,7 +94,7 @@ extern "C" {
 }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  uint16_t pin = pin2sc1a[adc_pin];
+  const uint16_t pin = pin2sc1a[adc_pin];
   if (pin == 0xFF) {
     // Digital only
     HAL_adc_select = -1;
