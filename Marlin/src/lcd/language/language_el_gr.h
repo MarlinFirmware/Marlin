@@ -120,7 +120,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("Vμεγ ") LCD_STR_B;
   PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("Vμεγ ") LCD_STR_C;
   PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Vμεγ ") LCD_STR_E;
-  PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Vμεγ *");
+  PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("Vμεγ *");
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("Vελαχ");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("Vελάχ. μετατόπιση");
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Accel");
