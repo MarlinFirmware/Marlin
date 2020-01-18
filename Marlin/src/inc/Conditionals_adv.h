@@ -135,8 +135,3 @@
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
 #endif
-
-// G60/G61 Position Save
-#if NUM_POSITION_SLOTS > 5
-  #error "NUM_POSITION_SLOTS must be an integer from 1 to 5."
-#endif
