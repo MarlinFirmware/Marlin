@@ -711,7 +711,7 @@ class Temperature {
       static void setTargetChamber(const int16_t celsius) {
         temp_chamber.target =
           #ifdef CHAMBER_MAXTEMP
-            _MIN(celsius, CHAMBER_MAXTEMP)
+            _MIN(celsius, CHAMBER_MAXTEMP - 10)
           #else
             celsius
           #endif
