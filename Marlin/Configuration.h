@@ -86,8 +86,8 @@
  */
 
 // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
-#define SHOW_BOOTSCREEN
-
+//#define SHOW_BOOTSCREEN
+//#define STRING_SPLASH_LINE3 __DATE__ " " __TIME__
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
 //#define SHOW_CUSTOM_BOOTSCREEN
 
@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "SKR E12"
+#define CUSTOM_MACHINE_NAME __DATE__ " " __TIME__
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -491,9 +491,14 @@
   //#define DEFAULT_Kd 440
 
   // ANET e12 Firmware V2.0 Standard Extruder SETTINGS:
-  #define  DEFAULT_Kp 22.81
-  #define  DEFAULT_Ki 1.47
-  #define  DEFAULT_Kd 88.3
+  //#define  DEFAULT_Kp 22.81
+  //#define  DEFAULT_Ki 1.47
+  //#define  DEFAULT_Kd 88.3
+
+  //SKR E12 volcano
+  #define  DEFAULT_Kp 20.24
+  #define  DEFAULT_Ki 2.03
+  #define  DEFAULT_Kd 50.65
 
 #endif // PIDTEMP
 
@@ -573,7 +578,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 200
+#define EXTRUDE_MAXLENGTH 600
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -594,7 +599,7 @@
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
+//#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -734,14 +739,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }   //{ 80, 80, 4000, 500 } //E16 { 100, 100, 400, 100 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160.48, 160.64, 800, 95 } //E12{ 80, 80, 400, 95 }   //{ 80, 80, 4000, 500 } //E16 { 100, 100, 400, 100 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 400, 400, 4, 25 }   //{ 300, 300, 5, 25 }  //E16   { 300, 300, 50, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 } //E12 { 400, 400, 5, 25 } //{ 300, 300, 5, 25 }  //E16   { 300, 300, 50, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -754,7 +759,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 9000, 5000, 50, 10000 }   //E16 { 2000, 2000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION       { 2000, 2000, 200, 2000 }//E12{ 9000, 5000, 50, 10000 }   //E16 { 2000, 2000, 100, 10000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -793,7 +798,7 @@
   #endif
 #endif
 
-#define DEFAULT_EJERK    10.0  //5.0 May be used by Linear Advance  //E16 5.0
+#define DEFAULT_EJERK    5.0  //5.0 May be used by Linear Advance  //E16 5.0
 
 /**
  * Junction Deviation Factor
@@ -937,18 +942,18 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 10, 0 } //E16 10 10  00 //marlin 10 10 00
+#define NOZZLE_TO_PROBE_OFFSET { -35, 8, -3.1}
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 10
+#define MIN_PROBE_EDGE 70 //85 //45 //10
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 6000  //8000   //E16 6000
+#define XY_PROBE_SPEED 8000   //E16 6000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Feedrate (mm/m) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+#define Z_PROBE_SPEED_SLOW HOMING_FEEDRATE_Z //(Z_PROBE_SPEED_FAST / 2)
 
 /**
  * Multiple Probing
@@ -976,7 +981,7 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_DEPLOY_PROBE   8 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
@@ -1037,12 +1042,12 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR false
+#define INVERT_Z_DIR true
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false            //E16 false
+#define INVERT_E0_DIR true            //E16 false
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1055,7 +1060,7 @@
 
 //#define UNKNOWN_Z_NO_RAISE // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
-#define Z_HOMING_HEIGHT 8  // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
+#define Z_HOMING_HEIGHT 10  // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
@@ -1067,12 +1072,12 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 296
-#define Y_BED_SIZE 296
+#define X_BED_SIZE 295
+#define Y_BED_SIZE 290
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -5   //0
-#define Y_MIN_POS -26  //0
+#define X_MIN_POS 0   //0
+#define Y_MIN_POS -52 //pour avoir la buse dans le vide a 5mm du //-57  //0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1187,7 +1192,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-//#define RESTORE_LEVELING_AFTER_G28   //E16 enable
+#define RESTORE_LEVELING_AFTER_G28   //E16 enable
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -1211,9 +1216,9 @@
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-  //#define G26_MESH_VALIDATION
+  #define G26_MESH_VALIDATION
   #if ENABLED(G26_MESH_VALIDATION)
-    #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
+    #define MESH_TEST_NOZZLE_SIZE    0.6  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
     #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
     #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
@@ -1225,7 +1230,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 3  //7
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1380,9 +1385,11 @@
 
 #if ENABLED(SKEW_CORRECTION)
   // Input all length measurements here:
-  #define XY_DIAG_AC 282.8427124746
-  #define XY_DIAG_BD 282.8427124746
-  #define XY_SIDE_AD 200
+  #define XY_DIAG_AC 142*2//282.8427124746
+  #define XY_DIAG_BD 141.8*2//282.8427124746
+  #define XY_SIDE_AD 99.9*2//200
+  //finalement non fait parceque le default me semble pplus dans l'erreur de mesure
+  //https://www.youtube.com/watch?v=YfAb5IaHDSo
 
   // Or, set the default skew factors directly here
   // to override the above measurements:
@@ -1390,11 +1397,11 @@
 
   //#define SKEW_CORRECTION_FOR_Z
   #if ENABLED(SKEW_CORRECTION_FOR_Z)
-    #define XZ_DIAG_AC 282.8427124746
-    #define XZ_DIAG_BD 282.8427124746
+    #define XZ_DIAG_AC 140*2 //282.8427124746
+    #define XZ_DIAG_BD 140*2 //282.8427124746
     #define YZ_DIAG_AC 282.8427124746
     #define YZ_DIAG_BD 282.8427124746
-    #define YZ_SIDE_AD 200
+    #define YZ_SIDE_AD 99.5*2//200
     #define XZ_SKEW_FACTOR 0.0
     #define YZ_SKEW_FACTOR 0.0
   #endif
