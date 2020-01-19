@@ -29,7 +29,9 @@
 
 #define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
-#define SRAM_EEPROM_EMULATION
+// Use one of these or SDCard-based Emulation will be used
+//#define SRAM_EEPROM_EMULATION   // Use BackSRAM-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION  // Use Flash-based EEPROM emulation
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
@@ -50,10 +52,24 @@
 #define Z_MAX_PIN          PD1
 
 //
-// Z Probe must be this pins  ##
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  PD1
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA15
+#endif
+
+//
+// Power Loss Detection
+//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN   PD4
 #endif
 
 //
@@ -226,3 +242,19 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// RGB LEDs
+//
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN    PB5
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN    PB4
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN    PB3
+#endif
+#ifndef RGB_LED_W_PIN
+  #define RGB_LED_W_PIN    -1
+#endif

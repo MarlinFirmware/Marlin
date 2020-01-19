@@ -94,6 +94,32 @@
   #define NUM_SERIAL 1
 #endif
 
+#ifdef DGUS_SERIAL_PORT
+  #if defined(STM32F4) && DGUS_SERIAL_PORT == 0
+    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+  #elif DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL SerialUSB
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL SerialUART1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL SerialUART2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL SerialUART3
+  #elif DGUS_SERIAL_PORT == 4
+    #define DGUS_SERIAL SerialUART4
+  #elif DGUS_SERIAL_PORT == 5
+    #define DGUS_SERIAL SerialUART5
+  #elif DGUS_SERIAL_PORT == 6
+    #define DGUS_SERIAL SerialUART6
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
+  #endif
+#endif
+
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */

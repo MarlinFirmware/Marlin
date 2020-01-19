@@ -71,6 +71,26 @@
     #define NUM_SERIAL 1
   #endif
 
+  #ifdef DGUS_SERIAL_PORT
+    #if DGUS_SERIAL_PORT == SERIAL_PORT
+      #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+    #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+      #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+    #elif DGUS_SERIAL_PORT == -1
+      #define DGUS_SERIAL Serial
+    #elif DGUS_SERIAL_PORT == 0
+      #define DGUS_SERIAL Serial1
+    #elif DGUS_SERIAL_PORT == 1
+      #define DGUS_SERIAL Serial2
+    #elif DGUS_SERIAL_PORT == 2
+      #define DGUS_SERIAL Serial3
+    #elif DGUS_SERIAL_PORT == 2
+      #define DGUS_SERIAL Serial4
+    #else
+      #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #endif
+  #endif
+
 #endif // ADAFRUIT_GRAND_CENTRAL_M4
 
 typedef int8_t pin_t;
@@ -115,7 +135,7 @@ void HAL_adc_init();
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result();
+inline uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 //
 // Pin Map

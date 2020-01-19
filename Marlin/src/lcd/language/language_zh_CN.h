@@ -251,7 +251,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("恢复安全值");     //"Restore failsafe"
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("初始化设置");     // "Initialize EEPROM"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("刷新");     //"Refresh"
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("信息屏");     //"Info screen"
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("准备");     //"Prepare"
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("调整");     //"Tune"
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("暂停打印");     //"Pause print"

@@ -303,7 +303,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("FW Update vom Medium");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Drucker neustarten");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Aktualisieren");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Vorbereitung");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Justierung");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Starte Druck");

@@ -90,6 +90,34 @@
   #define NUM_SERIAL 1
 #endif
 
+#if HAS_DGUS_LCD
+  #if DGUS_SERIAL_PORT == 0
+    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+  #elif DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL SerialUSB
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL Serial1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL Serial2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL Serial3
+  #elif DGUS_SERIAL_PORT == 4
+    #define DGUS_SERIAL Serial4
+  #elif DGUS_SERIAL_PORT == 5
+    #define DGUS_SERIAL Serial5
+  #elif DGUS_SERIAL_PORT == 6
+    #define DGUS_SERIAL Serial6
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
+  #endif
+
+  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
+#endif
+
 #include "timers.h"
 
 /**

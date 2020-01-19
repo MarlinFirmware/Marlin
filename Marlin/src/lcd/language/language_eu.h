@@ -190,7 +190,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Larri. berriz.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM-a hasieratu");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantaila info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantaila info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prestatu");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Doitu");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausatu inprimak.");

@@ -92,6 +92,18 @@ namespace ExtUI {
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
     // Called when any mesh points are updated
   }
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    void OnPowerLossResume() {
+      // Called on resume from power-loss
+    }
+  #endif
+
+  #if HAS_PID_HEATING
+    void OnPidTuning(const result_t rst) {
+      // Called for temperature PID tuning result
+    }
+  #endif
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI

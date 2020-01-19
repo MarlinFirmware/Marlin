@@ -54,6 +54,7 @@ jobs:
         - BIGTREE_SKR_PRO
         - mks_robin
         - ARMED
+        - FYSETC_S6
 
         # Put lengthy tests last
 
@@ -94,6 +95,8 @@ jobs:
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
+        # Inline tests script
+        [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
         chmod +x buildroot/bin/*
         chmod +x buildroot/share/tests/*
         export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}

@@ -234,8 +234,7 @@ static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); 
 void com_print(uint8_t N, uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_ECHOPGM("    COM");
-  SERIAL_CHAR('0' + N);
-  SERIAL_CHAR('A' + Z);
+  SERIAL_CHAR('0' + N, 'A' + Z);
   SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
 }
 
@@ -247,8 +246,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
   SERIAL_ECHOPGM("    TIMER");
-  SERIAL_CHAR(T + '0');
-  SERIAL_CHAR(L);
+  SERIAL_CHAR(T + '0', L);
   SERIAL_ECHO_SP(3);
 
   if (N == 3) {

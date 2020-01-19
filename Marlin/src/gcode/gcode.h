@@ -67,6 +67,7 @@
  * G34  - Z Stepper automatic alignment using probe: I<iterations> T<accuracy> A<amplification> (Requires Z_STEPPER_AUTO_ALIGN)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
@@ -243,6 +244,7 @@
  * M867 - Enable/disable or toggle error correction for position encoder modules.
  * M868 - Report or set position encoder module error correction threshold.
  * M869 - Report position encoder module error.
+ * M871 - Print/reset/clear first layer temperature offset values. (Requires PROBE_TEMP_COMPENSATION)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
@@ -462,6 +464,10 @@ private:
     static void G57();
     static void G58();
     static void G59();
+  #endif
+
+  #if ENABLED(PROBE_TEMP_COMPENSATION)
+    static void G76();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
@@ -874,6 +880,10 @@ private:
     FORCE_INLINE static void M869() { I2CPEM.M869(); }
   #endif
 
+  #if ENABLED(PROBE_TEMP_COMPENSATION)
+    static void M871();
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
     static void M900();
   #endif
@@ -896,7 +906,7 @@ private:
     #endif
   #endif
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
     static void M122();
     static void M906();
     static void M916();

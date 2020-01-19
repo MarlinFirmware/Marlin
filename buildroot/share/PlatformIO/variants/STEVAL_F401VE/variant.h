@@ -190,6 +190,9 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
+// Timer Definitions
+#define TIMER_SERVO             TIM4  // TIMER_SERVO must be defined in this file
+
 /* SD detect signal */
 /*
  * By default, R67 is not provided, so SD card detect is not used.

@@ -9,7 +9,9 @@ target_filename = "FIRMWARE.CUR"
 target_drive = "REARM"
 
 import os
+import getpass
 import platform
+
 current_OS = platform.system()
 Import("env")
 
@@ -77,28 +79,26 @@ try:
         upload_disk = 'Disk not found'
         target_file_found = False
         target_drive_found = False
-        medias = os.listdir('/media')  #
-        for media in medias:
-            drives = os.listdir('/media/' + media)  #
-            if target_drive in drives and target_file_found == False:  # set upload if not found target file yet
-                target_drive_found = True
-                upload_disk = '/media/' + media + '/' + target_drive + '/'
+        drives = os.listdir(os.path.join(os.sep, 'media', getpass.getuser()))
+        if target_drive in drives:  # If target drive is found, use it.
+            target_drive_found = True
+            upload_disk = os.path.join(os.sep, 'media', getpass.getuser(), target_drive) + os.sep
+        else:
             for drive in drives:
                 try:
-                    files = os.listdir('/media/' + media + '/' + drive)
+                    files = os.listdir(os.path.join(os.sep, 'media', getpass.getuser(), drive))
                 except:
                     continue
                 else:
                     if target_filename in files:
-                        if target_file_found == False:
-                            upload_disk = '/media/' + media + '/' + drive + '/'
-                            target_file_found = True
-
+                        upload_disk = os.path.join(os.sep, 'media', getpass.getuser(), drive) + os.sep
+                        target_file_found = True
+                        break
         #
         # set upload_port to drive if found
         #
 
-        if target_file_found == True or target_drive_found == True:
+        if target_file_found or target_drive_found:
             env.Replace(
                 UPLOAD_FLAGS="-P$UPLOAD_PORT",
                 UPLOAD_PORT=upload_disk

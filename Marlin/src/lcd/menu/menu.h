@@ -358,7 +358,7 @@ class MenuItem_bool : public MenuEditItemBase {
  *   MenuItem_<type>::action(arg3...)
  *
  * Examples:
- *   BACK_ITEM(MSG_WATCH)
+ *   BACK_ITEM(MSG_INFO_SCREEN)
  *     MenuItem_back::action(plabel, ...)
  *     MenuItem_back::draw(sel, row, plabel, ...)
  *

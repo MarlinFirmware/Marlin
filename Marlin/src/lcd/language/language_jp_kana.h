@@ -151,7 +151,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("EEPROMカラヨミコミ");               // "Load memory"
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("セッテイリセット");               // "Restore failsafe"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("リフレッシュ");                  // "Refresh"
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("ジョウホウガメン");               // "Info screen"
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("ジョウホウガメン");               // "Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("ジュンビセッテイ");               // "Prepare"
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("チョウセイ");                    // "Tune"
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("イチジテイシ");                  // "Pause print"
