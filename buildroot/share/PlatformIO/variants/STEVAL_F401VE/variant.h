@@ -183,17 +183,17 @@ extern "C" {
 #define USER_BTN                PE7
 
 // UART Definitions
-#define SERIAL_UART_INSTANCE    1 //Connected to ST-Link
-//#define SERIAL_UART_INSTANCE    2 //Connected to WIFI
+#define SERIAL_UART_INSTANCE    1 // Connected to ST-Link
+//#define SERIAL_UART_INSTANCE    2 // Connected to WIFI
 
 // Default pin used for 'Serial' instance (ex: ST-Link)
 // Mandatory for Firmata
 #if SERIAL_UART_INSTANCE == 1             // ST-Link & J23
-  #define PIN_SERIAL_RX           PA10
-  #define PIN_SERIAL_TX           PA9
-#elif SERIAL_UART_INSTANCE == 2           // WIFI interface
-  #define PIN_SERIAL2_RX          PD6
-  #define PIN_SERIAL2_TX          PD5
+  #define PIN_SERIAL_RX         PA10
+  #define PIN_SERIAL_TX         PA9
+#elif SERIAL_UART_INSTANCE == 2         // WIFI interface
+  #define PIN_SERIAL2_RX        PD6
+  #define PIN_SERIAL2_TX        PD5
 #else
   #error'Invaqlid setting for SERIAL_UART_INSTANCE'
 #endif
