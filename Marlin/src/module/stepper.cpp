@@ -2142,7 +2142,7 @@ void Stepper::init() {
     if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
   #endif
 
-  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
+  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT()
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
   #define _DISABLE(AXIS) disable_## AXIS()
 
