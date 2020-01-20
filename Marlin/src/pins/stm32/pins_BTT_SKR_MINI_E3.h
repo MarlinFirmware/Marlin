@@ -128,6 +128,8 @@
 
   #elif ENABLED(ZONESTAR_LCD)     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
+    #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
+
     #define LCD_PINS_RS    PB9
     #define LCD_PINS_ENABLE PB6
     #define LCD_PINS_D4    PB8
@@ -136,7 +138,7 @@
     #define LCD_PINS_D7    PB5
     #define ADC_KEYPAD_PIN PA1    // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif ENABLED(MKS_MINI_12864)
+  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
      *                   _____
@@ -161,7 +163,7 @@
 
   #else
 
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only ZONESTAR_LCD, MKS_MINI_12864, ENDER2_STOCKDISPLAY, and CR10_STOCKDISPLAY are currently supported on the BIGTREE_SKR_MINI_E3."
 
   #endif
 

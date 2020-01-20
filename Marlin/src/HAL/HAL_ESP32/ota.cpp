@@ -21,7 +21,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(OTASUPPORT)
+#if BOTH(WIFISUPPORT, OTASUPPORT)
 
 #include <WiFi.h>
 #include <ESPmDNS.h>
@@ -67,6 +67,5 @@ void OTA_handle() {
   ArduinoOTA.handle();
 }
 
-#endif // OTASUPPORT
-
+#endif // WIFISUPPORT && OTASUPPORT
 #endif // ARDUINO_ARCH_ESP32

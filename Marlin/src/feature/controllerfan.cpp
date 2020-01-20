@@ -36,29 +36,32 @@ void controllerfan_update() {
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
-    const bool xory = X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON;
+    const bool xory = X_ENABLE_READ() == bool(X_ENABLE_ON) || Y_ENABLE_READ() == bool(Y_ENABLE_ON);
 
     // If any of the drivers or the bed are enabled...
-    if (xory || Z_ENABLE_READ() == Z_ENABLE_ON
+    if (xory || Z_ENABLE_READ() == bool(Z_ENABLE_ON)
       #if HAS_HEATED_BED
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
-        #if HAS_X2_ENABLE
-          || X2_ENABLE_READ() == X_ENABLE_ON
-        #endif
-        #if HAS_Y2_ENABLE
-          || Y2_ENABLE_READ() == Y_ENABLE_ON
-        #endif
-        #if HAS_Z2_ENABLE
-          || Z2_ENABLE_READ() == Z_ENABLE_ON
-        #endif
-        #if HAS_Z3_ENABLE
-          || Z3_ENABLE_READ() == Z_ENABLE_ON
-        #endif
-        #if E_STEPPERS
-          #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == E_ENABLE_ON
-          REPEAT(E_STEPPERS, _OR_ENABLED_E)
-        #endif
+      #if HAS_X2_ENABLE
+        || X2_ENABLE_READ() == bool(X_ENABLE_ON)
+      #endif
+      #if HAS_Y2_ENABLE
+        || Y2_ENABLE_READ() == bool(Y_ENABLE_ON)
+      #endif
+      #if HAS_Z2_ENABLE
+        || Z2_ENABLE_READ() == bool(Z_ENABLE_ON)
+      #endif
+      #if HAS_Z3_ENABLE
+        || Z3_ENABLE_READ() == bool(Z_ENABLE_ON)
+      #endif
+      #if HAS_Z4_ENABLE
+        || Z4_ENABLE_READ() == bool(Z_ENABLE_ON)
+      #endif
+      #if E_STEPPERS
+        #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == bool(E_ENABLE_ON)
+        REPEAT(E_STEPPERS, _OR_ENABLED_E)
+      #endif
     ) {
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
     }

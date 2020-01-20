@@ -95,7 +95,6 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
 void inverse_kinematics(const xyz_pos_t &raw) {
 
   #if ENABLED(MORGAN_SCARA)
-
     /**
      * Morgan SCARA Inverse Kinematics. Results in 'delta'.
      *

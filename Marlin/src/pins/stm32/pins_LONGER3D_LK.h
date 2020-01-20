@@ -44,6 +44,7 @@
 #define Z_MIN_PIN          PE6   // pin 5 Standard Endstop or Z_Probe endstop function
 #define Z_MAX_PIN          PE5   // pin 4 (Unused in stock Alfawise setup)
                                  // May be used for BLTouch Servo function on older variants (<= V08)
+#define ONBOARD_ENDSTOPPULLUPS
 
 //
 // Filament Sensor

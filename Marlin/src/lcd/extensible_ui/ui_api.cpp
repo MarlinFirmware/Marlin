@@ -773,7 +773,7 @@ namespace ExtUI {
     #if HAS_BED_PROBE
       return probe_offset.z;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      return babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
+      return (planner.steps_to_mm[Z_AXIS] * babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]);
     #else
       return 0.0;
     #endif
@@ -784,7 +784,7 @@ namespace ExtUI {
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe_offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      babystep.add_mm(Z_AXIS, (value - babystep.axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1]));
+      babystep.add_mm(Z_AXIS, (value - getZOffset_mm()));
     #else
       UNUSED(value);
     #endif

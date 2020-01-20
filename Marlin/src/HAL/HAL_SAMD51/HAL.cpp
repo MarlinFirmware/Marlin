@@ -59,6 +59,11 @@
 #else
   #define GET_TEMP_5_ADC()          -1
 #endif
+#if HAS_TEMP_PROBE
+  #define GET_PROBE_ADC()           PIN_TO_ADC(TEMP_PROBE_PIN)
+#else
+  #define GET_PROBE_ADC()           -1
+#endif
 #if HAS_TEMP_ADC_BED
   #define GET_BED_ADC()             PIN_TO_ADC(TEMP_BED_PIN)
 #else
@@ -82,6 +87,7 @@
 
 #define IS_ADC_REQUIRED(n)      (GET_TEMP_0_ADC() == n || GET_TEMP_1_ADC() == n || GET_TEMP_2_ADC() == n      \
                                  || GET_TEMP_3_ADC() == n || GET_TEMP_4_ADC() == n || GET_TEMP_5_ADC() == n   \
+                                 || GET_PROBE_ADC() == n                                                      \
                                  || GET_BED_ADC() == n                                                        \
                                  || GET_CHAMBER_ADC() == n                                                    \
                                  || GET_FILAMENT_WIDTH_ADC() == n                                             \
@@ -145,6 +151,9 @@ uint16_t HAL_adc_result;
     #if GET_TEMP_5_ADC() == 0
       TEMP_5_PIN,
     #endif
+    #if GET_PROBE_ADC() == 0
+      TEMP_PROBE_PIN,
+    #endif
     #if GET_BED_ADC() == 0
       TEMP_BED_PIN,
     #endif
@@ -175,6 +184,9 @@ uint16_t HAL_adc_result;
     #endif
     #if GET_TEMP_5_ADC() == 1
       TEMP_5_PIN,
+    #endif
+    #if GET_PROBE_ADC() == 1
+      TEMP_PROBE_PIN,
     #endif
     #if GET_BED_ADC() == 1
       TEMP_BED_PIN,
@@ -215,6 +227,9 @@ uint16_t HAL_adc_result;
       #if GET_TEMP_5_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_5_PIN) },
       #endif
+      #if GET_PROBE_ADC() == 0
+        { PIN_TO_INPUTCTRL(TEMP_PROBE_PIN) },
+      #endif
       #if GET_BED_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_BED_PIN) },
       #endif
@@ -254,6 +269,9 @@ uint16_t HAL_adc_result;
       #endif
       #if GET_TEMP_5_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_5_PIN) },
+      #endif
+      #if GET_PROBE_ADC() == 1
+        { PIN_TO_INPUTCTRL(TEMP_PROBE_PIN) },
       #endif
       #if GET_BED_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_BED_PIN) },
@@ -426,7 +444,7 @@ void HAL_adc_init() {
     memset(HAL_adc_results, 0xFF, sizeof(HAL_adc_results));                 // Fill result with invalid values
 
     for (uint8_t pi = 0; pi < COUNT(adc_pins); ++pi)
-        pinPeripheral(adc_pins[pi], PIO_ANALOG);
+      pinPeripheral(adc_pins[pi], PIO_ANALOG);
 
     for (uint8_t ai = FIRST_ADC; ai <= LAST_ADC; ++ai) {
       Adc* adc = ((Adc*[])ADC_INSTS)[ai];
@@ -469,10 +487,6 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
   #endif
 
   HAL_adc_result = 0xFFFF;
-}
-
-uint16_t HAL_adc_get_result() {
-  return HAL_adc_result;
 }
 
 #endif // __SAMD51__

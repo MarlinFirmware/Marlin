@@ -396,8 +396,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != SerialUSB || forceUpdate) {
-    last_usb_connected_status = SerialUSB;
+  if (last_usb_connected_status != MYSERIAL0 || forceUpdate) {
+    last_usb_connected_status = MYSERIAL0;
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
