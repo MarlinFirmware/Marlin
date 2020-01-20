@@ -110,7 +110,7 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
       const float comp_coef = 1600.0f / L6470_ADC_out_limited;
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
 
-      say_axis_status(axis,sh.STATUS_AXIS_RAW);
+      say_axis_status(axis, sh.STATUS_AXIS_RAW);
 
       SERIAL_ECHOPGM("...OverCurrent Threshold: ");
       sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
