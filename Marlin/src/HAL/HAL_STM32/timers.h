@@ -84,7 +84,7 @@
     #define TEMP_TIMER 14
   #endif
 
-#elif defined(STM32F7xx
+#elif defined(STM32F7xx)
 
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
