@@ -39,9 +39,9 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN          PD3
-#define Y_STOP_PIN          PD2
-#define Z_STOP_PIN          PD1 // Shares J4 connector with PC3
+#define X_STOP_PIN         PD3
+#define Y_STOP_PIN         PD2
+#define Z_STOP_PIN         PD1 // Shares J4 connector with PC3
 
 //
 // Z Probe must be this pin
