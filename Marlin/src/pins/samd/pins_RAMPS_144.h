@@ -42,6 +42,12 @@
 #define SERVO3_PIN          4
 
 //
+// EEPROM
+//
+#define E2END 0x7FFF  // 32Kb (24lc256)
+#define I2C_EEPROM    // EEPROM on I2C-0
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN           3
@@ -55,7 +61,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN   19
+  #define Z_MIN_PROBE_PIN   18
 #endif
 
 //
@@ -115,7 +121,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                ?53
+//#define SDSS                ?53
 #define LED_PIN             13
 
 #ifndef FILWIDTH_PIN
@@ -155,13 +161,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    ?65
+    #define TMC_SW_MOSI    65
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    ?64
+    #define TMC_SW_MISO    64
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     ?66
+    #define TMC_SW_SCK     66
   #endif
 #endif
 
@@ -270,50 +276,56 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-    #define LCD_PINS_RS         49   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE     51   // SID (MOSI)
-    #define LCD_PINS_D4         52   // SCK (CLK) clock
+    // TO TEST
+    // #define LCD_PINS_RS         49   // CS chip select /SS chip slave select
+    // #define LCD_PINS_ENABLE     51   // SID (MOSI)
+    // #define LCD_PINS_D4         52   // SCK (CLK) clock
 
   #elif BOTH(NEWPANEL, PANEL_ONE)
 
-    #define LCD_PINS_RS         40
-    #define LCD_PINS_ENABLE     42
-    #define LCD_PINS_D4         57
-    #define LCD_PINS_D5         58
-    #define LCD_PINS_D6         44
-    #define LCD_PINS_D7         56
+    // TO TEST
+    // #define LCD_PINS_RS         40
+    // #define LCD_PINS_ENABLE     42
+    // #define LCD_PINS_D4         57
+    // #define LCD_PINS_D5         58
+    // #define LCD_PINS_D6         44
+    // #define LCD_PINS_D7         56
 
   #else
 
     #if ENABLED(CR10_STOCKDISPLAY)
 
-      #define LCD_PINS_RS       27
-      #define LCD_PINS_ENABLE   29
-      #define LCD_PINS_D4       25
+      // TO TEST
+      // #define LCD_PINS_RS       27
+      // #define LCD_PINS_ENABLE   29
+      // #define LCD_PINS_D4       25
 
       #if DISABLED(NEWPANEL)
-        #define BEEPER_PIN      37
+        // TO TEST
+        // #define BEEPER_PIN      37
       #endif
 
     #elif ENABLED(ZONESTAR_LCD)
 
-      #define LCD_PINS_RS       56
-      #define LCD_PINS_ENABLE   44
-      #define LCD_PINS_D4       55
-      #define LCD_PINS_D5       40
-      #define LCD_PINS_D6       42
-      #define LCD_PINS_D7       57
+      // TO TEST
+      // #define LCD_PINS_RS       56
+      // #define LCD_PINS_ENABLE   44
+      // #define LCD_PINS_D4       55
+      // #define LCD_PINS_D5       40
+      // #define LCD_PINS_D6       42
+      // #define LCD_PINS_D7       57
 
     #else
 
       #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
-        #define LCD_PINS_DC     25   // Set as output on init
-        #define LCD_PINS_RS     27   // Pull low for 1s to init
+        // TO TEST
+        // #define LCD_PINS_DC     25   // Set as output on init
+        // #define LCD_PINS_RS     27   // Pull low for 1s to init
         // DOGM SPI LCD Support
-        #define DOGLCD_CS       16
-        #define DOGLCD_MOSI     17
-        #define DOGLCD_SCK      23
-        #define DOGLCD_A0       LCD_PINS_DC
+        // #define DOGLCD_CS       16
+        // #define DOGLCD_MOSI     17
+        // #define DOGLCD_SCK      23
+        // #define DOGLCD_A0       LCD_PINS_DC
       #else
         #define LCD_PINS_RS     16
         #define LCD_PINS_ENABLE 17
