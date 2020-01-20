@@ -107,8 +107,7 @@ void plan_arc(
 
   #ifdef ARC_SEGMENTS_PER_R
     float seg_length = MM_PER_ARC_SEGMENT * radius;
-    NOLESS(seg_length, MM_PER_ARC_SEGMENT);
-    NOMORE(seg_length, ARC_SEGMENTS_PER_R);
+    LIMIT(seg_length, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R);
   #elif ARC_SEGMENTS_PER_SEC
     float seg_length = scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC);
     NOLESS(seg_length, MM_PER_ARC_SEGMENT);
