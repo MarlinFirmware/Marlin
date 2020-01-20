@@ -182,6 +182,7 @@
 #endif
 
 const char NUL_STR[] PROGMEM = "",
+           M112_KILL_STR[] PROGMEM = "M112 Shutdown",
            G28_STR[] PROGMEM = "G28",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",

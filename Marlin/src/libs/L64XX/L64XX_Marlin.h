@@ -30,21 +30,19 @@
 
 #define L6470_GETPARAM(P,Q) stepper##Q.GetParam(P)
 
-#define MAX_L6470  (7 + MAX_EXTRUDERS) // Maximum number of axes in Marlin
-
 #define dSPIN_STEP_CLOCK      0x58
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
 #define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
 
-typedef enum : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5 } L64XX_axis_t;
+enum L64XX_axis_t : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, MAX_L64XX };
 
 class L64XX_Marlin : public L64XXHelper {
 public:
-  static char index_to_axis[MAX_L6470][3];
+  static char index_to_axis[MAX_L64XX][3];
 
-  static uint8_t index_to_dir[MAX_L6470];
-  static uint8_t dir_commands[MAX_L6470];
+  static uint8_t index_to_dir[MAX_L64XX];
+  static uint8_t dir_commands[MAX_L64XX];
 
   // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
   static volatile uint8_t spi_abort;

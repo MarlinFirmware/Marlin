@@ -44,7 +44,7 @@
  *     1 - monitor only X, Y, Z or E1
  *     2 - monitor only X2, Y2, Z2 or E2
  *     3 - monitor only Z3 or E3
- *     4 - monitor only E4
+ *     4 - monitor only Z4 or E4
  *     5 - monitor only E5
  * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
  *     L6474 - current in mA (4A max)
@@ -77,7 +77,7 @@
  *    KVAL_DEC
  *    Vs compensation (if enabled)
  */
-void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
+void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
 
   if (L64xxManager.spi_abort) return;  // don't do anything if set_directions() has occurred
 
@@ -110,7 +110,7 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
       const float comp_coef = 1600.0f / L6470_ADC_out_limited;
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
 
-      say_axis_status(axis, status);
+      say_axis_status(axis, sh.STATUS_AXIS_RAW);
 
       SERIAL_ECHOPGM("...OverCurrent Threshold: ");
       sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
@@ -181,7 +181,7 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
       const uint16_t L6470_ADC_out = motor.GetParam(L6470_ADC_OUT) & 0x1F,
                      L6474_TVAL_val = motor.GetParam(L6474_TVAL) & 0x7F;
 
-      say_axis_status(axis, status);
+      say_axis_status(axis, sh.STATUS_AXIS_RAW);
 
       SERIAL_ECHOPGM("...OverCurrent Threshold: ");
       sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
@@ -192,15 +192,13 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
       sprintf_P(temp_buf, PSTR("%2d ("), L6474_TVAL_val);
       SERIAL_ECHO(temp_buf);
       SERIAL_ECHO((L6474_TVAL_val + 1) * motor.STALL_CURRENT_CONSTANT_INV);
-      SERIAL_ECHOLNPGM(" mA   Motor Status: NA)");
+      SERIAL_ECHOLNPGM(" mA)   Motor Status: NA");
 
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
-      SERIAL_ECHOLNPAIR("...MicroSteps: ", MicroSteps,
-                        "   ADC_OUT: ", L6470_ADC_out,
-                        "   Vs_compensation: NA");
+      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+                      "   ADC_OUT: ", L6470_ADC_out);
 
-      SERIAL_EOL();
-
+      SERIAL_ECHOLNPGM("   Vs_compensation: NA\n");
       SERIAL_ECHOLNPGM("...KVAL_HOLD: NA"
                        "   KVAL_RUN : NA"
                        "   KVAL_ACC: NA"
@@ -274,6 +272,9 @@ void GcodeSuite::M906() {
         #if AXIS_IS_L64XX(Z3)
           if (index == 2) L6470_SET_KVAL_HOLD(Z3);
         #endif
+        #if AXIS_DRIVER_TYPE_Z4(L6470)
+          if (index == 3) L6470_SET_KVAL_HOLD(Z4);
+        #endif
         break;
       case E_AXIS: {
         const int8_t target_extruder = get_target_extruder_from_command();
@@ -303,48 +304,51 @@ void GcodeSuite::M906() {
   }
 
   if (report_current) {
-    #define L6470_REPORT_CURRENT(Q) L6470_report_current(stepper##Q, Q)
+    #define L64XX_REPORT_CURRENT(Q) L64XX_report_current(stepper##Q, Q)
 
     L64xxManager.spi_active = true; // Tell set_directions() a series of SPI transfers is underway
 
     #if AXIS_IS_L64XX(X)
-      L6470_REPORT_CURRENT(X);
+      L64XX_REPORT_CURRENT(X);
     #endif
     #if AXIS_IS_L64XX(X2)
-      L6470_REPORT_CURRENT(X2);
+      L64XX_REPORT_CURRENT(X2);
     #endif
     #if AXIS_IS_L64XX(Y)
-      L6470_REPORT_CURRENT(Y);
+      L64XX_REPORT_CURRENT(Y);
     #endif
     #if AXIS_IS_L64XX(Y2)
-      L6470_REPORT_CURRENT(Y2);
+      L64XX_REPORT_CURRENT(Y2);
     #endif
     #if AXIS_IS_L64XX(Z)
-      L6470_REPORT_CURRENT(Z);
+      L64XX_REPORT_CURRENT(Z);
     #endif
     #if AXIS_IS_L64XX(Z2)
-      L6470_REPORT_CURRENT(Z2);
+      L64XX_REPORT_CURRENT(Z2);
     #endif
     #if AXIS_IS_L64XX(Z3)
-      L6470_REPORT_CURRENT(Z3);
+      L64XX_REPORT_CURRENT(Z3);
+    #endif
+    #if AXIS_IS_L64XX(Z4)
+      L64XX_REPORT_CURRENT(Z4);
     #endif
     #if AXIS_IS_L64XX(E0)
-      L6470_REPORT_CURRENT(E0);
+      L64XX_REPORT_CURRENT(E0);
     #endif
     #if AXIS_IS_L64XX(E1)
-      L6470_REPORT_CURRENT(E1);
+      L64XX_REPORT_CURRENT(E1);
     #endif
     #if AXIS_IS_L64XX(E2)
-      L6470_REPORT_CURRENT(E2);
+      L64XX_REPORT_CURRENT(E2);
     #endif
     #if AXIS_IS_L64XX(E3)
-      L6470_REPORT_CURRENT(E3);
+      L64XX_REPORT_CURRENT(E3);
     #endif
     #if AXIS_IS_L64XX(E4)
-      L6470_REPORT_CURRENT(E4);
+      L64XX_REPORT_CURRENT(E4);
     #endif
     #if AXIS_IS_L64XX(E5)
-      L6470_REPORT_CURRENT(E5);
+      L64XX_REPORT_CURRENT(E5);
     #endif
 
     L64xxManager.spi_active = false;   // done with all SPI transfers - clear handshake flags

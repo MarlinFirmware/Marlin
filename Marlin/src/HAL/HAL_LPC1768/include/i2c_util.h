@@ -19,18 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#include "../gcode.h"
-#include "../../MarlinCore.h" // for max_inactive_time
+#pragma once
 
 /**
- * M85: Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
+ * HAL_LPC1768/include/i2c_util.h
  */
-void GcodeSuite::M85() {
 
-  if (parser.seen('S')) {
-    reset_stepper_timeout();
-    max_inactive_time = parser.value_millis_from_seconds();
-  }
+#ifndef USEDI2CDEV_M
+  #define USEDI2CDEV_M  1  // By default use I2C1 controller
+#endif
 
-}
+#if USEDI2CDEV_M == 0
+  #define I2CDEV_M LPC_I2C0
+#elif USEDI2CDEV_M == 1
+  #define I2CDEV_M LPC_I2C1
+#elif USEDI2CDEV_M == 2
+  #define I2CDEV_M LPC_I2C2
+#else
+  #error "Master I2C device not defined!"
+#endif
+
+#include <lpc17xx_i2c.h>
+#include <lpc17xx_pinsel.h>
+#include <lpc17xx_libcfg_default.h>
+
+void configure_i2c(const uint8_t clock_option);

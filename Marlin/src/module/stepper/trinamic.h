@@ -50,6 +50,7 @@
 #define TMC_Y2_LABEL 'Y', '2'
 #define TMC_Z2_LABEL 'Z', '2'
 #define TMC_Z3_LABEL 'Z', '3'
+#define TMC_Z4_LABEL 'Z', '4'
 
 #define TMC_E0_LABEL 'E', '0'
 #define TMC_E1_LABEL 'E', '1'
@@ -88,7 +89,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(X)
   extern TMC_CLASS(X, X) stepperX;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define X_ENABLE_INIT NOOP
+    #define X_ENABLE_INIT() NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.toff((STATE)==X_ENABLE_ON ? chopper_timing.toff : 0)
     #define X_ENABLE_READ() stepperX.isEnabled()
   #endif
@@ -101,7 +102,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(Y)
   extern TMC_CLASS(Y, Y) stepperY;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define Y_ENABLE_INIT NOOP
+    #define Y_ENABLE_INIT() NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.toff((STATE)==Y_ENABLE_ON ? chopper_timing.toff : 0)
     #define Y_ENABLE_READ() stepperY.isEnabled()
   #endif
@@ -114,7 +115,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(Z)
   extern TMC_CLASS(Z, Z) stepperZ;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define Z_ENABLE_INIT NOOP
+    #define Z_ENABLE_INIT() NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.toff((STATE)==Z_ENABLE_ON ? chopper_timing.toff : 0)
     #define Z_ENABLE_READ() stepperZ.isEnabled()
   #endif
@@ -127,7 +128,7 @@ void reset_trinamic_drivers();
 #if HAS_X2_ENABLE && AXIS_IS_TMC(X2)
   extern TMC_CLASS(X2, X) stepperX2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define X2_ENABLE_INIT NOOP
+    #define X2_ENABLE_INIT() NOOP
     #define X2_ENABLE_WRITE(STATE) stepperX2.toff((STATE)==X_ENABLE_ON ? chopper_timing.toff : 0)
     #define X2_ENABLE_READ() stepperX2.isEnabled()
   #endif
@@ -140,7 +141,7 @@ void reset_trinamic_drivers();
 #if HAS_Y2_ENABLE && AXIS_IS_TMC(Y2)
   extern TMC_CLASS(Y2, Y) stepperY2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define Y2_ENABLE_INIT NOOP
+    #define Y2_ENABLE_INIT() NOOP
     #define Y2_ENABLE_WRITE(STATE) stepperY2.toff((STATE)==Y_ENABLE_ON ? chopper_timing.toff : 0)
     #define Y2_ENABLE_READ() stepperY2.isEnabled()
   #endif
@@ -153,7 +154,7 @@ void reset_trinamic_drivers();
 #if HAS_Z2_ENABLE && AXIS_IS_TMC(Z2)
   extern TMC_CLASS(Z2, Z) stepperZ2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2)
-    #define Z2_ENABLE_INIT NOOP
+    #define Z2_ENABLE_INIT() NOOP
     #define Z2_ENABLE_WRITE(STATE) stepperZ2.toff((STATE)==Z_ENABLE_ON ? chopper_timing.toff : 0)
     #define Z2_ENABLE_READ() stepperZ2.isEnabled()
   #endif
@@ -166,7 +167,7 @@ void reset_trinamic_drivers();
 #if HAS_Z3_ENABLE && AXIS_IS_TMC(Z3)
   extern TMC_CLASS(Z3, Z) stepperZ3;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define Z3_ENABLE_INIT NOOP
+    #define Z3_ENABLE_INIT() NOOP
     #define Z3_ENABLE_WRITE(STATE) stepperZ3.toff((STATE)==Z_ENABLE_ON ? chopper_timing.toff : 0)
     #define Z3_ENABLE_READ() stepperZ3.isEnabled()
   #endif
@@ -175,11 +176,24 @@ void reset_trinamic_drivers();
   #endif
 #endif
 
+// Z4 Stepper
+#if HAS_Z4_ENABLE && AXIS_IS_TMC(Z4)
+  extern TMC_CLASS(Z4, Z) stepperZ4;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define Z4_ENABLE_INIT() NOOP
+    #define Z4_ENABLE_WRITE(STATE) stepperZ4.toff((STATE)==Z_ENABLE_ON ? chopper_timing.toff : 0)
+    #define Z4_ENABLE_READ() stepperZ4.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(Z4)
+    #define Z4_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z4_STEP_PIN); }while(0)
+  #endif
+#endif
+
 // E0 Stepper
 #if AXIS_IS_TMC(E0)
   extern TMC_CLASS_E(0) stepperE0;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0)
-    #define E0_ENABLE_INIT NOOP
+    #define E0_ENABLE_INIT() NOOP
     #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
     #define E0_ENABLE_READ() stepperE0.isEnabled()
   #endif
@@ -192,7 +206,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(E1)
   extern TMC_CLASS_E(1) stepperE1;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1)
-    #define E1_ENABLE_INIT NOOP
+    #define E1_ENABLE_INIT() NOOP
     #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
     #define E1_ENABLE_READ() stepperE1.isEnabled()
   #endif
@@ -205,7 +219,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(E2)
   extern TMC_CLASS_E(2) stepperE2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2)
-    #define E2_ENABLE_INIT NOOP
+    #define E2_ENABLE_INIT() NOOP
     #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
     #define E2_ENABLE_READ() stepperE2.isEnabled()
   #endif
@@ -218,7 +232,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(E3)
   extern TMC_CLASS_E(3) stepperE3;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3)
-    #define E3_ENABLE_INIT NOOP
+    #define E3_ENABLE_INIT() NOOP
     #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
     #define E3_ENABLE_READ() stepperE3.isEnabled()
   #endif
@@ -231,7 +245,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(E4)
   extern TMC_CLASS_E(4) stepperE4;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4)
-    #define E4_ENABLE_INIT NOOP
+    #define E4_ENABLE_INIT() NOOP
     #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
     #define E4_ENABLE_READ() stepperE4.isEnabled()
   #endif
@@ -244,7 +258,7 @@ void reset_trinamic_drivers();
 #if AXIS_IS_TMC(E5)
   extern TMC_CLASS_E(5) stepperE5;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5)
-    #define E5_ENABLE_INIT NOOP
+    #define E5_ENABLE_INIT() NOOP
     #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
     #define E5_ENABLE_READ() stepperE5.isEnabled()
   #endif

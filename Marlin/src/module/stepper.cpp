@@ -119,7 +119,7 @@ Stepper stepper; // Singleton
 
 #if HAS_L64XX
   #include "../libs/L64XX/L64XX_Marlin.h"
-  uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+  uint8_t L6470_buf[MAX_L64XX + 1];   // chip command sequence - element 0 not used
   bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
 #endif
 
@@ -156,11 +156,16 @@ bool Stepper::abort_current_block;
 #if ENABLED(Y_DUAL_ENDSTOPS)
   bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
-#if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
-  bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
-#endif
-#if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
-  bool Stepper::locked_Z3_motor = false;
+
+#if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+  bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false
+       #if NUM_Z_STEPPER_DRIVERS >= 3
+         , Stepper::locked_Z3_motor = false
+         #if NUM_Z_STEPPER_DRIVERS >= 4
+           , Stepper::locked_Z4_motor = false
+         #endif
+       #endif
+       ;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
@@ -281,6 +286,42 @@ xyze_int8_t Stepper::count_direction{0};
     A##3_STEP_WRITE(V);                           \
   }
 
+#define QUAD_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
+  if (separate_multi_axis) {                                                                                                \
+    if (A##_HOME_DIR < 0) {                                                                                                 \
+      if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
+      if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##3_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##4_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
+    }                                                                                                                       \
+    else {                                                                                                                  \
+      if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
+      if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##3_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##4_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
+    }                                                                                                                       \
+  }                                                                                                                         \
+  else {                                                                                                                    \
+    A##_STEP_WRITE(V);                                                                                                      \
+    A##2_STEP_WRITE(V);                                                                                                     \
+    A##3_STEP_WRITE(V);                                                                                                     \
+    A##4_STEP_WRITE(V);                                                                                                     \
+  }
+
+#define QUAD_SEPARATE_APPLY_STEP(A,V)             \
+  if (separate_multi_axis) {                      \
+    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
+    if (!locked_##A##3_motor) A##3_STEP_WRITE(V); \
+    if (!locked_##A##4_motor) A##4_STEP_WRITE(V); \
+  }                                               \
+  else {                                          \
+    A##_STEP_WRITE(V);                            \
+    A##2_STEP_WRITE(V);                           \
+    A##3_STEP_WRITE(V);                           \
+    A##4_STEP_WRITE(V);                           \
+  }
+
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -314,18 +355,27 @@ xyze_int8_t Stepper::count_direction{0};
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
 #endif
 
-#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+#if NUM_Z_STEPPER_DRIVERS == 4
+  #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); Z4_DIR_WRITE(v); }while(0)
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #define Z_APPLY_STEP(v,Q) QUAD_ENDSTOP_APPLY_STEP(Z,v)
+  #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #define Z_APPLY_STEP(v,Q) QUAD_SEPARATE_APPLY_STEP(Z,v)
+  #else
+    #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); Z4_STEP_WRITE(v); }while(0)
+  #endif
+#elif NUM_Z_STEPPER_DRIVERS == 3
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); }while(0)
-  #if ENABLED(Z_TRIPLE_ENDSTOPS)
+  #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
     #define Z_APPLY_STEP(v,Q) TRIPLE_SEPARATE_APPLY_STEP(Z,v)
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
   #endif
-#elif ENABLED(Z_DUAL_STEPPER_DRIVERS)
+#elif NUM_Z_STEPPER_DRIVERS == 2
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
-  #if ENABLED(Z_DUAL_ENDSTOPS)
+  #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
     #define Z_APPLY_STEP(v,Q) DUAL_SEPARATE_APPLY_STEP(Z,v)
@@ -2049,100 +2099,107 @@ void Stepper::init() {
 
   // Init Dir Pins
   #if HAS_X_DIR
-    X_DIR_INIT;
+    X_DIR_INIT();
   #endif
   #if HAS_X2_DIR
-    X2_DIR_INIT;
+    X2_DIR_INIT();
   #endif
   #if HAS_Y_DIR
-    Y_DIR_INIT;
+    Y_DIR_INIT();
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_DIR
-      Y2_DIR_INIT;
+      Y2_DIR_INIT();
     #endif
   #endif
   #if HAS_Z_DIR
-    Z_DIR_INIT;
-    #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_DIR
-      Z2_DIR_INIT;
+    Z_DIR_INIT();
+    #if NUM_Z_STEPPER_DRIVERS >= 2 && HAS_Z2_DIR
+      Z2_DIR_INIT();
     #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_DIR
-      Z3_DIR_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 3 && HAS_Z3_DIR
+      Z3_DIR_INIT();
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4 && HAS_Z4_DIR
+      Z4_DIR_INIT();
     #endif
   #endif
   #if HAS_E0_DIR
-    E0_DIR_INIT;
+    E0_DIR_INIT();
   #endif
   #if HAS_E1_DIR
-    E1_DIR_INIT;
+    E1_DIR_INIT();
   #endif
   #if HAS_E2_DIR
-    E2_DIR_INIT;
+    E2_DIR_INIT();
   #endif
   #if HAS_E3_DIR
-    E3_DIR_INIT;
+    E3_DIR_INIT();
   #endif
   #if HAS_E4_DIR
-    E4_DIR_INIT;
+    E4_DIR_INIT();
   #endif
   #if HAS_E5_DIR
-    E5_DIR_INIT;
+    E5_DIR_INIT();
   #endif
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
-    X_ENABLE_INIT;
+    X_ENABLE_INIT();
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
     #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
-      X2_ENABLE_INIT;
+      X2_ENABLE_INIT();
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_Y_ENABLE
-    Y_ENABLE_INIT;
+    Y_ENABLE_INIT();
     if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
-      Y2_ENABLE_INIT;
+      Y2_ENABLE_INIT();
       if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_Z_ENABLE
-    Z_ENABLE_INIT;
+    Z_ENABLE_INIT();
     if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
-    #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_ENABLE
-      Z2_ENABLE_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 2 && HAS_Z2_ENABLE
+      Z2_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
     #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_ENABLE
-      Z3_ENABLE_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 3 && HAS_Z3_ENABLE
+      Z3_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH);
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4 && HAS_Z4_ENABLE
+      Z4_ENABLE_INIT();
+      if (!Z_ENABLE_ON) Z4_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_E0_ENABLE
-    E0_ENABLE_INIT;
+    E0_ENABLE_INIT();
     if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E1_ENABLE
-    E1_ENABLE_INIT;
+    E1_ENABLE_INIT();
     if (!E_ENABLE_ON) E1_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E2_ENABLE
-    E2_ENABLE_INIT;
+    E2_ENABLE_INIT();
     if (!E_ENABLE_ON) E2_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E3_ENABLE
-    E3_ENABLE_INIT;
+    E3_ENABLE_INIT();
     if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E4_ENABLE
-    E4_ENABLE_INIT;
+    E4_ENABLE_INIT();
     if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E5_ENABLE
-    E5_ENABLE_INIT;
+    E5_ENABLE_INIT();
     if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
   #endif
 
-  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
+  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT()
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
   #define _DISABLE(AXIS) disable_## AXIS()
 
@@ -2156,7 +2213,7 @@ void Stepper::init() {
   // Init Step Pins
   #if HAS_X_STEP
     #if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
-      X2_STEP_INIT;
+      X2_STEP_INIT();
       X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
     AXIS_INIT(X, X);
@@ -2164,20 +2221,24 @@ void Stepper::init() {
 
   #if HAS_Y_STEP
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-      Y2_STEP_INIT;
+      Y2_STEP_INIT();
       Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
     #endif
     AXIS_INIT(Y, Y);
   #endif
 
   #if HAS_Z_STEP
-    #if Z_MULTI_STEPPER_DRIVERS
-      Z2_STEP_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 2
+      Z2_STEP_INIT();
       Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      Z3_STEP_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 3
+      Z3_STEP_INIT();
       Z3_STEP_WRITE(INVERT_Z_STEP_PIN);
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      Z4_STEP_INIT();
+      Z4_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
     AXIS_INIT(Z, Z);
   #endif
@@ -2692,6 +2753,13 @@ void Stepper::report_positions() {
         SET_OUTPUT(Z3_MS3_PIN);
       #endif
     #endif
+    #if HAS_Z4_MICROSTEPS
+      SET_OUTPUT(Z4_MS1_PIN);
+      SET_OUTPUT(Z4_MS2_PIN);
+      #if PIN_EXISTS(Z4_MS3)
+        SET_OUTPUT(Z4_MS3_PIN);
+      #endif
+    #endif
     #if HAS_E0_MICROSTEPS
       SET_OUTPUT(E0_MS1_PIN);
       SET_OUTPUT(E0_MS2_PIN);
@@ -2762,7 +2830,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS
+      #if HAS_SOME_Z_MICROSTEPS
         case 2:
           #if HAS_Z_MICROSTEPS
             WRITE(Z_MS1_PIN, ms1);
@@ -2772,6 +2840,9 @@ void Stepper::report_positions() {
           #endif
           #if HAS_Z3_MICROSTEPS
             WRITE(Z3_MS1_PIN, ms1);
+          #endif
+          #if HAS_Z4_MICROSTEPS
+            WRITE(Z4_MS1_PIN, ms1);
           #endif
           break;
       #endif
@@ -2815,7 +2886,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS
+      #if HAS_SOME_Z_MICROSTEPS
         case 2:
           #if HAS_Z_MICROSTEPS
             WRITE(Z_MS2_PIN, ms2);
@@ -2825,6 +2896,9 @@ void Stepper::report_positions() {
           #endif
           #if HAS_Z3_MICROSTEPS
             WRITE(Z3_MS2_PIN, ms2);
+          #endif
+          #if HAS_Z4_MICROSTEPS
+            WRITE(Z4_MS2_PIN, ms2);
           #endif
           break;
       #endif
@@ -2868,7 +2942,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS
+      #if HAS_SOME_Z_MICROSTEPS
         case 2:
           #if HAS_Z_MICROSTEPS && PIN_EXISTS(Z_MS3)
             WRITE(Z_MS3_PIN, ms3);
@@ -2878,6 +2952,9 @@ void Stepper::report_positions() {
           #endif
           #if HAS_Z3_MICROSTEPS && PIN_EXISTS(Z3_MS3)
             WRITE(Z3_MS3_PIN, ms3);
+          #endif
+          #if HAS_Z4_MICROSTEPS && PIN_EXISTS(Z4_MS3)
+            WRITE(Z4_MS3_PIN, ms3);
           #endif
           break;
       #endif
