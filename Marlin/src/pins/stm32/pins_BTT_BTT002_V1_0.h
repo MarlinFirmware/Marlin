@@ -41,7 +41,7 @@
 //
 #define X_STOP_PIN         PD3
 #define Y_STOP_PIN         PD2
-#define Z_STOP_PIN         PD1 // Shares J4 connector with PC3
+#define Z_STOP_PIN         PD1   // Shares J4 connector with PC3
 
 //
 // Z Probe must be this pin
@@ -151,10 +151,10 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA2  // T0 <-> E0
-#define TEMP_1_PIN         PA0  // T1 <-> E1
-#define TEMP_BED_PIN       PA1  // T2 <-> Bed
-#define TEMP_PROBE_PIN     PC3  // Shares J4 connector with PD1
+#define TEMP_0_PIN         PA2   // T0 <-> E0
+#define TEMP_1_PIN         PA0   // T1 <-> E1
+#define TEMP_BED_PIN       PA1   // T2 <-> Bed
+#define TEMP_PROBE_PIN     PC3   // Shares J4 connector with PD1
 
 //
 // Heaters / Fans
