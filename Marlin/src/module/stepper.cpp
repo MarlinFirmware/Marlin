@@ -2049,96 +2049,96 @@ void Stepper::init() {
 
   // Init Dir Pins
   #if HAS_X_DIR
-    X_DIR_INIT;
+    X_DIR_INIT();
   #endif
   #if HAS_X2_DIR
-    X2_DIR_INIT;
+    X2_DIR_INIT();
   #endif
   #if HAS_Y_DIR
-    Y_DIR_INIT;
+    Y_DIR_INIT();
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_DIR
-      Y2_DIR_INIT;
+      Y2_DIR_INIT();
     #endif
   #endif
   #if HAS_Z_DIR
-    Z_DIR_INIT;
+    Z_DIR_INIT();
     #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_DIR
-      Z2_DIR_INIT;
+      Z2_DIR_INIT();
     #endif
     #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_DIR
-      Z3_DIR_INIT;
+      Z3_DIR_INIT();
     #endif
   #endif
   #if HAS_E0_DIR
-    E0_DIR_INIT;
+    E0_DIR_INIT();
   #endif
   #if HAS_E1_DIR
-    E1_DIR_INIT;
+    E1_DIR_INIT();
   #endif
   #if HAS_E2_DIR
-    E2_DIR_INIT;
+    E2_DIR_INIT();
   #endif
   #if HAS_E3_DIR
-    E3_DIR_INIT;
+    E3_DIR_INIT();
   #endif
   #if HAS_E4_DIR
-    E4_DIR_INIT;
+    E4_DIR_INIT();
   #endif
   #if HAS_E5_DIR
-    E5_DIR_INIT;
+    E5_DIR_INIT();
   #endif
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
-    X_ENABLE_INIT;
+    X_ENABLE_INIT();
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
     #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
-      X2_ENABLE_INIT;
+      X2_ENABLE_INIT();
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_Y_ENABLE
-    Y_ENABLE_INIT;
+    Y_ENABLE_INIT();
     if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
-      Y2_ENABLE_INIT;
+      Y2_ENABLE_INIT();
       if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_Z_ENABLE
-    Z_ENABLE_INIT;
+    Z_ENABLE_INIT();
     if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
     #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_ENABLE
-      Z2_ENABLE_INIT;
+      Z2_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
     #endif
     #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_ENABLE
-      Z3_ENABLE_INIT;
+      Z3_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_E0_ENABLE
-    E0_ENABLE_INIT;
+    E0_ENABLE_INIT();
     if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E1_ENABLE
-    E1_ENABLE_INIT;
+    E1_ENABLE_INIT();
     if (!E_ENABLE_ON) E1_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E2_ENABLE
-    E2_ENABLE_INIT;
+    E2_ENABLE_INIT();
     if (!E_ENABLE_ON) E2_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E3_ENABLE
-    E3_ENABLE_INIT;
+    E3_ENABLE_INIT();
     if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E4_ENABLE
-    E4_ENABLE_INIT;
+    E4_ENABLE_INIT();
     if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E5_ENABLE
-    E5_ENABLE_INIT;
+    E5_ENABLE_INIT();
     if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
   #endif
 
@@ -2156,7 +2156,7 @@ void Stepper::init() {
   // Init Step Pins
   #if HAS_X_STEP
     #if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
-      X2_STEP_INIT;
+      X2_STEP_INIT();
       X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
     AXIS_INIT(X, X);
@@ -2164,7 +2164,7 @@ void Stepper::init() {
 
   #if HAS_Y_STEP
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-      Y2_STEP_INIT;
+      Y2_STEP_INIT();
       Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
     #endif
     AXIS_INIT(Y, Y);
@@ -2172,11 +2172,11 @@ void Stepper::init() {
 
   #if HAS_Z_STEP
     #if Z_MULTI_STEPPER_DRIVERS
-      Z2_STEP_INIT;
+      Z2_STEP_INIT();
       Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
     #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      Z3_STEP_INIT;
+      Z3_STEP_INIT();
       Z3_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
     AXIS_INIT(Z, Z);

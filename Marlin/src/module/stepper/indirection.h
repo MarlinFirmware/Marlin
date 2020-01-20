@@ -58,11 +58,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define X_DIR_WRITE(STATE) WRITE(X_DIR_PIN,STATE)
   #define X_DIR_READ() READ(X_DIR_PIN)
 #endif
-#define X_STEP_INIT SET_OUTPUT(X_STEP_PIN)
+#define X_STEP_INIT() SET_OUTPUT(X_STEP_PIN)
 #ifndef X_STEP_WRITE
   #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
 #endif
-#define X_STEP_READ READ(X_STEP_PIN)
+#define X_STEP_READ() READ(X_STEP_PIN)
 
 // Y Stepper
 #ifndef Y_ENABLE_INIT
@@ -75,11 +75,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y_DIR_WRITE(STATE) WRITE(Y_DIR_PIN,STATE)
   #define Y_DIR_READ() READ(Y_DIR_PIN)
 #endif
-#define Y_STEP_INIT SET_OUTPUT(Y_STEP_PIN)
+#define Y_STEP_INIT() SET_OUTPUT(Y_STEP_PIN)
 #ifndef Y_STEP_WRITE
   #define Y_STEP_WRITE(STATE) WRITE(Y_STEP_PIN,STATE)
 #endif
-#define Y_STEP_READ READ(Y_STEP_PIN)
+#define Y_STEP_READ() READ(Y_STEP_PIN)
 
 // Z Stepper
 #ifndef Z_ENABLE_INIT
@@ -92,11 +92,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z_DIR_WRITE(STATE) WRITE(Z_DIR_PIN,STATE)
   #define Z_DIR_READ() READ(Z_DIR_PIN)
 #endif
-#define Z_STEP_INIT SET_OUTPUT(Z_STEP_PIN)
+#define Z_STEP_INIT() SET_OUTPUT(Z_STEP_PIN)
 #ifndef Z_STEP_WRITE
   #define Z_STEP_WRITE(STATE) WRITE(Z_STEP_PIN,STATE)
 #endif
-#define Z_STEP_READ READ(Z_STEP_PIN)
+#define Z_STEP_READ() READ(Z_STEP_PIN)
 
 // X2 Stepper
 #if HAS_X2_ENABLE
@@ -110,11 +110,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X2_DIR_WRITE(STATE) WRITE(X2_DIR_PIN,STATE)
     #define X2_DIR_READ() READ(X2_DIR_PIN)
   #endif
-  #define X2_STEP_INIT SET_OUTPUT(X2_STEP_PIN)
+  #define X2_STEP_INIT() SET_OUTPUT(X2_STEP_PIN)
   #ifndef X2_STEP_WRITE
     #define X2_STEP_WRITE(STATE) WRITE(X2_STEP_PIN,STATE)
   #endif
-  #define X2_STEP_READ READ(X2_STEP_PIN)
+  #define X2_STEP_READ() READ(X2_STEP_PIN)
 #endif
 
 // Y2 Stepper
@@ -129,11 +129,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y2_DIR_WRITE(STATE) WRITE(Y2_DIR_PIN,STATE)
     #define Y2_DIR_READ() READ(Y2_DIR_PIN)
   #endif
-  #define Y2_STEP_INIT SET_OUTPUT(Y2_STEP_PIN)
+  #define Y2_STEP_INIT() SET_OUTPUT(Y2_STEP_PIN)
   #ifndef Y2_STEP_WRITE
     #define Y2_STEP_WRITE(STATE) WRITE(Y2_STEP_PIN,STATE)
   #endif
-  #define Y2_STEP_READ READ(Y2_STEP_PIN)
+  #define Y2_STEP_READ() READ(Y2_STEP_PIN)
 #else
   #define Y2_DIR_WRITE(STATE) NOOP
 #endif
@@ -150,11 +150,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z2_DIR_WRITE(STATE) WRITE(Z2_DIR_PIN,STATE)
     #define Z2_DIR_READ() READ(Z2_DIR_PIN)
   #endif
-  #define Z2_STEP_INIT SET_OUTPUT(Z2_STEP_PIN)
+  #define Z2_STEP_INIT() SET_OUTPUT(Z2_STEP_PIN)
   #ifndef Z2_STEP_WRITE
     #define Z2_STEP_WRITE(STATE) WRITE(Z2_STEP_PIN,STATE)
   #endif
-  #define Z2_STEP_READ READ(Z2_STEP_PIN)
+  #define Z2_STEP_READ() READ(Z2_STEP_PIN)
 #else
   #define Z2_DIR_WRITE(STATE) NOOP
 #endif
@@ -171,11 +171,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z3_DIR_WRITE(STATE) WRITE(Z3_DIR_PIN,STATE)
     #define Z3_DIR_READ() READ(Z3_DIR_PIN)
   #endif
-  #define Z3_STEP_INIT SET_OUTPUT(Z3_STEP_PIN)
+  #define Z3_STEP_INIT() SET_OUTPUT(Z3_STEP_PIN)
   #ifndef Z3_STEP_WRITE
     #define Z3_STEP_WRITE(STATE) WRITE(Z3_STEP_PIN,STATE)
   #endif
-  #define Z3_STEP_READ READ(Z3_STEP_PIN)
+  #define Z3_STEP_READ() READ(Z3_STEP_PIN)
 #else
   #define Z3_DIR_WRITE(STATE) NOOP
 #endif
@@ -191,11 +191,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E0_DIR_WRITE(STATE) WRITE(E0_DIR_PIN,STATE)
   #define E0_DIR_READ() READ(E0_DIR_PIN)
 #endif
-#define E0_STEP_INIT SET_OUTPUT(E0_STEP_PIN)
+#define E0_STEP_INIT() SET_OUTPUT(E0_STEP_PIN)
 #ifndef E0_STEP_WRITE
   #define E0_STEP_WRITE(STATE) WRITE(E0_STEP_PIN,STATE)
 #endif
-#define E0_STEP_READ READ(E0_STEP_PIN)
+#define E0_STEP_READ() READ(E0_STEP_PIN)
 
 // E1 Stepper
 #ifndef E1_ENABLE_INIT
@@ -208,11 +208,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E1_DIR_WRITE(STATE) WRITE(E1_DIR_PIN,STATE)
   #define E1_DIR_READ() READ(E1_DIR_PIN)
 #endif
-#define E1_STEP_INIT SET_OUTPUT(E1_STEP_PIN)
+#define E1_STEP_INIT() SET_OUTPUT(E1_STEP_PIN)
 #ifndef E1_STEP_WRITE
   #define E1_STEP_WRITE(STATE) WRITE(E1_STEP_PIN,STATE)
 #endif
-#define E1_STEP_READ READ(E1_STEP_PIN)
+#define E1_STEP_READ() READ(E1_STEP_PIN)
 
 // E2 Stepper
 #ifndef E2_ENABLE_INIT
@@ -225,11 +225,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E2_DIR_WRITE(STATE) WRITE(E2_DIR_PIN,STATE)
   #define E2_DIR_READ() READ(E2_DIR_PIN)
 #endif
-#define E2_STEP_INIT SET_OUTPUT(E2_STEP_PIN)
+#define E2_STEP_INIT() SET_OUTPUT(E2_STEP_PIN)
 #ifndef E2_STEP_WRITE
   #define E2_STEP_WRITE(STATE) WRITE(E2_STEP_PIN,STATE)
 #endif
-#define E2_STEP_READ READ(E2_STEP_PIN)
+#define E2_STEP_READ() READ(E2_STEP_PIN)
 
 // E3 Stepper
 #ifndef E3_ENABLE_INIT
@@ -242,11 +242,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E3_DIR_WRITE(STATE) WRITE(E3_DIR_PIN,STATE)
   #define E3_DIR_READ() READ(E3_DIR_PIN)
 #endif
-#define E3_STEP_INIT SET_OUTPUT(E3_STEP_PIN)
+#define E3_STEP_INIT() SET_OUTPUT(E3_STEP_PIN)
 #ifndef E3_STEP_WRITE
   #define E3_STEP_WRITE(STATE) WRITE(E3_STEP_PIN,STATE)
 #endif
-#define E3_STEP_READ READ(E3_STEP_PIN)
+#define E3_STEP_READ() READ(E3_STEP_PIN)
 
 // E4 Stepper
 #ifndef E4_ENABLE_INIT
@@ -259,11 +259,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,STATE)
   #define E4_DIR_READ() READ(E4_DIR_PIN)
 #endif
-#define E4_STEP_INIT SET_OUTPUT(E4_STEP_PIN)
+#define E4_STEP_INIT() SET_OUTPUT(E4_STEP_PIN)
 #ifndef E4_STEP_WRITE
   #define E4_STEP_WRITE(STATE) WRITE(E4_STEP_PIN,STATE)
 #endif
-#define E4_STEP_READ READ(E4_STEP_PIN)
+#define E4_STEP_READ() READ(E4_STEP_PIN)
 
 // E5 Stepper
 #ifndef E5_ENABLE_INIT
@@ -276,11 +276,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E5_DIR_WRITE(STATE) WRITE(E5_DIR_PIN,STATE)
   #define E5_DIR_READ() READ(E5_DIR_PIN)
 #endif
-#define E5_STEP_INIT SET_OUTPUT(E5_STEP_PIN)
+#define E5_STEP_INIT() SET_OUTPUT(E5_STEP_PIN)
 #ifndef E5_STEP_WRITE
   #define E5_STEP_WRITE(STATE) WRITE(E5_STEP_PIN,STATE)
 #endif
-#define E5_STEP_READ READ(E5_STEP_PIN)
+#define E5_STEP_READ() READ(E5_STEP_PIN)
 
 /**
  * Extruder indirection for the single E axis

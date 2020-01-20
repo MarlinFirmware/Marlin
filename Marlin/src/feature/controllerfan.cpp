@@ -43,22 +43,22 @@ void controllerfan_update() {
       #if HAS_HEATED_BED
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
-        #if HAS_X2_ENABLE
-          || X2_ENABLE_READ() == X_ENABLE_ON
-        #endif
-        #if HAS_Y2_ENABLE
-          || Y2_ENABLE_READ() == Y_ENABLE_ON
-        #endif
-        #if HAS_Z2_ENABLE
-          || Z2_ENABLE_READ() == Z_ENABLE_ON
-        #endif
-        #if HAS_Z3_ENABLE
-          || Z3_ENABLE_READ() == Z_ENABLE_ON
-        #endif
-        #if E_STEPPERS
-          #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == E_ENABLE_ON
-          REPEAT(E_STEPPERS, _OR_ENABLED_E)
-        #endif
+      #if HAS_X2_ENABLE
+        || X2_ENABLE_READ() == X_ENABLE_ON
+      #endif
+      #if HAS_Y2_ENABLE
+        || Y2_ENABLE_READ() == Y_ENABLE_ON
+      #endif
+      #if HAS_Z2_ENABLE
+        || Z2_ENABLE_READ() == Z_ENABLE_ON
+      #endif
+      #if HAS_Z3_ENABLE
+        || Z3_ENABLE_READ() == Z_ENABLE_ON
+      #endif
+      #if E_STEPPERS
+        #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == E_ENABLE_ON
+        REPEAT(E_STEPPERS, _OR_ENABLED_E)
+      #endif
     ) {
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
     }
