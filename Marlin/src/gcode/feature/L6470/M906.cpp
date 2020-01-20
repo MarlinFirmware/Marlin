@@ -196,7 +196,7 @@ void L6470_report_current(L64XX &motor, const L64XX_axis_t axis) {
 
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
       SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
-                        "   ADC_OUT: ", L6470_ADC_out);
+                      "   ADC_OUT: ", L6470_ADC_out);
 
       SERIAL_ECHOLNPGM("   Vs_compensation: NA\n");
       SERIAL_ECHOLNPGM("...KVAL_HOLD: NA"
