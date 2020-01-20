@@ -57,7 +57,7 @@
     #define TEMP_TIMER 2
   #endif
 
-#elif defined(STM32F4xx) || defined(STM32F7xx)
+#elif defined(STM32F401xC) || defined(STM32F401xE)
 
   #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
@@ -71,7 +71,34 @@
     #define TEMP_TIMER 10
   #endif
 
+#elif defined(STM32F4xx)
+
+  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
+
+
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 6
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 14
+  #endif
+
+#elif defined(STM32F7xx
+
+  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
+
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 6
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 14
+  #endif
+
 #endif
+
+
 
 #ifndef SWSERIAL_TIMER_IRQ_PRIO
   #define SWSERIAL_TIMER_IRQ_PRIO 1
