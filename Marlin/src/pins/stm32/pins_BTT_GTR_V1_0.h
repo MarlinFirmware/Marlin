@@ -113,7 +113,6 @@
         #define E2_CS_PIN        PC12
       #endif  
 
-  #if ENABLED(TP)
       #define E3_STEP_PIN        PF3
       #define E3_DIR_PIN         PG3
       #define E3_ENABLE_PIN      PF8
@@ -147,8 +146,7 @@
       #define E7_ENABLE_PIN      PI0
       #ifndef E7_CS_PIN
         #define E7_CS_PIN        PH14
-      #endif 
-  #endif 
+      #endif  
 
 //
 // Software SPI pins for TMC2130 stepper drivers
