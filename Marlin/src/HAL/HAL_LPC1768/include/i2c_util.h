@@ -22,21 +22,25 @@
 #pragma once
 
 /**
- * digipot_mcp4451_I2C_routines.h
- * Adapted from https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
+ * HAL_LPC1768/include/i2c_util.h
  */
 
-#ifdef __cplusplus
-  extern "C" {
+#ifndef USEDI2CDEV_M
+  #define USEDI2CDEV_M  1  // By default use I2C1 controller
+#endif
+
+#if USEDI2CDEV_M == 0
+  #define I2CDEV_M LPC_I2C0
+#elif USEDI2CDEV_M == 1
+  #define I2CDEV_M LPC_I2C1
+#elif USEDI2CDEV_M == 2
+  #define I2CDEV_M LPC_I2C2
+#else
+  #error "Master I2C device not defined!"
 #endif
 
 #include <lpc17xx_i2c.h>
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
 
-uint8_t digipot_mcp4451_start(uint8_t sla);
-uint8_t digipot_mcp4451_send_byte(uint8_t data);
-
-#ifdef __cplusplus
-  }
-#endif
+void configure_i2c(const uint8_t clock_option);
