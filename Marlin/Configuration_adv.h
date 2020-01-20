@@ -2481,6 +2481,7 @@
 
 //#define EXPERIMENTAL_I2CBUS
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
+//#define I2C_MASTER_ID      1 // Set the I2C master id to be used. For now, only used for LPC176x boards.
 
 // @section extras
 

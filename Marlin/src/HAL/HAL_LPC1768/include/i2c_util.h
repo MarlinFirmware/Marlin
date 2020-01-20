@@ -25,9 +25,7 @@
  * HAL_LPC1768/include/i2c_util.h
  */
 
-#ifndef USEDI2CDEV_M
-  #define USEDI2CDEV_M  1  // By default use I2C1 controller
-#endif
+#define USEDI2CDEV_M I2C_MASTER_ID
 
 #if USEDI2CDEV_M == 0
   #define I2CDEV_M LPC_I2C0
