@@ -579,6 +579,13 @@
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 
 //
+// Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
+//
+
+#elif MB(AGCM4_RAMPS_144)
+  #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
 // Linux Native Debug board
 //
 
