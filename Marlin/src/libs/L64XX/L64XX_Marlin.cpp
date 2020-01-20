@@ -39,34 +39,34 @@ L64XX_Marlin L64xxManager;
 
 void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }
 
-char L64XX_Marlin::index_to_axis[MAX_L6470][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
+char L64XX_Marlin::index_to_axis[MAX_L64XX][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "E0", "E1", "E2", "E3", "E4", "E5" };
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
-uint8_t L64XX_Marlin::dir_commands[MAX_L6470];  // array to hold direction command for each driver
+uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction command for each driver
 
-uint8_t L64XX_Marlin::index_to_dir[MAX_L6470] = { (INVERT_X_DIR)                        , //  0 X
-                                                  (INVERT_Y_DIR)                        , //  1 Y
-                                                  (INVERT_Z_DIR)                        , //  2 Z
-                                                  #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-                                                    (INVERT_X_DIR) ^ (INVERT_X2_VS_X_DIR) , //  3 X2
+uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = { (INVERT_X_DIR),                         //  0 X
+                                                  (INVERT_Y_DIR),                         //  1 Y
+                                                  (INVERT_Z_DIR),                         //  2 Z
+                                                  #if ENABLED(X_DUAL_STEPPER_DRIVERS)     //  3 X2
+                                                    (INVERT_X_DIR) ^ (INVERT_X2_VS_X_DIR),
                                                   #else
-                                                    (INVERT_X_DIR)                      , //  3 X2
+                                                    (INVERT_X_DIR),
                                                   #endif
-                                                  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-                                                    (INVERT_Y_DIR) ^ (INVERT_Y2_VS_Y_DIR) , //  4 Y2
+                                                  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)     //  4 Y2
+                                                    (INVERT_Y_DIR) ^ (INVERT_Y2_VS_Y_DIR),
                                                   #else
-                                                    (INVERT_Y_DIR)                      , //  4 Y2
+                                                    (INVERT_Y_DIR),
                                                   #endif
-                                                  (INVERT_Z_DIR)                        , //  5 Z2
-                                                  (INVERT_Z_DIR)                        , //  6 Z3
-                                                  (INVERT_E0_DIR)                       , //  7 E0
-                                                  (INVERT_E1_DIR)                       , //  8 E1
-                                                  (INVERT_E2_DIR)                       , //  9 E2
-                                                  (INVERT_E3_DIR)                       , // 10 E3
-                                                  (INVERT_E4_DIR)                       , // 11 E4
-                                                  (INVERT_E5_DIR)                       , // 12 E5
+                                                  (INVERT_Z_DIR),                         //  5 Z2
+                                                  (INVERT_Z_DIR),                         //  6 Z3
+                                                  (INVERT_E0_DIR),                        //  7 E0
+                                                  (INVERT_E1_DIR),                        //  8 E1
+                                                  (INVERT_E2_DIR),                        //  9 E2
+                                                  (INVERT_E3_DIR),                        // 10 E3
+                                                  (INVERT_E4_DIR),                        // 11 E4
+                                                  (INVERT_E5_DIR),                        // 12 E5
                                                 };
 
 volatile uint8_t L64XX_Marlin::spi_abort = false;
@@ -367,7 +367,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
     uint8_t driver_count_local = 0;         // Can't use "driver_count" directly as a subscript because it's passed by reference
     if (axis_offset >= 2 || axis_mon[0][0] == 'E') {  // Single axis, E0, or E1
       axis_mon[0][1] = axis_offset + '0';
-      for (j = 0; j < MAX_L6470; j++) {       // See how many drivers on this axis
+      for (j = 0; j < MAX_L64XX; j++) {       // See how many drivers on this axis
         const char * const str = index_to_axis[j];
         if (axis_mon[0][0] == str[0]) {
           char * const mon = axis_mon[driver_count_local];
@@ -380,7 +380,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       }
     }
     else if (axis_offset == 0) {              // One or more axes
-      for (j = 0; j < MAX_L6470; j++) {       // See how many drivers on this axis
+      for (j = 0; j < MAX_L64XX; j++) {       // See how many drivers on this axis
         const char * const str = index_to_axis[j];
         if (axis_mon[0][0] == str[0]) {
           char * const mon = axis_mon[driver_count_local];

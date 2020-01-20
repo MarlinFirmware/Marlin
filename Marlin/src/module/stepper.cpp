@@ -119,7 +119,7 @@ Stepper stepper; // Singleton
 
 #if HAS_L64XX
   #include "../libs/L64XX/L64XX_Marlin.h"
-  uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+  uint8_t L6470_buf[MAX_L64XX + 1];   // chip command sequence - element 0 not used
   bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
 #endif
 
