@@ -110,7 +110,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       const float comp_coef = 1600.0f / L6470_ADC_out_limited;
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07);
 
-      say_axis_status(axis, status);
+      say_axis_status(axis, sh.STATUS_AXIS_RAW);
 
       SERIAL_ECHOPGM("...OverCurrent Threshold: ");
       sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
@@ -181,7 +181,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       const uint16_t L6470_ADC_out = motor.GetParam(L6470_ADC_OUT) & 0x1F,
                      L6474_TVAL_val = motor.GetParam(L6474_TVAL) & 0x7F;
 
-      say_axis_status(axis, status);
+      say_axis_status(axis, sh.STATUS_AXIS_RAW);
 
       SERIAL_ECHOPGM("...OverCurrent Threshold: ");
       sprintf_P(temp_buf, PSTR("%2d ("), OverCurrent_Threshold);
@@ -192,15 +192,13 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       sprintf_P(temp_buf, PSTR("%2d ("), L6474_TVAL_val);
       SERIAL_ECHO(temp_buf);
       SERIAL_ECHO((L6474_TVAL_val + 1) * motor.STALL_CURRENT_CONSTANT_INV);
-      SERIAL_ECHOLNPGM(" mA   Motor Status: NA)");
+      SERIAL_ECHOLNPGM(" mA)   Motor Status: NA");
 
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
-      SERIAL_ECHOLNPAIR("...MicroSteps: ", MicroSteps,
-                        "   ADC_OUT: ", L6470_ADC_out,
-                        "   Vs_compensation: NA");
+      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+                      "   ADC_OUT: ", L6470_ADC_out);
 
-      SERIAL_EOL();
-
+      SERIAL_ECHOLNPGM("   Vs_compensation: NA\n");
       SERIAL_ECHOLNPGM("...KVAL_HOLD: NA"
                        "   KVAL_RUN : NA"
                        "   KVAL_ACC: NA"
