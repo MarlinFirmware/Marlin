@@ -195,6 +195,8 @@
 #define MSG_Z2_MAX                          "z2_max"
 #define MSG_Z3_MIN                          "z3_min"
 #define MSG_Z3_MAX                          "z3_max"
+#define MSG_Z4_MIN                          "z4_min"
+#define MSG_Z4_MAX                          "z4_max"
 #define MSG_Z_PROBE                         "z_probe"
 #define MSG_FILAMENT_RUNOUT_SENSOR          "filament"
 #define MSG_PROBE_OFFSET                    "Probe Offset"
@@ -333,6 +335,7 @@
 #define MSG_Y2 "Y2"
 #define MSG_Z2 "Z2"
 #define MSG_Z3 "Z3"
+#define MSG_Z4 "Z4"
 
 #define LCD_STR_A MSG_A
 #define LCD_STR_B MSG_B

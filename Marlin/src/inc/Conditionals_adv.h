@@ -54,6 +54,11 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+// Multiple Z steppers
+#ifndef NUM_Z_STEPPER_DRIVERS
+  #define NUM_Z_STEPPER_DRIVERS 1
+#endif
+
 #define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
 
 #if !defined(__AVR__) || !defined(USBCON)

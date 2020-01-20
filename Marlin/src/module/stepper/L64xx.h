@@ -160,6 +160,23 @@
   #endif
 #endif
 
+// Z4 Stepper
+#if HAS_Z4_ENABLE && AXIS_IS_L64XX(Z4)
+  extern L64XX_CLASS(Z4)         stepperZ4;
+  #define Z4_ENABLE_INIT()       NOOP
+  #define Z4_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperZ4.free())
+  #define Z4_ENABLE_READ()       (stepperZ4.getStatus() & STATUS_HIZ)
+  #if AXIS_DRIVER_TYPE_Z4(L6474)
+    #define Z4_DIR_INIT()        SET_OUTPUT(Z4_DIR_PIN)
+    #define Z4_DIR_WRITE(STATE)  L6474_DIR_WRITE(Z4, STATE)
+    #define Z4_DIR_READ()        READ(Z4_DIR_PIN)
+  #else
+    #define Z4_DIR_INIT()        NOOP
+    #define Z4_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Z4, STATE)
+    #define Z4_DIR_READ()        (stepper##Z4.getStatus() & STATUS_DIR);
+  #endif
+#endif
+
 // E0 Stepper
 #if AXIS_IS_L64XX(E0)
   extern L64XX_CLASS(E0)         stepperE0;

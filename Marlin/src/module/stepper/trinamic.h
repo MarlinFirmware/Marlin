@@ -50,6 +50,7 @@
 #define TMC_Y2_LABEL 'Y', '2'
 #define TMC_Z2_LABEL 'Z', '2'
 #define TMC_Z3_LABEL 'Z', '3'
+#define TMC_Z4_LABEL 'Z', '4'
 
 #define TMC_E0_LABEL 'E', '0'
 #define TMC_E1_LABEL 'E', '1'
@@ -172,6 +173,19 @@ void reset_trinamic_drivers();
   #endif
   #if AXIS_HAS_SQUARE_WAVE(Z3)
     #define Z3_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z3_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// Z4 Stepper
+#if HAS_Z4_ENABLE && AXIS_IS_TMC(Z4)
+  extern TMC_CLASS(Z4, Z) stepperZ4;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define Z4_ENABLE_INIT() NOOP
+    #define Z4_ENABLE_WRITE(STATE) stepperZ4.toff((STATE)==Z_ENABLE_ON ? chopper_timing.toff : 0)
+    #define Z4_ENABLE_READ() stepperZ4.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(Z4)
+    #define Z4_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z4_STEP_PIN); }while(0)
   #endif
 #endif
 

@@ -98,6 +98,16 @@
 #else
   #define MATCH_Z3_MIN_EILINE(P) false
 #endif
+#if HAS_Z4_MAX
+  #define MATCH_Z4_MAX_EILINE(P) MATCH_EILINE(P, Z4_MAX_PIN)
+#else
+  #define MATCH_Z4_MAX_EILINE(P) false
+#endif
+#if HAS_Z4_MIN
+  #define MATCH_Z4_MIN_EILINE(P) MATCH_EILINE(P, Z4_MIN_PIN)
+#else
+  #define MATCH_Z4_MIN_EILINE(P) false
+#endif
 #if HAS_Z_MIN_PROBE_PIN
   #define MATCH_Z_MIN_PROBE_EILINE(P)   MATCH_EILINE(P, Z_MIN_PROBE_PIN)
 #else
@@ -109,6 +119,7 @@
                                  && !MATCH_Z_MAX_EILINE(P) && !MATCH_Z_MIN_EILINE(P)    \
                                  && !MATCH_Z2_MAX_EILINE(P) && !MATCH_Z2_MIN_EILINE(P)  \
                                  && !MATCH_Z3_MAX_EILINE(P) && !MATCH_Z3_MIN_EILINE(P)  \
+                                 && !MATCH_Z4_MAX_EILINE(P) && !MATCH_Z4_MIN_EILINE(P)  \
                                  && !MATCH_Z_MIN_PROBE_EILINE(P))
 
 // One ISR for all EXT-Interrupts
@@ -117,67 +128,79 @@ void endstop_ISR() { endstops.update(); }
 void setup_endstop_interrupts() {
   #if HAS_X_MAX
     #if !AVAILABLE_EILINE(X_MAX_PIN)
-      static_assert(false, "X_MAX_PIN has no EXTINT line available.");
+      #error "X_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_X_MIN
     #if !AVAILABLE_EILINE(X_MIN_PIN)
-      static_assert(false, "X_MIN_PIN has no EXTINT line available.");
+      #error "X_MIN_PIN has no EXTINT line available."
     #endif
     attachInterrupt(X_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Y_MAX
     #if !AVAILABLE_EILINE(Y_MAX_PIN)
-      static_assert(false, "Y_MAX_PIN has no EXTINT line available.");
+      #error "Y_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Y_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Y_MIN
     #if !AVAILABLE_EILINE(Y_MIN_PIN)
-      static_assert(false, "Y_MIN_PIN has no EXTINT line available.");
+      #error "Y_MIN_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Y_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MAX
     #if !AVAILABLE_EILINE(Z_MAX_PIN)
-      static_assert(false, "Z_MAX_PIN has no EXTINT line available.");
+      #error "Z_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN
     #if !AVAILABLE_EILINE(Z_MIN_PIN)
-      static_assert(false, "Z_MIN_PIN has no EXTINT line available.");
+      #error "Z_MIN_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z2_MAX
     #if !AVAILABLE_EILINE(Z2_MAX_PIN)
-      static_assert(false, "Z2_MAX_PIN has no EXTINT line available.");
+      #error "Z2_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z2_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z2_MIN
     #if !AVAILABLE_EILINE(Z2_MIN_PIN)
-      static_assert(false, "Z2_MIN_PIN has no EXTINT line available.");
+      #error "Z2_MIN_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z2_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z3_MAX
     #if !AVAILABLE_EILINE(Z3_MAX_PIN)
-      static_assert(false, "Z3_MAX_PIN has no EXTINT line available.");
+      #error "Z3_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z3_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z3_MIN
     #if !AVAILABLE_EILINE(Z3_MIN_PIN)
-      static_assert(false, "Z3_MIN_PIN has no EXTINT line available.");
+      #error "Z3_MIN_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z3_MIN_PIN, endstop_ISR, CHANGE);
   #endif
+  #if HAS_Z4_MAX
+    #if !AVAILABLE_EILINE(Z4_MAX_PIN)
+      #error "Z4_MAX_PIN has no EXTINT line available."
+    #endif
+    attachInterrupt(Z4_MAX_PIN, endstop_ISR, CHANGE);
+  #endif
+  #if HAS_Z4_MIN
+    #if !AVAILABLE_EILINE(Z4_MIN_PIN)
+      #error "Z4_MIN_PIN has no EXTINT line available."
+    #endif
+    attachInterrupt(Z4_MIN_PIN, endstop_ISR, CHANGE);
+  #endif
   #if HAS_Z_MIN_PROBE_PIN
     #if !AVAILABLE_EILINE(Z_MIN_PROBE_PIN)
-      static_assert(false, "Z_MIN_PROBE_PIN has no EXTINT line available.");
+      #error "Z_MIN_PROBE_PIN has no EXTINT line available."
     #endif
     attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
   #endif
