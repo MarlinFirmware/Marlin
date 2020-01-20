@@ -24,7 +24,9 @@
 // adapted from  I2C/master/master.c example
 //   https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
 
-#define USEDI2CDEV_M  1  // use I2C1 controller
+#ifndef USEDI2CDEV_M
+  #define USEDI2CDEV_M  1  // By default use I2C1 controller
+#endif
 
 #if USEDI2CDEV_M == 0
   #define I2CDEV_M LPC_I2C0

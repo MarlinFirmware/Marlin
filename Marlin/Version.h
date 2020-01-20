@@ -74,11 +74,3 @@
 //#define  USB_DEVICE_VENDOR_ID           0x0000
 //#define  USB_DEVICE_PRODUCT_ID          0x0000
 //#define  USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL
-
-/**
- * Set the I2C master id to be used
- * This can be used for LPC176x boards only
- */
-//#ifdef TARGET_LPC1768
-//  #define USEDI2CDEV_M 1
-//#endif

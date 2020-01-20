@@ -69,7 +69,9 @@ static void _I2C_Stop (LPC_I2C_TypeDef *I2Cx) {
 
 #define U8G_I2C_OPT_FAST 16  // from u8g.h
 
-#define USEDI2CDEV_M            1
+#ifndef USEDI2CDEV_M
+  #define USEDI2CDEV_M  1
+#endif
 
 #define I2CDEV_S_ADDR   0x78  // from SSD1306  //actual address is 0x3C - shift left 1 with LSB set to 0 to indicate write
 
