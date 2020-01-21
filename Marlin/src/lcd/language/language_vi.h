@@ -210,9 +210,9 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Đầu phun ~");                           // Nozzle
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bàn");                                  // bed
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Tốc độ quạt");                          // fan speed
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Tốc độ quạt =");                        // fan speed
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Tốc độ quạt ~");                        // fan speed
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Tốc độ quạt phụ");                      // Extra fan speed
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Tốc độ quạt phụ =");                    // Extra fan speed
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Tốc độ quạt phụ ~");                    // Extra fan speed
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Lưu Lượng");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Lưu Lượng ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Điều khiển");                           // Control

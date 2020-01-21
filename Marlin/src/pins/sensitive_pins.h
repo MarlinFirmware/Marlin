@@ -610,6 +610,31 @@
 #else
   #define _FAN2
 #endif
+#if PIN_EXISTS(FAN3)
+  #define _FAN3 FAN3_PIN,
+#else
+  #define _FAN3
+#endif
+#if PIN_EXISTS(FAN4)
+  #define _FAN4 FAN4_PIN,
+#else
+  #define _FAN4
+#endif
+#if PIN_EXISTS(FAN5)
+  #define _FAN5 FAN5_PIN,
+#else
+  #define _FAN5
+#endif
+#if PIN_EXISTS(FAN6)
+  #define _FAN6 FAN6_PIN,
+#else
+  #define _FAN6
+#endif
+#if PIN_EXISTS(FAN7)
+  #define _FAN7 FAN7_PIN,
+#else
+  #define _FAN7
+#endif
 #if PIN_EXISTS(CONTROLLER_FAN)
   #define _FANC CONTROLLER_FAN_PIN,
 #else
@@ -624,6 +649,6 @@
   _X_PINS _Y_PINS _Z_PINS _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS _Z4_PINS _Z_PROBE \
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS _BED_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \
-  _PS_ON _HEATER_BED _FAN0 _FAN1 _FAN2 _FANC \
+  _PS_ON _HEATER_BED _FAN0 _FAN1 _FAN2 _FAN3 _FAN4 _FAN5 _FAN6 _FAN7 _FANC \
   HAL_SENSITIVE_PINS \
 }

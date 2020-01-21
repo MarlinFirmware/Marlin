@@ -1677,8 +1677,9 @@ void Temperature::init() {
   #endif
 
   #if MB(RUMBA)
-    #define _AD(N) (ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495))
-    #if _AD(0) || _AD(1) || _AD(2) || _AD(3) || _AD(4) || _AD(5) || _AD(BED) || _AD(CHAMBER)
+    #define _AD(N) ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495)
+    #if  _AD(0) || _AD(1) || _AD(2) /* RUMBA has 3 E plugs // || _AD(3) || _AD(4) || _AD(5) || _AD(6) || _AD(7) */ \
+      || _AD(BED) || _AD(CHAMBER)
       // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
       MCUCR = _BV(JTD);
       MCUCR = _BV(JTD);
@@ -1740,7 +1741,7 @@ void Temperature::init() {
   #if HAS_FAN2
     INIT_FAN_PIN(FAN2_PIN);
   #endif
-    #if HAS_FAN3
+  #if HAS_FAN3
     INIT_FAN_PIN(FAN3_PIN);
   #endif
   #if HAS_FAN4
@@ -1748,6 +1749,12 @@ void Temperature::init() {
   #endif
   #if HAS_FAN5
     INIT_FAN_PIN(FAN5_PIN);
+  #endif
+  #if HAS_FAN6
+    INIT_FAN_PIN(FAN6_PIN);
+  #endif
+  #if HAS_FAN7
+    INIT_FAN_PIN(FAN7_PIN);
   #endif
   #if ENABLED(USE_CONTROLLER_FAN)
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
@@ -2610,6 +2617,12 @@ void Temperature::tick() {
         #if HAS_FAN5
           _FAN_PWM(5);
         #endif
+        #if HAS_FAN6
+          _FAN_PWM(6);
+        #endif
+        #if HAS_FAN7
+          _FAN_PWM(7);
+        #endif
       #endif
     }
     else {
@@ -2645,6 +2658,12 @@ void Temperature::tick() {
         #endif
         #if HAS_FAN5
           if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
+        #endif
+        #if HAS_FAN6
+          if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW);
+        #endif
+        #if HAS_FAN7
+          if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
         #endif
       #endif
     }
@@ -2719,6 +2738,12 @@ void Temperature::tick() {
         #if HAS_FAN5
           _FAN_PWM(5);
         #endif
+        #if HAS_FAN6
+          _FAN_PWM(6);
+        #endif
+        #if HAS_FAN7
+          _FAN_PWM(7);
+        #endif
       }
       #if HAS_FAN0
         if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
@@ -2737,6 +2762,12 @@ void Temperature::tick() {
       #endif
       #if HAS_FAN5
         if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
+      #endif
+      #if HAS_FAN6
+        if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW);
+      #endif
+      #if HAS_FAN7
+        if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
       #endif
     #endif // FAN_SOFT_PWM
 

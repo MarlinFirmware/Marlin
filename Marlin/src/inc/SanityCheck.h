@@ -2603,6 +2603,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN1_PIN."
     #elif _PIN_CONFLICT(FAN2)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN2_PIN."
+    #elif _PIN_CONFLICT(FAN3)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN3_PIN."
+    #elif _PIN_CONFLICT(FAN4)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN4_PIN."
+    #elif _PIN_CONFLICT(FAN5)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN5_PIN."
+    #elif _PIN_CONFLICT(FAN6)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN6_PIN."
+    #elif _PIN_CONFLICT(FAN7)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN7_PIN."
     #elif _PIN_CONFLICT(CONTROLLERFAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CONTROLLERFAN_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_XY)

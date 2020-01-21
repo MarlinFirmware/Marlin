@@ -341,7 +341,7 @@
  * Temp Sensor defines
  */
 
-#define ANY_TEMP_SENSOR_IS(n) (TEMP_SENSOR_0 == (n) || TEMP_SENSOR_1 == (n) || TEMP_SENSOR_2 == (n) || TEMP_SENSOR_3 == (n) || TEMP_SENSOR_4 == (n) || TEMP_SENSOR_5 == (n) || TEMP_SENSOR_BED == (n) || TEMP_SENSOR_PROBE == (n) || TEMP_SENSOR_CHAMBER == (n))
+#define ANY_TEMP_SENSOR_IS(n) (TEMP_SENSOR_0 == (n) || TEMP_SENSOR_1 == (n) || TEMP_SENSOR_2 == (n) || TEMP_SENSOR_3 == (n) || TEMP_SENSOR_4 == (n) || TEMP_SENSOR_5 == (n) || TEMP_SENSOR_6 == (n) || TEMP_SENSOR_7 == (n) || TEMP_SENSOR_BED == (n) || TEMP_SENSOR_PROBE == (n) || TEMP_SENSOR_CHAMBER == (n))
 
 #define HAS_USER_THERMISTORS ANY_TEMP_SENSOR_IS(1000)
 
@@ -1340,31 +1340,24 @@
 #if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
   #define HEATER_0_INVERTING false
 #endif
-
 #if HAS_HEATER_1 && !defined(HEATER_1_INVERTING)
   #define HEATER_1_INVERTING false
 #endif
-
 #if HAS_HEATER_2 && !defined(HEATER_2_INVERTING)
   #define HEATER_2_INVERTING false
 #endif
-
 #if HAS_HEATER_3 && !defined(HEATER_3_INVERTING)
   #define HEATER_3_INVERTING false
 #endif
-
 #if HAS_HEATER_4 && !defined(HEATER_4_INVERTING)
   #define HEATER_4_INVERTING false
 #endif
-
 #if HAS_HEATER_5 && !defined(HEATER_5_INVERTING)
   #define HEATER_5_INVERTING false
 #endif
-
 #if HAS_HEATER_6 && !defined(HEATER_6_INVERTING)
   #define HEATER_6_INVERTING false
 #endif
-
 #if HAS_HEATER_7 && !defined(HEATER_7_INVERTING)
   #define HEATER_7_INVERTING false
 #endif

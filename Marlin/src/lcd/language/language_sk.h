@@ -243,9 +243,9 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Podložka");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Komora");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Rýchlosť vent.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rýchlosť vent. =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rýchlosť vent. ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Rýchlosť ex. vent.");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rýchlosť ex. vent. =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rýchlosť ex. vent. ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Prietok");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Prietok ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ovládanie");

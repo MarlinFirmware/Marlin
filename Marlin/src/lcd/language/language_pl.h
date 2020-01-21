@@ -240,9 +240,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Stół");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Obudowa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Obroty wiatraka");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Obroty dodatkowego wiatraka");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Przepływ");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Przepływ ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ustawienia");
