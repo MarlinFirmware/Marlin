@@ -861,6 +861,7 @@ class Temperature {
     static void checkExtruderAutoFans();
 
     static float get_pid_output_hotend(const uint8_t e);
+    static float get_ff_output_hotend(float &last_target, float &expected, const uint8_t e);
 
     #if ENABLED(PIDTEMPBED)
       static float get_pid_output_bed();
