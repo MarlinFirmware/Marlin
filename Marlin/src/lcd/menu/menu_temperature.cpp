@@ -204,7 +204,7 @@ void menu_temperature() {
     };
 
     #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
-      auto fan_edit_items = [](const uint8_t f) {
+      auto fan_edit_items = [&](const uint8_t f) {
         editable.uint8 = thermalManager.fan_speed[f];
         EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
         #if ENABLED(EXTRA_FAN_SPEED)
@@ -215,7 +215,7 @@ void menu_temperature() {
 
     #define SNFAN(N) (ENABLED(SINGLENOZZLE) && !HAS_FAN##N && EXTRUDERS > N)
     #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
-      auto singlenozzle_item = [](const uint8_t f) {
+      auto singlenozzle_item = [&](const uint8_t f) {
         editable.uint8 = thermalManager.fan_speed[f];
         EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
       };
