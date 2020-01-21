@@ -25,13 +25,17 @@
  * HAL_LPC1768/include/i2c_util.h
  */
 
-#define USEDI2CDEV_M I2C_MASTER_ID
+#include "../../../inc/MarlinConfigPre.h"
 
-#if USEDI2CDEV_M == 0
+#ifndef I2C_MASTER_ID
+  #define I2C_MASTER_ID 1
+#endif
+
+#if I2C_MASTER_ID == 0
   #define I2CDEV_M LPC_I2C0
-#elif USEDI2CDEV_M == 1
+#elif I2C_MASTER_ID == 1
   #define I2CDEV_M LPC_I2C1
-#elif USEDI2CDEV_M == 2
+#elif I2C_MASTER_ID == 2
   #define I2CDEV_M LPC_I2C2
 #else
   #error "Master I2C device not defined!"

@@ -27,8 +27,6 @@
 
 #include "../../core/types.h"
 
-#define USEDI2CDEV_M I2C_MASTER_ID
-
 #include <Wire.h>
 
 /**

@@ -140,9 +140,3 @@
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
 #endif
-
-// Set a default i2c master id if not defined
-// It might be placed in HAL/HAL_LPC1768/inc/Conditionals_adv.h as it is only used for LPC176x boards for now
-#ifndef I2C_MASTER_ID
-  #define I2C_MASTER_ID 1
-#endif
