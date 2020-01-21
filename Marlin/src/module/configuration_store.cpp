@@ -1008,6 +1008,16 @@ void MarlinSettings::postprocess() {
                     #if AXIS_IS_TMC(E5)
                       tmc_stepper_current.E5 = stepperE5.getMilliamps();
                     #endif
+                    #if MAX_EXTRUDERS > 6
+                      #if AXIS_IS_TMC(E6)
+                        tmc_stepper_current.E6 = stepperE6.getMilliamps();
+                      #endif
+                      #if MAX_EXTRUDERS > 7
+                        #if AXIS_IS_TMC(E7)
+                          tmc_stepper_current.E7 = stepperE7.getMilliamps();
+                        #endif
+                      #endif // MAX_EXTRUDERS > 7
+                    #endif // MAX_EXTRUDERS > 6
                   #endif // MAX_EXTRUDERS > 5
                 #endif // MAX_EXTRUDERS > 4
               #endif // MAX_EXTRUDERS > 3
@@ -1074,6 +1084,16 @@ void MarlinSettings::postprocess() {
                     #if AXIS_HAS_STEALTHCHOP(E5)
                       tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs();
                     #endif
+                    #if MAX_EXTRUDERS > 6
+                      #if AXIS_HAS_STEALTHCHOP(E6)
+                        tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs();
+                      #endif
+                      #if MAX_EXTRUDERS > 7
+                        #if AXIS_HAS_STEALTHCHOP(E7)
+                          tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs();
+                        #endif
+                      #endif // MAX_EXTRUDERS > 7
+                    #endif // MAX_EXTRUDERS > 6
                   #endif // MAX_EXTRUDERS > 5
                 #endif // MAX_EXTRUDERS > 4
               #endif // MAX_EXTRUDERS > 3
@@ -1170,6 +1190,16 @@ void MarlinSettings::postprocess() {
                     #if AXIS_HAS_STEALTHCHOP(E5)
                       tmc_stealth_enabled.E5 = stepperE5.get_stealthChop_status();
                     #endif
+                    #if MAX_EXTRUDERS > 6
+                      #if AXIS_HAS_STEALTHCHOP(E6)
+                        tmc_stealth_enabled.E6 = stepperE6.get_stealthChop_status();
+                      #endif
+                      #if MAX_EXTRUDERS > 7
+                        #if AXIS_HAS_STEALTHCHOP(E7)
+                          tmc_stealth_enabled.E7 = stepperE7.get_stealthChop_status();
+                        #endif
+                      #endif // MAX_EXTRUDERS > 7
+                    #endif // MAX_EXTRUDERS > 6
                   #endif // MAX_EXTRUDERS > 5
                 #endif // MAX_EXTRUDERS > 4
               #endif // MAX_EXTRUDERS > 3
@@ -2788,6 +2818,14 @@ void MarlinSettings::reset() {
               #if EXTRUDERS > 5
                 CONFIG_ECHO_START();
                 SERIAL_ECHOLNPAIR("  M200 T5 D", LINEAR_UNIT(planner.filament_size[5]));
+                #if EXTRUDERS > 6
+                  CONFIG_ECHO_START();
+                  SERIAL_ECHOLNPAIR("  M200 T6 D", LINEAR_UNIT(planner.filament_size[6]));
+                  #if EXTRUDERS > 7
+                    CONFIG_ECHO_START();
+                    SERIAL_ECHOLNPAIR("  M200 T7 D", LINEAR_UNIT(planner.filament_size[7]));
+                  #endif // EXTRUDERS > 7
+                #endif // EXTRUDERS > 6
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3
@@ -3528,6 +3566,12 @@ void MarlinSettings::reset() {
               _ECHO_603(4);
               #if EXTRUDERS > 5
                 _ECHO_603(5);
+                #if EXTRUDERS > 6
+                  _ECHO_603(6);
+                  #if EXTRUDERS > 7
+                    _ECHO_603(7);
+                  #endif // EXTRUDERS > 7
+                #endif // EXTRUDERS > 6
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3

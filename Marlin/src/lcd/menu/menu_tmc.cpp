@@ -79,6 +79,12 @@ void menu_tmc_current() {
   #if AXIS_IS_TMC(E5)
     TMC_EDIT_STORED_I_RMS(E5, LCD_STR_E5);
   #endif
+  #if AXIS_IS_TMC(E6)
+    TMC_EDIT_STORED_I_RMS(E6, LCD_STR_E6);
+  #endif
+  #if AXIS_IS_TMC(E7)
+    TMC_EDIT_STORED_I_RMS(E7, LCD_STR_E7);
+  #endif
   END_MENU();
 }
 
@@ -130,6 +136,12 @@ void menu_tmc_current() {
     #endif
     #if AXIS_HAS_STEALTHCHOP(E5)
       TMC_EDIT_STORED_HYBRID_THRS(E5, LCD_STR_E5);
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(E6)
+      TMC_EDIT_STORED_HYBRID_THRS(E6, LCD_STR_E6);
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(E7)
+      TMC_EDIT_STORED_HYBRID_THRS(E7, LCD_STR_E7);
     #endif
     END_MENU();
   }
@@ -209,6 +221,12 @@ void menu_tmc_current() {
     #endif
     #if AXIS_HAS_STEALTHCHOP(E5)
       TMC_EDIT_STEP_MODE(E5, LCD_STR_E5);
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(E6)
+      TMC_EDIT_STEP_MODE(E6, LCD_STR_E6);
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(E7)
+      TMC_EDIT_STEP_MODE(E7, LCD_STR_E7);
     #endif
     END_MENU();
   }
