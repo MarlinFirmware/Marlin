@@ -1772,8 +1772,7 @@
   #define TOOLCHANGE_ZRAISE     2  // (mm)
   //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
-    // Tool Change Post Process
-    //#define TOOLCHANGE_POST_PROCESS "G12X"
+    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
   #endif
 
   // Retract and prime filament on tool-change
