@@ -661,17 +661,22 @@
   //#define Z_STEPPER_ALIGN_XY { {  10, 190 }, { 100,  10 }, { 190, 190 } }
 
   /**
-   * Rotrate automatically calulated positions clockwise
+   * Rotate automatically calulated positions clockwise
    * For 2 point
    * Enabled and not 0 rotates to X center and Y edges
    *
    * For 3 point
-   * 0 or Undefined sets Point 1 Front Left
-   * 1 sets Point 1 Rear left
-   * 2 sets Point 1 Rear Right
-   * 3 sets Point 1 Front Right
+   * 0       1        2         3
+   *   3   |  1     |  2   1  |      2
+   *       |     3  |         | 3
+   * 1   2 |  2     |    3    |      1
+   *
+   * Quad rotates clockwise with point 1 starting Front Left.
+   *
+   * Override set points and assign stepper orientations with M422
+   * First point assigned is Z1, second is Z2....
   */
- //#define Z_STEPPER_ALIGN_ROTATE 0
+  //#define Z_STEPPER_ALIGN_ROTATE 0
 
   // Provide Z stepper positions for more rapid convergence in bed alignment.
   // Currently requires triple stepper drivers.
