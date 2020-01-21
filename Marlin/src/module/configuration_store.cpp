@@ -252,9 +252,9 @@ typedef struct SettingsDataStruct {
   #endif
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS]
+    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS]
+      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];
     #endif
   #endif
 
@@ -2523,7 +2523,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-      stepper.z_stepper_align_xy[] =
+      const xy_pos_t temp_z_stepper_align_xy[] =
       #ifdef Z_STEPPER_ALIGN_XY
         Z_STEPPER_ALIGN_XY
       #else
@@ -2560,9 +2560,12 @@ void MarlinSettings::reset() {
         }
       #endif
       ;
-
+      for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
+        stepper.z_stepper_align_xy[i] = temp_z_stepper_align_xy[i];
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-        stepper.xy_pos_t z_stepper_align_stepper_xy[] = Z_STEPPER_ALIGN_STEPPER_XY;
+        constexpr xy_pos_t temp_z_stepper_align_stepper_xy[] = Z_STEPPER_ALIGN_STEPPER_XY;
+        for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
+          stepper.z_stepper_align_stepper_xy[i] = temp_z_stepper_align_stepper_xy[i];
       #endif
     #endif
 

@@ -125,8 +125,8 @@ void GcodeSuite::G34() {
 
   do { // break out on error
 
-    #if NUM_Z_STEPPER_DRIVERS == 4
-      SERIAL_ECHOLNPGM("Quad Z Stepper Leveling not Yet Supported");
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      SERIAL_ECHOLNPGM("Alignment not supported for over 3 steppers");
       break;
     #endif
 
