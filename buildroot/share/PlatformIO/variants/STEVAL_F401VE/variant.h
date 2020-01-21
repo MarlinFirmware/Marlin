@@ -200,6 +200,7 @@ extern "C" {
 
 // Timer Definitions
 #define TIMER_SERVO             TIM4  // TIMER_SERVO must be defined in this file
+#define TIMER_TONE              TIM5  // TIMER_TONE must be defined in this file
 
 /* SD detect signal */
 /*
