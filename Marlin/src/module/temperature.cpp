@@ -287,8 +287,7 @@ Temperature thermalManager;
 volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
-  int32_t Temperature::last_e_position, Temperature::lpq[LPQ_MAX_LEN];
-  lpq_ptr_t Temperature::lpq_ptr = 0;
+  uint32_t Temperature::last_e_position;
 #endif
 
 #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) < (HEATER_##N##_RAW_HI_TEMP) ? 1 : -1)
@@ -335,9 +334,6 @@ volatile bool Temperature::raw_temps_ready = false;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  int16_t Temperature::lpq_len; // Initialized in configuration_store
-#endif
 
 #if HAS_PID_HEATING
 
@@ -826,6 +822,113 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
 #if HOTENDS
 
+static constexpr float sample_frequency = TEMP_TIMER_FREQUENCY / MIN_ADC_ISR_LOOPS / OVERSAMPLENR;
+static constexpr float ambient_temp = 21.0f;
+
+//! @brief Get feed forward steady state output hotend
+//!
+//! steady state output:
+//! ((target_temp - ambient_temp) * 0.322 + (target_temp - ambient_temp)^2 * 0.0002 * (1 - print_fan)) * sqrt(1 + print_fan * 3.9)
+//! temperatures in degrees (Celsius or Kelvin)
+//! @param target_temp target temperature in degrees Celsius
+//! @param print_fan print fan power in range 0.0 .. 1.0
+//! @return hotend PWM in range 0 .. 255
+
+static float ff_steady_state_hotend(float target_temp, float print_fan)
+{
+    static_assert(PID_MAX == 255, "PID_MAX == 255 expected");
+    //TODO Square root computation can be mostly avoided by if it is stored and updated only on print_fan change
+    float retval = ((target_temp - ambient_temp) * 0.322 + (target_temp - ambient_temp) * (target_temp - ambient_temp) * 0.0002 * (1 - print_fan)) * sqrt(1 + print_fan * 3.9);
+    if (retval < 0) return 0;
+    return retval;
+}
+
+//! @brief Get feed forward output hotend
+//!
+//! @param last_target Target temperature for this cycle
+//! (Can not be measured due to transport delay)
+//! @param expected Expected measurable hotend temperature in this cycle
+//! @param E_NAME hotend index
+
+float Temperature::get_ff_output_hotend(float &last_target, float &expected, const uint8_t E_NAME)
+{
+    const uint8_t ee = HOTEND_INDEX;
+
+    enum class Ramp
+    {
+        Up,
+        Down,
+        None,
+    };
+
+    constexpr float epsilon = 0.01f;
+    constexpr float transport_delay_seconds = 5.60f;
+    constexpr int transport_delay_cycles = transport_delay_seconds * sample_frequency;
+    constexpr float transport_delay_cycles_inv = 1.0f / transport_delay_cycles;
+    constexpr float deg_per_second = 3.58f; //!< temperature rise at full power at zero cooling loses
+    constexpr float deg_per_cycle = deg_per_second / sample_frequency;
+    constexpr float pid_max_inv = 1.0f / PID_MAX;
+
+    float hotend_pwm = 0;
+    static int delay = transport_delay_cycles;
+    static Ramp state = Ramp::None;
+
+    if(temp_hotend[ee].target > (last_target + epsilon))
+    {
+        if (state != Ramp::Up)
+        {
+            delay = transport_delay_cycles;
+            expected = last_target;
+            state = Ramp::Up;
+        }
+        //! Target for less than full power, so regulator can catch
+        //! with generated temperature curve in less than ideal conditions
+        constexpr float target_heater_pwm = PID_MAX - 10;
+        const float temp_diff = deg_per_cycle * pid_max_inv * (target_heater_pwm - ff_steady_state_hotend(last_target, fan_speed[0] * pid_max_inv));
+        last_target += temp_diff;
+        if (delay > 1) --delay;
+        expected += temp_diff / delay;
+        if (last_target > temp_hotend[ee].target) last_target = temp_hotend[ee].target;
+        hotend_pwm = target_heater_pwm;
+    }
+    else if(temp_hotend[ee].target < (last_target - epsilon))
+    {
+        if (state != Ramp::Down)
+        {
+            delay = transport_delay_cycles;
+            expected = last_target;
+            state = Ramp::Down;
+        }
+        const float temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state_hotend(last_target, fan_speed[0] * pid_max_inv);
+        last_target -= temp_diff;
+        if (delay > 1) --delay;
+        expected -= temp_diff / delay;
+        if (last_target < temp_hotend[ee].target) last_target = temp_hotend[ee].target;
+        hotend_pwm = 0;
+    }
+    else
+    {
+        state = Ramp::None;
+        last_target = temp_hotend[ee].target;
+        const float remaining = last_target - expected;
+        if (expected > (last_target + epsilon))
+        {
+            float diff = remaining * transport_delay_cycles_inv;
+            if (abs(diff) < epsilon) diff = -epsilon;
+            expected += diff;
+        }
+        else if (expected < (last_target - epsilon))
+        {
+            float diff = remaining * transport_delay_cycles_inv;
+            if (abs(diff) < epsilon) diff = epsilon;
+            expected += diff;
+        }
+        else expected = last_target;
+        hotend_pwm = ff_steady_state_hotend(last_target, fan_speed[0] * pid_max_inv);
+    }
+    return hotend_pwm;
+}
+
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
     #if ENABLED(PIDTEMP)
@@ -834,12 +937,16 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
         static float temp_iState[HOTENDS] = { 0 },
                      temp_dState[HOTENDS] = { 0 };
         static bool pid_reset[HOTENDS] = { false };
-        const float pid_error = temp_hotend[ee].target - temp_hotend[ee].celsius;
+        static float target_temp = .0;
+        static float expected_temp = .0;
 
         float pid_output;
+        #if ENABLED(PID_DEBUG)
+        float feed_forward_debug = -1.0f;
+        #endif
+
 
         if (temp_hotend[ee].target == 0
-          || pid_error < -(PID_FUNCTIONAL_RANGE)
           #if HEATER_IDLE_HANDLER
             || hotend_idle[ee].timed_out
           #endif
@@ -847,24 +954,23 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           pid_output = 0;
           pid_reset[ee] = true;
         }
-        else if (pid_error > PID_FUNCTIONAL_RANGE) {
-          pid_output = BANG_MAX;
-          pid_reset[ee] = true;
-        }
         else {
           if (pid_reset[ee]) {
             temp_iState[ee] = 0.0;
             work_pid[ee].Kd = 0.0;
+            target_temp = temp_hotend[ee].celsius;
+            expected_temp = temp_hotend[ee].celsius;
             pid_reset[ee] = false;
           }
-
-          work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (temp_dState[ee] - temp_hotend[ee].celsius) - work_pid[ee].Kd);
-          const float max_power_over_i_gain = float(PID_MAX) / PID_PARAM(Ki, ee) - float(MIN_POWER);
-          temp_iState[ee] = constrain(temp_iState[ee] + pid_error, 0, max_power_over_i_gain);
+          const float feed_forward = get_ff_output_hotend(target_temp, expected_temp, ee);
+          #if ENABLED(PID_DEBUG)
+          feed_forward_debug = feed_forward;
+          #endif
+          const float pid_error = expected_temp - temp_hotend[ee].celsius;
+          work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (pid_error - temp_dState[ee]) - work_pid[ee].Kd);
           work_pid[ee].Kp = PID_PARAM(Kp, ee) * pid_error;
-          work_pid[ee].Ki = PID_PARAM(Ki, ee) * temp_iState[ee];
 
-          pid_output = work_pid[ee].Kp + work_pid[ee].Ki + work_pid[ee].Kd + float(MIN_POWER);
+          pid_output = feed_forward + work_pid[ee].Kp + work_pid[ee].Kd + float(MIN_POWER);
 
           #if ENABLED(PID_EXTRUSION_SCALING)
             #if HOTENDS == 1
@@ -874,16 +980,13 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
             #endif
             work_pid[ee].Kc = 0;
             if (this_hotend) {
-              const long e_position = stepper.position(E_AXIS);
-              if (e_position > last_e_position) {
-                lpq[lpq_ptr] = e_position - last_e_position;
-                last_e_position = e_position;
-              }
-              else
-                lpq[lpq_ptr] = 0;
+              constexpr float distance_to_volume = M_PI * pow(DEFAULT_NOMINAL_FILAMENT_DIA / 2, 2);
+              constexpr float distance_to_volume_per_second = distance_to_volume * sample_frequency;
+              uint32_t e_position = stepper.position(E_AXIS);
+              const int32_t e_pos_diff = e_position - last_e_position;
+              last_e_position = e_position;
 
-              if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
-              work_pid[ee].Kc = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, ee);
+              work_pid[ee].Kc = e_pos_diff * planner.steps_to_mm[E_AXIS] * distance_to_volume_per_second * (temp_hotend[ee].celsius - ambient_temp) * PID_PARAM(Kc, ee);
               pid_output += work_pid[ee].Kc;
             }
           #endif // PID_EXTRUSION_SCALING
@@ -895,9 +998,10 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
             //pid_output -= work_pid[ee].Ki;
             //pid_output += work_pid[ee].Ki * work_pid[ee].Kf
           #endif // PID_FAN_SCALING
+
+          temp_dState[ee] = pid_error;
           LIMIT(pid_output, 0, PID_MAX);
         }
-        temp_dState[ee] = temp_hotend[ee].celsius;
 
       #else // PID_OPENLOOP
 
@@ -916,6 +1020,8 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           #if DISABLED(PID_OPENLOOP)
           {
             SERIAL_ECHOPAIR(
+              " target ", expected_temp,
+              " fTerm ", feed_forward_debug,
               MSG_PID_DEBUG_PTERM, work_pid[ee].Kp,
               MSG_PID_DEBUG_ITERM, work_pid[ee].Ki,
               MSG_PID_DEBUG_DTERM, work_pid[ee].Kd
@@ -955,8 +1061,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
-      const float max_power_over_i_gain = float(MAX_BED_POWER) / temp_bed.pid.Ki - float(MIN_BED_POWER),
-                  pid_error = temp_bed.target - temp_bed.celsius;
+      const float pid_error = temp_bed.target - temp_bed.celsius;
 
       if (!temp_bed.target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
         pid_output = 0;
@@ -973,15 +1078,22 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           pid_reset = false;
         }
 
-        temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-
         work_pid.Kp = temp_bed.pid.Kp * pid_error;
+        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (pid_error - temp_dState) - work_pid.Kd);
+
+        pid_output = work_pid.Kp + work_pid.Kd + float(MIN_BED_POWER);
+
+        //Sum error only if it has effect on output value
+        if (!((((pid_output + work_pid.Ki) < 0) && (pid_error < 0))
+           || (((pid_output + work_pid.Ki) > MAX_BED_POWER) && (pid_error > 0 )))) {
+          temp_iState += pid_error;
+        }
         work_pid.Ki = temp_bed.pid.Ki * temp_iState;
-        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.celsius) - work_pid.Kd);
 
-        temp_dState = temp_bed.celsius;
+        pid_output += work_pid.Ki;
+        temp_dState = pid_error;
 
-        pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + float(MIN_BED_POWER), 0, MAX_BED_POWER);
+        pid_output = constrain(pid_output, 0, MAX_BED_POWER); //TODO shouldn't be low limit MIN_BED_POWER?
       }
 
     #else // PID_OPENLOOP

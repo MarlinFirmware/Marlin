@@ -55,23 +55,10 @@ typedef enum : int8_t {
 // PID storage
 typedef struct { float Kp, Ki, Kd;     } PID_t;
 typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
-typedef struct { float Kp, Ki, Kd, Kf; } PIDF_t;
-typedef struct { float Kp, Ki, Kd, Kc, Kf; } PIDCF_t;
-
-typedef
-  #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-    PIDCF_t
-  #elif ENABLED(PID_EXTRUSION_SCALING)
-    PIDC_t
-  #elif ENABLED(PID_FAN_SCALING)
-    PIDF_t
-  #else
-    PID_t
-  #endif
-hotend_pid_t;
-
 #if ENABLED(PID_EXTRUSION_SCALING)
-  typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
+  typedef PIDC_t hotend_pid_t;
+#else
+  typedef PID_t hotend_pid_t;
 #endif
 
 #define DUMMY_PID_VALUE 3000.0f
@@ -395,8 +382,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)
-      static int32_t last_e_position, lpq[LPQ_MAX_LEN];
-      static lpq_ptr_t lpq_ptr;
+      static uint32_t last_e_position;
     #endif
 
     #if HOTENDS
@@ -861,6 +847,7 @@ class Temperature {
     static void checkExtruderAutoFans();
 
     static float get_pid_output_hotend(const uint8_t e);
+    static float get_ff_output_hotend(float &last_target, float &expected, const uint8_t e);
 
     #if ENABLED(PIDTEMPBED)
       static float get_pid_output_bed();
