@@ -26,7 +26,6 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "i2c_util.h"
 
 #define U8G_I2C_OPT_FAST 16  // from u8g.h
@@ -43,13 +42,13 @@ void configure_i2c(const uint8_t clock_option) {
   PinCfg.OpenDrain = 0;
   PinCfg.Pinmode = 0;
   PinCfg.Portnum = 0;
-  #if USEDI2CDEV_M == 0
+  #if I2C_MASTER_ID == 0
     PinCfg.Funcnum = 1;
     PinCfg.Pinnum = 27;     // SDA0 / D57  AUX-1 ... SCL0 / D58  AUX-1
-  #elif USEDI2CDEV_M == 1
+  #elif I2C_MASTER_ID == 1
     PinCfg.Funcnum = 3;
     PinCfg.Pinnum = 0;      // SDA1 / D20 SCA ... SCL1 / D21 SCL
-  #elif USEDI2CDEV_M == 2
+  #elif I2C_MASTER_ID == 2
     PinCfg.Funcnum = 2;
     PinCfg.Pinnum = 10;     // SDA2 / D38  X_ENABLE_PIN ... SCL2 / D55  X_DIR_PIN
   #endif

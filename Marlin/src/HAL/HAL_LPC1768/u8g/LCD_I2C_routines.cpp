@@ -25,14 +25,14 @@
 
 #ifdef TARGET_LPC1768
 
+#include "../include/i2c_util.h"
+#include "../../../core/millis_t.h"
+
 extern int millis();
 
 #ifdef __cplusplus
   extern "C" {
 #endif
-
-#include "../include/i2c_util.h"
-#include "../../../core/millis_t.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
