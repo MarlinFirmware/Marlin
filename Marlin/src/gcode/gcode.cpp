@@ -840,6 +840,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif
 
+      #if ENABLED(SMART_EFFECTOR)
+        case 997: M672(); break;                                  // M672: Set/clear Duet Smart Effector sensitivity
+      #endif
+
+
       case 999: M999(); break;                                    // M999: Restart after being Stopped
 
       #if ENABLED(POWER_LOSS_RECOVERY)

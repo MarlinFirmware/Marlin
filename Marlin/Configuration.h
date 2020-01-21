@@ -149,6 +149,9 @@
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
 
+// Duet Smart Effector  https://duet3d.dozuki.com/Wiki/Smart_effector_and_carriage_adapters_for_delta_printer
+//#define SMART_EFFECTOR  // enables M672 to program/reset the sensitivity of the Smart Effector
+
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
