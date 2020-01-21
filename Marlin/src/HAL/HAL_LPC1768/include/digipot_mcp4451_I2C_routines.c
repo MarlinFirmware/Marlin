@@ -36,7 +36,6 @@
 #endif
 
 #include "digipot_mcp4451_I2C_routines.h"
-#include "i2c_util.h"
 
 // These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
 // to the lpc17xx_i2c.c routines so had to copy them into this file & rename them.
