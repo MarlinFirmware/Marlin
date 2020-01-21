@@ -65,7 +65,7 @@ uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = { (INVERT_X_DIR),               
 
                                                   (INVERT_E0_DIR),                        //  8 E0
                                                   (INVERT_E1_DIR),                        //  9 E1
-                                                  (INVERT_E2_DIR),                        //  0 E2
+                                                  (INVERT_E2_DIR),                        // 10 E2
                                                   (INVERT_E3_DIR),                        // 11 E3
                                                   (INVERT_E4_DIR),                        // 12 E4
                                                   (INVERT_E5_DIR),                        // 13 E5
