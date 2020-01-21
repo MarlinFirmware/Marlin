@@ -804,9 +804,11 @@ void MarlinSettings::postprocess() {
     }
 
     #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-      EEPROM_WRITE(stepper.z_stepper_align_xy);
+      for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
+        EEPROM_WRITE(stepper.z_stepper_align_xy[i]);
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-        EEPROM_WRITE(stepper.z_stepper_align_stepper_xy);
+        for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
+          EEPROM_WRITE(stepper.z_stepper_align_stepper_xy[i]);
       #endif
     #endif
 
@@ -1649,9 +1651,11 @@ void MarlinSettings::postprocess() {
       }
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-        EEPROM_READ(stepper.z_stepper_align_xy);
+         for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
+          EEPROM_READ(stepper.z_stepper_align_xy[i]);
         #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-          EEPROM_READ(stepper.z_stepper_align_stepper_xy);
+          for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
+            EEPROM_READ(stepper.z_stepper_align_stepper_xy[i]);
         #endif
       #endif
 
