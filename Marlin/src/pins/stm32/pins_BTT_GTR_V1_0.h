@@ -246,15 +246,16 @@
 // Uses a separate SPI bus
 // If you have a two-way thermocouple, you can customize two THERMO_CSx_PIN pins (x:1~2)
 
+#define THERMO_SCK_PIN     PI1   // SCK
+#define THERMO_DO_PIN      PI2   // MISO
+#define THERMO_CS1_PIN     PH9   // CS1
+#define THERMO_CS2_PIN     PH2   // CS2
+
 #define MAX6675_SS_PIN     THERMO_CS1_PIN
 #define MAX6675_SS2_PIN    THERMO_CS2_PIN
 #define MAX6675_SCK_PIN    THERMO_SCK_PIN
 #define MAX6675_DO_PIN     THERMO_DO_PIN
 
-#define THERMO_SCK_PIN     PI1   // SCK
-#define THERMO_DO_PIN      PI2   // MISO
-#define THERMO_CS1_PIN     PH9   // CS1
-#define THERMO_CS2_PIN     PH2   // CS2
 //
 // Heaters / Fans
 //
