@@ -25,6 +25,7 @@
 #if ENABLED(SMART_EFFECTOR)
 
 #include "../gcode.h"
+#include "../../HAL/shared/Delay.h"
 
 /**
  * M672 - Set/clear Duet Smart Effector sensitivity
@@ -88,11 +89,13 @@ void GcodeSuite::M672() {
     M672_send(M672_sensitivity);
     M672_send(255 - M672_sensitivity);
   }
-  else
+  else {
     SERIAL_ECHO_MSG("'S' or 'R' parameter required");
   }
-  pinmode(M672_MOSI_PIN, INPUT);  // set MOSI pin back to input (Z-probe connector IN pin)
-  pinmode(M672_SCK_PIN, INPUT);   // set SCK pin back to floating (Z-probe connector MOD pin)
+
+  SET_INPUT(M672_MOSI_PIN);  // set MOSI pin back to input (Z-probe connector IN pin)
+  SET_INPUT(M672_SCK_PIN );  // set SCK pin back to floating (Z-probe connector MOD pin)
+
 }
 
 #endif // SMART_EFFECTOR
