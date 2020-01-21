@@ -244,6 +244,14 @@ class Stepper {
       static bool separate_multi_axis;
     #endif
 
+    #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      static xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];
+
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        static xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];
+      #endif
+    #endif
+
     #if HAS_MOTOR_CURRENT_PWM
       #ifndef PWM_MOTOR_CURRENT
         #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT

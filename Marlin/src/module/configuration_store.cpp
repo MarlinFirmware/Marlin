@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V75"
+#define EEPROM_VERSION "V76"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -249,6 +249,13 @@ typedef struct SettingsDataStruct {
           z2_endstop_adj,                               // M666 (S2) Z
           z3_endstop_adj,                               // M666 (S3) Z
           z4_endstop_adj;                               // M666 (S4) Z
+  #endif
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS]
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS]
+    #endif
   #endif
 
   //
@@ -795,6 +802,13 @@ void MarlinSettings::postprocess() {
 
       #endif
     }
+
+    #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      EEPROM_WRITE(stepper.z_stepper_align_xy);
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        EEPROM_WRITE(stepper.z_stepper_align_stepper_xy);
+      #endif
+    #endif
 
     //
     // LCD Preheat settings
@@ -1633,6 +1647,13 @@ void MarlinSettings::postprocess() {
 
         #endif
       }
+
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        EEPROM_READ(stepper.z_stepper_align_xy);
+        #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          EEPROM_READ(stepper.z_stepper_align_stepper_xy);
+        #endif
+      #endif
 
       //
       // LCD Preheat settings
@@ -2500,6 +2521,50 @@ void MarlinSettings::reset() {
       endstops.z4_endstop_adj = Z4_ENDSTOP_ADJUSTMENT;
     #endif
   #endif
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      stepper.z_stepper_align_xy[] =
+      #ifdef Z_STEPPER_ALIGN_XY
+        Z_STEPPER_ALIGN_XY
+      #else
+        {
+          #if NUM_Z_STEPPER_DRIVERS == 3
+            #if defined(Z_STEPPER_ALIGN_ROTATE) && Z_STEPPER_ALIGN_ROTATE != 0
+              #if Z_STEPPER_ALIGN_ROTATE == 1
+                { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), Y_CENTER }
+              #elif Z_STEPPER_ALIGN_ROTATE == 2
+                { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { X_CENTER, probe_min_y() }
+              #elif Z_STEPPER_ALIGN_ROTATE == 3
+                { probe_max_x(), probe_min_y() }, { probe_max_x(), probe_max_y() }, { probe_min_x(), Y_CENTER }
+              #endif
+            #else
+              { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { X_CENTER, probe_max_y() }
+            #endif
+          #elif NUM_Z_STEPPER_DRIVERS == 4
+            #if defined(Z_STEPPER_ALIGN_ROTATE) && Z_STEPPER_ALIGN_ROTATE != 0
+              #if Z_STEPPER_ALIGN_ROTATE == 1
+                { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }
+              #elif Z_STEPPER_ALIGN_ROTATE == 2
+                { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }
+              #elif Z_STEPPER_ALIGN_ROTATE == 3
+                { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }
+              #endif
+            #else
+              { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }
+            #endif
+          #elif defined(Z_STEPPER_ALIGN_ROTATE)
+            { X_CENTER, probe_min_y() }, { Y_CENTER, probe_max_y() }
+          #else
+            { probe_min_x(), Y_CENTER }, { probe_max_x(), Y_CENTER }
+          #endif
+        }
+      #endif
+      ;
+
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        stepper.xy_pos_t z_stepper_align_stepper_xy[] = Z_STEPPER_ALIGN_STEPPER_XY;
+      #endif
+    #endif
 
   //
   // Preheat parameters
