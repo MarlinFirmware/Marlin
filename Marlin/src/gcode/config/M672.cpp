@@ -26,6 +26,7 @@
 
 #include "../gcode.h"
 #include "../../HAL/shared/Delay.h"
+#include "../parser.h"
 
 /**
  * M672 - Set/clear Duet Smart Effector sensitivity
@@ -33,69 +34,66 @@
  *  One of these is required:
  *    S<sensitivity> - 0-255
  *    R              - Resets sensitivity to default
- *
  */
 
+/**
+ * The Marlin format for the M672 command is different than shown in the Duet Smart Effector
+ * documantation https://duet3d.dozuki.com/Wiki/Smart_effector_and_carriage_adapters_for_delta_printer#main
+ *
+ * Setting custom sensitivity:
+ *   Duet:   M672 S105:aaa:bbb
+ *   Marlin: M672 Saaa
+ *
+ *   aaa by the desired sensitivity and bbb is 255 - aaa.
+ *
+ * Revert sensitivity to factory settings:
+ *   Duet:   M672 S105:131:131
+ *   Marlin: M672 R
+ *
+ */
 
 #define M672_PROGBYTE    105								// magic byte to start programming custom sensitivity
 #define M672_ERASEBYTE   131								// magic byte to clear custom sensitivity
 
-void M672_SpiTransfer_Mode_0(uint8_t b) { // using Mode 0
-  for (uint8_t bits = 8; bits--;) {
-    OUT_WRITE(M672_MOSI_PIN, b & 0x80);
-    b <<= 1;        // little setup time
-    DELAY_NS(125);
-    OUT_WRITE(M672_SCK_PIN, HIGH);
-    DELAY_NS(1000);
 
-    OUT_WRITE(M672_SCK_PIN, LOW);
-    DELAY_NS(1000);
+// The protocol for each byte sent is:
+//    0 0 1 0 b7 b6 b5 b4 /b4 b3 b2 b1 b0 /b0
+
+void M672_send(uint8_t b) {    // bit rate requirement: 1KHz +/- 30%
+  for (uint8_t bits = 0; bits < 14; bits++) {
+    switch(bits) {
+      case 0:
+      case 1:
+      case 3: {OUT_WRITE(M672_MOD_PIN, LOW); break;}
+      case 2: {OUT_WRITE(M672_MOD_PIN, HIGH); break;}
+      case 7:
+      case 12: {OUT_WRITE(M672_MOD_PIN, b & 0x80); break;}   // don't shift
+      case 8:
+      case 13: {OUT_WRITE(M672_MOD_PIN, !(b & 0x80)); b <<= 1; break;}  // send inverted previous bit
+      default: {OUT_WRITE(M672_MOD_PIN, b & 0x80); b <<= 1; break;}
+    }
+    DELAY_US(1000);
   }
-  DELAY_NS(1000);
 }
 
-void M672_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
-  for (uint8_t bits = 8; bits--;) {
-    OUT_WRITE(M672_SCK_PIN, LOW);
-    DELAY_NS(125);
-    OUT_WRITE(M672_MOSI_PIN, b & 0x80);
-
-    DELAY_NS(1000);
-    OUT_WRITE(M672_SCK_PIN, HIGH);
-    DELAY_NS(1000);
-
-    b <<= 1;        // little setup time
-  }
-  DELAY_NS(1000);
-
-}
-
-
-void M672_send(uint8_t b) { M672_SpiTransfer_Mode_3(b);}
 
 void GcodeSuite::M672() {
-  SERIAL_ECHO_MSG("M672");
-  if (parser.seenval('R')) {
-    OUT_WRITE(M672_SCK_PIN, LOW);  // put into programming mode
-    DELAY_NS(1000);
+  SERIAL_ECHO_MSG("M672\n");
+  if (parser.seen('R')) {
     M672_send(M672_ERASEBYTE);
     M672_send(M672_ERASEBYTE);
   }
-  else if (parser.seenval('S')) {
+  else if (parser.seen('S')) {
     const int8_t M672_sensitivity = parser.byteval('S');
-    OUT_WRITE(M672_SCK_PIN, LOW);  // put into programming mode
-    DELAY_NS(1000);
     M672_send(M672_PROGBYTE);
     M672_send(M672_sensitivity);
     M672_send(255 - M672_sensitivity);
   }
   else {
-    SERIAL_ECHO_MSG("'S' or 'R' parameter required");
+    SERIAL_ECHO_MSG("'S' or 'R' parameter required\n");
   }
 
-  SET_INPUT(M672_MOSI_PIN);  // set MOSI pin back to input (Z-probe connector IN pin)
-  SET_INPUT(M672_SCK_PIN );  // set SCK pin back to floating (Z-probe connector MOD pin)
-
+  OUT_WRITE(M672_MOD_PIN, LOW);  // keep Smart Effector in normal mode
 }
 
 #endif // SMART_EFFECTOR
