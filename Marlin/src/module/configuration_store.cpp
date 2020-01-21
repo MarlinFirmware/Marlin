@@ -2535,9 +2535,9 @@ void MarlinSettings::reset() {
           #if NUM_Z_STEPPER_DRIVERS == 3
             #if defined(Z_STEPPER_ALIGN_ROTATE) && Z_STEPPER_ALIGN_ROTATE != 0
               #if Z_STEPPER_ALIGN_ROTATE == 1
-                { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), Y_CENTER }
+                { probe_min_x(), probe_max_y() }, { probe_min_x(), probe_min_y() }, { probe_max_x(), Y_CENTER }
               #elif Z_STEPPER_ALIGN_ROTATE == 2
-                { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { X_CENTER, probe_min_y() }
+                { probe_max_x(), probe_max_y() }, { probe_min_x(), probe_max_y() }, { X_CENTER, probe_min_y() }
               #elif Z_STEPPER_ALIGN_ROTATE == 3
                 { probe_max_x(), probe_min_y() }, { probe_max_x(), probe_max_y() }, { probe_min_x(), Y_CENTER }
               #endif
