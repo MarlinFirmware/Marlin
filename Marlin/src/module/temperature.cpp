@@ -835,7 +835,7 @@ static float ff_steady_state(float target_temp, float print_fan)
 {
     static_assert(PID_MAX == 255, "PID_MAX == 255 expected");
     constexpr float ambient_temp = 21.0f;
-    if (target_temp < ambient_temp) return 0;
+
     float retval = ((target_temp - ambient_temp) * 0.322 + (target_temp - ambient_temp) * (target_temp - ambient_temp) * 0.0002 * (1 - print_fan)) * sqrt(1 + print_fan * 3.9);
     if (retval < 0) return 0;
     return retval;
