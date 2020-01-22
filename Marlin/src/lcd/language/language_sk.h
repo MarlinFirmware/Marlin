@@ -244,6 +244,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Komora");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Rýchlosť vent.");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rýchlosť vent. =");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. =");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Rýchlosť ex. vent.");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rýchlosť ex. vent. =");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Prietok");
@@ -387,13 +388,16 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("POZOR: Zlé nastav. môže spôsobiť poškoden. Pokračovať?");
   PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("Inicializ. TouchMI");
-  PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Test ofsetu Z");
+  PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Test Z ofsetu");
   PROGMEM Language_Str MSG_TOUCHMI_SAVE                    = _UxGT("Uložiť");
   PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("Zasunúť TouchMI");
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Zasunúť sondu Z");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Vysunúť sondu Z");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Najskôr os %s%s%s domov");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Ofset sondy Z");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Ofsety sondy Z");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("X ofset");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Y ofset");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z ofset");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
