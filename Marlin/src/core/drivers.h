@@ -72,12 +72,15 @@
 #define AXIS_DRIVER_TYPE_E3(T) (E_STEPPERS > 3 && _AXIS_DRIVER_TYPE(E3,T))
 #define AXIS_DRIVER_TYPE_E4(T) (E_STEPPERS > 4 && _AXIS_DRIVER_TYPE(E4,T))
 #define AXIS_DRIVER_TYPE_E5(T) (E_STEPPERS > 5 && _AXIS_DRIVER_TYPE(E5,T))
+#define AXIS_DRIVER_TYPE_E6(T) (E_STEPPERS > 6 && _AXIS_DRIVER_TYPE(E6,T))
+#define AXIS_DRIVER_TYPE_E7(T) (E_STEPPERS > 7 && _AXIS_DRIVER_TYPE(E7,T))
 
 #define AXIS_DRIVER_TYPE(A,T) AXIS_DRIVER_TYPE_##A(T)
 
 #define HAS_E_DRIVER(T) (  AXIS_DRIVER_TYPE_E0(T) || AXIS_DRIVER_TYPE_E1(T) \
                         || AXIS_DRIVER_TYPE_E2(T) || AXIS_DRIVER_TYPE_E3(T) \
-                        || AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) )
+                        || AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) \
+                        || AXIS_DRIVER_TYPE_E6(T) || AXIS_DRIVER_TYPE_E7(T) )
 
 #define HAS_DRIVER(T) (    AXIS_DRIVER_TYPE_X(T)  || AXIS_DRIVER_TYPE_X2(T) \
                         || AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Y2(T) \
@@ -150,7 +153,8 @@
                           || AXIS_HAS_##T(Z3) \
                           || AXIS_HAS_##T(E0) || AXIS_HAS_##T(E1) \
                           || AXIS_HAS_##T(E2) || AXIS_HAS_##T(E3) \
-                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) )
+                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) \
+                          || AXIS_HAS_##T(E6) || AXIS_HAS_##T(E7) )
 
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)
