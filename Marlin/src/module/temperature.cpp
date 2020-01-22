@@ -863,7 +863,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
 
     if(temp_hotend[ee].target > (last_target + epsilon))
     {
-        temp_diff = deg_per_cycle * pid_max_inv * (PID_MAX - ff_steady_state(last_target, 0.0));
+        temp_diff = deg_per_cycle * pid_max_inv * (PID_MAX - ff_steady_state(last_target, fan_speed[0] * pid_max_inv));
         last_target += temp_diff;
         if (delay < transport_delay_cycles) ++delay;
         expected = last_target - delay * temp_diff;
@@ -872,7 +872,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
     }
     else if(temp_hotend[ee].target < (last_target - epsilon))
     {
-        temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state(last_target, 0.0);
+        temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
         last_target -= temp_diff;
         if (delay < transport_delay_cycles) ++delay;
         expected = last_target + delay * temp_diff;
@@ -886,7 +886,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
         else if (expected < (last_target - temp_diff - epsilon)) expected += temp_diff;
         else expected = last_target;
         delay = 0;
-        hotend_pwm = ff_steady_state(last_target, 0.0);
+        hotend_pwm = ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
     }
     return hotend_pwm;
 }
