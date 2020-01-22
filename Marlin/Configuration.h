@@ -149,10 +149,6 @@
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
 
-// Duet Smart Effector  https://duet3d.dozuki.com/Wiki/Smart_effector_and_carriage_adapters_for_delta_printer
-//   Requires M672_MOD_PIN to be defined.  This is connected to the MOD pin on the Smart Effector
-//#define SMART_EFFECTOR  // enables M672 to program/reset the sensitivity of the Smart Effector
-
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
@@ -895,6 +891,11 @@
   //#define TOUCH_MI_DEPLOY_XPOS (X_MAX_BED + 2)  // For a magnet on the right side of the bed
   //#define TOUCH_MI_MANUAL_DEPLOY                // For manual deploy (LCD menu)
 #endif
+
+// Duet Smart Effector (for delta printers) - https://bit.ly/2ul5U7J
+// When the pin is defined you can use M672 to set/reset the probe sensivity.
+//#define DUET_SMART_EFFECTOR
+//#define SMART_EFFECTOR_PIN -1  // Connect a GPIO pin to the Smart Effector MOD pin
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
