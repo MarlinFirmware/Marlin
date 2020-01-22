@@ -738,27 +738,23 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 672: M672(); break;                                  // M672: Set/clear Duet Smart Effector sensitivity
       #endif
 
-      #if HAS_BED_PROBE
-        case 851: M851(); break;                                  // M851: Set Z Probe Z Offset
-      #endif
-
-      #if ENABLED(SKEW_CORRECTION_GCODE)
-        case 852: M852(); break;                                  // M852: Set Skew factors
-      #endif
-
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         case 701: M701(); break;                                  // M701: Load Filament
         case 702: M702(); break;                                  // M702: Unload Filament
-      #endif
-
-      #if ENABLED(MAX7219_GCODE)
-        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
       #if ENABLED(GCODE_MACROS)
         case 810: case 811: case 812: case 813: case 814:
         case 815: case 816: case 817: case 818: case 819:
         M810_819(); break;                                        // M810-M819: Define/execute G-code macro
+      #endif
+
+      #if HAS_BED_PROBE
+        case 851: M851(); break;                                  // M851: Set Z Probe Z Offset
+      #endif
+
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
@@ -849,6 +845,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
         case 1000: M1000(); break;                                // M1000: Resume from power-loss
+      #endif
+
+      #if ENABLED(MAX7219_GCODE)
+        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
       default: parser.unknown_command_error(); break;
