@@ -850,9 +850,9 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
 
     constexpr float epsilon = 0.01f;
     constexpr float sample_frequency = TEMP_TIMER_FREQUENCY / MIN_ADC_ISR_LOOPS / OVERSAMPLENR;
-    constexpr float transport_delay_seconds = 9;
+    constexpr float transport_delay_seconds = 5;
     constexpr int transport_delay_cycles = transport_delay_seconds * sample_frequency;
-    constexpr float deg_per_second = 3.07f; //3.436f; //!< at zero cooling loses
+    constexpr float deg_per_second = 3.58f; // //!< at zero cooling loses
     constexpr float deg_per_cycle = deg_per_second / sample_frequency;
     constexpr float pid_max_inv = 1.0 / PID_MAX;
 
@@ -865,26 +865,25 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
     {
         temp_diff = deg_per_cycle * pid_max_inv * (PID_MAX - ff_steady_state(last_target, 0.0));
         last_target += temp_diff;
-        expected = last_target - delay * temp_diff;
         if (delay < transport_delay_cycles) ++delay;
-
+        expected = last_target - delay * temp_diff;
         if (last_target > temp_hotend[ee].target) last_target = temp_hotend[ee].target;
         hotend_pwm = PID_MAX;
     }
     else if(temp_hotend[ee].target < (last_target - epsilon))
     {
-        temp_diff = deg_per_cycle * pid_max_inv * (PID_MAX - ff_steady_state(last_target, 0.0));
+        temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state(last_target, 0.0);
         last_target -= temp_diff;
-        expected = last_target - delay * temp_diff;
         if (delay < transport_delay_cycles) ++delay;
+        expected = last_target + delay * temp_diff;
         if (last_target < temp_hotend[ee].target) last_target = temp_hotend[ee].target;
         hotend_pwm = 0;
     }
     else
     {
         last_target = temp_hotend[ee].target;
-        if (expected > last_target + temp_diff + epsilon) expected -= temp_diff;
-        else if (expected < last_target - temp_diff - epsilon) expected += temp_diff;
+        if (expected > (last_target + temp_diff + epsilon)) expected -= temp_diff;
+        else if (expected < (last_target - temp_diff - epsilon)) expected += temp_diff;
         else expected = last_target;
         delay = 0;
         hotend_pwm = ff_steady_state(last_target, 0.0);
