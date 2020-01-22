@@ -851,6 +851,10 @@ private:
     static void M666();
   #endif
 
+  #if ENABLED(SMART_EFFECTOR)
+    static void M672();
+  #endif
+
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     static void M701();
     static void M702();
@@ -947,10 +951,6 @@ private:
 
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
-  #endif
-
-  #if ENABLED(SMART_EFFECTOR)
-    static void  M672();
   #endif
 
   static void T(const uint8_t tool_index);
