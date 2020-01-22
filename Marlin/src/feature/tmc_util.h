@@ -121,6 +121,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         #endif
       }
     #endif
+
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC::sgt(); }
       void homing_threshold(int16_t sgt_val) {
@@ -228,6 +229,13 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
         #endif
       }
     #endif
+    uint32_t get_cool_thrs() {
+      return _tmc_thrs(this->microsteps(), this->TCOOLTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
+    }
+    void set_cool_thrs(const uint32_t thrs) {
+      TMC2209Stepper::TCOOLTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
+    }
+
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC2209Stepper::SGTHRS(); }
       void homing_threshold(int16_t sgt_val) {
