@@ -258,7 +258,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
     PWM_PRINT(*OCRVAL16);
   }
   SERIAL_ECHOPAIR("    WGM: ", WGM);
-  com_print(T,L);
+  com_print(T,L - 'A');
   SERIAL_ECHOPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
 
   SERIAL_ECHOPGM("    TCCR");
