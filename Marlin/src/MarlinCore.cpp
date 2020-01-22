@@ -440,11 +440,13 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   const millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
-    kill();
-  }
+  #if ENABLED(PSU_CONTROL)
+    if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
+      SERIAL_ERROR_START();
+      SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
+      kill();
+    }
+  #endif
 
   // Prevent steppers timing-out in the middle of M600
   #if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
