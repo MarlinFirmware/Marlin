@@ -828,7 +828,7 @@ void setup() {
   #endif
 
   #if ENABLED(SMART_EFFECTOR)
-    OUT_WRITE(SMART_EFFECTOR_PIN, LOW);   // Put Smart Effector into NORMAL mode
+    OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
   #endif
 
   #if ENABLED(MAX7219_DEBUG)

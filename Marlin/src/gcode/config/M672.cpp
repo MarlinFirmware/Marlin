@@ -64,14 +64,14 @@
 void M672_send(uint8_t b) {    // bit rate requirement: 1KHz +/- 30%
   for (uint8_t bits = 0; bits < 14; bits++) {
     switch (bits) {
-      default: { OUT_WRITE(M672_MOD_PIN, !!(b & 0x80)); b <<= 1; break; } // send bit, shift next into place
+      default: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN, !!(b & 0x80)); b <<= 1; break; } // send bit, shift next into place
       case  7:
-      case 12: { OUT_WRITE(M672_MOD_PIN, !!(b & 0x80));          break; } // send bit. no shift
+      case 12: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN, !!(b & 0x80));          break; } // send bit. no shift
       case  8:
-      case 13: { OUT_WRITE(M672_MOD_PIN,  !(b & 0x80)); b <<= 1; break; } // send inverted previous bit
+      case 13: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN,  !(b & 0x80)); b <<= 1; break; } // send inverted previous bit
       case  0: case  1:                                   // 00
-      case  3: { OUT_WRITE(M672_MOD_PIN, LOW); break; }   // 0010
-      case  2: { OUT_WRITE(M672_MOD_PIN, HIGH); break; }  // 001
+      case  3: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW); break; }   // 0010
+      case  2: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN, HIGH); break; }  // 001
     }
     DELAY_US(1000);
   }
@@ -93,7 +93,7 @@ void GcodeSuite::M672() {
     return;
   }
 
-  OUT_WRITE(SMART_EFFECTOR_PIN, LOW);  // Keep Smart Effector in NORMAL mode
+  OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);  // Keep Smart Effector in NORMAL mode
 }
 
 #endif // SMART_EFFECTOR
