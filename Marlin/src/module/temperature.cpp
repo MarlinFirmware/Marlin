@@ -929,7 +929,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
             expected_temp = temp_hotend[ee].celsius;
             pid_reset[ee] = false;
           }
-          work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (temp_dState[ee] - temp_hotend[ee].celsius) - work_pid[ee].Kd);
+          work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (pid_error - temp_dState[ee]) - work_pid[ee].Kd);
           work_pid[ee].Kp = PID_PARAM(Kp, ee) * pid_error;
 
           pid_output = feed_forward + work_pid[ee].Kp + work_pid[ee].Kd + float(MIN_POWER);
@@ -965,7 +965,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
           #endif // PID_FAN_SCALING
           LIMIT(pid_output, 0, PID_MAX);
         }
-        temp_dState[ee] = temp_hotend[ee].celsius;
+        temp_dState[ee] = pid_error;
 
       #else // PID_OPENLOOP
 
