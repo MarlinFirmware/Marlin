@@ -45,4 +45,12 @@
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 void configure_i2c(const uint8_t clock_option);
+
+#ifdef __cplusplus
+  }
+#endif
