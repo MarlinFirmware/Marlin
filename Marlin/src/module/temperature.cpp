@@ -912,22 +912,16 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
         static bool pid_reset[HOTENDS] = { false };
         static float target_temp = .0;
         static float expected_temp = .0;
-        float feed_forward = get_ff_output_hotend(target_temp, expected_temp, ee);
-        const float pid_error = expected_temp - temp_hotend[ee].celsius;
 
         float pid_output;
+        float feed_forward_debug = -1.0f;
 
         if (temp_hotend[ee].target == 0
-          || pid_error < -(PID_FUNCTIONAL_RANGE)
           #if HEATER_IDLE_HANDLER
             || hotend_idle[ee].timed_out
           #endif
         ) {
           pid_output = 0;
-          pid_reset[ee] = true;
-        }
-        else if (pid_error > PID_FUNCTIONAL_RANGE) {
-          pid_output = BANG_MAX;
           pid_reset[ee] = true;
         }
         else {
@@ -938,6 +932,9 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
             expected_temp = temp_hotend[ee].celsius;
             pid_reset[ee] = false;
           }
+          const float feed_forward = get_ff_output_hotend(target_temp, expected_temp, ee);
+          feed_forward_debug = feed_forward;
+          const float pid_error = expected_temp - temp_hotend[ee].celsius;
           work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (pid_error - temp_dState[ee]) - work_pid[ee].Kd);
           work_pid[ee].Kp = PID_PARAM(Kp, ee) * pid_error;
 
@@ -972,9 +969,10 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
             //pid_output -= work_pid[ee].Ki;
             //pid_output += work_pid[ee].Ki * work_pid[ee].Kf
           #endif // PID_FAN_SCALING
+
+          temp_dState[ee] = pid_error;
           LIMIT(pid_output, 0, PID_MAX);
         }
-        temp_dState[ee] = pid_error;
 
       #else // PID_OPENLOOP
 
@@ -994,7 +992,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
           {
             SERIAL_ECHOPAIR(
               " target ", expected_temp,
-              " fTerm ", feed_forward,
+              " fTerm ", feed_forward_debug,
               MSG_PID_DEBUG_PTERM, work_pid[ee].Kp,
               MSG_PID_DEBUG_ITERM, work_pid[ee].Ki,
               MSG_PID_DEBUG_DTERM, work_pid[ee].Kd
