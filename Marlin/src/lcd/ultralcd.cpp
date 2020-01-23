@@ -45,6 +45,10 @@ MarlinUI ui;
   #endif
 #endif
 
+#if (ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)) || ENABLED(DELTA_CALIBRATION_MENU)
+  bool MarlinUI::wait_for_bl_move; // = false
+#endif
+
 #if HAS_SPI_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0

@@ -56,8 +56,6 @@
     #endif
   );
 
-  bool MarlinUI::wait_for_bl_move; // = false
-
   //
   // Bed leveling is done. Wait for G29 to complete.
   // A flag is used so that this can release control

@@ -532,7 +532,7 @@ public:
 
   #endif
 
-  #if ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+  #if (ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)) || ENABLED(DELTA_CALIBRATION_MENU)
     static bool wait_for_bl_move;
   #else
     static constexpr bool wait_for_bl_move = false;
