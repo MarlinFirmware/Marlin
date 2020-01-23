@@ -856,45 +856,59 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
 
     constexpr float epsilon = 0.01f;
     constexpr float sample_frequency = TEMP_TIMER_FREQUENCY / MIN_ADC_ISR_LOOPS / OVERSAMPLENR;
-    constexpr float transport_delay_seconds = 5;
+    constexpr float transport_delay_seconds = 5.60f;
     constexpr int transport_delay_cycles = transport_delay_seconds * sample_frequency;
+    constexpr float transport_delay_cycles_inv = 1.0f / transport_delay_cycles;
     constexpr float deg_per_second = 3.58f; //!< temperature rise at full power at zero cooling loses
     constexpr float deg_per_cycle = deg_per_second / sample_frequency;
-    constexpr float pid_max_inv = 1.0 / PID_MAX;
+    constexpr float pid_max_inv = 1.0f / PID_MAX;
 
     //static float last_expected = .0;
     float hotend_pwm = 0;
-    static float temp_diff = 0;
-    static int delay = 0;
+    static int delay = transport_delay_cycles;
 
+    // TODO convert to state machine, as delay is not reset if switching between
+    // increased and decreased target temperature and vice versa, if stable
+    // temperature was not reached in between.
     if(temp_hotend[ee].target > (last_target + epsilon))
     {
         //! Target for less than full power, so regulator can catch
         //! with generated temperature curve in less than ideal conditions
         constexpr float target_heater_pwm = PID_MAX - 10;
-        temp_diff = deg_per_cycle * pid_max_inv * (target_heater_pwm - ff_steady_state(last_target, fan_speed[0] * pid_max_inv));
+        const float temp_diff = deg_per_cycle * pid_max_inv * (target_heater_pwm - ff_steady_state(last_target, fan_speed[0] * pid_max_inv));
         last_target += temp_diff;
-        if (delay < transport_delay_cycles) ++delay;
-        expected = last_target - delay * temp_diff;
+        if (delay > 1) --delay;
+        expected += temp_diff / delay;
         if (last_target > temp_hotend[ee].target) last_target = temp_hotend[ee].target;
         hotend_pwm = target_heater_pwm;
     }
     else if(temp_hotend[ee].target < (last_target - epsilon))
     {
-        temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
+        const float temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
         last_target -= temp_diff;
-        if (delay < transport_delay_cycles) ++delay;
-        expected = last_target + delay * temp_diff;
+        if (delay > 1) --delay;
+        expected -= temp_diff / delay;
         if (last_target < temp_hotend[ee].target) last_target = temp_hotend[ee].target;
         hotend_pwm = 0;
     }
     else
     {
         last_target = temp_hotend[ee].target;
-        if (expected > (last_target + temp_diff + epsilon)) expected -= temp_diff;
-        else if (expected < (last_target - temp_diff - epsilon)) expected += temp_diff;
+        const float remaining = last_target - expected;
+        if (expected > (last_target + epsilon))
+        {
+            float diff = remaining * transport_delay_cycles_inv;
+            if (abs(diff) < epsilon) diff = -epsilon;
+            expected += diff;
+        }
+        else if (expected < (last_target - epsilon))
+        {
+            float diff = remaining * transport_delay_cycles_inv;
+            if (abs(diff) < epsilon) diff = epsilon;
+            expected += diff;
+        }
         else expected = last_target;
-        delay = 0;
+        delay = transport_delay_cycles;
         hotend_pwm = ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
     }
     return hotend_pwm;
