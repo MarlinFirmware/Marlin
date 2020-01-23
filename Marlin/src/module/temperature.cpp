@@ -829,13 +829,15 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 //! steady state output:
 //! ((target_temp - ambient_temp) * 0.322 + (target_temp - ambient_temp)^2 * 0.0002 * (1 - print_fan)) * sqrt(1 + print_fan * 3.9)
 //! temperatures in degrees (Celsius or Kelvin)
-//! fan range 0 .. 1
+//! @param target_temp target temperature in degrees Celsius
+//! @param print_fan print fan power in range 0.0 .. 1.0
+//! @return hotend PWM in range 0 .. 255
 
 static float ff_steady_state(float target_temp, float print_fan)
 {
     static_assert(PID_MAX == 255, "PID_MAX == 255 expected");
     constexpr float ambient_temp = 21.0f;
-
+    //TODO Square root computation can be mostly avoided by if it is stored and updated only on print_fan change
     float retval = ((target_temp - ambient_temp) * 0.322 + (target_temp - ambient_temp) * (target_temp - ambient_temp) * 0.0002 * (1 - print_fan)) * sqrt(1 + print_fan * 3.9);
     if (retval < 0) return 0;
     return retval;
@@ -843,6 +845,10 @@ static float ff_steady_state(float target_temp, float print_fan)
 
 //! @brief Get feed forward output hotend
 //!
+//! @param last_target Target temperature for this cycle
+//! (Can not be measured due to transport delay)
+//! @param expected Expected measurable hotend temperature in this cycle
+//! @param E_NAME hotend index
 
 float Temperature::get_ff_output_hotend(float &last_target, float &expected, const uint8_t E_NAME)
 {
@@ -852,7 +858,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
     constexpr float sample_frequency = TEMP_TIMER_FREQUENCY / MIN_ADC_ISR_LOOPS / OVERSAMPLENR;
     constexpr float transport_delay_seconds = 5;
     constexpr int transport_delay_cycles = transport_delay_seconds * sample_frequency;
-    constexpr float deg_per_second = 3.58f; // //!< at zero cooling loses
+    constexpr float deg_per_second = 3.58f; //!< temperature rise at full power at zero cooling loses
     constexpr float deg_per_cycle = deg_per_second / sample_frequency;
     constexpr float pid_max_inv = 1.0 / PID_MAX;
 
