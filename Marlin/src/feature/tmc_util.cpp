@@ -629,6 +629,16 @@
         default: break;
       }
     }
+
+    #if HAS_DRIVER(TMC2209)
+        static void _tmc_parse_drv_status(TMC2209Stepper &st, const TMC_drv_status_enum i) {
+        switch (i) {
+          case TMC_SG_RESULT:  SERIAL_PRINT(st.SG_RESULT(), DEC); break;
+          default: _tmc_parse_drv_status(static_cast<TMC2208Stepper &>(st), i);
+            break;
+        }
+      }
+    #endif
   #endif
 
   #if HAS_DRIVER(TMC2660)
@@ -905,9 +915,11 @@
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
 
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
+    #if HAS_TMCX1X0 || HAS_TMC220x
+      DRV_REPORT("sg_result",        TMC_SG_RESULT);
+    #endif
     #if HAS_TMCX1X0
       DRV_REPORT("stallguard\t",     TMC_STALLGUARD);
-      DRV_REPORT("sg_result",        TMC_SG_RESULT);
       DRV_REPORT("fsactive\t",       TMC_FSACTIVE);
     #endif
     DRV_REPORT("stst\t",             TMC_STST);

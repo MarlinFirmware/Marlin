@@ -2015,7 +2015,7 @@
  */
 #if HAS_TRINAMIC
 
-  #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
+  #define HOLD_MULTIPLIER   0.25  // Scales down the holding current from run current
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #if AXIS_IS_TMC(X)
@@ -2274,6 +2274,26 @@
   #define E5_HYBRID_THRESHOLD     30
   #define E6_HYBRID_THRESHOLD     30
   #define E7_HYBRID_THRESHOLD     30
+
+  /**
+   * CoolStep. TMC2209 only.
+   * This mode allows for cooler steppers and energy savings.
+   * STEALTHCHOP_(XY|Z|E) must be enabled to use CoolStep.
+   * The driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.
+   * If SG_RESULT goes below COOLSTEP_LOWER_LOAD_THRESHOLD stepper curreent will be increased.
+   * If SG_RESULT goes above COOLSTEP_UPPER_LOAD_THRESHOLD stepper curreent will be decreased.
+   * SEUP sets the increase step width. Value range is 0..3 and computed as 2^SEUP.
+   * SEDN sets the decrease delay. Value range is 0..3, 0 being the slowest.
+   * SEIMIN sets the lower current limit. 0: 1/2 of IRUN, 1:1/4 of IRUN   
+   */
+  
+  #define X_COOLSTEP_SPEED_THRESHOLD        10  // [mm/s]
+  #define X_COOLSTEP_LOWER_LOAD_THRESHOLD   7   // 0 disables it, 1..15
+  #define X_COOLSTEP_UPPER_LOAD_THRESHOLD   0   // 0..15
+  #define X_COOLSTEP_SEUP                   2   // 0..3
+  #define X_COOLSTEP_SEDN                   0   // 0..3
+  #define X_COOLSTEP_SEIMIN                 1   // 0..1
+  
 
   /**
    * Use StallGuard2 to home / probe X, Y, Z.

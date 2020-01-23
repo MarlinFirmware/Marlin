@@ -529,13 +529,13 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
       UNUSED(thrs);
     #endif
 
-    st.set_cool_thrs(10); //mm/s
+    st.set_cool_thrs(5); //mm/s
     TMC2209_n::COOLCONF_t coolconf{0};
     coolconf.semin = 7;
-    coolconf.semax = 1;
-    coolconf.seup = 0;
+    coolconf.semax = 0;
+    coolconf.seup = 2;
     coolconf.sedn = 0;
-    coolconf.seimin = 0;
+    coolconf.seimin = 1;
     st.COOLCONF(coolconf.sr);
 
     st.GSTAT(0b111); // Clear
