@@ -863,12 +863,15 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
 
     if(temp_hotend[ee].target > (last_target + epsilon))
     {
-        temp_diff = deg_per_cycle * pid_max_inv * (PID_MAX - ff_steady_state(last_target, fan_speed[0] * pid_max_inv));
+        //! Target for less than full power, so regulator can catch
+        //! with generated temperature curve in less than ideal conditions
+        constexpr float target_heater_pwm = PID_MAX - 10;
+        temp_diff = deg_per_cycle * pid_max_inv * (target_heater_pwm - ff_steady_state(last_target, fan_speed[0] * pid_max_inv));
         last_target += temp_diff;
         if (delay < transport_delay_cycles) ++delay;
         expected = last_target - delay * temp_diff;
         if (last_target > temp_hotend[ee].target) last_target = temp_hotend[ee].target;
-        hotend_pwm = PID_MAX;
+        hotend_pwm = target_heater_pwm;
     }
     else if(temp_hotend[ee].target < (last_target - epsilon))
     {
