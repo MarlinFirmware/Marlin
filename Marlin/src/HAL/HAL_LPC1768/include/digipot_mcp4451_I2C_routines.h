@@ -36,6 +36,7 @@
 
 uint8_t digipot_mcp4451_start(uint8_t sla);
 uint8_t digipot_mcp4451_send_byte(uint8_t data);
+void configure_i2c(const uint8_t clock_option);
 
 #ifdef __cplusplus
   }
