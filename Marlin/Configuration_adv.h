@@ -78,6 +78,18 @@
   #define HOTEND5_BETA                 3950    // Beta value
 #endif
 
+#if TEMP_SENSOR_6 == 1000
+  #define HOTEND6_PULLUP_RESISTOR_OHMS 4700    // Pullup resistor
+  #define HOTEND6_RESISTANCE_25C_OHMS  100000  // Resistance at 25C
+  #define HOTEND6_BETA                 3950    // Beta value
+#endif
+
+#if TEMP_SENSOR_7 == 1000
+  #define HOTEND7_PULLUP_RESISTOR_OHMS 4700    // Pullup resistor
+  #define HOTEND7_RESISTANCE_25C_OHMS  100000  // Resistance at 25C
+  #define HOTEND7_BETA                 3950    // Beta value
+#endif
+
 #if TEMP_SENSOR_BED == 1000
   #define BED_PULLUP_RESISTOR_OHMS     4700    // Pullup resistor
   #define BED_RESISTANCE_25C_OHMS      100000  // Resistance at 25C
@@ -185,8 +197,8 @@
   /**
    * Heated chamber watch settings (M141/M191).
    */
-  #define WATCH_CHAMBER_TEMP_PERIOD 60            // Seconds
-  #define WATCH_CHAMBER_TEMP_INCREASE 2           // Degrees Celsius
+  #define WATCH_CHAMBER_TEMP_PERIOD            60 // Seconds
+  #define WATCH_CHAMBER_TEMP_INCREASE           2 // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -2076,6 +2088,20 @@
     #define E5_CHAIN_POS     -1
   #endif
 
+  #if AXIS_IS_TMC(E6)
+    #define E6_CURRENT      800
+    #define E6_MICROSTEPS    16
+    #define E6_RSENSE         0.11
+    #define E6_CHAIN_POS     -1
+  #endif
+
+  #if AXIS_IS_TMC(E7)
+    #define E7_CURRENT      800
+    #define E7_MICROSTEPS    16
+    #define E7_RSENSE         0.11
+    #define E7_CHAIN_POS     -1
+  #endif
+
   /**
    * Override default SPI pins for TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160 drivers here.
    * The default pins can be found in your board's pins file.
@@ -2093,6 +2119,8 @@
   //#define E3_CS_PIN         -1
   //#define E4_CS_PIN         -1
   //#define E5_CS_PIN         -1
+  //#define E6_CS_PIN         -1
+  //#define E7_CS_PIN         -1
 
   /**
    * Software option for SPI driven drivers (TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160).
@@ -2130,6 +2158,8 @@
   #define E3_SLAVE_ADDRESS 0
   #define E4_SLAVE_ADDRESS 0
   #define E5_SLAVE_ADDRESS 0
+  #define E6_SLAVE_ADDRESS 0
+  #define E7_SLAVE_ADDRESS 0
 
   /**
    * Software enable
@@ -2206,6 +2236,8 @@
   #define E3_HYBRID_THRESHOLD     30
   #define E4_HYBRID_THRESHOLD     30
   #define E5_HYBRID_THRESHOLD     30
+  #define E6_HYBRID_THRESHOLD     30
+  #define E7_HYBRID_THRESHOLD     30
 
   /**
    * Use StallGuard2 to home / probe X, Y, Z.
@@ -2426,6 +2458,24 @@
     #define E5_MAX_VOLTAGE     127
     #define E5_CHAIN_POS        -1
     #define E5_SLEW_RATE         1
+  #endif
+
+  #if AXIS_IS_L64XX(E6)
+    #define E6_MICROSTEPS      128
+    #define E6_OVERCURRENT    2000
+    #define E6_STALLCURRENT   1500
+    #define E6_MAX_VOLTAGE     127
+    #define E6_CHAIN_POS        -1
+    #define E6_SLEW_RATE         1
+  #endif
+
+  #if AXIS_IS_L64XX(E7)
+    #define E7_MICROSTEPS      128
+    #define E7_OVERCURRENT    2000
+    #define E7_STALLCURRENT   1500
+    #define E7_MAX_VOLTAGE     127
+    #define E7_CHAIN_POS        -1
+    #define E7_SLEW_RATE         1
   #endif
 
   /**
@@ -3013,9 +3063,14 @@
 
 // @section develop
 
-/**
- * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
- */
+//
+// M100 Free Memory Watcher to debug memory usage
+//
+//#define M100_FREE_MEMORY_WATCHER
+
+//
+// M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
+//
 //#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
