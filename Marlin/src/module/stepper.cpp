@@ -135,7 +135,6 @@ Stepper stepper; // Singleton
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   xy_pos_t Stepper::z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];
-
   #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
     xy_pos_t Stepper::z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];
   #endif
