@@ -657,7 +657,12 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(probe_offset);
-      EEPROM_WRITE(probe.offset);
+      #if HAS_BED_PROBE
+        constexpr xyz_pos_t &zpo = probe.offset;
+      #else
+        xyz_pos_t zpo{0};
+      #endif
+      EEPROM_WRITE(zpo);
     }
 
     //
@@ -1506,7 +1511,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(probe_offset);
         #if HAS_BED_PROBE
-          xyz_pos_t &zpo = probe.offset;
+          constexpr xyz_pos_t &zpo = probe.offset;
         #else
           xyz_pos_t zpo;
         #endif
