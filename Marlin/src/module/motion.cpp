@@ -274,7 +274,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         , true
       #endif
     );
-    xyze_pos_t &cartes = pos;
+    const xyze_pos_t &cartes = pos;
   #endif
   if (axis == ALL_AXES)
     current_position = cartes;

@@ -154,7 +154,7 @@ constexpr uint8_t inv_type[] = {
   #endif
 };
 
-invaders_data_t &idat = marlin_game_data.invaders;
+const invaders_data_t &idat = marlin_game_data.invaders;
 
 #define INV_X_LEFT(C,T) (idat.pos.x + (C) * (INVADER_COL_W) + inv_off[T])
 #define INV_X_CTR(C,T)  (INV_X_LEFT(C,T) + inv_wide[T] / 2)

@@ -907,7 +907,7 @@
       ui.return_to_status();
 
       mesh_index_pair location;
-      xy_int8_t &lpos = location.pos;
+      const xy_int8_t &lpos = location.pos;
       do {
         location = find_closest_mesh_point_of_type(INVALID, pos);
         // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
@@ -1006,7 +1006,7 @@
       #endif
 
       MeshFlags done_flags{0};
-      xy_int8_t &lpos = location.pos;
+      const xy_int8_t &lpos = location.pos;
       do {
         location = find_closest_mesh_point_of_type(SET_IN_BITMAP, pos, false, &done_flags);
 

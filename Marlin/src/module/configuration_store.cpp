@@ -601,12 +601,12 @@ void MarlinSettings::postprocess() {
       #if HAS_FILAMENT_SENSOR
         const bool &runout_sensor_enabled = runout.enabled;
       #else
-        const bool runout_sensor_enabled = true;
+        constexpr bool runout_sensor_enabled = true;
       #endif
       #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
         const float &runout_distance_mm = runout.runout_distance();
       #else
-        const float runout_distance_mm = 0;
+        constexpr float runout_distance_mm = 0;
       #endif
       _FIELD_TEST(runout_sensor_enabled);
       EEPROM_WRITE(runout_sensor_enabled);
@@ -658,9 +658,9 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(probe_offset);
       #if HAS_BED_PROBE
-        constexpr xyz_pos_t &zpo = probe.offset;
+        const xyz_pos_t &zpo = probe.offset;
       #else
-        xyz_pos_t zpo{0};
+        constexpr xyz_pos_t zpo{0};
       #endif
       EEPROM_WRITE(zpo);
     }
@@ -1454,7 +1454,7 @@ void MarlinSettings::postprocess() {
       //
       {
         #if HAS_FILAMENT_SENSOR
-          bool &runout_sensor_enabled = runout.enabled;
+          const bool &runout_sensor_enabled = runout.enabled;
         #else
           bool runout_sensor_enabled;
         #endif
@@ -1511,7 +1511,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(probe_offset);
         #if HAS_BED_PROBE
-          constexpr xyz_pos_t &zpo = probe.offset;
+          const xyz_pos_t &zpo = probe.offset;
         #else
           xyz_pos_t zpo;
         #endif
@@ -1605,7 +1605,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(bltouch_last_written_mode);
         #if ENABLED(BLTOUCH)
-          bool &bltouch_last_written_mode = bltouch.last_written_mode;
+          const bool &bltouch_last_written_mode = bltouch.last_written_mode;
         #else
           bool bltouch_last_written_mode;
         #endif
@@ -2123,14 +2123,14 @@ void MarlinSettings::postprocess() {
       //
       {
         #if ENABLED(BACKLASH_GCODE)
-          xyz_float_t &backlash_distance_mm = backlash.distance_mm;
-          uint8_t &backlash_correction = backlash.correction;
+          const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
+          const uint8_t &backlash_correction = backlash.correction;
         #else
           float backlash_distance_mm[XYZ];
           uint8_t backlash_correction;
         #endif
         #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-          float &backlash_smoothing_mm = backlash.smoothing_mm;
+          const float &backlash_smoothing_mm = backlash.smoothing_mm;
         #else
           float backlash_smoothing_mm;
         #endif

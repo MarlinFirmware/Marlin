@@ -51,7 +51,7 @@ public:
     // Use offset_xy for read only access
     // More optimal the XY offset is known to always be zero.
     #if HAS_PROBE_XY_OFFSET
-      static constexpr xyz_pos_t &offset_xy = offset;
+      static const xyz_pos_t &offset_xy = offset;
     #else
       static constexpr xy_pos_t offset_xy{0};
     #endif
