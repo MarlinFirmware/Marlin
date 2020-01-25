@@ -842,9 +842,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
         static bool pid_reset[HOTENDS] = { false };
         const float pid_error = temp_hotend[ee].target - temp_hotend[ee].celsius;
 
-
-        static bool pid_overshoot;
-
         #ifdef PID_OVERSHOOT
           static bool pid_overshoot_flag;
           float pid_overshoot_val = PID_OVERSHOOT;  // can't just use -PID_OVERSHOOT because some tool chains don't allow it
