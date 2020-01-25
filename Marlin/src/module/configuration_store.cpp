@@ -657,7 +657,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(probe_offset);
-      EEPROM_WRITE(probe_offset);
+      EEPROM_WRITE(probe.offset);
     }
 
     //
@@ -1506,7 +1506,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(probe_offset);
         #if HAS_BED_PROBE
-          xyz_pos_t &zpo = probe_offset;
+          xyz_pos_t &zpo = probe.offset;
         #else
           xyz_pos_t zpo;
         #endif
@@ -2459,10 +2459,10 @@ void MarlinSettings::reset() {
     constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == 3, "NOZZLE_TO_PROBE_OFFSET must contain offsets for X, Y, and Z.");
     #if HAS_PROBE_XY_OFFSET
-      LOOP_XYZ(a) probe_offset[a] = dpo[a];
+      LOOP_XYZ(a) probe.offset[a] = dpo[a];
     #else
-      probe_offset.x = probe_offset.y = 0;
-      probe_offset.z = dpo[Z_AXIS];
+      probe.offset.x = probe.offset.y = 0;
+      probe.offset.z = dpo[Z_AXIS];
     #endif
   #endif
 
@@ -3214,13 +3214,13 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         #if HAS_PROBE_XY_OFFSET
-          PSTR("  M851 X"), LINEAR_UNIT(probe_offset_xy.x),
-                  SP_Y_STR, LINEAR_UNIT(probe_offset_xy.y),
+          PSTR("  M851 X"), LINEAR_UNIT(probe.offset_xy.x),
+                  SP_Y_STR, LINEAR_UNIT(probe.offset_xy.y),
                   SP_Z_STR
         #else
           PSTR("  M851 X0 Y0 Z")
         #endif
-        , LINEAR_UNIT(probe_offset.z)
+        , LINEAR_UNIT(probe.offset.z)
       );
     #endif
 

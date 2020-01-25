@@ -541,7 +541,7 @@ void restore_feedrate_and_scaling() {
       soft_endstop.min[axis] = base_min_pos(axis);
       soft_endstop.max[axis] = (axis == Z_AXIS ? delta_height
       #if HAS_BED_PROBE
-        - probe_offset.z
+        - probe.offset.z
       #endif
       : base_max_pos(axis));
 
@@ -1275,7 +1275,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   #if HOMING_Z_WITH_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
     if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
-      serialprintPGM(msg_wait_for_bed_heating);
+      serialprintPGM(probe.msg_wait_for_bed_heating);
       #if HAS_DISPLAY
         LCD_MESSAGEPGM(MSG_BED_HEATING);
       #endif
@@ -1301,7 +1301,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && QUIET_PROBING
-      if (axis == Z_AXIS) probing_pause(true);
+      if (axis == Z_AXIS) probe.set_probing_paused(true);
     #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -1341,7 +1341,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && QUIET_PROBING
-      if (axis == Z_AXIS) probing_pause(false);
+      if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
 
     endstops.validate_homing_move();
@@ -1391,7 +1391,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS ? delta_height
     #if HAS_BED_PROBE
-      - probe_offset.z
+      - probe.offset.z
     #endif
     : base_home_pos(axis));
   #else
@@ -1405,9 +1405,9 @@ void set_axis_is_at_home(const AxisEnum axis) {
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
 
-        current_position.z -= probe_offset.z;
+        current_position.z -= probe.offset.z;
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe_offset.z = ", probe_offset.z);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
 
       #else
 

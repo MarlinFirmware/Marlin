@@ -93,39 +93,39 @@ void ZStepperAlign::reset_to_default() {
     const xy_pos_t z_stepper_align_xy_init[] = {
       #if NUM_Z_STEPPER_DRIVERS >= 3  // First probe point...
         #if !Z_STEPPERS_ORIENTATION
-          { probe_min_x(), probe_min_y() }, // SW
+          { probe.min_x(), probe.min_y() }, // SW
         #elif Z_STEPPERS_ORIENTATION == 1
-          { probe_min_x(), probe_max_y() }, // NW
+          { probe.min_x(), probe.max_y() }, // NW
         #elif Z_STEPPERS_ORIENTATION == 2
-          { probe_max_x(), probe_max_y() }, // NE
+          { probe.max_x(), probe.max_y() }, // NE
         #elif Z_STEPPERS_ORIENTATION == 3
-          { probe_max_x(), probe_min_y() }, // SE
+          { probe.max_x(), probe.min_y() }, // SE
         #else
           #error "Z_STEPPERS_ORIENTATION must be from 0 to 3 (first point SW, NW, NE, SE)."
         #endif
         #if NUM_Z_STEPPER_DRIVERS == 4    // 3 more points...
           #if !Z_STEPPERS_ORIENTATION
-            { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }  // SW
+            { probe.min_x(), probe.max_y() }, { probe.max_x(), probe.max_y() }, { probe.max_x(), probe.min_y() }  // SW
           #elif Z_STEPPERS_ORIENTATION == 1
-            { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }  // NW
+            { probe.max_x(), probe.max_y() }, { probe.max_x(), probe.min_y() }, { probe.min_x(), probe.min_y() }  // NW
           #elif Z_STEPPERS_ORIENTATION == 2
-            { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }  // NE
+            { probe.max_x(), probe.min_y() }, { probe.min_x(), probe.min_y() }, { probe.min_x(), probe.max_y() }  // NE
           #elif Z_STEPPERS_ORIENTATION == 3
-            { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }  // SE
+            { probe.min_x(), probe.min_y() }, { probe.min_x(), probe.max_y() }, { probe.max_x(), probe.max_y() }  // SE
           #endif
         #elif !Z_STEPPERS_ORIENTATION     // or 2 more points...
-          { probe_max_x(), probe_min_y() }, { X_CENTER, probe_max_y() } // SW
+          { probe.max_x(), probe.min_y() }, { X_CENTER, probe.max_y() } // SW
         #elif Z_STEPPERS_ORIENTATION == 1
-          { probe_min_x(), probe_min_y() }, { probe_max_x(), Y_CENTER } // NW
+          { probe.min_x(), probe.min_y() }, { probe.max_x(), Y_CENTER } // NW
         #elif Z_STEPPERS_ORIENTATION == 2
-          { probe_min_x(), probe_max_y() }, { X_CENTER, probe_min_y() } // NE
+          { probe.min_x(), probe.max_y() }, { X_CENTER, probe.min_y() } // NE
         #elif Z_STEPPERS_ORIENTATION == 3
-          { probe_max_x(), probe_max_y() }, { probe_min_x(), Y_CENTER } // SE
+          { probe.max_x(), probe.max_y() }, { probe.min_x(), Y_CENTER } // SE
         #endif
       #elif Z_STEPPERS_ORIENTATION
-        { X_CENTER, probe_min_y() }, { X_CENTER, probe_max_y() }
+        { X_CENTER, probe.min_y() }, { X_CENTER, probe.max_y() }
       #else
-        { probe_min_x(), Y_CENTER }, { probe_max_x(), Y_CENTER }
+        { probe.min_x(), Y_CENTER }, { probe.max_x(), Y_CENTER }
       #endif
     };
   #endif

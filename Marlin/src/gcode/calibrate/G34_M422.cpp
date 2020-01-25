@@ -187,7 +187,7 @@ void GcodeSuite::G34() {
           DEBUG_ECHOLNPAIR_P(PSTR("Probing X"), z_stepper_align.xy[iprobe].x, SP_Y_STR, z_stepper_align.xy[iprobe].y);
 
         // Probe a Z height for each stepper.
-        const float z_probed_height = probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true);
+        const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true);
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;
@@ -337,7 +337,7 @@ void GcodeSuite::G34() {
     // After this operation the z position needs correction
     set_axis_is_not_at_home(Z_AXIS);
 
-    // Stow the probe, as the last call to probe_at_point(...) left
+    // Stow the probe, as the last call to probe.probe_at_point(...) left
     // the probe deployed if it was successful.
     STOW_PROBE();
 
