@@ -246,7 +246,6 @@ class Stepper {
 
     #if ENABLED(Z_STEPPER_AUTO_ALIGN)
       static xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];
-
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
         static xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];
       #endif
