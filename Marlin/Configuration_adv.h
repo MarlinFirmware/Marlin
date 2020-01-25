@@ -666,9 +666,9 @@
    * Override Z stepper align points with 'M422 S<index> X<pos> Y<pos>'
    *
    * 2 Steppers:  (0)     (1)
-   *               |   2   |       |
-   *               |       | 1   2 |
-   *               |   1   |       |
+   *               |       |   2   |
+   *               | 1   2 |       |
+   *               |       |   1   |
    *
    * 3 Steppers:  (0)     (1)     (2)     (3)
    *               |   3   | 1     | 2   1 |     2 |

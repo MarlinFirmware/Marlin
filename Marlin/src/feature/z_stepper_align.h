@@ -19,14 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
+
+/**
+ * feature/z_stepper_align.h
+ */
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(BARICUDA)
+class ZStepperAlign {
+  public:
+    static xy_pos_t xy[NUM_Z_STEPPER_DRIVERS];
 
-#include "baricuda.h"
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      static xy_pos_t stepper_xy[NUM_Z_STEPPER_DRIVERS];
+    #endif
+};
 
-uint8_t baricuda_valve_pressure = 0,
-        baricuda_e_to_p_pressure = 0;
-
-#endif // BARICUDA
+extern ZStepperAlign z_stepper_align;

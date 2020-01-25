@@ -21,7 +21,7 @@
  */
 
 /**
- * probe.cpp
+ * module/probe.cpp
  */
 
 #include "../inc/MarlinConfig.h"
