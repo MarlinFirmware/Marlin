@@ -97,7 +97,7 @@
       static_assert(FTEST(3) && BTEST(3), "The 4th Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
     #endif
   #endif
-#endif
+#endif // Z_STEPPER_ALIGN_XY
 
 inline void set_all_z_lock(const bool lock) {
   stepper.set_z_lock(lock);
@@ -225,7 +225,7 @@ void GcodeSuite::G34() {
       SERIAL_ECHOLNPAIR("\nITERATION: ", int(iteration + 1));
 
       // Initialize minimum value
-      float z_measured_min = 100000.0f,
+      float z_measured_min =  100000.0f,
             z_measured_max = -100000.0f;
 
       // Probe all positions (one per Z-Stepper)
