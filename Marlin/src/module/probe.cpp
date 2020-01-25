@@ -269,8 +269,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 /**
  * Raise Z to a minimum height to make room for a probe to move
  */
-inline void Probe::do_probe_raise(const float z_raise) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("do_probe_raise(", z_raise, ")");
+void Probe::do_z_raise(const float z_raise) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probe::move_z(", z_raise, ")");
 
   float z_dest = z_raise;
   if (offset.z < 0) z_dest -= offset.z;
@@ -380,7 +380,7 @@ bool Probe::set_deployed(const bool deploy) {
   #endif
 
   if (deploy_stow_condition && unknown_condition)
-    do_probe_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
     if (axis_unhomed_error(
@@ -455,7 +455,7 @@ bool Probe::set_deployed(const bool deploy) {
   PGM_P Probe::msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
 #endif
 
-static bool Probe::move_to_z(const float z, const feedRate_t fr_mm_s) {
+bool Probe::move_to_z(const float z, const feedRate_t fr_mm_s) {
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::move_to_z", current_position);
 
   #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
@@ -545,7 +545,7 @@ static bool Probe::move_to_z(const float z, const feedRate_t fr_mm_s) {
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
-static float Probe::run_z_probe() {
+float Probe::run_z_probe() {
 
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::run_z_probe", current_position);
 

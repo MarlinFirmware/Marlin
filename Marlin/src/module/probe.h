@@ -46,14 +46,14 @@ public:
 
   #if HAS_BED_PROBE
 
-    xyz_pos_t offset;
+    static xyz_pos_t offset;
 
     // Use offset_xy for read only access
     // More optimal the XY offset is known to always be zero.
     #if HAS_PROBE_XY_OFFSET
-      xyz_pos_t &offset_xy = offset;
+      static constexpr xyz_pos_t &offset_xy = offset;
     #else
-      constexpr xy_pos_t offset_xy{0};
+      static constexpr xy_pos_t offset_xy{0};
     #endif
 
     static bool set_deployed(const bool deploy);
@@ -65,13 +65,13 @@ public:
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative);
     }
     #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-      PGM_P msg_wait_for_bed_heating[25];
+      static PGM_P msg_wait_for_bed_heating[25];
     #endif
 
   #else
 
-    constexpr xyz_pos_t offset{0};
-    constexpr xy_pos_t offset_xy{0};
+    static constexpr xyz_pos_t offset{0};
+    static constexpr xy_pos_t offset_xy{0};
 
   #endif
 
@@ -162,7 +162,8 @@ public:
   #endif
 
 private:
-  static void do_probe_move(const float z, const feedRate_t fr_mm_s);
+  static bool move_to_z(const float z, const feedRate_t fr_mm_s);
+  static void do_z_raise(const float z_raise);
   static float run_z_probe();
 };
 
