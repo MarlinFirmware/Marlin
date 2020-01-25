@@ -56,3 +56,13 @@
 
 #include "Conditionals_adv.h"
 #include HAL_PATH(../HAL, inc/Conditionals_adv.h)
+
+#ifdef CUSTOM_CONFIG_FILE
+  #if defined(__has_include)
+    #if __has_include(XSTR(../../CUSTOM_CONFIG_FILE))
+      #include XSTR(../../CUSTOM_CONFIG_FILE)
+    #endif
+  #else
+    #include XSTR(../../CUSTOM_CONFIG_FILE)
+  #endif
+#endif
