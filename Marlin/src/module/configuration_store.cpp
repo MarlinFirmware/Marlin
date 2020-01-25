@@ -2527,51 +2527,52 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-      const xy_pos_t temp_z_stepper_align_xy[] =
+    const xy_pos_t z_stepper_align_xy_init[] =
       #ifdef Z_STEPPER_ALIGN_XY
         Z_STEPPER_ALIGN_XY
       #else
         {
-          #if NUM_Z_STEPPER_DRIVERS == 3
-            #if defined(Z_STEPPER_ALIGN_ROTATE) && Z_STEPPER_ALIGN_ROTATE != 0
-              #if Z_STEPPER_ALIGN_ROTATE == 1
-                { probe_min_x(), probe_max_y() }, { probe_min_x(), probe_min_y() }, { probe_max_x(), Y_CENTER }
-              #elif Z_STEPPER_ALIGN_ROTATE == 2
-                { probe_max_x(), probe_max_y() }, { probe_min_x(), probe_max_y() }, { X_CENTER, probe_min_y() }
-              #elif Z_STEPPER_ALIGN_ROTATE == 3
-                { probe_max_x(), probe_min_y() }, { probe_max_x(), probe_max_y() }, { probe_min_x(), Y_CENTER }
-              #endif
-            #else
-              { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { X_CENTER, probe_max_y() }
-            #endif
-          #elif NUM_Z_STEPPER_DRIVERS == 4
-            #if defined(Z_STEPPER_ALIGN_ROTATE) && Z_STEPPER_ALIGN_ROTATE != 0
-              #if Z_STEPPER_ALIGN_ROTATE == 1
-                { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }
-              #elif Z_STEPPER_ALIGN_ROTATE == 2
-                { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }
-              #elif Z_STEPPER_ALIGN_ROTATE == 3
-                { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }
-              #endif
-            #else
+          #if NUM_Z_STEPPER_DRIVERS == 4
+            #if !Z_STEPPERS_ORIENTATION
               { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }
+            #if Z_STEPPERS_ORIENTATION == 1
+              { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }
+            #elif Z_STEPPERS_ORIENTATION == 2
+              { probe_max_x(), probe_max_y() }, { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }
+            #elif Z_STEPPERS_ORIENTATION == 3
+              { probe_max_x(), probe_min_y() }, { probe_min_x(), probe_min_y() }, { probe_min_x(), probe_max_y() }, { probe_max_x(), probe_max_y() }
+            #else
+              #endif "Z_STEPPERS_ORIENTATION must be from 0 to 3 with 4 stepper drivers."
             #endif
-          #elif defined(Z_STEPPER_ALIGN_ROTATE)
-            { X_CENTER, probe_min_y() }, { Y_CENTER, probe_max_y() }
-          #else
-            { probe_min_x(), Y_CENTER }, { probe_max_x(), Y_CENTER }
+          #elif NUM_Z_STEPPER_DRIVERS == 3
+            #if !Z_STEPPERS_ORIENTATION
+              { probe_min_x(), probe_min_y() }, { probe_max_x(), probe_min_y() }, { X_CENTER, probe_max_y() }
+            #elif Z_STEPPERS_ORIENTATION == 1
+              { probe_min_x(), probe_max_y() }, { probe_min_x(), probe_min_y() }, { probe_max_x(), Y_CENTER }
+            #elif Z_STEPPERS_ORIENTATION == 2
+              { probe_max_x(), probe_max_y() }, { probe_min_x(), probe_max_y() }, { X_CENTER, probe_min_y() }
+            #elif Z_STEPPERS_ORIENTATION == 3
+              { probe_max_x(), probe_min_y() }, { probe_max_x(), probe_max_y() }, { probe_min_x(), Y_CENTER }
+            #else
+              #endif "Z_STEPPERS_ORIENTATION must be from 0 to 3 with 3 stepper drivers."
+            #endif
+          #elif NUM_Z_STEPPER_DRIVERS == 2
+            #ifdef Z_STEPPERS_ORIENTATION
+              { X_CENTER, probe_min_y() }, { X_CENTER, probe_max_y() }
+            #else
+              { probe_min_x(), Y_CENTER }, { probe_max_x(), Y_CENTER }
+            #endif
           #endif
         }
       #endif
-      ;
-      for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
-        stepper.z_stepper_align_xy[i] = temp_z_stepper_align_xy[i];
-      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-        constexpr xy_pos_t temp_z_stepper_align_stepper_xy[] = Z_STEPPER_ALIGN_STEPPER_XY;
-        for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; i++)
-          stepper.z_stepper_align_stepper_xy[i] = temp_z_stepper_align_stepper_xy[i];
-      #endif
+    ;
+    COPY(stepper.z_stepper_align_xy, z_stepper_align_xy_init);
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      constexpr xy_pos_t z_stepper_align_stepper_xy_init[] = Z_STEPPER_ALIGN_STEPPER_XY;
+      COPY(stepper.z_stepper_align_stepper_xy, z_stepper_align_stepper_xy_init);
     #endif
+
+  #endif // Z_STEPPER_AUTO_ALIGN
 
   //
   // Preheat parameters

@@ -280,7 +280,7 @@ void GcodeSuite::G34() {
         linear_fit_data lfd;
         incremental_LSF_reset(&lfd);
         for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i) {
-          SERIAL_ECHOLNPAIR("PROBEPT_", int(i + 1), ": ", z_measured[i]);
+          SERIAL_ECHOLNPAIR("PROBEPT_", i + '1', ": ", z_measured[i]);
           incremental_LSF(&lfd, stepper.z_stepper_align_xy[i], z_measured[i]);
         }
         finish_incremental_LSF(&lfd);
@@ -420,10 +420,10 @@ void GcodeSuite::M422() {
 
   if (!parser.seen_any()) {
     for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i)
-      SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + 1, SP_X_STR, stepper.z_stepper_align_xy[i].x, SP_Y_STR, stepper.z_stepper_align_xy[i].y);
+      SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + '1', SP_X_STR, stepper.z_stepper_align_xy[i].x, SP_Y_STR, stepper.z_stepper_align_xy[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i)
-        SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + 1, SP_X_STR, stepper.z_stepper_align_stepper_xy[i].x, SP_Y_STR, stepper.z_stepper_align_stepper_xy[i].y);
+        SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + '1', SP_X_STR, stepper.z_stepper_align_stepper_xy[i].x, SP_Y_STR, stepper.z_stepper_align_stepper_xy[i].y);
     #endif
     return;
   }
