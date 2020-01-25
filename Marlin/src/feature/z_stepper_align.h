@@ -25,7 +25,7 @@
  * feature/z_stepper_align.h
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 class ZStepperAlign {
   public:
@@ -34,6 +34,8 @@ class ZStepperAlign {
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       static xy_pos_t stepper_xy[NUM_Z_STEPPER_DRIVERS];
     #endif
+
+  static void reset_to_default();
 };
 
 extern ZStepperAlign z_stepper_align;

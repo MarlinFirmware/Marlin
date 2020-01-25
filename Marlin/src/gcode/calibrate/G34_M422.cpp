@@ -24,11 +24,12 @@
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
 
+#include "../../feature/z_stepper_align.h"
+
 #include "../gcode.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 #include "../../module/motion.h"
-#include "../../module/z_stepper_align.h"
 #include "../../module/probe.h"
 
 #if HOTENDS > 1
