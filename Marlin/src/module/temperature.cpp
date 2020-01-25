@@ -846,6 +846,8 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
         static bool pid_overshoot;
 
         #ifdef PID_OVERSHOOT
+          static bool pid_overshoot_flag;
+          float pid_overshoot_val = PID_OVERSHOOT;  // can't just use -PID_OVERSHOOT because some tool chains don't allow it
           static millis_t overshoot_timer;  //use to keep overshoot feature fom being re-enabled too soon
           static bool within_overshoot_flag;
           #define OVERSHOOT_TIMEOUT 120000  // disable overshoot feature for 2 minutes after being triggered to allow
@@ -853,13 +855,13 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
           if (pid_error > PID_FUNCTIONAL_RANGE) {
             if (millis() > overshoot_timer ) {  // not waiting for a timeout so OK to overshoot
-              pid_overshoot = true;
+              pid_overshoot_flag = true;
               within_overshoot_flag = true;
             }
           }
           else {
-            if (pid_error <= -PID_OVERSHOOT) {
-              pid_overshoot = false;
+            if (pid_error <= -pid_overshoot_val) {
+              pid_overshoot_flag = false;
               if (within_overshoot_flag) {
                 if (!overshoot_timer ) {
                   overshoot_timer = millis() + OVERSHOOT_TIMEOUT;    // overshoot finished, enable timer so don't re-enter too soon
@@ -883,7 +885,11 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           pid_output = 0;
           pid_reset[ee] = true;
         }
-        else if ((pid_error > PID_FUNCTIONAL_RANGE) || ((pid_error >= -PID_OVERSHOOT ) && pid_overshoot) ) {
+        else if ((pid_error > PID_FUNCTIONAL_RANGE)
+        #ifdef PID_OVERSHOOT
+                                                    || ((pid_error >= -pid_overshoot_val) && pid_overshoot_flag)
+        #endif
+                                                                                                                   ) {
           pid_output = BANG_MAX;
           pid_reset[ee] = true;
         }

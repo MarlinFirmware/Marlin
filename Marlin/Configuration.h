@@ -475,7 +475,7 @@
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #ifdef PID_FUNCTIONAL_RANGE
-    //#define PID_OVERSHOOT 0     // Heater stays at max until target temperature + PID_OVERSHOOT reached - minimizes time to target temperature
+    //#define PID_OVERSHOOT -2     // Heater stays at max until target temperature + PID_OVERSHOOT reached - minimizes time to target temperature
                                   // actual overshoot will be more than this value
   #endif
 
