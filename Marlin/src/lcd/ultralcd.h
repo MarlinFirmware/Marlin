@@ -532,10 +532,12 @@ public:
 
   #endif
 
-  #if (ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)) || ENABLED(DELTA_CALIBRATION_MENU)
-    static bool wait_for_bl_move;
+  #define LCD_HAS_WAIT_FOR_MOVE (ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)) || EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+
+  #if LCD_HAS_WAIT_FOR_MOVE
+    static bool wait_for_move;
   #else
-    static constexpr bool wait_for_bl_move = false;
+    static constexpr bool wait_for_move = false;
   #endif
 
   #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
