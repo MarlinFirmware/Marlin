@@ -44,6 +44,13 @@ applet/
 tags
 
 #
+# User configuration files
+#
+/config/user/*
+!/config/user/Configuration_example.h
+!/config/user/platformio.ini
+ 
+#
 # C++
 #
 # Compiled Object files
