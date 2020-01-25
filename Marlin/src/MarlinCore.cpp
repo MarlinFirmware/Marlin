@@ -827,6 +827,10 @@ void setup() {
     L64xxManager.init();  // Set up SPI, init drivers
   #endif
 
+  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+    OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     max7219.init();
   #endif
