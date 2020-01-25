@@ -303,9 +303,11 @@ volatile bool Temperature::temp_meas_ready = false;
                          sensor_heater_2 { HEATER_2_RAW_LO_TEMP, HEATER_2_RAW_HI_TEMP, 0, 16383 },
                          sensor_heater_3 { HEATER_3_RAW_LO_TEMP, HEATER_3_RAW_HI_TEMP, 0, 16383 },
                          sensor_heater_4 { HEATER_4_RAW_LO_TEMP, HEATER_4_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_5 { HEATER_5_RAW_LO_TEMP, HEATER_5_RAW_HI_TEMP, 0, 16383 };
+                         sensor_heater_5 { HEATER_5_RAW_LO_TEMP, HEATER_5_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_6 { HEATER_6_RAW_LO_TEMP, HEATER_6_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_7 { HEATER_7_RAW_LO_TEMP, HEATER_7_RAW_HI_TEMP, 0, 16383 };
 
-  temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5);
+  temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5, sensor_heater_6, sensor_heater_7);
 #endif
 
 #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
@@ -686,6 +688,12 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
               , REPEAT2(4,_EFAN,4) 4
               #if HOTENDS > 5
                 , REPEAT2(5,_EFAN,5) 5
+                #if HOTENDS > 6
+                  , REPEAT2(6,_EFAN,6) 6
+                  #if HOTENDS > 7
+                    , REPEAT2(7,_EFAN,7) 7
+                  #endif
+                #endif
               #endif
             #endif
           #endif
@@ -750,6 +758,12 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
         #endif
         #if HAS_AUTO_FAN_5
           case 5: _UPDATE_AUTO_FAN(E5, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+        #endif
+        #if HAS_AUTO_FAN_6
+          case 6: _UPDATE_AUTO_FAN(E6, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+        #endif
+        #if HAS_AUTO_FAN_7
+          case 7: _UPDATE_AUTO_FAN(E7, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
@@ -893,7 +907,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
               pid_output += work_pid[ee].Kc;
             }
           #endif // PID_EXTRUSION_SCALING
-
           #if ENABLED(PID_FAN_SCALING)
             if (thermalManager.fan_speed[active_extruder] > PID_FAN_SCALING_MIN_SPEED) {
               work_pid[ee].Kf = PID_PARAM(Kf, ee) + (PID_FAN_SCALING_LIN_FACTOR) * thermalManager.fan_speed[active_extruder];
@@ -902,7 +915,6 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
             //pid_output -= work_pid[ee].Ki;
             //pid_output += work_pid[ee].Ki * work_pid[ee].Kf
           #endif // PID_FAN_SCALING
-
           LIMIT(pid_output, 0, PID_MAX);
         }
         temp_dState[ee] = temp_hotend[ee].celsius;
@@ -1286,6 +1298,12 @@ void Temperature::manage_heater() {
       #if ENABLED(HEATER_5_USER_THERMISTOR)
         { true, 0, 0, HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS, 0, 0, HOTEND5_BETA, 0 },
       #endif
+      #if ENABLED(HEATER_6_USER_THERMISTOR)
+        { true, 0, 0, HOTEND6_PULLUP_RESISTOR_OHMS, HOTEND6_RESISTANCE_25C_OHMS, 0, 0, HOTEND6_BETA, 0 },
+      #endif
+      #if ENABLED(HEATER_7_USER_THERMISTOR)
+        { true, 0, 0, HOTEND7_PULLUP_RESISTOR_OHMS, HOTEND7_RESISTANCE_25C_OHMS, 0, 0, HOTEND7_BETA, 0 },
+      #endif
       #if ENABLED(HEATER_BED_USER_THERMISTOR)
         { true, 0, 0, BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS, 0, 0, BED_BETA, 0 },
       #endif
@@ -1330,6 +1348,12 @@ void Temperature::manage_heater() {
       #endif
       #if ENABLED(HEATER_5_USER_THERMISTOR)
         t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :
+      #endif
+      #if ENABLED(HEATER_6_USER_THERMISTOR)
+        t_index == CTI_HOTEND_6 ? PSTR("HOTEND 6") :
+      #endif
+      #if ENABLED(HEATER_7_USER_THERMISTOR)
+        t_index == CTI_HOTEND_7 ? PSTR("HOTEND 7") :
       #endif
       #if ENABLED(HEATER_BED_USER_THERMISTOR)
         t_index == CTI_BED ? PSTR("BED") :
@@ -1472,6 +1496,26 @@ void Temperature::manage_heater() {
         #elif ENABLED(HEATER_5_USES_AD595)
           return TEMP_AD595(raw);
         #elif ENABLED(HEATER_5_USES_AD8495)
+          return TEMP_AD8495(raw);
+        #else
+          break;
+        #endif
+      case 6:
+        #if ENABLED(HEATER_6_USER_THERMISTOR)
+          return user_thermistor_to_deg_c(CTI_HOTEND_6, raw);
+        #elif ENABLED(HEATER_6_USES_AD595)
+          return TEMP_AD595(raw);
+        #elif ENABLED(HEATER_6_USES_AD8495)
+          return TEMP_AD8495(raw);
+        #else
+          break;
+        #endif
+      case 7:
+        #if ENABLED(HEATER_7_USER_THERMISTOR)
+          return user_thermistor_to_deg_c(CTI_HOTEND_7, raw);
+        #elif ENABLED(HEATER_7_USES_AD595)
+          return TEMP_AD595(raw);
+        #elif ENABLED(HEATER_7_USES_AD8495)
           return TEMP_AD8495(raw);
         #else
           break;
@@ -1633,8 +1677,9 @@ void Temperature::init() {
   #endif
 
   #if MB(RUMBA)
-    #define _AD(N) (ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495))
-    #if _AD(0) || _AD(1) || _AD(2) || _AD(3) || _AD(4) || _AD(5) || _AD(BED) || _AD(CHAMBER)
+    #define _AD(N) ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495)
+    #if  _AD(0) || _AD(1) || _AD(2) /* RUMBA has 3 E plugs // || _AD(3) || _AD(4) || _AD(5) || _AD(6) || _AD(7) */ \
+      || _AD(BED) || _AD(CHAMBER)
       // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
       MCUCR = _BV(JTD);
       MCUCR = _BV(JTD);
@@ -1668,6 +1713,12 @@ void Temperature::init() {
   #if HAS_HEATER_5
     OUT_WRITE(HEATER_5_PIN, HEATER_5_INVERTING);
   #endif
+  #if HAS_HEATER_6
+    OUT_WRITE(HEATER_6_PIN, HEATER_6_INVERTING);
+  #endif
+  #if HAS_HEATER_7
+    OUT_WRITE(HEATER_7_PIN, HEATER_7_INVERTING);
+  #endif
 
   #if HAS_HEATED_BED
     #ifdef ALFAWISE_UX0
@@ -1689,6 +1740,21 @@ void Temperature::init() {
   #endif
   #if HAS_FAN2
     INIT_FAN_PIN(FAN2_PIN);
+  #endif
+  #if HAS_FAN3
+    INIT_FAN_PIN(FAN3_PIN);
+  #endif
+  #if HAS_FAN4
+    INIT_FAN_PIN(FAN4_PIN);
+  #endif
+  #if HAS_FAN5
+    INIT_FAN_PIN(FAN5_PIN);
+  #endif
+  #if HAS_FAN6
+    INIT_FAN_PIN(FAN6_PIN);
+  #endif
+  #if HAS_FAN7
+    INIT_FAN_PIN(FAN7_PIN);
   #endif
   #if ENABLED(USE_CONTROLLER_FAN)
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
@@ -1730,6 +1796,12 @@ void Temperature::init() {
   #endif
   #if HAS_TEMP_ADC_5
     HAL_ANALOG_SELECT(TEMP_5_PIN);
+  #endif
+  #if HAS_TEMP_ADC_6
+    HAL_ANALOG_SELECT(TEMP_6_PIN);
+  #endif
+  #if HAS_TEMP_ADC_7
+    HAL_ANALOG_SELECT(TEMP_7_PIN);
   #endif
   #if HAS_JOY_ADC_X
     HAL_ANALOG_SELECT(JOY_X_PIN);
@@ -1779,6 +1851,12 @@ void Temperature::init() {
   #endif
   #if HAS_AUTO_FAN_5 && !(_EFANOVERLAP(5,0) || _EFANOVERLAP(5,1) || _EFANOVERLAP(5,2) || _EFANOVERLAP(5,3) || _EFANOVERLAP(5,4))
     INIT_E_AUTO_FAN_PIN(E5_AUTO_FAN_PIN);
+  #endif
+  #if HAS_AUTO_FAN_6 && !(_EFANOVERLAP(6,0) || _EFANOVERLAP(6,1) || _EFANOVERLAP(6,2) || _EFANOVERLAP(6,3) || _EFANOVERLAP(6,4) || _EFANOVERLAP(6,5))
+    INIT_E_AUTO_FAN_PIN(E6_AUTO_FAN_PIN);
+  #endif
+  #if HAS_AUTO_FAN_7 && !(_EFANOVERLAP(7,0) || _EFANOVERLAP(7,1) || _EFANOVERLAP(7,2) || _EFANOVERLAP(7,3) || _EFANOVERLAP(7,4) || _EFANOVERLAP(7,5) || _EFANOVERLAP(7,6))
+    INIT_E_AUTO_FAN_PIN(E7_AUTO_FAN_PIN);
   #endif
   #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
     INIT_CHAMBER_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
@@ -1841,6 +1919,22 @@ void Temperature::init() {
               #ifdef HEATER_5_MAXTEMP
                 _TEMP_MAX_E(5);
               #endif
+              #if HOTENDS > 6
+                #ifdef HEATER_6_MINTEMP
+                  _TEMP_MIN_E(6);
+                #endif
+                #ifdef HEATER_6_MAXTEMP
+                  _TEMP_MAX_E(6);
+                #endif
+                #if HOTENDS > 7
+                  #ifdef HEATER_7_MINTEMP
+                    _TEMP_MIN_E(7);
+                  #endif
+                  #ifdef HEATER_7_MAXTEMP
+                    _TEMP_MAX_E(7);
+                  #endif
+                #endif // HOTENDS > 7
+              #endif // HOTENDS > 6
             #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
@@ -2232,6 +2326,12 @@ void Temperature::set_current_temp_raw() {
           temp_hotend[4].update();
           #if HAS_TEMP_ADC_5
             temp_hotend[5].update();
+            #if HAS_TEMP_ADC_6
+              temp_hotend[6].update();
+              #if HAS_TEMP_ADC_7
+                temp_hotend[7].update();
+              #endif // HAS_TEMP_ADC_7
+            #endif // HAS_TEMP_ADC_6
           #endif // HAS_TEMP_ADC_5
         #endif // HAS_TEMP_ADC_4
       #endif // HAS_TEMP_ADC_3
@@ -2508,6 +2608,21 @@ void Temperature::tick() {
         #if HAS_FAN2
           _FAN_PWM(2);
         #endif
+        #if HAS_FAN3
+          _FAN_PWM(3);
+        #endif
+        #if HAS_FAN4
+          _FAN_PWM(4);
+        #endif
+        #if HAS_FAN5
+          _FAN_PWM(5);
+        #endif
+        #if HAS_FAN6
+          _FAN_PWM(6);
+        #endif
+        #if HAS_FAN7
+          _FAN_PWM(7);
+        #endif
       #endif
     }
     else {
@@ -2534,6 +2649,21 @@ void Temperature::tick() {
         #endif
         #if HAS_FAN2
           if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
+        #endif
+        #if HAS_FAN3
+          if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
+        #endif
+        #if HAS_FAN4
+          if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW);
+        #endif
+        #if HAS_FAN5
+          if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
+        #endif
+        #if HAS_FAN6
+          if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW);
+        #endif
+        #if HAS_FAN7
+          if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
         #endif
       #endif
     }
@@ -2599,6 +2729,21 @@ void Temperature::tick() {
         #if HAS_FAN2
           _PWM_FAN(2);
         #endif
+        #if HAS_FAN3
+          _FAN_PWM(3);
+        #endif
+        #if HAS_FAN4
+          _FAN_PWM(4);
+        #endif
+        #if HAS_FAN5
+          _FAN_PWM(5);
+        #endif
+        #if HAS_FAN6
+          _FAN_PWM(6);
+        #endif
+        #if HAS_FAN7
+          _FAN_PWM(7);
+        #endif
       }
       #if HAS_FAN0
         if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
@@ -2608,6 +2753,21 @@ void Temperature::tick() {
       #endif
       #if HAS_FAN2
         if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
+      #endif
+      #if HAS_FAN3
+        if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
+      #endif
+      #if HAS_FAN4
+        if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW);
+      #endif
+      #if HAS_FAN5
+        if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
+      #endif
+      #if HAS_FAN6
+        if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW);
+      #endif
+      #if HAS_FAN7
+        if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
       #endif
     #endif // FAN_SOFT_PWM
 
@@ -2728,6 +2888,16 @@ void Temperature::tick() {
     #if HAS_TEMP_ADC_5
       case PrepareTemp_5: HAL_START_ADC(TEMP_5_PIN); break;
       case MeasureTemp_5: ACCUMULATE_ADC(temp_hotend[5]); break;
+    #endif
+
+    #if HAS_TEMP_ADC_6
+      case PrepareTemp_6: HAL_START_ADC(TEMP_6_PIN); break;
+      case MeasureTemp_6: ACCUMULATE_ADC(temp_hotend[6]); break;
+    #endif
+
+    #if HAS_TEMP_ADC_7
+      case PrepareTemp_7: HAL_START_ADC(TEMP_7_PIN); break;
+      case MeasureTemp_7: ACCUMULATE_ADC(temp_hotend[7]); break;
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)

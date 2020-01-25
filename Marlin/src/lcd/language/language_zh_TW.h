@@ -187,9 +187,9 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴 ~");
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" 熱床");     //"Bed"
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("風扇速率");     //"Fan speed"
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("風扇速率 =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("風扇速率 ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("額外風扇速率");     // "Extra fan speed"
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("額外風扇速率 =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("額外風扇速率 ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("擠出速率");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("擠出速率 ~");     //"Flow"
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("控制");     //"Control"

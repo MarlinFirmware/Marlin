@@ -132,6 +132,12 @@ enum ADCSensorState : char {
   #if HAS_TEMP_ADC_5
     PrepareTemp_5, MeasureTemp_5,
   #endif
+  #if HAS_TEMP_ADC_6
+    PrepareTemp_6, MeasureTemp_6,
+  #endif
+  #if HAS_TEMP_ADC_7
+    PrepareTemp_7, MeasureTemp_7,
+  #endif
   #if HAS_JOY_ADC_X
     PrepareJoy_X, MeasureJoy_X,
   #endif

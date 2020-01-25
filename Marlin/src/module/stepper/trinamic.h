@@ -58,6 +58,8 @@
 #define TMC_E3_LABEL 'E', '3'
 #define TMC_E4_LABEL 'E', '4'
 #define TMC_E5_LABEL 'E', '5'
+#define TMC_E6_LABEL 'E', '6'
+#define TMC_E7_LABEL 'E', '7'
 
 #define __TMC_CLASS(TYPE, L, I, A) TMCMarlin<CLASS_##TYPE, L, I, A>
 #define _TMC_CLASS(TYPE, LandI, A) __TMC_CLASS(TYPE, LandI, A)
@@ -264,5 +266,31 @@ void reset_trinamic_drivers();
   #endif
   #if AXIS_HAS_SQUARE_WAVE(E5)
     #define E5_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E5_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// E6 Stepper
+#if AXIS_IS_TMC(E6)
+  extern TMC_CLASS_E(6) stepperE6;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E6)
+    #define E6_ENABLE_INIT() NOOP
+    #define E6_ENABLE_WRITE(STATE) stepperE6.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+    #define E6_ENABLE_READ() stepperE6.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(E6)
+    #define E6_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E6_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// E7 Stepper
+#if AXIS_IS_TMC(E7)
+  extern TMC_CLASS_E(7) stepperE7;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E7)
+    #define E7_ENABLE_INIT() NOOP
+    #define E7_ENABLE_WRITE(STATE) stepperE7.toff((STATE)==E_ENABLE_ON ? chopper_timing.toff : 0)
+    #define E7_ENABLE_READ() stepperE7.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(E7)
+    #define E7_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(E7_STEP_PIN); }while(0)
   #endif
 #endif

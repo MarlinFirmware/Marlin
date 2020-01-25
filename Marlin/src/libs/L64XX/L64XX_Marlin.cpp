@@ -39,7 +39,7 @@ L64XX_Marlin L64xxManager;
 
 void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }
 
-char L64XX_Marlin::index_to_axis[MAX_L64XX][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "Z4", "E0", "E1", "E2", "E3", "E4", "E5" };
+char L64XX_Marlin::index_to_axis[MAX_L64XX][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "Z4", "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7" };
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
@@ -69,6 +69,8 @@ uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = { (INVERT_X_DIR),               
                                                   (INVERT_E3_DIR),                        // 11 E3
                                                   (INVERT_E4_DIR),                        // 12 E4
                                                   (INVERT_E5_DIR),                        // 13 E5
+                                                  (INVERT_E6_DIR),                        // 14 E6
+                                                  (INVERT_E7_DIR)                         // 15 E7
                                                 };
 
 volatile uint8_t L64XX_Marlin::spi_abort = false;

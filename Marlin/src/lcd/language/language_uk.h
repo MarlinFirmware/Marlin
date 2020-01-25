@@ -92,7 +92,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Сопло ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Стіл");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Охолодж.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Охолодж. =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Охолодж. ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Потік");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Потік ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Налаштування");

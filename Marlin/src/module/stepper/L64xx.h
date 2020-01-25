@@ -278,3 +278,37 @@
     #define E5_DIR_READ()        (stepper##E5.getStatus() & STATUS_DIR);
   #endif
 #endif
+
+// E6 Stepper
+#if AXIS_IS_L64XX(E6)
+  extern L64XX_CLASS(E6)         stepperE6;
+  #define E6_ENABLE_INIT()       NOOP
+  #define E6_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE6.free())
+  #define E6_ENABLE_READ()       (stepperE6.getStatus() & STATUS_HIZ)
+  #if AXIS_DRIVER_TYPE_E6(L6474)
+    #define E6_DIR_INIT()        SET_OUTPUT(E6_DIR_PIN)
+    #define E6_DIR_WRITE(STATE)  L6474_DIR_WRITE(E6, STATE)
+    #define E6_DIR_READ()        READ(E6_DIR_PIN)
+  #else
+    #define E6_DIR_INIT()        NOOP
+    #define E6_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E6, STATE)
+    #define E6_DIR_READ()        (stepper##E6.getStatus() & STATUS_DIR);
+  #endif
+#endif
+
+// E7 Stepper
+#if AXIS_IS_L64XX(E7)
+  extern L64XX_CLASS(E7)         stepperE7;
+  #define E7_ENABLE_INIT()       NOOP
+  #define E7_ENABLE_WRITE(STATE) (STATE ? NOOP : stepperE7.free())
+  #define E7_ENABLE_READ()       (stepperE7.getStatus() & STATUS_HIZ)
+  #if AXIS_DRIVER_TYPE_E7(L6474)
+    #define E7_DIR_INIT()        SET_OUTPUT(E7_DIR_PIN)
+    #define E7_DIR_WRITE(STATE)  L6474_DIR_WRITE(E7, STATE)
+    #define E7_DIR_READ()        READ(E7_DIR_PIN)
+  #else
+    #define E7_DIR_INIT()        NOOP
+    #define E7_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E7, STATE)
+    #define E7_DIR_READ()        (stepper##E7.getStatus() & STATUS_DIR);
+  #endif
+#endif
