@@ -245,6 +245,12 @@ void menu_cancelobject();
           DEFINE_PIDTEMP_FUNCS(4);
           #if HOTENDS > 5
             DEFINE_PIDTEMP_FUNCS(5);
+            #if HOTENDS > 6
+              DEFINE_PIDTEMP_FUNCS(6);
+              #if HOTENDS > 7
+                DEFINE_PIDTEMP_FUNCS(7);
+              #endif // HOTENDS > 7
+            #endif // HOTENDS > 6
           #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
@@ -330,6 +336,12 @@ void menu_cancelobject();
             PID_EDIT_MENU_ITEMS(4);
             #if HOTENDS > 5
               PID_EDIT_MENU_ITEMS(5);
+              #if HOTENDS > 6
+                PID_EDIT_MENU_ITEMS(6);
+                #if HOTENDS > 7
+                  PID_EDIT_MENU_ITEMS(7);
+                #endif // HOTENDS > 7
+              #endif // HOTENDS > 6
             #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3

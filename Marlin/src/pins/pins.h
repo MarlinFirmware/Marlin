@@ -534,6 +534,8 @@
   #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BIGTREE_GTR_V1_0)
+  #include "stm32/pins_BTT_GTR_V1_0.h"          // STM32F4                                env:BIGTREE_GTR
 #elif MB(BIGTREE_BTT002_V1_0)
   #include "stm32/pins_BTT_BTT002_V1_0.h"       // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
@@ -713,6 +715,24 @@
 #ifndef E5_MS3_PIN
   #define E5_MS3_PIN -1
 #endif
+#ifndef E6_MS1_PIN
+  #define E6_MS1_PIN -1
+#endif
+#ifndef E6_MS2_PIN
+  #define E6_MS2_PIN -1
+#endif
+#ifndef E6_MS3_PIN
+  #define E6_MS3_PIN -1
+#endif
+#ifndef E7_MS1_PIN
+  #define E7_MS1_PIN -1
+#endif
+#ifndef E7_MS2_PIN
+  #define E7_MS2_PIN -1
+#endif
+#ifndef E7_MS3_PIN
+  #define E7_MS3_PIN -1
+#endif
 
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN -1
@@ -768,6 +788,24 @@
 #ifndef E5_ENABLE_PIN
   #define E5_ENABLE_PIN -1
 #endif
+#ifndef E6_STEP_PIN
+  #define E6_STEP_PIN -1
+#endif
+#ifndef E6_DIR_PIN
+  #define E6_DIR_PIN -1
+#endif
+#ifndef E6_ENABLE_PIN
+  #define E6_ENABLE_PIN -1
+#endif
+#ifndef E7_STEP_PIN
+  #define E7_STEP_PIN -1
+#endif
+#ifndef E7_DIR_PIN
+  #define E7_DIR_PIN -1
+#endif
+#ifndef E7_ENABLE_PIN
+  #define E7_ENABLE_PIN -1
+#endif
 
 #ifndef X_CS_PIN
   #define X_CS_PIN -1
@@ -795,6 +833,12 @@
 #endif
 #ifndef E5_CS_PIN
   #define E5_CS_PIN -1
+#endif
+#ifndef E6_CS_PIN
+  #define E6_CS_PIN -1
+#endif
+#ifndef E7_CS_PIN
+  #define E7_CS_PIN -1
 #endif
 
 #ifndef FAN_PIN
@@ -839,6 +883,12 @@
 #ifndef HEATER_5_PIN
   #define HEATER_5_PIN -1
 #endif
+#ifndef HEATER_6_PIN
+  #define HEATER_6_PIN -1
+#endif
+#ifndef HEATER_7_PIN
+  #define HEATER_7_PIN -1
+#endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN -1
 #endif
@@ -860,6 +910,12 @@
 #endif
 #ifndef TEMP_5_PIN
   #define TEMP_5_PIN -1
+#endif
+#ifndef TEMP_6_PIN
+  #define TEMP_6_PIN -1
+#endif
+#ifndef TEMP_7_PIN
+  #define TEMP_7_PIN -1
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN -1
@@ -938,6 +994,20 @@
     #define E5_AUTO_FAN_PIN ORIG_E5_AUTO_FAN_PIN
   #else
     #define E5_AUTO_FAN_PIN -1
+  #endif
+#endif
+#ifndef E6_AUTO_FAN_PIN
+  #ifdef ORIG_E6_AUTO_FAN_PIN
+    #define E6_AUTO_FAN_PIN ORIG_E6_AUTO_FAN_PIN
+  #else
+    #define E6_AUTO_FAN_PIN -1
+  #endif
+#endif
+#ifndef E7_AUTO_FAN_PIN
+  #ifdef ORIG_E7_AUTO_FAN_PIN
+    #define E7_AUTO_FAN_PIN ORIG_E7_AUTO_FAN_PIN
+  #else
+    #define E7_AUTO_FAN_PIN -1
   #endif
 #endif
 #ifndef CHAMBER_AUTO_FAN_PIN
