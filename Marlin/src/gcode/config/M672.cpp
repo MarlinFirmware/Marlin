@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SMART_EFFECTOR)
+#if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
 
 #include "../gcode.h"
 #include "../../HAL/shared/Delay.h"
@@ -96,4 +96,4 @@ void GcodeSuite::M672() {
   OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);  // Keep Smart Effector in NORMAL mode
 }
 
-#endif // SMART_EFFECTOR
+#endif // SMART_EFFECTOR && SMART_EFFECTOR_MOD_PIN
