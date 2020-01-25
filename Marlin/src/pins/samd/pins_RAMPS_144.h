@@ -36,7 +36,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN          11
+#define SERVO0_PIN         11
 #define SERVO1_PIN          6
 #define SERVO2_PIN          5
 #define SERVO3_PIN          4
@@ -52,77 +52,77 @@
 //
 #define X_MIN_PIN           3
 #define X_MAX_PIN           2
-#define Y_MIN_PIN           14
-#define Y_MAX_PIN           15
-#define Z_MIN_PIN           18
-#define Z_MAX_PIN           19
+#define Y_MIN_PIN          14
+#define Y_MAX_PIN          15
+#define Z_MIN_PIN          18
+#define Z_MAX_PIN          19
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN   18
+  #define Z_MIN_PROBE_PIN  18
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN          67
-#define X_DIR_PIN           68
-#define X_ENABLE_PIN        38
+#define X_STEP_PIN         67
+#define X_DIR_PIN          68
+#define X_ENABLE_PIN       38
 #ifndef X_CS_PIN
-  #define X_CS_PIN          47
+  #define X_CS_PIN         47
 #endif
 
-#define Y_STEP_PIN          73
-#define Y_DIR_PIN           74
-#define Y_ENABLE_PIN        69
+#define Y_STEP_PIN         73
+#define Y_DIR_PIN          74
+#define Y_ENABLE_PIN       69
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN          45
+  #define Y_CS_PIN         45
 #endif
 
-#define Z_STEP_PIN          46
-#define Z_DIR_PIN           48
-#define Z_ENABLE_PIN        54
+#define Z_STEP_PIN         46
+#define Z_DIR_PIN          48
+#define Z_ENABLE_PIN       54
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN          32
+  #define Z_CS_PIN         32
 #endif
 
-#define E0_STEP_PIN         36
-#define E0_DIR_PIN          34
-#define E0_ENABLE_PIN       30
+#define E0_STEP_PIN        36
+#define E0_DIR_PIN         34
+#define E0_ENABLE_PIN      30
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN         22
+  #define E0_CS_PIN        22
 #endif
 
-#define E1_STEP_PIN         26
-#define E1_DIR_PIN          28
-#define E1_ENABLE_PIN       24
+#define E1_STEP_PIN        26
+#define E1_DIR_PIN         28
+#define E1_ENABLE_PIN      24
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN         43
+  #define E1_CS_PIN        43
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          13
-#define TEMP_BED_PIN        14
-#define TEMP_CHAMBER_PIN    15
+#define TEMP_0_PIN         13
+#define TEMP_BED_PIN       14
+#define TEMP_CHAMBER_PIN   15
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        10
+#define HEATER_0_PIN       10
 #define HEATER_BED_PIN      8
 #define FAN_PIN             9
 #define FAN1_PIN            7
-#define FAN2_PIN            12
+#define FAN2_PIN           12
 
 //
 // Misc. Functions
 //
 //#define SDSS                ?53
-#define LED_PIN             13
+#define LED_PIN            13
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN      5   // Analog Input on AUX2
@@ -134,7 +134,7 @@
 #endif
 
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN         39
+  #define PS_ON_PIN        39
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
@@ -147,10 +147,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  #if !NUM_SERVOS                         // Use servo connector if possible
-    #define SPINDLE_LASER_ENA_PIN     4   // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN     6   // Hardware PWM
-    #define SPINDLE_DIR_PIN           5
+  #if !NUM_SERVOS                      // Use servo connector if possible
+    #define SPINDLE_LASER_ENA_PIN  4   // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN  6   // Hardware PWM
+    #define SPINDLE_DIR_PIN        5
   #else
     #error "No auto-assignable Spindle/Laser pins available."
   #endif
@@ -327,17 +327,17 @@
         // #define DOGLCD_SCK      23
         // #define DOGLCD_A0       LCD_PINS_DC
       #else
-        #define LCD_PINS_RS     16
-        #define LCD_PINS_ENABLE 17
-        #define LCD_PINS_D4     23
-        #define LCD_PINS_D5     25
-        #define LCD_PINS_D6     27
+        #define LCD_PINS_RS        16
+        #define LCD_PINS_ENABLE    17
+        #define LCD_PINS_D4        23
+        #define LCD_PINS_D5        25
+        #define LCD_PINS_D6        27
       #endif
 
-      #define LCD_PINS_D7       29
+      #define LCD_PINS_D7          29
 
       #if DISABLED(NEWPANEL)
-        #define BEEPER_PIN      33
+        #define BEEPER_PIN         33
       #endif
 
     #endif
@@ -345,10 +345,10 @@
     #if DISABLED(NEWPANEL)
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK       38
-      //#define SHIFT_LD        42
-      //#define SHIFT_OUT       40
-      //#define SHIFT_EN        17
+      //#define SHIFT_CLK          38
+      //#define SHIFT_LD           42
+      //#define SHIFT_OUT          40
+      //#define SHIFT_EN           17
     #endif
 
   #endif
@@ -360,22 +360,22 @@
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-      #define BEEPER_PIN        37
+      #define BEEPER_PIN           37
 
       #if ENABLED(CR10_STOCKDISPLAY)
         // TO TEST
         // #define BTN_EN1         17
         // #define BTN_EN2         23
       #else
-        #define BTN_EN1         31
-        #define BTN_EN2         33
+        #define BTN_EN1            31
+        #define BTN_EN2            33
       #endif
 
-      #define BTN_ENC           35
+      #define BTN_ENC              35
       #ifndef SD_DETECT_PIN
-        #define SD_DETECT_PIN   49
+        #define SD_DETECT_PIN      49
       #endif
-      #define KILL_PIN          41
+      #define KILL_PIN             41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         // TO TEST
@@ -402,11 +402,11 @@
     #elif ENABLED(LCD_I2C_VIKI)
 
       // TO TEST
-      // #define BTN_EN1           40    // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      // #define BTN_EN1           40   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
       // #define BTN_EN2           42
       // #define BTN_ENC           -1
 
-      // #define LCD_SDSS          SDSS
+      // #define LCD_SDSS SDSS
       // #define SD_DETECT_PIN     49
 
     #elif ANY(VIKI2, miniVIKI)
@@ -447,13 +447,13 @@
     #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
 
       // TO TEST
-      // #define BEEPER_PIN        37
-      // #define BTN_ENC           35
-      // #define SD_DETECT_PIN     49
+      //#define BEEPER_PIN         37
+      //#define BTN_ENC            35
+      //#define SD_DETECT_PIN      49
 
-      // #ifndef KILL_PIN
-      //   #define KILL_PIN        41
-      // #endif
+      //#ifndef KILL_PIN
+      //  #define KILL_PIN         41
+      //#endif
 
       #if ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
 
