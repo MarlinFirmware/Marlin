@@ -842,6 +842,36 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
         static bool pid_reset[HOTENDS] = { false };
         const float pid_error = temp_hotend[ee].target - temp_hotend[ee].celsius;
 
+
+        static bool pid_overshoot;
+
+        #ifdef PID_OVERSHOOT
+          static millis_t overshoot_timer;  //use to keep overshoot feature fom being re-enabled too soon
+          static bool within_overshoot_flag;
+          #define OVERSHOOT_TIMEOUT 120000  // disable overshoot feature for 2 minutes after being triggered to allow
+                                            // PID to settle out
+
+          if (pid_error > PID_FUNCTIONAL_RANGE) {
+            if (millis() > overshoot_timer ) {  // not waiting for a timeout so OK to overshoot
+              pid_overshoot = true;
+              within_overshoot_flag = true;
+            }
+          }
+          else {
+            if (pid_error <= -PID_OVERSHOOT) {
+              pid_overshoot = false;
+              if (within_overshoot_flag) {
+                if (!overshoot_timer ) {
+                  overshoot_timer = millis() + OVERSHOOT_TIMEOUT;    // overshoot finished, enable timer so don't re-enter too soon
+                  within_overshoot_flag = false;
+                }
+              }
+            }
+            else if (millis() > overshoot_timer)                   // timeout expired, reset timer
+              overshoot_timer = 0;
+          }
+        #endif
+
         float pid_output;
 
         if (temp_hotend[ee].target == 0
