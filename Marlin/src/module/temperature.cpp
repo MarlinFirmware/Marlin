@@ -883,7 +883,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           pid_output = 0;
           pid_reset[ee] = true;
         }
-        else if (pid_error > PID_FUNCTIONAL_RANGE) {
+        else if ((pid_error > PID_FUNCTIONAL_RANGE) || ((pid_error > 0 ) && pid_overshoot) ) {
           pid_output = BANG_MAX;
           pid_reset[ee] = true;
         }
