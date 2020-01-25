@@ -661,7 +661,7 @@
   //#define Z_STEPPER_ALIGN_XY { {  10, 190 }, { 100,  10 }, { 190, 190 } }
 
   /**
-   * Rotate automatically calulated positions clockwise
+   * Rotate automatically-calculated positions clockwise
    * For 2 point
    * Enabled and not 0 rotates to X center and Y edges
    *
