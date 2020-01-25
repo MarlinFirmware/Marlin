@@ -1135,7 +1135,9 @@ void CardReader::printingHasFinished() {
   void CardReader::removeJobRecoveryFile() {
     if (jobRecoverFileExists()) {
       recovery.init();
+      const uint8_t saveWorkDirDepth = workDirDepth;
       removeFile(recovery.filename);
+      workDirDepth = saveWorkDirDepth;
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOPGM("Power-loss file delete");
         serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
