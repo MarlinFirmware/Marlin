@@ -26,7 +26,7 @@
  */
 #ifndef SHORT_BUILD_VERSION
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
-    #define SHORT_BUILD_VERSION "4MAX 2.0.25 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX 2.0.47"  // x.y.zz | Count zz Up for testing Builds.
   #else
     #define SHORT_BUILD_VERSION "bugfix-2.0.x"
   #endif
