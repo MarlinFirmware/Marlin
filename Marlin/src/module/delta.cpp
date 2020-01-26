@@ -280,7 +280,7 @@ void home_delta() {
 
   sync_plan_position();
 
-  #ifdef HOMING_BACKOFF_MM
+  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_MM)
     constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
     if (endstop_backoff.z) {
       current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
