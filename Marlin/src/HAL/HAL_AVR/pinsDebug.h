@@ -231,10 +231,10 @@ static void err_is_interrupt()   { SERIAL_ECHOPGM("   compare interrupt enabled"
 static void err_prob_interrupt() { SERIAL_ECHOPGM("   overflow interrupt enabled"); }
 static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); SERIAL_ECHO_SP(14); }
 
-void com_print(uint8_t N, uint8_t Z) {
+inline void com_print(const uint8_t N, const uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
   SERIAL_ECHOPGM("    COM");
-  SERIAL_CHAR('0' + N, 'A' + Z);
+  SERIAL_CHAR('0' + N, Z);
   SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
 }
 
@@ -258,7 +258,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
     PWM_PRINT(*OCRVAL16);
   }
   SERIAL_ECHOPAIR("    WGM: ", WGM);
-  com_print(T,L - 'A');
+  com_print(T,L);
   SERIAL_ECHOPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
 
   SERIAL_ECHOPGM("    TCCR");
