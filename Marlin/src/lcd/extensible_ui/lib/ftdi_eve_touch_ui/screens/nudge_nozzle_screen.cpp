@@ -45,19 +45,19 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(MSG_UNITS_MM));
 
-  w.heading(                   GET_TEXT_F(MSG_NUDGE_NOZZLE));
+  w.heading(GET_TEXT_F(MSG_NUDGE_NOZZLE));
   #if ENABLED(BABYSTEP_XY)
-  w.color(x_axis).adjuster(2,  GET_TEXT_F(MSG_AXIS_X), screen_data.NudgeNozzleScreen.rel.x / getAxisSteps_per_mm(X));
-  w.color(y_axis).adjuster(4,  GET_TEXT_F(MSG_AXIS_Y), screen_data.NudgeNozzleScreen.rel.y / getAxisSteps_per_mm(Y));
+  w.color(x_axis).adjuster(2, GET_TEXT_F(MSG_AXIS_X), screen_data.NudgeNozzleScreen.rel.x / getAxisSteps_per_mm(X));
+  w.color(y_axis).adjuster(4, GET_TEXT_F(MSG_AXIS_Y), screen_data.NudgeNozzleScreen.rel.y / getAxisSteps_per_mm(Y));
   #endif
-  w.color(z_axis).adjuster(6,  GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
+  w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
   w.increments();
   #if EXTRUDERS > 1
-    w.toggle  (8,  GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
+    w.toggle(8, GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
   #endif
 
   #if EXTRUDERS > 1 || HAS_BED_PROBE
-    w.toggle  (9,  GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
+    w.toggle(9, GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
 
     if (screen_data.NudgeNozzleScreen.show_offsets) {
       char str[19];
@@ -69,38 +69,37 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
         dtostrf(getZOffset_mm(), 4, 2, str);
         strcat(str, " ");
         strcat_P(str, GET_TEXT(MSG_UNITS_MM));
-        w.text_field  (0,  GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
+        w.text_field(0, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
       #endif
 
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
-        w.text_field  (0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
+        w.text_field(0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
       #endif
     }
   #endif
 }
 
 bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
-  const float inc  = getIncrement();
+  const float inc = getIncrement();
   #if EXTRUDERS > 1
-    const bool  link = screen_data.NudgeNozzleScreen.link_nozzles;
+    const bool link = screen_data.NudgeNozzleScreen.link_nozzles;
   #else
     constexpr bool link = true;
   #endif
   int16_t steps;
   switch (tag) {
-    case  2: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps(-steps, X, link); screen_data.NudgeNozzleScreen.rel.x -= steps; break;
-    case  3: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps( steps, X, link); screen_data.NudgeNozzleScreen.rel.x += steps; break;
-    case  4: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps(-steps, Y, link); screen_data.NudgeNozzleScreen.rel.y -= steps; break;
-    case  5: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps( steps, Y, link); screen_data.NudgeNozzleScreen.rel.y += steps; break;
-    case  6: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps(-steps, Z, link); screen_data.NudgeNozzleScreen.rel.z -= steps; break;
-    case  7: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps( steps, Z, link); screen_data.NudgeNozzleScreen.rel.z += steps; break;
+    case 2: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps(-steps, X, link); screen_data.NudgeNozzleScreen.rel.x -= steps; break;
+    case 3: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps( steps, X, link); screen_data.NudgeNozzleScreen.rel.x += steps; break;
+    case 4: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps(-steps, Y, link); screen_data.NudgeNozzleScreen.rel.y -= steps; break;
+    case 5: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps( steps, Y, link); screen_data.NudgeNozzleScreen.rel.y += steps; break;
+    case 6: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps(-steps, Z, link); screen_data.NudgeNozzleScreen.rel.z -= steps; break;
+    case 7: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps( steps, Z, link); screen_data.NudgeNozzleScreen.rel.z += steps; break;
     #if EXTRUDERS > 1
-      case  8: screen_data.NudgeNozzleScreen.link_nozzles = !link; break;
+      case 8: screen_data.NudgeNozzleScreen.link_nozzles = !link; break;
     #endif
-    case  9: screen_data.NudgeNozzleScreen.show_offsets = !screen_data.NudgeNozzleScreen.show_offsets; break;
-    default:
-      return false;
+    case 9: screen_data.NudgeNozzleScreen.show_offsets = !screen_data.NudgeNozzleScreen.show_offsets; break;
+    default: return false;
   }
   #if EXTRUDERS > 1 || HAS_BED_PROBE
     SaveSettingsDialogBox::settingsChanged();
@@ -112,9 +111,9 @@ bool NudgeNozzleScreen::onTouchEnd(uint8_t tag) {
   if (tag == 1) {
     SaveSettingsDialogBox::promptToSaveSettings();
     return true;
-  } else {
-    return BaseNumericAdjustmentScreen::onTouchEnd(tag);
   }
+  else
+    return BaseNumericAdjustmentScreen::onTouchEnd(tag);
 }
 
 void NudgeNozzleScreen::onIdle() {

@@ -105,7 +105,10 @@ void plan_arc(
 
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
-  #ifdef ARC_SEGMENTS_PER_SEC
+  #ifdef ARC_SEGMENTS_PER_R
+    float seg_length = MM_PER_ARC_SEGMENT * radius;
+    LIMIT(seg_length, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R);
+  #elif ARC_SEGMENTS_PER_SEC
     float seg_length = scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC);
     NOLESS(seg_length, MM_PER_ARC_SEGMENT);
   #else

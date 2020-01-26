@@ -254,7 +254,7 @@ void home_delta() {
       - probe_offset.z
     #endif
   );
-  line_to_current_position(homing_feedrate(X_AXIS));
+  line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
@@ -279,6 +279,14 @@ void home_delta() {
   LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
 
   sync_plan_position();
+
+  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_MM)
+    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
+    if (endstop_backoff.z) {
+      current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
+      line_to_current_position(homing_feedrate(Z_AXIS));
+    }
+  #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }

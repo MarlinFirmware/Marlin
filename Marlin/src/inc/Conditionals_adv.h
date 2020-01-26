@@ -34,6 +34,8 @@
   #undef TEMP_SENSOR_3
   #undef TEMP_SENSOR_4
   #undef TEMP_SENSOR_5
+  #undef TEMP_SENSOR_6
+  #undef TEMP_SENSOR_7
   #undef FWRETRACT
   #undef PIDTEMP
   #undef AUTOTEMP
@@ -52,6 +54,11 @@
   #undef THERMAL_PROTECTION_PERIOD
   #undef WATCH_TEMP_PERIOD
   #undef SHOW_TEMP_ADC_VALUES
+#endif
+
+// Multiple Z steppers
+#ifndef NUM_Z_STEPPER_DRIVERS
+  #define NUM_Z_STEPPER_DRIVERS 1
 #endif
 
 #define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)

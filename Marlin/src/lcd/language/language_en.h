@@ -242,10 +242,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Speed");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra Fan Speed");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed ~");
   PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Fan Controller");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Fan Idle");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Motorload mode");
@@ -270,6 +270,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
   PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
   PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
+  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
+  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Select");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Select *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");

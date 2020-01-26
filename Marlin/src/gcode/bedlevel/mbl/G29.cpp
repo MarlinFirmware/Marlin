@@ -88,7 +88,7 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      if (!ui.wait_for_bl_move) {
+      if (!ui.wait_for_move) {
         queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
@@ -148,7 +148,7 @@ void GcodeSuite::G29() {
         #endif
 
         #if ENABLED(LCD_BED_LEVELING)
-          ui.wait_for_bl_move = false;
+          ui.wait_for_move = false;
         #endif
       }
       break;

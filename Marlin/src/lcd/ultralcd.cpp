@@ -45,6 +45,10 @@ MarlinUI ui;
   #endif
 #endif
 
+#if LCD_HAS_WAIT_FOR_MOVE
+  bool MarlinUI::wait_for_move; // = false
+#endif
+
 #if HAS_SPI_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
@@ -94,10 +98,6 @@ MarlinUI ui;
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
-
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
-#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
@@ -1517,10 +1517,6 @@ void MarlinUI::update() {
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
       synchronize(GET_TEXT(MSG_PAUSE_PRINT));
-    #endif
-
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      if (recovery.enabled) recovery.save(true, false);
     #endif
 
     #if ENABLED(HOST_PROMPT_SUPPORT)

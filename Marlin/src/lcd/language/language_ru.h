@@ -222,14 +222,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Автотемпература");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Вкл.");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Выкл.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Выбор");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Выбор *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Ускорение");
@@ -396,7 +388,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Протокол");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Контроль темп.: Выкл");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Контроль темп.: Вкл");
-  
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Подсветка корпуса");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яркость подсветки");
   PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неверный принтер");

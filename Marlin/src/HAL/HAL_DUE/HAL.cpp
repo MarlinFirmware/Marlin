@@ -94,8 +94,8 @@ int freeMemory() {
 // ADC
 // ------------------------
 
-void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  HAL_adc_result = analogRead(adc_pin);
+void HAL_adc_start_conversion(const uint8_t ch) {
+  HAL_adc_result = analogRead(ch);
 }
 
 uint16_t HAL_adc_get_result() {

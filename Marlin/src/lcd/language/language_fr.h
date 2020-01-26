@@ -235,10 +235,10 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Lit");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Caisson");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vit.  ventil.  "); // 15 car. max
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vit.  ventil. =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Vit.  enreg.  =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vit.  ventil. ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Vit.  enreg.  ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra ventil.  ");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra ventil. =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra ventil. ~");
 
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
