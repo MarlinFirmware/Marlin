@@ -282,13 +282,11 @@ void home_delta() {
 
   #ifdef HOMING_BACKOFF_MM
     constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
-    const float backoff_mm = endstop_backoff[Z_AXIS];
-    if (backoff_mm) {
-      current_position.z -= ABS(backoff_mm) * Z_HOME_DIR;
+    if (endstop_backoff.z) {
+      current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
       line_to_current_position(homing_feedrate(Z_AXIS));
     }
   #endif
-
 
   if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }
