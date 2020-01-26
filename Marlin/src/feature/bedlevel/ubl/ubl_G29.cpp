@@ -1399,7 +1399,7 @@
                   dy = (y_max - y_min) / (g29_grid_size - 1);
 
       xy_float_t points[3];
-      get_three_probe_points(points);
+      probe.get_three_points(points);
 
       float measured_z;
       bool abort_flag = false;

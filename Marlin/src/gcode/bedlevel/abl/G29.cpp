@@ -269,7 +269,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     vector_3 points[3];
-    get_three_probe_points(points);
+    probe.get_three_points(points);
 
   #endif // AUTO_BED_LEVELING_3POINT
 
