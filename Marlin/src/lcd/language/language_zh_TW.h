@@ -199,14 +199,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("自動控溫");     //"Autotemp"
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("開");     //"On"
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("關");     //"Off"
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");     //"PID-P"
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");     //"PID-I"
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");     //"PID-D"
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");     //"PID-C"
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("選擇");     //"Select"
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("選擇 *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("加速度");     //"Accel" acceleration
