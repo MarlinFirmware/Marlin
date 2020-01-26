@@ -360,7 +360,7 @@ class Temperature {
       static bool inited;   // If temperature controller is running
     #endif
 
-    static volatile bool temp_meas_ready;
+    static volatile bool raw_temps_ready;
 
     #if WATCH_HOTENDS
       static heater_watch_t watch_hotend[HOTENDS];
@@ -805,7 +805,7 @@ class Temperature {
     #endif
 
   private:
-    static void set_current_temp_raw();
+    static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
