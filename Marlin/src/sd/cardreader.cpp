@@ -576,7 +576,13 @@ void CardReader::report_status() {
     SERIAL_ECHOPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_ECHO(sdpos);
     SERIAL_CHAR('/');
-    SERIAL_ECHOLN(filesize);
+    #if ENABLED(REPORT_CURRENT_LAYER_HEIGHT)
+      SERIAL_ECHO(filesize);
+      const xyz_pos_t lpos = current_position.asLogical();
+      SERIAL_ECHOLNPAIR(" Z:", lpos.z);
+    #else
+      SERIAL_ECHOLN(filesize);
+    #endif
   }
   else
     SERIAL_ECHOLNPGM(MSG_SD_NOT_PRINTING);

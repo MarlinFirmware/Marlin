@@ -1090,6 +1090,13 @@
   //#define AUTO_REPORT_SD_STATUS
 
   /**
+   * Report current Z layer height with M27. useful for showing current layer 
+   * height on serial host controller without the need of sending M114 or setting
+   * up M117 messages before each layer during printing.
+   */
+  //#define REPORT_CURRENT_LAYER_HEIGHT
+
+  /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
    * equivalent MAX3421E breakout board. The USB thumb drive will appear
    * to Marlin as an SD card.
