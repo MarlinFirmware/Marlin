@@ -1748,15 +1748,9 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
-  #ifdef HOMING_BACKOFF_MM
+  #if DISABLED(DELTA) && defined(HOMING_BACKOFF_MM)
     constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
-    const float backoff_mm = endstop_backoff[
-      #if ENABLED(DELTA)
-        Z_AXIS
-      #else
-        axis
-      #endif
-    ];
+    const float backoff_mm = endstop_backoff[axis];
     if (backoff_mm) {
       current_position[axis] -= ABS(backoff_mm) * axis_home_dir;
       line_to_current_position(
