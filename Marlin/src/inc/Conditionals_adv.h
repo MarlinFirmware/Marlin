@@ -34,6 +34,8 @@
   #undef TEMP_SENSOR_3
   #undef TEMP_SENSOR_4
   #undef TEMP_SENSOR_5
+  #undef TEMP_SENSOR_6
+  #undef TEMP_SENSOR_7
   #undef FWRETRACT
   #undef PIDTEMP
   #undef AUTOTEMP

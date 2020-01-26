@@ -92,7 +92,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ακροφύσιο ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Κλίνη");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ταχύτητα ανεμιστήρα");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Ροή");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Ροή ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Έλεγχος");
@@ -102,14 +102,6 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Αυτομ. ρύθμιση θερμοκρασίας");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Ενεργοποιημένο");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Απενεργοποιημένο");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Επιτάχυνση");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Vαντίδραση");
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_A;

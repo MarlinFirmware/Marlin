@@ -243,10 +243,10 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Podložka");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Komora");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Rýchlosť vent.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rýchlosť vent. =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rýchlosť vent. ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Rýchlosť ex. vent.");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rýchlosť ex. vent. =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rýchlosť ex. vent. ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Prietok");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Prietok ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ovládanie");
@@ -258,14 +258,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Vyp");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID kalibrácia");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID kalibrácia *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Vybrať");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Vybrať *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Zrýchlenie");

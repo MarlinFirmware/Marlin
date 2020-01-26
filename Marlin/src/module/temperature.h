@@ -49,7 +49,7 @@
 typedef enum : int8_t {
   INDEX_NONE = -5,
   H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_ind_t;
 
 // PID storage
@@ -131,6 +131,12 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_5
     PrepareTemp_5, MeasureTemp_5,
+  #endif
+  #if HAS_TEMP_ADC_6
+    PrepareTemp_6, MeasureTemp_6,
+  #endif
+  #if HAS_TEMP_ADC_7
+    PrepareTemp_7, MeasureTemp_7,
   #endif
   #if HAS_JOY_ADC_X
     PrepareJoy_X, MeasureJoy_X,

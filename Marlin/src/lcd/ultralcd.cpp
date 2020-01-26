@@ -45,6 +45,10 @@ MarlinUI ui;
   #endif
 #endif
 
+#if LCD_HAS_WAIT_FOR_MOVE
+  bool MarlinUI::wait_for_move; // = false
+#endif
+
 #if HAS_SPI_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0

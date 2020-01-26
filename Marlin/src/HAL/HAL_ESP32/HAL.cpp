@@ -111,6 +111,9 @@ void HAL_idletask() {
   #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.idletask();
+  #endif
 }
 
 void HAL_clear_reset_source() { }

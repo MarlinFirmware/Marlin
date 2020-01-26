@@ -240,9 +240,9 @@ namespace Language_es {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Cama");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Recinto");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ventilador");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ventilador =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ventilador ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Vel. Ext. ventilador");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Vel. Ext. ventilador =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Vel. Ext. ventilador ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flujo");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flujo ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
