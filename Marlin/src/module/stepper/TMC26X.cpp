@@ -78,6 +78,12 @@
 #if AXIS_DRIVER_TYPE_E5(TMC26X)
   _TMC26X_DEFINE(E5);
 #endif
+#if AXIS_DRIVER_TYPE_E6(TMC26X)
+  _TMC26X_DEFINE(E6);
+#endif
+#if AXIS_DRIVER_TYPE_E7(TMC26X)
+  _TMC26X_DEFINE(E7);
+#endif
 
 #define _TMC26X_INIT(A) do{ \
   stepper##A.setMicrosteps(A##_MICROSTEPS); \
@@ -126,6 +132,12 @@ void tmc26x_init_to_defaults() {
   #endif
   #if AXIS_DRIVER_TYPE_E5(TMC26X)
     _TMC26X_INIT(E5);
+  #endif
+  #if AXIS_DRIVER_TYPE_E6(TMC26X)
+    _TMC26X_INIT(E6);
+  #endif
+  #if AXIS_DRIVER_TYPE_E7(TMC26X)
+    _TMC26X_INIT(E7);
   #endif
 }
 
