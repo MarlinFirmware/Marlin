@@ -191,7 +191,6 @@ bool GCodeQueue::process_injected_command() {
   // Execute command if non-blank
   if (i) {
     parser.parse(cmd);
-    PORT_REDIRECT(SERIAL_PORT);
     gcode.process_parsed_command();
   }
   return true;
