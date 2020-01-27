@@ -332,9 +332,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
-      case 60: G60(); break;                                      // G60:  save current position
-      case 61: G61(); break;                                      // G61:  Apply/restore saved coordinates.
-
       #if ENABLED(GCODE_MOTION_MODES)
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
