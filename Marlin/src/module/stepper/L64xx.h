@@ -56,7 +56,7 @@
     #define X_DIR_WRITE(STATE)  L64XX_DIR_WRITE(X, STATE)
     #define X_DIR_READ()        (stepper##X.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_X(L6470)
-      #define X_disable() stepperX.free()
+      #define DISABLE_STEPPER_X() stepperX.free()
     #endif
   #endif
 #endif
@@ -76,7 +76,7 @@
     #define Y_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Y, STATE)
     #define Y_DIR_READ()        (stepper##Y.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_Y(L6470)
-      #define Y_disable() stepperY.free()
+      #define DISABLE_STEPPER_Y() stepperY.free()
     #endif
   #endif
 #endif
@@ -96,7 +96,7 @@
     #define Z_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Z, STATE)
     #define Z_DIR_READ()        (stepper##Z.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_Z(L6470)
-      #define Z_disable() stepperZ.free()
+      #define DISABLE_STEPPER_Z() stepperZ.free()
     #endif
   #endif
 #endif
@@ -119,7 +119,7 @@
 #endif
 
 #if AXIS_DRIVER_TYPE_X2(L6470)
-  #define X2_disable() stepperX2.free()
+  #define DISABLE_STEPPER_X2() stepperX2.free()
 #endif
 
 // Y2 Stepper
@@ -140,7 +140,7 @@
 #endif
 
 #if AXIS_DRIVER_TYPE_Y2(L6470)
-  #define Y2_disable() stepperY2.free()
+  #define DISABLE_STEPPER_Y2() stepperY2.free()
 #endif
 
 // Z2 Stepper
@@ -161,7 +161,7 @@
 #endif
 
 #if AXIS_DRIVER_TYPE_Z2(L6470)
-  #define Z2_disable() stepperZ2.free()
+  #define DISABLE_STEPPER_Z2() stepperZ2.free()
 #endif
 
 // Z3 Stepper
@@ -182,7 +182,7 @@
 #endif
 
 #if AXIS_DRIVER_TYPE_Z3(L6470)
-  #define Z3_disable() stepperZ3.free()
+  #define DISABLE_STEPPER_Z3() stepperZ3.free()
 #endif
 
 // Z4 Stepper
@@ -203,7 +203,7 @@
 #endif
 
 #if AXIS_DRIVER_TYPE_Z4(L6470)
-  #define Z4_disable() stepperZ4.free()
+  #define DISABLE_STEPPER_Z4() stepperZ4.free()
 #endif
 
 // E0 Stepper
@@ -221,7 +221,7 @@
     #define E0_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E0, STATE)
     #define E0_DIR_READ()        (stepper##E0.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E0(L6470)
-      #define E0_disable() do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E0() do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
@@ -241,7 +241,7 @@
     #define E1_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E1, STATE)
     #define E1_DIR_READ()        (stepper##E1.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E1(L6470)
-      #define E1_disable() do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E1() do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
@@ -261,7 +261,7 @@
     #define E2_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E2, STATE)
     #define E2_DIR_READ()        (stepper##E2.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E2(L6470)
-      #define E2_disable() do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E2() do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
@@ -298,7 +298,7 @@
     #define E4_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E4, STATE)
     #define E4_DIR_READ()        (stepper##E4.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E4(L6470)
-      #define E4_disable() do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E4() do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
@@ -318,7 +318,7 @@
     #define E5_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E5, STATE)
     #define E5_DIR_READ()        (stepper##E5.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E5(L6470)
-      #define E5_disable() do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E5() do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
@@ -338,7 +338,7 @@
     #define E6_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E6, STATE)
     #define E6_DIR_READ()        (stepper##E6.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E6(L6470)
-      #define E6_disable() do{ stepperE6.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E6() do{ stepperE6.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
@@ -358,7 +358,7 @@
     #define E7_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E7, STATE)
     #define E7_DIR_READ()        (stepper##E7.getStatus() & STATUS_DIR);
     #if AXIS_DRIVER_TYPE_E7(L6470)
-      #define E7_disable() do{ stepperE7.free(); CBI(axis_known_position, E_AXIS); }while(0)
+      #define DISABLE_STEPPER_E7() do{ stepperE7.free(); CBI(axis_known_position, E_AXIS); }while(0)
     #endif
   #endif
 #endif
