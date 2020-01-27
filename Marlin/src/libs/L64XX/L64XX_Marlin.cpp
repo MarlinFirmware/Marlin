@@ -58,32 +58,21 @@ PGM_P const L64XX_Marlin::index_to_axis[] PROGMEM = {
 
 uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction command for each driver
 
-uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = { (INVERT_X_DIR),                         //  0 X
-                                                  (INVERT_Y_DIR),                         //  1 Y
-                                                  (INVERT_Z_DIR),                         //  2 Z
-                                                  #if ENABLED(X_DUAL_STEPPER_DRIVERS)     //  3 X2
-                                                    (INVERT_X_DIR) ^ (INVERT_X2_VS_X_DIR),
-                                                  #else
-                                                    (INVERT_X_DIR),
-                                                  #endif
-                                                  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)     //  4 Y2
-                                                    (INVERT_Y_DIR) ^ (INVERT_Y2_VS_Y_DIR),
-                                                  #else
-                                                    (INVERT_Y_DIR),
-                                                  #endif
-                                                  (INVERT_Z_DIR),                         //  5 Z2
-                                                  (INVERT_Z_DIR),                         //  6 Z3
-                                                  (INVERT_Z_DIR),                         //  7 Z4
+const uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = {
+  INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR
+  , (INVERT_X_DIR)                            // X2
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+      ^ (INVERT_X2_VS_X_DIR)
+    #endif
+  , (INVERT_Y_DIR)                            // Y2
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+      ^ (INVERT_Y2_VS_Y_DIR)
+    #endif
+  , INVERT_Z_DIR, INVERT_Z_DIR, INVERT_Z_DIR  // Z2,Z3,Z4
 
-                                                  (INVERT_E0_DIR),                        //  8 E0
-                                                  (INVERT_E1_DIR),                        //  9 E1
-                                                  (INVERT_E2_DIR),                        // 10 E2
-                                                  (INVERT_E3_DIR),                        // 11 E3
-                                                  (INVERT_E4_DIR),                        // 12 E4
-                                                  (INVERT_E5_DIR),                        // 13 E5
-                                                  (INVERT_E6_DIR),                        // 14 E6
-                                                  (INVERT_E7_DIR)                         // 15 E7
-                                                };
+  , INVERT_E0_DIR, INVERT_E1_DIR, INVERT_E2_DIR, INVERT_E3_DIR
+  , INVERT_E4_DIR, INVERT_E5_DIR, INVERT_E6_DIR, INVERT_E7_DIR
+};
 
 volatile uint8_t L64XX_Marlin::spi_abort = false;
 uint8_t L64XX_Marlin::spi_active = false;

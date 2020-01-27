@@ -41,7 +41,8 @@ class L64XX_Marlin : public L64XXHelper {
 public:
   static PGM_P const index_to_axis[MAX_L64XX];
 
-  static uint8_t index_to_dir[MAX_L64XX];
+  static const uint8_t index_to_dir[MAX_L64XX];
+
   static uint8_t dir_commands[MAX_L64XX];
 
   // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
