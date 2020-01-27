@@ -820,6 +820,8 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
   _temp_error(heater, PSTR(MSG_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
+#if HOTENDS
+
 static constexpr float sample_frequency = TEMP_TIMER_FREQUENCY / MIN_ADC_ISR_LOOPS / OVERSAMPLENR;
 static constexpr float ambient_temp = 21.0f;
 
@@ -926,8 +928,6 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
     }
     return hotend_pwm;
 }
-
-#if HOTENDS
 
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
