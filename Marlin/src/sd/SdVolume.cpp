@@ -291,6 +291,15 @@ int32_t SdVolume::freeClusterCount() {
       for (uint16_t i = 0; i < n; i++)
         if (cacheBuffer_.fat32[i] == 0) free++;
     }
+    #if defined(ESP32)
+      // Needed in order to reset the idle task watchdog timer on the ESP32 as reading the complete FAT may easily 
+      // block for 10+ seconds. yield() is not sufficient here as it will not let lower prio tasks (i.e. idle) run.
+      static uint32_t lastTaskDelay = 0;
+      if (millis() - lastTaskDelay > 1000) {
+        vTaskDelay(1); // delay 1 tick (minimum amount, usually 10 or 1 ms depending on skdconfig.h)
+        lastTaskDelay = millis();
+      }
+    #endif // ESP32
   }
   return free;
 }
