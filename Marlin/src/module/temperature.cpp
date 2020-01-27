@@ -941,7 +941,10 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
         static float expected_temp = .0;
 
         float pid_output;
+        #if ENABLED(PID_DEBUG)
         float feed_forward_debug = -1.0f;
+        #endif
+
 
         if (temp_hotend[ee].target == 0
           #if HEATER_IDLE_HANDLER
@@ -960,7 +963,9 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
             pid_reset[ee] = false;
           }
           const float feed_forward = get_ff_output_hotend(target_temp, expected_temp, ee);
+          #if ENABLED(PID_DEBUG)
           feed_forward_debug = feed_forward;
+          #endif
           const float pid_error = expected_temp - temp_hotend[ee].celsius;
           work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (pid_error - temp_dState[ee]) - work_pid[ee].Kd);
           work_pid[ee].Kp = PID_PARAM(Kp, ee) * pid_error;
