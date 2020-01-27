@@ -46,3 +46,7 @@
 #if ENABLED(EEPROM_SETTINGS) && NONE(SPI_EEPROM, I2C_EEPROM)
   #warning "Did you activate the SmartEEPROM? See https://github.com/GMagician/SAMD51-SmartEEprom-Activator"
 #endif
+
+#if TMC_HAS_SW_SERIAL
+  #error "TMC220x Software Serial is not supported on this platform."
+#endif

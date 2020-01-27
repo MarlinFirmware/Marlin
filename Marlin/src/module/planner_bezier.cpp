@@ -35,7 +35,7 @@
 #include "motion.h"
 #include "temperature.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
 

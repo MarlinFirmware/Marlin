@@ -232,6 +232,22 @@ void setup_endstop_interrupts() {
       pciSetup(Z3_MIN_PIN);
     #endif
   #endif
+  #if HAS_Z4_MAX
+    #if (digitalPinToInterrupt(Z4_MAX_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(Z4_MAX_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(Z4_MAX_PIN), "Z4_MAX_PIN is not interrupt-capable");
+      pciSetup(Z4_MAX_PIN);
+    #endif
+  #endif
+  #if HAS_Z4_MIN
+    #if (digitalPinToInterrupt(Z4_MIN_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(Z4_MIN_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(Z4_MIN_PIN), "Z4_MIN_PIN is not interrupt-capable");
+      pciSetup(Z4_MIN_PIN);
+    #endif
+  #endif
   #if HAS_Z_MIN_PROBE_PIN
     #if (digitalPinToInterrupt(Z_MIN_PROBE_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Z_MIN_PROBE_PIN);

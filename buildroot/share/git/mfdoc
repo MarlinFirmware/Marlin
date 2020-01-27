@@ -5,7 +5,7 @@
 # Start Jekyll in watch mode to work on Marlin Documentation and preview locally
 #
 
-[[ $# == 0 ]] || { echo "usage: `basename $0`" 1>&2 ; exit 1; }
+[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -16,10 +16,8 @@ BRANCH=${INFO[5]}
 [[ $ORG == "MarlinFirmware" && $REPO == "MarlinDocumentation" ]] || { echo "Wrong repository." 1>&2; exit 1; }
 
 opensite() {
-  which xdg-open >/dev/null && TOOL=xdg-open
-  which gnome-open >/dev/null && TOOL=gnome-open
-  which open >/dev/null && TOOL=open
   URL="http://127.0.0.1:4000/"
+  OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
   if [ -z "$OPEN" ]; then
     echo "Can't find a tool to open the URL:"
     echo $URL

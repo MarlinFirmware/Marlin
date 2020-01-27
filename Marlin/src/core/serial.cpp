@@ -29,7 +29,7 @@ static const char errormagic[] PROGMEM = "Error:";
 static const char echomagic[]  PROGMEM = "echo:";
 
 #if NUM_SERIAL > 1
-  int8_t serial_port_index = SERIAL_PORT;
+  int8_t serial_port_index = 0;
 #endif
 
 void serialprintPGM(PGM_P str) {
@@ -58,12 +58,10 @@ void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) :
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
 void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : PSTR("false")); }
 
-void print_bin(const uint16_t val) {
-  uint16_t mask = 0x8000;
+void print_bin(uint16_t val) {
   for (uint8_t i = 16; i--;) {
-    if (i && !(i % 4)) SERIAL_CHAR(' ');
-    SERIAL_CHAR((val & mask) ? '1' : '0');
-    mask >>= 1;
+    SERIAL_CHAR('0' + TEST(val, i));
+    if (!(i & 0x3) && i) SERIAL_CHAR(' ');
   }
 }
 

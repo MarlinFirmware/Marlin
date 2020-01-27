@@ -251,10 +251,10 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Podložka");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Komora");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Rychlost vent.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rychlost vent. =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rychlost vent. ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Rychlost ex. vent.");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rychlost ex. vent. =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rychlost ex. vent. ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Průtok");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Průtok ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ovládaní");
@@ -266,14 +266,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Vyp");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID automatika");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID automatika *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Vybrat");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Vybrat *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Zrychl");
@@ -323,7 +315,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aktualizace z SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset tiskárny");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Obnovit");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info obrazovka");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info obrazovka");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Připrava tisku");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Doladění tisku");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Spustit tisk");

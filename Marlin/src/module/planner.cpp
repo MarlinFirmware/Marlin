@@ -70,7 +70,7 @@
 #include "../core/language.h"
 #include "../gcode/parser.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -1308,7 +1308,21 @@ void Planner::check_axes_activity() {
     #if HAS_FAN2
       FAN_SET(2);
     #endif
-
+    #if HAS_FAN3
+      FAN_SET(3);
+    #endif
+    #if HAS_FAN4
+      FAN_SET(4);
+    #endif
+    #if HAS_FAN5
+      FAN_SET(5);
+    #endif
+    #if HAS_FAN6
+      FAN_SET(6);
+    #endif
+    #if HAS_FAN7
+      FAN_SET(7);
+    #endif
   #endif // FAN_COUNT > 0
 
   #if ENABLED(AUTOTEMP)
@@ -1395,7 +1409,7 @@ void Planner::check_axes_activity() {
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-      #else
+      #elif DISABLED(MESH_BED_LEVELING)
         constexpr float fade_scaling_factor = 1.0;
       #endif
 
@@ -1432,7 +1446,7 @@ void Planner::check_axes_activity() {
 
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-        #else
+        #elif DISABLED(MESH_BED_LEVELING)
           constexpr float fade_scaling_factor = 1.0;
         #endif
 
@@ -2749,7 +2763,7 @@ void Planner::refresh_positioning() {
 inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = axis > E_AXIS ? E_AXIS : axis;
   const float before = val;
-  LIMIT(val, 1, max_limit[lim_axis]);
+  LIMIT(val, 0.1, max_limit[lim_axis]);
   if (before != val) {
     SERIAL_CHAR(axis_codes[lim_axis]);
     SERIAL_ECHOPGM(" Max ");

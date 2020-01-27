@@ -40,7 +40,7 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 #include "../../core/serial.h"
 #include "../../module/temperature.h"
 

@@ -36,7 +36,14 @@
 
 #include "timers.h"
 
-#include "WebSocketSerial.h"
+#if ENABLED(WIFISUPPORT)
+  #include "WebSocketSerial.h"
+#endif
+
+#if ENABLED(ESP3D_WIFISUPPORT)
+  #include "esp3dlib.h"
+#endif
+
 #include "FlushableHardwareSerial.h"
 
 // ------------------------
@@ -47,9 +54,13 @@ extern portMUX_TYPE spinlock;
 
 #define MYSERIAL0 flushableSerial
 
-#if ENABLED(WIFISUPPORT)
+#if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    #define MYSERIAL1 Serial2Socket
+  #else
+    #define MYSERIAL1 webSocketSerial
+  #endif
   #define NUM_SERIAL 2
-  #define MYSERIAL1 webSocketSerial
 #else
   #define NUM_SERIAL 1
 #endif
@@ -59,7 +70,6 @@ extern portMUX_TYPE spinlock;
 #define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
 #define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
 #define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
-
 
 // Fix bug in pgm_read_ptr
 #undef pgm_read_ptr
@@ -115,7 +125,7 @@ void HAL_adc_init();
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
-void HAL_adc_start_conversion(uint8_t adc_pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
@@ -127,3 +137,44 @@ void HAL_adc_start_conversion(uint8_t adc_pin);
 void HAL_idletask();
 void HAL_init();
 void HAL_init_board();
+
+//
+// Delay in cycles (used by DELAY_NS / DELAY_US)
+//
+FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
+  unsigned long start, ccount, stop;
+
+  /**
+   * It's important to care for race conditions (and overflows) here.
+   * Race condition example: If `stop` calculates to being close to the upper boundary of
+   * `uint32_t` and if at the same time a longer loop interruption kicks in (e.g. due to other
+   * FreeRTOS tasks or interrupts), `ccount` might overflow (and therefore be below `stop` again)
+   * without the loop ever being able to notice that `ccount` had already been above `stop` once
+   * (and that therefore the number of cycles to delay has already passed).
+   * As DELAY_CYCLES (through DELAY_NS / DELAY_US) is used by software SPI bit banging to drive
+   * LCDs and therefore might be called very, very often, this seemingly improbable situation did
+   * actually happen in reality. It resulted in apparently random print pauses of ~17.9 seconds
+   * (0x100000000 / 240 MHz) or multiples thereof, essentially ruining the current print by causing
+   * large blobs of filament.
+   */
+
+  __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (start) );
+  stop = start + x;
+  ccount = start;
+
+  if (stop >= start) {
+    // no overflow, so only loop while in between start and stop:
+    // 0x00000000 -----------------start****stop-- 0xffffffff
+    while (ccount >= start && ccount < stop) {
+      __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    }
+  }
+  else {
+    // stop did overflow, so only loop while outside of stop and start:
+    // 0x00000000 **stop-------------------start** 0xffffffff
+    while (ccount >= start || ccount < stop) {
+      __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    }
+  }
+
+}

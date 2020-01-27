@@ -21,7 +21,9 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.4"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BIGTREE SKR 1.4"
+#endif
 
 //
 // SD Connection

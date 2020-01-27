@@ -84,7 +84,7 @@ namespace Language_da {
 
   PROGMEM Language_Str MSG_BED                             = _UxGT("Plade");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Blæser hastighed");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Blæser hastighed =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Blæser hastighed ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrol");
   PROGMEM Language_Str MSG_MIN                             = _UxGT(" \002 Min");
   PROGMEM Language_Str MSG_MAX                             = _UxGT(" \002 Max");
@@ -107,7 +107,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hent fra EEPROM");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Gendan failsafe");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Genopfrisk");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info skærm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info skærm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Forbered");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause printet");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Forsæt printet");

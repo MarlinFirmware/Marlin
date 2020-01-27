@@ -22,7 +22,7 @@
 
 #include "utility.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../module/temperature.h"
 
 void safe_delay(millis_t ms) {
@@ -81,40 +81,49 @@ void safe_delay(millis_t ms) {
     );
 
     #if HAS_BED_PROBE
-      SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR, probe_offset.z);
-      if (probe_offset.x > 0)
-        SERIAL_ECHOPGM(" (Right");
-      else if (probe_offset.x < 0)
-        SERIAL_ECHOPGM(" (Left");
-      else if (probe_offset.y != 0)
-        SERIAL_ECHOPGM(" (Middle");
-      else
-        SERIAL_ECHOPGM(" (Aligned With");
 
-      if (probe_offset.y > 0) {
-        #if IS_SCARA
-          SERIAL_ECHOPGM("-Distal");
-        #else
-          SERIAL_ECHOPGM("-Back");
-        #endif
-      }
-      else if (probe_offset.y < 0) {
-        #if IS_SCARA
-          SERIAL_ECHOPGM("-Proximal");
-        #else
-          SERIAL_ECHOPGM("-Front");
-        #endif
-      }
-      else if (probe_offset.x != 0)
-        SERIAL_ECHOPGM("-Center");
+      #if !HAS_PROBE_XY_OFFSET
+        SERIAL_ECHOPAIR("Probe Offset X0 Y0 Z", probe_offset.z, " (");
+      #else
+        SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR, probe_offset.z);
+        if (probe_offset.x > 0)
+          SERIAL_ECHOPGM(" (Right");
+        else if (probe_offset.x < 0)
+          SERIAL_ECHOPGM(" (Left");
+        else if (probe_offset.y != 0)
+          SERIAL_ECHOPGM(" (Middle");
+        else
+          SERIAL_ECHOPGM(" (Aligned With");
+
+        if (probe_offset.y > 0) {
+          #if IS_SCARA
+            SERIAL_ECHOPGM("-Distal");
+          #else
+            SERIAL_ECHOPGM("-Back");
+          #endif
+        }
+        else if (probe_offset.y < 0) {
+          #if IS_SCARA
+            SERIAL_ECHOPGM("-Proximal");
+          #else
+            SERIAL_ECHOPGM("-Front");
+          #endif
+        }
+        else if (probe_offset.x != 0)
+          SERIAL_ECHOPGM("-Center");
+
+        SERIAL_ECHOPGM(" & ");
+
+      #endif
 
       if (probe_offset.z < 0)
-        SERIAL_ECHOPGM(" & Below");
+        SERIAL_ECHOPGM("Below");
       else if (probe_offset.z > 0)
-        SERIAL_ECHOPGM(" & Above");
+        SERIAL_ECHOPGM("Above");
       else
-        SERIAL_ECHOPGM(" & Same Z as");
+        SERIAL_ECHOPGM("Same Z as");
       SERIAL_ECHOLNPGM(" Nozzle)");
+
     #endif
 
     #if HAS_ABL_OR_UBL
@@ -139,8 +148,7 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
             float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
-            SERIAL_CHAR(' ');
-            SERIAL_CHAR('X' + char(a));
+            SERIAL_CHAR(' ', 'X' + char(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_ECHO(v);
           }

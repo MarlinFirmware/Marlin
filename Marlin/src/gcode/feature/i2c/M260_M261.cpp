@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 
-#include "../../../Marlin.h" // for i2c
+#include "../../../MarlinCore.h" // for i2c
 
 /**
  * M260: Send data to a I2C slave device

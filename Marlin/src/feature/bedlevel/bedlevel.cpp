@@ -86,14 +86,18 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     #endif
 
     if (planner.leveling_active) {      // leveling from on to off
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
       // change unleveled current_position to physical current_position without moving steppers.
       planner.apply_leveling(current_position);
       planner.leveling_active = false;  // disable only AFTER calling apply_leveling
+      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", current_position);
     }
     else {                              // leveling from off to on
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", current_position);
       planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
       // change physical current_position to unleveled current_position without moving steppers.
       planner.unapply_leveling(current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", current_position);
     }
 
     sync_plan_position();
@@ -180,7 +184,7 @@ void reset_bed_level() {
     #endif
     for (uint8_t y = 0; y < sy; y++) {
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_ECHOPGM(" [");           // open sub-array
+        SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(int(y));
@@ -207,14 +211,13 @@ void reset_bed_level() {
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_CHAR(' ');
-        SERIAL_CHAR(']');                     // close sub-array
+        SERIAL_CHAR(' ', ']');            // close sub-array
         if (y < sy - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
     }
     #ifdef SCAD_MESH_OUTPUT
-      SERIAL_ECHOPGM("];");                       // close 2D array
+      SERIAL_ECHOPGM("];");               // close 2D array
     #endif
     SERIAL_EOL();
   }
@@ -244,7 +247,7 @@ void reset_bed_level() {
     current_position = pos;
 
     #if ENABLED(LCD_BED_LEVELING)
-      ui.wait_for_bl_move = false;
+      ui.wait_for_move = false;
     #endif
   }
 

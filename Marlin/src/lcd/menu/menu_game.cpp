@@ -29,7 +29,13 @@
 
 void menu_game() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(
+    #if ENABLED(LCD_INFO_MENU)
+      MSG_INFO_MENU
+    #else
+      MSG_MAIN
+    #endif
+  );
   #if ENABLED(MARLIN_BRICKOUT)
     SUBMENU(MSG_BRICKOUT, brickout.enter_game);
   #endif

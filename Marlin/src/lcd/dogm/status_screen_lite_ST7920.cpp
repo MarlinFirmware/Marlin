@@ -60,7 +60,7 @@
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
-  #include "../../Marlin.h" // for printingIsActive
+  #include "../../MarlinCore.h" // for printingIsActive
 #endif
 
 #define TEXT_MODE_LCD_WIDTH 16
@@ -912,7 +912,7 @@ void ST7920_Lite_Status_Screen::on_exit() {
   ncs();
 }
 
-// This is called prior to the KILL screen to
+// Called prior to the KILL screen to
 // clear the screen, preventing a garbled display.
 void ST7920_Lite_Status_Screen::clear_text_buffer() {
   cs();

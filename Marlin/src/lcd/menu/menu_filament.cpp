@@ -233,7 +233,6 @@ void menu_pause_option() {
   #if HAS_FILAMENT_SENSOR
     if (runout.filament_ran_out)
       EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
-    else
   #endif
       ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
   END_MENU();

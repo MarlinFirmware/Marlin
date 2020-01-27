@@ -91,7 +91,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ακροφύσιο ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Κλίνη");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ταχύτητα ανεμιστήρα");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Ροή");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Ροή ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Έλεγχος");
@@ -138,7 +138,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Φόρτωση");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Επαναφορά ασφαλούς αντιγράφου"); //SHORTEN
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ανανέωση");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Οθόνη πληροφόρησης");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Οθόνη πληροφόρησης");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Προετοιμασία");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Συντονισμός");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Παύση εκτύπωσης");
