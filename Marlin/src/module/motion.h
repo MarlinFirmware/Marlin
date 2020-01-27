@@ -66,9 +66,9 @@ extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 
 // G60/G61 Position Save and Return
-#if NUM_POSITION_SLOTS
+#if SAVED_POSITIONS
   extern uint8_t saved_slots;
-  extern xyz_pos_t stored_position[NUM_POSITION_SLOTS];
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
 // Scratch space for a cartesian result

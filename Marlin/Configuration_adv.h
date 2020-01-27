@@ -1566,7 +1566,7 @@
 //
 // G60/G61 Position Save and Return
 //
-//#define NUM_POSITION_SLOTS 1    // Enable up to 5 position save slots
+//#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
 
 //
 // G2/G3 Arc Support

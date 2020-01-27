@@ -68,8 +68,8 @@
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
 
- * G60  - Save current position. (Requires NUM_POSITION_SLOTS)
- * G61  - Apply/restore saved coordinates. (Requires NUM_POSITION_SLOTS)
+ * G60  - Save current position. (Requires SAVED_POSITIONS)
+ * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
 
  * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
 
@@ -472,7 +472,7 @@ private:
   #endif
 
 
-  #if NUM_POSITION_SLOTS
+  #if SAVED_POSITIONS
     static void G60();
     static void G61();
   #endif

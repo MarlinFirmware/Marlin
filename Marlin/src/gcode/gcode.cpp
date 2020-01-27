@@ -323,7 +323,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 59: G59(); break;                                    // G59.0 - G59.3: Switch to Workspace 6-9
       #endif
 
-      #if NUM_POSITION_SLOTS
+      #if SAVED_POSITIONS
         case 60: G60(); break;                                    // G60:  save current position
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif

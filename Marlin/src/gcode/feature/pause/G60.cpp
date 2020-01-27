@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if NUM_POSITION_SLOTS
+#if SAVED_POSITIONS
 
 #include "../../../core/language.h"
 #include "../../gcode.h"
@@ -39,8 +39,8 @@
 void GcodeSuite::G60() {
   const uint8_t slot = parser.byteval('S');
 
-  if (slot >= NUM_POSITION_SLOTS) {
-    SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(NUM_POSITION_SLOTS));
+  if (slot >= SAVED_POSITIONS) {
+    SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
     return;
   }
 
@@ -52,9 +52,8 @@ void GcodeSuite::G60() {
     DEBUG_ECHOPAIR_F(MSG_SAVED_POS " S", slot);
     DEBUG_ECHOPAIR_F(" : X", pos.x);
     DEBUG_ECHOPAIR_F_P(SP_Y_STR, pos.y);
-    DEBUG_ECHOPAIR_F_P(SP_Z_STR, pos.z);
-    DEBUG_ECHOLNPAIR_P(SP_E_STR, pos.e);
+    DEBUG_ECHOLNPAIR_F_P(SP_Z_STR, pos.z);
   #endif
 }
 
-#endif // NUM_POSITION_SLOTS
+#endif // SAVED_POSITIONS

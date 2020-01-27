@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if NUM_POSITION_SLOTS
+#if SAVED_POSITIONS
 
 #include "../../../core/language.h"
 #include "../../module/planner.h"
@@ -40,10 +40,12 @@ void GcodeSuite::G61(void) {
 
   const uint8_t slot = parser.byteval('S');
 
-  if (slot >= NUM_POSITION_SLOTS) {
-    SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(NUM_POSITION_SLOTS));
-    return;
-  }
+  #if SAVED_POSITIONS < 256
+    if (slot >= SAVED_POSITIONS) {
+      SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
+      return;
+    }
+  #endif
 
   // No saved position? No axes being restored?
   if (!TEST(saved_slots, slot) || !parser.seen("XYZ")) return;
@@ -66,4 +68,4 @@ void GcodeSuite::G61(void) {
   prepare_move_to_destination();
 }
 
-#endif // NUM_POSITION_SLOTS
+#endif // SAVED_POSITIONS

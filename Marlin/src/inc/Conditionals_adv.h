@@ -137,6 +137,6 @@
 #endif
 
 // G60/G61 Position Save
-#if NUM_POSITION_SLOTS > 5
-  #error "NUM_POSITION_SLOTS must be an integer from 1 to 5."
+#if SAVED_POSITIONS > 256
+  #error "SAVED_POSITIONS must be an integer from 0 to 256."
 #endif
