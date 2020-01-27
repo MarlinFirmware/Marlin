@@ -113,7 +113,6 @@
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 //#define SERIAL_PORT_2 -1
-//#define ECHO_TO_FIRST_SERIAL_PORT
 
 /**
  * This setting determines the communication speed of the printer.
