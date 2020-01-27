@@ -112,7 +112,7 @@ xyze_pos_t destination; // {0}
 // G60/G61 Position Save and Return
 #if NUM_POSITION_SLOTS
   uint8_t saved_slots;
-  xyze_pos_t stored_position[NUM_POSITION_SLOTS];
+  xyz_pos_t stored_position[NUM_POSITION_SLOTS];
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
