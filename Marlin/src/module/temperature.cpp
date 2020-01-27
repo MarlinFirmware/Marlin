@@ -1061,8 +1061,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
-      const float max_power_over_i_gain = float(MAX_BED_POWER) / temp_bed.pid.Ki - float(MIN_BED_POWER),
-                  pid_error = temp_bed.target - temp_bed.celsius;
+      const float pid_error = temp_bed.target - temp_bed.celsius;
 
       if (!temp_bed.target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
         pid_output = 0;
@@ -1079,15 +1078,22 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
           pid_reset = false;
         }
 
-        temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-
         work_pid.Kp = temp_bed.pid.Kp * pid_error;
+        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (pid_error - temp_dState) - work_pid.Kd);
+
+        pid_output = work_pid.Kp + work_pid.Kd + float(MIN_BED_POWER);
+
+        //Sum error only if it has effect on output value
+        if (!((((pid_output + work_pid.Ki) < 0) && (pid_error < 0))
+           || (((pid_output + work_pid.Ki) > MAX_BED_POWER) && (pid_error > 0 )))) {
+          temp_iState += pid_error;
+        }
         work_pid.Ki = temp_bed.pid.Ki * temp_iState;
-        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.celsius) - work_pid.Kd);
 
-        temp_dState = temp_bed.celsius;
+        pid_output += work_pid.Ki;
+        temp_dState = pid_error;
 
-        pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + float(MIN_BED_POWER), 0, MAX_BED_POWER);
+        pid_output = constrain(pid_output, 0, MAX_BED_POWER); //TODO shouldn't be low limit MIN_BED_POWER?
       }
 
     #else // PID_OPENLOOP
