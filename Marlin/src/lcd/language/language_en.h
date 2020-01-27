@@ -242,10 +242,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Speed");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra Fan Speed");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
@@ -265,6 +265,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
   PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
   PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
+  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
+  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Select");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Select *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
@@ -393,6 +395,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Deploy Z-Probe");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s First");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Probe Offsets");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Probe Z Offset");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");

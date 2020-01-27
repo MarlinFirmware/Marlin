@@ -41,6 +41,7 @@
 // Axis homed and known-position states
 extern uint8_t axis_homed, axis_known_position;
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
 FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
@@ -63,6 +64,12 @@ extern bool relative_mode;
 
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
+
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  extern uint8_t saved_slots;
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+#endif
 
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;

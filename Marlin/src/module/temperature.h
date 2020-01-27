@@ -47,9 +47,9 @@
 
 // Identifiers for other heaters
 typedef enum : int8_t {
-  INDEX_NONE = -4,
-  H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
+  INDEX_NONE = -5,
+  H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_ind_t;
 
 // PID storage
@@ -114,6 +114,9 @@ enum ADCSensorState : char {
   #if HAS_TEMP_CHAMBER
     PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
   #endif
+  #if HAS_TEMP_PROBE
+    PrepareTemp_PROBE, MeasureTemp_PROBE,
+  #endif
   #if HAS_TEMP_ADC_1
     PrepareTemp_1, MeasureTemp_1,
   #endif
@@ -128,6 +131,12 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_5
     PrepareTemp_5, MeasureTemp_5,
+  #endif
+  #if HAS_TEMP_ADC_6
+    PrepareTemp_6, MeasureTemp_6,
+  #endif
+  #if HAS_TEMP_ADC_7
+    PrepareTemp_7, MeasureTemp_7,
   #endif
   #if HAS_JOY_ADC_X
     PrepareJoy_X, MeasureJoy_X,
@@ -202,6 +211,9 @@ struct PIDHeaterInfo : public HeaterInfo {
     typedef heater_info_t bed_info_t;
   #endif
 #endif
+#if HAS_TEMP_PROBE
+  typedef temp_info_t probe_info_t;
+#endif
 #if HAS_HEATED_CHAMBER
   typedef heater_info_t chamber_info_t;
 #elif HAS_TEMP_CHAMBER
@@ -258,6 +270,9 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
     #if ENABLED(HEATER_BED_USER_THERMISTOR)
       CTI_BED,
     #endif
+    #if ENABLED(HEATER_PROBE_USER_THERMISTOR)
+      CTI_PROBE,
+    #endif
     #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
       CTI_CHAMBER,
     #endif
@@ -289,11 +304,12 @@ class Temperature {
       #endif
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
     #endif
-
     #if HAS_HEATED_BED
       static bed_info_t temp_bed;
     #endif
-
+    #if HAS_TEMP_PROBE
+      static probe_info_t temp_probe;
+    #endif
     #if HAS_TEMP_CHAMBER
       static chamber_info_t temp_chamber;
     #endif
@@ -301,7 +317,6 @@ class Temperature {
     #if ENABLED(AUTO_POWER_E_FANS)
       static uint8_t autofan_speed[HOTENDS];
     #endif
-
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
       static uint8_t chamberfan_speed;
     #endif
@@ -345,7 +360,7 @@ class Temperature {
       static bool inited;   // If temperature controller is running
     #endif
 
-    static volatile bool temp_meas_ready;
+    static volatile bool raw_temps_ready;
 
     #if WATCH_HOTENDS
       static heater_watch_t watch_hotend[HOTENDS];
@@ -466,6 +481,9 @@ class Temperature {
 
     #if HAS_HEATED_BED
       static float analog_to_celsius_bed(const int raw);
+    #endif
+    #if HAS_TEMP_PROBE
+      static float analog_to_celsius_probe(const int raw);
     #endif
     #if HAS_TEMP_CHAMBER
       static float analog_to_celsius_chamber(const int raw);
@@ -662,6 +680,19 @@ class Temperature {
 
     #endif // HAS_HEATED_BED
 
+    #if HAS_TEMP_PROBE
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
+      #endif
+      FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
+    #endif
+
+    #if WATCH_PROBE
+      static void start_watching_probe();
+    #else
+      static inline void start_watching_probe() {}
+    #endif
+
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
@@ -686,7 +717,7 @@ class Temperature {
       static void setTargetChamber(const int16_t celsius) {
         temp_chamber.target =
           #ifdef CHAMBER_MAXTEMP
-            _MIN(celsius, CHAMBER_MAXTEMP)
+            _MIN(celsius, CHAMBER_MAXTEMP - 10)
           #else
             celsius
           #endif
@@ -774,7 +805,7 @@ class Temperature {
     #endif
 
   private:
-    static void set_current_temp_raw();
+    static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)

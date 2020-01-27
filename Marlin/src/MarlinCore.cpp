@@ -177,11 +177,12 @@
   #include "feature/prusa_MMU2/mmu2.h"
 #endif
 
-#if HAS_DRIVER(L6470)
-  #include "libs/L6470/L6470_Marlin.h"
+#if HAS_L64XX
+  #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
 const char NUL_STR[] PROGMEM = "",
+           M112_KILL_STR[] PROGMEM = "M112 Shutdown",
            G28_STR[] PROGMEM = "G28",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
@@ -406,7 +407,7 @@ void startOrResumeJob() {
     thermalManager.zero_fan_speeds();
     wait_for_heatup = false;
     #if ENABLED(POWER_LOSS_RECOVERY)
-      card.removeJobRecoveryFile();
+      recovery.purge();
     #endif
     #ifdef EVENT_GCODE_SD_STOP
       queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
@@ -605,7 +606,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
-    L6470.monitor_driver();
+    L64xxManager.monitor_driver();
   #endif
 
   // Limit check_axes_activity frequency to 10Hz
@@ -618,7 +619,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #if PIN_EXISTS(FET_SAFETY)
     static millis_t FET_next;
     if (ELAPSED(ms, FET_next)) {
-      FET_next = ms + FET_SAFETY_DELAY;  // 2uS pulse every FET_SAFETY_DELAY mS
+      FET_next = ms + FET_SAFETY_DELAY;  // 2µs pulse every FET_SAFETY_DELAY mS
       OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
       DELAY_US(2);
       WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
@@ -822,8 +823,12 @@ void setup() {
 
   HAL_init();
 
-  #if HAS_DRIVER(L6470)
-    L6470.init();         // setup SPI and then init chips
+  #if HAS_L64XX
+    L64xxManager.init();  // Set up SPI, init drivers
+  #endif
+
+  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+    OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
   #endif
 
   #if ENABLED(MAX7219_DEBUG)

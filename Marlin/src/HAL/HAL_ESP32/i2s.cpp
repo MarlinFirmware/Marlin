@@ -177,7 +177,7 @@ int i2s_init() {
    *
    *   fwclk = fbclk / 32
    *
-   *   for fwclk = 250kHz (4uS pulse time)
+   *   for fwclk = 250kHz (4µS pulse time)
    *      N = 10
    *      M = 20
    */

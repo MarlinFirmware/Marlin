@@ -28,6 +28,9 @@
  */
 void GcodeSuite::M85() {
 
-  if (parser.seen('S')) max_inactive_time = parser.value_millis_from_seconds();
+  if (parser.seen('S')) {
+    reset_stepper_timeout();
+    max_inactive_time = parser.value_millis_from_seconds();
+  }
 
 }
