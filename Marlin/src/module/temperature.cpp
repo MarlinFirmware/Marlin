@@ -832,7 +832,7 @@ static constexpr float ambient_temp = 21.0f;
 //! @param print_fan print fan power in range 0.0 .. 1.0
 //! @return hotend PWM in range 0 .. 255
 
-static float ff_steady_state(float target_temp, float print_fan)
+static float ff_steady_state_hotend(float target_temp, float print_fan)
 {
     static_assert(PID_MAX == 255, "PID_MAX == 255 expected");
     //TODO Square root computation can be mostly avoided by if it is stored and updated only on print_fan change
@@ -882,7 +882,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
         //! Target for less than full power, so regulator can catch
         //! with generated temperature curve in less than ideal conditions
         constexpr float target_heater_pwm = PID_MAX - 10;
-        const float temp_diff = deg_per_cycle * pid_max_inv * (target_heater_pwm - ff_steady_state(last_target, fan_speed[0] * pid_max_inv));
+        const float temp_diff = deg_per_cycle * pid_max_inv * (target_heater_pwm - ff_steady_state_hotend(last_target, fan_speed[0] * pid_max_inv));
         last_target += temp_diff;
         if (delay > 1) --delay;
         expected += temp_diff / delay;
@@ -897,7 +897,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
             expected = last_target;
             state = Ramp::Down;
         }
-        const float temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
+        const float temp_diff = deg_per_cycle * pid_max_inv * ff_steady_state_hotend(last_target, fan_speed[0] * pid_max_inv);
         last_target -= temp_diff;
         if (delay > 1) --delay;
         expected -= temp_diff / delay;
@@ -922,7 +922,7 @@ float Temperature::get_ff_output_hotend(float &last_target, float &expected, con
             expected += diff;
         }
         else expected = last_target;
-        hotend_pwm = ff_steady_state(last_target, fan_speed[0] * pid_max_inv);
+        hotend_pwm = ff_steady_state_hotend(last_target, fan_speed[0] * pid_max_inv);
     }
     return hotend_pwm;
 }
