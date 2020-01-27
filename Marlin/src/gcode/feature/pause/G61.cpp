@@ -34,7 +34,7 @@
  *
  *   F<rate>  - Feedrate (optional) for the move back.
  *   S<slot>  - Slot # (0-based) to restore from (default 0).
- *   X Y Z E  - Axes to restore. At least one is required.
+ *   X Y Z    - Axes to restore. At least one is required.
  */
 void GcodeSuite::G61(void) {
 
@@ -46,14 +46,14 @@ void GcodeSuite::G61(void) {
   }
 
   // No saved position? No axes being restored?
-  if (!TEST(saved_slots, slot) || !parser.seen("XYZE")) return;
+  if (!TEST(saved_slots, slot) || !parser.seen("XYZ")) return;
 
   // Apply any given feedrate over 0.0
   const float fr = parser.linearval('F');
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
   SERIAL_ECHOPAIR_F(MSG_RESTORING_POS " S", int(slot));
-  LOOP_XYZE(i) {
+  LOOP_XYZ(i) {
     destination[i] = parser.seen(axis_codes[i])
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
       : current_position[i];
