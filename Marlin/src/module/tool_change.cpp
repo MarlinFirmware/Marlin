@@ -774,6 +774,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool == active_extruder) return;
   #endif
 
+  #if ENABLED(MK2_MULTIPLEXER)
+    if (new_tool >= E_STEPPERS) return invalid_extruder_error(new_tool);
+  #endif
+
   #if ENABLED(MIXING_EXTRUDER)
 
     UNUSED(no_move);
@@ -1045,18 +1049,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
 
-    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
-      set_bed_leveling_enabled(leveling_was_enabled);
-    #endif
-
     #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
       disable_all_solenoids();
       enable_solenoid_on_active_extruder();
     #endif
 
     #if ENABLED(MK2_MULTIPLEXER)
-      if (new_tool >= E_STEPPERS) return invalid_extruder_error(new_tool);
-      select_multiplexed_stepper(new_tool);
+      select_multiplexed_e_stepper(new_tool);
     #endif
 
     #if DO_SWITCH_EXTRUDER
@@ -1066,6 +1065,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if HAS_FANMUX
       fanmux_switch(active_extruder);
+    #endif
+
+    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
+      set_bed_leveling_enabled(leveling_was_enabled);
     #endif
 
     #ifdef EVENT_GCODE_AFTER_TOOLCHANGE

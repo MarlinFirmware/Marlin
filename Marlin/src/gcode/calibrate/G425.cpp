@@ -573,14 +573,16 @@ inline void calibrate_all() {
  *   no args     - Perform entire calibration sequence (backlash + position on all toolheads)
  */
 void GcodeSuite::G425() {
-  TEMPORARY_SOFT_ENDSTOP_STATE(false);
+
+  if (axis_unhomed_error()) return;
+
+  const bool sw_stops_were_enabled = soft_endstops_enabled;
+  soft_endstops_enabled = false;
+
   #if HAS_LEVELING
-    // Set current position to the physical position
     const bool leveling_was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
-
-  if (axis_unhomed_error()) return;
 
   measurements_t m;
 
@@ -609,9 +611,11 @@ void GcodeSuite::G425() {
     calibrate_all();
 
   #if HAS_LEVELING
-    planner.synchronize();
     set_bed_leveling_enabled(leveling_was_enabled);
   #endif
+
+  soft_endstops_enabled = sw_stops_were_enabled;
+
 }
 
 #endif // CALIBRATION_GCODE
