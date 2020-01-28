@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for max_inactive_time
+#include "../../MarlinCore.h" // for max_inactive_time
 
 /**
  * M85: Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)

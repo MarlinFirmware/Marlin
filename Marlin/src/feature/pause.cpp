@@ -29,7 +29,7 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
 #include "../module/planner.h"
@@ -345,14 +345,14 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   #endif
 
   // Retract filament
-  do_pause_e_move(-(FILAMENT_UNLOAD_RETRACT_LENGTH) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
+  do_pause_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
 
   // Wait for filament to cool
-  safe_delay(FILAMENT_UNLOAD_DELAY);
+  safe_delay(FILAMENT_UNLOAD_PURGE_DELAY);
 
   // Quickly purge
-  do_pause_e_move((FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
-                  planner.settings.max_feedrate_mm_s[E_AXIS] * mix_multiplier);
+  do_pause_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
+                  (FILAMENT_UNLOAD_PURGE_FEEDRATE) * mix_multiplier);
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
@@ -692,6 +692,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
     thermalManager.set_fans_paused(false);
+  #endif
+
+  #if HAS_FILAMENT_SENSOR
+    runout.reset();
   #endif
 
   // Resume the print job timer if it was running

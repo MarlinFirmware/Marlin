@@ -25,7 +25,7 @@
 #if ENABLED(EXPECTED_PRINTER_CHECK)
 
 #include "../gcode.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 /**
  * M16: Expected Printer Check

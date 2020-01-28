@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RE Bigtreetech (SKR E3 DIP v1.0)
+# Build tests for STM32F103RE BigTreeTech (SKR E3 DIP v1.0)
 #
 
 # exit on first failure
@@ -13,7 +13,7 @@ restore_configs
 opt_set MOTHERBOARD BOARD_BIGTREE_SKR_E3_DIP
 opt_set SERIAL_PORT 1
 opt_set SERIAL_PORT_2 -1
-exec_test $1 $2 "Bigtreetech SKR E3 DIP v1.0 - Basic Configuration"
+exec_test $1 $2 "BigTreeTech SKR E3 DIP v1.0 - Basic Configuration"
 
 # clean up
 restore_configs

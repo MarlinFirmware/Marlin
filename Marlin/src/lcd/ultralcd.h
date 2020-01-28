@@ -37,7 +37,7 @@
 
 #if HAS_SPI_LCD
 
-  #include "../Marlin.h"
+  #include "../MarlinCore.h"
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #include "../feature/pause.h"

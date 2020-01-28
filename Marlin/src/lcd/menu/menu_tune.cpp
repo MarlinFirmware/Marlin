@@ -32,7 +32,7 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -65,7 +65,7 @@
     }
     if (ui.should_draw()) {
       const float spm = planner.steps_to_mm[axis];
-      MenuEditItemBase::draw_edit_screen(msg, ftostr54sign(spm * babystep.accum));
+      MenuEditItemBase::draw_edit_screen(msg, LCD_Z_OFFSET_FUNC(spm * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
         const bool in_view = (true
           #if HAS_GRAPHICAL_LCD
@@ -81,7 +81,7 @@
           #endif
           lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
           lcd_put_wchar(':');
-          lcd_put_u8str(ftostr54sign(spm * babystep.axis_total[BS_TOTAL_AXIS(axis)]));
+          lcd_put_u8str(LCD_Z_OFFSET_FUNC(spm * babystep.axis_total[BS_TOTAL_AXIS(axis)]));
         }
       #endif
     }
@@ -128,8 +128,8 @@ void menu_tune() {
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST_N(int3, N, MSG_NOZZLE_N, &thermalManager.temp_hotend[N].target, 0, heater_maxtemp[N] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); })
-    HOTEND_LOOP() EDIT_NOZZLE(e);
+    HOTEND_LOOP()
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, heater_maxtemp[e] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
   #if ENABLED(SINGLENOZZLE)
@@ -178,14 +178,26 @@ void menu_tune() {
 
   //
   // Flow:
-  // Flow [1-5]:
   //
-  #if EXTRUDERS == 1
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, []{ planner.refresh_e_factor(0); });
-  #elif EXTRUDERS
+  #if EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
-    #define EDIT_FLOW(N) EDIT_ITEM_N(int3, N, MSG_FLOW_N, &planner.flow_percentage[N], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); })
-    for (uint8_t n = 0; n < EXTRUDERS; n++) EDIT_FLOW(n);
+    // Flow En:
+    #if EXTRUDERS > 1
+      for (uint8_t n = 0; n < EXTRUDERS; n++)
+        EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+    #endif
+  #endif
+
+  //
+  // Advance K:
+  //
+  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
+    #if EXTRUDERS == 1
+      EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+    #elif EXTRUDERS > 1
+      for (uint8_t n = 0; n < EXTRUDERS; n++)
+        EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+    #endif
   #endif
 
   //

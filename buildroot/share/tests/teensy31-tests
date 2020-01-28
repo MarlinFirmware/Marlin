@@ -6,8 +6,6 @@
 # exit on first failure
 set -e
 
-backup_ramps
-
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY31_32
 exec_test $1 $2 "Teensy3.1 with default config"

@@ -27,11 +27,14 @@
 #include "temperature.h"
 #include "endstops.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
 
 #if ENABLED(MAX6675_IS_MAX31865)
   #include "Adafruit_MAX31865.h"
@@ -259,6 +262,10 @@ Temperature thermalManager;
   #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
 
+#if HAS_TEMP_PROBE
+  probe_info_t Temperature::temp_probe; // = { 0 }
+#endif
+
 // Initialized by settings.load()
 #if ENABLED(PIDTEMP)
   //hotend_pid_t Temperature::pid[HOTENDS];
@@ -399,6 +406,9 @@ volatile bool Temperature::temp_meas_ready = false;
 
     if (target > GHV(BED_MAXTEMP - 10, temp_range[heater].maxtemp - 15)) {
       SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
+      #endif
       return;
     }
 
@@ -512,6 +522,9 @@ volatile bool Temperature::temp_meas_ready = false;
       #endif
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
+        #endif
         break;
       }
 
@@ -554,6 +567,9 @@ volatile bool Temperature::temp_meas_ready = false;
         #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
       #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::OnPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
+        #endif
         SERIAL_ECHOLNPGM(MSG_PID_TIMEOUT);
         break;
       }
@@ -602,6 +618,9 @@ volatile bool Temperature::temp_meas_ready = false;
         #if ENABLED(PRINTER_EVENT_LEDS)
           printerEventLEDs.onPidTuningDone(color);
         #endif
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
+        #endif
 
         goto EXIT_M303;
       }
@@ -612,6 +631,9 @@ volatile bool Temperature::temp_meas_ready = false;
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       printerEventLEDs.onPidTuningDone(color);
+    #endif
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
     #endif
 
     EXIT_M303:
@@ -636,11 +658,11 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
       case H_CHAMBER: return temp_chamber.soft_pwm_amount;
     #endif
     default:
-      #if HOTENDS
-        return temp_hotend[heater_id].soft_pwm_amount;
-      #else
-        return 0;
-      #endif
+      return (0
+        #if HOTENDS
+          + temp_hotend[heater_id].soft_pwm_amount
+        #endif
+      );
   }
 }
 
@@ -1380,7 +1402,7 @@ void Temperature::manage_heater() {
         SERIAL_ECHO((int)e);
         SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER_NUM);
         kill();
-        return 0.0;
+        return 0;
       }
 
     switch (e) {
@@ -1480,6 +1502,7 @@ void Temperature::manage_heater() {
     #elif ENABLED(HEATER_BED_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
+      UNUSED(raw);
       return 0;
     #endif
   }
@@ -1498,10 +1521,30 @@ void Temperature::manage_heater() {
     #elif ENABLED(HEATER_CHAMBER_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
+      UNUSED(raw);
       return 0;
     #endif
   }
 #endif // HAS_TEMP_CHAMBER
+
+#if HAS_TEMP_PROBE
+  // Derived from RepRap FiveD extruder::getTemperature()
+  // For probe temperature measurement.
+  float Temperature::analog_to_celsius_probe(const int raw) {
+    #if ENABLED(PROBE_USER_THERMISTOR)
+      return user_thermistor_to_deg_c(CTI_PROBE, raw);
+    #elif ENABLED(PROBE_USES_THERMISTOR)
+      SCAN_THERMISTOR_TABLE(PROBE_TEMPTABLE, PROBE_TEMPTABLE_LEN);
+    #elif ENABLED(PROBE_USES_AD595)
+      return TEMP_AD595(raw);
+    #elif ENABLED(PROBE_USES_AD8495)
+      return TEMP_AD8495(raw);
+    #else
+      UNUSED(raw);
+      return 0;
+    #endif
+  }
+#endif // HAS_TEMP_PROBE
 
 /**
  * Get the raw values into the actual temperatures.
@@ -1524,6 +1567,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
   #if HAS_TEMP_CHAMBER
     temp_chamber.celsius = analog_to_celsius_chamber(temp_chamber.raw);
+  #endif
+  #if HAS_TEMP_PROBE
+    temp_probe.celsius = analog_to_celsius_probe(temp_probe.raw);
   #endif
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1);
@@ -1702,6 +1748,9 @@ void Temperature::init() {
   #endif
   #if HAS_TEMP_CHAMBER
     HAL_ANALOG_SELECT(TEMP_CHAMBER_PIN);
+  #endif
+  #if HAS_TEMP_PROBE
+    HAL_ANALOG_SELECT(TEMP_PROBE_PIN);
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     HAL_ANALOG_SELECT(FILWIDTH_PIN);
@@ -2197,6 +2246,10 @@ void Temperature::set_current_temp_raw() {
     temp_chamber.update();
   #endif
 
+  #if HAS_TEMP_PROBE
+    temp_probe.update();
+  #endif
+
   #if HAS_JOY_ADC_X
     joystick.x.update();
   #endif
@@ -2233,6 +2286,10 @@ void Temperature::readings_ready() {
 
   #if HAS_TEMP_CHAMBER
     temp_chamber.reset();
+  #endif
+
+  #if HAS_TEMP_PROBE
+    temp_probe.reset();
   #endif
 
   #if HAS_JOY_ADC_X
@@ -2643,6 +2700,11 @@ void Temperature::tick() {
       case MeasureTemp_CHAMBER: ACCUMULATE_ADC(temp_chamber); break;
     #endif
 
+    #if HAS_TEMP_PROBE
+      case PrepareTemp_PROBE: HAL_START_ADC(TEMP_PROBE_PIN); break;
+      case MeasureTemp_PROBE: ACCUMULATE_ADC(temp_probe); break;
+    #endif
+
     #if HAS_TEMP_ADC_1
       case PrepareTemp_1: HAL_START_ADC(TEMP_1_PIN); break;
       case MeasureTemp_1: ACCUMULATE_ADC(temp_hotend[1]); break;
@@ -2694,11 +2756,14 @@ void Temperature::tick() {
     #endif
 
     #if HAS_ADC_BUTTONS
+      #ifndef ADC_BUTTON_DEBOUNCE_DELAY
+        #define ADC_BUTTON_DEBOUNCE_DELAY 16
+      #endif
       case Prepare_ADC_KEY: HAL_START_ADC(ADC_KEYPAD_PIN); break;
       case Measure_ADC_KEY:
         if (!HAL_ADC_READY())
           next_sensor_state = adc_sensor_state; // redo this state
-        else if (ADCKey_count < 16) {
+        else if (ADCKey_count < ADC_BUTTON_DEBOUNCE_DELAY) {
           raw_ADCKey_value = HAL_READ_ADC();
           if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
             NOMORE(current_ADCKey_raw, raw_ADCKey_value);
@@ -2712,9 +2777,9 @@ void Temperature::tick() {
             }
           }
         }
-        if (ADCKey_count == 16) ADCKey_pressed = true;
+        if (ADCKey_count == ADC_BUTTON_DEBOUNCE_DELAY) ADCKey_pressed = true;
         break;
-    #endif // ADC_KEYPAD
+    #endif // HAS_ADC_BUTTONS
 
     case StartupDelay: break;
 
@@ -2752,6 +2817,9 @@ void Temperature::tick() {
     switch (e) {
       #if HAS_TEMP_CHAMBER
         case H_CHAMBER: k = 'C'; break;
+      #endif
+      #if HAS_TEMP_PROBE
+        case H_PROBE: k = 'P'; break;
       #endif
       #if HAS_TEMP_HOTEND
         default: k = 'T'; break;
@@ -2821,6 +2889,14 @@ void Temperature::tick() {
         , H_CHAMBER
       );
     #endif // HAS_TEMP_CHAMBER
+    #if HAS_TEMP_PROBE
+      print_heater_state(degProbe(), 0
+        #if ENABLED(SHOW_TEMP_ADC_VALUES)
+          , rawProbeTemp()
+        #endif
+        , H_PROBE
+      );
+    #endif // HAS_TEMP_PROBE
     #if HOTENDS > 1
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -2891,6 +2967,7 @@ void Temperature::tick() {
     ) {
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
+        bool first_loop = true;
         // Loop until the temperature has stabilized
         #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
       #else
@@ -2908,7 +2985,7 @@ void Temperature::tick() {
       #endif
 
       float target_temp = -1.0, old_temp = 9999.0;
-      bool wants_to_cool = false, first_loop = true;
+      bool wants_to_cool = false;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       do {
@@ -2961,6 +3038,8 @@ void Temperature::tick() {
             residency_start_ms = now;
           }
 
+          first_loop = false;
+
         #endif
 
         // Prevent a wait-forever situation if R is misused i.e. M109 R0
@@ -2980,8 +3059,6 @@ void Temperature::tick() {
             ui.quick_feedback();
           }
         #endif
-
-        first_loop = false;
 
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
@@ -3130,6 +3207,7 @@ void Temperature::tick() {
     bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) {
       #if TEMP_CHAMBER_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
+        bool first_loop = true;
         // Loop until the temperature has stabilized
         #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL))
       #else
@@ -3138,7 +3216,7 @@ void Temperature::tick() {
       #endif
 
       float target_temp = -1, old_temp = 9999;
-      bool wants_to_cool = false, first_loop = true;
+      bool wants_to_cool = false;
       wait_for_heatup = true;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
@@ -3191,6 +3269,7 @@ void Temperature::tick() {
             residency_start_ms = now;
           }
 
+          first_loop = false;
         #endif // TEMP_CHAMBER_RESIDENCY_TIME > 0
 
         // Prevent a wait-forever situation if R is misused i.e. M191 R0
@@ -3203,9 +3282,6 @@ void Temperature::tick() {
             old_temp = temp;
           }
         }
-
-        first_loop = false;
-
       } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
 
       if (wait_for_heatup) ui.reset_status();

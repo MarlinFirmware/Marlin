@@ -45,7 +45,7 @@
 
 #include "../module/planner.h"
 #include "../module/stepper.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
 #define HAS_SIDE_BY_SIDE (ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1)
@@ -455,15 +455,19 @@ void Max7219::register_setup() {
 #ifdef MAX7219_INIT_TEST
 #if MAX7219_INIT_TEST == 2
 
+  #define MAX7219_LEDS (MAX7219_X_LEDS * MAX7219_Y_LEDS)
+
   void Max7219::spiral(const bool on, const uint16_t del) {
-    constexpr int8_t way[] = { 1, 0, 0, 1, -1, 0, 0, -1 };
+    constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
     int8_t px = 0, py = 0, dir = 0;
-    for (uint8_t i = MAX7219_X_LEDS * MAX7219_Y_LEDS; i--;) {
+    for (IF<(MAX7219_LEDS > 255), uint16_t, uint8_t>::type i = MAX7219_LEDS; i--;) {
       led_set(px, py, on);
       delay(del);
-      const int8_t x = px + way[dir], y = py + way[dir + 1];
-      if (!WITHIN(x, 0, MAX7219_X_LEDS - 1) || !WITHIN(y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(x, y) == on) dir = (dir + 2) & 0x7;
-      px += way[dir]; py += way[dir + 1];
+      const int8_t x = px + way[dir][0], y = py + way[dir][1];
+      if (!WITHIN(x, 0, MAX7219_X_LEDS - 1) || !WITHIN(y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(x, y) == on)
+        dir = (dir + 1) & 0x3;
+      px += way[dir][0];
+      py += way[dir][1];
     }
   }
 

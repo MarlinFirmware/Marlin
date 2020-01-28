@@ -170,6 +170,8 @@
   #include "ramps/pins_RAMPS_DAGOMA.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(FYSETC_F6_13)
   #include "ramps/pins_FYSETC_F6_13.h"          // ATmega2560                             env:FYSETC_F6_13
+#elif MB(FYSETC_F6_14)
+  #include "ramps/pins_FYSETC_F6_14.h"          // ATmega2560                             env:FYSETC_F6_14
 #elif MB(DUPLICATOR_I3_PLUS)
   #include "ramps/pins_DUPLICATOR_I3_PLUS.h"    // ATmega2560                             env:megaatmega2560
 #elif MB(VORON)
@@ -184,7 +186,6 @@
   #include "ramps/pins_TANGO.h"                 // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_GEN_L_V2)
   #include "ramps/pins_MKS_GEN_L_V2.h"          // ATmega2560                             env:megaatmega2560
-
 
 //
 // RAMBo and derivatives
@@ -247,6 +248,8 @@
   #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:megaatmega2560
 #elif MB(HJC2560C_REV2)
   #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
+#elif MB(LEAPFROG_XEED2015)
+  #include "mega/pins_LEAPFROG_XEED2015.h"      // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -354,14 +357,16 @@
   #include "lpc1768/pins_BIQU_BQ111_A4.h"       // LPC1768                                env:LPC1768
 #elif MB(SELENA_COMPACT)
   #include "lpc1768/pins_SELENA_COMPACT.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_1)
-  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
 #elif MB(BIQU_B300_V1_0)
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_3)
-  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_1)
+  #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_3)
+  #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
+#elif MB(BIGTREE_SKR_V1_4)
+  #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
 
 //
 // LPC1769 ARM Cortex M3
@@ -383,6 +388,8 @@
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
 #elif MB(TH3D_EZBOARD)
   #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
+#elif MB(BIGTREE_SKR_V1_4_TURBO)
+  #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards
@@ -493,6 +500,10 @@
   #include "stm32/pins_FYSETC_CHEETAH_V12.h"    // STM32F1                                env:STM32F103RC_fysetc
 #elif MB(LONGER3D_LK)
   #include "stm32/pins_LONGER3D_LK.h"           // STM32F1                                env:STM32F103VE_longer
+#elif MB(MKS_ROBIN_LITE3)
+  #include "stm32/pins_MKS_ROBIN_LITE3.h"       // STM32F1                                env:mks_robin_lite3
+#elif MB(MKS_ROBIN_PRO)
+  #include "stm32/pins_MKS_ROBIN_PRO.h"         // STM32F1                                env:mks_robin_pro
 
 //
 // ARM Cortex-M4F
@@ -517,8 +528,8 @@
   #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:RUMBA32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
-#elif MB(STEVAL)
-  #include "stm32/pins_STEVAL.h"                // STM32F4                                env:STM32F4
+#elif MB(STEVAL_3DP001V1)
+  #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BIGTREE_BTT002_V1_0)
@@ -531,6 +542,10 @@
   #include "stm32/pins_VAKE403D.h"              // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
   #include "stm32/pins_FYSETC_S6.h"             // STM32F4                                env:FYSETC_S6
+#elif MB(FLYF407ZG)
+  #include "stm32/pins_FLYF407ZG.h"             // STM32F4                                env:FLYF407ZG
+#elif MB(MKS_ROBIN2)
+  #include "pins_MKS_ROBIN2.h"                  // STM32F4                                env:MKS_ROBIN2
 
 //
 // ARM Cortex M7
@@ -548,6 +563,10 @@
 #elif MB(ESPRESSIF_ESP32)
 
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
+#elif MB(MRR_ESPA)
+  #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
+#elif MB(MRR_ESPE)
+  #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
@@ -557,7 +576,57 @@
   #include "linux/pins_RAMPS_LINUX.h"           // Linux                                  env:linux_native
 
 #else
-  #error "Unknown MOTHERBOARD value set in Configuration.h"
+
+  //
+  // Obsolete or unknown board
+  //
+
+  #define BOARD_MKS_13        -1000
+  #define BOARD_TRIGORILLA    -1001
+  #define BOARD_RURAMPS4D     -1002
+  #define BOARD_FORMBOT_TREX2 -1003
+  #define BOARD_BIQU_SKR_V1_1 -1004
+  #define BOARD_STM32F1R      -1005
+  #define BOARD_STM32F103R    -1006
+  #define BOARD_ESP32         -1007
+  #define BOARD_BIGTREE_SKR_MINI_E3 -1008
+  #define BOARD_STEVAL        -1009
+
+  #if MB(MKS_13)
+    #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
+  #elif MB(TRIGORILLA)
+    #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
+  #elif MB(RURAMPS4D)
+    #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
+  #elif MB(FORMBOT_TREX2)
+    #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
+  #elif MB(BIQU_SKR_V1_1)
+    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+  #elif MB(STM32F1R)
+    #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
+  #elif MB(STM32F103R)
+    #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
+  #elif MOTHERBOARD == BOARD_ESP32
+    #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
+  #elif MB(BIGTREE_SKR_MINI_E3)
+    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
+  #elif MB(STEVAL)
+    #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
+  #else
+    #error "Unknown MOTHERBOARD value set in Configuration.h"
+  #endif
+
+  #undef BOARD_MKS_13
+  #undef BOARD_TRIGORILLA
+  #undef BOARD_RURAMPS4D
+  #undef BOARD_FORMBOT_TREX2
+  #undef BOARD_BIQU_SKR_V1_1
+  #undef BOARD_STM32F1R
+  #undef BOARD_STM32F103R
+  #undef BOARD_ESP32
+  #undef BOARD_BIGTREE_SKR_MINI_E3
+  #undef BOARD_STEVAL
+
 #endif
 
 // Define certain undefined pins

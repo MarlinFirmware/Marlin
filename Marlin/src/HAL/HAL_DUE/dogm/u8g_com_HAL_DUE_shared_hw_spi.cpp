@@ -63,7 +63,7 @@
 
 #include <U8glib.h>
 
-#include "../../../Marlin.h"
+#include "../../../MarlinCore.h"
 
 void spiBegin();
 void spiInit(uint8_t spiRate);

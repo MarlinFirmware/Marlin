@@ -27,7 +27,7 @@
 #include "endstops.h"
 #include "stepper.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../sd/cardreader.h"
 #include "temperature.h"
 #include "../lcd/ultralcd.h"
@@ -471,7 +471,7 @@ void _O2 Endstops::report_states() {
           #endif
         }
         SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
-        if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
+        if (i > 1) SERIAL_CHAR(' ', '0' + i);
         print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
