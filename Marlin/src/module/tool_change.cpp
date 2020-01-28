@@ -821,10 +821,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move (not homed)");
     }
 
-    #if HAS_LCD_MENU
-      ui.return_to_status();
-    #endif
-
     #if ENABLED(DUAL_X_CARRIAGE)
       const bool idex_full_control = dual_x_carriage_mode == DXC_FULL_CONTROL_MODE;
     #else

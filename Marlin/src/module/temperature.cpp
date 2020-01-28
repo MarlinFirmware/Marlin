@@ -287,7 +287,7 @@ Temperature thermalManager;
   float Temperature::redundant_temperature = 0.0;
 #endif
 
-volatile bool Temperature::temp_meas_ready = false;
+volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   int32_t Temperature::last_e_position, Temperature::lpq[LPQ_MAX_LEN];
@@ -435,7 +435,7 @@ volatile bool Temperature::temp_meas_ready = false;
 
       const millis_t ms = millis();
 
-      if (temp_meas_ready) { // temp sample ready
+      if (raw_temps_ready) { // temp sample ready
         updateTemperaturesFromRawValues();
 
         // Get the current temperature and constrain it
@@ -1053,7 +1053,7 @@ void Temperature::manage_heater() {
     if (emergency_parser.killed_by_M112) kill();
   #endif
 
-  if (!temp_meas_ready) return;
+  if (!raw_temps_ready) return;
 
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
@@ -1090,10 +1090,10 @@ void Temperature::manage_heater() {
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
-        if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) { // Time to check this extruder?
-          if (degHotend(e) < watch_hotend[e].target)                             // Failed to increase enough?
+        if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
+          if (degHotend(e) < watch_hotend[e].target)                            // Failed to increase enough?
             _temp_error((heater_ind_t)e, PSTR(MSG_T_HEATING_FAILED), GET_TEXT(MSG_HEATING_FAILED_LCD));
-          else                                                                 // Start again if the target is still far off
+          else                                                                  // Start again if the target is still far off
             start_watching_hotend(e);
         }
       #endif
@@ -1625,7 +1625,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   // Reset the watchdog on good temperature measurement
   watchdog_refresh();
 
-  temp_meas_ready = false;
+  raw_temps_ready = false;
 }
 
 #if MAX6675_SEPARATE_SPI
@@ -2304,9 +2304,9 @@ void Temperature::disable_all_heaters() {
 #endif // HAS_MAX6675
 
 /**
- * Get raw temperatures
+ * Update raw temperatures
  */
-void Temperature::set_current_temp_raw() {
+void Temperature::update_raw_temperatures() {
 
   #if HAS_TEMP_ADC_0 && DISABLED(HEATER_0_USES_MAX6675)
     temp_hotend[0].update();
@@ -2360,13 +2360,13 @@ void Temperature::set_current_temp_raw() {
     joystick.z.update();
   #endif
 
-  temp_meas_ready = true;
+  raw_temps_ready = true;
 }
 
 void Temperature::readings_ready() {
 
   // Update the raw values if they've been read. Else we could be updating them during reading.
-  if (!temp_meas_ready) set_current_temp_raw();
+  if (!raw_temps_ready) update_raw_temperatures();
 
   // Filament Sensor - can be read any time since IIR filtering is used
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
