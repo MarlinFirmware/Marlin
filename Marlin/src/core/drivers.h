@@ -57,26 +57,35 @@
 #define AXIS_DRIVER_TYPE_X(T) _AXIS_DRIVER_TYPE(X,T)
 #define AXIS_DRIVER_TYPE_Y(T) _AXIS_DRIVER_TYPE(Y,T)
 #define AXIS_DRIVER_TYPE_Z(T) _AXIS_DRIVER_TYPE(Z,T)
-#define AXIS_DRIVER_TYPE_X2(T) (EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE) && _AXIS_DRIVER_TYPE(X2,T))
+#if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
+  #define AXIS_DRIVER_TYPE_X2(T) _AXIS_DRIVER_TYPE(X2,T)
+#else
+  #define AXIS_DRIVER_TYPE_X2(T) false
+#endif
 #define AXIS_DRIVER_TYPE_Y2(T) (ENABLED(Y_DUAL_STEPPER_DRIVERS) && _AXIS_DRIVER_TYPE(Y2,T))
-#define AXIS_DRIVER_TYPE_Z2(T) (Z_MULTI_STEPPER_DRIVERS && _AXIS_DRIVER_TYPE(Z2,T))
-#define AXIS_DRIVER_TYPE_Z3(T) (ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && _AXIS_DRIVER_TYPE(Z3,T))
+#define AXIS_DRIVER_TYPE_Z2(T) (NUM_Z_STEPPER_DRIVERS >= 2 && _AXIS_DRIVER_TYPE(Z2,T))
+#define AXIS_DRIVER_TYPE_Z3(T) (NUM_Z_STEPPER_DRIVERS >= 3 && _AXIS_DRIVER_TYPE(Z3,T))
+#define AXIS_DRIVER_TYPE_Z4(T) (NUM_Z_STEPPER_DRIVERS >= 4 && _AXIS_DRIVER_TYPE(Z4,T))
 #define AXIS_DRIVER_TYPE_E0(T) (E_STEPPERS > 0 && _AXIS_DRIVER_TYPE(E0,T))
 #define AXIS_DRIVER_TYPE_E1(T) (E_STEPPERS > 1 && _AXIS_DRIVER_TYPE(E1,T))
 #define AXIS_DRIVER_TYPE_E2(T) (E_STEPPERS > 2 && _AXIS_DRIVER_TYPE(E2,T))
 #define AXIS_DRIVER_TYPE_E3(T) (E_STEPPERS > 3 && _AXIS_DRIVER_TYPE(E3,T))
 #define AXIS_DRIVER_TYPE_E4(T) (E_STEPPERS > 4 && _AXIS_DRIVER_TYPE(E4,T))
 #define AXIS_DRIVER_TYPE_E5(T) (E_STEPPERS > 5 && _AXIS_DRIVER_TYPE(E5,T))
+#define AXIS_DRIVER_TYPE_E6(T) (E_STEPPERS > 6 && _AXIS_DRIVER_TYPE(E6,T))
+#define AXIS_DRIVER_TYPE_E7(T) (E_STEPPERS > 7 && _AXIS_DRIVER_TYPE(E7,T))
 
 #define AXIS_DRIVER_TYPE(A,T) AXIS_DRIVER_TYPE_##A(T)
 
 #define HAS_E_DRIVER(T) (  AXIS_DRIVER_TYPE_E0(T) || AXIS_DRIVER_TYPE_E1(T) \
                         || AXIS_DRIVER_TYPE_E2(T) || AXIS_DRIVER_TYPE_E3(T) \
-                        || AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) )
+                        || AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) \
+                        || AXIS_DRIVER_TYPE_E6(T) || AXIS_DRIVER_TYPE_E7(T) )
 
 #define HAS_DRIVER(T) (    AXIS_DRIVER_TYPE_X(T)  || AXIS_DRIVER_TYPE_X2(T) \
                         || AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Y2(T) \
-                        || AXIS_DRIVER_TYPE_Z(T)  || AXIS_DRIVER_TYPE_Z2(T) || AXIS_DRIVER_TYPE_Z3(T) \
+                        || AXIS_DRIVER_TYPE_Z(T)  || AXIS_DRIVER_TYPE_Z2(T) \
+                        || AXIS_DRIVER_TYPE_Z3(T) || AXIS_DRIVER_TYPE_Z4(T) \
                         || HAS_E_DRIVER(T) )
 
 // Test for supported TMC drivers that require advanced configuration
@@ -144,7 +153,8 @@
                           || AXIS_HAS_##T(Z3) \
                           || AXIS_HAS_##T(E0) || AXIS_HAS_##T(E1) \
                           || AXIS_HAS_##T(E2) || AXIS_HAS_##T(E3) \
-                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) )
+                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) \
+                          || AXIS_HAS_##T(E6) || AXIS_HAS_##T(E7) )
 
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)

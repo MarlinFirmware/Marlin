@@ -51,7 +51,7 @@ extern "C" {
 #define PA9  0 //TX
 #define PA10 1 //RX
 
-// WIFI
+// WIFI (USART2)
 #define PD3   2 // CTS
 #define PD4   3 // RTS
 #define PD5   4 // TX
@@ -183,15 +183,24 @@ extern "C" {
 #define USER_BTN                PE7
 
 // UART Definitions
-#define SERIAL_UART_INSTANCE    1 //Connected to ST-Link
+#define SERIAL_UART_INSTANCE    1 // Connected to ST-Link
+//#define SERIAL_UART_INSTANCE    2 // Connected to WIFI
 
 // Default pin used for 'Serial' instance (ex: ST-Link)
 // Mandatory for Firmata
-#define PIN_SERIAL_RX           PA10
-#define PIN_SERIAL_TX           PA9
+#if SERIAL_UART_INSTANCE == 1             // ST-Link & J23
+  #define PIN_SERIAL_RX         PA10
+  #define PIN_SERIAL_TX         PA9
+#elif SERIAL_UART_INSTANCE == 2         // WIFI interface
+  #define PIN_SERIAL2_RX        PD6
+  #define PIN_SERIAL2_TX        PD5
+#else
+  #error'Invaqlid setting for SERIAL_UART_INSTANCE'
+#endif
 
 // Timer Definitions
 #define TIMER_SERVO             TIM4  // TIMER_SERVO must be defined in this file
+#define TIMER_TONE              TIM5  // TIMER_TONE must be defined in this file
 
 /* SD detect signal */
 /*

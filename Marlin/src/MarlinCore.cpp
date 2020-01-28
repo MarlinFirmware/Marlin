@@ -182,6 +182,7 @@
 #endif
 
 const char NUL_STR[] PROGMEM = "",
+           M112_KILL_STR[] PROGMEM = "M112 Shutdown",
            G28_STR[] PROGMEM = "G28",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
@@ -824,6 +825,10 @@ void setup() {
 
   #if HAS_L64XX
     L64xxManager.init();  // Set up SPI, init drivers
+  #endif
+
+  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+    OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
   #endif
 
   #if ENABLED(MAX7219_DEBUG)

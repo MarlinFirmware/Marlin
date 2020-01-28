@@ -29,7 +29,7 @@ static const char errormagic[] PROGMEM = "Error:";
 static const char echomagic[]  PROGMEM = "echo:";
 
 #if NUM_SERIAL > 1
-  int8_t serial_port_index = SERIAL_PORT;
+  int8_t serial_port_index = 0;
 #endif
 
 void serialprintPGM(PGM_P str) {

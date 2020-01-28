@@ -49,7 +49,7 @@
 typedef enum : int8_t {
   INDEX_NONE = -5,
   H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_ind_t;
 
 // PID storage
@@ -131,6 +131,12 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_5
     PrepareTemp_5, MeasureTemp_5,
+  #endif
+  #if HAS_TEMP_ADC_6
+    PrepareTemp_6, MeasureTemp_6,
+  #endif
+  #if HAS_TEMP_ADC_7
+    PrepareTemp_7, MeasureTemp_7,
   #endif
   #if HAS_JOY_ADC_X
     PrepareJoy_X, MeasureJoy_X,
@@ -354,7 +360,7 @@ class Temperature {
       static bool inited;   // If temperature controller is running
     #endif
 
-    static volatile bool temp_meas_ready;
+    static volatile bool raw_temps_ready;
 
     #if WATCH_HOTENDS
       static heater_watch_t watch_hotend[HOTENDS];
@@ -711,7 +717,7 @@ class Temperature {
       static void setTargetChamber(const int16_t celsius) {
         temp_chamber.target =
           #ifdef CHAMBER_MAXTEMP
-            _MIN(celsius, CHAMBER_MAXTEMP)
+            _MIN(celsius, CHAMBER_MAXTEMP - 10)
           #else
             celsius
           #endif
@@ -799,7 +805,7 @@ class Temperature {
     #endif
 
   private:
-    static void set_current_temp_raw();
+    static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)

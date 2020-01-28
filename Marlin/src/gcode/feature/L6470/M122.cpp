@@ -115,6 +115,9 @@ void GcodeSuite::M122() {
   #if AXIS_IS_L64XX(Z3)
     L6470_say_status(Z3);
   #endif
+  #if AXIS_IS_L64XX(Z4)
+    L6470_say_status(Z4);
+  #endif
   #if AXIS_IS_L64XX(E0)
     L6470_say_status(E0);
   #endif

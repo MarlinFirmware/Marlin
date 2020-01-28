@@ -47,7 +47,7 @@ static byte current_to_wiper(const float current) {
   return byte(CEIL(float((DIGIPOT_I2C_FACTOR * current))));
 }
 
-static void i2c_send(const byte addr, const byte a, const byte b) {
+static void digipot_i2c_send(const byte addr, const byte a, const byte b) {
   #if MB(MKS_SBASE)
     digipot_mcp4451_start(addr);
     digipot_mcp4451_send_byte(a);
@@ -67,17 +67,17 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
   const byte addr = channel < 4 ? DIGIPOT_I2C_ADDRESS_A : DIGIPOT_I2C_ADDRESS_B; // channel 0-3 vs 4-7
 
   // Initial setup
-  i2c_send(addr, 0x40, 0xFF);
-  i2c_send(addr, 0xA0, 0xFF);
+  digipot_i2c_send(addr, 0x40, 0xFF);
+  digipot_i2c_send(addr, 0xA0, 0xFF);
 
   // Set actual wiper value
   byte addresses[4] = { 0x00, 0x10, 0x60, 0x70 };
-  i2c_send(addr, addresses[channel & 0x3], current_to_wiper(_MIN(float(_MAX(current, 0)), DIGIPOT_I2C_MAX_CURRENT)));
+  digipot_i2c_send(addr, addresses[channel & 0x3], current_to_wiper(_MIN(float(_MAX(current, 0)), DIGIPOT_I2C_MAX_CURRENT)));
 }
 
 void digipot_i2c_init() {
   #if MB(MKS_SBASE)
-    digipot_mcp4451_init();
+    configure_i2c(16); // Setting clock_option to 16 ensure the I2C bus is initialized at 400kHz
   #else
     Wire.begin();
   #endif

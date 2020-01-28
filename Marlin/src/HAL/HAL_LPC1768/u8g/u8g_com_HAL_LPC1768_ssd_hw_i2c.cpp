@@ -86,8 +86,6 @@
 #define I2C_CMD_MODE    0x000
 #define I2C_DATA_MODE   0x040
 
-//#define U8G_I2C_OPT_FAST 16
-
 uint8_t u8g_com_ssd_I2C_start_sequence(u8g_t *u8g) {
   /* are we requested to set the a0 state? */
   if (u8g->pin_list[U8G_PI_SET_A0] == 0) return 1;

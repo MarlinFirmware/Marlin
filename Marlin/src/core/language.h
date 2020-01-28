@@ -195,6 +195,8 @@
 #define MSG_Z2_MAX                          "z2_max"
 #define MSG_Z3_MIN                          "z3_min"
 #define MSG_Z3_MAX                          "z3_max"
+#define MSG_Z4_MIN                          "z4_min"
+#define MSG_Z4_MAX                          "z4_max"
 #define MSG_Z_PROBE                         "z_probe"
 #define MSG_FILAMENT_RUNOUT_SENSOR          "filament"
 #define MSG_PROBE_OFFSET                    "Probe Offset"
@@ -219,6 +221,10 @@
 #define MSG_SOFT_ENDSTOPS                   "Soft endstops: "
 #define MSG_SOFT_MIN                        "  Min: "
 #define MSG_SOFT_MAX                        "  Max: "
+
+#define MSG_SAVED_POS                       "Position saved"
+#define MSG_RESTORING_POS                   "Restoring position"
+#define MSG_INVALID_POS_SLOT                "Invalid slot. Total: "
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
@@ -333,6 +339,7 @@
 #define MSG_Y2 "Y2"
 #define MSG_Z2 "Z2"
 #define MSG_Z3 "Z3"
+#define MSG_Z4 "Z4"
 
 #define LCD_STR_A MSG_A
 #define LCD_STR_B MSG_B
@@ -356,6 +363,8 @@
   #define LCD_STR_N3 "3"
   #define LCD_STR_N4 "4"
   #define LCD_STR_N5 "5"
+  #define LCD_STR_N6 "6"
+  #define LCD_STR_N7 "7"
 #else
   #define LCD_FIRST_TOOL '1'
   #define LCD_STR_N0 "1"
@@ -364,6 +373,8 @@
   #define LCD_STR_N3 "4"
   #define LCD_STR_N4 "5"
   #define LCD_STR_N5 "6"
+  #define LCD_STR_N6 "7"
+  #define LCD_STR_N7 "8"
 #endif
 
 #define LCD_STR_E0 "E" LCD_STR_N0
@@ -372,6 +383,8 @@
 #define LCD_STR_E3 "E" LCD_STR_N3
 #define LCD_STR_E4 "E" LCD_STR_N4
 #define LCD_STR_E5 "E" LCD_STR_N5
+#define LCD_STR_E6 "E" LCD_STR_N6
+#define LCD_STR_E7 "E" LCD_STR_N7
 
 #include "multi_language.h"   // Allow multiple languages
 

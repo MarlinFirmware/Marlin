@@ -1,0 +1,23 @@
+#
+# label-pr.yml
+# Automatically close the PR if it's directed to a release branch
+#
+
+name: Apply Labels
+
+on:
+  pull_request:
+    branches:
+    - bugfix-1.1.x
+    - bugfix-2.0.x
+    - dev-2.1.x
+
+jobs:
+  apply_labels:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/labeler@v2
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"

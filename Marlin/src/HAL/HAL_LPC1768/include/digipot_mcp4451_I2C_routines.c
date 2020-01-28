@@ -20,8 +20,10 @@
  *
  */
 
-// adapted from  I2C/master/master.c example
-//   https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
+/**
+ * digipot_mcp4451_I2C_routines.c
+ * Adapted from https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
+ */
 
 #ifdef TARGET_LPC1768
 
@@ -29,11 +31,11 @@
 
 #if MB(MKS_SBASE)
 
-#include "digipot_mcp4451_I2C_routines.h"
-
 #ifdef __cplusplus
   extern "C" {
 #endif
+
+#include "digipot_mcp4451_I2C_routines.h"
 
 // These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
 // to the lpc17xx_i2c.c routines so had to copy them into this file & rename them.
@@ -60,7 +62,6 @@ static void _I2C_Stop(LPC_I2C_TypeDef *I2Cx) {
   I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 }
 
-PINSEL_CFG_Type PinCfg;
 I2C_M_SETUP_Type transferMCfg;
 
 #define I2C_status (LPC_I2C1->I2STAT & I2C_STAT_CODE_BITMASK)
@@ -87,41 +88,6 @@ uint8_t digipot_mcp4451_start(uint8_t sla) {  // send slave address and write bi
         && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK)) { /* wait for slaw to finish */ }
   } while ( (I2C_status == I2C_I2STAT_M_TX_DAT_ACK) || (I2C_status == I2C_I2STAT_M_TX_DAT_NACK));
   return 1;
-}
-
-void digipot_mcp4451_init() {
-  /**
-   * Init I2C pin connect
-   */
-  PinCfg.OpenDrain = 0;
-  PinCfg.Pinmode = 0;
-  #if USEDI2CDEV_M == 0
-    PinCfg.Funcnum = 1;
-    PinCfg.Pinnum = 27;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg); // SDA0 / D57  AUX-1
-    PinCfg.Pinnum = 28;
-    PINSEL_ConfigPin(&PinCfg); // SCL0 / D58  AUX-1
-  #elif USEDI2CDEV_M == 1
-    PinCfg.Funcnum = 3;
-    PinCfg.Pinnum = 0;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg);  // SDA1 / D20 SCA
-    PinCfg.Pinnum = 1;
-    PINSEL_ConfigPin(&PinCfg);  // SCL1 / D21 SCL
-  #elif USEDI2CDEV_M == 2
-    PinCfg.Funcnum = 2;
-    PinCfg.Pinnum = 10;
-    PinCfg.Portnum = 0;
-    PINSEL_ConfigPin(&PinCfg); // SDA2 / D38  X_ENABLE_PIN
-    PinCfg.Pinnum = 11;
-    PINSEL_ConfigPin(&PinCfg); // SCL2 / D55  X_DIR_PIN
-  #endif
-  // Initialize I2C peripheral
-  I2C_Init(I2CDEV_M, 400000);  // hardwired to 400KHz bit rate, 100KHz is the other option
-
-  // Enable Master I2C operation
-  I2C_Cmd(I2CDEV_M, I2C_MASTER_MODE, ENABLE);
 }
 
 uint8_t digipot_mcp4451_send_byte(uint8_t data) {

@@ -1,0 +1,18 @@
+# Add '@domain/core' label to any change within the 'core' package
+enhancement:
+  - .github
+
+# Add 'test' label to any change to *.spec.js files within the source dir
+"C: Motion":
+  - src/module/motion.*
+  - src/module/planner.*
+  - src/module/stepper.*
+
+"C: G-code Parser":
+  - src/gcode/**
+
+"PR: Configurations":
+  - config/examples/**
+
+"T: 32-Bit & HAL":
+  - src/HAL/**
