@@ -240,10 +240,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Piatto");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Camera");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventola");     // Max 15 characters
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola =");   // Max 15 characters
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. =");   // Max 15 characters
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola ~");   // Max 15 characters
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. ~");   // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent.");  // Max 15 characters
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. =");  // Max 15 characters
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. ~");  // Max 15 characters
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flusso");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flusso ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controllo");
@@ -255,14 +255,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seleziona");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seleziona *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
@@ -312,7 +304,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Schermata info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Schermata info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Regola");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Avvia stampa");
@@ -391,7 +383,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Ritrai BLTouch");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Ritrai Sonda-Z");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s prima");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset sonda Z");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Offsets sonda");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Offset X sonda");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Offset Y sonda");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset Z sonda");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");

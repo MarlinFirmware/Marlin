@@ -114,9 +114,8 @@ void menu_cancelobject();
       #if EXTRUDERS == 1
         EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
       #elif EXTRUDERS > 1
-        #define EDIT_ADVANCE_K(N) EDIT_ITEM_N(float52, N, MSG_ADVANCE_K_E, &planner.extruder_advance_K[N], 0, 999)
         for (uint8_t n = 0; n < EXTRUDERS; n++)
-          EDIT_ADVANCE_K(n);
+          EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
       #endif
     #endif
 
@@ -124,12 +123,10 @@ void menu_cancelobject();
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
       if (parser.volumetric_enabled) {
-        #if EXTRUDERS == 1
-          EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
-        #elif EXTRUDERS > 1
-          #define EDIT_FIL_DIAM(N) EDIT_ITEM_FAST_N(float43, N, MSG_FILAMENT_DIAM_E, &planner.filament_size[N], 1.5f, 3.25f, planner.calculate_volumetric_multipliers)
-          EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
-          for (uint8_t n = 0; n < EXTRUDERS; n++) EDIT_FIL_DIAM(n);
+        EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+        #if EXTRUDERS > 1
+          for (uint8_t n = 0; n < EXTRUDERS; n++)
+            EDIT_ITEM_FAST_N(float43, n, MSG_FILAMENT_DIAM_E, &planner.filament_size[n], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
     #endif
@@ -143,20 +140,16 @@ void menu_cancelobject();
         #endif
       ;
 
-      #if EXTRUDERS == 1
-        EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
-      #elif EXTRUDERS > 1
-        #define EDIT_FIL_UNLOAD(N) EDIT_ITEM_FAST_N(float3, N, MSG_FILAMENTUNLOAD_E, &fc_settings[N].unload_length, 0, extrude_maxlength)
-        EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
-        for (uint8_t n = 0; n < EXTRUDERS; n++) EDIT_FIL_UNLOAD(n);
+      EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
+      #if EXTRUDERS > 1
+        for (uint8_t n = 0; n < EXTRUDERS; n++)
+          EDIT_ITEM_FAST_N(float3, n, MSG_FILAMENTUNLOAD_E, &fc_settings[n].unload_length, 0, extrude_maxlength);
       #endif
 
-      #if EXTRUDERS == 1
-        EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
-      #elif EXTRUDERS > 1
-        #define EDIT_FIL_LOAD(N) EDIT_ITEM_FAST_N(float3, N, MSG_FILAMENTLOAD_E, &fc_settings[N].load_length, 0, extrude_maxlength)
-        EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
-        for (uint8_t n = 0; n < EXTRUDERS; n++) EDIT_FIL_LOAD(n);
+      EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
+      #if EXTRUDERS > 1
+        for (uint8_t n = 0; n < EXTRUDERS; n++)
+          EDIT_ITEM_FAST_N(float3, n, MSG_FILAMENTLOAD_E, &fc_settings[n].load_length, 0, extrude_maxlength);
       #endif
     #endif
 
@@ -252,6 +245,12 @@ void menu_cancelobject();
           DEFINE_PIDTEMP_FUNCS(4);
           #if HOTENDS > 5
             DEFINE_PIDTEMP_FUNCS(5);
+            #if HOTENDS > 6
+              DEFINE_PIDTEMP_FUNCS(6);
+              #if HOTENDS > 7
+                DEFINE_PIDTEMP_FUNCS(7);
+              #endif // HOTENDS > 7
+            #endif // HOTENDS > 6
           #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
@@ -307,7 +306,7 @@ void menu_cancelobject();
       #if ENABLED(PID_FAN_SCALING)
         #define _PID_EDIT_MENU_ITEMS(N) \
           _PID_BASE_MENU_ITEMS(N); \
-          EDIT_ITEM(float3, PID_LABEL(MSG_PID_F,N), &PID_PARAM(Kf, N), 1, 9990)
+          EDIT_ITEM_N(float3, N, MSG_PID_F_E, &PID_PARAM(Kf, N), 1, 9990)
       #else
         #define _PID_EDIT_MENU_ITEMS(N) _PID_BASE_MENU_ITEMS(N)
       #endif
@@ -337,6 +336,12 @@ void menu_cancelobject();
             PID_EDIT_MENU_ITEMS(4);
             #if HOTENDS > 5
               PID_EDIT_MENU_ITEMS(5);
+              #if HOTENDS > 6
+                PID_EDIT_MENU_ITEMS(6);
+                #if HOTENDS > 7
+                  PID_EDIT_MENU_ITEMS(7);
+                #endif // HOTENDS > 7
+              #endif // HOTENDS > 6
             #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
@@ -385,12 +390,12 @@ void menu_cancelobject();
     EDIT_VMAX(B);
     EDIT_VMAX(C);
 
-    #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_VMAX_E(N) EDIT_ITEM_FAST_N(float3, N, MSG_VMAX_EN, &planner.settings.max_feedrate_mm_s[E_AXIS_N(N)], 1, max_fr_edit_scaled.e)
+    #if E_STEPPERS
       EDIT_ITEM_FAST(float3, MSG_VMAX_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
-      for (uint8_t n = 0; n < E_STEPPERS; n++) EDIT_VMAX_E(n);
-    #elif E_STEPPERS
-      EDIT_ITEM_FAST(float3, MSG_VMAX_E, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, max_fr_edit_scaled.e);
+    #endif
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t n = 0; n < E_STEPPERS; n++)
+        EDIT_ITEM_FAST_N(float3, n, MSG_VMAX_EN, &planner.settings.max_feedrate_mm_s[E_AXIS_N(n)], 1, max_fr_edit_scaled.e);
     #endif
 
     // M205 S Min Feedrate
@@ -434,15 +439,14 @@ void menu_cancelobject();
     #endif
 
     #define EDIT_AMAX(Q,L) EDIT_ITEM_FAST(long5_25, MSG_AMAX_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], []{ planner.reset_acceleration_rates(); })
-
     EDIT_AMAX(A,100);
     EDIT_AMAX(B,100);
     EDIT_AMAX(C, 10);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_AMAX_E(N) EDIT_ITEM_FAST_N(long5_25, N, MSG_AMAX_EN, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(N)], 100, max_accel_edit_scaled.e, []{ _reset_e_acceleration_rate(MenuItemBase::itemIndex); })
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
-      for (uint8_t n = 0; n < E_STEPPERS; n++) EDIT_AMAX_E(n);
+      for (uint8_t n = 0; n < E_STEPPERS; n++)
+        EDIT_ITEM_FAST_N(long5_25, n, MSG_AMAX_EN, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(n)], 100, max_accel_edit_scaled.e, []{ _reset_e_acceleration_rate(MenuItemBase::itemIndex); });
     #elif E_STEPPERS
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
     #endif
@@ -488,28 +492,40 @@ void menu_cancelobject();
     END_MENU();
   }
 
-  // M92 Steps-per-mm
-  void menu_advanced_steps_per_mm() {
-    START_MENU();
-    BACK_ITEM(MSG_ADVANCED_SETTINGS);
-
-    #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
-    EDIT_QSTEPS(A);
-    EDIT_QSTEPS(B);
-    EDIT_QSTEPS(C);
-
-    #if ENABLED(DISTINCT_E_FACTORS)
-      #define EDIT_ESTEPS(N) EDIT_ITEM_FAST_N(float51, N, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(N)], 5, 9999, []{ _planner_refresh_e_positioning(MenuItemBase::itemIndex); })
-      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, []{ planner.refresh_positioning(); });
-      for (uint8_t n = 0; n < E_STEPPERS; n++) EDIT_ESTEPS(n);
-    #elif E_STEPPERS
-      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
-    #endif
-
-    END_MENU();
-  }
+  // M851 - Z Probe Offsets
+  #if HAS_BED_PROBE
+    void menu_probe_offsets() {
+      START_MENU();
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
+      EDIT_ITEM(float51sign, MSG_ZPROBE_XOFFSET, &probe_offset.x, -(X_BED_SIZE), X_BED_SIZE);
+      EDIT_ITEM(float51sign, MSG_ZPROBE_YOFFSET, &probe_offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
+      EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      END_MENU();
+    }
+  #endif
 
 #endif // !SLIM_LCD_MENUS
+
+// M92 Steps-per-mm
+void menu_advanced_steps_per_mm() {
+  START_MENU();
+  BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+  #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
+  EDIT_QSTEPS(A);
+  EDIT_QSTEPS(B);
+  EDIT_QSTEPS(C);
+
+  #if ENABLED(DISTINCT_E_FACTORS)
+    EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, []{ planner.refresh_positioning(); });
+    for (uint8_t n = 0; n < E_STEPPERS; n++)
+      EDIT_ITEM_FAST_N(float51, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{ _planner_refresh_e_positioning(MenuItemBase::itemIndex); });
+  #elif E_STEPPERS
+    EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
+  #endif
+
+  END_MENU();
+}
 
 void menu_advanced_settings() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
@@ -536,11 +552,16 @@ void menu_advanced_settings() {
     // M205 - Max Jerk
     SUBMENU(MSG_JERK, menu_advanced_jerk);
 
-    if (!printer_busy()) {
-      // M92 - Steps Per mm
-      SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
-    }
+    // M851 - Z Probe Offsets
+    #if HAS_BED_PROBE
+      if (!printer_busy())
+        SUBMENU(MSG_ZPROBE_OFFSETS, menu_probe_offsets);
+    #endif
   #endif // !SLIM_LCD_MENUS
+
+  // M92 - Steps Per mm
+  if (!printer_busy())
+    SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
 
   #if ENABLED(BACKLASH_GCODE)
     SUBMENU(MSG_BACKLASH, menu_backlash);
@@ -571,8 +592,8 @@ void menu_advanced_settings() {
     #if EXTRUDERS == 1
       EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      #define EDIT_ADVANCE_K(N) EDIT_ITEM_N(float52, N, MSG_ADVANCE_K_E, &planner.extruder_advance_K[N], 0, 999)
-      for (uint8_t n = 0; n < E_STEPPERS; n++) EDIT_ADVANCE_K(n);
+      for (uint8_t n = 0; n < E_STEPPERS; n++)
+        EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
   #endif
 

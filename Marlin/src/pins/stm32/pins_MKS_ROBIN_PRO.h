@@ -251,7 +251,7 @@
     #define DOGLCD_SCK     PB13
     #define DOGLCD_MOSI    PB15
 
-  #else // !MKS_MINI_12864
+  #else // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
     #define LCD_PINS_D4    PF14
     #if ENABLED(ULTIPANEL)
@@ -260,7 +260,7 @@
       #define LCD_PINS_D7  PF13
     #endif
 
-  #endif // !MKS_MINI_12864
+  #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 #endif
 
 #ifndef ST7920_DELAY_1

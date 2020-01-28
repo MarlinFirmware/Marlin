@@ -55,7 +55,7 @@ void HAL_adc_init() {
 
 }
 
-void HAL_adc_enable_channel(int ch) {
+void HAL_adc_enable_channel(const uint8_t ch) {
 
 }
 

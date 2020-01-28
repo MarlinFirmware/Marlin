@@ -31,7 +31,7 @@
 
 #include "MarlinSerial.h"
 #include "InterruptVectors.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_r MarlinSerial<Cfg>::rx_buffer = { 0, 0, { 0 } };
 template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_t MarlinSerial<Cfg>::tx_buffer = { 0 };

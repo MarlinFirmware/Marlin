@@ -83,7 +83,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" Дюза ~");
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" Легло");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Вентилатор");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Вентилатор =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Вентилатор ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Поток");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Поток ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Управление");
@@ -112,7 +112,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Зареди от EPROM");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Фабрични настройки");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Обнови");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Преглед");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Преглед");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Действия");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Настройка");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Пауза");

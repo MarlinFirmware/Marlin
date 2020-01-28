@@ -78,13 +78,10 @@
   #define MSerial5  Serial4
 #endif
 
-#if !WITHIN(SERIAL_PORT, -1, 5)
-  #error "SERIAL_PORT must be from -1 to 5"
-#endif
-#if SERIAL_PORT == -1
+#if SERIAL_PORT == 0
+  #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+#elif SERIAL_PORT == -1
   #define MYSERIAL0 UsbSerial
-#elif SERIAL_PORT == 0
-  #error "Serial port 0 does not exist"
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
@@ -95,19 +92,17 @@
   #define MYSERIAL0 MSerial4
 #elif SERIAL_PORT == 5
   #define MYSERIAL0 MSerial5
+#else
+  #error "SERIAL_PORT must be from -1 to 5. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 5)
-    #error "SERIAL_PORT_2 must be from -1 to 5"
+  #if SERIAL_PORT_2 == 0
+    #error "SERIAL_PORT_2 cannot be 0. (Port 0 does not exist.) Please update your configuration."
   #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
-  #endif
-  #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == -1
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
+  #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 UsbSerial
-  #elif SERIAL_PORT_2 == 0
-  #error "Serial port 0 does not exist"
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 MSerial1
   #elif SERIAL_PORT_2 == 2
@@ -118,10 +113,38 @@
     #define MYSERIAL1 MSerial4
   #elif SERIAL_PORT_2 == 5
     #define MYSERIAL1 MSerial5
+  #else
+    #error "SERIAL_PORT_2 must be from -1 to 5. Please update your configuration."
   #endif
+  #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1
 #endif
+
+#ifdef DGUS_SERIAL
+  #if DGUS_SERIAL_PORT == 0
+    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+  #elif DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL UsbSerial
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL MSerial1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL MSerial2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL MSerial3
+  #elif DGUS_SERIAL_PORT == 4
+    #define DGUS_SERIAL MSerial4
+  #elif DGUS_SERIAL_PORT == 5
+    #define DGUS_SERIAL MSerial5
+  #else
+    #error "DGUS_SERIAL_PORT must be from -1 to 5. Please update your configuration."
+  #endif
+#endif
+
 
 // Set interrupt grouping for this MCU
 void HAL_init();

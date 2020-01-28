@@ -25,32 +25,31 @@
 
 /**
  * Limit Switches
- *
- * For Stallguard homing to max swap the min / max pins so
- * the MAX physical connectors can be used for other things.
  */
-#if X_HOME_DIR == -1 || !X_STALL_SENSITIVITY
+#if X_HOME_DIR > 0 && X_STALL_SENSITIVITY && !defined(USE_XMAX_PLUG)
+  // For StallGuard homing to MAX swap the MIN / MAX pins
+  // so the MAX physical connectors may be used for other things.
+  #define X_MIN_PIN          P1_28   // X_MAX (free)
+  #define X_MAX_PIN          P1_29   // X_MIN
+#else                                // else, non-endstop is free and appears in M43 output
   #define X_MIN_PIN          P1_29   // X_MIN
   #define X_MAX_PIN          P1_28   // X_MAX
-#else
-  #define X_MIN_PIN          P1_28   // X_MAX
-  #define X_MAX_PIN          P1_29   // X_MIN
 #endif
 
-#if Y_HOME_DIR == -1 || !Y_STALL_SENSITIVITY
+#if Y_HOME_DIR > 0 && Y_STALL_SENSITIVITY && !defined(USE_YMAX_PLUG)
+  #define Y_MIN_PIN          P1_26   // Y_MAX (free)
+  #define Y_MAX_PIN          P1_27   // Y_MIN
+#else
   #define Y_MIN_PIN          P1_27   // Y_MIN
   #define Y_MAX_PIN          P1_26   // Y_MAX
-#else
-  #define Y_MIN_PIN          P1_26   // Y_MAX
-  #define Y_MAX_PIN          P1_27   // Y_MIN
 #endif
 
-#if Z_HOME_DIR == -1 || !Z_STALL_SENSITIVITY
+#if Z_HOME_DIR > 0 && Z_STALL_SENSITIVITY && !defined(USE_ZMAX_PLUG)
+  #define Z_MIN_PIN          P1_24   // Z_MAX (free)
+  #define Z_MAX_PIN          P1_25   // Z_MIN
+#else
   #define Z_MIN_PIN          P1_25   // Z_MIN
   #define Z_MAX_PIN          P1_24   // Z_MAX
-#else
-  #define Z_MIN_PIN          P1_24   // Z_MAX
-  #define Z_MAX_PIN          P1_25   // Z_MIN
 #endif
 
 #define ONBOARD_ENDSTOPPULLUPS     // Board has built-in pullups
@@ -271,11 +270,35 @@
     #else // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
+
         #define DOGLCD_CS    P1_21
         #define DOGLCD_A0    P1_22
         #define DOGLCD_SCK   P0_15
         #define DOGLCD_MOSI  P0_18
+
+      #elif ENABLED(ENDER2_STOCKDISPLAY)
+
+        /**
+         * Creality Ender-2 display pinout
+         *                   _____
+         *               5V | · · | GND
+         *     (MOSI) P1_23 | · · | P1_22 (LCD_CS)
+         *   (LCD_A0) P1_21 | · · | P1_20 (BTN_EN2)
+         *      RESET P1.19 | · · | P1_18 (BTN_EN1)
+         *  (BTN_ENC) P0_28 | · · | P1_30 (SCK)
+         *                   -----
+         *                    EXP1
+         */
+
+        #define BTN_EN1      P1_18
+        #define BTN_EN2      P1_20
+        #define BTN_ENC      P0_28
+        #define DOGLCD_CS    P1_22
+        #define DOGLCD_A0    P1_21
+        #define DOGLCD_SCK   P1_30
+        #define DOGLCD_MOSI  P1_23
         #define FORCE_SOFT_SPI
+        #define LCD_BACKLIGHT_PIN -1
       #endif
 
       #if ENABLED(ULTIPANEL)

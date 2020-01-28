@@ -92,7 +92,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Сопло ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Стіл");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Охолодж.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Охолодж. =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Охолодж. ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Потік");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Потік ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Налаштування");
@@ -102,14 +102,6 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Автотемпер.");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Увімк.");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Вимк.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Вибрати");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Вибрати *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Приск.");
@@ -149,7 +141,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Зчитати з ПЗП");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Відновити базові");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Поновити");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Інформація");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Інформація");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Підготувати");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Підлаштування");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Призупинити друк");

@@ -29,31 +29,39 @@
 
 #define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
-#define SRAM_EEPROM_EMULATION
+// Use one of these or SDCard-based Emulation will be used
+//#define SRAM_EEPROM_EMULATION   // Use BackSRAM-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION  // Use Flash-based EEPROM emulation
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
-// Servos
-//
-#define SERVO0_PIN         PC3
-
-//
 // Limit Switches
 //
-#define X_MIN_PIN          PD3
-#define X_MAX_PIN          PD3
-#define Y_MIN_PIN          PD2
-#define Y_MAX_PIN          PD2
-#define Z_MIN_PIN          PD1
-#define Z_MAX_PIN          PD1
+#define X_STOP_PIN         PD3
+#define Y_STOP_PIN         PD2
+#define Z_STOP_PIN         PD1   // Shares J4 connector with PC3
 
 //
-// Z Probe must be this pins  ##
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  PD1
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA15
+#endif
+
+//
+// Power Loss Detection
+//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN   PD4
 #endif
 
 //
@@ -143,19 +151,20 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // T1 <-> E0
-#define TEMP_1_PIN         PA1   // T2 <-> E1
-#define TEMP_BED_PIN       PA2   // T0 <-> Bed
+#define TEMP_0_PIN         PA2   // T0 <-> E0
+#define TEMP_1_PIN         PA0   // T1 <-> E1
+#define TEMP_BED_PIN       PA1   // T2 <-> Bed
+#define TEMP_PROBE_PIN     PC3   // Shares J4 connector with PD1
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       PE6   // Heater0
 #define HEATER_BED_PIN     PE5   // Hotbed
-#define FAN_PIN            PB9   // Fan0
-#define FAN1_PIN           PB8   // Fan1
+#define FAN_PIN            PB8   // Fan1
+#define FAN1_PIN           PB9   // Fan0
 
-// HAL SPI1 pins 
+// HAL SPI1 pins
 #define CUSTOM_SPI_PINS
 #if ENABLED(CUSTOM_SPI_PINS)
   #define SCK_PIN          PA5   // SPI1 SCLK
@@ -226,3 +235,19 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// RGB LEDs
+//
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN    PB5
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN    PB4
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN    PB3
+#endif
+#ifndef RGB_LED_W_PIN
+  #define RGB_LED_W_PIN    -1
+#endif
