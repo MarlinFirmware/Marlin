@@ -83,7 +83,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" Дюза ~");
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" Легло");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Вентилатор");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Вентилатор =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Вентилатор ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Поток");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Поток ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Управление");

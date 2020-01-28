@@ -48,8 +48,6 @@
   #define MACHINE_NAME "STEVAL-3DP001V1"
 #endif
 
-#define TIMER_TONE  5
-
 //
 // Limit Switches
 //

@@ -67,6 +67,8 @@
  * G34  - Z Stepper automatic alignment using probe: I<iterations> T<accuracy> A<amplification> (Requires Z_STEPPER_AUTO_ALIGN)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G60  - Save current position. (Requires SAVED_POSITIONS)
+ * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
  * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
@@ -228,7 +230,8 @@
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
- * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops (Requires [XYZ]_DUAL_ENDSTOPS).
+ * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
+ * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
@@ -468,6 +471,11 @@ private:
 
   #if ENABLED(PROBE_TEMP_COMPENSATION)
     static void G76();
+  #endif
+
+  #if SAVED_POSITIONS
+    static void G60();
+    static void G61();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
@@ -848,6 +856,10 @@ private:
 
   #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
     static void M666();
+  #endif
+
+  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+    static void M672();
   #endif
 
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)

@@ -72,6 +72,12 @@ void setup_endstop_interrupts() {
   #if HAS_Z3_MIN
     _ATTACH(Z3_MIN_PIN);
   #endif
+  #if HAS_Z4_MAX
+    _ATTACH(Z4_MAX_PIN);
+  #endif
+  #if HAS_Z4_MIN
+    _ATTACH(Z4_MIN_PIN);
+  #endif
   #if HAS_Z_MIN_PROBE_PIN
     _ATTACH(Z_MIN_PROBE_PIN);
   #endif

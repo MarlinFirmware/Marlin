@@ -65,6 +65,12 @@ extern bool relative_mode;
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  extern uint8_t saved_slots;
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+#endif
+
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
 

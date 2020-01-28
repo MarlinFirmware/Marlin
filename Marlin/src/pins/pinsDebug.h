@@ -137,31 +137,33 @@ const PinInfo pin_array[] PROGMEM = {
     #endif
   #endif
 
-  #if SERIAL_PORT_2 == 0
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_0, 0, true },
-      { TXD_NAME_0, 1, true },
-    #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME_0, 8, true },
-      { TXD_NAME_0, 9, true },
-    #endif
-  #elif SERIAL_PORT_2 == 1
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_1, 19, true },
-      { TXD_NAME_1, 18, true },
-    #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME_1, 10, true },
-      { TXD_NAME_1, 11, true },
-    #endif
-  #elif SERIAL_PORT_2 == 2
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_2, 17, true },
-      { TXD_NAME_2, 16, true },
-    #endif
-  #elif SERIAL_PORT_2 == 3
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_3, 15, true },
-      { TXD_NAME_3, 14, true },
+  #ifdef SERIAL_PORT_2
+    #if SERIAL_PORT_2 == 0
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_0, 0, true },
+        { TXD_NAME_0, 1, true },
+      #elif AVR_ATmega1284_FAMILY
+        { RXD_NAME_0, 8, true },
+        { TXD_NAME_0, 9, true },
+      #endif
+    #elif SERIAL_PORT_2 == 1
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_1, 19, true },
+        { TXD_NAME_1, 18, true },
+      #elif AVR_ATmega1284_FAMILY
+        { RXD_NAME_1, 10, true },
+        { TXD_NAME_1, 11, true },
+      #endif
+    #elif SERIAL_PORT_2 == 2
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_2, 17, true },
+        { TXD_NAME_2, 16, true },
+      #endif
+    #elif SERIAL_PORT_2 == 3
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_3, 15, true },
+        { TXD_NAME_3, 14, true },
+      #endif
     #endif
   #endif
 
