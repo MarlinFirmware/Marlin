@@ -857,7 +857,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #if ENABLED(MIXING_EXTRUDER)
 
   /**
-   * Mixing steppers synchronize their enable (and direction) together
+   * Mixing steppers keep all their enable (and direction) states synchronized
    */
   #if MIXING_STEPPERS > 7
     #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2();  ENABLE_STEPPER_E3();  ENABLE_STEPPER_E4();  ENABLE_STEPPER_E5();  ENABLE_STEPPER_E6();  ENABLE_STEPPER_E7(); }
@@ -881,85 +881,125 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1(); }
     #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); }
   #endif
-  #define  ENABLE_AXIS_E1() NOOP
-  #define DISABLE_AXIS_E1() NOOP
-  #define  ENABLE_AXIS_E2() NOOP
-  #define DISABLE_AXIS_E2() NOOP
-  #define  ENABLE_AXIS_E3() NOOP
-  #define DISABLE_AXIS_E3() NOOP
-  #define  ENABLE_AXIS_E4() NOOP
-  #define DISABLE_AXIS_E4() NOOP
-  #define  ENABLE_AXIS_E5() NOOP
-  #define DISABLE_AXIS_E5() NOOP
-  #define  ENABLE_AXIS_E6() NOOP
-  #define DISABLE_AXIS_E6() NOOP
-  #define  ENABLE_AXIS_E7() NOOP
-  #define DISABLE_AXIS_E7() NOOP
-
-#else // !MIXING_EXTRUDER
-
-  #if HAS_E0_ENABLE
-    #define  ENABLE_AXIS_E0() ENABLE_STEPPER_E0()
-    #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
-  #else
-    #define  ENABLE_AXIS_E0() NOOP
-    #define DISABLE_AXIS_E0() NOOP
-  #endif
-
-  #if E_STEPPERS > 1 && HAS_E1_ENABLE
-    #define  ENABLE_AXIS_E1() ENABLE_STEPPER_E1()
-    #define DISABLE_AXIS_E1() DISABLE_STEPPER_E1()
-  #else
-    #define  ENABLE_AXIS_E1() NOOP
-    #define DISABLE_AXIS_E1() NOOP
-  #endif
-
-  #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define  ENABLE_AXIS_E2() ENABLE_STEPPER_E2()
-    #define DISABLE_AXIS_E2() DISABLE_STEPPER_E2()
-  #else
-    #define  ENABLE_AXIS_E2() NOOP
-    #define DISABLE_AXIS_E2() NOOP
-  #endif
-
-  #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define  ENABLE_AXIS_E3() ENABLE_STEPPER_E3()
-    #define DISABLE_AXIS_E3() DISABLE_STEPPER_E3()
-  #else
-    #define  ENABLE_AXIS_E3() NOOP
-    #define DISABLE_AXIS_E3() NOOP
-  #endif
-
-  #if E_STEPPERS > 4 && HAS_E4_ENABLE
-    #define  ENABLE_AXIS_E4() ENABLE_STEPPER_E4()
-    #define DISABLE_AXIS_E4() DISABLE_STEPPER_E4()
-  #else
-    #define  ENABLE_AXIS_E4() NOOP
-    #define DISABLE_AXIS_E4() NOOP
-  #endif
-
-  #if E_STEPPERS > 5 && HAS_E5_ENABLE
-    #define  ENABLE_AXIS_E5() ENABLE_STEPPER_E5()
-    #define DISABLE_AXIS_E5() DISABLE_STEPPER_E5()
-  #else
-    #define  ENABLE_AXIS_E5() NOOP
-    #define DISABLE_AXIS_E5() NOOP
-  #endif
-
-  #if E_STEPPERS > 6 && HAS_E6_ENABLE
-    #define  ENABLE_AXIS_E6() ENABLE_STEPPER_E6()
-    #define DISABLE_AXIS_E6() DISABLE_STEPPER_E6()
-  #else
-    #define  ENABLE_AXIS_E6() NOOP
-    #define DISABLE_AXIS_E6() NOOP
-  #endif
-
-  #if E_STEPPERS > 7 && HAS_E7_ENABLE
-    #define  ENABLE_AXIS_E7() ENABLE_STEPPER_E7()
-    #define DISABLE_AXIS_E7() DISABLE_STEPPER_E7()
-  #else
-    #define  ENABLE_AXIS_E7() NOOP
-    #define DISABLE_AXIS_E7() NOOP
-  #endif
 
 #endif // !MIXING_EXTRUDER
+
+#ifndef ENABLE_AXIS_E0
+  #if E_STEPPERS > 0 && HAS_E0_ENABLE
+    #define  ENABLE_AXIS_E0() ENABLE_STEPPER_E0()
+  #else
+    #define  ENABLE_AXIS_E0() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E0
+  #if E_STEPPERS > 0 && HAS_E0_DISABLE
+    #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
+  #else
+    #define DISABLE_AXIS_E0() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E1
+  #if E_STEPPERS > 1 && HAS_E1_ENABLE
+    #define  ENABLE_AXIS_E1() ENABLE_STEPPER_E1()
+  #else
+    #define  ENABLE_AXIS_E1() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E1
+  #if E_STEPPERS > 1 && HAS_E1_DISABLE
+    #define DISABLE_AXIS_E1() DISABLE_STEPPER_E1()
+  #else
+    #define DISABLE_AXIS_E1() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E2
+  #if E_STEPPERS > 2 && HAS_E2_ENABLE
+    #define  ENABLE_AXIS_E2() ENABLE_STEPPER_E2()
+  #else
+    #define  ENABLE_AXIS_E2() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E2
+  #if E_STEPPERS > 2 && HAS_E2_DISABLE
+    #define DISABLE_AXIS_E2() DISABLE_STEPPER_E2()
+  #else
+    #define DISABLE_AXIS_E2() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E3
+  #if E_STEPPERS > 3 && HAS_E3_ENABLE
+    #define  ENABLE_AXIS_E3() ENABLE_STEPPER_E3()
+  #else
+    #define  ENABLE_AXIS_E3() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E3
+  #if E_STEPPERS > 3 && HAS_E3_DISABLE
+    #define DISABLE_AXIS_E3() DISABLE_STEPPER_E3()
+  #else
+    #define DISABLE_AXIS_E3() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E4
+  #if E_STEPPERS > 4 && HAS_E4_ENABLE
+    #define  ENABLE_AXIS_E4() ENABLE_STEPPER_E4()
+  #else
+    #define  ENABLE_AXIS_E4() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E4
+  #if E_STEPPERS > 4 && HAS_E4_DISABLE
+    #define DISABLE_AXIS_E4() DISABLE_STEPPER_E4()
+  #else
+    #define DISABLE_AXIS_E4() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E5
+  #if E_STEPPERS > 5 && HAS_E5_ENABLE
+    #define  ENABLE_AXIS_E5() ENABLE_STEPPER_E5()
+  #else
+    #define  ENABLE_AXIS_E5() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E5
+  #if E_STEPPERS > 5 && HAS_E5_DISABLE
+    #define DISABLE_AXIS_E5() DISABLE_STEPPER_E5()
+  #else
+    #define DISABLE_AXIS_E5() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E6
+  #if E_STEPPERS > 6 && HAS_E6_ENABLE
+    #define  ENABLE_AXIS_E6() ENABLE_STEPPER_E6()
+  #else
+    #define  ENABLE_AXIS_E6() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E6
+  #if E_STEPPERS > 6 && HAS_E6_DISABLE
+    #define DISABLE_AXIS_E6() DISABLE_STEPPER_E6()
+  #else
+    #define DISABLE_AXIS_E6() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_AXIS_E7
+  #if E_STEPPERS > 7 && HAS_E7_ENABLE
+    #define  ENABLE_AXIS_E7() ENABLE_STEPPER_E7()
+  #else
+    #define  ENABLE_AXIS_E7() NOOP
+  #endif
+#endif
+#ifndef DISABLE_AXIS_E7
+  #if E_STEPPERS > 7 && HAS_E7_DISABLE
+    #define DISABLE_AXIS_E7() DISABLE_STEPPER_E7()
+  #else
+    #define DISABLE_AXIS_E7() NOOP
+  #endif
+#endif
