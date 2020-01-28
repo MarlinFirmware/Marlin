@@ -67,6 +67,8 @@
  * G34  - Z Stepper automatic alignment using probe: I<iterations> T<accuracy> A<amplification> (Requires Z_STEPPER_AUTO_ALIGN)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G60  - Save current position. (Requires SAVED_POSITIONS)
+ * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
  * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
@@ -469,6 +471,11 @@ private:
 
   #if ENABLED(PROBE_TEMP_COMPENSATION)
     static void G76();
+  #endif
+
+  #if SAVED_POSITIONS
+    static void G60();
+    static void G61();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
