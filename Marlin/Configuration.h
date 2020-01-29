@@ -124,7 +124,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000
+#define BAUDRATE 115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -132,15 +132,16 @@
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   //#define MOTHERBOARD BOARD_RAMPS_13_EFB
-  #define MOTHERBOARD BOARD_TRIGORILLA_14
+  //#define MOTHERBOARD BOARD_TRIGORILLA_14
   // Only define ANYCUBIC_4MAX in combination with BOARD_TRIGORILLA_14
-  #define ANYCUBIC_4MAX
+  //#define ANYCUBIC_4MAX
+  #define MOTHERBOARD BOARD_BIGTREE_SKR_V1_4_TURBO
 
   // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
   //#define ANYCUBIC_4MAX_VG3R
   //#define ANYCUBIC_4MAX_7OF9
-  #define ANYCUBIC_4MAX_DEFAULT
-
+  //#define ANYCUBIC_4MAX_DEFAULT
+  #define ANYCUBIC_4MAX_SKR_1_4
 // TMC2208 with UART where TX is on SERVO0_PIN and RX is on PS_ON_PIN
 // Info: Just for Testing.
 // My Test-Result: Working! But it seems that TMC2208 on E0 makes other steppers Like X and Y motors to loose steps!
@@ -148,7 +149,7 @@
 
 #endif
 
-#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
+#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT,ANYCUBIC_4MAX_SKR_1_4)
   #error "No default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
 #elif ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9 ) || \
       ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_DEFAULT) || \
@@ -160,6 +161,12 @@
   //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_DEFAULT\"" )
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    #undef SERIAL_PORT
+    #undef SERIAL_PORT_2
+    #define SERIAL_PORT 0
+    #define SERIAL_PORT_2 -1
+    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_SKR_1_4\"" )
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -553,6 +560,19 @@
   #define DEFAULT_Ki 1.08
   #define DEFAULT_Kd 114
   // Save/change with: M301 E0 P22.2 I1.08 D114;
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  // 4MAX with PID Autotune
+  // my 4MAX Printer: 7of9 - PID - Hotend with silicone heater cover
+  //
+  //  Measurement#:   1       2       3       4
+  //  Degrees °C:     S235    S235    S220    S250   ~235
+  //  noozle_Kp:      19.30   18.12   18.33   18.26  ~18.5025
+  //  noozle_Ki:      1.38    1.26    1.28    1.24   ~1.29
+  //  noozle_Kd:      67.59   65.31   65.68   67.32  ~66.475
+  #define DEFAULT_Kp 18.50
+  #define DEFAULT_Ki 1.29
+  #define DEFAULT_Kd 66.47
+  // Or save/change with: M301 E0 P18.50 I1.29 D66.47;
 
 #endif
 
@@ -631,6 +651,19 @@
     #define  DEFAULT_bedKi .023
     #define  DEFAULT_bedKd 305.4
     // Save/change with: M304 P10.00 I0.023 D305.4
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    // 4MAX with PID Autotune - my 4MAX Printer: 7of9 - PID - BED
+    //
+    //  Autotuned with command: M303 E-1 S90 C8
+    //  Measurement #: 1       2       3       4
+    //  Degrees°C:     S90     S90     S60     S60     ~ 75
+    //  bedKp:         126.18  119.52  70.09   75.08   ~ 97.72
+    //  bedKi:         24.45   23.54   13.16   14.32   ~ 18.87
+    //  bedKd:         434.11  404.67  248.76  262.42  ~ 337.49
+    #define DEFAULT_bedKp 119.52  //#2
+    #define DEFAULT_bedKi 23.54   //#2
+    #define DEFAULT_bedKd 404.67  //#2
+    // Or save/change with: M304 P119.52 I23.54 D404.67
   #endif
 
 #endif // PIDTEMPBED
@@ -744,7 +777,8 @@
   #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true // Set to true to invert the logic of the probe.
-#else // ANYCUBIC_4MAX_DEFAULT - check if this is really the default!
+#elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
+  // - check if this is really the default!
   #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
@@ -752,6 +786,14 @@
   #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
   //#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // Set to true to invert the logic of the probe.
 #endif
 /**
  * Stepper Drivers
@@ -851,6 +893,9 @@
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  // my 4MAX Printer: 7of9 - Steps - Filament
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.12018, 80.10413, 397.14058, 98.73 }
 #endif
 
 
@@ -1095,6 +1140,10 @@
   #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -2.94 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  // my 4MAX Printer: 7of9 - Offset
+  //#define NOZZLE_TO_PROBE_OFFSET { 32.77, 0, -0.96 }
+  #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -2.94 }
 #endif
 
 // Certain types of probes need to stay away from edges
@@ -1641,7 +1690,7 @@
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #if ENABLED(EEPROM_SETTINGS)
-  //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
+  #define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
 #endif
 
 //
@@ -2320,7 +2369,7 @@
 // @section extras
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
-#define FAST_PWM_FAN
+// #define FAST_PWM_FAN
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
@@ -2441,12 +2490,17 @@
  * Set this manually if there are extra servos needing manual control.
  * Leave undefined or set to 0 to entirely disable the servo subsystem.
  */
-#define NUM_SERVOS 4 // Servo index starts with 0 for M280 command
-
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define NUM_SERVOS 4 // Servo index starts with 0 for M280 command
+#endif
 // (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY { 300,300,300,300}
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define SERVO_DELAY { 300,300,300,300}
+#else
+  #define SERVO_DELAY { 300}
+#endif
 
 // Only power servos during movement, otherwise leave off to prevent jitter
 //#define DEACTIVATE_SERVOS_AFTER_MOVE

@@ -24,7 +24,7 @@
 
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "../../gcode.h"
-  
+
   #include "../../../feature/controllerfan.h"
 
   /**
@@ -71,16 +71,17 @@
        SERIAL_ECHOLNPGM("\nM710 - Controller Fan - Current Settings: ");
        serial_echopair_PGM( PSTR("Fan Speed: "), (float) (fanController.settings_fan.controllerFan_Speed / 2.55) );
        serial_echopair_PGM( PSTR("% (Raw: "), (unsigned int) fanController.settings_fan.controllerFan_Speed);
-       SERIAL_CHAR(")\n");
+       SERIAL_ECHOPGM(")\n");
        serial_echopair_PGM( PSTR("Fan Idle Speed: "), (float) (fanController.settings_fan.controllerFan_Idle_Speed / 2.55) );
        serial_echopair_PGM( PSTR("% (Raw: "), (unsigned int) fanController.settings_fan.controllerFan_Idle_Speed);
-       SERIAL_CHAR(")\n");
+       SERIAL_ECHOPGM(")\n");
        SERIAL_ECHOPGM("Fan Auto Mode: "); serialprint_onoff(fanController.settings_fan.controllerFan_AutoMode);
-       SERIAL_CHAR('\n');
+       SERIAL_ECHOPGM("\n");
        serial_echopair_PGM( PSTR("Fan Switch off Delay: ") , (float) (fanController.settings_fan.controllerFan_Duration / 60.00 ) );
        serial_echopair_PGM( fanController.settings_fan.controllerFan_Duration >= 60 ? PSTR(" Minutes (RAW: ") : PSTR(" Seconds: " ),
                             (unsigned int) fanController.settings_fan.controllerFan_Duration );
-       SERIAL_CHAR(" Seconds)");
+       SERIAL_ECHOPGM(" Seconds)");
+
        SERIAL_EOL();
      }
    }
