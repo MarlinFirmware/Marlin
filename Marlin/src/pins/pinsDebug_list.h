@@ -180,7 +180,7 @@
 #endif
 #if !PIN_EXISTS(E0_ENABLE)
   #undef E0_ENABLE_PIN
-#endif
+  #endif
 #if !PIN_EXISTS(E1_STEP)
   #undef E1_STEP_PIN
 #endif
@@ -981,7 +981,7 @@
 #if defined(LCD_SDSS) && LCD_SDSS >= 0
   REPORT_NAME_DIGITAL(__LINE__, LCD_SDSS)
 #endif
-#if PIN_EXISTS(LED_GREEN)
+#if defined(LED_GREEN_PIN) && LED_GREEN_PIN >= 0
   REPORT_NAME_DIGITAL(__LINE__, LED_GREEN_PIN)
 #endif
 #if PIN_EXISTS(LED)
