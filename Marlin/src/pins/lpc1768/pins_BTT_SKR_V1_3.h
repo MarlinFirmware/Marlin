@@ -25,27 +25,34 @@
 
 /**
  * Limit Switches
+ * 
+ * For StallGuard if you home to MAX, swap the MIN / MAX pins over. 
+ * This is require as StallGuard is physically wired to MIN pins only.
  */
-#if X_HOME_DIR > 0 && X_STALL_SENSITIVITY && !defined(USE_XMAX_PLUG)
-  // For StallGuard homing to MAX swap the MIN / MAX pins
-  // so the MAX physical connectors may be used for other things.
-  #define X_MIN_PIN          P1_28   // X_MAX (free)
+
+// For the rare instances you don't want the pins swapped over.
+// #define X_NO_SWAP  
+// #define Y_NO_SWAP  
+// #define Z_NO_SWAP  
+
+#if X_HOME_DIR > 0 && X_STALL_SENSITIVITY && !defined(X_NO_SWAP)
+  #define X_MIN_PIN          P1_28   // X_MAX
   #define X_MAX_PIN          P1_29   // X_MIN
-#else                                // else, non-endstop is free and appears in M43 output
+#else
   #define X_MIN_PIN          P1_29   // X_MIN
   #define X_MAX_PIN          P1_28   // X_MAX
 #endif
 
-#if Y_HOME_DIR > 0 && Y_STALL_SENSITIVITY && !defined(USE_YMAX_PLUG)
-  #define Y_MIN_PIN          P1_26   // Y_MAX (free)
+#if Y_HOME_DIR > 0 && Y_STALL_SENSITIVITY && !defined(Y_NO_SWAP)
+  #define Y_MIN_PIN          P1_26   // Y_MAX
   #define Y_MAX_PIN          P1_27   // Y_MIN
 #else
   #define Y_MIN_PIN          P1_27   // Y_MIN
   #define Y_MAX_PIN          P1_26   // Y_MAX
 #endif
 
-#if Z_HOME_DIR > 0 && Z_STALL_SENSITIVITY && !defined(USE_ZMAX_PLUG)
-  #define Z_MIN_PIN          P1_24   // Z_MAX (free)
+#if Z_HOME_DIR > 0 && Z_STALL_SENSITIVITY && !defined(Z_NO_SWAP)
+  #define Z_MIN_PIN          P1_24   // Z_MAX 
   #define Z_MAX_PIN          P1_25   // Z_MIN
 #else
   #define Z_MIN_PIN          P1_25   // Z_MIN
