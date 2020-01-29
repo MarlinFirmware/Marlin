@@ -45,7 +45,7 @@ void GcodeSuite::G60() {
   }
 
   stored_position[slot] = current_position;
-  SBI(saved_slots, slot);
+  SBI(saved_slots[slot >> 3], slot & 0b00000111);
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
     const xyze_pos_t &pos = stored_position[slot];
