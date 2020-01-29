@@ -58,7 +58,8 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC15   // "E0-STOP"
+  //#define FIL_RUNOUT_PIN   PC15   // "E0-STOP" - 2 wire plug into 2 pin port
+  #define FIL_RUNOUT_PIN     PC12   // "PT-DET" - 3 pin plug into 3 pin port
 #endif
 
 //
