@@ -341,7 +341,11 @@
  */
 #define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
+#else
+  #define CONTROLLER_FAN_PIN          58   // Set a custom pin for the controller fan
+#endif
   #define CONTROLLERFAN_SECS         60    // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED       170    // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
   #define CONTROLLERFAN_IDLE_SPEED   60    // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
