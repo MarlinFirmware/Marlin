@@ -77,23 +77,23 @@
 // (XMin and XMax, YMin and YMax and/or ZMin and ZMax)
 //
 #ifdef ENABLE_XMAX_PIN
-    #define X_MIN_PIN         P1_29
-    #define X_MAX_PIN         P1_26
-    #undef X_STOP_PIN
-    #undef FIL_RUNOUT_PIN
+  #define X_MIN_PIN        P1_29   // X-Stop
+  #define X_MAX_PIN        P1_26   // Runout 1
+  #undef X_STOP_PIN
+  #undef FIL_RUNOUT_PIN
 #endif
 #ifdef ENABLE_YMAX_PIN
-    #define Y_MIN_PIN         P1_28
-    #define Y_MAX_PIN         P1_25
-    #undef Y_STOP_PIN
-    #undef FIL_RUNOUT2_PIN
+  #define Y_MIN_PIN        P1_28   // Y-Stop
+  #define Y_MAX_PIN        P1_25   // Runout 2
+  #undef Y_STOP_PIN
+  #undef FIL_RUNOUT2_PIN
 #endif
 #ifdef ENABLE_ZMAX_PIN
-    #define Z_MIN_PIN         P1_27
-    #define Z_MAX_PIN         P1_00
-    #undef Z_STOP_PIN
-    #undef PS_ON_PIN
-	#undef POWER_LOSS_PIN
+  #define Z_MIN_PIN        P1_27   // Z-Stop
+  #define Z_MAX_PIN        P1_00   // PS-ON / Power-Loss
+  #undef Z_STOP_PIN
+  #undef PS_ON_PIN
+  #undef POWER_LOSS_PIN
 #endif
 
 //
