@@ -251,7 +251,7 @@ xyz_pos_t probe_offset; // Initialized by settings.load()
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
-        disable_X(); disable_Y();
+        DISABLE_AXIS_X(); DISABLE_AXIS_Y();
       #endif
     #endif
     if (p) safe_delay(
