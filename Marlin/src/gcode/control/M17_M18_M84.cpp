@@ -34,9 +34,9 @@
  */
 void GcodeSuite::M17() {
   if (parser.seen("XYZE")) {
-    if (parser.seen('X')) enable_X();
-    if (parser.seen('Y')) enable_Y();
-    if (parser.seen('Z')) enable_Z();
+    if (parser.seen('X')) ENABLE_AXIS_X();
+    if (parser.seen('Y')) ENABLE_AXIS_Y();
+    if (parser.seen('Z')) ENABLE_AXIS_Z();
     #if HAS_E_STEPPER_ENABLE
       if (parser.seen('E')) enable_e_steppers();
     #endif
@@ -57,9 +57,9 @@ void GcodeSuite::M18_M84() {
   else {
     if (parser.seen("XYZE")) {
       planner.synchronize();
-      if (parser.seen('X')) disable_X();
-      if (parser.seen('Y')) disable_Y();
-      if (parser.seen('Z')) disable_Z();
+      if (parser.seen('X')) DISABLE_AXIS_X();
+      if (parser.seen('Y')) DISABLE_AXIS_Y();
+      if (parser.seen('Z')) DISABLE_AXIS_Z();
       #if HAS_E_STEPPER_ENABLE
         if (parser.seen('E')) disable_e_steppers();
       #endif
