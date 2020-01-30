@@ -572,7 +572,7 @@
 #elif MB(MRR_ESPE)
   #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
 #elif MB(E4D_BOX)
-  #include "esp32/pins_E4D.h"              // ESP32                                  env:esp32
+  #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
