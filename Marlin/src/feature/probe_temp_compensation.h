@@ -48,10 +48,10 @@ class ProbeTempComp {
   public:
 
     static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-        {  30, 10,  5,  30 + 10 *  5 },       // Probe
-        {  60, 10,  5,  60 + 10 *  5 },       // Bed
+        {  10,  5,  30,  30 + 10 *  5 },       // Probe
+        {  10,  5,  60,  60 + 10 *  5 },       // Bed
       #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        { 180,  5, 20, 180 +  5 * 20 }        // Extruder
+        {  20,  5, 180, 180 +  5 * 20 }        // Extruder
       #endif
     };
     static const temp_calib_t cali_info[TSI_COUNT];
