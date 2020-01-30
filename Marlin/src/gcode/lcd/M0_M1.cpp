@@ -20,12 +20,14 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if HAS_RESUME_CONTINUE
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
+
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
@@ -34,8 +36,6 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extensible_ui/ui_api.h"
 #endif
-
-#include "../../sd/cardreader.h"
 
 #if HAS_LEDS_OFF_FLAG
   #include "../../feature/leds/printer_event_leds.h"
