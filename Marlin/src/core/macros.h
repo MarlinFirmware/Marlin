@@ -29,12 +29,23 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XMIN_ 100
-#define _YMIN_ 200
-#define _ZMIN_ 300
-#define _XMAX_ 101
-#define _YMAX_ 201
-#define _ZMAX_ 301
+#define _XMIN_   100
+#define _YMIN_   200
+#define _ZMIN_   300
+#define _XMAX_   101
+#define _YMAX_   201
+#define _ZMAX_   301
+#define _XDIAG_  102
+#define _YDIAG_  202
+#define _ZDIAG_  302
+#define _E0DIAG_ 400
+#define _E1DIAG_ 401
+#define _E2DIAG_ 402
+#define _E3DIAG_ 403
+#define _E4DIAG_ 404
+#define _E5DIAG_ 405
+#define _E6DIAG_ 406
+#define _E7DIAG_ 407
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
