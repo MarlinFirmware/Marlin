@@ -296,7 +296,7 @@ int32_t SdVolume::freeClusterCount() {
       // block for 10+ seconds. yield() is insufficient since it blocks lower prio tasks (e.g., idle).
       static millis_t nextTaskTime = 0;
       const millis_t ms = millis();
-      if (ELAPSED(ms, nextTaskTime) {
+      if (ELAPSED(ms, nextTaskTime)) {
         vTaskDelay(1);            // delay 1 tick (Minimum. Usually 10 or 1 ms depending on skdconfig.h)
         nextTaskTime = ms + 1000; // tickle the task manager again in 1 second
       }
