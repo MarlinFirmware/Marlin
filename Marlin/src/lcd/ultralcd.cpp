@@ -779,7 +779,7 @@ void MarlinUI::update() {
     #if ENABLED(TOUCH_BUTTONS)
       if (touch_buttons) {
         RESET_STATUS_TIMEOUT();
-        if (touch_buttons & (EN_A | EN_B)) {                    // Menu arrows, in priority
+        if (touch_buttons & (EN_A | EN_B)) {              // Menu arrows, in priority
           if (ELAPSED(ms, next_button_update_ms)) {
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_A) encoderDiff *= -1;
