@@ -54,7 +54,7 @@
  * This function requires the machine to be homed before invocation.
  */
 
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
+extern const char SP_Y_STR[];
 
 void GcodeSuite::M48() {
 
