@@ -1245,11 +1245,11 @@ void MarlinUI::update() {
             | slow_buttons
           #endif
           #if ENABLED(TOUCH_BUTTONS) && HAS_ENCODER_ACTION
-            #if HAS_ENCODER_WHEEL
-              | (touch_buttons & (~(EN_A | EN_B)))
-            #else
-              | touch_buttons
-            #endif
+            | (touch_buttons
+              #if HAS_ENCODER_WHEEL
+                & (~(EN_A | EN_B))
+              #endif
+            )
           #endif
         );
 
