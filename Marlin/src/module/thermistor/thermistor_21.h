@@ -23,7 +23,7 @@
 
 #define REVERSE_TEMP_SENSOR_RANGE
 
-// Pt100 with INA826 amp on 32 bit mcu based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
+// Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
 const short temptable_21[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(344),    1 },

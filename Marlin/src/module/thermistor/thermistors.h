@@ -105,7 +105,7 @@
 #if ANY_THERMISTOR_IS(20) // Pt100 with INA826 amp on Ultimaker v2.0 electronics
   #include "thermistor_20.h"
 #endif
-#if ANY_THERMISTOR_IS(21) // Pt100 with INA826 amp on 32 bit mcu based "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
+#if ANY_THERMISTOR_IS(21) // Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
   #include "thermistor_21.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"

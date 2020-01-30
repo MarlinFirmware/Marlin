@@ -87,7 +87,7 @@
 #elif THERMISTOR_ID == 20
   #define THERMISTOR_NAME "Pt100 UltiMB"
 #elif THERMISTOR_ID == 21
-  #define THERMISTOR_NAME "Pt100 32 bit"
+  #define THERMISTOR_NAME "Pt100 UltiMB"
 #elif THERMISTOR_ID == 201
   #define THERMISTOR_NAME "Pt100 OverLord"
 #elif THERMISTOR_ID == 60
