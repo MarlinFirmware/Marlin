@@ -48,7 +48,7 @@ void GcodeSuite::G61(void) {
   #endif
 
   // No saved position? No axes being restored?
-  if (!TEST(saved_slots[slot >> 3], slot & 0b00000111) || !parser.seen("XYZ")) return;
+  if (!TEST(saved_slots[slot >> 3], slot & 0x07) || !parser.seen("XYZ")) return;
 
   // Apply any given feedrate over 0.0
   const float fr = parser.linearval('F');
