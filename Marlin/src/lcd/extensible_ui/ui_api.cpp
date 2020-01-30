@@ -171,7 +171,7 @@ namespace ExtUI {
 
   void enableHeater(const extruder_t extruder) {
     #if HOTENDS && HEATER_IDLE_HANDLER
-      thermalManager.reset_heater_idle_timer(extruder - E0);
+      thermalManager.reset_hotend_idle_timer(extruder - E0);
     #else
       UNUSED(extruder);
     #endif
@@ -190,7 +190,7 @@ namespace ExtUI {
         #endif
         default:
           #if HOTENDS
-            thermalManager.reset_heater_idle_timer(heater - H0);
+            thermalManager.reset_hotend_idle_timer(heater - H0);
           #endif
           break;
       }
@@ -912,7 +912,7 @@ namespace ExtUI {
     #endif
       {
         #if HOTENDS
-          static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
+          static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
           const int16_t e = heater - H0;
           thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
         #endif
@@ -924,7 +924,7 @@ namespace ExtUI {
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     #if HOTENDS
-      constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
+      constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
       thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);

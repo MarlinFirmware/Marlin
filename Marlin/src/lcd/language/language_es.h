@@ -240,9 +240,9 @@ namespace Language_es {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Cama");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Recinto");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ventilador");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ventilador =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ventilador ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Vel. Ext. ventilador");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Vel. Ext. ventilador =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Vel. Ext. ventilador ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flujo");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flujo ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
@@ -345,8 +345,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Auto-Prueba");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reiniciar");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Bajar pistón");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Subir pistón");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Subir pistón");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Bajar pistón");
   PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: Modo Software");
   PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: Modo 5V");
   PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: Modo OD");

@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-cp Marlin/Configuration*.h config/default

@@ -240,9 +240,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Stół");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Obudowa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Obroty wiatraka");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Obroty dodatkowego wiatraka");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Przepływ");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Przepływ ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ustawienia");
@@ -254,14 +254,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Wył.");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autostrojenie");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autostrojenie *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Wybierz");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Wybierz *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Przyspieszenie");

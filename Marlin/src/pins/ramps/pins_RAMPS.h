@@ -390,6 +390,24 @@
   #ifndef E4_SERIAL_RX_PIN
     #define E4_SERIAL_RX_PIN -1
   #endif
+  #ifndef E5_SERIAL_TX_PIN
+    #define E5_SERIAL_TX_PIN -1
+  #endif
+  #ifndef E5_SERIAL_RX_PIN
+    #define E5_SERIAL_RX_PIN -1
+  #endif
+  #ifndef E6_SERIAL_TX_PIN
+    #define E6_SERIAL_TX_PIN -1
+  #endif
+  #ifndef E6_SERIAL_RX_PIN
+    #define E6_SERIAL_RX_PIN -1
+  #endif
+  #ifndef E7_SERIAL_TX_PIN
+    #define E7_SERIAL_TX_PIN -1
+  #endif
+  #ifndef E7_SERIAL_RX_PIN
+    #define E7_SERIAL_RX_PIN -1
+  #endif
 #endif
 
 //
@@ -508,7 +526,9 @@
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN   49
       #endif
-      #define KILL_PIN          41
+      #ifndef KILL_PIN
+        #define KILL_PIN        41
+      #endif
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         #define LCD_BACKLIGHT_PIN 39

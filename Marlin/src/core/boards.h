@@ -256,6 +256,7 @@
 #define BOARD_ARCHIM1                 3023  // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2                 3024  // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR               3025  // Alligator Board R2
+#define BOARD_CNCONTROLS_15D          3026  // Cartesio CN Controls V15 on DUE
 
 //
 // SAM3X8C ARM Cortex M3
@@ -331,9 +332,10 @@
 //
 // Espressif ESP32 WiFi
 //
-#define BOARD_ESPRESSIF_ESP32         6000
+#define BOARD_ESPRESSIF_ESP32         6000  // Generic ESP32
 #define BOARD_MRR_ESPA                6001
 #define BOARD_MRR_ESPE                6002
+#define BOARD_E4D_BOX                 6003  // E4d@BOX
 
 //
 // Simulations

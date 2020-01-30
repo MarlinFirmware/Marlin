@@ -1092,6 +1092,21 @@ void MarlinUI::draw_status_screen() {
           #if HAS_FAN2
             || thermalManager.fan_speed[2]
           #endif
+          #if HAS_FAN3
+            || thermalManager.fan_speed[3]
+          #endif
+          #if HAS_FAN4
+            || thermalManager.fan_speed[4]
+          #endif
+          #if HAS_FAN5
+            || thermalManager.fan_speed[5]
+          #endif
+          #if HAS_FAN6
+            || thermalManager.fan_speed[6]
+          #endif
+          #if HAS_FAN7
+            || thermalManager.fan_speed[7]
+          #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0
 

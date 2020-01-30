@@ -111,6 +111,9 @@ void HAL_idletask() {
   #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.idletask();
+  #endif
 }
 
 void HAL_clear_reset_source() { }
@@ -191,7 +194,7 @@ void HAL_adc_init() {
   }
 }
 
-void HAL_adc_start_conversion(uint8_t adc_pin) {
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
   const adc1_channel_t chan = get_channel(adc_pin);
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);

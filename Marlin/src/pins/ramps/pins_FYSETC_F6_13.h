@@ -225,9 +225,11 @@
   #define DOGLCD_A0        16
   #define DOGLCD_CS        17
 
-  #define LCD_BACKLIGHT_PIN -1
-  #define KILL_PIN         41
+  #if ENABLED(FYSETC_GENERIC_12864_1_1)
+    #define LCD_BACKLIGHT_PIN 27
+  #endif
 
+  #define KILL_PIN         41
   #define LCD_RESET_PIN    23   // Must be high or open for LCD to operate normally.
                                 // Seems to work best if left open.
 

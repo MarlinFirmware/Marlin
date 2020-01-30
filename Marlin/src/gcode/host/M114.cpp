@@ -121,6 +121,9 @@
       #if AXIS_IS_L64XX(Z3)
         REPORT_ABSOLUTE_POS(Z3);
       #endif
+      #if AXIS_IS_L64XX(Z4)
+        REPORT_ABSOLUTE_POS(Z4);
+      #endif
       #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
       #endif

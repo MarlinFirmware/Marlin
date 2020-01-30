@@ -68,5 +68,4 @@ bool watchdog_timed_out() { return TEST(WDT_ReadTimeOutFlag(), 0); }
 void watchdog_clear_timeout_flag() { WDT_ClrTimeOutFlag(); }
 
 #endif // USE_WATCHDOG
-
 #endif // TARGET_LPC1768
