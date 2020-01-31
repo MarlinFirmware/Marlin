@@ -37,7 +37,8 @@
   #error "MAX_RAW_THERMISTOR_VALUE is too large for int16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
 #endif
 
-#define OV(N) int16_t((N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
+#define OV_SCALE(N) (N)
+#define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
 #define ANY_THERMISTOR_IS(n) (THERMISTOR_HEATER_0 == n || THERMISTOR_HEATER_1 == n || THERMISTOR_HEATER_2 == n || THERMISTOR_HEATER_3 == n || THERMISTOR_HEATER_4 == n || THERMISTOR_HEATER_5 == n || THERMISTOR_HEATER_6 == n || THERMISTOR_HEATER_7 == n || THERMISTORBED == n || THERMISTORCHAMBER == n || THERMISTORPROBE == n)
 
@@ -104,6 +105,9 @@
 #endif
 #if ANY_THERMISTOR_IS(20) // Pt100 with INA826 amp on Ultimaker v2.0 electronics
   #include "thermistor_20.h"
+#endif
+#if ANY_THERMISTOR_IS(21) // Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
+  #include "thermistor_21.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"
   #include "thermistor_51.h"
