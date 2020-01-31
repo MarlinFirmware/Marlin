@@ -2320,6 +2320,13 @@
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 
+/**
+ * TMC ONLY. Delta Only.
+ * Improve homing repeatability by homing to nearest repeatable stepper coil relative position to trigger point.
+ * Values from 0..1023
+ */
+#define TMC_STEPPER_HOME_POSITION 120
+
   /**
    * Beta feature!
    * Create a 50/50 square wave step pulse optimal for stepper drivers.

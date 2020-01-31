@@ -1732,63 +1732,53 @@ void homeaxis(const AxisEnum axis) {
     // so here it re-homes each tower in turn.
     // Delta homing treats the axes as normal linear axes.
 
-    int axisMicrosteps;
-    int msPosition;
-    bool invertDir;
-    uint16_t oldMicrosteps;
+    #ifdef TMC_STEPPER_HOME_POSITION
+      int axisMicrostepSize;
+      int msPosition;
+      bool invertDir;
+            
+      switch (axis) {
+          case X_AXIS: 
+            axisMicrostepSize = 256/X_MICROSTEPS;
+            msPosition = stepperX.MSCNT();
+            invertDir = INVERT_X_DIR;
+            break;
+          case Y_AXIS: 
+            axisMicrostepSize = 256/Y_MICROSTEPS;
+            msPosition = stepperY.MSCNT();
+            invertDir = INVERT_Y_DIR;
+            break;
+          case Z_AXIS: 
+            axisMicrostepSize = 256/Z_MICROSTEPS;
+            msPosition = stepperZ.MSCNT();
+            invertDir = INVERT_Z_DIR;
+            break;
+        default: break;
+      }
 
-    switch (axis) {
-        case X_AXIS: 
-          axisMicrosteps = 256/X_MICROSTEPS;
-          msPosition = stepperX.MSCNT();
-          oldMicrosteps = stepperX.microsteps();
-          //stepperX.microsteps(256);
-          invertDir = INVERT_X_DIR;
-          break;
-        case Y_AXIS: 
-          axisMicrosteps = 256/Y_MICROSTEPS;
-          msPosition = stepperY.MSCNT();
-          oldMicrosteps = stepperY.microsteps();
-          //stepperY.microsteps(256);
-          invertDir = INVERT_Y_DIR;
-          break;
-        case Z_AXIS: 
-          axisMicrosteps = 256/Z_MICROSTEPS;
-          msPosition = stepperZ.MSCNT();
-          oldMicrosteps = stepperZ.microsteps();
-          //stepperZ.microsteps(256);
-          invertDir = INVERT_Z_DIR;
-          break;
-      default: break;
-    }
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("MicrostepPosition:", msPosition);
+      
+      int msDelta = invertDir ? msPosition - TMC_STEPPER_HOME_POSITION : TMC_STEPPER_HOME_POSITION - msPosition;
+      if(msDelta < 0) msDelta += 1024;
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("MicrostepDelta:", msDelta);
 
-    int msTarget = 128;
-    int msDelta = invertDir ? msPosition - msTarget : msTarget - msPosition;
-    if(msDelta < 0) msDelta += 1024;
-    msDelta /= axisMicrosteps;
-    //float minDistance = (MIN_STEPS_PER_SEGMENT + 1) * planner.steps_to_mm[axis];
-    float msDistance = (msDelta/*/axisMicrosteps*/) * planner.steps_to_mm[axis] * -1.0;
-    float adjDistance = msDistance + delta_endstop_adj[axis];
+      float msDistance = (msDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("MicrostepDistance:", msDistance);
 
-    // retrace by the amount specified in delta_endstop_adj + additional dist in order to have minimum steps
-    if (adjDistance * Z_HOME_DIR <= 0) {
+      float adjDistance = msDistance + delta_endstop_adj[axis];
+    #else
+      float adjDistance = delta_endstop_adj[axis];
+    #endif
+
+    float minDistance = MIN_STEPS_PER_SEGMENT * planner.steps_to_mm[axis];
+    // retrace by the amount specified in delta_endstop_adj if more than min steps.
+    if ((adjDistance * Z_HOME_DIR) < 0 // away from endstop
+        && abs(adjDistance) > minDistance) // more than min distance
+    {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj:");
       do_homing_move(axis, adjDistance);
     }
-/*
-    switch (axis) {
-        case X_AXIS: 
-          stepperX.microsteps(oldMicrosteps);
-          break;
-        case Y_AXIS: 
-          stepperY.microsteps(oldMicrosteps);
-          break;
-        case Z_AXIS: 
-          stepperZ.microsteps(oldMicrosteps);
-          break;
-      default: break;
-    }
-  */  
+
 
   #else // CARTESIAN / CORE
 
