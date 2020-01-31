@@ -1011,7 +1011,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
- #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+ #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #else
   //#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
@@ -1067,6 +1067,8 @@
  */
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define Z_PROBE_SERVO_NR 2         // Defaults to SERVO 0 connector.
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  //#define Z_PROBE_SERVO_NR 0  // Defaults to SERVO 0 connector.
 #else
   //#define Z_PROBE_SERVO_NR 0         // Defaults to SERVO 0 connector.
 #endif
@@ -1260,7 +1262,7 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
@@ -2479,7 +2481,7 @@
   #endif
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 8 // 39 --> 8 Is for testing.  Org device has 39 LED!!!         // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
+  #define NEOPIXEL_PIXELS 8          // 39 --> 8 Is for testing.  Org device has 39 LED!!!         // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL     // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 200    // Initial brightness (0-255)
   #define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
@@ -2516,9 +2518,12 @@
  * Set this manually if there are extra servos needing manual control.
  * Leave undefined or set to 0 to entirely disable the servo subsystem.
  */
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
   #define NUM_SERVOS 4 // Servo index starts with 0 for M280 command
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  //#define NUM_SERVOS 1
 #endif
+
 // (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.

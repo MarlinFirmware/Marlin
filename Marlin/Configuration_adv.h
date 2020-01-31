@@ -343,13 +343,15 @@
 #if ENABLED(USE_CONTROLLER_FAN)
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #define CONTROLLER_FAN_PIN         P1_00   // PWRDET - PS_ON_PIN
 #else
-  #define CONTROLLER_FAN_PIN          58   // Set a custom pin for the controller fan
+  #define CONTROLLER_FAN_PIN         58   // Set a custom pin for the controller fan
 #endif
   #define CONTROLLERFAN_SECS         60    // Duration in seconds for the fan to run after all motors are disabled
-  #define CONTROLLERFAN_SPEED       170    // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  #define CONTROLLERFAN_IDLE_SPEED   60    // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  #define CONTROLLER_FAN_MENU              // Enables Controller FAN  in Settings menu
+  #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
+  #define CONTROLLERFAN_IDLE_SPEED   128   // 0-255 - 255 == fullspeed; Controller fan idles speed, when all motors are disabled
+  #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu
   // TODO EC : Implement //#define CONTROLLERFAN_SPEED_Z_ONLY 127  // Reduce noise on machines that keep Z enabled
 #endif
 
@@ -419,6 +421,8 @@
  */
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define E0_AUTO_FAN_PIN 44
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #define E0_AUTO_FAN_PIN FAN1_PIN  
 #else
   #define E0_AUTO_FAN_PIN -1
 #endif
@@ -430,7 +434,7 @@
 #define E5_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
 
-#define EXTRUDER_AUTO_FAN_TEMPERATURE 50
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 40
 #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
 #define CHAMBER_AUTO_FAN_TEMPERATURE 30
 #define CHAMBER_AUTO_FAN_SPEED 255
@@ -2312,7 +2316,11 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-  //#define HYBRID_THRESHOLD
+  #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    #define HYBRID_THRESHOLD
+  #else
+    //#define HYBRID_THRESHOLD
+  #endif
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
@@ -2378,8 +2386,14 @@
    * Beta feature!
    * Create a 50/50 square wave step pulse optimal for stepper drivers.
    */
-  //#define SQUARE_WAVE_STEPPING
-
+  #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    // enable double edge step pulses -  Enable step impulse at each step edge to reduce step frequency requirement
+    // 6.5.2 CHOPCONF – Chopper Configuration --> https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5161-datasheet_Rev1.02.pdf
+    #define SQUARE_WAVE_STEPPING
+  #else
+    //#define SQUARE_WAVE_STEPPING
+#endif
+  
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
@@ -2646,7 +2660,7 @@
  * Add the M240 G-code to take a photo.
  * The photo can be triggered by a digital pin or a physical movement.
  */
-//#define PHOTO_GCODE
+#define PHOTO_GCODE
 #if ENABLED(PHOTO_GCODE)
   // A position to move to (and raise Z) before taking the photo
   //#define PHOTO_POSITION { X_MAX_POS - 5, Y_MAX_POS, 0 }  // { xpos, ypos, zraise } (M240 X Y Z)

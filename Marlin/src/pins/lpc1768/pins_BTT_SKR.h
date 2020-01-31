@@ -69,16 +69,16 @@
   #define HEATER_0_PIN     P2_07
 #endif
 #if HOTENDS == 1
-  #ifndef FAN1_PIN
-    #define FAN1_PIN       P2_04
+  #ifndef FAN_PIN
+    #define FAN_PIN       P2_04
   #endif
 #else
   #ifndef HEATER_1_PIN
     #define HEATER_1_PIN   P2_04
   #endif
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN          P2_03
+#ifndef FAN1_PIN
+  #define FAN1_PIN          P2_03
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN   P2_05
