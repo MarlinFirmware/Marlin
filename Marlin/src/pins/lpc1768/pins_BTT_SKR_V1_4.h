@@ -74,9 +74,9 @@
 #if Z_STALL_SENSITIVITY
   #define Z_STOP_PIN       Z_DIAG_PIN
   #if Z_HOME_DIR < 0
-    #define Z_MAX_PIN      P1_24   // PWRDET
+    #define Z_MAX_PIN      P1_00   // PWRDET
   #else
-    #define Z_MIN_PIN      P1_24   // PWRDET
+    #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
 #else
   #define Z_STOP_PIN       P1_27   // Z-STOP
