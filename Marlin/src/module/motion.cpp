@@ -111,7 +111,7 @@ xyze_pos_t destination; // {0}
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
-  uint8_t saved_slots;
+  uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
   xyz_pos_t stored_position[SAVED_POSITIONS];
 #endif
 

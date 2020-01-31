@@ -571,6 +571,8 @@
   #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
 #elif MB(MRR_ESPE)
   #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
+#elif MB(E4D_BOX)
+  #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
@@ -1024,10 +1026,14 @@
 #ifdef X_STOP_PIN
   #if X_HOME_DIR < 0
     #define X_MIN_PIN X_STOP_PIN
-    #define X_MAX_PIN -1
+    #ifndef X_MAX_PIN
+      #define X_MAX_PIN -1
+    #endif
   #else
-    #define X_MIN_PIN -1
     #define X_MAX_PIN X_STOP_PIN
+    #ifndef X_MIN_PIN
+      #define X_MIN_PIN -1
+    #endif
   #endif
 #elif X_HOME_DIR < 0
   #define X_STOP_PIN X_MIN_PIN
@@ -1038,10 +1044,14 @@
 #ifdef Y_STOP_PIN
   #if Y_HOME_DIR < 0
     #define Y_MIN_PIN Y_STOP_PIN
-    #define Y_MAX_PIN -1
+    #ifndef Y_MAX_PIN
+      #define Y_MAX_PIN -1
+    #endif
   #else
-    #define Y_MIN_PIN -1
     #define Y_MAX_PIN Y_STOP_PIN
+    #ifndef Y_MIN_PIN
+      #define Y_MIN_PIN -1
+    #endif
   #endif
 #elif Y_HOME_DIR < 0
   #define Y_STOP_PIN Y_MIN_PIN
@@ -1052,10 +1062,14 @@
 #ifdef Z_STOP_PIN
   #if Z_HOME_DIR < 0
     #define Z_MIN_PIN Z_STOP_PIN
-    #define Z_MAX_PIN -1
+    #ifndef Z_MAX_PIN
+      #define Z_MAX_PIN -1
+    #endif
   #else
-    #define Z_MIN_PIN -1
     #define Z_MAX_PIN Z_STOP_PIN
+    #ifndef Z_MIN_PIN
+      #define Z_MIN_PIN -1
+    #endif
   #endif
 #elif Z_HOME_DIR < 0
   #define Z_STOP_PIN Z_MIN_PIN
@@ -1125,42 +1139,72 @@
  * overridden in Configuration.h or Configuration_adv.h.
  */
 
+#define __PEXI(p,q) PIN_EXISTS(E##p##_##q)
+#define _PEXI(p,q) __PEXI(p,q)
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
+#define DIAG_REMAPPED(p,q) (PIN_EXISTS(q) && _EPIN(p##_E_INDEX, DIAG) == q##_PIN)
 
 // The X2 axis, if any, should be the next open extruder port
+#define X2_E_INDEX E_STEPPERS
+
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
-    #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
-    #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
-    #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
-    #if E_STEPPERS >= MAX_EXTRUDERS || !PIN_EXISTS(X2_STEP)
+    #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
+    #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)
+    #define X2_ENABLE_PIN _EPIN(X2_E_INDEX, ENABLE)
+    #if X2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(X2_STEP)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
   #ifndef X2_MS1_PIN
-    #define X2_MS1_PIN    _EPIN(E_STEPPERS, MS1)
+    #define X2_MS1_PIN    _EPIN(X2_E_INDEX, MS1)
   #endif
   #ifndef X2_MS2_PIN
-    #define X2_MS2_PIN    _EPIN(E_STEPPERS, MS2)
+    #define X2_MS2_PIN    _EPIN(X2_E_INDEX, MS2)
   #endif
   #ifndef X2_MS3_PIN
-    #define X2_MS3_PIN    _EPIN(E_STEPPERS, MS3)
+    #define X2_MS3_PIN    _EPIN(X2_E_INDEX, MS3)
   #endif
   #if AXIS_HAS_SPI(X2) && !defined(X2_CS_PIN)
-    #define X2_CS_PIN     _EPIN(E_STEPPERS, CS)
+    #define X2_CS_PIN     _EPIN(X2_E_INDEX, CS)
   #endif
   #if AXIS_HAS_UART(X2)
     #ifndef X2_SERIAL_TX_PIN
-      #define X2_SERIAL_TX_PIN _EPIN(E_STEPPERS, SERIAL_TX)
+      #define X2_SERIAL_TX_PIN _EPIN(X2_E_INDEX, SERIAL_TX)
     #endif
     #ifndef X2_SERIAL_RX_PIN
-      #define X2_SERIAL_RX_PIN _EPIN(E_STEPPERS, SERIAL_RX)
+      #define X2_SERIAL_RX_PIN _EPIN(X2_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #define Y2_E_INDEX INCREMENT(E_STEPPERS)
+
+  //
+  // Auto-assign pins for stallGuard sensorless homing
+  //
+  #if X2_STALL_SENSITIVITY && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
+    #define X2_DIAG_PIN _EPIN(X2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(X2, X_MIN)      // If already remapped in the pins file...
+      #define X2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(X2, Y_MIN)
+      #define X2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(X2, Z_MIN)
+      #define X2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(X2, X_MAX)
+      #define X2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(X2, Y_MAX)
+      #define X2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(X2, Z_MAX)
+      #define X2_USE_ENDSTOP _ZMAX_
+    #else                               // Otherwise use the driver DIAG_PIN directly
+      #define _X2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define X2_USE_ENDSTOP _X2_USE_ENDSTOP(X2_E_INDEX)
+    #endif
+    #undef X2_DIAG_PIN
+  #endif
+
+  #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
-  #define Y2_E_INDEX E_STEPPERS
+  #define Y2_E_INDEX X2_E_INDEX
 #endif
 
 #ifndef X2_CS_PIN
@@ -1205,6 +1249,26 @@
     #ifndef Y2_SERIAL_RX_PIN
       #define Y2_SERIAL_RX_PIN _EPIN(Y2_E_INDEX, SERIAL_RX)
     #endif
+  #endif
+  #if Y2_STALL_SENSITIVITY && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
+    #define Y2_DIAG_PIN _EPIN(Y2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Y2, X_MIN)
+      #define Y2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Y2, Y_MIN)
+      #define Y2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Y2, Z_MIN)
+      #define Y2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Y2, X_MAX)
+      #define Y2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Y2, Y_MAX)
+      #define Y2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Y2, Z_MAX)
+      #define Y2_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Y2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Y2_USE_ENDSTOP _Y2_USE_ENDSTOP(Y2_E_INDEX)
+    #endif
+    #undef Y2_DIAG_PIN
   #endif
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
@@ -1254,6 +1318,26 @@
       #define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
     #endif
   #endif
+  #if Z2_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+    #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z2, X_MIN)
+      #define Z2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z2, Y_MIN)
+      #define Z2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z2, Z_MIN)
+      #define Z2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z2, X_MAX)
+      #define Z2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z2, Y_MAX)
+      #define Z2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z2, Z_MAX)
+      #define Z2_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z2_USE_ENDSTOP _Z2_USE_ENDSTOP(Z2_E_INDEX)
+    #endif
+    #undef Z2_DIAG_PIN
+  #endif
   #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
 #else
   #define Z3_E_INDEX Z2_E_INDEX
@@ -1283,7 +1367,7 @@
   #endif
   #if AXIS_HAS_SPI(Z3)
     #ifndef Z3_CS_PIN
-      #define Z3_CS_PIN     _EPIN(Z3_E_INDEX, CS)
+      #define Z3_CS_PIN   _EPIN(Z3_E_INDEX, CS)
     #endif
   #endif
   #ifndef Z3_MS1_PIN
@@ -1302,6 +1386,26 @@
     #ifndef Z3_SERIAL_RX_PIN
       #define Z3_SERIAL_RX_PIN _EPIN(Z3_E_INDEX, SERIAL_RX)
     #endif
+  #endif
+  #if Z3_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
+    #define Z3_DIAG_PIN _EPIN(Z3_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z3, X_MIN)
+      #define Z3_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z3, Y_MIN)
+      #define Z3_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z3, Z_MIN)
+      #define Z3_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z3, X_MAX)
+      #define Z3_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z3, Y_MAX)
+      #define Z3_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z3, Z_MAX)
+      #define Z3_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z3_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z3_USE_ENDSTOP _Z3_USE_ENDSTOP(Z3_E_INDEX)
+    #endif
+    #undef Z3_DIAG_PIN
   #endif
   #define Z4_E_INDEX INCREMENT(Z3_E_INDEX)
 #endif
@@ -1350,6 +1454,26 @@
       #define Z4_SERIAL_RX_PIN _EPIN(Z4_E_INDEX, SERIAL_RX)
     #endif
   #endif
+  #if Z4_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
+    #define Z4_DIAG_PIN _EPIN(Z4_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z4, X_MIN)
+      #define Z4_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z4, Y_MIN)
+      #define Z4_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z4, Z_MIN)
+      #define Z4_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z4, X_MAX)
+      #define Z4_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z4, Y_MAX)
+      #define Z4_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z4, Z_MAX)
+      #define Z4_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z4_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z4_USE_ENDSTOP _Z4_USE_ENDSTOP(Z4_E_INDEX)
+    #endif
+    #undef Z4_DIAG_PIN
+  #endif
 #endif
 
 #ifndef Z4_CS_PIN
@@ -1382,3 +1506,4 @@
 #endif
 
 #undef HAS_FREE_AUX2_PINS
+#undef DIAG_REMAPPED
