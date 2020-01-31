@@ -1732,11 +1732,63 @@ void homeaxis(const AxisEnum axis) {
     // so here it re-homes each tower in turn.
     // Delta homing treats the axes as normal linear axes.
 
-    // retrace by the amount specified in delta_endstop_adj + additional dist in order to have minimum steps
-    if (delta_endstop_adj[axis] * Z_HOME_DIR <= 0) {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj:");
-      do_homing_move(axis, delta_endstop_adj[axis] - (MIN_STEPS_PER_SEGMENT + 1) * planner.steps_to_mm[axis] * Z_HOME_DIR);
+    int axisMicrosteps;
+    int msPosition;
+    bool invertDir;
+    uint16_t oldMicrosteps;
+
+    switch (axis) {
+        case X_AXIS: 
+          axisMicrosteps = 256/X_MICROSTEPS;
+          msPosition = stepperX.MSCNT();
+          oldMicrosteps = stepperX.microsteps();
+          //stepperX.microsteps(256);
+          invertDir = INVERT_X_DIR;
+          break;
+        case Y_AXIS: 
+          axisMicrosteps = 256/Y_MICROSTEPS;
+          msPosition = stepperY.MSCNT();
+          oldMicrosteps = stepperY.microsteps();
+          //stepperY.microsteps(256);
+          invertDir = INVERT_Y_DIR;
+          break;
+        case Z_AXIS: 
+          axisMicrosteps = 256/Z_MICROSTEPS;
+          msPosition = stepperZ.MSCNT();
+          oldMicrosteps = stepperZ.microsteps();
+          //stepperZ.microsteps(256);
+          invertDir = INVERT_Z_DIR;
+          break;
+      default: break;
     }
+
+    int msTarget = 128;
+    int msDelta = invertDir ? msPosition - msTarget : msTarget - msPosition;
+    if(msDelta < 0) msDelta += 1024;
+    msDelta /= axisMicrosteps;
+    //float minDistance = (MIN_STEPS_PER_SEGMENT + 1) * planner.steps_to_mm[axis];
+    float msDistance = (msDelta/*/axisMicrosteps*/) * planner.steps_to_mm[axis] * -1.0;
+    float adjDistance = msDistance + delta_endstop_adj[axis];
+
+    // retrace by the amount specified in delta_endstop_adj + additional dist in order to have minimum steps
+    if (adjDistance * Z_HOME_DIR <= 0) {
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj:");
+      do_homing_move(axis, adjDistance);
+    }
+/*
+    switch (axis) {
+        case X_AXIS: 
+          stepperX.microsteps(oldMicrosteps);
+          break;
+        case Y_AXIS: 
+          stepperY.microsteps(oldMicrosteps);
+          break;
+        case Z_AXIS: 
+          stepperZ.microsteps(oldMicrosteps);
+          break;
+      default: break;
+    }
+  */  
 
   #else // CARTESIAN / CORE
 
