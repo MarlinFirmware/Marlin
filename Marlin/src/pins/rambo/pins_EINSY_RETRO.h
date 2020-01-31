@@ -38,7 +38,7 @@
   #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRetro."
 #endif
 
-// TMC2130 Diag Pins (currently just for reference)
+// TMC2130 Diag Pins
 #define X_DIAG_PIN         64
 #define Y_DIAG_PIN         69
 #define Z_DIAG_PIN         68
@@ -55,27 +55,27 @@
 
 #if DISABLED(SENSORLESS_HOMING)
 
-  #define X_MIN_PIN        12
-  #define Y_MIN_PIN        11
-  #define Z_MIN_PIN        10
-  #define X_MAX_PIN        81
-  #define Y_MAX_PIN        57
+  #define X_MIN_PIN        12   // X-
+  #define Y_MIN_PIN        11   // Y-
+  #define Z_MIN_PIN        10   // Z-
+  #define X_MAX_PIN        81   // X+
+  #define Y_MAX_PIN        57   // Y+
 
 #else
 
   #if X_HOME_DIR < 0
     #define X_MIN_PIN      X_DIAG_PIN
-    #define X_MAX_PIN      81
+    #define X_MAX_PIN      81   // X+
   #else
-    #define X_MIN_PIN      12
+    #define X_MIN_PIN      12   // X-
     #define X_MAX_PIN      X_DIAG_PIN
   #endif
 
   #if Y_HOME_DIR < 0
     #define Y_MIN_PIN      Y_DIAG_PIN
-    #define Y_MAX_PIN      57
+    #define Y_MAX_PIN      57   // Y+
   #else
-    #define Y_MIN_PIN      11
+    #define Y_MIN_PIN      11   // Y-
     #define Y_MAX_PIN      Y_DIAG_PIN
   #endif
 

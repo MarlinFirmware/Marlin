@@ -171,7 +171,7 @@ namespace ExtUI {
 
   void enableHeater(const extruder_t extruder) {
     #if HOTENDS && HEATER_IDLE_HANDLER
-      thermalManager.reset_heater_idle_timer(extruder - E0);
+      thermalManager.reset_hotend_idle_timer(extruder - E0);
     #else
       UNUSED(extruder);
     #endif
@@ -190,7 +190,7 @@ namespace ExtUI {
         #endif
         default:
           #if HOTENDS
-            thermalManager.reset_heater_idle_timer(heater - H0);
+            thermalManager.reset_hotend_idle_timer(heater - H0);
           #endif
           break;
       }
