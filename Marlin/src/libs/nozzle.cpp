@@ -28,7 +28,7 @@
 
 Nozzle nozzle;
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../module/motion.h"
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
@@ -157,26 +157,24 @@ Nozzle nozzle;
    * @param argument depends on the cleaning pattern
    */
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
-    xyz_pos_t start = NOZZLE_CLEAN_START_POINT, end = NOZZLE_CLEAN_END_POINT;
+    xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
     if (pattern == 2) {
       if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
         SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
         return;
       }
-      constexpr xyz_pos_t middle NOZZLE_CLEAN_CIRCLE_MIDDLE;
-      end = middle;
     }
     else {
-      if (!TEST(cleans, X_AXIS)) start.x = end.x = current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start.y = end.y = current_position.y;
+      if (!TEST(cleans, X_AXIS)) start[active_extruder].x = end[active_extruder].x = current_position.x;
+      if (!TEST(cleans, Y_AXIS)) start[active_extruder].y = end[active_extruder].y = current_position.y;
     }
-    if (!TEST(cleans, Z_AXIS)) start.z = end.z = current_position.z;
+    if (!TEST(cleans, Z_AXIS)) start[active_extruder].z = end[active_extruder].z = current_position.z;
 
     switch (pattern) {
-       case 1: zigzag(start, end, strokes, objects); break;
-       case 2: circle(start, end, strokes, radius);  break;
-      default: stroke(start, end, strokes);
+       case 1: zigzag(start[active_extruder], end[active_extruder], strokes, objects); break;
+       case 2: circle(start[active_extruder], middle[active_extruder], strokes, radius);  break;
+      default: stroke(start[active_extruder], end[active_extruder], strokes);
     }
   }
 

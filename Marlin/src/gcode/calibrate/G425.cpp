@@ -20,7 +20,7 @@
  *
  */
 
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 #if ENABLED(CALIBRATION_GCODE)
 

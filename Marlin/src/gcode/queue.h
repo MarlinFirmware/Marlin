@@ -150,7 +150,7 @@ private:
    */
   static bool enqueue_one(const char* cmd);
 
-  static void gcode_line_error(PGM_P const err, const int8_t port);
+  static void gcode_line_error(PGM_P const err, const int8_t pn);
 
 };
 

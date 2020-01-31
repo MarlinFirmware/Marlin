@@ -124,5 +124,5 @@
   }
 
 #else
-  #error Unknown or no TOUCH_UI_FTDI_EVE display resolution specified. To add a display resolution, modify "ftdi_eve_resolutions.h"
+  #error "Unknown or no TOUCH_UI_FTDI_EVE display resolution specified. To add a display resolution, modify 'ftdi_eve_resolutions.h'."
 #endif

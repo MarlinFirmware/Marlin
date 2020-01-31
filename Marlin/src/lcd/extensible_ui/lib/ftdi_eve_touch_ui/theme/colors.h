@@ -75,7 +75,7 @@ namespace Theme {
   constexpr uint32_t gray_color_5       = hsl_to_rgb(accent_hue, gray_sat, 0.78);
   constexpr uint32_t gray_color_6       = hsl_to_rgb(accent_hue, gray_sat, 0.91); // Lightest
 
-  #if DISABLED(TOUCH_UI_LULZBOT_BIO) && DISABLED(TOUCH_UI_COCOA_PRESS)
+  #if NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
     // Lulzbot TAZ Pro
     constexpr uint32_t theme_darkest    = gray_color_1;
     constexpr uint32_t theme_dark       = gray_color_2;

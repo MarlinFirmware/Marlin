@@ -37,7 +37,7 @@
  *   Z[current]  - Set mA current for Z driver(s)
  *   E[current]  - Set mA current for E driver(s)
  *
- *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z; 1 for X2, Y2, Z2; 2 for Z3.)
+ *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z; 1 for X2, Y2, Z2; 2 for Z3; 3 for Z4.)
  *   T[index]    - Extruder index (Zero-based. Omit for E0 only.)
  *
  * With no parameters report driver currents.
@@ -48,7 +48,7 @@ void GcodeSuite::M906() {
 
   bool report = true;
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
     const uint8_t index = parser.byteval('I');
   #endif
 
@@ -80,6 +80,9 @@ void GcodeSuite::M906() {
         #endif
         #if AXIS_IS_TMC(Z3)
           if (index == 2) TMC_SET_CURRENT(Z3);
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          if (index == 3) TMC_SET_CURRENT(Z4);
         #endif
         break;
       case E_AXIS: {
@@ -130,6 +133,9 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_TMC(Z3)
       TMC_SAY_CURRENT(Z3);
+    #endif
+    #if AXIS_IS_TMC(Z4)
+      TMC_SAY_CURRENT(Z4);
     #endif
     #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);

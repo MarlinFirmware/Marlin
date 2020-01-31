@@ -21,7 +21,11 @@
  */
 #pragma once
 
-#ifndef MCU_LPC1768
+#ifdef SKR_HAS_LPC1769
+  #ifndef MCU_LPC1769
+    #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
+  #endif
+#elif !defined(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -53,6 +57,9 @@
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN     P0_23_A0   // A0 (T0) - (67) - TEMP_BED_PIN
+#endif
+#if HOTENDS == 1 && TEMP_SENSOR_PROBE
+  #define TEMP_PROBE_PIN   P0_25_A2   // TEMP_1_PIN
 #endif
 
 //

@@ -179,5 +179,5 @@
 
 #else
 
-  #error Unknown or no TOUCH_UI_FTDI_EVE board specified. To add a new board, modify "ftdi_eve_boards.h"
+  #error "Unknown or no TOUCH_UI_FTDI_EVE board specified. To add a new board, modify 'ftdi_eve_boards.h'."
 #endif

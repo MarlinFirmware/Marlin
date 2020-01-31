@@ -61,7 +61,7 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 //
 // Filament Runout event handler
 //
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../gcode/queue.h"
 
 #if ENABLED(HOST_ACTION_COMMANDS)

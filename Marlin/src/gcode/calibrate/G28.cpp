@@ -47,8 +47,8 @@
 
 #include "../../lcd/ultralcd.h"
 
-#if HAS_DRIVER(L6470)                         // set L6470 absolute position registers to counts
-  #include "../../libs/L6470/L6470_Marlin.h"
+#if HAS_L64XX                         // set L6470 absolute position registers to counts
+  #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -133,7 +133,7 @@
     destination.set(safe_homing_xy, current_position.z);
 
     #if HOMING_Z_WITH_PROBE
-      destination -= probe_offset;
+      destination -= probe_offset_xy;
     #endif
 
     if (position_is_reachable(destination)) {
@@ -526,11 +526,18 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
     // Set L6470 absolute position registers to counts
-    for (uint8_t j = 1; j <= L6470::chain[0]; j++) {
-      const uint8_t cv = L6470::chain[j];
-      L6470.set_param(cv, L6470_ABS_POS, stepper.position((AxisEnum)L6470.axis_xref[cv]));
+    // constexpr *might* move this to PROGMEM.
+    // If not, this will need a PROGMEM directive and an accessor.
+    static constexpr AxisEnum L64XX_axis_xref[MAX_L64XX] = {
+      X_AXIS, Y_AXIS, Z_AXIS,
+      X_AXIS, Y_AXIS, Z_AXIS, Z_AXIS,
+      E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS
+    };
+    for (uint8_t j = 1; j <= L64XX::chain[0]; j++) {
+      const uint8_t cv = L64XX::chain[j];
+      L64xxManager.set_param((L64XX_axis_t)cv, L6470_ABS_POS, stepper.position(L64XX_axis_xref[cv]));
     }
   #endif
 }

@@ -217,6 +217,9 @@
       static ring_buffer_pos_t available();
       static void write(const uint8_t c);
       static void flushTX();
+      #ifdef DGUS_SERIAL_PORT
+        static ring_buffer_pos_t get_tx_buffer_free();
+      #endif
 
       FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
       FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
@@ -290,6 +293,23 @@
   };
 
   extern MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
+#endif
+
+#ifdef DGUS_SERIAL_PORT
+  template <uint8_t serial>
+  struct MarlinInternalSerialCfg {
+    static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = 128;
+    static constexpr unsigned int TX_SIZE   = 48;
+    static constexpr bool XONOFF            = false;
+    static constexpr bool EMERGENCYPARSER   = false;
+    static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_OVERRUNS       = bDGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS;
+    static constexpr bool RX_FRAMING_ERRORS = false;
+    static constexpr bool MAX_RX_QUEUED     = false;
+  };
+
+  extern MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations

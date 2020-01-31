@@ -213,7 +213,7 @@ class FilamentSensorBase {
           if (change) {
             SERIAL_ECHOPGM("Motion detected:");
             for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; e++)
-              if (TEST(change, e)) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + e); }
+              if (TEST(change, e)) SERIAL_CHAR(' ', '0' + e);
             SERIAL_EOL();
           }
         #endif
