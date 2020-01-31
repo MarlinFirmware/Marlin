@@ -39,9 +39,10 @@ enum L64XX_axis_t : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E
 
 class L64XX_Marlin : public L64XXHelper {
 public:
-  static char index_to_axis[MAX_L64XX][3];
+  static PGM_P const index_to_axis[MAX_L64XX];
 
-  static uint8_t index_to_dir[MAX_L64XX];
+  static const uint8_t index_to_dir[MAX_L64XX];
+
   static uint8_t dir_commands[MAX_L64XX];
 
   // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
@@ -69,7 +70,6 @@ public:
 
   static void transfer(uint8_t L6470_buf[], const uint8_t length);
 
-  //static char* index_to_axis(const uint8_t index);
   static void say_axis(const L64XX_axis_t axis, const uint8_t label=true);
   #if ENABLED(L6470_CHITCHAT)
     static void error_status_decode(
