@@ -24,32 +24,51 @@
 #define BOARD_INFO_NAME "BIGTREE SKR 1.3"
 
 /**
+ * Trinamic Stallguard pins
+ */
+#define X_DIAG_PIN           P1_29   // X-
+#define Y_DIAG_PIN           P1_27   // Y-
+#define Z_DIAG_PIN           P1_25   // Z-
+#define E0_DIAG_PIN          P1_28   // X+
+#define E1_DIAG_PIN          P1_26   // Y+
+
+/**
  * Limit Switches
  */
-#if X_HOME_DIR > 0 && X_STALL_SENSITIVITY && !defined(USE_XMAX_PLUG)
-  // For StallGuard homing to MAX swap the MIN / MAX pins
-  // so the MAX physical connectors may be used for other things.
-  #define X_MIN_PIN          P1_28   // X_MAX (free)
-  #define X_MAX_PIN          P1_29   // X_MIN
-#else                                // else, non-endstop is free and appears in M43 output
-  #define X_MIN_PIN          P1_29   // X_MIN
-  #define X_MAX_PIN          P1_28   // X_MAX
+#if X_STALL_SENSITIVITY
+  #define X_STOP_PIN         X_DIAG_PIN
+  #if X_HOME_DIR < 0
+    #define X_MAX_PIN        P1_28   // X+
+  #else
+    #define X_MIN_PIN        P1_28   // X+
+  #endif
+#else
+  #define X_MIN_PIN          P1_29   // X-
+  #define X_MAX_PIN          P1_28   // X+
 #endif
 
-#if Y_HOME_DIR > 0 && Y_STALL_SENSITIVITY && !defined(USE_YMAX_PLUG)
-  #define Y_MIN_PIN          P1_26   // Y_MAX (free)
-  #define Y_MAX_PIN          P1_27   // Y_MIN
+#if Y_STALL_SENSITIVITY
+  #define Y_STOP_PIN         Y_DIAG_PIN
+  #if Y_HOME_DIR < 0
+    #define Y_MAX_PIN        P1_26   // Y+
+  #else
+    #define Y_MIN_PIN        P1_26   // Y+
+  #endif
 #else
-  #define Y_MIN_PIN          P1_27   // Y_MIN
-  #define Y_MAX_PIN          P1_26   // Y_MAX
+  #define Y_MIN_PIN          P1_27   // Y-
+  #define Y_MAX_PIN          P1_26   // Y+
 #endif
 
-#if Z_HOME_DIR > 0 && Z_STALL_SENSITIVITY && !defined(USE_ZMAX_PLUG)
-  #define Z_MIN_PIN          P1_24   // Z_MAX (free)
-  #define Z_MAX_PIN          P1_25   // Z_MIN
+#if Z_STALL_SENSITIVITY
+  #define Z_STOP_PIN         Z_DIAG_PIN
+  #if Z_HOME_DIR < 0
+    #define Z_MAX_PIN        P1_24   // Z+
+  #else
+    #define Z_MIN_PIN        P1_24   // Z+
+  #endif
 #else
-  #define Z_MIN_PIN          P1_25   // Z_MIN
-  #define Z_MAX_PIN          P1_24   // Z_MAX
+  #define Z_MIN_PIN          P1_25   // Z-
+  #define Z_MAX_PIN          P1_24   // Z+
 #endif
 
 #define ONBOARD_ENDSTOPPULLUPS     // Board has built-in pullups
@@ -161,9 +180,6 @@
 
   #define E1_SERIAL_TX_PIN P1_04
   #define E1_SERIAL_RX_PIN P1_01
-
-  #define Z2_SERIAL_TX_PIN P1_04
-  #define Z2_SERIAL_RX_PIN P1_01
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200

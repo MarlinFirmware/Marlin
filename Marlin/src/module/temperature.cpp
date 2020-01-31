@@ -220,10 +220,10 @@ Temperature thermalManager;
 #endif // FAN_COUNT > 0
 
 #if WATCH_HOTENDS
-  heater_watch_t Temperature::watch_hotend[HOTENDS]; // = { { 0 } }
+  hotend_watch_t Temperature::watch_hotend[HOTENDS]; // = { { 0 } }
 #endif
 #if HEATER_IDLE_HANDLER
-  heater_idle_t Temperature::hotend_idle[HOTENDS]; // = { { 0 } }
+  hotend_idle_t Temperature::hotend_idle[HOTENDS]; // = { { 0 } }
 #endif
 
 #if HAS_HEATED_BED
@@ -236,13 +236,13 @@ Temperature thermalManager;
     int16_t Temperature::maxtemp_raw_BED = HEATER_BED_RAW_HI_TEMP;
   #endif
   #if WATCH_BED
-    heater_watch_t Temperature::watch_bed; // = { 0 }
+    bed_watch_t Temperature::watch_bed; // = { 0 }
   #endif
   #if DISABLED(PIDTEMPBED)
     millis_t Temperature::next_bed_check_ms;
   #endif
   #if HEATER_IDLE_HANDLER
-    heater_idle_t Temperature::bed_idle; // = { 0 }
+    hotend_idle_t Temperature::bed_idle; // = { 0 }
   #endif
 #endif // HAS_HEATED_BED
 
@@ -256,7 +256,7 @@ Temperature thermalManager;
       int16_t Temperature::maxtemp_raw_CHAMBER = HEATER_CHAMBER_RAW_HI_TEMP;
     #endif
     #if WATCH_CHAMBER
-      heater_watch_t Temperature::watch_chamber{0};
+      chamber_watch_t Temperature::watch_chamber{0};
     #endif
     millis_t Temperature::next_chamber_check_ms;
   #endif // HAS_HEATED_CHAMBER
@@ -1974,12 +1974,7 @@ void Temperature::init() {
    */
   void Temperature::start_watching_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
-    if (degTargetHotend(ee) && degHotend(ee) < degTargetHotend(ee) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
-      watch_hotend[ee].target = degHotend(ee) + WATCH_TEMP_INCREASE;
-      watch_hotend[ee].next_ms = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
-    }
-    else
-      watch_hotend[ee].next_ms = 0;
+    watch_hotend[ee].restart(degHotend(ee), degTargetHotend(ee));
   }
 #endif
 
@@ -1990,12 +1985,7 @@ void Temperature::init() {
    * This is called when the temperature is set. (M140, M190)
    */
   void Temperature::start_watching_bed() {
-    if (degTargetBed() && degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
-      watch_bed.target = degBed() + WATCH_BED_TEMP_INCREASE;
-      watch_bed.next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000UL;
-    }
-    else
-      watch_bed.next_ms = 0;
+    watch_bed.restart(degBed(), degTargetBed());
   }
 #endif
 
@@ -2006,12 +1996,7 @@ void Temperature::init() {
    * This is called when the temperature is set. (M141, M191)
    */
   void Temperature::start_watching_chamber() {
-    if (degChamber() < degTargetChamber() - (WATCH_CHAMBER_TEMP_INCREASE + TEMP_CHAMBER_HYSTERESIS + 1)) {
-      watch_chamber.target = degChamber() + WATCH_CHAMBER_TEMP_INCREASE;
-      watch_chamber.next_ms = millis() + (WATCH_CHAMBER_TEMP_PERIOD) * 1000UL;
-    }
-    else
-      watch_chamber.next_ms = 0;
+    watch_chamber.restart(degChamber(), degTargetChamber());
   }
 #endif
 
@@ -2154,6 +2139,34 @@ void Temperature::disable_all_heaters() {
   #endif
 }
 
+#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+
+  bool Temperature::over_autostart_threshold() {
+    #if HOTENDS
+      HOTEND_LOOP() if (degTargetHotend(e) < (EXTRUDE_MINTEMP) / 2) return true;
+    #endif
+    #if HAS_HEATED_BED
+      if (degTargetBed() > BED_MINTEMP) return true;
+    #endif
+    #if HAS_HEATED_CHAMBER
+      if (degTargetChamber() > CHAMBER_MINTEMP) return true;
+    #endif
+    return false;
+  }
+
+  void Temperature::check_timer_autostart(const bool can_start, const bool can_stop) {
+    if (over_autostart_threshold()) {
+      if (can_start) startOrResumeJob();
+    }
+    else if (can_stop) {
+      print_job_timer.stop();
+      ui.reset_status();
+    }
+  }
+
+#endif
+
+
 #if ENABLED(PROBING_HEATERS_OFF)
 
   void Temperature::pause(const bool p) {
@@ -2166,7 +2179,7 @@ void Temperature::disable_all_heaters() {
         #endif
       }
       else {
-        HOTEND_LOOP() reset_heater_idle_timer(e);
+        HOTEND_LOOP() reset_hotend_idle_timer(e);
         #if HAS_HEATED_BED
           reset_bed_idle_timer();
         #endif

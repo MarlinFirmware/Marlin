@@ -1927,7 +1927,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps.z) enable_Z();
+        if (current_block->steps.z) ENABLE_AXIS_Z();
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -2215,12 +2215,12 @@ void Stepper::init() {
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT()
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
-  #define _DISABLE(AXIS) disable_## AXIS()
+  #define _DISABLE_AXIS(AXIS) DISABLE_AXIS_## AXIS()
 
   #define AXIS_INIT(AXIS, PIN) \
     _STEP_INIT(AXIS); \
     _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
-    _DISABLE(AXIS)
+    _DISABLE_AXIS(AXIS)
 
   #define E_AXIS_INIT(NUM) AXIS_INIT(E## NUM, E)
 
@@ -2437,7 +2437,7 @@ void Stepper::report_positions() {
   #endif
   #define EXTRA_CYCLES_BABYSTEP (STEP_PULSE_CYCLES - (CYCLES_EATEN_BABYSTEP))
 
-  #define _ENABLE(AXIS) enable_## AXIS()
+  #define _ENABLE_AXIS(AXIS) ENABLE_AXIS_## AXIS()
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
@@ -2460,7 +2460,7 @@ void Stepper::report_positions() {
 
   #define BABYSTEP_AXIS(AXIS, INVERT, DIR) {            \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
-      _ENABLE(AXIS);                                    \
+      _ENABLE_AXIS(AXIS);                                    \
       DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);              \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
       DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);              \
@@ -2523,9 +2523,9 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          enable_X();
-          enable_Y();
-          enable_Z();
+          ENABLE_AXIS_X();
+          ENABLE_AXIS_Y();
+          ENABLE_AXIS_Z();
 
           #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
             DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
