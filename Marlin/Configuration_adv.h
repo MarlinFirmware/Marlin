@@ -449,14 +449,21 @@
 /**
  * M355 Case Light on-off / brightness
  */
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4)
   #define CASE_LIGHT_ENABLE
 #else // ANYCUBIC_4MAX_DEFAULT
 //#define CASE_LIGHT_ENABLE
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE)
-  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
+  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    //#define CASE_LIGHT_PIN 4         // Override the default pin if needed
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+   #define CASE_LIGHT_PIN NEOPIXEL_PIN         // Override the default pin if needed
+  #else
+    //#define CASE_LIGHT_PIN 4         // Override the default pin if needed
+  #endif
+
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
@@ -961,7 +968,7 @@
    * LED Control Menu
    * Add LED Control to the LCD menu
    */
-  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4)
     #define LED_CONTROL_MENU
   #else
     //#define LED_CONTROL_MENU
@@ -2032,7 +2039,26 @@
     #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16    // 0..256
-    #define X_RSENSE          0.11
+    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+      //
+      // CHOICE OF RSENSE AND RESULTING MAX. MOTOR CURRENT WITH GLOBALSCALER=255
+      //
+      // | --------------------------------------------------------------------------|
+      // | RSENSE [Ω]  | RMS current [A](CS=31) | Sine wave peak current [A] (CS=31) |
+      // | 0.22        | 1.1                    | 1.5                                |
+      // | 0.15        | 1.6                    | 2.2                                |
+      // | 0.12        | 2.0                    | 2.8                                |
+      // | 0.10        | 2.3                    | 3.3                                |
+      // | 0.075       | 3.1                    | 4.4                                |
+      // | 0.066       | 3.5                    | 5.0                                |
+      // | 0.060       | 3.8                    | 5.4                                | <-- 
+      // | --------------------------------------------------------------------------|
+      // Documentation --> 9 Selecting Sense Resistors List - https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5161-datasheet_Rev1.02.pdf
+      //
+      #define X_RSENSE         0.060 // TMC5161 
+    #else 
+      #define X_RSENSE         0.11
+    #endif
     #define X_CHAIN_POS      -1    // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
   #endif
 
@@ -2048,7 +2074,11 @@
     #define Y_CURRENT       800
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     16
-    #define Y_RSENSE          0.11
+    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+      #define Y_RSENSE         0.060 // TMC5161 
+    #else 
+      #define Y_RSENSE         0.11
+    #endif
     #define Y_CHAIN_POS      -1
   #endif
 
@@ -2064,7 +2094,11 @@
     #define Z_CURRENT       800
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
-    #define Z_RSENSE          0.11
+    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+      #define Z_RSENSE         0.060 // TMC5161 
+    #else 
+      #define Z_RSENSE         0.11
+    #endif
     #define Z_CHAIN_POS      -1
   #endif
 
@@ -2095,7 +2129,11 @@
   #if AXIS_IS_TMC(E0)
     #define E0_CURRENT      800
     #define E0_MICROSTEPS    16
-    #define E0_RSENSE         0.11
+    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+      #define E0_RSENSE         0.060 // TMC5161 
+    #else 
+      #define E0_RSENSE         0.11
+    #endif
     #define E0_CHAIN_POS     -1
   #endif
 
@@ -2173,7 +2211,11 @@
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
    */
+  #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    #define TMC_USE_SW_SPI
+  #else
   //#define TMC_USE_SW_SPI
+  #endif
   //#define TMC_SW_MOSI       -1
   //#define TMC_SW_MISO       -1
   //#define TMC_SW_SCK        -1
@@ -2252,7 +2294,7 @@
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
 
-  #if ENABLED(ANYCUBIC_4MAX_TMC_E0)
+  #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
     #define MONITOR_DRIVER_STATUS
   #else
     //#define MONITOR_DRIVER_STATUS
@@ -2342,9 +2384,8 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #if ENABLED(ANYCUBIC_4MAX_TMC_E0)
+  #if ENABLED(ANYCUBIC_4MAX_SKR_1_4)
     #define TMC_DEBUG
-    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
   #else
     //#define TMC_DEBUG
   #endif

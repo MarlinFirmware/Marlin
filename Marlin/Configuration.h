@@ -124,24 +124,37 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  //#define MOTHERBOARD BOARD_RAMPS_13_EFB
+  // define here your Motherboard
+  // *
   //#define MOTHERBOARD BOARD_TRIGORILLA_14
-  // Only define ANYCUBIC_4MAX in combination with BOARD_TRIGORILLA_14
-  //#define ANYCUBIC_4MAX
   #define MOTHERBOARD BOARD_BIGTREE_SKR_V1_4_TURBO
+  //*
+  
+  #if (MOTHERBOARD == BOARD_TRIGORILLA_14)
+    // Only defined in combination with BOARD_TRIGORILLA_14
+    #define ANYCUBIC_4MAX
+    // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
+    // *
+    //#define ANYCUBIC_4MAX_VG3R
+    //#define ANYCUBIC_4MAX_7OF9
+    #define ANYCUBIC_4MAX_DEFAULT
+    // *
+  #endif
+  
+  #if (MOTHERBOARD == BOARD_BIGTREE_SKR_V1_4_TURBO)
+    // Only defined in combination with BOARD_TRIGORILLA_14
+    //* 
+    #define ANYCUBIC_4MAX_SKR_1_4
+    // *
+  #endif
 
-  // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-  //#define ANYCUBIC_4MAX_VG3R
-  //#define ANYCUBIC_4MAX_7OF9
-  //#define ANYCUBIC_4MAX_DEFAULT
-  #define ANYCUBIC_4MAX_SKR_1_4
 // TMC2208 with UART where TX is on SERVO0_PIN and RX is on PS_ON_PIN
 // Info: Just for Testing.
 // My Test-Result: Working! But it seems that TMC2208 on E0 makes other steppers Like X and Y motors to loose steps!
@@ -737,7 +750,7 @@
 #define USE_ZMIN_PLUG
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4)
   #define USE_ZMAX_PLUG
 #else
   //#define USE_ZMAX_PLUG
@@ -815,6 +828,10 @@
   #define X_DRIVER_TYPE  TMC2208_STANDALONE
   #define Y_DRIVER_TYPE  TMC2208_STANDALONE
   #define Z_DRIVER_TYPE  TMC2208_STANDALONE
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #define X_DRIVER_TYPE  TMC5160
+  #define Y_DRIVER_TYPE  TMC5160
+  #define Z_DRIVER_TYPE  TMC5160
 #else  // Default 4MAX Driver
   #define X_DRIVER_TYPE  A4988
   #define Y_DRIVER_TYPE  A4988
@@ -826,10 +843,10 @@
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
 
-#if ENABLED(ANYCUBIC_4MAX_TMC_E0)
+#if ENABLED(ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_VG3R)
   #define E0_DRIVER_TYPE TMC2208
-#elif ENABLED(ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_VG3R)
-  #define E0_DRIVER_TYPE TMC2208_STANDALONE
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #define E0_DRIVER_TYPE TMC5160
 #else // Default 4MAX Driver
   #define E0_DRIVER_TYPE A4988
 #endif
@@ -2452,17 +2469,20 @@
   #define NEOPIXEL_TYPE   NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
     #define NEOPIXEL_PIN    SERVO3_PIN // LED driving pin
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    //#ifndef NEOPIXEL_PIN
+    //  #undef NEOPIXEL_PIN
+    //  #define NEOPIXEL_PIN      P1_24  // Is define in pins!
+    //#endif
   #else
-    #ifndef NEOPIXEL_PIN
-      #define NEOPIXEL_PIN      P1_24
-    #endif
+      //#define NEOPIXEL_PIN      P1_24
   #endif
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 39         // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
+  #define NEOPIXEL_PIXELS 8 // 39 --> 8 Is for testing.  Org device has 39 LED!!!         // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL     // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 200    // Initial brightness (0-255)
-  //#define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
+  #define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
 
   // Use a single Neopixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
