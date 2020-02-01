@@ -113,8 +113,8 @@ void GcodeSuite::G76() {
     }
     // Ensure probe position is reachable
     destination.set(
-      temp_comp.measure_point_x - probe_offset.x,
-      temp_comp.measure_point_y - probe_offset.y
+      temp_comp.measure_point_x - probe.offset_xy.x,
+      temp_comp.measure_point_y - probe.offset_xy.y
     );
     if (!position_is_reachable_by_probe(destination)) {
       SERIAL_ECHOLNPGM("!Probe position unreachable - aborting.");
@@ -209,9 +209,9 @@ void GcodeSuite::G76() {
 
       // Do a single probe
       remember_feedrate_scaling_off();
-      const float measured_z = probe_at_point(
-        destination.x + probe_offset.x,
-        destination.y + probe_offset.y,
+      const float measured_z = probe.probe_at_point(
+        destination.x + probe.offset_xy.x,
+        destination.y + probe.offset_xy.y,
         PROBE_PT_NONE
       );
       restore_feedrate_and_scaling();
@@ -256,7 +256,7 @@ void GcodeSuite::G76() {
 
     // Initialize temperatures
     uint16_t target_bed = temp_comp.probe_calib_bed_temp,
-             target_probe = temp_comp.cali_info_init[TSI_BED].start_temp;
+             target_probe = temp_comp.cali_info_init[TSI_PROBE].start_temp;
     thermalManager.setTargetBed(target_bed);
     SERIAL_ECHOLNPGM("Waiting for bed and probe temperature.");
     while (fabs(thermalManager.degBed() - float(target_bed)) > 0.1f
@@ -318,9 +318,9 @@ void GcodeSuite::G76() {
 
       // Do a single probe
       remember_feedrate_scaling_off();
-      const float measured_z = probe_at_point(
-        destination.x + probe_offset.x,
-        destination.y + probe_offset.y,
+      const float measured_z = probe.probe_at_point(
+        destination.x + probe.offset_xy.x,
+        destination.y + probe.offset_xy.y,
         PROBE_PT_NONE
       );
       restore_feedrate_and_scaling();
@@ -332,13 +332,13 @@ void GcodeSuite::G76() {
       else
         SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
 
-      if (target_probe == temp_comp.cali_info_init[TSI_BED].start_temp)
+      if (target_probe == temp_comp.cali_info_init[TSI_PROBE].start_temp)
         temp_comp.prepare_new_calibration(measured_z);
       else
         temp_comp.push_back_new_measurement(TSI_PROBE, measured_z);
 
-      target_probe += temp_comp.cali_info_init[TSI_BED].temp_res;
-      if (target_probe > temp_comp.cali_info_init[TSI_BED].end_temp) break;
+      target_probe += temp_comp.cali_info_init[TSI_PROBE].temp_res;
+      if (target_probe > temp_comp.cali_info_init[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());

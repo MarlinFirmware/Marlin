@@ -133,7 +133,7 @@
     destination.set(safe_homing_xy, current_position.z);
 
     #if HOMING_Z_WITH_PROBE
-      destination -= probe_offset_xy;
+      destination -= probe.offset_xy;
     #endif
 
     if (position_is_reachable(destination)) {
@@ -416,7 +416,7 @@ void GcodeSuite::G28(const bool always_home_all) {
         #endif
 
         #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
-          move_z_after_probing();
+          probe.move_z_after_probing();
         #endif
 
       } // doZ

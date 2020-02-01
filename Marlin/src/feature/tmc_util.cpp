@@ -281,6 +281,10 @@
       }
     }
 
+  #else
+
+    #define step_current_down(...)
+
   #endif
 
   template<typename TMC>
@@ -288,7 +292,7 @@
     TMC_driver_data data = get_driver_data(st);
     if (data.drv_status == 0xFFFFFFFF || data.drv_status == 0x0) return false;
 
-    bool did_step_down = false;
+    bool should_step_down = false;
 
     if (need_update_error_counters) {
       if (data.is_ot /* | data.s2ga | data.s2gb*/) st.error_count++;
@@ -308,10 +312,8 @@
 
       #if CURRENT_STEP_DOWN > 0
         // Decrease current if is_otpw is true and driver is enabled and there's been more than 4 warnings
-        if (data.is_otpw && st.otpw_count > 4 && st.isEnabled()) {
-          step_current_down(st);
-          did_step_down = true;
-        }
+        if (data.is_otpw && st.otpw_count > 4 && st.isEnabled())
+          should_step_down = true;
       #endif
 
       if (data.is_otpw) {
@@ -325,7 +327,7 @@
       if (need_debug_reporting) report_polled_driver_data(st, data);
     #endif
 
-    return did_step_down;
+    return should_step_down;
   }
 
   void monitor_tmc_drivers() {

@@ -83,42 +83,42 @@ void safe_delay(millis_t ms) {
     #if HAS_BED_PROBE
 
       #if !HAS_PROBE_XY_OFFSET
-        SERIAL_ECHOPAIR("Probe Offset X0 Y0 Z", probe_offset.z, " (");
+        SERIAL_ECHOPAIR("Probe Offset X0 Y0 Z", probe.offset.z, " (");
       #else
-        SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR, probe_offset.z);
-        if (probe_offset.x > 0)
+        SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR, probe.offset.z);
+        if (probe.offset_xy.x > 0)
           SERIAL_ECHOPGM(" (Right");
-        else if (probe_offset.x < 0)
+        else if (probe.offset_xy.x < 0)
           SERIAL_ECHOPGM(" (Left");
-        else if (probe_offset.y != 0)
+        else if (probe.offset_xy.y != 0)
           SERIAL_ECHOPGM(" (Middle");
         else
           SERIAL_ECHOPGM(" (Aligned With");
 
-        if (probe_offset.y > 0) {
+        if (probe.offset_xy.y > 0) {
           #if IS_SCARA
             SERIAL_ECHOPGM("-Distal");
           #else
             SERIAL_ECHOPGM("-Back");
           #endif
         }
-        else if (probe_offset.y < 0) {
+        else if (probe.offset_xy.y < 0) {
           #if IS_SCARA
             SERIAL_ECHOPGM("-Proximal");
           #else
             SERIAL_ECHOPGM("-Front");
           #endif
         }
-        else if (probe_offset.x != 0)
+        else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
         SERIAL_ECHOPGM(" & ");
 
       #endif
 
-      if (probe_offset.z < 0)
+      if (probe.offset.z < 0)
         SERIAL_ECHOPGM("Below");
-      else if (probe_offset.z > 0)
+      else if (probe.offset.z > 0)
         SERIAL_ECHOPGM("Above");
       else
         SERIAL_ECHOPGM("Same Z as");
