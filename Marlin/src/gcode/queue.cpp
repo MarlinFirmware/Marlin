@@ -491,8 +491,7 @@ void GCodeQueue::get_serial_commands() {
    * can also interrupt buffering.
    */
   inline void GCodeQueue::get_sdcard_commands() {
-    static bool stop_buffering = false,
-                sd_comment_mode = false
+    static bool sd_comment_mode = false
                 #if ENABLED(PAREN_COMMENTS)
                   , sd_comment_paren_mode = false
                 #endif
@@ -500,29 +499,13 @@ void GCodeQueue::get_serial_commands() {
 
     if (!IS_SD_PRINTING()) return;
 
-    /**
-     * '#' stops reading from SD to the buffer prematurely, so procedural
-     * macro calls are possible. If it occurs, stop_buffering is triggered
-     * and the buffer is run dry; this character _can_ occur in serial com
-     * due to checksums, however, no checksums are used in SD printing.
-     */
-
-    if (length == 0) stop_buffering = false;
-
     uint16_t sd_count = 0;
     bool card_eof = card.eof();
-    while (length < BUFSIZE && !card_eof && !stop_buffering) {
+    while (length < BUFSIZE && !card_eof) {
       const int16_t n = card.get();
       char sd_char = (char)n;
       card_eof = card.eof();
-      if (card_eof || n == -1
-          || sd_char == '\n' || sd_char == '\r'
-          || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode
-            #if ENABLED(PAREN_COMMENTS)
-              && !sd_comment_paren_mode
-            #endif
-          )
-      ) {
+      if (card_eof || n == -1 || sd_char == '\n' || sd_char == '\r') {
         if (card_eof) {
 
           card.printingHasFinished();
@@ -547,8 +530,6 @@ void GCodeQueue::get_serial_commands() {
         }
         else if (n == -1)
           SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
-
-        if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; // for new command
         #if ENABLED(PAREN_COMMENTS)
