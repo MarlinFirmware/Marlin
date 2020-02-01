@@ -61,7 +61,7 @@ public:
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative);
     }
     #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-      static PGM_P msg_wait_for_bed_heating[25];
+      static const char msg_wait_for_bed_heating[25];
     #endif
 
   #else
