@@ -285,7 +285,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_SD_AbortPrintConfirmed, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_ReallyAbort, nullptr),
     VPHELPER(VP_SD_Print_Setting, nullptr, DGUSScreenVariableHandler::DGUSLCD_SD_PrintTune, nullptr),
     #if HAS_BED_PROBE
-      VPHELPER(VP_SD_Print_ProbeOffsetZ, &probe_offset.z, DGUSScreenVariableHandler::HandleProbeOffsetZChanged, &DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+      VPHELPER(VP_SD_Print_ProbeOffsetZ, &probe.offset.z, DGUSScreenVariableHandler::HandleProbeOffsetZChanged, &DGUSScreenVariableHandler::DGUSLCD_SendFloatAsIntValueToDisplay<2>),
       #if ENABLED(BABYSTEPPING)
         VPHELPER(VP_SD_Print_LiveAdjustZ, nullptr, DGUSScreenVariableHandler::HandleLiveAdjustZ, nullptr),
       #endif

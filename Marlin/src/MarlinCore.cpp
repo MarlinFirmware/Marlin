@@ -977,7 +977,7 @@ void setup() {
   #endif
 
   #if HAS_Z_SERVO_PROBE
-    servo_probe_init();
+    probe.servo_probe_init();
   #endif
 
   #if HAS_PHOTOGRAPH

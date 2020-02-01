@@ -133,8 +133,8 @@ void GcodeSuite::G34() {
 
   do { // break out on error
 
-    #if NUM_Z_STEPPER_DRIVERS == 4
-      SERIAL_ECHOLNPGM("Quad Z Stepper Leveling not Yet Supported");
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      SERIAL_ECHOLNPGM("Alignment not supported for over 3 steppers");
       break;
     #endif
 
@@ -240,7 +240,7 @@ void GcodeSuite::G34() {
         if (iteration == 0 || i > 0) do_blocking_move_to_z(z_probe);
 
         // Probe a Z height for each stepper.
-        const float z_probed_height = probe_at_point(z_stepper_align_pos[iprobe], raise_after, 0, true);
+        const float z_probed_height = probe.probe_at_point(z_stepper_align_pos[iprobe], raise_after, 0, true);
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;
@@ -314,7 +314,7 @@ void GcodeSuite::G34() {
 
         #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
           // Optimize one iteration's correction based on the first measurements
-          if (z_align_abs > 0.0f) amplification = iteration == 1 ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
+          if (z_align_abs) amplification = (iteration == 1) ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
         #endif
 
         // Check for less accuracy compared to last move
@@ -379,9 +379,9 @@ void GcodeSuite::G34() {
     // After this operation the z position needs correction
     set_axis_is_not_at_home(Z_AXIS);
 
-    // Stow the probe, as the last call to probe_at_point(...) left
+    // Stow the probe, as the last call to probe.probe_at_point(...) left
     // the probe deployed if it was successful.
-    STOW_PROBE();
+    probe.stow();
 
     // Home Z after the alignment procedure
     process_subcommands_now_P(PSTR("G28 Z"));
