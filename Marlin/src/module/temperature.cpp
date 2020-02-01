@@ -2143,7 +2143,7 @@ void Temperature::disable_all_heaters() {
 
   bool Temperature::over_autostart_threshold() {
     #if HOTENDS
-      HOTEND_LOOP() if (degTargetHotend(e) < (EXTRUDE_MINTEMP) / 2) return true;
+      HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
     #endif
     #if HAS_HEATED_BED
       if (degTargetBed() > BED_MINTEMP) return true;
