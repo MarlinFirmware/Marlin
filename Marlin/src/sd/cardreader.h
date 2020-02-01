@@ -83,7 +83,8 @@ public:
   static void checkautostart();
 
   // Basic file ops
-  static void openFile(char * const path, const bool read, const bool subcall=false);
+  static void openFileRead(char * const path, const uint8_t subcall=0);
+  static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
   static void removeFile(const char * const name);
 
@@ -124,7 +125,7 @@ public:
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
-  static const char* diveToFile(SdFile*& curDir, const char * const path, const bool echo=false);
+  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();

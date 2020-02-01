@@ -88,6 +88,9 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #if AXIS_HAS_SPI(Z3)
   TMC_SPI_DEFINE(Z3, Z);
 #endif
+#if AXIS_HAS_SPI(Z4)
+  TMC_SPI_DEFINE(Z4, Z);
+#endif
 #if AXIS_HAS_SPI(E0)
   TMC_SPI_DEFINE_E(0);
 #endif
@@ -249,6 +252,13 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
       TMC_UART_DEFINE(SW, Z3, Z);
     #endif
   #endif
+  #if AXIS_HAS_UART(Z4)
+    #ifdef Z4_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, Z4, Z);
+    #else
+      TMC_UART_DEFINE(SW, Z4, Z);
+    #endif
+  #endif
   #if AXIS_HAS_UART(E0)
     #ifdef E0_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 0);
@@ -289,6 +299,20 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
       TMC_UART_DEFINE_E(HW, 5);
     #else
       TMC_UART_DEFINE_E(SW, 5);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(E6)
+    #ifdef E6_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E(HW, 6);
+    #else
+      TMC_UART_DEFINE_E(SW, 6);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(E7)
+    #ifdef E7_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E(HW, 7);
+    #else
+      TMC_UART_DEFINE_E(SW, 7);
     #endif
   #endif
 
@@ -342,6 +366,13 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
         stepperZ3.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
+    #if AXIS_HAS_UART(Z4)
+      #ifdef Z4_HARDWARE_SERIAL
+        Z4_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+      #else
+        stepperZ4.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
     #if AXIS_HAS_UART(E0)
       #ifdef E0_HARDWARE_SERIAL
         E0_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
@@ -382,6 +413,20 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
         E5_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
       #else
         stepperE5.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(E6)
+      #ifdef E6_HARDWARE_SERIAL
+        E6_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+      #else
+        stepperE6.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(E7)
+      #ifdef E7_HARDWARE_SERIAL
+        E7_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+      #else
+        stepperE7.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
   }
@@ -616,6 +661,9 @@ void restore_trinamic_drivers() {
   #if AXIS_IS_TMC(Z3)
     stepperZ3.push();
   #endif
+  #if AXIS_IS_TMC(Z4)
+    stepperZ4.push();
+  #endif
   #if AXIS_IS_TMC(E0)
     stepperE0.push();
   #endif
@@ -633,6 +681,12 @@ void restore_trinamic_drivers() {
   #endif
   #if AXIS_IS_TMC(E5)
     stepperE5.push();
+  #endif
+  #if AXIS_IS_TMC(E6)
+    stepperE6.push();
+  #endif
+  #if AXIS_IS_TMC(E7)
+    stepperE7.push();
   #endif
 }
 
@@ -678,6 +732,9 @@ void reset_trinamic_drivers() {
   #if AXIS_IS_TMC(Z3)
     _TMC_INIT(Z3, STEALTH_AXIS_Z);
   #endif
+  #if AXIS_IS_TMC(Z4)
+    _TMC_INIT(Z4, STEALTH_AXIS_Z);
+  #endif
   #if AXIS_IS_TMC(E0)
     _TMC_INIT(E0, STEALTH_AXIS_E);
   #endif
@@ -695,6 +752,12 @@ void reset_trinamic_drivers() {
   #endif
   #if AXIS_IS_TMC(E5)
     _TMC_INIT(E5, STEALTH_AXIS_E);
+  #endif
+  #if AXIS_IS_TMC(E6)
+    _TMC_INIT(E6, STEALTH_AXIS_E);
+  #endif
+  #if AXIS_IS_TMC(E7)
+    _TMC_INIT(E7, STEALTH_AXIS_E);
   #endif
 
   #if USE_SENSORLESS
@@ -726,6 +789,9 @@ void reset_trinamic_drivers() {
       #endif
       #if AXIS_HAS_STALLGUARD(Z3)
         stepperZ3.homing_threshold(Z_STALL_SENSITIVITY);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Z4)
+        stepperZ4.homing_threshold(Z_STALL_SENSITIVITY);
       #endif
     #endif
   #endif

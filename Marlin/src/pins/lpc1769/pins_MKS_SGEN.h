@@ -31,6 +31,7 @@
 
 #define BOARD_INFO_NAME   "MKS SGen"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN"
+#define MKS_HAS_LPC1769
 
 #include "../lpc1768/pins_MKS_SBASE.h"
 

@@ -57,10 +57,11 @@
    * M666: Set Dual Endstops offsets for X, Y, and/or Z.
    *       With no parameters report current offsets.
    *
-   * For Triple Z Endstops:
+   * For Triple / Quad Z Endstops:
    *   Set Z2 Only: M666 S2 Z<offset>
    *   Set Z3 Only: M666 S3 Z<offset>
-   *      Set Both: M666 Z<offset>
+   *   Set Z4 Only: M666 S4 Z<offset>
+   *       Set All: M666 Z<offset>
    */
   void GcodeSuite::M666() {
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -69,15 +70,20 @@
     #if ENABLED(Y_DUAL_ENDSTOPS)
       if (parser.seenval('Y')) endstops.y2_endstop_adj = parser.value_linear_units();
     #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+    #if ENABLED(Z_MULTI_ENDSTOPS)
       if (parser.seenval('Z')) {
-        const float z_adj = parser.value_linear_units();
-        const int ind = parser.intval('S');
-        if (!ind || ind == 2) endstops.z2_endstop_adj = z_adj;
-        if (!ind || ind == 3) endstops.z3_endstop_adj = z_adj;
+        #if NUM_Z_STEPPER_DRIVERS >= 3
+          const float z_adj = parser.value_linear_units();
+          const int ind = parser.intval('S');
+          if (!ind || ind == 2) endstops.z2_endstop_adj = z_adj;
+          if (!ind || ind == 3) endstops.z3_endstop_adj = z_adj;
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            if (!ind || ind == 4) endstops.z4_endstop_adj = z_adj;
+          #endif
+        #else
+          endstops.z2_endstop_adj = parser.value_linear_units();
+        #endif
       }
-    #elif Z_MULTI_ENDSTOPS
-      if (parser.seen('Z')) endstops.z2_endstop_adj = parser.value_linear_units();
     #endif
     if (!parser.seen("XYZ")) {
       SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
@@ -87,11 +93,14 @@
       #if ENABLED(Y_DUAL_ENDSTOPS)
         SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
       #endif
-      #if Z_MULTI_ENDSTOPS
+      #if ENABLED(Z_MULTI_ENDSTOPS)
         SERIAL_ECHOPAIR(" Z2:", endstops.z2_endstop_adj);
-      #endif
-      #if ENABLED(Z_TRIPLE_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Z3:", endstops.z3_endstop_adj);
+        #if NUM_Z_STEPPER_DRIVERS >= 3
+          SERIAL_ECHOPAIR(" Z3:", endstops.z3_endstop_adj);
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            SERIAL_ECHOPAIR(" Z4:", endstops.z4_endstop_adj);
+          #endif
+        #endif
       #endif
       SERIAL_EOL();
     }

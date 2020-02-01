@@ -37,6 +37,15 @@
   #define SERVO3_PIN        6
 #endif
 
+//
+// Custom Limit Switches
+//
+//#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
+#if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
+  #define X_MAX_PIN        43
+  #define Y_MIN_PIN        19
+#endif
+
 // Labeled pins
 #define TRIGORILLA_HEATER_BED_PIN  8
 #define TRIGORILLA_HEATER_0_PIN   10

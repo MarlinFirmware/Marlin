@@ -16,7 +16,7 @@
     ],
     "ldscript": "stm32f407xg.ld",
     "mcu": "stm32f407vet6",
-    "variant": "BIGTREE_TBD"
+    "variant": "BIGTREE_BTT002"
   },
   "debug": {
     "jlink_device": "STM32F407VE",

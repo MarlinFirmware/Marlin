@@ -23,37 +23,45 @@
 
 #ifndef TARGET_STM32F4
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
+#elif HOTENDS > 1 || E_STEPPERS > 1
+  #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
-#define SRAM_EEPROM_EMULATION
+// Use one of these or SDCard-based Emulation will be used
+//#define SRAM_EEPROM_EMULATION   // Use BackSRAM-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION  // Use Flash-based EEPROM emulation
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
-// Servos
-//
-#define SERVO0_PIN         PC3
-
-//
 // Limit Switches
 //
-#define X_MIN_PIN          PD3
-#define X_MAX_PIN          PD3
-#define Y_MIN_PIN          PD2
-#define Y_MAX_PIN          PD2
-#define Z_MIN_PIN          PD1
-#define Z_MAX_PIN          PD1
+#define X_STOP_PIN         PD3
+#define Y_STOP_PIN         PD2
+#define Z_STOP_PIN         PD1   // Shares J4 connector with PC3
 
 //
-// Z Probe must be this pins  ##
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  PD1
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA15
+#endif
+
+//
+// Power Loss Detection
+//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN   PD4
 #endif
 
 //
@@ -87,22 +95,6 @@
   #define E0_CS_PIN        PD7
 #endif
 
-/*
-//SKR_PRO_V1.1
-#define E1_STEP_PIN        PD15
-#define E1_DIR_PIN         PE7
-#define E1_ENABLE_PIN      PA3
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN        PG15
-#endif
-
-#define E2_STEP_PIN        PD13
-#define E2_DIR_PIN         PG9
-#define E2_ENABLE_PIN      PF0
-#ifndef E2_CS_PIN
-  #define E2_CS_PIN        PG12
-#endif
-*/
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
@@ -152,12 +144,6 @@
   #define E0_SERIAL_TX_PIN PD7
   #define E0_SERIAL_RX_PIN PD7
 
-  //#define E1_SERIAL_TX_PIN PD1
-  //#define E1_SERIAL_RX_PIN PD1
-
-  //#define E2_SERIAL_TX_PIN PD6
-  //#define E2_SERIAL_RX_PIN PD6
-
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
 #endif
@@ -165,27 +151,27 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA2   // T1 <-> E0
-#define TEMP_1_PIN         PA0   // T2 <-> E1
-//#define TEMP_2_PIN         PC2   // T3 <-> E2  SKR_PRO
-#define TEMP_BED_PIN       PA1   // T0 <-> Bed
+#define TEMP_0_PIN         PA2   // T0 <-> E0
+#define TEMP_1_PIN         PA0   // T1 <-> E1
+#define TEMP_BED_PIN       PA1   // T2 <-> Bed
+#define TEMP_PROBE_PIN     PC3   // Shares J4 connector with PD1
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PE6  // Heater0
-//#define HEATER_1_PIN       PD14  // Heater1
-//#define HEATER_2_PIN       PB0   // Heater1
+#define HEATER_0_PIN       PE6   // Heater0
 #define HEATER_BED_PIN     PE5   // Hotbed
-#define FAN_PIN            PB9   // Fan0
-#define FAN1_PIN           PB8   // Fan1
-//#define FAN2_PIN           PE6   // Fan2
+#define FAN_PIN            PB8   // Fan1
+#define FAN1_PIN           PB9   // Fan0
 
-// HAL SPI pins group
-#define SCK_PIN            PA5   // SPI SCLK
-#define MYSSEL             PA4   // SPI SSEL
-#define MISO_PIN           PA6   // SPI MISO
-#define MOSI_PIN           PA7   // SPI MOSI
+// HAL SPI1 pins
+#define CUSTOM_SPI_PINS
+#if ENABLED(CUSTOM_SPI_PINS)
+  #define SCK_PIN          PA5   // SPI1 SCLK
+  #define SS_PIN           PA4   // SPI1 SSEL
+  #define MISO_PIN         PA6   // SPI1 MISO
+  #define MOSI_PIN         PA7   // SPI1 MOSI
+#endif
 
 //
 // Misc. Functions
@@ -193,7 +179,7 @@
 #define SDSS               PA4
 
 /**
- * -------------------------------------SKR_MK3-----------------------------------------------
+ * -------------------------------------BTT002 V1.0-----------------------------------------------
  *               _____                                             _____                      |
  *          PA3 | · · | GND                                    5V | · · | GND                 |
  *       NRESET | · · | PC4(SD_DET)                 (LCD_D7) PE13 | · · | PE12  (LCD_D6)      |
@@ -249,3 +235,19 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// RGB LEDs
+//
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN    PB5
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN    PB4
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN    PB3
+#endif
+#ifndef RGB_LED_W_PIN
+  #define RGB_LED_W_PIN    -1
+#endif

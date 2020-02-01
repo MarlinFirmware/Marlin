@@ -25,7 +25,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#include "../../../../Marlin.h"
+#include "../../../../MarlinCore.h"
 #include "DGUSVPVariable.h"
 
 enum DGUSLCD_Screens : uint8_t;
@@ -116,10 +116,52 @@ public:
   static void HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change Flowrate"
   static void HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+    // Hook for manual move option
+    static void HandleManualMoveOption(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
   // Hook for manual move.
   static void HandleManualMove(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for manual extrude.
   static void HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr);
+  // Hook for motor lock and unlook
+  static void HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Hook for power loss recovery.
+    static void HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+  // Hook for settings
+  static void HandleSettings(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #if HAS_PID_HEATING
+    // Hook for "Change this temperature PID para"
+    static void HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);
+    // Hook for PID autotune
+    static void HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+  // Hook for "Change probe offset z"
+  static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #if ENABLED(BABYSTEPPING)
+    // Hook for live z adjust action
+    static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+  #if FAN_COUNT > 0
+    // Hook for fan control
+    static void HandleFanControl(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+  // Hook for heater control
+  static void HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr);
+  #if ENABLED(DGUS_PREHEAT_UI)
+    // Hook for preheat
+    static void HandlePreheat(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+  #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
+    // Hook for filament load and unload filament option
+    static void HandleFilamentOption(DGUS_VP_Variable &var, void *val_ptr);
+    // Hook for filament load and unload
+    static void HandleFilamentLoadUnload(DGUS_VP_Variable &var);
+  #endif
 
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
@@ -134,6 +176,8 @@ public:
     static void DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &var, void *val_ptr);
     /// User confirmed the abort action
     static void DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &var, void *val_ptr);
+    /// User hit the tune button
+    static void DGUSLCD_SD_PrintTune(DGUS_VP_Variable &var, void *val_ptr);
     /// Send a single filename to the display.
     static void DGUSLCD_SD_SendFilename(DGUS_VP_Variable &var);
     /// Marlin informed us that a new SD has been inserted.
@@ -164,8 +208,20 @@ public:
   static void DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendTemperaturePID(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var);
+  #if ENABLED(PRINTCOUNTER)
+    static void DGUSLCD_SendPrintAccTimeToDisplay(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendPrintsTotalToDisplay(DGUS_VP_Variable &var);
+  #endif
+  #if FAN_COUNT > 0
+    static void DGUSLCD_SendFanStatusToDisplay(DGUS_VP_Variable &var);
+  #endif
+  static void DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var);
+  #if ENABLED(DGUS_UI_WAITING)
+    static void DGUSLCD_SendWaitingStatusToDisplay(DGUS_VP_Variable &var);
+  #endif
 
   /// Send a value from 0..100 to a variable with a range from 0..255
   static void DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr);
@@ -196,6 +252,25 @@ public:
       tmp[2] = endian.lb[1];
       tmp[3] = endian.lb[0];
       dgusdisplay.WriteVariable(var.VP, tmp, 4);
+    }
+  }
+
+  /// Send a float value to the display.
+  /// Display will get a 2-byte integer scaled to the number of digits:
+  /// Tell the display the number of digits and it cheats by displaying a dot between...
+  template<unsigned int decimals>
+  static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
+    if (var.memadr) {
+      float f = *(float *)var.memadr;
+      DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
+      f *= cpow(10, decimals);
+      union { int16_t i; char lb[2]; } endian;
+
+      char tmp[2];
+      endian.i = f;
+      tmp[0] = endian.lb[1];
+      tmp[1] = endian.lb[0];
+      dgusdisplay.WriteVariable(var.VP, tmp, 2);
     }
   }
 

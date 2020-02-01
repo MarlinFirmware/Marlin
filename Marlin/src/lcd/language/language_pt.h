@@ -89,7 +89,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" Bico ~");
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" Base");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventoinha");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventoinha =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventoinha ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Fluxo");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Fluxo ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controlo");
@@ -107,7 +107,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E em mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E em mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Diam.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Diam. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
@@ -115,7 +115,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carregar da memoria");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Rest. de emergen.");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT(" Recarregar");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Monitorizar");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Monitorizar");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Afinar");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausar impressão");

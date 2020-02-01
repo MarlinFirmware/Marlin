@@ -94,7 +94,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Llit");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. Ventilador");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VViatge min");
@@ -114,7 +114,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Moviment");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diam. Fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diam. Fil. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");
@@ -122,7 +122,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carrega memoria");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaura valors");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualitza");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantalla Info.");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantalla Info.");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ajusta");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa impressio");
@@ -204,7 +204,10 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Font alimentacio");
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Força motor");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Repren impressió");
 

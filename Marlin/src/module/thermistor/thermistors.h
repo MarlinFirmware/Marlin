@@ -37,9 +37,10 @@
   #error "MAX_RAW_THERMISTOR_VALUE is too large for int16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
 #endif
 
-#define OV(N) int16_t((N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
+#define OV_SCALE(N) (N)
+#define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-#define ANY_THERMISTOR_IS(n) (THERMISTOR_HEATER_0 == n || THERMISTOR_HEATER_1 == n || THERMISTOR_HEATER_2 == n || THERMISTOR_HEATER_3 == n || THERMISTOR_HEATER_4 == n || THERMISTOR_HEATER_5 == n || THERMISTORBED == n || THERMISTORCHAMBER == n)
+#define ANY_THERMISTOR_IS(n) (THERMISTOR_HEATER_0 == n || THERMISTOR_HEATER_1 == n || THERMISTOR_HEATER_2 == n || THERMISTOR_HEATER_3 == n || THERMISTOR_HEATER_4 == n || THERMISTOR_HEATER_5 == n || THERMISTOR_HEATER_6 == n || THERMISTOR_HEATER_7 == n || THERMISTORBED == n || THERMISTORCHAMBER == n || THERMISTORPROBE == n)
 
 // Pt1000 and Pt100 handling
 //
@@ -105,6 +106,9 @@
 #if ANY_THERMISTOR_IS(20) // Pt100 with INA826 amp on Ultimaker v2.0 electronics
   #include "thermistor_20.h"
 #endif
+#if ANY_THERMISTOR_IS(21) // Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
+  #include "thermistor_21.h"
+#endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"
   #include "thermistor_51.h"
 #endif
@@ -147,8 +151,11 @@
 #if ANY_THERMISTOR_IS(201) // Pt100 with LMV324 Overlord
   #include "thermistor_201.h"
 #endif
-#if ANY_THERMISTOR_IS(331) // Like table 1, but with 3V3 as input voltage
+#if ANY_THERMISTOR_IS(331) // Like table 1, but with 3V3 as input voltage for MEGA
   #include "thermistor_331.h"
+#endif
+#if ANY_THERMISTOR_IS(332) // Like table 1, but with 3V3 as input voltage for DUE
+  #include "thermistor_332.h"
 #endif
 #if ANY_THERMISTOR_IS(666) // beta25 = UNK, R25 = 200K, Pull-up = 10 kOhm, "Unidentified 200K NTC thermistor (Einstart S)"
   #include "thermistor_666.h"
@@ -232,6 +239,26 @@
   #define HEATER_5_TEMPTABLE_LEN 0
 #endif
 
+#if THERMISTOR_HEATER_6
+  #define HEATER_6_TEMPTABLE TT_NAME(THERMISTOR_HEATER_6)
+  #define HEATER_6_TEMPTABLE_LEN COUNT(HEATER_6_TEMPTABLE)
+#elif defined(HEATER_6_USES_THERMISTOR)
+  #error "No heater 6 thermistor table specified"
+#else
+  #define HEATER_6_TEMPTABLE nullptr
+  #define HEATER_6_TEMPTABLE_LEN 0
+#endif
+
+#if THERMISTOR_HEATER_7
+  #define HEATER_7_TEMPTABLE TT_NAME(THERMISTOR_HEATER_7)
+  #define HEATER_7_TEMPTABLE_LEN COUNT(HEATER_7_TEMPTABLE)
+#elif defined(HEATER_7_USES_THERMISTOR)
+  #error "No heater 7 thermistor table specified"
+#else
+  #define HEATER_7_TEMPTABLE nullptr
+  #define HEATER_7_TEMPTABLE_LEN 0
+#endif
+
 #ifdef THERMISTORBED
   #define BED_TEMPTABLE TT_NAME(THERMISTORBED)
   #define BED_TEMPTABLE_LEN COUNT(BED_TEMPTABLE)
@@ -249,13 +276,21 @@
 #else
   #define CHAMBER_TEMPTABLE_LEN 0
 #endif
+#ifdef THERMISTORPROBE
+  #define PROBE_TEMPTABLE TT_NAME(THERMISTORPROBE)
+  #define PROBE_TEMPTABLE_LEN COUNT(PROBE_TEMPTABLE)
+#else
+  #define PROBE_TEMPTABLE_LEN 0
+#endif
 
 // The SCAN_THERMISTOR_TABLE macro needs alteration?
 static_assert(
      HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256
   && HEATER_2_TEMPTABLE_LEN < 256 && HEATER_3_TEMPTABLE_LEN < 256
   && HEATER_4_TEMPTABLE_LEN < 256 && HEATER_5_TEMPTABLE_LEN < 256
-  &&      BED_TEMPTABLE_LEN < 256 &&  CHAMBER_TEMPTABLE_LEN < 256,
+  && HEATER_6_TEMPTABLE_LEN < 258 && HEATER_7_TEMPTABLE_LEN < 258
+  &&      BED_TEMPTABLE_LEN < 256 &&  CHAMBER_TEMPTABLE_LEN < 256
+  &&    PROBE_TEMPTABLE_LEN < 256,
   "Temperature conversion tables over 255 entries need special consideration."
 );
 
@@ -314,6 +349,24 @@ static_assert(
   #else
     #define HEATER_5_RAW_HI_TEMP 0
     #define HEATER_5_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef HEATER_6_RAW_HI_TEMP
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_6_USES_THERMISTOR)
+    #define HEATER_6_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define HEATER_6_RAW_LO_TEMP 0
+  #else
+    #define HEATER_6_RAW_HI_TEMP 0
+    #define HEATER_6_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef HEATER_7_RAW_HI_TEMP
+  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_7_USES_THERMISTOR)
+    #define HEATER_7_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define HEATER_7_RAW_LO_TEMP 0
+  #else
+    #define HEATER_7_RAW_HI_TEMP 0
+    #define HEATER_7_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
   #endif
 #endif
 #ifndef HEATER_BED_RAW_HI_TEMP

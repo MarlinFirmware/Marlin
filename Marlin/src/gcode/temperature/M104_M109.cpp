@@ -20,6 +20,12 @@
  *
  */
 
+/**
+ * gcode/temperature/M104_M109.cpp
+ *
+ * Hotend target temperature control
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if EXTRUDERS
@@ -30,7 +36,7 @@
 #include "../../module/planner.h"
 #include "../../lcd/ultralcd.h"
 
-#include "../../Marlin.h" // for startOrResumeJob, etc.
+#include "../../MarlinCore.h" // for startOrResumeJob, etc.
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
@@ -73,14 +79,11 @@ void GcodeSuite::M104() {
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
        * Stop the timer at the end of print. Start is managed by 'heat and wait' M109.
-       * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-       * standby mode, for instance in a dual extruder setup, without affecting
-       * the running print timer.
+       * Hotends use EXTRUDE_MINTEMP / 2 to allow nozzles to be put into hot standby
+       * mode, for instance in a dual extruder setup, without affecting the running
+       * print timer.
        */
-      if (temp <= (EXTRUDE_MINTEMP) / 2) {
-        print_job_timer.stop();
-        ui.reset_status();
-      }
+      thermalManager.check_timer_autostart(false, true);
     #endif
   }
 
@@ -90,8 +93,10 @@ void GcodeSuite::M104() {
 }
 
 /**
- * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
- *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
+ * M109: Sxxx Wait for hotend(s) to reach temperature. Waits only when heating.
+ *       Rxxx Wait for hotend(s) to reach temperature. Waits when heating and cooling.
+ *
+ * With PRINTJOB_TIMER_AUTOSTART also start the job timer on heating and stop it if turned off.
  */
 void GcodeSuite::M109() {
 
@@ -125,12 +130,7 @@ void GcodeSuite::M109() {
        * standby mode, (e.g., in a dual extruder setup) without affecting
        * the running print timer.
        */
-      if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
-        print_job_timer.stop();
-        ui.reset_status();
-      }
-      else
-        startOrResumeJob();
+      thermalManager.check_timer_autostart(true, true);
     #endif
 
     #if HAS_DISPLAY

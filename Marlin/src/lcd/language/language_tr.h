@@ -210,9 +210,9 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozul ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Tabla");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Hızı");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Hızı =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Hızı ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Ekstra Fan Hızı");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Ekstra Fan Hızı =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Ekstra Fan Hızı ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Akış");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Akış ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrol");
@@ -271,7 +271,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("SD Güncellemesi");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Yazıcıyı Resetle");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Yenile");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Bilgi Ekranı");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Bilgi Ekranı");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Hazırlık");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ayar");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Duraklat");
@@ -391,7 +391,10 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Sıc.");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Güç Kaynağı");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Sürücü Gücü");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Sürücü %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Yaz");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("BASKI DURAKLATILDI");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("FILAMAN YüKLE");

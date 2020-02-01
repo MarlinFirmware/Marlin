@@ -77,7 +77,7 @@ private:
   static bool file_open(char* filename) {
     if (!dummy_transfer) {
       card.mount();
-      card.openFile(filename, false);
+      card.openFileWrite(filename);
       if (!card.isFileOpen()) return false;
     }
     transfer_active = true;
@@ -242,7 +242,7 @@ public:
       uint8_t protocol() { return (meta >> 4) & 0xF; }
       uint8_t type() { return meta & 0xF; }
       void reset() { token = 0; sync = 0; meta = 0; size = 0; checksum = 0; }
-      uint8_t data[1];
+      uint8_t data[2];
     };
 
     union Footer {

@@ -39,11 +39,6 @@
 #define DISABLE_DEBUG
 
 //
-// Note: MKS Robin board is using SPI2 interface.
-//
-#define SPI_MODULE 2
-
-//
 // Limit Switches
 //
 #define X_STOP_PIN        PA15
@@ -109,10 +104,15 @@
 #define LED_PIN            PB2
 
 //
+// SD Card
+//
+#define SDIO_SUPPORT
+#define SD_DETECT_PIN      PD12
+
+//
 // LCD / Controller
 //
 #define BEEPER_PIN         PC5
-#define SD_DETECT_PIN      PD12
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
@@ -123,12 +123,15 @@
   #define FSMC_CS_PIN        PD7    // NE4
   #define FSMC_RS_PIN        PD11   // A0
 
-  #define LCD_RESET_PIN      PF6
+  #define LCD_RESET_PIN      PC6    // FSMC_RST
   #define NO_LCD_REINIT             // Suppress LCD re-initialization
 
   #define LCD_BACKLIGHT_PIN  PD13
 
   #if ENABLED(TOUCH_BUTTONS)
-    #define TOUCH_CS_PIN     PA7
+    #define TOUCH_CS_PIN     PA7  // SPI2_NSS
+    #define TOUCH_SCK_PIN    PB13 // SPI2_SCK
+    #define TOUCH_MISO_PIN   PB14 // SPI2_MISO
+    #define TOUCH_MOSI_PIN   PB15 // SPI2_MOSI
   #endif
 #endif

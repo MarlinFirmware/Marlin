@@ -80,7 +80,7 @@ uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
 /************************** HOST COMMAND FUNCTION *********************************/
 
 void CLCD::host_cmd (unsigned char host_command, unsigned char byte2) {  // Sends 24-Bit Host Command to LCD
-  if (host_command != ACTIVE) {
+  if (host_command != FTDI::ACTIVE) {
     host_command |= 0x40;
   }
   spi_ftdi_select();
@@ -1062,7 +1062,7 @@ void CLCD::init() {
     host_cmd(CLKINT, 0);
   }
 
-  host_cmd(ACTIVE, 0);                        // Activate the System Clock
+  host_cmd(FTDI::ACTIVE, 0);                        // Activate the System Clock
 
   /* read the device-id until it returns 0x7c or times out, should take less than 150ms */
   uint8_t counter;
@@ -1179,7 +1179,7 @@ void CLCD::default_display_orientation() {
       #endif
     }
   #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
-    #error PORTRAIT or MIRRORED orientation not supported on the FT800
+    #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)
     mem_write_32(REG::ROTATE, 1);
   #endif

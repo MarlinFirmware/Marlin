@@ -207,9 +207,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Bocal ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Mesa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. Ventoinha");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventoinha =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventoinha ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("+Vel. Ventoinha");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("+Vel. Ventoinha =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("+Vel. Ventoinha ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Vazão");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Vazão ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controle");
@@ -242,7 +242,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Extrusão em mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Extrusão em mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diâmetro Fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diâmetro Fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Descarr. mm");
@@ -257,7 +257,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Atualiz. SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetar Impressora");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Atualização");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Informações");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Informações");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ajustar");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausar impressão");

@@ -42,7 +42,7 @@
   #include "../../feature/power_loss_recovery.h"
 #endif
 
-#include "../../Marlin.h" // for startOrResumeJob
+#include "../../MarlinCore.h" // for startOrResumeJob
 
 /**
  * M24: Start or Resume SD Print
@@ -85,6 +85,10 @@ void GcodeSuite::M24() {
  * M25: Pause SD Print
  */
 void GcodeSuite::M25() {
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (recovery.enabled) recovery.save(true, false);
+  #endif
 
   // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
   #if ENABLED(SDSUPPORT)

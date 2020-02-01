@@ -67,20 +67,6 @@
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
 
-#define DO_DRAW_LOGO (STATUS_LOGO_WIDTH && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
-#define DO_DRAW_HOTENDS (HOTENDS > 0)
-#define DO_DRAW_CUTTER (HAS_CUTTER)
-#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 4)
-#define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
-#define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
-
-#define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
-#define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
-#define ANIM_CHAMBER (DO_DRAW_CHAMBER && ENABLED(STATUS_CHAMBER_ANIM))
-#define ANIM_CUTTER (DO_DRAW_CUTTER && ENABLED(STATUS_CUTTER_ANIM))
-
-#define ANIM_HBCC (ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER || ANIM_CUTTER)
-
 #if ANIM_HBCC
   enum HeatBits : uint8_t {
     HEATBIT_HOTEND,
@@ -90,6 +76,7 @@
   };
   IF<(HEATBIT_CUTTER > 7), uint16_t, uint8_t>::type heat_bits;
 #endif
+
 #if ANIM_HOTEND
   #define HOTEND_ALT(N) TEST(heat_bits, HEATBIT_HOTEND + N)
 #else
@@ -248,12 +235,14 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       UNUSED(blink);
     #endif
 
-    const bool isHeat = BED_ALT();
-
     const uint8_t tx = STATUS_BED_TEXT_X;
 
     const float temp = thermalManager.degBed(),
               target = thermalManager.degTargetBed();
+
+    #if ENABLED(STATUS_HEAT_PERCENT) || (DO_DRAW_BED && DISABLED(STATUS_BED_ANIM))
+      const bool isHeat = BED_ALT();
+    #endif
 
     #if DO_DRAW_BED && DISABLED(STATUS_BED_ANIM)
       #define STATIC_BED    true
@@ -449,7 +438,7 @@ void MarlinUI::draw_status_screen() {
       if (p != lastProgress) {
         lastProgress = p;
 
-        progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * progress / (PROGRESS_SCALE) * 0.01f);
+        progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * (progress / (PROGRESS_SCALE)) * 0.01f);
 
         #if ENABLED(DOGM_SD_PERCENT)
           if (progress == 0) {

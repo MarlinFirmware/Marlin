@@ -240,9 +240,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Stół");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Obudowa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Obroty wiatraka");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Obroty dodatkowego wiatraka");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Przepływ");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Przepływ ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ustawienia");
@@ -254,14 +254,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Wył.");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autostrojenie");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autostrojenie *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Wybierz");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Wybierz *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Przyspieszenie");
@@ -296,7 +288,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Ruch");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E w mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E w mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Śr. fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Śr. fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Wyładuj mm");
@@ -311,7 +303,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Uaktualnij kartę");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetuj drukarkę");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Odswież");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Ekran główny");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Ekran główny");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Przygotuj");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Strojenie");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Start wydruku");
@@ -465,7 +457,10 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Temp");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Zasilacz");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Siła silnika");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Siła %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC BŁĄD POŁĄCZENIA");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Zapisz DAC EEPROM");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("ZMIEŃ FILAMENT");

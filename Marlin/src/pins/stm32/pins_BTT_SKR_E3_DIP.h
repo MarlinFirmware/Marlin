@@ -185,7 +185,7 @@
     #define LCD_PINS_ENABLE PB7
     #define LCD_PINS_D4    PB9
 
-  #elif ENABLED(MKS_MINI_12864)
+  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
      *                   _____

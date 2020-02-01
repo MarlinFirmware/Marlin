@@ -99,7 +99,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan snelheid");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
@@ -117,7 +117,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
   PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");        //accepted english dutch
   PROGMEM Language_Str MSG_ADVANCE_K_E                     = _UxGT("Advance K *"); //accepted english dutch
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD contrast");
@@ -125,7 +125,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Geheugen laden");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Noodstop reset");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ververs");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info scherm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info scherm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Voorbereiden");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Afstellen");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Print pauzeren");
@@ -214,7 +214,10 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");  //accepted English term in Dutch
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Motorstroom");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");  //accepted English term in Dutch
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC Opslaan");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Hervat print");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT(" Nozzle: "); //accepeted English term

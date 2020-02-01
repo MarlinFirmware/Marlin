@@ -279,14 +279,25 @@ enum ClockSource2 : char {
  */
 
 // Determine which harware PWMs are already in use
+#define _PWM_CHK_FAN_B(P) (P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == E6_AUTO_FAN_PIN || P == E7_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN)
 #if PIN_EXISTS(CONTROLLER_FAN)
-  #define PWM_CHK_FAN_B(P) (P == CONTROLLER_FAN_PIN || P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN)
+  #define PWM_CHK_FAN_B(P) (_PWM_CHK_FAN_B(P) || P == CONTROLLER_FAN_PIN)
 #else
-  #define PWM_CHK_FAN_B(P) (P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN)
+  #define PWM_CHK_FAN_B(P) _PWM_CHK_FAN_B(P)
 #endif
 
-#if ANY_PIN(FAN, FAN1, FAN2)
-  #if PIN_EXISTS(FAN2)
+#if ANY_PIN(FAN, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7)
+  #if PIN_EXISTS(FAN7)
+    #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN || P == FAN4_PIN || P == FAN5_PIN || P == FAN6_PIN || P == FAN7_PIN)
+  #elif PIN_EXISTS(FAN6)
+    #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN || P == FAN4_PIN || P == FAN5_PIN || P == FAN6_PIN)
+  #elif PIN_EXISTS(FAN5)
+    #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN || P == FAN4_PIN || P == FAN5_PIN)
+  #elif PIN_EXISTS(FAN4)
+    #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN || P == FAN4_PIN)
+  #elif PIN_EXISTS(FAN3)
+    #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN || P == FAN2_PIN || P == FAN3_PIN)
+  #elif PIN_EXISTS(FAN2)
     #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN || P == FAN2_PIN)
   #elif PIN_EXISTS(FAN1)
     #define PWM_CHK_FAN_A(P) (P == FAN0_PIN || P == FAN1_PIN)

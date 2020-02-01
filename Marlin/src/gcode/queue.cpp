@@ -33,7 +33,7 @@ GCodeQueue queue;
 #include "../sd/cardreader.h"
 #include "../module/planner.h"
 #include "../module/temperature.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
@@ -191,7 +191,6 @@ bool GCodeQueue::process_injected_command() {
   // Execute command if non-blank
   if (i) {
     parser.parse(cmd);
-    PORT_REDIRECT(SERIAL_PORT);
     gcode.process_parsed_command();
   }
   return true;
@@ -243,7 +242,7 @@ void GCodeQueue::ok_to_send() {
   #if NUM_SERIAL > 1
     const int16_t pn = port[index_r];
     if (pn < 0) return;
-    PORT_REDIRECT(pn);
+    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(MSG_OK);
@@ -267,9 +266,9 @@ void GCodeQueue::ok_to_send() {
  */
 void GCodeQueue::flush_and_request_resend() {
   #if NUM_SERIAL > 1
-    const int16_t p = port[index_r];
-    if (p < 0) return;
-    PORT_REDIRECT(p);
+    const int16_t pn = port[index_r];
+    if (pn < 0) return;
+    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(MSG_RESEND);
@@ -296,14 +295,14 @@ inline int read_serial(const uint8_t index) {
   }
 }
 
-void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t port) {
-  PORT_REDIRECT(port);
+void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
+  PORT_REDIRECT(pn);                      // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
   SERIAL_ECHOLN(last_N);
-  while (read_serial(port) != -1);           // clear out the RX buffer
+  while (read_serial(pn) != -1);          // Clear out the RX buffer
   flush_and_request_resend();
-  serial_count[port] = 0;
+  serial_count[pn] = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
@@ -440,7 +439,7 @@ void GCodeQueue::get_serial_commands() {
               wait_for_user = false;
             #endif
           }
-          if (strcmp(command, "M112") == 0) kill();
+          if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
