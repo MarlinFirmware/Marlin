@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V75"
+#define EEPROM_VERSION "V76"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -64,6 +64,10 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+#endif
+
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #include "../feature/z_stepper_align.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -249,6 +253,16 @@ typedef struct SettingsDataStruct {
           z2_endstop_adj,                               // M666 (S2) Z
           z3_endstop_adj,                               // M666 (S3) Z
           z4_endstop_adj;                               // M666 (S4) Z
+  #endif
+
+  //
+  // Z_STEPPER_AUTO_ALIGN, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS
+  //
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];             // M422 S X Y
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];   // M422 W X Y
+    #endif
   #endif
 
   //
@@ -800,6 +814,13 @@ void MarlinSettings::postprocess() {
 
       #endif
     }
+
+    #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      EEPROM_WRITE(z_stepper_align.xy);
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        EEPROM_WRITE(z_stepper_align.stepper_xy);
+      #endif
+    #endif
 
     //
     // LCD Preheat settings
@@ -1669,6 +1690,13 @@ void MarlinSettings::postprocess() {
         #endif
       }
 
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        EEPROM_READ(z_stepper_align.xy);
+        #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          EEPROM_READ(z_stepper_align.stepper_xy);
+        #endif
+      #endif
+
       //
       // LCD Preheat settings
       //
@@ -2471,6 +2499,14 @@ void MarlinSettings::reset() {
       probe.offset.x = probe.offset.y = 0;
       probe.offset.z = dpo[Z_AXIS];
     #endif
+  #endif
+
+  //
+  // Z Stepper Auto-alignment points
+  //
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    z_stepper_align.reset_to_default();
   #endif
 
   //
