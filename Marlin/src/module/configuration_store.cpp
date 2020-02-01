@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V75"
+#define EEPROM_VERSION "V76"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -64,6 +64,10 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+#endif
+
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #include "../feature/z_stepper_align.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -257,6 +261,16 @@ typedef struct SettingsDataStruct {
           z2_endstop_adj,                               // M666 (S2) Z
           z3_endstop_adj,                               // M666 (S3) Z
           z4_endstop_adj;                               // M666 (S4) Z
+  #endif
+
+  //
+  // Z_STEPPER_AUTO_ALIGN, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS
+  //
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];             // M422 S X Y
+    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];   // M422 W X Y
+    #endif
   #endif
 
   //
@@ -602,12 +616,12 @@ void MarlinSettings::postprocess() {
       #if HAS_FILAMENT_SENSOR
         const bool &runout_sensor_enabled = runout.enabled;
       #else
-        const bool runout_sensor_enabled = true;
+        constexpr bool runout_sensor_enabled = true;
       #endif
       #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
         const float &runout_distance_mm = runout.runout_distance();
       #else
-        const float runout_distance_mm = 0;
+        constexpr float runout_distance_mm = 0;
       #endif
       _FIELD_TEST(runout_sensor_enabled);
       EEPROM_WRITE(runout_sensor_enabled);
@@ -658,7 +672,12 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(probe_offset);
-      EEPROM_WRITE(probe_offset);
+      #if HAS_BED_PROBE
+        const xyz_pos_t &zpo = probe.offset;
+      #else
+        constexpr xyz_pos_t zpo{0};
+      #endif
+      EEPROM_WRITE(zpo);
     }
 
     //
@@ -810,6 +829,13 @@ void MarlinSettings::postprocess() {
 
       #endif
     }
+
+    #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      EEPROM_WRITE(z_stepper_align.xy);
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        EEPROM_WRITE(z_stepper_align.stepper_xy);
+      #endif
+    #endif
 
     //
     // LCD Preheat settings
@@ -1488,7 +1514,7 @@ void MarlinSettings::postprocess() {
       //
       {
         #if HAS_FILAMENT_SENSOR
-          bool &runout_sensor_enabled = runout.enabled;
+          const bool &runout_sensor_enabled = runout.enabled;
         #else
           bool runout_sensor_enabled;
         #endif
@@ -1545,7 +1571,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(probe_offset);
         #if HAS_BED_PROBE
-          xyz_pos_t &zpo = probe_offset;
+          const xyz_pos_t &zpo = probe.offset;
         #else
           xyz_pos_t zpo;
         #endif
@@ -1639,7 +1665,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(bltouch_last_written_mode);
         #if ENABLED(BLTOUCH)
-          bool &bltouch_last_written_mode = bltouch.last_written_mode;
+          const bool &bltouch_last_written_mode = bltouch.last_written_mode;
         #else
           bool bltouch_last_written_mode;
         #endif
@@ -1693,6 +1719,13 @@ void MarlinSettings::postprocess() {
 
         #endif
       }
+
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        EEPROM_READ(z_stepper_align.xy);
+        #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          EEPROM_READ(z_stepper_align.stepper_xy);
+        #endif
+      #endif
 
       //
       // LCD Preheat settings
@@ -2164,14 +2197,14 @@ void MarlinSettings::postprocess() {
       //
       {
         #if ENABLED(BACKLASH_GCODE)
-          xyz_float_t &backlash_distance_mm = backlash.distance_mm;
-          uint8_t &backlash_correction = backlash.correction;
+          const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
+          const uint8_t &backlash_correction = backlash.correction;
         #else
           float backlash_distance_mm[XYZ];
           uint8_t backlash_correction;
         #endif
         #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-          float &backlash_smoothing_mm = backlash.smoothing_mm;
+          const float &backlash_smoothing_mm = backlash.smoothing_mm;
         #else
           float backlash_smoothing_mm;
         #endif
@@ -2505,11 +2538,19 @@ void MarlinSettings::reset() {
     constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == 3, "NOZZLE_TO_PROBE_OFFSET must contain offsets for X, Y, and Z.");
     #if HAS_PROBE_XY_OFFSET
-      LOOP_XYZ(a) probe_offset[a] = dpo[a];
+      LOOP_XYZ(a) probe.offset[a] = dpo[a];
     #else
-      probe_offset.x = probe_offset.y = 0;
-      probe_offset.z = dpo[Z_AXIS];
+      probe.offset.x = probe.offset.y = 0;
+      probe.offset.z = dpo[Z_AXIS];
     #endif
+  #endif
+
+  //
+  // Z Stepper Auto-alignment points
+  //
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    z_stepper_align.reset_to_default();
   #endif
 
   //
@@ -3269,13 +3310,13 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         #if HAS_PROBE_XY_OFFSET
-          PSTR("  M851 X"), LINEAR_UNIT(probe_offset_xy.x),
-                  SP_Y_STR, LINEAR_UNIT(probe_offset_xy.y),
+          PSTR("  M851 X"), LINEAR_UNIT(probe.offset_xy.x),
+                  SP_Y_STR, LINEAR_UNIT(probe.offset_xy.y),
                   SP_Z_STR
         #else
           PSTR("  M851 X0 Y0 Z")
         #endif
-        , LINEAR_UNIT(probe_offset.z)
+        , LINEAR_UNIT(probe.offset.z)
       );
     #endif
 

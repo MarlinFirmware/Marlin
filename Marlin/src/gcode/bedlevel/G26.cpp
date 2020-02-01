@@ -707,7 +707,7 @@ void GcodeSuite::G26() {
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
 
-      // If this mesh location is outside the printable_radius, skip it.
+      // If this mesh location is outside the printable radius, skip it.
       if (!position_is_reachable(circle)) continue;
 
       // Determine where to start and end the circle,

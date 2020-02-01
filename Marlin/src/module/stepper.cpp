@@ -2460,10 +2460,10 @@ void Stepper::report_positions() {
 
   #define BABYSTEP_AXIS(AXIS, INVERT, DIR) {            \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
-      _ENABLE_AXIS(AXIS);                                    \
-      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);              \
+      _ENABLE_AXIS(AXIS);                               \
+      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);          \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);              \
+      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);         \
       _SAVE_START;                                      \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT;                                      \

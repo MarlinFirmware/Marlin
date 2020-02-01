@@ -52,11 +52,11 @@
 // Analog Inputs
 //
 #define TEMP_0_PIN          1
-#define TEMP_1_PIN          2  
-#define TEMP_BED_PIN        4   
+#define TEMP_1_PIN          2
+#define TEMP_BED_PIN        4
 
 #ifndef TEMP_CHAMBER_PIN
-  #define TEMP_CHAMBER_PIN  5   
+  #define TEMP_CHAMBER_PIN  5
 #endif
 
 //
