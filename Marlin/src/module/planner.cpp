@@ -2779,7 +2779,7 @@ void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
       const xyze_float_t &max_acc_edit_scaled = max_accel_edit;
     #else
       constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION;
-      const xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
+      constexpr xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
   #endif
@@ -2796,7 +2796,7 @@ void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
       const xyze_float_t &max_fr_edit_scaled = max_fr_edit;
     #else
       constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE;
-      const xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
+      constexpr xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
   #endif
