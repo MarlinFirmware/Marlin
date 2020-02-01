@@ -100,7 +100,7 @@ void ac_cleanup(
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
   #if HAS_BED_PROBE
-    STOW_PROBE();
+    probe.stow();
   #endif
   restore_feedrate_and_scaling();
   #if HOTENDS > 1

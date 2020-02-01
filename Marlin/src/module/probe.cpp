@@ -729,14 +729,14 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   do_blocking_move_to(npos);
 
   float measured_z = NAN;
-  if (!DEPLOY_PROBE()) {
+  if (!deploy()) {
     measured_z = run_z_probe() + offset.z;
 
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
       do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     else if (raise_after == PROBE_PT_STOW)
-      if (STOW_PROBE()) measured_z = NAN;
+      if (stow()) measured_z = NAN;
   }
 
   if (verbose_level > 2) {
@@ -748,7 +748,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    STOW_PROBE();
+    stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }

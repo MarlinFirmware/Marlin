@@ -452,7 +452,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if HAS_BED_PROBE
       // Deploy the probe. Probe will raise if needed.
-      if (DEPLOY_PROBE()) {
+      if (probe.deploy()) {
         set_bed_leveling_enabled(abl_should_enable);
         G29_RETURN(false);
       }
@@ -788,7 +788,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
-    if (STOW_PROBE()) {
+    if (probe.stow()) {
       set_bed_leveling_enabled(abl_should_enable);
       measured_z = NAN;
     }

@@ -340,7 +340,7 @@ void GcodeSuite::G34() {
 
     // Stow the probe, as the last call to probe.probe_at_point(...) left
     // the probe deployed if it was successful.
-    STOW_PROBE();
+    probe.stow();
 
     // Home Z after the alignment procedure
     process_subcommands_now_P(PSTR("G28 Z"));

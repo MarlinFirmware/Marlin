@@ -1509,7 +1509,7 @@ void homeaxis(const AxisEnum axis) {
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS && DEPLOY_PROBE()) return;
+    if (axis == Z_AXIS && probe.deploy()) return;
   #endif
 
   // Set flags for X, Y, Z motor locking
@@ -1751,7 +1751,7 @@ void homeaxis(const AxisEnum axis) {
 
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS && STOW_PROBE()) return;
+    if (axis == Z_AXIS && probe.stow()) return;
   #endif
 
   #if DISABLED(DELTA) && defined(HOMING_BACKOFF_MM)

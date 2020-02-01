@@ -742,7 +742,7 @@
      * This attempts to fill in locations closest to the nozzle's start location first.
      */
     void unified_bed_leveling::probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
-      DEPLOY_PROBE(); // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
+      probe.deploy(); // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
 
       #if HAS_LCD_MENU
         ui.capture();
@@ -768,7 +768,7 @@
             ui.wait_for_release();
             ui.quick_feedback();
             ui.release();
-            STOW_PROBE(); // Release UI before stow to allow for PAUSE_BEFORE_DEPLOY_STOW
+            probe.stow(); // Release UI before stow to allow for PAUSE_BEFORE_DEPLOY_STOW
             return restore_ubl_active_state_and_leave();
           }
         #endif
@@ -794,7 +794,7 @@
       #if HAS_LCD_MENU
         ui.release();
       #endif
-      STOW_PROBE(); // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
+      probe.stow(); // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
       #if HAS_LCD_MENU
         ui.capture();
       #endif
@@ -1476,7 +1476,7 @@
           }
         }
 
-        STOW_PROBE();
+        probe.stow();
         #ifdef Z_AFTER_PROBING
           probe.move_z_after_probing();
         #endif
@@ -1540,7 +1540,7 @@
           zig_zag ^= true;
         }
       }
-      STOW_PROBE();
+      probe.stow();
       #ifdef Z_AFTER_PROBING
         probe.move_z_after_probing();
       #endif

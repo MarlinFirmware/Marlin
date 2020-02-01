@@ -238,7 +238,7 @@ void GcodeSuite::M48() {
     } // n_samples loop
   }
 
-  STOW_PROBE();
+  probe.stow();
 
   if (probing_good) {
     SERIAL_ECHOLNPGM("Finished!");
