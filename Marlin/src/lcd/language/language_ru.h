@@ -332,9 +332,9 @@ namespace Language_ru {
 
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Паркуй %s%s%s сначала");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Отступы Z-датчика");
-  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Смещение по X");
-  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Смещение по Y");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Смещение по Z");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Смещение X");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Смещение Y");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Смещение Z");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Микрошаг X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Микрошаг Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Микрошаг Z");
