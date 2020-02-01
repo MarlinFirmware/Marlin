@@ -142,52 +142,93 @@
     #define ANYCUBIC_4MAX
     // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
     // *
-    //#define ANYCUBIC_4MAX_VG3R
+    #define ANYCUBIC_4MAX_VG3R
     //#define ANYCUBIC_4MAX_7OF9
-    #define ANYCUBIC_4MAX_DEFAULT
+    //#define ANYCUBIC_4MAX_DEFAULT
     // *
-  #endif
-  
-  #if (MOTHERBOARD == BOARD_BIGTREE_SKR_V1_4_TURBO)
+  #elif (MOTHERBOARD == BOARD_BIGTREE_SKR_V1_4_TURBO)
     // Only defined in combination with BOARD_TRIGORILLA_14
     //* 
     #define ANYCUBIC_4MAX_SKR_1_4
     // *
   #endif
-
-// TMC2208 with UART where TX is on SERVO0_PIN and RX is on PS_ON_PIN
-// Info: Just for Testing.
-// My Test-Result: Working! But it seems that TMC2208 on E0 makes other steppers Like X and Y motors to loose steps!
-//#define ANYCUBIC_4MAX_TMC_E0
-
 #endif
 
-#if DISABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT,ANYCUBIC_4MAX_SKR_1_4)
-  #error "No default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
-#elif ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9 ) || \
+#if EITHER( ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT,ANYCUBIC_4MAX_SKR_1_4 )
+  #if (MOTHERBOARD == BOARD_TRIGORILLA_14) && \
+      ( ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9 ) || \
       ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_DEFAULT) || \
-      ENABLED(ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
-  #error "All 4MAX settings are set! - ### Define JUST ONE custom 4MAX setting! ###"
-#elif ENABLED(ANYCUBIC_4MAX_VG3R)
-  //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
-#elif ENABLED(ANYCUBIC_4MAX_7OF9)
-  //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
-#elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
+      ENABLED(ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT) )
+    #error "All 4MAX settings are set! - ### Define JUST ONE custom 4MAX setting! ###"
+  #elif ENABLED(ANYCUBIC_4MAX_VG3R)
+    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_VG3R\"" )
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
+  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_DEFAULT\"" )
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
-    #undef SERIAL_PORT
-    #undef SERIAL_PORT_2
-    #define SERIAL_PORT 0
-    #define SERIAL_PORT_2 -1
-    //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_SKR_1_4\"" )
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+      #undef SERIAL_PORT
+      #undef SERIAL_PORT_2
+      #define SERIAL_PORT 0
+      #define SERIAL_PORT_2 -1
+      //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_SKR_1_4\"" )
+  #else
+    #error "No default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
+  #endif
 #endif
 
-// Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Anycubic 4MAX"
+/**
+ * Release version. Leave the Marlin version or apply a custom scheme.
+ */
+#ifndef SHORT_BUILD_VERSION
+  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
+    #define SHORT_BUILD_VERSION "4MAX 2.0.54 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+  #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4)
+    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.61 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+  #endif
+#endif
 
-// Printer's unique ID, used by some programs to differentiate between machines.
-// Choose your own or use a service like http://www.uuidgenerator.net/version4
-//#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+/**
+ * Define printer name to be output to the LCD after booting Marlin.
+ */
+#ifndef MACHINE_NAME
+  // CUSTOM_MACHINE_NAME is displayed in the LCD "Ready" message and Info menu
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    #define MACHINE_NAME        "4MAX - vg3r"
+    #define CUSTOM_MACHINE_NAME "4MAX - vg3r"
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    #define MACHINE_NAME        "4MAX - 7of9"
+    #define CUSTOM_MACHINE_NAME "4MAX - 7of9"
+  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
+    #define MACHINE_NAME        "Anycubic 4MAX"
+    #define CUSTOM_MACHINE_NAME "Anycubic 4MAX"
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    #define MACHINE_NAME        "4MAX - 32Bit"
+    #define CUSTOM_MACHINE_NAME "4MAX - 32Bit"
+  #endif
+#endif
+
+/**
+ * Website where users can find Marlin source code for the binary installed on the device. 
+ */
+#ifndef SOURCE_CODE_URL
+  #define SOURCE_CODE_URL "https://github.com/GeminiServer/Marlin"
+#endif
+
+/**
+ * Default generic printer UUID. Choose your own or use a service like http://www.uuidgenerator.net/version4
+ */
+#ifndef DEFAULT_MACHINE_UUID
+  #if ENABLED(ANYCUBIC_4MAX_VG3R)
+    #define DEFAULT_MACHINE_UUID "6aa1467e-ffd5-11e9-8d71-362b9e155667"
+  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+    #define DEFAULT_MACHINE_UUID "6aa1441c-ffd5-11e9-8d71-362b9e155667"
+  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
+    #define DEFAULT_MACHINE_UUID "6aa147d2-ffd5-11e9-8d71-362b9e155667"
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+    #define DEFAULT_MACHINE_UUID "6aa132bb-ffd5-11e9-8d71-362b9e155667"
+  #endif
+#endif
 
 // @section extruder
 
@@ -1078,7 +1119,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
- #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+ #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4)
   #define BLTOUCH
  #else
   //#define BLTOUCH
@@ -2522,16 +2563,16 @@
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
   #define NUM_SERVOS 4 // Servo index starts with 0 for M280 command
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
-  //#define NUM_SERVOS 1
+  #define NUM_SERVOS 1
 #endif
 
 // (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-  #define SERVO_DELAY { 300,300,300,300}
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
+  #define SERVO_DELAY { 300,300,300,300 }
 #else
-  #define SERVO_DELAY { 300}
+  #define SERVO_DELAY {300}
 #endif
 
 // Only power servos during movement, otherwise leave off to prevent jitter

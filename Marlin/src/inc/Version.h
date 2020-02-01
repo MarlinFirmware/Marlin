@@ -25,11 +25,7 @@
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
 #ifndef SHORT_BUILD_VERSION
-  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT, ANYCUBIC_4MAX_SKR_1_4)
-    #define SHORT_BUILD_VERSION "4MAX 2.0.53 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
-  #else
-    #define SHORT_BUILD_VERSION "bugfix-2.0.x"
-  #endif
+   #define SHORT_BUILD_VERSION "bugfix-2.0.x"
 #endif
 
 /**
@@ -77,17 +73,7 @@
  * Define a generic printer name to be output to the LCD after booting Marlin.
  */
 #ifndef MACHINE_NAME
-  #if ENABLED(ANYCUBIC_4MAX_VG3R)
-    #define MACHINE_NAME "4MAX - vg3r"
-  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
-    #define MACHINE_NAME "4MAX - 7of9"
-  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-    #define MACHINE_NAME "Anycubic 4MAX"
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
-    #define MACHINE_NAME "4MAX - 32Bit "
-  #else
-    #define MACHINE_NAME "3D Printer"
-  #endif
+  #define MACHINE_NAME "3D Printer"
 #endif
 
 /**
@@ -96,28 +82,14 @@
  * providing the source code to your customers.)
  */
 #ifndef SOURCE_CODE_URL
-  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT, ANYCUBIC_4MAX_SKR_1_4)
-    #define SOURCE_CODE_URL "https://github.com/GeminiServer/Marlin"
-  #else
-    #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
-  #endif
+  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 /**
  * Default generic printer UUID.
  */
 #ifndef DEFAULT_MACHINE_UUID
-  #if ENABLED(ANYCUBIC_4MAX_VG3R)
-    #define DEFAULT_MACHINE_UUID "6aa1467e-ffd5-11e9-8d71-362b9e155667"
-  #elif ENABLED(ANYCUBIC_4MAX_7OF9)
-    #define DEFAULT_MACHINE_UUID "6aa1441c-ffd5-11e9-8d71-362b9e155667"
-  #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
-    #define DEFAULT_MACHINE_UUID "6aa147d2-ffd5-11e9-8d71-362b9e155667"
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
-    #define DEFAULT_MACHINE_UUID "6aa132bb-ffd5-11e9-8d71-362b9e155667"
-  #else
-    #define DEFAULT_MACHINE_UUID "cede2a2f-41a2-4748-9b12-c55c62f367ff"
-  #endif
+  #define DEFAULT_MACHINE_UUID "cede2a2f-41a2-4748-9b12-c55c62f367ff"
 #endif
 
   /**
