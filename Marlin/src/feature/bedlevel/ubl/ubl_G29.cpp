@@ -1629,7 +1629,7 @@
           auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const float &zadd) {
             d_from(); serialprintPGM(pre);
             DEBUG_ECHO_F(normed(pos, zadd), 6);
-            DEBUG_ECHOLNPAIR_F("   Z error: ", zadd - get_z_correction(pos), 6);
+            DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
           };
           debug_pt(PSTR("1st point: "), probe_pt[0], normal.z * z1);
           debug_pt(PSTR("2nd point: "), probe_pt[1], normal.z * z2);
@@ -1638,7 +1638,7 @@
           DEBUG_ECHOLNPAIR_F("0 : ", normed(safe_homing_xy, 0), 6);
           d_from(); DEBUG_ECHOPGM("safe home with Z=");
           DEBUG_ECHOLNPAIR_F("mesh value ", normed(safe_homing_xy, get_z_correction(safe_homing_xy)), 6);
-          DEBUG_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
+          DEBUG_ECHOPAIR("   Z error = (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
           DEBUG_ECHOLNPAIR_F(") = ", get_z_correction(safe_homing_xy), 6);
         #endif
       } // DEBUGGING(LEVELING)
