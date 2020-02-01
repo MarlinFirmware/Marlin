@@ -314,13 +314,18 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        case 53: G53(); break;
-        case 54: G54(); break;
-        case 55: G55(); break;
-        case 56: G56(); break;
-        case 57: G57(); break;
-        case 58: G58(); break;
-        case 59: G59(); break;
+        case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
+        case 54: G54(); break;                                    // G54: Switch to Workspace 1
+        case 55: G55(); break;                                    // G55: Switch to Workspace 2
+        case 56: G56(); break;                                    // G56: Switch to Workspace 3
+        case 57: G57(); break;                                    // G57: Switch to Workspace 4
+        case 58: G58(); break;                                    // G58: Switch to Workspace 5
+        case 59: G59(); break;                                    // G59.0 - G59.3: Switch to Workspace 6-9
+      #endif
+
+      #if SAVED_POSITIONS
+        case 60: G60(); break;                                    // G60:  save current position
+        case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
@@ -562,14 +567,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 206: M206(); break;                                  // M206: Set home offsets
       #endif
 
-      #if ENABLED(DELTA)
-        case 665: M665(); break;                                  // M665: Set delta configurations
-      #endif
-
-      #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
-        case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
-      #endif
-
       #if ENABLED(FWRETRACT)
         case 207: M207(); break;                                  // M207: Set Retract Length, Feedrate, and Z lift
         case 208: M208(); break;                                  // M208: Set Recover (unretract) Additional Length and Feedrate
@@ -714,7 +711,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(SDSUPPORT)
-        case 524: M524(); break;                                   // M524: Abort the current SD print job
+        case 524: M524(); break;                                  // M524: Abort the current SD print job
       #endif
 
       #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
@@ -723,14 +720,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
-      #endif
-
-      #if HAS_BED_PROBE
-        case 851: M851(); break;                                  // M851: Set Z Probe Z Offset
-      #endif
-
-      #if ENABLED(SKEW_CORRECTION_GCODE)
-        case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -742,19 +731,35 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 605: M605(); break;                                  // M605: Set Dual X Carriage movement mode
       #endif
 
+      #if ENABLED(DELTA)
+        case 665: M665(); break;                                  // M665: Set delta configurations
+      #endif
+
+      #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
+        case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
+      #endif
+
+      #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+        case 672: M672(); break;                                  // M672: Set/clear Duet Smart Effector sensitivity
+      #endif
+
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         case 701: M701(); break;                                  // M701: Load Filament
         case 702: M702(); break;                                  // M702: Unload Filament
-      #endif
-
-      #if ENABLED(MAX7219_GCODE)
-        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
       #if ENABLED(GCODE_MACROS)
         case 810: case 811: case 812: case 813: case 814:
         case 815: case 816: case 817: case 818: case 819:
         M810_819(); break;                                        // M810-M819: Define/execute G-code macro
+      #endif
+
+      #if HAS_BED_PROBE
+        case 851: M851(); break;                                  // M851: Set Z Probe Z Offset
+      #endif
+
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
@@ -845,6 +850,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
         case 1000: M1000(); break;                                // M1000: Resume from power-loss
+      #endif
+
+      #if ENABLED(MAX7219_GCODE)
+        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
       default: parser.unknown_command_error(); break;

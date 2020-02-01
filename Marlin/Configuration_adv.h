@@ -838,7 +838,7 @@
   // probing on a screwhead or hollow washer, probe near the edges.
   //#define CALIBRATION_MEASURE_AT_TOP_EDGES
 
-  // Define pin which is read during calibration
+  // Define the pin to read during calibration
   #ifndef CALIBRATION_PIN
     #define CALIBRATION_PIN -1 // Override in pins.h or set to -1 to use your Z endstop
     #define CALIBRATION_PIN_INVERTING false // Set to true to invert the pin
@@ -1596,6 +1596,11 @@
 // @section extras
 
 //
+// G60/G61 Position Save and Return
+//
+//#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+
+//
 // G2/G3 Arc Support
 //
 #define ARC_SUPPORT                 // Disable this feature to save ~3226 bytes
@@ -1974,6 +1979,18 @@
     #define E5_MAX_CURRENT    1000
     #define E5_SENSE_RESISTOR   91
     #define E5_MICROSTEPS       16
+  #endif
+
+  #if AXIS_DRIVER_TYPE_E6(TMC26X)
+    #define E6_MAX_CURRENT    1000
+    #define E6_SENSE_RESISTOR   91
+    #define E6_MICROSTEPS       16
+  #endif
+
+  #if AXIS_DRIVER_TYPE_E7(TMC26X)
+    #define E7_MAX_CURRENT    1000
+    #define E7_SENSE_RESISTOR   91
+    #define E7_MICROSTEPS       16
   #endif
 
 #endif // TMC26X

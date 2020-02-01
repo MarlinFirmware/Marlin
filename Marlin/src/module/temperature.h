@@ -49,7 +49,7 @@
 typedef enum : int8_t {
   INDEX_NONE = -5,
   H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_ind_t;
 
 // PID storage
@@ -131,6 +131,12 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_5
     PrepareTemp_5, MeasureTemp_5,
+  #endif
+  #if HAS_TEMP_ADC_6
+    PrepareTemp_6, MeasureTemp_6,
+  #endif
+  #if HAS_TEMP_ADC_7
+    PrepareTemp_7, MeasureTemp_7,
   #endif
   #if HAS_JOY_ADC_X
     PrepareJoy_X, MeasureJoy_X,
@@ -222,15 +228,38 @@ typedef struct {
   inline void start(const millis_t &ms) { timeout_ms = millis() + ms; timed_out = false; }
   inline void reset() { timeout_ms = 0; timed_out = false; }
   inline void expire() { start(0); }
-} heater_idle_t;
+} hotend_idle_t;
 
 // Heater watch handling
-typedef struct {
+template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
+struct HeaterWatch {
   uint16_t target;
   millis_t next_ms;
   inline bool elapsed(const millis_t &ms) { return next_ms && ELAPSED(ms, next_ms); }
   inline bool elapsed() { return elapsed(millis()); }
-} heater_watch_t;
+
+  inline void restart(const int16_t curr, const int16_t tgt) {
+    if (tgt) {
+      const int16_t newtarget = curr + INCREASE;
+      if (newtarget < tgt - HYSTERESIS - 1) {
+        target = newtarget;
+        next_ms = millis() + PERIOD * 1000UL;
+        return;
+      }
+    }
+    next_ms = 0;
+  }
+};
+
+#if WATCH_HOTENDS
+  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, TEMP_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
+#endif
+#if WATCH_BED
+  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, TEMP_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
+#endif
+#if WATCH_CHAMBER
+  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, TEMP_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
+#endif
 
 // Temperature sensor read value ranges
 typedef struct { int16_t raw_min, raw_max; } raw_range_t;
@@ -339,12 +368,12 @@ class Temperature {
     FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
     #if HEATER_IDLE_HANDLER
-      static heater_idle_t hotend_idle[HOTENDS];
+      static hotend_idle_t hotend_idle[HOTENDS];
       #if HAS_HEATED_BED
-        static heater_idle_t bed_idle;
+        static hotend_idle_t bed_idle;
       #endif
       #if HAS_HEATED_CHAMBER
-        static heater_idle_t chamber_idle;
+        static hotend_idle_t chamber_idle;
       #endif
     #endif
 
@@ -354,10 +383,10 @@ class Temperature {
       static bool inited;   // If temperature controller is running
     #endif
 
-    static volatile bool temp_meas_ready;
+    static volatile bool raw_temps_ready;
 
     #if WATCH_HOTENDS
-      static heater_watch_t watch_hotend[HOTENDS];
+      static hotend_watch_t watch_hotend[HOTENDS];
     #endif
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
@@ -376,7 +405,7 @@ class Temperature {
 
     #if HAS_HEATED_BED
       #if WATCH_BED
-        static heater_watch_t watch_bed;
+        static bed_watch_t watch_bed;
       #endif
       #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
@@ -391,7 +420,7 @@ class Temperature {
 
     #if HAS_HEATED_CHAMBER
       #if WATCH_CHAMBER
-        static heater_watch_t watch_chamber;
+        static chamber_watch_t watch_chamber;
       #endif
       static millis_t next_chamber_check_ms;
       #ifdef CHAMBER_MINTEMP
@@ -730,6 +759,14 @@ class Temperature {
      */
     static void disable_all_heaters();
 
+    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+      /**
+       * Methods to check if heaters are enabled, indicating an active job
+       */
+      static bool over_autostart_threshold();
+      static void check_timer_autostart(const bool can_start, const bool can_stop);
+    #endif
+
     /**
      * Perform auto-tuning for hotend or bed in response to M303
      */
@@ -762,7 +799,7 @@ class Temperature {
 
     #if HEATER_IDLE_HANDLER
 
-      static void reset_heater_idle_timer(const uint8_t E_NAME) {
+      static void reset_hotend_idle_timer(const uint8_t E_NAME) {
         hotend_idle[HOTEND_INDEX].reset();
         start_watching_hotend(HOTEND_INDEX);
       }
@@ -799,7 +836,7 @@ class Temperature {
     #endif
 
   private:
-    static void set_current_temp_raw();
+    static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)

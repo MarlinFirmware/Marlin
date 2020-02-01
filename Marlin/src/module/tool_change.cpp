@@ -822,7 +822,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     }
 
     #if HAS_LCD_MENU
-      ui.return_to_status();
+      if (!no_move) ui.return_to_status();
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)

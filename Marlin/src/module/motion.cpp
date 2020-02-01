@@ -109,9 +109,15 @@ xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
  */
 xyze_pos_t destination; // {0}
 
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
+  xyz_pos_t stored_position[SAVED_POSITIONS];
+#endif
+
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
-  uint8_t active_extruder; // = 0
+  uint8_t active_extruder = 0; // = 0
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -1748,15 +1754,9 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
-  #ifdef HOMING_BACKOFF_MM
+  #if DISABLED(DELTA) && defined(HOMING_BACKOFF_MM)
     constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
-    const float backoff_mm = endstop_backoff[
-      #if ENABLED(DELTA)
-        Z_AXIS
-      #else
-        axis
-      #endif
-    ];
+    const float backoff_mm = endstop_backoff[axis];
     if (backoff_mm) {
       current_position[axis] -= ABS(backoff_mm) * axis_home_dir;
       line_to_current_position(

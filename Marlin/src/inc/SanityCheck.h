@@ -294,19 +294,19 @@
 #elif defined(HAVE_L6470DRIVER)
   #error "HAVE_L6470DRIVER is now [AXIS]_DRIVER_TYPE L6470. Please update your Configuration.h."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) || defined(Z3_IS_TMC) \
-   || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC) || defined(E5_IS_TMC)
+   || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC) || defined(E5_IS_TMC) || defined(E6_IS_TMC) || defined(E7_IS_TMC)
   #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
 #elif defined(X_IS_TMC26X) || defined(X2_IS_TMC26X) || defined(Y_IS_TMC26X) || defined(Y2_IS_TMC26X) || defined(Z_IS_TMC26X) || defined(Z2_IS_TMC26X) || defined(Z3_IS_TMC26X) \
-   || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X) || defined(E5_IS_TMC26X)
+   || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X) || defined(E5_IS_TMC26X) || defined(E6_IS_TMC26X) || defined(E7_IS_TMC26X)
   #error "[AXIS]_IS_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
 #elif defined(X_IS_TMC2130) || defined(X2_IS_TMC2130) || defined(Y_IS_TMC2130) || defined(Y2_IS_TMC2130) || defined(Z_IS_TMC2130) || defined(Z2_IS_TMC2130) || defined(Z3_IS_TMC2130) \
-   || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130) || defined(E5_IS_TMC2130)
+   || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130) || defined(E5_IS_TMC2130) || defined(E6_IS_TMC2130) || defined(E7_IS_TMC2130)
   #error "[AXIS]_IS_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130. Please update your Configuration.h."
 #elif defined(X_IS_TMC2208) || defined(X2_IS_TMC2208) || defined(Y_IS_TMC2208) || defined(Y2_IS_TMC2208) || defined(Z_IS_TMC2208) || defined(Z2_IS_TMC2208) || defined(Z3_IS_TMC2208) \
-   || defined(E0_IS_TMC2208) || defined(E1_IS_TMC2208) || defined(E2_IS_TMC2208) || defined(E3_IS_TMC2208) || defined(E4_IS_TMC2208) || defined(E5_IS_TMC2208)
+   || defined(E0_IS_TMC2208) || defined(E1_IS_TMC2208) || defined(E2_IS_TMC2208) || defined(E3_IS_TMC2208) || defined(E4_IS_TMC2208) || defined(E5_IS_TMC2208) || defined(E6_IS_TMC2208) || defined(E7_IS_TMC2208)
   #error "[AXIS]_IS_TMC2208 is now [AXIS]_DRIVER_TYPE TMC2208. Please update your Configuration.h."
 #elif defined(X_IS_L6470) || defined(X2_IS_L6470) || defined(Y_IS_L6470) || defined(Y2_IS_L6470) || defined(Z_IS_L6470) || defined(Z2_IS_L6470) || defined(Z3_IS_L6470) \
-   || defined(E0_IS_L6470) || defined(E1_IS_L6470) || defined(E2_IS_L6470) || defined(E3_IS_L6470) || defined(E4_IS_L6470) || defined(E5_IS_L6470)
+   || defined(E0_IS_L6470) || defined(E1_IS_L6470) || defined(E2_IS_L6470) || defined(E3_IS_L6470) || defined(E4_IS_L6470) || defined(E5_IS_L6470) || defined(E6_IS_L6470) || defined(E7_IS_L6470)
   #error "[AXIS]_IS_L6470 is now [AXIS]_DRIVER_TYPE L6470. Please update your Configuration.h."
 #elif defined(AUTOMATIC_CURRENT_CONTROL)
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
@@ -718,14 +718,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #if !HAS_RESUME_CONTINUE
     #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller or EMERGENCY_PARSER."
+  #elif DISABLED(NOZZLE_PARK_FEATURE)
+    #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE."
+  #elif !defined(FILAMENT_UNLOAD_PURGE_FEEDRATE)
+    #error "ADVANCED_PAUSE_FEATURE requires FILAMENT_UNLOAD_PURGE_FEEDRATE. Please add it to Configuration_adv.h."
   #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
     #error "EXTRUDER_RUNOUT_PREVENT is incompatible with ADVANCED_PAUSE_FEATURE."
   #elif ENABLED(PARK_HEAD_ON_PAUSE) && NONE(SDSUPPORT, NEWPANEL, EMERGENCY_PARSER)
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #elif ENABLED(HOME_BEFORE_FILAMENT_CHANGE) && DISABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
     #error "HOME_BEFORE_FILAMENT_CHANGE requires PAUSE_PARK_NO_STEPPER_TIMEOUT."
-  #elif DISABLED(NOZZLE_PARK_FEATURE)
-    #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE."
   #elif ENABLED(PREVENT_LENGTHY_EXTRUDE) && FILAMENT_CHANGE_UNLOAD_LENGTH > EXTRUDE_MAXLENGTH
     #error "FILAMENT_CHANGE_UNLOAD_LENGTH must be less than or equal to EXTRUDE_MAXLENGTH."
   #elif ENABLED(PREVENT_LENGTHY_EXTRUDE) && FILAMENT_CHANGE_SLOW_LOAD_LENGTH > EXTRUDE_MAXLENGTH
@@ -752,8 +754,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if EXTRUDERS > 1
 
-  #if EXTRUDERS > 6
-    #error "Marlin supports a maximum of 6 EXTRUDERS."
+  #if EXTRUDERS > 8
+    #error "Marlin supports a maximum of 8 EXTRUDERS."
   #endif
 
   #if ENABLED(HEATERS_PARALLEL)
@@ -1494,6 +1496,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_SENSOR_4 1000 requires HOTEND4_PULLUP_RESISTOR_OHMS, HOTEND4_RESISTANCE_25C_OHMS and HOTEND4_BETA in Configuration_adv.h."
 #elif ENABLED(HEATER_5_USER_THERMISTOR) && !(defined(HOTEND5_PULLUP_RESISTOR_OHMS) && defined(HOTEND5_RESISTANCE_25C_OHMS) && defined(HOTEND5_BETA))
   #error "TEMP_SENSOR_5 1000 requires HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS and HOTEND5_BETA in Configuration_adv.h."
+#elif ENABLED(HEATER_6_USER_THERMISTOR) && !(defined(HOTEND6_PULLUP_RESISTOR_OHMS) && defined(HOTEND6_RESISTANCE_25C_OHMS) && defined(HOTEND6_BETA))
+  #error "TEMP_SENSOR_6 1000 requires HOTEND6_PULLUP_RESISTOR_OHMS, HOTEND6_RESISTANCE_25C_OHMS and HOTEND6_BETA in Configuration_adv.h."
+#elif ENABLED(HEATER_7_USER_THERMISTOR) && !(defined(HOTEND7_PULLUP_RESISTOR_OHMS) && defined(HOTEND7_RESISTANCE_25C_OHMS) && defined(HOTEND7_BETA))
+  #error "TEMP_SENSOR_7 1000 requires HOTEND7_PULLUP_RESISTOR_OHMS, HOTEND7_RESISTANCE_25C_OHMS and HOTEND7_BETA in Configuration_adv.h."
 #elif ENABLED(HEATER_BED_USER_THERMISTOR) && !(defined(BED_PULLUP_RESISTOR_OHMS) && defined(BED_RESISTANCE_25C_OHMS) && defined(BED_BETA))
   #error "TEMP_SENSOR_BED 1000 requires BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS and BED_BETA in Configuration_adv.h."
 #elif ENABLED(HEATER_CHAMBER_USER_THERMISTOR) && !(defined(CHAMBER_PULLUP_RESISTOR_OHMS) && defined(CHAMBER_RESISTANCE_25C_OHMS) && defined(CHAMBER_BETA))
@@ -1564,13 +1570,45 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
           #elif !PIN_EXISTS(TEMP_5)
             #error "TEMP_5_PIN not defined for this board."
           #endif
+          #if HOTENDS > 6
+            #if TEMP_SENSOR_6 == 0
+              #error "TEMP_SENSOR_6 is required with 6 HOTENDS."
+            #elif !HAS_HEATER_6
+              #error "HEATER_6_PIN not defined for this board."
+            #elif !PIN_EXISTS(TEMP_6)
+              #error "TEMP_6_PIN not defined for this board."
+            #endif
+            #if HOTENDS > 7
+              #if TEMP_SENSOR_7 == 0
+                #error "TEMP_SENSOR_7 is required with 7 HOTENDS."
+              #elif !HAS_HEATER_7
+                #error "HEATER_7_PIN not defined for this board."
+              #elif !PIN_EXISTS(TEMP_7)
+                #error "TEMP_7_PIN not defined for this board."
+              #endif
+            #elif TEMP_SENSOR_7 != 0
+              #error "TEMP_SENSOR_7 shouldn't be set with only 7 HOTENDS."
+            #endif
+          #elif TEMP_SENSOR_6 != 0
+            #error "TEMP_SENSOR_6 shouldn't be set with only 6 HOTENDS."
+          #elif TEMP_SENSOR_7 != 0
+            #error "TEMP_SENSOR_7 shouldn't be set with only 6 HOTENDS."
+          #endif
         #elif TEMP_SENSOR_5 != 0
           #error "TEMP_SENSOR_5 shouldn't be set with only 5 HOTENDS."
+        #elif TEMP_SENSOR_6 != 0
+          #error "TEMP_SENSOR_6 shouldn't be set with only 5 HOTENDS."
+        #elif TEMP_SENSOR_7 != 0
+          #error "TEMP_SENSOR_7 shouldn't be set with only 5 HOTENDS."
         #endif
       #elif TEMP_SENSOR_4 != 0
         #error "TEMP_SENSOR_4 shouldn't be set with only 4 HOTENDS."
       #elif TEMP_SENSOR_5 != 0
         #error "TEMP_SENSOR_5 shouldn't be set with only 4 HOTENDS."
+      #elif TEMP_SENSOR_6 != 0
+        #error "TEMP_SENSOR_6 shouldn't be set with only 4 HOTENDS."
+      #elif TEMP_SENSOR_7 != 0
+        #error "TEMP_SENSOR_7 shouldn't be set with only 4 HOTENDS."
       #endif
     #elif TEMP_SENSOR_3 != 0
       #error "TEMP_SENSOR_3 shouldn't be set with only 3 HOTENDS."
@@ -1578,6 +1616,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TEMP_SENSOR_4 shouldn't be set with only 3 HOTENDS."
     #elif TEMP_SENSOR_5 != 0
       #error "TEMP_SENSOR_5 shouldn't be set with only 3 HOTENDS."
+    #elif TEMP_SENSOR_6 != 0
+      #error "TEMP_SENSOR_6 shouldn't be set with only 3 HOTENDS."
+    #elif TEMP_SENSOR_7 != 0
+      #error "TEMP_SENSOR_7 shouldn't be set with only 3 HOTENDS."
     #endif
   #elif TEMP_SENSOR_2 != 0
     #error "TEMP_SENSOR_2 shouldn't be set with only 2 HOTENDS."
@@ -1587,6 +1629,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_4 shouldn't be set with only 2 HOTENDS."
   #elif TEMP_SENSOR_5 != 0
     #error "TEMP_SENSOR_5 shouldn't be set with only 2 HOTENDS."
+  #elif TEMP_SENSOR_6 != 0
+    #error "TEMP_SENSOR_6 shouldn't be set with only 2 HOTENDS."
+  #elif TEMP_SENSOR_7 != 0
+    #error "TEMP_SENSOR_7 shouldn't be set with only 2 HOTENDS."
   #endif
 #elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   #error "TEMP_SENSOR_1 shouldn't be set with only 1 HOTEND."
@@ -1598,6 +1644,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_SENSOR_4 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_5 != 0
   #error "TEMP_SENSOR_5 shouldn't be set with only 1 HOTEND."
+#elif TEMP_SENSOR_6 != 0
+  #error "TEMP_SENSOR_6 shouldn't be set with only 1 HOTEND."
+#elif TEMP_SENSOR_7 != 0
+  #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
 #endif
 
 #if TEMP_SENSOR_PROBE
@@ -1680,6 +1730,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
               #if !(PIN_EXISTS(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
                 #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
               #endif
+              #if E_STEPPERS > 6
+                #if !(PIN_EXISTS(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+                  #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
+                #endif
+                #if E_STEPPERS > 7
+                  #if !(PIN_EXISTS(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+                    #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
+                  #endif
+                #endif // E_STEPPERS > 7
+              #endif // E_STEPPERS > 6
             #endif // E_STEPPERS > 5
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
@@ -2008,6 +2068,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "An SPI driven TMC driver on E4 requires E4_CS_PIN."
 #elif INVALID_TMC_SPI(E5)
   #error "An SPI driven TMC driver on E5 requires E5_CS_PIN."
+#elif INVALID_TMC_SPI(E6)
+  #error "An SPI driven TMC driver on E6 requires E6_CS_PIN."
+#elif INVALID_TMC_SPI(E7)
+  #error "An SPI driven TMC driver on E7 requires E7_CS_PIN."
 #endif
 #undef INVALID_TMC_SPI
 
@@ -2041,6 +2105,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TMC2208 or TMC2209 on E4 requires E4_HARDWARE_SERIAL or E4_SERIAL_(RX|TX)_PIN."
 #elif INVALID_TMC_UART(E5)
   #error "TMC2208 or TMC2209 on E5 requires E5_HARDWARE_SERIAL or E5_SERIAL_(RX|TX)_PIN."
+#elif INVALID_TMC_UART(E6)
+  #error "TMC2208 or TMC2209 on E6 requires E6_HARDWARE_SERIAL or E6_SERIAL_(RX|TX)_PIN."
+#elif INVALID_TMC_UART(E7)
+  #error "TMC2208 or TMC2209 on E7 requires E7_HARDWARE_SERIAL or E7_SERIAL_(RX|TX)_PIN."
 #endif
 #undef INVALID_TMC_UART
 
@@ -2074,6 +2142,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   INVALID_TMC_ADDRESS(E4);
 #elif AXIS_DRIVER_TYPE_E5(TMC2209)
   INVALID_TMC_ADDRESS(E5);
+#elif AXIS_DRIVER_TYPE_E6(TMC2209)
+  INVALID_TMC_ADDRESS(E6);
+#elif AXIS_DRIVER_TYPE_E7(TMC2209)
+  INVALID_TMC_ADDRESS(E7);
 #endif
 #undef INVALID_TMC_ADDRESS
 
@@ -2192,7 +2264,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     || (IN_CHAIN(Z3) && !PIN_EXISTS(Z3_CS)) || (IN_CHAIN(E0) && !PIN_EXISTS(E0_CS)) \
     || (IN_CHAIN(E1) && !PIN_EXISTS(E1_CS)) || (IN_CHAIN(E2) && !PIN_EXISTS(E2_CS)) \
     || (IN_CHAIN(E3) && !PIN_EXISTS(E3_CS)) || (IN_CHAIN(E4) && !PIN_EXISTS(E4_CS)) \
-    || (IN_CHAIN(E5) && !PIN_EXISTS(E5_CS))
+    || (IN_CHAIN(E5) && !PIN_EXISTS(E5_CS)) || (IN_CHAIN(E6) && !PIN_EXISTS(E6_CS)) \
+    || (IN_CHAIN(E7) && !PIN_EXISTS(E7_CS))
     #error "All chained TMC drivers need a CS pin."
   #else
     #if IN_CHAIN(X)
@@ -2221,6 +2294,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #define CS_COMPARE E4_CS_PIN
     #elif IN_CHAIN(E5)
       #define CS_COMPARE E5_CS_PIN
+    #elif IN_CHAIN(E6)
+      #define CS_COMPARE E6_CS_PIN
+    #elif IN_CHAIN(E7)
+      #define CS_COMPARE E7_CS_PIN
     #endif
     #if  (IN_CHAIN(X)  && X_CS_PIN  != CS_COMPARE) || (IN_CHAIN(Y)  && Y_CS_PIN  != CS_COMPARE) \
       || (IN_CHAIN(Z)  && Z_CS_PIN  != CS_COMPARE) || (IN_CHAIN(X2) && X2_CS_PIN != CS_COMPARE) \
@@ -2228,7 +2305,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       || (IN_CHAIN(Z3) && Z3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E0) && E0_CS_PIN != CS_COMPARE) \
       || (IN_CHAIN(E1) && E1_CS_PIN != CS_COMPARE) || (IN_CHAIN(E2) && E2_CS_PIN != CS_COMPARE) \
       || (IN_CHAIN(E3) && E3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E4) && E4_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(E5) && E5_CS_PIN != CS_COMPARE)
+      || (IN_CHAIN(E5) && E5_CS_PIN != CS_COMPARE) || (IN_CHAIN(E6) && E6_CS_PIN != CS_COMPARE) \
+      || (IN_CHAIN(E7) && E7_CS_PIN != CS_COMPARE)
       #error "All chained TMC drivers must use the same CS pin."
     #endif
   #endif
@@ -2521,12 +2599,26 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
       #error "SPINDLE_LASER_PWM_PIN conflicts with E4_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(E5_AUTO_FAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with E5_AUTO_FAN_PIN."
+    #elif _PIN_CONFLICT(E6_AUTO_FAN)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with E6_AUTO_FAN_PIN."
+    #elif _PIN_CONFLICT(E7_AUTO_FAN)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with E7_AUTO_FAN_PIN."
     #elif _PIN_CONFLICT(FAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN_PIN."
     #elif _PIN_CONFLICT(FAN1)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN1_PIN."
     #elif _PIN_CONFLICT(FAN2)
       #error "SPINDLE_LASER_PWM_PIN conflicts with FAN2_PIN."
+    #elif _PIN_CONFLICT(FAN3)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN3_PIN."
+    #elif _PIN_CONFLICT(FAN4)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN4_PIN."
+    #elif _PIN_CONFLICT(FAN5)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN5_PIN."
+    #elif _PIN_CONFLICT(FAN6)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN6_PIN."
+    #elif _PIN_CONFLICT(FAN7)
+      #error "SPINDLE_LASER_PWM_PIN conflicts with FAN7_PIN."
     #elif _PIN_CONFLICT(CONTROLLERFAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CONTROLLERFAN_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_XY)

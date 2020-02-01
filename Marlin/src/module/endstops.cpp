@@ -486,14 +486,20 @@ void _O2 Endstops::report_states() {
           default: continue;
           case 1: pin = FIL_RUNOUT_PIN; break;
           case 2: pin = FIL_RUNOUT2_PIN; break;
-          #if NUM_RUNOUT_SENSORS > 2
+          #if NUM_RUNOUT_SENSORS >= 3
             case 3: pin = FIL_RUNOUT3_PIN; break;
-            #if NUM_RUNOUT_SENSORS > 3
+            #if NUM_RUNOUT_SENSORS >= 4
               case 4: pin = FIL_RUNOUT4_PIN; break;
-              #if NUM_RUNOUT_SENSORS > 4
+              #if NUM_RUNOUT_SENSORS >= 5
                 case 5: pin = FIL_RUNOUT5_PIN; break;
-                #if NUM_RUNOUT_SENSORS > 5
+                #if NUM_RUNOUT_SENSORS >= 6
                   case 6: pin = FIL_RUNOUT6_PIN; break;
+                  #if NUM_RUNOUT_SENSORS >= 7
+                    case 7: pin = FIL_RUNOUT7_PIN; break;
+                    #if NUM_RUNOUT_SENSORS >= 8
+                      case 8: pin = FIL_RUNOUT8_PIN; break;
+                    #endif
+                  #endif
                 #endif
               #endif
             #endif

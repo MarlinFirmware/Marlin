@@ -33,6 +33,7 @@
 #include <lpc17xx_i2c.h>
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_libcfg_default.h>
+#include "i2c_util.h"
 
 uint8_t digipot_mcp4451_start(uint8_t sla);
 uint8_t digipot_mcp4451_send_byte(uint8_t data);

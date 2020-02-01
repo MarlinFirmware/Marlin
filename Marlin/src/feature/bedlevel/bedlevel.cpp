@@ -247,7 +247,7 @@ void reset_bed_level() {
     current_position = pos;
 
     #if ENABLED(LCD_BED_LEVELING)
-      ui.wait_for_bl_move = false;
+      ui.wait_for_move = false;
     #endif
   }
 

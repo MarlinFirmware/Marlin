@@ -240,10 +240,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Piatto");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Camera");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventola");     // Max 15 characters
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola =");   // Max 15 characters
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. =");   // Max 15 characters
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola ~");   // Max 15 characters
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. ~");   // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent.");  // Max 15 characters
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. =");  // Max 15 characters
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. ~");  // Max 15 characters
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flusso");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flusso ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controllo");
@@ -255,14 +255,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seleziona");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seleziona *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");

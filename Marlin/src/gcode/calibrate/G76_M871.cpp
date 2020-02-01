@@ -256,7 +256,7 @@ void GcodeSuite::G76() {
 
     // Initialize temperatures
     uint16_t target_bed = temp_comp.probe_calib_bed_temp,
-             target_probe = temp_comp.cali_info_init[TSI_BED].start_temp;
+             target_probe = temp_comp.cali_info_init[TSI_PROBE].start_temp;
     thermalManager.setTargetBed(target_bed);
     SERIAL_ECHOLNPGM("Waiting for bed and probe temperature.");
     while (fabs(thermalManager.degBed() - float(target_bed)) > 0.1f
@@ -332,13 +332,13 @@ void GcodeSuite::G76() {
       else
         SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
 
-      if (target_probe == temp_comp.cali_info_init[TSI_BED].start_temp)
+      if (target_probe == temp_comp.cali_info_init[TSI_PROBE].start_temp)
         temp_comp.prepare_new_calibration(measured_z);
       else
         temp_comp.push_back_new_measurement(TSI_PROBE, measured_z);
 
-      target_probe += temp_comp.cali_info_init[TSI_BED].temp_res;
-      if (target_probe > temp_comp.cali_info_init[TSI_BED].end_temp) break;
+      target_probe += temp_comp.cali_info_init[TSI_PROBE].temp_res;
+      if (target_probe > temp_comp.cali_info_init[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());

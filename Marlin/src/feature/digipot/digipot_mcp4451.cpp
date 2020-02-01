@@ -77,7 +77,7 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
 
 void digipot_i2c_init() {
   #if MB(MKS_SBASE)
-    configure_i2c();
+    configure_i2c(16); // Setting clock_option to 16 ensure the I2C bus is initialized at 400kHz
   #else
     Wire.begin();
   #endif

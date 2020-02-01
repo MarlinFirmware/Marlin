@@ -508,7 +508,7 @@ G29_TYPE GcodeSuite::G29() {
       set_bed_leveling_enabled(abl_should_enable);
       g29_in_progress = false;
       #if ENABLED(LCD_BED_LEVELING)
-        ui.wait_for_bl_move = false;
+        ui.wait_for_move = false;
       #endif
     }
 
@@ -810,7 +810,7 @@ G29_TYPE GcodeSuite::G29() {
   #if ENABLED(PROBE_MANUALLY)
     g29_in_progress = false;
     #if ENABLED(LCD_BED_LEVELING)
-      ui.wait_for_bl_move = false;
+      ui.wait_for_move = false;
     #endif
   #endif
 

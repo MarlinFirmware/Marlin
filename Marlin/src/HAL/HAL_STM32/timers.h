@@ -61,8 +61,6 @@
 
   #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
 
-  // STM32F401 only has timers 1-5 & 9-11 with timers 4 & 5 usually assigned to TIMER_SERVO and TIMER_TONE
-
   #ifndef STEP_TIMER
     #define STEP_TIMER 9
   #endif
@@ -76,19 +74,19 @@
   #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 6
+    #define STEP_TIMER 6  // STM32F401 has no TIM6, TIM7, or TIM8
   #endif
 
   #ifndef TEMP_TIMER
-    #define TEMP_TIMER 14
+    #define TEMP_TIMER 14 // TIM7 is consumed by Software Serial if used.
   #endif
 
 #elif defined(STM32F7xx)
 
-  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
+  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 6
+    #define STEP_TIMER 6  // the RIGHT timer!
   #endif
 
   #ifndef TEMP_TIMER
