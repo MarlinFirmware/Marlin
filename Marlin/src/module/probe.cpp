@@ -353,7 +353,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #endif
 }
 
-// returns false for ok and true for failure
+/**
+ * Attempt to deploy or stow the probe
+ *
+ * Return TRUE if the probe could not be deployed/stowed
+ */
 bool Probe::set_deployed(const bool deploy) {
 
   if (DEBUGGING(LEVELING)) {

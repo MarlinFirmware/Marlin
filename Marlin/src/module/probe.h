@@ -53,9 +53,6 @@ public:
 
     static bool set_deployed(const bool deploy);
 
-    static inline bool deploy() { return set_deployed(true); }
-    static inline bool stow() { return set_deployed(false); }
-
     #ifdef Z_AFTER_PROBING
       static void move_z_after_probing();
     #endif
@@ -72,10 +69,12 @@ public:
     static constexpr xyz_pos_t offset{0};
     static constexpr xy_pos_t offset_xy{0};
 
-    static inline bool deploy() {}
-    static inline bool stow() {}
+    static bool set_deployed(const bool) { return false; }
 
   #endif
+
+  static inline bool deploy() { return set_deployed(true); }
+  static inline bool stow() { return set_deployed(false); }
 
   #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC
