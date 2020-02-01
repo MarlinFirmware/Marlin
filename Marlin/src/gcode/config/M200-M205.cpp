@@ -41,8 +41,9 @@
       // setting any extruder filament size disables volumetric on the assumption that
       // slicers either generate in extruder values as cubic mm or as as filament feeds
       // for all extruders
-      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0)) )
-        planner.set_filament_size(target_extruder, parser.value_linear_units());
+      const float dval = parser.value_linear_units();
+      if ( (parser.volumetric_enabled = (dval != 0)) )
+        planner.set_filament_size(target_extruder, dval);
     }
     planner.calculate_volumetric_multipliers();
   }
