@@ -65,7 +65,7 @@
 
 constexpr fixed_t snakev = FTOP(0.20);
 
-const snake_data_t &sdat = marlin_game_data.snake;
+snake_data_t &sdat = marlin_game_data.snake;
 
 // Remove the first pixel from the tail.
 // If needed, shift out the first segment.

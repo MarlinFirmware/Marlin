@@ -40,7 +40,7 @@
 #define BRICK_COL(X) ((X) / (BRICK_W))
 #define BRICK_ROW(Y) ((Y - (BRICK_TOP)) / (BRICK_H))
 
-const brickout_data_t &bdat = marlin_game_data.brickout;
+brickout_data_t &bdat = marlin_game_data.brickout;
 
 inline void reset_bricks(const uint16_t v) {
   bdat.brick_count = (BRICK_COLS) * (BRICK_ROWS);
