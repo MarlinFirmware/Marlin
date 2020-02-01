@@ -127,7 +127,7 @@ Stepper stepper; // Singleton
   #include "../feature/power_loss_recovery.h"
 #endif
 
-#if ENABLED(LASER_POWER_INLINE)
+#if HAS_CUTTER
   #include "../feature/spindle_laser.h"
 #endif
 
