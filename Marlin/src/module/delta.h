@@ -26,6 +26,7 @@
  */
 
 #include "../core/types.h"
+#include "../core/macros.h"
 
 extern float delta_height;
 extern abc_float_t delta_endstop_adj;

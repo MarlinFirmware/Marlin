@@ -27,6 +27,13 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
+/**
+ * M304 - Set and/or Report the current Bed PID values
+ *
+ *  P<pval> - Set the P value
+ *  I<ival> - Set the I value
+ *  D<dval> - Set the D value
+ */
 void GcodeSuite::M304() {
   if (parser.seen('P')) thermalManager.temp_bed.pid.Kp = parser.value_float();
   if (parser.seen('I')) thermalManager.temp_bed.pid.Ki = scalePID_i(parser.value_float());

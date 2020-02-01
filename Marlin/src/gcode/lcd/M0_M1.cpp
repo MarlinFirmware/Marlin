@@ -26,6 +26,9 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../gcode.h"
+#include "../../module/planner.h"
+
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
