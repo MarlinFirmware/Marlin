@@ -131,30 +131,21 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  // define here your Motherboard
-  // *
-  //#define MOTHERBOARD BOARD_TRIGORILLA_14
-  #define MOTHERBOARD BOARD_BIGTREE_SKR_V1_4_TURBO
-  //*
-  
+  #error "### ERROR: No MOTHERBOARD defined! Please check platformio.ini (default_envs!) ###"
+#else
+  //
+  // Define in platformio.ini your custom 4MAX. Just comment out what device you want to build! 
+  //
   #if (MOTHERBOARD == BOARD_TRIGORILLA_14)
-    // Only defined in combination with BOARD_TRIGORILLA_14
     #define ANYCUBIC_4MAX
-    // define here your custom 4MAX. ATTENTION: ONLY ONE IS TO BE DEFINE!
-    // *
-    #define ANYCUBIC_4MAX_VG3R
-    //#define ANYCUBIC_4MAX_7OF9
-    //#define ANYCUBIC_4MAX_DEFAULT
-    // *
   #elif (MOTHERBOARD == BOARD_BIGTREE_SKR_V1_4_TURBO)
-    // Only defined in combination with BOARD_TRIGORILLA_14
-    //* 
-    #define ANYCUBIC_4MAX_SKR_1_4
-    // *
+    // ANYCUBIC_4MAX_SKR_1_4_PRO specific setting can be set here! 
+  #else
+    #error "### ERROR: No Supported MOTHERBOARD defined! Please check platformio.ini ###"
   #endif
 #endif
 
-#if EITHER( ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT,ANYCUBIC_4MAX_SKR_1_4 )
+#if EITHER( ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT,ANYCUBIC_4MAX_SKR_1_4_PRO )
   #if (MOTHERBOARD == BOARD_TRIGORILLA_14) && \
       ( ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9 ) || \
       ENABLED(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_DEFAULT) || \
@@ -166,12 +157,12 @@
     //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_7OF9\"" )
   #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_DEFAULT\"" )
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
       #undef SERIAL_PORT
       #undef SERIAL_PORT_2
       #define SERIAL_PORT 0
       #define SERIAL_PORT_2 -1
-      //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_SKR_1_4\"" )
+      //#pragma message ( "### BUILDIND Firmware for: \"ANYCUBIC_4MAX_SKR_1_4_PRO\"" )
   #else
     #error "No default 4MAX settings are set! - ### Define your custom 4MAX setting! ###"
   #endif
@@ -182,9 +173,9 @@
  */
 #ifndef SHORT_BUILD_VERSION
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
-    #define SHORT_BUILD_VERSION "4MAX 2.0.54 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
-  #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4)
-    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.61 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX 2.0.55 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+  #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.62 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #endif
 #endif
 
@@ -202,9 +193,9 @@
   #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     #define MACHINE_NAME        "Anycubic 4MAX"
     #define CUSTOM_MACHINE_NAME "Anycubic 4MAX"
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
-    #define MACHINE_NAME        "4MAX - 32Bit"
-    #define CUSTOM_MACHINE_NAME "4MAX - 32Bit"
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define MACHINE_NAME        "4MAX - p1c4rd"
+    #define CUSTOM_MACHINE_NAME "4MAX - p1c4rd"
   #endif
 #endif
 
@@ -225,7 +216,7 @@
     #define DEFAULT_MACHINE_UUID "6aa1441c-ffd5-11e9-8d71-362b9e155667"
   #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
     #define DEFAULT_MACHINE_UUID "6aa147d2-ffd5-11e9-8d71-362b9e155667"
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     #define DEFAULT_MACHINE_UUID "6aa132bb-ffd5-11e9-8d71-362b9e155667"
   #endif
 #endif
@@ -615,7 +606,7 @@
   #define DEFAULT_Ki 1.08
   #define DEFAULT_Kd 114
   // Save/change with: M301 E0 P22.2 I1.08 D114;
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   // 4MAX with PID Autotune
   // my 4MAX Printer: 7of9 - PID - Hotend with silicone heater cover
   //
@@ -706,7 +697,7 @@
     #define  DEFAULT_bedKi .023
     #define  DEFAULT_bedKd 305.4
     // Save/change with: M304 P10.00 I0.023 D305.4
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     // 4MAX with PID Autotune - my 4MAX Printer: 7of9 - PID - BED
     //
     //  Autotuned with command: M303 E-1 S90 C8
@@ -792,7 +783,7 @@
 #define USE_ZMIN_PLUG
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define USE_ZMAX_PLUG
 #else
   //#define USE_ZMAX_PLUG
@@ -841,7 +832,7 @@
   #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
   //#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
@@ -870,7 +861,7 @@
   #define X_DRIVER_TYPE  TMC2208_STANDALONE
   #define Y_DRIVER_TYPE  TMC2208_STANDALONE
   #define Z_DRIVER_TYPE  TMC2208_STANDALONE
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define X_DRIVER_TYPE  TMC5160
   #define Y_DRIVER_TYPE  TMC5160
   #define Z_DRIVER_TYPE  TMC5160
@@ -887,7 +878,7 @@
 
 #if ENABLED(ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_VG3R)
   #define E0_DRIVER_TYPE TMC2208
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define E0_DRIVER_TYPE TMC5160
 #else // Default 4MAX Driver
   #define E0_DRIVER_TYPE A4988
@@ -952,7 +943,7 @@
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   // Default 4MAX
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 92.60 }
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   // my 4MAX Printer: 7of9 - Steps - Filament
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.12018, 80.10413, 397.14058, 98.73 }
 #endif
@@ -1053,7 +1044,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
- #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4)
+ #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #else
   //#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
@@ -1109,7 +1100,7 @@
  */
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define Z_PROBE_SERVO_NR 2         // Defaults to SERVO 0 connector.
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   //#define Z_PROBE_SERVO_NR 0  // Defaults to SERVO 0 connector.
 #else
   //#define Z_PROBE_SERVO_NR 0         // Defaults to SERVO 0 connector.
@@ -1119,7 +1110,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
- #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4)
+ #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define BLTOUCH
  #else
   //#define BLTOUCH
@@ -1201,7 +1192,7 @@
   #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -2.94 }
 #elif ENABLED(ANYCUBIC_4MAX_DEFAULT)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   // my 4MAX Printer: 7of9 - Offset
   //#define NOZZLE_TO_PROBE_OFFSET { 32.77, 0, -0.96 }
   #define NOZZLE_TO_PROBE_OFFSET { 33, 0, -2.94 }
@@ -1304,7 +1295,7 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
@@ -2504,7 +2495,7 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define NEOPIXEL_LED
 #else
   //#define NEOPIXEL_LED
@@ -2513,7 +2504,7 @@
   #define NEOPIXEL_TYPE   NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
     #define NEOPIXEL_PIN    SERVO3_PIN // LED driving pin
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     //#ifndef NEOPIXEL_PIN
     //  #undef NEOPIXEL_PIN
     //  #define NEOPIXEL_PIN      P1_24  // Is define in pins!
@@ -2562,7 +2553,7 @@
  */
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
   #define NUM_SERVOS 4 // Servo index starts with 0 for M280 command
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4)
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define NUM_SERVOS 1
 #endif
 
