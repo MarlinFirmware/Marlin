@@ -257,16 +257,16 @@ void GcodeSuite::G34() {
       // Correct the individual stepper offsets
       for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) {
         // Calculate current stepper move
-        float z_align_move = z_measured[zstepper] - z_measured_min,
-                    z_align_abs = ABS(z_align_move);
+        float z_align_move = z_measured[zstepper] - z_measured_min;
+        const float z_align_abs = ABS(z_align_move);
 
         #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
           // Optimize one iteration's correction based on the first measurements
-          if (z_align_abs > 0.0f) amplification = iteration == 1 ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
+          if (z_align_abs) amplification = (iteration == 1) ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
         #endif
 
         // Check for less accuracy compared to last move
-        if (last_z_align_move[zstepper] < z_align_abs *0.7f) {
+        if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
           SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
           #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
             adjustment_reverse = !adjustment_reverse;
