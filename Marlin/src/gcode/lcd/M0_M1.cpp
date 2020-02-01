@@ -24,7 +24,6 @@
 
 #if HAS_RESUME_CONTINUE
 
-#include "../../inc/MarlinConfig.h"
 #include "../gcode.h"
 #include "../../module/planner.h"
 

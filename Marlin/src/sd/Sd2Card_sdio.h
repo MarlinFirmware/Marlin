@@ -29,9 +29,6 @@ bool SDIO_Init();
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 
-extern uint8_t _status_init;
-extern uint8_t _status_W;
-
 class Sd2Card {
   public:
     bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
