@@ -1050,7 +1050,7 @@ void Temperature::manage_heater() {
   #endif
 
   #if ENABLED(EMERGENCY_PARSER)
-    if (emergency_parser.killed_by_M112) kill();
+    if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
   #endif
 
   if (!raw_temps_ready) return;
