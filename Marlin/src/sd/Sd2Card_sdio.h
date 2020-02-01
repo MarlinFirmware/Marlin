@@ -34,48 +34,8 @@ extern uint8_t _status_W;
 
 class Sd2Card {
   public:
-//    bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
-    bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) {
-      bool stat = SDIO_Init();
-      SERIAL_ECHOLNPAIR("HAL_INIT: ", _status_init,
-                       "    WIDE: ", _status_W,
-                       "    init: ", stat);
-      return stat;
-    }
-
-//    bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }
-    bool readBlock(uint32_t block, uint8_t *dst) {
-     for (uint16_t x = 0; x < 512; x++)
-       *(dst + x) = 0;
-
-      bool stat = SDIO_ReadBlock(block, dst);
-      SERIAL_ECHOLNPAIR("read: ", stat,
-      "   block: ", block);
-
-      uint16_t zero_count = 0;
-      for (uint16_t x = 0; x < 512; x++)
-        if (!(*(dst + x))) zero_count++;
-      SERIAL_ECHOLNPAIR("read: ", stat,
-      "   block: ", block,
-       "   count: ", zero_count);
-
-
-//     for (uint8_t j = 0; j < 16; j++) {
-//       for (uint8_t i = 0; i < 32; i++) {
-//         uint8_t nibble = *(dst + i + j*16) & 0x0F;
-//         nibble += '0';
-//         SERIAL_ECHO(nibble);
-//         nibble = *(dst + i + j*16) & 0xF0;
-//         nibble = nibble >> 4;
-//         nibble += '0';
-//         SERIAL_ECHO(nibble);
-//         SERIAL_ECHOPGM(" ");
-//       }
-//       SERIAL_EOL();
-//     }
-      return stat;
-    }
-
+    bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
+    bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }
     bool writeBlock(uint32_t block, const uint8_t *src) { return SDIO_WriteBlock(block, src); }
 };
 
