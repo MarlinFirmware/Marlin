@@ -2922,10 +2922,10 @@ void MarlinSettings::reset() {
 
     CONFIG_ECHO_HEADING("Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
     CONFIG_ECHO_START();
-    SERIAL_ECHOLNPAIR(
-        "  M204 P", LINEAR_UNIT(planner.settings.acceleration)
-      , " R", LINEAR_UNIT(planner.settings.retract_acceleration)
-      , " T", LINEAR_UNIT(planner.settings.travel_acceleration)
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M204 P"), LINEAR_UNIT(planner.settings.acceleration)
+      , PSTR(" R"), LINEAR_UNIT(planner.settings.retract_acceleration)
+      , SP_T_STR, LINEAR_UNIT(planner.settings.travel_acceleration)
     );
 
     if (!forReplay) {
@@ -2946,7 +2946,7 @@ void MarlinSettings::reset() {
     SERIAL_ECHOLNPAIR_P(
         PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
       , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
-      , PSTR(" T"), LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
+      , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
       #if DISABLED(CLASSIC_JERK)
         , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
       #endif
@@ -3089,8 +3089,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
           PSTR("  M665 S"), delta_segments_per_second
-        , PSTR(" P"), scara_home_offset.a
-        , PSTR(" T"), scara_home_offset.b
+        , SP_P_STR, scara_home_offset.a
+        , SP_T_STR, scara_home_offset.b
         , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
       );
 
@@ -3168,7 +3168,7 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPAIR_P(
             #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
-              PSTR(" P")
+              SP_P_STR
             #else
               PSTR("  M301 P")
             #endif

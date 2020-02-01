@@ -96,7 +96,7 @@ void GcodeSuite::M204() {
   if (!parser.seen("PRST")) {
     SERIAL_ECHOPAIR("Acceleration: P", planner.settings.acceleration);
     SERIAL_ECHOPAIR(" R", planner.settings.retract_acceleration);
-    SERIAL_ECHOLNPAIR(" T", planner.settings.travel_acceleration);
+    SERIAL_ECHOLNPAIR_P(SP_T_STR, planner.settings.travel_acceleration);
   }
   else {
     //planner.synchronize();

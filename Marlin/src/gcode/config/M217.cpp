@@ -37,7 +37,7 @@ void M217_report(const bool eeprom=false) {
     serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime));
-    SERIAL_ECHOPAIR(" P", LINEAR_UNIT(toolchange_settings.prime_speed));
+    SERIAL_ECHOPAIR_P(SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
 
     #if ENABLED(TOOLCHANGE_PARK)
