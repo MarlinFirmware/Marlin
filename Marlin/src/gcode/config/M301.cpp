@@ -68,7 +68,7 @@ void GcodeSuite::M301() {
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
-    #endif // PID_PARAMS_PER_HOTEND
+    #endif
     SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
                     " i:", unscalePID_i(PID_PARAM(Ki, e)),
                     " d:", unscalePID_d(PID_PARAM(Kd, e)));
