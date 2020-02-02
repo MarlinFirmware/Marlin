@@ -783,8 +783,18 @@
 #define USE_ZMIN_PLUG
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define USE_ZMAX_PLUG
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+  #define USE_ZMAX_PLUG
+  // #define FIL_RUNOUT2_PIN  P1_25   // E1DET
+  #ifdef FIL_RUNOUT2_PIN    
+    #undef FIL_RUNOUT2_PIN
+  #endif
+  #ifdef Z_MAX_PIN 
+    #undef Z_MAX_PIN
+  #endif
+  #define Z_MAX_PIN P1_25
 #else
   //#define USE_ZMAX_PLUG
 #endif
@@ -1044,7 +1054,9 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
- #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #else
   //#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
@@ -1067,6 +1079,9 @@
  *
  */
 //#define Z_MIN_PROBE_PIN 15 // 15: Y_MAX for BLTOUCH
+//#if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+//  #define Z_MIN_PROBE_PIN P0_10
+//#endif
 
 /**
  * Probe Type
