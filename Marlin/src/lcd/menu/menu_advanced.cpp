@@ -228,35 +228,17 @@ void menu_cancelobject();
 #if ENABLED(PID_AUTOTUNE_MENU)
   #define DEFINE_PIDTEMP_FUNCS(N) \
     _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-    void lcd_autotune_callback_E##N() { _lcd_autotune(N); } //
+    void lcd_autotune_callback_E##N() { _lcd_autotune(N); }
 #else
-  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N); //
+  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N);
 #endif
 
 #if HOTENDS
   DEFINE_PIDTEMP_FUNCS(0);
   #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
-    DEFINE_PIDTEMP_FUNCS(1);
-    #if HOTENDS > 2
-      DEFINE_PIDTEMP_FUNCS(2);
-      #if HOTENDS > 3
-        DEFINE_PIDTEMP_FUNCS(3);
-        #if HOTENDS > 4
-          DEFINE_PIDTEMP_FUNCS(4);
-          #if HOTENDS > 5
-            DEFINE_PIDTEMP_FUNCS(5);
-            #if HOTENDS > 6
-              DEFINE_PIDTEMP_FUNCS(6);
-              #if HOTENDS > 7
-                DEFINE_PIDTEMP_FUNCS(7);
-              #endif // HOTENDS > 7
-            #endif // HOTENDS > 6
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1 && PID_PARAMS_PER_HOTEND
-#endif // HOTENDS
+    REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
+  #endif
+#endif
 
 #define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
 
@@ -320,33 +302,15 @@ void menu_cancelobject();
     #if ENABLED(PID_AUTOTUNE_MENU)
       #define PID_EDIT_MENU_ITEMS(N) \
         _PID_EDIT_MENU_ITEMS(N); \
-        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, heater_maxtemp[N] - 15, []{ _lcd_autotune(MenuItemBase::itemIndex); })
+        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, heater_maxtemp[N] - 15, []{ _lcd_autotune(MenuItemBase::itemIndex); });
     #else
-      #define PID_EDIT_MENU_ITEMS(N) _PID_EDIT_MENU_ITEMS(N)
+      #define PID_EDIT_MENU_ITEMS(N) _PID_EDIT_MENU_ITEMS(N);
     #endif
 
     PID_EDIT_MENU_ITEMS(0);
     #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
-      PID_EDIT_MENU_ITEMS(1);
-      #if HOTENDS > 2
-        PID_EDIT_MENU_ITEMS(2);
-        #if HOTENDS > 3
-          PID_EDIT_MENU_ITEMS(3);
-          #if HOTENDS > 4
-            PID_EDIT_MENU_ITEMS(4);
-            #if HOTENDS > 5
-              PID_EDIT_MENU_ITEMS(5);
-              #if HOTENDS > 6
-                PID_EDIT_MENU_ITEMS(6);
-                #if HOTENDS > 7
-                  PID_EDIT_MENU_ITEMS(7);
-                #endif // HOTENDS > 7
-              #endif // HOTENDS > 6
-            #endif // HOTENDS > 5
-          #endif // HOTENDS > 4
-        #endif // HOTENDS > 3
-      #endif // HOTENDS > 2
-    #endif // HOTENDS > 1 && PID_PARAMS_PER_HOTEND
+      REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
+    #endif
 
     END_MENU();
   }

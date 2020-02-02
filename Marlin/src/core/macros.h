@@ -457,3 +457,21 @@
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
 #define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)
+
+// Use RREPEAT macros with REPEAT macros for nesting
+#define _RREPEAT(_RPT_I,_RPT_N,_RPT_OP)                           \
+  _RPT_OP(_RPT_I)                                                 \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) )    \
+    ( /* Do nothing */ )
+#define __RREPEAT() _RREPEAT
+#define _RREPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                               \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __RREPEAT2() _RREPEAT2
+#define RREPEAT_S(S,N,OP)        EVAL(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
+#define RREPEAT2_S(S,N,OP,V...)  EVAL(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)

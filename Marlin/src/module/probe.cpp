@@ -455,8 +455,8 @@ bool Probe::set_deployed(const bool deploy) {
  * @return true to indicate an error
  */
 
-#if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-  PGM_P Probe::msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
+#if HAS_BED_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  const char Probe::msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
 #endif
 
 bool Probe::move_to_z(const float z, const feedRate_t fr_mm_s) {

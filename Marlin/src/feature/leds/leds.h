@@ -33,6 +33,7 @@
   #include "neopixel.h"
 #endif
 
+// A white component can be passed
 #define HAS_WHITE_LED EITHER(RGBW_LED, NEOPIXEL_LED)
 
 /**
@@ -137,7 +138,7 @@ typedef struct LEDColor {
 #define LEDColorBlue()            LEDColor(  0,   0, 255)
 #define LEDColorIndigo()          LEDColor(  0, 255, 255)
 #define LEDColorViolet()          LEDColor(255,   0, 255)
-#if HAS_WHITE_LED
+#if HAS_WHITE_LED && DISABLED(RGB_LED)
   #define LEDColorWhite()         LEDColor(  0,   0,   0, 255)
 #else
   #define LEDColorWhite()         LEDColor(255, 255, 255)

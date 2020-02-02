@@ -199,14 +199,23 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 
   // Clear cause of reset to prevent entering smoothie bootstrap
   HAL_clear_reset_source();
+
   // Restart watchdog
-  //WDT_Restart(WDT);
-  watchdog_init();
+  #if ENABLED(USE_WATCHDOG)
+    //WDT_Restart(WDT);
+    watchdog_init();
+  #endif
 
   // Reset controller
   NVIC_SystemReset();
 
-  for (;;) watchdog_init();
+  // Nothing below here is compiled because NVIC_SystemReset loops forever
+
+  for (;;) {
+    #if ENABLED(USE_WATCHDOG)
+      watchdog_init();
+    #endif
+  }
 }
 
 extern "C" {

@@ -324,7 +324,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define SCREEN_OR_MENU_LOOP(IS_MENU)                \
   scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU); \
   int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-  bool _skipStatic = IS_MENU;                       \
+  bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);  \
   for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 

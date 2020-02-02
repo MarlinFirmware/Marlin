@@ -2667,7 +2667,7 @@ void MarlinSettings::reset() {
         false
       #endif
     ;
-    for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
+    LOOP_L_N(q, COUNT(planner.filament_size))
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 
   #endif
@@ -2730,7 +2730,7 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    for (uint8_t e = 0; e < EXTRUDERS; e++) {
+    LOOP_L_N(e, EXTRUDERS) {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
       fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
@@ -2842,36 +2842,17 @@ void MarlinSettings::reset() {
           SERIAL_ECHOLNPGM(" Disabled");
       }
 
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-      #if EXTRUDERS > 1
+      #if EXTRUDERS == 1
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
-        #if EXTRUDERS > 2
+        SERIAL_ECHOLNPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
+      #elif EXTRUDERS
+        LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR("  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
-          #if EXTRUDERS > 3
-            CONFIG_ECHO_START();
-            SERIAL_ECHOLNPAIR("  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
-            #if EXTRUDERS > 4
-              CONFIG_ECHO_START();
-              SERIAL_ECHOLNPAIR("  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
-              #if EXTRUDERS > 5
-                CONFIG_ECHO_START();
-                SERIAL_ECHOLNPAIR("  M200 T5 D", LINEAR_UNIT(planner.filament_size[5]));
-                #if EXTRUDERS > 6
-                  CONFIG_ECHO_START();
-                  SERIAL_ECHOLNPAIR("  M200 T6 D", LINEAR_UNIT(planner.filament_size[6]));
-                  #if EXTRUDERS > 7
-                    CONFIG_ECHO_START();
-                    SERIAL_ECHOLNPAIR("  M200 T7 D", LINEAR_UNIT(planner.filament_size[7]));
-                  #endif // EXTRUDERS > 7
-                #endif // EXTRUDERS > 6
-              #endif // EXTRUDERS > 5
-            #endif // EXTRUDERS > 4
-          #endif // EXTRUDERS > 3
-        #endif // EXTRUDERS > 2
-      #endif // EXTRUDERS > 1
+          SERIAL_ECHOPGM("  M200");
+          if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
+          SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
+        }
+      #endif
 
       if (!parser.volumetric_enabled)
         CONFIG_ECHO_MSG("  M200 D0");
@@ -2893,7 +2874,7 @@ void MarlinSettings::reset() {
     );
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START();
-      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+      LOOP_L_N(i, E_STEPPERS) {
         SERIAL_ECHOLNPAIR_P(
             PSTR("  M203 T"), (int)i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
@@ -2913,7 +2894,7 @@ void MarlinSettings::reset() {
     );
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START();
-      for (uint8_t i = 0; i < E_STEPPERS; i++)
+      LOOP_L_N(i, E_STEPPERS)
         SERIAL_ECHOLNPAIR_P(
             PSTR("  M201 T"), (int)i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
@@ -2922,10 +2903,10 @@ void MarlinSettings::reset() {
 
     CONFIG_ECHO_HEADING("Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
     CONFIG_ECHO_START();
-    SERIAL_ECHOLNPAIR(
-        "  M204 P", LINEAR_UNIT(planner.settings.acceleration)
-      , " R", LINEAR_UNIT(planner.settings.retract_acceleration)
-      , " T", LINEAR_UNIT(planner.settings.travel_acceleration)
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M204 P"), LINEAR_UNIT(planner.settings.acceleration)
+      , PSTR(" R"), LINEAR_UNIT(planner.settings.retract_acceleration)
+      , SP_T_STR, LINEAR_UNIT(planner.settings.travel_acceleration)
     );
 
     if (!forReplay) {
@@ -2946,7 +2927,7 @@ void MarlinSettings::reset() {
     SERIAL_ECHOLNPAIR_P(
         PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
       , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
-      , PSTR(" T"), LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
+      , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
       #if DISABLED(CLASSIC_JERK)
         , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
       #endif
@@ -3022,8 +3003,8 @@ void MarlinSettings::reset() {
       #if ENABLED(MESH_BED_LEVELING)
 
         if (leveling_is_valid()) {
-          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
-            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+          LOOP_L_N(py, GRID_MAX_POINTS_Y) {
+            LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
               SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), (int)px, PSTR(" J"), (int)py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
@@ -3047,8 +3028,8 @@ void MarlinSettings::reset() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         if (leveling_is_valid()) {
-          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
-            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+          LOOP_L_N(py, GRID_MAX_POINTS_Y) {
+            LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
               SERIAL_ECHOPAIR("  G29 W I", (int)px, " J", (int)py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(z_values[px][py]), 5);
@@ -3063,7 +3044,7 @@ void MarlinSettings::reset() {
     #if ENABLED(EDITABLE_SERVO_ANGLES)
 
       CONFIG_ECHO_HEADING("Servo Angles:");
-      for (uint8_t i = 0; i < NUM_SERVOS; i++) {
+      LOOP_L_N(i, NUM_SERVOS) {
         switch (i) {
           #if ENABLED(SWITCHING_EXTRUDER)
             case SWITCHING_EXTRUDER_SERVO_NR:
@@ -3089,8 +3070,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
           PSTR("  M665 S"), delta_segments_per_second
-        , PSTR(" P"), scara_home_offset.a
-        , PSTR(" T"), scara_home_offset.b
+        , SP_P_STR, scara_home_offset.a
+        , SP_T_STR, scara_home_offset.b
         , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
       );
 
@@ -3146,7 +3127,7 @@ void MarlinSettings::reset() {
     #if HOTENDS && HAS_LCD_MENU
 
       CONFIG_ECHO_HEADING("Material heatup parameters:");
-      for (uint8_t i = 0; i < COUNT(ui.preheat_hotend_temp); i++) {
+      LOOP_L_N(i, COUNT(ui.preheat_hotend_temp)) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR(
             "  M145 S", (int)i
@@ -3168,7 +3149,7 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPAIR_P(
             #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
-              PSTR(" P")
+              SP_P_STR
             #else
               PSTR("  M301 P")
             #endif
@@ -3200,7 +3181,7 @@ void MarlinSettings::reset() {
 
     #if HAS_USER_THERMISTORS
       CONFIG_ECHO_HEADING("User thermistors:");
-      for (uint8_t i = 0; i < USER_THERMISTORS; i++)
+      LOOP_L_N(i, USER_THERMISTORS)
         thermalManager.log_user_thermistor(i, true);
     #endif
 
@@ -3596,29 +3577,10 @@ void MarlinSettings::reset() {
         say_M603(forReplay);
         SERIAL_ECHOLNPAIR("L", LINEAR_UNIT(fc_settings[0].load_length), " U", LINEAR_UNIT(fc_settings[0].unload_length));
       #else
-        #define _ECHO_603(N) do{ say_M603(forReplay); SERIAL_ECHOLNPAIR("T" STRINGIFY(N) " L", LINEAR_UNIT(fc_settings[N].load_length), " U", LINEAR_UNIT(fc_settings[N].unload_length)); }while(0)
-        _ECHO_603(0);
-        _ECHO_603(1);
-        #if EXTRUDERS > 2
-          _ECHO_603(2);
-          #if EXTRUDERS > 3
-            _ECHO_603(3);
-            #if EXTRUDERS > 4
-              _ECHO_603(4);
-              #if EXTRUDERS > 5
-                _ECHO_603(5);
-                #if EXTRUDERS > 6
-                  _ECHO_603(6);
-                  #if EXTRUDERS > 7
-                    _ECHO_603(7);
-                  #endif // EXTRUDERS > 7
-                #endif // EXTRUDERS > 6
-              #endif // EXTRUDERS > 5
-            #endif // EXTRUDERS > 4
-          #endif // EXTRUDERS > 3
-        #endif // EXTRUDERS > 2
-      #endif // EXTRUDERS == 1
-    #endif // ADVANCED_PAUSE_FEATURE
+        #define _ECHO_603(N) do{ say_M603(forReplay); SERIAL_ECHOLNPAIR("T" STRINGIFY(N) " L", LINEAR_UNIT(fc_settings[N].load_length), " U", LINEAR_UNIT(fc_settings[N].unload_length)); }while(0);
+        REPEAT(EXTRUDERS, _ECHO_603)
+      #endif
+    #endif
 
     #if EXTRUDERS > 1
       CONFIG_ECHO_HEADING("Tool-changing:");
