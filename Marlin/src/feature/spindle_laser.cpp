@@ -52,7 +52,7 @@ void SpindleLaser::init() {
     SET_PWM(SPINDLE_LASER_PWM_PIN);
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // set to lowest speed
   #endif
-  #if ENABLED(HAL_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
   #endif
 }
