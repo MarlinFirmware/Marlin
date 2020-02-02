@@ -679,25 +679,8 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     static const uint8_t fanBit[] PROGMEM = {
       0
       #if HOTENDS > 1
-        , REPEAT2(1,_EFAN,1) 1
-        #if HOTENDS > 2
-          , REPEAT2(2,_EFAN,2) 2
-          #if HOTENDS > 3
-            , REPEAT2(3,_EFAN,3) 3
-            #if HOTENDS > 4
-              , REPEAT2(4,_EFAN,4) 4
-              #if HOTENDS > 5
-                , REPEAT2(5,_EFAN,5) 5
-                #if HOTENDS > 6
-                  , REPEAT2(6,_EFAN,6) 6
-                  #if HOTENDS > 7
-                    , REPEAT2(7,_EFAN,7) 7
-                  #endif
-                #endif
-              #endif
-            #endif
-          #endif
-        #endif
+        #define _NEXT_FAN(N) , REPEAT2(N,_EFAN,N) N
+        RREPEAT_S(1, HOTENDS, _NEXT_FAN)
       #endif
       #if HAS_AUTO_CHAMBER_FAN
         #define _CFAN(B) _FANOVERLAP(CHAMBER,B) ? B :
@@ -2116,10 +2099,10 @@ void Temperature::disable_all_heaters() {
     pause(false);
   #endif
 
-  #define DISABLE_HEATER(NR) { \
-    setTargetHotend(0, NR); \
-    temp_hotend[NR].soft_pwm_amount = 0; \
-    WRITE_HEATER_ ##NR (LOW); \
+  #define DISABLE_HEATER(N) {           \
+    setTargetHotend(0, N);              \
+    temp_hotend[N].soft_pwm_amount = 0; \
+    WRITE_HEATER_##N(LOW);              \
   }
 
   #if HAS_TEMP_HOTEND
