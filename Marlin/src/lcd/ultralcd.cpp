@@ -673,7 +673,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
     if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]);
+      const feedRate_t fr_mm_s = manual_feedrate_mm_s[manual_move_axis];
       #if IS_KINEMATIC
 
         #if EXTRUDERS > 1
