@@ -405,6 +405,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
+
       if (doZ) {
         #if ENABLED(BLTOUCH)
           bltouch.init();
@@ -416,10 +417,17 @@ void GcodeSuite::G28(const bool always_home_all) {
         #endif
 
         #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
-          probe.move_z_after_probing();
+          #if Z_AFTER_HOMING > Z_AFTER_PROBING
+            do_blocking_move_to_z(Z_AFTER_HOMING);
+          #else
+            probe.move_z_after_probing();
+          #endif
+        #elif defined(Z_AFTER_HOMING)
+          do_blocking_move_to_z(Z_AFTER_HOMING);
         #endif
 
       } // doZ
+
     #endif // Z_HOME_DIR < 0
 
     sync_plan_position();

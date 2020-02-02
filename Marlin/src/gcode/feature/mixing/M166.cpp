@@ -35,7 +35,7 @@ inline void echo_mix() {
 
 inline void echo_zt(const int t, const float &z) {
   mixer.update_mix_from_vtool(t);
-  SERIAL_ECHOPAIR_P(SP_Z_STR, z, PSTR(" T"), t);
+  SERIAL_ECHOPAIR_P(SP_Z_STR, z, SP_T_STR, t);
   echo_mix();
 }
 

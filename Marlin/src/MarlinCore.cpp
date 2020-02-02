@@ -187,6 +187,8 @@ const char NUL_STR[] PROGMEM = "",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
            M24_STR[] PROGMEM = "M24",
+           SP_P_STR[] PROGMEM = " P",
+           SP_T_STR[] PROGMEM = " T",
            SP_X_STR[] PROGMEM = " X",
            SP_Y_STR[] PROGMEM = " Y",
            SP_Z_STR[] PROGMEM = " Z",
@@ -547,6 +549,9 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
             case 2: case 3: oldstatus = E1_ENABLE_READ(); ENABLE_AXIS_E1(); break;
             #if E_STEPPERS > 2
               case 4: case 5: oldstatus = E2_ENABLE_READ(); ENABLE_AXIS_E2(); break;
+              #if E_STEPPERS > 3
+                case 6: case 7: oldstatus = E3_ENABLE_READ(); ENABLE_AXIS_E3(); break;
+              #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
