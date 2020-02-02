@@ -89,13 +89,21 @@ void SD_LowLevel_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE(); //enable GPIO clocks
 
 
-  GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;  //D0-D3 & SCK
+  GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_12;  // D0 & SCK
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = 1;  //GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  #if ALL(SDIO_D1_PIN, SDIO_D2_PIN, SDIO_D3_PIN)  // define D1-D3 only if have a four bit wide SDIO bus
+    GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;  // D1-D3
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = 1;  //GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  #endif
 
   // Configure PD.02 CMD line
   GPIO_InitStruct.Pin = GPIO_PIN_2;
@@ -148,22 +156,26 @@ bool SDIO_Init()
     if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
   }
 
-  retry_Cnt = retryCnt;
-  for (;;) {
-    go_to_transfer_speed();
-    if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
-    if (!--retry_Cnt) break;
-  }
-  if (!retry_Cnt) {
-    hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
-    SD_LowLevel_Init();
+  go_to_transfer_speed();
+
+  #if ALL(SDIO_D1_PIN, SDIO_D2_PIN, SDIO_D3_PIN) // go to 4 bit wide mode if pins are defined
     retry_Cnt = retryCnt;
     for (;;) {
-      status = (bool) HAL_SD_Init(&hsd);
-      if (!status) break;
-      if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
+
+      if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
+      if (!--retry_Cnt) break;
     }
-  }
+    if (!retry_Cnt) {  // wide bus failed, go back to one bit wide mode
+      hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
+      SD_LowLevel_Init();
+      retry_Cnt = retryCnt;
+      for (;;) {
+        status = (bool) HAL_SD_Init(&hsd);
+        if (!status) break;
+        if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
+      }
+    }
+  #endif
 
   return true;
 }
