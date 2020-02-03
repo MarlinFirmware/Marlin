@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(SDIO_SUPPORT) && !defined(STM32GENERIC)
 
 #include <stdint.h>
 #include <stdbool.h>

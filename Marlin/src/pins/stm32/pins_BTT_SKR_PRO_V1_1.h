@@ -183,6 +183,23 @@
 //
 #define SDSS               PB12
 
+//
+// Onboard SD card
+//   NOT compatible with LCD
+//
+#if defined(SDCARD_CONNECTION) && SDCARD_CONNECTION == ONBOARD && !defined(HAS_SPI_LCD)
+  #define SOFTWARE_SPI            // Use soft SPI for onboard SD
+  #undef  SDSS
+  #undef  SCK_PIN
+  #undef  MISO_PIN
+  #undef  MOSI_PIN
+  #define SDSS               PA4
+  #define SCK_PIN            PA5
+  #define MISO_PIN           PA6
+  #define MOSI_PIN           PB5
+#endif
+
+
 /**
  *               _____                                             _____
  *           NC | · · | GND                                    5V | · · | GND

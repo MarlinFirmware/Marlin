@@ -153,6 +153,30 @@
 #define FAN5_PIN           PB11
 
 //
+// onboard SD support
+//
+
+#define SDIO_D0           23   // PC8   SDIO_D0
+#define SDIO_D1           24   // PC9   SDIO_D1
+//#define SD_CARD_DETECT    25   // PC13  SD_CARD_DETECT
+#define SDIO_D2           26   // PC10  SDIO_D2
+#define SDIO_D3           27   // PC11  SDIO_D3
+#define SDIO_CK           28   // PC12  SDIO_CK
+#define SDIO_CMD          29   // PD2   SDIO_CMD
+
+#if !defined(SDCARD_CONNECTION) || (defined(SDCARD_CONNECTION) && SDCARD_CONNECTION == ONBOARD)
+  #define SDIO_SUPPORT  // Use SDIO for onboard SD
+
+  #ifndef SDIO_SUPPORT
+    #define SOFTWARE_SPI            // Use soft SPI for onboard SD
+    #define SDSS               SDIO_D3_PIN
+    #define SCK_PIN            SDIO_CK_PIN
+    #define MISO_PIN           SDIO_D0_PIN
+    #define MOSI_PIN           SDIO_CMD_PIN
+  #endif
+#endif
+
+//
 // Trinamic Software SPI
 //
 
