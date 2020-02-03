@@ -180,7 +180,7 @@
 #endif
 #if !PIN_EXISTS(E0_ENABLE)
   #undef E0_ENABLE_PIN
-  #endif
+#endif
 #if !PIN_EXISTS(E1_STEP)
   #undef E1_STEP_PIN
 #endif
