@@ -146,6 +146,9 @@ Marlin/*/*/readme.txt
 Marlin/*/*/*/readme.txt
 Marlin/*/*/*/*/readme.txt
 
+# WiFi Credentials
+Marlin/Configuration_creds.h
+
 #Visual Studio
 *.sln
 *.vcxproj
