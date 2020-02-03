@@ -58,11 +58,10 @@ SD_HandleTypeDef hsd;  // create SDIO structure
 #define TRANSFER_CLOCK_DIV ((uint8_t)SDIO_INIT_CLK_DIV/40)
 
 #ifndef USBD_OK
-#define USBD_OK 0
+  #define USBD_OK 0
 #endif
 
-void go_to_transfer_speed()
-{
+void go_to_transfer_speed() {
 
   SD_InitTypeDef Init;
 
@@ -78,8 +77,7 @@ void go_to_transfer_speed()
   SDIO_Init(hsd.Instance, Init);
 }
 
-void SD_LowLevel_Init(void)
-{
+void SD_LowLevel_Init(void) {
 
   uint32_t tempreg;
 
@@ -87,7 +85,6 @@ void SD_LowLevel_Init(void)
 
   __HAL_RCC_GPIOC_CLK_ENABLE(); //enable GPIO clocks
   __HAL_RCC_GPIOD_CLK_ENABLE(); //enable GPIO clocks
-
 
   GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_12;  // D0 & SCK
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -123,26 +120,24 @@ void SD_LowLevel_Init(void)
 
   //Power up the SDIO
   SDIO->POWER = 0x03;
-
 }
 
 
-void HAL_SD_MspInit(SD_HandleTypeDef *hsd) // application specific init
-{
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd) { // application specific init
   UNUSED(hsd);   /* Prevent unused argument(s) compilation warning */
   __HAL_RCC_SDIO_CLK_ENABLE();  // turn on SDIO clock
 }
 
+constexpr uint8_t SD_RETRY_COUNT = (1
+  #if ENABLED(SD_CHECK_AND_RETRY)
+    + 2
+  #endif
+);
 
-bool SDIO_Init()
-{
+bool SDIO_Init() {
   //init SDIO and get SD card info
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
-    uint8_t retryCnt = 3;
-  #else
-    uint8_t retryCnt = 1;
-	#endif
+  uint8_t retryCnt = SD_RETRY_COUNT;
 
   bool status;
   hsd.Instance = SDIO;
@@ -161,7 +156,6 @@ bool SDIO_Init()
   #if ALL(SDIO_D1_PIN, SDIO_D2_PIN, SDIO_D3_PIN) // go to 4 bit wide mode if pins are defined
     retry_Cnt = retryCnt;
     for (;;) {
-
       if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
       if (!--retry_Cnt) break;
     }
@@ -180,9 +174,7 @@ bool SDIO_Init()
   return true;
 }
 
-
-void init_SDIO_pins(void)
-{
+void init_SDIO_pins(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /**SDIO GPIO Configuration
@@ -220,11 +212,7 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
 
   hsd.Instance = SDIO;
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
-    uint8_t retryCnt = 3;
-  #else
-    uint8_t retryCnt = 1;
-	#endif
+  uint8_t retryCnt = SD_RETRY_COUNT;
 
   for (;;) {
     status = (bool) HAL_SD_ReadBlocks(&hsd, (uint8_t*)dst, block, 1, 1000);  // read one 512 byte block with 500mS timeout
@@ -233,17 +221,14 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
     if (!--retryCnt) return (bool) status;          // return failing status if retries are exhausted
   }
 
-
-/*
+  /*
   return (bool) ((status_read | status_card) ? 1 : 0);
-
 
   if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) return false;
   if (blockAddress >= SdCard.LogBlockNbr) return false;
   if ((0x03 & (uint32_t)data)) return false; // misaligned data
 
   if (SdCard.CardType != CARD_SDHC_SDXC) { blockAddress *= 512U; }
-
 
   if (!SDIO_CmdReadSingleBlock(blockAddress)) {
     SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS);
@@ -267,11 +252,8 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   }
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
   return true;
-}
 
- */
-
-
+  */
 }
 
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
@@ -279,11 +261,7 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
 
   hsd.Instance = SDIO;
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
-    uint8_t retryCnt = 3;
-  #else
-    uint8_t retryCnt = 1;
-	#endif
+  uint8_t retryCnt = SD_RETRY_COUNT;
 
   for (;;) {
     status = (bool) HAL_SD_WriteBlocks(&hsd, (uint8_t*)src, block, 1, 500);  // write one 512 byte block with 500mS timeout
@@ -293,6 +271,4 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   }
 }
 
-
-
-#endif /* USBD_USE_CDC_COMPOSITE */
+#endif // SDIO_SUPPORT
