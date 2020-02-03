@@ -38,7 +38,7 @@
   #include "../../../gcode/gcode.h"
   #include "../../../libs/least_squares_fit.h"
 
-  #if ENABLED(DUAL_X_CARRIAGE)
+  #if HOTENDS > 1
     #include "../../../module/tool_change.h"
   #endif
 
