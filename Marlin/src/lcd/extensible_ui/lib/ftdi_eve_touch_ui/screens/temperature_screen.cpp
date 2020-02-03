@@ -75,24 +75,24 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
     case 22: UI_DECREMENT(TargetTemp_celsius, CHAMBER); break;
     case 23: UI_INCREMENT(TargetTemp_celsius, CHAMBER); break;
     #ifndef NO_TOOLHEAD_HEATER_GCODE
-    case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
-    case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
+      case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
+      case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
     #endif
     #if HOTENDS > 1
-    case  4: UI_DECREMENT(TargetTemp_celsius, E1); break;
-    case  5: UI_INCREMENT(TargetTemp_celsius, E1); break;
+      case  4: UI_DECREMENT(TargetTemp_celsius, E1); break;
+      case  5: UI_INCREMENT(TargetTemp_celsius, E1); break;
     #endif
     #if HOTENDS > 2
-    case  6: UI_DECREMENT(TargetTemp_celsius, E2); break;
-    case  7: UI_INCREMENT(TargetTemp_celsius, E2); break;
+      case  6: UI_DECREMENT(TargetTemp_celsius, E2); break;
+      case  7: UI_INCREMENT(TargetTemp_celsius, E2); break;
     #endif
     #if HOTENDS > 3
-    case  8: UI_DECREMENT(TargetTemp_celsius, E3); break;
-    case  9: UI_INCREMENT(TargetTemp_celsius, E3); break;
+      case  8: UI_DECREMENT(TargetTemp_celsius, E3); break;
+      case  9: UI_INCREMENT(TargetTemp_celsius, E3); break;
     #endif
     #if FAN_COUNT > 0
-    case 10: UI_DECREMENT(TargetFan_percent, FAN0); break;
-    case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
+      case 10: UI_DECREMENT(TargetFan_percent, FAN0); break;
+      case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
     #endif
     case 30:
       #define _HOTEND_OFF(N) setTargetTemp_celsius(0,E##N);

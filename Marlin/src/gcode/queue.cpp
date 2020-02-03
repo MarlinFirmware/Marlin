@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -254,8 +254,8 @@ void GCodeQueue::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO(*p++);
     }
-    SERIAL_ECHOPGM(" P"); SERIAL_ECHO(int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
-    SERIAL_ECHOPGM(" B"); SERIAL_ECHO(BUFSIZE - length);
+    SERIAL_ECHOPAIR_P(SP_P_STR, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
+    SERIAL_ECHOPAIR(" B", BUFSIZE - length);
   #endif
   SERIAL_EOL();
 }

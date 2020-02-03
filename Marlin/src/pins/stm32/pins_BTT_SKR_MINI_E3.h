@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -111,31 +111,40 @@
  *                 -----
  *                 EXP1
  */
+
+#define EXP1_1_PIN         PB5
+#define EXP1_2_PIN         PA9
+#define EXP1_3_PIN         PA10
+#define EXP1_4_PIN         PB8
+#define EXP1_6_PIN         PB6
+#define EXP1_7_PIN         -1
+#define EXP1_8_PIN         PB9
+#define EXP1_9_PIN         PB7
+
 #if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define BEEPER_PIN     PB5
-    #define BTN_ENC        PB6
+    #define BEEPER_PIN     EXP1_1_PIN
 
-    #define LCD_PINS_RS    PB8
+    #define BTN_EN1        EXP1_2_PIN
+    #define BTN_EN2        EXP1_3_PIN
+    #define BTN_ENC        EXP1_6_PIN
 
-    #define BTN_EN1        PA9
-    #define BTN_EN2        PA10
-
-    #define LCD_PINS_ENABLE PB7
-    #define LCD_PINS_D4    PB9
+    #define LCD_PINS_RS    EXP1_4_PIN
+    #define LCD_PINS_ENABLE EXP1_9_PIN
+    #define LCD_PINS_D4    EXP1_8_PIN
 
   #elif ENABLED(ZONESTAR_LCD)     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
 
-    #define LCD_PINS_RS    PB9
-    #define LCD_PINS_ENABLE PB6
-    #define LCD_PINS_D4    PB8
-    #define LCD_PINS_D5    PA10
-    #define LCD_PINS_D6    PA9
-    #define LCD_PINS_D7    PB5
+    #define LCD_PINS_RS    EXP1_8_PIN
+    #define LCD_PINS_ENABLE EXP1_6_PIN
+    #define LCD_PINS_D4    EXP1_4_PIN
+    #define LCD_PINS_D5    EXP1_3_PIN
+    #define LCD_PINS_D6    EXP1_2_PIN
+    #define LCD_PINS_D7    EXP1_1_PIN
     #define ADC_KEYPAD_PIN PA1    // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
@@ -150,14 +159,14 @@
      *                   -----
      *                    EXP1
      */
-    #define BTN_EN1        PA9
-    #define BTN_EN2        PA10
-    #define BTN_ENC        PB6
+    #define BTN_EN1        EXP1_2_PIN
+    #define BTN_EN2        EXP1_3_PIN
+    #define BTN_ENC        EXP1_6_PIN
 
-    #define DOGLCD_CS      PB8
-    #define DOGLCD_A0      PB9
-    #define DOGLCD_SCK     PB5
-    #define DOGLCD_MOSI    PB7
+    #define DOGLCD_CS      EXP1_4_PIN
+    #define DOGLCD_A0      EXP1_8_PIN
+    #define DOGLCD_SCK     EXP1_1_PIN
+    #define DOGLCD_MOSI    EXP1_9_PIN
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN -1
 

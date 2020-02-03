@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -480,35 +480,18 @@ void _O2 Endstops::report_states() {
     #if NUM_RUNOUT_SENSORS == 1
       print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(MSG_FILAMENT_RUNOUT_SENSOR));
     #else
+      #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
       for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; i++) {
         pin_t pin;
         switch (i) {
           default: continue;
-          case 1: pin = FIL_RUNOUT_PIN; break;
-          case 2: pin = FIL_RUNOUT2_PIN; break;
-          #if NUM_RUNOUT_SENSORS >= 3
-            case 3: pin = FIL_RUNOUT3_PIN; break;
-            #if NUM_RUNOUT_SENSORS >= 4
-              case 4: pin = FIL_RUNOUT4_PIN; break;
-              #if NUM_RUNOUT_SENSORS >= 5
-                case 5: pin = FIL_RUNOUT5_PIN; break;
-                #if NUM_RUNOUT_SENSORS >= 6
-                  case 6: pin = FIL_RUNOUT6_PIN; break;
-                  #if NUM_RUNOUT_SENSORS >= 7
-                    case 7: pin = FIL_RUNOUT7_PIN; break;
-                    #if NUM_RUNOUT_SENSORS >= 8
-                      case 8: pin = FIL_RUNOUT8_PIN; break;
-                    #endif
-                  #endif
-                #endif
-              #endif
-            #endif
-          #endif
+          REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
         }
         SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) SERIAL_CHAR(' ', '0' + i);
         print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
+      #undef _CASE_RUNOUT
     #endif
   #endif
   #if ENABLED(BLTOUCH)

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -137,7 +137,7 @@
         DEBUG_EOL();
 
         HOTEND_LOOP() {
-          DEBUG_ECHOPAIR(" T", int(e));
+          DEBUG_ECHOPAIR_P(SP_T_STR, int(e));
           LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", int(e), "].", axis_codes[a] | 0x20, "=", hotend_offset[e][a]);
           DEBUG_EOL();
         }

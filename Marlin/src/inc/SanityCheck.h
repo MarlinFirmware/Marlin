@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -312,8 +312,10 @@
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_LOAD_LENGTH)
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH. Please update your configuration."
-#elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET)
-  #error "LEVEL_BED_CORNERS requires a LEVEL_CORNERS_INSET value. Please update your Configuration.h."
+#elif defined(LEVEL_CORNERS_INSET)
+  #error "LEVEL_CORNERS_INSET is now LEVEL_CORNERS_INSET_LFRB . Please update your Configuration.h."
+#elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET_LFRB)
+  #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values. Please update your Configuration.h."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
 #elif DISABLED(CLASSIC_JERK) && defined(JUNCTION_DEVIATION_FACTOR)
