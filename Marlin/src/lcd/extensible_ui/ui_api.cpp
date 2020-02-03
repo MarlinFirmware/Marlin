@@ -389,14 +389,14 @@ namespace ExtUI {
     #endif
 
     current_position[axis] = constrain(position, min, max);
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m[axis]));
+    line_to_current_position(manual_feedrate_mm_s[axis]);
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.e));
+    line_to_current_position(manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
