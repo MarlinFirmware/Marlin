@@ -23,8 +23,8 @@ while [ $IND -lt ${#INFO[@]} ]; do
   let IND+=1
 done
 
-[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [-hq] [1|2|3]" 1>&2 ; exit 1 ; }
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2|3]" 1>&2 ; exit 1 ; }
 
 [[ $CURR == $TARG && $REPO != "MarlinDocumentation" ]] && { echo "Don't alter the PR Target branch."; exit 1 ; }
 
-git add . && git commit --amend && ghpc
+git add . && git commit --amend && git push -f
