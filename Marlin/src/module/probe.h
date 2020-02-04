@@ -28,19 +28,6 @@
 #include "../inc/MarlinConfig.h"
 
 #if HAS_BED_PROBE
-
-  extern xyz_pos_t probe_offset;
-
-  #if HAS_PROBE_XY_OFFSET
-    extern xyz_pos_t &probe_offset_xy;
-  #else
-    constexpr xy_pos_t probe_offset_xy{0};
-  #endif
-
-  bool set_probe_deployed(const bool deploy);
-  #ifdef Z_AFTER_PROBING
-    void move_z_after_probing();
-  #endif
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
     PROBE_PT_STOW,      // Do a complete stow after run_z_probe
