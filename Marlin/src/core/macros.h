@@ -196,12 +196,14 @@
 #define EITHER(V1,V2)       ANY(V1,V2)
 
 // Macros to support pins/buttons exist testing
-#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
-#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
+#define _PINEX_1            PIN_EXISTS
+#define PINS_EXIST(V...)    DO(PINEX,&&,V)
 #define ANY_PIN(V...)       DO(PINEX,||,V)
 
-#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
-#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define BUTTON_EXISTS(BN)   (defined(BTN_##BN) && BTN_##BN >= 0)
+#define _BTNEX_1            BUTTON_EXISTS
+#define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
