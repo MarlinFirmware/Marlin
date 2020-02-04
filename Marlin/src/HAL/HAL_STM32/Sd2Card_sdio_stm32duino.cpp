@@ -93,7 +93,7 @@ void SD_LowLevel_Init(void) {
   GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  #if ALL(SDIO_D1_PIN, SDIO_D2_PIN, SDIO_D3_PIN)  // define D1-D3 only if have a four bit wide SDIO bus
+  #if defined(SDIO_D1_PIN) && defined(SDIO_D2_PIN) && defined(SDIO_D3_PIN)  // define D1-D3 only if have a four bit wide SDIO bus
     GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;  // D1-D3
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = 1;  //GPIO_NOPULL;
@@ -153,7 +153,7 @@ bool SDIO_Init() {
 
   go_to_transfer_speed();
 
-  #if ALL(SDIO_D1_PIN, SDIO_D2_PIN, SDIO_D3_PIN) // go to 4 bit wide mode if pins are defined
+  #if defined(SDIO_D1_PIN) && defined(SDIO_D2_PIN) && defined(SDIO_D3_PIN) // go to 4 bit wide mode if pins are defined
     retry_Cnt = retryCnt;
     for (;;) {
       if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
