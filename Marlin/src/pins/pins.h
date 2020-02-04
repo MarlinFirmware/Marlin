@@ -388,7 +388,7 @@
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
 #elif MB(TH3D_EZBOARD)
   #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
-#elif (MB(BIGTREE_SKR_V1_4_TURBO) || MB(TT_SKR_V1_4_TURBO))
+#elif (MB(BIGTREE_SKR_V1_4_TURBO) || MB(BTT_SKR_V1_4_TURBO))
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 
 //
