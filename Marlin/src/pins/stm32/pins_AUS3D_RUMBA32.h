@@ -19,6 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+  /**
+  *  This file is for the Aus3D version of the RUMBA32 board.
+  *
+  *  https://aus3d.com.au/rumba32
+  *  https://github.com/Aus3D/RUMBA32
+  *
+  *  The MKS and Aus3D versions have the same pinout but the MKS version
+  *  has some added resistors and LEDs.  The resistors needed for the
+  *  TMC2208/9 UART interface are among the additions.  Also added were
+  *  connectors and resistors dedicated to the TMC2130 sensorless homing
+  *  interface.
+  */
+
 #pragma once
 
 #ifndef STM32F4
@@ -28,10 +42,13 @@
 #endif
 
 #define RUMBA32_V1_0
-#define BOARD_INFO_NAME      "RUMBA32"
+#define BOARD_INFO_NAME      "Aus3D RUMBA32"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 //#define I2C_EEPROM
+#ifdef E2END
+  #undef E2END
+#endif
 #define E2END 0xFFF // 4KB
 
 //

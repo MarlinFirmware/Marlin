@@ -309,7 +309,7 @@
 #define BOARD_BEAST                   4200  // STM32F4xxVxT6 Libmaple-based STM32F4 controller
 #define BOARD_GENERIC_STM32F4         4201  // STM32 STM32GENERIC-based STM32F4 controller
 #define BOARD_ARMED                   4202  // Arm'ed STM32F4-based controller
-#define BOARD_RUMBA32                 4203  // RUMBA32 STM32F4-based controller
+#define BOARD_AUS3D_RUMBA32           4203  // RUMBA32 STM32F446VET6 based controller from Aus3D
 #define BOARD_BLACK_STM32F407VE       4204  // BLACK_STM32F407VE
 #define BOARD_BLACK_STM32F407ZE       4205  // BLACK_STM32F407ZE
 #define BOARD_STEVAL_3DP001V1         4206  // STEVAL-3DP001V1 3D PRINTER BOARD
@@ -322,6 +322,7 @@
 #define BOARD_FYSETC_S6               4213  // FYSETC S6 board
 #define BOARD_FLYF407ZG               4214  // FLYF407ZG board (STM32F407ZG)
 #define BOARD_MKS_ROBIN2              4215  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_MKS_RUMBA32             4216  // RUMBA32 STM32F446VET6 based controller from Makerbase
 
 //
 // ARM Cortex M7
