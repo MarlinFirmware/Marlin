@@ -38,7 +38,7 @@
   #include "../../../gcode/gcode.h"
   #include "../../../libs/least_squares_fit.h"
 
-  #if ENABLED(DUAL_X_CARRIAGE)
+  #if HOTENDS > 1
     #include "../../../module/tool_change.h"
   #endif
 
@@ -305,12 +305,15 @@
 
     const int8_t p_val = parser.intval('P', -1);
     const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J');
+    #if HOTENDS > 1
+      const uint8_t old_tool_index = active_extruder;
+    #endif
 
     // Check for commands that require the printer to be homed
     if (may_move) {
       planner.synchronize();
       if (axes_need_homing()) gcode.home_all_axes();
-      #if ENABLED(DUAL_X_CARRIAGE)
+      #if HOTENDS > 1
         if (active_extruder != 0) tool_change(0);
       #endif
     }
@@ -684,6 +687,9 @@
       UNUSED(probe_deployed);
     #endif
 
+    #if HOTENDS > 1
+      tool_change(old_tool_index);
+    #endif
     return;
   }
 
