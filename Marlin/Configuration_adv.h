@@ -3023,18 +3023,19 @@
 //#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery)
+  //#define OTASUPPORT          // Support over-the-air firmware updates
+  //#define WIFI_CUSTOM_COMMAND // Accept feature config commands (e.g., WiFi ESP3D) from the host
+
   /**
-   * To hard-code WiFi SSID and password, put the following two #define-lines into a file called
-   * 'Configuration_creds.h', replace 'WiFi SSID' and 'WiFi Password' with your own respective SSID and password
-   * and uncomment the #include-line in this file below. 'Configuration_creds.h' is included in .gitignore to prevent
-   * accidental publishing of WiFi credentials to a (public) Git repository.
-     #define WIFI_SSID "WiFi SSID"
-     #define WIFI_PWD  "WiFi Password"
+   * To set a default WiFi SSID / Password, create a file called Configuration_Secure.h with
+   * the following defines, customized for your network. This specific file is excluded via
+   * .gitignore to prevent it from accidentally leaking to the public.
+   *
+   *   #define WIFI_SSID "WiFi SSID"
+   *   #define WIFI_PWD  "WiFi Password"
    */
-  //#include "Configuration_creds.h" // Include file with hard-coded WiFi SSID and password
-  //#define WEBSUPPORT               // Start a webserver (which may include auto-discovery)
-  //#define OTASUPPORT               // Support over-the-air firmware updates
-  //#define WIFI_CUSTOM_COMMAND      // Accept feature config commands (e.g., WiFi ESP3D) from the host
+  //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
 #endif
 
 /**
