@@ -136,6 +136,12 @@ void GcodeSuite::M122() {
   #if AXIS_IS_L64XX(E5)
     L6470_say_status(E5);
   #endif
+  #if AXIS_IS_L64XX(E6)
+    L6470_say_status(E6);
+  #endif
+  #if AXIS_IS_L64XX(E7)
+    L6470_say_status(E7);
+  #endif
 
   L64xxManager.spi_active = false;   // done with all SPI transfers - clear handshake flags
   L64xxManager.spi_abort = false;

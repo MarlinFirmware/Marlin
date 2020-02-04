@@ -142,6 +142,12 @@
       #if AXIS_IS_L64XX(E5)
         REPORT_ABSOLUTE_POS(E5);
       #endif
+      #if AXIS_IS_L64XX(E6)
+        REPORT_ABSOLUTE_POS(E6);
+      #endif
+      #if AXIS_IS_L64XX(E7)
+        REPORT_ABSOLUTE_POS(E7);
+      #endif
       SERIAL_EOL();
     #endif // HAS_L64XX
 

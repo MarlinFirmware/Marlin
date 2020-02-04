@@ -73,6 +73,12 @@
 #if AXIS_IS_L64XX(E5)
   L64XX_CLASS(E5) stepperE5(L6470_CHAIN_SS_PIN);
 #endif
+#if AXIS_IS_L64XX(E6)
+  L64XX_CLASS(E6) stepperE6(L6470_CHAIN_SS_PIN);
+#endif
+#if AXIS_IS_L64XX(E7)
+  L64XX_CLASS(E7) stepperE7(L6470_CHAIN_SS_PIN);
+#endif
 
 // Not using L64XX class init method because it
 // briefly sends power to the steppers
@@ -207,6 +213,12 @@ void L64XX_Marlin::init_to_defaults() {
   #endif
   #if AXIS_IS_L64XX(E5)
     L6470_INIT_CHIP(E5);
+  #endif
+  #if AXIS_IS_L64XX(E6)
+    L6470_INIT_CHIP(E6);
+  #endif
+  #if AXIS_IS_L64XX(E7)
+    L6470_INIT_CHIP(E7);
   #endif
 }
 

@@ -107,6 +107,12 @@ void GcodeSuite::M906() {
           #if AXIS_IS_TMC(E5)
             case 5: TMC_SET_CURRENT(E5); break;
           #endif
+          #if AXIS_IS_TMC(E6)
+            case 6: TMC_SET_CURRENT(E6); break;
+          #endif
+          #if AXIS_IS_TMC(E7)
+            case 7: TMC_SET_CURRENT(E7); break;
+          #endif
         }
       } break;
     }
@@ -154,6 +160,12 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_TMC(E5)
       TMC_SAY_CURRENT(E5);
+    #endif
+    #if AXIS_IS_TMC(E6)
+      TMC_SAY_CURRENT(E6);
+    #endif
+    #if AXIS_IS_TMC(E7)
+      TMC_SAY_CURRENT(E7);
     #endif
   }
 }

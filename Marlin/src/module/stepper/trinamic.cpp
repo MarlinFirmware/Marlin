@@ -109,6 +109,12 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #if AXIS_HAS_SPI(E5)
   TMC_SPI_DEFINE_E(5);
 #endif
+#if AXIS_HAS_SPI(E6)
+  TMC_SPI_DEFINE_E(6);
+#endif
+#if AXIS_HAS_SPI(E7)
+  TMC_SPI_DEFINE_E(7);
+#endif
 
 #ifndef TMC_BAUD_RATE
   #define TMC_BAUD_RATE 115200

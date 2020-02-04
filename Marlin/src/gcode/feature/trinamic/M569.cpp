@@ -104,6 +104,12 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
           #if AXIS_HAS_STEALTHCHOP(E5)
             case 5: TMC_SET_STEALTH(E5); break;
           #endif
+          #if AXIS_HAS_STEALTHCHOP(E6)
+            case 6: TMC_SET_STEALTH(E6); break;
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E7)
+            case 7: TMC_SET_STEALTH(E7); break;
+          #endif
         }
       } break;
     }
@@ -154,6 +160,12 @@ static void say_stealth_status() {
   #endif
   #if AXIS_HAS_STEALTHCHOP(E5)
     TMC_SAY_STEALTH_STATUS(E5);
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(E6)
+    TMC_SAY_STEALTH_STATUS(E6);
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(E7)
+    TMC_SAY_STEALTH_STATUS(E7);
   #endif
 }
 

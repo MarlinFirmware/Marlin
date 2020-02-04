@@ -1905,6 +1905,12 @@ void MarlinSettings::postprocess() {
             #if AXIS_IS_TMC(E5)
               SET_CURR(E5);
             #endif
+            #if AXIS_IS_TMC(E6)
+              SET_CURR(E6);
+            #endif
+            #if AXIS_IS_TMC(E7)
+              SET_CURR(E7);
+            #endif
           }
         #endif
       }
@@ -1958,6 +1964,12 @@ void MarlinSettings::postprocess() {
             #endif
             #if AXIS_HAS_STEALTHCHOP(E5)
               stepperE5.set_pwm_thrs(tmc_hybrid_threshold.E5);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E6)
+              stepperE6.set_pwm_thrs(tmc_hybrid_threshold.E6);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E7)
+              stepperE7.set_pwm_thrs(tmc_hybrid_threshold.E7);
             #endif
           }
         #endif
@@ -2064,6 +2076,12 @@ void MarlinSettings::postprocess() {
             #endif
             #if AXIS_HAS_STEALTHCHOP(E5)
               SET_STEPPING_MODE(E5);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E6)
+              SET_STEPPING_MODE(E6);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E7)
+              SET_STEPPING_MODE(E7);
             #endif
           }
         #endif
@@ -3333,6 +3351,14 @@ void MarlinSettings::reset() {
         say_M906(forReplay);
         SERIAL_ECHOLNPAIR(" T5 E", stepperE5.getMilliamps());
       #endif
+      #if AXIS_IS_TMC(E6)
+        say_M906(forReplay);
+        SERIAL_ECHOLNPAIR(" T6 E", stepperE6.getMilliamps());
+      #endif
+      #if AXIS_IS_TMC(E7)
+        say_M906(forReplay);
+        SERIAL_ECHOLNPAIR(" T7 E", stepperE7.getMilliamps());
+      #endif
       SERIAL_EOL();
 
       /**
@@ -3406,6 +3432,14 @@ void MarlinSettings::reset() {
         #if AXIS_HAS_STEALTHCHOP(E5)
           say_M913(forReplay);
           SERIAL_ECHOLNPAIR(" T5 E", stepperE5.get_pwm_thrs());
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E6)
+          say_M913(forReplay);
+          SERIAL_ECHOLNPAIR(" T6 E", stepperE6.get_pwm_thrs());
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E7)
+          say_M913(forReplay);
+          SERIAL_ECHOLNPAIR(" T7 E", stepperE7.get_pwm_thrs());
         #endif
         SERIAL_EOL();
       #endif // HYBRID_THRESHOLD
@@ -3538,6 +3572,12 @@ void MarlinSettings::reset() {
         #endif
         #if AXIS_HAS_STEALTHCHOP(E5)
           if (stepperE5.get_stealthChop_status()) { say_M569(forReplay, PSTR("T5 E"), true); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E6)
+          if (stepperE6.get_stealthChop_status()) { say_M569(forReplay, PSTR("T6 E"), true); }
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E7)
+          if (stepperE7.get_stealthChop_status()) { say_M569(forReplay, PSTR("T7 E"), true); }
         #endif
 
       #endif // HAS_STEALTHCHOP
