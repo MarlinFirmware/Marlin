@@ -361,11 +361,11 @@
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
-#elif( MB(BIGTREE_SKR_V1_1) || MB(BTT_SKR_V1_1))
+#elif MB(BIGTREE_SKR_V1_1, BTT_SKR_V1_1)
   #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
-#elif (MB(BIGTREE_SKR_V1_3) || MB(BTT_SKR_V1_3))
+#elif MB(BIGTREE_SKR_V1_3, BTT_SKR_V1_3)
   #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
-#elif (MB(BIGTREE_SKR_V1_4) || MB(BTT_SKR_V1_4))
+#elif MB(BIGTREE_SKR_V1_4, BTT_SKR_V1_4)
   #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
 
 //
@@ -388,7 +388,7 @@
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
 #elif MB(TH3D_EZBOARD)
   #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
-#elif (MB(BIGTREE_SKR_V1_4_TURBO) || MB(BTT_SKR_V1_4_TURBO))
+#elif MB(BIGTREE_SKR_V1_4_TURBO, BTT_SKR_V1_4_TURBO)
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 
 //
@@ -484,13 +484,13 @@
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
-#elif (MB(BIGTREE_SKR_MINI_V1_1) || MB(BTT_SKR_MINI_V1_1))
+#elif MB(BIGTREE_SKR_MINI_V1_1, BTT_SKR_MINI_V1_1)
   #include "stm32/pins_BTT_SKR_MINI_V1_1.h"     // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
-#elif (MB(BIGTREE_SKR_MINI_E3_V1_0) || MB(BTT_SKR_MINI_E3_V1_0))
+#elif MB(BIGTREE_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_0)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
-#elif (MB(BIGTREE_SKR_MINI_E3_V1_2) || MB(BTT_SKR_MINI_E3_V1_2))
+#elif MB(BIGTREE_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V1_2)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
-#elif (MB(BIGTREE_SKR_E3_DIP) || MB(BTT_SKR_E3_DIP))
+#elif MB(BIGTREE_SKR_E3_DIP, BTT_SKR_E3_DIP)
   #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RE_bigtree env:STM32F103RE_bigtree_USB env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
@@ -532,11 +532,11 @@
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
   #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
-#elif (MB(BTT_SKR_PRO_V1_1) || MB(BIGTREE_SKR_PRO_V1_1))
+#elif MB(BTT_SKR_PRO_V1_1, BIGTREE_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
-#elif (MB(BIGTREE_GTR_V1_0) ||  MB(BTT_GTR_V1_0))
+#elif MB(BIGTREE_GTR_V1_0, BTT_GTR_V1_0)
   #include "stm32/pins_BTT_GTR_V1_0.h"          // STM32F4                                env:BIGTREE_GTR_V1_0
-#elif (MB(BIGTREE_BTT002_V1_0) || MB(BTT_BTT002_V1_0))
+#elif MB(BIGTREE_BTT002_V1_0, BTT_BTT002_V1_0)
   #include "stm32/pins_BTT_BTT002_V1_0.h"       // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32/pins_LERDGE_K.h"              // STM32F4                                env:STM32F4
