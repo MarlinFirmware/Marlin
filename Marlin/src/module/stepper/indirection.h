@@ -872,7 +872,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_DISABLE
+  #if E_STEPPERS > 0 && HAS_E0_ENABLE
     #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
   #else
     #define DISABLE_AXIS_E0() NOOP
@@ -887,7 +887,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E1
-  #if E_STEPPERS > 1 && HAS_E1_DISABLE
+  #if E_STEPPERS > 1 && HAS_E1_ENABLE
     #define DISABLE_AXIS_E1() DISABLE_STEPPER_E1()
   #else
     #define DISABLE_AXIS_E1() NOOP
@@ -902,7 +902,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E2
-  #if E_STEPPERS > 2 && HAS_E2_DISABLE
+  #if E_STEPPERS > 2 && HAS_E2_ENABLE
     #define DISABLE_AXIS_E2() DISABLE_STEPPER_E2()
   #else
     #define DISABLE_AXIS_E2() NOOP
@@ -917,7 +917,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E3
-  #if E_STEPPERS > 3 && HAS_E3_DISABLE
+  #if E_STEPPERS > 3 && HAS_E3_ENABLE
     #define DISABLE_AXIS_E3() DISABLE_STEPPER_E3()
   #else
     #define DISABLE_AXIS_E3() NOOP
@@ -932,7 +932,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E4
-  #if E_STEPPERS > 4 && HAS_E4_DISABLE
+  #if E_STEPPERS > 4 && HAS_E4_ENABLE
     #define DISABLE_AXIS_E4() DISABLE_STEPPER_E4()
   #else
     #define DISABLE_AXIS_E4() NOOP
@@ -947,7 +947,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E5
-  #if E_STEPPERS > 5 && HAS_E5_DISABLE
+  #if E_STEPPERS > 5 && HAS_E5_ENABLE
     #define DISABLE_AXIS_E5() DISABLE_STEPPER_E5()
   #else
     #define DISABLE_AXIS_E5() NOOP
@@ -962,7 +962,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E6
-  #if E_STEPPERS > 6 && HAS_E6_DISABLE
+  #if E_STEPPERS > 6 && HAS_E6_ENABLE
     #define DISABLE_AXIS_E6() DISABLE_STEPPER_E6()
   #else
     #define DISABLE_AXIS_E6() NOOP
@@ -977,7 +977,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E7
-  #if E_STEPPERS > 7 && HAS_E7_DISABLE
+  #if E_STEPPERS > 7 && HAS_E7_ENABLE
     #define DISABLE_AXIS_E7() DISABLE_STEPPER_E7()
   #else
     #define DISABLE_AXIS_E7() NOOP
