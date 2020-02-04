@@ -132,9 +132,8 @@
 #define DOGLCD_CS          LCD_PINS_D5
 #define DOGLCD_A0          LCD_PINS_D6
 
-
 //
-// onboard SD support
+// Onboard SD support
 //
 #define SDIO_D0_PIN        PC8
 #define SDIO_D1_PIN        PC9
@@ -143,11 +142,11 @@
 #define SDIO_CK_PIN        PC12
 #define SDIO_CMD_PIN       PD2
 
-#if !defined(SDCARD_CONNECTION) || (defined(SDCARD_CONNECTION) && SDCARD_CONNECTION == ONBOARD)
-  #define SDIO_SUPPORT  // Use SDIO for onboard SD
+#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
+  #define SDIO_SUPPORT     // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT
-    #define SOFTWARE_SPI            // Use soft SPI for onboard SD
+    #define SOFTWARE_SPI   // Use soft SPI for onboard SD
     #define SDSS           SDIO_D3_PIN
     #define SCK_PIN        SDIO_CK_PIN
     #define MISO_PIN       SDIO_D0_PIN

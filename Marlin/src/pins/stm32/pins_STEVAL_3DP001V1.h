@@ -226,7 +226,7 @@
 // 22   // PB3   JTAG_TDO/SWO
 
 //
-// onboard SD support
+// Onboard SD support
 //
 #define SDIO_D0_PIN       23   // PC8   SDIO_D0
 #define SDIO_D1_PIN       24   // PC9   SDIO_D1
@@ -237,10 +237,10 @@
 #define SDIO_CMD_PIN      29   // PD2   SDIO_CMD
 
 #if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
-  #define SDIO_SUPPORT  // Use SDIO for onboard SD
+  #define SDIO_SUPPORT     // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT
-    #define SOFTWARE_SPI            // Use soft SPI for onboard SD
+    #define SOFTWARE_SPI   // Use soft SPI for onboard SD
     #define SDSS           SDIO_D3_PIN
     #define SCK_PIN        SDIO_CK_PIN
     #define MISO_PIN       SDIO_D0_PIN
