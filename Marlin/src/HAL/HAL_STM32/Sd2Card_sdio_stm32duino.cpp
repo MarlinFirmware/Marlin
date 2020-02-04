@@ -215,10 +215,10 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   uint8_t retryCnt = SD_RETRY_COUNT;
 
   for (;;) {
-    status = (bool) HAL_SD_ReadBlocks(&hsd, (uint8_t*)dst, block, 1, 1000);  // read one 512 byte block with 500mS timeout
+    bool status = (bool) HAL_SD_ReadBlocks(&hsd, (uint8_t*)dst, block, 1, 1000);  // read one 512 byte block with 500mS timeout
     status |= (bool) HAL_SD_GetCardState(&hsd);     // make sure all is OK
-    if (!status) return (bool) status;              // return passing status
-    if (!--retryCnt) return (bool) status;          // return failing status if retries are exhausted
+    if (!status)     return false;                  // return passing status
+    if (!--retryCnt) return true;                   // return failing status if retries are exhausted
   }
 
   /*
@@ -251,9 +251,9 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
     return false;
   }
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
-  return true;
-
   */
+
+  return true;
 }
 
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
