@@ -106,7 +106,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
 
   timer_enable_intr(timer.group, timer.idx);
 
-  timer_isr_register(timer.group, timer.idx, timer_isr, (void*)timer_num, 0, nullptr);
+  timer_isr_register(timer.group, timer.idx, timer_isr, (void*)(uint32_t)timer_num, 0, nullptr);
 
   timer_start(timer.group, timer.idx);
 }
