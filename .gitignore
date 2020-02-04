@@ -146,6 +146,9 @@ Marlin/*/*/readme.txt
 Marlin/*/*/*/readme.txt
 Marlin/*/*/*/*/readme.txt
 
+# Secure Credentials
+Configuration_Secure.h
+
 #Visual Studio
 *.sln
 *.vcxproj
