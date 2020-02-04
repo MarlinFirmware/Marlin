@@ -236,7 +236,7 @@
 #define SDIO_CK_PIN       28   // PC12  SDIO_CK
 #define SDIO_CMD_PIN      29   // PD2   SDIO_CMD
 
-#if !defined(SDCARD_CONNECTION) || (defined(SDCARD_CONNECTION) && SDCARD_CONNECTION == ONBOARD)
+#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
   #define SDIO_SUPPORT  // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT
