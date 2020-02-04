@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -150,6 +150,24 @@ void menu_info_thermistors() {
     STATIC_ITEM_P(PSTR(LCD_STR_E5 ": " THERMISTOR_NAME), SS_INVERT);
     VALUE_ITEM_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_5_MINTEMP), SS_LEFT);
     VALUE_ITEM_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_5_MAXTEMP), SS_LEFT);
+  #endif
+
+  #if TEMP_SENSOR_6 != 0
+    #undef THERMISTOR_ID
+    #define THERMISTOR_ID TEMP_SENSOR_6
+    #include "../thermistornames.h"
+    STATIC_ITEM_P(PSTR(LCD_STR_E6 ": " THERMISTOR_NAME), SS_INVERT);
+    VALUE_ITEM_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_6_MINTEMP), SS_LEFT);
+    VALUE_ITEM_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_6_MAXTEMP), SS_LEFT);
+  #endif
+
+  #if TEMP_SENSOR_7 != 0
+    #undef THERMISTOR_ID
+    #define THERMISTOR_ID TEMP_SENSOR_7
+    #include "../thermistornames.h"
+    STATIC_ITEM_P(PSTR(LCD_STR_E7 ": " THERMISTOR_NAME), SS_INVERT);
+    VALUE_ITEM_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_7_MINTEMP), SS_LEFT);
+    VALUE_ITEM_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_7_MAXTEMP), SS_LEFT);
   #endif
 
   #if EXTRUDERS

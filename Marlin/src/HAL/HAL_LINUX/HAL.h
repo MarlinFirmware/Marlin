@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -87,15 +87,15 @@ int freeMemory();
 #pragma GCC diagnostic pop
 
 // ADC
-#define HAL_ANALOG_SELECT(pin) HAL_adc_enable_channel(pin)
-#define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
-#define HAL_ADC_RESOLUTION     10
-#define HAL_READ_ADC()         HAL_adc_get_result()
-#define HAL_ADC_READY()        true
+#define HAL_ANALOG_SELECT(ch) HAL_adc_enable_channel(ch)
+#define HAL_START_ADC(ch)     HAL_adc_start_conversion(ch)
+#define HAL_ADC_RESOLUTION    10
+#define HAL_READ_ADC()        HAL_adc_get_result()
+#define HAL_ADC_READY()       true
 
 void HAL_adc_init();
-void HAL_adc_enable_channel(int pin);
-void HAL_adc_start_conversion(const uint8_t adc_pin);
+void HAL_adc_enable_channel(const uint8_t ch);
+void HAL_adc_start_conversion(const uint8_t ch);
 uint16_t HAL_adc_get_result();
 
 // Reset source

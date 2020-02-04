@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -150,7 +150,7 @@ private:
    */
   static bool enqueue_one(const char* cmd);
 
-  static void gcode_line_error(PGM_P const err, const int8_t port);
+  static void gcode_line_error(PGM_P const err, const int8_t pn);
 
 };
 

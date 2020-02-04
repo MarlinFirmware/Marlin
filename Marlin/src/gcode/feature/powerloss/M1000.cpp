@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -47,6 +47,10 @@ inline void plr_error(PGM_P const prefix) {
   #endif
 }
 
+#if HAS_LCD_MENU
+  void lcd_power_loss_recovery_cancel();
+#endif
+
 /**
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
@@ -62,6 +66,16 @@ void GcodeSuite::M1000() {
         ExtUI::OnPowerLossResume();
       #else
         SERIAL_ECHO_MSG("Resume requires LCD.");
+      #endif
+    }
+    else if (parser.seen('C')) {
+      #if HAS_LCD_MENU
+        lcd_power_loss_recovery_cancel();
+      #else
+        recovery.cancel();
+      #endif
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onPrintTimerStopped();
       #endif
     }
     else

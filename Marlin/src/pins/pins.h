@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -361,11 +361,11 @@
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_1)
+#elif MB(BTT_SKR_V1_1)
   #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_3)
+#elif MB(BTT_SKR_V1_3)
   #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_4)
+#elif MB(BTT_SKR_V1_4)
   #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
 
 //
@@ -388,7 +388,7 @@
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
 #elif MB(TH3D_EZBOARD)
   #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
-#elif MB(BIGTREE_SKR_V1_4_TURBO)
+#elif MB(BTT_SKR_V1_4_TURBO)
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 
 //
@@ -451,6 +451,8 @@
   #include "sam/pins_ADSK.h"                    // SAM3X8E                                env:DUE env:DUE_debug
 #elif MB(PRINTRBOARD_G2)
   #include "sam/pins_PRINTRBOARD_G2.h"          // SAM3X8C                                env:DUE_USB
+#elif MB(CNCONTROLS_15D)
+  #include "sam/pins_CNCONTROLS_15D.h"          // SAM3X8E                                env:DUE env:DUE_USB
 
 //
 // STM32 ARM Cortex-M3
@@ -482,13 +484,13 @@
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
-#elif MB(BIGTREE_SKR_MINI_V1_1)
+#elif MB(BTT_SKR_MINI_V1_1)
   #include "stm32/pins_BTT_SKR_MINI_V1_1.h"     // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_0)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
-#elif MB(BIGTREE_SKR_E3_DIP)
+#elif MB(BTT_SKR_E3_DIP)
   #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RE_bigtree env:STM32F103RE_bigtree_USB env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
@@ -525,14 +527,16 @@
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
 #elif MB(RUMBA32)
-  #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:RUMBA32
+  #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:rumba32_f446ve env:mks_rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
   #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
-#elif MB(BIGTREE_SKR_PRO_V1_1)
+#elif MB(BTT_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
-#elif MB(BIGTREE_BTT002_V1_0)
+#elif MB(BTT_GTR_V1_0)
+  #include "stm32/pins_BTT_GTR_V1_0.h"          // STM32F4                                env:BIGTREE_GTR_V1_0
+#elif MB(BTT_BTT002_V1_0)
   #include "stm32/pins_BTT_BTT002_V1_0.h"       // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32/pins_LERDGE_K.h"              // STM32F4                                env:STM32F4
@@ -567,6 +571,8 @@
   #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
 #elif MB(MRR_ESPE)
   #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
+#elif MB(E4D_BOX)
+  #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
@@ -581,16 +587,24 @@
   // Obsolete or unknown board
   //
 
-  #define BOARD_MKS_13        -1000
-  #define BOARD_TRIGORILLA    -1001
-  #define BOARD_RURAMPS4D     -1002
-  #define BOARD_FORMBOT_TREX2 -1003
-  #define BOARD_BIQU_SKR_V1_1 -1004
-  #define BOARD_STM32F1R      -1005
-  #define BOARD_STM32F103R    -1006
-  #define BOARD_ESP32         -1007
-  #define BOARD_BIGTREE_SKR_MINI_E3 -1008
-  #define BOARD_STEVAL        -1009
+  #define BOARD_MKS_13                  -1000
+  #define BOARD_TRIGORILLA              -1001
+  #define BOARD_RURAMPS4D               -1002
+  #define BOARD_FORMBOT_TREX2           -1003
+  #define BOARD_BIQU_SKR_V1_1           -1004
+  #define BOARD_STM32F1R                -1005
+  #define BOARD_STM32F103R              -1006
+  #define BOARD_ESP32                   -1007
+  #define BOARD_STEVAL                  -1008
+  #define BOARD_BIGTREE_SKR_V1_1        -1009
+  #define BOARD_BIGTREE_SKR_V1_3        -1010
+  #define BOARD_BIGTREE_SKR_V1_4        -1011
+  #define BOARD_BIGTREE_SKR_V1_4_TURBO  -1012
+  #define BOARD_BIGTREE_BTT002_V1_0     -1013
+  #define BOARD_BIGTREE_SKR_PRO_V1_1    -1014
+  #define BOARD_BIGTREE_SKR_MINI_V1_1   -1015
+  #define BOARD_BIGTREE_SKR_MINI_E3     -1016
+  #define BOARD_BIGTREE_SKR_E3_DIP      -1017
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -601,15 +615,33 @@
   #elif MB(FORMBOT_TREX2)
     #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
   #elif MB(BIQU_SKR_V1_1)
-    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_1)
+    #error "BOARD_BIGTREE_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V2_2)
+    #error "BOARD_BIGTREE_SKR_V1_2 has been renamed BOARD_BTT_SKR_V1_2. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_3)
+    #error "BOARD_BIGTREE_SKR_V1_3 has been renamed BOARD_BTT_SKR_V1_3. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_4)
+    #error "BOARD_BIGTREE_SKR_V1_4 has been renamed BOARD_BTT_SKR_V1_4. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_4_TURBO)
+    #error "BOARD_BIGTREE_SKR_V1_4_TURBO has been renamed BOARD_BTT_SKR_V1_4_TURBO. Please update your configuration."
+  #elif MB(BIGTREE_BTT002_V1_0)
+    #error "BOARD_BIGTREE_BTT002_V1_0 has been renamed BOARD_BTT_BTT002_V1_0. Please update your configuration."
+  #elif MB(BIGTREE_SKR_PRO_V1_1)
+    #error "BOARD_BIGTREE_SKR_PRO_V1_1 has been renamed BOARD_BTT_SKR_PRO_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_MINI_V1_1)
+    #error "BOARD_BIGTREE_SKR_MINI_V1_1 has been renamed BOARD_BTT_SKR_MINI_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_MINI_E3)
+    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
+  #elif MB(BIGTREE_SKR_E3_DIP)
+    #error "BOARD_BIGTREE_SKR_E3_DIP has been renamed BOARD_BTT_SKR_E3_DIP. Please update your configuration."
   #elif MB(STM32F1R)
     #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
   #elif MB(STM32F103R)
     #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
   #elif MOTHERBOARD == BOARD_ESP32
     #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
-  #elif MB(BIGTREE_SKR_MINI_E3)
-    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
   #elif MB(STEVAL)
     #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
   #else
@@ -624,8 +656,16 @@
   #undef BOARD_STM32F1R
   #undef BOARD_STM32F103R
   #undef BOARD_ESP32
-  #undef BOARD_BIGTREE_SKR_MINI_E3
   #undef BOARD_STEVAL
+  #undef BOARD_BIGTREE_SKR_MINI_E3
+  #undef BOARD_BIGTREE_SKR_V1_1
+  #undef BOARD_BIGTREE_SKR_V1_3
+  #undef BOARD_BIGTREE_SKR_V1_4
+  #undef BOARD_BIGTREE_SKR_V1_4_TURBO
+  #undef BOARD_BIGTREE_BTT002_V1_0
+  #undef BOARD_BIGTREE_SKR_PRO_V1_1
+  #undef BOARD_BIGTREE_SKR_MINI_V1_1
+  #undef BOARD_BIGTREE_SKR_E3_DIP
 
 #endif
 
@@ -711,6 +751,24 @@
 #ifndef E5_MS3_PIN
   #define E5_MS3_PIN -1
 #endif
+#ifndef E6_MS1_PIN
+  #define E6_MS1_PIN -1
+#endif
+#ifndef E6_MS2_PIN
+  #define E6_MS2_PIN -1
+#endif
+#ifndef E6_MS3_PIN
+  #define E6_MS3_PIN -1
+#endif
+#ifndef E7_MS1_PIN
+  #define E7_MS1_PIN -1
+#endif
+#ifndef E7_MS2_PIN
+  #define E7_MS2_PIN -1
+#endif
+#ifndef E7_MS3_PIN
+  #define E7_MS3_PIN -1
+#endif
 
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN -1
@@ -766,6 +824,24 @@
 #ifndef E5_ENABLE_PIN
   #define E5_ENABLE_PIN -1
 #endif
+#ifndef E6_STEP_PIN
+  #define E6_STEP_PIN -1
+#endif
+#ifndef E6_DIR_PIN
+  #define E6_DIR_PIN -1
+#endif
+#ifndef E6_ENABLE_PIN
+  #define E6_ENABLE_PIN -1
+#endif
+#ifndef E7_STEP_PIN
+  #define E7_STEP_PIN -1
+#endif
+#ifndef E7_DIR_PIN
+  #define E7_DIR_PIN -1
+#endif
+#ifndef E7_ENABLE_PIN
+  #define E7_ENABLE_PIN -1
+#endif
 
 #ifndef X_CS_PIN
   #define X_CS_PIN -1
@@ -793,6 +869,12 @@
 #endif
 #ifndef E5_CS_PIN
   #define E5_CS_PIN -1
+#endif
+#ifndef E6_CS_PIN
+  #define E6_CS_PIN -1
+#endif
+#ifndef E7_CS_PIN
+  #define E7_CS_PIN -1
 #endif
 
 #ifndef FAN_PIN
@@ -837,6 +919,12 @@
 #ifndef HEATER_5_PIN
   #define HEATER_5_PIN -1
 #endif
+#ifndef HEATER_6_PIN
+  #define HEATER_6_PIN -1
+#endif
+#ifndef HEATER_7_PIN
+  #define HEATER_7_PIN -1
+#endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN -1
 #endif
@@ -858,6 +946,12 @@
 #endif
 #ifndef TEMP_5_PIN
   #define TEMP_5_PIN -1
+#endif
+#ifndef TEMP_6_PIN
+  #define TEMP_6_PIN -1
+#endif
+#ifndef TEMP_7_PIN
+  #define TEMP_7_PIN -1
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN -1
@@ -932,6 +1026,20 @@
     #define E5_AUTO_FAN_PIN -1
   #endif
 #endif
+#ifndef E6_AUTO_FAN_PIN
+  #ifdef ORIG_E6_AUTO_FAN_PIN
+    #define E6_AUTO_FAN_PIN ORIG_E6_AUTO_FAN_PIN
+  #else
+    #define E6_AUTO_FAN_PIN -1
+  #endif
+#endif
+#ifndef E7_AUTO_FAN_PIN
+  #ifdef ORIG_E7_AUTO_FAN_PIN
+    #define E7_AUTO_FAN_PIN ORIG_E7_AUTO_FAN_PIN
+  #else
+    #define E7_AUTO_FAN_PIN -1
+  #endif
+#endif
 #ifndef CHAMBER_AUTO_FAN_PIN
   #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
     #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
@@ -946,10 +1054,14 @@
 #ifdef X_STOP_PIN
   #if X_HOME_DIR < 0
     #define X_MIN_PIN X_STOP_PIN
-    #define X_MAX_PIN -1
+    #ifndef X_MAX_PIN
+      #define X_MAX_PIN -1
+    #endif
   #else
-    #define X_MIN_PIN -1
     #define X_MAX_PIN X_STOP_PIN
+    #ifndef X_MIN_PIN
+      #define X_MIN_PIN -1
+    #endif
   #endif
 #elif X_HOME_DIR < 0
   #define X_STOP_PIN X_MIN_PIN
@@ -960,10 +1072,14 @@
 #ifdef Y_STOP_PIN
   #if Y_HOME_DIR < 0
     #define Y_MIN_PIN Y_STOP_PIN
-    #define Y_MAX_PIN -1
+    #ifndef Y_MAX_PIN
+      #define Y_MAX_PIN -1
+    #endif
   #else
-    #define Y_MIN_PIN -1
     #define Y_MAX_PIN Y_STOP_PIN
+    #ifndef Y_MIN_PIN
+      #define Y_MIN_PIN -1
+    #endif
   #endif
 #elif Y_HOME_DIR < 0
   #define Y_STOP_PIN Y_MIN_PIN
@@ -974,10 +1090,14 @@
 #ifdef Z_STOP_PIN
   #if Z_HOME_DIR < 0
     #define Z_MIN_PIN Z_STOP_PIN
-    #define Z_MAX_PIN -1
+    #ifndef Z_MAX_PIN
+      #define Z_MAX_PIN -1
+    #endif
   #else
-    #define Z_MIN_PIN -1
     #define Z_MAX_PIN Z_STOP_PIN
+    #ifndef Z_MIN_PIN
+      #define Z_MIN_PIN -1
+    #endif
   #endif
 #elif Z_HOME_DIR < 0
   #define Z_STOP_PIN Z_MIN_PIN
@@ -1023,6 +1143,10 @@
   #define Z_MIN_PIN          -1
 #endif
 
+#if HAS_FILAMENT_SENSOR
+  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
+#endif
+
 #ifndef LCD_PINS_D4
   #define LCD_PINS_D4 -1
 #endif
@@ -1047,42 +1171,72 @@
  * overridden in Configuration.h or Configuration_adv.h.
  */
 
+#define __PEXI(p,q) PIN_EXISTS(E##p##_##q)
+#define _PEXI(p,q) __PEXI(p,q)
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
+#define DIAG_REMAPPED(p,q) (PIN_EXISTS(q) && _EPIN(p##_E_INDEX, DIAG) == q##_PIN)
 
 // The X2 axis, if any, should be the next open extruder port
+#define X2_E_INDEX E_STEPPERS
+
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
-    #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
-    #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
-    #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
-    #if E_STEPPERS >= MAX_EXTRUDERS || !PIN_EXISTS(X2_STEP)
+    #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
+    #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)
+    #define X2_ENABLE_PIN _EPIN(X2_E_INDEX, ENABLE)
+    #if X2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(X2_STEP)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
   #ifndef X2_MS1_PIN
-    #define X2_MS1_PIN    _EPIN(E_STEPPERS, MS1)
+    #define X2_MS1_PIN    _EPIN(X2_E_INDEX, MS1)
   #endif
   #ifndef X2_MS2_PIN
-    #define X2_MS2_PIN    _EPIN(E_STEPPERS, MS2)
+    #define X2_MS2_PIN    _EPIN(X2_E_INDEX, MS2)
   #endif
   #ifndef X2_MS3_PIN
-    #define X2_MS3_PIN    _EPIN(E_STEPPERS, MS3)
+    #define X2_MS3_PIN    _EPIN(X2_E_INDEX, MS3)
   #endif
   #if AXIS_HAS_SPI(X2) && !defined(X2_CS_PIN)
-    #define X2_CS_PIN     _EPIN(E_STEPPERS, CS)
+    #define X2_CS_PIN     _EPIN(X2_E_INDEX, CS)
   #endif
   #if AXIS_HAS_UART(X2)
     #ifndef X2_SERIAL_TX_PIN
-      #define X2_SERIAL_TX_PIN _EPIN(E_STEPPERS, SERIAL_TX)
+      #define X2_SERIAL_TX_PIN _EPIN(X2_E_INDEX, SERIAL_TX)
     #endif
     #ifndef X2_SERIAL_RX_PIN
-      #define X2_SERIAL_RX_PIN _EPIN(E_STEPPERS, SERIAL_RX)
+      #define X2_SERIAL_RX_PIN _EPIN(X2_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #define Y2_E_INDEX INCREMENT(E_STEPPERS)
+
+  //
+  // Auto-assign pins for stallGuard sensorless homing
+  //
+  #if X2_STALL_SENSITIVITY && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
+    #define X2_DIAG_PIN _EPIN(X2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(X2, X_MIN)      // If already remapped in the pins file...
+      #define X2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(X2, Y_MIN)
+      #define X2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(X2, Z_MIN)
+      #define X2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(X2, X_MAX)
+      #define X2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(X2, Y_MAX)
+      #define X2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(X2, Z_MAX)
+      #define X2_USE_ENDSTOP _ZMAX_
+    #else                               // Otherwise use the driver DIAG_PIN directly
+      #define _X2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define X2_USE_ENDSTOP _X2_USE_ENDSTOP(X2_E_INDEX)
+    #endif
+    #undef X2_DIAG_PIN
+  #endif
+
+  #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
-  #define Y2_E_INDEX E_STEPPERS
+  #define Y2_E_INDEX X2_E_INDEX
 #endif
 
 #ifndef X2_CS_PIN
@@ -1128,6 +1282,26 @@
       #define Y2_SERIAL_RX_PIN _EPIN(Y2_E_INDEX, SERIAL_RX)
     #endif
   #endif
+  #if Y2_STALL_SENSITIVITY && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
+    #define Y2_DIAG_PIN _EPIN(Y2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Y2, X_MIN)
+      #define Y2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Y2, Y_MIN)
+      #define Y2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Y2, Z_MIN)
+      #define Y2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Y2, X_MAX)
+      #define Y2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Y2, Y_MAX)
+      #define Y2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Y2, Z_MAX)
+      #define Y2_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Y2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Y2_USE_ENDSTOP _Y2_USE_ENDSTOP(Y2_E_INDEX)
+    #endif
+    #undef Y2_DIAG_PIN
+  #endif
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
   #define Z2_E_INDEX Y2_E_INDEX
@@ -1147,7 +1321,7 @@
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
-#if Z_MULTI_STEPPER_DRIVERS
+#if NUM_Z_STEPPER_DRIVERS >= 2
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
@@ -1176,6 +1350,26 @@
       #define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
     #endif
   #endif
+  #if Z2_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+    #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z2, X_MIN)
+      #define Z2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z2, Y_MIN)
+      #define Z2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z2, Z_MIN)
+      #define Z2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z2, X_MAX)
+      #define Z2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z2, Y_MAX)
+      #define Z2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z2, Z_MAX)
+      #define Z2_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z2_USE_ENDSTOP _Z2_USE_ENDSTOP(Z2_E_INDEX)
+    #endif
+    #undef Z2_DIAG_PIN
+  #endif
   #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
 #else
   #define Z3_E_INDEX Z2_E_INDEX
@@ -1194,7 +1388,7 @@
   #define Z2_MS3_PIN -1
 #endif
 
-#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+#if NUM_Z_STEPPER_DRIVERS >= 3
   #ifndef Z3_STEP_PIN
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
     #define Z3_DIR_PIN    _EPIN(Z3_E_INDEX, DIR)
@@ -1205,7 +1399,7 @@
   #endif
   #if AXIS_HAS_SPI(Z3)
     #ifndef Z3_CS_PIN
-      #define Z3_CS_PIN     _EPIN(Z3_E_INDEX, CS)
+      #define Z3_CS_PIN   _EPIN(Z3_E_INDEX, CS)
     #endif
   #endif
   #ifndef Z3_MS1_PIN
@@ -1225,6 +1419,27 @@
       #define Z3_SERIAL_RX_PIN _EPIN(Z3_E_INDEX, SERIAL_RX)
     #endif
   #endif
+  #if Z3_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
+    #define Z3_DIAG_PIN _EPIN(Z3_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z3, X_MIN)
+      #define Z3_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z3, Y_MIN)
+      #define Z3_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z3, Z_MIN)
+      #define Z3_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z3, X_MAX)
+      #define Z3_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z3, Y_MAX)
+      #define Z3_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z3, Z_MAX)
+      #define Z3_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z3_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z3_USE_ENDSTOP _Z3_USE_ENDSTOP(Z3_E_INDEX)
+    #endif
+    #undef Z3_DIAG_PIN
+  #endif
+  #define Z4_E_INDEX INCREMENT(Z3_E_INDEX)
 #endif
 
 #ifndef Z3_CS_PIN
@@ -1238,6 +1453,72 @@
 #endif
 #ifndef Z3_MS3_PIN
   #define Z3_MS3_PIN -1
+#endif
+
+#if NUM_Z_STEPPER_DRIVERS >= 4
+  #ifndef Z4_STEP_PIN
+    #define Z4_STEP_PIN   _EPIN(Z4_E_INDEX, STEP)
+    #define Z4_DIR_PIN    _EPIN(Z4_E_INDEX, DIR)
+    #define Z4_ENABLE_PIN _EPIN(Z4_E_INDEX, ENABLE)
+    #if Z4_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Z4_STEP)
+      #error "No E stepper plug left for Z4!"
+    #endif
+  #endif
+  #if AXIS_HAS_SPI(Z4)
+    #ifndef Z4_CS_PIN
+      #define Z4_CS_PIN     _EPIN(Z4_E_INDEX, CS)
+    #endif
+  #endif
+  #ifndef Z4_MS1_PIN
+    #define Z4_MS1_PIN    _EPIN(Z4_E_INDEX, MS1)
+  #endif
+  #ifndef Z4_MS2_PIN
+    #define Z4_MS2_PIN    _EPIN(Z4_E_INDEX, MS2)
+  #endif
+  #ifndef Z4_MS3_PIN
+    #define Z4_MS3_PIN    _EPIN(Z4_E_INDEX, MS3)
+  #endif
+  #if AXIS_HAS_UART(Z4)
+    #ifndef Z4_SERIAL_TX_PIN
+      #define Z4_SERIAL_TX_PIN _EPIN(Z4_E_INDEX, SERIAL_TX)
+    #endif
+    #ifndef Z4_SERIAL_RX_PIN
+      #define Z4_SERIAL_RX_PIN _EPIN(Z4_E_INDEX, SERIAL_RX)
+    #endif
+  #endif
+  #if Z4_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
+    #define Z4_DIAG_PIN _EPIN(Z4_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z4, X_MIN)
+      #define Z4_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z4, Y_MIN)
+      #define Z4_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z4, Z_MIN)
+      #define Z4_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z4, X_MAX)
+      #define Z4_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z4, Y_MAX)
+      #define Z4_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z4, Z_MAX)
+      #define Z4_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z4_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z4_USE_ENDSTOP _Z4_USE_ENDSTOP(Z4_E_INDEX)
+    #endif
+    #undef Z4_DIAG_PIN
+  #endif
+#endif
+
+#ifndef Z4_CS_PIN
+  #define Z4_CS_PIN  -1
+#endif
+#ifndef Z4_MS1_PIN
+  #define Z4_MS1_PIN -1
+#endif
+#ifndef Z4_MS2_PIN
+  #define Z4_MS2_PIN -1
+#endif
+#ifndef Z4_MS3_PIN
+  #define Z4_MS3_PIN -1
 #endif
 
 #if HAS_GRAPHICAL_LCD
@@ -1257,3 +1538,4 @@
 #endif
 
 #undef HAS_FREE_AUX2_PINS
+#undef DIAG_REMAPPED

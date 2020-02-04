@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -99,7 +99,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan snelheid");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");

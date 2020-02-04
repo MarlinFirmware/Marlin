@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -118,6 +118,12 @@ const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_5
     TEMP_5_PIN,
   #endif
+  #if HAS_TEMP_ADC_6
+    TEMP_6_PIN,
+  #endif
+  #if HAS_TEMP_ADC_7
+    TEMP_7_PIN,
+  #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
@@ -159,6 +165,12 @@ enum TEMP_PINS : char {
   #endif
   #if HAS_TEMP_ADC_5
     TEMP_5,
+  #endif
+  #if HAS_TEMP_ADC_6
+    TEMP_6,
+  #endif
+  #if HAS_TEMP_ADC_7
+    TEMP_7,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
@@ -345,6 +357,12 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if HAS_TEMP_ADC_5
       case TEMP_5_PIN: pin_index = TEMP_5; break;
+    #endif
+    #if HAS_TEMP_ADC_6
+      case TEMP_6_PIN: pin_index = TEMP_6; break;
+    #endif
+    #if HAS_TEMP_ADC_7
+      case TEMP_7_PIN: pin_index = TEMP_7; break;
     #endif
     #if HAS_JOY_ADC_X
       case JOY_X_PIN: pin_index = JOY_X; break;

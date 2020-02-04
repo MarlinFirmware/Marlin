@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -418,15 +418,13 @@ inline bool turn_on_heaters() {
 inline bool prime_nozzle() {
 
   const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
-  #if HAS_LCD_MENU
+  #if HAS_LCD_MENU && DISABLED(TOUCH_BUTTONS) // ui.button_pressed issue with touchscreen
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       float Total_Prime = 0.0;
     #endif
 
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
-      #if HAS_LCD_MENU
-        ui.capture();
-      #endif
+      ui.capture();
       ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
       ui.chirp();
 
@@ -439,7 +437,10 @@ inline bool prime_nozzle() {
         destination.e += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
-          if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
+          if (Total_Prime >= EXTRUDE_MAXLENGTH) {
+            ui.release();
+            return G26_ERR;
+          }
         #endif
         prepare_internal_move_to_destination(fr_slow_e);
         destination = current_position;
@@ -706,7 +707,7 @@ void GcodeSuite::G26() {
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
 
-      // If this mesh location is outside the printable_radius, skip it.
+      // If this mesh location is outside the printable radius, skip it.
       if (!position_is_reachable(circle)) continue;
 
       // Determine where to start and end the circle,

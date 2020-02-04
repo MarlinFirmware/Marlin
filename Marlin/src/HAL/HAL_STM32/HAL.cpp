@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -101,11 +101,27 @@ void HAL_init() {
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
 uint8_t HAL_get_reset_source() {
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) return RST_WATCHDOG;
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)  return RST_SOFTWARE;
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)  return RST_EXTERNAL;
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST) != RESET)  return RST_POWER_ON;
-  return 0;
+  return
+    #ifdef RCC_FLAG_IWDGRST // Some sources may not exist...
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)  ? RST_WATCHDOG :
+    #endif
+    #ifdef RCC_FLAG_IWDG1RST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDG1RST) ? RST_WATCHDOG :
+    #endif
+    #ifdef RCC_FLAG_IWDG2RST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDG2RST) ? RST_WATCHDOG :
+    #endif
+    #ifdef RCC_FLAG_SFTRST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST)   ? RST_SOFTWARE :
+    #endif
+    #ifdef RCC_FLAG_PINRST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)   ? RST_EXTERNAL :
+    #endif
+    #ifdef RCC_FLAG_PORRST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)   ? RST_POWER_ON :
+    #endif
+    0
+  ;
 }
 
 void _delay_ms(const int delay_ms) { delay(delay_ms); }

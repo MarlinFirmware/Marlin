@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -68,7 +68,7 @@ void dac_current_percent(uint8_t channel, float val) {
 void dac_current_raw(uint8_t channel, uint16_t val) {
   if (!dac_present) return;
 
-  NOMORE(val, DAC_STEPPER_MAX);
+  NOMORE(val, uint16_t(DAC_STEPPER_MAX));
 
   mcp4728_analogWrite(dac_order[channel], val);
   mcp4728_simpleCommand(UPDATE);

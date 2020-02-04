@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -135,7 +135,7 @@ void HAL_adc_init();
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result();
+inline uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 //
 // Pin Map

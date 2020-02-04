@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
-#include "../../module/probe.h" // for probe_offset
+#include "../../module/probe.h" // for probe.offset
 #include "../../feature/bedlevel/bedlevel.h"
 
 /**
@@ -53,8 +53,8 @@ void GcodeSuite::G42() {
 
     #if HAS_PROBE_XY_OFFSET
       if (parser.boolval('P')) {
-        if (hasI) destination.x -= probe_offset_xy.x;
-        if (hasJ) destination.y -= probe_offset_xy.y;
+        if (hasI) destination.x -= probe.offset_xy.x;
+        if (hasJ) destination.y -= probe.offset_xy.y;
       }
     #endif
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1091,6 +1091,21 @@ void MarlinUI::draw_status_screen() {
           #endif
           #if HAS_FAN2
             || thermalManager.fan_speed[2]
+          #endif
+          #if HAS_FAN3
+            || thermalManager.fan_speed[3]
+          #endif
+          #if HAS_FAN4
+            || thermalManager.fan_speed[4]
+          #endif
+          #if HAS_FAN5
+            || thermalManager.fan_speed[5]
+          #endif
+          #if HAS_FAN6
+            || thermalManager.fan_speed[6]
+          #endif
+          #if HAS_FAN7
+            || thermalManager.fan_speed[7]
           #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0

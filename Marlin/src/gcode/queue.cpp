@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -191,7 +191,6 @@ bool GCodeQueue::process_injected_command() {
   // Execute command if non-blank
   if (i) {
     parser.parse(cmd);
-    PORT_REDIRECT(SERIAL_PORT);
     gcode.process_parsed_command();
   }
   return true;
@@ -243,7 +242,7 @@ void GCodeQueue::ok_to_send() {
   #if NUM_SERIAL > 1
     const int16_t pn = port[index_r];
     if (pn < 0) return;
-    PORT_REDIRECT(pn);
+    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(MSG_OK);
@@ -255,8 +254,8 @@ void GCodeQueue::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO(*p++);
     }
-    SERIAL_ECHOPGM(" P"); SERIAL_ECHO(int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
-    SERIAL_ECHOPGM(" B"); SERIAL_ECHO(BUFSIZE - length);
+    SERIAL_ECHOPAIR_P(SP_P_STR, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
+    SERIAL_ECHOPAIR(" B", BUFSIZE - length);
   #endif
   SERIAL_EOL();
 }
@@ -267,9 +266,9 @@ void GCodeQueue::ok_to_send() {
  */
 void GCodeQueue::flush_and_request_resend() {
   #if NUM_SERIAL > 1
-    const int16_t p = port[index_r];
-    if (p < 0) return;
-    PORT_REDIRECT(p);
+    const int16_t pn = port[index_r];
+    if (pn < 0) return;
+    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(MSG_RESEND);
@@ -296,14 +295,14 @@ inline int read_serial(const uint8_t index) {
   }
 }
 
-void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t port) {
-  PORT_REDIRECT(port);
+void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
+  PORT_REDIRECT(pn);                      // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
   SERIAL_ECHOLN(last_N);
-  while (read_serial(port) != -1);           // clear out the RX buffer
+  while (read_serial(pn) != -1);          // Clear out the RX buffer
   flush_and_request_resend();
-  serial_count[port] = 0;
+  serial_count[pn] = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
@@ -440,7 +439,7 @@ void GCodeQueue::get_serial_commands() {
               wait_for_user = false;
             #endif
           }
-          if (strcmp(command, "M112") == 0) kill();
+          if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
@@ -492,8 +491,7 @@ void GCodeQueue::get_serial_commands() {
    * can also interrupt buffering.
    */
   inline void GCodeQueue::get_sdcard_commands() {
-    static bool stop_buffering = false,
-                sd_comment_mode = false
+    static bool sd_comment_mode = false
                 #if ENABLED(PAREN_COMMENTS)
                   , sd_comment_paren_mode = false
                 #endif
@@ -501,29 +499,13 @@ void GCodeQueue::get_serial_commands() {
 
     if (!IS_SD_PRINTING()) return;
 
-    /**
-     * '#' stops reading from SD to the buffer prematurely, so procedural
-     * macro calls are possible. If it occurs, stop_buffering is triggered
-     * and the buffer is run dry; this character _can_ occur in serial com
-     * due to checksums, however, no checksums are used in SD printing.
-     */
-
-    if (length == 0) stop_buffering = false;
-
     uint16_t sd_count = 0;
     bool card_eof = card.eof();
-    while (length < BUFSIZE && !card_eof && !stop_buffering) {
+    while (length < BUFSIZE && !card_eof) {
       const int16_t n = card.get();
       char sd_char = (char)n;
       card_eof = card.eof();
-      if (card_eof || n == -1
-          || sd_char == '\n' || sd_char == '\r'
-          || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode
-            #if ENABLED(PAREN_COMMENTS)
-              && !sd_comment_paren_mode
-            #endif
-          )
-      ) {
+      if (card_eof || n == -1 || sd_char == '\n' || sd_char == '\r') {
         if (card_eof) {
 
           card.printingHasFinished();
@@ -548,8 +530,6 @@ void GCodeQueue::get_serial_commands() {
         }
         else if (n == -1)
           SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
-
-        if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; // for new command
         #if ENABLED(PAREN_COMMENTS)

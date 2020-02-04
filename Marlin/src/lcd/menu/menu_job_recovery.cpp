@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,9 +38,8 @@ static void lcd_power_loss_recovery_resume() {
   queue.inject_P(PSTR("M1000"));
 }
 
-static void lcd_power_loss_recovery_cancel() {
-  card.removeJobRecoveryFile();
-  card.autostart_index = 0;
+void lcd_power_loss_recovery_cancel() {
+  recovery.cancel();
   ui.return_to_status();
 }
 

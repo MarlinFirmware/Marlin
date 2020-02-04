@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -51,10 +51,10 @@ bool spiInitialized(uint8_t bus_num) {
 
 /**
  * Initialize and configure SPI BUS for specified SPI speed
- * 
+ *
  * @param bus_num Number of the spi bus
  * @param spiRate Maximum speed of the bus in Mhz
- * 
+ *
  * @return Nothing
  */
 void spiBusInit(uint8_t bus_num, uint8_t spiRate) {
@@ -62,7 +62,7 @@ void spiBusInit(uint8_t bus_num, uint8_t spiRate) {
 
   spi[bus_num] = new spi_t();
   spi[bus_num] -> pin_sclk = digitalPinToPinName(SPI_BusConfig[bus_num][SPIBUS_CLCK]);
-  
+
   uint32_t clock = spi_getClkFreq(spi[bus_num]);
 
   switch (spiRate) {
@@ -125,11 +125,11 @@ void spiBusSend(uint8_t bus_num, uint8_t b) {
 
 /**
  * @brief  Receive a number of bytes from the SPI port to a buffer
- * 
+ *
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
- * 
+ *
  * @return Nothing
  */
 void spiBusRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
@@ -154,12 +154,12 @@ void spiBusRead(uint8_t bus_num, uint8_t* buf, uint16_t count) {
 }
 
 /**
- * @brief  Send a number of bytes to the SPI port 
- * 
+ * @brief  Send a number of bytes to the SPI port
+ *
  * @param  bus_num Bus number
  * @param  buf     Pointer to starting address of buffer to send.
  * @param  count   Number of bytes to send.
- * 
+ *
  * @return Nothing
  */
 void spiBusWrite(uint8_t bus_num, const uint8_t* buf, uint16_t count) {
@@ -228,7 +228,7 @@ SPI_TypeDef* spiLLSetBus(uint8_t dev_num) {
   last_dev[BUS_OF_DEV(dev_num)] = dev_num;
 
   SPI_TypeDef* hspi = BUS_SPI_HANDLE(BUS_OF_DEV(dev_num)) -> Instance;
-  
+
   LL_SPI_Disable(hspi);
   LL_SPI_SetClockPolarity(hspi, CPOL_OF_DEV(dev_num) == SPI_PLO ? LL_SPI_POLARITY_LOW : LL_SPI_POLARITY_HIGH);
   LL_SPI_SetClockPhase(hspi, CPHA_OF_DEV(dev_num) == SPI_LTS ? LL_SPI_PHASE_1EDGE : LL_SPI_PHASE_2EDGE);
@@ -312,9 +312,9 @@ uint16_t spiDevWriteCRC16(uint8_t dev_num, const uint16_t* buf, const uint16_t c
 
 /**
  * @brief  Receive a single byte from the SPI device.
- * 
+ *
  * @param  dev_num Device number (identifies device and bus)
- * 
+ *
  * @return Byte received
  */
 uint8_t spiDevRec(uint8_t dev_num) {
@@ -327,7 +327,7 @@ uint8_t spiDevRec(uint8_t dev_num) {
 
 /**
  * @brief  Send a single byte to a SPI device
- * 
+ *
  * @param  dev_num Device number (identifies device and bus)
  * @param  b Byte to send
  */
@@ -340,11 +340,11 @@ void spiDevSend(uint8_t dev_num, uint8_t b) {
 
 /**
  * @brief  Get a number of bytes from the SPI device into a buffer
- * 
+ *
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
- * 
+ *
  * @return Nothing
  */
 void spiDevRead(uint8_t dev_num, uint8_t* buf, uint16_t count) {
@@ -356,11 +356,11 @@ void spiDevRead(uint8_t dev_num, uint8_t* buf, uint16_t count) {
 
 /**
  * @brief  Write a number of bytes from the buffer to a SPI device
- * 
+ *
  * @param  dev_num Device number (identifies device and bus)
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
- * 
+ *
  * @return Nothing
  */
 void spiDevWrite(uint8_t dev_num, const uint8_t* buf, uint16_t count) {

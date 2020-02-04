@@ -10,11 +10,11 @@ set -e
 
 exec_test () {
   printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
-  if build_marlin_pio $1 "-e $2"; then
+  if platformio run --project-dir $1 -e $2 --silent; then
     printf "\033[0;32mPassed\033[0m\n"
     return 0
   else
-    env_restore
+    git reset --hard HEAD
     printf "\033[0;31mFailed!\033[0m\n"
     return 1
   fi
@@ -23,26 +23,19 @@ export -f exec_test
 
 printf "Running \033[0;32m$2\033[0m Tests\n"
 
-if [[ $3 = "--deep-clean" ]]; then
-  echo "Deleting all PlatformIO caches, downloads and installed packages..."
-  env_clean --deep
-fi
-
 if [[ $2 = "ALL" ]]; then
   dir_list=("$(dirname "${BASH_SOURCE[0]}")"/*)
   declare -a tests=(${dir_list[@]/*run_tests/})
   for f in "${tests[@]}"; do
-    env_backup
     testenv=$(basename $f | cut -d"-" -f1)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
     $f $1 $testenv
-    env_restore
+    git reset --hard HEAD
   done
 else
-  env_backup
   exec_test $1 "$2 --target clean" "Setup Build Environment"
   $2-tests $1 $2
-  env_restore
+  git reset --hard HEAD
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"

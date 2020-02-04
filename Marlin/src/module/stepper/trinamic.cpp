@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -104,6 +104,9 @@ int findDriver(int driverType, int driverIndex)
   int z3Dev = findDriver(DRIVER_AXIS, 22);
   TMC_SPI_DEFINE(Z3, Z, z3Dev);
 #endif
+#if AXIS_HAS_SPI(Z4)
+  TMC_SPI_DEFINE(Z4, Z);
+#endif
 #if AXIS_HAS_SPI(E0)
   int e0Dev = findDriver(DRIVER_EXTRUDER, 0);
   TMC_SPI_DEFINE_E(0, e0Dev);
@@ -127,6 +130,12 @@ int findDriver(int driverType, int driverIndex)
 #if AXIS_HAS_SPI(E5)
   int e5Dev = findDriver(DRIVER_EXTRUDER, 5);
   TMC_SPI_DEFINE_E(5, e5Dev);
+#endif
+#if AXIS_HAS_SPI(E6)
+  TMC_SPI_DEFINE_E(6);
+#endif
+#if AXIS_HAS_SPI(E7)
+  TMC_SPI_DEFINE_E(7);
 #endif
 
 #ifndef TMC_BAUD_RATE
@@ -271,6 +280,13 @@ int findDriver(int driverType, int driverIndex)
       TMC_UART_DEFINE(SW, Z3, Z);
     #endif
   #endif
+  #if AXIS_HAS_UART(Z4)
+    #ifdef Z4_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, Z4, Z);
+    #else
+      TMC_UART_DEFINE(SW, Z4, Z);
+    #endif
+  #endif
   #if AXIS_HAS_UART(E0)
     #ifdef E0_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 0);
@@ -311,6 +327,20 @@ int findDriver(int driverType, int driverIndex)
       TMC_UART_DEFINE_E(HW, 5);
     #else
       TMC_UART_DEFINE_E(SW, 5);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(E6)
+    #ifdef E6_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E(HW, 6);
+    #else
+      TMC_UART_DEFINE_E(SW, 6);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(E7)
+    #ifdef E7_HARDWARE_SERIAL
+      TMC_UART_DEFINE_E(HW, 7);
+    #else
+      TMC_UART_DEFINE_E(SW, 7);
     #endif
   #endif
 
@@ -364,6 +394,13 @@ int findDriver(int driverType, int driverIndex)
         stepperZ3.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
+    #if AXIS_HAS_UART(Z4)
+      #ifdef Z4_HARDWARE_SERIAL
+        Z4_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+      #else
+        stepperZ4.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
     #if AXIS_HAS_UART(E0)
       #ifdef E0_HARDWARE_SERIAL
         E0_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
@@ -404,6 +441,20 @@ int findDriver(int driverType, int driverIndex)
         E5_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
       #else
         stepperE5.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(E6)
+      #ifdef E6_HARDWARE_SERIAL
+        E6_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+      #else
+        stepperE6.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(E7)
+      #ifdef E7_HARDWARE_SERIAL
+        E7_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+      #else
+        stepperE7.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
   }
@@ -638,6 +689,9 @@ void restore_trinamic_drivers() {
   #if AXIS_IS_TMC(Z3)
     stepperZ3.push();
   #endif
+  #if AXIS_IS_TMC(Z4)
+    stepperZ4.push();
+  #endif
   #if AXIS_IS_TMC(E0)
     stepperE0.push();
   #endif
@@ -655,6 +709,12 @@ void restore_trinamic_drivers() {
   #endif
   #if AXIS_IS_TMC(E5)
     stepperE5.push();
+  #endif
+  #if AXIS_IS_TMC(E6)
+    stepperE6.push();
+  #endif
+  #if AXIS_IS_TMC(E7)
+    stepperE7.push();
   #endif
 }
 
@@ -700,6 +760,9 @@ void reset_trinamic_drivers() {
   #if AXIS_IS_TMC(Z3)
     _TMC_INIT(Z3, STEALTH_AXIS_Z);
   #endif
+  #if AXIS_IS_TMC(Z4)
+    _TMC_INIT(Z4, STEALTH_AXIS_Z);
+  #endif
   #if AXIS_IS_TMC(E0)
     _TMC_INIT(E0, STEALTH_AXIS_E);
   #endif
@@ -717,6 +780,12 @@ void reset_trinamic_drivers() {
   #endif
   #if AXIS_IS_TMC(E5)
     _TMC_INIT(E5, STEALTH_AXIS_E);
+  #endif
+  #if AXIS_IS_TMC(E6)
+    _TMC_INIT(E6, STEALTH_AXIS_E);
+  #endif
+  #if AXIS_IS_TMC(E7)
+    _TMC_INIT(E7, STEALTH_AXIS_E);
   #endif
 
   #if USE_SENSORLESS
@@ -748,6 +817,9 @@ void reset_trinamic_drivers() {
       #endif
       #if AXIS_HAS_STALLGUARD(Z3)
         stepperZ3.homing_threshold(Z_STALL_SENSITIVITY);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Z4)
+        stepperZ4.homing_threshold(Z_STALL_SENSITIVITY);
       #endif
     #endif
   #endif

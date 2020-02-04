@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -245,14 +245,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Auto Temperatur");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("an");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("aus");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Auswählen");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Auswählen *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Beschleunigung");

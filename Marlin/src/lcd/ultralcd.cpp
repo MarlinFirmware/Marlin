@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,6 +43,10 @@ MarlinUI ui;
   #if ENABLED(EXTENSIBLE_UI)
     #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
   #endif
+#endif
+
+#if LCD_HAS_WAIT_FOR_MOVE
+  bool MarlinUI::wait_for_move; // = false
 #endif
 
 #if HAS_SPI_LCD
@@ -94,10 +98,6 @@ MarlinUI ui;
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
-
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
-#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
@@ -673,7 +673,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
     if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]);
+      const feedRate_t fr_mm_s = manual_feedrate_mm_s[manual_move_axis];
       #if IS_KINEMATIC
 
         #if EXTRUDERS > 1
@@ -777,13 +777,12 @@ void MarlinUI::update() {
     static bool wait_for_unclick; // = false
 
     #if ENABLED(TOUCH_BUTTONS)
-
       if (touch_buttons) {
         RESET_STATUS_TIMEOUT();
-        if (buttons & (EN_A | EN_B)) {                    // Menu arrows, in priority
+        if (touch_buttons & (EN_A | EN_B)) {              // Menu arrows, in priority
           if (ELAPSED(ms, next_button_update_ms)) {
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
-            if (buttons & EN_A) encoderDiff *= -1;
+            if (touch_buttons & EN_A) encoderDiff *= -1;
             #if ENABLED(AUTO_BED_LEVELING_UBL)
               if (external_control) ubl.encoder_diff = encoderDiff;
             #endif
@@ -1246,7 +1245,11 @@ void MarlinUI::update() {
             | slow_buttons
           #endif
           #if ENABLED(TOUCH_BUTTONS) && HAS_ENCODER_ACTION
-            | touch_buttons
+            | (touch_buttons
+              #if HAS_ENCODER_WHEEL
+                & (~(EN_A | EN_B))
+              #endif
+            )
           #endif
         );
 
@@ -1277,7 +1280,7 @@ void MarlinUI::update() {
 
     } // next_button_update_ms
 
-    #if HAS_ENCODER_WHEEL && DISABLED(TOUCH_BUTTONS)
+    #if HAS_ENCODER_WHEEL
       static uint8_t lastEncoderBits;
 
       #define encrot0 0
@@ -1517,10 +1520,6 @@ void MarlinUI::update() {
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
       synchronize(GET_TEXT(MSG_PAUSE_PRINT));
-    #endif
-
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      if (recovery.enabled) recovery.save(true, false);
     #endif
 
     #if ENABLED(HOST_PROMPT_SUPPORT)

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -29,12 +29,23 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XMIN_ 100
-#define _YMIN_ 200
-#define _ZMIN_ 300
-#define _XMAX_ 101
-#define _YMAX_ 201
-#define _ZMAX_ 301
+#define _XMIN_   100
+#define _YMIN_   200
+#define _ZMIN_   300
+#define _XMAX_   101
+#define _YMAX_   201
+#define _ZMAX_   301
+#define _XDIAG_  102
+#define _YDIAG_  202
+#define _ZDIAG_  302
+#define _E0DIAG_ 400
+#define _E1DIAG_ 401
+#define _E2DIAG_ 402
+#define _E3DIAG_ 403
+#define _E4DIAG_ 404
+#define _E5DIAG_ 405
+#define _E6DIAG_ 406
+#define _E7DIAG_ 407
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
@@ -185,12 +196,14 @@
 #define EITHER(V1,V2)       ANY(V1,V2)
 
 // Macros to support pins/buttons exist testing
-#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
-#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
+#define _PINEX_1            PIN_EXISTS
+#define PINS_EXIST(V...)    DO(PINEX,&&,V)
 #define ANY_PIN(V...)       DO(PINEX,||,V)
 
-#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
-#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define BUTTON_EXISTS(BN)   (defined(BTN_##BN) && BTN_##BN >= 0)
+#define _BTNEX_1            BUTTON_EXISTS
+#define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
@@ -446,3 +459,21 @@
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
 #define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)
+
+// Use RREPEAT macros with REPEAT macros for nesting
+#define _RREPEAT(_RPT_I,_RPT_N,_RPT_OP)                           \
+  _RPT_OP(_RPT_I)                                                 \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) )    \
+    ( /* Do nothing */ )
+#define __RREPEAT() _RREPEAT
+#define _RREPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                               \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __RREPEAT2() _RREPEAT2
+#define RREPEAT_S(S,N,OP)        EVAL(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
+#define RREPEAT2_S(S,N,OP,V...)  EVAL(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)

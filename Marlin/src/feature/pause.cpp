@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -564,7 +564,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #endif
 
       // Re-enable the heaters if they timed out
-      HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
+      HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
 
       // Wait for the heaters to reach the target temperatures
       ensure_safe_temperature();
@@ -633,7 +633,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   bool nozzle_timed_out = false;
   HOTEND_LOOP() {
     nozzle_timed_out |= thermalManager.hotend_idle[e].timed_out;
-    thermalManager.reset_heater_idle_timer(e);
+    thermalManager.reset_hotend_idle_timer(e);
   }
 
   if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) // Load the new filament

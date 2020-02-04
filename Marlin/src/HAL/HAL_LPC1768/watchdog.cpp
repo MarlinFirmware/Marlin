@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -68,5 +68,4 @@ bool watchdog_timed_out() { return TEST(WDT_ReadTimeOutFlag(), 0); }
 void watchdog_clear_timeout_flag() { WDT_ClrTimeOutFlag(); }
 
 #endif // USE_WATCHDOG
-
 #endif // TARGET_LPC1768

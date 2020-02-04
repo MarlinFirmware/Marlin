@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -42,25 +42,25 @@
 //
 // Servos
 //
-#define SERVO0_PIN         PA1
+#define SERVO0_PIN         PA1    // SERVOS
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PC1
-#define Y_STOP_PIN         PC0
-#define Z_STOP_PIN         PC15
+#define X_STOP_PIN         PC1    // X-STOP
+#define Y_STOP_PIN         PC0    // Y-STOP
+#define Z_STOP_PIN         PC15   // Z-STOP
 
 //
 // Z Probe must be this pin
 //
-#define Z_MIN_PROBE_PIN    PC14
+#define Z_MIN_PROBE_PIN    PC14   // PROBE
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC2
+  #define FIL_RUNOUT_PIN   PC2    // E0-STOP
 #endif
 
 //
@@ -143,15 +143,15 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // Analog Input
-#define TEMP_BED_PIN       PC3   // Analog Input
+#define TEMP_0_PIN         PA0   // Analog Input "TH0"
+#define TEMP_BED_PIN       PC3   // Analog Input "TB0"
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC8   // EXTRUDER
-#define HEATER_BED_PIN     PC9   // BED
-#define FAN_PIN            PA8
+#define HEATER_0_PIN       PC8   // HE
+#define HEATER_BED_PIN     PC9   // HB
+#define FAN_PIN            PA8   // FAN0
 
 //
 // USB connect control
@@ -171,19 +171,27 @@
  *                 -----
  *                 EXP1
  */
+#define EXP1_1_PIN         PA15
+#define EXP1_2_PIN         PA9
+#define EXP1_3_PIN         PA10
+#define EXP1_4_PIN         PB8
+#define EXP1_6_PIN         PB6
+#define EXP1_7_PIN         -1
+#define EXP1_8_PIN         PB9
+#define EXP1_9_PIN         PB7
+
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       PA15
-  #define BTN_ENC          PB6
+  #define BTN_ENC          EXP1_6_PIN
+  #define BTN_EN1          EXP1_2_PIN
+  #define BTN_EN2          EXP1_3_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define LCD_PINS_RS    PB8
+    #define BEEPER_PIN     EXP1_1_PIN
 
-    #define BTN_EN1        PA9
-    #define BTN_EN2        PA10
-
-    #define LCD_PINS_ENABLE PB7
-    #define LCD_PINS_D4    PB9
+    #define LCD_PINS_RS    EXP1_4_PIN
+    #define LCD_PINS_ENABLE EXP1_9_PIN
+    #define LCD_PINS_D4    EXP1_8_PIN
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
@@ -198,17 +206,15 @@
      *                    EXP1
      */
 
-    #define BTN_EN1      PA9
-    #define BTN_EN2      PA10
-    #define DOGLCD_CS    PB8
-    #define DOGLCD_A0    PB9
-    #define DOGLCD_SCK   PA15
-    #define DOGLCD_MOSI  PB7
+    #define DOGLCD_CS    EXP1_4_PIN
+    #define DOGLCD_A0    EXP1_8_PIN
+    #define DOGLCD_SCK   EXP1_1_PIN
+    #define DOGLCD_MOSI  EXP1_9_PIN
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN -1
 
   #else
-    #error "Only CR10_STOCKDISPLAY and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_E3_DIP."
+    #error "Only CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY, and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_E3_DIP."
   #endif
 
 #endif // HAS_SPI_LCD

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@
   #elif SERIAL_PORT == 2
     static const char RXD_NAME_2[] PROGMEM = { "RXD2" };
     static const char TXD_NAME_2[] PROGMEM = { "TXD2" };
-  #elif SERIAL_PORT == 3 
+  #elif SERIAL_PORT == 3
     static const char RXD_NAME_3[] PROGMEM = { "RXD3" };
     static const char TXD_NAME_3[] PROGMEM = { "TXD3" };
   #endif
@@ -137,36 +137,38 @@ const PinInfo pin_array[] PROGMEM = {
     #endif
   #endif
 
-  #if SERIAL_PORT_2 == 0
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_0, 0, true },
-      { TXD_NAME_0, 1, true },
-    #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME_0, 8, true },
-      { TXD_NAME_0, 9, true },
-    #endif
-  #elif SERIAL_PORT_2 == 1
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_1, 19, true },
-      { TXD_NAME_1, 18, true },
-    #elif AVR_ATmega1284_FAMILY
-      { RXD_NAME_1, 10, true },
-      { TXD_NAME_1, 11, true },
-    #endif
-  #elif SERIAL_PORT_2 == 2
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_2, 17, true },
-      { TXD_NAME_2, 16, true },
-    #endif
-  #elif SERIAL_PORT_2 == 3
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
-      { RXD_NAME_3, 15, true },
-      { TXD_NAME_3, 14, true },
+  #ifdef SERIAL_PORT_2
+    #if SERIAL_PORT_2 == 0
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_0, 0, true },
+        { TXD_NAME_0, 1, true },
+      #elif AVR_ATmega1284_FAMILY
+        { RXD_NAME_0, 8, true },
+        { TXD_NAME_0, 9, true },
+      #endif
+    #elif SERIAL_PORT_2 == 1
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_1, 19, true },
+        { TXD_NAME_1, 18, true },
+      #elif AVR_ATmega1284_FAMILY
+        { RXD_NAME_1, 10, true },
+        { TXD_NAME_1, 11, true },
+      #endif
+    #elif SERIAL_PORT_2 == 2
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_2, 17, true },
+        { TXD_NAME_2, 16, true },
+      #endif
+    #elif SERIAL_PORT_2 == 3
+      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+        { RXD_NAME_3, 15, true },
+        { TXD_NAME_3, 14, true },
+      #endif
     #endif
   #endif
 
   #include "pinsDebug_list.h"
-  #line 98
+  #line 172
 
 };
 

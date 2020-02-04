@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -57,6 +57,9 @@
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN     P0_23_A0   // A0 (T0) - (67) - TEMP_BED_PIN
+#endif
+#if HOTENDS == 1 && TEMP_SENSOR_PROBE
+  #define TEMP_PROBE_PIN   P0_25_A2   // TEMP_1_PIN
 #endif
 
 //

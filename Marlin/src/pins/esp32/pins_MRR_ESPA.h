@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -99,3 +99,5 @@
 #define MISO_PIN           19
 #define SCK_PIN            18
 #define SDSS                5
+#define USES_SHARED_SPI  // SPI is shared by SD card with TMC SPI drivers
+

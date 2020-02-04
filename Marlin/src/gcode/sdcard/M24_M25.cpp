@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -85,6 +85,10 @@ void GcodeSuite::M24() {
  * M25: Pause SD Print
  */
 void GcodeSuite::M25() {
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (recovery.enabled) recovery.save(true, false);
+  #endif
 
   // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
   #if ENABLED(SDSUPPORT)

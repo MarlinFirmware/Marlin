@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -94,8 +94,8 @@ int freeMemory() {
 // ADC
 // ------------------------
 
-void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  HAL_adc_result = analogRead(adc_pin);
+void HAL_adc_start_conversion(const uint8_t ch) {
+  HAL_adc_result = analogRead(ch);
 }
 
 uint16_t HAL_adc_get_result() {

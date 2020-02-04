@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,8 +43,8 @@ void reset_stepper_drivers() {
     tmc26x_init_to_defaults();
   #endif
 
-  #if HAS_DRIVER(L6470)
-    L6470.init_to_defaults();
+  #if HAS_L64XX
+    L64xxManager.init_to_defaults();
   #endif
 
   #if HAS_TRINAMIC

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,7 +37,7 @@ Servo::Servo() {
 
 int8_t Servo::attach(const int inPin) {
   if (channel >= CHANNEL_MAX_NUM) return -1;
-  if (pin > 0) pin = inPin;
+  if (inPin > 0) pin = inPin;
 
   ledcSetup(channel, 50, 16); // channel X, 50 Hz, 16-bit depth
   ledcAttachPin(pin, channel);

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -119,7 +119,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
-            char cmd[12];
+            char cmd[13];
             sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
             lcd_enqueue_one_now(cmd);
           });

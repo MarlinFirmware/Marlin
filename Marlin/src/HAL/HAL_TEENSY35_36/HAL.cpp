@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -94,7 +94,7 @@ extern "C" {
 }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  uint16_t pin = pin2sc1a[adc_pin];
+  const uint16_t pin = pin2sc1a[adc_pin];
   if (pin == 0xFF) {
     // Digital only
     HAL_adc_select = -1;

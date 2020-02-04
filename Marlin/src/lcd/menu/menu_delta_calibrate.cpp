@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,10 +41,14 @@
 #endif
 
 void _man_probe_pt(const xy_pos_t &xy) {
-  do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
-  ui.synchronize();
-  move_menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
-  ui.goto_screen(lcd_move_z);
+  if (!ui.wait_for_move) {
+    ui.wait_for_move = true;
+    do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
+    ui.wait_for_move = false;
+    ui.synchronize();
+    move_menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
+    ui.goto_screen(lcd_move_z);
+  }
 }
 
 #if ENABLED(DELTA_AUTO_CALIBRATION)
