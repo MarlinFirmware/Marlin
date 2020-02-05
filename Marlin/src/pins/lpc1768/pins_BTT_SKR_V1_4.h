@@ -79,7 +79,12 @@
     #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
 #else
-  #define Z_STOP_PIN       P1_27   // Z-STOP
+#if ENABLED(BLTOUCH)
+  //#define Z_MIN_PIN      P0_10   // PWRDET
+  #define Z_STOP_PIN     P0_10   // Z-STOP
+#else 
+  #define Z_STOP_PIN     P0Z_DIAG_PIN   // Z-STOP
+#endif
 #endif
 
 //

@@ -175,7 +175,7 @@
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
     #define SHORT_BUILD_VERSION "4MAX 2.0.55 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.62 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.63 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #endif
 #endif
 
@@ -204,6 +204,12 @@
  */
 #ifndef SOURCE_CODE_URL
   #define SOURCE_CODE_URL "https://github.com/GeminiServer/Marlin"
+#endif
+#ifndef WEBSITE_URL
+  #define WEBSITE_URL "https://git.io/fjXzr"
+#endif
+#ifndef MARLIN_WEBSITE_URL
+  #define MARLIN_WEBSITE_URL WEBSITE_URL
 #endif
 
 /**
@@ -786,15 +792,18 @@
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define USE_ZMAX_PLUG
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+  // Using ZMAX! Undef some pins which is using the P1_27 for ZMAX!
   #define USE_ZMAX_PLUG
-  // #define FIL_RUNOUT2_PIN  P1_25   // E1DET
+  #ifdef  Z_MAX_PIN 
+    #undef  Z_MAX_PIN
+  #endif
+  #define Z_MAX_PIN P1_27
+
+  // Don't have a second Filament runout!
   #ifdef FIL_RUNOUT2_PIN    
     #undef FIL_RUNOUT2_PIN
   #endif
-  #ifdef Z_MAX_PIN 
-    #undef Z_MAX_PIN
-  #endif
-  #define Z_MAX_PIN P1_25
+
 #else
   //#define USE_ZMAX_PLUG
 #endif
@@ -845,11 +854,11 @@
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-  #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
   #define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // Set to true to invert the logic of the probe.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 #endif
 /**
  * Stepper Drivers
@@ -1080,8 +1089,8 @@
  */
 //#define Z_MIN_PROBE_PIN 15 // 15: Y_MAX for BLTOUCH
 //#if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-//  #define Z_MIN_PROBE_PIN P0_10
-//#endif
+  //#define Z_MIN_PROBE_PIN P0_10
+// #endif
 
 /**
  * Probe Type

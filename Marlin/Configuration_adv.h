@@ -344,14 +344,18 @@
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-  #define CONTROLLER_FAN_PIN         P1_00   // PWRDET - PS_ON_PIN
+  #define CONTROLLER_FAN_PIN         P1_00 // PWRDET - PS_ON_PIN
+  #define CONTROLLERFAN_SECS         30    // Duration in seconds for the fan to run after all motors are disabled
+  #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
+  #define CONTROLLERFAN_IDLE_SPEED   21    // 0-255 - 255 == fullspeed; Controller fan idles speed, when all motors are disabled
+  #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu  
 #else
   #define CONTROLLER_FAN_PIN         58   // Set a custom pin for the controller fan
-#endif
   #define CONTROLLERFAN_SECS         60    // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
   #define CONTROLLERFAN_IDLE_SPEED   128   // 0-255 - 255 == fullspeed; Controller fan idles speed, when all motors are disabled
   #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu
+#endif
   // TODO EC : Implement //#define CONTROLLERFAN_SPEED_Z_ONLY 127  // Reduce noise on machines that keep Z enabled
 #endif
 
@@ -642,6 +646,8 @@
   //         Minimum command delay (ms). Enable and increase if needed.
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
     #define BLTOUCH_DELAY 375
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define BLTOUCH_DELAY 375
   #else // ANYCUBIC_4MAX_DEFAULT
     //#define BLTOUCH_DELAY 500
   #endif
@@ -670,7 +676,7 @@
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  #define BLTOUCH_SET_5V_MODE
+  //#define BLTOUCH_SET_5V_MODE
 
   /**
    * Safety: Activate if connecting a probe with an unknown voltage mode.
@@ -689,7 +695,7 @@
   #define BLTOUCH_HS_MODE
 
   // Safety: Enable voltage mode settings in the LCD menu.
-  #define BLTOUCH_LCD_VOLTAGE_MENU
+  //#define BLTOUCH_LCD_VOLTAGE_MENU
 
 #endif // BLTOUCH
 
