@@ -41,10 +41,6 @@ extern xyze_pos_t destination;
   feedRate_t fast_move_feedrate = MMM_TO_MMS(G0_FEEDRATE);
 #endif
 
-#if ENABLED(LASER_MOVE_POWER)
-  #include "../../feature/spindle_laser.h"
-#endif
-
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -73,24 +69,7 @@ void GcodeSuite::G0_G1(
       #endif
     #endif
 
-    #if ENABLED(LASER_MOVE_POWER)
-      // Set the laser power in the planner to configure this move
-      if (parser.seen('S')) {
-        cutter.inline_power(
-          #if ENABLED(CUTTER_POWER_PROPORTIONAL)
-            parser.value_float()
-          #else
-            parser.value_int()
-          #endif
-        );
-      }
-      #if ENABLED(LASER_MOVE_G0_OFF)
-        else if (!parser.codenum)
-          cutter.inline_enabled(false);
-      #endif
-    #endif
-
-    get_destination_from_command(); // For X Y Z E F
+    get_destination_from_command();                 // Get X Y Z E F (and set cutter power)
 
     #ifdef G0_FEEDRATE
       if (fast_move) {
