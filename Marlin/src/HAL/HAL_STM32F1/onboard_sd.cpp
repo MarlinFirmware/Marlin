@@ -1,7 +1,7 @@
 /**
  * STM32F1: MMCv3/SDv1/SDv2 (SPI mode) control module
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
  * Copyright (C) 2015, ChaN, all right reserved.
  *

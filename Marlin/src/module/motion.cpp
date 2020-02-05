@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1755,10 +1755,9 @@ void homeaxis(const AxisEnum axis) {
   #endif
 
   #if DISABLED(DELTA) && defined(HOMING_BACKOFF_MM)
-    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
-    const float backoff_mm = endstop_backoff[axis];
-    if (backoff_mm) {
-      current_position[axis] -= ABS(backoff_mm) * axis_home_dir;
+    const xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
+    if (endstop_backoff[axis]) {
+      current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
       line_to_current_position(
         #if HOMING_Z_WITH_PROBE
           (axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) :

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,9 @@
   #error "MKS BASE 1.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "MKS BASE 1.0"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "MKS BASE 1.0"
+#endif
 
 //
 // Heaters / Fans
