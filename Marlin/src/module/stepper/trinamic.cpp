@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -108,6 +108,12 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #endif
 #if AXIS_HAS_SPI(E5)
   TMC_SPI_DEFINE_E(5);
+#endif
+#if AXIS_HAS_SPI(E6)
+  TMC_SPI_DEFINE_E(6);
+#endif
+#if AXIS_HAS_SPI(E7)
+  TMC_SPI_DEFINE_E(7);
 #endif
 
 #ifndef TMC_BAUD_RATE

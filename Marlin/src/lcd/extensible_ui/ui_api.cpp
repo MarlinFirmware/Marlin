@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -389,14 +389,14 @@ namespace ExtUI {
     #endif
 
     current_position[axis] = constrain(position, min, max);
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m[axis]));
+    line_to_current_position(manual_feedrate_mm_s[axis]);
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.e));
+    line_to_current_position(manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -481,6 +481,12 @@ namespace ExtUI {
         #if AXIS_IS_TMC(E5)
           case E5: return stepperE5.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(E6)
+          case E6: return stepperE6.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E7)
+          case E7: return stepperE7.getMilliamps();
+        #endif
         default: return NAN;
       };
     }
@@ -519,6 +525,12 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(E5)
           case E5: stepperE5.rms_current(constrain(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E6)
+          case E6: stepperE6.rms_current(constrain(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E7)
+          case E7: stepperE7.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         default: break;
       };

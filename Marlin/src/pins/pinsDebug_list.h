@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,425 +26,72 @@
 
 #line 28 // set __LINE__ to a known value for both passes
 
-// Undefine pins to suppress warnings
-#if !PIN_EXISTS(X_MS1)
-  #undef X_MS1_PIN
-#endif
-#if !PIN_EXISTS(X_MS2)
-  #undef X_MS2_PIN
-#endif
-#if !PIN_EXISTS(X_MS3)
-  #undef X_MS3_PIN
-#endif
-#if !PIN_EXISTS(X2_MS1)
-  #undef X2_MS1_PIN
-#endif
-#if !PIN_EXISTS(X2_MS2)
-  #undef X2_MS2_PIN
-#endif
-#if !PIN_EXISTS(X2_MS3)
-  #undef X2_MS3_PIN
-#endif
-#if !PIN_EXISTS(Y_MS1)
-  #undef Y_MS1_PIN
-#endif
-#if !PIN_EXISTS(Y_MS2)
-  #undef Y_MS2_PIN
-#endif
-#if !PIN_EXISTS(Y_MS3)
-  #undef Y_MS3_PIN
-#endif
-#if !PIN_EXISTS(Y2_MS1)
-  #undef Y2_MS1_PIN
-#endif
-#if !PIN_EXISTS(Y2_MS2)
-  #undef Y2_MS2_PIN
-#endif
-#if !PIN_EXISTS(Y2_MS3)
-  #undef Y2_MS3_PIN
-#endif
-#if !PIN_EXISTS(Z_MS1)
-  #undef Z_MS1_PIN
-#endif
-#if !PIN_EXISTS(Z_MS2)
-  #undef Z_MS2_PIN
-#endif
-#if !PIN_EXISTS(Z_MS3)
-  #undef Z_MS3_PIN
-#endif
-#if !PIN_EXISTS(Z2_MS1)
-  #undef Z2_MS1_PIN
-#endif
-#if !PIN_EXISTS(Z2_MS2)
-  #undef Z2_MS2_PIN
-#endif
-#if !PIN_EXISTS(Z2_MS3)
-  #undef Z2_MS3_PIN
-#endif
-#if !PIN_EXISTS(Z3_MS1)
-  #undef Z3_MS1_PIN
-#endif
-#if !PIN_EXISTS(Z3_MS2)
-  #undef Z3_MS2_PIN
-#endif
-#if !PIN_EXISTS(Z3_MS3)
-  #undef Z3_MS3_PIN
-#endif
-#if !PIN_EXISTS(Z4_MS1)
-  #undef Z4_MS1_PIN
-#endif
-#if !PIN_EXISTS(Z4_MS2)
-  #undef Z4_MS2_PIN
-#endif
-#if !PIN_EXISTS(Z4_MS3)
-  #undef Z4_MS3_PIN
-#endif
-#if !PIN_EXISTS(E0_MS1)
-  #undef E0_MS1_PIN
-#endif
-#if !PIN_EXISTS(E0_MS2)
-  #undef E0_MS2_PIN
-#endif
-#if !PIN_EXISTS(E0_MS3)
-  #undef E0_MS3_PIN
-#endif
-#if !PIN_EXISTS(E1_MS1)
-  #undef E1_MS1_PIN
-#endif
-#if !PIN_EXISTS(E1_MS2)
-  #undef E1_MS2_PIN
-#endif
-#if !PIN_EXISTS(E1_MS3)
-  #undef E1_MS3_PIN
-#endif
-#if !PIN_EXISTS(E2_MS1)
-  #undef E2_MS1_PIN
-#endif
-#if !PIN_EXISTS(E2_MS2)
-  #undef E2_MS2_PIN
-#endif
-#if !PIN_EXISTS(E2_MS3)
-  #undef E2_MS3_PIN
-#endif
-#if !PIN_EXISTS(E3_MS1)
-  #undef E3_MS1_PIN
-#endif
-#if !PIN_EXISTS(E3_MS2)
-  #undef E3_MS2_PIN
-#endif
-#if !PIN_EXISTS(E3_MS3)
-  #undef E3_MS3_PIN
-#endif
-#if !PIN_EXISTS(E4_MS1)
-  #undef E4_MS1_PIN
-#endif
-#if !PIN_EXISTS(E4_MS2)
-  #undef E4_MS2_PIN
-#endif
-#if !PIN_EXISTS(E4_MS3)
-  #undef E4_MS3_PIN
-#endif
-#if !PIN_EXISTS(E5_MS1)
-  #undef E5_MS1_PIN
-#endif
-#if !PIN_EXISTS(E5_MS2)
-  #undef E5_MS2_PIN
-#endif
-#if !PIN_EXISTS(E5_MS3)
-  #undef E5_MS3_PIN
-#endif
-#if !PIN_EXISTS(E6_MS1)
-  #undef E6_MS1_PIN
-#endif
-#if !PIN_EXISTS(E6_MS2)
-  #undef E6_MS2_PIN
-#endif
-#if !PIN_EXISTS(E6_MS3)
-  #undef E6_MS3_PIN
-#endif
-#if !PIN_EXISTS(E7_MS1)
-  #undef E7_MS1_PIN
-#endif
-#if !PIN_EXISTS(E7_MS2)
-  #undef E7_MS2_PIN
-#endif
-#if !PIN_EXISTS(E7_MS3)
-  #undef E7_MS3_PIN
-#endif
-
-#if !PIN_EXISTS(E0_STEP)
-  #undef E0_STEP_PIN
-#endif
-#if !PIN_EXISTS(E0_DIR)
-  #undef E0_DIR_PIN
-#endif
-#if !PIN_EXISTS(E0_ENABLE)
-  #undef E0_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E1_STEP)
-  #undef E1_STEP_PIN
-#endif
-#if !PIN_EXISTS(E1_DIR)
-  #undef E1_DIR_PIN
-#endif
-#if !PIN_EXISTS(E1_ENABLE)
-  #undef E1_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E2_STEP)
-  #undef E2_STEP_PIN
-#endif
-#if !PIN_EXISTS(E2_DIR)
-  #undef E2_DIR_PIN
-#endif
-#if !PIN_EXISTS(E2_ENABLE)
-  #undef E2_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E3_STEP)
-  #undef E3_STEP_PIN
-#endif
-#if !PIN_EXISTS(E3_DIR)
-  #undef E3_DIR_PIN
-#endif
-#if !PIN_EXISTS(E3_ENABLE)
-  #undef E3_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E4_STEP)
-  #undef E4_STEP_PIN
-#endif
-#if !PIN_EXISTS(E4_DIR)
-  #undef E4_DIR_PIN
-#endif
-#if !PIN_EXISTS(E4_ENABLE)
-  #undef E4_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E5_STEP)
-  #undef E5_STEP_PIN
-#endif
-#if !PIN_EXISTS(E5_DIR)
-  #undef E5_DIR_PIN
-#endif
-#if !PIN_EXISTS(E5_ENABLE)
-  #undef E5_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E6_STEP)
-  #undef E6_STEP_PIN
-#endif
-#if !PIN_EXISTS(E6_DIR)
-  #undef E6_DIR_PIN
-#endif
-#if !PIN_EXISTS(E6_ENABLE)
-  #undef E6_ENABLE_PIN
-#endif
-#if !PIN_EXISTS(E7_STEP)
-  #undef E7_STEP_PIN
-#endif
-#if !PIN_EXISTS(E7_DIR)
-  #undef E7_DIR_PIN
-#endif
-#if !PIN_EXISTS(E7_ENABLE)
-  #undef E7_ENABLE_PIN
-#endif
-
-#if !PIN_EXISTS(X_CS)
-  #undef X_CS_PIN
-#endif
-#if !PIN_EXISTS(Y_CS)
-  #undef Y_CS_PIN
-#endif
-#if !PIN_EXISTS(Z_CS)
-  #undef Z_CS_PIN
-#endif
-#if !PIN_EXISTS(E0_CS)
-  #undef E0_CS_PIN
-#endif
-#if !PIN_EXISTS(E1_CS)
-  #undef E1_CS_PIN
-#endif
-#if !PIN_EXISTS(E2_CS)
-  #undef E2_CS_PIN
-#endif
-#if !PIN_EXISTS(E3_CS)
-  #undef E3_CS_PIN
-#endif
-#if !PIN_EXISTS(E4_CS)
-  #undef E4_CS_PIN
-#endif
-#if !PIN_EXISTS(E5_CS)
-  #undef E5_CS_PIN
-#endif
-#if !PIN_EXISTS(E6_CS)
-  #undef E6_CS_PIN
-#endif
-#if !PIN_EXISTS(E7_CS)
-  #undef E7_CS_PIN
-#endif
-
-#if !PIN_EXISTS(FAN)
-  #undef FAN_PIN
-#endif
-#define FAN0_PIN FAN_PIN
-#if !PIN_EXISTS(FAN1)
-  #undef FAN1_PIN
-#endif
-#if !PIN_EXISTS(FAN2)
-  #undef FAN2_PIN
-#endif
-#if !PIN_EXISTS(FAN3)
-  #undef FAN3_PIN
-#endif
-#if !PIN_EXISTS(FAN4)
-  #undef FAN4_PIN
-#endif
-#if !PIN_EXISTS(FAN5)
-  #undef FAN5_PIN
-#endif
-#if !PIN_EXISTS(FAN6)
-  #undef FAN6_PIN
-#endif
-#if !PIN_EXISTS(FAN7)
-  #undef FAN7_PIN
-#endif
-#if !PIN_EXISTS(CONTROLLER_FAN)
-  #undef CONTROLLER_FAN_PIN
-#endif
-
-#if !PIN_EXISTS(FANMUX0)
-  #undef FANMUX0_PIN
-#endif
-#if !PIN_EXISTS(FANMUX1)
-  #undef FANMUX1_PIN
-#endif
-#if !PIN_EXISTS(FANMUX2)
-  #undef FANMUX2_PIN
-#endif
-
-#if !PIN_EXISTS(HEATER_0)
-  #undef HEATER_0_PIN
-#endif
-#if !PIN_EXISTS(HEATER_1)
-  #undef HEATER_1_PIN
-#endif
-#if !PIN_EXISTS(HEATER_2)
-  #undef HEATER_2_PIN
-#endif
-#if !PIN_EXISTS(HEATER_3)
-  #undef HEATER_3_PIN
-#endif
-#if !PIN_EXISTS(HEATER_4)
-  #undef HEATER_4_PIN
-#endif
-#if !PIN_EXISTS(HEATER_5)
-  #undef HEATER_5_PIN
-#endif
-#if !PIN_EXISTS(HEATER_6)
-  #undef HEATER_6_PIN
-#endif
-#if !PIN_EXISTS(HEATER_7)
-  #undef HEATER_7_PIN
-#endif
-#if !PIN_EXISTS(HEATER_BED)
-  #undef HEATER_BED_PIN
-#endif
-
-#if !PIN_EXISTS(TEMP_0)
-  #undef TEMP_0_PIN
-#endif
-#if !PIN_EXISTS(TEMP_1)
-  #undef TEMP_1_PIN
-#endif
-#if !PIN_EXISTS(TEMP_2)
-  #undef TEMP_2_PIN
-#endif
-#if !PIN_EXISTS(TEMP_3)
-  #undef TEMP_3_PIN
-#endif
-#if !PIN_EXISTS(TEMP_4)
-  #undef TEMP_4_PIN
-#endif
-#if !PIN_EXISTS(TEMP_5)
-  #undef TEMP_5_PIN
-#endif
-#if !PIN_EXISTS(TEMP_6)
-  #undef TEMP_6_PIN
-#endif
-#if !PIN_EXISTS(TEMP_7)
-  #undef TEMP_7_PIN
-#endif
-#if !PIN_EXISTS(TEMP_BED)
-  #undef TEMP_BED_PIN
-#endif
-
-#if !PIN_EXISTS(SD_DETECT)
-  #undef SD_DETECT_PIN
-#endif
-#if !PIN_EXISTS(SDPOWER)
-  #undef SDPOWER_PIN
-#endif
-
 //
 // Analog Pin Assignments
 //
 
-#if defined(EXT_AUX_A0) && EXT_AUX_A0 >= 0 && EXT_AUX_A0 < NUM_ANALOG_INPUTS
+#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_PINS)
+
+#if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)
 #endif
-#if defined(EXT_AUX_A1) && EXT_AUX_A1 >= 0 && EXT_AUX_A1 < NUM_ANALOG_INPUTS
+#if defined(EXT_AUX_A1) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A1)
 #endif
-#if defined(EXT_AUX_A2) && EXT_AUX_A2 >= 0 && EXT_AUX_A2 < NUM_ANALOG_INPUTS
+#if defined(EXT_AUX_A2) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A2)
 #endif
-#if defined(EXT_AUX_A3) && EXT_AUX_A3 >= 0 && EXT_AUX_A3 < NUM_ANALOG_INPUTS
+#if defined(EXT_AUX_A3) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A3)
 #endif
-#if defined(EXT_AUX_A4) && EXT_AUX_A4 >= 0 && EXT_AUX_A4 < NUM_ANALOG_INPUTS
+#if defined(EXT_AUX_A4) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A4)
 #endif
-#if PIN_EXISTS(FILWIDTH) && FILWIDTH_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(FILWIDTH) && ANALOG_OK(FILWIDTH_PIN)
   REPORT_NAME_ANALOG(__LINE__, FILWIDTH_PIN)
 #endif
-#if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) && MAIN_VOLTAGE_MEASURE_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(MAIN_VOLTAGE_MEASURE) && ANALOG_OK(MAIN_VOLTAGE_MEASURE_PIN)
   REPORT_NAME_ANALOG(__LINE__, MAIN_VOLTAGE_MEASURE_PIN)
 #endif
-#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD)  //TC1 & TC2 are macros in the SAM/SAMD tool chain
-  #if defined(TC1) && TC1 >= 0 && TC1 < NUM_ANALOG_INPUTS
+#if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD)  // TC1 & TC2 are macros in the SAM/SAMD tool chain
+  #if defined(TC1) && ANALOG_OK(TC1)
     REPORT_NAME_ANALOG(__LINE__, TC1)
   #endif
-  #if defined(TC2) && TC2 >= 0 && TC2 < NUM_ANALOG_INPUTS
+  #if defined(TC2) && ANALOG_OK(TC1)
     REPORT_NAME_ANALOG(__LINE__, TC2)
   #endif
 #endif
-#if PIN_EXISTS(TEMP_0) && TEMP_0_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_0) && ANALOG_OK(TEMP_0_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_0_PIN)
 #endif
-#if PIN_EXISTS(TEMP_1) && TEMP_1_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_1) && ANALOG_OK(TEMP_1_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_1_PIN)
 #endif
-#if PIN_EXISTS(TEMP_2) && TEMP_2_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_2) && ANALOG_OK(TEMP_2_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_2_PIN)
 #endif
-#if PIN_EXISTS(TEMP_3) && TEMP_3_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_3) && ANALOG_OK(TEMP_3_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_3_PIN)
 #endif
-#if PIN_EXISTS(TEMP_4) && TEMP_4_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_4) && ANALOG_OK(TEMP_4_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_4_PIN)
 #endif
-#if PIN_EXISTS(TEMP_5) && TEMP_5_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_5) && ANALOG_OK(TEMP_5_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_5_PIN)
 #endif
-#if PIN_EXISTS(TEMP_6) && TEMP_6_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_6) && ANALOG_OK(TEMP_6_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_6_PIN)
 #endif
-#if PIN_EXISTS(TEMP_7) && TEMP_7_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_7) && ANALOG_OK(TEMP_7_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_7_PIN)
 #endif
-#if PIN_EXISTS(TEMP_BED) && TEMP_BED_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_BED) && ANALOG_OK(TEMP_BED_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_BED_PIN)
 #endif
-#if PIN_EXISTS(TEMP_CHAMBER) && TEMP_CHAMBER_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(TEMP_CHAMBER) && ANALOG_OK(TEMP_CHAMBER_PIN)
   REPORT_NAME_ANALOG(__LINE__, TEMP_CHAMBER_PIN)
 #endif
-#if PIN_EXISTS(ADC_KEYPAD) && ADC_KEYPAD_PIN < NUM_ANALOG_INPUTS
+#if PIN_EXISTS(ADC_KEYPAD) && ANALOG_OK(ADC_KEYPAD_PIN)
   REPORT_NAME_ANALOG(__LINE__, ADC_KEYPAD_PIN)
 #endif
 
