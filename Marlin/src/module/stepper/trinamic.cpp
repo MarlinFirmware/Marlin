@@ -68,14 +68,13 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #endif
 
 // Stepper objects of TMC2130/TMC2160/TMC2660/TMC5130/TMC5160 steppers used
-int findDriver(int driverType, int driverIndex)
-{
+int findDriver(const int driverType, const int driverIndex) {
   for (uint8_t i = 0; i < NUM_SPI_DEVICES; i++)
     if (IS_DEV_DRIVER(i) && TYPE_OF_DRIVER(i) == driverType && AXIS_OF_DRIVER(i) == driverIndex) return i;
-
-  //TODO: add some message to warn user the config is wrong.
+  // TODO: add some message to warn user the config is wrong.
   return -1;
 }
+
 #if AXIS_HAS_SPI(X)
   int xDev = findDriver(DRIVER_AXIS, 0);
   TMC_SPI_DEFINE(X, X, xDev);
@@ -134,11 +133,11 @@ int findDriver(int driverType, int driverIndex)
 #endif
 #if AXIS_HAS_SPI(E6)
   int e6Dev = findDriver(DRIVER_EXTRUDER, 6);
-  TMC_SPI_DEFINE_E(6);
+  TMC_SPI_DEFINE_E(6, e6Dev);
 #endif
 #if AXIS_HAS_SPI(E7)
   int e7Dev = findDriver(DRIVER_EXTRUDER, 7);
-  TMC_SPI_DEFINE_E(7);
+  TMC_SPI_DEFINE_E(7, e7Dev);
 #endif
 
 #ifndef TMC_BAUD_RATE

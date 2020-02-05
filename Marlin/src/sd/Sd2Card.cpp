@@ -604,12 +604,12 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiDevSend(dev_num, token); //token isn't included in CRC
 
   uint16_t crc = (
-    #if ENABLED(SD_CHECK_AND_RETRY) && defined(SPI_HAS_HW_CRC)
-      spiDevWriteCRC16(dev_num, (uint16_t*)src, 256);
-    #elif ENABLED(SD_CHECK_AND_RETRY)
-      CRC_CCITT(src, 512)
-    #else
+    #if DISABLED(SD_CHECK_AND_RETRY)
       0xFFFF
+    #elif defined(SPI_HAS_HW_CRC)
+      spiDevWriteCRC16(dev_num, (uint16_t*)src, 256);
+    #else
+      CRC_CCITT(src, 512)
     #endif
   );
 
@@ -620,7 +620,7 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiDevSend(dev_num, crc >> 8);
   spiDevSend(dev_num, crc & 0xFF);
 
-  //wait for reply. consider only bit 4-0
+  // Wait for reply. consider only bit 4-0
   millis_t wait_timeout = millis() + SD_WRITE_TIMEOUT;
   while ((status_ = (spiDevRec(dev_num) & DATA_RES_MASK)) == DATA_RES_MASK) if (ELAPSED(millis(), wait_timeout)) goto error;
 
