@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS BASE v1.4
+ * MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
