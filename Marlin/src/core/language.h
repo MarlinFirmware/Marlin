@@ -91,7 +91,9 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#define MARLIN_WEBSITE_URL "http://marlinfw.org"
+#ifndef MARLIN_WEBSITE_URL
+  #define MARLIN_WEBSITE_URL "http://marlinfw.org"
+#endif
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
