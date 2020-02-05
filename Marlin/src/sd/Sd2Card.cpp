@@ -34,7 +34,7 @@
 
 /* Enable FAST CRC computations - You can trade speed for FLASH space if
  * needed by disabling the following define */
-#define FAST_CRC 1
+#define FAST_CRC
 
 #include "Sd2Card.h"
 
@@ -43,7 +43,7 @@
 static bool crcSupported = false;
 
 #if ENABLED(SD_CHECK_AND_RETRY)
-  #ifdef FAST_CRC
+  #if ENABLED(FAST_CRC)
     static const uint8_t crctab7[] PROGMEM = {
       0x00,0x09,0x12,0x1B,0x24,0x2D,0x36,0x3F,0x48,0x41,0x5A,0x53,0x6C,0x65,0x7E,0x77,
       0x19,0x10,0x0B,0x02,0x3D,0x34,0x2F,0x26,0x51,0x58,0x43,0x4A,0x75,0x7C,0x67,0x6E,
@@ -115,11 +115,11 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
     //case CMD28: not handled at the moment
     //case CMD29: not handled at the moment
     case CMD12 : reply = R1b; break; //R1b = R1 + busy (any number of bytes until 0xFF)
-    case CMD13 : reply = R2;  break; //R2  = R1 + status (1 byte) status is checked outside 
+    case CMD13 : reply = R2;  break; //R2  = R1 + status (1 byte) status is checked outside
     case CMD58 :
     case ACMD41:
                  reply = R3;  break; //R3  = R1 + OCR/CSS (4 bytes) OCR/CSS is read outside
-    default    : reply = R1;  break; 
+    default    : reply = R1;  break;
   }
 
   do {
@@ -136,7 +136,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
       status_ = spiDevRec(dev_num);
     while ((status_ == 0xff) && (i++ < 3)); //wait 3 bytes, just to be sure
     //Here status_ contains R1
-  
+
     //check if R1 has crc error.
     if (status_ & 0b1000) {
       #ifdef TRACE_SD
@@ -167,7 +167,8 @@ bool Sd2Card::anyInserted() {
 }
 
 bool Sd2Card::isInserted(const uint8_t dev_num) {
-  return IS_DEV_SD(dev_num) && (SPI_Devices[dev_num][SPIDEV_SW] == NC || digitalRead(SPI_Devices[dev_num][SPIDEV_SW]) == SPI_Devices[dev_num][SPIDEV_DLV]);
+  return (IS_DEV_SD(dev_num) && (SPI_Devices[dev_num][SPIDEV_SW] == NC)
+    || digitalRead(SPI_Devices[dev_num][SPIDEV_SW]) == SPI_Devices[dev_num][SPIDEV_DLV]);
 }
 
 /**
@@ -389,7 +390,8 @@ bool Sd2Card::readData(uint8_t* dst) {
 }
 
 #if ENABLED(SD_CHECK_AND_RETRY) && !defined(SPI_HAS_HW_CRC)
-  #ifdef FAST_CRC
+  #if ENABLED(FAST_CRC)
+
     static const uint16_t crctab16[] PROGMEM = {
       0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
       0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -424,6 +426,7 @@ bool Sd2Card::readData(uint8_t* dst) {
       0xEF1F, 0xFF3E, 0xCF5D, 0xDF7C, 0xAF9B, 0xBFBA, 0x8FD9, 0x9FF8,
       0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
     };
+
     // faster CRC-CCITT
     // uses the x^16,x^12,x^5,x^1 polynomial.
     static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
@@ -433,7 +436,9 @@ bool Sd2Card::readData(uint8_t* dst) {
 
       return crc;
     }
+
   #else
+
     // slower CRC-CCITT
     // uses the x^16,x^12,x^5,x^1 polynomial.
     static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
@@ -447,6 +452,7 @@ bool Sd2Card::readData(uint8_t* dst) {
       }
       return crc;
     }
+
   #endif
 #endif // !SPI_HAS_HW_CRC && SD_CHECK_AND_RETRY
 
@@ -597,18 +603,19 @@ bool Sd2Card::writeData(const uint8_t* src) {
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
   spiDevSend(dev_num, token); //token isn't included in CRC
 
-  uint16_t crc =
-#if defined(SPI_HAS_HW_CRC) && ENABLED(SD_CHECK_AND_RETRY)
-  spiDevWriteCRC16(dev_num, (uint16_t*)src, 256);
-#else
-  #if ENABLED(SD_CHECK_AND_RETRY)
-    CRC_CCITT(src, 512)
-  #else
-    0xFFFF
+  uint16_t crc = (
+    #if ENABLED(SD_CHECK_AND_RETRY) && defined(SPI_HAS_HW_CRC)
+      spiDevWriteCRC16(dev_num, (uint16_t*)src, 256);
+    #elif ENABLED(SD_CHECK_AND_RETRY)
+      CRC_CCITT(src, 512)
+    #else
+      0xFFFF
+    #endif
+  );
+
+  #if DISABLED(SD_CHECK_AND_RETRY) || !defined(SPI_HAS_HW_CRC)
+    spiDevWrite(dev_num, src, 512);
   #endif
-  ;
-  spiDevWrite(dev_num, src, 512);
-#endif
 
   spiDevSend(dev_num, crc >> 8);
   spiDevSend(dev_num, crc & 0xFF);
@@ -666,4 +673,4 @@ bool Sd2Card::writeStop() {
   return success;
 }
 
-#endif // SDSUPPORT
+#endif // SDSUPPORT && !USB_FLASH_DRIVE_SUPPORT && !SDIO_SUPPORT

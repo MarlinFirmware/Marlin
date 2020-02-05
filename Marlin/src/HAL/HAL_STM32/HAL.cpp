@@ -68,12 +68,12 @@ void HAL_init() {
   FastIO_init();
 
   #if ENABLED(SDSUPPORT)
-    //this is done temporarily (to avoid that some device on the bus tries to become the master)
-    //when the spi device is initialized it's done again.
+    // Temporary measure to prevent devices on the bus trying to become master.
+    // This will be done again when the SPI device is initialized.
     for (uint8_t dev = 0; dev < NUM_SPI_DEVICES; dev++) {
-      OUT_WRITE(CS_OF_DEV(dev), HIGH); //Set ChipSelect PIN high (inactive) before any other SPI users start up
-      if (IS_DEV_SD(dev) && SW_OF_SD(dev) != NC) //if it's an SD card and has a real switch set the pin as input
-          _SET_MODE(SW_OF_SD(dev), DLV_OF_SD(dev) == LOW ? INPUT_PULLUP : INPUT_PULLDOWN); //with the appropriate pull
+      OUT_WRITE(CS_OF_DEV(dev), HIGH);                                                      // Set CS HIGH (inactive) before other SPI users start.
+      if (IS_DEV_SD(dev) && SW_OF_SD(dev) != NC)                                            // For an SD card with a real switch, set the pin as input
+        _SET_MODE(SW_OF_SD(dev), DLV_OF_SD(dev) == LOW ? INPUT_PULLUP : INPUT_PULLDOWN);    // with the appropriate pull.
     }
   #endif
 
@@ -82,15 +82,15 @@ void HAL_init() {
   #endif
 
   #if ENABLED(SRAM_EEPROM_EMULATION)
-  // Enable access to backup SRAM
-  __HAL_RCC_PWR_CLK_ENABLE();
-  HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_BKPSRAM_CLK_ENABLE();
+    // Enable access to backup SRAM
+    __HAL_RCC_PWR_CLK_ENABLE();
+    HAL_PWR_EnableBkUpAccess();
+    __HAL_RCC_BKPSRAM_CLK_ENABLE();
 
-  // Enable backup regulator
-  LL_PWR_EnableBkUpRegulator();
-  // Wait until backup regulator is initialized
-  while (!LL_PWR_IsActiveFlag_BRR());
+    // Enable backup regulator
+    LL_PWR_EnableBkUpRegulator();
+    // Wait until backup regulator is initialized
+    while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
 
   #if TMC_HAS_SW_SERIAL

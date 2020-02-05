@@ -105,6 +105,7 @@ int findDriver(int driverType, int driverIndex)
   TMC_SPI_DEFINE(Z3, Z, z3Dev);
 #endif
 #if AXIS_HAS_SPI(Z4)
+  int z4Dev = findDriver(DRIVER_AXIS, 32);
   TMC_SPI_DEFINE(Z4, Z);
 #endif
 #if AXIS_HAS_SPI(E0)
@@ -132,9 +133,11 @@ int findDriver(int driverType, int driverIndex)
   TMC_SPI_DEFINE_E(5, e5Dev);
 #endif
 #if AXIS_HAS_SPI(E6)
+  int e6Dev = findDriver(DRIVER_EXTRUDER, 6);
   TMC_SPI_DEFINE_E(6);
 #endif
 #if AXIS_HAS_SPI(E7)
+  int e7Dev = findDriver(DRIVER_EXTRUDER, 7);
   TMC_SPI_DEFINE_E(7);
 #endif
 

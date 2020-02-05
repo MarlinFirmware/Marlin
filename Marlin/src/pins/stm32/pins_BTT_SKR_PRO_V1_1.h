@@ -199,7 +199,7 @@ const int SPI_Devices[][9] = {
   {DEVTYPE_EEPROM ,   2,      NC,      NC,      NC, SPI_FULL_SPEED,    PA15,              NC, NC} //optional external EEPROM on SPI3
 };
 
-#define NUM_SPI_DEVICES (sizeof(SPI_Devices) / sizeof(SPI_Devices[0])) //easier than defining it beforehand
+#define NUM_SPI_DEVICES COUNT(SPI_Devices)
 
 #ifndef SD_SEARCH_ORDER
   #define SD_SEARCH_ORDER { 1, 0, 2 }
