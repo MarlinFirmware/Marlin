@@ -526,10 +526,10 @@
   #include "stm32/pins_GENERIC_STM32F4.h"       // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
-#elif MB(AUS3D_RUMBA32)
-  #include "stm32/pins_AUS3D_RUMBA32.h"         // STM32F4                                env:rumba32_f446ve
-#elif MB(MKS_RUMBA32)
-  #include "stm32/pins_MKS_RUMBA32.h"           // STM32F4                                env:mks_rumba32
+#elif MB(RUMBA32_AUS3D)
+  #include "stm32/pins_RUMBA32_AUS3D.h"         // STM32F4                                env:rumba32_f446ve
+#elif MB(RUMBA32_MKS)
+  #include "stm32/pins_RUMBA32_MKS.h"           // STM32F4                                env:rumba32_mks
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)

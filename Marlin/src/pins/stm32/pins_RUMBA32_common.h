@@ -19,30 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-  /**
-  *  This file is for the Aus3D version of the RUMBA32 board.
-  *
-  *  https://aus3d.com.au/rumba32
-  *  https://github.com/Aus3D/RUMBA32
-  *
-  *  The MKS and Aus3D versions have the same pinout but the MKS version
-  *  has some added resistors and LEDs.  The resistors needed for the
-  *  TMC2208/9 UART interface are among the additions.  Also added were
-  *  connectors and resistors dedicated to the TMC2130 sensorless homing
-  *  interface.
-  */
-
 #pragma once
 
-#ifndef STM32F4
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA32 supports up to 3 hotends / E-steppers."
-#endif
+/**
+ * Common pin assignments for all RUMBA32 boards
+ */
 
 #define RUMBA32_V1_0
-#define BOARD_INFO_NAME      "Aus3D RUMBA32"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 //#define I2C_EEPROM
@@ -136,12 +119,25 @@
 //
 // LCD / Controller
 //
-#define LCD_PINS_RS        PE10
-#define LCD_PINS_ENABLE    PE9
-#define LCD_PINS_D4        PE12
-#define LCD_PINS_D5        PE13
-#define LCD_PINS_D6        PE14
-#define LCD_PINS_D7        PE15
-#define BTN_EN1            PB1
-#define BTN_EN2            PB2
-#define BTN_ENC            PE7
+#if HAS_SPI_LCD
+
+  #define BTN_EN1          PB2
+  #define BTN_EN2          PB1
+  #define BTN_ENC          PE7
+
+  #define LCD_PINS_RS      PE10
+  #define LCD_PINS_ENABLE  PE9
+  #define LCD_PINS_D4      PE12
+
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS      PE13
+    #define DOGLCD_A0      PE14
+  #endif
+
+  #if ENABLED(ULTIPANEL)
+    #define LCD_PINS_D5    PE13
+    #define LCD_PINS_D6    PE14
+    #define LCD_PINS_D7    PE15
+  #endif
+
+#endif
