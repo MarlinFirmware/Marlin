@@ -529,11 +529,11 @@ void Endstops::update() {
   // With Dual X, endstops are only checked in the homing direction for the active extruder
   #if ENABLED(DUAL_X_CARRIAGE)
     #define E0_ACTIVE stepper.movement_extruder() == 0
-    #define X_MIN_TEST ((X_HOME_DIR < 0 && E0_ACTIVE) || (X2_HOME_DIR < 0 && !E0_ACTIVE))
-    #define X_MAX_TEST ((X_HOME_DIR > 0 && E0_ACTIVE) || (X2_HOME_DIR > 0 && !E0_ACTIVE))
+    #define X_MIN_TEST() ((X_HOME_DIR < 0 && E0_ACTIVE) || (X2_HOME_DIR < 0 && !E0_ACTIVE))
+    #define X_MAX_TEST() ((X_HOME_DIR > 0 && E0_ACTIVE) || (X2_HOME_DIR > 0 && !E0_ACTIVE))
   #else
-    #define X_MIN_TEST true
-    #define X_MAX_TEST true
+    #define X_MIN_TEST() true
+    #define X_MAX_TEST() true
   #endif
 
   // Use HEAD for core axes, AXIS for others
@@ -728,6 +728,28 @@ void Endstops::update() {
     } \
   }while(0)
 
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    #define PROCESS_ENDSTOP_X(MINMAX) PROCESS_DUAL_ENDSTOP(X, MINMAX)
+  #else
+    #define PROCESS_ENDSTOP_X(MINMAX) if (X_##MINMAX##_TEST()) PROCESS_ENDSTOP(X, MINMAX)
+  #endif
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #define PROCESS_ENDSTOP_Y(MINMAX) PROCESS_DUAL_ENDSTOP(Y, MINMAX)
+  #else
+    #define PROCESS_ENDSTOP_Y(MINMAX) PROCESS_ENDSTOP(Y, MINMAX)
+  #endif
+
+  #if DISABLED(Z_MULTI_ENDSTOPS)
+    #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_ENDSTOP(Z, MINMAX)
+  #elif NUM_Z_STEPPER_DRIVERS == 4
+    #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_QUAD_ENDSTOP(Z, MINMAX)
+  #elif NUM_Z_STEPPER_DRIVERS == 3
+    #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_TRIPLE_ENDSTOP(Z, MINMAX)
+  #else
+    #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
+  #endif
+
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     #if ENABLED(G38_PROBE_AWAY)
       #define _G38_OPEN_STATE (G38_move >= 4)
@@ -747,20 +769,12 @@ void Endstops::update() {
   if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
-        #if ENABLED(X_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(X, MIN);
-        #else
-          if (X_MIN_TEST) PROCESS_ENDSTOP(X, MIN);
-        #endif
+        PROCESS_ENDSTOP_X(MIN);
       #endif
     }
     else { // +direction
       #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_DIR > 0)
-        #if ENABLED(X_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(X, MAX);
-        #else
-          if (X_MAX_TEST) PROCESS_ENDSTOP(X, MAX);
-        #endif
+        PROCESS_ENDSTOP_X(MAX);
       #endif
     }
   }
@@ -768,46 +782,27 @@ void Endstops::update() {
   if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_DIR < 0)
-        #if ENABLED(Y_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(Y, MIN);
-        #else
-          PROCESS_ENDSTOP(Y, MIN);
-        #endif
+        PROCESS_ENDSTOP_Y(MIN);
       #endif
     }
     else { // +direction
       #if HAS_Y_MAX || (Y_SPI_SENSORLESS && Y_HOME_DIR > 0)
-        #if ENABLED(Y_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(Y, MAX);
-        #else
-          PROCESS_ENDSTOP(Y, MAX);
-        #endif
+        PROCESS_ENDSTOP_Y(MAX);
       #endif
     }
   }
 
   if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
+
       #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_DIR < 0)
-        if (
+        if (true
           #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-             z_probe_enabled
+            && z_probe_enabled
           #elif HAS_CUSTOM_PROBE_PIN
-            !z_probe_enabled
-          #else
-            true
+            && !z_probe_enabled
           #endif
-        ) {
-          #if DISABLED(Z_MULTI_ENDSTOPS)
-            PROCESS_ENDSTOP(Z, MIN);
-          #elif NUM_Z_STEPPER_DRIVERS == 4
-            PROCESS_QUAD_ENDSTOP(Z, MIN);
-          #elif NUM_Z_STEPPER_DRIVERS == 3
-            PROCESS_TRIPLE_ENDSTOP(Z, MIN);
-          #else
-            PROCESS_DUAL_ENDSTOP(Z, MIN);
-          #endif
-        }
+        ) PROCESS_ENDSTOP_Z(MIN);
       #endif
 
       // When closing the gap check the enabled probe
@@ -816,20 +811,12 @@ void Endstops::update() {
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
-      #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)
-        #if ENABLED(Z_MULTI_ENDSTOPS)
-          #if NUM_Z_STEPPER_DRIVERS == 4
-            PROCESS_QUAD_ENDSTOP(Z, MAX);
-          #elif NUM_Z_STEPPER_DRIVERS == 3
-            PROCESS_TRIPLE_ENDSTOP(Z, MAX);
-          #else
-            PROCESS_DUAL_ENDSTOP(Z, MAX);
-          #endif
-        #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN
-          // If this pin is not hijacked for the bed probe
-          // then it belongs to the Z endstop
-          PROCESS_ENDSTOP(Z, MAX);
-        #endif
+      #if (HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)) /* Real or sensorless exists, and... */ \
+        && (   ENABLED(Z_MULTI_ENDSTOPS)      /* ...multi-endstop, or... */ \
+            || !HAS_CUSTOM_PROBE_PIN          /* ...no probe, or probe uses the min pin... */ \
+            || Z_MAX_PIN != Z_MIN_PROBE_PIN   /* ...no probe, or probe not using the Z max pin. */ \
+      )
+        PROCESS_ENDSTOP_Z(MAX);
       #endif
     }
   }
