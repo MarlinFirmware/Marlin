@@ -811,12 +811,12 @@ void Endstops::update() {
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
-      #if (HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)) /* Real or sensorless exists, and... */ \
-        && (   ENABLED(Z_MULTI_ENDSTOPS)      /* ...multi-endstop, or... */ \
-            || !HAS_CUSTOM_PROBE_PIN          /* ...no probe, or probe uses the min pin... */ \
-            || Z_MAX_PIN != Z_MIN_PROBE_PIN   /* ...no probe, or probe not using the Z max pin. */ \
-      )
-        PROCESS_ENDSTOP_Z(MAX);
+      #if (HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0))
+        #if ENABLED(Z_MULTI_ENDSTOPS)
+          PROCESS_ENDSTOP_Z(MAX);
+        #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN  // No probe or probe is Z_MIN || Probe is not Z_MAX
+          PROCESS_ENDSTOP(Z, MAX);
+        #endif
       #endif
     }
   }
