@@ -690,7 +690,7 @@ void Endstops::update() {
   #define _ENDSTOP_HIT(AXIS, MINMAX) SBI(hit_state, _ENDSTOP(AXIS, MINMAX))
 
   // Call the endstop triggered routine for single endstops
-  #define PROCESS_ENDSTOP(MINMAX, AXIS) do { \
+  #define PROCESS_ENDSTOP(AXIS, MINMAX) do { \
     if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
       _ENDSTOP_HIT(AXIS, MINMAX); \
       planner.endstop_triggered(_AXIS(AXIS)); \
@@ -698,33 +698,33 @@ void Endstops::update() {
   }while(0)
 
   // Call the endstop triggered routine for dual endstops
-  #define PROCESS_DUAL_ENDSTOP(MINMAX, AXIS1, AXIS2) do { \
-    const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1); \
+  #define PROCESS_DUAL_ENDSTOP(A, MINMAX) do { \
+    const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1); \
     if (dual_hit) { \
-      _ENDSTOP_HIT(AXIS1, MINMAX); \
+      _ENDSTOP_HIT(A, MINMAX); \
       /* if not performing home or if both endstops were trigged during homing... */ \
       if (!stepper.separate_multi_axis || dual_hit == 0b11) \
-        planner.endstop_triggered(_AXIS(AXIS1)); \
+        planner.endstop_triggered(_AXIS(A)); \
     } \
   }while(0)
 
-  #define PROCESS_TRIPLE_ENDSTOP(MINMAX, AXIS1, AXIS2, AXIS3) do { \
-    const byte triple_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(AXIS3, MINMAX)) << 2); \
+  #define PROCESS_TRIPLE_ENDSTOP(A, MINMAX) do { \
+    const byte triple_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(A##3, MINMAX)) << 2); \
     if (triple_hit) { \
-      _ENDSTOP_HIT(AXIS1, MINMAX); \
+      _ENDSTOP_HIT(A, MINMAX); \
       /* if not performing home or if both endstops were trigged during homing... */ \
       if (!stepper.separate_multi_axis || triple_hit == 0b111) \
-        planner.endstop_triggered(_AXIS(AXIS1)); \
+        planner.endstop_triggered(_AXIS(A)); \
     } \
   }while(0)
 
-  #define PROCESS_QUAD_ENDSTOP(MINMAX, AXIS1, AXIS2, AXIS3, AXIS4) do { \
-    const byte quad_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(AXIS3, MINMAX)) << 2) | (TEST_ENDSTOP(_ENDSTOP(AXIS4, MINMAX)) << 3); \
+  #define PROCESS_QUAD_ENDSTOP(A, MINMAX) do { \
+    const byte quad_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(A##3, MINMAX)) << 2) | (TEST_ENDSTOP(_ENDSTOP(A##4, MINMAX)) << 3); \
     if (quad_hit) { \
-      _ENDSTOP_HIT(AXIS1, MINMAX); \
+      _ENDSTOP_HIT(A, MINMAX); \
       /* if not performing home or if both endstops were trigged during homing... */ \
       if (!stepper.separate_multi_axis || quad_hit == 0b1111) \
-        planner.endstop_triggered(_AXIS(AXIS1)); \
+        planner.endstop_triggered(_AXIS(A)); \
     } \
   }while(0)
 
@@ -748,18 +748,18 @@ void Endstops::update() {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(MIN, X, X2);
+          PROCESS_DUAL_ENDSTOP(X, MIN);
         #else
-          if (X_MIN_TEST) PROCESS_ENDSTOP(MIN, X);
+          if (X_MIN_TEST) PROCESS_ENDSTOP(X, MIN);
         #endif
       #endif
     }
     else { // +direction
       #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_DIR > 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(MAX, X, X2);
+          PROCESS_DUAL_ENDSTOP(X, MAX);
         #else
-          if (X_MAX_TEST) PROCESS_ENDSTOP(MAX, X);
+          if (X_MAX_TEST) PROCESS_ENDSTOP(X, MAX);
         #endif
       #endif
     }
@@ -769,18 +769,18 @@ void Endstops::update() {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_DIR < 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(MIN, Y, Y2);
+          PROCESS_DUAL_ENDSTOP(Y, MIN);
         #else
-          PROCESS_ENDSTOP(MIN, Y);
+          PROCESS_ENDSTOP(Y, MIN);
         #endif
       #endif
     }
     else { // +direction
       #if HAS_Y_MAX || (Y_SPI_SENSORLESS && Y_HOME_DIR > 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(MAX, Y, Y2);
+          PROCESS_DUAL_ENDSTOP(Y, MAX);
         #else
-          PROCESS_ENDSTOP(MAX, Y);
+          PROCESS_ENDSTOP(Y, MAX);
         #endif
       #endif
     }
@@ -799,36 +799,36 @@ void Endstops::update() {
           #endif
         ) {
           #if DISABLED(Z_MULTI_ENDSTOPS)
-            PROCESS_ENDSTOP(MIN, Z);
+            PROCESS_ENDSTOP(Z, MIN);
           #elif NUM_Z_STEPPER_DRIVERS == 4
-            PROCESS_QUAD_ENDSTOP(MIN, Z, Z2, Z3, Z4);
+            PROCESS_QUAD_ENDSTOP(Z, MIN);
           #elif NUM_Z_STEPPER_DRIVERS == 3
-            PROCESS_TRIPLE_ENDSTOP(MIN, Z, Z2, Z3);
+            PROCESS_TRIPLE_ENDSTOP(Z, MIN);
           #else
-            PROCESS_DUAL_ENDSTOP(MIN, Z, Z2);
+            PROCESS_DUAL_ENDSTOP(Z, MIN);
           #endif
         }
       #endif
 
       // When closing the gap check the enabled probe
       #if HAS_CUSTOM_PROBE_PIN
-        if (z_probe_enabled) PROCESS_ENDSTOP(MIN_PROBE, Z);
+        if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
       #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)
         #if ENABLED(Z_MULTI_ENDSTOPS)
           #if NUM_Z_STEPPER_DRIVERS == 4
-            PROCESS_QUAD_ENDSTOP(MAX, Z, Z2, Z3, Z4);
+            PROCESS_QUAD_ENDSTOP(Z, MAX);
           #elif NUM_Z_STEPPER_DRIVERS == 3
-            PROCESS_TRIPLE_ENDSTOP(MAX, Z, Z2, Z3);
+            PROCESS_TRIPLE_ENDSTOP(Z, MAX);
           #else
-            PROCESS_DUAL_ENDSTOP(MAX, Z, Z2);
+            PROCESS_DUAL_ENDSTOP(Z, MAX);
           #endif
         #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN
           // If this pin is not hijacked for the bed probe
           // then it belongs to the Z endstop
-          PROCESS_ENDSTOP(MAX, Z);
+          PROCESS_ENDSTOP(Z, MAX);
         #endif
       #endif
     }
