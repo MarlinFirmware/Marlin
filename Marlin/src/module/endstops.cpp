@@ -791,11 +791,29 @@ void Endstops::update() {
       #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_DIR < 0)
         #if ENABLED(Z_MULTI_ENDSTOPS)
           #if NUM_Z_STEPPER_DRIVERS == 4
-            PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
+			#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+              if (z_probe_enabled) PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
+            #elif HAS_CUSTOM_PROBE_PIN
+              if (!z_probe_enabled) PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
+            #else
+              PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
+            #endif            
           #elif NUM_Z_STEPPER_DRIVERS == 3
-            PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
+			#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+              if (z_probe_enabled) PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
+            #elif HAS_CUSTOM_PROBE_PIN
+              if (!z_probe_enabled) PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
+            #else
+              PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
+            #endif
           #else
-            PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
+		    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+              if (z_probe_enabled) PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
+            #elif HAS_CUSTOM_PROBE_PIN
+              if (!z_probe_enabled) PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
+            #else
+              PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
+            #endif
           #endif
         #else
           #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
