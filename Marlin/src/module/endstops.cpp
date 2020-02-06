@@ -690,7 +690,7 @@ void Endstops::update() {
   #define _ENDSTOP_HIT(AXIS, MINMAX) SBI(hit_state, _ENDSTOP(AXIS, MINMAX))
 
   // Call the endstop triggered routine for single endstops
-  #define PROCESS_ENDSTOP(AXIS,MINMAX) do { \
+  #define PROCESS_ENDSTOP(MINMAX, AXIS) do { \
     if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
       _ENDSTOP_HIT(AXIS, MINMAX); \
       planner.endstop_triggered(_AXIS(AXIS)); \
@@ -698,7 +698,7 @@ void Endstops::update() {
   }while(0)
 
   // Call the endstop triggered routine for dual endstops
-  #define PROCESS_DUAL_ENDSTOP(AXIS1, AXIS2, MINMAX) do { \
+  #define PROCESS_DUAL_ENDSTOP(MINMAX, AXIS1, AXIS2) do { \
     const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1); \
     if (dual_hit) { \
       _ENDSTOP_HIT(AXIS1, MINMAX); \
@@ -708,7 +708,7 @@ void Endstops::update() {
     } \
   }while(0)
 
-  #define PROCESS_TRIPLE_ENDSTOP(AXIS1, AXIS2, AXIS3, MINMAX) do { \
+  #define PROCESS_TRIPLE_ENDSTOP(MINMAX, AXIS1, AXIS2, AXIS3) do { \
     const byte triple_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(AXIS3, MINMAX)) << 2); \
     if (triple_hit) { \
       _ENDSTOP_HIT(AXIS1, MINMAX); \
@@ -718,7 +718,7 @@ void Endstops::update() {
     } \
   }while(0)
 
-  #define PROCESS_QUAD_ENDSTOP(AXIS1, AXIS2, AXIS3, AXIS4, MINMAX) do { \
+  #define PROCESS_QUAD_ENDSTOP(MINMAX, AXIS1, AXIS2, AXIS3, AXIS4) do { \
     const byte quad_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(AXIS3, MINMAX)) << 2) | (TEST_ENDSTOP(_ENDSTOP(AXIS4, MINMAX)) << 3); \
     if (quad_hit) { \
       _ENDSTOP_HIT(AXIS1, MINMAX); \
@@ -748,18 +748,18 @@ void Endstops::update() {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(X, X2, MIN);
+          PROCESS_DUAL_ENDSTOP(MIN, X, X2);
         #else
-          if (X_MIN_TEST) PROCESS_ENDSTOP(X, MIN);
+          if (X_MIN_TEST) PROCESS_ENDSTOP(MIN, X);
         #endif
       #endif
     }
     else { // +direction
       #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_DIR > 0)
         #if ENABLED(X_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(X, X2, MAX);
+          PROCESS_DUAL_ENDSTOP(MAX, X, X2);
         #else
-          if (X_MAX_TEST) PROCESS_ENDSTOP(X, MAX);
+          if (X_MAX_TEST) PROCESS_ENDSTOP(MAX, X);
         #endif
       #endif
     }
@@ -769,18 +769,18 @@ void Endstops::update() {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_DIR < 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(Y, Y2, MIN);
+          PROCESS_DUAL_ENDSTOP(MIN, Y, Y2);
         #else
-          PROCESS_ENDSTOP(Y, MIN);
+          PROCESS_ENDSTOP(MIN, Y);
         #endif
       #endif
     }
     else { // +direction
       #if HAS_Y_MAX || (Y_SPI_SENSORLESS && Y_HOME_DIR > 0)
         #if ENABLED(Y_DUAL_ENDSTOPS)
-          PROCESS_DUAL_ENDSTOP(Y, Y2, MAX);
+          PROCESS_DUAL_ENDSTOP(MAX, Y, Y2);
         #else
-          PROCESS_ENDSTOP(Y, MAX);
+          PROCESS_ENDSTOP(MAX, Y);
         #endif
       #endif
     }
@@ -789,62 +789,48 @@ void Endstops::update() {
   if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
       #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_DIR < 0)
-        #if ENABLED(Z_MULTI_ENDSTOPS)
-          #if NUM_Z_STEPPER_DRIVERS == 4
-			#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-              if (z_probe_enabled) PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
-            #elif HAS_CUSTOM_PROBE_PIN
-              if (!z_probe_enabled) PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
-            #else
-              PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MIN);
-            #endif            
-          #elif NUM_Z_STEPPER_DRIVERS == 3
-			#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-              if (z_probe_enabled) PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
-            #elif HAS_CUSTOM_PROBE_PIN
-              if (!z_probe_enabled) PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
-            #else
-              PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MIN);
-            #endif
-          #else
-		    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-              if (z_probe_enabled) PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
-            #elif HAS_CUSTOM_PROBE_PIN
-              if (!z_probe_enabled) PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
-            #else
-              PROCESS_DUAL_ENDSTOP(Z, Z2, MIN);
-            #endif
-          #endif
-        #else
+        if (
           #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-            if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
+             z_probe_enabled
           #elif HAS_CUSTOM_PROBE_PIN
-            if (!z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
+            !z_probe_enabled
           #else
-            PROCESS_ENDSTOP(Z, MIN);
+            true
           #endif
-        #endif
+        ) {
+          #if ENABLED(Z_MULTI_ENDSTOPS)
+            #if NUM_Z_STEPPER_DRIVERS == 4
+              PROCESS_QUAD_ENDSTOP(MIN, Z, Z2, Z3, Z4);
+            #elif NUM_Z_STEPPER_DRIVERS == 3
+              PROCESS_TRIPLE_ENDSTOP(MIN, Z, Z2, Z3);
+            #else
+              PROCESS_DUAL_ENDSTOP(MIN, Z, Z2);
+            #endif
+          #else
+            PROCESS_ENDSTOP(MIN, Z);
+          #endif
+        }
       #endif
 
       // When closing the gap check the enabled probe
       #if HAS_CUSTOM_PROBE_PIN
-        if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
+        if (z_probe_enabled) PROCESS_ENDSTOP(MIN_PROBE, Z);
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
       #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)
         #if ENABLED(Z_MULTI_ENDSTOPS)
           #if NUM_Z_STEPPER_DRIVERS == 4
-            PROCESS_QUAD_ENDSTOP(Z, Z2, Z3, Z4, MAX);
+            PROCESS_QUAD_ENDSTOP(MAX, Z, Z2, Z3, Z4);
           #elif NUM_Z_STEPPER_DRIVERS == 3
-            PROCESS_TRIPLE_ENDSTOP(Z, Z2, Z3, MAX);
+            PROCESS_TRIPLE_ENDSTOP(MAX, Z, Z2, Z3);
           #else
-            PROCESS_DUAL_ENDSTOP(Z, Z2, MAX);
+            PROCESS_DUAL_ENDSTOP(MAX, Z, Z2);
           #endif
         #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN
           // If this pin is not hijacked for the bed probe
           // then it belongs to the Z endstop
-          PROCESS_ENDSTOP(Z, MAX);
+          PROCESS_ENDSTOP(MAX, Z);
         #endif
       #endif
     }
