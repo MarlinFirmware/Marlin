@@ -121,7 +121,6 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         #endif
       }
     #endif
-
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC::sgt(); }
       void homing_threshold(int16_t sgt_val) {
