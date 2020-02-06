@@ -25,6 +25,12 @@
  * Common pin assignments for all RUMBA32 boards
  */
 
+#ifndef STM32F4
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#elif HOTENDS > 3 || E_STEPPERS > 3
+  #error "RUMBA32 boards support up to 3 hotends / E-steppers."
+#endif
+
 #define RUMBA32_V1_0
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
