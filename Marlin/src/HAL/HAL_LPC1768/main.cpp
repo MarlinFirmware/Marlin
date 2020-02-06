@@ -136,15 +136,6 @@ void HAL_init() {
     #endif
   }
 
-  #if NUM_SERIAL > 0
-    MYSERIAL0.begin(BAUDRATE);
-    #if NUM_SERIAL > 1
-      MYSERIAL1.begin(BAUDRATE);
-    #endif
-    SERIAL_PRINTF("\n\necho:%s (%dMhz) Initialized\n", isLPC1769() ? "LPC1769" : "LPC1768", SystemCoreClock / 1000000);
-    SERIAL_FLUSHTX();
-  #endif
-
   HAL_timer_init();
 }
 
