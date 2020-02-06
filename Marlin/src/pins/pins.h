@@ -1184,7 +1184,7 @@
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
 #define __EDRV(p) E##p##_DRIVER_TYPE
-#define _EDRV(p) __EDRV(p,q)
+#define _EDRV(p) __EDRV(p)
 #define DIAG_REMAPPED(p,q) (PIN_EXISTS(q) && _EPIN(p##_E_INDEX, DIAG) == q##_PIN)
 
 // The X2 axis, if any, should be the next open extruder port

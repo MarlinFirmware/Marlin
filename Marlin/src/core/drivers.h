@@ -52,7 +52,7 @@
 #define _TMC5160_STANDALONE 0x5160B
 
 #define _DRIVER_ID(V) _CAT(_, V)
-#define _AXIS_DRIVER_TYPE(A,T) (_DRIVER_ID(A##_DRIVER_TYPE) == _CAT(_, T))
+#define _AXIS_DRIVER_TYPE(A,T) (_DRIVER_ID(A##_DRIVER_TYPE) == _DRIVER_ID(T))
 
 #define AXIS_DRIVER_TYPE_X(T) _AXIS_DRIVER_TYPE(X,T)
 #define AXIS_DRIVER_TYPE_Y(T) _AXIS_DRIVER_TYPE(Y,T)
@@ -148,6 +148,9 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
+#define AXIS_HAS_COOLSTEP(A)     (    AXIS_DRIVER_TYPE(A,TMC2130) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2209) )
+
 #define ANY_AXIS_HAS(T) (    AXIS_HAS_##T(X)  || AXIS_HAS_##T(X2) \
                           || AXIS_HAS_##T(Y)  || AXIS_HAS_##T(Y2) \
                           || AXIS_HAS_##T(Z)  || AXIS_HAS_##T(Z2) \
@@ -159,6 +162,7 @@
 
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)
+#define HAS_COOLSTEP       ANY_AXIS_HAS(COOLSTEP)
 #define TMC_HAS_SPI        ANY_AXIS_HAS(SPI)
 #define TMC_HAS_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
 
