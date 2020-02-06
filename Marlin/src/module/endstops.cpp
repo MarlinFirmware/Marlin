@@ -798,16 +798,14 @@ void Endstops::update() {
             true
           #endif
         ) {
-          #if ENABLED(Z_MULTI_ENDSTOPS)
-            #if NUM_Z_STEPPER_DRIVERS == 4
-              PROCESS_QUAD_ENDSTOP(MIN, Z, Z2, Z3, Z4);
-            #elif NUM_Z_STEPPER_DRIVERS == 3
-              PROCESS_TRIPLE_ENDSTOP(MIN, Z, Z2, Z3);
-            #else
-              PROCESS_DUAL_ENDSTOP(MIN, Z, Z2);
-            #endif
-          #else
+          #if DISABLED(Z_MULTI_ENDSTOPS)
             PROCESS_ENDSTOP(MIN, Z);
+          #elif NUM_Z_STEPPER_DRIVERS == 4
+            PROCESS_QUAD_ENDSTOP(MIN, Z, Z2, Z3, Z4);
+          #elif NUM_Z_STEPPER_DRIVERS == 3
+            PROCESS_TRIPLE_ENDSTOP(MIN, Z, Z2, Z3);
+          #else
+            PROCESS_DUAL_ENDSTOP(MIN, Z, Z2);
           #endif
         }
       #endif
