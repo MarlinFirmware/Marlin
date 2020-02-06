@@ -153,7 +153,7 @@
 //
 // Include common SKR pins
 //
-#include "pins_BTT_SKR.h"
+#include "pins_BTT_SKR_common.h"
 
 //
 // Software SPI pins for TMC2130 stepper drivers
