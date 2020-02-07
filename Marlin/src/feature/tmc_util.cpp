@@ -631,11 +631,10 @@
     }
 
     #if HAS_DRIVER(TMC2209)
-        static void _tmc_parse_drv_status(TMC2209Stepper &st, const TMC_drv_status_enum i) {
+      static void _tmc_parse_drv_status(TMC2209Stepper &st, const TMC_drv_status_enum i) {
         switch (i) {
-          case TMC_SG_RESULT:  SERIAL_PRINT(st.SG_RESULT(), DEC); break;
-          default: _tmc_parse_drv_status(static_cast<TMC2208Stepper &>(st), i);
-            break;
+          case TMC_SG_RESULT: SERIAL_PRINT(st.SG_RESULT(), DEC); break;
+          default:            _tmc_parse_drv_status(static_cast<TMC2208Stepper &>(st), i); break;
         }
       }
     #endif
