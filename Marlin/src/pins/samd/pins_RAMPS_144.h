@@ -67,23 +67,23 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         67
-#define X_DIR_PIN          68
+#define X_STEP_PIN         67     // Mega/Due:54 - AGCM4:67
+#define X_DIR_PIN          68     // Mega/Due:55 - AGCM4:68
 #define X_ENABLE_PIN       38
 #ifndef X_CS_PIN
   #define X_CS_PIN         47
 #endif
 
-#define Y_STEP_PIN         73
-#define Y_DIR_PIN          74
-#define Y_ENABLE_PIN       69
+#define Y_STEP_PIN         73     // Mega/Due:60 - AGCM4:73
+#define Y_DIR_PIN          74     // Mega/Due:61 - AGCM4:74
+#define Y_ENABLE_PIN       69     // Mega/Due:56 - AGCM4:69
 #ifndef Y_CS_PIN
   #define Y_CS_PIN         45
 #endif
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
-#define Z_ENABLE_PIN       54
+#define Z_ENABLE_PIN       54     // Mega/Due:62 - AGCM4:54
 #ifndef Z_CS_PIN
   #define Z_CS_PIN         32
 #endif
@@ -121,7 +121,7 @@
 //
 // Misc. Functions
 //
-//#define SDSS                ?53
+#define SDSS               53
 #define LED_PIN            13
 
 #ifndef FILWIDTH_PIN
@@ -161,13 +161,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    65
+    #define TMC_SW_MOSI    65     // Mega/Due:? - AGCM4:65
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    64
+    #define TMC_SW_MISO    64     // Mega/Due:? - AGCM4:64
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     66
+    #define TMC_SW_SCK     66     // Mega/Due:? - AGCM4:66
   #endif
 #endif
 
@@ -198,7 +198,7 @@
     #define X_SERIAL_TX_PIN  40
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN  55
+    #define X_SERIAL_RX_PIN  55     // Mega/Due:63 - AGCM4:55
   #endif
   #ifndef X2_SERIAL_TX_PIN
     #define X2_SERIAL_TX_PIN -1
@@ -208,10 +208,10 @@
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
-    #define Y_SERIAL_TX_PIN  72
+    #define Y_SERIAL_TX_PIN  72     // Mega/Due:59 - AGCM4:72
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN  56
+    #define Y_SERIAL_RX_PIN  56     // Mega/Due:64 - AGCM4:56
   #endif
   #ifndef Y2_SERIAL_TX_PIN
     #define Y2_SERIAL_TX_PIN -1
@@ -224,7 +224,7 @@
     #define Z_SERIAL_TX_PIN  42
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN  57
+    #define Z_SERIAL_RX_PIN  57     // Mega/Due:65 - AGCM4:57
   #endif
   #ifndef Z2_SERIAL_TX_PIN
     #define Z2_SERIAL_TX_PIN -1
@@ -237,7 +237,7 @@
     #define E0_SERIAL_TX_PIN 44
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN 58
+    #define E0_SERIAL_RX_PIN 58     // Mega/Due:66 - AGCM4:58
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN -1
@@ -304,10 +304,10 @@
     // TO TEST
     // #define LCD_PINS_RS         40
     // #define LCD_PINS_ENABLE     42
-    // #define LCD_PINS_D4         57
-    // #define LCD_PINS_D5         58
+    // #define LCD_PINS_D4         57     // Mega/Due:65 - AGCM4:57
+    // #define LCD_PINS_D5         58     // Mega/Due:66 - AGCM4:58
     // #define LCD_PINS_D6         44
-    // #define LCD_PINS_D7         56
+    // #define LCD_PINS_D7         56     // Mega/Due:64 - AGCM4:56
 
   #else
 
@@ -326,12 +326,12 @@
     #elif ENABLED(ZONESTAR_LCD)
 
       // TO TEST
-      // #define LCD_PINS_RS       56
+      // #define LCD_PINS_RS       56     // Mega/Due:64 - AGCM4:56
       // #define LCD_PINS_ENABLE   44
-      // #define LCD_PINS_D4       55
+      // #define LCD_PINS_D4       55     // Mega/Due:63 - AGCM4:55
       // #define LCD_PINS_D5       40
       // #define LCD_PINS_D6       42
-      // #define LCD_PINS_D7       57
+      // #define LCD_PINS_D7       57     // Mega/Due:65 - AGCM4:57
 
     #else
 
@@ -403,8 +403,8 @@
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       // TO TEST
-      // #define BTN_EN1           56
-      // #define BTN_EN2           72
+      // #define BTN_EN1           56     // Mega/Due:64 - AGCM4:56
+      // #define BTN_EN2           72     // Mega/Due:59 - AGCM4:72
       // #define BTN_ENC           55
       // #define SD_DETECT_PIN     42
 
@@ -486,7 +486,7 @@
         // #define LCD_SCREEN_ROT_270
 
         // not connected to a pin
-        // #define LCD_BACKLIGHT_PIN 57    // backlight LED on A11/D65
+        // #define LCD_BACKLIGHT_PIN 57    // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
 
         // #define BTN_EN1         31
         // #define BTN_EN2         33
@@ -532,10 +532,10 @@
       // TO TEST
       // #define BEEPER_PIN        42
       // not connected to a pin
-      // #define LCD_BACKLIGHT_PIN 57    // backlight LED on A11/D65
+      // #define LCD_BACKLIGHT_PIN 57    // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
 
       // #define DOGLCD_A0         44
-      // #define DOGLCD_CS         58
+      // #define DOGLCD_CS         58    // Mega/Due:66 - AGCM4:58
 
       // GLCD features
       // Uncomment screen orientation
@@ -544,11 +544,11 @@
       // #define LCD_SCREEN_ROT_270
 
       // #define BTN_EN1           40
-      // #define BTN_EN2           55
-      // #define BTN_ENC           72
+      // #define BTN_EN2           55    // Mega/Due:63 - AGCM4:55
+      // #define BTN_ENC           72    // Mega/Due:59 - AGCM4:72
 
       // #define SD_DETECT_PIN     49
-      // #define KILL_PIN          56
+      // #define KILL_PIN          56    // Mega/Due:64 - AGCM4:56
 
     #elif ENABLED(ZONESTAR_LCD)
 
@@ -570,13 +570,13 @@
         // #define SHIFT_OUT       40
         // #define SHIFT_CLK       44
         // #define SHIFT_LD        42
-        // #define BTN_EN1         56
-        // #define BTN_EN2         72
-        // #define BTN_ENC         55
+        // #define BTN_EN1         56    // Mega/Due:64 - AGCM4:56
+        // #define BTN_EN2         72    // Mega/Due:59 - AGCM4:72
+        // #define BTN_ENC         55    // Mega/Due:63 - AGCM4:55
       #elif ENABLED(PANEL_ONE)
         // TO TEST
-        // #define BTN_EN1         72    // AUX2 PIN 3
-        // #define BTN_EN2         55    // AUX2 PIN 4
+        // #define BTN_EN1         72    // AUX2 PIN 3 (Mega/Due:59 - AGCM4:72)
+        // #define BTN_EN2         55    // AUX2 PIN 4 (Mega/Due:63 - AGCM4:55)
         // #define BTN_ENC         49    // AUX3 PIN 7
       #else
         // TO TEST
