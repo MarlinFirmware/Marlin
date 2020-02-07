@@ -43,12 +43,15 @@
 #include "../../lcd/ultralcd.h"
 
 #define EXTRUSION_MULTIPLIER 1.0
-#define RETRACTION_MULTIPLIER 1.0
 #define PRIME_LENGTH 10.0
 #define OOZE_AMOUNT 0.3
 
 #define INTERSECTION_CIRCLE_RADIUS 5
 #define CROSSHAIRS_SIZE 3
+
+#ifndef G26_RETRACT_MULTIPLIER
+  #define G26_RETRACT_MULTIPLIER 1.0 // x 1mm
+#endif
 
 #ifndef G26_XY_FEEDRATE
   #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
@@ -509,7 +512,7 @@ void GcodeSuite::G26() {
   if (parser.seenval('T')) tool_change(parser.value_int());
 
   g26_extrusion_multiplier    = EXTRUSION_MULTIPLIER;
-  g26_retraction_multiplier   = RETRACTION_MULTIPLIER;
+  g26_retraction_multiplier   = G26_RETRACT_MULTIPLIER;
   g26_layer_height            = MESH_TEST_LAYER_HEIGHT;
   g26_prime_length            = PRIME_LENGTH;
   g26_bed_temp                = MESH_TEST_BED_TEMP;

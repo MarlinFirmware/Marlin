@@ -528,8 +528,10 @@
   #include "stm32/pins_GENERIC_STM32F4.h"       // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
-#elif MB(RUMBA32)
-  #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:rumba32_f446ve env:mks_rumba32
+#elif MB(RUMBA32_AUS3D)
+  #include "stm32/pins_RUMBA32_AUS3D.h"         // STM32F4                                env:rumba32_f446ve
+#elif MB(RUMBA32_MKS)
+  #include "stm32/pins_RUMBA32_MKS.h"           // STM32F4                                env:rumba32_mks
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
@@ -607,6 +609,7 @@
   #define BOARD_BIGTREE_SKR_MINI_V1_1   -1015
   #define BOARD_BIGTREE_SKR_MINI_E3     -1016
   #define BOARD_BIGTREE_SKR_E3_DIP      -1017
+  #define BOARD_RUMBA32                 -1018
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -646,6 +649,8 @@
     #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
   #elif MB(STEVAL)
     #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
+  #elif MB(RUMBA32)
+    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_AUS3D. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -668,6 +673,7 @@
   #undef BOARD_BIGTREE_SKR_PRO_V1_1
   #undef BOARD_BIGTREE_SKR_MINI_V1_1
   #undef BOARD_BIGTREE_SKR_E3_DIP
+  #undef BOARD_RUMBA32
 
 #endif
 
