@@ -149,16 +149,18 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
 #define AXIS_HAS_COOLSTEP(A)     (    AXIS_DRIVER_TYPE(A,TMC2130) \
-                                   || AXIS_DRIVER_TYPE(A,TMC2209) )
+                                   || AXIS_DRIVER_TYPE(A,TMC2209) \
+                                   || AXIS_DRIVER_TYPE(A,TMC5130) \
+                                   || AXIS_DRIVER_TYPE(A,TMC5160) )
+
+#define _OR_EAH(N,T)    || AXIS_HAS_##T(E##N)
+#define E_AXIS_HAS(T)   (0 RREPEAT2(E_STEPPERS, _OR_EAH, T))
 
 #define ANY_AXIS_HAS(T) (    AXIS_HAS_##T(X)  || AXIS_HAS_##T(X2) \
                           || AXIS_HAS_##T(Y)  || AXIS_HAS_##T(Y2) \
                           || AXIS_HAS_##T(Z)  || AXIS_HAS_##T(Z2) \
-                          || AXIS_HAS_##T(Z3) \
-                          || AXIS_HAS_##T(E0) || AXIS_HAS_##T(E1) \
-                          || AXIS_HAS_##T(E2) || AXIS_HAS_##T(E3) \
-                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) \
-                          || AXIS_HAS_##T(E6) || AXIS_HAS_##T(E7) )
+                          || AXIS_HAS_##T(Z3) || AXIS_HAS_##T(Z4) \
+                          || E_AXIS_HAS(T) )
 
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)

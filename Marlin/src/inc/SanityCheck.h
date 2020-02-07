@@ -2044,7 +2044,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Make sure CoolStep settings exist
  */
 #if HAS_COOLSTEP
-  #define NEEDS_COOLSTEP(A) AXIS_HAS_COOLSTEP(A) && !(defined(X_COOLSTEP_SPEED_THRESHOLD) && defined(X_COOLSTEP_LOWER_LOAD_THRESHOLD) && defined(X_COOLSTEP_UPPER_LOAD_THRESHOLD) && defined(X_COOLSTEP_SEUP) && defined(X_COOLSTEP_SEDN) && defined(X_COOLSTEP_SEIMIN))
+  #define NEEDS_COOLSTEP(A) AXIS_HAS_COOLSTEP(A) && !(defined(A##_COOLSTEP_SPEED_THRESHOLD) && defined(A##_COOLSTEP_LOWER_LOAD_THRESHOLD) && defined(A##_COOLSTEP_UPPER_LOAD_THRESHOLD) && defined(A##_COOLSTEP_SEUP) && defined(A##_COOLSTEP_SEDN) && defined(A##_COOLSTEP_SEIMIN))
   #if NEEDS_COOLSTEP(X)
     #error "X COOLSTEP settings must be defined in Configuration_adv.h."
   #endif

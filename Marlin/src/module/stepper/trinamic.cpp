@@ -42,8 +42,8 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #define _TMC_INIT_TMC2660(ST, STEALTH_INDEX) _TMC_INIT_1(ST, STEALTH_INDEX)
 #define _TMC_INIT_TMC2160(ST, STEALTH_INDEX) _TMC_INIT_2(ST, STEALTH_INDEX)
 #define _TMC_INIT_TMC2208(ST, STEALTH_INDEX) _TMC_INIT_2(ST, STEALTH_INDEX)
-#define _TMC_INIT_TMC5130(ST, STEALTH_INDEX) _TMC_INIT_2(ST, STEALTH_INDEX)
-#define _TMC_INIT_TMC5160(ST, STEALTH_INDEX) _TMC_INIT_2(ST, STEALTH_INDEX)
+#define _TMC_INIT_TMC5130(ST, STEALTH_INDEX) _TMC_INIT_3(ST, STEALTH_INDEX)
+#define _TMC_INIT_TMC5160(ST, STEALTH_INDEX) _TMC_INIT_3(ST, STEALTH_INDEX)
 #define _TMC_INIT_TMC2130(ST, STEALTH_INDEX) _TMC_INIT_3(ST, STEALTH_INDEX)
 #define _TMC_INIT_TMC2209(ST, STEALTH_INDEX) _TMC_INIT_3(ST, STEALTH_INDEX)
 #define __TMC_INIT(DRV, ST, STEALTH_INDEX) _TMC_INIT_##DRV(ST, STEALTH_INDEX)
@@ -638,7 +638,13 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     const uint16_t mA,
     const uint16_t microsteps,
     const bool stealth,
-    const uint32_t hyb_thrs
+    const uint32_t hyb_thrs,
+    const uint32_t cool_thrs,
+    const uint8_t cool_semin,
+    const uint8_t cool_semax,
+    const uint8_t cool_seup,
+    const uint8_t cool_sedn,
+    const bool cool_seimin
   ) {
     st.begin();
 
@@ -674,6 +680,15 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
       UNUSED(hyb_thrs);
     #endif
 
+    st.set_cool_thrs(cool_thrs);  // (mm/s)
+    COOLCONF_t coolconf{0};
+    coolconf.semin = cool_semin;
+    coolconf.semax = cool_semax;
+    coolconf.seup = cool_seup;
+    coolconf.sedn = cool_sedn;
+    coolconf.seimin = cool_seimin;
+    st.COOLCONF(coolconf.sr);
+
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC5130
@@ -685,7 +700,13 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     const uint16_t mA,
     const uint16_t microsteps,
     const bool stealth,
-    const uint32_t hyb_thrs
+    const uint32_t hyb_thrs,
+    const uint32_t cool_thrs,
+    const uint8_t cool_semin,
+    const uint8_t cool_semax,
+    const uint8_t cool_seup,
+    const uint8_t cool_sedn,
+    const bool cool_seimin
   ) {
     st.begin();
 
@@ -723,6 +744,16 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     #else
       UNUSED(hyb_thrs);
     #endif
+
+    st.set_cool_thrs(cool_thrs);  // (mm/s)
+    COOLCONF_t coolconf{0};
+    coolconf.semin = cool_semin;
+    coolconf.semax = cool_semax;
+    coolconf.seup = cool_seup;
+    coolconf.sedn = cool_sedn;
+    coolconf.seimin = cool_seimin;
+    st.COOLCONF(coolconf.sr);
+
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC5160
