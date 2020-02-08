@@ -459,8 +459,18 @@ bool Probe::set_deployed(const bool deploy) {
   const char Probe::msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
 #endif
 
-bool Probe::move_to_z(const float z, const feedRate_t fr_mm_s) {
-  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::move_to_z", current_position);
+/**
+ * @brief Move down until the probe triggers or the low limit is reached
+ *
+ * @details Used by run_z_probe to get each bed Z height measurement.
+ *          Sets current_position.z to the height where the probe triggered
+ *          (according to the Z stepper count). The float Z is propagated
+ *          back to the planner.position to preempt any rounding error.
+ *
+ * @return TRUE if the probe failed to trigger.
+ */
+bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
+  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::probe_down_to_z", current_position);
 
   #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
@@ -536,7 +546,7 @@ bool Probe::move_to_z(const float z, const feedRate_t fr_mm_s) {
   // Tell the planner where we actually are
   sync_plan_position();
 
-  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< Probe::move_to_z", current_position);
+  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< Probe::probe_down_to_z", current_position);
 
   return !probe_triggered;
 }
@@ -561,7 +571,7 @@ float Probe::run_z_probe() {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (move_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
+    if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOLNPGM("FAST Probe fail!");
         DEBUG_POS("<<< run_z_probe", current_position);
@@ -583,7 +593,7 @@ float Probe::run_z_probe() {
     const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (offset.z < 0 ? -offset.z : 0);
     if (current_position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
-      if (!move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
+      if (!probe_down_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
         do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
@@ -604,7 +614,7 @@ float Probe::run_z_probe() {
   #endif
     {
       // Probe downward slowly to find the bed
-      if (move_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
+      if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("SLOW Probe fail!");
           DEBUG_POS("<<< run_z_probe", current_position);
