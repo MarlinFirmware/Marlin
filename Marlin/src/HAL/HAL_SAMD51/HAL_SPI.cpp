@@ -46,9 +46,6 @@
   // ------------------------
   #error "Software SPI not supported for SAMD51. Use Hardware SPI."
 
-  #if SD_CONNECTION_IS(ONBOARD)
-  #endif
-
 #else // !SOFTWARE_SPI
 
   #ifdef ADAFRUIT_GRAND_CENTRAL_M4
