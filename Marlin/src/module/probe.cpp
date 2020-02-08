@@ -706,6 +706,11 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     DEBUG_POS("", current_position);
   }
 
+  #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+    if(bltouch.triggered())
+      bltouch._reset();
+  #endif
+
   // TODO: Adapt for SCARA, where the offset rotates
   xyz_pos_t npos = { rx, ry };
   if (probe_relative) {                                     // The given position is in terms of the probe
@@ -737,8 +742,9 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     measured_z = run_z_probe() + offset.z;
 
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
-    if (big_raise || raise_after == PROBE_PT_RAISE)
-      do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    if (big_raise || raise_after == PROBE_PT_RAISE) {
+      if (current_position.z < Z_PROBE_OFFSET_RANGE_MAX) //Only raise if withing probing range else error occured
+        do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     else if (raise_after == PROBE_PT_STOW)
       if (stow()) measured_z = NAN;
   }
