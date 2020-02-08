@@ -193,9 +193,9 @@
   #endif
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_TMC_UART
   /**
-   * TMC2208 stepper drivers
+   * TMC220x stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below

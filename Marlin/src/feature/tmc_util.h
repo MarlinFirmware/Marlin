@@ -410,7 +410,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
 #endif // USE_SENSORLESS
 
-#if TMC_HAS_SPI
+#if HAS_TMC_SPI
   void tmc_init_cs_pins();
 #endif
 

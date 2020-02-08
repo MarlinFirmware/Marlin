@@ -148,6 +148,11 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
+#define AXIS_HAS_SG_RESULT(A)    (    AXIS_DRIVER_TYPE(A,TMC2130) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2160) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2208) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2209) )
+
 #define AXIS_HAS_COOLSTEP(A)     (    AXIS_DRIVER_TYPE(A,TMC2130) \
                                    || AXIS_DRIVER_TYPE(A,TMC2209) \
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
@@ -162,11 +167,15 @@
                           || AXIS_HAS_##T(Z3) || AXIS_HAS_##T(Z4) \
                           || E_AXIS_HAS(T) )
 
+HAS_TMCX1X0 || HAS_TMC220x
+
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)
+#define HAS_SG_RESULT      ANY_AXIS_HAS(SG_RESULT)
 #define HAS_COOLSTEP       ANY_AXIS_HAS(COOLSTEP)
-#define TMC_HAS_SPI        ANY_AXIS_HAS(SPI)
-#define TMC_HAS_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
+#define HAS_TMC_UART       ANY_AXIS_HAS(UART)
+#define HAS_TMC_SPI        ANY_AXIS_HAS(SPI)
+#define HAS_TMC_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
 
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options

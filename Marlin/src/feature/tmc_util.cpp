@@ -900,26 +900,24 @@
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
     TMC_REPORT("tstep\t",            TMC_TSTEP);
-    TMC_REPORT("pwm\nthreshold",     TMC_TPWMTHRS);
+    TMC_REPORT("PWM thresh.",        TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      TMC_REPORT("OT prewarn has\n"
-                 "been triggered",   TMC_OTPW_TRIGGERED);
+      TMC_REPORT("triggered\n OTP\t", TMC_OTPW_TRIGGERED);
     #endif
     TMC_REPORT("off time",           TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
-    TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
-    TMC_REPORT("-start\t",           TMC_HSTRT);
+    TMC_REPORT("hysteresis\n -end\t", TMC_HEND);
+    TMC_REPORT(" -start\t",          TMC_HSTRT);
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
-
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
     #if HAS_TMCX1X0 || HAS_TMC220x
       DRV_REPORT("sg_result",        TMC_SG_RESULT);
     #endif
     #if HAS_TMCX1X0
-      DRV_REPORT("stallguard\t",     TMC_STALLGUARD);
-      DRV_REPORT("fsactive\t",       TMC_FSACTIVE);
+      DRV_REPORT("stallguard",       TMC_STALLGUARD);
+      DRV_REPORT("fsactive",         TMC_FSACTIVE);
     #endif
     DRV_REPORT("stst\t",             TMC_STST);
     DRV_REPORT("olb\t",              TMC_OLB);
@@ -1114,7 +1112,7 @@
 
 #endif // USE_SENSORLESS
 
-#if TMC_HAS_SPI
+#if HAS_TMC_SPI
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
     #if AXIS_HAS_SPI(X)
@@ -1166,7 +1164,7 @@
       SET_CS_PIN(E7);
     #endif
   }
-#endif // TMC_HAS_SPI
+#endif // HAS_TMC_SPI
 
 template<typename TMC>
 static bool test_connection(TMC &st) {
