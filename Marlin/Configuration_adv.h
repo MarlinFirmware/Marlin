@@ -2276,12 +2276,16 @@
   #define E7_HYBRID_THRESHOLD     30
 
   /**
-   * CoolStep. TMC2130 and TMC2209 only.
+   * CoolStep. Currently supported for TMC2130, TMC2209, TMC5130 and TMC5160 only.
    * This mode allows for cooler steppers and energy savings.
-   * STEALTHCHOP_(XY|Z|E) must be enabled to use CoolStep.
-   * The driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.
-   * If SG_RESULT goes below COOLSTEP_LOWER_LOAD_THRESHOLD stepper curreent will be increased.
-   * If SG_RESULT goes above COOLSTEP_UPPER_LOAD_THRESHOLD stepper curreent will be decreased.
+   * The driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.  
+   * 
+   * If SG_RESULT goes below COOLSTEP_LOWER_LOAD_THRESHOLD * 32 stepper current will be increased.
+   * Set to 0 to dable CoolStep.
+   * 
+   * If SG_RESULT goes above (COOLSTEP_LOWER_LOAD_THRESHOLD + COOLSTEP_UPPER_LOAD_THRESHOLD +1) * 32 
+   * stepper current will be decreased.
+   * 
    * SEUP sets the increase step width. Value range is 0..3 and computed as 2^SEUP.
    * SEDN sets the decrease delay. Value range is 0..3, 0 being the slowest.
    * SEIMIN sets the lower current limit. 0: 1/2 of IRUN, 1:1/4 of IRUN
