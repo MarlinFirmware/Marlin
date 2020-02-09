@@ -110,6 +110,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
     #endif
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -121,6 +122,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         #endif
       }
     #endif
+
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC::sgt(); }
       void homing_threshold(int16_t sgt_val) {
@@ -134,6 +136,13 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         bool test_stall_status();
       #endif
     #endif
+
+    uint32_t get_cool_thrs() {
+      return _tmc_thrs(this->microsteps(), this->TCOOLTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
+    }
+    void set_cool_thrs(const uint32_t thrs) {
+      TMC::TCOOLTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
+    }
 
     #if HAS_LCD_MENU
       inline void refresh_stepper_current() { rms_current(this->val_mA); }
@@ -149,6 +158,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     static constexpr int8_t sgt_min = -64,
                             sgt_max =  63;
 };
+
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
@@ -172,6 +182,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
     #endif
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -217,6 +228,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
     #endif
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -228,6 +240,14 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
         #endif
       }
     #endif
+
+    uint32_t get_cool_thrs() {
+      return _tmc_thrs(this->microsteps(), this->TCOOLTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
+    }
+    void set_cool_thrs(const uint32_t thrs) {
+      TMC2209Stepper::TCOOLTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
+    }
+
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC2209Stepper::SGTHRS(); }
       void homing_threshold(int16_t sgt_val) {
@@ -241,7 +261,6 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 
     #if HAS_LCD_MENU
       inline void refresh_stepper_current() { rms_current(this->val_mA); }
-
       #if ENABLED(HYBRID_THRESHOLD)
         inline void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
       #endif
@@ -391,7 +410,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
 #endif // USE_SENSORLESS
 
-#if TMC_HAS_SPI
+#if HAS_TMC_SPI
   void tmc_init_cs_pins();
 #endif
 

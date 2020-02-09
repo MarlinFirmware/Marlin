@@ -1496,7 +1496,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
-    // Determine if pulses are needed
+    // Determine if a pulse is needed using Bresenham
     #define PULSE_PREP(AXIS) do{ \
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
       step_needed[_AXIS(AXIS)] = (delta_error[_AXIS(AXIS)] >= 0); \

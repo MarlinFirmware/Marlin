@@ -2041,6 +2041,62 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Make sure CoolStep settings exist
+ */
+#if HAS_COOLSTEP
+  #define NEEDS_COOLSTEP(A) AXIS_HAS_COOLSTEP(A) && !(defined(A##_COOLSTEP_SPEED_THRESHOLD) && defined(A##_COOLSTEP_LOWER_LOAD_THRESHOLD) && defined(A##_COOLSTEP_UPPER_LOAD_THRESHOLD) && defined(A##_COOLSTEP_SEUP) && defined(A##_COOLSTEP_SEDN) && defined(A##_COOLSTEP_SEIMIN))
+  #if NEEDS_COOLSTEP(X)
+    #error "X COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(X2)
+    #error "X2 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(Y)
+    #error "Y COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(Y2)
+    #error "Y2 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(Z)
+    #error "Z COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(Z2)
+    #error "Z2 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(Z3)
+    #error "Z3 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(Z4)
+    #error "Z4 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E0)
+    #error "E0 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E1)
+    #error "E1 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E2)
+    #error "E2 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E3)
+    #error "E3 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E4)
+    #error "E4 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E5)
+    #error "E5 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E6)
+    #error "E6 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #if NEEDS_COOLSTEP(E7)
+    #error "E7 COOLSTEP settings must be defined in Configuration_adv.h."
+  #endif
+  #undef NEEDS_COOLSTEP
+#endif
+
+/**
  * Check existing CS pins against enabled TMC SPI drivers.
  */
 #define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI(ST) && !PIN_EXISTS(ST##_CS))
@@ -2650,6 +2706,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Check to make sure MONITOR_DRIVER_STATUS isn't enabled
  * on boards where TMC drivers share the SPI bus with SD.
  */
-#if TMC_HAS_SPI && ALL(MONITOR_DRIVER_STATUS, SDSUPPORT, USES_SHARED_SPI)
+#if HAS_TMC_SPI && ALL(MONITOR_DRIVER_STATUS, SDSUPPORT, USES_SHARED_SPI)
   #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
 #endif
