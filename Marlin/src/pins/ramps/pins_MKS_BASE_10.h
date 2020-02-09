@@ -31,23 +31,7 @@
   #error "MKS BASE 1.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "MKS BASE 1.0"
-#endif
+#define BOARD_INFO_NAME "MKS BASE 1.0"
+#define MKS_BASE_VERSION 10
 
-//
-// Heaters / Fans
-//
-// Power outputs EFBF or EFBE
-#define MOSFET_D_PIN              7
-
-#define CASE_LIGHT_PIN            2
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_PWM_PIN     2   // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN    15   // Pullup!
-#define SPINDLE_DIR_PIN          19
-
-#include "pins_RAMPS.h"
+#include "pins_MKS_BASE_common.h"
