@@ -333,9 +333,8 @@ void GCodeParser::parse(char *p) {
 
 #endif // CNC_COORDINATE_SYSTEMS
 
-void GCodeParser::unknown_command_error() {
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
+void GCodeParser::unknown_command_warning() {
+  SERIAL_ECHO_MSG(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)
@@ -351,7 +350,10 @@ void GCodeParser::unknown_command_error() {
     #else
       SERIAL_ECHOPAIR(" args: { ", command_args, " }");
     #endif
-    if (string_arg) SERIAL_ECHOPAIR(" string: \"", string_arg, "\"");
+    if (string_arg) {
+      SERIAL_ECHOPAIR(" string: \"", string_arg);
+      SERIAL_CHAR('"');
+    }
     SERIAL_ECHOLNPGM("\n");
     for (char c = 'A'; c <= 'Z'; ++c) {
       if (seen(c)) {
