@@ -211,6 +211,11 @@ namespace ExtUI {
   float getZOffset_mm();
   void setZOffset_mm(const float);
 
+  #if HAS_BED_PROBE
+    float getProbeOffset_mm(const axis_t);
+    void setProbeOffset_mm(const float, const axis_t);
+  #endif
+
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t);
     void setAxisBacklash_mm(const float, const axis_t);
@@ -242,6 +247,19 @@ namespace ExtUI {
       float getCaseLightBrightness_percent();
       void setCaseLightBrightness_percent(const float);
     #endif
+  #endif
+
+  #if HAS_PID_HEATING
+    float getPIDValues_Kp(const extruder_t);
+    float getPIDValues_Ki(const extruder_t);
+    float getPIDValues_Kd(const extruder_t);
+    float getBedPIDValues_Kp();
+    float getBedPIDValues_Ki();
+    float getBedPIDValues_Kd();
+    void setPIDValues(const float, const float, const float, extruder_t);
+    void setBedPIDValues(const float, const float, const float);
+    void startPIDTune(const float, extruder_t);
+    void startBedPIDTune(const float);
   #endif
 
   /**
