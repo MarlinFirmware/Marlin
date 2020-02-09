@@ -51,11 +51,6 @@
 #define E1_MS2_PIN          4   // Digital 4  / Pin 1   / PG5
 
 //
-// Heaters / Fans
-//
-#define MOSFET_D_PIN        7
-
-//
 // Omitted RAMPS pins
 //
 #ifndef SERVO2_PIN
@@ -74,4 +69,4 @@
   #define PS_ON_PIN        -1
 #endif
 
-#include "pins_RAMPS.h"
+#include "pins_MKS_BASE.h"
