@@ -149,5 +149,6 @@ void pwm_details(int32_t pin) {
  *  92             |  PA9   | QSPI: IO1
  *  93             |  PA10  | QSPI: IO2
  *  94             |  PA11  | QSPI: IO3
+ *  95             |  PB31  | SD: DETECT
  *
  */
