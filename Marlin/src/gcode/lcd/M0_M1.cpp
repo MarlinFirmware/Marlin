@@ -71,7 +71,7 @@ void GcodeSuite::M0_M1() {
 
     if (has_message)
       ui.set_status(args, true);
-    else {
+    else if (!parser.seenval('Q')) {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();
@@ -101,12 +101,8 @@ void GcodeSuite::M0_M1() {
     host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), CONTINUE_STR);
   #endif
 
-  if (ms > 0) {
-    ms += millis();  // wait until this time for a click
-    while (PENDING(millis(), ms) && wait_for_user) idle();
-  }
-  else
-    while (wait_for_user) idle();
+  if (ms > 0) ms += millis();  // wait until this time for a click
+  while (wait_for_user && (ms > 0 || PENDING(millis(), ms))) idle();
 
   #if HAS_LEDS_OFF_FLAG
     printerEventLEDs.onResumeAfterWait();
