@@ -2278,14 +2278,14 @@
   /**
    * CoolStep. Currently supported for TMC2130, TMC2209, TMC5130 and TMC5160 only.
    * This mode allows for cooler steppers and energy savings.
-   * The driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.  
-   * 
+   * The driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.
+   *
    * If SG_RESULT goes below COOLSTEP_LOWER_LOAD_THRESHOLD * 32 stepper current will be increased.
-   * Set to 0 to dable CoolStep.
-   * 
-   * If SG_RESULT goes above (COOLSTEP_LOWER_LOAD_THRESHOLD + COOLSTEP_UPPER_LOAD_THRESHOLD +1) * 32 
+   * Set to 0 to disable CoolStep.
+   *
+   * If SG_RESULT goes above (COOLSTEP_LOWER_LOAD_THRESHOLD + COOLSTEP_UPPER_LOAD_THRESHOLD + 1) * 32
    * stepper current will be decreased.
-   * 
+   *
    * SEUP sets the increase step width. Value range is 0..3 and computed as 2^SEUP.
    * SEDN sets the decrease delay. Value range is 0..3, 0 being the slowest.
    * SEIMIN sets the lower current limit. 0: 1/2 of IRUN, 1:1/4 of IRUN
@@ -2301,12 +2301,12 @@
   #endif
 
   #if AXIS_HAS_COOLSTEP(X2)
-    #define X2_COOLSTEP_SPEED_THRESHOLD        5
-    #define X2_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define X2_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define X2_COOLSTEP_SEUP                   2
-    #define X2_COOLSTEP_SEDN                   0
-    #define X2_COOLSTEP_SEIMIN                 1
+    #define X2_COOLSTEP_SPEED_THRESHOLD       5
+    #define X2_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define X2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define X2_COOLSTEP_SEUP                  2
+    #define X2_COOLSTEP_SEDN                  0
+    #define X2_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(Y)
@@ -2319,12 +2319,12 @@
   #endif
 
   #if AXIS_HAS_COOLSTEP(Y2)
-    #define Y2_COOLSTEP_SPEED_THRESHOLD        5
-    #define Y2_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define Y2_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define Y2_COOLSTEP_SEUP                   2
-    #define Y2_COOLSTEP_SEDN                   0
-    #define Y2_COOLSTEP_SEIMIN                 1
+    #define Y2_COOLSTEP_SPEED_THRESHOLD       5
+    #define Y2_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define Y2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Y2_COOLSTEP_SEUP                  2
+    #define Y2_COOLSTEP_SEDN                  0
+    #define Y2_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(Z)
@@ -2337,102 +2337,102 @@
   #endif
 
   #if AXIS_HAS_COOLSTEP(Z2)
-    #define Z2_COOLSTEP_SPEED_THRESHOLD        5
-    #define Z2_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define Z2_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define Z2_COOLSTEP_SEUP                   2
-    #define Z2_COOLSTEP_SEDN                   0
-    #define Z2_COOLSTEP_SEIMIN                 1
+    #define Z2_COOLSTEP_SPEED_THRESHOLD       5
+    #define Z2_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define Z2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Z2_COOLSTEP_SEUP                  2
+    #define Z2_COOLSTEP_SEDN                  0
+    #define Z2_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(Z3)
-    #define Z3_COOLSTEP_SPEED_THRESHOLD        5
-    #define Z3_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define Z3_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define Z3_COOLSTEP_SEUP                   2
-    #define Z3_COOLSTEP_SEDN                   0
-    #define Z3_COOLSTEP_SEIMIN                 1
+    #define Z3_COOLSTEP_SPEED_THRESHOLD       5
+    #define Z3_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define Z3_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Z3_COOLSTEP_SEUP                  2
+    #define Z3_COOLSTEP_SEDN                  0
+    #define Z3_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(Z4)
-    #define Z4_COOLSTEP_SPEED_THRESHOLD        5
-    #define Z4_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define Z4_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define Z4_COOLSTEP_SEUP                   2
-    #define Z4_COOLSTEP_SEDN                   0
-    #define Z4_COOLSTEP_SEIMIN                 1
+    #define Z4_COOLSTEP_SPEED_THRESHOLD       5
+    #define Z4_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define Z4_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define Z4_COOLSTEP_SEUP                  2
+    #define Z4_COOLSTEP_SEDN                  0
+    #define Z4_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E0)
-    #define E0_COOLSTEP_SPEED_THRESHOLD        5
-    #define E0_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E0_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E0_COOLSTEP_SEUP                   2
-    #define E0_COOLSTEP_SEDN                   0
-    #define E0_COOLSTEP_SEIMIN                 1
+    #define E0_COOLSTEP_SPEED_THRESHOLD       5
+    #define E0_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E0_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E0_COOLSTEP_SEUP                  2
+    #define E0_COOLSTEP_SEDN                  0
+    #define E0_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E1)
-    #define E1_COOLSTEP_SPEED_THRESHOLD        5
-    #define E1_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E1_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E1_COOLSTEP_SEUP                   2
-    #define E1_COOLSTEP_SEDN                   0
-    #define E1_COOLSTEP_SEIMIN                 1
+    #define E1_COOLSTEP_SPEED_THRESHOLD       5
+    #define E1_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E1_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E1_COOLSTEP_SEUP                  2
+    #define E1_COOLSTEP_SEDN                  0
+    #define E1_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E2)
-    #define E2_COOLSTEP_SPEED_THRESHOLD        5
-    #define E2_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E2_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E2_COOLSTEP_SEUP                   2
-    #define E2_COOLSTEP_SEDN                   0
-    #define E2_COOLSTEP_SEIMIN                 1
+    #define E2_COOLSTEP_SPEED_THRESHOLD       5
+    #define E2_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E2_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E2_COOLSTEP_SEUP                  2
+    #define E2_COOLSTEP_SEDN                  0
+    #define E2_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E3)
-    #define E3_COOLSTEP_SPEED_THRESHOLD        5
-    #define E3_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E3_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E3_COOLSTEP_SEUP                   2
-    #define E3_COOLSTEP_SEDN                   0
-    #define E3_COOLSTEP_SEIMIN                 1
+    #define E3_COOLSTEP_SPEED_THRESHOLD       5
+    #define E3_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E3_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E3_COOLSTEP_SEUP                  2
+    #define E3_COOLSTEP_SEDN                  0
+    #define E3_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E4)
-    #define E4_COOLSTEP_SPEED_THRESHOLD        5
-    #define E4_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E4_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E4_COOLSTEP_SEUP                   2
-    #define E4_COOLSTEP_SEDN                   0
-    #define E4_COOLSTEP_SEIMIN                 1
+    #define E4_COOLSTEP_SPEED_THRESHOLD       5
+    #define E4_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E4_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E4_COOLSTEP_SEUP                  2
+    #define E4_COOLSTEP_SEDN                  0
+    #define E4_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E5)
-    #define E5_COOLSTEP_SPEED_THRESHOLD        5
-    #define E5_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E5_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E5_COOLSTEP_SEUP                   2
-    #define E5_COOLSTEP_SEDN                   0
-    #define E5_COOLSTEP_SEIMIN                 1
+    #define E5_COOLSTEP_SPEED_THRESHOLD       5
+    #define E5_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E5_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E5_COOLSTEP_SEUP                  2
+    #define E5_COOLSTEP_SEDN                  0
+    #define E5_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E6)
-    #define E6_COOLSTEP_SPEED_THRESHOLD        5
-    #define E6_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E6_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E6_COOLSTEP_SEUP                   2
-    #define E6_COOLSTEP_SEDN                   0
-    #define E6_COOLSTEP_SEIMIN                 1
+    #define E6_COOLSTEP_SPEED_THRESHOLD       5
+    #define E6_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E6_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E6_COOLSTEP_SEUP                  2
+    #define E6_COOLSTEP_SEDN                  0
+    #define E6_COOLSTEP_SEIMIN                1
   #endif
 
   #if AXIS_HAS_COOLSTEP(E7)
-    #define E7_COOLSTEP_SPEED_THRESHOLD        5
-    #define E7_COOLSTEP_LOWER_LOAD_THRESHOLD   7
-    #define E7_COOLSTEP_UPPER_LOAD_THRESHOLD   0
-    #define E7_COOLSTEP_SEUP                   2
-    #define E7_COOLSTEP_SEDN                   0
-    #define E7_COOLSTEP_SEIMIN                 1
+    #define E7_COOLSTEP_SPEED_THRESHOLD       5
+    #define E7_COOLSTEP_LOWER_LOAD_THRESHOLD  7
+    #define E7_COOLSTEP_UPPER_LOAD_THRESHOLD  0
+    #define E7_COOLSTEP_SEUP                  2
+    #define E7_COOLSTEP_SEDN                  0
+    #define E7_COOLSTEP_SEIMIN                1
   #endif
 
   /**
