@@ -34,7 +34,7 @@
   // Heaters / Fans
   //
   // Power outputs EFBF or EFBE
-  #define MOSFET_D_PIN            7
+  #define MOSFET_D_PIN      7
 
   //
   // M3/M4/M5 - Spindle/Laser Control
@@ -46,7 +46,7 @@
   #endif
 
   #ifndef CASE_LIGHT_PIN
-    #define CASE_LIGHT_PIN        2
+    #define CASE_LIGHT_PIN  2
   #endif
 
 #endif
