@@ -741,24 +741,21 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   do_blocking_move_to(npos);
 
   float measured_z = NAN;
-  if (!deploy()) {
-    measured_z = run_z_probe() + offset.z;
-
-    if (!isnan(measured_z)) {
-      const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
-      if (big_raise || raise_after == PROBE_PT_RAISE) {
-        if (current_position.z < Z_PROBE_OFFSET_RANGE_MAX) // Only raise when in probing range (else error)
-          do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-      }
-      else if (raise_after == PROBE_PT_STOW)
-        if (stow()) measured_z = NAN;   // Error on stow?
+  if (!deploy()) measured_z = run_z_probe() + offset.z;
+  if (!isnan(measured_z)) {
+    const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
+    if (big_raise || raise_after == PROBE_PT_RAISE) {
+      if (current_position.z < Z_PROBE_OFFSET_RANGE_MAX) // Only raise when in probing range (else error)
+        do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
-  }
+    else if (raise_after == PROBE_PT_STOW)
+      if (stow()) measured_z = NAN;   // Error on stow?
 
-  if (verbose_level > 2) {
-    SERIAL_ECHOPAIR_F("Bed X: ", LOGICAL_X_POSITION(rx), 3);
-    SERIAL_ECHOPAIR_F(   " Y: ", LOGICAL_Y_POSITION(ry), 3);
-    SERIAL_ECHOLNPAIR_F( " Z: ", measured_z, 3);
+    if (verbose_level > 2) {
+      SERIAL_ECHOPAIR_F("Bed X: ", LOGICAL_X_POSITION(rx), 3);
+      SERIAL_ECHOPAIR_F(   " Y: ", LOGICAL_Y_POSITION(ry), 3);
+      SERIAL_ECHOLNPAIR_F( " Z: ", measured_z, 3);
+    }
   }
 
   feedrate_mm_s = old_feedrate_mm_s;
