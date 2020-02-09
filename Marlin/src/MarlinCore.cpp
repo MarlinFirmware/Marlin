@@ -912,7 +912,7 @@ void setup() {
   if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  SERIAL_ECHOPGM(MSG_MARLIN);
+  serialprintPGM(GET_TEXT(MSG_MARLIN));
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
   SERIAL_EOL();
