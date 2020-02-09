@@ -895,7 +895,7 @@ namespace ExtUI {
   float getFeedrate_percent() { return feedrate_percentage; }
 
   #if HAS_PID_HEATING
-     float getPIDValues_Kp(const extruder_t tool) {
+    float getPIDValues_Kp(const extruder_t tool) {
       return PID_PARAM(Kp, tool);
     }
     float getPIDValues_Ki(const extruder_t tool) {
