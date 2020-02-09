@@ -707,8 +707,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   }
 
   #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
-    if(bltouch.triggered())
-      bltouch._reset();
+    if (bltouch.triggered()) bltouch._reset();
   #endif
 
   // TODO: Adapt for SCARA, where the offset rotates
