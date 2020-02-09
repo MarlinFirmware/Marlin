@@ -167,8 +167,6 @@
                           || AXIS_HAS_##T(Z3) || AXIS_HAS_##T(Z4) \
                           || E_AXIS_HAS(T) )
 
-HAS_TMCX1X0 || HAS_TMC220x
-
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)
 #define HAS_SG_RESULT      ANY_AXIS_HAS(SG_RESULT)
