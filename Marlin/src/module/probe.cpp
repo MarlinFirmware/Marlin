@@ -561,8 +561,8 @@ float Probe::run_z_probe() {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (move_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))        // No probe trigger?
-      || current_position.z > -offset.z + (Z_CLEARANCE_BETWEEN_PROBES) / 2  // Probe triggered too high?
+    if (move_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))               // No probe trigger?
+      || current_position.z > -offset.z + _MIN(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2  // Probe triggered too high?
     ) {
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOLNPGM("FAST Probe fail!");
@@ -606,8 +606,8 @@ float Probe::run_z_probe() {
   #endif
     {
       // Probe downward slowly to find the bed
-      if (move_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))      // No probe trigger?
-        || current_position.z > -offset.z + (Z_CLEARANCE_MULTI_PROBE) / 2   // Probe triggered too high?
+      if (move_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))            // No probe trigger?
+        || current_position.z > -offset.z + _MIN(Z_CLEARANCE_MULTI_PROBE, 4) / 2  // Probe triggered too high?
       ) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("SLOW Probe fail!");
