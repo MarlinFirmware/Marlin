@@ -571,7 +571,9 @@ float Probe::run_z_probe() {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
+    if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))         // No probe trigger?
+      || current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2  // Probe triggered too high?
+    ) {
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOLNPGM("FAST Probe fail!");
         DEBUG_POS("<<< run_z_probe", current_position);
@@ -614,7 +616,9 @@ float Probe::run_z_probe() {
   #endif
     {
       // Probe downward slowly to find the bed
-      if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
+      if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))      // No probe trigger?
+        || current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2  // Probe triggered too high?
+      ) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("SLOW Probe fail!");
           DEBUG_POS("<<< run_z_probe", current_position);
@@ -716,6 +720,10 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     DEBUG_POS("", current_position);
   }
 
+  #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+    if (bltouch.triggered()) bltouch._reset();
+  #endif
+
   // TODO: Adapt for SCARA, where the offset rotates
   xyz_pos_t npos = { rx, ry };
   if (probe_relative) {                                     // The given position is in terms of the probe
@@ -743,20 +751,21 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   do_blocking_move_to(npos);
 
   float measured_z = NAN;
-  if (!deploy()) {
-    measured_z = run_z_probe() + offset.z;
-
+  if (!deploy()) measured_z = run_z_probe() + offset.z;
+  if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
-    if (big_raise || raise_after == PROBE_PT_RAISE)
-      do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    if (big_raise || raise_after == PROBE_PT_RAISE) {
+      if (current_position.z < Z_PROBE_OFFSET_RANGE_MAX) // Only raise when in probing range (else error)
+        do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    }
     else if (raise_after == PROBE_PT_STOW)
-      if (stow()) measured_z = NAN;
-  }
+      if (stow()) measured_z = NAN;   // Error on stow?
 
-  if (verbose_level > 2) {
-    SERIAL_ECHOPAIR_F("Bed X: ", LOGICAL_X_POSITION(rx), 3);
-    SERIAL_ECHOPAIR_F(   " Y: ", LOGICAL_Y_POSITION(ry), 3);
-    SERIAL_ECHOLNPAIR_F( " Z: ", measured_z, 3);
+    if (verbose_level > 2) {
+      SERIAL_ECHOPAIR_F("Bed X: ", LOGICAL_X_POSITION(rx), 3);
+      SERIAL_ECHOPAIR_F(   " Y: ", LOGICAL_Y_POSITION(ry), 3);
+      SERIAL_ECHOLNPAIR_F( " Z: ", measured_z, 3);
+    }
   }
 
   feedrate_mm_s = old_feedrate_mm_s;
