@@ -892,7 +892,7 @@ void setup() {
   SERIAL_ECHOLNPGM("start");
   SERIAL_ECHO_START();
 
-  #if TMC_HAS_SPI
+  #if HAS_TMC_SPI
     #if DISABLED(TMC_USE_SW_SPI)
       SPI.begin();
     #endif

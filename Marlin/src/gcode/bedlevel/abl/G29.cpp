@@ -958,10 +958,8 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
-
-  if (planner.leveling_active)
-    sync_plan_position();
+  // Sync the planner from the current_position
+  if (planner.leveling_active) sync_plan_position();
 
   #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     probe.move_z_after_probing();
@@ -974,6 +972,8 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
+
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
 
   G29_RETURN(isnan(measured_z));
 }

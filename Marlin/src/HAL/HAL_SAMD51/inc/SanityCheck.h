@@ -47,6 +47,6 @@
   #warning "Did you activate the SmartEEPROM? See https://github.com/GMagician/SAMD51-SmartEEprom-Activator"
 #endif
 
-#if TMC_HAS_SW_SERIAL
+#if HAS_TMC_SW_SERIAL
   #error "TMC220x Software Serial is not supported on this platform."
 #endif
