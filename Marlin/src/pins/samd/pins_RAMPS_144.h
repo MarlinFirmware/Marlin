@@ -88,18 +88,18 @@
   #define Z_CS_PIN         32
 #endif
 
-#define E0_STEP_PIN        36
-#define E0_DIR_PIN         34
-#define E0_ENABLE_PIN      30
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN        22
+#define Z2_STEP_PIN        36
+#define Z2_DIR_PIN         34
+#define Z2_ENABLE_PIN      30
+#ifndef Z2_CS_PIN
+  #define Z2_CS_PIN        22
 #endif
 
-#define E1_STEP_PIN        26
-#define E1_DIR_PIN         28
-#define E1_ENABLE_PIN      24
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN        43
+#define E0_STEP_PIN        26
+#define E0_DIR_PIN         28
+#define E0_ENABLE_PIN      24
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        43
 #endif
 
 //
@@ -161,13 +161,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    65     // Mega/Due:? - AGCM4:65
+    #define TMC_SW_MOSI    58     // Mega/Due:66 - AGCM4:58
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    64     // Mega/Due:? - AGCM4:64
+    #define TMC_SW_MISO    44
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     66     // Mega/Due:? - AGCM4:66
+    #define TMC_SW_SCK     56     // Mega/Due:64 - AGCM4:56
   #endif
 #endif
 
@@ -195,10 +195,10 @@
   //
 
   #ifndef X_SERIAL_TX_PIN
-    #define X_SERIAL_TX_PIN  40
+    #define X_SERIAL_TX_PIN  47
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN  55     // Mega/Due:63 - AGCM4:55
+    #define X_SERIAL_RX_PIN  47
   #endif
   #ifndef X2_SERIAL_TX_PIN
     #define X2_SERIAL_TX_PIN -1
@@ -208,10 +208,10 @@
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
-    #define Y_SERIAL_TX_PIN  72     // Mega/Due:59 - AGCM4:72
+    #define Y_SERIAL_TX_PIN  45
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN  56     // Mega/Due:64 - AGCM4:56
+    #define Y_SERIAL_RX_PIN  45
   #endif
   #ifndef Y2_SERIAL_TX_PIN
     #define Y2_SERIAL_TX_PIN -1
@@ -221,23 +221,23 @@
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
-    #define Z_SERIAL_TX_PIN  42
+    #define Z_SERIAL_TX_PIN  32
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN  57     // Mega/Due:65 - AGCM4:57
+    #define Z_SERIAL_RX_PIN  32
   #endif
   #ifndef Z2_SERIAL_TX_PIN
-    #define Z2_SERIAL_TX_PIN -1
+    #define Z2_SERIAL_TX_PIN 22
   #endif
   #ifndef Z2_SERIAL_RX_PIN
-    #define Z2_SERIAL_RX_PIN -1
+    #define Z2_SERIAL_RX_PIN 22
   #endif
 
   #ifndef E0_SERIAL_TX_PIN
-    #define E0_SERIAL_TX_PIN 44
+    #define E0_SERIAL_TX_PIN 43
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN 58     // Mega/Due:66 - AGCM4:58
+    #define E0_SERIAL_RX_PIN 43
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN -1
@@ -595,3 +595,17 @@
   #endif // NEWPANEL
 
 #endif // HAS_SPI_LCD
+
+//
+// SD Support
+//
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(ONBOARD)
+  #undef SDSS
+  #define SDSS             83
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN    95
+#endif
