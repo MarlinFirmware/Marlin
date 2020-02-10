@@ -2784,6 +2784,10 @@
  */
 #define FASTER_GCODE_PARSER
 
+#if ENABLED(FASTER_GCODE_PARSER)
+  //#define GCODE_QUOTED_STRINGS  // Support for quoted string parameters
+#endif
+
 /**
  * CNC G-code options
  * Support CNC-style G-code dialects used by laser cutters, drawing machine cams, etc.
