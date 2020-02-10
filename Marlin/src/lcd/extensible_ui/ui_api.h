@@ -249,7 +249,7 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if PIDTEMP
+  #if ENABLED(PIDTEMP)
     float getPIDValues_Kp(const extruder_t);
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
@@ -257,7 +257,7 @@ namespace ExtUI {
     void startPIDTune(const float, extruder_t);
   #endif
   
-  #if PIDTEMPBED
+  #if ENABLED(PIDTEMPBED)
     float getBedPIDValues_Kp();
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
