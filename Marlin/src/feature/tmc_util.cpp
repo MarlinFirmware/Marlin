@@ -723,13 +723,13 @@
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_DRV_CODES:     st.printLabel();  break;
-      case TMC_STST:          if (st.stst())         SERIAL_CHAR('*'); break;
-      case TMC_OLB:           if (st.olb())          SERIAL_CHAR('*'); break;
-      case TMC_OLA:           if (st.ola())          SERIAL_CHAR('*'); break;
-      case TMC_S2GB:          if (st.s2gb())         SERIAL_CHAR('*'); break;
-      case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('*'); break;
-      case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('*'); break;
-      case TMC_OT:            if (st.ot())           SERIAL_CHAR('*'); break;
+      case TMC_STST:          if (!st.stst())   SERIAL_CHAR('*'); break;
+      case TMC_OLB:           if (st.olb())     SERIAL_CHAR('*'); break;
+      case TMC_OLA:           if (st.ola())     SERIAL_CHAR('*'); break;
+      case TMC_S2GB:          if (st.s2gb())    SERIAL_CHAR('*'); break;
+      case TMC_S2GA:          if (st.s2ga())    SERIAL_CHAR('*'); break;
+      case TMC_DRV_OTPW:      if (st.otpw())    SERIAL_CHAR('*'); break;
+      case TMC_OT:            if (st.ot())      SERIAL_CHAR('*'); break;
       case TMC_DRV_STATUS_HEX: {
         const uint32_t drv_status = st.DRV_STATUS();
         SERIAL_CHAR('\t');
