@@ -1189,18 +1189,12 @@
 #define _PEXI(p,q) __PEXI(p,q)
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
-#define __EDRV(p) E##p##_DRIVER_TYPE
-#define _EDRV(p) __EDRV(p)
 #define DIAG_REMAPPED(p,q) (PIN_EXISTS(q) && _EPIN(p##_E_INDEX, DIAG) == q##_PIN)
 
 // The X2 axis, if any, should be the next open extruder port
 #define X2_E_INDEX E_STEPPERS
 
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
-  #ifndef X2_DRIVER_TYPE
-    #define X2_DRIVER_TYPE _EDRV(X2_E_INDEX)
-  #endif
-
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
     #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)
@@ -1274,10 +1268,6 @@
 
 // The Y2 axis, if any, should be the next open extruder port
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #ifndef Y2_DRIVER_TYPE
-    #define Y2_DRIVER_TYPE _EDRV(Y2_E_INDEX)
-  #endif
-
   #ifndef Y2_STEP_PIN
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
     #define Y2_DIR_PIN    _EPIN(Y2_E_INDEX, DIR)
@@ -1346,10 +1336,6 @@
 
 // The Z2 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 2
-  #ifndef Z2_DRIVER_TYPE
-    #define Z2_DRIVER_TYPE _EDRV(Z2_E_INDEX)
-  #endif
-
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
@@ -1417,10 +1403,6 @@
 #endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 3
-  #ifndef Z3_DRIVER_TYPE
-    #define Z3_DRIVER_TYPE _EDRV(Z3_E_INDEX)
-  #endif
-
   #ifndef Z3_STEP_PIN
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
     #define Z3_DIR_PIN    _EPIN(Z3_E_INDEX, DIR)
@@ -1488,10 +1470,6 @@
 #endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 4
-  #ifndef Z4_DRIVER_TYPE
-    #define Z4_DRIVER_TYPE _EDRV(Z4_E_INDEX)
-  #endif
-
   #ifndef Z4_STEP_PIN
     #define Z4_STEP_PIN   _EPIN(Z4_E_INDEX, STEP)
     #define Z4_DIR_PIN    _EPIN(Z4_E_INDEX, DIR)
