@@ -59,6 +59,14 @@
 #define Z_MAX_PIN          PA3
 
 //
+// Filament Sensor
+// share with X_MAX_PIN
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PA1
+#endif
+
+//
 // Servos
 // share with Z_MAX_PIN
 //
@@ -160,6 +168,7 @@
 //#define KILL_PIN           PC5
 
 #define SDSS               PA4
+#define SD_DETECT_PIN  	   PB10
 
 //
 // LCD / Controller
@@ -189,7 +198,6 @@
 
     #define BTN_EN1        PC6
     #define BTN_EN2        PC7
-    #define SD_DETECT_PIN  PB10
 
     #define LCD_SDSS       PA4
 
