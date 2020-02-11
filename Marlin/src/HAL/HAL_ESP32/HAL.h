@@ -65,8 +65,8 @@ extern portMUX_TYPE spinlock;
   #define NUM_SERIAL 1
 #endif
 
-#define CRITICAL_SECTION_START portENTER_CRITICAL(&spinlock)
-#define CRITICAL_SECTION_END   portEXIT_CRITICAL(&spinlock)
+#define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
+#define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&spinlock)
 #define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
 #define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
 #define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
