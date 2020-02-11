@@ -377,7 +377,7 @@ inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind
 void GCodeQueue::get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
 
-  static uint8_t serial_input_state[NUM_SERIAL] = { 0 };
+  static uint8_t serial_input_state[NUM_SERIAL] = { PS_NORMAL };
 
   #if ENABLED(BINARY_FILE_TRANSFER)
     if (card.flag.binary_mode) {
