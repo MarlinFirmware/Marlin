@@ -1334,6 +1334,7 @@
   //#define AO_EXP2_PINMAP    // AlephObjects CLCD UI EXP2 mapping
   //#define CR10_TFT_PINMAP   // Rudolph Riedel's CR10 pin mapping
   //#define OTHER_PIN_LAYOUT  // Define pins manually below
+  #define FYSETC_S6_TFT_PINMAP   // FYSETC S6 pin mapping
   #if ENABLED(OTHER_PIN_LAYOUT)
     // The pins for CS and MOD_RESET (PD) must be chosen.
     #define CLCD_MOD_RESET  9
