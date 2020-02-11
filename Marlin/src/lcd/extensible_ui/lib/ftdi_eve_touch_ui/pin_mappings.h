@@ -29,7 +29,7 @@
 
 #ifdef FYSETC_S6_TFT_PINMAP
   #ifndef __MARLIN_FIRMWARE__
-    #error This pin mapping requires Marlin.
+    #error "This pin mapping requires Marlin."
   #endif
 
   #define CLCD_SPI_CS         PC7
