@@ -138,7 +138,7 @@
   //
   #if (MOTHERBOARD == BOARD_TRIGORILLA_14)
     #define ANYCUBIC_4MAX
-  #elif (MOTHERBOARD == BOARD_BIGTREE_SKR_V1_4_TURBO)
+  #elif (MOTHERBOARD == BOARD_BTT_SKR_V1_4_TURBO)
     // ANYCUBIC_4MAX_SKR_1_4_PRO specific setting can be set here! 
   #else
     #error "### ERROR: No Supported MOTHERBOARD defined! Please check platformio.ini ###"
@@ -854,11 +854,11 @@
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-  #define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
   #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // Set to true to invert the logic of the probe.
 #endif
 /**
  * Stepper Drivers
@@ -1272,7 +1272,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1332,7 +1332,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define INVERT_E0_DIR true
 #else
   #define INVERT_E0_DIR false
@@ -1369,6 +1369,9 @@
   #define X_BED_SIZE 207
   #define Y_BED_SIZE 215
 #elif ENABLED(ANYCUBIC_4MAX_7OF9)
+  #define X_BED_SIZE 212
+  #define Y_BED_SIZE 215
+#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define X_BED_SIZE 212
   #define Y_BED_SIZE 215
 #else
@@ -1490,7 +1493,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define AUTO_BED_LEVELING_BILINEAR
 #else
   //#define AUTO_BED_LEVELING_BILINEAR
@@ -1568,7 +1571,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
       #define EXTRAPOLATE_BEYOND_GRID
     #else
       //#define EXTRAPOLATE_BEYOND_GRID
@@ -1578,14 +1581,14 @@
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
     //
-    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
       //#define ABL_BILINEAR_SUBDIVISION
     #else
       //#define ABL_BILINEAR_SUBDIVISION
     #endif
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       // Number of subdivisions between probe points
-      #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+      #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
         #define BILINEAR_SUBDIVISIONS 1
       #else
         //#define BILINEAR_SUBDIVISIONS 3
@@ -1630,7 +1633,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define LCD_BED_LEVELING
 #else
   //#define LCD_BED_LEVELING
@@ -2544,7 +2547,7 @@
   #define NEOPIXEL_PIXELS 8          // 39 --> 8 Is for testing.  Org device has 39 LED!!!         // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL     // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 200    // Initial brightness (0-255)
-  #define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
+  //#define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
 
   // Use a single Neopixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use

@@ -79,12 +79,21 @@
     #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
 #else
-#if ENABLED(BLTOUCH)
-  //#define Z_MIN_PIN      P0_10   // PWRDET
-  #define Z_STOP_PIN     P0_10   // Z-STOP
-#else 
-  #define Z_STOP_PIN     P0Z_DIAG_PIN   // Z-STOP
-#endif
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    //#define Z_MIN_PIN    P0_10  // Will be assigned through Z STOP PIN
+    #define Z_STOP_PIN     P0_10  // Z_MIN_PIN! --> P0_10 - PWRDET
+    #ifdef Z_DIAG_PIN
+      #undef Z_DIAG_PIN
+    #endif
+    #define Z_DIAG_PIN     Z_STOP_PIN
+  #else 
+    #define Z_STOP_PIN     Z_DIAG_PIN
+  #endif
+  #if ENABLED(USE_ZMAX_PLUG)
+    #define Z_MAX_PIN      P1_27   // PWRDET
+  #else
+    #define Z_MAX_PIN      P1_00   // PWRDET
+  #endif
 #endif
 
 //

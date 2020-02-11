@@ -2061,34 +2061,38 @@
  */
 #if HAS_TRINAMIC
 
-  #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
-  #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
+  //
+  // CHOICE OF RSENSE AND RESULTING MAX. MOTOR CURRENT WITH GLOBALSCALER=255
+  //
+  // | --------------------------------------------------------------------------|
+  // | RSENSE [Ω]  | RMS current [A](CS=31) | Sine wave peak current [A] (CS=31) |
+  // | 0.22        | 1.1                    | 1.5                                |
+  // | 0.15        | 1.6                    | 2.2                                |
+  // | 0.12        | 2.0                    | 2.8                                |
+  // | 0.10        | 2.3                    | 3.3                                |
+  // | 0.075       | 3.1                    | 4.4                                |
+  // | 0.066       | 3.5                    | 5.0                                |
+  // | 0.062       | 3.8                    | 5.4                                | <-- BTT TMC5161 v1.1
+  // | 0.060       | 3.8                    | 5.4                                |
+  // | --------------------------------------------------------------------------|
+  // Documentation --> 9 Selecting Sense Resistors List - https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5161-datasheet_Rev1.02.pdf
+  // BTT TMC5161 v1.1 has 0.062 Ω
+  //
+  #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define RSENSE      0.062f
+  #else 
+    #define RSENSE      0.11f
+  #endif
+  #define HOLD_MULTIPLIER     0.5   // Scales down the holding current from run current
+  #define INTERPOLATE         false // Interpolate X/Y/Z_MICROSTEPS to 256
+
 
   #if AXIS_IS_TMC(X)
-    #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
-    #define X_MICROSTEPS     16    // 0..256
-    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-      //
-      // CHOICE OF RSENSE AND RESULTING MAX. MOTOR CURRENT WITH GLOBALSCALER=255
-      //
-      // | --------------------------------------------------------------------------|
-      // | RSENSE [Ω]  | RMS current [A](CS=31) | Sine wave peak current [A] (CS=31) |
-      // | 0.22        | 1.1                    | 1.5                                |
-      // | 0.15        | 1.6                    | 2.2                                |
-      // | 0.12        | 2.0                    | 2.8                                |
-      // | 0.10        | 2.3                    | 3.3                                |
-      // | 0.075       | 3.1                    | 4.4                                |
-      // | 0.066       | 3.5                    | 5.0                                |
-      // | 0.060       | 3.8                    | 5.4                                | <-- 
-      // | --------------------------------------------------------------------------|
-      // Documentation --> 9 Selecting Sense Resistors List - https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5161-datasheet_Rev1.02.pdf
-      //
-      #define X_RSENSE         0.060 // TMC5161 
-    #else 
-      #define X_RSENSE         0.11
-    #endif
-    #define X_CHAIN_POS      -1    // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
+    #define X_CURRENT         800         // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_CURRENT_HOME    X_CURRENT   // (mA) RMS current for sensorless homing
+    #define X_MICROSTEPS      16          // 0..256
+    #define X_RSENSE          RSENSE      // ENter the TRINAMIC RSENSE for your driver
+    #define X_CHAIN_POS       0           // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
   #endif
 
   #if AXIS_IS_TMC(X2)
@@ -2100,15 +2104,11 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT       800
-    #define Y_CURRENT_HOME  Y_CURRENT
-    #define Y_MICROSTEPS     16
-    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-      #define Y_RSENSE         0.060 // TMC5161 
-    #else 
-      #define Y_RSENSE         0.11
-    #endif
-    #define Y_CHAIN_POS      -1
+    #define Y_CURRENT         800
+    #define Y_CURRENT_HOME    Y_CURRENT
+    #define Y_MICROSTEPS      16
+    #define Y_RSENSE          RSENSE
+    #define Y_CHAIN_POS       0
   #endif
 
   #if AXIS_IS_TMC(Y2)
@@ -2120,15 +2120,11 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT       800
-    #define Z_CURRENT_HOME  Z_CURRENT
-    #define Z_MICROSTEPS     16
-    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-      #define Z_RSENSE         0.060 // TMC5161 
-    #else 
-      #define Z_RSENSE         0.11
-    #endif
-    #define Z_CHAIN_POS      -1
+    #define Z_CURRENT         800
+    #define Z_CURRENT_HOME    Z_CURRENT
+    #define Z_MICROSTEPS      16
+    #define Z_RSENSE          RSENSE
+    #define Z_CHAIN_POS       0
   #endif
 
   #if AXIS_IS_TMC(Z2)
@@ -2156,62 +2152,58 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT      800
-    #define E0_MICROSTEPS    16
-    #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-      #define E0_RSENSE         0.060 // TMC5161 
-    #else 
-      #define E0_RSENSE         0.11
-    #endif
-    #define E0_CHAIN_POS     -1
+    #define E0_CURRENT        800
+    #define E0_MICROSTEPS     16
+    #define E0_RSENSE         RSENSE
+    #define E0_CHAIN_POS      0
   #endif
 
   #if AXIS_IS_TMC(E1)
     #define E1_CURRENT      800
     #define E1_MICROSTEPS    16
-    #define E1_RSENSE         0.11
+    #define E1_RSENSE         0.11f
     #define E1_CHAIN_POS     -1
   #endif
 
   #if AXIS_IS_TMC(E2)
     #define E2_CURRENT      800
     #define E2_MICROSTEPS    16
-    #define E2_RSENSE         0.11
+    #define E2_RSENSE         0.11f
     #define E2_CHAIN_POS     -1
   #endif
 
   #if AXIS_IS_TMC(E3)
     #define E3_CURRENT      800
     #define E3_MICROSTEPS    16
-    #define E3_RSENSE         0.11
+    #define E3_RSENSE         0.11f
     #define E3_CHAIN_POS     -1
   #endif
 
   #if AXIS_IS_TMC(E4)
     #define E4_CURRENT      800
     #define E4_MICROSTEPS    16
-    #define E4_RSENSE         0.11
+    #define E4_RSENSE         0.11f
     #define E4_CHAIN_POS     -1
   #endif
 
   #if AXIS_IS_TMC(E5)
     #define E5_CURRENT      800
     #define E5_MICROSTEPS    16
-    #define E5_RSENSE         0.11
+    #define E5_RSENSE         0.11f
     #define E5_CHAIN_POS     -1
   #endif
 
   #if AXIS_IS_TMC(E6)
     #define E6_CURRENT      800
     #define E6_MICROSTEPS    16
-    #define E6_RSENSE         0.11
+    #define E6_RSENSE         0.11f
     #define E6_CHAIN_POS     -1
   #endif
 
   #if AXIS_IS_TMC(E7)
     #define E7_CURRENT      800
     #define E7_MICROSTEPS    16
-    #define E7_RSENSE         0.11
+    #define E7_RSENSE         0.11f
     #define E7_CHAIN_POS     -1
   #endif
 
@@ -2342,7 +2334,7 @@
    * M913 X/Y/Z/E to live tune the setting
    */
   #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define HYBRID_THRESHOLD
+    //#define HYBRID_THRESHOLD
   #else
     //#define HYBRID_THRESHOLD
   #endif
@@ -3213,7 +3205,7 @@
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-//#define PINS_DEBUGGING
+#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
