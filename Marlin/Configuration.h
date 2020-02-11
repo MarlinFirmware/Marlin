@@ -173,9 +173,9 @@
  */
 #ifndef SHORT_BUILD_VERSION
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
-    #define SHORT_BUILD_VERSION "4MAX 2.0.55 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX 2.0.56 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.63 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.64 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #endif
 #endif
 
