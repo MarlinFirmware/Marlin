@@ -122,14 +122,14 @@ uint8_t eeprom_read_byte(uint8_t *pos);
 //
 // ADC
 //
-extern uint16_t HAL_adc_result;     // result of last ADC conversion
+extern uint16_t HAL_adc_result;     // Most recent ADC conversion
 
 #define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_init();
 
-#define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
-#define HAL_ADC_RESOLUTION  12
+//#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
+#define HAL_ADC_RESOLUTION  10      // ... 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true

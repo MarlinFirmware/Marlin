@@ -40,6 +40,7 @@ namespace Language_en {
   PROGMEM Language_Str LANGUAGE                            = _UxGT("English");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Ready.");
+  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
   PROGMEM Language_Str MSG_YES                             = _UxGT("YES");
   PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Back");

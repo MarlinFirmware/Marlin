@@ -163,8 +163,7 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
   if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') return true;
 
   if (_enqueue(cmd)) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ENQUEUEING, cmd, "\"");
+    SERIAL_ECHO_MSG(MSG_ENQUEUEING, cmd, "\"");
     return true;
   }
   return false;
@@ -310,6 +309,66 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
   return m29 && !NUMERIC(m29[3]);
 }
 
+#define PS_NORMAL 0
+#define PS_EOL    1
+#define PS_QUOTED 2
+#define PS_PAREN  3
+#define PS_ESC    4
+
+inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
+
+  if (sis == PS_EOL) return;    // EOL comment or overflow
+
+  #if ENABLED(PAREN_COMMENTS)
+    else if (sis == PS_PAREN) { // Inline comment
+      if (c == ')') sis = PS_NORMAL;
+      return;
+    }
+  #endif
+
+  else if (sis >= PS_ESC)       // End escaped char
+    sis -= PS_ESC;
+
+  else if (c == '\\') {         // Start escaped char
+    sis += PS_ESC;
+    if (sis == PS_ESC) return;  // Keep if quoting
+  }
+
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+
+    else if (sis == PS_QUOTED) {
+      if (c == '"') sis = PS_NORMAL; // End quoted string
+    }
+    else if (c == '"')          // Start quoted string
+      sis = PS_QUOTED;
+
+  #endif
+
+  else if (c == ';') {          // Start end-of-line comment
+    sis = PS_EOL;
+    return;
+  }
+
+  #if ENABLED(PAREN_COMMENTS)
+    else if (c == '(') {        // Start inline comment
+      sis = PS_PAREN;
+      return;
+    }
+  #endif
+
+  buff[ind++] = c;
+  if (ind >= MAX_CMD_SIZE - 1)
+    sis = PS_EOL;               // Skip the rest on overflow
+}
+
+inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
+  sis = PS_NORMAL;
+  if (!ind) { thermalManager.manage_heater(); return true; }
+  buff[ind] = 0;
+  ind = 0;
+  return false;
+}
+
 /**
  * Get all commands waiting on the serial port and queue them.
  * Exit when the buffer is full or when no more characters are
@@ -317,11 +376,8 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
  */
 void GCodeQueue::get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
-  static bool serial_comment_mode[NUM_SERIAL] = { false }
-              #if ENABLED(PAREN_COMMENTS)
-                , serial_comment_paren_mode[NUM_SERIAL] = { false }
-              #endif
-            ;
+
+  static uint8_t serial_input_state[NUM_SERIAL] = { 0 };
 
   #if ENABLED(BINARY_FILE_TRANSFER)
     if (card.flag.binary_mode) {
@@ -351,27 +407,15 @@ void GCodeQueue::get_serial_commands() {
    */
   while (length < BUFSIZE && serial_data_available()) {
     for (uint8_t i = 0; i < NUM_SERIAL; ++i) {
-      int c;
-      if ((c = read_serial(i)) < 0) continue;
 
-      char serial_char = c;
+      const int c = read_serial(i);
+      if (c < 0) continue;
 
-      /**
-       * If the character ends the line
-       */
+      const char serial_char = c;
+
       if (serial_char == '\n' || serial_char == '\r') {
 
-        // Start with comment mode off
-        serial_comment_mode[i] = false;
-        #if ENABLED(PAREN_COMMENTS)
-          serial_comment_paren_mode[i] = false;
-        #endif
-
-        // Skip empty lines and comments
-        if (!serial_count[i]) { thermalManager.manage_heater(); continue; }
-
-        serial_line_buffer[i][serial_count[i]] = 0;       // Terminate string
-        serial_count[i] = 0;                              // Reset buffer
+        process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i]);
 
         char* command = serial_line_buffer[i];
 
@@ -410,16 +454,17 @@ void GCodeQueue::get_serial_commands() {
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
-        // Movement commands alert when stopped
+        //
+        // Movement commands give an alert when the machine is stopped
+        //
+
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
-              case 0:
-              case 1:
+              case 0: case 1:
               #if ENABLED(ARC_SUPPORT)
-                case 2:
-                case 3:
+                case 2: case 3:
               #endif
               #if ENABLED(BEZIER_CURVE_SUPPORT)
                 case 5:
@@ -454,31 +499,9 @@ void GCodeQueue::get_serial_commands() {
           #endif
         );
       }
-      else if (serial_count[i] >= MAX_CMD_SIZE - 1) {
-        // Keep fetching, but ignore normal characters beyond the max length
-        // The command will be injected when EOL is reached
-      }
-      else if (serial_char == '\\') {  // Handle escapes
-        // if we have one more character, copy it over
-        if ((c = read_serial(i)) >= 0 && !serial_comment_mode[i]
-          #if ENABLED(PAREN_COMMENTS)
-            && !serial_comment_paren_mode[i]
-          #endif
-        )
-          serial_line_buffer[i][serial_count[i]++] = (char)c;
-      }
-      else { // it's not a newline, carriage return or escape char
-        if (serial_char == ';') serial_comment_mode[i] = true;
-        #if ENABLED(PAREN_COMMENTS)
-          else if (serial_char == '(') serial_comment_paren_mode[i] = true;
-          else if (serial_char == ')') serial_comment_paren_mode[i] = false;
-        #endif
-        else if (!serial_comment_mode[i]
-          #if ENABLED(PAREN_COMMENTS)
-            && ! serial_comment_paren_mode[i]
-          #endif
-        ) serial_line_buffer[i][serial_count[i]++] = serial_char;
-      }
+      else
+        process_stream_char(serial_char, serial_input_state[i], serial_line_buffer[i], serial_count[i]);
+
     } // for NUM_SERIAL
   } // queue has space, serial has data
 }
@@ -491,21 +514,17 @@ void GCodeQueue::get_serial_commands() {
    * can also interrupt buffering.
    */
   inline void GCodeQueue::get_sdcard_commands() {
-    static bool sd_comment_mode = false
-                #if ENABLED(PAREN_COMMENTS)
-                  , sd_comment_paren_mode = false
-                #endif
-              ;
+    static uint8_t sd_input_state = PS_NORMAL;
 
     if (!IS_SD_PRINTING()) return;
 
-    uint16_t sd_count = 0;
+    int sd_count = 0;
     bool card_eof = card.eof();
     while (length < BUFSIZE && !card_eof) {
       const int16_t n = card.get();
-      char sd_char = (char)n;
       card_eof = card.eof();
-      if (card_eof || n == -1 || sd_char == '\n' || sd_char == '\r') {
+      const char sd_char = (char)n;
+      if (card_eof || n < 0 || sd_char == '\n' || sd_char == '\r') {
         if (card_eof) {
 
           card.printingHasFinished();
@@ -517,7 +536,7 @@ void GCodeQueue::get_serial_commands() {
             #if ENABLED(PRINTER_EVENT_LEDS)
               printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
-                inject_P(PSTR("M0 S"
+                enqueue_now_P(PSTR("M0 Q S"
                   #if HAS_LCD_MENU
                     "1800"
                   #else
@@ -525,22 +544,13 @@ void GCodeQueue::get_serial_commands() {
                   #endif
                 ));
               #endif
-            #endif // PRINTER_EVENT_LEDS
+            #endif
           }
         }
-        else if (n == -1)
+        else if (n < 0)
           SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
 
-        sd_comment_mode = false; // for new command
-        #if ENABLED(PAREN_COMMENTS)
-          sd_comment_paren_mode = false;
-        #endif
-
-        // Skip empty lines and comments
-        if (!sd_count) { thermalManager.manage_heater(); continue; }
-
-        command_buffer[index_w][sd_count] = '\0'; // terminate string
-        sd_count = 0; // clear sd line buffer
+        process_line_done(sd_input_state, command_buffer[index_w], sd_count);
 
         _commit_command(false);
 
@@ -548,24 +558,9 @@ void GCodeQueue::get_serial_commands() {
           recovery.cmd_sdpos = card.getIndex(); // Prime for the next _commit_command
         #endif
       }
-      else if (sd_count >= MAX_CMD_SIZE - 1) {
-        /**
-         * Keep fetching, but ignore normal characters beyond the max length
-         * The command will be injected when EOL is reached
-         */
-      }
-      else {
-        if (sd_char == ';') sd_comment_mode = true;
-        #if ENABLED(PAREN_COMMENTS)
-          else if (sd_char == '(') sd_comment_paren_mode = true;
-          else if (sd_char == ')') sd_comment_paren_mode = false;
-        #endif
-        else if (!sd_comment_mode
-          #if ENABLED(PAREN_COMMENTS)
-            && ! sd_comment_paren_mode
-          #endif
-        ) command_buffer[index_w][sd_count++] = sd_char;
-      }
+      else
+        process_stream_char(sd_char, sd_input_state, command_buffer[index_w], sd_count);
+
     }
   }
 

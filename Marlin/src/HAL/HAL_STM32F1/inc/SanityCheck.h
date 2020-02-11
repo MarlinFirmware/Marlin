@@ -37,7 +37,7 @@
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
 
-#if !defined(HAVE_SW_SERIAL) && TMC_HAS_SW_SERIAL
+#if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
   #warning "With TMC2208/9 consider using SoftwareSerialM with HAVE_SW_SERIAL and appropriate SS_TIMER."
   #error "Missing SoftwareSerial implementation."
 #endif

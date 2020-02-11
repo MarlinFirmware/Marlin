@@ -21,7 +21,10 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
+//
+// Included by MarlinConfigPre.h ahead of Configuration_adv.h.
+// Don't use #if in this file for anything not defined early!
+//
 
 #define _A4988              0x4988
 #define _A5984              0x5984
@@ -52,17 +55,13 @@
 #define _TMC5160_STANDALONE 0x5160B
 
 #define _DRIVER_ID(V) _CAT(_, V)
-#define _AXIS_DRIVER_TYPE(A,T) (_DRIVER_ID(A##_DRIVER_TYPE) == _CAT(_, T))
+#define _AXIS_DRIVER_TYPE(A,T) (_DRIVER_ID(A##_DRIVER_TYPE) == _DRIVER_ID(T))
 
 #define AXIS_DRIVER_TYPE_X(T) _AXIS_DRIVER_TYPE(X,T)
 #define AXIS_DRIVER_TYPE_Y(T) _AXIS_DRIVER_TYPE(Y,T)
 #define AXIS_DRIVER_TYPE_Z(T) _AXIS_DRIVER_TYPE(Z,T)
 
-#if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
-  #define AXIS_DRIVER_TYPE_X2(T) _AXIS_DRIVER_TYPE(X2,T)
-#else
-  #define AXIS_DRIVER_TYPE_X2(T) false
-#endif
+#define AXIS_DRIVER_TYPE_X2(T) (EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE) && _AXIS_DRIVER_TYPE(X2,T))
 #define AXIS_DRIVER_TYPE_Y2(T) (ENABLED(Y_DUAL_STEPPER_DRIVERS) && _AXIS_DRIVER_TYPE(Y2,T))
 #define AXIS_DRIVER_TYPE_Z2(T) (NUM_Z_STEPPER_DRIVERS >= 2 && _AXIS_DRIVER_TYPE(Z2,T))
 #define AXIS_DRIVER_TYPE_Z3(T) (NUM_Z_STEPPER_DRIVERS >= 3 && _AXIS_DRIVER_TYPE(Z3,T))
@@ -148,19 +147,32 @@
                                    || AXIS_DRIVER_TYPE(A,TMC5130) \
                                    || AXIS_DRIVER_TYPE(A,TMC5160) )
 
+#define AXIS_HAS_SG_RESULT(A)    (    AXIS_DRIVER_TYPE(A,TMC2130) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2160) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2208) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2209) )
+
+#define AXIS_HAS_COOLSTEP(A)     (    AXIS_DRIVER_TYPE(A,TMC2130) \
+                                   || AXIS_DRIVER_TYPE(A,TMC2209) \
+                                   || AXIS_DRIVER_TYPE(A,TMC5130) \
+                                   || AXIS_DRIVER_TYPE(A,TMC5160) )
+
+#define _OR_EAH(N,T)    || AXIS_HAS_##T(E##N)
+#define E_AXIS_HAS(T)   (0 RREPEAT2(E_STEPPERS, _OR_EAH, T))
+
 #define ANY_AXIS_HAS(T) (    AXIS_HAS_##T(X)  || AXIS_HAS_##T(X2) \
                           || AXIS_HAS_##T(Y)  || AXIS_HAS_##T(Y2) \
                           || AXIS_HAS_##T(Z)  || AXIS_HAS_##T(Z2) \
-                          || AXIS_HAS_##T(Z3) \
-                          || AXIS_HAS_##T(E0) || AXIS_HAS_##T(E1) \
-                          || AXIS_HAS_##T(E2) || AXIS_HAS_##T(E3) \
-                          || AXIS_HAS_##T(E4) || AXIS_HAS_##T(E5) \
-                          || AXIS_HAS_##T(E6) || AXIS_HAS_##T(E7) )
+                          || AXIS_HAS_##T(Z3) || AXIS_HAS_##T(Z4) \
+                          || E_AXIS_HAS(T) )
 
 #define HAS_STEALTHCHOP    ANY_AXIS_HAS(STEALTHCHOP)
 #define HAS_STALLGUARD     ANY_AXIS_HAS(STALLGUARD)
-#define TMC_HAS_SPI        ANY_AXIS_HAS(SPI)
-#define TMC_HAS_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
+#define HAS_SG_RESULT      ANY_AXIS_HAS(SG_RESULT)
+#define HAS_COOLSTEP       ANY_AXIS_HAS(COOLSTEP)
+#define HAS_TMC_UART       ANY_AXIS_HAS(UART)
+#define HAS_TMC_SPI        ANY_AXIS_HAS(SPI)
+#define HAS_TMC_SW_SERIAL  ANY_AXIS_HAS(SW_SERIAL)
 
 //
 // Stretching 'drivers.h' to include LPC/SAMD51 SD options

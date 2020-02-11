@@ -264,11 +264,11 @@
 #define SD_DETECT_PIN       9   // H6
 
 //
-//TMC 2208
+// TMC 220x
 //
-#if HAS_DRIVER(TMC2208)
+#if HAS_TMC_UART
   /**
-   * TMC2208 stepper drivers
+   * TMC220x stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below

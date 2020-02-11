@@ -82,7 +82,7 @@
 //
 // TMC2208 UART pins
 //
-#if HAS_DRIVER(TMC2208)
+#if HAS_TMC_UART
   #define X_SERIAL_TX_PIN  P1_00
   #define X_SERIAL_RX_PIN  P1_00
   #define Y_SERIAL_TX_PIN  P1_09

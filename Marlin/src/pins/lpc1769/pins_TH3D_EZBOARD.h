@@ -74,9 +74,9 @@
 #define E1_DIR_PIN         P2_13
 #define E1_ENABLE_PIN      P4_29
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_TMC_UART
   //
-  // TMC2208 stepper drivers
+  // TMC220x stepper drivers
   // Software serial
   //
   #define X_SERIAL_TX_PIN  P0_04
