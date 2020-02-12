@@ -363,8 +363,8 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
 
 inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
   sis = PS_NORMAL;
-  if (!ind) { thermalManager.manage_heater(); return true; }
   buff[ind] = 0;
+  if (!ind) { thermalManager.manage_heater(); return true; }
   ind = 0;
   return false;
 }
