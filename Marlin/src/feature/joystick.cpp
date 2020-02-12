@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -164,7 +164,7 @@ Joystick joystick;
     LOOP_XYZ(i) if (norm_jog[i]) {
       move_dist[i] = seg_time * norm_jog[i] *
         #if ENABLED(EXTENSIBLE_UI)
-          MMM_TO_MMS(manual_feedrate_mm_m[i]);
+          manual_feedrate_mm_s[i];
         #else
           planner.settings.max_feedrate_mm_s[i];
         #endif

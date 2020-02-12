@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -280,7 +280,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         , true
       #endif
     );
-    xyze_pos_t &cartes = pos;
+    const xyze_pos_t &cartes = pos;
   #endif
   if (axis == ALL_AXES)
     current_position = cartes;
@@ -547,7 +547,7 @@ void restore_feedrate_and_scaling() {
       soft_endstop.min[axis] = base_min_pos(axis);
       soft_endstop.max[axis] = (axis == Z_AXIS ? delta_height
       #if HAS_BED_PROBE
-        - probe_offset.z
+        - probe.offset.z
       #endif
       : base_max_pos(axis));
 
@@ -1281,7 +1281,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   #if HOMING_Z_WITH_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
     if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
-      serialprintPGM(msg_wait_for_bed_heating);
+      serialprintPGM(probe.msg_wait_for_bed_heating);
       #if HAS_DISPLAY
         LCD_MESSAGEPGM(MSG_BED_HEATING);
       #endif
@@ -1307,7 +1307,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && QUIET_PROBING
-      if (axis == Z_AXIS) probing_pause(true);
+      if (axis == Z_AXIS) probe.set_probing_paused(true);
     #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -1347,7 +1347,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && QUIET_PROBING
-      if (axis == Z_AXIS) probing_pause(false);
+      if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
 
     endstops.validate_homing_move();
@@ -1397,7 +1397,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS ? delta_height
     #if HAS_BED_PROBE
-      - probe_offset.z
+      - probe.offset.z
     #endif
     : base_home_pos(axis));
   #else
@@ -1411,9 +1411,9 @@ void set_axis_is_at_home(const AxisEnum axis) {
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
 
-        current_position.z -= probe_offset.z;
+        current_position.z -= probe.offset.z;
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe_offset.z = ", probe_offset.z);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
 
       #else
 
@@ -1509,7 +1509,7 @@ void homeaxis(const AxisEnum axis) {
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS && DEPLOY_PROBE()) return;
+    if (axis == Z_AXIS && probe.deploy()) return;
   #endif
 
   // Set flags for X, Y, Z motor locking
@@ -1751,14 +1751,13 @@ void homeaxis(const AxisEnum axis) {
 
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS && STOW_PROBE()) return;
+    if (axis == Z_AXIS && probe.stow()) return;
   #endif
 
   #if DISABLED(DELTA) && defined(HOMING_BACKOFF_MM)
-    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
-    const float backoff_mm = endstop_backoff[axis];
-    if (backoff_mm) {
-      current_position[axis] -= ABS(backoff_mm) * axis_home_dir;
+    const xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
+    if (endstop_backoff[axis]) {
+      current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
       line_to_current_position(
         #if HOMING_Z_WITH_PROBE
           (axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) :

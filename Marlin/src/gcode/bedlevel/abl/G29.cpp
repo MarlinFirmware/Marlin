@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -269,7 +269,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     vector_3 points[3];
-    get_three_probe_points(points);
+    probe.get_three_points(points);
 
   #endif // AUTO_BED_LEVELING_3POINT
 
@@ -392,8 +392,8 @@ G29_TYPE GcodeSuite::G29() {
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
-      const float x_min = probe_min_x(), x_max = probe_max_x(),
-                  y_min = probe_min_y(), y_max = probe_max_y();
+      const float x_min = probe.min_x(), x_max = probe.max_x(),
+                  y_min = probe.min_y(), y_max = probe.max_y();
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
@@ -452,7 +452,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if HAS_BED_PROBE
       // Deploy the probe. Probe will raise if needed.
-      if (DEPLOY_PROBE()) {
+      if (probe.deploy()) {
         set_bed_leveling_enabled(abl_should_enable);
         G29_RETURN(false);
       }
@@ -712,7 +712,7 @@ G29_TYPE GcodeSuite::G29() {
             ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
           #endif
 
-          measured_z = faux ? 0.001f * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
+          measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(probePos, raise_after, verbose_level);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
@@ -764,7 +764,7 @@ G29_TYPE GcodeSuite::G29() {
 
         // Retain the last probe position
         probePos = points[i];
-        measured_z = faux ? 0.001 * random(-100, 101) : probe_at_point(probePos, raise_after, verbose_level);
+        measured_z = faux ? 0.001 * random(-100, 101) : probe.probe_at_point(probePos, raise_after, verbose_level);
         if (isnan(measured_z)) {
           set_bed_leveling_enabled(abl_should_enable);
           break;
@@ -788,7 +788,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
-    if (STOW_PROBE()) {
+    if (probe.stow()) {
       set_bed_leveling_enabled(abl_should_enable);
       measured_z = NAN;
     }
@@ -923,8 +923,8 @@ G29_TYPE GcodeSuite::G29() {
         planner.force_unapply_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position.x, probePos.x - probe_offset_xy.x)
-          && NEAR(current_position.y, probePos.y - probe_offset_xy.y)
+        if ( NEAR(current_position.x, probePos.x - probe.offset_xy.x)
+          && NEAR(current_position.y, probePos.y - probe.offset_xy.y)
         ) {
           const float simple_z = current_position.z - measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);
@@ -958,13 +958,11 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
-
-  if (planner.leveling_active)
-    sync_plan_position();
+  // Sync the planner from the current_position
+  if (planner.leveling_active) sync_plan_position();
 
   #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
-    move_z_after_probing();
+    probe.move_z_after_probing();
   #endif
 
   #ifdef Z_PROBE_END_SCRIPT
@@ -974,6 +972,8 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
+
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
 
   G29_RETURN(isnan(measured_z));
 }

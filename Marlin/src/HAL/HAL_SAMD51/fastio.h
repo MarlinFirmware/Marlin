@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -88,8 +88,8 @@
                                   const EPortType port = (EPortType)GET_SAMD_PORT(IO);              \
                                   const uint32_t pin = GET_SAMD_PIN(IO);                            \
                                                                                                     \
-                                  PORT->Group[port].PINCFG[pin].reg = (uint8_t)(PORT_PINCFG_INEN);  \
                                   PORT->Group[port].DIRSET.reg = MASK(pin);                         \
+                                  PORT->Group[port].PINCFG[pin].reg = 0;                            \
                                 }while(0)
 // Set pin as output (open drain)
 #define SET_OUTPUT_OD(IO)       do{                                                                   \
@@ -245,6 +245,7 @@
   #define DIO17_PIN   PIN_PC23
   #define DIO88_PIN   PIN_PC24    // NEOPIXEL
   // PORTD
+  #define DIO53_PIN   PIN_PD10
   #define DIO22_PIN   PIN_PD12
   #define DIO6_PIN    PIN_PD20
   #define DIO7_PIN    PIN_PD21

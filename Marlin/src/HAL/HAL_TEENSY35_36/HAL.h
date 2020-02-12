@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  *
@@ -73,8 +73,8 @@ typedef int8_t pin_t;
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif
 
-#define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); __disable_irq()
-#define CRITICAL_SECTION_END    if (!primask) __enable_irq()
+#define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
 #define ISRS_ENABLED() (!__get_primask())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()

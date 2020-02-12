@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -125,8 +125,8 @@ uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
   #define SIG_DELAY() DELAY_US(1)   // Approximate a 1µs delay on 32-bit ARM
   #undef CRITICAL_SECTION_START
   #undef CRITICAL_SECTION_END
-  #define CRITICAL_SECTION_START NOOP
-  #define CRITICAL_SECTION_END   NOOP
+  #define CRITICAL_SECTION_START() NOOP
+  #define CRITICAL_SECTION_END()   NOOP
 #else
   #define SIG_DELAY() DELAY_NS(188) // Delay for 0.1875µs (16MHz AVR) or 0.15µs (20MHz AVR)
 #endif
@@ -163,7 +163,7 @@ inline uint32_t flipped(const uint32_t bits, const uint8_t n_bytes) {
 }
 
 void Max7219::noop() {
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START();
   SIG_DELAY();
   WRITE(MAX7219_DIN_PIN, LOW);
   for (uint8_t i = 16; i--;) {
@@ -174,11 +174,11 @@ void Max7219::noop() {
     WRITE(MAX7219_CLK_PIN, HIGH);
     SIG_DELAY();
   }
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END();
 }
 
 void Max7219::putbyte(uint8_t data) {
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START();
   for (uint8_t i = 8; i--;) {
     SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, LOW);       // tick
@@ -189,7 +189,7 @@ void Max7219::putbyte(uint8_t data) {
     SIG_DELAY();
     data <<= 1;
   }
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END();
 }
 
 void Max7219::pulse_load() {
@@ -202,12 +202,12 @@ void Max7219::pulse_load() {
 
 void Max7219::send(const uint8_t reg, const uint8_t data) {
   SIG_DELAY();
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START();
   SIG_DELAY();
   putbyte(reg);          // specify register
   SIG_DELAY();
   putbyte(data);         // put data
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END();
 }
 
 // Send out a single native row of bits to just one unit
@@ -574,14 +574,14 @@ void Max7219::idle_tasks() {
   #define MAX7219_USE_HEAD (defined(MAX7219_DEBUG_PLANNER_HEAD) || defined(MAX7219_DEBUG_PLANNER_QUEUE))
   #define MAX7219_USE_TAIL (defined(MAX7219_DEBUG_PLANNER_TAIL) || defined(MAX7219_DEBUG_PLANNER_QUEUE))
   #if MAX7219_USE_HEAD || MAX7219_USE_TAIL
-    CRITICAL_SECTION_START;
+    CRITICAL_SECTION_START();
     #if MAX7219_USE_HEAD
       const uint8_t head = planner.block_buffer_head;
     #endif
     #if MAX7219_USE_TAIL
       const uint8_t tail = planner.block_buffer_tail;
     #endif
-    CRITICAL_SECTION_END;
+    CRITICAL_SECTION_END();
   #endif
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)

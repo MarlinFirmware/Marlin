@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -135,15 +135,6 @@ void HAL_init() {
       TOGGLE(LED_PIN);     // Flash quickly during USB initialization
     #endif
   }
-
-  #if NUM_SERIAL > 0
-    MYSERIAL0.begin(BAUDRATE);
-    #if NUM_SERIAL > 1
-      MYSERIAL1.begin(BAUDRATE);
-    #endif
-    SERIAL_PRINTF("\n\necho:%s (%dMhz) Initialized\n", isLPC1769() ? "LPC1769" : "LPC1768", SystemCoreClock / 1000000);
-    SERIAL_FLUSHTX();
-  #endif
 
   HAL_timer_init();
 }

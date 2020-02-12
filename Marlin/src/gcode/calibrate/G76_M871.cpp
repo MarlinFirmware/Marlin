@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -113,8 +113,8 @@ void GcodeSuite::G76() {
     }
     // Ensure probe position is reachable
     destination.set(
-      temp_comp.measure_point_x - probe_offset.x,
-      temp_comp.measure_point_y - probe_offset.y
+      temp_comp.measure_point_x - probe.offset_xy.x,
+      temp_comp.measure_point_y - probe.offset_xy.y
     );
     if (!position_is_reachable_by_probe(destination)) {
       SERIAL_ECHOLNPGM("!Probe position unreachable - aborting.");
@@ -209,9 +209,9 @@ void GcodeSuite::G76() {
 
       // Do a single probe
       remember_feedrate_scaling_off();
-      const float measured_z = probe_at_point(
-        destination.x + probe_offset.x,
-        destination.y + probe_offset.y,
+      const float measured_z = probe.probe_at_point(
+        destination.x + probe.offset_xy.x,
+        destination.y + probe.offset_xy.y,
         PROBE_PT_NONE
       );
       restore_feedrate_and_scaling();
@@ -318,9 +318,9 @@ void GcodeSuite::G76() {
 
       // Do a single probe
       remember_feedrate_scaling_off();
-      const float measured_z = probe_at_point(
-        destination.x + probe_offset.x,
-        destination.y + probe_offset.y,
+      const float measured_z = probe.probe_at_point(
+        destination.x + probe.offset_xy.x,
+        destination.y + probe.offset_xy.y,
         PROBE_PT_NONE
       );
       restore_feedrate_and_scaling();

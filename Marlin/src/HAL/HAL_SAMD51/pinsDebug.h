@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -149,5 +149,6 @@ void pwm_details(int32_t pin) {
  *  92             |  PA9   | QSPI: IO1
  *  93             |  PA10  | QSPI: IO2
  *  94             |  PA11  | QSPI: IO3
+ *  95             |  PB31  | SD: DETECT
  *
  */

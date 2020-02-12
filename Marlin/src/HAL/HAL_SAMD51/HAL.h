@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -101,8 +101,8 @@ typedef int8_t pin_t;
 //
 // Interrupts
 //
-#define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
-#define CRITICAL_SECTION_END    if (!primask) __enable_irq()
+#define CRITICAL_SECTION_START()  uint32_t primask = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
@@ -122,14 +122,14 @@ uint8_t eeprom_read_byte(uint8_t *pos);
 //
 // ADC
 //
-extern uint16_t HAL_adc_result;     // result of last ADC conversion
+extern uint16_t HAL_adc_result;     // Most recent ADC conversion
 
 #define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_init();
 
-#define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
-#define HAL_ADC_RESOLUTION  12
+//#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
+#define HAL_ADC_RESOLUTION  10      // ... 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true

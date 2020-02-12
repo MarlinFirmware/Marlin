@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -43,6 +43,7 @@ bed_mesh_t z_values;
  * Extrapolate a single point from its neighbors
  */
 static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
+  if (!isnan(z_values[x][y])) return;
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOPGM("Extrapolate [");
     if (x < 10) DEBUG_CHAR(' ');
@@ -53,10 +54,6 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
     DEBUG_ECHO((int)y);
     DEBUG_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
     DEBUG_ECHOLNPGM("]");
-  }
-  if (!isnan(z_values[x][y])) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" (done)");
-    return;  // Don't overwrite good values.
   }
 
   // Get X neighbors, Y neighbors, and XY neighbors

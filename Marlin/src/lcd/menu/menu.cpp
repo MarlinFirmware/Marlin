@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -384,7 +384,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
   void line_to_z(const float &z) {
     current_position.z = z;
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.z));
+    line_to_current_position(manual_feedrate_mm_s.z);
   }
 
 #endif
@@ -406,7 +406,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_probe_offset = probe_offset.z + diff,
+                  new_probe_offset = probe.offset.z + diff,
                   new_offs =
                     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
                       do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
@@ -418,7 +418,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 
-        if (do_probe) probe_offset.z = new_offs;
+        if (do_probe) probe.offset.z = new_offs;
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
           else hotend_offset[active_extruder].z = new_offs;
         #endif
@@ -432,10 +432,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
           MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), LCD_Z_OFFSET_FUNC(hotend_offset[active_extruder].z));
         else
       #endif
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), LCD_Z_OFFSET_FUNC(probe_offset.z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), LCD_Z_OFFSET_FUNC(probe.offset.z));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        if (do_probe) _lcd_zoffset_overlay_gfx(probe_offset.z);
+        if (do_probe) _lcd_zoffset_overlay_gfx(probe.offset.z);
       #endif
     }
   }

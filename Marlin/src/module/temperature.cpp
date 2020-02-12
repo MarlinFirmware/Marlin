@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -59,7 +59,7 @@
   );
 #endif
 
-#define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PIN_EXISTS(MAX6675_SCK, MAX6675_DO))
+#define MAX6675_SEPARATE_SPI (EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PINS_EXIST(MAX6675_SCK, MAX6675_DO))
 
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
@@ -679,25 +679,8 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     static const uint8_t fanBit[] PROGMEM = {
       0
       #if HOTENDS > 1
-        , REPEAT2(1,_EFAN,1) 1
-        #if HOTENDS > 2
-          , REPEAT2(2,_EFAN,2) 2
-          #if HOTENDS > 3
-            , REPEAT2(3,_EFAN,3) 3
-            #if HOTENDS > 4
-              , REPEAT2(4,_EFAN,4) 4
-              #if HOTENDS > 5
-                , REPEAT2(5,_EFAN,5) 5
-                #if HOTENDS > 6
-                  , REPEAT2(6,_EFAN,6) 6
-                  #if HOTENDS > 7
-                    , REPEAT2(7,_EFAN,7) 7
-                  #endif
-                #endif
-              #endif
-            #endif
-          #endif
-        #endif
+        #define _NEXT_FAN(N) , REPEAT2(N,_EFAN,N) N
+        RREPEAT_S(1, HOTENDS, _NEXT_FAN)
       #endif
       #if HAS_AUTO_CHAMBER_FAN
         #define _CFAN(B) _FANOVERLAP(CHAMBER,B) ? B :
@@ -1050,7 +1033,7 @@ void Temperature::manage_heater() {
   #endif
 
   #if ENABLED(EMERGENCY_PARSER)
-    if (emergency_parser.killed_by_M112) kill();
+    if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
   #endif
 
   if (!raw_temps_ready) return;
@@ -1326,7 +1309,7 @@ void Temperature::manage_heater() {
     const user_thermistor_t &t = user_thermistor[t_index];
 
     SERIAL_ECHOPAIR_F(" R", t.series_res, 1);
-    SERIAL_ECHOPAIR_F(" T", t.res_25, 1);
+    SERIAL_ECHOPAIR_F_P(SP_T_STR, t.res_25, 1);
     SERIAL_ECHOPAIR_F(" B", t.beta, 1);
     SERIAL_ECHOPAIR_F(" C", t.sh_c_coeff, 9);
     SERIAL_ECHOPGM(" ; ");
@@ -2116,10 +2099,10 @@ void Temperature::disable_all_heaters() {
     pause(false);
   #endif
 
-  #define DISABLE_HEATER(NR) { \
-    setTargetHotend(0, NR); \
-    temp_hotend[NR].soft_pwm_amount = 0; \
-    WRITE_HEATER_ ##NR (LOW); \
+  #define DISABLE_HEATER(N) {           \
+    setTargetHotend(0, N);              \
+    temp_hotend[N].soft_pwm_amount = 0; \
+    WRITE_HEATER_##N(LOW);              \
   }
 
   #if HAS_TEMP_HOTEND
@@ -2143,7 +2126,7 @@ void Temperature::disable_all_heaters() {
 
   bool Temperature::over_autostart_threshold() {
     #if HOTENDS
-      HOTEND_LOOP() if (degTargetHotend(e) < (EXTRUDE_MINTEMP) / 2) return true;
+      HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
     #endif
     #if HAS_HEATED_BED
       if (degTargetBed() > BED_MINTEMP) return true;
@@ -2331,25 +2314,26 @@ void Temperature::update_raw_temperatures() {
     #elif DISABLED(HEATER_1_USES_MAX6675)
       temp_hotend[1].update();
     #endif
-    #if HAS_TEMP_ADC_2
-      temp_hotend[2].update();
-      #if HAS_TEMP_ADC_3
-        temp_hotend[3].update();
-        #if HAS_TEMP_ADC_4
-          temp_hotend[4].update();
-          #if HAS_TEMP_ADC_5
-            temp_hotend[5].update();
-            #if HAS_TEMP_ADC_6
-              temp_hotend[6].update();
-              #if HAS_TEMP_ADC_7
-                temp_hotend[7].update();
-              #endif // HAS_TEMP_ADC_7
-            #endif // HAS_TEMP_ADC_6
-          #endif // HAS_TEMP_ADC_5
-        #endif // HAS_TEMP_ADC_4
-      #endif // HAS_TEMP_ADC_3
-    #endif // HAS_TEMP_ADC_2
-  #endif // HAS_TEMP_ADC_1
+  #endif
+
+  #if HAS_TEMP_ADC_2
+    temp_hotend[2].update();
+  #endif
+  #if HAS_TEMP_ADC_3
+    temp_hotend[3].update();
+  #endif
+  #if HAS_TEMP_ADC_4
+    temp_hotend[4].update();
+  #endif
+  #if HAS_TEMP_ADC_5
+    temp_hotend[5].update();
+  #endif
+  #if HAS_TEMP_ADC_6
+    temp_hotend[6].update();
+  #endif
+  #if HAS_TEMP_ADC_7
+    temp_hotend[7].update();
+  #endif
 
   #if HAS_HEATED_BED
     temp_bed.update();
@@ -2607,10 +2591,10 @@ void Temperature::tick() {
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
-        #define _FAN_PWM(N) do{ \
-          uint8_t &spcf = soft_pwm_count_fan[N]; \
+        #define _FAN_PWM(N) do{                                     \
+          uint8_t &spcf = soft_pwm_count_fan[N];                    \
           spcf = (spcf & pwm_mask) + (soft_pwm_amount_fan[N] >> 1); \
-          WRITE_FAN(N, spcf > pwm_mask ? HIGH : LOW); \
+          WRITE_FAN(N, spcf > pwm_mask ? HIGH : LOW);               \
         }while(0)
         #if HAS_FAN0
           _FAN_PWM(0);

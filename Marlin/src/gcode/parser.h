@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -208,6 +208,12 @@ public:
     return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
   }
 
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+    static char* unescape_string(char* &src);
+  #else
+    FORCE_INLINE static char* unescape_string(char* &src) { return src; }
+  #endif
+
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
@@ -222,6 +228,9 @@ public:
 
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
+
+  // Float removes 'E' to prevent scientific notation interpretation
+  static inline char* value_string() { return value_ptr; }
 
   // Float removes 'E' to prevent scientific notation interpretation
   static inline float value_float() {
@@ -366,9 +375,10 @@ public:
 
   static inline feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 
-  void unknown_command_error();
+  void unknown_command_warning();
 
   // Provide simple value accessors with default option
+  static inline char*    stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
   static inline float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
   static inline bool     boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
   static inline uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }

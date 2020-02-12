@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,30 +22,38 @@
 #pragma once
 
 /**
- * MKS BASE 1.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
- *
- * Rev B - Override pin definitions for CASE_LIGHT and M3/M4/M5 spindle control
+ * MKS BASE v1.6 with A4982 stepper drivers and digital micro-stepping
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS BASE 1.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS BASE 1.6 only supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "MKS BASE 1.0"
+#define BOARD_INFO_NAME "MKS BASE 1.6"
+#define MKS_BASE_VERSION 16
 
 //
-// Heaters / Fans
+// Servos
 //
-// Power outputs EFBF or EFBE
-#define MOSFET_D_PIN              7
-
-#define CASE_LIGHT_PIN            2
+#define SERVO1_PIN         12   // Digital 12 / Pin 25
 
 //
-// M3/M4/M5 - Spindle/Laser Control
+// Omitted RAMPS pins
 //
-#define SPINDLE_LASER_PWM_PIN     2   // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN    15   // Pullup!
-#define SPINDLE_DIR_PIN          19
+#ifndef SERVO2_PIN
+  #define SERVO2_PIN       -1
+#endif
+#ifndef SERVO3_PIN
+  #define SERVO3_PIN       -1
+#endif
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN     -1
+#endif
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   -1
+#endif
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN        -1
+#endif
 
-#include "pins_RAMPS.h"
+#include "pins_MKS_BASE_common.h"

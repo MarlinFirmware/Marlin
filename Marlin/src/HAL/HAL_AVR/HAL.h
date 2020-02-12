@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -53,8 +53,8 @@
 //#define analogInputToDigitalPin(IO) IO
 
 #ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli()
-  #define CRITICAL_SECTION_END    SREG = _sreg
+  #define CRITICAL_SECTION_START()  unsigned char _sreg = SREG; cli()
+  #define CRITICAL_SECTION_END()    SREG = _sreg
 #endif
 #define ISRS_ENABLED() TEST(SREG, SREG_I)
 #define ENABLE_ISRS()  sei()

@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -427,7 +427,6 @@ void HAL_init() {
     dma_init();
   #endif
   #if ENABLED(SDSUPPORT)
-    // SD_DETECT_PIN may be removed if NO_SD_HOST_DRIVE is not defined in Configuration_adv.h
     #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
@@ -496,14 +495,14 @@ void HAL_adc_init() {
       // Preloaded data (fixed for all ADC instances hence not loaded by DMA)
       adc->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;               // VRefA pin
       SYNC(adc->SYNCBUSY.bit.REFCTRL);
-      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
+      adc->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;                   // ... ADC_CTRLB_RESSEL_16BIT_Val
       SYNC(adc->SYNCBUSY.bit.CTRLB);
       adc->SAMPCTRL.bit.SAMPLEN = (6 - 1);                                  // Sampling clocks
-      adc->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_16 | ADC_AVGCTRL_ADJRES(4);  // 16 Accumulated conversions and shift 4 to get oversampled 12 bits result
-      SYNC(adc->SYNCBUSY.bit.AVGCTRL);
+      //adc->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_16 | ADC_AVGCTRL_ADJRES(4);  // 16 Accumulated conversions and shift 4 to get oversampled 12 bits result
+      //SYNC(adc->SYNCBUSY.bit.AVGCTRL);
+
       // Registers loaded by DMA
       adc->DSEQCTRL.bit.INPUTCTRL = true;
-
       adc->DSEQCTRL.bit.AUTOSTART = true;                                   // Start conversion after DMA sequence
 
       adc->CTRLA.bit.ENABLE = true;                                         // Enable ADC
