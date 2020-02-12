@@ -88,8 +88,8 @@
                                   const EPortType port = (EPortType)GET_SAMD_PORT(IO);              \
                                   const uint32_t pin = GET_SAMD_PIN(IO);                            \
                                                                                                     \
-                                  PORT->Group[port].PINCFG[pin].reg = (uint8_t)(PORT_PINCFG_INEN);  \
                                   PORT->Group[port].DIRSET.reg = MASK(pin);                         \
+                                  PORT->Group[port].PINCFG[pin].reg = 0;                            \
                                 }while(0)
 // Set pin as output (open drain)
 #define SET_OUTPUT_OD(IO)       do{                                                                   \
