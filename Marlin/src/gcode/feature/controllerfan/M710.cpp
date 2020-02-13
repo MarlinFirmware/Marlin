@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,19 +33,19 @@
    *
    * Examples:
    *   M710                   ; Return current Settings
-   *   M710 F0                ; Turn off Controller Fan
+   *   M710 S0                ; Turn off Controller Fan
    *   M710 I255              ; Set Fan Idle Speed Setting
    *   M710 R                 ; Reset settings to defaults
-   *   M710 F255              ; Set Controller Fan Speed Setting to 100%
+   *   M710 S255              ; Set Controller Fan Speed Setting to 100%
    *   M710 I255 A0           ; Set Fan Idle Speed Setting and AutoMode off
-   *   M710 F255              ; Set Controller Fan Speed setting to 100%
-   *   M710 I127 A1 F255 D160 ; Set Controller Fan idle Speed 50%, AutoMode On, Fan speed 100%, Duration to 160 Secs
+   *   M710 S255              ; Set Controller Fan Speed setting to 100%
+   *   M710 I127 A1 S255 D160 ; Set Controller Fan idle Speed 50%, AutoMode On, Fan speed 100%, Duration to 160 Secs
    *
    */
 
    void GcodeSuite::M710() {
 
-     if (parser.seenval('I') || parser.seenval('A') || parser.seenval('F') || parser.seenval('D') || parser.seen('U') || parser.seen('R') ) {
+     if (parser.seenval('I') || parser.seenval('A') || parser.seenval('S') || parser.seenval('D') || parser.seen('U') || parser.seen('R') ) {
        if (parser.seenval('I')) {
          fanController.settings_fan.controllerFan_Idle_Speed = parser.byteval(  'I', fanController.settings_fan.controllerFan_Idle_Speed);
          SERIAL_ECHOLNPAIR("Idle Fan Speed is set to: ", fanController.settings_fan.controllerFan_Idle_Speed);
@@ -54,8 +54,8 @@
          fanController.settings_fan.controllerFan_AutoMode   = parser.boolval(  'A', fanController.settings_fan.controllerFan_AutoMode);
          SERIAL_ECHOPGM("Fan Auto Mode is set to: "); serialprintln_onoff(fanController.settings_fan.controllerFan_AutoMode);
        }
-       if (parser.seenval('F')) {
-         fanController.settings_fan.controllerFan_Speed      = parser.byteval(  'F', fanController.settings_fan.controllerFan_Speed);
+       if (parser.seenval('S')) {
+         fanController.settings_fan.controllerFan_Speed      = parser.byteval(  'S', fanController.settings_fan.controllerFan_Speed);
          SERIAL_ECHOLNPAIR("Fan Speed is set to: ", fanController.settings_fan.controllerFan_Speed);
        }
        if (parser.seenval('D')) {
