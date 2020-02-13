@@ -798,7 +798,6 @@ void stop() {
   #endif
 
   if (IsRunning()) {
-    queue.stop();
     SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping

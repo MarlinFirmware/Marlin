@@ -52,7 +52,7 @@ GCodeQueue queue;
  * sending commands to Marlin, and lines will be checked for sequentiality.
  * M110 N<int> sets the current line number.
  */
-long gcode_N, GCodeQueue::last_N, GCodeQueue::stopped_N = 0;
+long gcode_N, GCodeQueue::last_N;
 
 /**
  * GCode Command Queue
