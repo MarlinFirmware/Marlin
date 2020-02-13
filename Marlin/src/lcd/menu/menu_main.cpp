@@ -121,13 +121,9 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           SUBMENU(MSG_MEDIA_MENU, menu_media);
-          MENU_ITEM(gcode,
-            #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, M21_STR
-            #else
-              MSG_RELEASE_MEDIA, PSTR("M22")
-            #endif
-          );
+          #if !PIN_EXISTS(SD_DETECT)
+            MENU_ITEM(gcode, MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
         }
       }
       else {
@@ -183,10 +179,6 @@ void menu_main() {
     #endif
   #endif
 
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
-  #endif
-
   #if ENABLED(LED_CONTROL_MENU)
     SUBMENU(MSG_LED_CONTROL, menu_led);
   #endif
@@ -214,13 +206,9 @@ void menu_main() {
 
     if (card_detected) {
       if (!card_open) {
-        MENU_ITEM(gcode,
-          #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_MEDIA, M21_STR
-          #else
-            MSG_RELEASE_MEDIA, PSTR("M22")
-          #endif
-        );
+        #if !PIN_EXISTS(SD_DETECT)
+          MENU_ITEM(gcode,MSG_RELEASE_MEDIA, PSTR("M22"));
+        #endif
         SUBMENU(MSG_MEDIA_MENU, menu_media);
       }
     }
