@@ -172,8 +172,8 @@
       #define BTN_EN2         72
     #endif
 
-    #define BTN_ENC            9   // AUX-2
-    #define BEEPER_PIN        84   // AUX-4
+    #define BTN_ENC            9 
+    #define BEEPER_PIN        84 
     #define SD_DETECT_PIN     15
 
   #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
