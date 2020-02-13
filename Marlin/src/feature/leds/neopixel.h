@@ -38,7 +38,10 @@
 // Defines
 // ------------------------
 
-#define MULTIPLE_NEOPIXEL_TYPES (defined(NEOPIXEL2_TYPE) && (NEOPIXEL2_TYPE != NEOPIXEL_TYPE))
+#define MULTIPLE_NEOPIXEL_TYPES (defined(NEOPIXEL2_TYPE)) //&& (NEOPIXEL2_TYPE != NEOPIXEL_TYPE))
+#define NEOPIXEL1 1
+#define NEOPIXEL2 2
+
 
 #define NEOPIXEL_IS_RGB  (NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR)
 #define NEOPIXEL_IS_RGBW !NEOPIXEL_IS_RGB
@@ -64,7 +67,10 @@ private:
 public:
   static void init();
   static void set_color_startup(const uint32_t c);
-
+  #if ENABLED(NEOPIXEL_STARTUP_TEST_PIXEL)
+    static void set_pixel_color_startup(const uint32_t c);
+  #endif
+  
   static void set_color(const uint32_t c);
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
@@ -78,10 +84,10 @@ public:
     #endif
   }
 
-  static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
+  static inline void set_pixel_color(const uint16_t n, const uint32_t c,const uint8_t uNeoPixelMulti=1) {
     adaneo1.setPixelColor(n, c);
     #if MULTIPLE_NEOPIXEL_TYPES
-      adaneo2.setPixelColor(n, c);
+      if (uNeoPixelMulti !=1) adaneo2.setPixelColor(n, c);
     #endif
   }
 
@@ -105,16 +111,32 @@ public:
     #endif
   }
 
+  // Accessors
+  static inline uint16_t pixels(const uint8_t uNeoPixelMulti=1) { 
+    return 
+    #if MULTIPLE_NEOPIXEL_TYPES
+      (uNeoPixelMulti != 1) ? adaneo2.numPixels() :
+    #endif
+    adaneo1.numPixels();
+  }
+  static inline uint8_t brightness(const uint8_t uNeoPixelMulti=1) { 
+    return 
+    #if MULTIPLE_NEOPIXEL_TYPES
+      (uNeoPixelMulti != 1) ? adaneo2.getBrightness() :
+    #endif
+    adaneo1.getBrightness();
+  }
+  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w, const uint8_t uNeoPixelMulti=1) {
+    return 
+    #if MULTIPLE_NEOPIXEL_TYPES
+      (uNeoPixelMulti != 1) ? adaneo2.Color(r, g, b, w) : 
+    #endif
+    adaneo1.Color(r, g, b, w);  
+  }
+
   #if 0
     bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
   #endif
-
-  // Accessors
-  static inline uint16_t pixels() { return adaneo1.numPixels(); }
-  static inline uint8_t brightness() { return adaneo1.getBrightness(); }
-  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
-    return adaneo1.Color(r, g, b, w);
-  }
 };
 
 extern Marlin_NeoPixel neo;
