@@ -173,9 +173,9 @@
  */
 #ifndef SHORT_BUILD_VERSION
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
-    #define SHORT_BUILD_VERSION "4MAX 2.0.56 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX 2.0.57 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.64 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
+    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.65 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
   #endif
 #endif
 
@@ -2531,27 +2531,41 @@
   //#define NEOPIXEL_LED
 #endif
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_TYPE   NEO_GRB                     // First neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  //#define NEOPIXEL2_TYPE  NEO_GRB                     // Optional - Second neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-    #define NEOPIXEL_PIN    SERVO3_PIN // LED driving pin
+    #define NEOPIXEL_PIN    SERVO3_PIN                // LED driving pin
+    //#define NEOPIXEL2_PIN     -1                    // Second neopixel not using
   #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-    //#ifndef NEOPIXEL_PIN
-    //  #undef NEOPIXEL_PIN
-    //  #define NEOPIXEL_PIN      P1_24  // Is define in pins!
-    //#endif
+    //#define NEOPIXEL_PIN         P1_24                // Is define in pins!
+    //#define NEOPIXEL2_PIN        P1_25                // Second neopixel not using
   #else
-      //#define NEOPIXEL_PIN      P1_24
+    //#define NEOPIXEL_PIN      -1                    // Define first neopixel pin!
+    //#define NEOPIXEL2_PIN     -1                    // Optional - define second neopixel pin.
   #endif
-  //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
-  //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 8          // 39 --> 8 Is for testing.  Org device has 39 LED!!!         // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
-  #define NEOPIXEL_IS_SEQUENTIAL     // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS 200    // Initial brightness (0-255)
-  //#define NEOPIXEL_STARTUP_TEST      // Cycle through colors at startup
+  
+  #define NEOPIXEL_PIXELS         64                  // Number of LEDs in the strip
+  //#define NEOPIXEL2_PIXELS         8                  // Number of LEDs in the strip
+  //Change me: 64 is for testing. Original printers have 39 pixels.         
+  
+  #define NEOPIXEL_IS_SEQUENTIAL                      // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+  #define NEOPIXEL_BRIGHTNESS     200                 // Initial brightness (0-255)
+  
+  //#define NEOPIXEL_STARTUP_TEST                     // Cycle through colors at startup
+  #define NEOPIXEL_STARTUP_TEST_PIXEL                 // Cycle through pixel and colors at startup
+  #if ENABLED(NEOPIXEL_STARTUP_TEST_PIXEL)
+    #define NEOPIXEL_STARTUP_TEST_PIXEL_ROTATE_BACK   // Cycle to end (set pixel color) then back (switch off pixel )
+    #define NEOPIXEL_STARTUP_TEST_PIXEL_DELAY   5     // Wait x ms to switch to next pixel color set
+    #define NEOPIXEL_STARTUP_TEST_PIXEL_COLOR_1 { 255, 0, 0, 0 }  // R, G, B, W - set pixel color for the first step
+    #define NEOPIXEL_STARTUP_TEST_PIXEL_COLOR_2 { 0, 255, 0, 0 }  // R, G, B, W - set pixel color fpr the second step
+    #define NEOPIXEL_STARTUP_TEST_PIXEL_COLOR_3 { 0, 0, 255, 0 }  // R, G, B, W - set pixel color for the third step
+  #endif
 
   // Use a single Neopixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
+  
 #endif
 
 /**
