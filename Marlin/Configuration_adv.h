@@ -341,10 +341,12 @@
  */
 #define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
-#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-  #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
-#elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-  #define CONTROLLER_FAN_PIN         P1_00 // PWRDET - PS_ON_PIN
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
+  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define CONTROLLER_FAN_PIN         P1_00 // PWRDET - PS_ON_PIN
+  #endif
   #define CONTROLLERFAN_SECS         30    // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
   #define CONTROLLERFAN_IDLE_SPEED   21    // 0-255 - 255 == fullspeed; Controller fan idles speed, when all motors are disabled
@@ -358,7 +360,6 @@
 #endif
   // TODO EC : Implement //#define CONTROLLERFAN_SPEED_Z_ONLY 127  // Reduce noise on machines that keep Z enabled
 #endif
-
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
