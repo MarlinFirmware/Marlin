@@ -458,29 +458,23 @@
  * M355 Case Light on-off / brightness
  */
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_SKR_1_4_PRO)
-  #define CASE_LIGHT_ENABLE
+ //#define CASE_LIGHT_ENABLE
 #else // ANYCUBIC_4MAX_DEFAULT
 //#define CASE_LIGHT_ENABLE
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-    //#define CASE_LIGHT_PIN 4         // Override the default pin if needed
-  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-   #define CASE_LIGHT_PIN NEOPIXEL_PIN         // Override the default pin if needed
-  #else
-    //#define CASE_LIGHT_PIN 4         // Override the default pin if needed
-  #endif
+  #define CASE_LIGHT_PIN                P1_25   // Override the default pin if needed 
+  #define INVERT_CASE_LIGHT             false   // Set true if Case Light is ON when pin is LOW
+  #define CASE_LIGHT_DEFAULT_ON         true    // Set default power-up state on
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255     // Set default power-up brightness (0-255, requires PWM pin)
+  //#define CASE_LIGHT_MAX_PWM          128     // Limit pwm
+  #define CASE_LIGHT_MENU                       // Add Case Light options to the LCD menu
+  //#define CASE_LIGHT_NO_BRIGHTNESS            // Disable brightness control. Enable for non-PWM lighting. 
 
-  #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
-  #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define CASE_LIGHT_MAX_PWM 128            // Limit pwm
-  #define CASE_LIGHT_MENU                     // Add Case Light options to the LCD menu
-  //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
-  #define CASE_LIGHT_USE_NEOPIXEL             // Use Neopixel LED as case light, requires NEOPIXEL_LED.
+  #define CASE_LIGHT_USE_NEOPIXEL               // Use Neopixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
-    #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 0, 0, 0 } // { Red, Green, Blue, White }
+    #define CASE_LIGHT_NEOPIXEL_COLOR   { 255, 0, 0, 0 } // { Red, Green, Blue, White }
   #endif
 #endif
 
@@ -1006,11 +1000,11 @@
     #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
     #if ENABLED(LED_COLOR_PRESETS)
       #define LED_USER_PRESET_RED        255  // User defined RED value
-      #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
+      #define LED_USER_PRESET_GREEN        0  // User defined GREEN value
       #define LED_USER_PRESET_BLUE         0  // User defined BLUE value
-      #define LED_USER_PRESET_WHITE      255  // User defined WHITE value
-      #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
-      //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
+      #define LED_USER_PRESET_WHITE        0  // User defined WHITE value
+      #define LED_USER_PRESET_BRIGHTNESS 128  // User defined intensity
+      #define LED_USER_PRESET_STARTUP         // Have the printer display the user preset color on startup
     #endif
   #endif
 
@@ -2079,16 +2073,16 @@
   // BTT TMC5161 v1.1 has 0.062 Ω
   //
   #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define RSENSE      0.062f
+    #define RSENSE      0.075f
   #else 
     #define RSENSE      0.11f
   #endif
   #define HOLD_MULTIPLIER     0.5   // Scales down the holding current from run current
-  #define INTERPOLATE         false // Interpolate X/Y/Z_MICROSTEPS to 256
+  #define INTERPOLATE         true // Interpolate X/Y/Z_MICROSTEPS to 256
 
 
   #if AXIS_IS_TMC(X)
-    #define X_CURRENT         800         // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_CURRENT         1060         // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME    X_CURRENT   // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS      16          // 0..256
     #define X_RSENSE          RSENSE      // ENter the TRINAMIC RSENSE for your driver
@@ -2104,7 +2098,7 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT         800
+    #define Y_CURRENT         1060
     #define Y_CURRENT_HOME    Y_CURRENT
     #define Y_MICROSTEPS      16
     #define Y_RSENSE          RSENSE
@@ -2120,7 +2114,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT         800
+    #define Z_CURRENT         1060
     #define Z_CURRENT_HOME    Z_CURRENT
     #define Z_MICROSTEPS      16
     #define Z_RSENSE          RSENSE
@@ -2334,7 +2328,7 @@
    * M913 X/Y/Z/E to live tune the setting
    */
   #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-    //#define HYBRID_THRESHOLD
+    #define HYBRID_THRESHOLD
   #else
     //#define HYBRID_THRESHOLD
   #endif
@@ -2406,7 +2400,7 @@
   #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     // enable double edge step pulses -  Enable step impulse at each step edge to reduce step frequency requirement
     // 6.5.2 CHOPCONF – Chopper Configuration --> https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC5161-datasheet_Rev1.02.pdf
-    #define SQUARE_WAVE_STEPPING
+    //#define SQUARE_WAVE_STEPPING
   #else
     //#define SQUARE_WAVE_STEPPING
 #endif
