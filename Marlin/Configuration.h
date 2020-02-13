@@ -171,12 +171,16 @@
 /**
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
+  #define BUILD_PREFIX "4MAX "  // x.y.zz | Count zz Up for testing Builds.
+#elif ENABLED( ANYCUBIC_4MAX_SKR_1_4_PRO)
+  #define BUILD_PREFIX "4MAX-SKR "  // x.y.zz | Count zz Up for testing Builds.
+#endif
+
 #ifndef SHORT_BUILD_VERSION
-  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9, ANYCUBIC_4MAX_DEFAULT)
-    #define SHORT_BUILD_VERSION "4MAX 2.0.57 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
-  #elif ENABLED( ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define SHORT_BUILD_VERSION "4MAX-SKR 2.0.65 ALPHA"  // x.y.zz | Count zz Up for testing Builds.
-  #endif
+    #define BUILD_SUFFIX " ALPHA"
+    #define BUILD_VERSION "2.0.66"
+    #define SHORT_BUILD_VERSION  BUILD_PREFIX BUILD_VERSION BUILD_SUFFIX
 #endif
 
 /**
