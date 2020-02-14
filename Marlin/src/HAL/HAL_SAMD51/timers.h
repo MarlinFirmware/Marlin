@@ -29,7 +29,7 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
-#define HAL_TIMER_RATE      SystemCoreClock  // frequency of timers peripherals
+#define HAL_TIMER_RATE      F_CPU   // frequency of timers peripherals
 
 #define STEP_TIMER_NUM      0  // index of timer to use for stepper (also +1 for 32bits counter)
 #define PULSE_TIMER_NUM     STEP_TIMER_NUM
