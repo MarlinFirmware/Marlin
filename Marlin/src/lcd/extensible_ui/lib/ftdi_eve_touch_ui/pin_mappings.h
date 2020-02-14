@@ -27,7 +27,7 @@
  * without adding new pin definitions to the board.
  */
 
-#ifdef FYSETC_S6_TFT_PINMAP
+#ifdef S6_TFT_PINMAP
   #ifndef __MARLIN_FIRMWARE__
     #error "This pin mapping requires Marlin."
   #endif
