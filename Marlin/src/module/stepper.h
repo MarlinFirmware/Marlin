@@ -329,6 +329,11 @@ class Stepper {
       static bool LA_use_advance_lead;
     #endif
 
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      static constexpr uint32_t BABYSTEP_NEVER = 0xFFFFFFFF;
+      static uint32_t nextBabystepISR;
+    #endif
+
     static int32_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
       static uint32_t acc_step_rate; // needed for deceleration start point
@@ -381,6 +386,17 @@ class Stepper {
       // The Linear advance ISR phase
       static uint32_t advance_isr();
       FORCE_INLINE static void initiateLA() { nextAdvanceISR = 0; }
+    #endif
+
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      // The Babystepping ISR phase
+      static uint32_t babystepping_isr();
+      FORCE_INLINE static void initiateBabystepping() {
+        if (nextBabystepISR == BABYSTEP_NEVER) {
+          nextBabystepISR = 0;
+          wake_up();
+        }
+      }
     #endif
 
     // Check if the given block is busy or not - Must not be called from ISR contexts
