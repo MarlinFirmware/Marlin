@@ -396,7 +396,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_open(PROMPT_INFO, PSTR("Pause"), PSTR("Dismiss"));
+    host_prompt_open(PROMPT_INFO, PSTR("Pause"), DISMISS_STR);
   #endif
 
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
@@ -667,7 +667,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   --did_pause_print;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_open(PROMPT_INFO, PSTR("Resuming"), PSTR("Dismiss"));
+    host_prompt_open(PROMPT_INFO, PSTR("Resuming"), DISMISS_STR);
   #endif
 
   #if ENABLED(SDSUPPORT)
