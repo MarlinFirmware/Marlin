@@ -55,7 +55,15 @@ public:
 
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const float &mm);
-  static void task();
+
+  //
+  // Called by the Temperature ISR to
+  // apply accumulated babysteps to the axes.
+  //
+  static inline void task() {
+    LOOP_L_N(axis, BS_TODO_AXIS(Z_AXIS)) step_axis((AxisEnum)axis);
+  }
+
 private:
   static void step_axis(const AxisEnum axis);
 };
