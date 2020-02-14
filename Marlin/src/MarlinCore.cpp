@@ -345,7 +345,7 @@ void disable_all_steppers() {
 
   void event_probe_recover() {
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), PSTR("Dismiss"));
+      host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR);
     #endif
     #ifdef ACTION_ON_G29_RECOVER
       host_action(PSTR(ACTION_ON_G29_RECOVER));
@@ -798,7 +798,6 @@ void stop() {
   #endif
 
   if (IsRunning()) {
-    queue.stop();
     SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping

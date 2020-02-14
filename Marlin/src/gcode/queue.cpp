@@ -52,7 +52,7 @@ GCodeQueue queue;
  * sending commands to Marlin, and lines will be checked for sequentiality.
  * M110 N<int> sets the current line number.
  */
-long gcode_N, GCodeQueue::last_N, GCodeQueue::stopped_N = 0;
+long gcode_N, GCodeQueue::last_N;
 
 /**
  * GCode Command Queue
@@ -363,8 +363,8 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
 
 inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
   sis = PS_NORMAL;
-  if (!ind) { thermalManager.manage_heater(); return true; }
   buff[ind] = 0;
+  if (!ind) { thermalManager.manage_heater(); return true; }
   ind = 0;
   return false;
 }
@@ -377,7 +377,7 @@ inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind
 void GCodeQueue::get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
 
-  static uint8_t serial_input_state[NUM_SERIAL] = { 0 };
+  static uint8_t serial_input_state[NUM_SERIAL] = { PS_NORMAL };
 
   #if ENABLED(BINARY_FILE_TRANSFER)
     if (card.flag.binary_mode) {
