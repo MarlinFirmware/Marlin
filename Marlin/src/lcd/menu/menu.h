@@ -234,10 +234,10 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    static inline float scale(const float value)      { return value * NAME::scale;           }
-    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
+    static inline float scale(const float value)      { return NAME::scale(value);            }
+    static inline float unscale(const float value)    { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
+    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t * const data, ...) {
       MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(*(data)));
@@ -266,16 +266,17 @@ class TMenuEditItem : MenuEditItemBase {
 // Provide a set of Edit Item Types which encompass a primitive
 // type, a string function, and a scale factor for edit and display.
 // These items call the Edit Item draw method passing the prepared string.
-#define DEFINE_MENU_EDIT_ITEM_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  struct MenuEditItemInfo_##NAME { \
-    typedef TYPE type_t; \
-    static constexpr float scale = SCALE; \
+#define DEFINE_MENU_EDIT_ITEM_TYPE(TYPE, NAME, STRFUNC, SCALE, V...)                      \
+  struct MenuEditItemInfo_##NAME {                                                        \
+    typedef TYPE type_t;                                                                  \
+    static inline float scale(const float value)   { return value * (SCALE) + (V+0); }    \
+    static inline float unscale(const float value) { return value / (SCALE) + (V+0); }    \
     static inline const char* strfunc(const float value) { return STRFUNC((TYPE)value); } \
-  }; \
+  };                                                                                      \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
 //                         TYPE      NAME         STRFUNC       SCALE
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255, 0.5);  // 100%   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
