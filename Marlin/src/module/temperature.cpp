@@ -2798,22 +2798,132 @@ void Temperature::tick() {
   if ((do_buttons ^= true)) ui.update_buttons();
 
   /**
-   * One sensor is sampled on every other call of the ISR.
-   * Each sensor is read 16 (OVERSAMPLENR) times, taking the average.
+   * On each call to the ISR one sensor is Sampled and
+   * the next sensor is Prepared.
    *
-   * On each Prepare pass, ADC is started for a sensor pin.
-   * On the next pass, the ADC value is read and accumulated.
+   * Sensors are read 16 (OVERSAMPLENR) times and the
+   * final reading takes the average.
    *
-   * This gives each ADC 0.9765ms to charge up.
+   * Extra do-nothing passes may exist when there are
+   * only a few sensors. This is set by MIN_ADC_ISR_LOOPS.
+   *
+   * The timing of this ISR gives ADCs 0.9765ms to charge up.
    */
-  #define ACCUMULATE_ADC(obj) do{ \
-    if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; \
-    else obj.sample(HAL_READ_ADC()); \
+  #define ACCUMULATE_ADC(obj) do{           \
+    if (HAL_ADC_READY())                    \
+      obj.sample(HAL_READ_ADC());           \
+    else                                    \
+      next_sensor_state = adc_sensor_state; \
   }while(0)
 
-  ADCSensorState next_sensor_state = adc_sensor_state < SensorsReady ? (ADCSensorState)(int(adc_sensor_state) + 1) : StartSampling;
+  #define NEXT_ENUM(A) (typeof(A))(int(A) + 1)
+  #define NEXT_ADC_STATE(N) ((N) >= SensorsReady ? StartSampling : NEXT_ENUM(N))
+
+  // Assume the machine will go on to the next state
+  ADCSensorState next_sensor_state = NEXT_ADC_STATE(adc_sensor_state);
 
   switch (adc_sensor_state) {
+
+    default: break;
+
+    #if HAS_TEMP_ADC_0
+      case MeasureTemp_0:       ACCUMULATE_ADC(temp_hotend[0]); break;
+    #endif
+    #if HAS_HEATED_BED
+      case MeasureTemp_BED:     ACCUMULATE_ADC(temp_bed); break;
+    #endif
+    #if HAS_TEMP_CHAMBER
+      case MeasureTemp_CHAMBER: ACCUMULATE_ADC(temp_chamber); break;
+    #endif
+    #if HAS_TEMP_PROBE
+      case MeasureTemp_PROBE:   ACCUMULATE_ADC(temp_probe); break;
+    #endif
+    #if HAS_TEMP_ADC_1
+      case MeasureTemp_1:       ACCUMULATE_ADC(temp_hotend[1]); break;
+    #endif
+    #if HAS_TEMP_ADC_2
+      case MeasureTemp_2:       ACCUMULATE_ADC(temp_hotend[2]); break;
+    #endif
+    #if HAS_TEMP_ADC_3
+      case MeasureTemp_3:       ACCUMULATE_ADC(temp_hotend[3]); break;
+    #endif
+    #if HAS_TEMP_ADC_4
+      case MeasureTemp_4:       ACCUMULATE_ADC(temp_hotend[4]); break;
+    #endif
+    #if HAS_TEMP_ADC_5
+      case MeasureTemp_5:       ACCUMULATE_ADC(temp_hotend[5]); break;
+    #endif
+    #if HAS_TEMP_ADC_6
+      case MeasureTemp_6:       ACCUMULATE_ADC(temp_hotend[6]); break;
+    #endif
+    #if HAS_TEMP_ADC_7
+      case MeasureTemp_7:       ACCUMULATE_ADC(temp_hotend[7]); break;
+    #endif
+
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      case Measure_FILWIDTH:
+        if (HAL_ADC_READY())
+          filwidth.accumulate(HAL_READ_ADC());
+        else
+          next_sensor_state = adc_sensor_state; // redo this state
+      break;
+    #endif
+
+    #if HAS_JOY_ADC_X
+      case MeasureJoy_X:        ACCUMULATE_ADC(joystick.x); break;
+    #endif
+    #if HAS_JOY_ADC_Y
+      case MeasureJoy_Y:        ACCUMULATE_ADC(joystick.y); break;
+    #endif
+    #if HAS_JOY_ADC_Z
+      case MeasureJoy_Z:        ACCUMULATE_ADC(joystick.z); break;
+    #endif
+
+    #if HAS_ADC_BUTTONS
+      #ifndef ADC_BUTTON_DEBOUNCE_DELAY
+        #define ADC_BUTTON_DEBOUNCE_DELAY 16
+      #endif
+      case Measure_ADC_KEY: {
+        if (HAL_ADC_READY()) {
+          if (ADCKey_count < ADC_BUTTON_DEBOUNCE_DELAY) {
+            raw_ADCKey_value = HAL_READ_ADC();
+            if (raw_ADCKey_value <= (HAL_ADC_RANGE) * 900UL / 1024UL) {
+              NOMORE(current_ADCKey_raw, raw_ADCKey_value);
+              ADCKey_count++;
+            }
+            else { // ADC Key release
+              if (ADCKey_count > 0) {
+                if (ADCKey_pressed) {
+                  ADCKey_count = 0;
+                  current_ADCKey_raw = HAL_ADC_RANGE;
+                }
+                else
+                  ADCKey_count++;
+              }
+              else
+                ADCKey_pressed = false;
+            }
+            if (ADCKey_count == ADC_BUTTON_DEBOUNCE_DELAY) ADCKey_pressed = true;
+          }
+        }
+        else
+          next_sensor_state = adc_sensor_state; // redo this state
+
+      } break;
+
+    #endif // HAS_ADC_BUTTONS
+
+  } // switch(adc_sensor_state)
+
+  // Go to the next state (may be unchanged)
+  adc_sensor_state = next_sensor_state;
+
+  // Assume that the state advances
+  next_sensor_state = NEXT_ADC_STATE(adc_sensor_state);
+
+  switch (adc_sensor_state) {
+
+    default: break;
 
     case SensorsReady: {
       // All sensors have been read. Stay in this state for a few
@@ -2824,128 +2934,72 @@ void Temperature::tick() {
         if (delay_count == 0) delay_count = extra_loops;  // Init this delay
         if (--delay_count)                                // While delaying...
           next_sensor_state = SensorsReady;               // retain this state (else, next state will be 0)
-        break;
+        break;                                            // No fallthru
       }
       else {
-        adc_sensor_state = StartSampling;                 // Fall-through to start sampling
-        next_sensor_state = (ADCSensorState)(int(StartSampling) + 1);
+        adc_sensor_state = StartSampling;                 // Fall through to count up oversamples
+        next_sensor_state = NEXT_ENUM(StartSampling);     // and possibly send the final readings.
       }
     }
+    // fallthru
 
     case StartSampling:                                   // Start of sampling loops. Do updates/checks.
-      if (++temp_count >= OVERSAMPLENR) {                 // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+      if (++temp_count >= OVERSAMPLENR) {                 // 10 * 16 * 1 / (16000000 / 64 / 256) = 164ms.
         temp_count = 0;
         readings_ready();
       }
-      break;
+      adc_sensor_state = NEXT_ENUM(StartSampling);        // Do one Prepare phase before exiting
+      next_sensor_state = NEXT_ENUM(adc_sensor_state);    // Also update the next state
+      // fallthru
 
     #if HAS_TEMP_ADC_0
-      case PrepareTemp_0: HAL_START_ADC(TEMP_0_PIN); break;
-      case MeasureTemp_0: ACCUMULATE_ADC(temp_hotend[0]); break;
+      case PrepareTemp_0:       HAL_START_ADC(TEMP_0_PIN); break;
     #endif
-
     #if HAS_HEATED_BED
-      case PrepareTemp_BED: HAL_START_ADC(TEMP_BED_PIN); break;
-      case MeasureTemp_BED: ACCUMULATE_ADC(temp_bed); break;
+      case PrepareTemp_BED:     HAL_START_ADC(TEMP_BED_PIN); break;
     #endif
-
     #if HAS_TEMP_CHAMBER
       case PrepareTemp_CHAMBER: HAL_START_ADC(TEMP_CHAMBER_PIN); break;
-      case MeasureTemp_CHAMBER: ACCUMULATE_ADC(temp_chamber); break;
     #endif
-
     #if HAS_TEMP_PROBE
-      case PrepareTemp_PROBE: HAL_START_ADC(TEMP_PROBE_PIN); break;
-      case MeasureTemp_PROBE: ACCUMULATE_ADC(temp_probe); break;
+      case PrepareTemp_PROBE:   HAL_START_ADC(TEMP_PROBE_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_1
-      case PrepareTemp_1: HAL_START_ADC(TEMP_1_PIN); break;
-      case MeasureTemp_1: ACCUMULATE_ADC(temp_hotend[1]); break;
+      case PrepareTemp_1:       HAL_START_ADC(TEMP_1_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_2
-      case PrepareTemp_2: HAL_START_ADC(TEMP_2_PIN); break;
-      case MeasureTemp_2: ACCUMULATE_ADC(temp_hotend[2]); break;
+      case PrepareTemp_2:       HAL_START_ADC(TEMP_2_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_3
-      case PrepareTemp_3: HAL_START_ADC(TEMP_3_PIN); break;
-      case MeasureTemp_3: ACCUMULATE_ADC(temp_hotend[3]); break;
+      case PrepareTemp_3:       HAL_START_ADC(TEMP_3_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_4
-      case PrepareTemp_4: HAL_START_ADC(TEMP_4_PIN); break;
-      case MeasureTemp_4: ACCUMULATE_ADC(temp_hotend[4]); break;
+      case PrepareTemp_4:       HAL_START_ADC(TEMP_4_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_5
-      case PrepareTemp_5: HAL_START_ADC(TEMP_5_PIN); break;
-      case MeasureTemp_5: ACCUMULATE_ADC(temp_hotend[5]); break;
+      case PrepareTemp_5:       HAL_START_ADC(TEMP_5_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_6
-      case PrepareTemp_6: HAL_START_ADC(TEMP_6_PIN); break;
-      case MeasureTemp_6: ACCUMULATE_ADC(temp_hotend[6]); break;
+      case PrepareTemp_6:       HAL_START_ADC(TEMP_6_PIN); break;
     #endif
-
     #if HAS_TEMP_ADC_7
-      case PrepareTemp_7: HAL_START_ADC(TEMP_7_PIN); break;
-      case MeasureTemp_7: ACCUMULATE_ADC(temp_hotend[7]); break;
+      case PrepareTemp_7:       HAL_START_ADC(TEMP_7_PIN); break;
     #endif
-
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      case Prepare_FILWIDTH: HAL_START_ADC(FILWIDTH_PIN); break;
-      case Measure_FILWIDTH:
-        if (!HAL_ADC_READY())
-          next_sensor_state = adc_sensor_state; // redo this state
-        else
-          filwidth.accumulate(HAL_READ_ADC());
-      break;
+      case Prepare_FILWIDTH:    HAL_START_ADC(FILWIDTH_PIN); break;
     #endif
-
     #if HAS_JOY_ADC_X
-      case PrepareJoy_X: HAL_START_ADC(JOY_X_PIN); break;
-      case MeasureJoy_X: ACCUMULATE_ADC(joystick.x); break;
+      case PrepareJoy_X:        HAL_START_ADC(JOY_X_PIN); break;
     #endif
-
     #if HAS_JOY_ADC_Y
-      case PrepareJoy_Y: HAL_START_ADC(JOY_Y_PIN); break;
-      case MeasureJoy_Y: ACCUMULATE_ADC(joystick.y); break;
+      case PrepareJoy_Y:        HAL_START_ADC(JOY_Y_PIN); break;
     #endif
-
     #if HAS_JOY_ADC_Z
-      case PrepareJoy_Z: HAL_START_ADC(JOY_Z_PIN); break;
-      case MeasureJoy_Z: ACCUMULATE_ADC(joystick.z); break;
+      case PrepareJoy_Z:        HAL_START_ADC(JOY_Z_PIN); break;
     #endif
-
     #if HAS_ADC_BUTTONS
-      #ifndef ADC_BUTTON_DEBOUNCE_DELAY
-        #define ADC_BUTTON_DEBOUNCE_DELAY 16
-      #endif
-      case Prepare_ADC_KEY: HAL_START_ADC(ADC_KEYPAD_PIN); break;
-      case Measure_ADC_KEY:
-        if (!HAL_ADC_READY())
-          next_sensor_state = adc_sensor_state; // redo this state
-        else if (ADCKey_count < ADC_BUTTON_DEBOUNCE_DELAY) {
-          raw_ADCKey_value = HAL_READ_ADC();
-          if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
-            NOMORE(current_ADCKey_raw, raw_ADCKey_value);
-            ADCKey_count++;
-          }
-          else { //ADC Key release
-            if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
-            if (ADCKey_pressed) {
-              ADCKey_count = 0;
-              current_ADCKey_raw = HAL_ADC_RANGE;
-            }
-          }
-        }
-        if (ADCKey_count == ADC_BUTTON_DEBOUNCE_DELAY) ADCKey_pressed = true;
-        break;
-    #endif // HAS_ADC_BUTTONS
-
-    case StartupDelay: break;
+      case Prepare_ADC_KEY:     HAL_START_ADC(ADC_KEYPAD_PIN); break;
+    #endif
 
   } // switch(adc_sensor_state)
 
