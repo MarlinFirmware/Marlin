@@ -710,6 +710,59 @@ void Planner::init() {
 #define MINIMAL_STEP_RATE 120
 
 /**
+ * Get the current block for processing
+ * and mark the block as busy.
+ * Return nullptr if the buffer is empty
+ * or if there is a first-block delay.
+ *
+ * WARNING: Called from Stepper ISR context!
+ */
+block_t* Planner::get_current_block() {
+  // Get the number of moves in the planner queue so far
+  const uint8_t nr_moves = movesplanned();
+
+  // If there are any moves queued ...
+  if (nr_moves) {
+
+    // If there is still delay of delivery of blocks running, decrement it
+    if (delay_before_delivering) {
+      --delay_before_delivering;
+      // If the number of movements queued is less than 3, and there is still time
+      //  to wait, do not deliver anything
+      if (nr_moves < 3 && delay_before_delivering) return nullptr;
+      delay_before_delivering = 0;
+    }
+
+    // If we are here, there is no excuse to deliver the block
+    block_t * const block = &block_buffer[block_buffer_tail];
+
+    // No trapezoid calculated? Don't execute yet.
+    if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
+
+    #if HAS_SPI_LCD
+      block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
+    #endif
+
+    // As this block is busy, advance the nonbusy block pointer
+    block_buffer_nonbusy = next_block_index(block_buffer_tail);
+
+    // Push block_buffer_planned pointer, if encountered.
+    if (block_buffer_tail == block_buffer_planned)
+      block_buffer_planned = block_buffer_nonbusy;
+
+    // Return the block
+    return block;
+  }
+
+  // The queue became empty
+  #if HAS_SPI_LCD
+    clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+  #endif
+
+  return nullptr;
+}
+
+/**
  * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
  * by the provided factors.
  **
@@ -1498,8 +1551,7 @@ void Planner::quick_stop() {
   // must be handled: The tail could change between the read and the assignment
   // so this must be enclosed in a critical section
 
-  const bool was_enabled = STEPPER_ISR_ENABLED();
-  if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  const bool was_enabled = stepper.suspend();
 
   // Drop all queue entries
   block_buffer_nonbusy = block_buffer_planned = block_buffer_head = block_buffer_tail;
@@ -1517,7 +1569,7 @@ void Planner::quick_stop() {
   cleaning_buffer_counter = 1000;
 
   // Reenable Stepper ISR
-  if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  if (was_enabled) stepper.wake_up();
 
   // And stop the stepper ISR
   stepper.quick_stop();
@@ -1548,13 +1600,12 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
 
       // Protect the access to the position.
-      const bool was_enabled = STEPPER_ISR_ENABLED();
-      if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+      const bool was_enabled = stepper.suspend();
 
       const int32_t p1 = stepper.position(CORE_AXIS_1),
                     p2 = stepper.position(CORE_AXIS_2);
 
-      if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+      if (was_enabled) stepper.wake_up();
 
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
@@ -2004,13 +2055,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if HAS_SPI_LCD
     // Protect the access to the position.
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = stepper.suspend();
 
     block_buffer_runtime_us += segment_time_us;
     block->segment_time_us = segment_time_us;
 
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) stepper.wake_up();
   #endif
 
   block->nominal_speed_sqr = sq(block->millimeters * inverse_secs);   // (mm/sec)^2 Always > 0
@@ -2821,6 +2871,48 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
     UNUSED(axis); UNUSED(targetValue);
   #endif
 }
+
+#if HAS_SPI_LCD
+
+  uint16_t Planner::block_buffer_runtime() {
+    #ifdef __AVR__
+      // Protect the access to the variable. Only required for AVR, as
+      //  any 32bit CPU offers atomic access to 32bit variables
+      const bool was_enabled = stepper.suspend();
+    #endif
+
+    millis_t bbru = block_buffer_runtime_us;
+
+    #ifdef __AVR__
+      // Reenable Stepper ISR
+      if (was_enabled) stepper.wake_up();
+    #endif
+
+    // To translate µs to ms a division by 1000 would be required.
+    // We introduce 2.4% error here by dividing by 1024.
+    // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
+    bbru >>= 10;
+    // limit to about a minute.
+    NOMORE(bbru, 0xFFFFul);
+    return bbru;
+  }
+
+  void Planner::clear_block_buffer_runtime() {
+    #ifdef __AVR__
+      // Protect the access to the variable. Only required for AVR, as
+      //  any 32bit CPU offers atomic access to 32bit variables
+      const bool was_enabled = stepper.suspend();
+    #endif
+
+    block_buffer_runtime_us = 0;
+
+    #ifdef __AVR__
+      // Reenable Stepper ISR
+      if (was_enabled) stepper.wake_up();
+    #endif
+  }
+
+#endif
 
 #if ENABLED(AUTOTEMP)
 

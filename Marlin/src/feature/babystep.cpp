@@ -49,14 +49,6 @@ void Babystep::step_axis(const AxisEnum axis) {
   }
 }
 
-void Babystep::task() {
-  #if EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
-    LOOP_XYZ(axis) step_axis((AxisEnum)axis);
-  #else
-    step_axis(Z_AXIS);
-  #endif
-}
-
 void Babystep::add_mm(const AxisEnum axis, const float &mm) {
   add_steps(axis, mm * planner.settings.axis_steps_per_mm[axis]);
 }

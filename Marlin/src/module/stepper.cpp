@@ -203,11 +203,8 @@ uint32_t Stepper::advance_divisor = 0,
   bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
 #endif
 
-uint32_t Stepper::nextMainISR = 0;
-
 #if ENABLED(LIN_ADVANCE)
 
-  constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
   uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
            Stepper::LA_isr_rate = LA_ADV_NEVER;
   uint16_t Stepper::LA_current_adv_steps = 0,
@@ -402,13 +399,13 @@ constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_P
 #define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
 #define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
 
-#define USING_TIMED_PULSE() hal_timer_t end_tick_count = 0
-#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_##DIR##_TICK_COUNT)
-#define AWAIT_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
+#define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
+#define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(PULSE_TIMER_NUM))
+#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count) { }
 #define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
+#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE(HIGH)
 #define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
-#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE()
-#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE()
+#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE(LOW)
 
 #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
   #define DIR_WAIT_BEFORE() DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY)
@@ -421,11 +418,6 @@ constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_P
 #else
   #define DIR_WAIT_AFTER()
 #endif
-
-void Stepper::wake_up() {
-  // TCNT1 = 0;
-  ENABLE_STEPPER_DRIVER_INTERRUPT();
-}
 
 /**
  * Set the stepper direction of each axis
@@ -1334,6 +1326,9 @@ HAL_STEP_TIMER_ISR() {
 #endif
 
 void Stepper::isr() {
+
+  static uint32_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
+
   #ifndef __AVR__
     // Disable interrupts, to avoid ISR preemption while we reprogram the period
     // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
@@ -1357,35 +1352,35 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     ENABLE_ISRS();
 
-    // Run main stepping pulse phase ISR if we have to
-    if (!nextMainISR) Stepper::stepper_pulse_phase_isr();
+    if (!nextMainISR) pulse_phase_isr();                            // 0 = Do coordinated axes Stepper pulses
 
     #if ENABLED(LIN_ADVANCE)
-      // Run linear advance stepper ISR if we have to
-      if (!nextAdvanceISR) nextAdvanceISR = Stepper::advance_isr();
+      if (!nextAdvanceISR) nextAdvanceISR = advance_isr();          // 0 = Do Linear Advance E Stepper pulses
     #endif
 
     // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
-    // Run main stepping block processing ISR if we have to
-    if (!nextMainISR) nextMainISR = Stepper::stepper_block_phase_isr();
+    if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
 
-    uint32_t interval =
+    // Get the interval to the next ISR call
+    const uint32_t interval = _MIN(
+      nextMainISR                                       // Time until the next Stepper ISR
       #if ENABLED(LIN_ADVANCE)
-        _MIN(nextAdvanceISR, nextMainISR)  // Nearest time interval
-      #else
-        nextMainISR                       // Remaining stepper ISR time
+        , nextAdvanceISR                                // Come back early for Linear Advance?
       #endif
-    ;
+      , uint32_t(HAL_TIMER_TYPE_MAX)                    // Come back in a very long time
+    );
 
-    // Limit the value to the maximum possible value of the timer
-    NOMORE(interval, uint32_t(HAL_TIMER_TYPE_MAX));
+    //
+    // Compute remaining time for each ISR phase
+    //     NEVER : The phase is idle
+    //      Zero : The phase will occur on the next ISR call
+    //  Non-zero : The phase will occur on a future ISR call
+    //
 
-    // Compute the time remaining for the main isr
     nextMainISR -= interval;
 
     #if ENABLED(LIN_ADVANCE)
-      // Compute the time remaining for the advance isr
       if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
     #endif
 
@@ -1471,7 +1466,7 @@ void Stepper::isr() {
  * call to this method that might cause variation in the timing. The aim
  * is to keep pulse timing as regular as possible.
  */
-void Stepper::stepper_pulse_phase_isr() {
+void Stepper::pulse_phase_isr() {
 
   // If we must abort the current block, do so!
   if (abort_current_block) {
@@ -1548,7 +1543,7 @@ void Stepper::stepper_pulse_phase_isr() {
           // Don't step E here - But remember the number of steps to perform
           motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
         #else
-          step_needed.e = delta_error.e >= 0;
+          step_needed.e = true;
         #endif
       }
     #elif HAS_E0_STEP
@@ -1604,20 +1599,14 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-
         if (delta_error.e >= 0) {
           delta_error.e -= advance_divisor;
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
-
-      #else // !MIXING_EXTRUDER
-
-        #if HAS_E0_STEP
-          PULSE_STOP(E);
-        #endif
-
-      #endif  // !MIXING_EXTRUDER
-    #endif // !LIN_ADVANCE
+      #elif HAS_E0_STEP
+        PULSE_STOP(E);
+      #endif
+    #endif
 
     #if ISR_MULTI_STEPS
       if (events_to_do) START_LOW_PULSE();
@@ -1630,10 +1619,10 @@ void Stepper::stepper_pulse_phase_isr() {
 // properly schedules blocks from the planner. This is executed after creating
 // the step pulses, so it is not time critical, as pulses are already done.
 
-uint32_t Stepper::stepper_block_phase_isr() {
+uint32_t Stepper::block_phase_isr() {
 
-  // If no queued movements, just wait 1ms for the next move
-  uint32_t interval = (STEPPER_TIMER_RATE) / 1000;
+  // If no queued movements, just wait 1ms for the next block
+  uint32_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
   // If there is a current block
   if (current_block) {
@@ -1667,16 +1656,14 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // acc_step_rate is in steps/second
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(acc_step_rate, oversampling_factor, &steps_per_isr);
+        interval = calc_timer_interval(acc_step_rate, &steps_per_isr);
         acceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
-          if (LA_use_advance_lead) {
-            // Fire ISR if final adv_rate is reached
-            if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
-          }
-          else if (LA_steps) nextAdvanceISR = 0;
-        #endif // LIN_ADVANCE
+          // Fire ISR if final adv_rate is reached
+          if (LA_steps && (!LA_use_advance_lead || LA_isr_rate != current_block->advance_speed))
+            initiateLA();
+        #endif
       }
       // Are we in Deceleration phase ?
       else if (step_events_completed > decelerate_after) {
@@ -1712,32 +1699,32 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // step_rate is in steps/second
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(step_rate, oversampling_factor, &steps_per_isr);
+        interval = calc_timer_interval(step_rate, &steps_per_isr);
         deceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
           if (LA_use_advance_lead) {
             // Wake up eISR on first deceleration loop and fire ISR if final adv_rate is reached
             if (step_events_completed <= decelerate_after + steps_per_isr || (LA_steps && LA_isr_rate != current_block->advance_speed)) {
-              nextAdvanceISR = 0;
+              initiateLA();
               LA_isr_rate = current_block->advance_speed;
             }
           }
-          else if (LA_steps) nextAdvanceISR = 0;
-        #endif // LIN_ADVANCE
+          else if (LA_steps) initiateLA();
+        #endif
       }
       // We must be in cruise phase otherwise
       else {
 
         #if ENABLED(LIN_ADVANCE)
           // If there are any esteps, fire the next advance_isr "now"
-          if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
+          if (LA_steps && LA_isr_rate != current_block->advance_speed) initiateLA();
         #endif
 
         // Calculate the ticks_nominal for this nominal speed, if not done yet
         if (ticks_nominal < 0) {
           // step_rate to timer interval and loops for the nominal speed
-          ticks_nominal = calc_timer_interval(current_block->nominal_rate, oversampling_factor, &steps_per_isr);
+          ticks_nominal = calc_timer_interval(current_block->nominal_rate, &steps_per_isr);
         }
 
         // The timer interval is just the nominal value for the nominal speed
@@ -1846,17 +1833,17 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
 
-      uint8_t oversampling = 0;                         // Assume we won't use it
+      uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        // At this point, we must decide if we can use Stepper movement axis smoothing.
+        // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
-        while (max_rate < MIN_STEP_ISR_FREQUENCY) {
-          max_rate <<= 1;
-          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break;
-          ++oversampling;
+        while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
+          max_rate <<= 1;                                   // Try to double the rate
+          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break; // Don't exceed the estimated ISR limit
+          ++oversampling;                                   // Increase the oversampling (used for left-shift)
         }
-        oversampling_factor = oversampling;
+        oversampling_factor = oversampling;                 // For all timer interval calculations
       #endif
 
       // Based on the oversampling factor, do the calculations
@@ -1894,8 +1881,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         if ((LA_use_advance_lead = current_block->use_advance_lead)) {
           LA_final_adv_steps = current_block->final_adv_steps;
           LA_max_adv_steps = current_block->max_adv_steps;
-          //Start the ISR
-          nextAdvanceISR = 0;
+          initiateLA(); // Start the ISR
           LA_isr_rate = current_block->advance_speed;
         }
         else LA_isr_rate = LA_ADV_NEVER;
@@ -1954,7 +1940,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Calculate the initial timer interval
-      interval = calc_timer_interval(current_block->initial_rate, oversampling_factor, &steps_per_isr);
+      interval = calc_timer_interval(current_block->initial_rate, &steps_per_isr);
     }
   }
 
@@ -2054,6 +2040,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     return interval;
   }
+
 #endif // LIN_ADVANCE
 
 // Check if the given block is busy or not - Must not be called from ISR contexts
@@ -2093,7 +2080,7 @@ void Stepper::init() {
       digipot_motor = 255 * (motor_current[i] / 2.5);
       dac084s085::setValue(i, digipot_motor);
     }
-  #endif//MB(ALLIGATOR)
+  #endif
 
   // Init Microstepping Pins
   #if HAS_MICROSTEPS
@@ -2287,7 +2274,7 @@ void Stepper::init() {
 
   #if DISABLED(I2S_STEPPER_STREAM)
     HAL_timer_start(STEP_TIMER_NUM, 122); // Init Stepper ISR to 122 Hz for quick starting
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    wake_up();
     sei();
   #endif
 
@@ -2341,17 +2328,41 @@ int32_t Stepper::position(const AxisEnum axis) {
   #ifdef __AVR__
     // Protect the access to the position. Only required for AVR, as
     //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = suspend();
   #endif
 
   const int32_t v = count_position[axis];
 
   #ifdef __AVR__
     // Reenable Stepper ISR
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) wake_up();
   #endif
   return v;
+}
+
+// Set the current position in steps
+void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+  planner.synchronize();
+  const bool was_enabled = suspend();
+  _set_position(a, b, c, e);
+  if (was_enabled) wake_up();
+}
+
+void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
+  planner.synchronize();
+
+  #ifdef __AVR__
+    // Protect the access to the position. Only required for AVR, as
+    //  any 32bit CPU offers atomic access to 32bit variables
+    const bool was_enabled = suspend();
+  #endif
+
+  count_position[a] = v;
+
+  #ifdef __AVR__
+    // Reenable Stepper ISR
+    if (was_enabled) wake_up();
+  #endif
 }
 
 // Signal endstops were triggered - This function can be called from
@@ -2362,8 +2373,7 @@ int32_t Stepper::position(const AxisEnum axis) {
 // is properly canceled
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
-  const bool was_enabled = STEPPER_ISR_ENABLED();
-  if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  const bool was_enabled = suspend();
   endstops_trigsteps[axis] = (
     #if IS_CORE
       (axis == CORE_AXIS_2
@@ -2378,22 +2388,21 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
   // Discard the rest of the move if there is a current block
   quick_stop();
 
-  if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  if (was_enabled) wake_up();
 }
 
 int32_t Stepper::triggered_position(const AxisEnum axis) {
   #ifdef __AVR__
     // Protect the access to the position. Only required for AVR, as
     //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = suspend();
   #endif
 
   const int32_t v = endstops_trigsteps[axis];
 
   #ifdef __AVR__
     // Reenable Stepper ISR
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) wake_up();
   #endif
 
   return v;
@@ -2403,14 +2412,13 @@ void Stepper::report_positions() {
 
   #ifdef __AVR__
     // Protect the access to the position.
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = suspend();
   #endif
 
   const xyz_long_t pos = count_position;
 
   #ifdef __AVR__
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) wake_up();
   #endif
 
   #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
@@ -2571,9 +2579,13 @@ void Stepper::report_positions() {
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
 
           // Restore direction bits
+          DIR_WAIT_BEFORE();
+
           X_DIR_WRITE(old_dir.x);
           Y_DIR_WRITE(old_dir.y);
           Z_DIR_WRITE(old_dir.z);
+
+          DIR_WAIT_AFTER();
 
         #endif
 
@@ -2581,6 +2593,7 @@ void Stepper::report_positions() {
 
       default: break;
     }
+
     sei();
   }
 
