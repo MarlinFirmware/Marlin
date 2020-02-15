@@ -345,7 +345,7 @@
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
     #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
   #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-    #define CONTROLLER_FAN_PIN         P1_00 // PWRDET - PS_ON_PIN
+    #define CONTROLLER_FAN_PIN       P1_00 // PWRDET - PS_ON_PIN
   #endif
   #define CONTROLLERFAN_SECS         30    // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
@@ -1078,6 +1078,11 @@
    */
    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
     //#define POWER_LOSS_RECOVERY
+   #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define POWER_LOSS_RECOVERY
+    #ifndef POWER_LOSS_PIN
+      #define POWER_LOSS_PIN  -1 // Not using this Pin! 
+    #endif
    #else // ANYCUBIC_4MAX_DEFAULT
     //#define POWER_LOSS_RECOVERY
    #endif
@@ -1806,7 +1811,7 @@
  *   'M106 P<fan> T2'     : Use the set secondary speed
  *   'M106 P<fan> T1'     : Restore the previous fan speed
  */
-#define EXTRA_FAN_SPEED
+//#define EXTRA_FAN_SPEED
 
 /**
  * Firmware-based and LCD-controlled retract
