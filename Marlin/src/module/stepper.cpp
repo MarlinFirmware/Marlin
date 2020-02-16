@@ -217,6 +217,10 @@ uint32_t Stepper::advance_divisor = 0,
 
 #endif // LIN_ADVANCE
 
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+  uint32_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
+#endif
+
 int32_t Stepper::ticks_nominal = -1;
 #if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
@@ -1358,15 +1362,31 @@ void Stepper::isr() {
       if (!nextAdvanceISR) nextAdvanceISR = advance_isr();          // 0 = Do Linear Advance E Stepper pulses
     #endif
 
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      const bool do_babystep = (nextBabystepISR == 0);              // 0 = Do Babystepping (XY)Z pulses
+      if (do_babystep) nextBabystepISR = babystepping_isr();
+    #endif
+
     // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
     if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
 
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      if (do_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
+        NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8)       // FULL STOP for 125µs after a baby-step
+
+      if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
+        NOLESS(nextBabystepISR, nextMainISR / 2)        // TODO: Only look at axes enabled for baby-stepping
+    #endif
+
     // Get the interval to the next ISR call
     const uint32_t interval = _MIN(
-      nextMainISR                                       // Time until the next Stepper ISR
+      nextMainISR                                       // Time until the next Pulse / Block phase
       #if ENABLED(LIN_ADVANCE)
         , nextAdvanceISR                                // Come back early for Linear Advance?
+      #endif
+      #if ENABLED(INTEGRATED_BABYSTEPPING)
+        , nextBabystepISR                               // Come back early for Babystepping?
       #endif
       , uint32_t(HAL_TIMER_TYPE_MAX)                    // Come back in a very long time
     );
@@ -1382,6 +1402,10 @@ void Stepper::isr() {
 
     #if ENABLED(LIN_ADVANCE)
       if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
+    #endif
+
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
     #endif
 
     /**
@@ -2043,6 +2067,16 @@ uint32_t Stepper::block_phase_isr() {
 
 #endif // LIN_ADVANCE
 
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+
+  // Timer interrupt for baby-stepping
+  uint32_t Stepper::babystepping_isr() {
+    babystep.task();
+    return babystep.has_steps() ? BABYSTEP_TICKS : BABYSTEP_NEVER;
+  }
+
+#endif
+
 // Check if the given block is busy or not - Must not be called from ISR contexts
 // The current_block could change in the middle of the read by an Stepper ISR, so
 // we must explicitly prevent that!
@@ -2511,7 +2545,10 @@ void Stepper::report_positions() {
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
   void Stepper::babystep(const AxisEnum axis, const bool direction) {
-    cli();
+
+    #if DISABLED(INTEGRATED_BABYSTEPPING)
+      cli();
+    #endif
 
     switch (axis) {
 
@@ -2594,7 +2631,9 @@ void Stepper::report_positions() {
       default: break;
     }
 
-    sei();
+    #if DISABLED(INTEGRATED_BABYSTEPPING)
+      sei();
+    #endif
   }
 
 #endif // BABYSTEPPING

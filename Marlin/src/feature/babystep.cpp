@@ -117,6 +117,10 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
     gcode.reset_stepper_timeout();
   #endif
+
+  #if ENABLED(INTEGRATED_BABYSTEPPING)
+    if (has_steps()) stepper.initiateBabystepping();
+  #endif
 }
 
 #endif // BABYSTEPPING
