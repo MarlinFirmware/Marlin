@@ -308,7 +308,7 @@ int i2s_init() {
   esp_intr_enable(i2s_isr_handle);
 
   // Create the task that will feed the buffer
-  xTaskCreate(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr);
+  xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
 
   // Route the i2s pins to the appropriate GPIO
   gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
