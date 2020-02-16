@@ -101,6 +101,10 @@ Stepper stepper; // Singleton
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+  #include "../feature/babystep.h"
+#endif
+
 #if MB(ALLIGATOR)
   #include "../feature/dac/dac_dac084s085.h"
 #endif
@@ -1373,10 +1377,10 @@ void Stepper::isr() {
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
       if (do_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
-        NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8)       // FULL STOP for 125µs after a baby-step
+        NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
 
       if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
-        NOLESS(nextBabystepISR, nextMainISR / 2)        // TODO: Only look at axes enabled for baby-stepping
+        NOLESS(nextBabystepISR, nextMainISR / 2);       // TODO: Only look at axes enabled for baby-stepping
     #endif
 
     // Get the interval to the next ISR call
@@ -2544,7 +2548,7 @@ void Stepper::report_positions() {
 
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
-  void Stepper::babystep(const AxisEnum axis, const bool direction) {
+  void Stepper::do_babystep(const AxisEnum axis, const bool direction) {
 
     #if DISABLED(INTEGRATED_BABYSTEPPING)
       cli();
