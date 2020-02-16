@@ -72,7 +72,7 @@ case $TESTENV in
           BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
           BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
           [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
-          readarray -t ENVS <<< $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | $SED -n '2 p' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' )
+          readarray -t ENVS <<< $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E '#include.+//.+env:.+' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' )
           [[ -z $ENVS ]] && { echo "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
           ECOUNT=${#ENVS[*]}
 
