@@ -98,10 +98,10 @@ public:
       adaneo2.setBrightness(b);
     #endif
   }
-  static inline void fill_color(uint32_t c, uint16_t first, uint16_t count){
+  static inline void fill_color(uint32_t c, uint16_t first, uint16_t count, const uint8_t uNeoPixelMulti=1){
     adaneo1.fill( c, first, count);
     #if MULTIPLE_NEOPIXEL_TYPES
-      if (uNeoPixelMulti !=1) adaneo1.fill( c, first, count);
+      if (uNeoPixelMulti !=1) adaneo2.fill( c, first, count);
     #endif
   }
 
