@@ -550,7 +550,7 @@ void GCodeQueue::get_serial_commands() {
         else if (n < 0)
           SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
 
-        if(process_line_done(sd_input_state, command_buffer[index_w], sd_count)) continue;
+        if (process_line_done(sd_input_state, command_buffer[index_w], sd_count)) continue;
 
         _commit_command(false);
 
