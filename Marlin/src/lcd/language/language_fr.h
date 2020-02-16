@@ -384,7 +384,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SHORT_HOUR                      = _UxGT("h"); // One character only
   PROGMEM Language_Str MSG_SHORT_MINUTE                    = _UxGT("m"); // One character only
 
-  PROGMEM Language_Str MSG_HEATING                         = _UxGT("En chauffe...");
+  PROGMEM Language_Str MSG_HEATING                         = _UxGT("en chauffe...");
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Refroidissement");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Lit en chauffe...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Refroid. du lit...");
@@ -416,6 +416,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("Extrudeurs");
   PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Bauds");
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocole");
+  PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Protection inactive");
+  PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Protection active");
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Lumière caisson");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Luminosité");
 
@@ -437,7 +440,7 @@ namespace Language_fr {
 
   PROGMEM Language_Str MSG_INFO_MIN_TEMP                   = _UxGT("Temp Min");
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Temp Max");
-  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Alimentation");
+  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Alim.");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Puiss. moteur ");
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
