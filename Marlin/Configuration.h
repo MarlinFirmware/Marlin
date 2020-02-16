@@ -2190,18 +2190,18 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-  //#define NEOPIXEL_LED
+#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB                     // First neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   //#define NEOPIXEL2_TYPE  NEO_GRB                   // Optional - Second neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  //#define NEOPIXEL_PIN      -1                      // Define first neopixel pin!
+  #define NEOPIXEL_PIN      5                         // Define first neopixel pin!
   //#define NEOPIXEL2_PIN     -1                      // Optional - define second neopixel pin.
-    #define NEOPIXEL_PIXELS         30                  // Number of LEDs in the strip
-  //#define NEOPIXEL2_PIXELS        8                   // Number of LEDs in the strip
-    #define NEOPIXEL_IS_SEQUENTIAL                      // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+    #define NEOPIXEL_PIXELS         30                // Number of LEDs in the strip
+  //#define NEOPIXEL2_PIXELS        8                 // Number of LEDs in the strip
+    #define NEOPIXEL_IS_SEQUENTIAL                    // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
 	#define NEOPIXEL_BRIGHTNESS     127                 // Initial brightness (0-255)  
   //#define NEOPIXEL_STARTUP_TEST                     // Cycle through colors at startup
-    #define NEOPIXEL_TEST_PIXEL                         // Enable NEOPIXEL test menu
+    #define NEOPIXEL_TEST_PIXEL                       // Enable NEOPIXEL test menu
   #if ENABLED(NEOPIXEL_TEST_PIXEL)
     #define NEOPIXEL_STARTUP_TEST_PIXEL                       // Cycle through pixel and colors at startup
     #define NEOPIXEL_TEST_PIXEL_ROTATE_BACK                   // Cycle to end (set pixel color) then back (switch off pixel )

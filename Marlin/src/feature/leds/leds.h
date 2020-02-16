@@ -205,6 +205,8 @@ static void set_color(const LEDColor &color
 
   #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
+  #endif
+  #if ENABLED(NEOPIXEL_LED,NEOPIXEL_TEST_PIXEL)
     static inline void update() { set_color(color); }
   #endif
 
