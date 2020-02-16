@@ -415,7 +415,7 @@ void GCodeQueue::get_serial_commands() {
 
       if (serial_char == '\n' || serial_char == '\r') {
 
-        process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i]);
+        if (process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i])) continue;
 
         char* command = serial_line_buffer[i];
 
@@ -550,7 +550,7 @@ void GCodeQueue::get_serial_commands() {
         else if (n < 0)
           SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
 
-        process_line_done(sd_input_state, command_buffer[index_w], sd_count);
+        if (process_line_done(sd_input_state, command_buffer[index_w], sd_count)) continue;
 
         _commit_command(false);
 
