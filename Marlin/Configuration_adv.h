@@ -338,6 +338,9 @@
  *
  * The fan will turn on automatically whenever any stepper is enabled
  * and turn off after a set period after all steppers are turned off.
+ *
+ * Gcodes: M710 ; Return current Settings
+ * M710 I127 A1 S255 D160 ; Set controller Fan idle Speed 50% (I127), AutoMode On (A1), Fan speed 100% (S100), Duration to 160 Secs (D160)
  */
 #define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
@@ -347,18 +350,18 @@
   #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     #define CONTROLLER_FAN_PIN       P1_00 // PWRDET - PS_ON_PIN
   #endif
-  #define CONTROLLERFAN_SECS         30    // Duration in seconds for the fan to run after all motors are disabled
-  #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
-  #define CONTROLLERFAN_IDLE_SPEED   21    // 0-255 - 255 == fullspeed; Controller fan idles speed, when all motors are disabled
-  #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu  
+  #define CONTROLLERFAN_SPEED_MIN    20    // Default 0;    Range 1-255; 255 is fullspeed; Min. Fan PWM value
+  #define CONTROLLERFAN_SECS         30    // Default 60;   Duration in seconds for the fan to run after all motors are disabled
+  #define CONTROLLERFAN_SPEED        255   // Default 255;  Range 0-255; 255 is fullspeed; Controller fan speed is on, if either stepper/motor is enabled
+  #define CONTROLLERFAN_IDLE_SPEED   21    // Default 100;  Range 0-255; 255 is fullspeed; Controller fan idle speed, when all motors are disabled
+  #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu and EEPROM save/restore options
 #else
-  #define CONTROLLER_FAN_PIN         58   // Set a custom pin for the controller fan
-  #define CONTROLLERFAN_SECS         60    // Duration in seconds for the fan to run after all motors are disabled
-  #define CONTROLLERFAN_SPEED        255   // 0-255 - 255 == fullspeed; Controller fan speed is on, if either stepper/motor is enabled
-  #define CONTROLLERFAN_IDLE_SPEED   128   // 0-255 - 255 == fullspeed; Controller fan idles speed, when all motors are disabled
-  #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu
+  #define CONTROLLERFAN_SPEED_MIN    0     // Default 0;    Range 1-255; 255 is fullspeed; Min. Fan PWM value
+  #define CONTROLLERFAN_SECS         60    // Default 60;   Duration in seconds for the fan to run after all motors are disabled
+  #define CONTROLLERFAN_SPEED        255   // Default 255;  Range 0-255; 255 is fullspeed; Controller fan speed is on, if either stepper/motor is enabled
+  #define CONTROLLERFAN_IDLE_SPEED   100   // Default 100;  Range 0-255; 255 is fullspeed; Controller fan idle speed, when all motors are disabled
+  #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu and EEPROM save/restore options
 #endif
-  // TODO EC : Implement //#define CONTROLLERFAN_SPEED_Z_ONLY 127  // Reduce noise on machines that keep Z enabled
 #endif
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably

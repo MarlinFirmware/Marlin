@@ -85,10 +85,12 @@ void ControllerFan::update() {
     // Fan Settings - Set fan > 0:
     //        - If AutoMode in on and steppers has been enabled for CONTROLLERFAN_SECS seconds.
     //        - If System is on idle and idle fan speed settings is activated
-    if( settings_fan.controllerFan_AutoMode && lastMotorOn && PENDING(ms, lastMotorOn + (settings_fan.controllerFan_Duration) * 1000UL) ) {
+    if( settings_fan.controllerFan_AutoMode && lastMotorOn && 
+        PENDING(ms, lastMotorOn + (settings_fan.controllerFan_Duration) * 1000UL) && 
+        settings_fan.controllerFan_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
       iFanSpeed= settings_fan.controllerFan_Speed;
     }
-    else if( settings_fan.controllerFan_Idle_Speed  > 0 ) {
+    else if( settings_fan.controllerFan_Idle_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
       iFanSpeed= settings_fan.controllerFan_Idle_Speed;
     } else iFanSpeed= 0; // Fan OFF
 

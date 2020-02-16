@@ -29,17 +29,16 @@
 
   /**
    * M710: Set controller fan settings
-   * Yuu can set all parameters separate or together. See Examples.
-   *
+   * You can set all parameters separate or together.
    * Examples:
    *   M710                   ; Return current Settings
    *   M710 S0                ; Turn off Controller Fan
    *   M710 I255              ; Set Fan Idle Speed Setting
    *   M710 R                 ; Reset settings to defaults
-   *   M710 S255              ; Set Controller Fan Speed Setting to 100%
-   *   M710 I255 A0           ; Set Fan Idle Speed Setting and AutoMode off
-   *   M710 S255              ; Set Controller Fan Speed setting to 100%
-   *   M710 I127 A1 S255 D160 ; Set Controller Fan idle Speed 50%, AutoMode On, Fan speed 100%, Duration to 160 Secs
+   *   M710 S255              ; Set controller Fan speed setting to 100%
+   *   M710 I255 A0           ; Set Fan idle speed setting and AutoMode off
+   *   M710 S255              ; Set controller Fan speed setting to 100%
+   *   M710 I127 A1 S255 D160 ; Set controller Fan idle speed 50%, AutoMode On, Fan speed 100%, duration to 160 Secs
    *
    */
 

@@ -213,6 +213,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("Intensität Blau");
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("Intensität Weiß");
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("Helligkeit");
+  PROGMEM Language_Str MSG_LED_TEST_NEOPIXEL               = _UxGT("NeoPixel LED's Testen");
 
   PROGMEM Language_Str MSG_MOVING                          = _UxGT("In Bewegung...");
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("Abstand XY");

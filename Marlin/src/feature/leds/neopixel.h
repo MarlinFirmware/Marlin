@@ -67,8 +67,9 @@ private:
 public:
   static void init();
   static void set_color_startup(const uint32_t c);
-  #if ENABLED(NEOPIXEL_STARTUP_TEST_PIXEL)
+  #if ENABLED(NEOPIXEL_TEST_PIXEL)
     static void set_pixel_color_startup(const uint32_t c);
+    static void test_neopixel();
   #endif
   
   static void set_color(const uint32_t c);
@@ -95,6 +96,12 @@ public:
     adaneo1.setBrightness(b);
     #if MULTIPLE_NEOPIXEL_TYPES
       adaneo2.setBrightness(b);
+    #endif
+  }
+  static inline void fill_color(uint32_t c, uint16_t first, uint16_t count){
+    adaneo1.fill( c, first, count);
+    #if MULTIPLE_NEOPIXEL_TYPES
+      if (uNeoPixelMulti !=1) adaneo1.fill( c, first, count);
     #endif
   }
 

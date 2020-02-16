@@ -75,6 +75,9 @@ void menu_led() {
     #endif
     SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
     SUBMENU(MSG_LED_PRESETS, menu_led_presets);
+    #if ENABLED(NEOPIXEL_TEST_PIXEL)
+      ACTION_ITEM(MSG_LED_TEST_NEOPIXEL, leds.test_neo_pixel);
+    #endif
   }
   END_MENU();
 }
