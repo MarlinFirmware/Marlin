@@ -24,12 +24,28 @@
 
 #if ENABLED(USE_CONTROLLER_FAN)
 
+#include "controllerfan.h"
 #include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 
-uint8_t controllerfan_speed;
+ControllerFan fanController;
 
-void controllerfan_update() {
+void ControllerFan::reset() {
+  return init();
+}
+
+void ControllerFan::init() {
+  settings_fan.controllerFan_Speed        = CONTROLLERFAN_SPEED;      // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
+  settings_fan.controllerFan_Idle_Speed   = CONTROLLERFAN_IDLE_SPEED; // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
+  settings_fan.controllerFan_Duration     = CONTROLLERFAN_SECS;       // Duration in seconds for the fan to run after all motors are disabled
+  settings_fan.controllerFan_AutoMode     = true;
+}
+
+bool ControllerFan::state() {
+  return iFanSpeed > 0;
+}
+
+void ControllerFan::update() {
   static millis_t lastMotorOn = 0, // Last time a motor was turned on
                   nextMotorCheck = 0; // Last time the state was checked
   const millis_t ms = millis();
@@ -66,18 +82,21 @@ void controllerfan_update() {
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
     }
 
-    // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
-    controllerfan_speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : (
-      #ifdef CONTROLLERFAN_SPEED_Z_ONLY
-        xory ? CONTROLLERFAN_SPEED : CONTROLLERFAN_SPEED_Z_ONLY
-      #else
-        CONTROLLERFAN_SPEED
-      #endif
-    );
+    // Fan Settings - Set fan > 0:
+    //        - If AutoMode in on and steppers has been enabled for CONTROLLERFAN_SECS seconds.
+    //        - If System is on idle and idle fan speed settings is activated
+    if( settings_fan.controllerFan_AutoMode && lastMotorOn && 
+        PENDING(ms, lastMotorOn + (settings_fan.controllerFan_Duration) * 1000UL) && 
+        settings_fan.controllerFan_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
+      iFanSpeed= settings_fan.controllerFan_Speed;
+    }
+    else if( settings_fan.controllerFan_Idle_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
+      iFanSpeed= settings_fan.controllerFan_Idle_Speed;
+    } else iFanSpeed= 0; // Fan OFF
 
-    // Allow digital or PWM fan output (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, controllerfan_speed);
-    analogWrite(pin_t(CONTROLLER_FAN_PIN), controllerfan_speed);
+    // allows digital or PWM fan output to be used (see M42 handling)
+    WRITE(CONTROLLER_FAN_PIN, iFanSpeed );
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), iFanSpeed );
   }
 }
 

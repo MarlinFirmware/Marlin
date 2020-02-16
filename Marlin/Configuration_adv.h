@@ -338,13 +338,18 @@
  *
  * The fan will turn on automatically whenever any stepper is enabled
  * and turn off after a set period after all steppers are turned off.
+ *
+ * Gcodes: M710 ; Return current Settings
+ * M710 I127 A1 S255 D160 ; Set controller Fan idle Speed 50% (I127), AutoMode On (A1), Fan speed 100% (S100), Duration to 160 Secs (D160)
  */
 //#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
   //#define CONTROLLER_FAN_PIN -1           // Set a custom pin for the controller fan
-  #define CONTROLLERFAN_SECS 60             // Duration in seconds for the fan to run after all motors are disabled
-  #define CONTROLLERFAN_SPEED 255           // 255 == full speed
-  //#define CONTROLLERFAN_SPEED_Z_ONLY 127  // Reduce noise on machines that keep Z enabled
+    #define CONTROLLERFAN_SPEED_MIN    0     // Default 0;    Range 1-255; 255 is fullspeed; Min. Fan PWM value
+    #define CONTROLLERFAN_SECS         60    // Default 60;   Duration in seconds for the fan to run after all motors are disabled
+    #define CONTROLLERFAN_SPEED        255   // Default 255;  Range 0-255; 255 is fullspeed; Controller fan speed is on, if either stepper/motor is enabled
+    #define CONTROLLERFAN_IDLE_SPEED   100   // Default 100;  Range 0-255; 255 is fullspeed; Controller fan idle speed, when all motors are disabled
+    #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu and EEPROM save/restore options
 #endif
 
 // When first starting the main fan, run it at full speed for the
@@ -1530,6 +1535,16 @@
  * should the probe position be modified with M851XY then the
  * probe points will follow. This prevents any change from causing
  * the probe to be unable to reach any points.
+ * ____________________________
+ * |          Back            |
+ * |      ______________      |
+ * |      |            |      |
+ * |      |  Printing- |      |
+ * | Left |  Area      | Right|
+ * |      |            |      |
+ * |      |____________|      |
+ * |          Front           |
+ * |__________________________|
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
   //#define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE

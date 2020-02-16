@@ -529,7 +529,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    controllerfan_update(); // Check if fan should be turned on to cool stepper drivers down
+    fanController.update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
@@ -945,6 +945,13 @@ void setup() {
     card.mount(); // Mount the SD card before settings.first_load
   #endif
 
+  // USE_CONTROLLER_FAN must be initialized before EEPROM
+  // (because fanController.init code Initialize the default configurations).
+  #if ENABLED(USE_CONTROLLER_FAN)
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
+    fanController.init();
+  #endif
+
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   settings.first_load();
@@ -996,10 +1003,6 @@ void setup() {
 
   #if HAS_BED_PROBE
     endstops.enable_z_probe(false);
-  #endif
-
-  #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN);
   #endif
 
   #if HAS_STEPPER_RESET
