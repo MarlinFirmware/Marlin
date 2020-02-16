@@ -23,6 +23,14 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+  #define BABYSTEPS_PER_SEC 1000UL
+  #define BABYSTEP_TICKS ((STEPPER_TIMER_RATE) / (BABYSTEPS_PER_SEC))
+#else
+  #define BABYSTEPS_PER_SEC 976UL
+  #define BABYSTEP_TICKS ((TEMP_TIMER_RATE) / (BABYSTEPS_PER_SEC))
+#endif
+
 #if IS_CORE || EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
   #define BS_TODO_AXIS(A) A
 #else
@@ -56,8 +64,12 @@ public:
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const float &mm);
 
+  static inline bool has_steps() {
+    return steps[BS_TODO_AXIS(X_AXIS)] || steps[BS_TODO_AXIS(Y_AXIS)] || steps[BS_TODO_AXIS(Z_AXIS)];
+  }
+
   //
-  // Called by the Temperature ISR to
+  // Called by the Temperature or Stepper ISR to
   // apply accumulated babysteps to the axes.
   //
   static inline void task() {
