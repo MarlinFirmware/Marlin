@@ -178,8 +178,10 @@
 #endif
 
 #ifndef SHORT_BUILD_VERSION
-    #define BUILD_SUFFIX " ALPHA"
-    #define BUILD_VERSION "2.0.67"
+    #define BUILD_SUFFIX  "BETA"        // Release Tag
+    #define BUILD_VERSION "2.0.3068"    // Version Info - Major.Minor.Build Build - WXYZ
+                                        // W: Recent marlin release Build (Marlin 2.0.x)
+                                        // XYZ: Last own build number
     #define SHORT_BUILD_VERSION  BUILD_PREFIX BUILD_VERSION BUILD_SUFFIX
 #endif
 
@@ -2561,13 +2563,14 @@
   #define NEOPIXEL_BRIGHTNESS     200                 // Initial brightness (0-255)
   
   //#define NEOPIXEL_STARTUP_TEST                     // Cycle through colors at startup
-  #define NEOPIXEL_STARTUP_TEST_PIXEL                 // Cycle through pixel and colors at startup
-  #if ENABLED(NEOPIXEL_STARTUP_TEST_PIXEL)
-    #define NEOPIXEL_STARTUP_TEST_PIXEL_ROTATE_BACK   // Cycle to end (set pixel color) then back (switch off pixel )
-    #define NEOPIXEL_STARTUP_TEST_PIXEL_DELAY   5     // Wait x ms to switch to next pixel color set
-    #define NEOPIXEL_STARTUP_TEST_PIXEL_COLOR_1 { 255, 0, 0, 0 }  // R, G, B, W - set pixel color for the first step
-    #define NEOPIXEL_STARTUP_TEST_PIXEL_COLOR_2 { 0, 255, 0, 0 }  // R, G, B, W - set pixel color fpr the second step
-    #define NEOPIXEL_STARTUP_TEST_PIXEL_COLOR_3 { 0, 0, 255, 0 }  // R, G, B, W - set pixel color for the third step
+  #define NEOPIXEL_TEST_PIXEL                         // Enable NEOPIXEL test menu
+  #if ENABLED(NEOPIXEL_TEST_PIXEL)
+    #define NEOPIXEL_STARTUP_TEST_PIXEL               // Cycle through pixel and colors at startup
+    #define NEOPIXEL_TEST_PIXEL_ROTATE_BACK           // Cycle to end (set pixel color) then back (switch off pixel )
+    #define NEOPIXEL_TEST_PIXEL_DELAY       5                 // Wait x ms to switch to next pixel color set
+    #define NEOPIXEL_TEST_PIXEL_COLOR_1     { 255, 0, 0, 0 }  // R, G, B, W - set pixel color for the first step
+    #define NEOPIXEL_TEST_PIXEL_COLOR_2     { 0, 255, 0, 0 }  // R, G, B, W - set pixel color fpr the second step
+    #define NEOPIXEL_TEST_PIXEL_COLOR_3     { 0, 0, 255, 0 }  // R, G, B, W - set pixel color for the third step
   #endif
 
   // Use a single Neopixel LED for static (background) lighting
