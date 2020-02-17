@@ -821,7 +821,8 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-//#define ADAPTIVE_STEP_SMOOTHING
+// WEW 02/16/2020
+#define ADAPTIVE_STEP_SMOOTHING
 
 /**
  * Custom Microstepping
