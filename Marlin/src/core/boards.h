@@ -141,6 +141,8 @@
 #define BOARD_EINSTART_S              1319  // Einstart retrofit
 #define BOARD_WANHAO_ONEPLUS          1320  // Wanhao 0ne+ i3 Mini
 #define BOARD_LEAPFROG_XEED2015       1321  // Leapfrog Xeed 2015
+#define BOARD_PICA                    1322  // PICA Shield (rev C or later)
+#define BOARD_PICA_REVB               1323  // PICA Shield (original version)
 
 //
 // ATmega1281, ATmega2561
