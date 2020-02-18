@@ -718,6 +718,35 @@
   #define RESTORE_LEVELING_AFTER_G34      // Restore leveling after G34 is done?
 #endif
 
+/**
+ * Adjusting bed screws by probing corners
+ * Add the G35 command to read bed corners to help adjust screws.
+ */
+//#define SCREWS_TILT_ADJUST
+#if ENABLED(SCREWS_TILT_ADJUST)
+
+  // Define positions for probing points, use the hotend as reference not the sensor.
+  #define SCREWS_TILT_ADJUST_PROBE_XY { {  20, 20 }, { 200,  20 }, { 200, 200 }, { 20, 200 } }  
+
+  // Define positions names for probing points.
+  #define SCREWS_TILT_ADJUST_PROBE_NAMES { "Front Right", "Front Left", "Rear Left", "Rear Right" } 
+
+  // Enable to restore leveling setup after operation
+  #define RESTORE_LEVELING_AFTER_G35
+
+  // Screw thread: 0 - Clockwise M3
+  //               1 - Counter-Clockwise M3
+  //               2 - Clockwise M4
+  //               3 - Counter-Clockwise M4
+  //               4 - Clockwise M5
+  //               5 - Counter-Clockwise M5
+  // 
+  //               Default value is 0 (Clockwise M3), most printers use an 
+  //               M3 screw and turning the knob clockwise decrease distance.
+  #define SCREWS_TILT_ADJUST_THREAD 0
+
+#endif
+
 // @section motion
 
 #define AXIS_RELATIVE_MODES { false, false, false, false }
