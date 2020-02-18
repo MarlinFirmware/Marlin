@@ -67,7 +67,7 @@
 #ifdef CPU_32_BIT
   /**
    * Duration of START_TIMED_PULSE
-   * 
+   *
    * ...as measured on an LPC1768 with a scope and converted to cycles.
    * Not applicable to other 32-bit processors, but as long as others
    * take longer, pulses will be longer. For example the SKR Pro
@@ -274,11 +274,15 @@ class Stepper {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       static bool locked_Y_motor, locked_Y2_motor;
     #endif
-    #if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
-      static bool locked_Z_motor, locked_Z2_motor;
-    #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
-      static bool locked_Z3_motor;
+    #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+      static bool locked_Z_motor, locked_Z2_motor
+                  #if NUM_Z_STEPPER_DRIVERS >= 3
+                    , locked_Z3_motor
+                    #if NUM_Z_STEPPER_DRIVERS >= 4
+                      , locked_Z4_motor
+                    #endif
+                  #endif
+                  ;
     #endif
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
@@ -430,12 +434,15 @@ class Stepper {
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
-    #if Z_MULTI_ENDSTOPS || (ENABLED(Z_STEPPER_AUTO_ALIGN) && Z_MULTI_STEPPER_DRIVERS)
+    #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
-    #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
-      FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
+      #if NUM_Z_STEPPER_DRIVERS >= 3
+        FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
+        #if NUM_Z_STEPPER_DRIVERS >= 4
+          FORCE_INLINE static void set_z4_lock(const bool state) { locked_Z4_motor = state; }
+        #endif
+      #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)

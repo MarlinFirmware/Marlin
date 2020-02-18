@@ -147,9 +147,9 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Pita ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Ohea");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Haizagailu abiadura");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Haizagailu abiadura =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Haizagailu abiadura ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Haiz.gehig. abiadura");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Haiz.gehig. abiadura =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Haiz.gehig. abiadura ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Fluxua");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Fluxua ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrola");
@@ -190,7 +190,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Larri. berriz.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM-a hasieratu");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantaila info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantaila info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prestatu");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Doitu");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausatu inprimak.");

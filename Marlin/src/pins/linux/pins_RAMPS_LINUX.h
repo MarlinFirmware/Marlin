@@ -363,6 +363,24 @@
   #ifndef E4_SERIAL_RX_PIN
     #define E4_SERIAL_RX_PIN -1
   #endif
+  #ifndef E5_SERIAL_TX_PIN
+    #define E5_SERIAL_TX_PIN -1
+  #endif
+  #ifndef E5_SERIAL_RX_PIN
+    #define E5_SERIAL_RX_PIN -1
+  #endif
+  #ifndef E6_SERIAL_TX_PIN
+    #define E6_SERIAL_TX_PIN -1
+  #endif
+  #ifndef E6_SERIAL_RX_PIN
+    #define E6_SERIAL_RX_PIN -1
+  #endif
+  #ifndef E7_SERIAL_TX_PIN
+    #define E7_SERIAL_TX_PIN -1
+  #endif
+  #ifndef E7_SERIAL_RX_PIN
+    #define E7_SERIAL_RX_PIN -1
+  #endif
 #endif
 
 //////////////////////////
@@ -529,7 +547,7 @@
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
-    #elif ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
+    #elif ENABLED(MKS_MINI_12864)
 
       #define DOGLCD_A0         27
       #define DOGLCD_CS         25

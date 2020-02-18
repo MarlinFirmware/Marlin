@@ -33,7 +33,6 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
-
 #ifdef STM32F0xx
 
   #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
@@ -58,16 +57,40 @@
     #define TEMP_TIMER 2
   #endif
 
-#elif defined(STM32F4xx) || defined(STM32F7xx)
+#elif defined(STM32F401xC) || defined(STM32F401xE)
 
-  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
+  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
 
   #ifndef STEP_TIMER
-    #define STEP_TIMER 5
+    #define STEP_TIMER 9
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 10
+  #endif
+
+#elif defined(STM32F4xx)
+
+  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
+
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 6  // STM32F401 has no TIM6, TIM7, or TIM8
   #endif
 
   #ifndef TEMP_TIMER
     #define TEMP_TIMER 14 // TIM7 is consumed by Software Serial if used.
+  #endif
+
+#elif defined(STM32F7xx)
+
+  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
+
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 6  // the RIGHT timer!
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 14
   #endif
 
 #endif
@@ -81,16 +104,16 @@
 #endif
 
 #ifndef TEMP_TIMER_IRQ_PRIO
-  #define TEMP_TIMER_IRQ_PRIO 14 //14 = after hardware ISRs
+  #define TEMP_TIMER_IRQ_PRIO 14   // 14 = after hardware ISRs
 #endif
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 
-#define TEMP_TIMER_FREQUENCY 1000 //Temperature::isr() is expected to be called at around 1kHz
+#define TEMP_TIMER_FREQUENCY 1000   // Temperature::isr() is expected to be called at around 1kHz
 
-//TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
+// TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
 #define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs

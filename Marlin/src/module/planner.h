@@ -30,7 +30,7 @@
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  */
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #include "motion.h"
 #include "../gcode/queue.h"

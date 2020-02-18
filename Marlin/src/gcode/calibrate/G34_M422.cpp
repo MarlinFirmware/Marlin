@@ -52,20 +52,22 @@ constexpr xy_pos_t test_z_stepper_align_xy[] = Z_STEPPER_ALIGN_XY;
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
 
-  static_assert(COUNT(test_z_stepper_align_xy) >= Z_STEPPER_COUNT,
+  static_assert(COUNT(test_z_stepper_align_xy) >= NUM_Z_STEPPER_DRIVERS,
     "Z_STEPPER_ALIGN_XY requires at least three {X,Y} entries (Z, Z2, Z3, ...)."
   );
 
   constexpr float test_z_stepper_align_stepper_xy[][XY] = Z_STEPPER_ALIGN_STEPPER_XY;
   static_assert(
-    COUNT(test_z_stepper_align_stepper_xy) == Z_STEPPER_COUNT,
+    COUNT(test_z_stepper_align_stepper_xy) == NUM_Z_STEPPER_DRIVERS,
     "Z_STEPPER_ALIGN_STEPPER_XY requires three {X,Y} entries (one per Z stepper)."
   );
 
 #else
 
-  static_assert(COUNT(test_z_stepper_align_xy) == Z_STEPPER_COUNT,
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  static_assert(COUNT(test_z_stepper_align_xy) == NUM_Z_STEPPER_DRIVERS,
+    #if NUM_Z_STEPPER_DRIVERS == 4
+      "Z_STEPPER_ALIGN_XY requires four {X,Y} entries (Z, Z2, Z3, and Z4)."
+    #elif NUM_Z_STEPPER_DRIVERS == 3
       "Z_STEPPER_ALIGN_XY requires three {X,Y} entries (Z, Z2, and Z3)."
     #else
       "Z_STEPPER_ALIGN_XY requires two {X,Y} entries (Z and Z2)."
@@ -85,10 +87,13 @@ static_assert(LTEST(0) && RTEST(0), "The 1st Z_STEPPER_ALIGN_XY X is unreachable
 static_assert(FTEST(0) && BTEST(0), "The 1st Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
 static_assert(LTEST(1) && RTEST(1), "The 2nd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
 static_assert(FTEST(1) && BTEST(1), "The 2nd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-
-#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+#if NUM_Z_STEPPER_DRIVERS >= 3
   static_assert(LTEST(2) && RTEST(2), "The 3rd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
   static_assert(FTEST(2) && BTEST(2), "The 3rd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
+  #if NUM_Z_STEPPER_DRIVERS >= 4
+    static_assert(LTEST(3) && RTEST(3), "The 4th Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
+    static_assert(FTEST(3) && BTEST(3), "The 4th Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
+  #endif
 #endif
 
 //
@@ -105,8 +110,11 @@ static xy_pos_t z_stepper_align_pos[] = Z_STEPPER_ALIGN_XY;
 inline void set_all_z_lock(const bool lock) {
   stepper.set_z_lock(lock);
   stepper.set_z2_lock(lock);
-  #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  #if NUM_Z_STEPPER_DRIVERS >= 3
     stepper.set_z3_lock(lock);
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      stepper.set_z4_lock(lock);
+    #endif
   #endif
 }
 
@@ -124,6 +132,11 @@ void GcodeSuite::G34() {
   }
 
   do { // break out on error
+
+    #if NUM_Z_STEPPER_DRIVERS == 4
+      SERIAL_ECHOLNPGM("Quad Z Stepper Leveling not Yet Supported");
+      break;
+    #endif
 
     const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
     if (!WITHIN(z_auto_align_iterations, 1, 30)) {
@@ -187,7 +200,7 @@ void GcodeSuite::G34() {
     // Compute a worst-case clearance height to probe from. After the first
     // iteration this will be re-calculated based on the actual bed position
     float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
-      #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+      #if NUM_Z_STEPPER_DRIVERS == 3
          SQRT(_MAX(HYPOT2(z_stepper_align_pos[0].x - z_stepper_align_pos[0].y, z_stepper_align_pos[1].x - z_stepper_align_pos[1].y),
                    HYPOT2(z_stepper_align_pos[1].x - z_stepper_align_pos[1].y, z_stepper_align_pos[2].x - z_stepper_align_pos[2].y),
                    HYPOT2(z_stepper_align_pos[2].x - z_stepper_align_pos[2].y, z_stepper_align_pos[0].x - z_stepper_align_pos[0].y)))
@@ -202,7 +215,7 @@ void GcodeSuite::G34() {
     // Move the Z coordinate realm towards the positive - dirty trick
     current_position.z -= z_probe * 0.5f;
 
-    float last_z_align_move[Z_STEPPER_COUNT] = ARRAY_N(Z_STEPPER_COUNT, 10000.0f, 10000.0f, 10000.0f),
+    float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f),
           z_measured[G34_PROBE_COUNT] = { 0 },
           z_maxdiff = 0.0f,
           amplification = z_auto_align_amplification;
@@ -273,7 +286,7 @@ void GcodeSuite::G34() {
         finish_incremental_LSF(&lfd);
 
         z_measured_min = 100000.0f;
-        for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i) {
+        for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i) {
           z_measured[i] = -(lfd.A * z_stepper_align_stepper_pos[i].x + lfd.B * z_stepper_align_stepper_pos[i].y);
           z_measured_min = _MIN(z_measured_min, z_measured[i]);
         }
@@ -283,7 +296,7 @@ void GcodeSuite::G34() {
 
       SERIAL_ECHOLNPAIR("\n"
         "DIFFERENCE Z1-Z2=", ABS(z_measured[0] - z_measured[1])
-        #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+        #if NUM_Z_STEPPER_DRIVERS == 3
           , " Z2-Z3=", ABS(z_measured[1] - z_measured[2])
           , " Z3-Z1=", ABS(z_measured[2] - z_measured[0])
         #endif
@@ -294,7 +307,7 @@ void GcodeSuite::G34() {
 
       bool success_break = true;
       // Correct the individual stepper offsets
-      for (uint8_t zstepper = 0; zstepper < Z_STEPPER_COUNT; ++zstepper) {
+      for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) {
         // Calculate current stepper move
         const float z_align_move = z_measured[zstepper] - z_measured_min,
                     z_align_abs = ABS(z_align_move);
@@ -324,7 +337,7 @@ void GcodeSuite::G34() {
         switch (zstepper) {
           case 0: stepper.set_z_lock(false); break;
           case 1: stepper.set_z2_lock(false); break;
-          #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+          #if NUM_Z_STEPPER_DRIVERS == 3
             case 2: stepper.set_z3_lock(false); break;
           #endif
         }
@@ -397,7 +410,7 @@ void GcodeSuite::M422() {
     for (uint8_t i = 0; i < G34_PROBE_COUNT; ++i)
       SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + 1, SP_X_STR, z_stepper_align_pos[i].x, SP_Y_STR, z_stepper_align_pos[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-      for (uint8_t i = 0; i < Z_STEPPER_COUNT; ++i)
+      for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i)
         SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + 1, SP_X_STR, z_stepper_align_stepper_pos[i].x, SP_Y_STR, z_stepper_align_stepper_pos[i].y);
     #endif
     return;
@@ -446,7 +459,7 @@ void GcodeSuite::M422() {
   else {
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       position_index = parser.intval('W') - 1;
-      if (!WITHIN(position_index, 0, Z_STEPPER_COUNT - 1)) {
+      if (!WITHIN(position_index, 0, NUM_Z_STEPPER_DRIVERS - 1)) {
         SERIAL_ECHOLNPGM("?(W) Z-Stepper index invalid.");
         return;
       }

@@ -28,7 +28,7 @@
 #include "../../sd/cardreader.h"
 #include "../../module/planner.h" // for synchronize()
 
-#include "../../Marlin.h" // for startOrResumeJob
+#include "../../MarlinCore.h" // for startOrResumeJob
 
 /**
  * M32: Select file and start SD Print

@@ -94,7 +94,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Llit");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. Ventilador");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VViatge min");
@@ -122,7 +122,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carrega memoria");
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaura valors");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualitza");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantalla Info.");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantalla Info.");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ajusta");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa impressio");

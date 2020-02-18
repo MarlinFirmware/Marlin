@@ -53,6 +53,9 @@
  *
  * This function requires the machine to be homed before invocation.
  */
+
+extern const char SP_Y_STR[];
+
 void GcodeSuite::M48() {
 
   if (axis_unhomed_error()) return;
@@ -77,8 +80,8 @@ void GcodeSuite::M48() {
   xy_float_t next_pos = current_position;
 
   const xy_pos_t probe_pos = {
-    parser.linearval('X', next_pos.x + probe_offset.x),
-    parser.linearval('Y', next_pos.y + probe_offset.y)
+    parser.linearval('X', next_pos.x + probe_offset_xy.x),
+    parser.linearval('Y', next_pos.y + probe_offset_xy.y)
   };
 
   if (!position_is_reachable_by_probe(probe_pos)) {
@@ -166,8 +169,9 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
                                                 // numbers outside of the range, but just to be safe we clamp them.
 
-          next_pos.set(probe_pos.x - probe_offset.x + cos(RADIANS(angle)) * radius,
-                       probe_pos.y - probe_offset.y + sin(RADIANS(angle)) * radius);
+          const xy_pos_t noz_pos = probe_pos - probe_offset_xy;
+          next_pos.set(noz_pos.x + cos(RADIANS(angle)) * radius,
+                       noz_pos.y + sin(RADIANS(angle)) * radius);
 
           #if DISABLED(DELTA)
             LIMIT(next_pos.x, X_MIN_POS, X_MAX_POS);

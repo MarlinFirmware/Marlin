@@ -56,8 +56,6 @@
     #endif
   );
 
-  bool MarlinUI::wait_for_bl_move; // = false
-
   //
   // Bed leveling is done. Wait for G29 to complete.
   // A flag is used so that this can release control
@@ -70,7 +68,7 @@
   // ** This blocks the command queue! **
   //
   void _lcd_level_bed_done() {
-    if (!ui.wait_for_bl_move) {
+    if (!ui.wait_for_move) {
       #if MANUAL_PROBE_HEIGHT > 0 && DISABLED(MESH_BED_LEVELING)
         // Display "Done" screen and wait for moves to complete
         line_to_z(MANUAL_PROBE_HEIGHT);
@@ -103,7 +101,7 @@
         //
         // The last G29 records the point and enables bed leveling
         //
-        ui.wait_for_bl_move = true;
+        ui.wait_for_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
           queue.inject_P(PSTR("G29 S2"));
@@ -146,7 +144,7 @@
       MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
-    if (!ui.wait_for_bl_move) ui.goto_screen(_lcd_level_bed_get_z);
+    if (!ui.wait_for_move) ui.goto_screen(_lcd_level_bed_get_z);
   }
 
   //
@@ -156,7 +154,7 @@
     ui.goto_screen(_lcd_level_bed_moving);
 
     // G29 Records Z, moves, and signals when it pauses
-    ui.wait_for_bl_move = true;
+    ui.wait_for_move = true;
     #if ENABLED(MESH_BED_LEVELING)
       queue.inject_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
     #elif ENABLED(PROBE_MANUALLY)
@@ -281,7 +279,7 @@ void menu_bed_leveling() {
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    EDIT_ITEM(float52, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)

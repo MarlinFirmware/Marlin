@@ -110,14 +110,6 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("ジドウオンドセイギョ");               // "Autotemp"
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("オン");                         // "On"
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("オフ");                         // "Off"
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("センタク");                     // "Select"
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("センタク *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("カソクド mm/s²");               // "Accel"
@@ -151,7 +143,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("EEPROMカラヨミコミ");               // "Load memory"
   PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("セッテイリセット");               // "Restore failsafe"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("リフレッシュ");                  // "Refresh"
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("ジョウホウガメン");               // "Info screen"
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("ジョウホウガメン");               // "Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("ジュンビセッテイ");               // "Prepare"
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("チョウセイ");                    // "Tune"
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("イチジテイシ");                  // "Pause print"

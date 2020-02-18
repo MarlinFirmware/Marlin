@@ -38,7 +38,7 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#include "../Marlin.h" // for stop(), disable_e_steppers, wait_for_user
+#include "../MarlinCore.h" // for stop(), disable_e_steppers, wait_for_user
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -55,8 +55,6 @@
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
   #include "../feature/backlash.h"
 #endif
-
-xyz_pos_t probe_offset; // Initialized by settings.load()
 
 #if ENABLED(BLTOUCH)
   #include "../feature/bltouch.h"
@@ -85,6 +83,14 @@ xyz_pos_t probe_offset; // Initialized by settings.load()
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
+
+
+xyz_pos_t probe_offset; // Initialized by settings.load()
+
+#if HAS_PROBE_XY_OFFSET
+  xyz_pos_t &probe_offset_xy = probe_offset;
+#endif
+
 
 #if ENABLED(Z_PROBE_SLED)
 
@@ -245,7 +251,7 @@ xyz_pos_t probe_offset; // Initialized by settings.load()
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
-        disable_X(); disable_Y();
+        DISABLE_AXIS_X(); DISABLE_AXIS_Y();
       #endif
     #endif
     if (p) safe_delay(
@@ -698,7 +704,7 @@ float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_
   xyz_pos_t npos = { rx, ry };
   if (probe_relative) {
     if (!position_is_reachable_by_probe(npos)) return NAN;  // The given position is in terms of the probe
-    npos -= probe_offset;                                   // Get the nozzle position
+    npos -= probe_offset_xy;                                // Get the nozzle position
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
 

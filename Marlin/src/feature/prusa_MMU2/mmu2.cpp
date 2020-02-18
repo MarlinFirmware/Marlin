@@ -36,7 +36,7 @@ MMU2 mmu2;
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 #include "../../module/stepper/indirection.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../../feature/host_actions.h"
@@ -448,7 +448,7 @@ void MMU2::tool_change(uint8_t index) {
 
   if (index != extruder) {
 
-    disable_E0();
+    DISABLE_AXIS_E0();
     ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
     command(MMU_CMD_T0 + index);
@@ -459,7 +459,7 @@ void MMU2::tool_change(uint8_t index) {
     extruder = index; //filament change is finished
     active_extruder = 0;
 
-    enable_E0();
+    ENABLE_AXIS_E0();
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(extruder));
@@ -497,13 +497,13 @@ void MMU2::tool_change(const char* special) {
       case 'x': {
         planner.synchronize();
         uint8_t index = mmu2_choose_filament();
-        disable_E0();
+        DISABLE_AXIS_E0();
         command(MMU_CMD_T0 + index);
         manage_response(true, true);
         command(MMU_CMD_C0);
         mmu_loop();
 
-        enable_E0();
+        ENABLE_AXIS_E0();
         extruder = index;
         active_extruder = 0;
       } break;
@@ -697,7 +697,7 @@ void MMU2::filament_runout() {
 
     LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
-    enable_E0();
+    ENABLE_AXIS_E0();
     current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
     line_to_current_position(2500 / 60);
     planner.synchronize();
@@ -731,7 +731,7 @@ void MMU2::filament_runout() {
 
     BUZZ(200, 404);
 
-    disable_E0();
+    DISABLE_AXIS_E0();
 
     return true;
   }
@@ -776,7 +776,7 @@ void MMU2::filament_runout() {
   void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
 
     planner.synchronize();
-    enable_E0();
+    ENABLE_AXIS_E0();
 
     const E_Step* step = sequence;
 
@@ -794,7 +794,7 @@ void MMU2::filament_runout() {
       step++;
     }
 
-    disable_E0();
+    DISABLE_AXIS_E0();
   }
 
 #endif // HAS_LCD_MENU && MMU2_MENUS

@@ -29,7 +29,7 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
 #include "../module/planner.h"
@@ -352,7 +352,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
 
   // Quickly purge
   do_pause_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
-                  planner.settings.max_feedrate_mm_s[E_AXIS] * mix_multiplier);
+                  (FILAMENT_UNLOAD_PURGE_FEEDRATE) * mix_multiplier);
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
@@ -564,7 +564,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #endif
 
       // Re-enable the heaters if they timed out
-      HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
+      HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
 
       // Wait for the heaters to reach the target temperatures
       ensure_safe_temperature();
@@ -633,7 +633,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   bool nozzle_timed_out = false;
   HOTEND_LOOP() {
     nozzle_timed_out |= thermalManager.hotend_idle[e].timed_out;
-    thermalManager.reset_heater_idle_timer(e);
+    thermalManager.reset_hotend_idle_timer(e);
   }
 
   if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) // Load the new filament

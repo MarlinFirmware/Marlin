@@ -41,6 +41,7 @@
 // Axis homed and known-position states
 extern uint8_t axis_homed, axis_known_position;
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
 FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
@@ -63,6 +64,12 @@ extern bool relative_mode;
 
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
+
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+#endif
 
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
@@ -291,6 +298,7 @@ void homeaxis(const AxisEnum axis);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
+
   #if HAS_SCARA_OFFSET
     extern abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
@@ -315,13 +323,25 @@ void homeaxis(const AxisEnum axis);
   }
 
   #if HAS_BED_PROBE
-    // Return true if the both nozzle and the probe can reach the given point.
-    // Note: This won't work on SCARA since the probe offset rotates with the arm.
-    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
-             && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
-    }
-  #endif
+
+    #if HAS_PROBE_XY_OFFSET
+
+      // Return true if the both nozzle and the probe can reach the given point.
+      // Note: This won't work on SCARA since the probe offset rotates with the arm.
+      inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
+        return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
+               && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
+      }
+
+    #else
+
+      FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) {
+        return position_is_reachable(rx, ry, MIN_PROBE_EDGE);
+      }
+
+    #endif
+
+  #endif // HAS_BED_PROBE
 
 #else // CARTESIAN
 
@@ -340,6 +360,7 @@ void homeaxis(const AxisEnum axis);
   inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
 
   #if HAS_BED_PROBE
+
     /**
      * Return whether the given position is within the bed, and whether the nozzle
      * can reach the position required to put the probe at the given position.
@@ -348,11 +369,12 @@ void homeaxis(const AxisEnum axis);
      *          nozzle must be be able to reach +10,-10.
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
+      return position_is_reachable(rx - probe_offset_xy.x, ry - probe_offset_xy.y)
           && WITHIN(rx, probe_min_x() - slop, probe_max_x() + slop)
           && WITHIN(ry, probe_min_y() - slop, probe_max_y() + slop);
     }
-  #endif
+
+  #endif // HAS_BED_PROBE
 
 #endif // CARTESIAN
 

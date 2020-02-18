@@ -20,6 +20,12 @@
  *
  */
 
+/**
+ * gcode/temperature/M140_M190.cpp
+ *
+ * Bed target temperature control
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_HEATED_BED
@@ -37,7 +43,7 @@
   #include "../../feature/leds/leds.h"
 #endif
 
-#include "../../Marlin.h" // for wait_for_heatup, idle, startOrResumeJob
+#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
  * M140: Set bed temperature
@@ -50,6 +56,8 @@ void GcodeSuite::M140() {
 /**
  * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
  *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
+ *
+ * With PRINTJOB_TIMER_AUTOSTART also start the job timer on heating.
  */
 void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
@@ -58,8 +66,7 @@ void GcodeSuite::M190() {
   if (no_wait_for_cooling || parser.seenval('R')) {
     thermalManager.setTargetBed(parser.value_celsius());
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-      if (parser.value_celsius() > BED_MINTEMP)
-        startOrResumeJob();
+      thermalManager.check_timer_autostart(true, false);
     #endif
   }
   else return;

@@ -35,7 +35,7 @@
  */
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for IsRunning()
+#include "../../MarlinCore.h" // for IsRunning()
 
 /**
  * G5: Cubic B-spline
