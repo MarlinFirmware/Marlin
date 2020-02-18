@@ -136,7 +136,7 @@
         current_position.z = Z_BASIC_CLEARANCE;
 
         // Probe a Z height.
-        const float z_probed_height = probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
+        const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
 
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPAIR("Probing failed: Point (",screws_tilt_adjust_names[i],") ",i,
@@ -224,7 +224,7 @@
 
       // Stow the probe, as the last call to probe_at_point(...) left
       // the probe deployed if it was successful.
-      STOW_PROBE();
+      probe.stow();
 
       // Home Z after the alignment procedure
       process_subcommands_now_P(PSTR("G28 Z"));   
