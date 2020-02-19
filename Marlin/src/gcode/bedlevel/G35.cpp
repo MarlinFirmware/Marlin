@@ -26,17 +26,8 @@
 
   #include "../gcode.h"
   #include "../../module/planner.h"
-  #include "../../module/stepper.h"
-  #include "../../module/motion.h"
   #include "../../module/probe.h"
-
-  #if HOTENDS > 1
-    #include "../../module/tool_change.h"
-  #endif
-
-  #if HAS_LEVELING
-    #include "../../feature/bedlevel/bedlevel.h"
-  #endif
+  #include "../../feature/bedlevel/bedlevel.h"
 
   #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
   #include "../../core/debug_out.h"
