@@ -742,7 +742,7 @@
   //               5 - Counter-Clockwise M5
   // 
   //               Default value is 0 (Clockwise M3), most printers use an 
-  //               M3 screw and turning the knob clockwise decrease distance.
+  //               M3 screw and turning the knob clockwise decrease bed height.
   #define SCREWS_TILT_ADJUST_THREAD 0
 
 #endif
