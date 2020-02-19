@@ -206,10 +206,17 @@
 // LCD_FULL_PIXEL_WIDTH =
 // LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X
 #if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define LCD_FULL_PIXEL_WIDTH  320
-  #define LCD_PIXEL_OFFSET_X    32
-  #define LCD_FULL_PIXEL_HEIGHT 240
-  #define LCD_PIXEL_OFFSET_Y    32
+  //@ 2.8" TFT
+  // #define LCD_FULL_PIXEL_WIDTH  320
+  // #define LCD_PIXEL_OFFSET_X    32
+  // #define LCD_FULL_PIXEL_HEIGHT 240
+  // #define LCD_PIXEL_OFFSET_Y    32
+  //@ 3.5" TFT
+  #define LCD_FULL_PIXEL_WIDTH  480
+  #define LCD_PIXEL_OFFSET_X    48
+  #define LCD_FULL_PIXEL_HEIGHT 320
+  #define LCD_PIXEL_OFFSET_Y    32 // to leave at least 60px for UI
+
 #endif
 
 // For selective rendering within a Y range
