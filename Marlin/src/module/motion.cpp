@@ -1732,7 +1732,7 @@ void homeaxis(const AxisEnum axis) {
     // so here it re-homes each tower in turn.
     // Delta homing treats the axes as normal linear axes.
 
-    #ifdef TMC_STEPPER_HOME_POSITION
+    #ifdef TMC_HOME_PHASE
       int axisMicrostepSize;
       int msPosition;
       bool invertDir;
@@ -1756,14 +1756,14 @@ void homeaxis(const AxisEnum axis) {
         default: break;
       }
 
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("MicrostepPosition:", msPosition);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Enstop hit Position:", msPosition);
       
-      int msDelta = invertDir ? msPosition - TMC_STEPPER_HOME_POSITION : TMC_STEPPER_HOME_POSITION - msPosition;
+      int msDelta = invertDir ? msPosition - TMC_HOME_PHASE : TMC_HOME_PHASE - msPosition;
       if(msDelta < 0) msDelta += 1024;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("MicrostepDelta:", msDelta);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Home phase Delta:", msDelta);
 
-      float msDistance = (msDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("MicrostepDistance:", msDistance);
+      float msDistance = ((int)(msDelta / axisMicrostepSize)) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Home phase Distance:", msDistance);
 
       float adjDistance = msDistance + delta_endstop_adj[axis];
     #else
