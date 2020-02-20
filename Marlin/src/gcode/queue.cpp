@@ -469,6 +469,7 @@ void GCodeQueue::get_serial_commands() {
               #if ENABLED(BEZIER_CURVE_SUPPORT)
                 case 5:
               #endif
+                PORT_REDIRECT(i);                      // Reply to the serial port that sent the command
                 SERIAL_ECHOLNPGM(MSG_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
