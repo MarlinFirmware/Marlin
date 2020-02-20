@@ -95,6 +95,18 @@ public:
   { }
 };
 
+//
+// Very basic support for 480x320 TFT screen
+//
+extern u8g_dev_t u8g_dev_tft_480x320_upscale_from_128x64;
+
+class U8GLIB_TFT_480X320_UPSCALE_FROM_128X64 : public U8GLIB {
+public:
+  U8GLIB_TFT_480X320_UPSCALE_FROM_128X64(uint8_t cs, uint8_t rs, uint8_t reset = U8G_PIN_NONE)
+  : U8GLIB(&u8g_dev_tft_480x320_upscale_from_128x64, cs, rs, reset)
+  { }
+};
+
 
 extern u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, u8g_dev_uc1701_mini12864_HAL_2x_hw_spi;
 

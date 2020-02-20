@@ -173,8 +173,11 @@
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
 
   // Unspecified 320x240 TFT pre-initialized by built-in bootloader
-
-  #define U8G_CLASS U8GLIB_TFT_320X240_UPSCALE_FROM_128X64
+  #if (FSMC_UPSCALE == 3)
+    #define U8G_CLASS U8GLIB_TFT_480X320_UPSCALE_FROM_128X64
+  #else
+    #define U8G_CLASS U8GLIB_TFT_320X240_UPSCALE_FROM_128X64
+  #endif
   #define U8G_PARAM FSMC_CS_PIN, FSMC_RS_PIN
 
 #else
