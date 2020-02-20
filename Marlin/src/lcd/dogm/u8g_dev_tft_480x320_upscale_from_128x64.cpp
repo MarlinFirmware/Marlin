@@ -179,7 +179,7 @@ x ||^24    ^136   ^248   ^360   ||/___ y = 301 px
 #define COLOR_AQUA        0x07FF  // #00FFFF
 
 #define COLOR_MAROON      0x7800  // #800000
-#define COLOR_GREEN       0x03E0  // #008000
+#define COLOR_GREEN       0x27E0  // #008000
 #define COLOR_NAVY        0x000F  // #000080
 #define COLOR_OLIVE       0x8400  // #808000
 #define COLOR_PURPLE      0x8010  // #800080
@@ -200,10 +200,10 @@ x ||^24    ^136   ^248   ^360   ||/___ y = 301 px
   #define TFT_BTCANCEL_COLOR COLOR_WHITE
 #endif
 #ifndef TFT_BTARROWS_COLOR
-  #define TFT_BTCANCEL_COLOR COLOR_WHITE
+  #define TFT_BTARROWS_COLOR COLOR_WHITE
 #endif
 #ifndef TFT_BTOKMENU_COLOR
-  #define TFT_BTCANCEL_COLOR COLOR_WHITE
+  #define TFT_BTOKMENU_COLOR COLOR_WHITE
 #endif
 
 #ifndef TFT_PRESET_UI_0
@@ -240,6 +240,10 @@ x ||^24    ^136   ^248   ^360   ||/___ y = 301 px
 
 
 static uint32_t lcd_id = 0;
+uint16_t ui_color1 = TFT_BTCANCEL_COLOR;
+uint16_t ui_color2 = TFT_BTARROWS_COLOR;
+uint16_t ui_color3 = TFT_BTARROWS_COLOR ;
+uint16_t ui_color4 = TFT_BTOKMENU_COLOR;
 uint16_t bg_color = TFT_MARLINBG_COLOR;
 uint16_t ui_color = TFT_MARLINUI_COLOR;
 static bool reqDrawButtons = false;
@@ -755,16 +759,16 @@ static void clearScreenSequence(u8g_t *u8g, u8g_dev_t *dev) {
 static void drawButtonSequence(u8g_t *u8g, u8g_dev_t *dev) {
   #if ENABLED(TOUCH_BUTTONS)
     setWindow(u8g, dev, BUTTOND_X_LO, BUTTON_Y_LO,  BUTTOND_X_HI, BUTTON_Y_HI);
-    drawImage(buttonD, u8g, dev, 32, 20, ui_color);
+    drawImage(buttonD, u8g, dev, 32, 20, ui_color1);
 
     setWindow(u8g, dev, BUTTONA_X_LO, BUTTON_Y_LO,  BUTTONA_X_HI, BUTTON_Y_HI);
-    drawImage(buttonA, u8g, dev, 32, 20, ui_color);
+    drawImage(buttonA, u8g, dev, 32, 20, ui_color2);
 
     setWindow(u8g, dev, BUTTONB_X_LO, BUTTON_Y_LO,  BUTTONB_X_HI, BUTTON_Y_HI);
-    drawImage(buttonB, u8g, dev, 32, 20, ui_color);
+    drawImage(buttonB, u8g, dev, 32, 20, ui_color3);
 
     setWindow(u8g, dev, BUTTONC_X_LO, BUTTON_Y_LO,  BUTTONC_X_HI, BUTTON_Y_HI);
-    drawImage(buttonC, u8g, dev, 32, 20, ui_color);
+    drawImage(buttonC, u8g, dev, 32, 20, ui_color4);
   #endif // TOUCH_BUTTONS
 }
 
@@ -890,6 +894,9 @@ uint8_t u8g_dev_tft_480x320_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           //@ 2x upscale X
           // resulting buffersize RGB565 * 256 - 128*2
 
+          //@ 3x upscale X and Y in same loop
+          // 1 px -> 3*3 px
+          // resulting buffersize RGB565 * 1152 - 128*3*3
           buffer[k++] = c;
           buffer[k++] = c;
           buffer[k++] = c;
