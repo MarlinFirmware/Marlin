@@ -624,7 +624,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 240: M240(); break;                                  // M240: Trigger a camera
       #endif
 
-      #if HAS_LCD_CONTRAST
+      #if HAS_LCD_CONTRAST || TFT_HAS_COLOR
         case 250: M250(); break;                                  // M250: Set LCD contrast
       #endif
 

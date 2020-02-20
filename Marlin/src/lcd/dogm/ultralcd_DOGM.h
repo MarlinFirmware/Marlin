@@ -219,7 +219,11 @@
   #define LCD_PIXEL_OFFSET_X    48
   #define LCD_FULL_PIXEL_HEIGHT 320
   #define LCD_PIXEL_OFFSET_Y    32 // to leave at least 60px for UI
-
+  #if (FSMC_UPSCALE == 3)
+    extern uint16_t ui_color;
+    extern uint16_t bg_color;
+    extern void switchColorPreset(uint8_t preset);
+  #endif
 #endif
 
 // For selective rendering within a Y range

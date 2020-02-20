@@ -231,7 +231,11 @@
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
+  #define TFT_HAS_COLOR defined(FSMC_GRAPHICAL_TFT)
 #endif
+
+// don't know if this is the right way to do it
+#define TFT_HAS_COLOR defined(FSMC_GRAPHICAL_TFT)
 
 /**
  * I2C Panels

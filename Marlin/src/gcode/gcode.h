@@ -714,7 +714,7 @@ private:
     static void M240();
   #endif
 
-  #if HAS_LCD_CONTRAST
+  #if HAS_LCD_CONTRAST || TFT_HAS_COLOR
     static void M250();
   #endif
 

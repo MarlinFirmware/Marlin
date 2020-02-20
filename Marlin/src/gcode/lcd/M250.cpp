@@ -22,17 +22,45 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_CONTRAST
+#if HAS_LCD_CONTRAST || TFT_HAS_COLOR
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"
+#include "../../lcd/dogm/ultralcd_DOGM.h"
 
 /**
  * M250: Read and optionally set the LCD contrast
  */
 void GcodeSuite::M250() {
-  if (parser.seen('C')) ui.set_contrast(parser.value_int());
-  SERIAL_ECHOLNPAIR("LCD Contrast: ", ui.contrast);
+  #if HAS_LCD_CONTRAST
+    if (parser.seen('C')) ui.set_contrast(parser.value_int());
+    SERIAL_ECHOLNPAIR("LCD Contrast: ", ui.contrast);
+  #endif // HAS_LCD_CONTRAST
+
+//
+// Warning this component is still pretty stupid
+//
+
+  #if TFT_HAS_COLOR
+    if (parser.seen('B'))
+    {
+      bg_color = parser.value_ushort();
+      SERIAL_ECHOLNPAIR("TFT Background Color: ", bg_color);
+    }
+
+    if (parser.seen('F'))
+    {
+      ui_color = parser.value_ushort();
+      SERIAL_ECHOLNPAIR("TFT Foreground Color: ", ui_color);
+    }
+
+        if (parser.seen('P'))
+    {
+      switchColorPreset(parser.value_byte());
+      SERIAL_ECHOLN("Switched Color Preset: ");
+    }
+  #endif // TFT_HAS_COLOR
+
 }
 
-#endif // HAS_LCD_CONTRAST
+#endif // HAS_LCD_CONTRAST || TFT_HAS_COLOR
