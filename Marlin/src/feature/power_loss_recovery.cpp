@@ -323,6 +323,9 @@ void PrintJobRecovery::resume() {
       #elif !IS_KINEMATIC
         "XY"
       #endif
+      #if ENABLED(POWER_LOSS_ZHOME)
+        "Z"
+      #endif
     #endif
   ));
 
@@ -427,16 +430,9 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now(cmd);
   #endif
 
-  // Move back to the saved XY
-  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
-    dtostrf(info.current_position.x, 1, 3, str_1),
-    dtostrf(info.current_position.y, 1, 3, str_2)
-  );
-  gcode.process_subcommands_now(cmd);
-
   // Move back to the saved Z
   dtostrf(info.current_position.z, 1, 3, str_1);
-  #if Z_HOME_DIR > 0
+  #if Z_HOME_DIR > 0 ||  ENABLED(POWER_LOSS_ZHOME)
     sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   #else
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
@@ -444,6 +440,13 @@ void PrintJobRecovery::resume() {
   #endif
   gcode.process_subcommands_now(cmd);
 
+  // Move back to the saved XY
+  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
+    dtostrf(info.current_position.x, 1, 3, str_1),
+    dtostrf(info.current_position.y, 1, 3, str_2)
+  );
+  gcode.process_subcommands_now(cmd);
+  
   // Un-retract
   #if POWER_LOSS_PURGE_LEN
     //sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN);
