@@ -23,6 +23,7 @@
         _flash.begin();
         _flash.read_array(SPI_FLASH_EEPROM_OFFSET,  _eeprom_data, SPI_FLASH_EEPROM_SIZE);
         _flash.end();
+        return false;
     }
 
     bool PersistentStore::access_finish()
@@ -31,8 +32,9 @@
         _flash.erase_4K(SPI_FLASH_EEPROM_OFFSET);
         _flash.write_array(SPI_FLASH_EEPROM_OFFSET,  _eeprom_data, SPI_FLASH_EEPROM_SIZE);
         _flash.end();
+        return false;
     }
-  
+
     bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc)
     {
         for (size_t i = 0; i < size; i++)
@@ -58,7 +60,7 @@
 
     size_t PersistentStore::capacity()
     {
-        return SPI_FLASH_EEPROM_SIZE; 
+        return SPI_FLASH_EEPROM_SIZE;
     }
 
 #endif
