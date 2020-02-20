@@ -490,7 +490,7 @@
 #endif
 
 /**
- * Set a flag for a servo probe
+ * Set a flag for a servo probe (or BLTouch)
  */
 #define HAS_Z_SERVO_PROBE (defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0)
 

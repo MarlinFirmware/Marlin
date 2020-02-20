@@ -1504,7 +1504,7 @@ void MarlinUI::update() {
       host_action_cancel();
     #endif
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), PSTR("Dismiss"));
+      host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR);
     #endif
     print_job_timer.stop();
     set_status_P(GET_TEXT(MSG_PRINT_ABORTED));

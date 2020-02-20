@@ -629,6 +629,15 @@
         default: break;
       }
     }
+
+    #if HAS_DRIVER(TMC2209)
+      static void _tmc_parse_drv_status(TMC2209Stepper &st, const TMC_drv_status_enum i) {
+        switch (i) {
+          case TMC_SG_RESULT: SERIAL_PRINT(st.SG_RESULT(), DEC); break;
+          default:            _tmc_parse_drv_status(static_cast<TMC2208Stepper &>(st), i); break;
+        }
+      }
+    #endif
   #endif
 
   #if HAS_DRIVER(TMC2660)
@@ -714,13 +723,13 @@
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_DRV_CODES:     st.printLabel();  break;
-      case TMC_STST:          if (st.stst())         SERIAL_CHAR('*'); break;
-      case TMC_OLB:           if (st.olb())          SERIAL_CHAR('*'); break;
-      case TMC_OLA:           if (st.ola())          SERIAL_CHAR('*'); break;
-      case TMC_S2GB:          if (st.s2gb())         SERIAL_CHAR('*'); break;
-      case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('*'); break;
-      case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('*'); break;
-      case TMC_OT:            if (st.ot())           SERIAL_CHAR('*'); break;
+      case TMC_STST:          if (!st.stst())   SERIAL_CHAR('*'); break;
+      case TMC_OLB:           if (st.olb())     SERIAL_CHAR('*'); break;
+      case TMC_OLA:           if (st.ola())     SERIAL_CHAR('*'); break;
+      case TMC_S2GB:          if (st.s2gb())    SERIAL_CHAR('*'); break;
+      case TMC_S2GA:          if (st.s2ga())    SERIAL_CHAR('*'); break;
+      case TMC_DRV_OTPW:      if (st.otpw())    SERIAL_CHAR('*'); break;
+      case TMC_OT:            if (st.ot())      SERIAL_CHAR('*'); break;
       case TMC_DRV_STATUS_HEX: {
         const uint32_t drv_status = st.DRV_STATUS();
         SERIAL_CHAR('\t');
@@ -891,24 +900,24 @@
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
     TMC_REPORT("tstep\t",            TMC_TSTEP);
-    TMC_REPORT("pwm\nthreshold",     TMC_TPWMTHRS);
+    TMC_REPORT("PWM thresh.",        TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      TMC_REPORT("OT prewarn has\n"
-                 "been triggered",   TMC_OTPW_TRIGGERED);
+      TMC_REPORT("triggered\n OTP\t", TMC_OTPW_TRIGGERED);
     #endif
     TMC_REPORT("off time",           TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
-    TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
-    TMC_REPORT("-start\t",           TMC_HSTRT);
+    TMC_REPORT("hysteresis\n -end\t", TMC_HEND);
+    TMC_REPORT(" -start\t",          TMC_HSTRT);
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
-
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if HAS_TMCX1X0
-      DRV_REPORT("stallguard\t",     TMC_STALLGUARD);
+    #if HAS_TMCX1X0 || HAS_TMC220x
       DRV_REPORT("sg_result",        TMC_SG_RESULT);
-      DRV_REPORT("fsactive\t",       TMC_FSACTIVE);
+    #endif
+    #if HAS_TMCX1X0
+      DRV_REPORT("stallguard",       TMC_STALLGUARD);
+      DRV_REPORT("fsactive",         TMC_FSACTIVE);
     #endif
     DRV_REPORT("stst\t",             TMC_STST);
     DRV_REPORT("olb\t",              TMC_OLB);
@@ -1103,7 +1112,7 @@
 
 #endif // USE_SENSORLESS
 
-#if TMC_HAS_SPI
+#if HAS_TMC_SPI
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
     #if AXIS_HAS_SPI(X)
@@ -1155,7 +1164,7 @@
       SET_CS_PIN(E7);
     #endif
   }
-#endif // TMC_HAS_SPI
+#endif // HAS_TMC_SPI
 
 template<typename TMC>
 static bool test_connection(TMC &st) {

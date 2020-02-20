@@ -92,6 +92,26 @@ void GCodeParser::reset() {
   #endif
 }
 
+#if ENABLED(GCODE_QUOTED_STRINGS)
+
+  // Pass the address after the first quote (if any)
+  char* GCodeParser::unescape_string(char* &src) {
+    if (*src == '"') ++src;     // Skip the leading quote
+    char * const out = src;     // Start of the string
+    char *dst = src;            // Prepare to unescape and terminate
+    for (;;) {
+      char c = *src++;          // Get the next char
+      switch (c) {
+        case '\\': c = *src++; break; // Get the escaped char
+        case '"' : c = '\0'; break;   // Convert bare quote to nul
+      }
+      if (!(*dst++ = c)) break; // Copy and break on nul
+    }
+    return out;
+  }
+
+#endif
+
 // Populate all fields by parsing a single line of GCode
 // 58 bytes of SRAM are used to speed up seen/value
 void GCodeParser::parse(char *p) {
@@ -229,17 +249,12 @@ void GCodeParser::parse(char *p) {
     #if ENABLED(EXPECTED_PRINTER_CHECK)
       case 16:
     #endif
-    case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return;
+    case 23: case 28: case 30: case 117: case 118: case 928:
+      string_arg = unescape_string(p);
+      return;
     default: break;
   }
-/*
-  #if ENABLED(CANCEL_OBJECTS)
-  if (letter == 'O') switch (codenum) {
-    case 1:  string_arg = p; return;
-    default: break;
-  }
-  #endif
-*/
+
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;
   #endif
@@ -252,21 +267,31 @@ void GCodeParser::parse(char *p) {
    * This allows M0/M1 with expire time to work: "M0 S5 You Win!"
    * For 'M118' you must use 'E1' and 'A1' rather than just 'E' or 'A'
    */
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+    bool quoted_string_arg = false;
+  #endif
   string_arg = nullptr;
-  while (const char code = *p++) {              // Get the next parameter. A NUL ends the loop
+  while (const char param = *p++) {              // Get the next parameter. A NUL ends the loop
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
-    if (code == '!' && letter == 'M' && codenum == 32) {
+    if (param == '!' && letter == 'M' && codenum == 32) {
       string_arg = p;                           // Name starts after '!'
       char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering)
       if (lb) *lb = '\0';                       // Safe to mark the end of the filename
       return;
     }
 
+    #if ENABLED(GCODE_QUOTED_STRINGS)
+      if (!quoted_string_arg && param == '"') {
+        quoted_string_arg = true;
+        string_arg = unescape_string(p);
+      }
+    #endif
+
     // Arguments MUST be uppercase for fast GCode parsing
     #if ENABLED(FASTER_GCODE_PARSER)
-      #define PARAM_TEST WITHIN(code, 'A', 'Z')
+      #define PARAM_TEST WITHIN(param, 'A', 'Z')
     #else
       #define PARAM_TEST true
     #endif
@@ -275,16 +300,22 @@ void GCodeParser::parse(char *p) {
 
       while (*p == ' ') p++;                    // Skip spaces between parameters & values
 
-      const bool has_num = valid_float(p);
+      #if ENABLED(GCODE_QUOTED_STRINGS)
+        const bool is_str = (*p == '"'), has_val = is_str || valid_float(p);
+        char * const valptr = has_val ? is_str ? unescape_string(p) : p : nullptr;
+      #else
+        const bool has_val = valid_float(p);
+        char * const valptr = has_val ? p : nullptr;
+      #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got letter ", code, " at index ", (int)(p - command_ptr - 1));
-          if (has_num) SERIAL_ECHOPGM(" (has_num)");
+          SERIAL_ECHOPAIR("Got param ", param, " at index ", (int)(p - command_ptr - 1));
+          if (has_val) SERIAL_ECHOPGM(" (has_val)");
         }
       #endif
 
-      if (!has_num && !string_arg) {            // No value? First time, keep as string_arg
+      if (!has_val && !string_arg) {            // No value? First time, keep as string_arg
         string_arg = p - 1;
         #if ENABLED(DEBUG_GCODE_PARSER)
           if (debug) SERIAL_ECHOPAIR(" string_arg: ", hex_address((void*)string_arg)); // DEBUG
@@ -296,7 +327,7 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
-        set(code, has_num ? p : nullptr);       // Set parameter exists and pointer (nullptr for no number)
+        set(param, valptr);                     // Set parameter exists and pointer (nullptr for no value)
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
@@ -333,9 +364,8 @@ void GCodeParser::parse(char *p) {
 
 #endif // CNC_COORDINATE_SYSTEMS
 
-void GCodeParser::unknown_command_error() {
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
+void GCodeParser::unknown_command_warning() {
+  SERIAL_ECHO_MSG(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)
@@ -351,13 +381,16 @@ void GCodeParser::unknown_command_error() {
     #else
       SERIAL_ECHOPAIR(" args: { ", command_args, " }");
     #endif
-    if (string_arg) SERIAL_ECHOPAIR(" string: \"", string_arg, "\"");
+    if (string_arg) {
+      SERIAL_ECHOPAIR(" string: \"", string_arg);
+      SERIAL_CHAR('"');
+    }
     SERIAL_ECHOLNPGM("\n");
     for (char c = 'A'; c <= 'Z'; ++c) {
       if (seen(c)) {
         SERIAL_ECHOPAIR("Code '", c); SERIAL_ECHOPGM("':");
         if (has_value()) {
-          SERIAL_ECHOPAIR(
+          SERIAL_ECHOLNPAIR(
             "\n    float: ", value_float(),
             "\n     long: ", value_long(),
             "\n    ulong: ", value_ulong(),
@@ -372,8 +405,7 @@ void GCodeParser::unknown_command_error() {
           );
         }
         else
-          SERIAL_ECHOPGM(" (no value)");
-        SERIAL_ECHOLNPGM("\n");
+          SERIAL_ECHOLNPGM(" (no value)");
       }
     }
   }

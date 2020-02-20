@@ -261,14 +261,6 @@ void HAL_idletask() {
   #endif
 }
 
-/* VGPV Done with defines
-// disable interrupts
-void cli() { noInterrupts(); }
-
-// enable interrupts
-void sei() { interrupts(); }
-*/
-
 void HAL_clear_reset_source() { }
 
 /**
