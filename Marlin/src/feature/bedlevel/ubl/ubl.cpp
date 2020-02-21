@@ -29,6 +29,7 @@
   unified_bed_leveling ubl;
 
   #include "../../../MarlinCore.h"
+  #include "../../../gcode/gcode.h"
 
   #include "../../../module/configuration_store.h"
   #include "../../../module/planner.h"
@@ -229,7 +230,7 @@
       SERIAL_EOL();
     }
 
-    set_gcode.set_autoreport_paused(was);
+    gcode.set_autoreport_paused(was);
   }
 
   bool unified_bed_leveling::sanity_check() {
