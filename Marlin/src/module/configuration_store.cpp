@@ -2766,9 +2766,18 @@ void MarlinSettings::reset() {
 
 #if DISABLED(DISABLE_M503)
 
+  static void config_heading(const bool repl, PGM_P const pstr, const bool eol=true) {
+    if (!repl) {
+      CONFIG_ECHO_START();
+      SERIAL_ECHOPGM("; ");
+      serialprintPGM(pstr);
+      if (eol) SERIAL_EOL();
+    }
+  }
+
   #define CONFIG_ECHO_START()       do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
   #define CONFIG_ECHO_MSG(STR)      do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); }while(0)
-  #define CONFIG_ECHO_HEADING(STR)  do{ if (!forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); } }while(0)
+  #define CONFIG_ECHO_HEADING(STR, V...) config_heading(forReplay, PSTR(STR), V)
 
   #if HAS_TRINAMIC
     inline void say_M906(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M906"); }
