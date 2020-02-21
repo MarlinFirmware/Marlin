@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -389,14 +389,14 @@ namespace ExtUI {
     #endif
 
     current_position[axis] = constrain(position, min, max);
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m[axis]));
+    line_to_current_position(manual_feedrate_mm_s[axis]);
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
-    line_to_current_position(MMM_TO_MMS(manual_feedrate_mm_m.e));
+    line_to_current_position(manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -481,6 +481,12 @@ namespace ExtUI {
         #if AXIS_IS_TMC(E5)
           case E5: return stepperE5.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(E6)
+          case E6: return stepperE6.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E7)
+          case E7: return stepperE7.getMilliamps();
+        #endif
         default: return NAN;
       };
     }
@@ -519,6 +525,12 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(E5)
           case E5: stepperE5.rms_current(constrain(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E6)
+          case E6: stepperE6.rms_current(constrain(mA, 500, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(E7)
+          case E7: stepperE7.rms_current(constrain(mA, 500, 1500)); break;
         #endif
         default: break;
       };
@@ -733,7 +745,7 @@ namespace ExtUI {
           #if EXTRUDERS > 1
             && (linked_nozzles || active_extruder == 0)
           #endif
-        ) probe_offset.z += mm;
+        ) probe.offset.z += mm;
       #else
         UNUSED(mm);
       #endif
@@ -771,7 +783,7 @@ namespace ExtUI {
 
   float getZOffset_mm() {
     #if HAS_BED_PROBE
-      return probe_offset.z;
+      return probe.offset.z;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       return (planner.steps_to_mm[Z_AXIS] * babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]);
     #else
@@ -782,7 +794,7 @@ namespace ExtUI {
   void setZOffset_mm(const float value) {
     #if HAS_BED_PROBE
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-        probe_offset.z = value;
+        probe.offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
       babystep.add_mm(Z_AXIS, (value - getZOffset_mm()));
     #else
@@ -813,6 +825,15 @@ namespace ExtUI {
     }
 
   #endif // HAS_HOTEND_OFFSET
+
+  #if HAS_BED_PROBE
+    float getProbeOffset_mm(const axis_t axis) {
+      return probe.offset.pos[axis];
+    }
+    void setProbeOffset_mm(const float val, const axis_t axis) {
+      probe.offset.pos[axis] = val;
+    }
+  #endif
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash.distance_mm[axis]; }
@@ -872,6 +893,56 @@ namespace ExtUI {
   #endif
 
   float getFeedrate_percent() { return feedrate_percentage; }
+
+  #if ENABLED(PIDTEMP)
+    float getPIDValues_Kp(const extruder_t tool) {
+      return PID_PARAM(Kp, tool);
+    }
+    
+    float getPIDValues_Ki(const extruder_t tool) {
+      return unscalePID_i(PID_PARAM(Ki, tool));
+    }
+    
+    float getPIDValues_Kd(const extruder_t tool) {
+      return unscalePID_d(PID_PARAM(Kd, tool));
+    }
+
+    void setPIDValues(const float p, const float i, const float d, extruder_t tool) {
+      thermalManager.temp_hotend[tool].pid.Kp = p;
+      thermalManager.temp_hotend[tool].pid.Ki = scalePID_i(i);
+      thermalManager.temp_hotend[tool].pid.Kd = scalePID_d(d);
+      thermalManager.updatePID();
+    }
+
+    void startPIDTune(const float temp, extruder_t tool){
+      thermalManager.PID_autotune(temp, (heater_ind_t)tool, 8, true);
+    }
+  #endif
+  
+  #if ENABLED(PIDTEMPBED)
+    float getBedPIDValues_Kp() {
+      return thermalManager.temp_bed.pid.Kp;
+    }
+    
+    float getBedPIDValues_Ki() {
+      return unscalePID_i(thermalManager.temp_bed.pid.Ki);
+    }
+    
+    float getBedPIDValues_Kd() {
+      return unscalePID_d(thermalManager.temp_bed.pid.Kd);
+    }
+    
+    void setBedPIDValues(const float p, const float i, const float d) {
+      thermalManager.temp_bed.pid.Kp = p;
+      thermalManager.temp_bed.pid.Ki = scalePID_i(i);
+      thermalManager.temp_bed.pid.Kd = scalePID_d(d);
+      thermalManager.updatePID();
+    }
+    
+    void startBedPIDTune(const float temp) {
+      thermalManager.PID_autotune(temp, H_BED, 4, true);
+    }
+  #endif
 
   void injectCommands_P(PGM_P const gcode) {
     queue.inject_P(gcode);

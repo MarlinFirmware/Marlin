@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -94,13 +94,8 @@
         SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
       #endif
       #if ENABLED(Z_MULTI_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Z2:", endstops.z2_endstop_adj);
-        #if NUM_Z_STEPPER_DRIVERS >= 3
-          SERIAL_ECHOPAIR(" Z3:", endstops.z3_endstop_adj);
-          #if NUM_Z_STEPPER_DRIVERS >= 4
-            SERIAL_ECHOPAIR(" Z4:", endstops.z4_endstop_adj);
-          #endif
-        #endif
+        #define _ECHO_ZADJ(N) SERIAL_ECHOPAIR(" Z" STRINGIFY(N) ":", endstops.z##N##_endstop_adj);
+        REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _ECHO_ZADJ)
       #endif
       SERIAL_EOL();
     }

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -105,13 +105,15 @@
 #elif MB(BAM_DICE_DUE)
   #include "ramps/pins_BAM_DICE_DUE.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE)
-  #include "ramps/pins_MKS_BASE.h"              // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_10.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_14)
   #include "ramps/pins_MKS_BASE_14.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_15)
-  #include "ramps/pins_MKS_BASE_15.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_15.h"           // ATmega2560                             env:megaatmega2560
+#elif MB(MKS_BASE_16)
+  #include "ramps/pins_MKS_BASE_16.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_HEROIC)
-  #include "ramps/pins_MKS_BASE_HEROIC.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_HEROIC.h"       // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_GEN_13)
   #include "ramps/pins_MKS_GEN_13.h"            // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_GEN_L)
@@ -250,6 +252,10 @@
   #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(LEAPFROG_XEED2015)
   #include "mega/pins_LEAPFROG_XEED2015.h"      // ATmega2560                             env:megaatmega2560
+#elif MB(PICA)
+  #include "mega/pins_PICA.h"                   // ATmega2560                             env:megaatmega2560
+#elif MB(PICA_REVB)
+  #include "mega/pins_PICAOLD.h"                // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -361,11 +367,11 @@
   #include "lpc1768/pins_BIQU_B300_V1.0.h"      // LPC1768                                env:LPC1768
 #elif MB(GMARSH_X6_REV1)
   #include "lpc1768/pins_GMARSH_X6_REV1.h"      // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_1)
+#elif MB(BTT_SKR_V1_1)
   #include "lpc1768/pins_BTT_SKR_V1_1.h"        // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_3)
+#elif MB(BTT_SKR_V1_3)
   #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
-#elif MB(BIGTREE_SKR_V1_4)
+#elif MB(BTT_SKR_V1_4)
   #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
 
 //
@@ -388,7 +394,7 @@
   #include "lpc1769/pins_SMOOTHIEBOARD.h"       // LPC1769                                env:LPC1769
 #elif MB(TH3D_EZBOARD)
   #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
-#elif MB(BIGTREE_SKR_V1_4_TURBO)
+#elif MB(BTT_SKR_V1_4_TURBO)
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 
 //
@@ -484,13 +490,13 @@
   #include "stm32/pins_MKS_ROBIN_NANO.h"        // STM32F1                                env:mks_robin_nano
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32/pins_MKS_ROBIN_LITE.h"        // STM32F1                                env:mks_robin_lite
-#elif MB(BIGTREE_SKR_MINI_V1_1)
+#elif MB(BTT_SKR_MINI_V1_1)
   #include "stm32/pins_BTT_SKR_MINI_V1_1.h"     // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_0)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
   #include "stm32/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                                env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
-#elif MB(BIGTREE_SKR_E3_DIP)
+#elif MB(BTT_SKR_E3_DIP)
   #include "stm32/pins_BTT_SKR_E3_DIP.h"        // STM32F1                                env:STM32F103RE_bigtree env:STM32F103RE_bigtree_USB env:STM32F103RC_bigtree env:STM32F103RC_bigtree_512K env:STM32F103RC_bigtree_USB env:STM32F103RC_bigtree_512K_USB
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32/pins_JGAURORA_A5S_A1.h"       // STM32F1                                env:jgaurora_a5s_a1
@@ -526,17 +532,19 @@
   #include "stm32/pins_GENERIC_STM32F4.h"       // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
-#elif MB(RUMBA32)
-  #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:RUMBA32
+#elif MB(RUMBA32_AUS3D)
+  #include "stm32/pins_RUMBA32_AUS3D.h"         // STM32F4                                env:rumba32_f446ve
+#elif MB(RUMBA32_MKS)
+  #include "stm32/pins_RUMBA32_MKS.h"           // STM32F4                                env:rumba32_mks
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
   #include "stm32/pins_STEVAL_3DP001V1.h"       // STM32F4                                env:STM32F401VE_STEVAL
-#elif MB(BIGTREE_SKR_PRO_V1_1)
+#elif MB(BTT_SKR_PRO_V1_1)
   #include "stm32/pins_BTT_SKR_PRO_V1_1.h"      // STM32F4                                env:BIGTREE_SKR_PRO
-#elif MB(BIGTREE_GTR_V1_0)
-  #include "stm32/pins_BTT_GTR_V1_0.h"          // STM32F4                                env:BIGTREE_GTR
-#elif MB(BIGTREE_BTT002_V1_0)
+#elif MB(BTT_GTR_V1_0)
+  #include "stm32/pins_BTT_GTR_V1_0.h"          // STM32F4                                env:BIGTREE_GTR_V1_0
+#elif MB(BTT_BTT002_V1_0)
   #include "stm32/pins_BTT_BTT002_V1_0.h"       // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32/pins_LERDGE_K.h"              // STM32F4                                env:STM32F4
@@ -575,6 +583,13 @@
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 
 //
+// Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
+//
+
+#elif MB(AGCM4_RAMPS_144)
+  #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
 // Linux Native Debug board
 //
 
@@ -587,16 +602,25 @@
   // Obsolete or unknown board
   //
 
-  #define BOARD_MKS_13        -1000
-  #define BOARD_TRIGORILLA    -1001
-  #define BOARD_RURAMPS4D     -1002
-  #define BOARD_FORMBOT_TREX2 -1003
-  #define BOARD_BIQU_SKR_V1_1 -1004
-  #define BOARD_STM32F1R      -1005
-  #define BOARD_STM32F103R    -1006
-  #define BOARD_ESP32         -1007
-  #define BOARD_BIGTREE_SKR_MINI_E3 -1008
-  #define BOARD_STEVAL        -1009
+  #define BOARD_MKS_13                  -1000
+  #define BOARD_TRIGORILLA              -1001
+  #define BOARD_RURAMPS4D               -1002
+  #define BOARD_FORMBOT_TREX2           -1003
+  #define BOARD_BIQU_SKR_V1_1           -1004
+  #define BOARD_STM32F1R                -1005
+  #define BOARD_STM32F103R              -1006
+  #define BOARD_ESP32                   -1007
+  #define BOARD_STEVAL                  -1008
+  #define BOARD_BIGTREE_SKR_V1_1        -1009
+  #define BOARD_BIGTREE_SKR_V1_3        -1010
+  #define BOARD_BIGTREE_SKR_V1_4        -1011
+  #define BOARD_BIGTREE_SKR_V1_4_TURBO  -1012
+  #define BOARD_BIGTREE_BTT002_V1_0     -1013
+  #define BOARD_BIGTREE_SKR_PRO_V1_1    -1014
+  #define BOARD_BIGTREE_SKR_MINI_V1_1   -1015
+  #define BOARD_BIGTREE_SKR_MINI_E3     -1016
+  #define BOARD_BIGTREE_SKR_E3_DIP      -1017
+  #define BOARD_RUMBA32                 -1018
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -607,17 +631,37 @@
   #elif MB(FORMBOT_TREX2)
     #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
   #elif MB(BIQU_SKR_V1_1)
-    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BIGTREE_SKR_V1_1. Please update your configuration."
+    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_1)
+    #error "BOARD_BIGTREE_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V2_2)
+    #error "BOARD_BIGTREE_SKR_V1_2 has been renamed BOARD_BTT_SKR_V1_2. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_3)
+    #error "BOARD_BIGTREE_SKR_V1_3 has been renamed BOARD_BTT_SKR_V1_3. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_4)
+    #error "BOARD_BIGTREE_SKR_V1_4 has been renamed BOARD_BTT_SKR_V1_4. Please update your configuration."
+  #elif MB(BIGTREE_SKR_V1_4_TURBO)
+    #error "BOARD_BIGTREE_SKR_V1_4_TURBO has been renamed BOARD_BTT_SKR_V1_4_TURBO. Please update your configuration."
+  #elif MB(BIGTREE_BTT002_V1_0)
+    #error "BOARD_BIGTREE_BTT002_V1_0 has been renamed BOARD_BTT_BTT002_V1_0. Please update your configuration."
+  #elif MB(BIGTREE_SKR_PRO_V1_1)
+    #error "BOARD_BIGTREE_SKR_PRO_V1_1 has been renamed BOARD_BTT_SKR_PRO_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_MINI_V1_1)
+    #error "BOARD_BIGTREE_SKR_MINI_V1_1 has been renamed BOARD_BTT_SKR_MINI_V1_1. Please update your configuration."
+  #elif MB(BIGTREE_SKR_MINI_E3)
+    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
+  #elif MB(BIGTREE_SKR_E3_DIP)
+    #error "BOARD_BIGTREE_SKR_E3_DIP has been renamed BOARD_BTT_SKR_E3_DIP. Please update your configuration."
   #elif MB(STM32F1R)
     #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
   #elif MB(STM32F103R)
     #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
   #elif MOTHERBOARD == BOARD_ESP32
     #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
-  #elif MB(BIGTREE_SKR_MINI_E3)
-    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
   #elif MB(STEVAL)
     #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
+  #elif MB(RUMBA32)
+    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_AUS3D. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -630,8 +674,17 @@
   #undef BOARD_STM32F1R
   #undef BOARD_STM32F103R
   #undef BOARD_ESP32
-  #undef BOARD_BIGTREE_SKR_MINI_E3
   #undef BOARD_STEVAL
+  #undef BOARD_BIGTREE_SKR_MINI_E3
+  #undef BOARD_BIGTREE_SKR_V1_1
+  #undef BOARD_BIGTREE_SKR_V1_3
+  #undef BOARD_BIGTREE_SKR_V1_4
+  #undef BOARD_BIGTREE_SKR_V1_4_TURBO
+  #undef BOARD_BIGTREE_BTT002_V1_0
+  #undef BOARD_BIGTREE_SKR_PRO_V1_1
+  #undef BOARD_BIGTREE_SKR_MINI_V1_1
+  #undef BOARD_BIGTREE_SKR_E3_DIP
+  #undef BOARD_RUMBA32
 
 #endif
 
@@ -1113,6 +1166,10 @@
 #if DISABLED(USE_ZMIN_PLUG)
   #undef Z_MIN_PIN
   #define Z_MIN_PIN          -1
+#endif
+
+#if HAS_FILAMENT_SENSOR
+  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
 #endif
 
 #ifndef LCD_PINS_D4

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -74,9 +74,9 @@
 #if Z_STALL_SENSITIVITY
   #define Z_STOP_PIN       Z_DIAG_PIN
   #if Z_HOME_DIR < 0
-    #define Z_MAX_PIN      P1_24   // PWRDET
+    #define Z_MAX_PIN      P1_00   // PWRDET
   #else
-    #define Z_MIN_PIN      P1_24   // PWRDET
+    #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
 #else
   #define Z_STOP_PIN       P1_27   // Z-STOP
@@ -153,7 +153,7 @@
 //
 // Include common SKR pins
 //
-#include "pins_BTT_SKR.h"
+#include "pins_BTT_SKR_common.h"
 
 //
 // Software SPI pins for TMC2130 stepper drivers

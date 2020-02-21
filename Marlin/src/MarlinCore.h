@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -44,8 +44,6 @@ void idle(
   #endif
 );
 
-void manage_inactivity(const bool ignore_stepper_queue=false);
-
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"
   extern TWIBus i2c;
@@ -84,10 +82,6 @@ extern bool wait_for_heatup;
   extern bool wait_for_user;
 #endif
 
-#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
-  extern bool suspend_auto_report;
-#endif
-
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
@@ -121,4 +115,4 @@ void protected_pin_err();
 #endif
 
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
-                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
+                  SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];

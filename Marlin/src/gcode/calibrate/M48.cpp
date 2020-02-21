@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -80,8 +80,8 @@ void GcodeSuite::M48() {
   xy_float_t next_pos = current_position;
 
   const xy_pos_t probe_pos = {
-    parser.linearval('X', next_pos.x + probe_offset_xy.x),
-    parser.linearval('Y', next_pos.y + probe_offset_xy.y)
+    parser.linearval('X', next_pos.x + probe.offset_xy.x),
+    parser.linearval('Y', next_pos.y + probe.offset_xy.y)
   };
 
   if (!position_is_reachable_by_probe(probe_pos)) {
@@ -120,7 +120,7 @@ void GcodeSuite::M48() {
   float mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
   // Move to the first point, deploy, and probe
-  const float t = probe_at_point(probe_pos, raise_after, verbose_level);
+  const float t = probe.probe_at_point(probe_pos, raise_after, verbose_level);
   bool probing_good = !isnan(t);
 
   if (probing_good) {
@@ -169,7 +169,7 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
                                                 // numbers outside of the range, but just to be safe we clamp them.
 
-          const xy_pos_t noz_pos = probe_pos - probe_offset_xy;
+          const xy_pos_t noz_pos = probe_pos - probe.offset_xy;
           next_pos.set(noz_pos.x + cos(RADIANS(angle)) * radius,
                        noz_pos.y + sin(RADIANS(angle)) * radius);
 
@@ -194,7 +194,7 @@ void GcodeSuite::M48() {
       } // n_legs
 
       // Probe a single point
-      sample_set[n] = probe_at_point(probe_pos, raise_after, 0);
+      sample_set[n] = probe.probe_at_point(probe_pos, raise_after, 0);
 
       // Break the loop if the probe fails
       probing_good = !isnan(sample_set[n]);
@@ -238,7 +238,7 @@ void GcodeSuite::M48() {
     } // n_samples loop
   }
 
-  STOW_PROBE();
+  probe.stow();
 
   if (probing_good) {
     SERIAL_ECHOLNPGM("Finished!");

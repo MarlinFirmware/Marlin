@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_BIGTREE_BTT002_V1_0
+opt_set MOTHERBOARD BOARD_BTT_BTT002_V1_0
 opt_set SERIAL_PORT 1
 exec_test $1 $2 "BigTreeTech BTT002 Default Configuration"
 

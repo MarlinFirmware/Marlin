@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -193,9 +193,9 @@
   #endif
 #endif
 
-#if HAS_DRIVER(TMC2208)
+#if HAS_TMC_UART
   /**
-   * TMC2208 stepper drivers
+   * TMC220x stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below

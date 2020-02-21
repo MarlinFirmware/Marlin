@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -108,7 +108,6 @@
 //
 // Misc. Functions
 //
-#define SDSS               PB12
 #define LED_PIN            PA6
 //#define LED_PIN          PA7
 #define KILL_PIN           PB1
@@ -116,7 +115,7 @@
 //
 // LCD / Controller
 //
-#define SD_DETECT_PIN      PC5
+//#define SD_DETECT_PIN      PC5
 //#define SD_DETECT_PIN      PA8  // SDIO SD_DETECT_PIN, external SDIO card reader only
 
 #define BEEPER_PIN         PD10
@@ -132,3 +131,25 @@
 
 #define DOGLCD_CS          LCD_PINS_D5
 #define DOGLCD_A0          LCD_PINS_D6
+
+//
+// Onboard SD support
+//
+#define SDIO_D0_PIN        PC8
+#define SDIO_D1_PIN        PC9
+#define SDIO_D2_PIN        PC10
+#define SDIO_D3_PIN        PC11
+#define SDIO_CK_PIN        PC12
+#define SDIO_CMD_PIN       PD2
+
+#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
+  #define SDIO_SUPPORT     // Use SDIO for onboard SD
+
+  #ifndef SDIO_SUPPORT
+    #define SOFTWARE_SPI   // Use soft SPI for onboard SD
+    #define SDSS           SDIO_D3_PIN
+    #define SCK_PIN        SDIO_CK_PIN
+    #define MISO_PIN       SDIO_D0_PIN
+    #define MOSI_PIN       SDIO_CMD_PIN
+  #endif
+#endif

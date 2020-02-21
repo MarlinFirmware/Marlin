@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
  * Copyright (c) 2017 Victor Perez
@@ -28,7 +28,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
-#if TMC_HAS_SW_SERIAL
+#if HAS_TMC_SW_SERIAL
   #include "SoftwareSerial.h"
 #endif
 
@@ -87,7 +87,7 @@ void HAL_init() {
   while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
 
-  #if TMC_HAS_SW_SERIAL
+  #if HAS_TMC_SW_SERIAL
     SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
   #endif
 }

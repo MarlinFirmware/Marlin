@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -153,8 +153,8 @@ void stepperTask(void* parameter) {
         remaining--;
       }
       else {
-        Stepper::stepper_pulse_phase_isr();
-        remaining = Stepper::stepper_block_phase_isr();
+        Stepper::pulse_phase_isr();
+        remaining = Stepper::block_phase_isr();
       }
     }
   }
@@ -308,7 +308,7 @@ int i2s_init() {
   esp_intr_enable(i2s_isr_handle);
 
   // Create the task that will feed the buffer
-  xTaskCreate(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr);
+  xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
 
   // Route the i2s pins to the appropriate GPIO
   gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);

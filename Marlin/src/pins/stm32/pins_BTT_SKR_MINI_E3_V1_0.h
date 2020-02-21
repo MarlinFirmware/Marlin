@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,10 +26,10 @@
 #define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
 
 /**
- * TMC2209 stepper drivers
+ * TMC220x stepper drivers
  * Hardware serial communication ports.
  */
-#if HAS_DRIVER(TMC2209)
+#if HAS_TMC_UART
   #define X_HARDWARE_SERIAL  Serial4
   #define Y_HARDWARE_SERIAL  Serial4
   #define Z_HARDWARE_SERIAL  Serial4

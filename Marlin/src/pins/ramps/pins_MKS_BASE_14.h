@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS BASE v1.4
+ * MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -30,52 +30,31 @@
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.4"
+#define MKS_BASE_VERSION 14
 
 //
 // Heaters / Fans
 //
-#define MOSFET_D_PIN              7   // PH4 ** Pin16 ** PWM7   //E1
-#define FAN_PIN                   9   // PH6 ** Pin18 ** PWM9
+#define FAN_PIN             9   // PH6 ** Pin18 ** PWM9
 
 // Other Mods
-#define CASE_LIGHT_PIN           11   // PB5 ** Pin24 ** PWM11
-#define SERVO3_PIN               12   // PB6 ** Pin25 ** D12
-#define PS_ON_PIN                 2   // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
-#define FILWIDTH_PIN             15   // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
-#define FIL_RUNOUT_PIN           19   // Z+ // PD2 ** Pin45 ** USART1_RX
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_PWM_PIN     2   // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENA_PIN    15   // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
-#define SPINDLE_DIR_PIN          19   // Z+ // PD2 ** Pin45 ** USART1_RX
-
-//
-// Microstepping pins
-//
-#define X_MS1_PIN                 5   // PE3 ** Pin5  ** PWM5
-#define X_MS2_PIN                 6   // PH3 ** Pin15 ** PWM6
-#define Y_MS1_PIN                59   // PF5 ** Pin92 ** A5
-#define Y_MS2_PIN                58   // PF4 ** Pin93 ** A4
-#define Z_MS1_PIN                22   // PA0 ** Pin78 ** D22
-#define Z_MS2_PIN                39   // PG2 ** Pin70 ** D39
-#define E0_MS1_PIN               64   // PK2 ** Pin87 ** A10
-#define E0_MS2_PIN               63   // PK1 ** Pin88 ** A9
-#define E1_MS1_PIN               57   // PF3 ** Pin94 ** A3
-#define E1_MS2_PIN                4   // PG5 ** Pin1  ** PWM4
+#define CASE_LIGHT_PIN     11   // PB5 ** Pin24 ** PWM11
+#define SERVO3_PIN         12   // PB6 ** Pin25 ** D12
+#define PS_ON_PIN           2   // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
+#define FILWIDTH_PIN       15   // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
+#define FIL_RUNOUT_PIN     19   // Z+ // PD2 ** Pin45 ** USART1_RX
 
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN          50
+  #define RGB_LED_R_PIN    50
 #endif
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_G_PIN          51
+  #define RGB_LED_G_PIN    51
 #endif
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_B_PIN          52
+  #define RGB_LED_B_PIN    52
 #endif
 
-#include "pins_RAMPS.h"
+#include "pins_MKS_BASE_common.h"
 
 /*
   Available connectors on MKS BASE v1.4

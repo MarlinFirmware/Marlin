@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -234,10 +234,10 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    static inline float scale(const float value)      { return value * NAME::scale;           }
-    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
+    static inline float scale(const float value)      { return NAME::scale(value);            }
+    static inline float unscale(const float value)    { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
+    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t * const data, ...) {
       MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(*(data)));
@@ -266,34 +266,35 @@ class TMenuEditItem : MenuEditItemBase {
 // Provide a set of Edit Item Types which encompass a primitive
 // type, a string function, and a scale factor for edit and display.
 // These items call the Edit Item draw method passing the prepared string.
-#define DEFINE_MENU_EDIT_ITEM_TYPE(TYPE, NAME, STRFUNC, SCALE) \
+#define DEFINE_MENU_EDIT_ITEM_TYPE(TYPE, NAME, FIX, STRFUNC, SCALE, V...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static constexpr float scale = SCALE; \
-    static inline const char* strfunc(const float value) { return STRFUNC((TYPE)value); } \
+    static inline float scale(const float value)   { return value * (SCALE) + (V+0); } \
+    static inline float unscale(const float value) { return value / (SCALE) + (V+0); } \
+    static inline const char* strfunc(const float value) { return STRFUNC((TYPE)(FIX ? FIXFLOAT(value) : value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
 //                         TYPE      NAME         STRFUNC       SCALE
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_5,    ui16tostr5,      0.01  );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52,     ftostr42_52,   100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5,      ftostr5rj,       1     );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5_25,   ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51,     ftostr51rj,     10     );   // 1234.5     right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float41sign, ftostr41sign,   10     );   // +123.4
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51sign, ftostr51sign,   10     );   // +1234.5
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
-DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5_25,    ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
+DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  percent,     0, ui8tostr4pct, 100.0/255, 0.5);  // 100%   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int3,        0, i16tostr3,       1     );   // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int4,        0, i16tostr4sign,   1     );   // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int8_t,   int8,        0, i8tostr3,        1     );   // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  uint8,       0, ui8tostr3,       1     );   // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_3,    0, ui16tostr3,      1     );   // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_4,    0, ui16tostr4,      0.1   );   // 1234       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_5,    0, ui16tostr5,      0.01  );   // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float3,      1, ftostr3,         1     );   // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52,     1, ftostr42_52,   100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float43,     1, ftostr43sign, 1000     );   // 1.234
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5,      1, ftostr5rj,       1     );   // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5_25,   1, ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51,     1, ftostr51rj,     10     );   // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float41sign, 1, ftostr41sign,   10     );   // +123.4
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51sign, 1, ftostr51sign,   10     );   // +1234.5
+DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52sign, 1, ftostr52sign,  100     );   // +123.45
+DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5,       0, ftostr5rj,       0.01f );   // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5_25,    0, ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
 
 class MenuItem_bool : public MenuEditItemBase {
   public:
@@ -324,7 +325,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define SCREEN_OR_MENU_LOOP(IS_MENU)                \
   scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU); \
   int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-  bool _skipStatic = IS_MENU;                       \
+  bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);  \
   for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 

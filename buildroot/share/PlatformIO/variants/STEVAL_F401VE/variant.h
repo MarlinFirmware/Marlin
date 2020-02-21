@@ -195,7 +195,7 @@ extern "C" {
   #define PIN_SERIAL2_RX        PD6
   #define PIN_SERIAL2_TX        PD5
 #else
-  #error'Invaqlid setting for SERIAL_UART_INSTANCE'
+  #error'Invalid setting for SERIAL_UART_INSTANCE'
 #endif
 
 // Timer Definitions

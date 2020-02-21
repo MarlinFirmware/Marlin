@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -51,6 +51,15 @@
 void GcodeSuite::M140() {
   if (DEBUGGING(DRYRUN)) return;
   if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
+
+  #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+    /**
+     * Stop the timer at the end of print. Both hotend and bed target
+     * temperatures need to be set below mintemp. Order of M140 and M104
+     * at the end of the print does not matter.
+     */
+    thermalManager.check_timer_autostart(false, true);
+  #endif
 }
 
 /**

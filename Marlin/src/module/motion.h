@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -329,7 +329,7 @@ void homeaxis(const AxisEnum axis);
       // Return true if the both nozzle and the probe can reach the given point.
       // Note: This won't work on SCARA since the probe offset rotates with the arm.
       inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-        return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
+        return position_is_reachable(rx - probe.offset_xy.x, ry - probe.offset_xy.y)
                && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
       }
 
@@ -369,9 +369,9 @@ void homeaxis(const AxisEnum axis);
      *          nozzle must be be able to reach +10,-10.
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset_xy.x, ry - probe_offset_xy.y)
-          && WITHIN(rx, probe_min_x() - slop, probe_max_x() + slop)
-          && WITHIN(ry, probe_min_y() - slop, probe_max_y() + slop);
+      return position_is_reachable(rx - probe.offset_xy.x, ry - probe.offset_xy.y)
+          && WITHIN(rx, probe.min_x() - slop, probe.max_x() + slop)
+          && WITHIN(ry, probe.min_y() - slop, probe.max_y() + slop);
     }
 
   #endif // HAS_BED_PROBE
