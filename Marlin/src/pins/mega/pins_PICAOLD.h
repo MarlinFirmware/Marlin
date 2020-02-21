@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
  *
  */
 
-#define HEATER_0_PIN       9 // extruder 
-#define HEATER_1_PIN       10 // second extruder
+#define HEATER_0_PIN        9   // E0
+#define HEATER_1_PIN       10   // E1
 #define FAN_PIN            11
 #define FAN_2_PIN          12
 
