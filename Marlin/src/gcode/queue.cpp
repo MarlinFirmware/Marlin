@@ -537,7 +537,7 @@ void GCodeQueue::get_serial_commands() {
             #if ENABLED(PRINTER_EVENT_LEDS)
               printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
-                enqueue_now_P(PSTR("M0 Q S"
+                enqueue_now_P(PSTR("M0 S"
                   #if HAS_LCD_MENU
                     "1800"
                   #else
