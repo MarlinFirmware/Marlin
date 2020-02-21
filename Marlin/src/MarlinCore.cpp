@@ -204,10 +204,6 @@ bool wait_for_heatup = true;
   bool wait_for_user; // = false;
 #endif
 
-#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
-  bool suspend_auto_report; // = false
-#endif
-
 // Inactivity shutdown
 millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
@@ -432,7 +428,7 @@ void startOrResumeJob() {
  *  - Pulse FET_SAFETY_PIN if it exists
  */
 
-void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
+inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   #if HAS_FILAMENT_SENSOR
     runout.run();
@@ -697,7 +693,7 @@ void idle(
   #endif
 
   #if HAS_AUTO_REPORTING
-    if (!suspend_auto_report) {
+    if (!gcode.autoreport_paused) {
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         thermalManager.auto_report_temperatures();
       #endif
