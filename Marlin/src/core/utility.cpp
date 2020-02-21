@@ -35,6 +35,18 @@ void safe_delay(millis_t ms) {
   thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
+// A delay to provide brittle hosts time to receive bytes
+#if ENABLED(SERIAL_OVERRUN_PROTECTION)
+
+  #include "../gcode/gcode.h" // for set_autoreport_paused
+
+  void serial_delay(const millis_t ms) {
+    const bool was = gcode.set_autoreport_paused(true);
+    safe_delay(ms);
+    gcode.set_autoreport_paused(was);
+  }
+#endif
+
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 
   #include "../module/probe.h"
