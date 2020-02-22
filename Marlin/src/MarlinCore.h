@@ -44,8 +44,6 @@ void idle(
   #endif
 );
 
-void manage_inactivity(const bool ignore_stepper_queue=false);
-
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"
   extern TWIBus i2c;
@@ -82,10 +80,6 @@ extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
-#endif
-
-#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
-  extern bool suspend_auto_report;
 #endif
 
 // Inactivity shutdown timer

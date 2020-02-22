@@ -1227,6 +1227,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
   #endif
 
+  #if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
+    #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable it or comment out this line to continue."
+  #endif
+
 #else
 
   /**
@@ -1357,14 +1361,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
-  #if HAS_BED_PROBE && (ENABLED(DELTA) || IS_SCARA)
-    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, PROBE_X_MIN, PROBE_X_MAX), "Z_SAFE_HOMING_X_POINT is outside the probe region.");
-    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, PROBE_Y_MIN, PROBE_Y_MAX), "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
-  #else
-    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
-    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
-  #endif
-#endif // Z_SAFE_HOMING
+  static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_BED, X_MAX_BED), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
+  static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_BED, Y_MAX_BED), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+#endif
 
 /**
  * Make sure DISABLE_[XYZ] compatible with selected homing options
@@ -2239,11 +2238,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 // Sensorless homing is required for both combined steppers in an H-bot
 #if CORE_IS_XY && X_SENSORLESS != Y_SENSORLESS
-  #error "CoreXY requires both X and Y to use sensorless homing if either does."
-#elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS
-  #error "CoreXZ requires both X and Z to use sensorless homing if either does."
-#elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS
-  #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
+  #error "CoreXY requires both X and Y to use sensorless homing if either one does."
+#elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS && !HOMING_Z_WITH_PROBE
+  #error "CoreXZ requires both X and Z to use sensorless homing if either one does."
+#elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS && !HOMING_Z_WITH_PROBE
+  #error "CoreYZ requires both Y and Z to use sensorless homing if either one does."
 #endif
 
 // Other TMC feature requirements
@@ -2650,6 +2649,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Check to make sure MONITOR_DRIVER_STATUS isn't enabled
  * on boards where TMC drivers share the SPI bus with SD.
  */
-#if TMC_HAS_SPI && ALL(MONITOR_DRIVER_STATUS, SDSUPPORT, USES_SHARED_SPI)
+#if HAS_TMC_SPI && ALL(MONITOR_DRIVER_STATUS, SDSUPPORT, USES_SHARED_SPI)
   #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
 #endif

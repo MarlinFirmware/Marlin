@@ -28,7 +28,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
-#if TMC_HAS_SW_SERIAL
+#if HAS_TMC_SW_SERIAL
   #include "SoftwareSerial.h"
 #endif
 
@@ -87,7 +87,7 @@ void HAL_init() {
   while (!LL_PWR_IsActiveFlag_BRR());
   #endif // EEPROM_EMULATED_SRAM
 
-  #if TMC_HAS_SW_SERIAL
+  #if HAS_TMC_SW_SERIAL
     SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
   #endif
 }

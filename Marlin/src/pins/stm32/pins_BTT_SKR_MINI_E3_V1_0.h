@@ -26,10 +26,10 @@
 #define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
 
 /**
- * TMC2209 stepper drivers
+ * TMC220x stepper drivers
  * Hardware serial communication ports.
  */
-#if HAS_DRIVER(TMC2209)
+#if HAS_TMC_UART
   #define X_HARDWARE_SERIAL  Serial4
   #define Y_HARDWARE_SERIAL  Serial4
   #define Z_HARDWARE_SERIAL  Serial4

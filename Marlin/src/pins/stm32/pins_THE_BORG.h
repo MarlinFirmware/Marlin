@@ -30,7 +30,9 @@
 #define BOARD_INFO_NAME      "The-Borge"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define E2END 0xFFF   // EEPROM end address
+#ifndef E2END
+  #define E2END 0xFFF   // EEPROM end address
+#endif
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

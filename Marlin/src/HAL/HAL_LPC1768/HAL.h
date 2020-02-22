@@ -119,8 +119,8 @@ extern "C" volatile uint32_t _millis;
 //
 // Interrupts
 //
-#define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
-#define CRITICAL_SECTION_END    if (!primask) __enable_irq()
+#define CRITICAL_SECTION_START()  uint32_t primask = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()

@@ -35,9 +35,7 @@ public:
    * commands to Marlin, and lines will be checked for sequentiality.
    * M110 N<int> sets the current line number.
    */
-  static long last_N, stopped_N;
-
-  static inline void stop() { stopped_N = last_N; }
+  static long last_N;
 
   /**
    * GCode Command Queue

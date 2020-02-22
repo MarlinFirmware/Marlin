@@ -27,6 +27,15 @@
  * without adding new pin definitions to the board.
  */
 
+#ifdef S6_TFT_PINMAP
+  #ifndef __MARLIN_FIRMWARE__
+    #error "This pin mapping requires Marlin."
+  #endif
+
+  #define CLCD_SPI_CS         PC7
+  #define CLCD_MOD_RESET      PC6
+#endif
+
 #ifdef CR10_TFT_PINMAP
   #ifndef __MARLIN_FIRMWARE__
     #error "This pin mapping requires Marlin."

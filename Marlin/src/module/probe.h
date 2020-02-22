@@ -162,7 +162,7 @@ public:
   #endif
 
 private:
-  static bool move_to_z(const float z, const feedRate_t fr_mm_s);
+  static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);
   static float run_z_probe();
 };
