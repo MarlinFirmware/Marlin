@@ -27,6 +27,7 @@
 #include <rom/rtc.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
+#include <HardwareSerial.h>
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -105,6 +106,27 @@ void HAL_init_board() {
     #endif
     server.begin();
   #endif
+
+  // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
+  // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
+  // if they have been defined.
+  #if defined(HARDWARE_SERIAL1_RX) && defined(HARDWARE_SERIAL1_TX)
+    HardwareSerial Serial1(1);
+    #ifdef TMC_BAUD_RATE  // use TMC_BAUD_RATE for Serial1 if defined
+      Serial1.begin(TMC_BAUD_RATE, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
+    #else  // use default BAUDRATE if TMC_BAUD_RATE not defined
+      Serial1.begin(BAUDRATE, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
+    #endif
+  #endif
+  #if defined(HARDWARE_SERIAL2_RX) && defined(HARDWARE_SERIAL2_TX)
+    HardwareSerial Serial2(2);
+    #ifdef TMC_BAUD_RATE  // use TMC_BAUD_RATE for Serial1 if defined
+      Serial2.begin(TMC_BAUD_RATE, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
+    #else  // use default BAUDRATE if TMC_BAUD_RATE not defined
+      Serial2.begin(BAUDRATE, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
+    #endif
+  #endif
+
 }
 
 void HAL_idletask() {
