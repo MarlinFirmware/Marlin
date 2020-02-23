@@ -105,15 +105,15 @@
 #elif MB(BAM_DICE_DUE)
   #include "ramps/pins_BAM_DICE_DUE.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE)
-  #include "ramps/pins_MKS_BASE_10.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_10.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_14)
   #include "ramps/pins_MKS_BASE_14.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_15)
-  #include "ramps/pins_MKS_BASE_15.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_15.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_16)
-  #include "ramps/pins_MKS_BASE_16.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_16.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_HEROIC)
-  #include "ramps/pins_MKS_BASE_HEROIC.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_HEROIC.h"       // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_GEN_13)
   #include "ramps/pins_MKS_GEN_13.h"            // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_GEN_L)
@@ -252,6 +252,10 @@
   #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(LEAPFROG_XEED2015)
   #include "mega/pins_LEAPFROG_XEED2015.h"      // ATmega2560                             env:megaatmega2560
+#elif MB(PICA)
+  #include "mega/pins_PICA.h"                   // ATmega2560                             env:megaatmega2560
+#elif MB(PICA_REVB)
+  #include "mega/pins_PICAOLD.h"                // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561

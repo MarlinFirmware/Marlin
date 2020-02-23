@@ -1063,7 +1063,7 @@ uint16_t CardReader::get_num_Files() {
 //
 // Return from procedure or close out the Print Job
 //
-void CardReader::printingHasFinished() {
+void CardReader::fileHasFinished() {
   planner.synchronize();
   file.close();
   if (file_subcall_ctr > 0) { // Resume calling file after closing procedure

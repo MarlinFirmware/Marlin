@@ -253,8 +253,8 @@ void GCodeQueue::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO(*p++);
     }
-    SERIAL_ECHOPAIR_P(SP_P_STR, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
-    SERIAL_ECHOPAIR(" B", BUFSIZE - length);
+    SERIAL_ECHOPAIR_P(SP_P_STR, int(planner.moves_free()));
+    SERIAL_ECHOPAIR(" B", int(BUFSIZE - length));
   #endif
   SERIAL_EOL();
 }
@@ -364,9 +364,9 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
 inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
   sis = PS_NORMAL;
   buff[ind] = 0;
-  if (!ind) { thermalManager.manage_heater(); return true; }
-  ind = 0;
-  return false;
+  if (ind) { ind = 0; return false; }
+  thermalManager.manage_heater();
+  return true;
 }
 
 /**
@@ -415,11 +415,13 @@ void GCodeQueue::get_serial_commands() {
 
       if (serial_char == '\n' || serial_char == '\r') {
 
-        if (process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i])) continue;
+        // Reset our state, continue if the line was empty
+        if (process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i]))
+          continue;
 
         char* command = serial_line_buffer[i];
 
-        while (*command == ' ') command++;                // Skip leading spaces
+        while (*command == ' ') command++;                   // Skip leading spaces
         char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
 
         if (npos) {
@@ -524,40 +526,38 @@ void GCodeQueue::get_serial_commands() {
     while (length < BUFSIZE && !card_eof) {
       const int16_t n = card.get();
       card_eof = card.eof();
+      if (n < 0) { SERIAL_ERROR_MSG(MSG_SD_ERR_READ); continue; }
       const char sd_char = (char)n;
-      if (card_eof || n < 0 || sd_char == '\n' || sd_char == '\r') {
+      if (sd_char == '\n' || sd_char == '\r' || card_eof) {
+
+        // Reset stream state, terminate the buffer, and commit a non-empty command
+        if (!process_line_done(sd_input_state, command_buffer[index_w], sd_count)) {
+          _commit_command(false);                     // Can handle last line missing a newline terminator
+          #if ENABLED(POWER_LOSS_RECOVERY)
+            recovery.cmd_sdpos = card.getIndex();     // Prime for the next _commit_command
+          #endif
+        }
+
         if (card_eof) {
 
-          card.printingHasFinished();
+          card.fileHasFinished();                     // Handle end of file reached
 
-          if (IS_SD_PRINTING())
-            sd_count = 0; // If a sub-file was printing, continue from call point
-          else {
-            SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);
+          if (!IS_SD_PRINTING()) {                    // Was it the main job file?
+            SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);       // Tell the host the file is printed.
             #if ENABLED(PRINTER_EVENT_LEDS)
-              printerEventLEDs.onPrintCompleted();
+              printerEventLEDs.onPrintCompleted();    // Change LED color for Print Completed
               #if HAS_RESUME_CONTINUE
-                enqueue_now_P(PSTR("M0 Q S"
+                enqueue_now_P(PSTR("M0 S"             // Display "Click to Continue..."
                   #if HAS_LCD_MENU
-                    "1800"
+                    "1800"                            // ...for 30 minutes with LCD
                   #else
-                    "60"
+                    "60"                              // ...for 1 minute with no LCD
                   #endif
                 ));
               #endif
             #endif
           }
         }
-        else if (n < 0)
-          SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
-
-        if (process_line_done(sd_input_state, command_buffer[index_w], sd_count)) continue;
-
-        _commit_command(false);
-
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          recovery.cmd_sdpos = card.getIndex(); // Prime for the next _commit_command
-        #endif
       }
       else
         process_stream_char(sd_char, sd_input_state, command_buffer[index_w], sd_count);

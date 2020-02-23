@@ -73,7 +73,7 @@ public:
   // apply accumulated babysteps to the axes.
   //
   static inline void task() {
-    LOOP_L_N(axis, BS_TODO_AXIS(Z_AXIS)) step_axis((AxisEnum)axis);
+    LOOP_LE_N(axis, BS_TODO_AXIS(Z_AXIS)) step_axis((AxisEnum)axis);
   }
 
 private:

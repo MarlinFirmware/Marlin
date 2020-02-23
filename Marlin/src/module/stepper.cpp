@@ -2526,12 +2526,12 @@ void Stepper::report_positions() {
 
   #elif IS_CORE
 
-    #define BABYSTEP_CORE(A, B, INV, DIR) do{                   \
+    #define BABYSTEP_CORE(A, B, INV, DIR, ALT) do{              \
       const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
       _ENABLE_AXIS(A); _ENABLE_AXIS(B);                         \
       DIR_WAIT_BEFORE();                                        \
       _APPLY_DIR(A, _INVERT_DIR(A)^DIR^INV);                    \
-      _APPLY_DIR(B, _INVERT_DIR(B)^DIR^INV^(CORESIGN(1)<0));    \
+      _APPLY_DIR(B, _INVERT_DIR(B)^DIR^INV^ALT);                \
       DIR_WAIT_AFTER();                                         \
       _SAVE_START();                                            \
       _APPLY_STEP(A, !_INVERT_STEP_PIN(A), true);               \
@@ -2560,21 +2560,21 @@ void Stepper::report_positions() {
 
         case X_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, false, direction);
+            BABYSTEP_CORE(X, Y, 0, direction, 0);
           #elif CORE_IS_XZ
-            BABYSTEP_CORE(X, Z, false, direction);
+            BABYSTEP_CORE(X, Z, 0, direction, 0);
           #else
-            BABYSTEP_AXIS(X, false, direction);
+            BABYSTEP_AXIS(X, 0, direction);
           #endif
           break;
 
         case Y_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, false, direction);
+            BABYSTEP_CORE(X, Y, 0, direction, (CORESIGN(1)<0));
           #elif CORE_IS_YZ
-            BABYSTEP_CORE(Y, Z, false, direction);
+            BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));
           #else
-            BABYSTEP_AXIS(Y, false, direction);
+            BABYSTEP_AXIS(Y, 0, direction);
           #endif
           break;
 
@@ -2583,9 +2583,9 @@ void Stepper::report_positions() {
       case Z_AXIS: {
 
         #if CORE_IS_XZ
-          BABYSTEP_CORE(X, Z, BABYSTEP_INVERT_Z, direction);
+          BABYSTEP_CORE(X, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
         #elif CORE_IS_YZ
-          BABYSTEP_CORE(Y, Z, BABYSTEP_INVERT_Z, direction);
+          BABYSTEP_CORE(Y, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
         #elif DISABLED(DELTA)
           BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z, direction);
 
