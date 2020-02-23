@@ -117,7 +117,16 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #endif
 
 #ifndef TMC_BAUD_RATE
-  #define TMC_BAUD_RATE 115200
+  #if HAS_TMC_SW_SERIAL
+    // Reduce baud rate for boards not already overriding TMC_BAUD_RATE for software serial.
+    // Testing has shown that 115200 is not 100% reliable on AVR platforms, occasionally
+    // failing to read status properly. 32-bit platforms typically define an even lower
+    // TMC_BAUD_RATE, due to differences in how SoftwareSerial libraries work on different
+    // platforms.
+    #define TMC_BAUD_RATE 57600
+  #else
+    #define TMC_BAUD_RATE 115200
+  #endif
 #endif
 
 #if HAS_DRIVER(TMC2130)
