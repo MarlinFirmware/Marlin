@@ -532,7 +532,7 @@ void GCodeQueue::get_serial_commands() {
 
         // Reset stream state, terminate the buffer, and commit a non-empty command
         if (!process_line_done(sd_input_state, command_buffer[index_w], sd_count)) {
-          _commit_command(false);                     // The file was not terminated with a newline
+          _commit_command(false);                     // Can handle last line missing a newline terminator
           #if ENABLED(POWER_LOSS_RECOVERY)
             recovery.cmd_sdpos = card.getIndex();     // Prime for the next _commit_command
           #endif
