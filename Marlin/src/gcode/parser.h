@@ -166,7 +166,6 @@ public:
     #ifdef CPU_32_BIT
       FORCE_INLINE static bool seen(const char * const str) { return !!(codebits & letter_bits(str)); }
     #else
-      // At least one of a list of code letters was seen
       FORCE_INLINE static bool seen(const char * const str) {
         const uint32_t letrbits = letter_bits(str);
         const uint8_t * const cb = (uint8_t*)&codebits;
@@ -177,14 +176,27 @@ public:
 
     static inline bool seen_any() { return !!codebits; }
 
-    #define SEEN_TEST(L) TEST32(codebits, LETTER_BIT(L))
+    FORCE_INLINE static bool seen_test(const char c) { return TEST32(codebits, LETTER_BIT(c)); }
 
   #else // !FASTER_GCODE_PARSER
+
+    #if ENABLED(GCODE_CASE_INSENSITIVE)
+      FORCE_INLINE static char* strgchr(char *p, char g) {
+        auto uppercase = [](char c) {
+          return c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);
+        };
+        const char d = uppercase(g);
+        for (char cc; (cc = uppercase(*p)); p++) if (cc == d) return p;
+        return nullptr;
+      }
+    #else
+      #define strgchr strchr
+    #endif
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
     static inline bool seen(const char c) {
-      char *p = strchr(command_args, c);
+      char *p = strgchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = valid_float(&p[1]) ? &p[1] : nullptr;
       return b;
@@ -192,12 +204,12 @@ public:
 
     static inline bool seen_any() { return *command_args == '\0'; }
 
-    #define SEEN_TEST(L) !!strchr(command_args, L)
+    FORCE_INLINE static bool seen_test(const char c) { return (bool)strgchr(command_args, c); }
 
     // At least one of a list of code letters was seen
     static inline bool seen(const char * const str) {
       for (uint8_t i = 0; const char c = str[i]; i++)
-        if (SEEN_TEST(c)) return true;
+        if (seen_test(c)) return true;
       return false;
     }
 
@@ -205,7 +217,7 @@ public:
 
   // Seen any axis parameter
   static inline bool seen_axis() {
-    return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
+    return seen_test('X') || seen_test('Y') || seen_test('Z') || seen_test('E');
   }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
