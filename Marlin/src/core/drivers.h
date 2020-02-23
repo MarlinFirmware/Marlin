@@ -131,7 +131,7 @@
 #define AXIS_HAS_UART(A) (    AXIS_DRIVER_TYPE(A,TMC2208) \
                            || AXIS_DRIVER_TYPE(A,TMC2209) )
 
-#define AXIS_HAS_SW_SERIAL(A) ((AXIS_HAS_UART(A) && !defined(A##_HARDWARE_SERIAL)))
+#define AXIS_HAS_SW_SERIAL(A) ((AXIS_HAS_UART(A) && !HAS_##A##_HARDWARE_SERIAL))
 
 #define AXIS_HAS_STALLGUARD(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) \
                                    || AXIS_DRIVER_TYPE(A,TMC2160) \
