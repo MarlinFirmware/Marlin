@@ -195,6 +195,8 @@
 #define BOTH(V1,V2)         ALL(V1,V2)
 #define EITHER(V1,V2)       ANY(V1,V2)
 
+#define ISDEF(X)            defined(X)
+
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
 #define _PINEX_1            PIN_EXISTS
