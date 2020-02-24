@@ -526,7 +526,7 @@ void GCodeQueue::get_serial_commands() {
     while (length < BUFSIZE && !card_eof) {
       const int16_t n = card.get();
       card_eof = card.eof();
-      if (n < 0) { SERIAL_ERROR_MSG(MSG_SD_ERR_READ); continue; }
+      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(MSG_SD_ERR_READ); continue; }
       const char sd_char = (char)n;
       if (sd_char == '\n' || sd_char == '\r' || card_eof) {
 
