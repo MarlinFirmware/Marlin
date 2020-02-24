@@ -146,7 +146,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Auto retraccio");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Canvia filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Canvia filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inicialitza SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inicialitza SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Canvia SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z fora");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reinicia BLTouch");

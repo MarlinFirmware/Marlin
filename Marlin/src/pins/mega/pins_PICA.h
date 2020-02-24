@@ -36,8 +36,8 @@
 /*
 // Note that these are the "pins" that correspond to the analog inputs on the arduino mega.
 // These are not the same as the physical pin numbers
-  AD0 = 54;   AD1 = 55;   AD2 = 56;   AD3 = 57;   
-  AD4 = 58;   AD5 = 59;   AD6 = 60;   AD7 = 61;   
+  AD0 = 54;   AD1 = 55;   AD2 = 56;   AD3 = 57;
+  AD4 = 58;   AD5 = 59;   AD6 = 60;   AD7 = 61;
   AD8 = 62;   AD9 = 63;   AD10 = 64;  AD11 = 65;
   AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
 */
@@ -61,7 +61,7 @@
 //
 #define X_STEP_PIN         55
 #define X_DIR_PIN          54
-#define X_ENABLE_PIN       60     
+#define X_ENABLE_PIN       60
 
 #define Y_STEP_PIN         57
 #define Y_DIR_PIN          56
@@ -71,7 +71,7 @@
 #define Z_DIR_PIN          58
 #define Z_ENABLE_PIN       62
 
-#define E0_STEP_PIN        67 
+#define E0_STEP_PIN        67
 #define E0_DIR_PIN         24
 #define E0_ENABLE_PIN      26
 
@@ -103,10 +103,10 @@
 #endif
 
 #define SDPOWER_PIN        -1
-#define LED_PIN            -1 
+#define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-      
+
 #define SSR_PIN             6
 
 // SPI for Max6675 or Max31855 Thermocouple
@@ -119,7 +119,7 @@
 //
 // SD Support
 //
-#define SD_DETECT_PIN      49 
+#define SD_DETECT_PIN      49
 #define SDSS               53
 
 //

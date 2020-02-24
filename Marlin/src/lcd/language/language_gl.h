@@ -143,7 +143,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Retraccion auto.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambiar filamen.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambiar filamen. *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Iniciando SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Iniciando SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambiar SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda-Z sen cama");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Comprobar BLTouch");

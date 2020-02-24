@@ -112,7 +112,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("ZAUSTAVLJEN. ");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Promijeni filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Promijeni filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. SD karticu");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD karticu");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Promijeni SD karticu");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Grijanje neuspješno");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Grijanje...");

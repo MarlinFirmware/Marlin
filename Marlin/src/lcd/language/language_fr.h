@@ -340,7 +340,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Retrait filament");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Retrait filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Retirer tout");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Charger le média");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Charger le média");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Actualiser média");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Retirer le média");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonde Z hors lit");

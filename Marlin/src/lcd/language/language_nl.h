@@ -149,7 +149,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Verv. Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Verv. Filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. SD kaart");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD kaart");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Verv. SD Kaart");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe uit. bed");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch Zelf-Test");

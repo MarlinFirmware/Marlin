@@ -51,13 +51,13 @@ char *GCodeParser::command_ptr,
 char GCodeParser::command_letter;
 int GCodeParser::codenum;
 
-#if USE_GCODE_SUBCODES
+#if ENABLED(USE_GCODE_SUBCODES)
   uint8_t GCodeParser::subcode;
 #endif
 
 #if ENABLED(GCODE_MOTION_MODES)
   int16_t GCodeParser::motion_mode_codenum = -1;
-  #if USE_GCODE_SUBCODES
+  #if ENABLED(USE_GCODE_SUBCODES)
     uint8_t GCodeParser::motion_mode_subcode;
   #endif
 #endif
@@ -83,7 +83,7 @@ void GCodeParser::reset() {
   string_arg = nullptr;                 // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
-  #if USE_GCODE_SUBCODES
+  #if ENABLED(USE_GCODE_SUBCODES)
     subcode = 0;                        // No command sub-code
   #endif
   #if ENABLED(FASTER_GCODE_PARSER)
@@ -187,12 +187,12 @@ void GCodeParser::parse(char *p) {
       do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
 
       // Allow for decimal point in command
-      #if USE_GCODE_SUBCODES
-      if (*p == '.') {
-        p++;
-        while (NUMERIC(*p))
-        subcode *= 10, subcode += *p++ - '0';
-      }
+      #if ENABLED(USE_GCODE_SUBCODES)
+        if (*p == '.') {
+          p++;
+          while (NUMERIC(*p))
+          subcode *= 10, subcode += *p++ - '0';
+        }
       #endif
 
       // Skip all spaces to get to the first argument, or nul
@@ -206,7 +206,7 @@ void GCodeParser::parse(char *p) {
                              )
         ) {
           motion_mode_codenum = codenum;
-          #if USE_GCODE_SUBCODES
+          #if ENABLED(USE_GCODE_SUBCODES)
             motion_mode_subcode = subcode;
           #endif
         }
@@ -225,7 +225,7 @@ void GCodeParser::parse(char *p) {
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
-        #if USE_GCODE_SUBCODES
+        #if ENABLED(USE_GCODE_SUBCODES)
           subcode = motion_mode_subcode;
         #endif
         p--; // Back up one character to use the current parameter
