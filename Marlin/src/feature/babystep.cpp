@@ -37,7 +37,7 @@ Babystep babystep;
 
 volatile int16_t Babystep::steps[BS_AXIS_IND(Z_AXIS) + 1];
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-  int16_t Babystep::axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
+  int16_t Babystep::axis_total[BS_TOTAL_IND(Z_AXIS) + 1];
 #endif
 int16_t Babystep::accum;
 
@@ -66,7 +66,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
 
   accum += distance; // Count up babysteps for the UI
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-    axis_total[BS_TOTAL_AXIS(axis)] += distance;
+    axis_total[BS_TOTAL_IND(axis)] += distance;
   #endif
 
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)

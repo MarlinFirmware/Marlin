@@ -41,9 +41,9 @@
 
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
   #if ENABLED(BABYSTEP_XY)
-    #define BS_TOTAL_AXIS(A) A
+    #define BS_TOTAL_IND(A) A
   #else
-    #define BS_TOTAL_AXIS(A) 0
+    #define BS_TOTAL_IND(A) 0
   #endif
 #endif
 
@@ -53,13 +53,13 @@ public:
   static int16_t accum;                                     // Total babysteps in current edit
 
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-    static int16_t axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];   // Total babysteps since G28
+    static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
     static inline void reset_total(const AxisEnum axis) {
       if (true
         #if ENABLED(BABYSTEP_XY)
           && axis == Z_AXIS
         #endif
-      ) axis_total[BS_TOTAL_AXIS(axis)] = 0;
+      ) axis_total[BS_TOTAL_IND(axis)] = 0;
     }
   #endif
 
