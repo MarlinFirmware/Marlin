@@ -81,6 +81,8 @@
 
 Stepper stepper; // Singleton
 
+#define BABYSTEPPING_EXTRA_DIR_WAIT
+
 #if HAS_MOTOR_CURRENT_PWM
   bool Stepper::initialized; // = false
 #endif
@@ -1367,8 +1369,8 @@ void Stepper::isr() {
     #endif
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
-      const bool do_babystep = (nextBabystepISR == 0);              // 0 = Do Babystepping (XY)Z pulses
-      if (do_babystep) nextBabystepISR = babystepping_isr();
+      const bool is_babystep = (nextBabystepISR == 0);              // 0 = Do Babystepping (XY)Z pulses
+      if (is_babystep) nextBabystepISR = babystepping_isr();
     #endif
 
     // ^== Time critical. NOTHING besides pulse generation should be above here!!!
@@ -1376,7 +1378,7 @@ void Stepper::isr() {
     if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
-      if (do_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
+      if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
         NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
 
       if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
@@ -2507,6 +2509,14 @@ void Stepper::report_positions() {
     #endif
   #endif
 
+  #if ENABLED(BABYSTEPPING_EXTRA_DIR_WAIT)
+    #define EXTRA_DIR_WAIT_BEFORE DIR_WAIT_BEFORE
+    #define EXTRA_DIR_WAIT_AFTER  DIR_WAIT_AFTER
+  #else
+    #define EXTRA_DIR_WAIT_BEFORE()
+    #define EXTRA_DIR_WAIT_AFTER()
+  #endif
+
   #if DISABLED(DELTA)
 
     #define BABYSTEP_AXIS(AXIS, INV, DIR) do{           \
@@ -2519,9 +2529,9 @@ void Stepper::report_positions() {
       _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT();                                    \
       _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), true);  \
-      DIR_WAIT_BEFORE();                                \
+      EXTRA_DIR_WAIT_BEFORE();                          \
       _APPLY_DIR(AXIS, old_dir);                        \
-      DIR_WAIT_AFTER();                                 \
+      EXTRA_DIR_WAIT_AFTER();                           \
     }while(0)
 
   #elif IS_CORE
@@ -2539,9 +2549,9 @@ void Stepper::report_positions() {
       _PULSE_WAIT();                                            \
       _APPLY_STEP(A, _INVERT_STEP_PIN(A), true);                \
       _APPLY_STEP(B, _INVERT_STEP_PIN(B), true);                \
-      DIR_WAIT_BEFORE();                                        \
+      EXTRA_DIR_WAIT_BEFORE();                                  \
       _APPLY_DIR(A, old_dir.a); _APPLY_DIR(B, old_dir.b);       \
-      DIR_WAIT_AFTER();                                         \
+      EXTRA_DIR_WAIT_AFTER();                                   \
     }while(0)
 
   #endif
@@ -2620,13 +2630,13 @@ void Stepper::report_positions() {
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
 
           // Restore direction bits
-          DIR_WAIT_BEFORE();
+          EXTRA_DIR_WAIT_BEFORE();
 
           X_DIR_WRITE(old_dir.x);
           Y_DIR_WRITE(old_dir.y);
           Z_DIR_WRITE(old_dir.z);
 
-          DIR_WAIT_AFTER();
+          EXTRA_DIR_WAIT_AFTER();
 
         #endif
 

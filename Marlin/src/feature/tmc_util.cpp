@@ -1097,7 +1097,7 @@
 
   bool tmc_enable_stallguard(TMC2209Stepper &st) {
     const bool stealthchop_was_enabled = !st.en_spreadCycle();
-    
+
     st.TCOOLTHRS(0xFFFFF);
     st.en_spreadCycle(false);
     return stealthchop_was_enabled;
