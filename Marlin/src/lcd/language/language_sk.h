@@ -360,7 +360,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Vysunúť filament");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Vysunúť filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Vysunúť všetko");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Načítať SD kartu");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Načítať SD kartu");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Vymeniť SD kartu");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Odpojiť SD kartu");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z mimo podl.");

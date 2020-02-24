@@ -136,7 +136,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Автоoткат");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Смяна нишка");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Смяна нишка *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Иниц. SD-Карта");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Иниц. SD-Карта");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Смяна SD-Карта");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-сондата е извадена");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z Отстояние");

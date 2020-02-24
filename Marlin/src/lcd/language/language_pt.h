@@ -139,7 +139,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Trocar filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Trocar filamento *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inici. cartão SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inici. cartão SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar cartão SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sensor fora/base");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Desvio Z");

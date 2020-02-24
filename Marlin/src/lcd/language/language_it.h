@@ -368,7 +368,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Rimuovi filamento");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Rimuovi tutto");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inizializ. media");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inizializ. media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambia media");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Rilascia media");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe fuori piatto");
