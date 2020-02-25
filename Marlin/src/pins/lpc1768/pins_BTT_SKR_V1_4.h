@@ -151,11 +151,6 @@
 #define TEMP_BED_PIN       P0_25_A2   // A0 (T0) - (67) - TEMP_BED_PIN
 
 //
-// Include common SKR pins
-//
-#include "pins_BTT_SKR_common.h"
-
-//
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
@@ -332,3 +327,8 @@
  *   P0_27  (57) (Open collector)
  *   P0_28  (58) (Open collector)
  */
+
+//
+// Include common SKR pins
+//
+#include "pins_BTT_SKR_common.h"
