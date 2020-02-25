@@ -173,7 +173,7 @@ Joystick joystick;
 
     if (!UNEAR_ZERO(hypot2)) {
       current_position += move_dist;
-      const float length = sqrt(hypot2);
+      const float length = SQRT(hypot2);
       injecting_now = true;
       planner.buffer_line(current_position, length / seg_time, active_extruder, length);
       injecting_now = false;

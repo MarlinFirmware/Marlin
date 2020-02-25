@@ -275,8 +275,7 @@ typedef struct SettingsDataStruct {
   //
   // PIDTEMP
   //
-  PIDCF_t hotendPID[HOTENDS];                           // M301 En PIDCF / M303 En U
-  int16_t lpq_len;                                      // M301 L
+  PIDF_t hotendPID[HOTENDS];                            // M301 En PIDF / M303 En U
 
   //
   // PIDTEMPBED
@@ -849,24 +848,19 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
-        PIDCF_t pidcf = {
+        PIDF_t pidf = {
           #if DISABLED(PIDTEMP)
-            DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE,
+            DUMMY_PID_VALUE, DUMMY_PID_VALUE,
             DUMMY_PID_VALUE, DUMMY_PID_VALUE
           #else
                          PID_PARAM(Kp, e),
             unscalePID_i(PID_PARAM(Ki, e)),
             unscalePID_d(PID_PARAM(Kd, e)),
-                         PID_PARAM(Kc, e),
                          PID_PARAM(Kf, e)
           #endif
         };
-        EEPROM_WRITE(pidcf);
+        EEPROM_WRITE(pidf);
       }
-
-      _FIELD_TEST(lpq_len);
-      const int16_t lpq_len = 20;
-      EEPROM_WRITE(lpq_len);
     }
 
     //
@@ -1717,32 +1711,20 @@ void MarlinSettings::postprocess() {
       //
       {
         HOTEND_LOOP() {
-          PIDCF_t pidcf;
-          EEPROM_READ(pidcf);
+          PIDF_t pidf;
+          EEPROM_READ(pidf);
           #if ENABLED(PIDTEMP)
-            if (!validating && pidcf.Kp != DUMMY_PID_VALUE) {
+            if (!validating && pidf.Kp != DUMMY_PID_VALUE) {
               // Scale PID values since EEPROM values are unscaled
-              PID_PARAM(Kp, e) = pidcf.Kp;
-              PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
-              PID_PARAM(Kd, e) = scalePID_d(pidcf.Kd);
-              #if ENABLED(PID_EXTRUSION_SCALING)
-                PID_PARAM(Kc, e) = pidcf.Kc;
-              #endif
+              PID_PARAM(Kp, e) = pidf.Kp;
+              PID_PARAM(Ki, e) = scalePID_i(pidf.Ki);
+              PID_PARAM(Kd, e) = scalePID_d(pidf.Kd);
               #if ENABLED(PID_FAN_SCALING)
-                PID_PARAM(Kf, e) = pidcf.Kf;
+                PID_PARAM(Kf, e) = pidf.Kf;
               #endif
             }
           #endif
         }
-      }
-
-      //
-      // PID Extrusion Scaling
-      //
-      {
-        _FIELD_TEST(lpq_len);
-        int16_t lpq_len;
-        EEPROM_READ(lpq_len);
       }
 
       //
@@ -2604,10 +2586,6 @@ void MarlinSettings::reset() {
       PID_PARAM(Kp, e) = float(DEFAULT_Kp);
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        PID_PARAM(Kc, e) = DEFAULT_Kc;
-      #endif
-
       #if ENABLED(PID_FAN_SCALING)
         PID_PARAM(Kf, e) = DEFAULT_Kf;
       #endif
@@ -3174,9 +3152,6 @@ void MarlinSettings::reset() {
             , PSTR(" I"), unscalePID_i(PID_PARAM(Ki, e))
             , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
           );
-          #if ENABLED(PID_EXTRUSION_SCALING)
-            SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
-          #endif
           #if ENABLED(PID_FAN_SCALING)
             SERIAL_ECHOPAIR(" F", PID_PARAM(Kf, e));
           #endif

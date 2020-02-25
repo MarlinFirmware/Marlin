@@ -166,7 +166,9 @@
 #elif defined(MANUAL_HOME_POSITIONS)
   #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
 #elif defined(PID_ADD_EXTRUSION_RATE)
-  #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default. Are you sure you want to use this option? Please update your configuration."
+  #error "PID_ADD_EXTRUSION_RATE has been replaced by FEED_FORWARD_HOTEND_REGULATOR. Please update your configuration."
+#elif defined(PID_EXTRUSION_SCALING)
+  #error "PID_EXTRUSION_SCALING has been replaced by FEED_FORWARD_HOTEND_REGULATOR. Please update your configuration."
 #elif defined(Z_RAISE_BEFORE_HOMING)
   #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
 #elif defined(MIN_Z_HEIGHT_FOR_HOMING)

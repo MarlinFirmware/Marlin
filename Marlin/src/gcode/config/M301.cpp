@@ -34,11 +34,6 @@
  *   I[float] Ki term (unscaled)
  *   D[float] Kd term (unscaled)
  *
- * With PID_EXTRUSION_SCALING:
- *
- *   C[float] Kc term
- *   L[int] LPQ length
- *
  * With PID_FAN_SCALING:
  *
  *   F[float] Kf term
@@ -53,9 +48,6 @@ void GcodeSuite::M301() {
     if (parser.seen('P')) PID_PARAM(Kp, e) = parser.value_float();
     if (parser.seen('I')) PID_PARAM(Ki, e) = scalePID_i(parser.value_float());
     if (parser.seen('D')) PID_PARAM(Kd, e) = scalePID_d(parser.value_float());
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      if (parser.seen('C')) PID_PARAM(Kc, e) = parser.value_float();
-    #endif
 
     #if ENABLED(PID_FAN_SCALING)
       if (parser.seen('F')) PID_PARAM(Kf, e) = parser.value_float();
@@ -69,9 +61,6 @@ void GcodeSuite::M301() {
     SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
                     " i:", unscalePID_i(PID_PARAM(Ki, e)),
                     " d:", unscalePID_d(PID_PARAM(Kd, e)));
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      SERIAL_ECHOPAIR(" c:", PID_PARAM(Kc, e));
-    #endif
     #if ENABLED(PID_FAN_SCALING)
       SERIAL_ECHOPAIR(" f:", PID_PARAM(Kf, e));
     #endif

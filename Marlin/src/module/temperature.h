@@ -53,13 +53,22 @@ typedef enum : int8_t {
 } heater_ind_t;
 
 // PID storage
-typedef struct { float Kp, Ki, Kd;     } PID_t;
-typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
-#if ENABLED(PID_EXTRUSION_SCALING)
-  typedef PIDC_t hotend_pid_t;
-#else
-  typedef PID_t hotend_pid_t;
-#endif
+typedef struct { float Kp, Ki, Kd;         } PID_t;
+typedef struct { float Kp, Ki, Kd, Kc;     } PIDC_t;
+typedef struct { float Kp, Ki, Kd, Kf;     } PIDF_t;
+typedef struct { float Kp, Ki, Kd, Kc, Kf; } PIDCF_t;
+
+typedef
+  #if BOTH(FEED_FORWARD_HOTEND_REGULATOR, PID_FAN_SCALING)
+    PIDCF_t
+  #elif ENABLED(FEED_FORWARD_HOTEND_REGULATOR)
+    PIDC_t
+  #elif ENABLED(PID_FAN_SCALING)
+    PIDF_t
+  #else
+    PID_t
+  #endif
+hotend_pid_t;
 
 #define DUMMY_PID_VALUE 3000.0f
 
@@ -67,7 +76,7 @@ typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
   #define _PID_Kp(H) Temperature::temp_hotend[H].pid.Kp
   #define _PID_Ki(H) Temperature::temp_hotend[H].pid.Ki
   #define _PID_Kd(H) Temperature::temp_hotend[H].pid.Kd
-  #if ENABLED(PID_EXTRUSION_SCALING)
+  #if ENABLED(FEED_FORWARD_HOTEND_REGULATOR)
     #define _PID_Kc(H) Temperature::temp_hotend[H].pid.Kc
   #else
     #define _PID_Kc(H) 1
@@ -381,7 +390,7 @@ class Temperature {
       static float redundant_temperature;
     #endif
 
-    #if ENABLED(PID_EXTRUSION_SCALING)
+    #if ENABLED(FEED_FORWARD_HOTEND_REGULATOR)
       static uint32_t last_e_position;
     #endif
 
@@ -437,10 +446,6 @@ class Temperature {
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
       static uint8_t ADCKey_count;
-    #endif
-
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      static int16_t lpq_len;
     #endif
 
     /**
@@ -770,7 +775,7 @@ class Temperature {
        */
       #if ENABLED(PIDTEMP)
         FORCE_INLINE static void updatePID() {
-          #if ENABLED(PID_EXTRUSION_SCALING)
+          #if ENABLED(FEED_FORWARD_HOTEND_REGULATOR)
             last_e_position = 0;
           #endif
         }

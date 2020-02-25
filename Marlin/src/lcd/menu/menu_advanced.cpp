@@ -270,20 +270,12 @@ void menu_cancelobject();
     //
 
     #if ENABLED(PID_EDIT_MENU)
-      #define __PID_BASE_MENU_ITEMS(N) \
+      #define _PID_BASE_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
         EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &PID_PARAM(Kp, N), 1, 9990); \
         EDIT_ITEM_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
         EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
-
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        #define _PID_BASE_MENU_ITEMS(N) \
-          __PID_BASE_MENU_ITEMS(N); \
-          EDIT_ITEM_N(float3, N, MSG_PID_C_E, &PID_PARAM(Kc, N), 1, 9990)
-      #else
-        #define _PID_BASE_MENU_ITEMS(N) __PID_BASE_MENU_ITEMS(N)
-      #endif
 
       #if ENABLED(PID_FAN_SCALING)
         #define _PID_EDIT_MENU_ITEMS(N) \
