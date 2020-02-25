@@ -35,7 +35,7 @@ void GcodeSuite::G92() {
 
   bool sync_E = false, sync_XYZ = false;
 
-  #if USE_GCODE_SUBCODES
+  #if ENABLED(USE_GCODE_SUBCODES)
     const uint8_t subcode_G92 = parser.subcode;
   #else
     constexpr uint8_t subcode_G92 = 0;

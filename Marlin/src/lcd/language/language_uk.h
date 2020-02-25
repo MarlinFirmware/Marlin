@@ -157,7 +157,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("ЗУПИНЕНО. ");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Зміна волокна");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Зміна волокна *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Старт SD картки");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Старт SD картки");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Заміна SD карти");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z дет. не в межах");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch Само-Тест");

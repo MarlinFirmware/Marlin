@@ -309,7 +309,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Filaman Çıkart");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Filaman Çıkart *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Tümünü Çıkart");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("SD Kart Başlatılıyor");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("SD Kart Başlatılıyor");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("SD Kart Değiştir");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z Prob Açık. Tabla");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Çarpıklık Faktörü");

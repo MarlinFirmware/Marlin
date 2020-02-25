@@ -309,7 +309,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Dỡ dây nhựa");                          // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Dỡ dây nhựa *");                        // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Dỡ tất cả");                            // Unload All
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Khởi tạo phương tiện");                 // Init. media
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Khởi tạo phương tiện");                 // Init. media
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Thay phương tiện");                     // Change midea
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Phát hành phương tiện");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Đầu Dò Z qua bàn");                     // Z Probe past bed

@@ -105,15 +105,15 @@
 #elif MB(BAM_DICE_DUE)
   #include "ramps/pins_BAM_DICE_DUE.h"          // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE)
-  #include "ramps/pins_MKS_BASE.h"              // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_10.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_14)
   #include "ramps/pins_MKS_BASE_14.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_15)
-  #include "ramps/pins_MKS_BASE_15.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_15.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_16)
-  #include "ramps/pins_MKS_BASE_16.h"           // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_16.h"           // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_BASE_HEROIC)
-  #include "ramps/pins_MKS_BASE_HEROIC.h"       // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
+  #include "ramps/pins_MKS_BASE_HEROIC.h"       // ATmega2560                             env:megaatmega2560
 #elif MB(MKS_GEN_13)
   #include "ramps/pins_MKS_GEN_13.h"            // ATmega1280, ATmega2560                 env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_GEN_L)
@@ -252,6 +252,10 @@
   #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:megaatmega2560
 #elif MB(LEAPFROG_XEED2015)
   #include "mega/pins_LEAPFROG_XEED2015.h"      // ATmega2560                             env:megaatmega2560
+#elif MB(PICA)
+  #include "mega/pins_PICA.h"                   // ATmega2560                             env:megaatmega2560
+#elif MB(PICA_REVB)
+  #include "mega/pins_PICAOLD.h"                // ATmega2560                             env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -528,8 +532,10 @@
   #include "stm32/pins_GENERIC_STM32F4.h"       // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32/pins_ARMED.h"                 // STM32F4                                env:ARMED
-#elif MB(RUMBA32)
-  #include "stm32/pins_RUMBA32.h"               // STM32F4                                env:rumba32_f446ve env:mks_rumba32
+#elif MB(RUMBA32_AUS3D)
+  #include "stm32/pins_RUMBA32_AUS3D.h"         // STM32F4                                env:rumba32_f446ve
+#elif MB(RUMBA32_MKS)
+  #include "stm32/pins_RUMBA32_MKS.h"           // STM32F4                                env:rumba32_mks
 #elif MB(BLACK_STM32F407VE)
   #include "stm32/pins_BLACK_STM32F407VE.h"     // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
@@ -577,6 +583,13 @@
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 
 //
+// Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
+//
+
+#elif MB(AGCM4_RAMPS_144)
+  #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
 // Linux Native Debug board
 //
 
@@ -607,6 +620,7 @@
   #define BOARD_BIGTREE_SKR_MINI_V1_1   -1015
   #define BOARD_BIGTREE_SKR_MINI_E3     -1016
   #define BOARD_BIGTREE_SKR_E3_DIP      -1017
+  #define BOARD_RUMBA32                 -1018
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -646,6 +660,8 @@
     #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
   #elif MB(STEVAL)
     #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
+  #elif MB(RUMBA32)
+    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_AUS3D. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -668,6 +684,7 @@
   #undef BOARD_BIGTREE_SKR_PRO_V1_1
   #undef BOARD_BIGTREE_SKR_MINI_V1_1
   #undef BOARD_BIGTREE_SKR_E3_DIP
+  #undef BOARD_RUMBA32
 
 #endif
 

@@ -32,6 +32,7 @@ jobs:
         - megaatmega2560
         - teensy31
         - teensy35
+        - SAMD51_grandcentral_m4
 
         # Extended AVR Environments
 
@@ -75,7 +76,6 @@ jobs:
         #- mks_robin_lite
         #- mks_robin_mini
         #- mks_robin_nano
-        #- SAMD51_grandcentral_m4
 
     steps:
 

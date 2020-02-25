@@ -30,19 +30,30 @@
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.6"
+#define MKS_BASE_VERSION 16
 
-#include "pins_MKS_BASE.h"
+//
+// Servos
+//
+#define SERVO1_PIN         12   // Digital 12 / Pin 25
 
-/**
- * Microstepping pins
- */
-#define X_MS1_PIN            5   // Digital 3  / Pin 5   / PE3  / SERVO2_PIN
-#define X_MS2_PIN            6   // Digital 6  / Pin 14  / PH3  / SERVO1_PIN
-#define Y_MS1_PIN           59   // Analog 5   / Pin 92  / PF5
-#define Y_MS2_PIN           58   // Analog 4   / Pin 93  / PF4
-#define Z_MS1_PIN           22   // Digital 22 / Pin 78  / PA0
-#define Z_MS2_PIN           39   // Digital 39 / Pin 70  / PG2
-#define E0_MS1_PIN          63   // Analog 9   / Pin 86  / PK1
-#define E0_MS2_PIN          64   // Analog 10  / Pin 87  / PK2
-#define E1_MS1_PIN          57   // Analog 3   / Pin 93  / PF3
-#define E1_MS2_PIN           4   // Digital 4  / Pin 1   / PG5  / SERVO3_PIN
+//
+// Omitted RAMPS pins
+//
+#ifndef SERVO2_PIN
+  #define SERVO2_PIN       -1
+#endif
+#ifndef SERVO3_PIN
+  #define SERVO3_PIN       -1
+#endif
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN     -1
+#endif
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   -1
+#endif
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN        -1
+#endif
+
+#include "pins_MKS_BASE_common.h"

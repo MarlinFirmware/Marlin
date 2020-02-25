@@ -72,8 +72,8 @@ extern HalSerial usb_serial;
 //
 // Interrupts
 //
-#define CRITICAL_SECTION_START
-#define CRITICAL_SECTION_END
+#define CRITICAL_SECTION_START()
+#define CRITICAL_SECTION_END()
 #define ISRS_ENABLED()
 #define ENABLE_ISRS()
 #define DISABLE_ISRS()

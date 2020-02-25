@@ -328,7 +328,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Загрузка филамента *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Выгрузка филамента *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Выгрузить всё");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Активировать SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Активировать SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Сменить SD карту");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Деактивировать SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-датчик вне стола");

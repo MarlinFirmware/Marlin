@@ -131,7 +131,7 @@ void GcodeSuite::M290() {
         #else
           PSTR("Babystep Z")
         #endif
-        , babystep.axis_total[BS_TODO_AXIS(Z_AXIS)]
+        , babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
       );
     }
     #endif

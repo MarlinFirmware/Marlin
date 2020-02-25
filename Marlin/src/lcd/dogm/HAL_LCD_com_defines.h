@@ -25,7 +25,7 @@
 
 #include <U8glib.h>
 
-#ifndef U8G_HAL_LINKS
+#ifndef U8G_HAL_LINKS   // Defined by LPC1768/9 environments in platform.ini
 
   #ifdef __SAM3X8E__
 
@@ -75,6 +75,7 @@
     #define U8G_COM_ST7920_HAL_HW_SPI u8g_com_arduino_st7920_hw_spi_fn
   #endif
 
+  // This can't be invoked from the current platformio.ini
   #ifdef TARGET_LPC1768
     uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
   #endif

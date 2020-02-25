@@ -221,7 +221,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Harizpia deskargatu");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Harizpia deskargatu *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Erabat deskargatu");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Hasieratu SD-a");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Hasieratu SD-a");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Aldatu txartela");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z zunda kanpora");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Okertze faktorea");

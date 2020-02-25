@@ -274,7 +274,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("卸載絲料");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("卸載絲料 *");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("卸載全部");     // "Unload All"
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("初始化記憶卡");     //"Init. SD card"
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("初始化記憶卡");     //"Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("更換記憶卡");     //"Change SD card"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探針在熱床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因數");     // "Skew Factor"

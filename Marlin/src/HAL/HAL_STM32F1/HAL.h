@@ -162,8 +162,8 @@ void HAL_idletask();
   #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
 #endif
 
-#define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); (void)__iCliRetVal()
-#define CRITICAL_SECTION_END    if (!primask) (void)__iSeiRetVal()
+#define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); (void)__iCliRetVal()
+#define CRITICAL_SECTION_END()    if (!primask) (void)__iSeiRetVal()
 #define ISRS_ENABLED() (!__get_primask())
 #define ENABLE_ISRS()  ((void)__iSeiRetVal())
 #define DISABLE_ISRS() ((void)__iCliRetVal())

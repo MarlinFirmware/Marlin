@@ -26,6 +26,8 @@
 
 #if BOTH(WIFISUPPORT, WEBSUPPORT)
 
+#include "../../inc/MarlinConfig.h"
+
 #undef DISABLED  // esp32-hal-gpio.h
 #include <SPIFFS.h>
 #include "wifi.h"

@@ -139,7 +139,7 @@
     #define BEEPER_PIN      151
 
     //#define LCD_PINS_D5     150
-    //#define LCD_PINS_D6     151
+    //#define LCD_PINS_D6     152
     //#define LCD_PINS_D7     153
 
   #else
@@ -153,3 +153,13 @@
   #define BTN_ENC            14
 
 #endif // HAS_GRAPHICAL_LCD
+
+// Hardware serial pins
+// Add the following to Configuration.h or Configuration_adv.h to assign
+// specific pins to hardware Serial1 and Serial2.
+// Note: Serial2 can be defined using HARDWARE_SERIAL2_RX and HARDWARE_SERIAL2_TX but
+// MRR ESPA does not have enough spare pins for such reassignment.
+//#define HARDWARE_SERIAL1_RX 21
+//#define HARDWARE_SERIAL1_TX 22
+//#define HARDWARE_SERIAL2_RX  2
+//#define HARDWARE_SERIAL2_TX  4

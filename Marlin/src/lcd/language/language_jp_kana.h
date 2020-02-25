@@ -166,7 +166,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("ホショウソクド mm/s");            // "UnRet  V"
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("ジドウヒキコミ");                 // "AutoRetr."
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("フィラメントコウカン");              // "Change filament"
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("メディアサイヨミコミ");             // "Init. SD card"
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("メディアサイヨミコミ");             // "Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("メディアコウカン");               // "Change SD card"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Zプローブ ベッドガイ");            // "Z probe out. bed"
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch ジコシンダン");          // "BLTouch Self-Test"
