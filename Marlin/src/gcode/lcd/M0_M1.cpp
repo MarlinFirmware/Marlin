@@ -102,7 +102,7 @@ void GcodeSuite::M0_M1() {
   #endif
 
   if (ms > 0) ms += millis();  // wait until this time for a click
-  while (wait_for_user || (ms > 0 && PENDING(millis(), ms))) idle();
+  while (wait_for_user && (ms == 0 || PENDING(millis(), ms))) idle();
 
   #if HAS_LEDS_OFF_FLAG
     printerEventLEDs.onResumeAfterWait();
