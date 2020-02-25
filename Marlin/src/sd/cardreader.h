@@ -49,6 +49,7 @@ typedef struct {
 
 class CardReader {
 public:
+  static uint8_t sdprinting_done_state;
   static card_flags_t flag;                         // Flags (above)
   static char filename[FILENAME_LENGTH],            // DOS 8.3 filename of the selected item
               longFilename[LONG_FILENAME_LENGTH];   // Long name of the selected item
