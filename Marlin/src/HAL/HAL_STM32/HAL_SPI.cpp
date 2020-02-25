@@ -124,9 +124,9 @@ void spiBusSend(uint8_t bus_num, uint8_t b) {
 }
 
 /**
- * @brief  Receive a number of bytes from the SPI port to a buffer
+ * @brief  Receive a number of bytes from the SPI bus to a buffer
  *
- * @param  dev_num Device number (identifies device and bus)
+ * @param  bus_num Bus number
  * @param  buf     Pointer to starting address of buffer to write to.
  * @param  count   Number of bytes to receive.
  *

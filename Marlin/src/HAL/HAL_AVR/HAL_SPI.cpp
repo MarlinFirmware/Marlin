@@ -33,24 +33,6 @@
 
 #include "../../inc/MarlinConfig.h"
 
-void spiBegin() {
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
-
-  #if DISABLED(SOFTWARE_SPI)
-    // SS must be in output mode even it is not chip select
-    //SET_OUTPUT(SS_PIN);
-    // set SS high - may be chip select for another SPI device
-    //#if SET_SPI_SS_HIGH
-      //WRITE(SS_PIN, HIGH);
-    //#endif
-    // set a default rate
-    spiInit(1);
-  #endif
-}
-
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
@@ -249,5 +231,15 @@ void spiBegin() {
   }
 
 #endif // SOFTWARE_SPI || FORCE_SOFT_SPI
+
+void spiBegin() {
+  OUT_WRITE(SS_PIN, HIGH);
+  SET_OUTPUT(SCK_PIN);
+  SET_INPUT(MISO_PIN);
+  SET_OUTPUT(MOSI_PIN);
+
+  // set a default rate
+  spiInit(1);
+}
 
 #endif // __AVR__
