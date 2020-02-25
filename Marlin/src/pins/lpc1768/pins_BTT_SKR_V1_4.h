@@ -266,8 +266,7 @@
     #define LCD_SDSS       P0_16   // (16) J3-7 & AUX-4
 
     #if SD_CONNECTION_IS(LCD)
-      #undef SD_DETECT_PIN
-      #define SD_DETECT_PIN  P1_31   // (49) (NOT 5V tolerant)
+      #define SD_DETECT_PIN P1_31  // (49) (NOT 5V tolerant)
     #endif
 
     #if ENABLED(FYSETC_MINI_12864)
