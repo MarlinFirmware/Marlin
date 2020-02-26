@@ -2541,7 +2541,7 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
-    COPY(servo_angles, base_servo_angles);
+    COPY(servo_angles, base_servo_angles);  // When not editable only one copy of servo angles exists
   #endif
 
   //
@@ -3091,7 +3091,7 @@ void MarlinSettings::reset() {
             #endif
           #elif ENABLED(SWITCHING_NOZZLE)
             case SWITCHING_NOZZLE_SERVO_NR:
-          #elif (ENABLED(BLTOUCH) && defined(BLTOUCH_ANGLES)) || (defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR))
+          #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
             case Z_PROBE_SERVO_NR:
           #endif
             CONFIG_ECHO_START();

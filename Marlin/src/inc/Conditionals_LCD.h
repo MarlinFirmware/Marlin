@@ -502,6 +502,10 @@
  * Set a flag for a servo probe (or BLTouch)
  */
 #define HAS_Z_SERVO_PROBE (defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0)
+#define HAS_SERVO_ANGLES (HAS_Z_SERVO_PROBE || EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE))
+#if !HAS_SERVO_ANGLES
+  #undef EDITABLE_SERVO_ANGLES
+#endif
 
 /**
  * Set flags for enabled probes
