@@ -2390,6 +2390,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     // Start with a safe speed (from which the machine may halt to stop immediately).
     float safe_speed = nominal_speed;
 
+    #ifdef TRAVEL_EXTRA_XYJERK
+      const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
+    #else
+      constexpr float extra_xyjerk = 0;
+    #endif
+
     uint8_t limited = 0;
     #if HAS_LINEAR_E_JERK
       LOOP_XYZ(i)
@@ -2398,13 +2404,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
     {
       const float jerk = ABS(current_speed[i]);   // cs : Starting from zero, change in speed for this axis
-
-      float maxj = max_jerk[i];                   // mj : The max jerk setting for this axis
-
-      #ifdef TRAVEL_EXTRA_XYJERK
-        if ((TRAVEL_EXTRA_XYJERK) && !de <= 0 && (i == X_AXIS || i == Y_AXIS))
-          maxj += TRAVEL_EXTRA_XYJERK;            // Extra jerk allowance for travel moves
-      #endif
+                  maxj = (max_jerk[axis]          // mj : The max jerk setting for this axis
+                    #ifdef TRAVEL_EXTRA_XYJERK
+                      + (axis == X_AXIS || axis == Y_AXIS ? extra_xyjerk : 0)
+                    #endif
+                  );
 
       if (jerk > maxj) {                          // cs > mj : New current speed too fast?
         if (limited) {                            // limited already?
@@ -2457,8 +2461,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             : // v_exit <= v_entry                coasting             axis reversal
               ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : _MAX(-v_exit, v_entry) );
 
-        if (jerk > max_jerk[axis]) {
-          v_factor *= max_jerk[axis] / jerk;
+        const float maxj = (max_jerk[axis]
+          #ifdef TRAVEL_EXTRA_XYJERK
+            + (axis == X_AXIS || axis == Y_AXIS ? extra_xyjerk : 0)
+          #endif
+        );
+
+        if (jerk > maxj) {
+          v_factor *= maxj / jerk;
           ++limited;
         }
       }
