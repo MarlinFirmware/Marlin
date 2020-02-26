@@ -412,23 +412,13 @@ void startOrResumeJob() {
     #endif
   }
 
-  #if ENABLED(PRINTER_EVENT_LEDS)
-    #include "feature/leds/printer_event_leds.h"
-  #endif
-
   inline void finishSDPrinting() {
     bool did_state = true;
     switch (card.sdprinting_done_state) {
 
-      #if ENABLED(PRINTER_EVENT_LEDS)
-        case 1:
-          printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
-          break;
-      #endif
-
       #if HAS_RESUME_CONTINUE                   // Display "Click to Continue..."
-        case 2:
-          did_state = queue.enqueue_P(PSTR("M0 S"
+        case 1:
+          did_state = queue.enqueue_P(PSTR("M0Q1S"
             #if HAS_LCD_MENU
               "1800"                            // ...for 30 minutes with LCD
             #else
@@ -438,13 +428,13 @@ void startOrResumeJob() {
           break;
       #endif
 
-      case 3: print_job_timer.stop(); break;
+      case 2: print_job_timer.stop(); break;
 
-      case 4:
+      case 3:
         did_state = print_job_timer.duration() < 60 || queue.enqueue_P(PSTR("M31"));
         break;
 
-      case 5:
+      case 4:
         #if ENABLED(POWER_LOSS_RECOVERY)
           recovery.purge();
         #endif

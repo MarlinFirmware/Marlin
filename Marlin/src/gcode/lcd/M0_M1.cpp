@@ -67,11 +67,16 @@ void GcodeSuite::M0_M1() {
 
   planner.synchronize();
 
+  #if HAS_LEDS_OFF_FLAG
+    if (parser.seen('Q'))
+      printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
+  #endif
+
   #if HAS_LCD_MENU
 
     if (has_message)
       ui.set_status(args, true);
-    else if (!parser.seenval('Q')) {
+    else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();
@@ -98,7 +103,7 @@ void GcodeSuite::M0_M1() {
   wait_for_user = true;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M0/1 Break Called"), CONTINUE_STR);
+    host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
   #endif
 
   if (ms > 0) ms += millis();  // wait until this time for a click

@@ -241,7 +241,7 @@ public:
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
 
-  // Float removes 'E' to prevent scientific notation interpretation
+  // The value as a string
   static inline char* value_string() { return value_ptr; }
 
   // Float removes 'E' to prevent scientific notation interpretation
