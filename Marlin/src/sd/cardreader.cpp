@@ -521,7 +521,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
     openFailed(fname);
 }
 
-inline void echo_write_to_file(char * const fname) {
+inline void echo_write_to_file(const char * const fname) {
   SERIAL_ECHOLNPAIR(STR_SD_WRITE_TO_FILE, fname);
 }
 
