@@ -113,7 +113,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Guardar na memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carregar da memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Rest. de emergen.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Rest. de emergen.");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT(" Recarregar");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Monitorizar");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");

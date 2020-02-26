@@ -282,7 +282,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Enregistrer config.");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Charger config.");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaurer défauts");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaurer défauts");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialiser EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("MaJ Firmware SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("RaZ imprimante");

@@ -141,7 +141,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCDコントラスト");               // "LCD contrast"
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("EEPROMヘホゾン");               // "Store memory"
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("EEPROMカラヨミコミ");               // "Load memory"
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("セッテイリセット");               // "Restore failsafe"
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("セッテイリセット");               // "Restore Defaults"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("リフレッシュ");                  // "Refresh"
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("ジョウホウガメン");               // "Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("ジュンビセッテイ");               // "Prepare"

@@ -125,7 +125,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Alzar memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Cargar memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaurar memoria");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaurar memoria");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Tornar a cargar");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Informacion");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");

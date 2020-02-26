@@ -252,7 +252,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Salvar Configuração");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Ler Configuração");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restauro seguro");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restauro seguro");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Iniciar EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Atualiz. SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetar Impressora");

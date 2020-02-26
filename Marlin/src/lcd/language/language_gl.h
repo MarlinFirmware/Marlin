@@ -117,7 +117,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Constraste LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gardar en memo.");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Cargar de memo.");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Cargar de firm.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Cargar de firm.");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Volver a cargar");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Monitorizacion");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");

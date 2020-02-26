@@ -84,7 +84,7 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("동작");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("설정 저장하기");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("설정 읽어오기");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("설정 되돌리기");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("설정 되돌리기");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM 초기화");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("새로고침");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("처음으로");
