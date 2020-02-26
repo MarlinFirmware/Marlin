@@ -163,11 +163,11 @@
 
 /**
  *                 _____
- *             5V | · · | GND
- *  (LCD_EN) PB7  | · · | PB8  (LCD_RS)
- *  (LCD_D4) PB9  | · · | PA10 (BTN_EN2)
- *          RESET | · · | PA9  (BTN_EN1)
- * (BTN_ENC) PB6  | · · | PA15 (BEEPER)
+ *             5V |10 5 | GND
+ *  (LCD_EN) PB7  | 9 4 | PB8  (LCD_RS)
+ *  (LCD_D4) PB9    8 3 | PA10 (BTN_EN2)
+ *          RESET | 7 2 | PA9  (BTN_EN1)
+ * (BTN_ENC) PB6  | 6 1 | PA15 (BEEPER)
  *                 -----
  *                 EXP1
  */

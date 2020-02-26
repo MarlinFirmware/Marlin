@@ -187,11 +187,11 @@
 
 /**
  *               _____                                              _____
- *           NC | · · | GND                                     5V | · · | GND
- *        RESET | · · | 1.31 (SD_DETECT)             (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | · · | 3.25 (BTN_EN2)               (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
- * (SD_SS) 0.16 | · · | 3.26 (BTN_EN1)               (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
- *   (SCK) 0.15 | · · | 0.17 (MISO)                 (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
+ *           NC |10 5 | GND                                     5V |10 5 | GND
+ *        RESET | 9 4 | 1.31 (SD_DETECT)             (LCD_D7) 1.23 | 9 4 | 1.22 (LCD_D6)
+ *  (MOSI) 0.18   8 3 | 3.25 (BTN_EN2)               (LCD_D5) 1.21   8 3 | 1.20 (LCD_D4)
+ * (SD_SS) 0.16 | 7 2 | 3.26 (BTN_EN1)               (LCD_RS) 1.19 | 7 2 | 1.18 (LCD_EN)
+ *   (SCK) 0.15 | 6 1 | 0.17 (MISO)                 (BTN_ENC) 0.28 | 6 1 | 1.30 (BEEPER)
  *               -----                                              -----
  *               EXP2                                               EXP1
  */
