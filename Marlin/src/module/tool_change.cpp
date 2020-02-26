@@ -700,7 +700,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
     SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
-    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER);
   }
 #endif
 
@@ -843,7 +843,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
       if (should_swap) {
         if (too_cold) {
-          SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+          SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = new_tool;
             return;
@@ -1073,7 +1073,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // EXTRUDERS > 1
 }

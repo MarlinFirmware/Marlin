@@ -1748,7 +1748,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             position_float.e = target_float.e;
           #endif
           de = 0; // no difference
-          SERIAL_ECHO_MSG(MSG_ERR_COLD_EXTRUDE_STOP);
+          SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
         }
       #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
@@ -1770,7 +1770,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
               position_float.e = target_float.e;
             #endif
             de = 0; // no difference
-            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+            SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
           }
         }
       #endif // PREVENT_LENGTHY_EXTRUDE

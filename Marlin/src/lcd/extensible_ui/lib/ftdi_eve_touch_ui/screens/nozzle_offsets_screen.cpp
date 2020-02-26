@@ -41,7 +41,7 @@ void NozzleOffsetScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(2).units(GET_TEXT_F(MSG_UNITS_MM));
 
-  w.heading(                          GET_TEXT_F(MSG_OFFSETS_MENU));
+  w.heading(                          GET_TEXT_F(STR_OFFSETS_MENU));
   w.color(Theme::x_axis).adjuster(2,  GET_TEXT_F(MSG_AXIS_X), ExtUI::getNozzleOffset_mm(X, E1));
   w.color(Theme::y_axis).adjuster(4,  GET_TEXT_F(MSG_AXIS_Y), ExtUI::getNozzleOffset_mm(Y, E1));
   w.color(Theme::z_axis).adjuster(6,  GET_TEXT_F(MSG_AXIS_Z), ExtUI::getNozzleOffset_mm(Z, E1));

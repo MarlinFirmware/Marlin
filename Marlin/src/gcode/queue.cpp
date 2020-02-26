@@ -163,7 +163,7 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
   if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') return true;
 
   if (_enqueue(cmd)) {
-    SERIAL_ECHO_MSG(MSG_ENQUEUEING, cmd, "\"");
+    SERIAL_ECHO_MSG(STR_ENQUEUEING, cmd, "\"");
     return true;
   }
   return false;
@@ -244,7 +244,7 @@ void GCodeQueue::ok_to_send() {
     PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
-  SERIAL_ECHOPGM(MSG_OK);
+  SERIAL_ECHOPGM(STR_OK);
   #if ENABLED(ADVANCED_OK)
     char* p = command_buffer[index_r];
     if (*p == 'N') {
@@ -270,7 +270,7 @@ void GCodeQueue::flush_and_request_resend() {
     PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
-  SERIAL_ECHOPGM(MSG_RESEND);
+  SERIAL_ECHOPGM(STR_RESEND);
   SERIAL_ECHOLN(last_N + 1);
   ok_to_send();
 }
@@ -397,7 +397,7 @@ void GCodeQueue::get_serial_commands() {
     static millis_t last_command_time = 0;
     const millis_t ms = millis();
     if (length == 0 && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
-      SERIAL_ECHOLNPGM(MSG_WAIT);
+      SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
   #endif
@@ -436,24 +436,24 @@ void GCodeQueue::get_serial_commands() {
           gcode_N = strtol(npos + 1, nullptr, 10);
 
           if (gcode_N != last_N + 1 && !M110)
-            return gcode_line_error(PSTR(MSG_ERR_LINE_NO), i);
+            return gcode_line_error(PSTR(STR_ERR_LINE_NO), i);
 
           char *apos = strrchr(command, '*');
           if (apos) {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
             if (strtol(apos + 1, nullptr, 10) != checksum)
-              return gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH), i);
+              return gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), i);
           }
           else
-            return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
+            return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
 
           last_N = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
           // Pronterface "M29" and "M29 " has no line number
           else if (card.flag.saving && !is_M29(command))
-            return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
+            return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
         #endif
 
         //
@@ -472,7 +472,7 @@ void GCodeQueue::get_serial_commands() {
                 case 5:
               #endif
                 PORT_REDIRECT(i);                      // Reply to the serial port that sent the command
-                SERIAL_ECHOLNPGM(MSG_ERR_STOPPED);
+                SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
             }
@@ -527,7 +527,7 @@ void GCodeQueue::get_serial_commands() {
     while (length < BUFSIZE && !card_eof) {
       const int16_t n = card.get();
       card_eof = card.eof();
-      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(MSG_SD_ERR_READ); continue; }
+      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
 
       const char sd_char = (char)n;
       const bool is_eol = sd_char == '\n' || sd_char == '\r';
@@ -585,7 +585,7 @@ void GCodeQueue::advance() {
       if (is_M29(command)) {
         // M29 closes the file
         card.closefile();
-        SERIAL_ECHOLNPGM(MSG_FILE_SAVED);
+        SERIAL_ECHOLNPGM(STR_FILE_SAVED);
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)

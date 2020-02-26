@@ -278,7 +278,7 @@ bool pin_is_protected(const pin_t pin) {
 }
 
 void protected_pin_err() {
-  SERIAL_ERROR_MSG(MSG_ERR_PROTECTED_PIN);
+  SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);
 }
 
 void quickstop_stepper() {
@@ -461,7 +461,7 @@ void startOrResumeJob() {
           ui.reselect_last_file();
         #endif
 
-        SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);
+        SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
 
       default:
         did_state = false;
@@ -498,7 +498,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
     SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
+    SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
     kill();
   }
 
@@ -563,7 +563,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) {
-      SERIAL_ERROR_MSG(MSG_KILL_BUTTON);
+      SERIAL_ERROR_MSG(STR_KILL_BUTTON);
       kill();
     }
   #endif
@@ -781,7 +781,7 @@ void idle(
 void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
-  SERIAL_ERROR_MSG(MSG_ERR_KILLED);
+  SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
@@ -852,7 +852,7 @@ void stop() {
   #endif
 
   if (IsRunning()) {
-    SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
+    SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
     Running = false;
@@ -958,11 +958,11 @@ void setup() {
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = HAL_get_reset_source();
-  if (mcu &  1) SERIAL_ECHOLNPGM(MSG_POWERUP);
-  if (mcu &  2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
-  if (mcu &  4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
-  if (mcu &  8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
-  if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
+  if (mcu &  1) SERIAL_ECHOLNPGM(STR_POWERUP);
+  if (mcu &  2) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
+  if (mcu &  4) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
+  if (mcu &  8) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
+  if (mcu & 32) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
   serialprintPGM(GET_TEXT(MSG_MARLIN));
@@ -972,15 +972,15 @@ void setup() {
 
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
-      MSG_CONFIGURATION_VER
+      STR_CONFIGURATION_VER
       STRING_DISTRIBUTION_DATE
-      MSG_AUTHOR STRING_CONFIG_H_AUTHOR
+      STR_AUTHOR STRING_CONFIG_H_AUTHOR
     );
     SERIAL_ECHO_MSG("Compiled: " __DATE__);
   #endif
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR(MSG_FREE_MEMORY, freeMemory(), MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
+  SERIAL_ECHOLNPAIR(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).

@@ -365,7 +365,7 @@ void GCodeParser::parse(char *p) {
 #endif // CNC_COORDINATE_SYSTEMS
 
 void GCodeParser::unknown_command_warning() {
-  SERIAL_ECHO_MSG(MSG_UNKNOWN_COMMAND, command_ptr, "\"");
+  SERIAL_ECHO_MSG(STR_UNKNOWN_COMMAND, command_ptr, "\"");
 }
 
 #if ENABLED(DEBUG_GCODE_PARSER)

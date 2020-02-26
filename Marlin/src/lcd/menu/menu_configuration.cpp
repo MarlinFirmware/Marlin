@@ -327,7 +327,7 @@ void menu_configuration() {
     #endif
 
     #if HAS_HOTEND_OFFSET
-      SUBMENU(MSG_OFFSETS_MENU, menu_tool_offsets);
+      SUBMENU(STR_OFFSETS_MENU, menu_tool_offsets);
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)

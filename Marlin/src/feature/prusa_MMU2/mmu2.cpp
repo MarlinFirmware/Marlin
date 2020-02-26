@@ -462,7 +462,7 @@ void MMU2::tool_change(uint8_t index) {
     ENABLE_AXIS_E0();
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(extruder));
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
 
     ui.reset_status();
   }

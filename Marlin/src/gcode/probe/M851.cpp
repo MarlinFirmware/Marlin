@@ -39,9 +39,9 @@ void GcodeSuite::M851() {
   if (!parser.seen("XYZ")) {
     SERIAL_ECHOLNPAIR_P(
       #if HAS_PROBE_XY_OFFSET
-        PSTR(MSG_PROBE_OFFSET " X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR
+        PSTR(STR_PROBE_OFFSET " X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR
       #else
-        PSTR(MSG_PROBE_OFFSET " X0 Y0 Z")
+        PSTR(STR_PROBE_OFFSET " X0 Y0 Z")
       #endif
       , probe.offset.z
     );

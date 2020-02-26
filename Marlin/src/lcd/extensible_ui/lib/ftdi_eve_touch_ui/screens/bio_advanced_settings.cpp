@@ -62,7 +62,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
           1
         #endif
       )
-      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(STR_OFFSETS_MENU))
 
 
       .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))

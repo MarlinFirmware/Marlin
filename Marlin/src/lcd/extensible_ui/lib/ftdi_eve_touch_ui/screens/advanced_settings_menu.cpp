@@ -74,7 +74,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
           1
         #endif
       )
-      .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(4) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(STR_OFFSETS_MENU))
       .enabled(
         #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
           1
@@ -142,7 +142,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
           1
         #endif
       )
-      .tag(4) .button( BTN_POS(1,2),  BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(4) .button( BTN_POS(1,2),  BTN_SIZE(1,1), GET_TEXT_F(STR_OFFSETS_MENU))
       .tag(12).button( BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(5) .button( BTN_POS(2,2),  BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
       .tag(6) .button( BTN_POS(2,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))

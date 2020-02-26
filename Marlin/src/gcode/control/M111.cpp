@@ -28,13 +28,13 @@
 void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  static const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
-                    str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
-                    str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
-                    str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
-                    str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION
+  static const char str_debug_1[] PROGMEM = STR_DEBUG_ECHO,
+                    str_debug_2[] PROGMEM = STR_DEBUG_INFO,
+                    str_debug_4[] PROGMEM = STR_DEBUG_ERRORS,
+                    str_debug_8[] PROGMEM = STR_DEBUG_DRYRUN,
+                    str_debug_16[] PROGMEM = STR_DEBUG_COMMUNICATION
                     #if ENABLED(DEBUG_LEVELING_FEATURE)
-                      , str_debug_lvl[] PROGMEM = MSG_DEBUG_LEVELING
+                      , str_debug_lvl[] PROGMEM = STR_DEBUG_LEVELING
                     #endif
                     ;
 
@@ -46,7 +46,7 @@ void GcodeSuite::M111() {
   };
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOPGM(MSG_DEBUG_PREFIX);
+  SERIAL_ECHOPGM(STR_DEBUG_PREFIX);
   if (marlin_debug_flags) {
     uint8_t comma = 0;
     for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
@@ -57,7 +57,7 @@ void GcodeSuite::M111() {
     }
   }
   else {
-    SERIAL_ECHOPGM(MSG_DEBUG_OFF);
+    SERIAL_ECHOPGM(STR_DEBUG_OFF);
     #if !defined(__AVR__) || !defined(USBCON)
       #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
         SERIAL_ECHOPAIR("\nBuffer Overruns: ", MYSERIAL0.buffer_overruns());

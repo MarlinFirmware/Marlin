@@ -392,7 +392,7 @@ bool Probe::set_deployed(const bool deploy) {
         _BV(X_AXIS)
       #endif
     )) {
-      SERIAL_ERROR_MSG(MSG_STOP_UNHOMED);
+      SERIAL_ERROR_MSG(STR_STOP_UNHOMED);
       stop();
       return true;
     }
@@ -771,7 +771,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   if (isnan(measured_z)) {
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
-    SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
+    SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
   }
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< Probe::probe_at_point");

@@ -120,7 +120,7 @@ static bool ensure_safe_temperature(const PauseMode mode=PAUSE_MODE_SAME) {
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder)) {
-      SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return false;
     }
   #endif
@@ -400,7 +400,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #endif
 
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
-    SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+    SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
 
     #if HAS_LCD_MENU
       if (show_lcd) { // Show status screen
