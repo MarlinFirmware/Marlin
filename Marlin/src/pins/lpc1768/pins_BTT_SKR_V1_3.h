@@ -196,23 +196,23 @@
  *               EXP2                                               EXP1
  */
 
-#define EXPA1_03_PIN          P1_23
-#define EXPA1_04_PIN          P1_22
-#define EXPA1_05_PIN          P1_21
-#define EXPA1_06_PIN          P1_20
-#define EXPA1_07_PIN          P1_19
-#define EXPA1_08_PIN          P1_18
-#define EXPA1_09_PIN          P0_28
-#define EXPA1_10_PIN          P1_30
+#define EXPA1_03_PIN        P1_23
+#define EXPA1_04_PIN        P1_22
+#define EXPA1_05_PIN        P1_21
+#define EXPA1_06_PIN        P1_20
+#define EXPA1_07_PIN        P1_19
+#define EXPA1_08_PIN        P1_18
+#define EXPA1_09_PIN        P0_28
+#define EXPA1_10_PIN        P1_30
 
-#define EXPA2_03_PIN          -1
-#define EXPA2_04_PIN          P1_31
-#define EXPA2_05_PIN          P0_18
-#define EXPA2_06_PIN          P3_25
-#define EXPA2_07_PIN          P0_16
-#define EXPA2_08_PIN          P3_26
-#define EXPA2_09_PIN          P0_15
-#define EXPA2_10_PIN          P0_17
+#define EXPA2_03_PIN        -1
+#define EXPA2_04_PIN        P1_31
+#define EXPA2_05_PIN        P0_18
+#define EXPA2_06_PIN        P3_25
+#define EXPA2_07_PIN        P0_16
+#define EXPA2_08_PIN        P3_26
+#define EXPA2_09_PIN        P0_15
+#define EXPA2_10_PIN        P0_17
 
 #if HAS_SPI_LCD
 
