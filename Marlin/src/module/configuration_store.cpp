@@ -1397,6 +1397,9 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
+        ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_VERSION));
+      #endif
       eeprom_error = true;
     }
     else {
@@ -2205,11 +2208,17 @@ void MarlinSettings::postprocess() {
       if (eeprom_error) {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
+        #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
+          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_INDEX));
+        #endif
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
+          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_CRC));
+        #endif
       }
       else if (!validating) {
         DEBUG_ECHO_START();
@@ -2532,7 +2541,7 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
-    COPY(servo_angles, base_servo_angles);
+    COPY(servo_angles, base_servo_angles);  // When not editable only one copy of servo angles exists
   #endif
 
   //
@@ -3082,7 +3091,7 @@ void MarlinSettings::reset() {
             #endif
           #elif ENABLED(SWITCHING_NOZZLE)
             case SWITCHING_NOZZLE_SERVO_NR:
-          #elif (ENABLED(BLTOUCH) && defined(BLTOUCH_ANGLES)) || (defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR))
+          #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
             case Z_PROBE_SERVO_NR:
           #endif
             CONFIG_ECHO_START();

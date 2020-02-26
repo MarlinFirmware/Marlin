@@ -54,7 +54,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
       eeprom_write_byte(p, v);
       delay(2);
       if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
+        SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
       }
     }

@@ -302,7 +302,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Uložiť nastavenie");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Načítať nastavenie");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Obnoviť nastavenie");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Obnoviť nastavenie");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inicializ. EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aktualizovať z SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reštart. tlačiar.");

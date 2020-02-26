@@ -187,7 +187,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrastea");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gorde memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Kargatu memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Larri. berriz.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Larri. berriz.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM-a hasieratu");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantaila info");

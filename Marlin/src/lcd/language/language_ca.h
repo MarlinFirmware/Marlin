@@ -120,7 +120,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Desa memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carrega memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaura valors");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaura valors");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualitza");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantalla Info.");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");

@@ -327,7 +327,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
         // P indicates number of circles to do
         int8_t circles_to_do = parser.byteval('P');
         if (!WITHIN(circles_to_do, 0, 100))
-          SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+          SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
 
         while (circles_to_do--)
           plan_arc(current_position, arc_offset, clockwise);
@@ -338,7 +338,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       reset_stepper_timeout();
     }
     else
-      SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+      SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
   }
 }
 

@@ -290,7 +290,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD-Kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Konfig. speichern");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Konfig. laden");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Standardwerte laden");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Standardwerte laden");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Werkseinstellungen");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("FW Update vom Medium");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Drucker neustarten");

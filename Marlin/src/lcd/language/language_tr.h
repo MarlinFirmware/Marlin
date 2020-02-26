@@ -266,7 +266,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD Kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Hafızaya Al");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hafızadan Yükle");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Fabrika Ayarları");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Fabrika Ayarları");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM'u başlat");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("SD Güncellemesi");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Yazıcıyı Resetle");

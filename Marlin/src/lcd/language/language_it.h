@@ -310,7 +310,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrasto LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Salva impostazioni");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carica impostazioni");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Ripristina imp.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Ripristina imp.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inizializza EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
@@ -368,7 +368,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Rimuovi filamento");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Rimuovi tutto");
-  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inizializ. media");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Collega media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambia media");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Rilascia media");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe fuori piatto");

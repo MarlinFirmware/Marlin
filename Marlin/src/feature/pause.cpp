@@ -120,7 +120,7 @@ static bool ensure_safe_temperature(const PauseMode mode=PAUSE_MODE_SAME) {
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder)) {
-      SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return false;
     }
   #endif
@@ -175,7 +175,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #if HAS_LCD_MENU
       if (show_lcd) lcd_pause_show_message(PAUSE_MESSAGE_INSERT, mode);
     #endif
-    SERIAL_ECHO_MSG(_PMSG(MSG_FILAMENT_CHANGE_INSERT));
+    SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_INSERT));
 
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
@@ -400,7 +400,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #endif
 
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
-    SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+    SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
 
     #if HAS_LCD_MENU
       if (show_lcd) { // Show status screen
@@ -480,7 +480,7 @@ void show_continue_prompt(const bool is_reload) {
     lcd_pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
   #endif
   SERIAL_ECHO_START();
-  serialprintPGM(is_reload ? PSTR(_PMSG(MSG_FILAMENT_CHANGE_INSERT) "\n") : PSTR(_PMSG(MSG_FILAMENT_CHANGE_WAIT) "\n"));
+  serialprintPGM(is_reload ? PSTR(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : PSTR(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
 
 void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
@@ -530,7 +530,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #if HAS_LCD_MENU
         lcd_pause_show_message(PAUSE_MESSAGE_HEAT);
       #endif
-      SERIAL_ECHO_MSG(_PMSG(MSG_FILAMENT_CHANGE_HEAT));
+      SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("HeaterTimeout"), PSTR("Reheat"));

@@ -138,7 +138,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Αποθήκευση");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Φόρτωση");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ανανέωση");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Οθόνη πληροφόρησης");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Προετοιμασία");

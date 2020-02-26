@@ -2462,9 +2462,9 @@ void Stepper::report_positions() {
   #endif
 
   #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_ECHOPAIR(MSG_COUNT_A, pos.x, " B:", pos.y);
+    SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
   #else
-    SERIAL_ECHOPAIR(MSG_COUNT_X, pos.x, " Y:", pos.y);
+    SERIAL_ECHOPAIR(STR_COUNT_X, pos.x, " Y:", pos.y);
   #endif
   #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
     SERIAL_ECHOLNPAIR(" C:", pos.z);

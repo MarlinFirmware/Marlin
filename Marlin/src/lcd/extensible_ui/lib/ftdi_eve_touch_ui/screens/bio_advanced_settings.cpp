@@ -86,7 +86,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       )
       .tag(12) .button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
       .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
-      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_FAILSAFE))
+      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_DEFAULTS))
       .colors(action_btn)
       .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
     #undef GRID_COLS

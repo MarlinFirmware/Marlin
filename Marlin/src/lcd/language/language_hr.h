@@ -98,7 +98,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD-a");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Pohrani u memoriju");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Učitaj memoriju");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Učitaj failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Učitaj Defaults");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Osvježi");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info screen");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Pripremi");
