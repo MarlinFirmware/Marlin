@@ -171,14 +171,15 @@
  *                 -----
  *                 EXP1
  */
-#define EXPA1_10_PIN         PA15
-#define EXPA1_08_PIN         PA9
-#define EXPA1_06_PIN         PA10
-#define EXPA1_04_PIN         PB8
-#define EXPA1_09_PIN         PB6
-#define EXPA1_07_PIN         -1
-#define EXPA1_05_PIN         PB9
+
 #define EXPA1_03_PIN         PB7
+#define EXPA1_04_PIN         PB8
+#define EXPA1_05_PIN         PB9
+#define EXPA1_06_PIN         PA10
+#define EXPA1_07_PIN         -1
+#define EXPA1_08_PIN         PA9
+#define EXPA1_09_PIN         PB6
+#define EXPA1_10_PIN         PA15
 
 #if HAS_SPI_LCD
   #define BTN_ENC          EXPA1_09_PIN
