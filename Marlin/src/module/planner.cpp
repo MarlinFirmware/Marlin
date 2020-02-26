@@ -2397,8 +2397,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       LOOP_XYZE(i)
     #endif
     {
-      const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
-                  maxj = max_jerk[i];             // mj : The max jerk setting for this axis
+      const float jerk = ABS(current_speed[i]);   // cs : Starting from zero, change in speed for this axis
+
+      float maxj = max_jerk[i];                   // mj : The max jerk setting for this axis
+
+      #ifdef TRAVEL_EXTRA_XYJERK
+        if ((TRAVEL_EXTRA_XYJERK) && !de <= 0 && (i == X_AXIS || i == Y_AXIS))
+          maxj += TRAVEL_EXTRA_XYJERK;            // Extra jerk allowance for travel moves
+      #endif
+
       if (jerk > maxj) {                          // cs > mj : New current speed too fast?
         if (limited) {                            // limited already?
           const float mjerk = nominal_speed * maxj; // ns*mj
