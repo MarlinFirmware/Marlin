@@ -937,6 +937,8 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
+  ui.reset_status();        // Load welcome message early so its retained if no errors exist
+
   #if ENABLED(SDSUPPORT)
     card.mount(); // Mount the SD card before settings.first_load
   #endif
@@ -961,7 +963,9 @@ void setup() {
 
   print_job_timer.init();   // Initial setup of print job timer
 
-  ui.reset_status();        // Print startup message after print statistics are loaded
+  #if HAS_SERVICE_INTERVALS
+    ui.reset_status(true);        // Run again to get service interval messages if required
+  #endif
 
   endstops.init();          // Init endstops and pullups
 
