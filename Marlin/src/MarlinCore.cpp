@@ -884,6 +884,14 @@ void setup() {
     #endif
   #endif
 
+  // HACK: This hack re-establishes PC12 (PT-DET) pin for filament runout
+  // Currently there is an issue with the generic board that is forcing this to
+  // be a serial port.
+  #if HAS_FILAMENT_SENSOR
+    runout.setup();
+  #endif
+
+
   SERIAL_ECHOLNPGM("start");
   SERIAL_ECHO_START();
 
