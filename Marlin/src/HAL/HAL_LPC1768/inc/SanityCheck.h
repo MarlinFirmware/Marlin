@@ -76,3 +76,52 @@
 #if ENABLED(BAUD_RATE_GCODE)
   #error "BAUD_RATE_GCODE is not yet supported on LPC176x."
 #endif
+
+/**
+ * Flag any serial port conflicts
+ *
+ *   Port  |  TX   |  RX   |
+ *    ---  |  ---  |  ---  |
+ * Serial  | P0_02 | P0_03 |
+ * Serial1 | P0_15 | P0_16 |
+ * Serial2 | P0_10 | P0_11 |
+ * Serial3 | P0_00 | P0_01 |
+ */
+#if (defined(SERIAL_PORT) && SERIAL_PORT == 0) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 0) || (defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT == 0)
+  #if  X_CS_PIN == P0_02 || TMC_SW_MISO == P0_02 || (E_STEPPERS && E_MUX1_PIN == P0_02) \
+    || Y_CS_PIN == P0_03 || TMC_SW_MOSI == P0_03 || (E_STEPPERS && E_MUX0_PIN == P0_03)
+    #error "Serial port assignment (0) conflicts with other pins!"
+  #endif
+#endif
+
+#if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || DGUS_SERIAL_PORT == 1
+  #if TMC_SW_SCK == P0_15
+    #error "Serial port assignment (1) conflicts with other pins!"
+  #elif HAS_SPI_LCD
+    #if  BTN_EN2 == P0_15 || SCK_PIN == P0_15 || LCD_PINS_D4 == P0_15 || DOGLCD_SCK == P0_15 || LCD_RESET_PIN == P0_15 || LCD_PINS_RS == P0_15 || SHIFT_CLK == P0_15 \
+      || BTN_EN1 == P0_16 || LCD_SDSS == P0_16 || LCD_PINS_RS == P0_16 || MISO_PIN == P0_16 || DOGLCD_A0 == P0_16 || SS_PIN == P0_16 || LCD_SDSS == P0_16 || DOGLCD_CS == P0_16 || LCD_RESET_PIN == P0_16 || LCD_BACKLIGHT_PIN == P0_16
+      #error "Serial port assignment (1) conflicts with other pins!"
+    #endif
+  #endif
+#endif
+
+#if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || DGUS_SERIAL_PORT == 2
+  #if  Y_MIN_PIN == P0_10 || Z_MIN_PROBE_PIN == P0_10 \
+    || X_ENABLE_PIN == P0_10 || Y_ENABLE_PIN == P0_10 || X2_ENABLE_PIN == P0_10 || Y2_ENABLE_PIN == P0_10 || Z2_ENABLE_PIN == P0_10 || Z3_ENABLE_PIN == P0_10 || Z4_ENABLE_PIN == P0_10 \
+    || X2_CS_PIN == P0_10 || Y2_CS_PIN == P0_10 || Z2_CS_PIN == P0_10 || Z3_CS_PIN == P0_10 || Z4_CS_PIN == P0_10 \
+    || X_DIR_PIN == P0_11 || Y_DIR_PIN == P0_11 || X2_DIR_PIN == P0_11 || Y2_DIR_PIN == P0_11 || Z2_DIR_PIN == P0_11 || Z3_DIR_PIN == P0_11 || Z4_DIR_PIN == P0_11 \
+    || X2_STEP_PIN == P0_11 || Y2_STEP_PIN == P0_11 || Z2_STEP_PIN == P0_11 || Z3_STEP_PIN == P0_11 || Z4_STEP_PIN == P0_11
+    #error "Serial port assignment (2) conflicts with other pins!"
+  #elif  (E_STEPPERS > 1 && (E1_ENABLE_PIN == P0_10 || E1_CS_PIN == P0_10)) || (E_STEPPERS > 0 && (E0_DIR_PIN == P0_11 || E0_STEP_PIN == P0_11))
+    #error "Serial port assignment (2) conflicts with other pins!"
+  #endif
+#endif
+
+#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || DGUS_SERIAL_PORT == 3
+  #if  X_MIN_PIN == P0_00 || Y_SERIAL_TX_PIN == P0_00 || Y_SERIAL_RX_PIN == P0_00 \
+    || X_MAX_PIN == P0_01 || X_SERIAL_TX_PIN == P0_01 || X_SERIAL_RX_PIN == P0_01
+    #error "Serial port assignment (2) conflicts with other pins!"
+  #elif E_STEPPERS > 1 && (E1_DIR_PIN == P0_00 || E1_STEP_PIN == P0_01)
+    #error "Serial port assignment (2) conflicts with other pins!"
+  #endif
+#endif
