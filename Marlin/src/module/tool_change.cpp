@@ -46,7 +46,7 @@
 #endif
 
 #if ENABLED(MAGNETIC_PARKING_EXTRUDER) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
-  #include "../gcode/gcode.h" // for dwell()
+  #include "../gcode/gcode.h"
 #endif
 
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
