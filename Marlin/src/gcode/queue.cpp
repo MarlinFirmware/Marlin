@@ -512,9 +512,10 @@ void GCodeQueue::get_serial_commands() {
 #if ENABLED(SDSUPPORT)
 
   /**
-   * Get commands from the SD Card until the command buffer is full
-   * or until the end of the file is reached. The special character '#'
-   * can also interrupt buffering.
+   * Get lines from the SD Card until the command buffer is full
+   * or until the end of the file is reached. Because this method
+   * always receives complete command-lines, they can go directly
+   * into the main command queue.
    */
   inline void GCodeQueue::get_sdcard_commands() {
     static uint8_t sd_input_state = PS_NORMAL;
@@ -527,37 +528,21 @@ void GCodeQueue::get_serial_commands() {
       const int16_t n = card.get();
       card_eof = card.eof();
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(MSG_SD_ERR_READ); continue; }
+
       const char sd_char = (char)n;
-      if (sd_char == '\n' || sd_char == '\r' || card_eof) {
+      const bool is_eol = sd_char == '\n' || sd_char == '\r';
+      if (is_eol || card_eof) {
 
         // Reset stream state, terminate the buffer, and commit a non-empty command
+        if (!is_eol && sd_count) ++sd_count;          // End of file with no newline
         if (!process_line_done(sd_input_state, command_buffer[index_w], sd_count)) {
-          _commit_command(false);                     // Can handle last line missing a newline terminator
+          _commit_command(false);
           #if ENABLED(POWER_LOSS_RECOVERY)
-            recovery.cmd_sdpos = card.getIndex();     // Prime for the next _commit_command
+            recovery.cmd_sdpos = card.getIndex();     // Prime for the NEXT _commit_command
           #endif
         }
 
-        if (card_eof) {
-
-          card.fileHasFinished();                     // Handle end of file reached
-
-          if (!IS_SD_PRINTING()) {                    // Was it the main job file?
-            SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);       // Tell the host the file is printed.
-            #if ENABLED(PRINTER_EVENT_LEDS)
-              printerEventLEDs.onPrintCompleted();    // Change LED color for Print Completed
-              #if HAS_RESUME_CONTINUE
-                enqueue_now_P(PSTR("M0 S"             // Display "Click to Continue..."
-                  #if HAS_LCD_MENU
-                    "1800"                            // ...for 30 minutes with LCD
-                  #else
-                    "60"                              // ...for 1 minute with no LCD
-                  #endif
-                ));
-              #endif
-            #endif
-          }
-        }
+        if (card_eof) card.fileHasFinished();         // Handle end of file reached
       }
       else
         process_stream_char(sd_char, sd_input_state, command_buffer[index_w], sd_count);
@@ -633,9 +618,7 @@ void GCodeQueue::advance() {
   #endif // SDSUPPORT
 
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
-  if (length) {
-    --length;
-    if (++index_r >= BUFSIZE) index_r = 0;
-  }
+  --length;
+  if (++index_r >= BUFSIZE) index_r = 0;
 
 }

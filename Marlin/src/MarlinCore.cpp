@@ -390,8 +390,8 @@ void startOrResumeJob() {
 
 #if ENABLED(SDSUPPORT)
 
-  void abortSDPrinting() {
-    card.stopSDPrint(
+  inline void abortSDPrinting() {
+    card.endFilePrint(
       #if SD_RESORT
         true
       #endif
@@ -412,10 +412,68 @@ void startOrResumeJob() {
     #endif
   }
 
-#endif
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    #include "feature/leds/printer_event_leds.h"
+  #endif
+
+  inline void finishSDPrinting() {
+    bool did_state = true;
+    switch (card.sdprinting_done_state) {
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        case 1:
+          printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
+          break;
+      #endif
+
+      #if HAS_RESUME_CONTINUE                   // Display "Click to Continue..."
+        case 2:
+          did_state = queue.enqueue_P(PSTR("M0 S"
+            #if HAS_LCD_MENU
+              "1800"                            // ...for 30 minutes with LCD
+            #else
+              "60"                              // ...for 1 minute with no LCD
+            #endif
+          ));
+          break;
+      #endif
+
+      case 3: print_job_timer.stop(); break;
+
+      case 4:
+        did_state = print_job_timer.duration() < 60 || queue.enqueue_P(PSTR("M31"));
+        break;
+
+      case 5:
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.purge();
+        #endif
+
+        #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+          planner.finish_and_disable();
+        #endif
+
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+          ui.set_progress_done();
+        #endif
+
+        #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+          ui.reselect_last_file();
+        #endif
+
+        SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);
+
+      default:
+        did_state = false;
+        card.sdprinting_done_state = 0;
+    }
+    if (did_state) ++card.sdprinting_done_state;
+  }
+
+#endif // SDSUPPORT
 
 /**
- * Manage several activities:
+ * Minimal management of Marlin's core activities:
  *  - Check for Filament Runout
  *  - Keep the command buffer full
  *  - Check for maximum inactive time between commands
@@ -1122,10 +1180,15 @@ void setup() {
 /**
  * The main Marlin program loop
  *
- *  - Save or log commands to SD
- *  - Process available commands (if not saving)
- *  - Call endstop manager
- *  - Call inactivity manager
+ *  - Call idle() to handle all tasks between G-code commands
+ *      Note that no G-codes from the queue can be executed during idle()
+ *      but many G-codes can be called directly anytime like macros.
+ *  - Check whether SD card auto-start is needed now.
+ *  - Check whether SD print finishing is needed now.
+ *  - Run one G-code command from the immediate or main command queue
+ *    and open up one space. Commands in the main queue may come from sd
+ *    card, host, or by direct injection. The queue will continue to fill
+ *    as long as idle() or manage_inactivity() are being called.
  */
 void loop() {
   do {
@@ -1135,6 +1198,7 @@ void loop() {
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
       if (card.flag.abort_sd_printing) abortSDPrinting();
+      if (card.sdprinting_done_state) finishSDPrinting();
     #endif
 
     queue.advance();

@@ -28,7 +28,7 @@
 
 #include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
-#include "../module/planner.h"
+#include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
@@ -49,6 +49,7 @@
 // public:
 
 card_flags_t CardReader::flag;
+uint8_t CardReader::sdprinting_done_state;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 int8_t CardReader::autostart_index;
 
@@ -379,7 +380,7 @@ void CardReader::mount() {
 }
 
 void CardReader::release() {
-  stopSDPrint();
+  endFilePrint();
   flag.mounted = false;
 }
 
@@ -401,7 +402,7 @@ void CardReader::startFileprint() {
   }
 }
 
-void CardReader::stopSDPrint(
+void CardReader::endFilePrint(
   #if SD_RESORT
     const bool re_sort/*=false*/
   #endif
@@ -501,7 +502,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
       break;
   }
 
-  stopSDPrint();
+  endFilePrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(true, curDir, path);
@@ -529,7 +530,7 @@ void CardReader::openFileWrite(char * const path) {
   announceOpen(2, path);
   file_subcall_ctr = 0;
 
-  stopSDPrint();
+  endFilePrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(false, curDir, path);
@@ -554,7 +555,7 @@ void CardReader::openFileWrite(char * const path) {
 void CardReader::removeFile(const char * const name) {
   if (!isMounted()) return;
 
-  //stopSDPrint();
+  //endFilePrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(false, curDir, name);
@@ -937,7 +938,7 @@ void CardReader::cdroot() {
           bool didSwap = false;
           uint8_t o1 = sort_order[0];
           #if DISABLED(SDSORT_USES_RAM)
-            selectFileByIndex(o1);                // Pre-fetch the first entry and save it
+            selectFileByIndex(o1);              // Pre-fetch the first entry and save it
             strcpy(name1, longest_filename());  // so the loop only needs one fetch
             #if HAS_FOLDER_SORTING
               bool dir1 = flag.filenameIsDir;
@@ -1073,30 +1074,13 @@ void CardReader::fileHasFinished() {
     startFileprint();
   }
   else {
-    stopSDPrint();
-
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      recovery.purge();
-    #endif
-
-    #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-      planner.finish_and_disable();
-    #endif
-
-    print_job_timer.stop();
-    queue.enqueue_now_P(print_job_timer.duration() > 60 ? PSTR("M31") : PSTR("M117"));
+    endFilePrint();
 
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
 
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      ui.set_progress_done();
-    #endif
-
-    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-      ui.reselect_last_file();
-    #endif
+    sdprinting_done_state = 1;
   }
 }
 
