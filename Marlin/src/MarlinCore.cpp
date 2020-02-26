@@ -937,35 +937,27 @@ void setup() {
     ui.show_bootscreen();
   #endif
 
-  ui.reset_status();        // Load welcome message early so its retained if no errors exist
+  ui.reset_status();        // Load welcome message early. (Retained if no errors exist.)
 
   #if ENABLED(SDSUPPORT)
-    card.mount(); // Mount the SD card before settings.first_load
+    card.mount();           // Mount the SD card before settings.first_load
   #endif
-
-  // Load data from EEPROM if available (or use defaults)
-  // This also updates variables in the planner, elsewhere
-  settings.first_load();
+                            // Load data from EEPROM if available (or use defaults)
+  settings.first_load();    // This also updates variables in the planner, elsewhere
 
   #if ENABLED(TOUCH_BUTTONS)
     touch.init();
   #endif
 
-  #if HAS_M206_COMMAND
-    // Initialize current position based on home_offset
+  #if HAS_M206_COMMAND      // Initialize current position based on home_offset
     current_position += home_offset;
   #endif
 
-  // Vital to init stepper/planner equivalent for current_position
-  sync_plan_position();
+  sync_plan_position();     // Vital to init stepper/planner equivalent for current_position
 
   thermalManager.init();    // Initialize temperature loop
 
   print_job_timer.init();   // Initial setup of print job timer
-
-  #if HAS_SERVICE_INTERVALS
-    ui.reset_status(true);        // Run again to get service interval messages if required
-  #endif
 
   endstops.init();          // Init endstops and pullups
 
@@ -1120,6 +1112,10 @@ void setup() {
 
   #if ENABLED(PRUSA_MMU2)
     mmu2.init();
+  #endif
+
+  #if HAS_SERVICE_INTERVALS
+    ui.reset_status(true);  // Show service messages or keep current status
   #endif
 }
 

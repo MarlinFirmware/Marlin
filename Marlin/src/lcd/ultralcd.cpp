@@ -1453,7 +1453,7 @@ void MarlinUI::update() {
   /**
    * Reset the status message
    */
-  void MarlinUI::reset_status(bool no_welcome) {
+  void MarlinUI::reset_status(const bool no_welcome) {
     PGM_P printing = GET_TEXT(MSG_PRINTING);
     PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0

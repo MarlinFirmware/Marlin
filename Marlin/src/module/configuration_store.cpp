@@ -1398,7 +1398,7 @@ void MarlinSettings::postprocess() {
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
-        ui.set_status("EEPROM version mismatch");
+        ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_VERSION));
       #endif
       eeprom_error = true;
     }
@@ -2209,7 +2209,7 @@ void MarlinSettings::postprocess() {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
         #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
-          ui.set_status("EEPROM Index Error");
+          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_INDEX));
         #endif
       }
       else if (working_crc != stored_crc) {
@@ -2217,7 +2217,7 @@ void MarlinSettings::postprocess() {
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
-          ui.set_status("EEPROM CRC mismatch");
+          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_CRC));
         #endif
       }
       else if (!validating) {
