@@ -391,7 +391,7 @@ void startOrResumeJob() {
 #if ENABLED(SDSUPPORT)
 
   inline void abortSDPrinting() {
-    card.stopSDPrint(
+    card.endFilePrint(
       #if SD_RESORT
         true
       #endif

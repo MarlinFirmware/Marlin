@@ -380,7 +380,7 @@ void CardReader::mount() {
 }
 
 void CardReader::release() {
-  stopSDPrint();
+  endFilePrint();
   flag.mounted = false;
 }
 
@@ -402,7 +402,7 @@ void CardReader::startFileprint() {
   }
 }
 
-void CardReader::stopSDPrint(
+void CardReader::endFilePrint(
   #if SD_RESORT
     const bool re_sort/*=false*/
   #endif
@@ -502,7 +502,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
       break;
   }
 
-  stopSDPrint();
+  endFilePrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(true, curDir, path);
@@ -530,7 +530,7 @@ void CardReader::openFileWrite(char * const path) {
   announceOpen(2, path);
   file_subcall_ctr = 0;
 
-  stopSDPrint();
+  endFilePrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(false, curDir, path);
@@ -555,7 +555,7 @@ void CardReader::openFileWrite(char * const path) {
 void CardReader::removeFile(const char * const name) {
   if (!isMounted()) return;
 
-  //stopSDPrint();
+  //endFilePrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(false, curDir, name);
@@ -938,7 +938,7 @@ void CardReader::cdroot() {
           bool didSwap = false;
           uint8_t o1 = sort_order[0];
           #if DISABLED(SDSORT_USES_RAM)
-            selectFileByIndex(o1);                // Pre-fetch the first entry and save it
+            selectFileByIndex(o1);              // Pre-fetch the first entry and save it
             strcpy(name1, longest_filename());  // so the loop only needs one fetch
             #if HAS_FOLDER_SORTING
               bool dir1 = flag.filenameIsDir;
@@ -1074,7 +1074,7 @@ void CardReader::fileHasFinished() {
     startFileprint();
   }
   else {
-    stopSDPrint();
+    endFilePrint();
 
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();

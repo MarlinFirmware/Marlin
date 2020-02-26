@@ -109,9 +109,9 @@ public:
   static void openAndPrintFile(const char *name);   // (working directory)
   static void fileHasFinished();
   static void getAbsFilename(char *dst);
-  static void startFileprint();
   static void printFilename();
-  static void stopSDPrint(
+  static void startFileprint();
+  static void endFilePrint(
     #if SD_RESORT
       const bool re_sort=false
     #endif
