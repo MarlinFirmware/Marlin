@@ -121,7 +121,7 @@ void GcodeSuite::G76() {
       return;
     }
 
-    G28(true);
+    process_subcommands_now_P(PSTR("G28"));
   }
 
   /******************************************
