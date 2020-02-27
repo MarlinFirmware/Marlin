@@ -137,11 +137,7 @@ void GcodeSuite::G76() {
     while (thermalManager.degBed() > target_bed
       || thermalManager.degProbe() > target_probe
     ) {
-      idle(
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          true
-        #endif
-      );
+      idle_no_sleep();
       const millis_t ms = millis();
       if (ELAPSED(ms, next_temp_report)) {
         thermalManager.print_heater_states(active_extruder);
@@ -167,11 +163,7 @@ void GcodeSuite::G76() {
       SERIAL_ECHOLNPGM("Waiting for bed and probe to reach target temp.");
       const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
       while (fabs(thermalManager.degBed() - float(target_bed)) > 0.1 || thermalManager.degProbe() > target_probe) {
-        idle(
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            true
-          #endif
-        );
+        idle_no_sleep();
         const millis_t ms = millis();
         if (ELAPSED(ms, next_temp_report)) {
           thermalManager.print_heater_states(active_extruder);
@@ -191,11 +183,7 @@ void GcodeSuite::G76() {
       do_blocking_move_to(destination);
       SERIAL_ECHOLNPGM("Waiting for probe heating.");
       while (thermalManager.degProbe() < target_probe) {
-        idle(
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            true
-          #endif
-        );
+        idle_no_sleep();
         const millis_t ms = millis();
         if (ELAPSED(ms, next_temp_report)) {
           thermalManager.print_heater_states(active_extruder);
@@ -262,11 +250,7 @@ void GcodeSuite::G76() {
     while (fabs(thermalManager.degBed() - float(target_bed)) > 0.1f
            || thermalManager.degProbe() > target_probe
     ) {
-      idle(
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          true
-        #endif
-      );
+      idle_no_sleep();
       const millis_t ms = millis();
       if (ELAPSED(ms, next_temp_report)) {
         thermalManager.print_heater_states(active_extruder);
@@ -293,11 +277,7 @@ void GcodeSuite::G76() {
 
       const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
       while (thermalManager.degProbe() < target_probe) {
-        idle(
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            true
-          #endif
-        );
+        idle_no_sleep();
         const millis_t ms = millis();
         if (ELAPSED(ms, next_temp_report)) {
           thermalManager.print_heater_states(active_extruder);
