@@ -101,6 +101,8 @@ void GcodeSuite::G76() {
   // Report temperatures every second and handle heating timeouts
   millis_t next_temp_report = millis() + 1000;
 
+  const xy_pos_t ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y };
+
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
     if (!position_is_reachable(temp_comp.park_point_x, temp_comp.park_point_y)
@@ -110,17 +112,18 @@ void GcodeSuite::G76() {
       return;
     }
     // Ensure probe position is reachable
-    destination.set(
-      temp_comp.measure_point_x - probe.offset_xy.x,
-      temp_comp.measure_point_y - probe.offset_xy.y
-    );
-    if (!probe.can_reach(destination)) {
+    if (!probe.can_reach(ppos)) {
       SERIAL_ECHOLNPGM("!Probe position unreachable - aborting.");
       return;
     }
 
     process_subcommands_now_P(PSTR("G28"));
   }
+
+  remember_feedrate_scaling_off();
+
+  // Nozzle position based on probe position
+  const xy_pos_t noz_pos = ppos - probe.offset_xy;
 
   /******************************************
    * Calibrate bed temperature offsets
@@ -175,8 +178,7 @@ void GcodeSuite::G76() {
       if (timeout) break;
 
       // Move the nozzle to the probing point and wait for the probe to reach target temp
-      destination.set(temp_comp.measure_point_x, temp_comp.measure_point_y);
-      do_blocking_move_to(destination);
+      do_blocking_move_to_xy(noz_pos);
       SERIAL_ECHOLNPGM("Waiting for probe heating.");
       while (thermalManager.degProbe() < target_probe) {
         idle_no_sleep();
@@ -188,14 +190,10 @@ void GcodeSuite::G76() {
       }
 
       // Raise nozzle before probing
-      destination.z = 5.0;
-      do_blocking_move_to_z(destination.z);
+      do_blocking_move_to_z(5.0);
 
       // Do a single probe at the current position
-      remember_feedrate_scaling_off();
-      const xy_pos_t probe_xy = destination + probe.offset_xy;
-      const float measured_z = probe.probe_at_point(probe_xy, PROBE_PT_NONE);
-      restore_feedrate_and_scaling();
+      const float measured_z = probe.probe_at_point(noz_pos, PROBE_PT_NONE, 0, false);  // verbose=0, probe_relative=false
 
       if (isnan(measured_z)) {
         SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
@@ -261,8 +259,7 @@ void GcodeSuite::G76() {
     bool timeout = false;
     for (;;) {
       // Move probe to probing point and wait for it to reach target temperature
-      destination.set(temp_comp.measure_point_x, temp_comp.measure_point_y);
-      do_blocking_move_to(destination);
+      do_blocking_move_to_xy(noz_pos);
 
       SERIAL_ECHOLNPAIR("Waiting for probe heating. Bed:", target_bed, " Probe:", target_probe);
 
@@ -284,14 +281,10 @@ void GcodeSuite::G76() {
       if (timeout) break;
 
       // Raise nozzle before probing
-      destination.z = 5.0;
-      do_blocking_move_to_z(destination.z);
+      do_blocking_move_to_z(5.0);
 
       // Do a single probe
-      remember_feedrate_scaling_off();
-      const xy_pos_t probe_xy = destination + probe.offset_xy;
-      const float measured_z = probe.probe_at_point(probe_xy, PROBE_PT_NONE);
-      restore_feedrate_and_scaling();
+      const float measured_z = probe.probe_at_point(noz_pos, PROBE_PT_NONE, 0, false);  // verbose=0, probe_relative=false
 
       if (isnan(measured_z)) {
         SERIAL_ECHOLNPGM("!Received NAN measurement - aborting.");
@@ -325,6 +318,8 @@ void GcodeSuite::G76() {
     SERIAL_ECHOLNPGM("Final compensation values:");
     temp_comp.print_offsets();
   } // do_probe_cal
+
+  restore_feedrate_and_scaling();
 }
 
 /**
