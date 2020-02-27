@@ -386,7 +386,7 @@ void Endstops::event_handler() {
     #define ENDSTOP_HIT_TEST_Z() _ENDSTOP_HIT_TEST(Z,'Z')
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
+    SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
     ENDSTOP_HIT_TEST_X();
     ENDSTOP_HIT_TEST_Y();
     ENDSTOP_HIT_TEST_Z();
@@ -403,7 +403,7 @@ void Endstops::event_handler() {
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
-        card.stopSDPrint();
+        card.endFilePrint();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
         print_job_timer.stop();
@@ -415,7 +415,7 @@ void Endstops::event_handler() {
 static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   if (label) serialprintPGM(label);
   SERIAL_ECHOPGM(": ");
-  serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
+  serialprintPGM(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
   SERIAL_EOL();
 }
 
@@ -423,8 +423,8 @@ void _O2 Endstops::report_states() {
   #if ENABLED(BLTOUCH)
     bltouch._set_SW_mode();
   #endif
-  SERIAL_ECHOLNPGM(MSG_M119_REPORT);
-  #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
+  SERIAL_ECHOLNPGM(STR_M119_REPORT);
+  #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(STR_##S))
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
   #endif
@@ -474,11 +474,11 @@ void _O2 Endstops::report_states() {
     ES_REPORT(Z4_MAX);
   #endif
   #if HAS_CUSTOM_PROBE_PIN
-    print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
+    print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(STR_Z_PROBE));
   #endif
   #if HAS_FILAMENT_SENSOR
     #if NUM_RUNOUT_SENSORS == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(MSG_FILAMENT_RUNOUT_SENSOR));
+      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
     #else
       #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
       for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; i++) {
@@ -487,7 +487,7 @@ void _O2 Endstops::report_states() {
           default: continue;
           REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
         }
-        SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
+        SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) SERIAL_CHAR(' ', '0' + i);
         print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
       }

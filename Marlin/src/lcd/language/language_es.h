@@ -284,7 +284,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Guardar EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Cargar EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Rest. fábrica");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Rest. fábrica");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inicializar EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Actualizar SD/USB");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetear Impresora");

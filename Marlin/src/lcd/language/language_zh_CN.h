@@ -240,7 +240,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD对比度");     //"LCD contrast"
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("保存设置");     //"Store memory"
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("装载设置");     //"Load memory"
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("恢复安全值");     //"Restore failsafe"
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("恢复安全值");     //"Restore Defaults"
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("初始化设置");     // "Initialize EEPROM"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("刷新");     //"Refresh"
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"

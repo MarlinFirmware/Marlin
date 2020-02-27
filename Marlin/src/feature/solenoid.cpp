@@ -67,7 +67,7 @@ static void set_solenoid(const uint8_t num, const bool active) {
         break;
     #endif
     default:
-      SERIAL_ECHO_MSG(MSG_INVALID_SOLENOID);
+      SERIAL_ECHO_MSG(STR_INVALID_SOLENOID);
       break;
   }
 }

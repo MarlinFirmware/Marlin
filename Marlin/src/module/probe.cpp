@@ -392,7 +392,7 @@ bool Probe::set_deployed(const bool deploy) {
         _BV(X_AXIS)
       #endif
     )) {
-      SERIAL_ERROR_MSG(MSG_STOP_UNHOMED);
+      SERIAL_ERROR_MSG(STR_STOP_UNHOMED);
       stop();
       return true;
     }
@@ -559,7 +559,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
-float Probe::run_z_probe() {
+float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::run_z_probe", current_position);
 
@@ -572,7 +572,7 @@ float Probe::run_z_probe() {
 
     // Do a first probe at the fast speed
     if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))         // No probe trigger?
-      || current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2  // Probe triggered too high?
+      || (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2)  // Probe triggered too high?
     ) {
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOLNPGM("FAST Probe fail!");
@@ -617,7 +617,7 @@ float Probe::run_z_probe() {
     {
       // Probe downward slowly to find the bed
       if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))      // No probe trigger?
-        || current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2  // Probe triggered too high?
+        || (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2)  // Probe triggered too high?
       ) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("SLOW Probe fail!");
@@ -709,7 +709,7 @@ float Probe::run_z_probe() {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
+float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPAIR(
       ">>> Probe::probe_at_point(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
@@ -751,7 +751,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   do_blocking_move_to(npos);
 
   float measured_z = NAN;
-  if (!deploy()) measured_z = run_z_probe() + offset.z;
+  if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
@@ -771,7 +771,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   if (isnan(measured_z)) {
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
-    SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
+    SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
   }
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< Probe::probe_at_point");

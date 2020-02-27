@@ -117,6 +117,12 @@ public:
    */
   static void flush_and_request_resend();
 
+  /**
+   * Attempt to enqueue a single G-code command
+   * and return 'true' if successful.
+   */
+  FORCE_INLINE static bool enqueue_P(const char* cmd) { return _enqueue(cmd); }
+
 private:
 
   static uint8_t index_w;  // Ring buffer write position

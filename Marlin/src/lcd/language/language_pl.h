@@ -298,7 +298,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Zapisz w pamięci");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Wczytaj z pamięci");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Ustaw. fabryczne");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Ustaw. fabryczne");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initializuj EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Uaktualnij kartę");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetuj drukarkę");

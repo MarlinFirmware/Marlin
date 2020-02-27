@@ -276,7 +276,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Контраст LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Сохранить настройки");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Загрузить настройки");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Вернуть настройки");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Вернуть настройки");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Изначальный EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Обновление прошивки");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Сброс принтера");

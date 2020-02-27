@@ -45,7 +45,7 @@ void GcodeSuite::G5() {
 
     #if ENABLED(CNC_WORKSPACE_PLANES)
       if (workspace_plane != PLANE_XY) {
-        SERIAL_ERROR_MSG(MSG_ERR_BAD_PLANE_MODE);
+        SERIAL_ERROR_MSG(STR_ERR_BAD_PLANE_MODE);
         return;
       }
     #endif

@@ -310,7 +310,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Uložit nastavení");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Načíst nastavení");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Obnovit výchozí");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Obnovit výchozí");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inic. EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aktualizace z SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset tiskárny");
