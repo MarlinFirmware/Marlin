@@ -27,6 +27,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "motion.h"
+
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
@@ -45,6 +47,39 @@ public:
 
     static bool set_deployed(const bool deploy);
 
+
+    #if IS_KINEMATIC
+
+      #if HAS_PROBE_XY_OFFSET
+        // Return true if the both nozzle and the probe can reach the given point.
+        // Note: This won't work on SCARA since the probe offset rotates with the arm.
+        static inline bool can_reach(const float &rx, const float &ry) {
+          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
+              && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));       // Can the nozzle also go near there?
+        }
+      #else
+        FORCE_INLINE static bool can_reach(const float &rx, const float &ry) {
+          return position_is_reachable(rx, ry, MIN_PROBE_EDGE);
+        }
+      #endif
+
+    #else
+
+      /**
+       * Return whether the given position is within the bed, and whether the nozzle
+       * can reach the position required to put the probe at the given position.
+       *
+       * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
+       *          nozzle must be be able to reach +10,-10.
+       */
+      static inline bool can_reach(const float &rx, const float &ry) {
+        return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
+            && WITHIN(rx, min_x() - fslop, max_x() + fslop)
+            && WITHIN(ry, min_y() - fslop, max_y() + fslop);
+      }
+
+    #endif
+
     #ifdef Z_AFTER_PROBING
       static void move_z_after_probing();
     #endif
@@ -62,7 +97,21 @@ public:
 
     static bool set_deployed(const bool) { return false; }
 
+    FORCE_INLINE static bool can_reach(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
+
   #endif
+
+  FORCE_INLINE static bool can_reach(const xy_pos_t &pos) { return can_reach(pos.x, pos.y); }
+
+  FORCE_INLINE static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
+    return (
+      #if IS_KINEMATIC
+         can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
+      #else
+         can_reach(lf) && can_reach(rb)
+      #endif
+    );
+  }
 
   // Use offset_xy for read only access
   // More optimal the XY offset is known to always be zero.

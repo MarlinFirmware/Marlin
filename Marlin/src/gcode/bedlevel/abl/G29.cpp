@@ -417,17 +417,7 @@ G29_TYPE GcodeSuite::G29() {
         );
       }
 
-      if (
-        #if IS_SCARA || ENABLED(DELTA)
-             !position_is_reachable_by_probe(probe_position_lf.x, 0)
-          || !position_is_reachable_by_probe(probe_position_rb.x, 0)
-          || !position_is_reachable_by_probe(0, probe_position_lf.y)
-          || !position_is_reachable_by_probe(0, probe_position_rb.y)
-        #else
-             !position_is_reachable_by_probe(probe_position_lf)
-          || !position_is_reachable_by_probe(probe_position_rb)
-        #endif
-      ) {
+      if (!probe.good_bounds(probe_position_lf, probe_position_rb)) {
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
         G29_RETURN(false);
       }
@@ -704,7 +694,7 @@ G29_TYPE GcodeSuite::G29() {
 
           #if IS_KINEMATIC
             // Avoid probing outside the round or hexagonal area
-            if (!position_is_reachable_by_probe(probePos)) continue;
+            if (!probe.can_reach(probePos)) continue;
           #endif
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");

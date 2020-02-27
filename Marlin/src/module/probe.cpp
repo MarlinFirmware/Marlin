@@ -89,7 +89,7 @@ Probe probe;
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_PROBE_XY_OFFSET
-  const xyz_pos_t &Probe::offset_xy = probe.offset;
+  const xyz_pos_t &Probe::offset_xy = Probe::offset;
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -727,7 +727,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   // TODO: Adapt for SCARA, where the offset rotates
   xyz_pos_t npos = { rx, ry };
   if (probe_relative) {                                     // The given position is in terms of the probe
-    if (!position_is_reachable_by_probe(npos)) {
+    if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
       return NAN;
     }

@@ -432,11 +432,11 @@ void GcodeSuite::M422() {
   };
 
   if (is_probe_point) {
-    if (!position_is_reachable_by_probe(pos.x, Y_CENTER)) {
+    if (!probe.can_reach(pos.x, Y_CENTER)) {
       SERIAL_ECHOLNPGM("?(X) out of bounds.");
       return;
     }
-    if (!position_is_reachable_by_probe(pos)) {
+    if (!probe.can_reach(pos)) {
       SERIAL_ECHOLNPGM("?(Y) out of bounds.");
       return;
     }

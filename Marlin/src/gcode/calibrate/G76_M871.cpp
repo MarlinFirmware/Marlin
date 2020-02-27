@@ -116,7 +116,7 @@ void GcodeSuite::G76() {
       temp_comp.measure_point_x - probe.offset_xy.x,
       temp_comp.measure_point_y - probe.offset_xy.y
     );
-    if (!position_is_reachable_by_probe(destination)) {
+    if (!probe.can_reach(destination)) {
       SERIAL_ECHOLNPGM("!Probe position unreachable - aborting.");
       return;
     }
