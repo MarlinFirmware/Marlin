@@ -105,8 +105,8 @@ void GcodeSuite::G76() {
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
-    if (!position_is_reachable(ProbeTempComp::park_point.x, ProbeTempComp::park_point.y)
-      || !(WITHIN(ProbeTempComp::park_point.z, Z_MIN_POS - 0.001f, Z_MAX_POS + 0.001f))
+    if (!position_is_reachable(temp_comp.park_point_x, temp_comp.park_point_y)
+      || !(WITHIN(temp_comp.park_point_z, Z_MIN_POS - 0.001f, Z_MAX_POS + 0.001f))
     ) {
       SERIAL_ECHOLNPGM("!Park position unreachable - aborting.");
       return;
@@ -161,7 +161,7 @@ void GcodeSuite::G76() {
       SERIAL_ECHOLNPAIR("Target Bed: ", target_bed, "; Probe: ", target_probe);
 
       // Park nozzle
-      do_blocking_move_to(ProbeTempComp::park_point.x, ProbeTempComp::park_point.y, ProbeTempComp::park_point.z);
+      do_blocking_move_to(temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z);
 
       // Wait for heatbed to reach target temp and probe to cool below target temp
       SERIAL_ECHOLNPGM("Waiting for bed and probe to reach target temp.");
@@ -186,9 +186,9 @@ void GcodeSuite::G76() {
 
       if (timeout) break;
 
-      // Move probe to probing point and wait for probe to reach target temp
+      // Move the nozzle to the probing point and wait for the probe to reach target temp
       destination.set(temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5);
-      do_blocking_move_to(destination.x, destination.y, destination.z);
+      do_blocking_move_to(destination);
       SERIAL_ECHOLNPGM("Waiting for probe heating.");
       while (thermalManager.degProbe() < target_probe) {
         idle(
@@ -207,7 +207,7 @@ void GcodeSuite::G76() {
       destination.z = 5.0;
       do_blocking_move_to_z(destination.z);
 
-      // Do a single probe
+      // Do a single probe at the current position
       remember_feedrate_scaling_off();
       const float measured_z = probe.probe_at_point(
         destination.x + probe.offset_xy.x,
@@ -252,7 +252,7 @@ void GcodeSuite::G76() {
   if (do_probe_cal) {
 
     // Park nozzle
-    do_blocking_move_to(ProbeTempComp::park_point.x, ProbeTempComp::park_point.y, ProbeTempComp::park_point.z);
+    do_blocking_move_to(temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z);
 
     // Initialize temperatures
     uint16_t target_bed = temp_comp.probe_calib_bed_temp,
