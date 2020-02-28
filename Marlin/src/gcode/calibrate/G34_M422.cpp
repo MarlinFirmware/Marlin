@@ -290,10 +290,10 @@ void GcodeSuite::G34() {
         float z_align_move = z_measured[zstepper] - z_measured_min;
         const float z_align_abs = ABS(z_align_move);
 
-         #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
           // Optimize one iteration's correction based on the first measurements
           if (z_align_abs) amplification = (iteration == 1) ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
-          
+
           // Check for less accuracy compared to last move
           if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
@@ -347,11 +347,9 @@ void GcodeSuite::G34() {
 
     // Restore the active tool after homing
     #if HOTENDS > 1
-      tool_change(old_tool_index, (
+      tool_change(old_tool_index, (true
         #if ENABLED(PARKING_EXTRUDER)
-          false // Fetch the previous toolhead
-        #else
-          true
+          && false // Fetch the previous toolhead
         #endif
       ));
     #endif
