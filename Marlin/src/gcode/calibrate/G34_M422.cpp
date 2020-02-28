@@ -155,8 +155,12 @@ void GcodeSuite::G34() {
     // Move the Z coordinate realm towards the positive - dirty trick
     current_position.z -= z_probe * 0.5f;
 
-    float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f),
-          z_measured[NUM_Z_STEPPER_DRIVERS] = { 0 },
+    #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f);
+    #else
+      float last_z_align_level_indicator = 10000.0f;
+    #endif
+    float z_measured[NUM_Z_STEPPER_DRIVERS] = { 0 },
           z_maxdiff = 0.0f,
           amplification = z_auto_align_amplification;
 
@@ -250,6 +254,32 @@ void GcodeSuite::G34() {
         #endif
       );
 
+      #if (ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS))
+        // Check if the corrections we are making go in the correct direction.
+        // Therefore, calculate the sum of the absolute deviations from the mean of the probe measurements.
+        // Compare this value to the last iteration to ensure it is getting better.
+
+        // Calculate mean value as a reference
+        float z_measured_mean = 0.0f;
+        for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) z_measured_mean += z_measured[zstepper];
+        z_measured_mean = z_measured_mean * (1.0f / NUM_Z_STEPPER_DRIVERS);
+
+        // Calculate the sum of the absolute deviantions from the mean value
+        float z_align_level_indicator = 0.0f;
+        for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) {
+          z_align_level_indicator += ABS(z_measured[zstepper] - z_measured_mean);
+        }
+
+        // If it is getting worse, stop and throw an error
+        if (last_z_align_level_indicator < z_align_level_indicator * 0.7f) {
+          SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
+          err_break = true;
+          break;
+        }
+
+        last_z_align_level_indicator = z_align_level_indicator;
+      #endif
+
       // The following correction actions are to be enabled for select Z-steppers only
       stepper.set_separate_multi_axis(true);
 
@@ -260,24 +290,19 @@ void GcodeSuite::G34() {
         float z_align_move = z_measured[zstepper] - z_measured_min;
         const float z_align_abs = ABS(z_align_move);
 
-        #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+         #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
           // Optimize one iteration's correction based on the first measurements
           if (z_align_abs) amplification = (iteration == 1) ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
-        #endif
-
-        // Check for less accuracy compared to last move
-        if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
-          SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
-          #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+          
+          // Check for less accuracy compared to last move
+          if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
+            SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
             adjustment_reverse = !adjustment_reverse;
-          #else
-            err_break = true;
-            break;
-          #endif
-        }
+          }
 
-        // Remember the alignment for the next iteration
-        last_z_align_move[zstepper] = z_align_abs;
+          // Remember the alignment for the next iteration
+          last_z_align_move[zstepper] = z_align_abs;
+        #endif
 
         // Stop early if all measured points achieve accuracy target
         if (z_align_abs > z_auto_align_accuracy) success_break = false;
