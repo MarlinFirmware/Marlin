@@ -300,6 +300,7 @@
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN    EXP1_8_PIN
+        #define REVERSE_ENCODER_DIRECTION
       #endif
 
     #else // !FYSETC_MINI_12864
