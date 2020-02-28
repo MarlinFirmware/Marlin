@@ -124,4 +124,84 @@
   #elif E_STEPPERS > 1 && (E1_DIR_PIN == P0_00 || E1_STEP_PIN == P0_01)
     #error "Serial port assignment (2) conflicts with other pins!"
   #endif
+
+//
+// Flag any i2c pin conflicts
+//
+#if ANY(DIGIPOT_I2C, DIGIPOT_MCP4018, DAC_STEPPER_CURRENT, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, NEOPIXEL_LED, PCA9632, I2C_EEPROM)
+  #define USEDI2CDEV_M 1
+
+  #if USEDI2CDEV_M == 0         // P0_27 [D57] (AUX-1) .......... P0_28 [D58] (AUX-1)
+    #define PIN_IS_SDA0(P) (P##_PIN == P0_27)
+    #define IS_SCL0(P)     (P == P0_28)
+    #if ENABLED(SDSUPPORT) && PIN_IS_SDA0(SD_DETECT)
+      #error "SDA0 overlaps with SD_DETECT_PIN!"
+    #elif PIN_IS_SDA0(E0_AUTO_FAN)
+      #error "SDA0 overlaps with E0_AUTO_FAN_PIN!"
+    #elif PIN_IS_SDA0(BEEPER)
+      #error "SDA0 overlaps with BEEPER_PIN!"
+    #elif IS_SCL0(BTN_ENC)
+      #error "SCL0 overlaps with Encoder Button!"
+    #elif IS_SCL0(SS_PIN)
+      #error "SCL0 overlaps with SS_PIN!"
+    #elif IS_SCL0(LCD_SDSS)
+      #error "SCL0 overlaps with LCD_SDSS!"
+    #endif
+    #undef PIN_IS_SDA0
+    #undef IS_SCL0
+  #elif USEDI2CDEV_M == 1       // P0_00 [D20] (SCA) ............ P0_01 [D21] (SCL)
+    #define PIN_IS_SDA1(P) (PIN_EXISTS(P) && P##_PIN == P0_00)
+    #define PIN_IS_SCL1(P) (PIN_EXISTS(P) && P##_PIN == P0_01)
+    #if PIN_IS_SDA1(X_MIN) || PIN_IS_SCL1(X_MAX)
+      #error "One or more i2c (1) pins overlaps with X endstop pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(X2_DIR) || PIN_IS_SCL1(X2_STEP)
+      #error "One or more i2c (1) pins overlaps with X2 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Y2_DIR) || PIN_IS_SCL1(Y2_STEP)
+      #error "One or more i2c (1) pins overlaps with Y2 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Z2_DIR) || PIN_IS_SCL1(Z2_STEP)
+      #error "One or more i2c (1) pins overlaps with Z2 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Z3_DIR) || PIN_IS_SCL1(Z3_STEP)
+      #error "One or more i2c (1) pins overlaps with Z3 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Z4_DIR) || PIN_IS_SCL1(Z4_STEP)
+      #error "One or more i2c (1) pins overlaps with Z4 pins! Disable i2c peripherals."
+    #elif E_STEPPERS > 1 && (PIN_IS_SDA1(E1_DIR) || PIN_IS_SCL1(E1_STEP))
+      #error "One or more i2c (1) pins overlaps with E1 pins! Disable i2c peripherals."
+    #endif
+    #undef PIN_IS_SDA1
+    #undef PIN_IS_SCL1
+  #elif USEDI2CDEV_M == 2     // P0_10 [D38] (X_ENABLE_PIN) ... P0_11 [D55] (X_DIR_PIN)
+    #define PIN_IS_SDA2(P) (PIN_EXISTS(P) && P##_PIN == P0_10)
+    #define PIN_IS_SCL2(P) (PIN_EXISTS(P) && P##_PIN == P0_11)
+    #if PIN_IS_SDA2(Y_STOP)
+      #error "i2c SDA2 overlaps with Y endstop pin!"
+    #elif HAS_CUSTOM_PROBE_PIN && PIN_IS_SDA2(Z_MIN_PROBE)
+      #error "i2c SDA2 overlaps with Z probe pin!"
+    #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
+      #error "i2c SDA2 overlaps with X/Y ENABLE pin!"
+    #elif AXIS_HAS_SPI(X) && PIN_IS_SDA2(X_CS)
+      #error "i2c SDA2 overlaps with X CS pin!"
+    #elif PIN_IS_SDA2(X2_ENABLE)
+      #error "i2c SDA2 overlaps with X2 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Y2_ENABLE)
+      #error "i2c SDA2 overlaps with Y2 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Z2_ENABLE)
+      #error "i2c SDA2 overlaps with Z2 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Z3_ENABLE)
+      #error "i2c SDA2 overlaps with Z3 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Z4_ENABLE)
+      #error "i2c SDA2 overlaps with Z4 enable pin! Disable i2c peripherals."
+    #elif EXTRUDERS > 1 && PIN_IS_SDA2(E1_ENABLE)
+      #error "i2c SDA2 overlaps with E1 enable pin! Disable i2c peripherals."
+    #elif EXTRUDERS > 1 && AXIS_HAS_SPI(E1) && PIN_IS_SDA2(E1_CS)
+      #error "i2c SDA2 overlaps with E1 CS pin! Disable i2c peripherals."
+    #elif EXTRUDERS && (PIN_IS_SDA2(E0_STEP) || PIN_IS_SDA2(E0_DIR))
+      #error "i2c SCL2 overlaps with E0 STEP/DIR pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(X_DIR) || PIN_IS_SDA2(Y_DIR)
+      #error "One or more i2c pins overlaps with X/Y DIR pin! Disable i2c peripherals."
+    #endif
+    #undef PIN_IS_SDA2
+    #undef PIN_IS_SCL2
+  #endif
+
+  #undef USEDI2CDEV_M
 #endif
