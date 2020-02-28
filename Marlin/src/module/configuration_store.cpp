@@ -555,10 +555,6 @@ void MarlinSettings::postprocess() {
 
       #if HAS_CLASSIC_JERK
         EEPROM_WRITE(planner.max_jerk);
-        #if HAS_LINEAR_E_JERK
-          dummy = float(DEFAULT_EJERK);
-          EEPROM_WRITE(dummy);
-        #endif
       #else
         const xyze_pos_t planner_max_jerk = { 10, 10, 0.4, float(DEFAULT_EJERK) };
         EEPROM_WRITE(planner_max_jerk);
@@ -1441,9 +1437,6 @@ void MarlinSettings::postprocess() {
 
         #if HAS_CLASSIC_JERK
           EEPROM_READ(planner.max_jerk);
-          #if HAS_LINEAR_E_JERK
-            EEPROM_READ(dummy);
-          #endif
         #else
           for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
         #endif

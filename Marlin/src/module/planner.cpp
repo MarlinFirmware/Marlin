@@ -144,11 +144,7 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
   #endif
 #endif
 #if HAS_CLASSIC_JERK
-  #if HAS_LINEAR_E_JERK
-    xyz_pos_t Planner::max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
-  #else
-    xyze_pos_t Planner::max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
-  #endif
+  xyze_pos_t Planner::max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 #endif
 
 #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
@@ -2397,11 +2393,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
 
     uint8_t limited = 0;
-    #if HAS_LINEAR_E_JERK
-      LOOP_XYZ(i)
-    #else
-      LOOP_XYZE(i)
-    #endif
+    LOOP_XYZE(i)
     {
       const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
                   maxj = (max_jerk[i]             // mj : The max jerk setting for this axis
@@ -2440,11 +2432,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // Now limit the jerk in all axes.
       const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
-      #if HAS_LINEAR_E_JERK
-        LOOP_XYZ(axis)
-      #else
-        LOOP_XYZE(axis)
-      #endif
+      LOOP_XYZE(axis)
       {
         // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
         float v_exit = previous_speed[axis] * smaller_speed_factor,
