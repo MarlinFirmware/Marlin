@@ -1438,7 +1438,7 @@ void MarlinSettings::postprocess() {
         #if HAS_CLASSIC_JERK
           EEPROM_READ(planner.max_jerk);
         #else
-          for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
+          for (uint8_t q = XYZE; q--;) EEPROM_READ(dummy);
         #endif
 
         #if DISABLED(CLASSIC_JERK)
