@@ -165,9 +165,11 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 #endif
 
 #if DISABLED(NO_VOLUMETRICS)
-  float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+  float Planner::filament_size[EXTRUDERS],              // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+        Planner::volumetric_extruder_limit[EXTRUDERS],  // max mm^3/sec the extruder is able to handle
+        Planner::volumetric_extruder_feedrate_limit[EXTRUDERS], // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
         Planner::volumetric_area_nominal = CIRCLE_AREA(float(DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5f), // Nominal cross-sectional area
-        Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+        Planner::volumetric_multiplier[EXTRUDERS];      // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
 #endif
 
 #if HAS_LEVELING
@@ -1412,6 +1414,19 @@ void Planner::check_axes_activity() {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
+    calculate_volumetric_extruder_limits(); // update volumetric_extruder_limits as well.
+  }
+
+  /**
+   * Convert volumetric based limits into pre calculated extruder feedrate limits.
+   */
+  void Planner::calculate_volumetric_extruder_limits() {
+    for (uint8_t i = 0; i < EXTRUDERS; i++) {
+      if(volumetric_extruder_limit[i] > 0) // set feedrate limit if the extruder got any limitation
+        volumetric_extruder_feedrate_limit[i] = volumetric_extruder_limit[i] / CIRCLE_AREA(filament_size[i] * 0.5f);
+      else
+        volumetric_extruder_feedrate_limit[i] = 0; // 0 = disable any feedrate limit
+    }
   }
 
 #endif // !NO_VOLUMETRICS
@@ -2097,12 +2112,41 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           current_speed.e *= MIXING_STEPPERS;
       #endif
       const feedRate_t cs = ABS(current_speed.e),
+                #if DISABLED(NO_VOLUMETRICS)
+                  max_vfr = (volumetric_extruder_feedrate_limit[extruder]
+                              #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+                                * MIXING_STEPPERS
+                              #endif
+                            ),
+                #endif
                    max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
                               #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
                                 * MIXING_STEPPERS
                               #endif
                             );
-      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
+
+    #if DISABLED(NO_VOLUMETRICS)
+      if (!block->steps.a && !block->steps.b && !block->steps.c) { // TODO: this will not work properly for joined segments, set MIN_STEPS_PER_SEGMENT 1 as workaround
+        //respect max feedrate on E axis only moves e.g. retraction
+    #endif
+        if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
+    #if DISABLED(NO_VOLUMETRICS)
+      }
+      else {
+        if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on printing moves
+        if (max_vfr > 0 && cs > max_vfr) {
+          NOMORE(speed_factor, max_vfr / cs); //as well as volumetric extruder limit (if any)
+          /* <-- add a slash to enable
+          SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+          SERIAL_ECHOPAIR(" mm^3/s (", cs);
+          SERIAL_ECHOPAIR(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+          SERIAL_ECHOPAIR(" mm^3/s (", max_vfr);
+          SERIAL_ECHOLNPGM(" mm/s)");
+          //*/
+        }
+      }
+    #endif
+      
     }
   #endif
 
