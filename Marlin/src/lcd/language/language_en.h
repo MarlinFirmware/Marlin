@@ -312,8 +312,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD Contrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Store Settings");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Load Settings");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restore failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restore Defaults");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialize EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: EEPROM CRC");
+  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: EEPROM Index");
+  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: EEPROM Version");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Media Update");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset Printer");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Refresh");
@@ -370,7 +373,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Unload Filament");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Unload Filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Unload All");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. Media");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Attach Media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Change Media");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Release Media");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z Probe Past Bed");

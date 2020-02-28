@@ -62,7 +62,7 @@ void watchdog_init() {
 #if ENABLED(WATCHDOG_RESET_MANUAL)
   ISR(WDT_vect) {
     sei();  // With the interrupt driven serial we need to allow interrupts.
-    SERIAL_ERROR_MSG(MSG_WATCHDOG_FIRED);
+    SERIAL_ERROR_MSG(STR_WATCHDOG_FIRED);
     minkill();  // interrupt-safe final kill and infinite loop
   }
 #endif

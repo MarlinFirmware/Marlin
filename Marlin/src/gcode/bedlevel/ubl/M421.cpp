@@ -57,9 +57,9 @@ void GcodeSuite::M421() {
   if (hasC) ij = ubl.find_closest_mesh_point_of_type(REAL, current_position);
 
   if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN))
-    SERIAL_ERROR_MSG(MSG_ERR_M421_PARAMETERS);
+    SERIAL_ERROR_MSG(STR_ERR_M421_PARAMETERS);
   else if (!WITHIN(ij.x, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ij.y, 0, GRID_MAX_POINTS_Y - 1))
-    SERIAL_ERROR_MSG(MSG_ERR_MESH_XY);
+    SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
   else {
     float &zval = ubl.z_values[ij.x][ij.y];
     zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);

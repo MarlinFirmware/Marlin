@@ -42,7 +42,7 @@ void GcodeSuite::G61(void) {
 
   #if SAVED_POSITIONS < 256
     if (slot >= SAVED_POSITIONS) {
-      SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
+      SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
       return;
     }
   #endif
@@ -54,7 +54,7 @@ void GcodeSuite::G61(void) {
   const float fr = parser.linearval('F');
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
-  SERIAL_ECHOPAIR(MSG_RESTORING_POS " S", int(slot));
+  SERIAL_ECHOPAIR(STR_RESTORING_POS " S", int(slot));
   LOOP_XYZ(i) {
     destination[i] = parser.seen(axis_codes[i])
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)

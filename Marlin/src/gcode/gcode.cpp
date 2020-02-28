@@ -94,7 +94,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", int(e));
     return -1;
   }
   return active_extruder;
@@ -111,9 +111,9 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   SERIAL_ECHO_START();
   SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
   if (e == -1)
-    SERIAL_ECHOLNPGM(" " MSG_E_STEPPER_NOT_SPECIFIED);
+    SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", int(e));
   return -1;
 }
 
@@ -951,13 +951,13 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
-          SERIAL_ECHO_MSG(MSG_BUSY_PROCESSING);
+          SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_USER);
+          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
           break;
         case PAUSED_FOR_INPUT:
-          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_INPUT);
+          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
           break;
         default:
           break;

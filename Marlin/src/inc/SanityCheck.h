@@ -1361,8 +1361,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
-  static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_BED, X_MAX_BED), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
-  static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_BED, Y_MAX_BED), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+  static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
+  static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
 #endif
 
 /**
@@ -2473,6 +2473,86 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #ifdef USER_GCODE_5
     constexpr char _chr5 = USER_GCODE_5[strlen(USER_GCODE_5) - 1];
     static_assert(_chr5 != '\n' && _chr5 != '\r', "USER_GCODE_5 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_6
+    constexpr char _chr6 = USER_GCODE_6[strlen(USER_GCODE_6) - 1];
+    static_assert(_chr6 != '\n' && _chr6 != '\r', "USER_GCODE_6 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_7
+    constexpr char _chr7 = USER_GCODE_7[strlen(USER_GCODE_7) - 1];
+    static_assert(_chr7 != '\n' && _chr7 != '\r', "USER_GCODE_7 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_8
+    constexpr char _chr8 = USER_GCODE_8[strlen(USER_GCODE_8) - 1];
+    static_assert(_chr8 != '\n' && _chr8 != '\r', "USER_GCODE_8 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_9
+    constexpr char _chr9 = USER_GCODE_9[strlen(USER_GCODE_9) - 1];
+    static_assert(_chr9 != '\n' && _chr9 != '\r', "USER_GCODE_9 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_10
+    constexpr char _chr10 = USER_GCODE_10[strlen(USER_GCODE_10) - 1];
+    static_assert(_chr10 != '\n' && _chr10 != '\r', "USER_GCODE_10 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_11
+    constexpr char _chr11 = USER_GCODE_11[strlen(USER_GCODE_11) - 1];
+    static_assert(_chr11 != '\n' && _chr11 != '\r', "USER_GCODE_11 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_12
+    constexpr char _chr12 = USER_GCODE_12[strlen(USER_GCODE_12) - 1];
+    static_assert(_chr12 != '\n' && _chr12 != '\r', "USER_GCODE_12 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_13
+    constexpr char _chr13 = USER_GCODE_13[strlen(USER_GCODE_13) - 1];
+    static_assert(_chr13 != '\n' && _chr13 != '\r', "USER_GCODE_13 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_14
+    constexpr char _chr14 = USER_GCODE_14[strlen(USER_GCODE_14) - 1];
+    static_assert(_chr14 != '\n' && _chr14 != '\r', "USER_GCODE_14 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_15
+    constexpr char _chr15 = USER_GCODE_15[strlen(USER_GCODE_15) - 1];
+    static_assert(_chr15 != '\n' && _chr15 != '\r', "USER_GCODE_15 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_16
+    constexpr char _chr16 = USER_GCODE_16[strlen(USER_GCODE_16) - 1];
+    static_assert(_chr16 != '\n' && _chr16 != '\r', "USER_GCODE_16 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_17
+    constexpr char _chr17 = USER_GCODE_17[strlen(USER_GCODE_17) - 1];
+    static_assert(_chr17 != '\n' && _chr17 != '\r', "USER_GCODE_17 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_18
+    constexpr char _chr18 = USER_GCODE_18[strlen(USER_GCODE_18) - 1];
+    static_assert(_chr18 != '\n' && _chr18 != '\r', "USER_GCODE_18 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_19
+    constexpr char _chr19 = USER_GCODE_19[strlen(USER_GCODE_19) - 1];
+    static_assert(_chr19 != '\n' && _chr19 != '\r', "USER_GCODE_19 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_20
+    constexpr char _chr20 = USER_GCODE_20[strlen(USER_GCODE_20) - 1];
+    static_assert(_chr20 != '\n' && _chr20 != '\r', "USER_GCODE_20 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_21
+    constexpr char _chr21 = USER_GCODE_21[strlen(USER_GCODE_21) - 1];
+    static_assert(_chr21 != '\n' && _chr21 != '\r', "USER_GCODE_21 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_22
+    constexpr char _chr22 = USER_GCODE_22[strlen(USER_GCODE_22) - 1];
+    static_assert(_chr22 != '\n' && _chr22 != '\r', "USER_GCODE_22 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_23
+    constexpr char _chr23 = USER_GCODE_23[strlen(USER_GCODE_23) - 1];
+    static_assert(_chr23 != '\n' && _chr23 != '\r', "USER_GCODE_23 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_24
+    constexpr char _chr24 = USER_GCODE_24[strlen(USER_GCODE_24) - 1];
+    static_assert(_chr24 != '\n' && _chr24 != '\r', "USER_GCODE_24 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_25
+    constexpr char _chr25 = USER_GCODE_25[strlen(USER_GCODE_25) - 1];
+    static_assert(_chr25 != '\n' && _chr25 != '\r', "USER_GCODE_25 cannot have a newline at the end. Please remove it.");
   #endif
 #endif
 

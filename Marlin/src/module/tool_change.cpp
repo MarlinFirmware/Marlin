@@ -45,8 +45,8 @@
   #endif
 #endif
 
-#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
-  #include "../gcode/gcode.h" // for dwell()
+#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+  #include "../gcode/gcode.h"
 #endif
 
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
@@ -700,7 +700,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
     SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
-    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER);
   }
 #endif
 
@@ -843,7 +843,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
       if (should_swap) {
         if (too_cold) {
-          SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+          SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = new_tool;
             return;
@@ -861,7 +861,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
     #endif // TOOLCHANGE_FILAMENT_SWAP
 
-    #if HAS_LEVELING
+    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
       // Set current position to the physical position
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
@@ -1068,11 +1068,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
-      gcode.process_subcommands_now_P(EVENT_GCODE_AFTER_TOOLCHANGE);
+      if (!no_move)
+        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
     #endif
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // EXTRUDERS > 1
 }

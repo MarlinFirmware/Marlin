@@ -163,53 +163,54 @@
 
 /**
  *                 _____
- *             5V | · · | GND
- *  (LCD_EN) PB7  | · · | PB8  (LCD_RS)
- *  (LCD_D4) PB9  | · · | PA10 (BTN_EN2)
- *          RESET | · · | PA9  (BTN_EN1)
- * (BTN_ENC) PB6  | · · | PA15 (BEEPER)
+ *             5V | 1 2 | GND
+ *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
+ *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
+ *          RESET | 7 8 | PA9  (BTN_EN1)
+ * (BTN_ENC) PB6  | 9 10| PA15 (BEEPER)
  *                 -----
  *                 EXP1
  */
-#define EXP1_1_PIN         PA15
-#define EXP1_2_PIN         PA9
-#define EXP1_3_PIN         PA10
-#define EXP1_4_PIN         PB8
-#define EXP1_6_PIN         PB6
-#define EXP1_7_PIN         -1
-#define EXP1_8_PIN         PB9
-#define EXP1_9_PIN         PB7
+
+#define EXPA1_03_PIN       PB7
+#define EXPA1_04_PIN       PB8
+#define EXPA1_05_PIN       PB9
+#define EXPA1_06_PIN       PA10
+#define EXPA1_07_PIN       -1
+#define EXPA1_08_PIN       PA9
+#define EXPA1_09_PIN       PB6
+#define EXPA1_10_PIN       PA15
 
 #if HAS_SPI_LCD
-  #define BTN_ENC          EXP1_6_PIN
-  #define BTN_EN1          EXP1_2_PIN
-  #define BTN_EN2          EXP1_3_PIN
+  #define BTN_ENC          EXPA1_09_PIN
+  #define BTN_EN1          EXPA1_08_PIN
+  #define BTN_EN2          EXPA1_06_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define BEEPER_PIN     EXP1_1_PIN
+    #define BEEPER_PIN     EXPA1_10_PIN
 
-    #define LCD_PINS_RS    EXP1_4_PIN
-    #define LCD_PINS_ENABLE EXP1_9_PIN
-    #define LCD_PINS_D4    EXP1_8_PIN
+    #define LCD_PINS_RS    EXPA1_04_PIN
+    #define LCD_PINS_ENABLE EXPA1_03_PIN
+    #define LCD_PINS_D4    EXPA1_05_PIN
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
      *                   _____
-     *               5V | · · | GND
-     *      (MOSI) PB7  | · · | PB8  (LCD_RS)
-     *    (LCD_A0) PB9  | · · | PA10 (BTN_EN2)
-     *            RESET | · · | PA9  (BTN_EN1)
-     *   (BTN_ENC) PB6  | · · | PA15 (SCK)
+     *               5V | 1 2 | GND
+     *      (MOSI) PB7  | 3 4 | PB8  (LCD_RS)
+     *    (LCD_A0) PB9  | 5 6   PA10 (BTN_EN2)
+     *            RESET | 7 8 | PA9  (BTN_EN1)
+     *   (BTN_ENC) PB6  | 9 10| PA15 (SCK)
      *                   -----
      *                    EXP1
      */
 
-    #define DOGLCD_CS    EXP1_4_PIN
-    #define DOGLCD_A0    EXP1_8_PIN
-    #define DOGLCD_SCK   EXP1_1_PIN
-    #define DOGLCD_MOSI  EXP1_9_PIN
+    #define DOGLCD_CS    EXPA1_04_PIN
+    #define DOGLCD_A0    EXPA1_05_PIN
+    #define DOGLCD_SCK   EXPA1_10_PIN
+    #define DOGLCD_MOSI  EXPA1_03_PIN
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN -1
 

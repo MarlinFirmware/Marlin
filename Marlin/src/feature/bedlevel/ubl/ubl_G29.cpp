@@ -1249,7 +1249,7 @@
         if (isnan(z_values[i][j])) {                  // Invalid mesh point?
 
           // Skip points the probe can't reach
-          if (!position_is_reachable_by_probe(mesh_index_to_xpos(i), mesh_index_to_ypos(j)))
+          if (!probe.can_reach(mesh_index_to_xpos(i), mesh_index_to_ypos(j)))
             continue;
 
           found_a_NAN = true;
@@ -1316,7 +1316,7 @@
           // Also for round beds, there are grid points outside the bed the nozzle can't reach.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-          if (probe_relative ? !position_is_reachable_by_probe(mpos) : !position_is_reachable(mpos))
+          if (!(probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
             continue;
 
           // Reachable. Check if it's the best_so_far location to the nozzle.

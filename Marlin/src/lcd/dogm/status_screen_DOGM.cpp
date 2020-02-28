@@ -188,21 +188,6 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(heater, isHeat));
       #endif
 
-      // Draw a heating progress bar, if specified
-      #if DO_DRAW_BED && ENABLED(STATUS_HEAT_PERCENT)
-
-        if (STATIC_HOTEND && isHeat) {
-          const uint8_t bx = STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater) + 1;
-          u8g.drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
-          if (tall) {
-            const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
-            if (PAGE_OVER(STATUS_HEATERS_Y + ph))
-              u8g.drawVLine(bx + 1, STATUS_HEATERS_Y + ph, tall);
-          }
-        }
-
-      #endif
-
     } // PAGE_CONTAINS
 
     if (PAGE_UNDER(7)) {
@@ -240,11 +225,11 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
     const float temp = thermalManager.degBed(),
               target = thermalManager.degTargetBed();
 
-    #if ENABLED(STATUS_HEAT_PERCENT) || (DO_DRAW_BED && DISABLED(STATUS_BED_ANIM))
+    #if ENABLED(STATUS_HEAT_PERCENT) || DISABLED(STATUS_BED_ANIM)
       const bool isHeat = BED_ALT();
     #endif
 
-    #if DO_DRAW_BED && DISABLED(STATUS_BED_ANIM)
+    #if DISABLED(STATUS_BED_ANIM)
       #define STATIC_BED    true
       #define BED_DOT       isHeat
     #else
@@ -513,7 +498,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBitmapP(STATUS_HEATERS_X, STATUS_HEATERS_Y, STATUS_HEATERS_BYTEWIDTH, STATUS_HEATERS_HEIGHT, status_heaters_bmp);
   #endif
 
-  #if DO_DRAW_CUTTER
+  #if DO_DRAW_CUTTER && DISABLED(STATUS_COMBINE_HEATERS)
     #if ANIM_CUTTER
       #define CUTTER_BITMAP(S) ((S) ? status_cutter_on_bmp : status_cutter_bmp)
     #else
@@ -537,7 +522,7 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBitmapP(STATUS_BED_X, bedy, STATUS_BED_BYTEWIDTH, bedh, BED_BITMAP(BED_ALT()));
   #endif
 
-  #if DO_DRAW_CHAMBER
+  #if DO_DRAW_CHAMBER && DISABLED(STATUS_COMBINE_HEATERS)
     #if ANIM_CHAMBER
       #define CHAMBER_BITMAP(S) ((S) ? status_chamber_on_bmp : status_chamber_bmp)
     #else
