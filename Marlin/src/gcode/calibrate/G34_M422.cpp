@@ -171,7 +171,7 @@ void GcodeSuite::G34() {
       bool adjustment_reverse = false;
     #endif
 
-    for (iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
+    LOOP_L_N(iteration, z_auto_align_iterations) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> probing all positions.");
 
       SERIAL_ECHOLNPAIR("\nITERATION: ", int(iteration + 1));
@@ -181,7 +181,7 @@ void GcodeSuite::G34() {
             z_measured_max = -100000.0f;
 
       // Probe all positions (one per Z-Stepper)
-      for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i) {
+      LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
         // iteration odd/even --> downward / upward stepper sequence
         const uint8_t iprobe = (iteration & 1) ? NUM_Z_STEPPER_DRIVERS - 1 - i : i;
 
@@ -231,14 +231,14 @@ void GcodeSuite::G34() {
         // This allows the actual adjustment logic to be shared by both algorithms.
         linear_fit_data lfd;
         incremental_LSF_reset(&lfd);
-        for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i) {
+        LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
           SERIAL_ECHOLNPAIR("PROBEPT_", i + '1', ": ", z_measured[i]);
           incremental_LSF(&lfd, z_stepper_align.xy[i], z_measured[i]);
         }
         finish_incremental_LSF(&lfd);
 
         z_measured_min = 100000.0f;
-        for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i) {
+        LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
           z_measured[i] = -(lfd.A * z_stepper_align.stepper_xy[i].x + lfd.B * z_stepper_align.stepper_xy[i].y);
           z_measured_min = _MIN(z_measured_min, z_measured[i]);
         }
@@ -254,21 +254,20 @@ void GcodeSuite::G34() {
         #endif
       );
 
-      #if (ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS))
+      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
         // Check if the corrections we are making go in the correct direction.
         // Therefore, calculate the sum of the absolute deviations from the mean of the probe measurements.
         // Compare this value to the last iteration to ensure it is getting better.
 
         // Calculate mean value as a reference
         float z_measured_mean = 0.0f;
-        for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) z_measured_mean += z_measured[zstepper];
-        z_measured_mean = z_measured_mean * (1.0f / NUM_Z_STEPPER_DRIVERS);
+        LOOP_L_N(zstepper, NUM_Z_STEPPER_DRIVERS) z_measured_mean += z_measured[zstepper];
+        z_measured_mean /= NUM_Z_STEPPER_DRIVERS;
 
         // Calculate the sum of the absolute deviantions from the mean value
         float z_align_level_indicator = 0.0f;
-        for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) {
+        LOOP_L_N(zstepper, NUM_Z_STEPPER_DRIVERS)
           z_align_level_indicator += ABS(z_measured[zstepper] - z_measured_mean);
-        }
 
         // If it is getting worse, stop and throw an error
         if (last_z_align_level_indicator < z_align_level_indicator * 0.7f) {
@@ -285,7 +284,7 @@ void GcodeSuite::G34() {
 
       bool success_break = true;
       // Correct the individual stepper offsets
-      for (uint8_t zstepper = 0; zstepper < NUM_Z_STEPPER_DRIVERS; ++zstepper) {
+      LOOP_L_N(zstepper, NUM_Z_STEPPER_DRIVERS) {
         // Calculate current stepper move
         float z_align_move = z_measured[zstepper] - z_measured_min;
         const float z_align_abs = ABS(z_align_move);
@@ -390,10 +389,10 @@ void GcodeSuite::G34() {
 void GcodeSuite::M422() {
 
   if (!parser.seen_any()) {
-    for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i)
+    LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS)
       SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + '1', SP_X_STR, z_stepper_align.xy[i].x, SP_Y_STR, z_stepper_align.xy[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-      for (uint8_t i = 0; i < NUM_Z_STEPPER_DRIVERS; ++i)
+      LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS)
         SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + '1', SP_X_STR, z_stepper_align.stepper_xy[i].x, SP_Y_STR, z_stepper_align.stepper_xy[i].y);
     #endif
     return;
