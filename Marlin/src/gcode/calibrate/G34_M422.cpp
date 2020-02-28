@@ -255,21 +255,21 @@ void GcodeSuite::G34() {
       );
 
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-        // Check if the corrections we are making go in the correct direction.
-        // Therefore, calculate the sum of the absolute deviations from the mean of the probe measurements.
-        // Compare this value to the last iteration to ensure it is getting better.
+        // Check if the applied corrections go in the correct direction.
+        // Calculate the sum of the absolute deviations from the mean of the probe measurements.
+        // Compare to the last iteration to ensure it's getting better.
 
         // Calculate mean value as a reference
         float z_measured_mean = 0.0f;
         LOOP_L_N(zstepper, NUM_Z_STEPPER_DRIVERS) z_measured_mean += z_measured[zstepper];
         z_measured_mean /= NUM_Z_STEPPER_DRIVERS;
 
-        // Calculate the sum of the absolute deviantions from the mean value
+        // Calculate the sum of the absolute deviations from the mean value
         float z_align_level_indicator = 0.0f;
         LOOP_L_N(zstepper, NUM_Z_STEPPER_DRIVERS)
           z_align_level_indicator += ABS(z_measured[zstepper] - z_measured_mean);
 
-        // If it is getting worse, stop and throw an error
+        // If it's getting worse, stop and throw an error
         if (last_z_align_level_indicator < z_align_level_indicator * 0.7f) {
           SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
           err_break = true;
