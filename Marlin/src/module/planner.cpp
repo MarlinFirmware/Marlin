@@ -1422,7 +1422,7 @@ void Planner::check_axes_activity() {
    */
   void Planner::calculate_volumetric_extruder_limits() {
     for (uint8_t i = 0; i < EXTRUDERS; i++) {
-      if(volumetric_extruder_limit[i] > 0) // set feedrate limit if the extruder got any limitation
+      if (volumetric_extruder_limit[i] > 0) // set feedrate limit if the extruder got any limitation
         volumetric_extruder_feedrate_limit[i] = volumetric_extruder_limit[i] / CIRCLE_AREA(filament_size[i] * 0.5f);
       else
         volumetric_extruder_feedrate_limit[i] = 0; // 0 = disable any feedrate limit
