@@ -194,6 +194,10 @@ void GcodeSuite::M114() {
       return;
     }
   #endif
+  if (parser.seen('U')) {
+    report_current_position();
+    return;
+  }
 
   planner.synchronize();
   report_current_position();
