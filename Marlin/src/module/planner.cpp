@@ -2121,6 +2121,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       const feedRate_t cs = ABS(current_speed.e),
                    max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)] * MIX_FACTOR);
 
+      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
+      
       #if DISABLED(NO_VOLUMETRICS)
         const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] * MIX_FACTOR;
 
@@ -2128,12 +2130,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         if (block->steps.a || block->steps.b || block->steps.c) {
 
-          // respect max feedrate on E axis only moves e.g. retraction
-
-          //if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on printing moves
-
           if (max_vfr > 0 && cs > max_vfr) {
-            NOMORE(speed_factor, max_vfr / cs); // as well as volumetric extruder limit (if any)
+            NOMORE(speed_factor, max_vfr / cs); // respect volumetric extruder limit (if any)
             /* <-- add a slash to enable
             SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
             SERIAL_ECHOPAIR(" mm^3/s (", cs);
@@ -2143,9 +2141,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             //*/
           }
         }
-        else
       #endif
-          if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);      
     }
   #endif
 
