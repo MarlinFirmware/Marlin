@@ -88,40 +88,168 @@
  * Serial3 | P0_00 | P0_01 |
  */
 #if (defined(SERIAL_PORT) && SERIAL_PORT == 0) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 0) || (defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT == 0)
-  #if  X_CS_PIN == P0_02 || TMC_SW_MISO == P0_02 || (E_STEPPERS && E_MUX1_PIN == P0_02) \
-    || Y_CS_PIN == P0_03 || TMC_SW_MOSI == P0_03 || (E_STEPPERS && E_MUX0_PIN == P0_03)
-    #error "Serial port assignment (0) conflicts with other pins!"
+  #define IS_TX0(P) (P == P0_02)
+  #define IS_RX0(P) (P == P0_03)
+  #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
+    #error "Serial port pins (0) conflict with Trinamic SPI pins!"
+  #elif ENABLED(MK2_MULTIPLEXER) && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
+    #error "Serial port pins (0) conflict with MK2 multiplexer pins!"
+  #elif (AXIS_HAS_SPI(X) && IS_TX0(X_CS_PIN)) || (AXIS_HAS_SPI(Y) && IS_RX0(Y_CS_PIN))
+    #error "Serial port pins (0) conflict with X/Y axis SPI pins!"
   #endif
+  #undef IS_TX0
+  #undef IS_RX0
 #endif
 
 #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || DGUS_SERIAL_PORT == 1
-  #if TMC_SW_SCK == P0_15
-    #error "Serial port assignment (1) conflicts with other pins!"
+  #define IS_TX1(P) (P == P0_15)
+  #define IS_RX1(P) (P == P0_16)
+  #if IS_TX1(TMC_SW_SCK)
+    #error "Serial port pins (1) conflict with other pins!"
   #elif HAS_SPI_LCD
-    #if  BTN_EN2 == P0_15 || SCK_PIN == P0_15 || LCD_PINS_D4 == P0_15 || DOGLCD_SCK == P0_15 || LCD_RESET_PIN == P0_15 || LCD_PINS_RS == P0_15 || SHIFT_CLK == P0_15 \
-      || BTN_EN1 == P0_16 || LCD_SDSS == P0_16 || LCD_PINS_RS == P0_16 || MISO_PIN == P0_16 || DOGLCD_A0 == P0_16 || SS_PIN == P0_16 || LCD_SDSS == P0_16 || DOGLCD_CS == P0_16 || LCD_RESET_PIN == P0_16 || LCD_BACKLIGHT_PIN == P0_16
-      #error "Serial port assignment (1) conflicts with other pins!"
+    #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
+      #error "Serial port pins (1) conflict with Encoder Buttons!"
+    #elif IS_TX1(SCK_PIN) || IS_TX1(LCD_PINS_D4) || IS_TX1(DOGLCD_SCK) || IS_TX1(LCD_RESET_PIN) || IS_TX1(LCD_PINS_RS) || IS_TX1(SHIFT_CLK) \
+      || IS_RX1(LCD_SDSS) || IS_RX1(LCD_PINS_RS) || IS_RX1(MISO_PIN) || IS_RX1(DOGLCD_A0) || IS_RX1(SS_PIN) || IS_RX1(LCD_SDSS) || IS_RX1(DOGLCD_CS) || IS_RX1(LCD_RESET_PIN) || IS_RX1(LCD_BACKLIGHT_PIN)
+      #error "Serial port pins (1) conflict with LCD pins!"
     #endif
   #endif
+  #undef IS_TX1
+  #undef IS_RX1
 #endif
 
 #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || DGUS_SERIAL_PORT == 2
-  #if  Y_MIN_PIN == P0_10 || Z_MIN_PROBE_PIN == P0_10 \
-    || X_ENABLE_PIN == P0_10 || Y_ENABLE_PIN == P0_10 || X2_ENABLE_PIN == P0_10 || Y2_ENABLE_PIN == P0_10 || Z2_ENABLE_PIN == P0_10 || Z3_ENABLE_PIN == P0_10 || Z4_ENABLE_PIN == P0_10 \
-    || X2_CS_PIN == P0_10 || Y2_CS_PIN == P0_10 || Z2_CS_PIN == P0_10 || Z3_CS_PIN == P0_10 || Z4_CS_PIN == P0_10 \
-    || X_DIR_PIN == P0_11 || Y_DIR_PIN == P0_11 || X2_DIR_PIN == P0_11 || Y2_DIR_PIN == P0_11 || Z2_DIR_PIN == P0_11 || Z3_DIR_PIN == P0_11 || Z4_DIR_PIN == P0_11 \
-    || X2_STEP_PIN == P0_11 || Y2_STEP_PIN == P0_11 || Z2_STEP_PIN == P0_11 || Z3_STEP_PIN == P0_11 || Z4_STEP_PIN == P0_11
-    #error "Serial port assignment (2) conflicts with other pins!"
-  #elif  (E_STEPPERS > 1 && (E1_ENABLE_PIN == P0_10 || E1_CS_PIN == P0_10)) || (E_STEPPERS > 0 && (E0_DIR_PIN == P0_11 || E0_STEP_PIN == P0_11))
-    #error "Serial port assignment (2) conflicts with other pins!"
+  #define IS_TX2(P) (P == P0_10)
+  #define IS_RX2(P) (P == P0_11)
+  #if  IS_TX2(X2_ENABLE_PIN) || IS_RX2(X2_DIR_PIN) || IS_RX2(X2_STEP_PIN) || (AXIS_HAS_SPI(X2) && IS_TX2(X2_CS_PIN))
+    #error "Serial port pins (2) conflict with X2 pins!"
+  #elif IS_TX2(Y2_ENABLE_PIN) || IS_RX2(Y2_DIR_PIN) || IS_RX2(Y2_STEP_PIN) || (AXIS_HAS_SPI(Y2) && IS_TX2(Y2_CS_PIN))
+    #error "Serial port pins (2) conflict with Y2 pins!"
+  #elif IS_TX2(Z2_ENABLE_PIN) || IS_RX2(Z2_DIR_PIN) || IS_RX2(Z2_STEP_PIN) || (AXIS_HAS_SPI(Z2) && IS_TX2(Z2_CS_PIN))
+    #error "Serial port pins (2) conflict with Z2 pins!"
+  #elif IS_TX2(Z3_ENABLE_PIN) || IS_RX2(Z3_DIR_PIN) || IS_RX2(Z3_STEP_PIN) || (AXIS_HAS_SPI(Z3) && IS_TX2(Z3_CS_PIN))
+    #error "Serial port pins (2) conflict with Z3 pins!"
+  #elif IS_TX2(Z4_ENABLE_PIN) || IS_RX2(Z4_DIR_PIN) || IS_RX2(Z4_STEP_PIN) || (AXIS_HAS_SPI(Z4) && IS_TX2(Z4_CS_PIN))
+    #error "Serial port pins (2) conflict with Z4 pins!"
+  #elif IS_RX2(X_DIR_PIN) || IS_RX2(Y_DIR_PIN)
+    #error "Serial port pins (2) conflict with other pins!"
+  #elif Y_HOME_DIR < 0 && IS_TX2(Y_STOP_PIN)
+    #error "Serial port pins (2) conflict with Y endstop pin!"
+  #elif HAS_CUSTOM_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
+    #error "Serial port pins (2) conflict with probe pin!"
+  #elif IS_TX2(X_ENABLE_PIN) || IS_RX2(X_DIR_PIN) || IS_TX2(Y_ENABLE_PIN) || IS_RX2(Y_DIR_PIN)
+    #error "Serial port pins (2) conflict with X/Y stepper pins!"
+  #elif EXTRUDERS > 1 && (IS_TX2(E1_ENABLE_PIN) || (AXIS_HAS_SPI(E1) && IS_TX2(E1_CS_PIN)))
+    #error "Serial port pins (2) conflict with E1 stepper pins!"
+  #elif EXTRUDERS && (IS_RX2(E0_DIR_PIN) || IS_RX2(E0_STEP_PIN))
+    #error "Serial port pins (2) conflict with E stepper pins!"
   #endif
+  #undef IS_TX2
+  #undef IS_RX2
 #endif
 
 #if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || DGUS_SERIAL_PORT == 3
-  #if  X_MIN_PIN == P0_00 || Y_SERIAL_TX_PIN == P0_00 || Y_SERIAL_RX_PIN == P0_00 \
-    || X_MAX_PIN == P0_01 || X_SERIAL_TX_PIN == P0_01 || X_SERIAL_RX_PIN == P0_01
-    #error "Serial port assignment (2) conflicts with other pins!"
-  #elif E_STEPPERS > 1 && (E1_DIR_PIN == P0_00 || E1_STEP_PIN == P0_01)
-    #error "Serial port assignment (2) conflicts with other pins!"
+  #define PIN_IS_TX3(P) (PIN_EXISTS(P) && P##_PIN == P0_00)
+  #define PIN_IS_RX3(P) (P##_PIN == P0_01)
+  #if PIN_IS_TX3(X_MIN) || PIN_IS_RX3(X_MAX)
+    #error "Serial port pins (3) conflict with X endstop pins!"
+  #elif PIN_IS_TX3(Y_SERIAL_TX) || PIN_IS_TX3(Y_SERIAL_RX) \
+    ||  PIN_IS_RX3(X_SERIAL_TX) || PIN_IS_RX3(X_SERIAL_RX)
+    #error "Serial port pins (3) conflict with X/Y axis UART pins!"
+  #elif PIN_IS_TX3(X2_DIR) || PIN_IS_RX3(X2_STEP)
+    #error "Serial port pins (3) conflict with X2 pins!"
+  #elif PIN_IS_TX3(Y2_DIR) || PIN_IS_RX3(Y2_STEP)
+    #error "Serial port pins (3) conflict with Y2 pins!"
+  #elif PIN_IS_TX3(Z2_DIR) || PIN_IS_RX3(Z2_STEP)
+    #error "Serial port pins (3) conflict with Z2 pins!"
+  #elif PIN_IS_TX3(Z3_DIR) || PIN_IS_RX3(Z3_STEP)
+    #error "Serial port pins (3) conflict with Z3 pins!"
+  #elif PIN_IS_TX3(Z4_DIR) || PIN_IS_RX3(Z4_STEP)
+    #error "Serial port pins (3) conflict with Z4 pins!"
+  #elif EXTRUDERS > 1 && (PIN_IS_TX3(E1_DIR) || PIN_IS_RX3(E1_STEP))
+    #error "Serial port pins (3) conflict with E1 pins!"
   #endif
+  #undef PIN_IS_TX3
+  #undef PIN_IS_RX3
+#endif
+
+//
+// Flag any i2c pin conflicts
+//
+#if ANY(DIGIPOT_I2C, DIGIPOT_MCP4018, DAC_STEPPER_CURRENT, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, NEOPIXEL_LED, PCA9632, I2C_EEPROM)
+  #define USEDI2CDEV_M 1  // <Arduino>/Wire.cpp
+
+  #if USEDI2CDEV_M == 0         // P0_27 [D57] (AUX-1) .......... P0_28 [D58] (AUX-1)
+    #define PIN_IS_SDA0(P) (P##_PIN == P0_27)
+    #define IS_SCL0(P)     (P == P0_28)
+    #if ENABLED(SDSUPPORT) && PIN_IS_SDA0(SD_DETECT)
+      #error "SDA0 overlaps with SD_DETECT_PIN!"
+    #elif PIN_IS_SDA0(E0_AUTO_FAN)
+      #error "SDA0 overlaps with E0_AUTO_FAN_PIN!"
+    #elif PIN_IS_SDA0(BEEPER)
+      #error "SDA0 overlaps with BEEPER_PIN!"
+    #elif IS_SCL0(BTN_ENC)
+      #error "SCL0 overlaps with Encoder Button!"
+    #elif IS_SCL0(SS_PIN)
+      #error "SCL0 overlaps with SS_PIN!"
+    #elif IS_SCL0(LCD_SDSS)
+      #error "SCL0 overlaps with LCD_SDSS!"
+    #endif
+    #undef PIN_IS_SDA0
+    #undef IS_SCL0
+  #elif USEDI2CDEV_M == 1       // P0_00 [D20] (SCA) ............ P0_01 [D21] (SCL)
+    #define PIN_IS_SDA1(P) (PIN_EXISTS(P) && P##_PIN == P0_00)
+    #define PIN_IS_SCL1(P) (P##_PIN == P0_01)
+    #if PIN_IS_SDA1(X_MIN) || PIN_IS_SCL1(X_MAX)
+      #error "One or more i2c (1) pins overlaps with X endstop pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(X2_DIR) || PIN_IS_SCL1(X2_STEP)
+      #error "One or more i2c (1) pins overlaps with X2 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Y2_DIR) || PIN_IS_SCL1(Y2_STEP)
+      #error "One or more i2c (1) pins overlaps with Y2 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Z2_DIR) || PIN_IS_SCL1(Z2_STEP)
+      #error "One or more i2c (1) pins overlaps with Z2 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Z3_DIR) || PIN_IS_SCL1(Z3_STEP)
+      #error "One or more i2c (1) pins overlaps with Z3 pins! Disable i2c peripherals."
+    #elif PIN_IS_SDA1(Z4_DIR) || PIN_IS_SCL1(Z4_STEP)
+      #error "One or more i2c (1) pins overlaps with Z4 pins! Disable i2c peripherals."
+    #elif EXTRUDERS > 1 && (PIN_IS_SDA1(E1_DIR) || PIN_IS_SCL1(E1_STEP))
+      #error "One or more i2c (1) pins overlaps with E1 pins! Disable i2c peripherals."
+    #endif
+    #undef PIN_IS_SDA1
+    #undef PIN_IS_SCL1
+  #elif USEDI2CDEV_M == 2     // P0_10 [D38] (X_ENABLE_PIN) ... P0_11 [D55] (X_DIR_PIN)
+    #define PIN_IS_SDA2(P) (P##_PIN == P0_10)
+    #define PIN_IS_SCL2(P) (P##_PIN == P0_11)
+    #if PIN_IS_SDA2(Y_STOP)
+      #error "i2c SDA2 overlaps with Y endstop pin!"
+    #elif HAS_CUSTOM_PROBE_PIN && PIN_IS_SDA2(Z_MIN_PROBE)
+      #error "i2c SDA2 overlaps with Z probe pin!"
+    #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
+      #error "i2c SDA2 overlaps with X/Y ENABLE pin!"
+    #elif AXIS_HAS_SPI(X) && PIN_IS_SDA2(X_CS)
+      #error "i2c SDA2 overlaps with X CS pin!"
+    #elif PIN_IS_SDA2(X2_ENABLE)
+      #error "i2c SDA2 overlaps with X2 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Y2_ENABLE)
+      #error "i2c SDA2 overlaps with Y2 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Z2_ENABLE)
+      #error "i2c SDA2 overlaps with Z2 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Z3_ENABLE)
+      #error "i2c SDA2 overlaps with Z3 enable pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(Z4_ENABLE)
+      #error "i2c SDA2 overlaps with Z4 enable pin! Disable i2c peripherals."
+    #elif EXTRUDERS > 1 && PIN_IS_SDA2(E1_ENABLE)
+      #error "i2c SDA2 overlaps with E1 enable pin! Disable i2c peripherals."
+    #elif EXTRUDERS > 1 && AXIS_HAS_SPI(E1) && PIN_IS_SDA2(E1_CS)
+      #error "i2c SDA2 overlaps with E1 CS pin! Disable i2c peripherals."
+    #elif EXTRUDERS && (PIN_IS_SDA2(E0_STEP) || PIN_IS_SDA2(E0_DIR))
+      #error "i2c SCL2 overlaps with E0 STEP/DIR pin! Disable i2c peripherals."
+    #elif PIN_IS_SDA2(X_DIR) || PIN_IS_SDA2(Y_DIR)
+      #error "One or more i2c pins overlaps with X/Y DIR pin! Disable i2c peripherals."
+    #endif
+    #undef PIN_IS_SDA2
+    #undef PIN_IS_SCL2
+  #endif
+
+  #undef USEDI2CDEV_M
 #endif
