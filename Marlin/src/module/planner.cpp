@@ -2107,46 +2107,44 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     {
       current_speed.e = steps_dist_mm.e * inverse_secs;
       #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+        #define MIX_FACTOR MIXING_STEPPERS
+      #else
+        #define MIX_FACTOR 1
+      #endif
+
+      #if MIX_FACTOR > 1
         // Move all mixing extruders at the specified rate
         if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
-          current_speed.e *= MIXING_STEPPERS;
+          current_speed.e *= MIX_FACTOR;
       #endif
-      const feedRate_t cs = ABS(current_speed.e),
-                #if DISABLED(NO_VOLUMETRICS)
-                  max_vfr = (volumetric_extruder_feedrate_limit[extruder]
-                              #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
-                                * MIXING_STEPPERS
-                              #endif
-                            ),
-                #endif
-                   max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                              #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
-                                * MIXING_STEPPERS
-                              #endif
-                            );
 
-    #if DISABLED(NO_VOLUMETRICS)
-      if (!block->steps.a && !block->steps.b && !block->steps.c) { // TODO: this will not work properly for joined segments, set MIN_STEPS_PER_SEGMENT 1 as workaround
-        //respect max feedrate on E axis only moves e.g. retraction
-    #endif
-        if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
-    #if DISABLED(NO_VOLUMETRICS)
-      }
-      else {
-        if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on printing moves
-        if (max_vfr > 0 && cs > max_vfr) {
-          NOMORE(speed_factor, max_vfr / cs); //as well as volumetric extruder limit (if any)
-          /* <-- add a slash to enable
-          SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
-          SERIAL_ECHOPAIR(" mm^3/s (", cs);
-          SERIAL_ECHOPAIR(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
-          SERIAL_ECHOPAIR(" mm^3/s (", max_vfr);
-          SERIAL_ECHOLNPGM(" mm/s)");
-          //*/
+      const feedRate_t cs = ABS(current_speed.e),
+                   max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)] * MIX_FACTOR);
+
+      #if DISABLED(NO_VOLUMETRICS)
+        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] * MIX_FACTOR;
+
+        // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
+
+        if (block->steps.a || block->steps.b || block->steps.c) {
+
+          // respect max feedrate on E axis only moves e.g. retraction
+
+          if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on printing moves
+          if (max_vfr > 0 && cs > max_vfr) {
+            NOMORE(speed_factor, max_vfr / cs); // as well as volumetric extruder limit (if any)
+            /* <-- add a slash to enable
+            SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPAIR(" mm^3/s (", cs);
+            SERIAL_ECHOPAIR(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPAIR(" mm^3/s (", max_vfr);
+            SERIAL_ECHOLNPGM(" mm/s)");
+            //*/
+          }
         }
-      }
-    #endif
-      
+        else
+      #endif
+          if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);      
     }
   #endif
 
