@@ -2130,7 +2130,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           // respect max feedrate on E axis only moves e.g. retraction
 
-          if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on printing moves
+          //if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on printing moves
+
           if (max_vfr > 0 && cs > max_vfr) {
             NOMORE(speed_factor, max_vfr / cs); // as well as volumetric extruder limit (if any)
             /* <-- add a slash to enable
