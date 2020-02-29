@@ -63,13 +63,13 @@ static pfnISR_Handler* get_relocated_table_addr() {
   memcpy(&ram_tab, romtab, sizeof(ram_tab));
 
   // Disable global interrupts
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START();
 
   // Set the vector table base address to the SRAM copy
   SCB->VTOR = (uint32_t)(&ram_tab);
 
   // Reenable interrupts
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END();
 
   // Return the address of the table
   return (pfnISR_Handler*)(&ram_tab);
@@ -80,7 +80,7 @@ pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler) {
   pfnISR_Handler *isrtab = get_relocated_table_addr();
 
   // Disable global interrupts
-  CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START();
 
   // Get the original handler
   pfnISR_Handler oldHandler = isrtab[irq + 16];
@@ -89,7 +89,7 @@ pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler) {
   isrtab[irq + 16] = newHandler;
 
   // Reenable interrupts
-  CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END();
 
   // Return the original one
   return oldHandler;

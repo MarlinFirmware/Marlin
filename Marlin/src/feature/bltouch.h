@@ -105,7 +105,4 @@ private:
   static void mode_conv_proc(const bool M5V);
 };
 
-// Deploy/stow angles for use by servo.cpp / servo.h
-#define BLTOUCH_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
-
 extern BLTouch bltouch;

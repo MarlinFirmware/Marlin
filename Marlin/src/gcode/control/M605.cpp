@@ -167,7 +167,7 @@
       extruder_duplication_enabled = ena && (duplication_e_mask >= 3);
     }
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
+    SERIAL_ECHOPGM(STR_DUPLICATION_MODE);
     serialprint_onoff(extruder_duplication_enabled);
     if (ena) {
       SERIAL_ECHOPGM(" ( ");

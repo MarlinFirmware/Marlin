@@ -80,11 +80,11 @@ void GcodeSuite::M48() {
   xy_float_t next_pos = current_position;
 
   const xy_pos_t probe_pos = {
-    parser.linearval('X', next_pos.x + probe.offset_xy.x),
-    parser.linearval('Y', next_pos.y + probe.offset_xy.y)
+    parser.linearval('X', next_pos.x + probe.offset_xy.x),  // If no X use the probe's current X position
+    parser.linearval('Y', next_pos.y + probe.offset_xy.y)   // If no Y, ditto
   };
 
-  if (!position_is_reachable_by_probe(probe_pos)) {
+  if (!probe.can_reach(probe_pos)) {
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -179,7 +179,7 @@ void GcodeSuite::M48() {
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while (!position_is_reachable_by_probe(next_pos)) {
+            while (!probe.can_reach(next_pos)) {
               next_pos *= 0.8f;
               if (verbose_level > 3)
                 SERIAL_ECHOLNPAIR_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);

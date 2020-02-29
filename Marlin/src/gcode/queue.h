@@ -35,9 +35,7 @@ public:
    * commands to Marlin, and lines will be checked for sequentiality.
    * M110 N<int> sets the current line number.
    */
-  static long last_N, stopped_N;
-
-  static inline void stop() { stopped_N = last_N; }
+  static long last_N;
 
   /**
    * GCode Command Queue
@@ -118,6 +116,12 @@ public:
    * the next expected line number.
    */
   static void flush_and_request_resend();
+
+  /**
+   * Attempt to enqueue a single G-code command
+   * and return 'true' if successful.
+   */
+  FORCE_INLINE static bool enqueue_P(const char* cmd) { return _enqueue(cmd); }
 
 private:
 

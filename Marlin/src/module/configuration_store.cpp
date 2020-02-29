@@ -323,7 +323,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[EXTRUDERS];          // M900 K  planner.extruder_advance_K
+  float planner_extruder_advance_K[_MAX(EXTRUDERS, 1)]; // M900 K  planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -1397,6 +1397,9 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
+        ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_VERSION));
+      #endif
       eeprom_error = true;
     }
     else {
@@ -2205,11 +2208,17 @@ void MarlinSettings::postprocess() {
       if (eeprom_error) {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
+        #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
+          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_INDEX));
+        #endif
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
+          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_CRC));
+        #endif
       }
       else if (!validating) {
         DEBUG_ECHO_START();
@@ -2532,7 +2541,7 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
-    COPY(servo_angles, base_servo_angles);
+    COPY(servo_angles, base_servo_angles);  // When not editable only one copy of servo angles exists
   #endif
 
   //
@@ -2766,9 +2775,18 @@ void MarlinSettings::reset() {
 
 #if DISABLED(DISABLE_M503)
 
+  static void config_heading(const bool repl, PGM_P const pstr, const bool eol=true) {
+    if (!repl) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("; ");
+      serialprintPGM(pstr);
+      if (eol) SERIAL_EOL();
+    }
+  }
+
   #define CONFIG_ECHO_START()       do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
   #define CONFIG_ECHO_MSG(STR)      do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); }while(0)
-  #define CONFIG_ECHO_HEADING(STR)  do{ if (!forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); } }while(0)
+  #define CONFIG_ECHO_HEADING(STR)  config_heading(forReplay, PSTR(STR))
 
   #if HAS_TRINAMIC
     inline void say_M906(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M906"); }
@@ -2852,8 +2870,7 @@ void MarlinSettings::reset() {
        * Volumetric extrusion M200
        */
       if (!forReplay) {
-        CONFIG_ECHO_START();
-        SERIAL_ECHOPGM("Filament settings:");
+        config_heading(forReplay, PSTR("Filament settings:"), false);
         if (parser.volumetric_enabled)
           SERIAL_EOL();
         else
@@ -2927,20 +2944,18 @@ void MarlinSettings::reset() {
       , SP_T_STR, LINEAR_UNIT(planner.settings.travel_acceleration)
     );
 
-    if (!forReplay) {
-      CONFIG_ECHO_START();
-      SERIAL_ECHOPGM("Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
+    CONFIG_ECHO_HEADING(
+      "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
       #if DISABLED(CLASSIC_JERK)
-        SERIAL_ECHOPGM(" J<junc_dev>");
+        " J<junc_dev>"
       #endif
       #if HAS_CLASSIC_JERK
-        SERIAL_ECHOPGM(" X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
+        " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>"
         #if HAS_CLASSIC_E_JERK
-          SERIAL_ECHOPGM(" E<max_e_jerk>");
+          " E<max_e_jerk>"
         #endif
       #endif
-      SERIAL_EOL();
-    }
+    );
     CONFIG_ECHO_START();
     SERIAL_ECHOLNPAIR_P(
         PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
@@ -2998,10 +3013,11 @@ void MarlinSettings::reset() {
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
+        config_heading(forReplay, PSTR(""), false);
         if (!forReplay) {
-          CONFIG_ECHO_START();
           ubl.echo_name();
-          SERIAL_ECHOLNPGM(":");
+          SERIAL_CHAR(':');
+          SERIAL_EOL();
         }
 
       #elif HAS_ABL_OR_UBL
@@ -3037,8 +3053,12 @@ void MarlinSettings::reset() {
         if (!forReplay) {
           SERIAL_EOL();
           ubl.report_state();
-          SERIAL_ECHOLNPAIR("\nActive Mesh Slot: ", ubl.storage_slot);
-          SERIAL_ECHOLNPAIR("EEPROM can hold ", calc_num_meshes(), " meshes.\n");
+          SERIAL_EOL();
+          config_heading(false, PSTR("Active Mesh Slot: "), false);
+          SERIAL_ECHOLN(ubl.storage_slot);
+          config_heading(false, PSTR("EEPROM can hold "), false);
+          SERIAL_ECHO(calc_num_meshes());
+          SERIAL_ECHOLNPGM(" meshes.\n");
         }
 
        //ubl.report_current_mesh();   // This is too verbose for large meshes. A better (more terse)
@@ -3071,7 +3091,7 @@ void MarlinSettings::reset() {
             #endif
           #elif ENABLED(SWITCHING_NOZZLE)
             case SWITCHING_NOZZLE_SERVO_NR:
-          #elif (ENABLED(BLTOUCH) && defined(BLTOUCH_ANGLES)) || (defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR))
+          #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
             case Z_PROBE_SERVO_NR:
           #endif
             CONFIG_ECHO_START();
@@ -3248,11 +3268,8 @@ void MarlinSettings::reset() {
      * Probe Offset
      */
     #if HAS_BED_PROBE
-      if (!forReplay) {
-        CONFIG_ECHO_START();
-        SERIAL_ECHOPGM("Z-Probe Offset");
-        say_units(true);
-      }
+      config_heading(forReplay, PSTR("Z-Probe Offset"), false);
+      if (!forReplay) say_units(true);
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         #if HAS_PROBE_XY_OFFSET

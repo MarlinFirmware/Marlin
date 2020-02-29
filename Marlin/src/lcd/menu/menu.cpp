@@ -324,9 +324,9 @@ void MarlinUI::_synchronize() {
   if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
   if (no_reentry) return;
   // Make this the current handler till all moves are done
-  no_reentry = true;
   const screenFunc_t old_screen = currentScreen;
   goto_screen(_synchronize);
+  no_reentry = true;
   planner.synchronize(); // idle() is called until moves complete
   no_reentry = false;
   goto_screen(old_screen);

@@ -134,7 +134,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
           ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
         #endif
       }
@@ -228,7 +228,7 @@ void menu_main() {
       #if PIN_EXISTS(SD_DETECT)
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);
       #else
-        GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
+        GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
         ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
       #endif
     }

@@ -59,8 +59,6 @@
 
 #include "HAL_LCD_com_defines.h"
 
-#define LCD_PIXEL_WIDTH  128
-#define LCD_PIXEL_HEIGHT  64
 #define PAGE_HEIGHT        8
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */

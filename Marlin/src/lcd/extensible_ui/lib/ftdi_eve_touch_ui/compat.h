@@ -37,6 +37,10 @@
 #ifdef __MARLIN_FIRMWARE__
   // __MARLIN_FIRMWARE__ exists when compiled within Marlin.
   #include "pin_mappings.h"
+  #undef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+  #undef min
+  #define min(a,b) ((a)<(b)?(a):(b))
 #else
   namespace UI {
     static inline uint32_t safe_millis() {return millis();};

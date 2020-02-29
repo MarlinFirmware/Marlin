@@ -1018,7 +1018,7 @@ void prepare_move_to_destination() {
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         ignore_e = thermalManager.tooColdToExtrude(active_extruder);
-        if (ignore_e) SERIAL_ECHO_MSG(MSG_ERR_COLD_EXTRUDE_STOP);
+        if (ignore_e) SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
       #endif
 
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
@@ -1030,13 +1030,13 @@ void prepare_move_to_destination() {
             MIXER_STEPPER_LOOP(e) {
               if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
                 ignore_e = true;
-                SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+                SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
                 break;
               }
             }
           #else
             ignore_e = true;
-            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+            SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
           #endif
         }
       #endif

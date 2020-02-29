@@ -402,7 +402,7 @@ public:
     static void set_status(const char* const message, const bool persist=false);
     static void set_status_P(PGM_P const message, const int8_t level=0);
     static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
-    static void reset_status();
+    static void reset_status(const bool no_welcome=false);
 
   #else // No LCD
 
@@ -416,7 +416,7 @@ public:
     static inline void refresh() {}
     static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P const) {}
-    static inline void reset_status() {}
+    static inline void reset_status(const bool=false) {}
     static inline void reset_alert_level() {}
     static constexpr bool has_status() { return false; }
 

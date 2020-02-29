@@ -256,7 +256,7 @@ namespace ExtUI {
     void setPIDValues(const float, const float, const float, extruder_t);
     void startPIDTune(const float, extruder_t);
   #endif
-  
+
   #if ENABLED(PIDTEMPBED)
     float getBedPIDValues_Kp();
     float getBedPIDValues_Ki();

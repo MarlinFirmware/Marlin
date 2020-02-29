@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 #  mftest                             Select a test to apply and build
-#  mftest -b                          Build the auto-detected environment
-#  mftest -u                          Upload the auto-detected environment
+#  mftest -b [#]                      Build the auto-detected environment
+#  mftest -u [#]                      Upload the auto-detected environment
 #  mftest [name] [index] [-y]         Set config options and optionally build a test
 #
 
@@ -38,15 +38,27 @@ case $TESTENV in
     m256) TESTENV='megaatmega2560' ;;
     mega) TESTENV='megaatmega2560' ;;
      stm) TESTENV='STM32F103RE' ;;
-     f1)  TESTENV='STM32F103RE' ;;
-     f4)  TESTENV='STM32F4' ;;
-     f7)  TESTENV='STM32F7' ;;
-     s6)  TESTENV='FYSETC_S6' ;;
+      f1) TESTENV='STM32F103RE' ;;
+      f4) TESTENV='STM32F4' ;;
+      f7) TESTENV='STM32F7' ;;
+      s6) TESTENV='FYSETC_S6' ;;
   teensy) TESTENV='teensy31' ;;
      t31) TESTENV='teensy31' ;;
      t32) TESTENV='teensy31' ;;
      t35) TESTENV='teensy35' ;;
      t36) TESTENV='teensy35' ;;
+
+-h|--help)  echo -e "$(basename $0) : Marlin Firmware test, build, and upload\n"
+            echo "Usage: $(basename $0) ................. Select env and test to apply / run"
+            echo "       $(basename $0) [-y] env ........ Select a test for env to apply / run"
+            echo "       $(basename $0) [-y] env test ... Apply / run the specified env test"
+            echo "       $(basename $0) -b [variant] .... Auto-build the specified variant"
+            echo "       $(basename $0) -u [variant] .... Auto-build and upload the specified variant"
+            echo
+            echo "env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36"
+            exit
+            ;;
+
           # Build with the last-built env
       -r) [[ -f "$STATE_FILE" ]] || { echo "No previous (-r) build state found." ; exit 1 ; }
           read TESTENV <"$STATE_FILE"
@@ -54,26 +66,26 @@ case $TESTENV in
           exit
           ;;
 
-   -[bu]) MB=$( grep "define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
-          [[ -z $MB ]] && { echo "Error - Unable to read MOTHERBOARD setting." ; exit 1 ; }
-          BLINE=$( grep "define BOARD_$MB" Marlin/src/core/boards.h )
+   -[bu]) MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
+          [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
+          BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
           BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
           BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
-          [[ -z $BNUM ]] && { echo "Error - Unable to $MB in boards list." ; exit 1 ; }
-          readarray -t ENVS <<< $( grep -A1 "MB($MB)" Marlin/src/pins/pins.h | $SED -n '2 p' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' )
-          [[ -z $ENVS ]] && { echo "Error - Unable to find target(s) for $MB ($BNUM)." ; exit 1 ; }
+          [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
+          readarray -t ENVS <<< $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E '#include.+//.+env:.+' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' )
+          [[ -z $ENVS ]] && { echo "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
           ECOUNT=${#ENVS[*]}
 
           if [[ $ECOUNT == 1 ]]; then
             TARGET=$ENVS
           else
-            #
-            # List env names and numbers. Get selection.
-            #
             if [[ $CHOICE == 0 ]]; then
+              #
+              # List env names and numbers. Get selection.
+              #
               echo "Available targets for \"$BDESC\" | $MB ($BNUM):"
 
-              IND=0 ; for ENV in "${ENVS[@]}"; do echo " $IND) $ENV" ; done
+              IND=0 ; for ENV in "${ENVS[@]}"; do let IND++ ; echo " $IND) $ENV" ; done
 
               if [[ $ECOUNT > 1 ]]; then
                 for (( ; ; ))
@@ -87,7 +99,7 @@ case $TESTENV in
               fi
             else
               echo "Detected \"$BDESC\" | $MB ($BNUM)."
-              [[ $CHOICE > $ECOUNT ]] && { echo "Environment selection is out of range." ; exit 1 ; }
+              [[ $CHOICE > $ECOUNT ]] && { echo "Environment selection out of range." ; exit 1 ; }
             fi
             TARGET="${ENVS[$CHOICE-1]}"
             echo "Selected $TARGET"

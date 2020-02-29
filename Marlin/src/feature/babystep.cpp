@@ -35,26 +35,18 @@
 
 Babystep babystep;
 
-volatile int16_t Babystep::steps[BS_TODO_AXIS(Z_AXIS) + 1];
+volatile int16_t Babystep::steps[BS_AXIS_IND(Z_AXIS) + 1];
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-  int16_t Babystep::axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];
+  int16_t Babystep::axis_total[BS_TOTAL_IND(Z_AXIS) + 1];
 #endif
 int16_t Babystep::accum;
 
 void Babystep::step_axis(const AxisEnum axis) {
-  const int16_t curTodo = steps[BS_TODO_AXIS(axis)]; // get rid of volatile for performance
+  const int16_t curTodo = steps[BS_AXIS_IND(axis)]; // get rid of volatile for performance
   if (curTodo) {
-    stepper.babystep((AxisEnum)axis, curTodo > 0);
-    if (curTodo > 0) steps[BS_TODO_AXIS(axis)]--; else steps[BS_TODO_AXIS(axis)]++;
+    stepper.do_babystep((AxisEnum)axis, curTodo > 0);
+    if (curTodo > 0) steps[BS_AXIS_IND(axis)]--; else steps[BS_AXIS_IND(axis)]++;
   }
-}
-
-void Babystep::task() {
-  #if EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
-    LOOP_XYZ(axis) step_axis((AxisEnum)axis);
-  #else
-    step_axis(Z_AXIS);
-  #endif
 }
 
 void Babystep::add_mm(const AxisEnum axis, const float &mm) {
@@ -74,7 +66,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
 
   accum += distance; // Count up babysteps for the UI
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-    axis_total[BS_TOTAL_AXIS(axis)] += distance;
+    axis_total[BS_TOTAL_IND(axis)] += distance;
   #endif
 
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
@@ -120,10 +112,14 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
     #else
       BSA_ENABLE(Z_AXIS);
     #endif
-    steps[BS_TODO_AXIS(axis)] += distance;
+    steps[BS_AXIS_IND(axis)] += distance;
   #endif
   #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
     gcode.reset_stepper_timeout();
+  #endif
+
+  #if ENABLED(INTEGRATED_BABYSTEPPING)
+    if (has_steps()) stepper.initiateBabystepping();
   #endif
 }
 

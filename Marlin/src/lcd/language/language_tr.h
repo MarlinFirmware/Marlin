@@ -266,7 +266,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD Kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Hafızaya Al");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hafızadan Yükle");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Fabrika Ayarları");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Fabrika Ayarları");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM'u başlat");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("SD Güncellemesi");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Yazıcıyı Resetle");
@@ -309,7 +309,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Filaman Çıkart");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Filaman Çıkart *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Tümünü Çıkart");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("SD Kart Başlatılıyor");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("SD Kart Başlatılıyor");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("SD Kart Değiştir");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z Prob Açık. Tabla");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Çarpıklık Faktörü");
