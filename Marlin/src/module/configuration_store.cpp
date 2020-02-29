@@ -101,7 +101,7 @@
 #endif
 
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
-  extern float saved_extruder_advance_K[EXTRUDERS];
+  extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if EXTRUDERS > 1
@@ -2717,7 +2717,7 @@ void MarlinSettings::reset() {
     LOOP_L_N(i, EXTRUDERS) {
       planner.extruder_advance_K[i] = LIN_ADVANCE_K;
       #if ENABLED(EXTRA_LIN_ADVANCE_K)
-        saved_extruder_advance_K[i] = LIN_ADVANCE_K;
+        other_extruder_advance_K[i] = LIN_ADVANCE_K;
       #endif
     }
   #endif
