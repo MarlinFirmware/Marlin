@@ -473,7 +473,7 @@
     ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
     ( /* Do nothing */ )
 #define __RREPEAT2() _RREPEAT2
-#define RREPEAT_S(S,N,OP)        EVAL(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
 #define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
-#define RREPEAT2_S(S,N,OP,V...)  EVAL(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
