@@ -195,6 +195,8 @@ void GcodeSuite::M114() {
     }
   #endif
 
-  planner.synchronize();
+  if ( ! print_job_timer.isRunning() ) {
+    planner.synchronize();
+  }
   report_current_position();
 }
