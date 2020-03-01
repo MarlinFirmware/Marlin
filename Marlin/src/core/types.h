@@ -483,3 +483,4 @@ struct XYZEval {
 #undef FI
 
 const xyze_char_t axis_codes { 'X', 'Y', 'Z', 'E' };
+#define XYZ_CHAR(A) ('X' + char(A))

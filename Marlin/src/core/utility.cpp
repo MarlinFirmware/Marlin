@@ -139,17 +139,17 @@ void safe_delay(millis_t ms) {
     #endif
 
     #if HAS_ABL_OR_UBL
-      SERIAL_ECHOLNPGM("Auto Bed Leveling: "
-        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-          "LINEAR"
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          "BILINEAR"
-        #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-          "3POINT"
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          "UBL"
-        #endif
-      );
+      SERIAL_ECHOPGM("Auto Bed Leveling: ");
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        SERIAL_ECHOLNPGM("LINEAR");
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        SERIAL_ECHOLNPGM("BILINEAR");
+      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+        SERIAL_ECHOLNPGM("3POINT");
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        SERIAL_ECHOLNPGM("UBL");
+      #endif
+
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -160,7 +160,7 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
             float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
-            SERIAL_CHAR(' ', 'X' + char(a));
+            SERIAL_CHAR(' ', XYZ_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_ECHO(v);
           }

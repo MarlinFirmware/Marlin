@@ -45,8 +45,8 @@
 
   void report_xyz(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    for (uint8_t a = X_AXIS; a <= Z_AXIS; a++) {
-      SERIAL_CHAR(' ', axis_codes[a], ':');
+    LOOP_XYZ(a) {
+      SERIAL_CHAR(' ', XYZ_CHAR(a), ':');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();

@@ -47,7 +47,7 @@ void GcodeSuite::M425() {
   bool noArgs = true;
 
   LOOP_XYZ(a) {
-    if (parser.seen(axis_codes[a])) {
+    if (parser.seen(XYZ_CHAR(a))) {
       planner.synchronize();
       backlash.distance_mm[a] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a));
       noArgs = false;
@@ -75,7 +75,7 @@ void GcodeSuite::M425() {
     SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_XYZ(a) {
-      SERIAL_CHAR(' ', axis_codes[a]);
+      SERIAL_CHAR(' ', XYZ_CHAR(a));
       SERIAL_ECHO(backlash.distance_mm[a]);
       SERIAL_EOL();
     }
@@ -88,7 +88,7 @@ void GcodeSuite::M425() {
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
         LOOP_XYZ(a) if (backlash.has_measurement(AxisEnum(a))) {
-          SERIAL_CHAR(' ', axis_codes[a]);
+          SERIAL_CHAR(' ', XYZ_CHAR(a));
           SERIAL_ECHO(backlash.get_measurement(AxisEnum(a)));
         }
       }
