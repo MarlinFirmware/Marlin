@@ -37,6 +37,7 @@ extern "C" {
 
 #include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
+#include "../../core/millis_t.h"
 #include "HAL.h"
 #include "timers.h"
 

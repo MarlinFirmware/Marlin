@@ -24,7 +24,7 @@
 #include <math.h>
 #include <stddef.h>
 
-#include "millis_t.h"
+#include "../inc/MarlinConfigPre.h"
 
 class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;

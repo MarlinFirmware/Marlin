@@ -23,6 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
+#include "../core/millis_t.h"
 
 // Delay that ensures heaters and watchdog are kept alive
 void safe_delay(millis_t ms);

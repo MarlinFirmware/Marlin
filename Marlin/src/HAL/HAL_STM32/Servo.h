@@ -24,6 +24,8 @@
 
 #include <Servo.h>
 
+#include "../../core/millis_t.h"
+
 // Inherit and expand on the official library
 class libServo : public Servo {
   public:

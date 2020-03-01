@@ -829,7 +829,7 @@ void MarlinUI::draw_status_screen() {
                 && !printingIsActive()
               #endif
             ) {
-              xy_pos_t lpos = current_position; toLogical(lpos);
+              const xy_pos_t lpos = current_position.asLogical();
               _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
               lcd_put_wchar(' ');
               _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
