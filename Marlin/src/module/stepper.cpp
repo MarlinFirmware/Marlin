@@ -2448,6 +2448,19 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
+void Stepper::report_a_position(const xyz_long_t &pos) {
+  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
+    SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
+  #else
+    SERIAL_ECHOPAIR_P(PSTR(STR_COUNT_X), pos.x, SP_Y_LBL, pos.y);
+  #endif
+  #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
+    SERIAL_ECHOLNPAIR(" C:", pos.z);
+  #else
+    SERIAL_ECHOLNPAIR_P(SP_Z_LBL, pos.z);
+  #endif
+}
+
 void Stepper::report_positions() {
 
   #ifdef __AVR__
@@ -2461,16 +2474,7 @@ void Stepper::report_positions() {
     if (was_enabled) wake_up();
   #endif
 
-  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
-  #else
-    SERIAL_ECHOPAIR_P(PSTR(STR_COUNT_X), pos.x, SP_Y_LBL, pos.y);
-  #endif
-  #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
-    SERIAL_ECHOLNPAIR(" C:", pos.z);
-  #else
-    SERIAL_ECHOLNPAIR_P(SP_Z_LBL, pos.z);
-  #endif
+  report_a_position(pos);
 }
 
 #if ENABLED(BABYSTEPPING)

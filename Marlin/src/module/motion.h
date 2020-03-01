@@ -162,7 +162,9 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   #define update_software_endstops(...) NOOP
 #endif
 
+void report_real_position();
 void report_current_position();
+void report_current_position_projected();
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
