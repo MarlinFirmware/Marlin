@@ -42,7 +42,7 @@ const tTimerConfig TimerConfig[NUM_HARDWARE_TIMERS+1] = {
   { {.pTc=TC1},  TC1_IRQn, TC_PRIORITY(1) },  // 1 - stepper (needed by 32 bit timers)
   { {.pTc=TC2},  TC2_IRQn, TC_PRIORITY(2) },  // 2 - tone (framework)
   { {.pTc=TC3},  TC3_IRQn, TC_PRIORITY(3) },  // 3 - servo
-  { {.pTc=TC4},  TC4_IRQn, TC_PRIORITY(4) },
+  { {.pTc=TC4},  TC4_IRQn, TC_PRIORITY(4) },  // 4 - software serial
   { {.pTc=TC5},  TC5_IRQn, TC_PRIORITY(5) },
   { {.pTc=TC6},  TC6_IRQn, TC_PRIORITY(6) },
   { {.pTc=TC7},  TC7_IRQn, TC_PRIORITY(7) },
@@ -145,12 +145,12 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
   NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
   Disable_Irq(irq);
 }
 
@@ -160,7 +160,7 @@ static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
   return NVIC_GetEnabledIRQ(irq);
 }
 
