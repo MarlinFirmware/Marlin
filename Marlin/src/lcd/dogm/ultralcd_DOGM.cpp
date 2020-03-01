@@ -548,9 +548,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       if (PAGE_UNDER(7)) {
         const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
                        lpos = pos.asLogical();
-        lcd_put_u8str(5, 7, "X:");
+        lcd_put_u8str_P(5, 7, X_LBL);
         lcd_put_u8str(ftostr52(lpos.x));
-        lcd_put_u8str(74, 7, "Y:");
+        lcd_put_u8str_P(74, 7, Y_LBL);
         lcd_put_u8str(ftostr52(lpos.y));
       }
 
@@ -563,7 +563,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_wchar(')');
 
         // Show the location value
-        lcd_put_u8str(74, LCD_PIXEL_HEIGHT, "Z:");
+        lcd_put_u8str_P(74, LCD_PIXEL_HEIGHT, Z_LBL);
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else

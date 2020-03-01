@@ -652,11 +652,11 @@ void MarlinUI::draw_status_screen() {
           }
         }
         else if (progress_state == 2 && estimation_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, "R:");
+          lcd_put_u8str_P(PROGRESS_BAR_X, EXTRAS_BASELINE, PSTR("R:"));
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
         }
         else if (elapsed_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, "E:");
+          lcd_put_u8str_P(PROGRESS_BAR_X, EXTRAS_BASELINE, E_LBL);
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
         }
 

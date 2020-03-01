@@ -2628,21 +2628,24 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
       SERIAL_ECHOPAIR("->", target.a);
       SERIAL_ECHOPAIR(") B:", b);
     #else
-      SERIAL_ECHOPAIR(" X:", a);
+      SERIAL_ECHOPAIR_P(SP_X_LBL, a);
       SERIAL_ECHOPAIR(" (", position.x);
       SERIAL_ECHOPAIR("->", target.x);
-      SERIAL_ECHOPAIR(") Y:", b);
+      SERIAL_CHAR(')');
+      SERIAL_ECHOPAIR_P(SP_Y_LBL, b);
     #endif
     SERIAL_ECHOPAIR(" (", position.y);
     SERIAL_ECHOPAIR("->", target.y);
     #if ENABLED(DELTA)
       SERIAL_ECHOPAIR(") C:", c);
     #else
-      SERIAL_ECHOPAIR(") Z:", c);
+      SERIAL_CHAR(')');
+      SERIAL_ECHOPAIR_P(SP_Z_LBL, c);
     #endif
     SERIAL_ECHOPAIR(" (", position.z);
     SERIAL_ECHOPAIR("->", target.z);
-    SERIAL_ECHOPAIR(") E:", e);
+    SERIAL_CHAR(')');
+    SERIAL_ECHOPAIR_P(SP_E_LBL, e);
     SERIAL_ECHOPAIR(" (", position.e);
     SERIAL_ECHOPAIR("->", target.e);
     SERIAL_ECHOLNPGM(")");
