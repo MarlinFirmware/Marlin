@@ -182,7 +182,7 @@ void sync_plan_position_e();
  */
 void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
-void prepare_move_to_destination();
+void prepare_line_to_destination();
 
 void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
   #if IS_KINEMATIC

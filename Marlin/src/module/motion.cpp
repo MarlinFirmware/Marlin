@@ -104,7 +104,7 @@ xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
 /**
  * Cartesian Destination
  *   The destination for a move, filled in by G-code movement commands,
- *   and expected by functions like 'prepare_move_to_destination'.
+ *   and expected by functions like 'prepare_line_to_destination'.
  *   G-codes can set destination using 'get_destination_from_command'
  */
 xyze_pos_t destination; // {0}
@@ -340,7 +340,7 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
       prepare_fast_move_to_destination();
     else
   #endif
-      prepare_move_to_destination();
+      prepare_line_to_destination();
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;
@@ -660,6 +660,16 @@ void restore_feedrate_and_scaling() {
 #endif // HAS_SOFTWARE_ENDSTOPS
 
 #if !UBL_SEGMENTED
+
+FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
+  const millis_t ms = millis();
+  thermalManager.manage_heater();  // This returns immediately if not really needed.
+  if (ELAPSED(ms, next_idle_ms)) {
+    next_idle_ms = ms + 200UL;
+    idle();
+  }
+}
+
 #if IS_KINEMATIC
 
   #if IS_SCARA
@@ -679,7 +689,7 @@ void restore_feedrate_and_scaling() {
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
    *
-   * Called from prepare_move_to_destination as the
+   * Called from prepare_line_to_destination as the
    * default Delta/SCARA segmenter.
    *
    * This calls planner.buffer_line several times, adding
@@ -752,17 +762,10 @@ void restore_feedrate_and_scaling() {
     xyze_pos_t raw = current_position;
 
     // Calculate and execute the segments
+    millis_t next_idle_ms = millis() + 200UL;
     while (--segments) {
-
-      static millis_t next_idle_ms = millis() + 200UL;
-      thermalManager.manage_heater();  // This returns immediately if not really needed.
-      if (ELAPSED(millis(), next_idle_ms)) {
-        next_idle_ms = millis() + 200UL;
-        idle();
-      }
-
+      segment_idle(next_idle_ms);
       raw += segment_distance;
-
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, cartesian_segment_mm
         #if ENABLED(SCARA_FEEDRATE_SCALING)
           , inv_duration
@@ -831,13 +834,9 @@ void restore_feedrate_and_scaling() {
       xyze_pos_t raw = current_position;
 
       // Calculate and execute the segments
+      millis_t next_idle_ms = millis() + 200UL;
       while (--segments) {
-        static millis_t next_idle_ms = millis() + 200UL;
-        thermalManager.manage_heater();  // This returns immediately if not really needed.
-        if (ELAPSED(millis(), next_idle_ms)) {
-          next_idle_ms = millis() + 200UL;
-          idle();
-        }
+        segment_idle(next_idle_ms);
         raw += segment_distance;
         if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm
           #if ENABLED(SCARA_FEEDRATE_SCALING)
@@ -866,7 +865,7 @@ void restore_feedrate_and_scaling() {
    *
    * Return true if 'current_position' was set to 'destination'
    */
-  inline bool prepare_move_to_destination_cartesian() {
+  inline bool line_to_destination_cartesian() {
     const float scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
     #if HAS_MESH
       if (planner.leveling_active && planner.leveling_active_at_z(destination.z)) {
@@ -1009,7 +1008,7 @@ void restore_feedrate_and_scaling() {
  *
  * Before exit, current_position is set to destination.
  */
-void prepare_move_to_destination() {
+void prepare_line_to_destination() {
   apply_motion_limits(destination);
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
@@ -1059,12 +1058,12 @@ void prepare_move_to_destination() {
       #if IS_KINEMATIC // UBL using Kinematic / Cartesian cases as a workaround for now.
         ubl.line_to_destination_segmented(MMS_SCALED(feedrate_mm_s))
       #else
-        prepare_move_to_destination_cartesian()
+        line_to_destination_cartesian()
       #endif
     #elif IS_KINEMATIC
       line_to_destination_kinematic()
     #else
-      prepare_move_to_destination_cartesian()
+      line_to_destination_cartesian()
     #endif
   ) return;
 
