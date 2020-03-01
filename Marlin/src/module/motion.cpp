@@ -272,20 +272,21 @@ void get_cartesian_from_steppers() {
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
+  xyze_pos_t pos = cartes;
+  pos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
-    xyze_pos_t pos = { cartes.x, cartes.y, cartes.z, current_position.e };
     planner.unapply_modifiers(pos
       #if HAS_LEVELING
         , true
       #endif
     );
-    const xyze_pos_t &cartes = pos;
   #endif
+
   if (axis == ALL_AXES)
-    current_position = cartes;
+    current_position = pos;
   else
-    current_position[axis] = cartes[axis];
+    current_position[axis] = pos[axis];
 }
 
 /**
