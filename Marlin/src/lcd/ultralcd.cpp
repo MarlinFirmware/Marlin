@@ -391,7 +391,7 @@ bool MarlinUI::get_blink() {
 
     void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
       move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-      encoderPosition = dir;
+      MarlinUI::encoderPosition = dir;
       switch (axis) {
         case X_AXIS: lcd_move_x(); break;
         case Y_AXIS: lcd_move_y(); break;
@@ -1267,15 +1267,11 @@ void MarlinUI::update() {
       #endif
 
       #if HAS_SHIFT_ENCODER
-
-        GET_SHIFT_BUTTON_STATES((
-          #if ENABLED(REPRAPWORLD_KEYPAD)
-            keypad_buttons
-          #else
-            buttons
-          #endif
-        ));
-
+        #if ENABLED(REPRAPWORLD_KEYPAD)
+          GET_SHIFT_BUTTON_STATES(keypad_buttons);
+        #else
+          GET_SHIFT_BUTTON_STATES(buttons);
+        #endif
       #endif
 
     } // next_button_update_ms
