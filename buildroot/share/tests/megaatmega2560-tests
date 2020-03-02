@@ -146,12 +146,14 @@ exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Cyrillic"
 # Test DUAL_X_CARRIAGE
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_RUMBA
+opt_set MOTHERBOARD BOARD_TT_OSCAR
 opt_set LCD_LANGUAGE pt
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_1 1
 opt_enable USE_XMAX_PLUG DUAL_X_CARRIAGE
-exec_test $1 $2 "Rumba | DUAL_X_CARRIAGE"
+opt_enable REPRAPWORLD_KEYPAD
+opt_set REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+exec_test $1 $2 "TT Oscar | DUAL_X_CARRIAGE"
 
 #
 # Test SPEAKER with BOARD_BQ_ZUM_MEGA_3D and BQ_LCD_SMART_CONTROLLER
