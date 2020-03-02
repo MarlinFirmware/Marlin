@@ -361,6 +361,10 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
     sis = PS_EOL;               // Skip the rest on overflow
 }
 
+/**
+ * Handle a line being completed. For an empty line
+ * keep sensor readings going and watchdog alive.
+ */
 inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
   sis = PS_NORMAL;
   buff[ind] = 0;
