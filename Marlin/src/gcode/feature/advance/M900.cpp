@@ -59,16 +59,12 @@ void GcodeSuite::M900() {
     }
   #endif
 
-  float &kref = planner.extruder_advance_K[tool_index];
+  float &kref = planner.extruder_advance_K[tool_index], newK = kref;
+  const float oldK = newK;
 
   #if ENABLED(EXTRA_LIN_ADVANCE_K)
+
     float &lref = other_extruder_advance_K[tool_index];
-  #endif
-
-  const float oldK = kref;
-  float newK = oldK;
-
-  #if ENABLED(EXTRA_LIN_ADVANCE_K)
 
     const bool old_slot = TEST(lin_adv_slot, tool_index), // The tool's current slot (0 or 1)
                new_slot = parser.boolval('S', old_slot);  // The passed slot (default = current)
