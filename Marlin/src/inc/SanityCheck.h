@@ -2150,6 +2150,49 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 #undef INVALID_TMC_ADDRESS
 
+#define __TMC_MICROSTEP_IS_VALID(MS) (MS == 0 || MS == 2 || MS == 4 || MS == 8 || MS == 16 || MS == 32 || MS == 64 || MS == 128 || MS == 256)
+#define _TMC_MICROSTEP_IS_VALID(M) __TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS)
+#define TMC_MICROSTEP_IS_VALID(M) (!AXIS_IS_TMC(M) || _TMC_MICROSTEP_IS_VALID(M))
+#define INVALID_TMC_MS(ST) static_assert(0, "Invalid " STRINGIFY(ST) "_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256.")
+
+#if !TMC_MICROSTEP_IS_VALID(X)
+  INVALID_TMC_MS(X);
+#elif !TMC_MICROSTEP_IS_VALID(Y)
+  INVALID_TMC_MS(Y)
+#elif !TMC_MICROSTEP_IS_VALID(Z)
+  INVALID_TMC_MS(Z)
+#elif !TMC_MICROSTEP_IS_VALID(X2)
+  INVALID_TMC_MS(X2);
+#elif !TMC_MICROSTEP_IS_VALID(Y2)
+  INVALID_TMC_MS(Y2)
+#elif !TMC_MICROSTEP_IS_VALID(Z2)
+  INVALID_TMC_MS(Z2)
+#elif !TMC_MICROSTEP_IS_VALID(Z3)
+  INVALID_TMC_MS(Z3)
+#elif !TMC_MICROSTEP_IS_VALID(Z4)
+  INVALID_TMC_MS(Z4)
+#elif !TMC_MICROSTEP_IS_VALID(E0)
+  INVALID_TMC_MS(E0)
+#elif !TMC_MICROSTEP_IS_VALID(E1)
+  INVALID_TMC_MS(E1)
+#elif !TMC_MICROSTEP_IS_VALID(E2)
+  INVALID_TMC_MS(E2)
+#elif !TMC_MICROSTEP_IS_VALID(E3)
+  INVALID_TMC_MS(E3)
+#elif !TMC_MICROSTEP_IS_VALID(E4)
+  INVALID_TMC_MS(E4)
+#elif !TMC_MICROSTEP_IS_VALID(E5)
+  INVALID_TMC_MS(E5)
+#elif !TMC_MICROSTEP_IS_VALID(E6)
+  INVALID_TMC_MS(E6)
+#elif !TMC_MICROSTEP_IS_VALID(E7)
+  INVALID_TMC_MS(E7)
+#endif
+#undef INVALID_TMC_MS
+#undef TMC_MICROSTEP_IS_VALID
+#undef _TMC_MICROSTEP_IS_VALID
+#undef __TMC_MICROSTEP_IS_VALID
+
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
 #endif
@@ -2736,42 +2779,4 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 // G60/G61 Position Save
 #if SAVED_POSITIONS > 256
   #error "SAVED_POSITIONS must be an integer from 0 to 256."
-#endif
-
-
-#define _TMC_MICROSTEP_IS_VALID(M) (M##_MICROSTEPS == 0 || M##_MICROSTEPS == 2 || M##_MICROSTEPS == 4 || M##_MICROSTEPS == 8 || M##_MICROSTEPS == 16 || M##_MICROSTEPS == 32 || M##_MICROSTEPS == 64 || M##_MICROSTEPS == 128 || M##_MICROSTEPS == 256 )
-#define TMC_MICROSTEP_IS_VALID(M) (!AXIS_IS_TMC(M) || _TMC_MICROSTEP_IS_VALID(M))
-
-#if !TMC_MICROSTEP_IS_VALID(X)
-  #error "Invalid X_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(X2)
-  #error "Invalid X2_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(Y)
-  #error "Invalid Y_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(Y2)
-  #error "Invalid Y2_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(Z)
-  #error "Invalid Z_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(Z2)
-  #error "Invalid Z2_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(Z3)
-  #error "Invalid Z3_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(Z4)
-  #error "Invalid Z4_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E0)
-  #error "Invalid E0_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E1)
-  #error "Invalid E1_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E2)
-  #error "Invalid E2_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E3)
-  #error "Invalid E3_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E4)
-  #error "Invalid E4_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E5)
-  #error "Invalid E5_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E6)
-  #error "Invalid E6_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
-#elif !TMC_MICROSTEP_IS_VALID(E7)
-  #error "Invalid E7_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256."
 #endif
