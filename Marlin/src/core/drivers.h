@@ -98,6 +98,8 @@
                               || HAS_DRIVER(TMC5130) \
                               || HAS_DRIVER(TMC5160) )
 
+#define HAS_TRINAMIC HAS_TRINAMIC_CONFIG
+
 #define HAS_TRINAMIC_STANDALONE (    HAS_DRIVER(TMC2130_STANDALONE) \
                                   || HAS_DRIVER(TMC2208_STANDALONE) \
                                   || HAS_DRIVER(TMC2209_STANDALONE) \
