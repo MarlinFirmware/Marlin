@@ -621,7 +621,7 @@ void restore_feedrate_and_scaling() {
       ) {
         const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
         if (dist_2 > delta_max_radius_2)
-          target *= (float)(delta_max_radius / (SQRT(dist_2))); // 200 / 300 = 0.66
+          target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
       }
 
     #else
