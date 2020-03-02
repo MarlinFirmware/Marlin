@@ -1995,10 +1995,6 @@
   #define USE_GCODE_SUBCODES
 #endif
 
-#ifndef POWER_LOSS_DEFAULT
-  #define POWER_LOSS_DEFAULT true
-#endif
-
 // Parking Extruder
 #if ENABLED(PARKING_EXTRUDER)
   #ifndef PARKING_EXTRUDER_GRAB_DISTANCE
