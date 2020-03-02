@@ -930,7 +930,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(POWER_LOSS_RECOVERY)
           recovery.enabled
         #else
-          true
+          POWER_LOSS_DEFAULT
         #endif
       ;
       EEPROM_WRITE(recovery_enabled);
@@ -2670,7 +2670,7 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.enable(true);
+    recovery.enable(POWER_LOSS_DEFAULT);
   #endif
 
   //
