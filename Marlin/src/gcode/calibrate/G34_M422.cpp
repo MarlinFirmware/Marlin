@@ -153,7 +153,9 @@ void GcodeSuite::G34() {
     if (!all_axes_known()) home_all_axes();
 
     // Move the Z coordinate realm towards the positive - dirty trick
-    current_position.z -= z_probe * 0.5f;
+    current_position.z += z_probe * 0.5f;
+    sync_plan_position();
+    // Now, the Z origin lies below the build plate. That allows to probe deeper, before run_z_probe throws an error.
 
     #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f);
@@ -171,7 +173,9 @@ void GcodeSuite::G34() {
       bool adjustment_reverse = false;
     #endif
 
-    LOOP_L_N(iteration, z_auto_align_iterations) {
+    // 'iteration' is declared above and is also used after the for-loop.
+    // *not* the same as LOOP_L_N(iteration, z_auto_align_iterations)
+    for (iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> probing all positions.");
 
       SERIAL_ECHOLNPAIR("\nITERATION: ", int(iteration + 1));
@@ -192,7 +196,9 @@ void GcodeSuite::G34() {
           DEBUG_ECHOLNPAIR_P(PSTR("Probing X"), z_stepper_align.xy[iprobe].x, SP_Y_STR, z_stepper_align.xy[iprobe].y);
 
         // Probe a Z height for each stepper.
-        const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true);
+        // Probing sanity check is disabled, as it would trigger even in normal cases because
+        // current_position.z has been manually altered in the "dirty trick" above.
+        const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
         if (isnan(z_probed_height)) {
           SERIAL_ECHOLNPGM("Probing failed.");
           err_break = true;
