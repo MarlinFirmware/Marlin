@@ -97,7 +97,7 @@ namespace ExtUI {
     void setSoftEndstopState(const bool);
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t);
     float getAxisCurrent_mA(const extruder_t);
     void  setAxisCurrent_mA(const float, const axis_t);

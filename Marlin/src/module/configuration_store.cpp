@@ -113,7 +113,7 @@
   #include "../feature/bltouch.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "stepper/indirection.h"
   #include "../feature/tmc_util.h"
 #endif
@@ -313,7 +313,7 @@ typedef struct SettingsDataStruct {
   float planner_filament_size[EXTRUDERS];               // M200 T D  planner.filament_size[]
 
   //
-  // HAS_TRINAMIC
+  // HAS_TRINAMIC_CONFIG
   //
   tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
   tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
@@ -985,7 +985,7 @@ void MarlinSettings::postprocess() {
 
       tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-      #if HAS_TRINAMIC
+      #if HAS_TRINAMIC_CONFIG
         #if AXIS_IS_TMC(X)
           tmc_stepper_current.X = stepperX.getMilliamps();
         #endif
@@ -1862,7 +1862,7 @@ void MarlinSettings::postprocess() {
         tmc_stepper_current_t currents;
         EEPROM_READ(currents);
 
-        #if HAS_TRINAMIC
+        #if HAS_TRINAMIC_CONFIG
 
           #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
           if (!validating) {
@@ -2034,7 +2034,7 @@ void MarlinSettings::postprocess() {
         tmc_stealth_enabled_t tmc_stealth_enabled;
         EEPROM_READ(tmc_stealth_enabled);
 
-        #if HAS_TRINAMIC
+        #if HAS_TRINAMIC_CONFIG
 
           #define SET_STEPPING_MODE(ST) stepper##ST.stored.stealthChop_enabled = tmc_stealth_enabled.ST; stepper##ST.refresh_stepping_mode();
           if (!validating) {
@@ -2788,7 +2788,7 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_MSG(STR)      do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  config_heading(forReplay, PSTR(STR))
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     inline void say_M906(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M906"); }
     #if HAS_STEALTHCHOP
       void say_M569(const bool forReplay, const char * const etc=nullptr, const bool newLine = false) {
@@ -3298,7 +3298,7 @@ void MarlinSettings::reset() {
       #endif
     #endif
 
-    #if HAS_TRINAMIC
+    #if HAS_TRINAMIC_CONFIG
 
       /**
        * TMC stepper driver current
@@ -3599,7 +3599,7 @@ void MarlinSettings::reset() {
 
       #endif // HAS_STEALTHCHOP
 
-    #endif // HAS_TRINAMIC
+    #endif // HAS_TRINAMIC_CONFIG
 
     /**
      * Linear Advance

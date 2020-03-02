@@ -912,7 +912,7 @@ private:
     static void M900();
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     static void M122();
     static void M906();
     #if HAS_STEALTHCHOP

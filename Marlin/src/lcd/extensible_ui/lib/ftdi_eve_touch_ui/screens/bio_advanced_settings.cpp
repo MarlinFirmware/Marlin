@@ -45,13 +45,13 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
 
       .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISPLAY_MENU))
       .enabled(
-        #if HAS_TRINAMIC
+        #if HAS_TRINAMIC_CONFIG
           1
         #endif
       )
       .tag(3) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
       .enabled(
-        #if HAS_TRINAMIC
+        #if HAS_TRINAMIC_CONFIG
           1
         #endif
       )
@@ -100,7 +100,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     case 2: GOTO_SCREEN(DisplayTuningScreen);              break;
-    #if HAS_TRINAMIC
+    #if HAS_TRINAMIC_CONFIG
     case 3: GOTO_SCREEN(StepperCurrentScreen);             break;
     case 4: GOTO_SCREEN(StepperBumpSensitivityScreen);     break;
     #endif

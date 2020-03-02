@@ -544,7 +544,7 @@ void menu_advanced_settings() {
     SUBMENU(MSG_DRIVE_STRENGTH, menu_pwm);
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     SUBMENU(MSG_TMC_DRIVERS, menu_tmc);
   #endif
 

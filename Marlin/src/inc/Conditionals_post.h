@@ -1290,7 +1290,7 @@
 #define HAS_SOLENOID_7    (PIN_EXISTS(SOL7))
 
 // Trinamic Stepper Drivers
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #define STEALTHCHOP_ENABLED ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
   #define USE_SENSORLESS EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Disable Z axis sensorless homing if a probe is used to home the Z axis

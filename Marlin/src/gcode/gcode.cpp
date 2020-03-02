@@ -785,7 +785,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if HAS_TRINAMIC
+      #if HAS_TRINAMIC_CONFIG
         case 122: M122(); break;                                  // M122: Report driver configuration and status
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         #if HAS_STEALTHCHOP

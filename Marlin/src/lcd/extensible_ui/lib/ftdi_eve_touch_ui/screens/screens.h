@@ -455,7 +455,7 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
     static bool onTouchHeld(uint8_t tag);
 };
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   class StepperCurrentScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEPPER_CURRENT_SCREEN_CACHE> {
     public:
       static void onRedraw(draw_mode_t);

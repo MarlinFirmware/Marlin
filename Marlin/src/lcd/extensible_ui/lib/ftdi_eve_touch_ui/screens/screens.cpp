@@ -58,7 +58,7 @@ SCREEN_TABLE {
 #endif
   DECL_SCREEN(MoveAxisScreen),
   DECL_SCREEN(StepsScreen),
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   DECL_SCREEN(StepperCurrentScreen),
   DECL_SCREEN(StepperBumpSensitivityScreen),
 #endif

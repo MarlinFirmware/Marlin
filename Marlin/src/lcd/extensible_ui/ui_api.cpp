@@ -75,7 +75,7 @@
   #define IFSD(A,B) (B)
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "../../feature/tmc_util.h"
   #include "../../module/stepper/indirection.h"
 #endif
@@ -445,7 +445,7 @@ namespace ExtUI {
     void setSoftEndstopState(const bool value) { soft_endstops_enabled = value; }
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)

@@ -40,7 +40,7 @@
   #include "TMC26X.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "trinamic.h"
 #endif
 

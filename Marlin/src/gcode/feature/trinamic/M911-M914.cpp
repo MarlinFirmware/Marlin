@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
@@ -426,4 +426,4 @@
   }
 #endif // USE_SENSORLESS
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

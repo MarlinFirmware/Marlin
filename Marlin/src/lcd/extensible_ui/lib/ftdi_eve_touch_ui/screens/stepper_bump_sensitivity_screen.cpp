@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_TRINAMIC
+#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_TRINAMIC_CONFIG
 
 #include "screens.h"
 
@@ -74,4 +74,4 @@ bool StepperBumpSensitivityScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && HAS_TRINAMIC
+#endif // TOUCH_UI_FTDI_EVE && HAS_TRINAMIC_CONFIG

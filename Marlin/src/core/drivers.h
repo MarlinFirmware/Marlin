@@ -90,13 +90,13 @@
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
-#define HAS_TRINAMIC (    HAS_DRIVER(TMC2130) \
-                       || HAS_DRIVER(TMC2160) \
-                       || HAS_DRIVER(TMC2208) \
-                       || HAS_DRIVER(TMC2209) \
-                       || HAS_DRIVER(TMC2660) \
-                       || HAS_DRIVER(TMC5130) \
-                       || HAS_DRIVER(TMC5160) )
+#define HAS_TRINAMIC_CONFIG (    HAS_DRIVER(TMC2130) \
+                              || HAS_DRIVER(TMC2160) \
+                              || HAS_DRIVER(TMC2208) \
+                              || HAS_DRIVER(TMC2209) \
+                              || HAS_DRIVER(TMC2660) \
+                              || HAS_DRIVER(TMC5130) \
+                              || HAS_DRIVER(TMC5160) )
 
 #define HAS_TRINAMIC_STANDALONE (    HAS_DRIVER(TMC2130_STANDALONE) \
                                   || HAS_DRIVER(TMC2208_STANDALONE) \

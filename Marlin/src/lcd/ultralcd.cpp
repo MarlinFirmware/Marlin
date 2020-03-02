@@ -103,7 +103,7 @@ MarlinUI ui;
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "../feature/tmc_util.h"
 #endif
 
