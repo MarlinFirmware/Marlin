@@ -1593,8 +1593,8 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(planner_leveling_active);
         #if ENABLED(AUTO_BED_LEVELING_UBL)
-          bool &planner_leveling_active = planner.leveling_active;
-          uint8_t &ubl_storage_slot = ubl.storage_slot;
+          const bool &planner_leveling_active = planner.leveling_active;
+          const uint8_t &ubl_storage_slot = ubl.storage_slot;
         #else
           bool planner_leveling_active;
           uint8_t ubl_storage_slot;
@@ -1636,7 +1636,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(bltouch_last_written_mode);
         #if ENABLED(BLTOUCH)
-          bool &bltouch_last_written_mode = bltouch.last_written_mode;
+          const bool &bltouch_last_written_mode = bltouch.last_written_mode;
         #else
           bool bltouch_last_written_mode;
         #endif
@@ -1747,7 +1747,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(lpq_len);
         #if ENABLED(PID_EXTRUSION_SCALING)
-          int16_t &lpq_len = thermalManager.lpq_len;
+          const int16_t &lpq_len = thermalManager.lpq_len;
         #else
           int16_t lpq_len;
         #endif
@@ -1799,7 +1799,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(recovery_enabled);
         #if ENABLED(POWER_LOSS_RECOVERY)
-          bool &recovery_enabled = recovery.enabled;
+          const bool &recovery_enabled = recovery.enabled;
         #else
           bool recovery_enabled;
         #endif
