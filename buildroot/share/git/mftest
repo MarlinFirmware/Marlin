@@ -215,6 +215,9 @@ echo "$OUT" | {
   done
 }
 
+# Make clear it's a TEST
+opt_set CUSTOM_MACHINE_NAME "\"$TESTENV-tests ($CHOICE)\""
+
 # Get a -y parameter the lazy way
 [[ "$2" == "-y" || "$3" == "-y" ]] && BUILD_YES='Y'
 
