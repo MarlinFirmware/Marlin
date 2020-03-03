@@ -41,7 +41,7 @@
 // EEPROM Emulation
 //
 #define FLASH_EEPROM_EMULATION
-#ifdef FLASH_EEPROM_EMULATION
+#if ENABLED(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_LEVELING
 #endif
 //#define SRAM_EEPROM_EMULATION
@@ -49,14 +49,6 @@
 #ifdef I2C_EEPROM
   #undef E2END // Defined in Arduino Core STM32 to be used with EEPROM emulation. This board uses a real EEPROM.
   #define E2END 0xFFF // 4KB
-#endif
-
-//
-// Filament Sensor
-// share with X_MAX_PIN
-//
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PA1
 #endif
 
 //
@@ -76,6 +68,7 @@
 
 //
 // Filament Sensor
+// share with X_MAX_PIN
 //
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN   PA1
