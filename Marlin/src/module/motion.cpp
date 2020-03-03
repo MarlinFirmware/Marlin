@@ -1208,15 +1208,9 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
 
     #if ENABLED(SPI_ENDSTOPS)
       switch (axis) {
-        #if X_SPI_SENSORLESS
-          case X_AXIS: endstops.tmc_spi_homing.x = true; break;
-        #endif
-        #if Y_SPI_SENSORLESS
-          case Y_AXIS: endstops.tmc_spi_homing.y = true; break;
-        #endif
-        #if Z_SPI_SENSORLESS
-          case Z_AXIS: endstops.tmc_spi_homing.z = true; break;
-        #endif
+        case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = true; break;
+        case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = true; break;
+        case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = true; break;
         default: break;
       }
     #endif
@@ -1280,15 +1274,9 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
 
     #if ENABLED(SPI_ENDSTOPS)
       switch (axis) {
-        #if X_SPI_SENSORLESS
-          case X_AXIS: endstops.tmc_spi_homing.x = false; break;
-        #endif
-        #if Y_SPI_SENSORLESS
-          case Y_AXIS: endstops.tmc_spi_homing.y = false; break;
-        #endif
-        #if Z_SPI_SENSORLESS
-          case Z_AXIS: endstops.tmc_spi_homing.z = false; break;
-        #endif
+        case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = false; break;
+        case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = false; break;
+        case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = false; break;
         default: break;
       }
     #endif
