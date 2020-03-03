@@ -289,6 +289,12 @@ class Planner {
       static float extruder_advance_K[EXTRUDERS];
     #endif
 
+    /**
+     * The current position of the tool in absolute steps
+     * Recalculated if any axis_steps_per_mm are changed by gcode
+     */
+    static xyze_long_t position;
+
     #if HAS_POSITION_FLOAT
       static xyze_pos_t position_float;
     #endif
@@ -304,12 +310,6 @@ class Planner {
     #endif
 
   private:
-
-    /**
-     * The current position of the tool in absolute steps
-     * Recalculated if any axis_steps_per_mm are changed by gcode
-     */
-    static xyze_long_t position;
 
     /**
      * Speed of previous path line segment
@@ -724,6 +724,16 @@ class Planner {
      * For CORE machines apply translation from ABC to XYZ.
      */
     static float get_axis_position_mm(const AxisEnum axis);
+
+    static inline abce_pos_t get_axis_positions_mm() {
+      const abce_pos_t out = {
+        get_axis_position_mm(A_AXIS),
+        get_axis_position_mm(B_AXIS),
+        get_axis_position_mm(C_AXIS),
+        get_axis_position_mm(E_AXIS)
+      };
+      return out;
+    }
 
     // SCARA AB axes are in degrees, not mm
     #if IS_SCARA

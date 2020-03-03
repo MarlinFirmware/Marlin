@@ -206,15 +206,51 @@ xyz_pos_t cartes;
 /**
  * Output the current position to serial
  */
-void report_current_position() {
-  const xyz_pos_t lpos = current_position.asLogical();
-  SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
 
+inline void report_more_positions() {
   stepper.report_positions();
-
   #if IS_SCARA
     scara_report_positions();
   #endif
+}
+
+// Report the logical position for a given machine position
+inline void report_logical_position(const xyze_pos_t &rpos) {
+  const xyze_pos_t lpos = rpos.asLogical();
+  SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_E_LBL, lpos.e);
+  report_more_positions();
+}
+
+// Report the real current position according to the steppers.
+// Forward kinematics and un-leveling are applied.
+void report_real_position() {
+  get_cartesian_from_steppers();
+  xyze_pos_t npos = cartes;
+  npos.e = planner.get_axis_position_mm(E_AXIS);
+
+  #if HAS_POSITION_MODIFIERS
+    planner.unapply_modifiers(npos
+      #if HAS_LEVELING
+        , true
+      #endif
+    );
+  #endif
+
+  report_logical_position(npos);
+}
+
+// Report the logical current position according to the most recent G-code command
+void report_current_position() { report_logical_position(current_position); }
+
+/**
+ * Report the logical current position according to the most recent G-code command.
+ * The planner.position always corresponds to the last G-code too. This makes M114
+ * suitable for debugging kinematics and leveling while avoiding planner sync that
+ * definitively interrupts the printing flow.
+ */
+void report_current_position_projected() {
+  report_logical_position(current_position);
+  stepper.report_a_position(planner.position);
 }
 
 /**
@@ -241,11 +277,7 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
  */
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
-    forward_kinematics_DELTA(
-      planner.get_axis_position_mm(A_AXIS),
-      planner.get_axis_position_mm(B_AXIS),
-      planner.get_axis_position_mm(C_AXIS)
-    );
+    forward_kinematics_DELTA(planner.get_axis_positions_mm());
   #else
     #if IS_SCARA
       forward_kinematics_SCARA(
@@ -663,11 +695,11 @@ void restore_feedrate_and_scaling() {
 
 FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   const millis_t ms = millis();
-  thermalManager.manage_heater();  // This returns immediately if not really needed.
   if (ELAPSED(ms, next_idle_ms)) {
     next_idle_ms = ms + 200UL;
-    idle();
+    return idle();
   }
+  thermalManager.manage_heater();  // Returns immediately on most calls
 }
 
 #if IS_KINEMATIC
@@ -1324,7 +1356,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     current_position[axis] = distance;
     line_to_current_position(real_fr_mm_s);
   #else
-    abce_pos_t target = { planner.get_axis_position_mm(A_AXIS), planner.get_axis_position_mm(B_AXIS), planner.get_axis_position_mm(C_AXIS), planner.get_axis_position_mm(E_AXIS) };
+    abce_pos_t target = planner.get_axis_positions_mm();
     target[axis] = 0;
     planner.set_machine_position_mm(target);
     target[axis] = distance;
