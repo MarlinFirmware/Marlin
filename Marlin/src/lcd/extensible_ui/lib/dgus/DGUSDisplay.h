@@ -26,6 +26,9 @@
 #include "../../../../inc/MarlinConfigPre.h"
 
 #include "../../../../MarlinCore.h"
+#if HAS_BED_PROBE
+  #include "../../../../module/probe.h"
+#endif
 #include "DGUSVPVariable.h"
 
 enum DGUSLCD_Screens : uint8_t;
