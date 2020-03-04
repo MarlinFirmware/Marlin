@@ -213,6 +213,7 @@ const uint16_t VPList_SDPrintTune[] PROGMEM = {
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   VP_Feedrate_Percentage,
+  VP_SD_Print_ProbeOffsetZ,
   0x0000
 };
 
