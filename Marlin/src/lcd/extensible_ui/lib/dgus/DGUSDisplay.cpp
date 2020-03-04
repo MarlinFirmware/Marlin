@@ -179,6 +179,15 @@ void DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable
   }
 }
 
+// Send the current print progress to the display.
+void DGUSScreenVariableHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var) {
+  //DEBUG_ECHOPAIR(" DGUSLCD_SendPrintProgressToDisplay ", var.VP);
+  uint16_t tmp = ExtUI::getProgress_percent();
+  //DEBUG_ECHOLNPAIR(" data ", tmp);
+  uint16_t data_to_send = swap16(tmp);
+  dgusdisplay.WriteVariable(var.VP, data_to_send);
+}
+
 // Send the current print time to the display.
 // It is using a hex display for that: It expects BSD coded data in the format xxyyzz
 void DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
