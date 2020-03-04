@@ -57,16 +57,16 @@ typedef uint32_t hal_timer_t;
                                : (t == TEMP_TIMER_NUM) ? 6                        \
                                : 7
 
-#define _TC_HANDLER(t)        void TC##t##_Handler()
-#define TC_HANDLER(t)         _TC_HANDLER(t)
-#define HAL_STEP_TIMER_ISR()  TC_HANDLER(STEP_TIMER_NUM)
+#define _TC_HANDLER(t)            void TC##t##_Handler()
+#define TC_HANDLER(t)             _TC_HANDLER(t)
+#define HAL_STEP_TIMER_ISR()      TC_HANDLER(STEP_TIMER_NUM)
 #if STEP_TIMER_NUM != PULSE_TIMER_NUM
-  #define HAL_PULSE_TIMER_ISR()  TC_HANDLER(PULSE_TIMER_NUM)
+  #define HAL_PULSE_TIMER_ISR()   TC_HANDLER(PULSE_TIMER_NUM)
 #endif
 #if TEMP_TIMER_NUM == RTC_TIMER_NUM
-  #define HAL_TEMP_TIMER_ISR()  void RTC_Handler()
+  #define HAL_TEMP_TIMER_ISR()    void RTC_Handler()
 #else
-  #define HAL_TEMP_TIMER_ISR()  TC_HANDLER(TEMP_TIMER_NUM)
+  #define HAL_TEMP_TIMER_ISR()    TC_HANDLER(TEMP_TIMER_NUM)
 #endif
 
 // --------------------------------------------------------------------------

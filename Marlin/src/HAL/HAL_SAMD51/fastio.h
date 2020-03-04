@@ -37,7 +37,7 @@
 /**
  * Magic I/O routines
  *
- * Now you can simply SET_OUTPUT(STEP); WRITE(STEP, HIGH); WRITE(STEP, LOW);
+ * Now you can simply SET_OUTPUT(IO); WRITE(IO, HIGH); WRITE(IO, LOW);
  */
 
 // Read a pin
