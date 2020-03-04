@@ -701,6 +701,8 @@ class Temperature {
         #endif
       );
 
+      static void wait_for_bed_heating();
+
     #endif // HAS_HEATED_BED
 
     #if HAS_TEMP_PROBE

@@ -3361,6 +3361,15 @@ void Temperature::tick() {
       return wait_for_heatup;
     }
 
+    void Temperature::wait_for_bed_heating() {
+      if (isHeatingBed()) {
+        SERIAL_ECHOLNPGM("Wait for bed heating...");
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        wait_for_bed();
+        ui.reset_status();
+      }
+    }
+
   #endif // HAS_HEATED_BED
 
   #if HAS_HEATED_CHAMBER
