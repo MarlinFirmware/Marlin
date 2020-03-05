@@ -855,8 +855,8 @@ void DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable 
 void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
 
-  float value = (float)swap16(*(uint16_t*)val_ptr)/100;
-  ExtUI::setZOffset_mm(value);
+  const float offset = float(swap16(*(uint16_t*)val_ptr)) / 100.0f;
+  ExtUI::setZOffset_mm(offset);
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
 }
@@ -867,7 +867,7 @@ void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var,
 
     int16_t flag = swap16(*(uint16_t*)val_ptr);
     int16_t steps = flag ? -20 : 20;
-    ExtUI::smartAdjustAxis_steps(steps,ExtUI::axis_t::Z,true);
+    ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
     ScreenHandler.ForceCompleteUpdate();
     return;
   }
