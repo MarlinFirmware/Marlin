@@ -855,7 +855,7 @@ void DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable 
 void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
 
-  uint16_t value = swap16(*(uint16_t*)val_ptr)/100;
+  float value = (float)swap16(*(uint16_t*)val_ptr)/100;
   ExtUI::setZOffset_mm(value);
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
