@@ -280,6 +280,13 @@ const uint16_t VPList_FLCPrinting[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_Z_Offset[] PROGMEM = {
+  #if HOTENDS >= 1
+    VP_SD_Print_ProbeOffsetZ,
+  #endif
+  0x0000
+};
+
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_Boot },
   { DGUSLCD_SCREEN_MAIN, VPList_Main },
@@ -298,6 +305,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_WAITING, VPList_PIDTuningWaiting },
   { DGUSLCD_SCREEN_FLC_PREHEAT, VPList_FLCPreheat },
   { DGUSLCD_SCREEN_FLC_PRINTING, VPList_FLCPrinting },
+  { DGUSLCD_SCREEN_Z_OFFSET, VPList_Z_Offset },
   { DGUSLCD_SCREEN_STEPPERMM, VPList_StepPerMM },
   { DGUSLCD_SCREEN_PID_E, VPList_PIDE0 },
   { DGUSLCD_SCREEN_PID_BED, VPList_PIDBED },

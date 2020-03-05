@@ -43,6 +43,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_STEPPERMM           = 212,
   DGUSLCD_SCREEN_PID_E               = 214,
   DGUSLCD_SCREEN_PID_BED             = 218,
+  DGUSLCD_SCREEN_Z_OFFSET            = 222,
   DGUSLCD_SCREEN_INFOS               =  36,
   DGUSLCD_SCREEN_CONFIRM             = 240,
   DGUSLCD_SCREEN_KILL                = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
