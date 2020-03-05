@@ -86,8 +86,33 @@ void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t val
 
 void DGUSDisplay::SwitchScreen(DGUS_Screen screen) {
   DEBUG_ECHOLNPAIR("SwitchScreen ", screen);
-  const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
-  WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
+  const uint8_t command[] = { 0x5A, 0x01, 0x00, screen };
+  WriteVariable(0x84, command, sizeof(command));
+}
+
+void DGUSDisplay::SetBrightness(uint8_t brightness) {
+  DEBUG_ECHOLNPAIR("SetBrightness ", brightness);
+  if (brightness > 0x64) brightness = 0x64; // Brightness range: 0x00-0x64
+  const uint8_t command[] = { brightness, brightness };
+  WriteVariable(0x82, command, sizeof(command));
+}
+
+void DGUSDisplay::PlaySound(uint8_t start, uint8_t len, uint8_t volume) {
+  DEBUG_ECHOLNPAIR("PlaySound ", start, ":", len, "\nVolume ", volume);
+  if (volume == 0) { // 0 = Do not change volume
+    const uint8_t command[] = { start, len };
+    WriteVariable(0xA0, command, sizeof(command));
+  }
+  else {
+    const uint8_t command[] = { start, len, volume, 0x00 };
+    WriteVariable(0xA0, command, sizeof(command));
+  }
+}
+
+void DGUSDisplay::SetVolume(uint8_t volume) {
+  DEBUG_ECHOLNPAIR("SetVolume ", volume);
+  const uint8_t command[] = { volume, 0x00 };
+  WriteVariable(0xA1, command, sizeof(command));
 }
 
 void DGUSDisplay::ProcessRx() {

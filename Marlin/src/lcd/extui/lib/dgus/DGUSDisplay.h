@@ -62,6 +62,9 @@ public:
 
   // Force display into another screen.
   static void SwitchScreen(DGUS_Screen screen);
+  static void SetBrightness(uint8_t brightness);
+  static void PlaySound(uint8_t start, uint8_t len = 1, uint8_t volume = 0);
+  static void SetVolume(uint8_t volume);
 
   // Periodic tasks, eg. Rx-Queue handling.
   static void Loop();
