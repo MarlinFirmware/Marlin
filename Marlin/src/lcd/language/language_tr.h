@@ -463,9 +463,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Aydınlatmayı Aç");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Aydınlatma Parlaklğı");
-
-  PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Durum Işığı");
-  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Işık Parlaklığı");
   PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Yanlış Yazıcı");
 
   #if LCD_WIDTH >= 20
@@ -574,6 +571,7 @@ namespace Language_tr {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "bitirmek için tıkla"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Baskının devam ", "etmesi için bekle"));
   #else
+																															   
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Sürdürmek İçin Tıkla"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Park Ediliyor..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Lütfen bekleyiniz..."));
@@ -609,3 +607,4 @@ namespace Language_tr {
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
   #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif
+ 
