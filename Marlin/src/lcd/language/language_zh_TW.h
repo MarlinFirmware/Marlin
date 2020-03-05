@@ -30,14 +30,14 @@
  */
 namespace Language_zh_TW {
   using namespace Language_en;  // Inherit undefined strings from English
-  
+
   constexpr uint8_t    CHARSIZE                            = 3;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("Traditional Chinese");
-  
+
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("已就緒.");     //" ready."
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
-  PROGMEM Language_Str MSG_YES                             = _UxGT("是");	//"YES"
-  PROGMEM Language_Str MSG_NO                              = _UxGT("否");	//"NO"
+  PROGMEM Language_Str MSG_YES                             = _UxGT("是");  //"YES"
+  PROGMEM Language_Str MSG_NO                              = _UxGT("否");  //"NO"
   PROGMEM Language_Str MSG_BACK                            = _UxGT("返回");     // "Back"
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("正在中止...");   //"Aborting..."
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("記憶卡已插入");     //"Card inserted"
@@ -260,7 +260,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");     //"PID-D"
   PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
   PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");     //"PID-C"
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");    
+  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");    //"PID-F"
   PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("選擇");     //"Select"
@@ -311,7 +311,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("初始化設置");     // "Initialize EEPROM"
   PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("錯誤: EEPROM CRC");    //"Err: EEPROM CRC"
   PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("錯誤: EEPROM Index");    //"Err: EEPROM Index"
-  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("錯誤: EEPROM Version");    //"EEPROM Version"     
+  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("錯誤: EEPROM Version");    //"EEPROM Version"
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("媒體更新");    //"Media Update"
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("重置打印機");    //"Reset Printer
   PROGMEM Language_Str MSG_REFRESH                         = _UxGT("刷新");     //"Refresh"
@@ -369,7 +369,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("卸載絲料 *");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("卸載全部");     // "Unload All"
   PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("初始化記憶卡");     //"Init. SD card"
-  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("連接記憶卡");     //"Attach Media     
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("連接記憶卡");     //"Attach Media
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("更換記憶卡");     //"Change SD card"
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("釋放媒體");   //"Release Media"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探針在熱床之外");     //"Z probe out. bed" Z probe is not within the physical limits
@@ -416,7 +416,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("錯誤：最高熱床溫度");     //"Err: MAXTEMP BED"
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("錯誤：最低熱床溫度");     //"Err: MINTEMP BED"
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("錯誤：最高機箱溫度");   //"Err: MAXTEMP CHAMBER"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("錯誤：最低機箱溫度");   //"Err: MINTEMP CHAMBER"   
+  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("錯誤：最低機箱溫度");   //"Err: MINTEMP CHAMBER"
   PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("歸位 XY 先");     //"Home XY First"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("印表機停機");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("請重置");     //"Please reset"
@@ -566,7 +566,7 @@ namespace Language_zh_TW {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("等待", "絲料清除"));     // "Wait for filament purge"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("按下完成","絲料清除")); //"Press button to filament purge"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("等待列印", "恢復"));     //"Wait for print to resume"
-  #else // LCD_HEIGHT < 4  
+  #else // LCD_HEIGHT < 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("按下繼續.."));   //"Click to continue"
     PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("停車中 ..."));     //"Parking..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("請等待 ..."));     //"Please wait..."
@@ -577,9 +577,9 @@ namespace Language_zh_TW {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_1_LINE("載入中 ..."));     //"Loading..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_1_LINE("清除中 ..."));     //"Purging..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("按下完成.."));     //"Click to finish"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("恢復中 ..."));     //"Resuming..."    
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("恢復中 ..."));     //"Resuming..."
   #endif // LCD_HEIGHT < 4
-  
+
   PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("TMC Drivers");
   PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Driver Current");
   PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("Hybrid Threshold");
