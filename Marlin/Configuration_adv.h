@@ -2308,14 +2308,6 @@
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
-  /**
-   * Use StallGuard2 to probe the bed with the nozzle.
-   *
-   * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
-   *          to move the Z axis. Take extreme care when attempting to enable this feature.
-   */
-  //#define SENSORLESS_PROBING // StallGuard capable drivers only
-
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  8
