@@ -247,7 +247,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Hızı");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Hızı ~");
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Depolanan Fan ~");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Ekstra Fan Hızı);
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Ekstra Fan Hızı");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Ekstra Fan Hızı ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Akış");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Akış ~");
@@ -463,9 +463,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Aydınlatmayı Aç");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Aydınlatma Parlaklğı");
-
-  PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Durum Işığı");
-  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Işık Parlaklığı");
   PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Yanlış Yazıcı");
 
   #if LCD_WIDTH >= 20
@@ -609,3 +606,4 @@ namespace Language_tr {
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
   #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif
+ 
