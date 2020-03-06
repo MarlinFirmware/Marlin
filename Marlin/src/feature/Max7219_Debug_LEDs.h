@@ -136,11 +136,9 @@ private:
   static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv);
 
   #ifdef MAX7219_INIT_TEST
-  #if MAX7219_INIT_TEST == 2
-    static void spiral(const bool on, const uint16_t del);
-  #else
-    static void sweep(const int8_t dir, const uint16_t ms, const bool on);
-  #endif
+    static void test_pattern();
+    static void run_test_pattern();
+    static void start_test_pattern();
   #endif
 };
 
