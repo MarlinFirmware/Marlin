@@ -363,7 +363,6 @@ void MarlinSettings::postprocess() {
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
   #define EEPROM_WRITE(VAR) write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
@@ -680,7 +679,7 @@ void MarlinSettings::postprocess() {
         else
       #endif // !PIDTEMP
         {
-          dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
+          dummy = NAN; // When read, will not change the existing value
           EEPROM_WRITE(dummy); // Kp
           dummy = 0;
           for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy); // Ki, Kd, Kc
@@ -696,7 +695,7 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(LPQ_LEN);
 
     #if DISABLED(PIDTEMPBED)
-      dummy = DUMMY_PID_VALUE;
+      dummy = NAN;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #else
       EEPROM_WRITE(thermalManager.bedKp);
@@ -1303,7 +1302,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(PIDTEMP)
         for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
           EEPROM_READ(dummy); // Kp
-          if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
+          if (e < HOTENDS && !isnan(dummy)) {
             // do not need to scale PID values as the values in EEPROM are already scaled
             if (!validating) PID_PARAM(Kp, e) = dummy;
             EEPROM_READ(PID_PARAM(Ki, e));
@@ -1340,7 +1339,7 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(PIDTEMPBED)
         EEPROM_READ(dummy); // bedKp
-        if (dummy != DUMMY_PID_VALUE) {
+        if (!isnan(dummy)) {
           if (!validating) thermalManager.bedKp = dummy;
           EEPROM_READ(thermalManager.bedKi);
           EEPROM_READ(thermalManager.bedKd);
