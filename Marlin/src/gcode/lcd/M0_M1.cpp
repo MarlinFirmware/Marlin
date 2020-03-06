@@ -50,32 +50,20 @@
  * M1: Conditional stop   - Wait for user button press on LCD
  */
 void GcodeSuite::M0_M1() {
-  const char * const args = parser.string_arg;
-
   millis_t ms = 0;
-  bool hasP = false, hasS = false;
-  if (parser.seenval('P')) {
-    ms = parser.value_millis(); // milliseconds to wait
-    hasP = ms > 0;
-  }
-  if (parser.seenval('S')) {
-    ms = parser.value_millis_from_seconds(); // seconds to wait
-    hasS = ms > 0;
-  }
-
-  const bool has_message = !hasP && !hasS && args && *args;
+  if (parser.seenval('P')) ms = parser.value_millis();              // Milliseconds to wait
+  if (parser.seenval('S')) ms = parser.value_millis_from_seconds(); // Seconds to wait
 
   planner.synchronize();
 
   #if HAS_LEDS_OFF_FLAG
-    if (parser.seen('Q'))
-      printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
+    if (parser.seen('Q')) printerEventLEDs.onPrintCompleted();      // Change LED color for Print Completed
   #endif
 
   #if HAS_LCD_MENU
 
-    if (has_message)
-      ui.set_status(args, true);
+    if (parser.string_arg)
+      ui.set_status(parser.string_arg, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
@@ -85,16 +73,16 @@ void GcodeSuite::M0_M1() {
 
   #elif ENABLED(EXTENSIBLE_UI)
 
-    if (has_message)
-      ExtUI::onUserConfirmRequired(args); // Can this take an SRAM string??
+    if (parser.string_arg)
+      ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
     else
       ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
 
   #else
 
-    if (has_message) {
+    if (parser.string_arg) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOLN(args);
+      SERIAL_ECHOLN(parser.string_arg);
     }
 
   #endif
