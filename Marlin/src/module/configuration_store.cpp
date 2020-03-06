@@ -851,8 +851,8 @@ void MarlinSettings::postprocess() {
       HOTEND_LOOP() {
         PIDCF_t pidcf = {
           #if DISABLED(PIDTEMP)
-            DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE,
-            DUMMY_PID_VALUE, DUMMY_PID_VALUE
+            NAN, NAN, NAN,
+            NAN, NAN
           #else
                          PID_PARAM(Kp, e),
             unscalePID_i(PID_PARAM(Ki, e)),
@@ -881,7 +881,7 @@ void MarlinSettings::postprocess() {
 
       const PID_t bed_pid = {
         #if DISABLED(PIDTEMPBED)
-          DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE
+          NAN, NAN, NAN
         #else
           // Store the unscaled PID values
           thermalManager.temp_bed.pid.Kp,
@@ -1725,7 +1725,7 @@ void MarlinSettings::postprocess() {
           PIDCF_t pidcf;
           EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
-            if (!validating && pidcf.Kp != DUMMY_PID_VALUE) {
+            if (!validating && !isnan(pidcf.Kp)) {
               // Scale PID values since EEPROM values are unscaled
               PID_PARAM(Kp, e) = pidcf.Kp;
               PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
@@ -1761,7 +1761,7 @@ void MarlinSettings::postprocess() {
         PID_t pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
-          if (!validating && pid.Kp != DUMMY_PID_VALUE) {
+          if (!validating && !isnan(pid.Kp)) {
             // Scale PID values since EEPROM values are unscaled
             thermalManager.temp_bed.pid.Kp = pid.Kp;
             thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);

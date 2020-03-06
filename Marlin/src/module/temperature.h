@@ -74,8 +74,6 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
-#define DUMMY_PID_VALUE 3000.0f
-
 #if ENABLED(PIDTEMP)
   #define _PID_Kp(H) Temperature::temp_hotend[H].pid.Kp
   #define _PID_Ki(H) Temperature::temp_hotend[H].pid.Ki
@@ -92,9 +90,9 @@ hotend_pid_t;
     #define _PID_Kf(H) 0
   #endif
 #else
-  #define _PID_Kp(H) DUMMY_PID_VALUE
-  #define _PID_Ki(H) DUMMY_PID_VALUE
-  #define _PID_Kd(H) DUMMY_PID_VALUE
+  #define _PID_Kp(H) NAN
+  #define _PID_Ki(H) NAN
+  #define _PID_Kd(H) NAN
   #define _PID_Kc(H) 1
 #endif
 
