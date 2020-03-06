@@ -961,13 +961,8 @@ void MarlinSettings::postprocess() {
 
         const bool volumetric_enabled = false;
         EEPROM_WRITE(volumetric_enabled);
-
         dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
-
-        #ifndef DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT
-          #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0
-        #endif
         dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
 
@@ -2714,10 +2709,6 @@ void MarlinSettings::reset() {
     ;
     LOOP_L_N(q, COUNT(planner.filament_size))
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
-
-    #ifndef DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT
-      #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0
-    #endif
     LOOP_L_N(q, COUNT(planner.volumetric_extruder_limit))
       planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
 
