@@ -2268,6 +2268,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #undef Z_ENDSTOP_INVERTING
 #endif
 
+#if ENABLED(QUICK_HOME)
+  #error "QUICK_HOME and SENSORLESS_HOMING are not compatible. Disable QUICK_HOME to continue."
+#endif
+
 // Sensorless probing requirements
 #if ENABLED(SENSORLESS_PROBING)
   #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
