@@ -73,6 +73,7 @@
 Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
+uint8_t Max7219::suspended; // = 0;
 
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
 
@@ -212,6 +213,7 @@ void Max7219::send(const uint8_t reg, const uint8_t data) {
 
 // Send out a single native row of bits to just one unit
 void Max7219::refresh_unit_line(const uint8_t line) {
+  if (suspended) return;
   #if MAX7219_NUMBER_UNITS == 1
     send(LINE_REG(line), led_line[line]);
   #else
@@ -223,6 +225,7 @@ void Max7219::refresh_unit_line(const uint8_t line) {
 
 // Send out a single native row of bits to all units
 void Max7219::refresh_line(const uint8_t line) {
+  if (suspended) return;
   #if MAX7219_NUMBER_UNITS == 1
     refresh_unit_line(line);
   #else
@@ -241,9 +244,9 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
 
   // Draw an integer with optional leading zeros and optional decimal point
   void Max7219::print(const uint8_t start, int16_t value, uint8_t size, const bool leadzero=false, bool dec=false) {
+    if (suspended) return;
     constexpr uint8_t led_numeral[10] = { 0x7E, 0x60, 0x6D, 0x79, 0x63, 0x5B, 0x5F, 0x70, 0x7F, 0x7A },
                       led_decimal = 0x80, led_minus = 0x01;
-
     bool blank = false, neg = value < 0;
     if (neg) value *= -1;
     while (size--) {
@@ -295,6 +298,7 @@ void Max7219::led_toggle(const uint8_t x, const uint8_t y) {
 }
 
 void Max7219::send_row(const uint8_t row) {
+  if (suspended) return;
   #if _ROT == 0 || _ROT == 180            // Native Lines are horizontal too
     #if MAX7219_X_LEDS <= 8
       refresh_unit_line(LED_IND(0, row)); // A single unit line
@@ -308,6 +312,7 @@ void Max7219::send_row(const uint8_t row) {
 }
 
 void Max7219::send_column(const uint8_t col) {
+  if (suspended) return;
   #if _ROT == 90 || _ROT == 270           // Native Lines are vertical too
     #if MAX7219_Y_LEDS <= 8
       refresh_unit_line(LED_IND(col, 0)); // A single unit line
@@ -344,8 +349,8 @@ void Max7219::clear_column(const uint8_t col) {
 
 /**
  * Plot the low order bits of val to the specified row of the matrix.
- * With 4 Max7219 units in the chain, it's possible to set 32 bits at once with
- * one call to the function (if rotated 90° or 180°).
+ * With 4 Max7219 units in the chain, it's possible to set 32 bits at
+ * once with a single call to the function (if rotated 90° or 270°).
  */
 void Max7219::set_row(const uint8_t row, const uint32_t val) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("set_row"), row);
@@ -359,8 +364,8 @@ void Max7219::set_row(const uint8_t row, const uint32_t val) {
 
 /**
  * Plot the low order bits of val to the specified column of the matrix.
- * With 4 Max7219 units in the chain, it's possible to set 32 bits at once with
- * one call to the function (if rotated 90° or 180°).
+ * With 4 Max7219 units in the chain, it's possible to set 32 bits at
+ * once with a single call to the function (if rotated 0° or 180°).
  */
 void Max7219::set_column(const uint8_t col, const uint32_t val) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
@@ -692,6 +697,12 @@ void Max7219::idle_tasks() {
       last_depth = current_depth;
     }
   #endif
+
+  // After resume() automatically do a refresh()
+  if (suspended == 0x80) {
+    suspended = 0;
+    refresh();
+  }
 }
 
 #endif // MAX7219_DEBUG
