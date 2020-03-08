@@ -100,8 +100,6 @@
       #if AXIS_HAS_STALLGUARD(Y2)
         tmc_disable_stallguard(stepperY2, stealth_states.y2);
       #endif
-      do_blocking_move_to_xy(-0.5 * x_axis_home_dir, -0.5 * home_dir(Y_AXIS), fr_mm_s / 2);
-      safe_delay(100);
     #endif
   }
 
