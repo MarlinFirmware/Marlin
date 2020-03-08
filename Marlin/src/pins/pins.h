@@ -874,28 +874,28 @@
 #if !AXIS_HAS_SPI(Z)
   #undef Z_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E0)
+#if E_STEPPERS && !AXIS_HAS_SPI(E0)
   #undef E0_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E1)
+#if E_STEPPERS > 1 && !AXIS_HAS_SPI(E1)
   #undef E1_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E2)
+#if E_STEPPERS > 2 && !AXIS_HAS_SPI(E2)
   #undef E2_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E3)
+#if E_STEPPERS > 3 && !AXIS_HAS_SPI(E3)
   #undef E3_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E4)
+#if E_STEPPERS > 4 && !AXIS_HAS_SPI(E4)
   #undef E4_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E5)
+#if E_STEPPERS > 5 && !AXIS_HAS_SPI(E5)
   #undef E5_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E6)
+#if E_STEPPERS > 6 && !AXIS_HAS_SPI(E6)
   #undef E6_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(E7)
+#if E_STEPPERS > 7 && !AXIS_HAS_SPI(E7)
   #undef E7_CS_PIN
 #endif
 
