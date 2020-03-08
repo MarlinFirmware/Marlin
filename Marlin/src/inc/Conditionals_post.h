@@ -294,7 +294,7 @@
 /**
  * Override here because this is set in Configuration_adv.h
  */
-#if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && !(defined(ARDUINO_GRAND_CENTRAL_M4) && SD_CONNECTION_IS(ONBOARD))
+#if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
   #undef SD_DETECT_INVERTED
 #endif
 
