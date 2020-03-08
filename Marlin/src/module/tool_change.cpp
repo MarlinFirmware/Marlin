@@ -370,7 +370,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   inline void swt_lock(const bool locked=true) {
     constexpr uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[locked ? 0 : 1]);
+    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
   }
 
   void swt_init() { swt_lock(); }
