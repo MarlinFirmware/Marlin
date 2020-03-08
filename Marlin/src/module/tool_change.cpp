@@ -368,10 +368,15 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #if ENABLED(SWITCHING_TOOLHEAD)
 
+  inline void swt_lock(const bool locked=true) {
+    const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+  }
+
+  void swt_init() { swt_lock(); }
+
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
-
-    constexpr uint16_t angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
@@ -406,7 +411,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     planner.synchronize();
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[1]);
+    swt_lock(false);
     safe_delay(500);
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS;
@@ -451,7 +456,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     // Wait for move to finish, pause 0.2s, move servo, pause 0.5s
     planner.synchronize();
     safe_delay(200);
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[0]);
+    swt_lock();
     safe_delay(500);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
