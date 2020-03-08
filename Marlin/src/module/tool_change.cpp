@@ -368,6 +368,13 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #if ENABLED(SWITCHING_TOOLHEAD)
 
+  void swt_init() { 
+    constexpr uint16_t angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
+
+    // lock tool.
+    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[0]);
+  }
+
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
 
