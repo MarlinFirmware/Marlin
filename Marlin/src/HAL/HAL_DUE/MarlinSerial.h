@@ -27,9 +27,9 @@
  * Based on MarlinSerial for AVR, copyright (c) 2006 Nicholas Zambetti.  All right reserved.
  */
 
-#include "../shared/MarlinSerial.h"
-
 #include <WString.h>
+
+#include "../../inc/MarlinConfigPre.h"
 
 #define DEC 10
 #define HEX 16
@@ -163,12 +163,12 @@ struct MarlinSerialCfg {
   static constexpr int PORT               = serial;
   static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE;
   static constexpr unsigned int TX_SIZE   = TX_BUFFER_SIZE;
-  static constexpr bool XONOFF            = bSERIAL_XON_XOFF;
-  static constexpr bool EMERGENCYPARSER   = bEMERGENCY_PARSER;
-  static constexpr bool DROPPED_RX        = bSERIAL_STATS_DROPPED_RX;
-  static constexpr bool RX_OVERRUNS       = bSERIAL_STATS_RX_BUFFER_OVERRUNS;
-  static constexpr bool RX_FRAMING_ERRORS = bSERIAL_STATS_RX_FRAMING_ERRORS;
-  static constexpr bool MAX_RX_QUEUED     = bSERIAL_STATS_MAX_RX_QUEUED;
+  static constexpr bool XONOFF            = ENABLED(SERIAL_XON_XOFF);
+  static constexpr bool EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER);
+  static constexpr bool DROPPED_RX        = ENABLED(SERIAL_STATS_DROPPED_RX);
+  static constexpr bool RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS);
+  static constexpr bool RX_FRAMING_ERRORS = ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS);
+  static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
 };
 
 #if SERIAL_PORT >= 0

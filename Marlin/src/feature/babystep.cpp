@@ -55,14 +55,7 @@ void Babystep::add_mm(const AxisEnum axis, const float &mm) {
 
 void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
 
-  #if ENABLED(BABYSTEP_WITHOUT_HOMING)
-    #define CAN_BABYSTEP(AXIS) true
-  #else
-    extern uint8_t axis_known_position;
-    #define CAN_BABYSTEP(AXIS) TEST(axis_known_position, AXIS)
-  #endif
-
-  if (!CAN_BABYSTEP(axis)) return;
+  if (DISABLED(BABYSTEP_WITHOUT_HOMING) && !TEST(axis_known_position, axis)) return;
 
   accum += distance; // Count up babysteps for the UI
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)

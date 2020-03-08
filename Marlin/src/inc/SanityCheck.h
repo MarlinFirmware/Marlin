@@ -34,6 +34,37 @@
   #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
+// Make sure macros aren't borked
+#define TEST1
+#define TEST2 1
+#define TEST3 0
+#define TEST4 true
+#if ENABLED(TEST0)
+  #error "ENABLED is borked!"
+#endif
+#if DISABLED(TEST1)
+  #error "DISABLED is borked!"
+#endif
+#if !ENABLED(TEST2)
+  #error "ENABLED is borked!"
+#endif
+#if ENABLED(TEST3)
+  #error "ENABLED is borked!"
+#endif
+#if DISABLED(TEST4)
+  #error "DISABLED is borked!"
+#endif
+#if !ANY(TEST1, TEST2, TEST3, TEST4) || ANY(TEST0, TEST3)
+  #error "ANY is borked!"
+#endif
+#if DISABLED(TEST0, TEST1, TEST2, TEST4)
+  #error "DISABLED is borked!"
+#endif
+#undef TEST1
+#undef TEST2
+#undef TEST3
+#undef TEST4
+
 /**
  * We try our best to include sanity checks for all changed configuration
  * directives because users have a tendency to use outdated config files with
@@ -1237,7 +1268,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL_NOT_UBL && !PROBE_SELECTED
-    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

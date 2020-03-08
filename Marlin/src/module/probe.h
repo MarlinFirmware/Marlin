@@ -177,7 +177,7 @@ public:
       // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
       template <typename T>
       static inline void get_three_points(T points[3]) {
-        #if ENABLED(HAS_FIXED_3POINT)
+        #if HAS_FIXED_3POINT
           points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
           points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
           points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);

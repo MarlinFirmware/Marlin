@@ -48,24 +48,16 @@
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
-#define HAS_SIDE_BY_SIDE (ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1)
+#if ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1
+  #define HAS_SIDE_BY_SIDE 1
+#endif
 
 #if _ROT == 0 || _ROT == 180
-  #if HAS_SIDE_BY_SIDE
-    #define MAX7219_X_LEDS  8
-    #define MAX7219_Y_LEDS  MAX7219_LINES
-  #else
-    #define MAX7219_Y_LEDS  8
-    #define MAX7219_X_LEDS  MAX7219_LINES
-  #endif
+  #define MAX7219_X_LEDS TERN(HAS_SIDE_BY_SIDE, 8, MAX7219_LINES)
+  #define MAX7219_Y_LEDS TERN(HAS_SIDE_BY_SIDE, MAX7219_LINES, 8)
 #elif _ROT == 90 || _ROT == 270
-  #if HAS_SIDE_BY_SIDE
-    #define MAX7219_Y_LEDS  8
-    #define MAX7219_X_LEDS  MAX7219_LINES
-  #else
-    #define MAX7219_X_LEDS  8
-    #define MAX7219_Y_LEDS  MAX7219_LINES
-  #endif
+  #define MAX7219_X_LEDS TERN(HAS_SIDE_BY_SIDE, MAX7219_LINES, 8)
+  #define MAX7219_Y_LEDS TERN(HAS_SIDE_BY_SIDE, 8, MAX7219_LINES)
 #else
   #error "MAX7219_ROTATE must be a multiple of +/- 90°."
 #endif

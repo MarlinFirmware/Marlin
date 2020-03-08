@@ -30,6 +30,11 @@
   // Extras for CI testing
 #endif
 
+// Linear advance uses Jerk since E is an isolated axis
+#if DISABLED(CLASSIC_JERK) && ENABLED(LIN_ADVANCE)
+  #define HAS_LINEAR_E_JERK 1
+#endif
+
 #ifdef TEENSYDUINO
   #undef max
   #define max(a,b) ((a)>(b)?(a):(b))
@@ -63,13 +68,8 @@
 // Define center values for future use
 #define _X_HALF_BED ((X_BED_SIZE) / 2)
 #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
-#if ENABLED(BED_CENTER_AT_0_0)
-  #define X_CENTER 0
-  #define Y_CENTER 0
-#else
-  #define X_CENTER _X_HALF_BED
-  #define Y_CENTER _Y_HALF_BED
-#endif
+#define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
+#define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
 
 // Get the linear boundaries of the bed
 #define X_MIN_BED (X_CENTER - _X_HALF_BED)
@@ -92,10 +92,18 @@
 /**
  * CoreXY, CoreXZ, and CoreYZ - and their reverse
  */
-#define CORE_IS_XY EITHER(COREXY, COREYX)
-#define CORE_IS_XZ EITHER(COREXZ, COREZX)
-#define CORE_IS_YZ EITHER(COREYZ, COREZY)
-#define IS_CORE (CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ)
+#if EITHER(COREXY, COREYX)
+  #define CORE_IS_XY 1
+#endif
+#if EITHER(COREXZ, COREZX)
+  #define CORE_IS_XZ 1
+#endif
+#if EITHER(COREYZ, COREZY)
+  #define CORE_IS_YZ 1
+#endif
+#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
+  #define IS_CORE 1
+#endif
 #if IS_CORE
   #if CORE_IS_XY
     #define CORE_AXIS_1 A_AXIS
@@ -110,11 +118,7 @@
     #define CORE_AXIS_1 B_AXIS
     #define CORE_AXIS_2 C_AXIS
   #endif
-  #if ANY(COREYX, COREZX, COREZY)
-    #define CORESIGN(n) (-(n))
-  #else
-    #define CORESIGN(n) (n)
-  #endif
+  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
 #endif
 
 /**
@@ -139,33 +143,23 @@
  */
 #ifdef MANUAL_X_HOME_POS
   #define X_HOME_POS MANUAL_X_HOME_POS
-#elif ENABLED(BED_CENTER_AT_0_0)
-  #if ENABLED(DELTA)
-    #define X_HOME_POS 0
-  #else
-    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
-  #endif
 #else
-  #if ENABLED(DELTA)
-    #define X_HOME_POS (X_MIN_POS + (X_BED_SIZE) * 0.5)
+  #define X_END_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+  #if ENABLED(BED_CENTER_AT_0_0)
+    #define X_HOME_POS TERN(DELTA, 0, X_END_POS)
   #else
-    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+    #define X_HOME_POS TERN(DELTA, X_MIN_POS + (X_BED_SIZE) * 0.5, X_END_POS)
   #endif
 #endif
 
 #ifdef MANUAL_Y_HOME_POS
   #define Y_HOME_POS MANUAL_Y_HOME_POS
-#elif ENABLED(BED_CENTER_AT_0_0)
-  #if ENABLED(DELTA)
-    #define Y_HOME_POS 0
-  #else
-    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
-  #endif
 #else
-  #if ENABLED(DELTA)
-    #define Y_HOME_POS (Y_MIN_POS + (Y_BED_SIZE) * 0.5)
+  #define Y_END_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+  #if ENABLED(BED_CENTER_AT_0_0)
+    #define Y_HOME_POS TERN(DELTA, 0, Y_END_POS)
   #else
-    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+    #define Y_HOME_POS TERN(DELTA, Y_MIN_POS + (Y_BED_SIZE) * 0.5, Y_END_POS)
   #endif
 #endif
 
@@ -268,7 +262,10 @@
   #define _LCD_CONTRAST_INIT  17
 #endif
 
-#define HAS_LCD_CONTRAST defined(_LCD_CONTRAST_INIT)
+#ifdef _LCD_CONTRAST_INIT
+  #define HAS_LCD_CONTRAST 1
+#endif
+
 #if HAS_LCD_CONTRAST
   #ifndef LCD_CONTRAST_MIN
     #ifdef _LCD_CONTRAST_MIN
@@ -1291,20 +1288,40 @@
 
 // Trinamic Stepper Drivers
 #if HAS_TRINAMIC_CONFIG
-  #define STEALTHCHOP_ENABLED ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
-  #define USE_SENSORLESS EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+  #if ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
+    #define STEALTHCHOP_ENABLED 1
+  #endif
+  #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+    #define USE_SENSORLESS 1
+  #endif
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HOMING_Z_WITH_PROBE
     #undef Z_STALL_SENSITIVITY
   #endif
-  #define X_SENSORLESS  (AXIS_HAS_STALLGUARD(X)  && defined(X_STALL_SENSITIVITY))
-  #define X2_SENSORLESS (AXIS_HAS_STALLGUARD(X2) && defined(X2_STALL_SENSITIVITY))
-  #define Y_SENSORLESS  (AXIS_HAS_STALLGUARD(Y)  && defined(Y_STALL_SENSITIVITY))
-  #define Y2_SENSORLESS (AXIS_HAS_STALLGUARD(Y2) && defined(Y2_STALL_SENSITIVITY))
-  #define Z_SENSORLESS  (AXIS_HAS_STALLGUARD(Z)  && defined(Z_STALL_SENSITIVITY))
-  #define Z2_SENSORLESS (AXIS_HAS_STALLGUARD(Z2) && defined(Z2_STALL_SENSITIVITY))
-  #define Z3_SENSORLESS (AXIS_HAS_STALLGUARD(Z3) && defined(Z3_STALL_SENSITIVITY))
-  #define Z4_SENSORLESS (AXIS_HAS_STALLGUARD(Z4) && defined(Z4_STALL_SENSITIVITY))
+  #if defined(X_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(X)
+    #define X_SENSORLESS 1
+  #endif
+  #if defined(X2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2)
+    #define X2_SENSORLESS 1
+  #endif
+  #if defined(Y_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(Y)
+    #define Y_SENSORLESS 1
+  #endif
+  #if defined(Y2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2)
+    #define Y2_SENSORLESS 1
+  #endif
+  #if defined(Z_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(Z)
+    #define Z_SENSORLESS 1
+  #endif
+  #if defined(Z2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2)
+    #define Z2_SENSORLESS 1
+  #endif
+  #if defined(Z3_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3)
+    #define Z3_SENSORLESS 1
+  #endif
+  #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
+    #define Z4_SENSORLESS 1
+  #endif
   #if ENABLED(SPI_ENDSTOPS)
     #define X_SPI_SENSORLESS X_SENSORLESS
     #define Y_SPI_SENSORLESS Y_SENSORLESS
@@ -1388,23 +1405,48 @@
 #define HAS_HEATER_BED  (PIN_EXISTS(HEATER_BED))
 
 // Shorthand for common combinations
-#define HAS_HEATED_BED (HAS_TEMP_BED && HAS_HEATER_BED)
-#define BED_OR_CHAMBER (HAS_HEATED_BED || HAS_TEMP_CHAMBER)
-#define HAS_TEMP_SENSOR (HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE)
-#define HAS_HEATED_CHAMBER (HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER))
+#if HAS_TEMP_BED && HAS_HEATER_BED
+  #define HAS_HEATED_BED 1
+#endif
+#if HAS_HEATED_BED || HAS_TEMP_CHAMBER
+  #define BED_OR_CHAMBER 1
+#endif
+#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE
+  #define HAS_TEMP_SENSOR 1
+#endif
+#if HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER)
+  #define HAS_HEATED_CHAMBER 1
+#endif
 
 // PID heating
 #if !HAS_HEATED_BED
   #undef PIDTEMPBED
 #endif
-#define HAS_PID_HEATING EITHER(PIDTEMP, PIDTEMPBED)
-#define HAS_PID_FOR_BOTH BOTH(PIDTEMP, PIDTEMPBED)
+#if EITHER(PIDTEMP, PIDTEMPBED)
+  #define HAS_PID_HEATING 1
+#endif
+#if BOTH(PIDTEMP, PIDTEMPBED)
+  #define HAS_PID_FOR_BOTH 1
+#endif
 
 // Thermal protection
-#define HAS_THERMALLY_PROTECTED_BED (HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED))
-#define WATCH_HOTENDS (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0)
-#define WATCH_BED (HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0)
-#define WATCH_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER) && WATCH_CHAMBER_TEMP_PERIOD > 0)
+#if HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED)
+  #define HAS_THERMALLY_PROTECTED_BED 1
+#endif
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+  #define WATCH_HOTENDS 1
+#endif
+#if HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0
+  #define WATCH_BED 1
+#endif
+#if HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER) && WATCH_CHAMBER_TEMP_PERIOD > 0
+  #define WATCH_CHAMBER 1
+#endif
+#if  (ENABLED(THERMAL_PROTECTION_HOTENDS) || !EXTRUDERS) \
+  && (ENABLED(THERMAL_PROTECTION_BED)     || !HAS_HEATED_BED) \
+  && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER)
+  #define THERMALLY_SAFE 1
+#endif
 
 // Auto fans
 #define HAS_AUTO_FAN_0 (HOTENDS > 0 && PIN_EXISTS(E0_AUTO_FAN))
@@ -1455,22 +1497,48 @@
 #define HAS_FILAMENT_WIDTH_SENSOR (PIN_EXISTS(FILWIDTH))
 
 // User Interface
-#define HAS_HOME        (PIN_EXISTS(HOME))
-#define HAS_KILL        (PIN_EXISTS(KILL))
-#define HAS_SUICIDE     (PIN_EXISTS(SUICIDE))
-#define HAS_PHOTOGRAPH  (PIN_EXISTS(PHOTOGRAPH))
-#define HAS_BUZZER      (PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER))
-#define USE_BEEPER      (HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER))
-#define HAS_CASE_LIGHT  (PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE))
+#if PIN_EXISTS(HOME)
+  #define HAS_HOME 1
+#endif
+#if PIN_EXISTS(KILL)
+  #define HAS_KILL 1
+#endif
+#if PIN_EXISTS(SUICIDE)
+  #define HAS_SUICIDE 1
+#endif
+#if PIN_EXISTS(PHOTOGRAPH)
+  #define HAS_PHOTOGRAPH 1
+#endif
+#if PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #define HAS_BUZZER 1
+#endif
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #define USE_BEEPER 1
+#endif
+#if PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE)
+  #define HAS_CASE_LIGHT 1
+#endif
 
 // Digital control
-#define HAS_STEPPER_RESET     (PIN_EXISTS(STEPPER_RESET))
-#define HAS_DIGIPOTSS         (PIN_EXISTS(DIGIPOTSS))
-#define HAS_MOTOR_CURRENT_PWM ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+#if PIN_EXISTS(STEPPER_RESET)
+  #define HAS_STEPPER_RESET 1
+#endif
+#if PIN_EXISTS(DIGIPOTSS)
+  #define HAS_DIGIPOTSS 1
+#endif
+#if  ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+  #define HAS_MOTOR_CURRENT_PWM 1
+#endif
 
-#define HAS_SOME_Z_MICROSTEPS (HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS || HAS_Z4_MICROSTEPS)
-#define HAS_SOME_E_MICROSTEPS (HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS || HAS_E5_MICROSTEPS || HAS_E6_MICROSTEPS || HAS_E7_MICROSTEPS)
-#define HAS_MICROSTEPS (HAS_X_MICROSTEPS || HAS_X2_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Y2_MICROSTEPS || HAS_SOME_Z_MICROSTEPS || HAS_SOME_E_MICROSTEPS)
+#if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS || HAS_Z4_MICROSTEPS
+  #define HAS_SOME_Z_MICROSTEPS 1
+#endif
+#if HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS || HAS_E5_MICROSTEPS || HAS_E6_MICROSTEPS || HAS_E7_MICROSTEPS
+  #define HAS_SOME_E_MICROSTEPS 1
+#endif
+#if HAS_X_MICROSTEPS || HAS_X2_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Y2_MICROSTEPS || HAS_SOME_Z_MICROSTEPS || HAS_SOME_E_MICROSTEPS
+  #define HAS_MICROSTEPS 1
+#endif
 
 #if HAS_MICROSTEPS
 
@@ -1764,21 +1832,48 @@
 /**
  * Set granular options based on the specific type of leveling
  */
-#define UBL_SEGMENTED   BOTH(AUTO_BED_LEVELING_UBL, DELTA)
-#define ABL_PLANAR      EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
-#define ABL_GRID        EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
-#define HAS_ABL_NOT_UBL (ABL_PLANAR || ABL_GRID)
-#define HAS_ABL_OR_UBL  (HAS_ABL_NOT_UBL || ENABLED(AUTO_BED_LEVELING_UBL))
-#define HAS_LEVELING    (HAS_ABL_OR_UBL || ENABLED(MESH_BED_LEVELING))
-#define HAS_AUTOLEVEL   (HAS_ABL_OR_UBL && DISABLED(PROBE_MANUALLY))
-#define HAS_MESH        ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
-#define PLANNER_LEVELING      (HAS_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL))
-#define HAS_PROBING_PROCEDURE (HAS_ABL_OR_UBL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
-#define HAS_POSITION_MODIFIERS (ENABLED(FWRETRACT) || HAS_LEVELING || ENABLED(SKEW_CORRECTION))
-#define NEEDS_THREE_PROBE_POINTS EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
-
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
+  #if ENABLED(DELTA)
+    #define UBL_SEGMENTED 1
+  #endif
+#endif
+#if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
+  #define ABL_PLANAR 1
+#endif
+#if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
+  #define ABL_GRID 1
+#endif
+#if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_3POINT)
+  #define HAS_ABL_NOT_UBL 1
+#endif
+#if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
+  #define HAS_MESH 1
+#endif
+#if EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
+  #define NEEDS_THREE_PROBE_POINTS 1
+#endif
+#if EITHER(HAS_ABL_NOT_UBL, AUTO_BED_LEVELING_UBL)
+  #define HAS_ABL_OR_UBL 1
+  #if DISABLED(PROBE_MANUALLY)
+    #define HAS_AUTOLEVEL 1
+  #endif
+#endif
+#if EITHER(HAS_ABL_OR_UBL, MESH_BED_LEVELING)
+  #define HAS_LEVELING 1
+  #if DISABLED(AUTO_BED_LEVELING_UBL)
+    #define PLANNER_LEVELING 1
+  #endif
+#endif
+#if EITHER(HAS_ABL_OR_UBL, Z_MIN_PROBE_REPEATABILITY_TEST)
+  #define HAS_PROBING_PROCEDURE 1
+#endif
+#if ANY(FWRETRACT, HAS_LEVELING, SKEW_CORRECTION)
+  #define HAS_POSITION_MODIFIERS 1
+#endif
+
+#if !HAS_LEVELING
+  #undef RESTORE_LEVELING_AFTER_G28
 #endif
 
 /**
@@ -1905,8 +2000,8 @@
   #undef MESH_MAX_Y
 #endif
 
-#if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
-  #define HAS_FIXED_3POINT
+#if defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y)
+  #define HAS_FIXED_3POINT 1
 #endif
 
 /**
@@ -1944,10 +2039,10 @@
  * Z_HOMING_HEIGHT / Z_CLEARANCE_BETWEEN_PROBES
  */
 #ifndef Z_HOMING_HEIGHT
-  #ifndef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_HOMING_HEIGHT 0
-  #else
+  #ifdef Z_CLEARANCE_BETWEEN_PROBES
     #define Z_HOMING_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define Z_HOMING_HEIGHT 0
   #endif
 #endif
 
@@ -1975,15 +2070,16 @@
 #endif
 
 // Updated G92 behavior shifts the workspace
-#define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
-// The home offset also shifts the coordinate space
-#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_CARTESIAN)
-// The SCARA home offset applies only on G28
-#define HAS_SCARA_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_SCARA)
-// Cumulative offset to workspace to save some calculation
-#define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT && HAS_HOME_OFFSET)
-// M206 sets the home offset for Cartesian machines
-#define HAS_M206_COMMAND (HAS_HOME_OFFSET && !IS_SCARA)
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  #define HAS_POSITION_SHIFT 1
+  #if IS_CARTESIAN
+    #define HAS_HOME_OFFSET 1       // The home offset also shifts the coordinate space
+    #define HAS_WORKSPACE_OFFSET 1  // Cumulative offset to workspace to save some calculation
+    #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
+  #elif IS_SCARA
+    #define HAS_SCARA_OFFSET 1      // The SCARA home offset applies only on G28
+  #endif
+#endif
 
 // LCD timeout to status screen default is 15s
 #ifndef LCD_TIMEOUT_TO_STATUS
@@ -2006,11 +2102,7 @@
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
-#if ENABLED(SCROLL_LONG_FILENAMES)
-  #define MAX_VFAT_ENTRIES (5)
-#else
-  #define MAX_VFAT_ENTRIES (2)
-#endif
+#define MAX_VFAT_ENTRIES TERN(SCROLL_LONG_FILENAMES, 5, 2)
 
 // Nozzle park for Delta
 #if BOTH(NOZZLE_PARK_FEATURE, DELTA)
@@ -2022,9 +2114,8 @@
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
 #if defined(TARGET_LPC1768) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && (SCK_PIN == LCD_PINS_D4)
-  #define SDCARD_SORT_ALPHA         // Keeps one directory level in RAM. Changing
-                                    // directory levels still glitches the screen,
-                                    // but the following LCD update cleans it up.
+  #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
+                                    // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
   #undef SDSORT_USES_RAM
   #undef SDSORT_USES_STACK
@@ -2057,19 +2148,15 @@
   #ifndef LCD_WIDTH
     #if HAS_GRAPHICAL_LCD
       #define LCD_WIDTH 21
-    #elif ENABLED(ULTIPANEL)
-      #define LCD_WIDTH 20
     #else
-      #define LCD_WIDTH 16
+      #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
     #if HAS_GRAPHICAL_LCD
       #define LCD_HEIGHT 5
-    #elif ENABLED(ULTIPANEL)
-      #define LCD_HEIGHT 4
     #else
-      #define LCD_HEIGHT 2
+      #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
   #endif
 #endif
