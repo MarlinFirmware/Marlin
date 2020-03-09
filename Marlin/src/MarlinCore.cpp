@@ -978,13 +978,10 @@ void setup() {
   #endif
 
   SETUP_RUN(ui.init());
+  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
 
   #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
-  #endif
-
-  #if !HAS_SERVICE_INTERVALS
-    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
   #if ENABLED(SDSUPPORT)
