@@ -1842,13 +1842,20 @@
   //#define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     // load/Unload
-    #define TOOLCHANGE_FIL_SWAP_LENGTH          12   // (mm)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 60*60  // (mm/m)
-    #define TOOLCHANGE_FIL_SWAP_RECOVER_SPEED 30*60  // (mm/m) (On SINGLENOZZLE, loading must be slowed down)
+    #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    60*60  // (mm/m)
+    #define TOOLCHANGE_FIL_SWAP_RECOVER_SPEED    30*60  // (mm/m) (On SINGLENOZZLE, loading must be slowed down)
+
+    // Firmware retract utility (Requires FWRETRACT)
+    #define TOOLCHANGE_SWAP_USE_FWRETRACT // Use swap settings
+    #define TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING //Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
 
     // Purge length/feedrate (Prevent color mixing/dirty priming)
-    #define TOOLCHANGE_FIL_EXTRA_PRIME           2   // (mm)
-    #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED   3600  // (mm/m)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME              2   // (mm) (Can be changed in real time to adjust the amount of filament if needed)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED   4.6 *60  // (mm/m)(Max feedrate for 0.4 nozzle/volcano/50w heater)
+
+
+
   #endif
 
 #endif
@@ -1868,7 +1875,7 @@
  // Single Nozzle utility
  // Purge length/feedrate (Prevent color mixing/dirty priming)
  #define TOOLCHANGE_SWAP_PRIME_LENGTH             0  // (mm)
- #define TOOLCHANGE_SWAP_PRIME_FEEDRATE        3600  // (mm/m)
+ #define TOOLCHANGE_SWAP_PRIME_FEEDRATE     4.6 *60  // (mm/m)(Max feedrate for 0.4 nozzle/volcano/50w heater)
  // Fan after priming (To cool the purged filament and to avoid stringing)
  #define TOOLCHANGE_SWAP_FAN                      0  // Fan count
  #define TOOLCHANGE_SWAP_FAN_SPEED              255  // 0 - 255
