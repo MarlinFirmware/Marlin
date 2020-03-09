@@ -2404,7 +2404,9 @@ void MarlinSettings::reset() {
       constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
       toolchange_settings.change_point = tpxy;
     #endif
-    toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+    #if ENABLED(TOOLCHANGE_ZRAISE)
+      toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+    #endif
   #endif
 
   #if ENABLED(BACKLASH_GCODE)

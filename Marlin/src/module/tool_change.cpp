@@ -891,8 +891,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       #if DISABLED(SWITCHING_NOZZLE)
         if (can_move_away) {
-          // Do a small lift to avoid the workpiece in the move back (below)
-          current_position.z += toolchange_settings.z_raise;
+          #if ENABLED(TOOLCHANGE_ZRAISE)
+            // Do a small lift to avoid the workpiece in the move back (below)
+            current_position.z += toolchange_settings.z_raise;
+          #endif
           #if HAS_SOFTWARE_ENDSTOPS
             NOMORE(current_position.z, soft_endstop.max.z);
           #endif

@@ -50,8 +50,9 @@ void M217_report(const bool eeprom=false) {
     UNUSED(eeprom);
 
   #endif
-
-  SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
+  #if ENABLED(TOOLCHANGE_ZRAISE)
+    SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
+  #endif
   SERIAL_EOL();
 }
 
@@ -96,10 +97,11 @@ void GcodeSuite::M217() {
     if (parser.seenval('X')) { toolchange_settings.change_point.x = parser.value_linear_units(); }
     if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
   #endif
-
-  if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
-
-  if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
+  
+  #if ENABLED(TOOLCHANGE_ZRAISE)
+    if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
+    #if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
+  #endif
 }
 
 #endif // EXTRUDERS > 1
