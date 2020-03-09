@@ -29,7 +29,7 @@
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       float swap_length, extra_prime;
-      int16_t prime_speed, retract_speed, unretract_speed;
+      int16_t prime_speed, retract_speed, unretract_speed,fan ,fan_speed,fan_time;
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
       xy_pos_t change_point;
