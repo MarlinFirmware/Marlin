@@ -1847,85 +1847,52 @@
     #define TOOLCHANGE_FIL_SWAP_RECOVER_SPEED    30*60  // (mm/m) (On SINGLENOZZLE, loading must be slowed down)
 
     // Firmware retract utility (Requires FWRETRACT)
-    #define TOOLCHANGE_SWAP_USE_FWRETRACT // Use swap settings
+    #define TOOLCHANGE_SWAP_USE_FWRETRACT // Use FwRetract swap settings instead of TOOLCHANGE swap settings
     #define TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING //Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
 
-    // Purge length/feedrate (Prevent color mixing/dirty priming)
-    #define TOOLCHANGE_FIL_EXTRA_PRIME              2   // (mm) (Can be changed in real time to adjust the amount of filament if needed)
+    // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
+    // Can be changed in real time to adjust the amount of filament if needed
+    #define TOOLCHANGE_FIL_EXTRA_PRIME              2   // (mm)
     #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED   4.6 *60  // (mm/m)(Max feedrate for 0.4 nozzle/volcano/50w heater)
+    // Cooling after priming (To avoid stringing and a clean nozzle on resume)
+    #define TOOLCHANGE_SWAP_FAN                      0  // Fan count
+    #define TOOLCHANGE_SWAP_FAN_SPEED              255  // 0 - 255
+    #define TOOLCHANGE_SWAP_FAN_TIME                10  // s
 
+    // On the first use , never recover and just prime
+    // The firmware can break filament if it recovers an extruder not initialised
+    #define TOOLCHANGE_SWAP_INIT_FIRST_TIME
 
-
-  #endif
-
-#endif
-/**
-*/
-//#define TOOLCHANGE_FILAMENT_SWAP
-#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
- // load or Unload length (swap)
- #define TOOLCHANGE_SWAP_LENGTH                  12  // (mm)
- #define TOOLCHANGE_SWAP_UNLOAD_FEEDRATE       3600  // (mm/m)
- #define TOOLCHANGE_SWAP_LOAD_FEEDRATE         3600  // (mm/m) (On SINGLENOZZLE, loading must be slowed down)
-
- // Firmware retract utility (Requires FWRETRACT)
- #define TOOLCHANGE_SWAP_USE_FWRETRACT // Use swap settings
- #define TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING //Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
-
- // Single Nozzle utility
- // Purge length/feedrate (Prevent color mixing/dirty priming)
- #define TOOLCHANGE_SWAP_PRIME_LENGTH             0  // (mm)
- #define TOOLCHANGE_SWAP_PRIME_FEEDRATE     4.6 *60  // (mm/m)(Max feedrate for 0.4 nozzle/volcano/50w heater)
- // Fan after priming (To cool the purged filament and to avoid stringing)
- #define TOOLCHANGE_SWAP_FAN                      0  // Fan count
- #define TOOLCHANGE_SWAP_FAN_SPEED              255  // 0 - 255
- #define TOOLCHANGE_SWAP_FAN_TIME                10  // s
-
- // Extra unretract (Not needed if primed)
- #define TOOLCHANGE_SWAP_EXTRA_UNRETRACT          2  // (mm)
-
- // Feedrate to the resuming position (Must be at max for cutting harden purged filament in a bucket for ex)
- //#define TOOLCHANGE_SWAP_RETURN_FEEDRATE        3600  // (mm/m) (Max Speed if disabled)
-
- // First extrusion Security
- // On the first use , never recover and just prime
- // (The firmware can break filament if it recovers an extruder not initialised)
- #define TOOLCHANGE_SWAP_INIT_FIRST_TIME
-
- // Enable Tool Change Priming Menu (Priming length/feedrate, Fan speed/time, extra_unretract)
- #define TOOLCHANGE_SWAP_PRIMING_LCD_MENU
- // Enable tol change Gcode commands
- #define TOOLCHANGE_SWAP_PRIMING_GCODES
-
- /**
-  * Tool change migration Feature
-  * M606 Gcode
-  *
-  *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
-  *   Transfer all properties : Temp + Flow + Gear position + Fwretract
-  *   On runout/manually/Gcode
-  *   Utility to : Use another extruder to continue the printing automaticly
-                 : Finish old ended spool and start another automaticly
-  *              : Use another extruder if current jammed
-  *              Requires 2 or more extruders.
-  *              Requires FILAMENT_RUNOUT for automatic migration after runout
-  *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
-  *              Requires same nozzle size
-  *              No dual extrusion printing
-  *
-  *   : L[int]: 0=disable : 1/2/3/4 - Last extruder to reach after runouts - One or more migrations possible(By LCD/Gcode)
-  *   : T[int]: 0/1/2/3/4 : Migration to desired extruder(By LCD/Gcode)
-  *   : Default value     : Migration to next extruder (By Runout/LCD/Gcode)
-  */
- //#define TOOLCHANGE_MIGRATION_FEATURE
- #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-   // Enable Tool Change migration feature Menu
-   #define TOOLCHANGE_MIGRATION_FEATURE_LCD_MENU
-   // Enable Tool Change migration Gcode commands
-   #define TOOLCHANGE_MIGRATION_FEATURE_GCODES
- #endif
-#endif
-#endif
+    /**
+     * Tool change migration Feature
+     * M606 Gcode
+     *
+     *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
+     *   Transfer all properties : Temp + Flow + Gear position + Fwretract
+     *   On runout/manually/Gcode
+     *   Utility to : Use another extruder to continue the printing automaticly
+                    : Finish old ended spool and start another automaticly
+     *              : Use another extruder if current jammed
+     *              Requires 2 or more extruders.
+     *              Requires FILAMENT_RUNOUT for automatic migration after runout
+     *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
+     *              Requires same nozzle size
+     *              No dual extrusion printing
+     *
+     *   : L[int]: 0=disable : 1/2/3/4 - Last extruder to reach after runouts - One or more migrations possible(By LCD/Gcode)
+     *   : T[int]: 0/1/2/3/4 : Migration to desired extruder(By LCD/Gcode)
+     *   : Default value     : Migration to next extruder (By Runout/LCD/Gcode)
+     */
+    //#define TOOLCHANGE_MIGRATION_FEATURE
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      // Enable Tool Change migration feature Menu
+      #define TOOLCHANGE_MIGRATION_FEATURE_LCD_MENU
+      // Enable Tool Change migration Gcode commands
+      #define TOOLCHANGE_MIGRATION_FEATURE_GCODES
+    #endif // TOOLCHANGE_MIGRATION_FEATURE
+    
+  #endif // TOOLCHANGE_FILAMENT_SWAP
+#endif // EXTRUDERS > 1
 /*
 
 /**
