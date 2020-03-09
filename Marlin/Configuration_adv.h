@@ -1810,18 +1810,11 @@
 
 /**
  * Universal tool change settings.
+ * Firmware-based and LCD-controlled tool change ,priming and migration
+ * Add M217 commands(See more in M217 documentation)
  * Applies to all types of extruders except where explicitly noted.
  */
 #if EXTRUDERS > 1
-
-  // Retract and prime filament on tool-change
-  //#define TOOLCHANGE_FILAMENT_SWAP
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
-    #define TOOLCHANGE_FIL_EXTRA_PRIME           2  // (mm)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
-    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
-  #endif
 
   /**
    * Position to park head during tool change.
@@ -1841,8 +1834,17 @@
   // NOZZLE_PARK_FEATURE instead of TOOLCHANGE_PARK & TOOLCHANGE_ZRAISE
   #define TOOLCHANGE_USE_NOZZLE_PARK_FEATURE
   #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-    #undef TOOLCHANGE_ZRAISE
+    #define TOOLCHANGE_ZRAISE 0
     #undef TOOLCHANGE_PARK
+  #endif
+
+  // Retract and prime filament on tool-change
+  //#define TOOLCHANGE_FILAMENT_SWAP
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME           2  // (mm)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
+    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
   #endif
 
 #endif

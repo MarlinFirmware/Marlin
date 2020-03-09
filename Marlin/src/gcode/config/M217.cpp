@@ -100,7 +100,7 @@ void GcodeSuite::M217() {
 
   #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
     if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
-    #if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
+    if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
   #endif
 }
 
