@@ -374,7 +374,7 @@
 #elif defined(SINGLENOZZLE_SWAP_RETRACT_SPEED)
   #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PRIME_SPEED)
-  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FIL_EXTRA_PRIME_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PARK)
   #error "SINGLENOZZLE_SWAP_PARK is now TOOLCHANGE_PARK. Please update your configuration."
 #elif defined(SINGLENOZZLE_TOOLCHANGE_XY)
@@ -800,8 +800,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_LENGTH. Please update your Configuration."
     #elif !defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
       #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
+    #elif !defined(TOOLCHANGE_FIL_EXTRA_PRIME_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_EXTRA_PRIME_SPEED. Please update your Configuration."
     #endif
   #endif
   #if ENABLED(TOOLCHANGE_PARK)
