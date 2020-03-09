@@ -2399,6 +2399,7 @@ void MarlinSettings::reset() {
       toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_EXTRA_PRIME_SPEED;
       toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+      toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
     #endif
     #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
       constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;

@@ -59,13 +59,19 @@ void M217_report(const bool eeprom=false) {
 /**
  * M217 - Set SINGLENOZZLE toolchange parameters
  *
+ *  // Tool change
  *  S[linear]   Swap length
- *  E[linear]   Purge length
+ *  E[linear]   Prime length
  *  P[linear/m] Prime speed
  *  R[linear/m] Retract speed
  *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
  *  Z[linear]   Z Raise
+ *
+ *  Tool migration
+ *  L[linear]   0=disable : 1/2/3/4 - Last extruder to reach after runouts
+ *  N[1]        Migration to next extruder (By Runout/LCD/Gcode)
+ *  T[linear]   0/1/2/3/4 : Migration to desired extruder
  */
 void GcodeSuite::M217() {
 
