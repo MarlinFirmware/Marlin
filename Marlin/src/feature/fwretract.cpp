@@ -42,7 +42,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // private:
 
-#if EXTRUDERS > 1
+#if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
   bool FWRetract::retracted_swap[EXTRUDERS];          // Which extruders are swap-retracted
 #endif
 

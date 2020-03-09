@@ -2400,7 +2400,6 @@ void MarlinSettings::reset() {
       toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
       toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_EXTRA_PRIME_SPEED;
-      toolchange_settings.fan = TOOLCHANGE_SWAP_FAN;
       toolchange_settings.fan_speed = TOOLCHANGE_SWAP_FAN_SPEED;
       toolchange_settings.fan_time = TOOLCHANGE_SWAP_FAN_TIME;
     #endif
