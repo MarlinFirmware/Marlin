@@ -40,7 +40,7 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR_P(SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
 
-    #if ENABLED(TOOLCHANGE_PARK)
+    #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
       SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
@@ -50,7 +50,7 @@ void M217_report(const bool eeprom=false) {
     UNUSED(eeprom);
 
   #endif
-  #if ENABLED(TOOLCHANGE_ZRAISE)
+  #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
     SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
   #endif
   SERIAL_EOL();
@@ -91,14 +91,14 @@ void GcodeSuite::M217() {
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
   #endif
 
-  #if ENABLED(TOOLCHANGE_PARK)
+  #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
     #undef XY_PARAM
     #define XY_PARAM "XY"
     if (parser.seenval('X')) { toolchange_settings.change_point.x = parser.value_linear_units(); }
     if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
   #endif
-  
-  #if ENABLED(TOOLCHANGE_ZRAISE)
+
+  #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
     if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
     #if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
   #endif

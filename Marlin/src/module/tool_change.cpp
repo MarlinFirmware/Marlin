@@ -889,22 +889,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       destination = current_position;
 
-      #if DISABLED(SWITCHING_NOZZLE)
+      #if DISABLED(SWITCHING_NOZZLE) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
         if (can_move_away) {
-          #if ENABLED(TOOLCHANGE_ZRAISE)
             // Do a small lift to avoid the workpiece in the move back (below)
             current_position.z += toolchange_settings.z_raise;
-          #endif
-          #if HAS_SOFTWARE_ENDSTOPS
+            #if HAS_SOFTWARE_ENDSTOPS
             NOMORE(current_position.z, soft_endstop.max.z);
-          #endif
-          fast_line_to_current(Z_AXIS);
+            #endif
+            fast_line_to_current(Z_AXIS);
           #if ENABLED(TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, old_tool);
           planner.synchronize();
         }
+      #else
+        nozzle.park(2, park_point);
       #endif
 
       #if HAS_HOTEND_OFFSET
