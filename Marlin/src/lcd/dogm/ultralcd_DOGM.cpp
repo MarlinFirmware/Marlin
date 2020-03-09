@@ -324,11 +324,11 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, 'E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
-      lcd_put_u8str(i16tostr3(thermalManager.degHotend(extruder)));
+      lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
       if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
-        lcd_put_u8str(i16tostr3(thermalManager.degTargetHotend(extruder)));
+        lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
   #endif // ADVANCED_PAUSE_FEATURE
