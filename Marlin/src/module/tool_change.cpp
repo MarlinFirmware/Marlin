@@ -1003,6 +1003,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           //  #endif
             planner.synchronize();
             planner.set_e_position_mm((destination.e = current_position.e = current_position.e - (TOOLCHANGE_FIL_EXTRA_PRIME)));
+
+            
           }
         #endif
 
@@ -1027,7 +1029,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #else
             // Move back to the original (or adjusted) position
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
-            do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_SWAP_RETURN_SPEED));
+            do_blocking_move_to(destination);
           #endif
         }
         else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back skipped");
