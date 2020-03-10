@@ -1061,13 +1061,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             // Just move back down
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
-            do_blocking_move_to_z(destination.z,
-              #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-                NOZZLE_PARK_XY_FEEDRATE
-              #else
-                planner.settings.max_feedrate_mm_s[Z_AXIS]
-              #endif
-              );
+            do_blocking_move_to_z(destination.z,planner.settings.max_feedrate_mm_s[Z_AXIS]);
           #else
             // Move back to the original (or adjusted) position
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
