@@ -2395,9 +2395,15 @@ void MarlinSettings::reset() {
 
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
-      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
-      toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
+      #if ENABLED(TOOLCHANGE_FIL_SWAP_USE_FWRETRACT) && ENABLED(FWRETRACT)
+        toolchange_settings.swap_length = RETRACT_LENGTH_SWAP;
+        toolchange_settings.retract_speed = RETRACT_FEEDRATE;
+        toolchange_settings.unretract_speed = RETRACT_RECOVER_FEEDRATE_SWAP;
+      #else
+        toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+        toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+        toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
+      #endif
       toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_EXTRA_PRIME_SPEED;
       toolchange_settings.fan_speed = TOOLCHANGE_FIL_SWAP_FAN_SPEED;

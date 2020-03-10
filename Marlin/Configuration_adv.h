@@ -1819,7 +1819,7 @@
    * Position to park head during tool change.
    * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
    */
-  //#define TOOLCHANGE_PARK
+  #define TOOLCHANGE_PARK
   #if ENABLED(TOOLCHANGE_PARK)
     #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
     #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60  // (mm/m)
@@ -1837,7 +1837,7 @@
   /**
    * Advanced Tool change feature
    */
-  //#define TOOLCHANGE_FILAMENT_SWAP
+  #define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     // load/Unload
     #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
@@ -1845,7 +1845,7 @@
     #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  30*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
 
     // Firmware retract utility (Requires FWRETRACT)
-    #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT               // Use FwRetract swap settings instead of TOOLCHANGE swap settings
+    #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT               // Use FwRetract swap settings instead of TOOLCHANGE
     #define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING  // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
 
     // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
