@@ -1844,7 +1844,7 @@
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     // load/Unload
     #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
-    #define f    60*60  // (mm/m) (Unloading)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    60*60  // (mm/m) (Unloading)
     #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  30*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
 
     // Firmware retract utility (Requires FWRETRACT)

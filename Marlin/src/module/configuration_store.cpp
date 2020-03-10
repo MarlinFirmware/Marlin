@@ -2405,6 +2405,7 @@ void MarlinSettings::reset() {
     #endif
     #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
       constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
+      toolchange_settings.enable_park = true;
       toolchange_settings.change_point = tpxy;
     #endif
     #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)

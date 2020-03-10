@@ -39,6 +39,10 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime));
     SERIAL_ECHOPAIR_P(SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
+    SERIAL_ECHOPAIR(" UR", LINEAR_UNIT(toolchange_settings.unretract_speed));
+    SERIAL_ECHOPAIR(" PK", LINEAR_UNIT(toolchange_settings.enable_park));
+    SERIAL_ECHOPAIR(" FS", LINEAR_UNIT(toolchange_settings.fan_speed));
+    SERIAL_ECHOPAIR(" FT", LINEAR_UNIT(toolchange_settings.fan_time));
 
     #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
       SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
@@ -64,9 +68,13 @@ void M217_report(const bool eeprom=false) {
  *  E[linear]   Prime length
  *  P[linear/m] Prime speed
  *  R[linear/m] Retract speed
+ *  U[linear/m] UnRetract speed
+ *  W[linear]   Enable park & Z Raise
  *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
  *  Z[linear]   Z Raise
+ *  F[linear]   Fan Speed 0-255
+ *  G[linear/s] Fan time
  *
  *  Tool migration
  *  L[linear]   0=disable : 1/2/3/4 - Last extruder to reach after runouts
@@ -95,11 +103,15 @@ void GcodeSuite::M217() {
     if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, max_extrude); }
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
+    if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
+    if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
+    if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
   #endif
 
   #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
     #undef XY_PARAM
     #define XY_PARAM "XY"
+    if (parser.seenval('W')) { toolchange_settings.enable_park = parser.value_linear_units(); }
     if (parser.seenval('X')) { toolchange_settings.change_point.x = parser.value_linear_units(); }
     if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
   #endif

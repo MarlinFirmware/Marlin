@@ -28,9 +28,12 @@
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      bool extruder_ready[EXTRUDERS];
+      bool extruder_ready[EXTRUDERS],;
       float swap_length, extra_prime;
       int16_t prime_speed, retract_speed, unretract_speed,fan ,fan_speed,fan_time;
+      #if ENABLED(TOOLCHANGE_PARK)
+        bool disable_park;
+      #endif  
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
       xy_pos_t change_point;

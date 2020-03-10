@@ -331,9 +331,10 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Vitesse primaire");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Vitesse rétract°");
   PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPD      = _UxGT("Vitesse reprise");//steeve
-  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED_SPD      = _UxGT("Vit.  ventil.");//steeve
-  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME_SPD       = _UxGT("Temps ventil.");//steeve
+  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPD            = _UxGT("Vit.  ventil.");//steeve
+  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("Temps ventil.");//steeve
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Attente buse");
+  PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Garer Extrudeur");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Longueur retrait");
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Longueur de purge");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Changer filament");

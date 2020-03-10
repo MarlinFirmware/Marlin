@@ -894,7 +894,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Toolchange park
       // z_raise & change point disabled if NOZZLE_PARK_FEATURE
       #if DISABLED(SWITCHING_NOZZLE) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-        if (can_move_away) {
+        if (can_move_away && toolchange_settings.enable_park) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -907,12 +907,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 						planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           #endif
 
-          planner.buffer_line(current_position, feedrate_mm_s, old_tool);
+          if(enable_park) planner.buffer_line(current_position, feedrate_mm_s, old_tool);
           planner.synchronize();
         }
       #else
         // NOZZLE_PARK_FEATURE
-        nozzle.park(2, park_point);
+        if (can_move_away && toolchange_settings.enable_park) nozzle.park(2, park_point);
       #endif
 
       #if HAS_HOTEND_OFFSET
