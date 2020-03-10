@@ -40,11 +40,16 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR_P(SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
     SERIAL_ECHOPAIR(" UR", LINEAR_UNIT(toolchange_settings.unretract_speed));
-    SERIAL_ECHOPAIR(" PK", LINEAR_UNIT(toolchange_settings.enable_park));
-    SERIAL_ECHOPAIR(" FS", LINEAR_UNIT(toolchange_settings.fan_speed));
-    SERIAL_ECHOPAIR(" FT", LINEAR_UNIT(toolchange_settings.fan_time));
+    SERIAL_ECHOPAIR(" FANS", LINEAR_UNIT(toolchange_settings.fan_speed));
+    SERIAL_ECHOPAIR(" FanT", LINEAR_UNIT(toolchange_settings.fan_time));
+
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      SERIAL_ECHOPAIR(" Mig", LINEAR_UNIT(toolchange_settings.migration_auto));
+      SERIAL_ECHOPAIR(" MigL", LINEAR_UNIT(toolchange_settings.ending_extruder));
+    #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
+      SERIAL_ECHOPAIR(" ParK", LINEAR_UNIT(toolchange_settings.enable_park));
       SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
@@ -75,9 +80,9 @@ void M217_report(const bool eeprom=false) {
  *  G[linear/s] Fan time
  *
  *  Tool migration
- *  L[linear]   0=disable : 1/2/3/4 - End/last extruder to reach after runouts
- *  N[1]        Migration to next extruder (By Runout/LCD/Gcode)
- *  T[linear]   0/1/2/3/4 : Migration to desired extruder
+ *  L[linear]   1/2/3/4/5/6/7 - End/last extruder to reach after runouts
+ *  N[linear]   0/1 Auto Migration to next extruder enabling (By Runout/LCD/Gcode)
+ *  T[linear]   0/1/2/3/4/5/6/7 : Migration to desired extruder
  */
 void GcodeSuite::M217() {
 
@@ -114,8 +119,14 @@ void GcodeSuite::M217() {
     if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
   #endif
 
-    if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
-    if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
-}
+  if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
+  if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
 
+  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  if (parser.seenval('L')) {toolchange_settings.ending_extruder = parser.value_linear_units(); }
+  if (parser.seenval('N')) {toolchange_settings.migration_auto = parser.value_linear_units(); }
+  if (parser.seenval('T')) {toolchange_settings.target_extruder = parser.value_linear_units(); }
+  }
+
+  #endif
 #endif // EXTRUDERS > 1

@@ -1856,7 +1856,6 @@
 
   /**
    * Tool change migration Feature
-   * M606 Gcode
    *
    *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
    *   Transfer all properties : Temp + Flow + Gear position + Fwretract
@@ -1870,7 +1869,7 @@
    *              Requires same nozzle size
    *              No dual extrusion printing
    */
-  //#define TOOLCHANGE_MIGRATION_FEATURE
+  #define TOOLCHANGE_MIGRATION_FEATURE
   #endif // TOOLCHANGE_FILAMENT_SWAP
 #endif // EXTRUDERS > 1
 
