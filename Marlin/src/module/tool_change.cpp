@@ -1054,7 +1054,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
 
             #if ENABLED(TOOLCHANGE_PARK)
-              do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+              #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+                do_blocking_move_to_xy(destination, NOZZLE_PARK_XY_FEEDRATE);
+                do_blocking_move_to_z(destination.z,NOZZLE_PARK_Z_FEEDRATE);
+              #else
+                do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+              #endif
             #else
               do_blocking_move_to(destination);
             #endif

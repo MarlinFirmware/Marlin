@@ -1823,6 +1823,8 @@
   #if ENABLED(TOOLCHANGE_PARK)
     #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
     #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60  // (mm/m)
+    // NOZZLE_PARK_FEATURE instead of TOOLCHANGE_PARK & TOOLCHANGE_ZRAISE
+    #define TOOLCHANGE_USE_NOZZLE_PARK_FEATURE
   #endif
   // Z raise distance for tool-change, as needed for some extruders
   #define TOOLCHANGE_ZRAISE     2  // (mm)
@@ -1830,12 +1832,7 @@
   #if ENABLED(TOOLCHANGE_NO_RETURN)
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
   #endif
-  // NOZZLE_PARK_FEATURE instead of TOOLCHANGE_PARK & TOOLCHANGE_ZRAISE
-  #define TOOLCHANGE_USE_NOZZLE_PARK_FEATURE
-  #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-    #define TOOLCHANGE_ZRAISE 0
-    #undef TOOLCHANGE_PARK
-  #endif
+
 
   /**
    * Advanced Tool change feature
