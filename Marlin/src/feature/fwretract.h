@@ -77,7 +77,7 @@ public:
   }
 
   static void retract(const bool retracting
-    #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+    #if (DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1)
       , bool swapping = false
     #endif
   );

@@ -1839,7 +1839,7 @@
 
     // Firmware retract utility (Requires FWRETRACT)
     #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT               // Use FwRetract swap settings instead of TOOLCHANGE
-    #define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING  // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
+    //#define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING  // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
 
     // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
     // Can be changed in real time to adjust the amount of filament if needed

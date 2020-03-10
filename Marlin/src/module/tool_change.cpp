@@ -28,7 +28,6 @@
 #include "motion.h"
 #include "planner.h"
 #include "temperature.h"
-
 #include "../MarlinCore.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -83,6 +82,14 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
+#endif
+
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  #include "../gcode/gcode.h"
+#endif
+
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+  #include "../gcode/gcode.h"
 #endif
 
 #if DO_SWITCH_EXTRUDER
@@ -911,8 +918,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           planner.synchronize();
         }
       #else
-        // NOZZLE_PARK_FEATURE
-        if (can_move_away && toolchange_settings.enable_park) nozzle.park(2, park_point);
+        // NOZZLE_PARK_FEATURExyz_pos_t park_point = NOZZLE_PARK_POINT;
+        if (can_move_away && toolchange_settings.enable_park) {
+          xyz_pos_t park_point = NOZZLE_PARK_POINT;
+          nozzle.park(2,park_point);
+         }
       #endif
 
       #if HAS_HOTEND_OFFSET
@@ -999,17 +1009,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
-                  extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
+                  toolchange_settings.extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed
                 #else
                   toolchange_settings.unretract_speed
                 #endif
               ));
-              do_pause_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.extra_prime_speed));
+              do_pause_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
             #else
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
-                  extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
+                  toolchange_settings.extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
                 #else
                   toolchange_settings.unretract_speed
                 #endif
@@ -1019,13 +1029,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
             planner.synchronize();
             planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //Extruder is primed and set to 0
-            extruder_ready[old_tool] = extruder_ready[new_tool] = true; // Primed and initialised
+            toolchange_settings.extruder_ready[old_tool] = toolchange_settings.extruder_ready[new_tool] = true; // Primed and initialised
 
           // BLOWING
           #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
             int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
-      	     dwell(toolchange_settings.fan_time *1000);
+      	     gcode.dwell(toolchange_settings.fan_time *1000);
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
           #endif
           }
