@@ -851,13 +851,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #endif
         }
         else {
-        /*  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
             do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-          #else */
+          #else 
             current_position.e -= toolchange_settings.swap_length / planner.e_factor[old_tool];
             planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), old_tool);
             planner.synchronize();
-          // #endif
+          #endif
         }
       }
     #endif // TOOLCHANGE_FILAMENT_SWAP
@@ -890,7 +890,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       destination = current_position;
 
-      // TOOLCHANGE_PARK
       #if DISABLED(SWITCHING_NOZZLE) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
         if (can_move_away) {
             // Do a small lift to avoid the workpiece in the move back (below)
@@ -899,9 +898,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             NOMORE(current_position.z, soft_endstop.max.z);
             #endif
             fast_line_to_current(Z_AXIS);
+												
           #if ENABLED(TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
+												planner.buffer_line(current_position, feedrate_mm_s, old_tool);
           #endif
+										
           planner.buffer_line(current_position, feedrate_mm_s, old_tool);
           planner.synchronize();
         }
@@ -991,16 +993,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Unretract
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
-          /*  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            #if ENABLED(ADVANCED_PAUSE_FEATURE)
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.unretract_speed));
               do_pause_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
             #else
-          */
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.unretract_speed), new_tool);
               current_position.e += toolchange_settings.extra_prime / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), new_tool);
-          //  #endif
+            #endif
             planner.synchronize();
             planner.set_e_position_mm((destination.e = current_position.e = current_position.e - (TOOLCHANGE_FIL_EXTRA_PRIME)));
 
@@ -1008,7 +1009,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
             int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
-      	    dwell(toolchange_settings.fan_time *1000);
+      	     dwell(toolchange_settings.fan_time *1000);
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
           #endif
           }
