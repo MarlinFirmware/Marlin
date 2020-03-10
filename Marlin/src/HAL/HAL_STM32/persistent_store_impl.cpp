@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && ANY(SRAM_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+#if EITHER(USE_REAL_EEPROM, SRAM_EEPROM_EMULATION)
 
 #include "../shared/persistent_store_api.h"
 
@@ -41,7 +41,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     uint8_t v = *value;
 
     // Save to either external EEPROM, program flash or Backup SRAM
-    #if EITHER(SPI_EEPROM, I2C_EEPROM)
+    #if USE_REAL_EEPROM
       // EEPROM has only ~100,000 write cycles,
       // so only write bytes that have changed!
       uint8_t * const p = (uint8_t * const)pos;
@@ -68,7 +68,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   do {
     // Read from either external EEPROM, program flash or Backup SRAM
     const uint8_t c = (
-      #if EITHER(SPI_EEPROM, I2C_EEPROM)
+      #if USE_REAL_EEPROM
         eeprom_read_byte((uint8_t*)pos)
       #else
         (*(__IO uint8_t *)(BKPSRAM_BASE + ((uint8_t*)pos)))
@@ -85,13 +85,13 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() {
   return (
-    #if ENABLED(SRAM_EEPROM_EMULATION)
-      4096 // 4kB
-    #else
+    #if USE_REAL_EEPROM
       E2END + 1
+    #else
+      4096 // 4kB
     #endif
   );
 }
 
-#endif // EEPROM_SETTINGS && (SRAM_EEPROM_EMULATION || SPI_EEPROM || I2C_EEPROM)
+#endif // USE_REAL_EEPROM || SRAM_EEPROM_EMULATION
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

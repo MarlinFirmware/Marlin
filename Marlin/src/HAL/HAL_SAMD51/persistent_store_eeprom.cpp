@@ -27,7 +27,7 @@
 
 #include "../shared/persistent_store_api.h"
 
-#if NONE(SPI_EEPROM, I2C_EEPROM)
+#if ENABLED(FLASH_EEPROM_EMULATION)
   #define NVMCTRL_CMD(c)    do{                                                 \
                               SYNC(!NVMCTRL->STATUS.bit.READY);                 \
                               NVMCTRL->INTFLAG.bit.DONE = true;                 \
@@ -41,7 +41,7 @@
 #endif
 
 bool PersistentStore::access_start() {
-  #if NONE(SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     NVMCTRL->SEECFG.reg = NVMCTRL_SEECFG_WMODE_BUFFERED;  // Buffered mode and segment reallocation active
   #endif
 
@@ -49,7 +49,7 @@ bool PersistentStore::access_start() {
 }
 
 bool PersistentStore::access_finish() {
-  #if NONE(SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     NVMCTRL_FLUSH();
     if (!NVMCTRL->SEESTAT.bit.LOCK)
       NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_LSEE);    // Lock E2P data write access
@@ -59,14 +59,20 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  #if NONE(SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     if (NVMCTRL->SEESTAT.bit.RLOCK)
       NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_USEE);    // Unlock E2P data write access
   #endif
 
   while (size--) {
     const uint8_t v = *value;
-    #if ANY(SPI_EEPROM, I2C_EEPROM)
+    #if ENABLED(FLASH_EEPROM_EMULATION)
+      SYNC(NVMCTRL->SEESTAT.bit.BUSY);
+      if (NVMCTRL->INTFLAG.bit.SEESFULL)
+        NVMCTRL_FLUSH();      // Next write will trigger a sector reallocation. I need to flush 'pagebuffer'
+      ((volatile uint8_t *)SEEPROM_ADDR)[pos] = v;
+      SYNC(!NVMCTRL->INTFLAG.bit.SEEWRC);
+    #else
       uint8_t * const p = (uint8_t * const)pos;
       if (v != eeprom_read_byte(p)) {
         eeprom_write_byte(p, v);
@@ -76,12 +82,6 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
           return true;
         }
       }
-    #else
-      SYNC(NVMCTRL->SEESTAT.bit.BUSY);
-      if (NVMCTRL->INTFLAG.bit.SEESFULL)
-        NVMCTRL_FLUSH();      // Next write will trigger a sector reallocation. I need to flush 'pagebuffer'
-      ((volatile uint8_t *)SEEPROM_ADDR)[pos] = v;
-      SYNC(!NVMCTRL->INTFLAG.bit.SEEWRC);
     #endif
     crc16(crc, &v, 1);
     pos++;
@@ -93,11 +93,11 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   while (size--) {
     uint8_t c;
-    #if ANY(SPI_EEPROM, I2C_EEPROM)
-      c = eeprom_read_byte((uint8_t*)pos);
-    #else
+    #if ENABLED(FLASH_EEPROM_EMULATION)
       SYNC(NVMCTRL->SEESTAT.bit.BUSY);
       c = ((volatile uint8_t *)SEEPROM_ADDR)[pos];
+    #else
+      c = eeprom_read_byte((uint8_t*)pos);
     #endif
     if (writing) *value = c;
     crc16(crc, &c, 1);
@@ -108,9 +108,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  #if ANY(SPI_EEPROM, I2C_EEPROM)
-    return E2END + 1;
-  #else
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     const uint8_t psz = NVMCTRL->SEESTAT.bit.PSZ,
                   sblk = NVMCTRL->SEESTAT.bit.SBLK;
 
@@ -121,6 +119,8 @@ size_t PersistentStore::capacity() {
     else if (sblk <= 4 || psz == 5) return 16384;
     else if (sblk >= 9 && psz == 7) return 65536;
     else                            return 32768;
+  #else
+    return E2END + 1;
   #endif
 }
 

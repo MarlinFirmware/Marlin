@@ -38,12 +38,10 @@
  */
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
-
-#if ENABLED(FLASH_EEPROM_EMULATION)
 
 extern "C" {
   #include <lpc17xx_iap.h>
@@ -128,5 +126,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // FLASH_EEPROM_EMULATION
-#endif // EEPROM_SETTINGS
 #endif // TARGET_LPC1768

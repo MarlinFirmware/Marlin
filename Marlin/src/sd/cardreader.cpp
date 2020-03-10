@@ -370,7 +370,7 @@ void CardReader::mount() {
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
-    #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+    #if ENABLED(SDCARD_EEPROM_EMULATION)
       settings.first_load();
     #endif
   }
@@ -622,7 +622,7 @@ void CardReader::checkautostart() {
   if (autostart_index < 0 || flag.sdprinting) return;
 
   if (!isMounted()) mount();
-  #if ENABLED(EEPROM_SETTINGS) && NONE(FLASH_EEPROM_EMULATION, SPI_EEPROM, I2C_EEPROM)
+  #if ENABLED(SDCARD_EEPROM_EMULATION)
     else settings.first_load();
   #endif
 
