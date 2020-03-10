@@ -39,7 +39,7 @@
     float z_raise;
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      int16_t ending_extruder, target_extruder ;
+      int16_t migration_ending, migration_target ;
       bool migration_auto;
     #endif
 

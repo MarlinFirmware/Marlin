@@ -1132,6 +1132,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   void extruder_migration() {
-   int a;
+    int16_t migration_extruder;
+    //if (toolchange_settings.migration_auto == false) return;
+    if ((toolchange_settings.migration_target < 0) && (toolchange_settings.migration_auto == true))
+      migration_extruder = active_extruder + 1;
+    if (toolchange_settings.migration_target > -1) migration_extruder = toolchange_settings.migration_target;
+    toolchange_settings.migration_target = -1;
+
   };
 #endif

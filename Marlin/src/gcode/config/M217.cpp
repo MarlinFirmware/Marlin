@@ -45,7 +45,7 @@ void M217_report(const bool eeprom=false) {
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SERIAL_ECHOPAIR(" Mig", LINEAR_UNIT(toolchange_settings.migration_auto));
-      SERIAL_ECHOPAIR(" MigL", LINEAR_UNIT(toolchange_settings.ending_extruder));
+      SERIAL_ECHOPAIR(" MigL", LINEAR_UNIT(toolchange_settings.migration_ending));
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
@@ -80,8 +80,13 @@ void M217_report(const bool eeprom=false) {
  *  G[linear/s] Fan time
  *
  *  Tool migration
+ *
+ *  //Settings
  *  L[linear]   1/2/3/4/5/6/7 - End/last extruder to reach after runouts
- *  N[linear]   0/1 Auto Migration to next extruder enabling (By Runout/LCD/Gcode)
+ *  N[linear]   0/1 Auto Migration to next extruder enable (By Runout)
+ *
+ *  //Commands
+ *  Q           Migrate to next
  *  T[linear]   0/1/2/3/4/5/6/7 : Migration to desired extruder
  */
 void GcodeSuite::M217() {
@@ -123,9 +128,32 @@ void GcodeSuite::M217() {
   if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    if (parser.seenval('L')) {toolchange_settings.ending_extruder = parser.value_linear_units(); }
-    if (parser.seenval('N')) {toolchange_settings.migration_auto = parser.value_linear_units(); }
-    if (parser.seenval('T')) {toolchange_settings.target_extruder = parser.value_linear_units(); }
+
+    if (parser.seenval('L')) {
+     if((parser.value_linear_units() > 0 ) && (parser.value_linear_units() < EXTRUDERS - 1))
+      toolchange_settings.migration_ending = parser.value_linear_units();
+     else return;
+    }
+
+    if (parser.seenval('N')) {
+      if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() <= 1)){
+        toolchange_settings.migration_auto = parser.value_linear_units();
+      }
+      else return;
+    }
+
+    if (parser.seenval('T')) {
+      if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() < EXTRUDERS - 1)){
+        toolchange_settings.migration_target = parser.value_linear_units();
+        extruder_migration();
+        return ;
+      }
+      else return;
+    }
+
+    if (parser.seenval('Q')) { extruder_migration(); return; }
+    else return;
+
   #endif
-  }  
+  }
 #endif // EXTRUDERS > 1
