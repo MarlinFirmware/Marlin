@@ -1129,3 +1129,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
   #endif // EXTRUDERS > 1
 }
+
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  void extruder_migration() {
+   int a;
+  };
+#endif

@@ -123,10 +123,9 @@ void GcodeSuite::M217() {
   if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  if (parser.seenval('L')) {toolchange_settings.ending_extruder = parser.value_linear_units(); }
-  if (parser.seenval('N')) {toolchange_settings.migration_auto = parser.value_linear_units(); }
-  if (parser.seenval('T')) {toolchange_settings.target_extruder = parser.value_linear_units(); }
-  }
-
+    if (parser.seenval('L')) {toolchange_settings.ending_extruder = parser.value_linear_units(); }
+    if (parser.seenval('N')) {toolchange_settings.migration_auto = parser.value_linear_units(); }
+    if (parser.seenval('T')) {toolchange_settings.target_extruder = parser.value_linear_units(); }
   #endif
+  }  
 #endif // EXTRUDERS > 1

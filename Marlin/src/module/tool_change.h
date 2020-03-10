@@ -49,6 +49,10 @@
 
 #endif
 
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  extern void extruder_migration();
+#endif
+
 #if DO_SWITCH_EXTRUDER
   void move_extruder_servo(const uint8_t e);
 #endif
