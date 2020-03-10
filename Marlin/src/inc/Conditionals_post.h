@@ -292,10 +292,18 @@
 #endif
 
 /**
- * Override here because this is set in Configuration_adv.h
+ * Override the SD_DETECT_STATE set in Configuration_adv.h
  */
-#if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
-  #undef SD_DETECT_INVERTED
+#if ENABLED(SDSUPPORT)
+  #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+    #undef SD_DETECT_STATE
+    #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define SD_DETECT_STATE HIGH
+    #endif
+  #endif
+  #ifndef SD_DETECT_STATE
+    #define SD_DETECT_STATE LOW
+  #endif
 #endif
 
 /**
