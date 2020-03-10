@@ -84,13 +84,9 @@
   #include "../feature/pause.h"
 #endif
 
-/* #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #include "../gcode/gcode.h"
-#endif */
-
-/* #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-  #include "../gcode/gcode.h"
-#endif */
+#endif
 
 #if DO_SWITCH_EXTRUDER
 
