@@ -2409,12 +2409,20 @@ void MarlinSettings::reset() {
       toolchange_settings.fan_speed = TOOLCHANGE_FIL_SWAP_FAN_SPEED;
       toolchange_settings.fan_time = TOOLCHANGE_FIL_SWAP_FAN_TIME;
     #endif
-    #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-      constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
+
+    #if ENABLED(TOOLCHANGE_PARK)
+      #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+        constexpr xyz_pos_t tpxy = NOZZLE_PARK_POINT;
+      #else
+        constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
+      #endif
       toolchange_settings.enable_park = true;
       toolchange_settings.change_point = tpxy;
     #endif
-    #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+
+    #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+      toolchange_settings.z_raise = tpxy.z;
+    #else
       toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
     #endif
   #endif

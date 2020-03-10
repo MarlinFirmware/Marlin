@@ -1838,17 +1838,17 @@
     #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  30*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
 
     // Firmware retract utility (Requires FWRETRACT)
-    #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT               // Use FwRetract swap settings instead of TOOLCHANGE
-    #define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING  // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
+    #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT           // Use FwRetract swap settings instead of TOOLCHANGE
+    #define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING       // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
 
     // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
     // Can be changed in real time to adjust the amount of filament if needed
     #define TOOLCHANGE_FIL_EXTRA_PRIME              10  // (mm) (ex:50~150mm to purge a Volcano and have no mixed color extrusion)
     #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED    4.6*60  // (mm/m)(ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
     // Cooling after priming (To avoid stringing and a clean nozzle on resume)
-    #define TOOLCHANGE_FIL_SWAP_FAN                      0  // Fan count (-1 for disabling blowing)
-    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED              255  // 0 - 255 (ex:Max speed for gain of time)
-    #define TOOLCHANGE_FIL_SWAP_FAN_TIME                10  // s (can be changed in real time to ensure minimum timing)
+    #define TOOLCHANGE_FIL_SWAP_FAN                  0  // Fan count (-1 for disabling blowing)
+    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED          255  // 0 - 255 (ex:Max speed for gain of time)
+    #define TOOLCHANGE_FIL_SWAP_FAN_TIME            10  // s (can be changed in real time to ensure minimum timing)
 
     // The firmware can break filament if it recovers an extruder not initialised (Not retracted before)
     // The first extrusion will only use prime_speed
