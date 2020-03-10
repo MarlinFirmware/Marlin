@@ -3168,8 +3168,10 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-          PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        , PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
+        PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
+        #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+          ,PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
+        #endif
         , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
         , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
       );

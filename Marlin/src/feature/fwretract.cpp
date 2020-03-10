@@ -68,9 +68,11 @@ void FWRetract::reset() {
   settings.retract_zraise = RETRACT_ZRAISE;
   settings.retract_recover_extra = RETRACT_RECOVER_LENGTH;
   settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
-  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
-  settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
-  settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
+  #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+    settings.swap_retract_length = RETRACT_LENGTH_SWAP;
+    settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
+    settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
+  #endif
   current_hop = 0.0;
 
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
@@ -168,8 +170,11 @@ void FWRetract::retract(const bool retracting
       // Lower Z, set_current_to_destination. Maximum Z feedrate
       prepare_internal_move_to_destination(fr_max_z);
     }
-
-    const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
+    #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+      const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
+    #else
+      const float extra_recover = settings.retract_recover_extra;
+    #endif
     if (extra_recover) {
       current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
