@@ -206,7 +206,7 @@ void FWRetract::retract(const bool retracting
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
-  #if EXTRUDERS > 1
+  #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
     if (swapping) retracted_swap[active_extruder] = retracting;
   #endif
 
