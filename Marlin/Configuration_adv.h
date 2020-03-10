@@ -1804,35 +1804,75 @@
 
 /**
  * Universal tool change settings.
+ * Firmware-based and LCD-controlled tool change ,priming and migration
+ * Add M217 commands(See more in documentation)
  * Applies to all types of extruders except where explicitly noted.
  */
 #if EXTRUDERS > 1
+  /**
+   * Position to park head during tool change.
+   * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
+   */
+  #define TOOLCHANGE_PARK
+  #if ENABLED(TOOLCHANGE_PARK)
+    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
+    #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60  // (mm/m)
+    // NOZZLE_PARK_FEATURE instead of TOOLCHANGE_PARK & TOOLCHANGE_ZRAISE
+    #define TOOLCHANGE_USE_NOZZLE_PARK_FEATURE
+  #endif
   // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE     0  // (mm)
+  #define TOOLCHANGE_ZRAISE     2  // (mm)
   //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
   #endif
 
-  // Retract and prime filament on tool-change
-  //#define TOOLCHANGE_FILAMENT_SWAP
+  /**
+   * Advanced Tool change feature
+   */
+  #define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
-    #define TOOLCHANGE_FIL_EXTRA_PRIME           2  // (mm)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
-    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
-  #endif
+    // load/Unload
+    #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    60*60  // (mm/m) (Unloading)
+    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  30*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
+
+    // Firmware retract utility (Requires FWRETRACT)
+    #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT               // Use FwRetract swap settings instead of TOOLCHANGE
+    #define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING  // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
+
+    // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
+    // Can be changed in real time to adjust the amount of filament if needed
+    #define TOOLCHANGE_FIL_EXTRA_PRIME              10  // (mm) (ex:50~150mm to purge a Volcano and have no mixed color extrusion)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED    4.6*60  // (mm/m)(ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
+    // Cooling after priming (To avoid stringing and a clean nozzle on resume)
+    #define TOOLCHANGE_FIL_SWAP_FAN                      0  // Fan count (-1 for disabling blowing)
+    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED              255  // 0 - 255 (ex:Max speed for gain of time)
+    #define TOOLCHANGE_FIL_SWAP_FAN_TIME                10  // s (can be changed in real time to ensure minimum timing)
+
+    // The firmware can break filament if it recovers an extruder not initialised (Not retracted before)
+    // The first extrusion will only use prime_speed
+    #define TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME
 
   /**
-   * Position to park head during tool change.
-   * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
+   * Tool change migration Feature
+   * M606 Gcode
+   *
+   *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
+   *   Transfer all properties : Temp + Flow + Gear position + Fwretract
+   *   On runout/manually/Gcode
+   *   Utility to : Use another extruder to continue the printing automaticly
+                  : Finish old ended spool and start another automaticly
+   *              : Use another extruder if current jammed
+   *              Requires 2 or more extruders.
+   *              Requires FILAMENT_RUNOUT for automatic migration after runout
+   *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
+   *              Requires same nozzle size
+   *              No dual extrusion printing
    */
-  //#define TOOLCHANGE_PARK
-  #if ENABLED(TOOLCHANGE_PARK)
-    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
-    #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/m)
-  #endif
-#endif
+  //#define TOOLCHANGE_MIGRATION_FEATURE
+  #endif // TOOLCHANGE_FILAMENT_SWAP
+#endif // EXTRUDERS > 1
 
 /**
  * Advanced Pause
