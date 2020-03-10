@@ -44,7 +44,7 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR(" FS", LINEAR_UNIT(toolchange_settings.fan_speed));
     SERIAL_ECHOPAIR(" FT", LINEAR_UNIT(toolchange_settings.fan_time));
 
-    #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+    #if ENABLED(TOOLCHANGE_PARK)
       SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
@@ -54,9 +54,7 @@ void M217_report(const bool eeprom=false) {
     UNUSED(eeprom);
 
   #endif
-  #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-    SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
-  #endif
+  SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
   SERIAL_EOL();
 }
 
@@ -108,7 +106,7 @@ void GcodeSuite::M217() {
     if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
   #endif
 
-  #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+  #if ENABLED(TOOLCHANGE_PARK)
     #undef XY_PARAM
     #define XY_PARAM "XY"
     if (parser.seenval('W')) { toolchange_settings.enable_park = parser.value_linear_units(); }
@@ -116,10 +114,8 @@ void GcodeSuite::M217() {
     if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
   #endif
 
-  #if DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
     if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
     if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
-  #endif
 }
 
 #endif // EXTRUDERS > 1

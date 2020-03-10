@@ -84,13 +84,13 @@
   #include "../feature/pause.h"
 #endif
 
-#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+/* #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #include "../gcode/gcode.h"
-#endif
+#endif */
 
-#if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+/* #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
   #include "../gcode/gcode.h"
-#endif
+#endif */
 
 #if DO_SWITCH_EXTRUDER
 
@@ -899,9 +899,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       destination = current_position;
 
       // Toolchange park
-      // z_raise & change point disabled if NOZZLE_PARK_FEATURE
-      #if DISABLED(SWITCHING_NOZZLE) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+      #if DISABLED(SWITCHING_NOZZLE)
         if (can_move_away && toolchange_settings.enable_park) {
+
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -911,18 +911,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
           #if ENABLED(TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
-						planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
+						planner.buffer_line(current_position, MMM_TO_MMS(
+              #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+                NOZZLE_PARK_XY_FEEDRATE
+              #else
+                MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)
+              #endif
+            ), old_tool);
           #endif
 
-          if(enable_park) planner.buffer_line(current_position, feedrate_mm_s, old_tool);
           planner.synchronize();
         }
-      #else
-        // NOZZLE_PARK_FEATURExyz_pos_t park_point = NOZZLE_PARK_POINT;
-        if (can_move_away && toolchange_settings.enable_park) {
-          xyz_pos_t park_point = NOZZLE_PARK_POINT;
-          nozzle.park(2,park_point);
-         }
       #endif
 
       #if HAS_HOTEND_OFFSET
@@ -1058,22 +1057,28 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             // Just move back down
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
-            do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+            do_blocking_move_to_z(destination.z,
+              #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+                NOZZLE_PARK_XY_FEEDRATE
+              #else
+                planner.settings.max_feedrate_mm_s[Z_AXIS]
+              #endif
+              );
           #else
             // Move back to the original (or adjusted) position
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
 
             #if ENABLED(TOOLCHANGE_PARK)
-              #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-                do_blocking_move_to_xy(destination, NOZZLE_PARK_XY_FEEDRATE);
-                do_blocking_move_to_z(destination.z,NOZZLE_PARK_Z_FEEDRATE);
-              #else
-                do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
-              #endif
+              do_blocking_move_to(destination,
+                #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
+                  NOZZLE_PARK_XY_FEEDRATE
+                #else
+                  MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)
+                #endif
+                );
             #else
               do_blocking_move_to(destination);
             #endif
-
           #endif
         }
         else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back skipped");
