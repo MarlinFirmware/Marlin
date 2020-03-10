@@ -42,7 +42,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // private:
 
-#if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+#if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
   bool FWRetract::retracted_swap[EXTRUDERS];          // Which extruders are swap-retracted
 #endif
 
@@ -68,7 +68,7 @@ void FWRetract::reset() {
   settings.retract_zraise = RETRACT_ZRAISE;
   settings.retract_recover_extra = RETRACT_RECOVER_LENGTH;
   settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
-  #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+  #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
     settings.swap_retract_length = RETRACT_LENGTH_SWAP;
     settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
     settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
@@ -77,7 +77,7 @@ void FWRetract::reset() {
 
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;
-    #if EXTRUDERS > 1
+    #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
       retracted_swap[i] = false;
     #endif
     current_retract[i] = 0.0;
@@ -96,7 +96,7 @@ void FWRetract::reset() {
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
 void FWRetract::retract(const bool retracting
-  #if EXTRUDERS > 1
+  #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
     , bool swapping /* =false */
   #endif
 ) {
@@ -104,7 +104,7 @@ void FWRetract::retract(const bool retracting
   if (retracted[active_extruder] == retracting) return;
 
   // Prevent two swap-retract or recovers in a row
-  #if EXTRUDERS > 1
+  #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
     // Allow G10 S1 only after G11
     if (swapping && retracted_swap[active_extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
@@ -131,7 +131,11 @@ void FWRetract::retract(const bool retracting
   //*/
 
   const float base_retract = (
-                (swapping ? settings.swap_retract_length : settings.retract_length)
+                #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+                  (swapping ? settings.swap_retract_length : settings.retract_length)
+                #else
+                  settings.retract_length
+                #endif
                 #if ENABLED(RETRACT_SYNC_MIXING)
                   * (MIXING_STEPPERS)
                 #endif
@@ -170,7 +174,7 @@ void FWRetract::retract(const bool retracting
       // Lower Z, set_current_to_destination. Maximum Z feedrate
       prepare_internal_move_to_destination(fr_max_z);
     }
-    #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+    #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
       const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
     #else
       const float extra_recover = settings.retract_recover_extra;
@@ -183,7 +187,11 @@ void FWRetract::retract(const bool retracting
     current_retract[active_extruder] = 0;
 
     const feedRate_t fr_mm_s = (
-      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
+      #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+        (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
+      #else
+        settings.retract_recover_feedrate_mm_s
+      #endif
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif

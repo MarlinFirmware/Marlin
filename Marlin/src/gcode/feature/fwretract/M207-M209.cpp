@@ -39,7 +39,7 @@ void GcodeSuite::M207() {
   if (parser.seen('S')) fwretract.settings.retract_length = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) fwretract.settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seen('Z')) fwretract.settings.retract_zraise = parser.value_linear_units();
-  #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+  #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
     if (parser.seen('W')) fwretract.settings.swap_retract_length = parser.value_axis_units(E_AXIS);
   #endif
 }
@@ -55,7 +55,7 @@ void GcodeSuite::M207() {
 void GcodeSuite::M208() {
   if (parser.seen('S')) fwretract.settings.retract_recover_extra = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) fwretract.settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+  #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
     if (parser.seen('R')) fwretract.settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
     if (parser.seen('W')) fwretract.settings.swap_retract_recover_extra = parser.value_axis_units(E_AXIS);
   #endif

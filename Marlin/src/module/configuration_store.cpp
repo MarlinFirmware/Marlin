@@ -2400,8 +2400,8 @@ void MarlinSettings::reset() {
       toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
       toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_EXTRA_PRIME_SPEED;
-      toolchange_settings.fan_speed = TOOLCHANGE_SWAP_FAN_SPEED;
-      toolchange_settings.fan_time = TOOLCHANGE_SWAP_FAN_TIME;
+      toolchange_settings.fan_speed = TOOLCHANGE_FIL_SWAP_FAN_SPEED;
+      toolchange_settings.fan_time = TOOLCHANGE_FIL_SWAP_FAN_TIME;
     #endif
     #if ENABLED(TOOLCHANGE_PARK) && DISABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
       constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
@@ -3169,7 +3169,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        #if DISABLED(TOOLCHANGE_SWAP_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+        #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
           ,PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
         #endif
         , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
@@ -3180,7 +3180,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
           "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
+          #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+            , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
+          #endif
         , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
       );
 

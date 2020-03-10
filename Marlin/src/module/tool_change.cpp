@@ -1005,11 +1005,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             planner.set_e_position_mm((destination.e = current_position.e = current_position.e - (TOOLCHANGE_FIL_EXTRA_PRIME)));
 
           // BLOWING
-          #if (TOOLCHANGE_SWAP_FAN > -1)
-            int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_SWAP_FAN];
-            thermalManager.fan_speed[TOOLCHANGE_SWAP_FAN]=toolchange_settings.fan_speed ;
+          #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
+            int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
+            thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
       	    dwell(toolchange_settings.fan_time *1000);
-            thermalManager.fan_speed[TOOLCHANGE_SWAP_FAN]=fansp;
+            thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
           #endif
           }
         #endif
