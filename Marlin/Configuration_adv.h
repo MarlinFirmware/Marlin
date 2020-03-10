@@ -1826,8 +1826,6 @@
   #endif
   // Z raise distance for tool-change, as needed for some extruders
   #define TOOLCHANGE_ZRAISE     2  // (mm)
-  // Feedrate to return to the previous position before parking (ex: a quick move to avoid stringing and cut the purged filament, when go out of parking)
-  #define TOOLCHANGE_FIL_SWAP_RETURN_SPEED        100*60  // (mm/m)
   //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
