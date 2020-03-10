@@ -991,8 +991,8 @@ void setup() {
     SETUP_RUN(ui.show_bootscreen());
   #endif
 
-  #if ENABLED(SDSUPPORT)
-    SETUP_RUN(card.mount());          // Mount the SD card before settings.first_load
+  #if ENABLED(SDSUPPORT) && defined(SDCARD_CONNECTION) && !SD_CONNECTION_IS(LCD)
+    SETUP_RUN(card.mount());          // Mount onboard / custom SD card before settings.first_load
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
