@@ -75,7 +75,7 @@ void M217_report(const bool eeprom=false) {
  *  G[linear/s] Fan time
  *
  *  Tool migration
- *  L[linear]   0=disable : 1/2/3/4 - Last extruder to reach after runouts
+ *  L[linear]   0=disable : 1/2/3/4 - End/last extruder to reach after runouts
  *  N[1]        Migration to next extruder (By Runout/LCD/Gcode)
  *  T[linear]   0/1/2/3/4 : Migration to desired extruder
  */

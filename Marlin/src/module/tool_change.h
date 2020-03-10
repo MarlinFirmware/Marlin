@@ -37,6 +37,12 @@
       xy_pos_t change_point;
     #endif
     float z_raise;
+
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      int16_t ending_extruder, migration_to ;
+      bool migration_to_next;
+    #endif
+
   } toolchange_settings_t;
 
   extern toolchange_settings_t toolchange_settings;
