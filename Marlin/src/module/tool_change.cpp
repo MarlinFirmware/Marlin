@@ -846,8 +846,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (too_cold) {
           SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
+            return;// Too cold = No toolchange on single nozzle extruder
+          #else
             active_extruder = new_tool;
-            return;
           #endif
         }
         else {
@@ -995,18 +996,30 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Unretract
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
-            #if ENABLED(ADVANCED_PAUSE_FEATURE)// Use do_pause_e_move simplified function for toolchange swap
-              do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.unretract_speed));
+            #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
+              do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
+                #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
+                  extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
+                #else
+                  toolchange_settings.unretract_speed
+                #endif
+              ));
               do_pause_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.extra_prime_speed));
             #else
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
-              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.unretract_speed), new_tool);
+              planner.buffer_line(current_position, MMM_TO_MMS(
+                #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
+                  extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
+                #else
+                  toolchange_settings.unretract_speed
+                #endif
+                , new_tool);
               current_position.e += toolchange_settings.extra_prime / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), new_tool);
             #endif
             planner.synchronize();
-            planner.set_e_position_mm(destination.e = current_position.e = 0.0 );
-            //planner.set_e_position_mm(0.0);// Extruder is primed and set to 0
+            planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //Extruder is primed and set to 0
+            extruder_ready[old_tool] = extruder_ready[new_tool] = true; // Primed and initialised
 
           // BLOWING
           #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
@@ -1045,7 +1058,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #else
               do_blocking_move_to(destination);
             #endif
-            
+
           #endif
         }
         else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back skipped");
