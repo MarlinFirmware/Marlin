@@ -1133,7 +1133,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   void extruder_migration() {
     int16_t migration_extruder;
-
+    //Disable auto migration if no more extruders
+    if  (active_extruder >= toolchange_settings.migration_ending ) toolchange_settings.migration_auto == false;
     // For auto migration
     if (    (toolchange_settings.migration_target < 0)  // No desired target
          && (toolchange_settings.migration_auto == true) // Migration auto enable
@@ -1143,7 +1144,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       migration_extruder = active_extruder + 1;
     else return;
     // For choosen target
-    if (toolchange_settings.migration_target > -1) {
+    if (  (toolchange_settings.migration_target > -1)
+        &&(toolchange_settings.migration_target !=active_extruder)
+       ) {
       migration_extruder = toolchange_settings.migration_target;
       toolchange_settings.migration_target = -1;
     }
@@ -1162,6 +1165,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   //Tool change
   tool_change(migration_extruder);
   thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
-  
+  if (    (active_extruder >= EXTRUDERS - 2) // Not enough other extruders
+       || (active_extruder == toolchange_settings.migration_ending ) // reach the ending extruder
+     )
+    toolchange_settings.migration_auto == false;
+  else return;
+
+
   };
 #endif
