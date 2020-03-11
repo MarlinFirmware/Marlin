@@ -856,7 +856,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
         else {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)// Use do_pause_e_move simplified function for toolchange swap
-            do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+            do_pause_e_move(-toolchange_settings.swap_length, toolchange_settings.retract_speed);
           #else
             current_position.e -= toolchange_settings.swap_length / planner.e_factor[old_tool];
             planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), old_tool);

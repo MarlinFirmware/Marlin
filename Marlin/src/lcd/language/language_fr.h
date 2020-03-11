@@ -54,7 +54,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu principal");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Config. avancée");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuration");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Exéc. auto#.gcode");
+  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Exéc. auto.gcode");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Arrêter moteurs");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barre progress.");
@@ -93,7 +93,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Allumer alim.");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Eteindre alim.");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrusion");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétraction");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétractation");
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
@@ -317,7 +317,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("Moteurs bloqués");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("KILLED");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("STOPPÉ");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Rétraction mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Rétractation mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Ech. rétr. mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Vit. rétract°");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Saut Z mm");
@@ -336,8 +336,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("Temps ventil.");//steeve
   PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("Auto ON");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("Auto OFF");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("Migration de buse");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Final Extruder");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("Migration d'outil");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Extrudeur Final");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP0            = _UxGT("Migrer vers ") LCD_STR_E0;
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP1            = _UxGT("Migrer vers ") LCD_STR_E1;
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP2            = _UxGT("Migrer vers ") LCD_STR_E2;
