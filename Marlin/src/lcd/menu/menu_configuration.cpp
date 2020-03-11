@@ -168,6 +168,7 @@ void menu_advanced_settings();
        if (active_extruder !=7)
         GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP4, PSTR("M217 T7"));
      #endif
+     END_MENU();
 }
 
 #endif
@@ -398,7 +399,7 @@ void menu_configuration() {
   //
   #if EXTRUDERS > 1
     SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
-    SUBMENU(MSG_TOOL_CHANGE_MIGRATION, toolchange_migration_submenu);
+    SUBMENU(MSG_TOOL_MIGRATION, toolchange_migration_submenu);
   #endif
 
   //
