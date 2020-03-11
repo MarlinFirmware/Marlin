@@ -43,8 +43,7 @@ void GcodeSuite::M220() {
     if (parser.seen('R')) feedrate_percentage = backup_feedrate_percentage;
   #endif
 
-  if (parser.seenval('S'))
-    feedrate_percentage = parser.value_int();
+  if (parser.seenval('S')) feedrate_percentage = parser.value_int();
 
   if (!parser.seen_any()) {
     SERIAL_ECHOPAIR("FR:", feedrate_percentage);
