@@ -1148,8 +1148,20 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       toolchange_settings.migration_target = -1;
     }
 
-    //Migration beginning
-
-
+    //Migration begins
+    //Same temperature
+   thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), active_extruder+1);
+   // Same flow after tool change
+   planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
+   // Same FwRetract/Swap statuses
+   #if ENABLED(FWRETRACT)
+				fwretract.retracted[active_extruder+1] = fwretract.retracted[active_extruder];
+	#endif
+  // Same fan speed
+  int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
+  //Tool change
+  tool_change(migration_extruder);
+  thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
+  
   };
 #endif
