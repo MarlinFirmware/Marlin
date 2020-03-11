@@ -1851,22 +1851,22 @@
     // The first extrusion will only use prime_speed
     #define TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME
 
-  /**
-   * Tool change migration Feature
-   *
-   *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
-   *   Transfer all properties : Temp + Flow + Gear position + Fwretract
-   *   On runout/manually/Gcode
-   *   Utility to : Use another extruder to continue the printing automaticly
-                  : Finish old ended spool and start another automaticly
-   *              : Use another extruder if current jammed
-   *              Requires 2 or more extruders.
-   *              Requires FILAMENT_RUNOUT & ADVANCED_PAUSE_FEATURE for automatic migration after runout
-   *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
-   *              Requires same nozzle size
-   *              No dual extrusion printing
-   */
-  #define TOOLCHANGE_MIGRATION_FEATURE
+    /**
+     * Tool change migration Feature
+     *
+     *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
+     *   Transfer all properties : Temp + Flow + Gear position + Fwretract
+     *   On runout/manually/Gcode
+     *   Utility to : Use another extruder to continue the printing automaticly
+                    : Finish old ended spool and start another automaticly
+     *              : Use another extruder if current jammed
+     *              Requires 2 or more extruders.
+     *              Requires FILAMENT_RUNOUT & ADVANCED_PAUSE_FEATURE for automatic migration after runout
+     *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
+     *              Requires same nozzle size
+     *              No dual extrusion printing
+     */
+    #define TOOLCHANGE_MIGRATION_FEATURE
   #endif // TOOLCHANGE_FILAMENT_SWAP
 #endif // EXTRUDERS > 1
 
