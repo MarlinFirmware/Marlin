@@ -139,7 +139,7 @@ void GcodeSuite::G34() {
 
     // Compute a worst-case clearance height to probe from. After the first
     // iteration this will be re-calculated based on the actual bed position
-    float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE * 0.01f) * (
+    float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
       #if NUM_Z_STEPPER_DRIVERS == 3
          SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
                    HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
@@ -241,7 +241,7 @@ void GcodeSuite::G34() {
         linear_fit_data lfd;
         incremental_LSF_reset(&lfd);
         LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
-          SERIAL_ECHOLNPAIR("PROBEPT_", i, ": ", z_measured[i]);
+          SERIAL_ECHOLNPAIR("PROBEPT_", ('0' + i), ": ", z_measured[i]);
           incremental_LSF(&lfd, z_stepper_align.xy[i], z_measured[i]);
         }
         finish_incremental_LSF(&lfd);
