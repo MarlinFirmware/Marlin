@@ -43,11 +43,11 @@ void GcodeSuite::M220() {
     if (parser.seen('R')) feedrate_percentage = backup_feedrate_percentage;
   #endif
 
-  if (parser.seenval('S')) {
+  if (parser.seenval('S'))
     feedrate_percentage = parser.value_int();
-  }
-  else{
-    SERIAL_ECHOPAIR("Speed: ", feedrate_percentage);
+
+  if (!parser.seen_any()) {
+    SERIAL_ECHOPAIR("FR:", feedrate_percentage);
     SERIAL_CHAR('%');
     SERIAL_EOL();
   }
