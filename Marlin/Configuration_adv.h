@@ -1822,7 +1822,8 @@
     #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60  // (mm/m)
   #endif
   // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE     2  // (mm)
+  #define TOOLCHANGE_ZRAISE     2  // (mm) Applied after retractation
+  #define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Z raise applied before retraction
   //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete

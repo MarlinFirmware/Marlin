@@ -837,6 +837,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
+
+    // Z raise before retractation
+    #if DISABLED(SWITCHING_NOZZLE)
+      if (can_move_away && toolchange_settings.enable_park) {
+        #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
+          // Do a small lift to avoid the workpiece in the move back (below)
+          current_position.z += toolchange_settings.z_raise;
+          #if HAS_SOFTWARE_ENDSTOPS
+            NOMORE(current_position.z, soft_endstop.max.z);
+          #endif
+          fast_line_to_current(Z_AXIS);
+          planner.synchronize();
+        #endif
+      }
+    #endif
+
     // Tool change unload/Retract
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       const bool should_swap = can_move_away && toolchange_settings.swap_length;
@@ -898,12 +914,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if DISABLED(SWITCHING_NOZZLE)
         if (can_move_away && toolchange_settings.enable_park) {
 
-          // Do a small lift to avoid the workpiece in the move back (below)
-          current_position.z += toolchange_settings.z_raise;
-          #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position.z, soft_endstop.max.z);
-          #endif
-          fast_line_to_current(Z_AXIS);
+         #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
+           // Do a small lift to avoid the workpiece in the move back (below)
+           current_position.z += toolchange_settings.z_raise;
+           #if HAS_SOFTWARE_ENDSTOPS
+             NOMORE(current_position.z, soft_endstop.max.z);
+           #endif
+           fast_line_to_current(Z_AXIS);
+         #endif
 
           #if ENABLED(TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
