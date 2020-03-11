@@ -29,7 +29,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/persistent_store_api.h"
 
-#if !defined(E2END) && NONE(I2C_EEPROM, SPI_EEPROM)
+#if !defined(E2END) && ENABLED(FLASH_EEPROM_EMULATION)
   #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
 #endif
 
@@ -38,7 +38,7 @@ extern void eeprom_flush();
 bool PersistentStore::access_start() { return true; }
 
 bool PersistentStore::access_finish() {
-  #if NONE(I2C_EEPROM, SPI_EEPROM)
+  #if ENABLED(FLASH_EEPROM_EMULATION)
     eeprom_flush();
   #endif
   return true;

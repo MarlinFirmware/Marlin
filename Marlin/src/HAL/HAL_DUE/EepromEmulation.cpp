@@ -54,7 +54,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM)
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/Marduino.h"
 #include "../shared/persistent_store_api.h"
@@ -1016,5 +1016,5 @@ void eeprom_flush() {
   ee_Flush();
 }
 
-#endif // EEPROM_SETTINGS && (!I2C_EEPROM && !SPI_EEPROM)
+#endif // FLASH_EEPROM_EMULATION
 #endif // ARDUINO_ARCH_AVR
