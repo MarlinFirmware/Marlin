@@ -1928,73 +1928,7 @@
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
-/**
- * Purge bucket Features
- *
- * M606
- * Tool migration
- *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
- *   Transfer all properties : Temp + Flow + Gear position + Fwretract
- *   Utility to : Finish old ended spool without human intervention
- *              : Swap the current extruder to automaticly with only one click
- *              : Rescue a broken spool/jammed extruder by using others extruders/spools
- *              Requires 2 or more extruders.
- *              Require FILAMENT_RUNOUT for automatic migration after runout
- *              Requires same nozzle size / No dual extrusion printing
- *
- *   : L[int]: 0=disable : 1/2/3/4 - Last extruder to reach after runouts - One or more migrations possible(By LCD/Gcode)
- *   : T[int]: 0/1/2/3/4 : Migration to desired extruder(By LCD/Gcode)
- *   : Default value     : Migration to next extruder (By Runout/LCD/Gcode)
- *
- * Purge
- *   Utility to : Extrude/Retract/Recover with the values stored in the machine
- *              : Settings by LCD/G-code
- *              : Adjust purge length/retraction values during a print
- *   Settings
- *   : D[count] - s    - Fan dwell
- *   : E[count] - mm   - Purge length
- *   : F[count] - mm/s - Purge feedrate
- *   : G[count] - mm   - Recovery length
- *   : H[count] - mm/s - Retract  feedrate - If FWRETRACT disabled
- *   : I[count] - mm/s - Recovery feedrate - If FWRETRACT disabled
- *
- *   Commands
- *   : P1 - Extrusion
-	*   : Q1 - Fan dwell
- *   : R1 - Retract
- *   : S1	- Recover
- *
- */
-#define TOOL_MIGRATION //Experimental - No test/support for exotic systems
-#if ENABLED(TOOL_MIGRATION)
-	#if DISABLED(FWRETRACT)
-		#define TOOL_MIGRATION_UNLOAD_LENGTH    RETRACT_LENGTH_SWAP       //mm - Must not be ejected - Print continue and filament need to stay inserted
-		#define TOOL_MIGRATION_UNLOAD_F         RETRACT_FEEDRATE          //mm/s
-		#define TOOL_MIGRATION_LOAD_LENGTH      RETRACT_LENGTH_SWAP       //mm - Usually the same as 'load'
-		#define TOOL_MIGRATION_LOAD_F           RETRACT_RECOVER_FEEDRATE  //mm/s
-	#endif
-
-  #define TOOL_MIGRATION_EXTRUDE_LENGTH   LCD_LOAD_MENU_EXTRUDE_L   //Initialisation/Purge - Just a little because same color/material
-  #define TOOL_MIGRATION_EXTRUDE_F        ADVANCED_PAUSE_PURGE_FEEDRATE //mm/s
-  #define TOOL_MIGRATION_NOZZLE_PARK                                //Park Nozzle before migration / Require NOZZLE_PARK_FEATURE
-  #define TOOL_MIGRATION_FAN_DWELL                       8                         //s - Pause for filament cooling
-  #define TOOL_MIGRATION_FAN_SPEED                       255                       //Blowing after purge - To ensure the back of the nozzle without hot filament
-  #define TOOL_MIGRATION_FAN                             0                         //Fan number
-
-  #define TOOL_MIGRATION_PURGE_LENGTH         ADVANCED_PAUSE_PURGE_LENGTH
-  #define TOOL_MIGRATION_PURGE_FEEDRATE       ADVANCED_PAUSE_PURGE_FEEDRATE
-
-  #define TOOL_MIGRATION_RETRACT              10
-	#if DISABLED(FWRETRACT)
-  	#define TOOL_MIGRATION_RETRACT_FEEDRATE     RETRACT_FEEDRATE
-  	#define TOOL_MIGRATION_RECOVER_FEEDRATE     RETRACT_RECOVER_FEEDRATE
-	#endif
-
-  #define TOOL_MIGRATION_SCRIPT "M606"
-#endif
-
 // @section tmc
-
 /**
  * TMC26X Stepper Driver options
  *
