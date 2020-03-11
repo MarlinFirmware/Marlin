@@ -350,7 +350,7 @@ void GcodeSuite::G34() {
 
     if (err_break) {
       SERIAL_ECHOLNPGM("G34 aborted.");
-      set_axis_is_not_at_home(Z_AXIS);// The Z coordinate is messed up now
+      set_axis_is_not_at_home(Z_AXIS);  // The Z coordinate is messed up now
       break;
     }
 
