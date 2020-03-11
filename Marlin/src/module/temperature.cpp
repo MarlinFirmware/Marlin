@@ -1030,10 +1030,6 @@ void Temperature::manage_heater() {
     if (!inited) return watchdog_refresh();
   #endif
 
-  #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
-    static bool last_pause_state;
-  #endif
-
   #if ENABLED(EMERGENCY_PARSER)
     if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
   #endif
@@ -1125,16 +1121,21 @@ void Temperature::manage_heater() {
       }
     #endif // WATCH_BED
 
+    #define PAUSE_CHANGE_REQD BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+    #if PAUSE_CHANGE_REQD
+      static bool last_pause_state;
+    #endif
+
     do {
 
       #if DISABLED(PIDTEMPBED)
         if (PENDING(ms, next_bed_check_ms)
-          #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+          #if PAUSE_CHANGE_REQD
             && paused == last_pause_state
           #endif
         ) break;
         next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-        #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+        #if PAUSE_CHANGE_REQD
           last_pause_state = paused;
         #endif
       #endif
@@ -3359,6 +3360,15 @@ void Temperature::tick() {
       if (wait_for_heatup) ui.reset_status();
 
       return wait_for_heatup;
+    }
+
+    void Temperature::wait_for_bed_heating() {
+      if (isHeatingBed()) {
+        SERIAL_ECHOLNPGM("Wait for bed heating...");
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        wait_for_bed();
+        ui.reset_status();
+      }
     }
 
   #endif // HAS_HEATED_BED

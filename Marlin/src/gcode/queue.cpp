@@ -210,6 +210,21 @@ void GCodeQueue::inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
 void GCodeQueue::enqueue_one_now(const char* cmd) { while (!enqueue_one(cmd)) idle(); }
 
 /**
+ * Attempt to enqueue a single G-code command
+ * and return 'true' if successful.
+ */
+bool GCodeQueue::enqueue_one_P(PGM_P const pgcode) {
+  size_t i = 0;
+  PGM_P p = pgcode;
+  char c;
+  while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
+  char cmd[i + 1];
+  memcpy_P(cmd, p, i);
+  cmd[i] = '\0';
+  return _enqueue(cmd);
+}
+
+/**
  * Enqueue from program memory and return only when commands are actually enqueued
  * Never call this from a G-code handler!
  */
@@ -361,6 +376,10 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
     sis = PS_EOL;               // Skip the rest on overflow
 }
 
+/**
+ * Handle a line being completed. For an empty line
+ * keep sensor readings going and watchdog alive.
+ */
 inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
   sis = PS_NORMAL;
   buff[ind] = 0;

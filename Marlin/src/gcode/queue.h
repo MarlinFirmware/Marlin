@@ -78,6 +78,12 @@ public:
   static void enqueue_one_now(const char* cmd);
 
   /**
+   * Attempt to enqueue a single G-code command
+   * and return 'true' if successful.
+   */
+  static bool enqueue_one_P(PGM_P const pgcode);
+
+  /**
    * Enqueue from program memory and return only when commands are actually enqueued
    */
   static void enqueue_now_P(PGM_P const cmd);
@@ -116,12 +122,6 @@ public:
    * the next expected line number.
    */
   static void flush_and_request_resend();
-
-  /**
-   * Attempt to enqueue a single G-code command
-   * and return 'true' if successful.
-   */
-  FORCE_INLINE static bool enqueue_P(const char* cmd) { return _enqueue(cmd); }
 
 private:
 

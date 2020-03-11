@@ -1208,15 +1208,9 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
 
     #if ENABLED(SPI_ENDSTOPS)
       switch (axis) {
-        #if X_SPI_SENSORLESS
-          case X_AXIS: endstops.tmc_spi_homing.x = true; break;
-        #endif
-        #if Y_SPI_SENSORLESS
-          case Y_AXIS: endstops.tmc_spi_homing.y = true; break;
-        #endif
-        #if Z_SPI_SENSORLESS
-          case Z_AXIS: endstops.tmc_spi_homing.z = true; break;
-        #endif
+        case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = true; break;
+        case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = true; break;
+        case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = true; break;
         default: break;
       }
     #endif
@@ -1280,15 +1274,9 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
 
     #if ENABLED(SPI_ENDSTOPS)
       switch (axis) {
-        #if X_SPI_SENSORLESS
-          case X_AXIS: endstops.tmc_spi_homing.x = false; break;
-        #endif
-        #if Y_SPI_SENSORLESS
-          case Y_AXIS: endstops.tmc_spi_homing.y = false; break;
-        #endif
-        #if Z_SPI_SENSORLESS
-          case Z_AXIS: endstops.tmc_spi_homing.z = false; break;
-        #endif
+        case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = false; break;
+        case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = false; break;
+        case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = false; break;
         default: break;
       }
     #endif
@@ -1312,16 +1300,8 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   #if HOMING_Z_WITH_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
-    if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
-      serialprintPGM(probe.msg_wait_for_bed_heating);
-      #if HAS_DISPLAY
-        LCD_MESSAGEPGM(MSG_BED_HEATING);
-      #endif
-      thermalManager.wait_for_bed();
-      #if HAS_DISPLAY
-        ui.reset_status();
-      #endif
-    }
+    if (axis == Z_AXIS && distance < 0)
+      thermalManager.wait_for_bed_heating();
   #endif
 
   // Only do some things when moving towards an endstop
@@ -1480,13 +1460,13 @@ void set_axis_is_at_home(const AxisEnum axis) {
 /**
  * Set an axis' to be unhomed.
  */
-void set_axis_is_not_at_home(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_not_at_home(", axis_codes[axis], ")");
+void set_axis_not_trusted(const AxisEnum axis) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_not_trusted(", axis_codes[axis], ")");
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_is_not_at_home(", axis_codes[axis], ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_not_trusted(", axis_codes[axis], ")");
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     I2CPEM.unhomed(axis);

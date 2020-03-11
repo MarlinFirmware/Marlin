@@ -48,24 +48,16 @@
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
-#define HAS_SIDE_BY_SIDE (ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1)
+#if ENABLED(MAX7219_SIDE_BY_SIDE) && MAX7219_NUMBER_UNITS > 1
+  #define HAS_SIDE_BY_SIDE 1
+#endif
 
 #if _ROT == 0 || _ROT == 180
-  #if HAS_SIDE_BY_SIDE
-    #define MAX7219_X_LEDS  8
-    #define MAX7219_Y_LEDS  MAX7219_LINES
-  #else
-    #define MAX7219_Y_LEDS  8
-    #define MAX7219_X_LEDS  MAX7219_LINES
-  #endif
+  #define MAX7219_X_LEDS TERN(HAS_SIDE_BY_SIDE, 8, MAX7219_LINES)
+  #define MAX7219_Y_LEDS TERN(HAS_SIDE_BY_SIDE, MAX7219_LINES, 8)
 #elif _ROT == 90 || _ROT == 270
-  #if HAS_SIDE_BY_SIDE
-    #define MAX7219_Y_LEDS  8
-    #define MAX7219_X_LEDS  MAX7219_LINES
-  #else
-    #define MAX7219_X_LEDS  8
-    #define MAX7219_Y_LEDS  MAX7219_LINES
-  #endif
+  #define MAX7219_X_LEDS TERN(HAS_SIDE_BY_SIDE, MAX7219_LINES, 8)
+  #define MAX7219_Y_LEDS TERN(HAS_SIDE_BY_SIDE, 8, MAX7219_LINES)
 #else
   #error "MAX7219_ROTATE must be a multiple of +/- 90°."
 #endif
@@ -73,6 +65,7 @@
 Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
+uint8_t Max7219::suspended; // = 0;
 
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
 
@@ -212,6 +205,7 @@ void Max7219::send(const uint8_t reg, const uint8_t data) {
 
 // Send out a single native row of bits to just one unit
 void Max7219::refresh_unit_line(const uint8_t line) {
+  if (suspended) return;
   #if MAX7219_NUMBER_UNITS == 1
     send(LINE_REG(line), led_line[line]);
   #else
@@ -223,6 +217,7 @@ void Max7219::refresh_unit_line(const uint8_t line) {
 
 // Send out a single native row of bits to all units
 void Max7219::refresh_line(const uint8_t line) {
+  if (suspended) return;
   #if MAX7219_NUMBER_UNITS == 1
     refresh_unit_line(line);
   #else
@@ -241,9 +236,9 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
 
   // Draw an integer with optional leading zeros and optional decimal point
   void Max7219::print(const uint8_t start, int16_t value, uint8_t size, const bool leadzero=false, bool dec=false) {
+    if (suspended) return;
     constexpr uint8_t led_numeral[10] = { 0x7E, 0x60, 0x6D, 0x79, 0x63, 0x5B, 0x5F, 0x70, 0x7F, 0x7A },
                       led_decimal = 0x80, led_minus = 0x01;
-
     bool blank = false, neg = value < 0;
     if (neg) value *= -1;
     while (size--) {
@@ -295,6 +290,7 @@ void Max7219::led_toggle(const uint8_t x, const uint8_t y) {
 }
 
 void Max7219::send_row(const uint8_t row) {
+  if (suspended) return;
   #if _ROT == 0 || _ROT == 180            // Native Lines are horizontal too
     #if MAX7219_X_LEDS <= 8
       refresh_unit_line(LED_IND(0, row)); // A single unit line
@@ -308,6 +304,7 @@ void Max7219::send_row(const uint8_t row) {
 }
 
 void Max7219::send_column(const uint8_t col) {
+  if (suspended) return;
   #if _ROT == 90 || _ROT == 270           // Native Lines are vertical too
     #if MAX7219_Y_LEDS <= 8
       refresh_unit_line(LED_IND(col, 0)); // A single unit line
@@ -344,8 +341,8 @@ void Max7219::clear_column(const uint8_t col) {
 
 /**
  * Plot the low order bits of val to the specified row of the matrix.
- * With 4 Max7219 units in the chain, it's possible to set 32 bits at once with
- * one call to the function (if rotated 90° or 180°).
+ * With 4 Max7219 units in the chain, it's possible to set 32 bits at
+ * once with a single call to the function (if rotated 90° or 270°).
  */
 void Max7219::set_row(const uint8_t row, const uint32_t val) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("set_row"), row);
@@ -359,8 +356,8 @@ void Max7219::set_row(const uint8_t row, const uint32_t val) {
 
 /**
  * Plot the low order bits of val to the specified column of the matrix.
- * With 4 Max7219 units in the chain, it's possible to set 32 bits at once with
- * one call to the function (if rotated 90° or 180°).
+ * With 4 Max7219 units in the chain, it's possible to set 32 bits at
+ * once with a single call to the function (if rotated 0° or 180°).
  */
 void Max7219::set_column(const uint8_t col, const uint32_t val) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
@@ -453,35 +450,83 @@ void Max7219::register_setup() {
 }
 
 #ifdef MAX7219_INIT_TEST
-#if MAX7219_INIT_TEST == 2
 
-  #define MAX7219_LEDS (MAX7219_X_LEDS * MAX7219_Y_LEDS)
+  uint8_t test_mode = 0;
+  millis_t next_patt_ms;
+  bool patt_on;
 
-  void Max7219::spiral(const bool on, const uint16_t del) {
-    constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
-    int8_t px = 0, py = 0, dir = 0;
-    for (IF<(MAX7219_LEDS > 255), uint16_t, uint8_t>::type i = MAX7219_LEDS; i--;) {
-      led_set(px, py, on);
-      delay(del);
-      const int8_t x = px + way[dir][0], y = py + way[dir][1];
-      if (!WITHIN(x, 0, MAX7219_X_LEDS - 1) || !WITHIN(y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(x, y) == on)
-        dir = (dir + 1) & 0x3;
-      px += way[dir][0];
-      py += way[dir][1];
+  #if MAX7219_INIT_TEST == 2
+
+    #define MAX7219_LEDS (MAX7219_X_LEDS * MAX7219_Y_LEDS)
+
+    constexpr millis_t pattern_delay = 4;
+
+    int8_t spiralx, spiraly, spiral_dir;
+    IF<(MAX7219_LEDS > 255), uint16_t, uint8_t>::type spiral_count;
+
+    void Max7219::test_pattern() {
+      constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
+      led_set(spiralx, spiraly, patt_on);
+      const int8_t x = spiralx + way[spiral_dir][0], y = spiraly + way[spiral_dir][1];
+      if (!WITHIN(x, 0, MAX7219_X_LEDS - 1) || !WITHIN(y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(x, y) == patt_on)
+        spiral_dir = (spiral_dir + 1) & 0x3;
+      spiralx += way[spiral_dir][0];
+      spiraly += way[spiral_dir][1];
+      if (!spiral_count--) {
+        if (!patt_on)
+          test_mode = 0;
+        else {
+          spiral_count = MAX7219_LEDS;
+          spiralx = spiraly = spiral_dir = 0;
+          patt_on = false;
+        }
+      }
     }
+
+  #else
+
+    constexpr millis_t pattern_delay = 20;
+    int8_t sweep_count, sweepx, sweep_dir;
+
+    void Max7219::test_pattern() {
+      set_column(sweepx, patt_on ? 0xFFFFFFFF : 0x00000000);
+      sweepx += sweep_dir;
+      if (!WITHIN(sweepx, 0, MAX7219_X_LEDS - 1)) {
+        if (!patt_on) {
+          sweep_dir *= -1;
+          sweepx += sweep_dir;
+        }
+        else
+          sweepx -= MAX7219_X_LEDS * sweep_dir;
+        patt_on ^= true;
+        next_patt_ms += 100;
+        if (++test_mode > 4) test_mode = 0;
+      }
+    }
+
+  #endif
+
+  void Max7219::run_test_pattern() {
+    const millis_t ms = millis();
+    if (PENDING(ms, next_patt_ms)) return;
+    next_patt_ms = ms + pattern_delay;
+    test_pattern();
   }
 
-#else
-
-  void Max7219::sweep(const int8_t dir, const uint16_t ms, const bool on) {
-    uint8_t x = dir > 0 ? 0 : MAX7219_X_LEDS - 1;
-    for (uint8_t i = MAX7219_X_LEDS; i--; x += dir) {
-      set_column(x, on ? 0xFFFFFFFF : 0x00000000);
-      delay(ms);
-    }
+  void Max7219::start_test_pattern() {
+    clear();
+    test_mode = 1;
+    patt_on = true;
+    #if MAX7219_INIT_TEST == 2
+      spiralx = spiraly = spiral_dir = 0;
+      spiral_count = MAX7219_LEDS;
+    #else
+      sweep_dir = 1;
+      sweepx = 0;
+      sweep_count = MAX7219_X_LEDS;
+    #endif
   }
 
-#endif
 #endif // MAX7219_INIT_TEST
 
 void Max7219::init() {
@@ -499,19 +544,7 @@ void Max7219::init() {
   }
 
   #ifdef MAX7219_INIT_TEST
-    #if MAX7219_INIT_TEST == 2
-      spiral(true, 8);
-      delay(150);
-      spiral(false, 8);
-    #else
-      // Do an aesthetically-pleasing pattern to fully test the Max7219 module and LEDs.
-      // Light up and turn off columns, both forward and backward.
-      sweep(1, 20, true);
-      sweep(1, 20, false);
-      delay(150);
-      sweep(-1, 20, true);
-      sweep(-1, 20, false);
-    #endif
+    start_test_pattern();
   #endif
 }
 
@@ -604,6 +637,13 @@ void Max7219::idle_tasks() {
     register_setup();
   }
 
+  #ifdef MAX7219_INIT_TEST
+    if (test_mode) {
+      run_test_pattern();
+      return;
+    }
+  #endif
+
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     if (do_blink) {
       led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1);
@@ -649,6 +689,12 @@ void Max7219::idle_tasks() {
       last_depth = current_depth;
     }
   #endif
+
+  // After resume() automatically do a refresh()
+  if (suspended == 0x80) {
+    suspended = 0;
+    refresh();
+  }
 }
 
 #endif // MAX7219_DEBUG

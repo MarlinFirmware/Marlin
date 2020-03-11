@@ -87,9 +87,6 @@ public:
     static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
-    #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-      static const char msg_wait_for_bed_heating[25];
-    #endif
 
   #else
 
@@ -180,7 +177,7 @@ public:
       // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
       template <typename T>
       static inline void get_three_points(T points[3]) {
-        #if ENABLED(HAS_FIXED_3POINT)
+        #if HAS_FIXED_3POINT
           points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
           points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
           points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
