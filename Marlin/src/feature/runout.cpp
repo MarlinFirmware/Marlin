@@ -39,6 +39,10 @@ bool FilamentMonitorBase::enabled = true,
   bool FilamentMonitorBase::host_handling; // = false
 #endif
 
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../module/tool_change.h"
+#endif
+
 /**
  * Called by FilamentSensorSwitch::run when filament is detected.
  * Called by FilamentSensorEncoder::block_completed when motion is detected.
@@ -125,8 +129,15 @@ void event_filament_runout() {
     SERIAL_EOL();
   #endif // HOST_ACTION_COMMANDS
 
-  if (run_runout_script)
-    queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+  if (run_runout_script){
+   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      if (toolchange_settings.migration_auto) extruder_migration();
+      else queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+   #else
+     queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+  #endif
+
+  }
 }
 
 #endif // HAS_FILAMENT_SENSOR

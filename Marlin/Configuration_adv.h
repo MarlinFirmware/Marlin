@@ -1864,7 +1864,7 @@
                   : Finish old ended spool and start another automaticly
    *              : Use another extruder if current jammed
    *              Requires 2 or more extruders.
-   *              Requires FILAMENT_RUNOUT for automatic migration after runout
+   *              Requires FILAMENT_RUNOUT & ADVANCED_PAUSE_FEATURE for automatic migration after runout
    *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
    *              Requires same nozzle size
    *              No dual extrusion printing

@@ -1032,9 +1032,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
           // BLOWING
           #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
+            //Store current fan speed ,to restore later
             int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
-      	     gcode.dwell(toolchange_settings.fan_time *1000);
+      	    gcode.dwell(toolchange_settings.fan_time *1000);
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
           #endif
           }
@@ -1153,24 +1154,37 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     //Migration begins
     //Same temperature
-   thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), active_extruder+1);
+   thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), migration_extruder);
    // Same flow after tool change
-   planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];
+   planner.flow_percentage[migration_extruder] = planner.flow_percentage[active_extruder];
    // Same FwRetract/Swap statuses
    #if ENABLED(FWRETRACT)
-				fwretract.retracted[active_extruder+1] = fwretract.retracted[active_extruder];
-	#endif
-  // Same fan speed
-  int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
-  //Tool change
-  tool_change(migration_extruder);
-  thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
-  if (    (active_extruder >= EXTRUDERS - 2)
+				fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
+   #endif
+
+   #if HAS_LCD_MENU
+     lcd_pause_show_message(PAUSE_MESSAGE_HEATING);
+   #endif
+   thermalManager.wait_for_hotend(active_extruder);
+
+   //Tool change
+   tool_change(migration_extruder);
+
+   #if ENABLED(FWRETRACT)
+       if (fwretract.retracted[active_extruder]) {
+         #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
+           do_pause_e_move(- fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+         #else
+           current_position.e -= fwretract.settings.retract_length / planner.e_factor[active_extruder];
+           planner.buffer_line(current_position, fwretract.settings.retract_feedrate_mm_s);
+         #endif
+       } ;
+   #endif
+
+   if (    (active_extruder >= EXTRUDERS - 2)
        || (active_extruder == toolchange_settings.migration_ending )
-     )
-    toolchange_settings.migration_auto = false;
-  else return;
-
-
+      )
+     toolchange_settings.migration_auto = false;
+   else return;
   };
 #endif
