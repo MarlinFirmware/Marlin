@@ -26,6 +26,9 @@
 #include "../../../../inc/MarlinConfigPre.h"
 
 #include "../../../../MarlinCore.h"
+#if HAS_BED_PROBE
+  #include "../../../../module/probe.h"
+#endif
 #include "DGUSVPVariable.h"
 
 enum DGUSLCD_Screens : uint8_t;
@@ -140,8 +143,10 @@ public:
     // Hook for PID autotune
     static void HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-  // Hook for "Change probe offset z"
-  static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #if HAS_BED_PROBE
+    // Hook for "Change probe offset z"
+    static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
   #if ENABLED(BABYSTEPPING)
     // Hook for live z adjust action
     static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
@@ -210,6 +215,7 @@ public:
   static void DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var);
   static void DGUSLCD_SendTemperaturePID(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var);
   #if ENABLED(PRINTCOUNTER)
     static void DGUSLCD_SendPrintAccTimeToDisplay(DGUS_VP_Variable &var);
