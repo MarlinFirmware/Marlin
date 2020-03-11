@@ -125,10 +125,9 @@ void menu_advanced_settings();
     EDIT_ITEM(float3, MSG_TOOL_CHANGE_ZLIFT, &toolchange_settings.z_raise, 0, 10);
     END_MENU();
   }
-//------------------------------------------------------------------------
  /**
    *
-   * "Dynamic Tool Migration"  submenu
+   * Tool Migration"  submenu
    *
    */
   //Submenu
@@ -139,7 +138,7 @@ void menu_advanced_settings();
     PGM_P const migration_on_off = toolchange_settings.migration_ending? GET_TEXT(MSG_TOOL_MIGRATION_ON): GET_TEXT(MSG_TOOL_MIGRATION_OFF);
     STATIC_ITEM_P(migration_on_off);
     //Manual Migration
-    PGM_P const  migration_stop =  GET_TEXT(MSG_TOOL_MIGRATION_LAST);
+    PGM_P const  migration_stop =  GET_TEXT(MSG_TOOL_MIGRATION_END);
         EDIT_ITEM_P(int3,migration_stop, &toolchange_settings.migration_ending, 0, EXTRUDERS-1);
     if (active_extruder !=0)
      GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP0, PSTR("M217 T0"));
@@ -171,9 +170,6 @@ void menu_advanced_settings();
      #endif
 }
 
-
-
-//------------------------------------------------------------------------
 #endif
 
 #if HAS_HOTEND_OFFSET

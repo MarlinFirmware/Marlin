@@ -379,7 +379,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP3            = _UxGT("Migrate to ") LCD_STR_E3;
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP4            = _UxGT("Migrate to ") LCD_STR_E4;
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP5            = _UxGT("Migrate to ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP5            = _UxGT("Migrate to ") LCD_STR_E6;
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP6            = _UxGT("Migrate to ") LCD_STR_E6;
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP7            = _UxGT("Migrate to ") LCD_STR_E7;
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Change Filament");
