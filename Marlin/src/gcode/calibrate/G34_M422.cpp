@@ -350,7 +350,7 @@ void GcodeSuite::G34() {
 
     if (err_break) {
       SERIAL_ECHOLNPGM("G34 aborted.");
-      set_axis_is_not_at_home(Z_AXIS);  // The Z coordinate is messed up now
+      set_axis_not_trusted(Z_AXIS);  // The Z coordinate is messed up now
       break;
     }
 
@@ -376,7 +376,7 @@ void GcodeSuite::G34() {
 
     #if ENABLED(HOME_AFTER_G34)
       // After this operation the z position needs correction
-      set_axis_is_not_at_home(Z_AXIS);
+      set_axis_not_trusted(Z_AXIS);
 
       // Home Z after the alignment procedure
       process_subcommands_now_P(PSTR("G28 Z"));
