@@ -81,7 +81,6 @@ void GcodeSuite::G34() {
 
     #if NUM_Z_STEPPER_DRIVERS == 4
       SERIAL_ECHOLNPGM("Alignment for 4 steppers is Experimental!");
-      break;
     #endif
 
     const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
