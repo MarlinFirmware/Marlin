@@ -64,6 +64,7 @@ inline void set_all_z_lock(const bool lock) {
  *   I<iterations>
  *   T<accuracy>
  *   A<amplification>
+ *   R<recalculate> points based on current probe offsets
  */
 void GcodeSuite::G34() {
   if (DEBUGGING(LEVELING)) {
@@ -73,8 +74,13 @@ void GcodeSuite::G34() {
 
   do { // break out on error
 
-    #if NUM_Z_STEPPER_DRIVERS >= 4
-      SERIAL_ECHOLNPGM("Alignment not supported for over 3 steppers");
+    #if NUM_Z_STEPPER_DRIVERS > 4
+      SERIAL_ECHOLNPGM("Alignment not supported for over 4 steppers");
+      break;
+    #endif
+
+    #if NUM_Z_STEPPER_DRIVERS == 4
+      SERIAL_ECHOLNPGM("Alignment for 4 steppers is Experimental!");
       break;
     #endif
 
@@ -100,6 +106,8 @@ void GcodeSuite::G34() {
           break;
         }
       #endif
+
+    if(parser.seen('R')) z_stepper_align.reset_to_default();
 
     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
@@ -144,6 +152,11 @@ void GcodeSuite::G34() {
          SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
                    HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
                    HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[0].x, z_stepper_align.xy[2].y - z_stepper_align.xy[0].y)))
+      #elif NUM_Z_STEPPER_DRIVERS == 4
+         SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
+                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
+                   HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[3].x, z_stepper_align.xy[2].y - z_stepper_align.xy[3].y),
+                   HYPOT2(z_stepper_align.xy[3].x - z_stepper_align.xy[0].x, z_stepper_align.xy[3].y - z_stepper_align.xy[0].y)))
       #else
          HYPOT(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y)
       #endif
@@ -159,7 +172,7 @@ void GcodeSuite::G34() {
     // This hack is un-done at the end of G34 - either by re-homing, or by using the probed heights of the last iteration.
 
     #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-      float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f);
+      float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f, 10000.0f);
     #else
       float last_z_align_level_indicator = 10000.0f;
     #endif
@@ -325,6 +338,9 @@ void GcodeSuite::G34() {
           #if NUM_Z_STEPPER_DRIVERS == 3
             case 2: stepper.set_z3_lock(false); break;
           #endif
+          #if NUM_Z_STEPPER_DRIVERS == 4
+            case 3: stepper.set_z4_lock(false); break;
+          #endif
         }
 
         #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
@@ -350,25 +366,10 @@ void GcodeSuite::G34() {
 
     if (err_break) {
       SERIAL_ECHOLNPGM("G34 aborted.");
-      set_axis_not_trusted(Z_AXIS);  // The Z coordinate is messed up now
-      break;
+    } else {
+      SERIAL_ECHOLNPAIR("Did ", int(iteration + (iteration != z_auto_align_iterations)), " iterations of ", int(z_auto_align_iterations));
+      SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
     }
-
-    SERIAL_ECHOLNPAIR("Did ", int(iteration + (iteration != z_auto_align_iterations)), " iterations of ", int(z_auto_align_iterations));
-    SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
-
-    // Restore the active tool after homing
-    #if HOTENDS > 1
-      tool_change(old_tool_index, (true
-        #if ENABLED(PARKING_EXTRUDER)
-          && false // Fetch the previous toolhead
-        #endif
-      ));
-    #endif
-
-    #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G34)
-      set_bed_leveling_enabled(leveling_was_active);
-    #endif
 
     // Stow the probe, as the last call to probe.probe_at_point(...) left
     // the probe deployed if it was successful.
@@ -386,6 +387,19 @@ void GcodeSuite::G34() {
       // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
       current_position.z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
       sync_plan_position();
+    #endif
+
+    // Restore the active tool after homing
+    #if HOTENDS > 1
+      tool_change(old_tool_index, (true
+        #if ENABLED(PARKING_EXTRUDER)
+          && false // Fetch the previous toolhead
+        #endif
+      ));
+    #endif
+
+    #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G34)
+      set_bed_leveling_enabled(leveling_was_active);
     #endif
 
   }while(0);
@@ -406,8 +420,15 @@ void GcodeSuite::G34() {
  * S and W require an X and/or Y parameter
  *   X<pos>   : X position to set (Unchanged if omitted)
  *   Y<pos>   : Y position to set (Unchanged if omitted)
+ *
+ * R : Recalculate points based on current probe offsets
  */
 void GcodeSuite::M422() {
+
+  if(parser.seen('R')) {
+    z_stepper_align.reset_to_default();
+    return;
+  }
 
   if (!parser.seen_any()) {
     LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS)
