@@ -244,7 +244,7 @@ bool axis_unhomed_error(uint8_t axis_bits=0x07);
 
 void set_axis_is_at_home(const AxisEnum axis);
 
-void set_axis_is_not_at_home(const AxisEnum axis);
+void set_axis_not_trusted(const AxisEnum axis);
 
 void homeaxis(const AxisEnum axis);
 
