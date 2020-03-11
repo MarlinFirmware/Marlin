@@ -334,7 +334,7 @@ void GcodeSuite::G34() {
         switch (zstepper) {
           case 0: stepper.set_z_lock(false); break;
           case 1: stepper.set_z2_lock(false); break;
-          #if NUM_Z_STEPPER_DRIVERS == 3
+          #if NUM_Z_STEPPER_DRIVERS >= 3
             case 2: stepper.set_z3_lock(false); break;
           #endif
           #if NUM_Z_STEPPER_DRIVERS == 4
