@@ -2395,15 +2395,9 @@ void MarlinSettings::reset() {
 
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      #if ENABLED(TOOLCHANGE_FIL_SWAP_USE_FWRETRACT) && ENABLED(FWRETRACT)
-        toolchange_settings.swap_length = RETRACT_LENGTH_SWAP;
-        toolchange_settings.retract_speed = MMS_TO_MMM(RETRACT_FEEDRATE);
-        toolchange_settings.unretract_speed = MMS_TO_MMM(RETRACT_RECOVER_FEEDRATE_SWAP);
-      #else
-        toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
-        toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
-        toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
-      #endif
+      toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+      toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
       toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_EXTRA_PRIME_SPEED;
       toolchange_settings.fan_speed = TOOLCHANGE_FIL_SWAP_FAN_SPEED;
@@ -2411,20 +2405,12 @@ void MarlinSettings::reset() {
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
-      #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-        constexpr xyz_pos_t tpxy = NOZZLE_PARK_POINT;
-      #else
-        constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
-      #endif
+      constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
       toolchange_settings.enable_park = true;
       toolchange_settings.change_point = tpxy;
     #endif
 
-    #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-      toolchange_settings.z_raise = tpxy.z;
-    #else
       toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
-    #endif
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
         toolchange_settings.migration_ending
@@ -3191,7 +3177,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+        #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
           ,PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
         #endif
         , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
@@ -3202,7 +3188,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
           "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
-          #if DISABLED(TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING) && EXTRUDERS > 1
+          #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
             , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
           #endif
         , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))

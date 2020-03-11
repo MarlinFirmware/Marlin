@@ -1790,13 +1790,16 @@
     #define MAX_AUTORETRACT 10.0          // (mm) Don't convert E moves over this length
   #endif
   #define RETRACT_LENGTH 3                // (mm) Default retract length (positive value)
-  #define RETRACT_LENGTH_SWAP 60          // (mm) Default swap retract length (positive value)
   #define RETRACT_FEEDRATE 50             // (mm/s) Default feedrate for retracting
   #define RETRACT_ZRAISE 0                // (mm) Default retract Z-raise
   #define RETRACT_RECOVER_LENGTH 0        // (mm) Default additional recover length (added to retract length on recover)
-  #define RETRACT_RECOVER_LENGTH_SWAP 0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
-  #define RETRACT_RECOVER_FEEDRATE 25      // (mm/s) Default feedrate for recovering from retraction
-  #define RETRACT_RECOVER_FEEDRATE_SWAP RETRACT_RECOVER_FEEDRATE // (mm/s) Default feedrate for recovering from swap retraction
+  #define RETRACT_RECOVER_FEEDRATE 25     // (mm/s) Default feedrate for recovering from retraction
+  //#define FWRETRACT_SWAP_ENABLE         // Disable swap (economy of progmem/sram if using TOOLCHANGE_FILAMENT_SWAP )
+  #if ENABLED(FWRETRACT_SWAP_ENABLE)
+    #define RETRACT_LENGTH_SWAP 60          // (mm) Default swap retract length (positive value)
+    #define RETRACT_RECOVER_LENGTH_SWAP 0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
+    #define RETRACT_RECOVER_FEEDRATE_SWAP RETRACT_RECOVER_FEEDRATE // (mm/s) Default feedrate for recovering from swap retraction
+  #endif
   #if ENABLED(MIXING_EXTRUDER)
     //#define RETRACT_SYNC_MIXING         // Retract and restore all mixing steppers simultaneously
   #endif
@@ -1815,10 +1818,8 @@
    */
   #define TOOLCHANGE_PARK
   #if ENABLED(TOOLCHANGE_PARK)
-    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
+    #define TOOLCHANGE_PARK_XY { X_MIN_POS + 10, Y_MIN_POS + 10 }
     #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60  // (mm/m)
-    // NOZZLE_PARK_FEATURE instead of TOOLCHANGE_PARK & TOOLCHANGE_ZRAISE
-    #define TOOLCHANGE_USE_NOZZLE_PARK_FEATURE
   #endif
   // Z raise distance for tool-change, as needed for some extruders
   #define TOOLCHANGE_ZRAISE     2  // (mm)
@@ -1833,17 +1834,13 @@
   #define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     // load/Unload
-    #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
+    #define TOOLCHANGE_FIL_SWAP_LENGTH              60  // (mm)
     #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    60*60  // (mm/m) (Unloading)
     #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  30*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
 
-    // Firmware retract utility (Requires FWRETRACT)
-    #define TOOLCHANGE_FIL_SWAP_USE_FWRETRACT           // Use FwRetract swap settings instead of TOOLCHANGE
-    #define TOOLCHANGE_DISABLE_FWRETRACT_SWAPPING       // Economy of progmem and sram by disabling G10 S1 (long retractation) used to make a toolchange
-
     // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
     // Can be changed in real time to adjust the amount of filament if needed
-    #define TOOLCHANGE_FIL_EXTRA_PRIME              10  // (mm) (ex:50~150mm to purge a Volcano and have no mixed color extrusion)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME             100  // (mm) (ex:50~150mm to purge a Volcano and have no mixed color extrusion)
     #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED    4.6*60  // (mm/m)(ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
     // Cooling after priming (To avoid stringing and a clean nozzle on resume)
     #define TOOLCHANGE_FIL_SWAP_FAN                  0  // Fan count (-1 for disabling blowing)
