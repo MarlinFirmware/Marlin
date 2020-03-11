@@ -2425,6 +2425,13 @@ void MarlinSettings::reset() {
     #else
       toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
     #endif
+
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+        toolchange_settings.migration_ending
+      = toolchange_settings.migration_target
+      = toolchange_settings.migration_auto = 0;
+    #endif
+
   #endif
 
   #if ENABLED(BACKLASH_GCODE)

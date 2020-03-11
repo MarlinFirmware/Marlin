@@ -133,15 +133,18 @@ void GcodeSuite::M217() {
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
     if (parser.seenval('L')) {
-     if((parser.value_linear_units() > 0 ) && (parser.value_linear_units() < EXTRUDERS - 1))
-      toolchange_settings.migration_ending = parser.value_linear_units();
+     if(   (parser.value_linear_units() > 0 )
+        && (parser.value_linear_units() < EXTRUDERS - 1)
+        && (parser.value_linear_units() < active_extruder) ){
+       toolchange_settings.migration_ending = parser.value_linear_units();
+       toolchange_settings.migration_auto = true;
+     }
      else return;
     }
 
     if (parser.seenval('N')) {
-      if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() <= 1)){
+      if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() <= 1))
         toolchange_settings.migration_auto = parser.value_linear_units();
-      }
       else return;
     }
 
