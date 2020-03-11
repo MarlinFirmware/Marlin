@@ -1133,11 +1133,23 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   void extruder_migration() {
     int16_t migration_extruder;
-    //if (toolchange_settings.migration_auto == false) return;
-    if ((toolchange_settings.migration_target < 0) && (toolchange_settings.migration_auto == true))
+
+    // For auto migration
+    if (    (toolchange_settings.migration_target < 0)  // No desired target
+         && (toolchange_settings.migration_auto == true) // Migration auto enable
+         && (active_extruder < EXTRUDERS - 1) // enough other extruders
+         && (active_extruder < toolchange_settings.migration_ending ) // not more than the ending extruder
+       )
       migration_extruder = active_extruder + 1;
-    if (toolchange_settings.migration_target > -1) migration_extruder = toolchange_settings.migration_target;
-    toolchange_settings.migration_target = -1;
+    else return;
+    // For choosen target
+    if (toolchange_settings.migration_target > -1) {
+      migration_extruder = toolchange_settings.migration_target;
+      toolchange_settings.migration_target = -1;
+    }
+
+    //Migration beginning
+
 
   };
 #endif

@@ -23,9 +23,12 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if EXTRUDERS > 1
-
 #include "../gcode.h"
 #include "../../module/tool_change.h"
+
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../../module/motion.h"
+#endif
 
 #include "../../MarlinCore.h" // for SP_X_STR, etc.
 
@@ -143,7 +146,10 @@ void GcodeSuite::M217() {
     }
 
     if (parser.seenval('T')) {
-      if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() < EXTRUDERS - 1)){
+      if(   (parser.value_linear_units() >= 0 )
+         && (parser.value_linear_units() < EXTRUDERS - 1)
+         && (parser.value_linear_units() != active_extruder)
+        ){
         toolchange_settings.migration_target = parser.value_linear_units();
         extruder_migration();
         return ;
