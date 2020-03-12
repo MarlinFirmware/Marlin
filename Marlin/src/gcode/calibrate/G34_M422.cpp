@@ -155,7 +155,9 @@ void GcodeSuite::G34() {
          SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
                    HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
                    HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[3].x, z_stepper_align.xy[2].y - z_stepper_align.xy[3].y),
-                   HYPOT2(z_stepper_align.xy[3].x - z_stepper_align.xy[0].x, z_stepper_align.xy[3].y - z_stepper_align.xy[0].y)))
+                   HYPOT2(z_stepper_align.xy[3].x - z_stepper_align.xy[0].x, z_stepper_align.xy[3].y - z_stepper_align.xy[0].y),
+                   HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[2].x, z_stepper_align.xy[0].y - z_stepper_align.xy[2].y),
+                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[3].x, z_stepper_align.xy[1].y - z_stepper_align.xy[3].y)))
       #else
          HYPOT(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y)
       #endif
