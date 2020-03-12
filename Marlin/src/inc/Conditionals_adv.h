@@ -100,10 +100,6 @@
   #define HAS_LEDS_OFF_FLAG 1
 #endif
 
-#if !NUM_SERIAL
-  #undef BAUD_RATE_GCODE
-#endif
-
 // Multiple Z steppers
 #ifndef NUM_Z_STEPPER_DRIVERS
   #define NUM_Z_STEPPER_DRIVERS 1

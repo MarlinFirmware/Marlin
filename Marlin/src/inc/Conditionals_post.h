@@ -2200,3 +2200,7 @@
     #define INIT_SDCARD_ON_BOOT
   #endif
 #endif
+
+#if !NUM_SERIAL
+  #undef BAUD_RATE_GCODE
+#endif
