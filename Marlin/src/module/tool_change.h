@@ -29,6 +29,7 @@
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       float swap_length, extra_prime;
       int16_t prime_speed, retract_speed, unretract_speed,fan ,fan_speed,fan_time;
+      void tool_change_prime();
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
       bool enable_park;

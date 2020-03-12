@@ -81,6 +81,9 @@ void M217_report(const bool eeprom=false) {
  *  F[linear]   Fan Speed 0-255
  *  G[linear/s] Fan time
  *
+ * //Commands
+ *  A           Prime active tool
+ *
  *  Tool migration
  *
  *  //Settings
@@ -116,6 +119,7 @@ void GcodeSuite::M217() {
     if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
     if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
     if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
+    if (parser.seenval('Q')) { tool_change_prime(); return; }
   #endif
 
   #if ENABLED(TOOLCHANGE_PARK)

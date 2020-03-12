@@ -768,6 +768,44 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #endif // DUAL_X_CARRIAGE
 
 /**
+ * Prime active tool by using TOOLCHANGE_FILAMENT_SWAP settings
+ * and make a simplified command for initialising the first tool before
+ * tool change sequence.
+ */
+void tool_change_prime(){
+
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    if (should_swap && !too_cold) {
+      #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
+        do_pause_e_move( (toolchange_settings.swap_length + toolchange_settings.extra_prime), MMM_TO_MMS(
+             toolchange_settings.prime_speed));
+      #endif
+
+      current_position.e += (toolchange_settings.swap_length + toolchange_settings.extra_prime) / planner.e_factor[active_extruder];
+      planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed, active_extruder);
+      planner.synchronize();
+      planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //Extruder is primed and set to 0
+    // BLOWING
+    #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
+      //Store current fan speed ,to restore later
+      int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
+      thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
+      gcode.dwell(toolchange_settings.fan_time *1000);
+      thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
+    #endif
+    }
+  #endif
+}
+
+
+
+
+
+
+
+};
+
+/**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
