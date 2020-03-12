@@ -768,9 +768,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #endif // DUAL_X_CARRIAGE
 
 /**
- * Prime active tool by using TOOLCHANGE_FILAMENT_SWAP settings
- * and make a simplified command for initialising the first tool before
- * tool change sequence.
+ * Prime active tool using TOOLCHANGE_FILAMENT_SWAP settings
  */
 void tool_change_prime(){
 
