@@ -865,9 +865,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (too_cold) {
           SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
-            return;// Too cold = No toolchange on single nozzle extruder
-          #else
             active_extruder = new_tool;
+            return;// Too cold = No toolchange on single nozzle extruder
           #endif
         }
         else {
@@ -972,7 +971,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         move_nozzle_servo(new_tool);
       #endif
 
-      #if DISABLED(DUAL_X_CARRIAGE) && DISABLED(TOOLCHANGE_FILAMENT_SWAP) // These have their own toolchange behavior
+      #if DISABLED(DUAL_X_CARRIAGE)
         active_extruder = new_tool; // Set the new active extruder
       #endif
 
@@ -1012,23 +1011,28 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Unretract
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
+            #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME) && ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+              static bool toolchange_extruder_ready[EXTRUDERS];
+            #endif
 
             #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
+            SERIAL_ECHOPAIR(" old tool", LINEAR_UNIT(old_tool));
+            SERIAL_ECHOPAIR(" new tool", LINEAR_UNIT(new_tool));
+            SERIAL_ECHOPAIR(" old tool", LINEAR_UNIT(toolchange_extruder_ready[old_tool]));
+            SERIAL_ECHOPAIR(" new tool", LINEAR_UNIT(toolchange_extruder_ready[new_tool]));
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
-                  toolchange_settings.extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed
+                  toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed
                 #else
                   toolchange_settings.unretract_speed
                 #endif
               ));
               do_pause_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
-
             #else
-
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
-                  toolchange_settings.extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
+                  toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
                 #else
                   toolchange_settings.unretract_speed
                 #endif
@@ -1039,7 +1043,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
             planner.synchronize();
             planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //Extruder is primed and set to 0
-            toolchange_settings.extruder_ready[old_tool] = toolchange_settings.extruder_ready[new_tool] = true; // Primed and initialised
+            #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
+              toolchange_extruder_ready[old_tool] = toolchange_extruder_ready[new_tool] = true; // Primed and initialised
+            #endif
 
           // BLOWING
           #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
@@ -1075,13 +1081,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
 
             #if ENABLED(TOOLCHANGE_PARK)
-              do_blocking_move_to(destination,
-                #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-                  NOZZLE_PARK_XY_FEEDRATE
-                #else
-                  MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)
-                #endif
-                );
+              do_blocking_move_to(destination,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
             #else
               do_blocking_move_to(destination);
             #endif
