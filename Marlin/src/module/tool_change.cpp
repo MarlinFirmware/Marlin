@@ -925,15 +925,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
           #if ENABLED(TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
-						planner.buffer_line(current_position,
-              #if ENABLED(TOOLCHANGE_USE_NOZZLE_PARK_FEATURE)
-                NOZZLE_PARK_XY_FEEDRATE
-              #else
-                MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)
-              #endif
-            , old_tool);
+						planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           #endif
-
           planner.synchronize();
         }
       #endif
@@ -979,7 +972,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         move_nozzle_servo(new_tool);
       #endif
 
-      #if DISABLED(DUAL_X_CARRIAGE)
+      #if DISABLED(DUAL_X_CARRIAGE) && DISABLED(TOOLCHANGE_FILAMENT_SWAP) // These have their own toolchange behavior
         active_extruder = new_tool; // Set the new active extruder
       #endif
 
