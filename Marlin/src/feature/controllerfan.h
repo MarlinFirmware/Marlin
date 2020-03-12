@@ -21,4 +21,28 @@
  */
 #pragma once
 
-void controllerfan_update();
+
+#if ENABLED(USE_CONTROLLER_FAN)
+
+  typedef struct {
+    uint8_t controllerFan_Speed;        // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
+    uint8_t controllerFan_Idle_Speed;   // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
+    uint16_t controllerFan_Duration;    // Duration in seconds for the fan to run after all motors are disabled
+    bool controllerFan_AutoMode;        // Default true
+  } controllerFan_settings_t;
+
+  class ControllerFan {
+    private:
+      uint8_t iFanSpeed;
+
+    public:
+      void update();
+      bool state();
+      void reset();
+      void init();
+      void setup();
+      controllerFan_settings_t settings_fan;
+  };
+  extern ControllerFan fanController;
+
+#endif

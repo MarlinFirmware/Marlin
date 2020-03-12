@@ -972,6 +972,10 @@ private:
     static void M7219();
   #endif
 
+  #if ENABLED(USE_CONTROLLER_FAN)
+    static void M710();
+  #endif
+
   static void T(const uint8_t tool_index);
 
 };

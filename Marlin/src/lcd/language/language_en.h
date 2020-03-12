@@ -247,6 +247,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra Fan Speed");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed ~");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Fan Controller");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Fan Idle");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Motorload mode");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Fan Motorload");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Poweroff Delay");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");

@@ -122,6 +122,10 @@
   #include "../feature/probe_temp_compensation.h"
 #endif
 
+#if ENABLED(USE_CONTROLLER_FAN)
+  #include "../feature/controllerfan.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
@@ -291,6 +295,13 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_CONTRAST
   //
   int16_t lcd_contrast;                                 // M250 C
+
+  //
+  // controller fan
+  //
+  #if ENABLED(USE_CONTROLLER_FAN)
+    controllerFan_settings_t fanController_settings;     // M710
+  #endif
 
   //
   // POWER_LOSS_RECOVERY
@@ -878,6 +889,22 @@ void MarlinSettings::postprocess() {
         #endif
       ;
       EEPROM_WRITE(lcd_contrast);
+    }
+
+    //
+    // controller fan
+    //
+    {
+      #if ENABLED(USE_CONTROLLER_FAN)
+        _FIELD_TEST(fanController_settings);
+
+        #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+          EEPROM_WRITE(fanController.settings_fan);
+        #else
+          dummy = 0;
+          for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
+        #endif
+      #endif
     }
 
     //
@@ -1716,6 +1743,22 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(lcd_contrast);
         #if HAS_LCD_CONTRAST
           ui.set_contrast(lcd_contrast);
+        #endif
+      }
+      
+      //
+      // Controller Fan
+      //
+      {
+        #if ENABLED(USE_CONTROLLER_FAN)
+          _FIELD_TEST(fanController_settings);
+
+          #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+            EEPROM_READ(fanController.settings_fan);
+          #else
+            dummy=0;
+            for (uint8_t q=3; q--;) EEPROM_READ(dummy);
+          #endif
         #endif
       }
 
@@ -2587,6 +2630,15 @@ void MarlinSettings::reset() {
   #if HAS_LCD_CONTRAST
     ui.set_contrast(DEFAULT_LCD_CONTRAST);
   #endif
+
+  //
+  // Controller Fan
+  //
+  {
+    #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+      fanController.reset();
+    #endif
+  }
 
   //
   // Power-Loss Recovery
