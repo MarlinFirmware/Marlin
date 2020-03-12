@@ -117,9 +117,11 @@ void GcodeSuite::M217() {
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
     if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
-    if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
-    if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
-    if (parser.seenval('Q')) { tool_change_prime(); return; }
+    #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
+      if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
+      if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
+    #endif
+    if (parser.seenval('A')) { tool_change_prime(); return; }
   #endif
 
   #if ENABLED(TOOLCHANGE_PARK)
@@ -164,7 +166,6 @@ void GcodeSuite::M217() {
     }
 
     if (parser.seenval('Q')) { extruder_migration(); return; }
-    else return;
 
   #endif
   }

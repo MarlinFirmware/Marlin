@@ -775,34 +775,59 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 void tool_change_prime(){
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    if (should_swap && !too_cold) {
-      #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
-        do_pause_e_move( (toolchange_settings.swap_length + toolchange_settings.extra_prime), MMM_TO_MMS(
-             toolchange_settings.prime_speed));
+    if(all_axes_homed()
+       && !thermalManager.targetTooColdToExtrude(active_extruder)
+       && TOOLCHANGE_FIL_INIT_PRIME > 0
+      ){
+      #if ENABLED(TOOLCHANGE_PARK)
+        destination = current_position;
       #endif
-
-      current_position.e += (toolchange_settings.swap_length + toolchange_settings.extra_prime) / planner.e_factor[active_extruder];
-      planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed, active_extruder);
+      // Z raise
+      #if DISABLED(SWITCHING_NOZZLE)
+        // Do a small lift to avoid the workpiece in the move back (below)
+        current_position.z += toolchange_settings.z_raise;
+        #if HAS_SOFTWARE_ENDSTOPS
+          NOMORE(current_position.z, soft_endstop.max.z);
+        #endif
+        fast_line_to_current(Z_AXIS);
+        planner.synchronize();
+      #endif
+      //Park
+      #if ENABLED(TOOLCHANGE_PARK)
+        current_position = toolchange_settings.change_point;
+        planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
+        planner.synchronize();
+      #endif
+      //Prime
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        do_pause_e_move( (TOOLCHANGE_FIL_INIT_PRIME), MMM_TO_MMS(toolchange_settings.prime_speed));
+      #endif
+      current_position.e += (TOOLCHANGE_FIL_INIT_PRIME) / planner.e_factor[active_extruder];
+      planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), active_extruder);
       planner.synchronize();
       planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //Extruder is primed and set to 0
-    // BLOWING
-    #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
-      //Store current fan speed ,to restore later
-      int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
-      thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
-      gcode.dwell(toolchange_settings.fan_time *1000);
-      thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
-    #endif
-    }
+      // BLOWING
+      #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
+        //Store current fan speed ,to restore later
+        int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
+        thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
+        gcode.dwell(toolchange_settings.fan_time *1000);
+        thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
+      #endif
+
+      #if ENABLED(TOOLCHANGE_NO_RETURN)
+        // Just move back down
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
+        do_blocking_move_to_z(destination.z,planner.settings.max_feedrate_mm_s[Z_AXIS]);
+      #else
+        // Move back to the original (or adjusted) position
+        if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
+        #if ENABLED(TOOLCHANGE_PARK)
+          do_blocking_move_to(destination,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+        #endif
+      #endif
+      }
   #endif
-}
-
-
-
-
-
-
-
 };
 
 /**
@@ -904,7 +929,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = new_tool;
-            return;// Too cold = No toolchange on single nozzle extruder
+            return;
           #endif
         }
         else {
@@ -1054,10 +1079,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
-            SERIAL_ECHOPAIR(" old tool= ", LINEAR_UNIT(old_tool));
+          /*  SERIAL_ECHOPAIR(" old tool= ", LINEAR_UNIT(old_tool));
             SERIAL_ECHOPAIR(" new tool= ", LINEAR_UNIT(new_tool));
             SERIAL_ECHOPAIR(" old tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[old_tool]));
-            SERIAL_ECHOPAIR(" new tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[new_tool]));
+            SERIAL_ECHOPAIR(" new tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[new_tool])); */
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
                   toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed
@@ -1087,7 +1112,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
           // BLOWING
-          #if (TOOLCHANGE_FIL_SWAP_FAN > -1)
+          #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
             //Store current fan speed ,to restore later
             int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
             thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;

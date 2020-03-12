@@ -1841,6 +1841,7 @@
 
     // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
     // Can be changed in real time to adjust the amount of filament if needed
+    #define TOOLCHANGE_FIL_INIT_PRIME              100  // (mm) (Prime active extruder, without retractation )
     #define TOOLCHANGE_FIL_EXTRA_PRIME             100  // (mm) (ex:50~150mm to purge a Volcano and have no mixed color extrusion)
     #define TOOLCHANGE_FIL_EXTRA_PRIME_SPEED    4.6*60  // (mm/m)(ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
     // Cooling after priming (To avoid stringing and a clean nozzle on resume)
