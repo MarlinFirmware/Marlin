@@ -1011,7 +1011,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Unretract
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
-            #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME) && ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+            #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
               static bool toolchange_extruder_ready[EXTRUDERS];
             #endif
 
@@ -1032,7 +1032,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
-                  toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
+                //toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.extra_prime_speed
                 #else
                   toolchange_settings.unretract_speed
                 #endif
