@@ -149,7 +149,12 @@ public:
   LEDLights() {} // ctor
 
   static void setup(); // init()
-
+  #if ENABLED(NEOPIXEL_TEST_PIXEL)
+    static inline void test_neo_pixel(){
+      neo.test_neopixel();
+      set_color(color);
+    } 
+  #endif
   static void set_color(const LEDColor &color
     #if ENABLED(NEOPIXEL_LED)
       , bool isSequence=false

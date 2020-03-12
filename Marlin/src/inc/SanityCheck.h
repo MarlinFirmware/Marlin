@@ -1977,6 +1977,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
+  #if ENABLED(NEOPIXEL2_LED)
+    #if (!(PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0))
+      #error "NEOPIXEL2_LED requires NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
+    #endif
+    #if (NEOPIXEL2_PIN == NEOPIXEL_PIN)
+      #error "NEOPIXEL2_PIN equals NEOPIXEL_PIN. NEOPIXEL2_PIN requires a different pin."
+    #endif
+  #endif
+
 #endif
 #undef _RGB_TEST
 

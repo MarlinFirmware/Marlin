@@ -2202,14 +2202,31 @@
 // Support for Adafruit Neopixel LED driver
 //#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN     4       // LED driving pin
-  //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
-  //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
-  #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
-  //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+  #define NEOPIXEL_TYPE       NEO_GRBW          // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_PIN        4                 // LED driving pin
+  #define NEOPIXEL_PIXELS     30                // Number of LEDs in the strip
+
+  //#define NEOPIXEL2_LED                       // Optional - Second neopixel pin
+  #if ENABLED(NEOPIXEL2_LED)
+    #define NEOPIXEL2_TYPE    NEOPIXEL_TYPE     // Second neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+    #define NEOPIXEL2_PIN     5                 // define second neopixel pin.
+    #define NEOPIXEL2_PIXELS  8                 // Number of LEDs in the second strip
+  #endif
+  
+  #define NEOPIXEL_IS_SEQUENTIAL                // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+  #define NEOPIXEL_BRIGHTNESS     255           // Initial brightness (0-255)
+  
+  #define NEOPIXEL_STARTUP_TEST               // Cycle through colors at startup
+  #define NEOPIXEL_TEST_PIXEL                 // Enable NEOPIXEL test menu
+
+  #if ENABLED(NEOPIXEL_TEST_PIXEL)
+    #define NEOPIXEL_STARTUP_TEST_PIXEL         // Cycle through pixel and colors at startup
+    #define NEOPIXEL_TEST_PIXEL_ROTATE_BACK     // Cycle to end (set pixel color) then back (switch off pixel )
+    #define NEOPIXEL_TEST_PIXEL_DELAY       5   // Wait x ms to switch to next pixel color set. Increase for slower speed. 
+    #define NEOPIXEL_TEST_PIXEL_COLOR_1     { 255, 0, 0, 0 }  // R, G, B, W - set pixel color for the first step
+    #define NEOPIXEL_TEST_PIXEL_COLOR_2     { 0, 255, 0, 0 }  // R, G, B, W - set pixel color fpr the second step
+    #define NEOPIXEL_TEST_PIXEL_COLOR_3     { 0, 0, 255, 0 }  // R, G, B, W - set pixel color for the third step
+  #endif
 
   // Use a single Neopixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use

@@ -227,24 +227,6 @@ void menu_advanced_settings();
   }
 #endif
 
-#if ENABLED(CASE_LIGHT_MENU)
-
-  #include "../../feature/caselight.h"
-
-  #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-
-    void menu_case_light() {
-      START_MENU();
-      BACK_ITEM(MSG_CONFIGURATION);
-      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
-      EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-      END_MENU();
-    }
-
-  #endif
-
-#endif
-
 #if ENABLED(FWRETRACT)
 
   #include "../../feature/fwretract.h"
@@ -320,6 +302,14 @@ void menu_configuration() {
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
+  //
+  // Set Case light on/off/brightness
+  //
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    void menu_led();
+    SUBMENU(MSG_LED_CONTROL, menu_led);
+  #endif
+
   const bool busy = printer_busy();
   if (!busy) {
     #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
@@ -348,22 +338,6 @@ void menu_configuration() {
   //
   #if EXTRUDERS > 1
     SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
-  #endif
-
-  //
-  // Set Case light on/off/brightness
-  //
-  #if ENABLED(CASE_LIGHT_MENU)
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (true
-        #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-          && PWM_PIN(CASE_LIGHT_PIN)
-        #endif
-      )
-        SUBMENU(MSG_CASE_LIGHT, menu_case_light);
-      else
-    #endif
-        EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
   #endif
 
   #if HAS_LCD_CONTRAST
