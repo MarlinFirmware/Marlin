@@ -1016,10 +1016,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
-            SERIAL_ECHOPAIR(" old tool", LINEAR_UNIT(old_tool));
-            SERIAL_ECHOPAIR(" new tool", LINEAR_UNIT(new_tool));
-            SERIAL_ECHOPAIR(" old tool", LINEAR_UNIT(toolchange_extruder_ready[old_tool]));
-            SERIAL_ECHOPAIR(" new tool", LINEAR_UNIT(toolchange_extruder_ready[new_tool]));
+            SERIAL_ECHOPAIR(" old tool= ", LINEAR_UNIT(old_tool));
+            SERIAL_ECHOPAIR(" new tool= ", LINEAR_UNIT(new_tool));
+            SERIAL_ECHOPAIR(" old tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[old_tool]));
+            SERIAL_ECHOPAIR(" new tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[new_tool]));
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
                   toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed
@@ -1044,7 +1044,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             planner.synchronize();
             planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //Extruder is primed and set to 0
             #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
-              toolchange_extruder_ready[old_tool] = toolchange_extruder_ready[new_tool] = true; // Primed and initialised
+            //toolchange_extruder_ready[old_tool] = toolchange_extruder_ready[new_tool] = true; // Primed and initialised
+            toolchange_extruder_ready[old_tool] = toolchange_extruder_ready[new_tool] = true; // Primed and initialised
             #endif
 
           // BLOWING
