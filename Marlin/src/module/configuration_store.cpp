@@ -3163,8 +3163,10 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-          PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        , PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
+        PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
+        #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+          ,PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
+        #endif
         , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
         , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
       );
@@ -3173,7 +3175,9 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
           "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
+          #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+            , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
+          #endif
         , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
       );
 

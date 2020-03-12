@@ -33,16 +33,18 @@ typedef struct {
        float retract_zraise,                      // M207 Z - G10 Retract hop size
              retract_recover_extra;               // M208 S - G11 Recover length
   feedRate_t retract_recover_feedrate_mm_s;       // M208 F - G11 Recover feedrate
-       float swap_retract_length,                 // M207 W - G10 Swap Retract length
-             swap_retract_recover_extra;          // M208 W - G11 Swap Recover length
-  feedRate_t swap_retract_recover_feedrate_mm_s;  // M208 R - G11 Swap Recover feedrate
+  #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+         float swap_retract_length,                 // M207 W - G10 Swap Retract length
+               swap_retract_recover_extra;          // M208 W - G11 Swap Recover length
+    feedRate_t swap_retract_recover_feedrate_mm_s;  // M208 R - G11 Swap Recover feedrate
+  #endif
 } fwretract_settings_t;
 
 #if ENABLED(FWRETRACT)
 
 class FWRetract {
 private:
-  #if EXTRUDERS > 1
+  #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
     static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
   #endif
 
@@ -75,7 +77,7 @@ public:
   }
 
   static void retract(const bool retracting
-    #if EXTRUDERS > 1
+    #if (ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1)
       , bool swapping = false
     #endif
   );
