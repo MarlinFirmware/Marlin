@@ -361,10 +361,10 @@ void GcodeSuite::G34() {
 
     } // for (iteration)
 
-    if (err_break) {
+    if (err_break)
       SERIAL_ECHOLNPGM("G34 aborted.");
-    } else {
-      SERIAL_ECHOLNPAIR("Did ", int(iteration + (iteration != z_auto_align_iterations)), " iterations of ", int(z_auto_align_iterations));
+    else {
+      SERIAL_ECHOLNPAIR("Did ", int(iteration + (iteration != z_auto_align_iterations)), " of ", int(z_auto_align_iterations));
       SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
     }
 
@@ -375,7 +375,6 @@ void GcodeSuite::G34() {
     #if ENABLED(HOME_AFTER_G34)
       // After this operation the z position needs correction
       set_axis_not_trusted(Z_AXIS);
-
       // Home Z after the alignment procedure
       process_subcommands_now_P(PSTR("G28Z"));
     #else
@@ -388,11 +387,7 @@ void GcodeSuite::G34() {
 
     // Restore the active tool after homing
     #if HOTENDS > 1
-      tool_change(old_tool_index, (true
-        #if ENABLED(PARKING_EXTRUDER)
-          && false // Fetch the previous toolhead
-        #endif
-      ));
+      tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous tool for parking extruder
     #endif
 
     #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G34)
