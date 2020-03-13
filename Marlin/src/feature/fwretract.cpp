@@ -128,16 +128,17 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
-  const float base_retract = (
-                #if ENABLED(FWRETRACT_SWAP_ENABLE)
-                  (swapping ? settings.swap_retract_length : settings.retract_length)
-                #else
-                  settings.retract_length
-                #endif
-                #if ENABLED(RETRACT_SYNC_MIXING)
-                  * (MIXING_STEPPERS)
-                #endif
-              );
+  #if ENABLED(FWRETRACT_SWAP_ENABLE)
+    SWAPVAL(A,B) (swapping ? (A) : (B))
+  #else
+    SWAPVAL(A,B) (B)
+  #endif
+
+  const float base_retract = SWAPVAL(settings.swap_retract_length, settings.retract_length)
+              #if ENABLED(RETRACT_SYNC_MIXING)
+                * (MIXING_STEPPERS)
+              #endif
+              ;
 
   // The current position will be the destination for E and Z moves
   destination = current_position;
@@ -173,11 +174,7 @@ void FWRetract::retract(const bool retracting
       prepare_internal_move_to_destination(fr_max_z);
     }
 
-    #if ENABLED(FWRETRACT_SWAP_ENABLE)
-      const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
-    #else
-      const float extra_recover = settings.retract_recover_extra;
-    #endif
+    const float extra_recover = SWAPVAL(settings.swap_retract_recover_extra, settings.retract_recover_extra);
     if (extra_recover) {
       current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
@@ -185,16 +182,11 @@ void FWRetract::retract(const bool retracting
 
     current_retract[active_extruder] = 0;
 
-    const feedRate_t fr_mm_s = (
-      #if ENABLED(FWRETRACT_SWAP_ENABLE)
-        (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
-      #else
-        settings.retract_recover_feedrate_mm_s
-      #endif
+    const feedRate_t fr_mm_s = SWAPVAL(settings.swap_retract_recover_feedrate_mm_s, settings.retract_recover_feedrate_mm_s)
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
-    );
+    ;
     prepare_internal_move_to_destination(fr_mm_s);        // Recover E, set_current_to_destination
   }
 
