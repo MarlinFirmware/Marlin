@@ -87,7 +87,7 @@
 #include "../feature/fwretract.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 #include "../feature/pause.h"
@@ -119,7 +119,7 @@
 #endif
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
-  #include "../feature/probe_temp_compensation.h"
+  #include "../feature/probe_temp_comp.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables

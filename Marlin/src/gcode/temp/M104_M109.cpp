@@ -21,7 +21,7 @@
  */
 
 /**
- * gcode/temperature/M104_M109.cpp
+ * gcode/temp/M104_M109.cpp
  *
  * Hotend target temperature control
  */

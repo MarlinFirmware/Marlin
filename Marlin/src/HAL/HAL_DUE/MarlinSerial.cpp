@@ -45,7 +45,7 @@ template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSeria
 // A SW memory barrier, to ensure GCC does not overoptimize loops
 #define sw_barrier() asm volatile("": : :"memory");
 
-#include "../../feature/emergency_parser.h"
+#include "../../feature/e_parser.h"
 
 // (called with RX interrupts disabled)
 template<typename Cfg>

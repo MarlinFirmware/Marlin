@@ -21,18 +21,17 @@
  */
 
 /**
- * gcode/temperature/M141_M191.cpp
+ * gcode/temp/M140_M190.cpp
  *
- * Chamber target temperature control
+ * Bed target temperature control
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HEATED_CHAMBER
+#if HAS_HEATED_BED
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
-
 #include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 
@@ -47,34 +46,43 @@
 #include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
- * M141: Set chamber temperature
+ * M140: Set bed temperature
  */
-void GcodeSuite::M141() {
+void GcodeSuite::M140() {
   if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) thermalManager.setTargetChamber(parser.value_celsius());
+  if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
+
+  #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+    /**
+     * Stop the timer at the end of print. Both hotend and bed target
+     * temperatures need to be set below mintemp. Order of M140 and M104
+     * at the end of the print does not matter.
+     */
+    thermalManager.check_timer_autostart(false, true);
+  #endif
 }
 
 /**
- * M191: Sxxx Wait for chamber current temp to reach target temp. Waits only when heating
- *       Rxxx Wait for chamber current temp to reach target temp. Waits when heating and cooling
+ * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
+ *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
+ *
+ * With PRINTJOB_TIMER_AUTOSTART also start the job timer on heating.
  */
-void GcodeSuite::M191() {
+void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
-    thermalManager.setTargetChamber(parser.value_celsius());
+    thermalManager.setTargetBed(parser.value_celsius());
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       thermalManager.check_timer_autostart(true, false);
     #endif
   }
   else return;
 
-  const bool is_heating = thermalManager.isHeatingChamber();
-  if (is_heating || !no_wait_for_cooling) {
-    ui.set_status_P(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
-    thermalManager.wait_for_chamber(false);
-  }
+  ui.set_status_P(thermalManager.isHeatingBed() ? GET_TEXT(MSG_BED_HEATING) : GET_TEXT(MSG_BED_COOLING));
+
+  thermalManager.wait_for_bed(no_wait_for_cooling);
 }
 
-#endif // HAS_HEATED_CHAMBER
+#endif // HAS_HEATED_BED

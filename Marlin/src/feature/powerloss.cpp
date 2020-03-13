@@ -28,7 +28,7 @@
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 
-#include "power_loss_recovery.h"
+#include "powerloss.h"
 #include "../core/macros.h"
 
 bool PrintJobRecovery::enabled; // Initialized by settings.load()

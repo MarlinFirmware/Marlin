@@ -24,7 +24,7 @@
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
 
-#include "probe_temp_compensation.h"
+#include "probe_temp_comp.h"
 #include <math.h>
 
 ProbeTempComp temp_comp;

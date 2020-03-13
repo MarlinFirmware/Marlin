@@ -41,7 +41,7 @@
 
 #define MAX7219_ERRORS // Disable to save 406 bytes of Program Memory
 
-#include "Max7219_Debug_LEDs.h"
+#include "max7219.h"
 
 #include "../module/planner.h"
 #include "../module/stepper.h"

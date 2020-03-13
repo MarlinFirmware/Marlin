@@ -75,6 +75,7 @@ public:
   FORCE_INLINE static void disable() { enabled = false; }
 
   FORCE_INLINE static void update(State &state, const uint8_t c) {
+    #define ISEOL(C) ((C) == '\n' || (C) == '\r')
     switch (state) {
       case EP_RESET:
         switch (c) {
@@ -164,11 +165,11 @@ public:
       #endif
 
       case EP_IGNORE:
-        if (c == '\n' || c == '\r') state = EP_RESET;
+        if (ISEOL(c)) state = EP_RESET;
         break;
 
       default:
-        if (c == '\n' || c == '\r') {
+        if (ISEOL(c)) {
           if (enabled) switch (state) {
             case EP_M108: wait_for_user = wait_for_heatup = false; break;
             case EP_M112: killed_by_M112 = true; break;

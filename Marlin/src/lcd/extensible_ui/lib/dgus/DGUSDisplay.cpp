@@ -45,7 +45,7 @@
 #include "../../../../libs/duration_t.h"
 #include "../../../../module/printcounter.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../../feature/power_loss_recovery.h"
+  #include "../../../../feature/powerloss.h"
 #endif
 
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable

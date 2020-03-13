@@ -25,7 +25,7 @@
 #include "../../module/stepper.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "../../feature/I2CPositionEncoder.h"
+  #include "../../feature/encoder_i2c.h"
 #endif
 
 /**

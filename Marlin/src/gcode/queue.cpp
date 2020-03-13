@@ -44,7 +44,7 @@ GCodeQueue queue;
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 /**
@@ -150,6 +150,8 @@ bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
   return true;
 }
 
+#define ISEOL(C) ((C) == '\n' || (C) == '\r')
+
 /**
  * Enqueue with Serial Echo
  * Return true if the command was consumed
@@ -160,7 +162,7 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
   //SERIAL_ECHO(cmd);
   //SERIAL_ECHOPGM("\") \n");
 
-  if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') return true;
+  if (*cmd == 0 || ISEOL(*cmd)) return true;
 
   if (_enqueue(cmd)) {
     SERIAL_ECHO_MSG(STR_ENQUEUEING, cmd, "\"");
@@ -432,7 +434,7 @@ void GCodeQueue::get_serial_commands() {
 
       const char serial_char = c;
 
-      if (serial_char == '\n' || serial_char == '\r') {
+      if (ISEOL(serial_char)) {
 
         // Reset our state, continue if the line was empty
         if (process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i]))
@@ -549,7 +551,7 @@ void GCodeQueue::get_serial_commands() {
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
 
       const char sd_char = (char)n;
-      const bool is_eol = sd_char == '\n' || sd_char == '\r';
+      const bool is_eol = ISEOL(sd_char);
       if (is_eol || card_eof) {
 
         // Reset stream state, terminate the buffer, and commit a non-empty command

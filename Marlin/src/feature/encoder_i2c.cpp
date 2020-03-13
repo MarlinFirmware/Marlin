@@ -32,7 +32,7 @@
 
 #if ENABLED(I2C_POSITION_ENCODERS)
 
-#include "I2CPositionEncoder.h"
+#include "encoder_i2c.h"
 
 #include "../module/temperature.h"
 #include "../module/stepper.h"

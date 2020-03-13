@@ -46,7 +46,7 @@ GcodeSuite gcode;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../sd/cardreader.h"
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 #if ENABLED(CANCEL_OBJECTS)

@@ -55,7 +55,7 @@
   // A SW memory barrier, to ensure GCC does not overoptimize loops
   #define sw_barrier() asm volatile("": : :"memory");
 
-  #include "../../feature/emergency_parser.h"
+  #include "../../feature/e_parser.h"
 
   // "Atomically" read the RX head index value without disabling interrupts:
   // This MUST be called with RX interrupts enabled, and CAN'T be called

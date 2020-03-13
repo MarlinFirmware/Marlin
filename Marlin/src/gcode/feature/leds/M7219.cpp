@@ -25,7 +25,7 @@
 #if ENABLED(MAX7219_GCODE)
 
 #include "../../gcode.h"
-#include "../../../feature/Max7219_Debug_LEDs.h"
+#include "../../../feature/max7219.h"
 
 /**
  * M7219: Control the Max7219 LED matrix

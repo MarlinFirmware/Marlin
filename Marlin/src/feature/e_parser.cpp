@@ -28,7 +28,7 @@
 
 #if ENABLED(EMERGENCY_PARSER)
 
-#include "emergency_parser.h"
+#include "e_parser.h"
 
 // Static data members
 bool EmergencyParser::killed_by_M112, // = false

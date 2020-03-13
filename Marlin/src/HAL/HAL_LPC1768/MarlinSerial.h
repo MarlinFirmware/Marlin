@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 #if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/emergency_parser.h"
+  #include "../../feature/e_parser.h"
 #endif
 
 #ifndef SERIAL_PORT
