@@ -128,17 +128,17 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
-  #if ENABLED(FWRETRACT_SWAP_ENABLE)
-    SWAPVAL(A,B) (swapping ? (A) : (B))
-  #else
-    SWAPVAL(A,B) (B)
-  #endif
+  const float base_retract = (
+                #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+                  (swapping ? settings.swap_retract_length : settings.retract_length)
+                #else
+                  settings.retract_length
+                #endif
+                #if ENABLED(RETRACT_SYNC_MIXING)
+                  * (MIXING_STEPPERS)
+                #endif
+              );
 
-  const float base_retract = SWAPVAL(settings.swap_retract_length, settings.retract_length)
-              #if ENABLED(RETRACT_SYNC_MIXING)
-                * (MIXING_STEPPERS)
-              #endif
-              ;
 
   // The current position will be the destination for E and Z moves
   destination = current_position;
