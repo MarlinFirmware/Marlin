@@ -109,8 +109,6 @@ void FWRetract::retract(const bool retracting
     if (swapping && retracted_swap[active_extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
     if (!retracting) swapping = retracted_swap[active_extruder];
-/*  #else
-    constexpr bool swapping = false; */
   #endif
 
   /* // debugging
