@@ -935,7 +935,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #endif
         }
         else {
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)// Use do_pause_e_move simplified function for toolchange swap
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
             do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
           #else
             current_position.e -= toolchange_settings.swap_length / planner.e_factor[old_tool];
@@ -989,7 +989,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
           #if ENABLED(TOOLCHANGE_PARK)
             current_position = toolchange_settings.change_point;
-						planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
+            planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           #endif
           planner.synchronize();
         }
@@ -1080,11 +1080,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               static bool toolchange_extruder_ready[EXTRUDERS];
             #endif
 
-            #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
-          /*  SERIAL_ECHOPAIR(" old tool= ", LINEAR_UNIT(old_tool));
-            SERIAL_ECHOPAIR(" new tool= ", LINEAR_UNIT(new_tool));
-            SERIAL_ECHOPAIR(" old tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[old_tool]));
-            SERIAL_ECHOPAIR(" new tool ready= ", LINEAR_UNIT(toolchange_extruder_ready[new_tool])); */
+            #if ENABLED(ADVANCED_PAUSE_FEATURE)
               do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
                 #if ENABLED(TOOLCHANGE_FIL_SWAP_INIT_FIRST_TIME)
                   toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed
@@ -1141,7 +1137,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             // Just move back down
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
-            do_blocking_move_to_z(destination.z,planner.settings.max_feedrate_mm_s[Z_AXIS]);
+            do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
           #else
             // Move back to the original (or adjusted) position
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
@@ -1213,7 +1209,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (thermalManager.targetTooColdToExtrude(active_extruder)) return;
     int16_t migration_extruder;
     //Disable auto migration if no more extruders
-
     if  (active_extruder >= toolchange_settings.migration_ending ) toolchange_settings.migration_auto = false;
     else  toolchange_settings.migration_auto = true;//Auto migration only possible next extruder available
 
@@ -1231,11 +1226,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       migration_extruder = toolchange_settings.migration_target;
 
     //Migration begins
-    //Same temperature
+    //Same temp
    thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
-   // Same flow after tool change
+   // Same flow
    planner.flow_percentage[migration_extruder] = planner.flow_percentage[active_extruder];
-   // Same FwRetract/Swap statuses
+   // Same FwRetract
    #if ENABLED(FWRETRACT)
 				fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
    #endif
@@ -1247,9 +1242,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
    //Tool change
    tool_change(migration_extruder);
 
+   //Retract if retracted before
    #if ENABLED(FWRETRACT)
        if (fwretract.retracted[active_extruder]) {
-         #if ENABLED(ADVANCED_PAUSE_FEATURE) // Use do_pause_e_move simplified function for toolchange swap
+         #if ENABLED(ADVANCED_PAUSE_FEATURE)
            do_pause_e_move(- fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
          #else
            current_position.e -= fwretract.settings.retract_length / planner.e_factor[active_extruder];
@@ -1258,7 +1254,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
        } ;
    #endif
 
-   if (    (active_extruder >= EXTRUDERS - 2)
+   if (    (active_extruder >= EXTRUDERS - 2) //No extruder available
        || (active_extruder == toolchange_settings.migration_ending )
       )
      toolchange_settings.migration_auto = false;
