@@ -1015,7 +1015,7 @@
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
   #define SD_DETECT_STATE LOW
-  
+
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
   //#define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the Z enabled so your bed stays in place.
 
@@ -1787,7 +1787,7 @@
     #define MAX_AUTORETRACT 10.0          // (mm) Don't convert E moves over this length
   #endif
   #define RETRACT_LENGTH 3                // (mm) Default retract length (positive value)
-  #define RETRACT_LENGTH_SWAP  0          // (mm) Default swap retract length (positive value)
+  #define RETRACT_LENGTH_SWAP  60          // (mm) Default swap retract length (positive value)
   #define RETRACT_FEEDRATE 50             // (mm/s) Default feedrate for retracting
   #define RETRACT_ZRAISE 0                // (mm) Default retract Z-raise
   #define RETRACT_RECOVER_LENGTH 0        // (mm) Default additional recover length (added to retract length on recover)
@@ -1813,7 +1813,7 @@
   #define TOOLCHANGE_PARK
   #if ENABLED(TOOLCHANGE_PARK)
     #define TOOLCHANGE_PARK_XY { X_MAX_POS, Y_MAX_POS/2 } //-1 for disable axis
-    #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60  // (mm/m)
+    #define TOOLCHANGE_PARK_XY_FEEDRATE 200*60  // (mm/m)
   #endif
   // Z raise distance for tool-change, as needed for some extruders
   #define TOOLCHANGE_ZRAISE     2  // (mm) Applied after retractation
@@ -1830,8 +1830,8 @@
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     // load/Unload
     #define TOOLCHANGE_FIL_SWAP_LENGTH              60  // (mm)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    60*60  // (mm/m) (Unloading)
-    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  30*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    50*60  // (mm/m) (Unloading)
+    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  25*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
 
     // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
     // Can be changed in real time to adjust the amount of filament if needed

@@ -111,7 +111,7 @@ void GcodeSuite::M217() {
         500
       #endif
     ;
-
+    if (parser.seen('A')) { tool_change_prime(); return; }
     if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
     if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, max_extrude); }
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
@@ -121,7 +121,6 @@ void GcodeSuite::M217() {
       if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
       if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
     #endif
-    if (parser.seenval('A')) { tool_change_prime(); return; }
   #endif
 
   #if ENABLED(TOOLCHANGE_PARK)
@@ -165,7 +164,7 @@ void GcodeSuite::M217() {
       else return;
     }
 
-    if (parser.seenval('Q')) { extruder_migration(); return; }
+    if (parser.seen('Q')) { extruder_migration(); return; }
 
   #endif
   }

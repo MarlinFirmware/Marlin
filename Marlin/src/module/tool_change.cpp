@@ -916,6 +916,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Tool change unload/Retract
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+      planner.synchronize();//no homing or anything in progress that can reject swapping
       const bool should_swap = can_move_away && toolchange_settings.swap_length;
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool));
