@@ -138,7 +138,7 @@ void GcodeSuite::M217() {
     if (parser.seenval('L')) {
      if(   (parser.value_linear_units() > 0 )
         && (parser.value_linear_units() < EXTRUDERS )
-        && (parser.value_linear_units() < active_extruder) ){
+        && (parser.value_linear_units() > active_extruder) ){
        toolchange_settings.migration_ending = parser.value_linear_units();
        toolchange_settings.migration_auto = true;
      }
