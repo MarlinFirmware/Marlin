@@ -196,7 +196,7 @@ void FWRetract::retract(const bool retracting
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
-    ;
+    );
     prepare_internal_move_to_destination(fr_mm_s);        // Recover E, set_current_to_destination
   }
 
