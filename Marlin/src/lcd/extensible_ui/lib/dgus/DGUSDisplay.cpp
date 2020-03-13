@@ -603,7 +603,7 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &var, void 
   skipVP = var.VP;
 }
 
-#if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+#if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   void DGUSScreenVariableHandler::HandleManualMoveOption(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleManualMoveOption");
     *(uint16_t*)var.memadr = swap16(*(uint16_t*)val_ptr);
@@ -614,7 +614,7 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &var, void *va
   DEBUG_ECHOLNPGM("HandleManualMove");
 
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     const uint16_t choice = *(uint16_t*)var.memadr;
     movevalue = movevalue > 0 ? choice : -choice;
   #endif

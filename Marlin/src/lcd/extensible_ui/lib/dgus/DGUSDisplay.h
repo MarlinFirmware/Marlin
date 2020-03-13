@@ -119,7 +119,7 @@ public:
   static void HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change Flowrate"
   static void HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr);
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     // Hook for manual move option
     static void HandleManualMoveOption(DGUS_VP_Variable &var, void *val_ptr);
   #endif
