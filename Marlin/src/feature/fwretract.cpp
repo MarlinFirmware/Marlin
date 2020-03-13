@@ -172,6 +172,7 @@ void FWRetract::retract(const bool retracting
       // Lower Z, set_current_to_destination. Maximum Z feedrate
       prepare_internal_move_to_destination(fr_max_z);
     }
+
     #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
       const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
     #else
