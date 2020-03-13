@@ -38,7 +38,7 @@
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       int16_t migration_ending;
-      int imigration_target = -1;
+      int migration_target = -1;
       bool migration_auto;
     #endif
 
