@@ -33,11 +33,9 @@ typedef struct {
        float retract_zraise,                      // M207 Z - G10 Retract hop size
              retract_recover_extra;               // M208 S - G11 Recover length
   feedRate_t retract_recover_feedrate_mm_s;       // M208 F - G11 Recover feedrate
-  #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
-         float swap_retract_length,                 // M207 W - G10 Swap Retract length
-               swap_retract_recover_extra;          // M208 W - G11 Swap Recover length
-    feedRate_t swap_retract_recover_feedrate_mm_s;  // M208 R - G11 Swap Recover feedrate
-  #endif
+       float swap_retract_length,                 // M207 W - G10 Swap Retract length
+             swap_retract_recover_extra;          // M208 W - G11 Swap Recover length
+  feedRate_t swap_retract_recover_feedrate_mm_s;  // M208 R - G11 Swap Recover feedrate
 } fwretract_settings_t;
 
 #if ENABLED(FWRETRACT)
