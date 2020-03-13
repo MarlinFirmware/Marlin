@@ -42,7 +42,7 @@ typedef struct {
 
 class FWRetract {
 private:
-  #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+  #if ENABLED(FWRETRACT_SWAP_ENABLE)
     static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
   #endif
 
@@ -75,7 +75,7 @@ public:
   }
 
   static void retract(const bool retracting
-    #if (ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1)
+    #if ENABLED(FWRETRACT_SWAP_ENABLE)
       , bool swapping = false
     #endif
   );
