@@ -1803,7 +1803,7 @@
    #define RETRACT_ZRAISE 0                // (mm) Default retract Z-raise
    #define RETRACT_RECOVER_LENGTH 0        // (mm) Default additional recover length (added to retract length on recover)
    #define RETRACT_RECOVER_FEEDRATE 25     // (mm/s) Default feedrate for recovering from retraction
-   //#define FWRETRACT_SWAP_ENABLE         // Disable swap (economy of progmem/sram if using TOOLCHANGE_FILAMENT_SWAP )
+   //#define FWRETRACT_SWAP_ENABLE         // Enable swap (instead of specific tool change )
    #if ENABLED(FWRETRACT_SWAP_ENABLE)
      #define RETRACT_LENGTH_SWAP 60          // (mm) Default swap retract length (positive value)
      #define RETRACT_RECOVER_LENGTH_SWAP 0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
