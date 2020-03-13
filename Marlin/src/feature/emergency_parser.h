@@ -78,7 +78,7 @@ public:
     switch (state) {
       case EP_RESET:
         switch (c) {
-          case ' ': break;
+          case ' ': case '\n': case '\r': break;
           case 'N': state = EP_N;      break;
           case 'M': state = EP_M;      break;
           default: state  = EP_IGNORE;
