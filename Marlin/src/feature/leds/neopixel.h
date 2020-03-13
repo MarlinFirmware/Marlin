@@ -145,12 +145,6 @@ public:
     bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
   #endif
 
-
-
-
-
-
-
 };
 
 extern Marlin_NeoPixel neo;

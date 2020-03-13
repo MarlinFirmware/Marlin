@@ -195,7 +195,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6.Feineinst. Alles");
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7.Bettnetz speichern");
 
-  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("Licht-Steuerung");
+  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("Beleuchtung");
   PROGMEM Language_Str MSG_LEDS                            = _UxGT("Licht");
   PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("Licht-Einstellung");
   PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("Rot");
@@ -213,6 +213,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("Intensität Blau");
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("Intensität Weiß");
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("Helligkeit");
+  PROGMEM Language_Str MSG_LED_TEST_NEOPIXEL               = _UxGT("NeoPixel LED's Testen");
+
 
   PROGMEM Language_Str MSG_MOVING                          = _UxGT("In Bewegung...");
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("Abstand XY");
