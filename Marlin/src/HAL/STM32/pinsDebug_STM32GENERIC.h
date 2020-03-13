@@ -29,9 +29,9 @@
 #ifdef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
 
 #ifdef __STM32F1__
-  #include "../HAL_STM32F1/fastio.h"
+  #include "../STM32F1/fastio.h"
 #elif defined(STM32F4) || defined(STM32F7)
-  #include "../HAL_STM32_F4_F7/fastio.h"
+  #include "../STM32_F4_F7/fastio.h"
 #else
   #include "fastio.h"
 #endif

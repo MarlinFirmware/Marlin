@@ -15,7 +15,7 @@ if __name__ == "__main__":
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
 
-                    "-IMarlin/src/HAL/HAL_STM32F1",
+                    "-IMarlin/src/HAL/STM32F1",
 
                     "-MMD",
                     "-MP",
