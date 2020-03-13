@@ -144,20 +144,18 @@ void GcodeSuite::G34() {
 
     // Compute a worst-case clearance height to probe from. After the first
     // iteration this will be re-calculated based on the actual bed position
-    float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
+    auto magnitude2 = [&](const uint8_t i, const uint8_t j) {
+      const xy_pos_t diff = z_stepper_align.xy[i] - z_stepper_align.xy[j];
+      return HYPOT2(diff.x, diff.y);
+    };
+    float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * SQRT(
       #if NUM_Z_STEPPER_DRIVERS == 3
-         SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
-                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
-                   HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[0].x, z_stepper_align.xy[2].y - z_stepper_align.xy[0].y)))
+         _MAX(magnitude2(0, 1), magnitude2(1, 2), magnitude2(2, 0))
       #elif NUM_Z_STEPPER_DRIVERS == 4
-         SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
-                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
-                   HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[3].x, z_stepper_align.xy[2].y - z_stepper_align.xy[3].y),
-                   HYPOT2(z_stepper_align.xy[3].x - z_stepper_align.xy[0].x, z_stepper_align.xy[3].y - z_stepper_align.xy[0].y),
-                   HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[2].x, z_stepper_align.xy[0].y - z_stepper_align.xy[2].y),
-                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[3].x, z_stepper_align.xy[1].y - z_stepper_align.xy[3].y)))
+         _MAX(magnitude2(0, 1), magnitude2(1, 2), magnitude2(2, 3),
+              magnitude2(3, 0), magnitude2(0, 2), magnitude2(1, 3))
       #else
-         HYPOT(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y)
+         magnitude2(0, 1)
       #endif
     );
 
