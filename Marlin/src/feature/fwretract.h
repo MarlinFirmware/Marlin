@@ -77,7 +77,7 @@ public:
   }
 
   static void retract(const bool retracting
-    #if (ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1)
+    #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
       , bool swapping = false
     #endif
   );
