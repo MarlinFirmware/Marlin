@@ -1225,14 +1225,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
          && (active_extruder < toolchange_settings.migration_ending )
        )
       migration_extruder = active_extruder + 1;
-    else return;
     // For choosen target
     if (  (toolchange_settings.migration_target > -1)
         &&(toolchange_settings.migration_target !=active_extruder)
-       ) {
+       )
       migration_extruder = toolchange_settings.migration_target;
-    }
-
+    
     //Migration begins
     //Same temperature
    thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), migration_extruder);

@@ -150,9 +150,9 @@ void GcodeSuite::M217() {
       else return;
     }
 
-    if (parser.seenval('T')) { //specific 
+    if (parser.seenval('T')) { //specific
       if(   (parser.value_linear_units() >= 0 )
-         && (parser.value_linear_units() < EXTRUDERS - 1)
+         && (parser.value_linear_units() < EXTRUDERS )
          && (parser.value_linear_units() != active_extruder)
         ){
         toolchange_settings.migration_target = parser.value_linear_units();
