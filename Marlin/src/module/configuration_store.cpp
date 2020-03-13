@@ -897,6 +897,9 @@ void MarlinSettings::postprocess() {
       #if DISABLED(FWRETRACT)
         const fwretract_settings_t fwretract_defaults = { 3, 45, 0, 0, 0 };
       #endif
+      #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_SWAP_ENABLE)
+        const fwretract_settings_t fwretract_defaults = { 3, 45, 0, 0, 0, 13, 0, 8 };
+      #endif
       EEPROM_WRITE(TERN(FWRETRACT, fwretract.settings, fwretract_defaults));
 
       #if DISABLED(FWRETRACT_AUTORETRACT)
