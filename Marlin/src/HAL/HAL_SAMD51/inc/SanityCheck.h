@@ -23,7 +23,7 @@
  * Test SAMD51 specific configuration values for errors at compile-time.
  */
 
-#if ENABLED(EEPROM_SETTINGS) && NONE(SPI_EEPROM, I2C_EEPROM)
+#if ENABLED(FLASH_EEPROM_EMULATION)
   #warning "Did you activate the SmartEEPROM? See https://github.com/GMagician/SAMD51-SmartEEprom-Manager/releases"
 #endif
 

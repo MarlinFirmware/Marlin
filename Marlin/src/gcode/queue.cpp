@@ -210,6 +210,21 @@ void GCodeQueue::inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
 void GCodeQueue::enqueue_one_now(const char* cmd) { while (!enqueue_one(cmd)) idle(); }
 
 /**
+ * Attempt to enqueue a single G-code command
+ * and return 'true' if successful.
+ */
+bool GCodeQueue::enqueue_one_P(PGM_P const pgcode) {
+  size_t i = 0;
+  PGM_P p = pgcode;
+  char c;
+  while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
+  char cmd[i + 1];
+  memcpy_P(cmd, p, i);
+  cmd[i] = '\0';
+  return _enqueue(cmd);
+}
+
+/**
  * Enqueue from program memory and return only when commands are actually enqueued
  * Never call this from a G-code handler!
  */

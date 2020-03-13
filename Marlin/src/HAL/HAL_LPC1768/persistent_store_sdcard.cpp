@@ -22,14 +22,11 @@
  */
 #ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(EEPROM_SETTINGS)
-
 #include "../../inc/MarlinConfig.h"
-#include "persistent_store_api.h"
 
-#if DISABLED(FLASH_EEPROM_EMULATION)
+#if ENABLED(SDCARD_EEPROM_EMULATION)
+
+#include "persistent_store_api.h"
 
 #include <chanfs/diskio.h>
 #include <chanfs/ff.h>
@@ -178,6 +175,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 
 size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
-#endif // !FLASH_EEPROM_EMULATION
-#endif // EEPROM_SETTINGS
+#endif // SDCARD_EEPROM_EMULATION
 #endif // TARGET_LPC1768

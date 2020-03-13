@@ -20,3 +20,9 @@
  *
  */
 #pragma once
+
+#if USE_EMULATED_EEPROM
+  #undef SRAM_EEPROM_EMULATION
+  #undef SDCARD_EEPROM_EMULATION
+  #define FLASH_EEPROM_EMULATION 1
+#endif

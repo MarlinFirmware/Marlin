@@ -141,11 +141,11 @@ void GcodeSuite::G34() {
     // iteration this will be re-calculated based on the actual bed position
     float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * (
       #if NUM_Z_STEPPER_DRIVERS == 3
-         SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[0].y, z_stepper_align.xy[1].x - z_stepper_align.xy[1].y),
-                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[1].y, z_stepper_align.xy[2].x - z_stepper_align.xy[2].y),
-                   HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[2].y, z_stepper_align.xy[0].x - z_stepper_align.xy[0].y)))
+         SQRT(_MAX(HYPOT2(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y),
+                   HYPOT2(z_stepper_align.xy[1].x - z_stepper_align.xy[2].x, z_stepper_align.xy[1].y - z_stepper_align.xy[2].y),
+                   HYPOT2(z_stepper_align.xy[2].x - z_stepper_align.xy[0].x, z_stepper_align.xy[2].y - z_stepper_align.xy[0].y)))
       #else
-         HYPOT(z_stepper_align.xy[0].x - z_stepper_align.xy[0].y, z_stepper_align.xy[1].x - z_stepper_align.xy[1].y)
+         HYPOT(z_stepper_align.xy[0].x - z_stepper_align.xy[1].x, z_stepper_align.xy[0].y - z_stepper_align.xy[1].y)
       #endif
     );
 
@@ -156,6 +156,7 @@ void GcodeSuite::G34() {
     current_position.z += z_probe * 0.5f;
     sync_plan_position();
     // Now, the Z origin lies below the build plate. That allows to probe deeper, before run_z_probe throws an error.
+    // This hack is un-done at the end of G34 - either by re-homing, or by using the probed heights of the last iteration.
 
     #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f);
@@ -166,8 +167,10 @@ void GcodeSuite::G34() {
           z_maxdiff = 0.0f,
           amplification = z_auto_align_amplification;
 
+    // These are needed after the for-loop
     uint8_t iteration;
     bool err_break = false;
+    float z_measured_min;
 
     #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       bool adjustment_reverse = false;
@@ -181,8 +184,8 @@ void GcodeSuite::G34() {
       SERIAL_ECHOLNPAIR("\nITERATION: ", int(iteration + 1));
 
       // Initialize minimum value
-      float z_measured_min =  100000.0f,
-            z_measured_max = -100000.0f;
+      z_measured_min =  100000.0f;
+      float z_measured_max = -100000.0f;
 
       // Probe all positions (one per Z-Stepper)
       LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
@@ -238,14 +241,14 @@ void GcodeSuite::G34() {
         linear_fit_data lfd;
         incremental_LSF_reset(&lfd);
         LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
-          SERIAL_ECHOLNPAIR("PROBEPT_", i + '1', ": ", z_measured[i]);
+          SERIAL_ECHOLNPAIR("PROBEPT_", ('0' + i), ": ", z_measured[i]);
           incremental_LSF(&lfd, z_stepper_align.xy[i], z_measured[i]);
         }
         finish_incremental_LSF(&lfd);
 
         z_measured_min = 100000.0f;
         LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
-          z_measured[i] = -(lfd.A * z_stepper_align.stepper_xy[i].x + lfd.B * z_stepper_align.stepper_xy[i].y);
+          z_measured[i] = -(lfd.A * z_stepper_align.stepper_xy[i].x + lfd.B * z_stepper_align.stepper_xy[i].y + lfd.D);
           z_measured_min = _MIN(z_measured_min, z_measured[i]);
         }
 
@@ -345,7 +348,11 @@ void GcodeSuite::G34() {
 
     } // for (iteration)
 
-    if (err_break) { SERIAL_ECHOLNPGM("G34 aborted."); break; }
+    if (err_break) {
+      SERIAL_ECHOLNPGM("G34 aborted.");
+      set_axis_not_trusted(Z_AXIS);  // The Z coordinate is messed up now
+      break;
+    }
 
     SERIAL_ECHOLNPAIR("Did ", int(iteration + (iteration != z_auto_align_iterations)), " iterations of ", int(z_auto_align_iterations));
     SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
@@ -363,15 +370,23 @@ void GcodeSuite::G34() {
       set_bed_leveling_enabled(leveling_was_active);
     #endif
 
-    // After this operation the z position needs correction
-    set_axis_is_not_at_home(Z_AXIS);
-
     // Stow the probe, as the last call to probe.probe_at_point(...) left
     // the probe deployed if it was successful.
     probe.stow();
 
-    // Home Z after the alignment procedure
-    process_subcommands_now_P(PSTR("G28 Z"));
+    #if ENABLED(HOME_AFTER_G34)
+      // After this operation the z position needs correction
+      set_axis_not_trusted(Z_AXIS);
+
+      // Home Z after the alignment procedure
+      process_subcommands_now_P(PSTR("G28Z"));
+    #else
+      // Use the probed height from the last iteration to determine the Z height.
+      // z_measured_min is used, because all steppers are aligned to z_measured_min.
+      // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
+      current_position.z -= z_measured_min - (float)Z_CLEARANCE_BETWEEN_PROBES;
+      sync_plan_position();
+    #endif
 
   }while(0);
 
@@ -396,10 +411,10 @@ void GcodeSuite::M422() {
 
   if (!parser.seen_any()) {
     LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS)
-      SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), i + '1', SP_X_STR, z_stepper_align.xy[i].x, SP_Y_STR, z_stepper_align.xy[i].y);
+      SERIAL_ECHOLNPAIR_P(PSTR("M422 S"), int(i + 1), SP_X_STR, z_stepper_align.xy[i].x, SP_Y_STR, z_stepper_align.xy[i].y);
     #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS)
-        SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), i + '1', SP_X_STR, z_stepper_align.stepper_xy[i].x, SP_Y_STR, z_stepper_align.stepper_xy[i].y);
+        SERIAL_ECHOLNPAIR_P(PSTR("M422 W"), int(i + 1), SP_X_STR, z_stepper_align.stepper_xy[i].x, SP_Y_STR, z_stepper_align.stepper_xy[i].y);
     #endif
     return;
   }

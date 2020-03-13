@@ -36,7 +36,7 @@
 #include "../../ui_api.h"
 #include "../../../ultralcd.h"
 
-#if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+#if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 0.1;
 #endif
 
@@ -213,6 +213,7 @@ const uint16_t VPList_SDPrintTune[] PROGMEM = {
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   VP_Feedrate_Percentage,
+  VP_SD_Print_ProbeOffsetZ,
   0x0000
 };
 
@@ -279,6 +280,13 @@ const uint16_t VPList_FLCPrinting[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_Z_Offset[] PROGMEM = {
+  #if HOTENDS >= 1
+    VP_SD_Print_ProbeOffsetZ,
+  #endif
+  0x0000
+};
+
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_Boot },
   { DGUSLCD_SCREEN_MAIN, VPList_Main },
@@ -297,6 +305,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_WAITING, VPList_PIDTuningWaiting },
   { DGUSLCD_SCREEN_FLC_PREHEAT, VPList_FLCPreheat },
   { DGUSLCD_SCREEN_FLC_PRINTING, VPList_FLCPrinting },
+  { DGUSLCD_SCREEN_Z_OFFSET, VPList_Z_Offset },
   { DGUSLCD_SCREEN_STEPPERMM, VPList_StepPerMM },
   { DGUSLCD_SCREEN_PID_E, VPList_PIDE0 },
   { DGUSLCD_SCREEN_PID_BED, VPList_PIDBED },
@@ -322,10 +331,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_CONFIRMED, nullptr, DGUSScreenVariableHandler::ScreenConfirmedOK, nullptr),
 
   VPHELPER(VP_TEMP_ALL_OFF, nullptr, &DGUSScreenVariableHandler::HandleAllHeatersOff, nullptr),
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     VPHELPER(VP_MOVE_OPTION, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMoveOption, nullptr),
   #endif
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     VPHELPER(VP_MOVE_X, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
     VPHELPER(VP_MOVE_Y, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
     VPHELPER(VP_MOVE_Z, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
@@ -418,9 +427,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZPos, &current_position.z, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Print Progress
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VPHELPER(VP_PrintProgress_Percentage, &ui.progress_override, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay),
-  #endif
+  VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintProgressToDisplay ),
 
   // Print Time
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay),

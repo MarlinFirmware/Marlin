@@ -35,7 +35,7 @@
 
 #include "../../../ultralcd.h"
 
-#if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+#if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 0.1;
 #endif
 
@@ -162,10 +162,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_TEMP_ALL_OFF, nullptr, &DGUSScreenVariableHandler::HandleAllHeatersOff, nullptr),
 
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     VPHELPER(VP_MOVE_OPTION, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMoveOption, nullptr),
   #endif
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     VPHELPER(VP_MOVE_X, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
     VPHELPER(VP_MOVE_Y, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
     VPHELPER(VP_MOVE_Z, &distanceToMove, &DGUSScreenVariableHandler::HandleManualMove, nullptr),
@@ -250,9 +250,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZPos, &current_position.z, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Print Progress
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VPHELPER(VP_PrintProgress_Percentage, &ui.progress_override, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendWordValueToDisplay ),
-  #endif
+  VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintProgressToDisplay ),
 
   // Print Time
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay ),

@@ -100,13 +100,11 @@ void PrintJobRecovery::changed() {
  * If a saved state exists send 'M1000 S' to initiate job recovery.
  */
 void PrintJobRecovery::check() {
-  if (enabled) {
-    if (!card.isMounted()) card.mount();
-    if (card.isMounted()) {
-      load();
-      if (!valid()) return purge();
-      queue.inject_P(PSTR("M1000 S"));
-    }
+  //if (!card.isMounted()) card.mount();
+  if (card.isMounted()) {
+    load();
+    if (!valid()) return purge();
+    queue.inject_P(PSTR("M1000 S"));
   }
 }
 
