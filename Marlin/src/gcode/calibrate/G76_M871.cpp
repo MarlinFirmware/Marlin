@@ -35,7 +35,7 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/temperature.h"
 #include "../../module/probe.h"
-#include "../../feature/probe_temp_compensation.h"
+#include "../../feature/probe_temp_comp.h"
 
 /**
  * G76: calibrate probe and/or bed temperature offsets

@@ -39,7 +39,7 @@
 #include "../../../module/stepper.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 // Save 130 bytes with non-duplication of PSTR

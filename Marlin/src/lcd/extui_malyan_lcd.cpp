@@ -47,7 +47,7 @@
 
 #define DEBUG_MALYAN_LCD
 
-#include "extensible_ui/ui_api.h"
+#include "extui/ui_api.h"
 
 #include "ultralcd.h"
 #include "../sd/cardreader.h"

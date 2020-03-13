@@ -37,7 +37,7 @@
 #include "../../queue.h"
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
-  #include "../../../feature/probe_temp_compensation.h"
+  #include "../../../feature/probe_temp_comp.h"
   #include "../../../module/temperature.h"
 #endif
 
@@ -57,7 +57,7 @@
 #include "../../../core/debug_out.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 #if HOTENDS > 1

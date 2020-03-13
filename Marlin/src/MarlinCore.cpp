@@ -78,7 +78,7 @@
 #endif
 
 #if ENABLED(MAX7219_DEBUG)
-  #include "feature/Max7219_Debug_LEDs.h"
+  #include "feature/max7219.h"
 #endif
 
 #if HAS_COLOR_LEDS
@@ -107,7 +107,7 @@
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "feature/I2CPositionEncoder.h"
+  #include "feature/encoder_i2c.h"
 #endif
 
 #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
@@ -142,7 +142,7 @@
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "feature/power_loss_recovery.h"
+  #include "feature/powerloss.h"
 #endif
 
 #if ENABLED(CANCEL_OBJECTS)
@@ -174,7 +174,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "feature/prusa_MMU2/mmu2.h"
+  #include "feature/mmu2/mmu2.h"
 #endif
 
 #if HAS_L64XX

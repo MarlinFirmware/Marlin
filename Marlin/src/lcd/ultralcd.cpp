@@ -1309,7 +1309,7 @@ void MarlinUI::update() {
 #if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "extensible_ui/ui_api.h"
+    #include "extui/ui_api.h"
   #endif
 
   ////////////////////////////////////////////
