@@ -777,6 +777,8 @@ void tool_change_prime(){
        && !thermalManager.targetTooColdToExtrude(active_extruder)
        && TOOLCHANGE_FIL_INIT_PRIME > 0
       ){
+      if (toolchange_settings.enable_park) {
+
       #if ENABLED(TOOLCHANGE_PARK)
         destination = current_position;
       #endif
@@ -796,6 +798,7 @@ void tool_change_prime(){
         planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
         planner.synchronize();
       #endif
+      }//enable.park
       //Prime
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         do_pause_e_move( (TOOLCHANGE_FIL_INIT_PRIME), MMM_TO_MMS(toolchange_settings.prime_speed));

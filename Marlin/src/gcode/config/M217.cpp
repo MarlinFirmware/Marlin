@@ -132,13 +132,12 @@ void GcodeSuite::M217() {
   #endif
 
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
-  if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
     if (parser.seenval('L')) {
      if(   (parser.value_linear_units() > 0 )
-        && (parser.value_linear_units() < EXTRUDERS - 1)
+        && (parser.value_linear_units() < EXTRUDERS )
         && (parser.value_linear_units() < active_extruder) ){
        toolchange_settings.migration_ending = parser.value_linear_units();
        toolchange_settings.migration_auto = true;
@@ -167,5 +166,6 @@ void GcodeSuite::M217() {
     if (parser.seen('Q')) { extruder_migration(); return; }
 
   #endif
+  if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
   }
 #endif // EXTRUDERS > 1
