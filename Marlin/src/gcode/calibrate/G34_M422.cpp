@@ -251,7 +251,7 @@ void GcodeSuite::G34() {
         linear_fit_data lfd;
         incremental_LSF_reset(&lfd);
         LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
-          SERIAL_ECHOLNPAIR("PROBEPT_", (1 + i), ": ", z_measured[i]);
+          SERIAL_ECHOLNPAIR("PROBEPT_", int(i), ": ", z_measured[i]);
           incremental_LSF(&lfd, z_stepper_align.xy[i], z_measured[i]);
         }
         finish_incremental_LSF(&lfd);
