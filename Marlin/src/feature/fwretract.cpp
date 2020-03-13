@@ -174,7 +174,12 @@ void FWRetract::retract(const bool retracting
       prepare_internal_move_to_destination(fr_max_z);
     }
 
-    const float extra_recover = SWAPVAL(settings.swap_retract_recover_extra, settings.retract_recover_extra);
+    #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+      const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
+    #else
+      const float extra_recover = settings.retract_recover_extra;
+    #endif
+
     if (extra_recover) {
       current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
