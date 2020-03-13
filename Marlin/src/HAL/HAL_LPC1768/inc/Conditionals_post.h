@@ -20,3 +20,11 @@
  *
  */
 #pragma once
+
+#if ENABLED(EEPROM_SETTINGS)
+  #undef USE_REAL_EEPROM
+  #define USE_EMULATED_EEPROM 1
+  #if DISABLED(FLASH_EEPROM_EMULATION)
+    #define SDCARD_EEPROM_EMULATION 1
+  #endif
+#endif

@@ -1460,13 +1460,13 @@ void set_axis_is_at_home(const AxisEnum axis) {
 /**
  * Set an axis' to be unhomed.
  */
-void set_axis_is_not_at_home(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_not_at_home(", axis_codes[axis], ")");
+void set_axis_not_trusted(const AxisEnum axis) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_not_trusted(", axis_codes[axis], ")");
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_is_not_at_home(", axis_codes[axis], ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_not_trusted(", axis_codes[axis], ")");
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     I2CPEM.unhomed(axis);

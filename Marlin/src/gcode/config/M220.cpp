@@ -29,6 +29,8 @@
  * Parameters
  *   S<percent> : Set the feed rate percentage factor
  *
+ * Report the current speed percentage factor if no parameter is specified
+ * 
  * With PRUSA_MMU2...
  *   B : Flag to back up the current factor
  *   R : Flag to restore the last-saved factor
@@ -43,4 +45,9 @@ void GcodeSuite::M220() {
 
   if (parser.seenval('S')) feedrate_percentage = parser.value_int();
 
+  if (!parser.seen_any()) {
+    SERIAL_ECHOPAIR("FR:", feedrate_percentage);
+    SERIAL_CHAR('%');
+    SERIAL_EOL();
+  }
 }

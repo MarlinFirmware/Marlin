@@ -179,6 +179,15 @@ void DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable
   }
 }
 
+// Send the current print progress to the display.
+void DGUSScreenVariableHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var) {
+  //DEBUG_ECHOPAIR(" DGUSLCD_SendPrintProgressToDisplay ", var.VP);
+  uint16_t tmp = ExtUI::getProgress_percent();
+  //DEBUG_ECHOLNPAIR(" data ", tmp);
+  uint16_t data_to_send = swap16(tmp);
+  dgusdisplay.WriteVariable(var.VP, data_to_send);
+}
+
 // Send the current print time to the display.
 // It is using a hex display for that: It expects BSD coded data in the format xxyyzz
 void DGUSScreenVariableHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
@@ -465,7 +474,7 @@ void DGUSScreenVariableHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *v
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;
   const struct VPMapping *map = VPMap;
-  while (ret = (uint16_t*) pgm_read_word(&(map->VPList))) {
+  while (ret = (uint16_t*) pgm_read_ptr(&(map->VPList))) {
     if (pgm_read_byte(&(map->screen)) == screen) return ret;
     map++;
   }
@@ -594,7 +603,7 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &var, void 
   skipVP = var.VP;
 }
 
-#if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+#if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   void DGUSScreenVariableHandler::HandleManualMoveOption(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleManualMoveOption");
     *(uint16_t*)var.memadr = swap16(*(uint16_t*)val_ptr);
@@ -605,7 +614,7 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &var, void *va
   DEBUG_ECHOLNPGM("HandleManualMove");
 
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
-  #if ENABLED(DUGS_UI_MOVE_DIS_OPTION)
+  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     const uint16_t choice = *(uint16_t*)var.memadr;
     movevalue = movevalue > 0 ? choice : -choice;
   #endif
@@ -846,8 +855,8 @@ void DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable 
 void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
 
-  uint16_t value = swap16(*(uint16_t*)val_ptr)/100;
-  ExtUI::setZOffset_mm(value);
+  const float offset = float(swap16(*(uint16_t*)val_ptr)) / 100.0f;
+  ExtUI::setZOffset_mm(offset);
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
 }
@@ -858,7 +867,7 @@ void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var,
 
     int16_t flag = swap16(*(uint16_t*)val_ptr);
     int16_t steps = flag ? -20 : 20;
-    ExtUI::smartAdjustAxis_steps(steps,ExtUI::axis_t::Z,true);
+    ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
     ScreenHandler.ForceCompleteUpdate();
     return;
   }
@@ -1307,11 +1316,8 @@ void DGUSDisplay::ProcessRx() {
           //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {
-            if (!(dlen == ramcopy.size || (dlen == 2 && ramcopy.size == 1)))
-              DEBUG_ECHOLNPGM("SIZE MISMATCH");
-            else if (ramcopy.set_by_display_handler) {
+            if (ramcopy.set_by_display_handler)
               ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
-            }
             else
               DEBUG_ECHOLNPGM(" VPVar found, no handler.");
           }

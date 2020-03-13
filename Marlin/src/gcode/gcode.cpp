@@ -930,6 +930,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
+    if (delim) *delim = '\n';                         // Put back the newline
     process_parsed_command(true);                     // Process it
     if (!delim) break;                                // Last command?
     gcode = delim + 1;                                // Get the next command

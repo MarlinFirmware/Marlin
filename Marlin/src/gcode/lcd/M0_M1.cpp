@@ -57,14 +57,17 @@ void GcodeSuite::M0_M1() {
   planner.synchronize();
 
   #if HAS_LEDS_OFF_FLAG
-    if (parser.seen('Q')) printerEventLEDs.onPrintCompleted();      // Change LED color for Print Completed
+    const bool seenQ = parser.seen('Q');
+    if (seenQ) printerEventLEDs.onPrintCompleted();      // Change LED color for Print Completed
+  #elif HAS_LCD_MENU
+    constexpr bool seenQ = false;
   #endif
 
   #if HAS_LCD_MENU
 
     if (parser.string_arg)
       ui.set_status(parser.string_arg, true);
-    else {
+    else if (!seenQ) {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();

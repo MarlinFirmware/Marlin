@@ -35,6 +35,23 @@
   #define HAS_LINEAR_E_JERK 1
 #endif
 
+#if ENABLED(EEPROM_SETTINGS)
+  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && EITHER(I2C_EEPROM, SPI_EEPROM)
+    #define USE_REAL_EEPROM 1
+  #else
+    #define USE_EMULATED_EEPROM 1
+  #endif
+  #if NONE(USE_REAL_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION)
+    #define SDCARD_EEPROM_EMULATION 1
+  #endif
+#else
+  #undef I2C_EEPROM
+  #undef SPI_EEPROM
+  #undef SDCARD_EEPROM_EMULATION
+  #undef SRAM_EEPROM_EMULATION
+  #undef FLASH_EEPROM_EMULATION
+#endif
+
 #ifdef TEENSYDUINO
   #undef max
   #define max(a,b) ((a)>(b)?(a):(b))
@@ -292,10 +309,18 @@
 #endif
 
 /**
- * Override here because this is set in Configuration_adv.h
+ * Override the SD_DETECT_STATE set in Configuration_adv.h
  */
-#if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && !(defined(ARDUINO_GRAND_CENTRAL_M4) && SD_CONNECTION_IS(ONBOARD))
-  #undef SD_DETECT_INVERTED
+#if ENABLED(SDSUPPORT)
+  #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+    #undef SD_DETECT_STATE
+    #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define SD_DETECT_STATE HIGH
+    #endif
+  #endif
+  #ifndef SD_DETECT_STATE
+    #define SD_DETECT_STATE LOW
+  #endif
 #endif
 
 /**
@@ -2174,4 +2199,8 @@
   #if DISABLED(SHARED_SD_CARD)
     #define INIT_SDCARD_ON_BOOT
   #endif
+#endif
+
+#if !NUM_SERIAL
+  #undef BAUD_RATE_GCODE
 #endif

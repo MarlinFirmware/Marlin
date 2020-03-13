@@ -74,7 +74,6 @@
     #define U8GLIB_ST7565_64128N
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
     #define U8GLIB_LM6059_AF
-    #define SD_DETECT_INVERTED
   #elif ENABLED(AZSMZ_12864)
     #define U8GLIB_ST7565_64128N
   #endif
@@ -357,11 +356,12 @@
   #endif
 #endif
 
-// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+// Aliases for LCD features
 #if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
   #define HAS_DGUS_LCD 1
 #endif
 
+// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI
   #define EXTENSIBLE_UI

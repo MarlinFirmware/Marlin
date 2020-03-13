@@ -20,3 +20,11 @@
  *
  */
 #pragma once
+
+#if ENABLED(EEPROM_SETTINGS) && defined(STM32F7)
+  #undef USE_REAL_EEPROM
+  #define USE_EMULATED_EEPROM 1
+  #undef SRAM_EEPROM_EMULATION
+  #undef SDCARD_EEPROM_EMULATION
+  #define FLASH_EEPROM_EMULATION 1
+#endif
