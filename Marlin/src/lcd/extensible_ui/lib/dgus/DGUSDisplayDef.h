@@ -42,9 +42,9 @@ extern const struct VPMapping VPMap[];
 extern const struct DGUS_VP_Variable ListOfVP[];
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
-  #include "DGUSDisplayDefinitionOrigin.h"
+  #include "origin/DGUSDisplayDef.h"
 #elif ENABLED(DGUS_LCD_UI_FYSETC)
-  #include "DGUSDisplayDefinitionFYSETC.h"
+  #include "fysetc/DGUSDisplayDef.h"
 #elif ENABLED(DGUS_LCD_UI_HIPRECY)
-  #include "DGUSDisplayDefinitionHIPRECY.h"
+  #include "hiprecy/DGUSDisplayDef.h"
 #endif

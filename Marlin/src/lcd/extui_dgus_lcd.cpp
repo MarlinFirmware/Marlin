@@ -32,7 +32,7 @@
 
 #include "extensible_ui/ui_api.h"
 #include "extensible_ui/lib/dgus/DGUSDisplay.h"
-#include "extensible_ui/lib/dgus/DGUSDisplayDefinition.h"
+#include "extensible_ui/lib/dgus/DGUSDisplayDef.h"
 
 extern const char NUL_STR[];
 
