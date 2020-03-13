@@ -37,8 +37,7 @@
     float z_raise;
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      int16_t migration_ending;
-      int migration_target = -1;
+      int16_t migration_ending, migration_target;
       bool migration_auto;
     #endif
 

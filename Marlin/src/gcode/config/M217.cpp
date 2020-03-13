@@ -134,8 +134,9 @@ void GcodeSuite::M217() {
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+    toolchange_settings.migration_target = -1;// init = disable = negative
 
-    if (parser.seenval('L')) {
+    if (parser.seenval('L')) { //ending
      if(   (parser.value_linear_units() > 0 ) && (parser.value_linear_units() < EXTRUDERS )){
        toolchange_settings.migration_ending = parser.value_linear_units();
        if  (active_extruder >= toolchange_settings.migration_ending ) toolchange_settings.migration_auto = false;
@@ -143,13 +144,13 @@ void GcodeSuite::M217() {
      else return;
     }
 
-    if (parser.seenval('N')) {
+    if (parser.seenval('N')) { //auto on/off
       if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() <= 1))
         toolchange_settings.migration_auto = parser.value_linear_units();
       else return;
     }
 
-    if (parser.seenval('T')) {
+    if (parser.seenval('T')) { //specific 
       if(   (parser.value_linear_units() >= 0 )
          && (parser.value_linear_units() < EXTRUDERS - 1)
          && (parser.value_linear_units() != active_extruder)

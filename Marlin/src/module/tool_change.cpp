@@ -1231,7 +1231,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         &&(toolchange_settings.migration_target !=active_extruder)
        ) {
       migration_extruder = toolchange_settings.migration_target;
-      toolchange_settings.migration_target = -1;
     }
 
     //Migration begins
