@@ -187,7 +187,12 @@ void FWRetract::retract(const bool retracting
 
     current_retract[active_extruder] = 0;
 
-    const feedRate_t fr_mm_s = SWAPVAL(settings.swap_retract_recover_feedrate_mm_s, settings.retract_recover_feedrate_mm_s)
+    const feedRate_t fr_mm_s = (
+      #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+        (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
+      #else
+        settings.retract_recover_feedrate_mm_s
+      #endif
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
