@@ -74,13 +74,11 @@ void GcodeSuite::G34() {
 
   do { // break out on error
 
-    #if NUM_Z_STEPPER_DRIVERS > 4
-      SERIAL_ECHOLNPGM("Alignment not supported for over 4 steppers");
-      break;
-    #endif
-
     #if NUM_Z_STEPPER_DRIVERS == 4
       SERIAL_ECHOLNPGM("Alignment for 4 steppers is Experimental!");
+    #elif NUM_Z_STEPPER_DRIVERS > 4
+      SERIAL_ECHOLNPGM("Alignment not supported for over 4 steppers");
+      break;
     #endif
 
     const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
@@ -106,7 +104,7 @@ void GcodeSuite::G34() {
         }
       #endif
 
-    if(parser.seen('R')) z_stepper_align.reset_to_default();
+    if (parser.seen('R')) z_stepper_align.reset_to_default();
 
     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
