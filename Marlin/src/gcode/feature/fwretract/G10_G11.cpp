@@ -33,11 +33,11 @@
  *       TODO: Handle 'G10 P' for tool settings and 'G10 L' for workspace settings
  */
 void GcodeSuite::G10() {
-  #if (ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1)
+  #if EXTRUDERS > 1
     const bool rs = parser.boolval('S');
   #endif
   fwretract.retract(true
-    #if (ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1)
+    #if EXTRUDERS > 1
       , rs
     #endif
   );
