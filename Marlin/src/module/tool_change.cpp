@@ -1210,6 +1210,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   void extruder_migration() {
+    if (thermalManager.targetTooColdToExtrude(active_extruder)) return;
     int16_t migration_extruder;
     //Disable auto migration if no more extruders
 
@@ -1231,7 +1232,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     //Migration begins
     //Same temperature
-   thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), migration_extruder);
+   thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
    // Same flow after tool change
    planner.flow_percentage[migration_extruder] = planner.flow_percentage[active_extruder];
    // Same FwRetract/Swap statuses
