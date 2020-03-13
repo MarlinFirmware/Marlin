@@ -136,12 +136,10 @@ void GcodeSuite::M217() {
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
     if (parser.seenval('L')) {
-     if(   (parser.value_linear_units() > 0 )
-        && (parser.value_linear_units() < EXTRUDERS )
-        && (parser.value_linear_units() > active_extruder) ){
+     if(   (parser.value_linear_units() > 0 ) && (parser.value_linear_units() < EXTRUDERS )){
        toolchange_settings.migration_ending = parser.value_linear_units();
-       toolchange_settings.migration_auto = true;
-     }
+       if  (active_extruder >= toolchange_settings.migration_ending ) toolchange_settings.migration_auto = false;
+       else  toolchange_settings.migration_auto = true;     }
      else return;
     }
 

@@ -1210,9 +1210,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   void extruder_migration() {
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, toolchange_settings.migration_target);
+      SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
     int16_t migration_extruder;
     //Disable auto migration if no more extruders
+
     if  (active_extruder >= toolchange_settings.migration_ending ) toolchange_settings.migration_auto = false;
+    else  toolchange_settings.migration_auto = true;//Auto migration only possible next extruder available
+
     // For auto migration
     if (    (toolchange_settings.migration_target < 0) // -1 disabled
          && (toolchange_settings.migration_auto == true)
