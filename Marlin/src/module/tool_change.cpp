@@ -1214,7 +1214,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     //Disable auto migration if no more extruders
     if  (active_extruder >= toolchange_settings.migration_ending ) toolchange_settings.migration_auto = false;
     // For auto migration
-    if (    (toolchange_settings.migration_target < 0)
+    if (    (toolchange_settings.migration_target < 0) // -1 disabled
          && (toolchange_settings.migration_auto == true)
          && (active_extruder < EXTRUDERS - 1)
          && (active_extruder < toolchange_settings.migration_ending )

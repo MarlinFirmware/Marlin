@@ -37,13 +37,13 @@
     float z_raise;
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      int16_t migration_ending, migration_target ;
+      int16_t migration_ending, migration_target = -1 ;
       bool migration_auto;
     #endif
 
   } toolchange_settings_t;
 
-  extern toolchange_settings_t toolchange_settings;  
+  extern toolchange_settings_t toolchange_settings;
   extern void tool_change_prime();
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

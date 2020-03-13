@@ -46,7 +46,7 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR(" FANS", LINEAR_UNIT(toolchange_settings.fan_speed));
     SERIAL_ECHOPAIR(" FanT", LINEAR_UNIT(toolchange_settings.fan_time));
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" Mig", LINEAR_UNIT(toolchange_settings.migration_auto));
+      SERIAL_ECHOPAIR(" AutoMig", LINEAR_UNIT(toolchange_settings.migration_auto));
       SERIAL_ECHOPAIR(" MigL", LINEAR_UNIT(toolchange_settings.migration_ending));
     #endif
 
