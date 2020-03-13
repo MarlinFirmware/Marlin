@@ -59,7 +59,7 @@ void GcodeSuite::M0_M1() {
   #if HAS_LEDS_OFF_FLAG
     const bool seenQ = parser.seen('Q');
     if (seenQ) printerEventLEDs.onPrintCompleted();      // Change LED color for Print Completed
-  #else
+  #elif HAS_LCD_MENU
     constexpr bool seenQ = false;
   #endif
 
