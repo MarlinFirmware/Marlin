@@ -895,7 +895,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(fwretract_settings);
       #if DISABLED(FWRETRACT)
-        const fwretract_settings_t autoretract_defaults = { 3, 45, 0, 0, 0, 13, 0, 8 };
+        const fwretract_settings_t autoretract_defaults = { 3, 45, 0, 0, 0 };
       #endif
       EEPROM_WRITE(TERN(FWRETRACT, fwretract.settings, autoretract_defaults));
 
@@ -3160,22 +3160,26 @@ void MarlinSettings::reset() {
 
     #if ENABLED(FWRETRACT)
 
-      CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
-          PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        , PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
-        , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
-        , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
-      );
+       CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
+       CONFIG_ECHO_START();
+       SERIAL_ECHOLNPAIR_P(
+         PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
+         #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+           ,PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
+         #endif
+         , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
+         , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
+       );
 
-      CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
-        , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
-      );
+       CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
+       CONFIG_ECHO_START();
+       SERIAL_ECHOLNPAIR(
+           "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
+           #if ENABLED(FWRETRACT_SWAP_ENABLE) && EXTRUDERS > 1
+             , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
+           #endif
+         , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
+       );
 
       #if ENABLED(FWRETRACT_AUTORETRACT)
 
