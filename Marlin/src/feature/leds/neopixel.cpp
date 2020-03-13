@@ -47,14 +47,16 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
   void Marlin_NeoPixel::set_color_background() {
     uint8_t background_color[4] = NEOPIXEL_BKGD_COLOR;
     set_pixel_color(
-      NEOPIXEL_BKGD_LED_INDEX, 
+      NEOPIXEL_BKGD_LED_INDEX,
       adaneo1.Color(background_color[0], background_color[1], background_color[2], background_color[3]),
-      NEOPIXEL1 );
+      NEOPIXEL1
+    );
     #if MULTIPLE_NEOPIXEL_TYPES
-      set_pixel_color( 
-        NEOPIXEL_BKGD_LED_INDEX, 
+      set_pixel_color(
+        NEOPIXEL_BKGD_LED_INDEX,
         adaneo2.Color(background_color[0], background_color[1], background_color[2], background_color[3]),
-        NEOPIXEL2);
+        NEOPIXEL2
+      );
     #endif
   }
 
@@ -70,17 +72,17 @@ void Marlin_NeoPixel::set_color(const uint32_t color) {
     #endif
     set_pixel_color(i, color, NEOPIXEL1);
     #if MULTIPLE_NEOPIXEL_TYPES
-      if( i < pixels(NEOPIXEL2)) set_pixel_color(i, color, NEOPIXEL2);
+      if (i < pixels(NEOPIXEL2)) set_pixel_color(i, color, NEOPIXEL2);
     #endif
   }
   show();
 }
 
 void Marlin_NeoPixel::set_color_startup(const uint32_t color) {
-  for (uint16_t i = 0; i < pixels(NEOPIXEL1); i++){  // i: set_pixel_color --> n Pixel index is starting from 0.
+  for (uint16_t i = 0; i < pixels(NEOPIXEL1); i++) {  // i: set_pixel_color --> n Pixel index is starting from 0.
     set_pixel_color(i, color, NEOPIXEL1);
     #if MULTIPLE_NEOPIXEL_TYPES
-      if( i < pixels(NEOPIXEL2)) set_pixel_color(i, color, NEOPIXEL2);
+      if (i < pixels(NEOPIXEL2)) set_pixel_color(i, color, NEOPIXEL2);
     #endif
   }
   show();
@@ -88,19 +90,19 @@ void Marlin_NeoPixel::set_color_startup(const uint32_t color) {
 
 #if ENABLED(NEOPIXEL_TEST_PIXEL)
 void Marlin_NeoPixel::set_pixel_color_startup(const uint32_t color) {
-  for ( uint16_t i= 0; i < pixels(NEOPIXEL1); i++){  // i: set_pixel_color --> n  Pixel index is starting from 0.
-    set_pixel_color(i, color, NEOPIXEL1); 
+  for (uint16_t i = 0; i < pixels(NEOPIXEL1); i++) {  // i: set_pixel_color --> n  Pixel index is starting from 0.
+    set_pixel_color(i, color, NEOPIXEL1);
     #if MULTIPLE_NEOPIXEL_TYPES
-      if( i < pixels(NEOPIXEL2)) set_pixel_color(i, color, NEOPIXEL2);
+      if (i < pixels(NEOPIXEL2)) set_pixel_color(i, color, NEOPIXEL2);
     #endif
     show();
     safe_delay(NEOPIXEL_TEST_PIXEL_DELAY);
   }
   #if ENABLED(NEOPIXEL_TEST_PIXEL_ROTATE_BACK)
-    for ( uint16_t i= pixels(NEOPIXEL1); i>0; i--){  // i: set_pixel_color --> n  Pixel index is starting from 0.
-      set_pixel_color(i-1, adaneo1.Color(0, 0, 0, 0),NEOPIXEL1); 
+    for (uint16_t i = pixels(NEOPIXEL1); i > 0; i--) {  // i: set_pixel_color --> n  Pixel index is starting from 0.
+      set_pixel_color(i - 1, adaneo1.Color(0, 0, 0, 0), NEOPIXEL1);
       #if MULTIPLE_NEOPIXEL_TYPES
-        if( i < pixels(NEOPIXEL2)) set_pixel_color(i-1, adaneo2.Color(0, 0, 0, 0), NEOPIXEL2); ;
+        if (i < pixels(NEOPIXEL2)) set_pixel_color(i - 1, adaneo2.Color(0, 0, 0, 0), NEOPIXEL2);
       #endif
       show();
       safe_delay(NEOPIXEL_TEST_PIXEL_DELAY);
@@ -121,8 +123,7 @@ void Marlin_NeoPixel::test_neopixel() {
       #endif
     #endif
   #else // !EITHER(NEOPIXEL_TEST_PIXEL_COLOR_1, NEOPIXEL_TEST_PIXEL_COLOR_2, NEOPIXEL_TEST_PIXEL_COLOR_3)
-    uint8_t text_pixel_color[4]= { 255, 0, 0, 0 };
-    set_pixel_color_startup(adaneo1.Color(text_pixel_color[0], text_pixel_color[1], text_pixel_color[2], text_pixel_color[3));
+    set_pixel_color_startup(adaneo1.Color(255, 0, 0, 0);
   #endif
 }
 #endif // ENABLED(NEOPIXEL_TEST_PIXEL)
@@ -138,18 +139,17 @@ void Marlin_NeoPixel::init() {
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
     safe_delay(1000);
-    fill_color(adaneo1.Color(255, 0, 0, 0),0,pixels());  // red
+    fill_color(adaneo1.Color(255, 0, 0, 0), 0, pixels());  // red
     safe_delay(1000);
-    fill_color(adaneo1.Color(0, 255, 0, 0),0,pixels());  // green
+    fill_color(adaneo1.Color(0, 255, 0, 0), 0, pixels());  // green
     safe_delay(1000);
-    fill_color(adaneo1.Color(0, 0, 255, 0),0,pixels());  // blue
+    fill_color(adaneo1.Color(0, 0, 255, 0), 0, pixels());  // blue
     safe_delay(1000);
   #endif
-  
+
   #if ENABLED(NEOPIXEL_STARTUP_TEST_PIXEL)
     test_neopixel();
   #endif
-
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
     set_color_background();

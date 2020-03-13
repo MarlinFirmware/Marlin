@@ -85,10 +85,10 @@ public:
     #endif
   }
 
-  static inline void set_pixel_color(const uint16_t n, const uint32_t c,const uint8_t uNeoPixelMulti=1) {
+  static inline void set_pixel_color(const uint16_t n, const uint32_t c, const uint8_t uNeoPixelMulti=1) {
     adaneo1.setPixelColor(n, c);
     #if MULTIPLE_NEOPIXEL_TYPES
-      if (uNeoPixelMulti !=1) adaneo2.setPixelColor(n, c);
+      if (uNeoPixelMulti != 1) adaneo2.setPixelColor(n, c);
     #endif
   }
 
@@ -98,10 +98,11 @@ public:
       adaneo2.setBrightness(b);
     #endif
   }
-  static inline void fill_color(uint32_t c, uint16_t first, uint16_t count, const uint8_t uNeoPixelMulti=1){
-    adaneo1.fill( c, first, count);
+
+  static inline void fill_color(uint32_t c, uint16_t first, uint16_t count, const uint8_t uNeoPixelMulti=1) {
+    adaneo1.fill(c, first, count);
     #if MULTIPLE_NEOPIXEL_TYPES
-      if (uNeoPixelMulti !=1) adaneo2.fill( c, first, count);
+      if (uNeoPixelMulti != 1) adaneo2.fill(c, first, count);
     #endif
   }
 
@@ -119,32 +120,36 @@ public:
   }
 
   // Accessors
-  static inline uint16_t pixels(const uint8_t uNeoPixelMulti=1) { 
-    return 
-    #if MULTIPLE_NEOPIXEL_TYPES
-      (uNeoPixelMulti != 1) ? adaneo2.numPixels() :
-    #endif
-    adaneo1.numPixels();
+  static inline uint16_t pixels(const uint8_t uNeoPixelMulti=1) {
+    return (
+      #if MULTIPLE_NEOPIXEL_TYPES
+        (uNeoPixelMulti != 1) ? adaneo2.numPixels() :
+      #endif
+      adaneo1.numPixels()
+    );
   }
-  static inline uint8_t brightness(const uint8_t uNeoPixelMulti=1) { 
-    return 
-    #if MULTIPLE_NEOPIXEL_TYPES
-      (uNeoPixelMulti != 1) ? adaneo2.getBrightness() :
-    #endif
-    adaneo1.getBrightness();
+
+  static inline uint8_t brightness(const uint8_t uNeoPixelMulti=1) {
+    return (
+      #if MULTIPLE_NEOPIXEL_TYPES
+        (uNeoPixelMulti != 1) ? adaneo2.getBrightness() :
+      #endif
+      adaneo1.getBrightness()
+    );
   }
+
   static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w, const uint8_t uNeoPixelMulti=1) {
-    return 
-    #if MULTIPLE_NEOPIXEL_TYPES
-      (uNeoPixelMulti != 1) ? adaneo2.Color(r, g, b, w) : 
-    #endif
-    adaneo1.Color(r, g, b, w);  
+    return (
+      #if MULTIPLE_NEOPIXEL_TYPES
+        (uNeoPixelMulti != 1) ? adaneo2.Color(r, g, b, w) :
+      #endif
+      adaneo1.Color(r, g, b, w)
+    );
   }
 
   #if 0
     bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
   #endif
-
 };
 
 extern Marlin_NeoPixel neo;

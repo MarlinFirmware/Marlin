@@ -104,12 +104,11 @@ void LEDLights::set_color(const LEDColor &incol
     if (isSequence) {
       neo.set_pixel_color(nextLed, neocolor, NEOPIXEL1);
       #if MULTIPLE_NEOPIXEL_TYPES
-        if(nextLed < neo.pixels(NEOPIXEL2)) neo.set_pixel_color(nextLed, neocolor, NEOPIXEL2);
+        if (nextLed < neo.pixels(NEOPIXEL2)) neo.set_pixel_color(nextLed, neocolor, NEOPIXEL2);
       #endif
       neo.show();
       if (++nextLed > neo.pixels(NEOPIXEL1)) nextLed = 0;  // ?
       return;
-
     }
 
     neo.set_color(neocolor);
