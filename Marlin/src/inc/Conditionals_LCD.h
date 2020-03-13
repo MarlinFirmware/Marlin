@@ -417,6 +417,10 @@
   #undef PRUSA_MMU2
 #endif
 
+#if EXTRUDERS < 2
+  #undef FWRETRACT_SWAP_ENABLE
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
