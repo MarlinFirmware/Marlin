@@ -31,7 +31,8 @@
 #if HAS_DGUS_LCD
 
 #include "extui/ui_api.h"
-#include "extui/lib/dgus/DGUSDisplay.h"
+
+#include "extui/lib/dgus/DGUSScreenHandler.h"
 #include "extui/lib/dgus/DGUSDisplayDef.h"
 
 extern const char NUL_STR[];
@@ -39,31 +40,30 @@ extern const char NUL_STR[];
 namespace ExtUI {
 
   void onStartup() {
-    dgusdisplay.InitDisplay();
-    ScreenHandler.UpdateScreenVPData();
+    dgus_screen_handler.Init();
   }
 
-  void onIdle() { ScreenHandler.loop(); }
+  void onIdle() {
+    dgus_screen_handler.Loop();
+  }
 
   void onPrinterKilled(PGM_P error, PGM_P component) {
-    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
-    while (!ScreenHandler.loop());  // Wait while anything is left to be sent
+    dgus_screen_handler.PrinterKilled(error, component);
   }
 
   void onMediaInserted() {
     #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardInserted();
+      dgus_screen_handler.SDCardInserted();
     #endif
   }
   void onMediaError()    {
     #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardError();
+      dgus_screen_handler.SDCardError();
     #endif
   }
   void onMediaRemoved()  {
     #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardRemoved();
+      dgus_screen_handler.SDCardRemoved();
     #endif
   }
 
@@ -74,18 +74,12 @@ namespace ExtUI {
   void onFilamentRunout(const extruder_t extruder) {}
 
   void onUserConfirmRequired(const char * const msg) {
-    if (msg) {
-      ScreenHandler.sendinfoscreen(PSTR("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
-      ScreenHandler.SetupConfirmAction(ExtUI::setUserConfirmed);
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
-    }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP ) {
-      ScreenHandler.SetupConfirmAction(nullptr);
-      ScreenHandler.PopToOldScreen();
-    }
+    dgus_screen_handler.UserConfirmRequired(msg);
   }
 
-  void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }
+  void onStatusChanged(const char * const msg) {
+    dgus_screen_handler.SetStatusMessage(msg);
+  }
 
   void onFactoryReset() {}
   void onStoreSettings(char *buff) {
@@ -125,7 +119,7 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void OnPowerLossResume() {
       // Called on resume from power-loss
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
+      dgus_screen_handler.PowerLossResume();
     }
   #endif
 
@@ -133,24 +127,10 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void OnPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      SERIAL_ECHOLNPAIR("OnPidTuning:",rst);
-      switch(rst) {
-        case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_BAD_EXTRUDER_NUM));
-          break;
-        case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_TEMP_TOO_HIGH));
-          break;
-        case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_TIMEOUT));
-          break;
-        case PID_DONE:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_AUTOTUNE_FINISHED));
-          break;
-      }
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+      dgus_screen_handler.PidTuning(rst);
     }
   #endif
 
 }
+
 #endif // HAS_DGUS_LCD

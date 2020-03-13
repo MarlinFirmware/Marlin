@@ -21,34 +21,34 @@
  */
 #pragma once
 
-enum DGUSLCD_Screens : uint8_t {
-  DGUSLCD_SCREEN_BOOT                 = 160,
-  DGUSLCD_SCREEN_MAIN                 =   1,
-  DGUSLCD_SCREEN_STATUS               =   1,
-  DGUSLCD_SCREEN_STATUS2              =   1,
-  DGUSLCD_SCREEN_POWER_LOSS           =  17,
-  DGUSLCD_SCREEN_TEMPERATURE          =  40,
-  DGUSLCD_SCREEN_MANUALMOVE           =  86,
-  DGUSLCD_SCREEN_PREHEAT              =  48,
-  DGUSLCD_SCREEN_UTILITY              =  70,
-  DGUSLCD_SCREEN_FILAMENT_HEATING     =  80,
-  DGUSLCD_SCREEN_FILAMENT_LOADING     =  76,
-  DGUSLCD_SCREEN_FILAMENT_UNLOADING   =  82,
-  DGUSLCD_SCREEN_MANUALEXTRUDE        =  84,
-  DGUSLCD_SCREEN_SDFILELIST           =   3,
-  DGUSLCD_SCREEN_SDPRINTMANIPULATION  =   7,
-  DGUSLCD_SCREEN_SDPRINTTUNE          =   9,
-  DGUSLCD_SCREEN_FLC_PREHEAT          =  94,
-  DGUSLCD_SCREEN_FLC_PRINTING         =  96,
-  DGUSLCD_SCREEN_STEPPERMM            = 122,
-  DGUSLCD_SCREEN_PID_E                = 126,
-  DGUSLCD_SCREEN_PID_BED              = 128,
-  DGUSLCD_SCREEN_INFOS                = 131,
-  DGUSLCD_SCREEN_CONFIRM              = 240,
-  DGUSLCD_SCREEN_KILL                 = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
-  DGUSLCD_SCREEN_WAITING              = 251,
-  DGUSLCD_SCREEN_POPUP                = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
-  DGUSLDC_SCREEN_UNUSED               = 255
+enum DGUS_Screen : uint8_t {
+  DGUS_SCREEN_BOOT                 = 160,
+  DGUS_SCREEN_MAIN                 =   1,
+  DGUS_SCREEN_STATUS               =   1,
+  DGUS_SCREEN_STATUS2              =   1,
+  DGUS_SCREEN_POWER_LOSS           =  17,
+  DGUS_SCREEN_TEMPERATURE          =  40,
+  DGUS_SCREEN_MANUALMOVE           =  86,
+  DGUS_SCREEN_PREHEAT              =  48,
+  DGUS_SCREEN_UTILITY              =  70,
+  DGUS_SCREEN_FILAMENT_HEATING     =  80,
+  DGUS_SCREEN_FILAMENT_LOADING     =  76,
+  DGUS_SCREEN_FILAMENT_UNLOADING   =  82,
+  DGUS_SCREEN_MANUALEXTRUDE        =  84,
+  DGUS_SCREEN_SDFILELIST           =   3,
+  DGUS_SCREEN_SDPRINTMANIPULATION  =   7,
+  DGUS_SCREEN_SDPRINTTUNE          =   9,
+  DGUS_SCREEN_FLC_PREHEAT          =  94,
+  DGUS_SCREEN_FLC_PRINTING         =  96,
+  DGUS_SCREEN_STEPPERMM            = 122,
+  DGUS_SCREEN_PID_E                = 126,
+  DGUS_SCREEN_PID_BED              = 128,
+  DGUS_SCREEN_INFOS                = 131,
+  DGUS_SCREEN_CONFIRM              = 240,
+  DGUS_SCREEN_KILL                 = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUS_SCREEN_WAITING              = 251,
+  DGUS_SCREEN_POPUP                = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUS_SCREEN_UNUSED               = 255
 };
 
 // Display Memory layout used (T5UID)
@@ -113,7 +113,7 @@ constexpr uint16_t VP_MOVE_E1 = 0x2112;
 //constexpr uint16_t VP_MOVE_E4 = 0x2118;
 //constexpr uint16_t VP_MOVE_E5 = 0x211A;
 constexpr uint16_t VP_HOME_ALL = 0x2120;
-constexpr uint16_t VP_MOTOR_LOCK_UNLOK = 0x2130;
+constexpr uint16_t VP_MOTOR_LOCK_UNLOCK = 0x2130;
 
 // Power loss recovery
 constexpr uint16_t VP_POWER_LOSS_RECOVERY = 0x2180;
