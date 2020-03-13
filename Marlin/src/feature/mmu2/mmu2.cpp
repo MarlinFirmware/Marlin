@@ -43,7 +43,7 @@ MMU2 mmu2;
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 #define DEBUG_OUT ENABLED(MMU2_DEBUG)

@@ -25,7 +25,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 Stopwatch::State Stopwatch::state;
