@@ -1210,8 +1210,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   void extruder_migration() {
-    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, toolchange_settings.migration_target);
-      SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
     int16_t migration_extruder;
     //Disable auto migration if no more extruders
 
@@ -1230,7 +1228,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         &&(toolchange_settings.migration_target !=active_extruder)
        )
       migration_extruder = toolchange_settings.migration_target;
-    
+
     //Migration begins
     //Same temperature
    thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), migration_extruder);
@@ -1241,10 +1239,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 				fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
    #endif
 
-   #if HAS_LCD_MENU
-     lcd_pause_show_message(PAUSE_MESSAGE_HEATING);
+   #if HOTENDS >1
+     thermalManager.wait_for_hotend(active_extruder);
    #endif
-   thermalManager.wait_for_hotend(active_extruder);
 
    //Tool change
    tool_change(migration_extruder);
