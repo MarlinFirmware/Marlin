@@ -78,7 +78,7 @@
 #endif
 
 #if ENABLED(MAX7219_DEBUG)
-  #include "feature/Max7219_Debug_LEDs.h"
+  #include "feature/max7219.h"
 #endif
 
 #if HAS_COLOR_LEDS
@@ -107,10 +107,10 @@
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "feature/I2CPositionEncoder.h"
+  #include "feature/encoder_i2c.h"
 #endif
 
-#if HAS_TRINAMIC && DISABLED(PSU_DEFAULT_OFF)
+#if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
@@ -142,7 +142,7 @@
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "feature/power_loss_recovery.h"
+  #include "feature/powerloss.h"
 #endif
 
 #if ENABLED(CANCEL_OBJECTS)
@@ -165,7 +165,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD)
   #include "module/tool_change.h"
 #endif
 
@@ -174,7 +174,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "feature/prusa_MMU2/mmu2.h"
+  #include "feature/mmu2/mmu2.h"
 #endif
 
 #if HAS_L64XX
@@ -192,7 +192,15 @@ const char NUL_STR[] PROGMEM = "",
            SP_X_STR[] PROGMEM = " X",
            SP_Y_STR[] PROGMEM = " Y",
            SP_Z_STR[] PROGMEM = " Z",
-           SP_E_STR[] PROGMEM = " E";
+           SP_E_STR[] PROGMEM = " E",
+              X_LBL[] PROGMEM =  "X:",
+              Y_LBL[] PROGMEM =  "Y:",
+              Z_LBL[] PROGMEM =  "Z:",
+              E_LBL[] PROGMEM =  "E:",
+           SP_X_LBL[] PROGMEM = " X:",
+           SP_Y_LBL[] PROGMEM = " Y:",
+           SP_Z_LBL[] PROGMEM = " Z:",
+           SP_E_LBL[] PROGMEM = " E:";
 
 bool Running = true;
 
@@ -233,11 +241,8 @@ void setup_powerhold() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
   #if ENABLED(PSU_CONTROL)
-    #if ENABLED(PSU_DEFAULT_OFF)
-      powersupply_on = true;  PSU_OFF();
-    #else
-      powersupply_on = false; PSU_ON();
-    #endif
+    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
+    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
   #endif
 }
 
@@ -269,7 +274,7 @@ void setup_powerhold() {
 
 bool pin_is_protected(const pin_t pin) {
   static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
-  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
+  LOOP_L_N(i, COUNT(sensitive_pins)) {
     pin_t sensitive_pin;
     memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
     if (pin == sensitive_pin) return true;
@@ -413,38 +418,39 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
+
     bool did_state = true;
     switch (card.sdprinting_done_state) {
 
-      #if HAS_RESUME_CONTINUE                   // Display "Click to Continue..."
-        case 1:
-          did_state = queue.enqueue_P(PSTR("M0Q1S"
-            #if HAS_LCD_MENU
-              "1800"                            // ...for 30 minutes with LCD
-            #else
-              "60"                              // ...for 1 minute with no LCD
-            #endif
-          ));
-          break;
-      #endif
-
-      case 2: print_job_timer.stop(); break;
-
-      case 3:
-        did_state = print_job_timer.duration() < 60 || queue.enqueue_P(PSTR("M31"));
+      case 1:
+        did_state = print_job_timer.duration() < 60 || queue.enqueue_one_P(PSTR("M31"));
         break;
 
-      case 4:
+      case 2:
+        did_state = queue.enqueue_one_P(PSTR("M77"));
+        break;
+
+      case 3:
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+          ui.set_progress_done();
+        #endif
+        break;
+
+      case 4:                                   // Display "Click to Continue..."
+        #if HAS_RESUME_CONTINUE                 // 30 min timeout with LCD, 1 min without
+          did_state = queue.enqueue_one_P(
+            print_job_timer.duration() < 60 ? PSTR("M0Q1P1") : PSTR("M0Q1S" TERN(HAS_LCD_MENU, "1800", "60"))
+          );
+        #endif
+        break;
+
+      case 5:
         #if ENABLED(POWER_LOSS_RECOVERY)
           recovery.purge();
         #endif
 
         #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
           planner.finish_and_disable();
-        #endif
-
-        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-          ui.set_progress_done();
         #endif
 
         #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
@@ -493,31 +499,19 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   }
 
   // Prevent steppers timing-out in the middle of M600
-  #if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
-    #define MOVE_AWAY_TEST !did_pause_print
-  #else
-    #define MOVE_AWAY_TEST true
-  #endif
+  #define STAY_TEST (BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT) && did_pause_print)
 
   if (stepper_inactive_time) {
     static bool already_shutdown_steppers; // = false
     if (planner.has_blocks_queued())
       gcode.reset_stepper_timeout();
-    else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
+    else if (!STAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
-        #if ENABLED(DISABLE_INACTIVE_X)
-          DISABLE_AXIS_X();
-        #endif
-        #if ENABLED(DISABLE_INACTIVE_Y)
-          DISABLE_AXIS_Y();
-        #endif
-        #if ENABLED(DISABLE_INACTIVE_Z)
-          DISABLE_AXIS_Z();
-        #endif
-        #if ENABLED(DISABLE_INACTIVE_E)
-          disable_e_steppers();
-        #endif
+        if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
+        if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
+        if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
+        if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
         #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
           if (ubl.lcd_map_control) {
             ubl.lcd_map_control = false;
@@ -642,7 +636,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       destination = current_position;
-      prepare_move_to_destination();
+      prepare_line_to_destination();
     }
   #endif
 
@@ -866,6 +860,7 @@ void stop() {
  *    • Digipot I2C
  *    • Z probe sled
  *    • status LEDs
+ *    • Max7219
  */
 void setup() {
 
@@ -877,10 +872,6 @@ void setup() {
 
   #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
     OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
-  #endif
-
-  #if ENABLED(MAX7219_DEBUG)
-    max7219.init();
   #endif
 
   #if ENABLED(DISABLE_DEBUG)
@@ -975,48 +966,66 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
+  #if ENABLED(MARLIN_DEV_MODE)
+    auto log_current_ms = [&](PGM_P const msg) {
+      SERIAL_ECHO_START();
+      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHO("] ");
+      serialprintPGM(msg);
+      SERIAL_EOL();
+    };
+    #define SETUP_LOG(M) log_current_ms(PSTR(M))
+  #else
+    #define SETUP_LOG(...) NOOP
+  #endif
+  #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
+
   // Set up LEDs early
   #if HAS_COLOR_LEDS
-    leds.setup();
+    SETUP_RUN(leds.setup());
   #endif
 
-  ui.init();
+  SETUP_RUN(ui.init());
+  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
+
   #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
-    ui.show_bootscreen();
+    SETUP_RUN(ui.show_bootscreen());
   #endif
-
-  ui.reset_status();        // Load welcome message early. (Retained if no errors exist.)
 
   #if ENABLED(SDSUPPORT)
-    card.mount();           // Mount the SD card before settings.first_load
+    SETUP_RUN(card.mount());          // Mount the SD card before settings.first_load
   #endif
-                            // Load data from EEPROM if available (or use defaults)
-  settings.first_load();    // This also updates variables in the planner, elsewhere
+
+  SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
+                                      // This also updates variables in the planner, elsewhere
+
+  #if HAS_SERVICE_INTERVALS
+    SETUP_RUN(ui.reset_status(true)); // Show service messages or keep current status
+  #endif
 
   #if ENABLED(TOUCH_BUTTONS)
-    touch.init();
+    SETUP_RUN(touch.init());
   #endif
 
-  #if HAS_M206_COMMAND      // Initialize current position based on home_offset
-    current_position += home_offset;
+  #if HAS_M206_COMMAND
+    current_position += home_offset;  // Init current position based on home_offset
   #endif
 
-  sync_plan_position();     // Vital to init stepper/planner equivalent for current_position
+  sync_plan_position();               // Vital to init stepper/planner equivalent for current_position
 
-  thermalManager.init();    // Initialize temperature loop
+  SETUP_RUN(thermalManager.init());   // Initialize temperature loop
 
-  print_job_timer.init();   // Initial setup of print job timer
+  SETUP_RUN(print_job_timer.init());  // Initial setup of print job timer
 
-  endstops.init();          // Init endstops and pullups
+  SETUP_RUN(endstops.init());         // Init endstops and pullups
 
-  stepper.init();           // Init stepper. This enables interrupts!
+  SETUP_RUN(stepper.init());          // Init stepper. This enables interrupts!
 
   #if HAS_SERVOS
-    servo_init();
+    SETUP_RUN(servo_init());
   #endif
 
   #if HAS_Z_SERVO_PROBE
-    probe.servo_probe_init();
+    SETUP_RUN(probe.servo_probe_init());
   #endif
 
   #if HAS_PHOTOGRAPH
@@ -1024,7 +1033,7 @@ void setup() {
   #endif
 
   #if HAS_CUTTER
-    cutter.init();
+    SETUP_RUN(cutter.init());
   #endif
 
   #if ENABLED(COOLANT_MIST)
@@ -1035,7 +1044,7 @@ void setup() {
   #endif
 
   #if HAS_BED_PROBE
-    endstops.enable_z_probe(false);
+    SETUP_RUN(endstops.enable_z_probe(false));
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
@@ -1043,15 +1052,15 @@ void setup() {
   #endif
 
   #if HAS_STEPPER_RESET
-    enableStepperDrivers();
+    SETUP_RUN(enableStepperDrivers());
   #endif
 
   #if ENABLED(DIGIPOT_I2C)
-    digipot_i2c_init();
+    SETUP_RUN(digipot_i2c_init());
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
-    dac_init();
+    SETUP_RUN(dac_init());
   #endif
 
   #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1
@@ -1074,41 +1083,44 @@ void setup() {
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
-    update_case_light();
+    SETUP_RUN(update_case_light());
   #endif
 
   #if ENABLED(MK2_MULTIPLEXER)
+    SETUP_LOG("MK2_MULTIPLEXER");
     SET_OUTPUT(E_MUX0_PIN);
     SET_OUTPUT(E_MUX1_PIN);
     SET_OUTPUT(E_MUX2_PIN);
   #endif
 
   #if HAS_FANMUX
-    fanmux_init();
+    SETUP_RUN(fanmux_init());
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    mixer.init();
+    SETUP_RUN(mixer.init());
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch.init(/*set_voltage=*/true);
+    SETUP_RUN(bltouch.init(/*set_voltage=*/true));
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    I2CPEM.init();
+    SETUP_RUN(I2CPEM.init());
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+    SETUP_LOG("i2c...");
     i2c.onReceive(i2c_on_receive);
     i2c.onRequest(i2c_on_request);
   #endif
 
   #if DO_SWITCH_EXTRUDER
-    move_extruder_servo(0);   // Initialize extruder servo
+    SETUP_RUN(move_extruder_servo(0));  // Initialize extruder servo
   #endif
 
   #if ENABLED(SWITCHING_NOZZLE)
+    SETUP_LOG("SWITCHING_NOZZLE");
     // Initialize nozzle servo(s)
     #if SWITCHING_NOZZLE_TWO_SERVOS
       lower_nozzle(0);
@@ -1119,52 +1131,59 @@ void setup() {
   #endif
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    mpe_settings_init();
+    SETUP_RUN(mpe_settings_init());
   #endif
 
   #if ENABLED(PARKING_EXTRUDER)
-    pe_solenoid_init();
+    SETUP_RUN(pe_solenoid_init());
+  #endif
+
+  #if ENABLED(SWITCHING_TOOLHEAD)
+    swt_init();
   #endif
 
   #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    est_init();
+    SETUP_RUN(est_init());
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.check();
+    SETUP_RUN(recovery.check());
   #endif
 
   #if ENABLED(USE_WATCHDOG)
-    watchdog_init();          // Reinit watchdog after HAL_get_reset_source call
+    SETUP_RUN(watchdog_init());       // Reinit watchdog after HAL_get_reset_source call
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    init_closedloop();
+    SETUP_RUN(init_closedloop());
   #endif
 
   #ifdef STARTUP_COMMANDS
+    SETUP_LOG("STARTUP_COMMANDS");
     queue.inject_P(PSTR(STARTUP_COMMANDS));
   #endif
 
   #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
-    card.beginautostart();
+    SETUP_RUN(card.beginautostart());
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_action_prompt_end();
+    SETUP_RUN(host_action_prompt_end());
   #endif
 
-  #if HAS_TRINAMIC && DISABLED(PSU_DEFAULT_OFF)
-    test_tmc_connection(true, true, true, true);
+  #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
+    SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
   #if ENABLED(PRUSA_MMU2)
-    mmu2.init();
+    SETUP_RUN(mmu2.init());
   #endif
 
-  #if HAS_SERVICE_INTERVALS
-    ui.reset_status(true);  // Show service messages or keep current status
+  #if ENABLED(MAX7219_DEBUG)
+    SETUP_RUN(max7219.init());
   #endif
+
+  SETUP_LOG("setup() completed.");
 }
 
 /**
@@ -1182,7 +1201,6 @@ void setup() {
  */
 void loop() {
   do {
-
     idle();
 
     #if ENABLED(SDSUPPORT)
@@ -1195,9 +1213,5 @@ void loop() {
 
     endstops.event_handler();
 
-  } while (false        // Return to caller for best compatibility
-    #ifdef __AVR__
-      || true           // Loop forever on slower (AVR) boards
-    #endif
-  );
+  } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

@@ -30,9 +30,9 @@
 
 #if HAS_DGUS_LCD
 
-#include "extensible_ui/ui_api.h"
-#include "extensible_ui/lib/dgus/DGUSDisplay.h"
-#include "extensible_ui/lib/dgus/DGUSDisplayDefinition.h"
+#include "extui/ui_api.h"
+#include "extui/lib/dgus/DGUSDisplay.h"
+#include "extui/lib/dgus/DGUSDisplayDef.h"
 
 extern const char NUL_STR[];
 

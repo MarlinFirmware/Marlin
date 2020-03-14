@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
@@ -170,4 +170,4 @@ void GcodeSuite::M906() {
   }
 }
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

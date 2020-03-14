@@ -56,8 +56,12 @@
   #define CALIBRATION_MEASUREMENT_CERTAIN   0.5 // mm
 #endif
 
-#define HAS_X_CENTER BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
-#define HAS_Y_CENTER BOTH(CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
+#if BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
+  #define HAS_X_CENTER 1
+#endif
+#if BOTH(CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
+  #define HAS_Y_CENTER 1
+#endif
 
 enum side_t : uint8_t { TOP, RIGHT, FRONT, LEFT, BACK, NUM_SIDES };
 
@@ -120,7 +124,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 #if HAS_HOTEND_OFFSET
 
   inline void normalize_hotend_offsets() {
-    for (uint8_t e = 1; e < HOTENDS; e++)
+    LOOP_S_L_N(e, 1, HOTENDS)
       hotend_offset[e] -= hotend_offset[0];
     hotend_offset[0].reset();
   }
@@ -389,7 +393,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     // This function requires normalize_hotend_offsets() to be called
     //
     inline void report_hotend_offsets() {
-      for (uint8_t e = 1; e < HOTENDS; e++)
+      LOOP_S_L_N(e, 1, HOTENDS)
         SERIAL_ECHOLNPAIR_P(PSTR("T"), int(e), PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif

@@ -41,6 +41,9 @@
 // EEPROM Emulation
 //
 #define FLASH_EEPROM_EMULATION
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_LEVELING
+#endif
 //#define SRAM_EEPROM_EMULATION
 //#define I2C_EEPROM
 #ifdef I2C_EEPROM
@@ -65,6 +68,7 @@
 
 //
 // Filament Sensor
+// share with X_MAX_PIN
 //
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN   PA1

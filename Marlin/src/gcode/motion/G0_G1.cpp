@@ -100,9 +100,9 @@ void GcodeSuite::G0_G1(
     #endif // FWRETRACT
 
     #if IS_SCARA
-      fast_move ? prepare_fast_move_to_destination() : prepare_move_to_destination();
+      fast_move ? prepare_fast_move_to_destination() : prepare_line_to_destination();
     #else
-      prepare_move_to_destination();
+      prepare_line_to_destination();
     #endif
 
     #ifdef G0_FEEDRATE

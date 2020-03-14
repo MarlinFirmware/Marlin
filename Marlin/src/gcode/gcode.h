@@ -287,7 +287,7 @@
 #include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "../feature/I2CPositionEncoder.h"
+  #include "../feature/encoder_i2c.h"
 #endif
 
 enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
@@ -434,7 +434,7 @@ private:
     static void G27();
   #endif
 
-  static void G28(const bool always_home_all);
+  static void G28();
 
   #if HAS_LEVELING
     #if ENABLED(G29_RETRY_AND_RECOVER)
@@ -912,7 +912,7 @@ private:
     static void M900();
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     static void M122();
     static void M906();
     #if HAS_STEALTHCHOP

@@ -103,7 +103,7 @@ MarlinUI ui;
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "../feature/tmc_util.h"
 #endif
 
@@ -391,7 +391,7 @@ bool MarlinUI::get_blink() {
 
     void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
       move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-      encoderPosition = dir;
+      ui.encoderPosition = dir;
       switch (axis) {
         case X_AXIS: lcd_move_x(); break;
         case Y_AXIS: lcd_move_y(); break;
@@ -1136,7 +1136,7 @@ void MarlinUI::update() {
       thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < adc_other_button)
-        for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
+        LOOP_L_N(i, ADC_KEY_NUM) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
           if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
@@ -1148,27 +1148,6 @@ void MarlinUI::update() {
 #endif // HAS_ADC_BUTTONS
 
 #if HAS_ENCODER_ACTION
-
-  #if DISABLED(ADC_KEYPAD) && (ENABLED(REPRAPWORLD_KEYPAD) || !HAS_DIGITAL_BUTTONS)
-
-    /**
-     * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
-     * These values are independent of which pins are used for EN_A and EN_B indications
-     * The rotary encoder part is also independent to the chipset used for the LCD
-     */
-    #define GET_SHIFT_BUTTON_STATES(DST) \
-      uint8_t new_##DST = 0; \
-      WRITE(SHIFT_LD, LOW); \
-      WRITE(SHIFT_LD, HIGH); \
-      for (int8_t i = 0; i < 8; i++) { \
-        new_##DST >>= 1; \
-        if (READ(SHIFT_OUT)) SBI(new_##DST, 7); \
-        WRITE(SHIFT_CLK, HIGH); \
-        WRITE(SHIFT_CLK, LOW); \
-      } \
-      DST = ~new_##DST; //invert it, because a pressed switch produces a logical 0
-
-  #endif
 
   /**
    * Read encoder buttons from the hardware registers
@@ -1267,15 +1246,25 @@ void MarlinUI::update() {
       #endif
 
       #if HAS_SHIFT_ENCODER
-
-        GET_SHIFT_BUTTON_STATES((
-          #if ENABLED(REPRAPWORLD_KEYPAD)
-            keypad_buttons
-          #else
-            buttons
-          #endif
-        ));
-
+        /**
+         * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
+         * These values are independent of which pins are used for EN_A / EN_B indications.
+         * The rotary encoder part is also independent of the LCD chipset.
+         */
+        uint8_t val = 0;
+        WRITE(SHIFT_LD, LOW);
+        WRITE(SHIFT_LD, HIGH);
+        LOOP_L_N(i, 8) {
+          val >>= 1;
+          if (READ(SHIFT_OUT)) SBI(val, 7);
+          WRITE(SHIFT_CLK, HIGH);
+          WRITE(SHIFT_CLK, LOW);
+        }
+        #if ENABLED(REPRAPWORLD_KEYPAD)
+          keypad_buttons = ~val;
+        #else
+          buttons = ~val;
+        #endif
       #endif
 
     } // next_button_update_ms
@@ -1320,7 +1309,7 @@ void MarlinUI::update() {
 #if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "extensible_ui/ui_api.h"
+    #include "extui/ui_api.h"
   #endif
 
   ////////////////////////////////////////////

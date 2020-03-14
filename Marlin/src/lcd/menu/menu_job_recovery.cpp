@@ -31,7 +31,7 @@
 #include "menu.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
-#include "../../feature/power_loss_recovery.h"
+#include "../../feature/powerloss.h"
 
 static void lcd_power_loss_recovery_resume() {
   ui.return_to_status();

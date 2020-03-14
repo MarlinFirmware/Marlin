@@ -34,7 +34,7 @@
 inline void G38_single_probe(const uint8_t move_value) {
   endstops.enable(true);
   G38_move = move_value;
-  prepare_move_to_destination();
+  prepare_line_to_destination();
   planner.synchronize();
   G38_move = 0;
   endstops.hit_on_purpose();
@@ -77,7 +77,7 @@ inline bool G38_run_probe() {
       // Move away by the retract distance
       destination = current_position + retract_mm;
       endstops.enable(false);
-      prepare_move_to_destination();
+      prepare_line_to_destination();
       planner.synchronize();
 
       REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);

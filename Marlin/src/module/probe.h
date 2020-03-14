@@ -27,6 +27,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "motion.h"
+
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
@@ -45,16 +47,46 @@ public:
 
     static bool set_deployed(const bool deploy);
 
+
+    #if IS_KINEMATIC
+
+      #if HAS_PROBE_XY_OFFSET
+        // Return true if the both nozzle and the probe can reach the given point.
+        // Note: This won't work on SCARA since the probe offset rotates with the arm.
+        static inline bool can_reach(const float &rx, const float &ry) {
+          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
+              && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));       // Can the nozzle also go near there?
+        }
+      #else
+        FORCE_INLINE static bool can_reach(const float &rx, const float &ry) {
+          return position_is_reachable(rx, ry, MIN_PROBE_EDGE);
+        }
+      #endif
+
+    #else
+
+      /**
+       * Return whether the given position is within the bed, and whether the nozzle
+       * can reach the position required to put the probe at the given position.
+       *
+       * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
+       *          nozzle must be be able to reach +10,-10.
+       */
+      static inline bool can_reach(const float &rx, const float &ry) {
+        return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
+            && WITHIN(rx, min_x() - fslop, max_x() + fslop)
+            && WITHIN(ry, min_y() - fslop, max_y() + fslop);
+      }
+
+    #endif
+
     #ifdef Z_AFTER_PROBING
       static void move_z_after_probing();
     #endif
     static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
-      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative);
+      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
-    #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-      static const char msg_wait_for_bed_heating[25];
-    #endif
 
   #else
 
@@ -62,7 +94,21 @@ public:
 
     static bool set_deployed(const bool) { return false; }
 
+    FORCE_INLINE static bool can_reach(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
+
   #endif
+
+  FORCE_INLINE static bool can_reach(const xy_pos_t &pos) { return can_reach(pos.x, pos.y); }
+
+  FORCE_INLINE static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
+    return (
+      #if IS_KINEMATIC
+         can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
+      #else
+         can_reach(lf) && can_reach(rb)
+      #endif
+    );
+  }
 
   // Use offset_xy for read only access
   // More optimal the XY offset is known to always be zero.
@@ -131,7 +177,7 @@ public:
       // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
       template <typename T>
       static inline void get_three_points(T points[3]) {
-        #if ENABLED(HAS_FIXED_3POINT)
+        #if HAS_FIXED_3POINT
           points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
           points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
           points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);

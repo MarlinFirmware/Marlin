@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_TRINAMIC && HAS_LCD_MENU
+#if HAS_TRINAMIC_CONFIG && HAS_LCD_MENU
 
 #include "menu.h"
 #include "../../module/stepper/indirection.h"
@@ -249,4 +249,4 @@ void menu_tmc() {
   END_MENU();
 }
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

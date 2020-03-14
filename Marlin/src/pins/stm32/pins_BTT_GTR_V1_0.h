@@ -237,8 +237,8 @@
 #define TEMP_3_PIN         PA3   // T4 <-> E3
 #define TEMP_4_PIN         PF9   // T5 <-> E4
 #define TEMP_5_PIN         PF10  // T6 <-> E5
-//#define TEMP_6_PIN         PF7   // T7 <-> E6
-//#define TEMP_7_PIN         PF5   // T8 <-> E7
+#define TEMP_6_PIN         PF7   // T7 <-> E6
+#define TEMP_7_PIN         PF5   // T8 <-> E7
 
 #define TEMP_BED_PIN       PC0   // T0 <-> Bed
 
@@ -266,8 +266,8 @@
 #define HEATER_3_PIN       PD15  // Heater3
 #define HEATER_4_PIN       PD13  // Heater4
 #define HEATER_5_PIN       PD12  // Heater5
-//#define HEATER_6_PIN       PE13 // Heater6
-//#define HEATER_7_PIN       PI6  // Heater7
+#define HEATER_6_PIN       PE13 // Heater6
+#define HEATER_7_PIN       PI6  // Heater7
 
 #define HEATER_BED_PIN     PA2   // Hotbed
 

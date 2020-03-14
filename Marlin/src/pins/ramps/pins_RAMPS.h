@@ -647,7 +647,7 @@
           #define NEOPIXEL_PIN    25
         #endif
 
-    #endif
+      #endif
 
     #elif ENABLED(MINIPANEL)
 
@@ -685,14 +685,7 @@
       #define BEEPER_PIN        33
 
       // Buttons are directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
-        #define SHIFT_OUT       40
-        #define SHIFT_CLK       44
-        #define SHIFT_LD        42
-        #define BTN_EN1         64
-        #define BTN_EN2         59
-        #define BTN_ENC         63
-      #elif ENABLED(PANEL_ONE)
+      #if ENABLED(PANEL_ONE)
         #define BTN_EN1         59   // AUX2 PIN 3
         #define BTN_EN2         63   // AUX2 PIN 4
         #define BTN_ENC         49   // AUX3 PIN 7
@@ -711,3 +704,18 @@
   #endif // NEWPANEL
 
 #endif // HAS_SPI_LCD
+
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define SHIFT_OUT        40
+  #define SHIFT_CLK        44
+  #define SHIFT_LD         42
+  #ifndef BTN_EN1
+    #define BTN_EN1        64
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2        59
+  #endif
+  #ifndef BTN_ENC
+    #define BTN_ENC        63
+  #endif
+#endif
