@@ -76,9 +76,19 @@ void minkill(const bool steppers_off=false);
 
 void quickstop_stepper();
 
-extern bool Running;
-inline bool IsRunning() { return  Running; }
-inline bool IsStopped() { return !Running; }
+// Global State of the firmware
+enum MarlinState : uint8_t {
+  MF_INITIALIZING =  0,
+  MF_RUNNING      = _BV(0),
+  MF_PAUSED       = _BV(1),
+  MF_WAITING      = _BV(2),
+  MF_STOPPED      = _BV(3),
+  MF_KILLED       = _BV(7)
+};
+
+extern MarlinState marlin_state;
+inline bool IsRunning() { return marlin_state == MF_RUNNING; }
+inline bool IsStopped() { return marlin_state != MF_RUNNING; }
 
 bool printingIsActive();
 bool printingIsPaused();
