@@ -147,7 +147,7 @@ void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/
  */
 inline uint32_t flipped(const uint32_t bits, const uint8_t n_bytes) {
   uint32_t mask = 1, outbits = 0;
-  for (uint8_t b = 0; b < n_bytes * 8; b++) {
+  LOOP_L_N(b, n_bytes * 8) {
     outbits <<= 1;
     if (bits & mask) outbits |= 1;
     mask <<= 1;
@@ -329,13 +329,13 @@ void Max7219::fill() {
 
 void Max7219::clear_row(const uint8_t row) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("clear_row"), row);
-  for (uint8_t x = 0; x < MAX7219_X_LEDS; x++) CLR_7219(x, row);
+  LOOP_L_N(x, MAX7219_X_LEDS) CLR_7219(x, row);
   send_row(row);
 }
 
 void Max7219::clear_column(const uint8_t col) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
-  for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++) CLR_7219(col, y);
+  LOOP_L_N(y, MAX7219_Y_LEDS) CLR_7219(col, y);
   send_column(col);
 }
 
@@ -347,7 +347,7 @@ void Max7219::clear_column(const uint8_t col) {
 void Max7219::set_row(const uint8_t row, const uint32_t val) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("set_row"), row);
   uint32_t mask = _BV32(MAX7219_X_LEDS - 1);
-  for (uint8_t x = 0; x < MAX7219_X_LEDS; x++) {
+  LOOP_L_N(x, MAX7219_X_LEDS) {
     if (val & mask) SET_7219(x, row); else CLR_7219(x, row);
     mask >>= 1;
   }
@@ -362,7 +362,7 @@ void Max7219::set_row(const uint8_t row, const uint32_t val) {
 void Max7219::set_column(const uint8_t col, const uint32_t val) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
   uint32_t mask = _BV32(MAX7219_Y_LEDS - 1);
-  for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++) {
+  LOOP_L_N(y, MAX7219_Y_LEDS) {
     if (val & mask) SET_7219(col, y); else CLR_7219(col, y);
     mask >>= 1;
   }
@@ -427,23 +427,23 @@ void Max7219::set_columns_32bits(const uint8_t x, uint32_t val) {
 
 // Initialize the Max7219
 void Max7219::register_setup() {
-  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+  LOOP_L_N(i, MAX7219_NUMBER_UNITS)
     send(max7219_reg_scanLimit, 0x07);
   pulse_load();                               // Tell the chips to load the clocked out data
 
-  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+  LOOP_L_N(i, MAX7219_NUMBER_UNITS)
     send(max7219_reg_decodeMode, 0x00);       // Using an led matrix (not digits)
   pulse_load();                               // Tell the chips to load the clocked out data
 
-  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+  LOOP_L_N(i, MAX7219_NUMBER_UNITS)
     send(max7219_reg_shutdown, 0x01);         // Not in shutdown mode
   pulse_load();                               // Tell the chips to load the clocked out data
 
-  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+  LOOP_L_N(i, MAX7219_NUMBER_UNITS)
     send(max7219_reg_displayTest, 0x00);      // No display test
   pulse_load();                               // Tell the chips to load the clocked out data
 
-  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+  LOOP_L_N(i, MAX7219_NUMBER_UNITS)
     send(max7219_reg_intensity, 0x01 & 0x0F); // The first 0x0F is the value you can set
                                               // Range: 0x00 to 0x0F
   pulse_load();                               // Tell the chips to load the clocked out data
@@ -537,7 +537,7 @@ void Max7219::init() {
 
   register_setup();
 
-  for (uint8_t i = 0; i <= 7; i++) {  // Empty registers to turn all LEDs off
+  LOOP_LE_N(i, 7) {  // Empty registers to turn all LEDs off
     led_line[i] = 0x00;
     send(max7219_reg_digit0 + i, 0);
     pulse_load();                     // Tell the chips to load the clocked out data

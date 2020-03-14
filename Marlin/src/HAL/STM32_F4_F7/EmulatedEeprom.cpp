@@ -102,7 +102,7 @@ void eeprom_read_block(void *__dst, const void *__src, size_t __n) {
 
   uint16_t data = 0xFF;
   uint16_t eeprom_address = unsigned(__src);
-  for (uint8_t c = 0; c < __n; c++) {
+  LOOP_L_N(c, __n) {
     EE_ReadVariable(eeprom_address+c, &data);
     *((uint8_t*)__dst + c) = data;
   }

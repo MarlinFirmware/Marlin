@@ -1136,7 +1136,7 @@ void MarlinUI::update() {
       thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < adc_other_button)
-        for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
+        LOOP_L_N(i, ADC_KEY_NUM) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
           if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);

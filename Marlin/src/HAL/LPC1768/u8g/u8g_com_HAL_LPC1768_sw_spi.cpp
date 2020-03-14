@@ -73,7 +73,7 @@
 
 uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 
-  for (uint8_t i = 0; i < 8; i++) {
+  LOOP_L_N(i, 8) {
     if (spi_speed == 0) {
       LPC176x::gpio_set(mosi_pin, !!(b & 0x80));
       LPC176x::gpio_set(sck_pin, HIGH);
@@ -83,16 +83,16 @@ uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck
     }
     else {
       const uint8_t state = (b & 0x80) ? HIGH : LOW;
-      for (uint8_t j = 0; j < spi_speed; j++)
+      LOOP_L_N(j, spi_speed)
         LPC176x::gpio_set(mosi_pin, state);
 
-      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
+      LOOP_L_N(j, spi_speed + (miso_pin >= 0 ? 0 : 1))
         LPC176x::gpio_set(sck_pin, HIGH);
 
       b <<= 1;
       if (miso_pin >= 0 && LPC176x::gpio_get(miso_pin)) b |= 1;
 
-      for (uint8_t j = 0; j < spi_speed; j++)
+      LOOP_L_N(j, spi_speed)
         LPC176x::gpio_set(sck_pin, LOW);
     }
   }
@@ -102,7 +102,7 @@ uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck
 
 uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 
-  for (uint8_t i = 0; i < 8; i++) {
+  LOOP_L_N(i, 8) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
     if (spi_speed == 0) {
       LPC176x::gpio_set(sck_pin, LOW);
@@ -111,13 +111,13 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
       LPC176x::gpio_set(sck_pin, HIGH);
     }
     else {
-      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
+      LOOP_L_N(j, spi_speed + (miso_pin >= 0 ? 0 : 1))
         LPC176x::gpio_set(sck_pin, LOW);
 
-      for (uint8_t j = 0; j < spi_speed; j++)
+      LOOP_L_N(j, spi_speed)
         LPC176x::gpio_set(mosi_pin, state);
 
-      for (uint8_t j = 0; j < spi_speed; j++)
+      LOOP_L_N(j, spi_speed)
         LPC176x::gpio_set(sck_pin, HIGH);
     }
     b <<= 1;

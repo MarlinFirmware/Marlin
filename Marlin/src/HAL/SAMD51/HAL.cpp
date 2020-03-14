@@ -478,10 +478,10 @@ void HAL_adc_init() {
   #if ADC_IS_REQUIRED
     memset(HAL_adc_results, 0xFF, sizeof(HAL_adc_results));                 // Fill result with invalid values
 
-    for (uint8_t pi = 0; pi < COUNT(adc_pins); ++pi)
+    LOOP_L_N(pi, COUNT(adc_pins))
       pinPeripheral(adc_pins[pi], PIO_ANALOG);
 
-    for (uint8_t ai = FIRST_ADC; ai <= LAST_ADC; ++ai) {
+    LOOP_S_LE_N(ai, FIRST_ADC, LAST_ADC) {
       Adc* adc = ((Adc*[])ADC_INSTS)[ai];
 
       // ADC clock setup
@@ -513,7 +513,7 @@ void HAL_adc_init() {
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   #if ADC_IS_REQUIRED
-    for (uint8_t pi = 0; pi < COUNT(adc_pins); ++pi) {
+    LOOP_L_N(pi, COUNT(adc_pins)) {
       if (adc_pin == adc_pins[pi]) {
         HAL_adc_result = HAL_adc_results[pi];
         return;

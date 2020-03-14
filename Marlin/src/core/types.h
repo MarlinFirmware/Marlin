@@ -50,12 +50,6 @@ enum AxisEnum : uint8_t {
 //
 // Loop over XYZE axes
 //
-
-#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
-#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
-#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
-#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
-
 #define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
 #define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
