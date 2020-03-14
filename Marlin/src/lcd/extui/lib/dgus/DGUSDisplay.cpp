@@ -202,8 +202,8 @@ void DGUSDisplay::WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen) {
 const uint16_t* DGUS_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;
   const struct VPMapping *map = VPMap;
-  while (ret = (uint16_t*) pgm_read_ptr(&(map->VPList))) {
-    if (pgm_read_byte(&(map->screen)) == screen) return ret;
+  while (ret = (uint16_t*) pgm_read_ptr(&map->VPList)) {
+    if (pgm_read_byte(&map->screen) == screen) return ret;
     map++;
   }
   return nullptr;
@@ -212,7 +212,7 @@ const uint16_t* DGUS_FindScreenVPMapList(uint8_t screen) {
 const DGUS_VP_Variable* DGUS_FindVPVar(const uint16_t vp) {
   const DGUS_VP_Variable *ret = ListOfVP;
   do {
-    const uint16_t vpcheck = pgm_read_word(&(ret->VP));
+    const uint16_t vpcheck = pgm_read_word(&ret->VP);
     if (vpcheck == 0) break;
     if (vpcheck == vp) return ret;
     ++ret;
