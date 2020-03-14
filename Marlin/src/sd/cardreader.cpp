@@ -143,7 +143,7 @@ CardReader::CardReader() {
 //
 char *createFilename(char * const buffer, const dir_t &p) {
   char *pos = buffer;
-  for (uint8_t i = 0; i < 11; i++) {
+  LOOP_L_N(i, 11) {
     if (p.name[i] == ' ') continue;
     if (i == 8) *pos++ = '.';
     *pos++ = p.name[i];
@@ -435,7 +435,7 @@ void CardReader::getAbsFilename(char *dst) {
     if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
   };
 
-  for (uint8_t i = 0; i < workDirDepth; i++)                // Loop down to current work dir
+  LOOP_L_N(i, workDirDepth)                // Loop down to current work dir
     appendAtom(workDirParents[i]);
 
   if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH) - 1) {    // Leave room for filename and nul
@@ -1046,7 +1046,7 @@ void CardReader::cdroot() {
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         delete sort_order;
         #if ENABLED(SDSORT_CACHE_NAMES)
-          for (uint8_t i = 0; i < sort_count; ++i) {
+          LOOP_L_N(i, sort_count) {
             free(sortshort[i]); // strdup
             free(sortnames[i]); // strdup
           }

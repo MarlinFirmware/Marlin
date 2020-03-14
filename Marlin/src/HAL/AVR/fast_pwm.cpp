@@ -167,7 +167,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
     uint16_t prescaler[] = { 0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024 };
 
     // loop over prescaler values
-    for (uint8_t i = 1; i < 8; i++) {
+    LOOP_S_L_N(i, 1, 8) {
       uint16_t res_temp_fast = 255, res_temp_phase_correct = 255;
       if (timer.n == 2) {
         // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP

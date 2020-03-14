@@ -708,7 +708,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     }while(0)
 
     uint8_t fanDone = 0;
-    for (uint8_t f = 0; f < COUNT(fanBit); f++) {
+    LOOP_L_N(f, COUNT(fanBit)) {
       const uint8_t realFan = pgm_read_byte(&fanBit[f]);
       if (TEST(fanDone, realFan)) continue;
       const bool fan_on = TEST(fanState, realFan);
@@ -2422,7 +2422,7 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 1
     };
 
-    for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
+    LOOP_L_N(e, COUNT(temp_dir)) {
       const int8_t tdir = temp_dir[e];
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp

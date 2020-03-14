@@ -1408,7 +1408,7 @@ void Planner::check_axes_activity() {
    * The multiplier converts a given E value into a length.
    */
   void Planner::calculate_volumetric_multipliers() {
-    for (uint8_t i = 0; i < COUNT(filament_size); i++) {
+    LOOP_L_N(i, COUNT(filament_size)) {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
@@ -1991,7 +1991,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-        for (uint8_t i = 0; i < EXTRUDERS; i++)
+        LOOP_L_N(i, EXTRUDERS)
           if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
         #if HAS_DUPLICATION_MODE

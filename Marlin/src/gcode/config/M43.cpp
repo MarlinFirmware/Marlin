@@ -57,7 +57,7 @@ inline void toggle_pins() {
             end = PARSED_PIN_INDEX('L', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
-  for (uint8_t i = start; i <= end; i++) {
+  LOOP_S_LE_N(i, start, end) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
@@ -313,7 +313,7 @@ void GcodeSuite::M43() {
       NOLESS(first_pin, 2); // Don't hijack the UART pins
     #endif
     uint8_t pin_state[last_pin - first_pin + 1];
-    for (uint8_t i = first_pin; i <= last_pin; i++) {
+    LOOP_S_LE_N(i, first_pin, last_pin) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!VALID_PIN(pin)) continue;
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -339,7 +339,7 @@ void GcodeSuite::M43() {
     #endif
 
     for (;;) {
-      for (uint8_t i = first_pin; i <= last_pin; i++) {
+      LOOP_S_LE_N(i, first_pin, last_pin) {
         pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!VALID_PIN(pin)) continue;
         if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -365,7 +365,7 @@ void GcodeSuite::M43() {
   }
   else {
     // Report current state of selected pin(s)
-    for (uint8_t i = first_pin; i <= last_pin; i++) {
+    LOOP_S_LE_N(i, first_pin, last_pin) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }

@@ -251,7 +251,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    for (uint8_t n = 0; n <= 1; ++n)
+    LOOP_LE_N(n, 1)
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
         pe_activate_solenoid(n);
       #else

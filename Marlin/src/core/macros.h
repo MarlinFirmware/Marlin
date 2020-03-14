@@ -248,6 +248,11 @@
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
+
 #define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))

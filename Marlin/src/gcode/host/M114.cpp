@@ -36,7 +36,7 @@
 
   void report_xyze(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
     char str[12];
-    for (uint8_t a = 0; a < n; a++) {
+    LOOP_L_N(a, n) {
       SERIAL_CHAR(' ', axis_codes[a], ':');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }

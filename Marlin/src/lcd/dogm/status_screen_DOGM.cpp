@@ -564,7 +564,7 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     #if DO_DRAW_HOTENDS
-      for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e)
+      LOOP_L_N(e, MAX_HOTEND_DRAW)
         _draw_hotend_status((heater_ind_t)e, blink);
     #endif
 
