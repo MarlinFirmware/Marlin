@@ -381,7 +381,7 @@ bool MMU2::rx_str_P(const char* str) {
 void MMU2::tx_str_P(const char* str) {
   clear_rx_buffer();
   uint8_t len = strlen_P(str);
-  for (uint8_t i = 0; i < len; i++) mmuSerial.write(pgm_read_byte(str++));
+  LOOP_L_N(i, len) mmuSerial.write(pgm_read_byte(str++));
   rx_buffer[0] = '\0';
   last_request = millis();
 }
@@ -392,7 +392,7 @@ void MMU2::tx_str_P(const char* str) {
 void MMU2::tx_printf_P(const char* format, int argument = -1) {
   clear_rx_buffer();
   uint8_t len = sprintf_P(tx_buffer, format, argument);
-  for (uint8_t i = 0; i < len; i++) mmuSerial.write(tx_buffer[i]);
+  LOOP_L_N(i, len) mmuSerial.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
   last_request = millis();
 }
@@ -403,7 +403,7 @@ void MMU2::tx_printf_P(const char* format, int argument = -1) {
 void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
   clear_rx_buffer();
   uint8_t len = sprintf_P(tx_buffer, format, argument1, argument2);
-  for (uint8_t i = 0; i < len; i++) mmuSerial.write(tx_buffer[i]);
+  LOOP_L_N(i, len) mmuSerial.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
   last_request = millis();
 }
@@ -780,7 +780,7 @@ void MMU2::filament_runout() {
 
     const E_Step* step = sequence;
 
-    for (uint8_t i = 0; i < steps; i++) {
+    LOOP_L_N(i, steps) {
       const float es = pgm_read_float(&(step->extrude));
       const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
 

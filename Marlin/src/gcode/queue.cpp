@@ -94,7 +94,7 @@ static PGM_P injected_commands_P = nullptr;
 
 GCodeQueue::GCodeQueue() {
   // Send "ok" after commands by default
-  for (uint8_t i = 0; i < COUNT(send_ok); i++) send_ok[i] = true;
+  LOOP_L_N(i, COUNT(send_ok)) send_ok[i] = true;
 }
 
 /**
@@ -427,7 +427,7 @@ void GCodeQueue::get_serial_commands() {
    * Loop while serial characters are incoming and the queue is not full
    */
   while (length < BUFSIZE && serial_data_available()) {
-    for (uint8_t i = 0; i < NUM_SERIAL; ++i) {
+    LOOP_L_N(i, NUM_SERIAL) {
 
       const int c = read_serial(i);
       if (c < 0) continue;

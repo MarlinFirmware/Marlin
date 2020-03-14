@@ -83,7 +83,7 @@ void digipot_i2c_init() {
   #endif
   // setup initial currents as defined in Configuration_adv.h
   static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
-  for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++)
+  LOOP_L_N(i, COUNT(digipot_motor_current))
     digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }
 

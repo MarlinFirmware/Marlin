@@ -54,7 +54,7 @@ uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
 
 void ProbeTempComp::clear_offsets(const TempSensorID tsi) {
-  for (uint8_t i = 0; i < cali_info[tsi].measurements; ++i)
+  LOOP_L_N(i, cali_info[tsi].measurements)
     sensor_z_offsets[tsi][i] = 0;
   calib_idx = 0;
 }
@@ -66,7 +66,7 @@ bool ProbeTempComp::set_offset(const TempSensorID tsi, const uint8_t idx, const 
 }
 
 void ProbeTempComp::print_offsets() {
-  for (uint8_t s = 0; s < TSI_COUNT; s++) {
+  LOOP_L_N(s, TSI_COUNT) {
     float temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
       serialprintPGM(s == TSI_BED ? PSTR("Bed") :
@@ -198,7 +198,7 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
         sum_x2 = sq(start_temp),
         sum_xy = 0, sum_y = 0;
 
-  for (uint8_t i = 0; i < calib_idx; ++i) {
+  LOOP_L_N(i, calib_idx) {
     const float xi = start_temp + (i + 1) * res_temp,
                 yi = static_cast<float>(data[i]);
     sum_x += xi;

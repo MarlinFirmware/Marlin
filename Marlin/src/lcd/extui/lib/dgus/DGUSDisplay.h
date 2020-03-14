@@ -237,7 +237,7 @@ public:
     if (!var.memadr) return;
     union { unsigned char tmp[sizeof(T)]; T t; } x;
     unsigned char *ptr = (unsigned char*)val_ptr;
-    for (uint8_t i = 0; i < sizeof(T); i++) x.tmp[i] = ptr[sizeof(T) - i - 1];
+    LOOP_L_N(i, sizeof(T)) x.tmp[i] = ptr[sizeof(T) - i - 1];
     *(T*)var.memadr = x.t;
   }
 

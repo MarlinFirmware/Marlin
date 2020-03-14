@@ -624,7 +624,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       #if EXTRA_PROBING
         // Insert Z measurement into probes[]. Keep it sorted ascending.
-        for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
+        LOOP_LE_N(i, p) {                            // Iterate the saved Zs to insert the new Z
           if (i == p || probes[i] > z) {                              // Last index or new Z is smaller than this Z
             for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
             probes[i] = z;                                            // Insert the new Z measurement
@@ -662,7 +662,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
           max_avg_idx--; else min_avg_idx++;
 
       // Return the average value of all remaining probes.
-      for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
+      LOOP_S_LE_N(i, min_avg_idx, max_avg_idx)
         probes_z_sum += probes[i];
 
     #endif

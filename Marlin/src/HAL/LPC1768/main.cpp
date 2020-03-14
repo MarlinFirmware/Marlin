@@ -67,7 +67,7 @@ void HAL_init() {
     #endif
 
     // Flash status LED 3 times to indicate Marlin has started booting
-    for (uint8_t i = 0; i < 6; ++i) {
+    LOOP_L_N(i, 6) {
       TOGGLE(LED_PIN);
       delay(100);
     }
