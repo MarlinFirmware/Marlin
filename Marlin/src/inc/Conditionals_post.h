@@ -155,6 +155,10 @@
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
 #endif
 
+#ifndef SLOWDOWN_DIVISOR
+  #define SLOWDOWN_DIVISOR 2
+#endif
+
 /**
  * Set the home position based on settings or manual overrides
  */

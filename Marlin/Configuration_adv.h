@@ -755,6 +755,9 @@
 
 // If defined the movements slow down when the look ahead buffer is only half full
 #define SLOWDOWN
+#if ENABLED(SLOWDOWN)
+  #define SLOWDOWN_DIVISOR 2
+#endif
 
 // Frequency limit
 // See nophead's blog for more info
