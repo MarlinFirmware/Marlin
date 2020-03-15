@@ -90,10 +90,12 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Conf");
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preheat Custom");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Cooldown");
+  PROGMEM Language_Str MSG_LASER_FREQUENCY                 = _UxGT("Frequency");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser Control");
   PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser Off");
   PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser On");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laser Power");
+  PROGMEM Language_Str MSG_SPINDLE_FREQUENCY               = _UxGT("Frequency");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindle Control");
   PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindle Off");
   PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindle On");
