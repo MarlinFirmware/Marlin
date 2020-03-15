@@ -1531,10 +1531,10 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(planner_leveling_active);
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           const bool &planner_leveling_active = planner.leveling_active;
-          const uint8_t &ubl_storage_slot = ubl.storage_slot;
+          const int8_t &ubl_storage_slot = ubl.storage_slot;
         #else
           bool planner_leveling_active;
-          uint8_t ubl_storage_slot;
+          int8_t ubl_storage_slot;
         #endif
         EEPROM_READ(planner_leveling_active);
         EEPROM_READ(ubl_storage_slot);
