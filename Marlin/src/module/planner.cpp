@@ -2041,6 +2041,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if ENABLED(SLOWDOWN)
+    #ifndef SLOWDOWN_DIVISOR
+      #define SLOWDOWN_DIVISOR 2
+    #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
       if (segment_time_us < settings.min_segment_time_us) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
