@@ -934,7 +934,12 @@ G29_TYPE GcodeSuite::G29() {
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
-        current_position.z -= bilinear_z_offset(current_position);
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float fade_scaling_factor = planner.fade_scaling_factor_for_z(current_position.z);
+        #else
+          constexpr float fade_scaling_factor = 1.0f;
+        #endif
+        current_position.z -= fade_scaling_factor * bilinear_z_offset(current_position);
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(" corrected Z:", current_position.z);
       }
