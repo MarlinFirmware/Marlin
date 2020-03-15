@@ -49,7 +49,7 @@ void GcodeSuite::M42() {
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   if (parser.seenval('M')) {
-    const int8_t pin_mode = parser.value_byte();
+    const uint8_t pin_mode = parser.value_byte();
     if(pin_mode >= 0 && pin_mode <= 2)
       pinMode(pin, pin_mode);
     else
