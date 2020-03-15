@@ -50,7 +50,7 @@ void GcodeSuite::M42() {
 
   if (parser.seenval('M')) {
     const uint8_t pin_mode = parser.value_byte();
-    if(pin_mode == 0
+    if (pin_mode == 0)
       pinMode(pin, INPUT);
     else if (pin_mode == 1)
       pinMode(pin, OUTPUT);
