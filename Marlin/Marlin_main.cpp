@@ -5752,16 +5752,16 @@ void home_all_axes() { gcode_G28(true); }
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
           #endif
-          
 
           // Unapply the offset because it is going to be immediately applied
           // and cause compensation movement in Z
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            const float fade_scaling_factor = planner.fade_scaling_factor_for_z(current_position[Z_AXIS]);
-            current_position[Z_AXIS] -= fade_scaling_factor ? fade_scaling_factor * bilinear_z_offset(current_position) : 0.0;
+            const float fade_scaling_factor = planner.fade_scaling_factor_for_z(current_position.z);
           #else
-            current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+            constexpr float fade_scaling_factor = 1.0f;
           #endif
+          current_position[Z_AXIS] -= fade_scaling_factor * bilinear_z_offset(current_position);
+
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
           #endif
