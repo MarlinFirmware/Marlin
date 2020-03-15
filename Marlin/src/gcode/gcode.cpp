@@ -177,11 +177,7 @@ void GcodeSuite::get_destination_from_command() {
     // Set the laser power in the planner to configure this move
     if (parser.seen('S')) {
       cutter.inline_power(
-        #if ENABLED(CUTTER_POWER_PROPORTIONAL)
-          parser.value_float()
-        #else
-          parser.value_int()
-        #endif
+        parser.value_int()
       );
     }
     #if ENABLED(LASER_MOVE_G0_OFF)

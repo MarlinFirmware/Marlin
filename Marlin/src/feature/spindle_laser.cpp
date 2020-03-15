@@ -32,12 +32,12 @@
 
 SpindleLaser cutter;
 
-cutter_power_t SpindleLaser::power; // = 0
-cutter_power_t SpindleLaser::isOn = false;
-#if HAS_LCD_MENU
-  cutter_power_t SpindleLaser::menuLaserPower; // = 0
+cutter_power_t SpindleLaser::power;
+bool SpindleLaser::isOn;                                                       // state to determine when to apply setPower to power
+cutter_setPower_t SpindleLaser::setPower = interpret_power(SPEED_POWER_MIN);   // spindle/laser speed/power control in PWM, Percentage or RPM
+#if ENABLED(MARLIN_DEV_MODE)
+  cutter_frequency_t SpindleLaser::frequency;                                  // setting PWM frequency; range: 2K - 50K
 #endif
-
 #define SPINDLE_LASER_PWM_OFF ((SPINDLE_LASER_PWM_INVERT) ? 255 : 0)
 
 //
@@ -54,30 +54,20 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
+    #if ENABLED(MARLIN_DEV_MODE)
+      frequency = SPINDLE_LASER_FREQUENCY;
+    #endif
   #endif
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)
 
-  //
-  // Set the cutter PWM directly to the given ocr value
-  //
+  /**
+  * Set the cutter PWM directly to the given ocr value
+  **/
   void SpindleLaser::set_ocr(const uint8_t ocr) {
     WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
-  }
-  //
-  // Translate power from the configured value range to a PWM value
-  //
-  uint8_t SpindleLaser::translate_power(const cutter_power_t pwr) {
-      constexpr float inv_slope = RECIPROCAL(SPEED_POWER_SLOPE),
-                      min_ocr = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * inv_slope,  // Minimum allowed
-                      max_ocr = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * inv_slope;  // Maximum allowed
-      int16_t ocr_val;
-           if (pwr <= SPEED_POWER_MIN) ocr_val = min_ocr;                                 // Use minimum if set below
-      else if (pwr >= SPEED_POWER_MAX) ocr_val = max_ocr;                                 // Use maximum if set above
-      else ocr_val = (pwr - (SPEED_POWER_INTERCEPT)) * inv_slope;                         // Use calculated OCR value
-      return ocr_val & 0xFF;                                                              // ...limited to Atmel PWM max
   }
 
 #endif
@@ -91,8 +81,8 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
   last_power_applied = inpow;
   #if ENABLED(SPINDLE_LASER_PWM)
     if (enabled())
-      set_ocr(translate_power(power));
-    else {                                                                                // Convert RPM to PWM duty cycle
+      set_ocr(translate_power(inpow));
+    else {
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off
       analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);                   // Only write low byte
     }

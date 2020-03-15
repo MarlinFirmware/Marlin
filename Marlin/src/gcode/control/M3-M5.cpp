@@ -36,11 +36,7 @@
 
 inline cutter_power_t get_s_power() {
   return cutter_power_t(
-    #if ENABLED(CUTTER_POWER_PROPORTIONAL)
-      parser.floatval('S', SPEED_POWER_STARTUP)
-    #else
-      parser.intval('S', SPEED_POWER_STARTUP)
-    #endif
+    parser.intval('S', cutter.interpret_power(SPEED_POWER_STARTUP))
   );
 }
 
