@@ -43,6 +43,12 @@
 #define BOARD_INFO_NAME "Re-ARM RAMPS 1.4"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Servos
 //
 #define SERVO0_PIN         P1_20   // (11)
