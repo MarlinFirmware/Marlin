@@ -450,7 +450,11 @@ void MarlinUI::draw_status_screen() {
 
       if (ev != lastElapsed) {
         lastElapsed = ev;
-        const bool has_days = (elapsed.value >= 60*60*24L);
+        #if DISABLED(DOGM_SD_PERCENT) || ENABLED(ROTATE_PROGRESS_DISPLAY)
+          const bool has_days = (elapsed.value >= 60*60*24L);
+        #else
+          const bool has_days = false; // consistent behavior with remaining time below
+        #endif
         const uint8_t len = elapsed.toDigital(elapsed_string, has_days);
         elapsed_x_pos = _SD_INFO_X(len);
 
@@ -468,7 +472,11 @@ void MarlinUI::draw_status_screen() {
             }
             else {
               duration_t estimation = timeval;
-              const bool has_days = (estimation.value >= 60*60*24L);
+              #if DISABLED(DOGM_SD_PERCENT) || ENABLED(ROTATE_PROGRESS_DISPLAY)
+                const bool has_days = (estimation.value >= 60*60*24L);
+              #else
+                const bool has_days = false; // avoid remaining time overlap with percentage
+              #endif
               const uint8_t len = estimation.toDigital(estimation_string, has_days);
               estimation_x_pos = _SD_INFO_X(len
                 #if !BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
