@@ -181,10 +181,6 @@
   #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
-#if HAS_CUTTER
-  #include "feature/spindle_laser.h"
-#endif
-
 const char NUL_STR[] PROGMEM = "",
            M112_KILL_STR[] PROGMEM = "M112 Shutdown",
            G28_STR[] PROGMEM = "G28",
