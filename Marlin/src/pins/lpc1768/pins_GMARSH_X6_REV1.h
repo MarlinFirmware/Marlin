@@ -31,6 +31,12 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Enable 12MHz clock output on P1.27 pin to sync TMC2208 chip clocks
 //
 #define LPC1768_ENABLE_CLKOUT_12M

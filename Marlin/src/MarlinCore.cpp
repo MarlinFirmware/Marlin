@@ -202,7 +202,7 @@ const char NUL_STR[] PROGMEM = "",
            SP_Z_LBL[] PROGMEM = " Z:",
            SP_E_LBL[] PROGMEM = " E:";
 
-bool Running = true;
+MarlinState marlin_state = MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool wait_for_heatup = true;
@@ -839,7 +839,7 @@ void stop() {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
-    Running = false;
+    marlin_state = MF_STOPPED;
   }
 }
 
@@ -991,8 +991,8 @@ void setup() {
     SETUP_RUN(ui.show_bootscreen());
   #endif
 
-  #if ENABLED(SDSUPPORT)
-    SETUP_RUN(card.mount());          // Mount the SD card before settings.first_load
+  #if ENABLED(SDSUPPORT) && defined(SDCARD_CONNECTION) && !SD_CONNECTION_IS(LCD)
+    SETUP_RUN(card.mount());          // Mount onboard / custom SD card before settings.first_load
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
@@ -1182,6 +1182,8 @@ void setup() {
   #if ENABLED(MAX7219_DEBUG)
     SETUP_RUN(max7219.init());
   #endif
+
+  marlin_state = MF_RUNNING;
 
   SETUP_LOG("setup() completed.");
 }

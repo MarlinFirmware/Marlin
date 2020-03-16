@@ -35,14 +35,12 @@
   #define HAS_LINEAR_E_JERK 1
 #endif
 
+// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
 #if ENABLED(EEPROM_SETTINGS)
   #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && EITHER(I2C_EEPROM, SPI_EEPROM)
     #define USE_REAL_EEPROM 1
   #else
     #define USE_EMULATED_EEPROM 1
-  #endif
-  #if NONE(USE_REAL_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION)
-    #define SDCARD_EEPROM_EMULATION 1
   #endif
 #else
   #undef I2C_EEPROM

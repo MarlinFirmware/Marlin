@@ -203,7 +203,7 @@ void GcodeSuite::G34() {
         const uint8_t iprobe = (iteration & 1) ? NUM_Z_STEPPER_DRIVERS - 1 - i : i;
 
         // Safe clearance even on an incline
-        if (iteration == 0 || i > 0) do_blocking_move_to_z(z_probe);
+        if ((iteration == 0 || i > 0) && z_probe > current_position.z) do_blocking_move_to_z(z_probe);
 
         if (DEBUGGING(LEVELING))
           DEBUG_ECHOLNPAIR_P(PSTR("Probing X"), z_stepper_align.xy[iprobe].x, SP_Y_STR, z_stepper_align.xy[iprobe].y);

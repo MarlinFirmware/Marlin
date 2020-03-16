@@ -33,6 +33,12 @@
 #define BOARD_WEBSITE_URL "tinyurl.com/yx8tdqa3"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Servos
 //
 #define SERVO0_PIN         P1_23
@@ -46,7 +52,6 @@
 #define Y_MAX_PIN          P1_28
 #define Z_MIN_PIN          P1_26
 #define Z_MAX_PIN          P1_29
-
 
 //
 // Steppers
