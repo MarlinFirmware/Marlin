@@ -137,6 +137,10 @@ Stepper stepper; // Singleton
   #include "../feature/spindle_laser.h"
 #endif
 
+#if HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 // public:
 
 #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)

@@ -368,7 +368,6 @@ class Stepper {
     #endif
 
   public:
-
     // Initialize stepper hardware
     static void init();
 
