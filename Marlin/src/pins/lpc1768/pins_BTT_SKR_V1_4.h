@@ -78,7 +78,7 @@
   #else
     #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
-#elif ENABLED (BLTOUCH)
+#elif ENABLED (BLTOUCH) && ENABLED (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_STOP_PIN       P1_27   // Z-STOP
     #else 
       #define Z_STOP_PIN       P0_10   // Z-STOP
@@ -87,7 +87,7 @@
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#if ENABLED (BLTOUCH)
+#if ENABLED (BLTOUCH) && ENABLED (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #define Z_MIN_PROBE_PIN P1_27
   #else
     #define Z_MIN_PROBE_PIN P0_10
