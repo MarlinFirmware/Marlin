@@ -33,6 +33,12 @@
 #define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Servos
 //
 #define SERVO0_PIN         P1_23

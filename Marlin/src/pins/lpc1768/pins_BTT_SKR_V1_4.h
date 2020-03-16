@@ -26,6 +26,14 @@
 #endif
 
 //
+// EEPROM
+//
+#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  //#define SDCARD_EEPROM_EMULATION
+#endif
+
+//
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION

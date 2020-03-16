@@ -33,6 +33,12 @@
 #define BOARD_WEBSITE_URL "th3dstudio.com"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Servos
 //
 #define SERVO0_PIN         P2_04

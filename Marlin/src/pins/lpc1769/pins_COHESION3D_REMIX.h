@@ -32,6 +32,12 @@
 #define BOARD_INFO_NAME "Cohesion3D ReMix"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Servos
 //
 #define SERVO0_PIN         P2_04
