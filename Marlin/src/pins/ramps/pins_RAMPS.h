@@ -133,7 +133,9 @@
   #define Y_CS_PIN         49
 #endif
 
-#define Z_STEP_PIN         46
+#ifndef Z_STEP_PIN
+  #define Z_STEP_PIN       46
+#endif
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
 #ifndef Z_CS_PIN
