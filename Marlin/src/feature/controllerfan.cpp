@@ -93,21 +93,25 @@ void ControllerFan::update() {
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
     }
 
-    // Fan Settings - Set fan > 0:
-    //        - If AutoMode in on and steppers has been enabled for CONTROLLERFAN_SECS seconds.
-    //        - If System is on idle and idle fan speed settings is activated
-    if( settings_fan.controllerFan_AutoMode && lastMotorOn && 
-        PENDING(ms, lastMotorOn + (settings_fan.controllerFan_Duration) * 1000UL) && 
-        settings_fan.controllerFan_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
-      iFanSpeed= settings_fan.controllerFan_Speed;
+    // Fan Settings. Set fan > 0:
+    //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_SECS seconds.
+    //  - If System is on idle and idle fan speed settings is activated.
+    if ( settings_fan.controllerFan_AutoMode && lastMotorOn
+      && PENDING(ms, lastMotorOn + settings_fan.controllerFan_Duration * 1000UL)
+    ) {
+      iFanSpeed = settings_fan.controllerFan_Speed >= CONTROLLERFAN_SPEED_MIN
+        ? settings_fan.controllerFan_Speed
+        : 0; // Fan OFF
     }
-    else if( settings_fan.controllerFan_Idle_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
-      iFanSpeed= settings_fan.controllerFan_Idle_Speed;
-    } else iFanSpeed= 0; // Fan OFF
+    else {
+      iFanSpeed = settings_fan.controllerFan_Idle_Speed >= CONTROLLERFAN_SPEED_MIN
+        ? settings_fan.controllerFan_Idle_Speed
+        : 0; // Fan OFF
+    }
 
     // Allow digital or PWM fan output (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, iFanSpeed );
-    analogWrite(pin_t(CONTROLLER_FAN_PIN), iFanSpeed );
+    WRITE(CONTROLLER_FAN_PIN, iFanSpeed);
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), iFanSpeed);
   }
 }
 
