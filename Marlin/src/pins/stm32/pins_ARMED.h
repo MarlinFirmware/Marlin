@@ -119,7 +119,7 @@
 #define TEMP_BED_PIN       PC2   // Analog Input
 
 #if HOTENDS == 1 && TEMP_SENSOR_PROBE
-  #define TEMP_PROBE_PIN   TEMP_1_PIN
+  #define TEMP_PROBE_PIN   PC1
 #endif
 
 //
