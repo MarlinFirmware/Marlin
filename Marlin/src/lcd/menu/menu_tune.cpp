@@ -232,10 +232,10 @@ void menu_tune() {
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
     #if EXTRUDERS == 1
-      EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
       LOOP_L_N(n, EXTRUDERS)
-        EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
   #endif
 
