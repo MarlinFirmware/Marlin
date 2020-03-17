@@ -28,7 +28,9 @@
 #include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 
-ControllerFan fanController;
+ControllerFan controllerFan;
+
+controllerFan_settings_t ControllerFan::settings; // {0}
 
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
@@ -36,22 +38,18 @@ void ControllerFan::setup() {
 }
 
 void ControllerFan::reset() {
-  init();
+  settings.active_speed = CONTROLLERFAN_SPEED;            // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
+  settings.idle_speed   = CONTROLLERFAN_IDLE_SPEED;       // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
+  settings.duration     = (CONTROLLERFAN_SECS) * 1000UL;  // Duration in seconds for the fan to run after all motors are disabled
+  settings.auto_mode    = true;
 }
 
-void ControllerFan::init() {
-  settings_fan.controllerFan_Speed        = CONTROLLERFAN_SPEED;        // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  settings_fan.controllerFan_Idle_Speed   = CONTROLLERFAN_IDLE_SPEED;   // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  settings_fan.controllerFan_Duration     = CONTROLLERFAN_SECS;         // Duration in seconds for the fan to run after all motors are disabled
-  settings_fan.controllerFan_AutoMode     = true;
-}
-
-bool ControllerFan::state() {
-  return iFanSpeed > 0;
+void ControllerFan::set_fan_speed(const uint8_t s) {
+  speed = s < (CONTROLLERFAN_SPEED_MIN) ? 0 : s; // Fan OFF below minimum
 }
 
 void ControllerFan::update() {
-  static millis_t lastMotorOn = 0, // Last time a motor was turned on
+  static millis_t lastMotorOn = 0,    // Last time a motor was turned on
                   nextMotorCheck = 0; // Last time the state was checked
   const millis_t ms = millis();
   if (ELAPSED(ms, nextMotorCheck)) {
@@ -67,7 +65,7 @@ void ControllerFan::update() {
                               || MOTOR_IS_ON(Y2,Y)
                             #endif
                             ;
-    
+
     const bool motor_Z    = MOTOR_IS_ON(Z,Z)
                             #if HAS_Z2_ENABLE
                               || MOTOR_IS_ON(Z2,Z)
@@ -89,29 +87,19 @@ void ControllerFan::update() {
         #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
         REPEAT(E_STEPPERS, _OR_ENABLED_E)
       #endif
-    ) {
-      lastMotorOn = ms; //... set time to NOW so the fan will turn on
-    }
+    ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
     // Fan Settings. Set fan > 0:
     //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_SECS seconds.
     //  - If System is on idle and idle fan speed settings is activated.
-    if ( settings_fan.controllerFan_AutoMode && lastMotorOn
-      && PENDING(ms, lastMotorOn + settings_fan.controllerFan_Duration * 1000UL)
-    ) {
-      iFanSpeed = settings_fan.controllerFan_Speed >= CONTROLLERFAN_SPEED_MIN
-        ? settings_fan.controllerFan_Speed
-        : 0; // Fan OFF
-    }
-    else {
-      iFanSpeed = settings_fan.controllerFan_Idle_Speed >= CONTROLLERFAN_SPEED_MIN
-        ? settings_fan.controllerFan_Idle_Speed
-        : 0; // Fan OFF
-    }
+    set_fan_speed(
+      settings.auto_mode && lastMotorOn && PENDING(ms, lastMotorOn + settings.duration)
+      ? settings.active_speed : settings.idle_speed
+    );
 
     // Allow digital or PWM fan output (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, iFanSpeed);
-    analogWrite(pin_t(CONTROLLER_FAN_PIN), iFanSpeed);
+    WRITE(CONTROLLER_FAN_PIN, speed);
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), speed);
   }
 }
 
