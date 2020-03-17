@@ -193,7 +193,7 @@ DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(float52);     // _2.34, 12.34, -2.34 or 123.45, -23.45
+DEFINE_MENU_EDIT_ITEM(float42_52);  // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
@@ -428,7 +428,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
           MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
       #endif
       if (do_probe) {
-        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr52sign(probe.offset.z));
+        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
         #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
           _lcd_zoffset_overlay_gfx(probe.offset.z);
         #endif
