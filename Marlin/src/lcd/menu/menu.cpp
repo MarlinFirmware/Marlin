@@ -428,7 +428,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
           MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
       #endif
       if (do_probe) {
-        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), ftostr43sign(probe.offset.z));
+        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
         #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
           _lcd_zoffset_overlay_gfx(probe.offset.z);
         #endif
