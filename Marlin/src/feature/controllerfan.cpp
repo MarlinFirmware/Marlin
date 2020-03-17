@@ -57,25 +57,26 @@ void ControllerFan::update() {
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
-    const bool motor_XorY = X_ENABLE_READ() == bool(X_ENABLE_ON) 
-                              || Y_ENABLE_READ() == bool(Y_ENABLE_ON)
+    #define MOTOR_IS_ON(A,B) (A##_ENABLE_READ() == bool(B##_ENABLE_ON))
+
+    const bool motor_XorY = MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
                             #if HAS_X2_ENABLE
-                              || X2_ENABLE_READ() == bool(X_ENABLE_ON)
+                              || MOTOR_IS_ON(X2,X)
                             #endif
                             #if HAS_Y2_ENABLE
-                              || Y2_ENABLE_READ() == bool(Y_ENABLE_ON)
+                              || MOTOR_IS_ON(Y2,Y)
                             #endif
                             ;
     
-    const bool motor_Z    = Z_ENABLE_READ() == bool(Z_ENABLE_ON) 
+    const bool motor_Z    = MOTOR_IS_ON(Z,Z)
                             #if HAS_Z2_ENABLE
-                              || Z2_ENABLE_READ() == bool(Z_ENABLE_ON)
+                              || MOTOR_IS_ON(Z2,Z)
                             #endif
                             #if HAS_Z3_ENABLE
-                              || Z3_ENABLE_READ() == bool(Z_ENABLE_ON)
+                              || MOTOR_IS_ON(Z3,Z)
                             #endif
                             #if HAS_Z4_ENABLE
-                              || Z4_ENABLE_READ() == bool(Z_ENABLE_ON)
+                              || MOTOR_IS_ON(Z4,Z)
                             #endif
                             ;
 
@@ -85,7 +86,7 @@ void ControllerFan::update() {
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
       #if E_STEPPERS
-        #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == bool(E_ENABLE_ON)
+        #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
         REPEAT(E_STEPPERS, _OR_ENABLED_E)
       #endif
     ) {
