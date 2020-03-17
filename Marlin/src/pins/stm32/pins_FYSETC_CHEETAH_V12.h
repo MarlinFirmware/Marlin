@@ -38,7 +38,7 @@
 
 #define FAN1_PIN          PB0 // Fan1
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
 
   /**
    * TMC2208/TMC2209 stepper drivers

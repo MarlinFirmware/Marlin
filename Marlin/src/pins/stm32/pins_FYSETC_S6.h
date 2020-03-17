@@ -107,7 +107,7 @@
 #define E2_ENABLE_PIN      PE3
 #define E2_CS_PIN          PC15
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   //
   // TMC2208/TMC2209 stepper drivers
   //

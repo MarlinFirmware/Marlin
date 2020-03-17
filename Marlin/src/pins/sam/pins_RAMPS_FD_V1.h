@@ -205,7 +205,7 @@
 
 #endif // HAS_SPI_LCD
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *

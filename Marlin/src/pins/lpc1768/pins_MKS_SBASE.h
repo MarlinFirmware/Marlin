@@ -313,7 +313,7 @@
  #endif
 #endif
 
-#if MB(MKS_SBASE) && HAS_TMC220x
+#if MB(MKS_SBASE) && HAS_TMC_UART
 
   /**
    * TMC2208/TMC2209 stepper drivers

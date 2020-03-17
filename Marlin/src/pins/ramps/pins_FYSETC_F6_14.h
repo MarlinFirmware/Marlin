@@ -29,7 +29,7 @@
 
 #define Z_MAX_PIN           2
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    */

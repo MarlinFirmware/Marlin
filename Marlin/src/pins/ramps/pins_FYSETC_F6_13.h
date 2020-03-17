@@ -117,7 +117,7 @@
 // the jumper next to the limit switch socket when using sensorless homing.
 //
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
