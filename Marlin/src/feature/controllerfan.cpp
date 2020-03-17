@@ -38,9 +38,9 @@ void ControllerFan::setup() {
 }
 
 void ControllerFan::reset() {
-  settings.active_speed = CONTROLLERFAN_SPEED;            // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  settings.idle_speed   = CONTROLLERFAN_IDLE_SPEED;       // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  settings.duration     = (CONTROLLERFAN_SECS) * 1000UL;  // Duration in seconds for the fan to run after all motors are disabled
+  settings.active_speed = CONTROLLERFAN_SPEED;      // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
+  settings.idle_speed   = CONTROLLERFAN_IDLE_SPEED; // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
+  settings.duration     = CONTROLLERFAN_SECS;       // Duration in seconds for the fan to run after all motors are disabled
   settings.auto_mode    = true;
 }
 
@@ -93,7 +93,7 @@ void ControllerFan::update() {
     //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_SECS seconds.
     //  - If System is on idle and idle fan speed settings is activated.
     set_fan_speed(
-      settings.auto_mode && lastMotorOn && PENDING(ms, lastMotorOn + settings.duration)
+      settings.auto_mode && lastMotorOn && PENDING(ms, lastMotorOn + settings.duration * 1000UL)
       ? settings.active_speed : settings.idle_speed
     );
 

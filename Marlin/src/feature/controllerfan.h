@@ -26,7 +26,7 @@
 typedef struct {
   uint8_t   active_speed,    // 0-255 (fullspeed); Speed with enabled stepper motors
             idle_speed;      // 0-255 (fullspeed); Speed after idle period with all motors are disabled
-  uint32_t  duration;        // Duration in seconds for the fan to run after all motors are disabled
+  uint16_t  duration;        // Duration in seconds for the fan to run after all motors are disabled
   bool      auto_mode;       // Default true
 } controllerFan_settings_t;
 
@@ -35,11 +35,11 @@ typedef struct {
 class ControllerFan {
   private:
     static uint8_t speed;
+    static void set_fan_speed(const uint8_t s);
 
   public:
     static controllerFan_settings_t settings;
     static inline bool state() { return speed > 0; }
-    static void set_fan_speed(const uint8_t s);
     static inline void init() { reset() };
     static void reset();
     static void setup();
