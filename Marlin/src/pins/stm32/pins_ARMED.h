@@ -204,9 +204,8 @@
 #define EXT8_PIN           PB10
 #define EXT9_PIN           PB11
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   // TMC2208/TMC2209 stepper drivers
-
   //
   // Software serial
   //
