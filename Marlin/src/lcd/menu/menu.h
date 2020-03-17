@@ -55,12 +55,10 @@ typedef void (*selectFunc_t)();
   #endif
 #endif
 
-#if ENABLED(BABYSTEPPING)
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
-    #define BABYSTEP_TO_STR(N) ftostr43sign(N)
-  #else
-    #define BABYSTEP_TO_STR(N) ftostr53sign(N)
-  #endif
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+  #define BABYSTEP_TO_STR(N) ftostr43sign(N)
+#elif ENABLED(BABYSTEPPING)
+  #define BABYSTEP_TO_STR(N) ftostr53sign(N)
 #endif
 
 ////////////////////////////////////////////
