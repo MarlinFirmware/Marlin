@@ -451,6 +451,25 @@
 #elif defined(Z_QUAD_ENDSTOPS)
   #error "Z_QUAD_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
 #endif
+// fred
+#if ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_MAGO)
+  #error "Marlin 2.0 doesn't support L10, L16, MAGO !!! Please change your configuration."
+#endif
+#if 1 < 0 \
+  + ENABLED(TINYBOY_J10) \
+  + ENABLED(TINYBOY_E8) \
+  + ENABLED(TINYBOY_E10) \
+  + ENABLED(TINYBOY_E16) \
+  + ENABLED(TINYBOY_M10) \
+  + ENABLED(TINYBOY_M16) \
+  + ENABLED(TINYBOY_L10) \
+  + ENABLED(TINYBOY_L16) \
+  + ENABLED(TINYBOY_A10) \
+  + ENABLED(TINYBOY_RA20) \
+  + ENABLED(TINYBOY_RA30) \
+  + ENABLED(TINYBOY_RE20) 
+  #error "Please select no more than one TINYBOY MODEL"
+#endif
 
 /**
  * Marlin release, version and default string

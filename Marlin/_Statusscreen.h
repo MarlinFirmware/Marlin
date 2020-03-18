@@ -1,0 +1,1 @@
+  #define STATUS_SCREEN_HOTEND_TEXT_X(i) 30

@@ -78,6 +78,15 @@ void LEDLights::setup() {
     set_default();
   #endif
 }
+// fred
+void LEDLights::meter(int percent) {
+  #if ENABLED(NEOPIXEL_LED)
+     int i = percent * 0.01 * NEOPIXEL_PIXELS -1;
+     if (percent > 0)
+      pixels.setPixelColor(i, pixels.Color(255, 0, 0));
+      pixels.show();
+  #endif
+}
 
 void LEDLights::set_color(const LEDColor &incol
   #if ENABLED(NEOPIXEL_LED)

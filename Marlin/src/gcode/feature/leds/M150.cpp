@@ -45,7 +45,11 @@
  *   M150 P          ; Set LED full brightness
  */
 void GcodeSuite::M150() {
-  leds.set_color(MakeLEDColor(
+	// fred
+if (parser.seen('L')) 
+   leds.meter( parser.seen('L') ? (int)parser.value_ushort() : 0 ) ;
+else
+	leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,

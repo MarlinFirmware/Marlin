@@ -68,6 +68,7 @@ public:
         leds_off_after_print = true;
       #else
         safe_delay(2000);
+        leds.set_white(); // fred	
         set_done();
       #endif
     }

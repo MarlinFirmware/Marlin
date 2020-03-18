@@ -238,7 +238,8 @@
     #define FAN_PIN        RAMPS_D9_PIN
   #endif
 #endif
-
+// fred
+#undef FAN_PIN 
 //
 // Misc. Functions
 //
@@ -533,6 +534,13 @@
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         #define LCD_BACKLIGHT_PIN 39
       #endif
+// fred
+    #elif defined(U8GLIB_SSD1306) || defined(U8GLIB_SH1106)
+      #define BTN_EN1 31
+      #define BTN_EN2 33
+      #define BTN_ENC 35
+      #define LCD_SDSS          SDSS	  
+      #define SD_DETECT_PIN     49  
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 

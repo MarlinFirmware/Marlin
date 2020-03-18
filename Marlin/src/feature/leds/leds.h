@@ -149,6 +149,8 @@ public:
   LEDLights() {} // ctor
 
   static void setup(); // init()
+  // fred
+  static void meter(int percent);
 
   static void set_color(const LEDColor &color
     #if ENABLED(NEOPIXEL_LED)
