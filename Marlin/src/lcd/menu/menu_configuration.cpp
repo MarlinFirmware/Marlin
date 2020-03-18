@@ -227,6 +227,24 @@ void menu_advanced_settings();
   }
 #endif
 
+#if ENABLED(CONTROLLER_FAN_MENU)
+
+  #include "../../feature/controllerfan.h"
+
+  void menu_controller_fan() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255, controllerFan.update);
+    EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode, controllerFan.update);
+    if (controllerFan.settings.auto_mode) {
+      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255, controllerFan.update);
+      EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800, controllerFan.update);
+    }
+    END_MENU();
+  }
+
+#endif
+
 #if ENABLED(CASE_LIGHT_MENU)
 
   #include "../../feature/caselight.h"
@@ -318,6 +336,13 @@ void menu_configuration() {
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
+
+  //
+  // Set Fan Controller speed
+  //
+  #if ENABLED(CONTROLLER_FAN_MENU)
+    SUBMENU(MSG_CONTROLLER_FAN, menu_controller_fan);
   #endif
 
   const bool busy = printer_busy();
