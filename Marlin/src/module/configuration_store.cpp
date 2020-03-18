@@ -2627,11 +2627,9 @@ void MarlinSettings::reset() {
   //
   // Controller Fan
   //
-  {
-    #if ENABLED(USE_CONTROLLER_FAN)
-      controllerFan.reset();
-    #endif
-  }
+  #if ENABLED(USE_CONTROLLER_FAN)
+    controllerFan.reset();
+  #endif
 
   //
   // Power-Loss Recovery

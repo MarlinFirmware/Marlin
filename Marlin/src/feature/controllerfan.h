@@ -33,7 +33,7 @@ typedef struct {
 static constexpr controllerFan_settings_t controllerFan_defaults = {
   CONTROLLERFAN_SPEED_ACTIVE,
   CONTROLLERFAN_SPEED_IDLE,
-  CONTROLLERFAN_SECS,
+  CONTROLLERFAN_IDLE_TIME,
   true
 };
 
@@ -51,7 +51,7 @@ class ControllerFan {
       static constexpr controllerFan_settings_t settings = {
         CONTROLLERFAN_SPEED_ACTIVE,
         CONTROLLERFAN_SPEED_IDLE,
-        CONTROLLERFAN_SECS,
+        CONTROLLERFAN_IDLE_TIME,
         true
       };
     #endif
