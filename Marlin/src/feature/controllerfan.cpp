@@ -55,34 +55,35 @@ void ControllerFan::update() {
     #define MOTOR_IS_ON(A,B) (A##_ENABLE_READ() == bool(B##_ENABLE_ON))
     #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
 
-    const bool
-    xy_motor_on = MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
-                  #if HAS_X2_ENABLE
-                    || MOTOR_IS_ON(X2,X)
-                  #endif
-                  #if HAS_Y2_ENABLE
-                    || MOTOR_IS_ON(Y2,Y)
-                  #endif
-                  ,
-    z_motor_on  = MOTOR_IS_ON(Z,Z)
-                  #if HAS_Z2_ENABLE
-                    || MOTOR_IS_ON(Z2,Z)
-                  #endif
-                  #if HAS_Z3_ENABLE
-                    || MOTOR_IS_ON(Z3,Z)
-                  #endif
-                  #if HAS_Z4_ENABLE
-                    || MOTOR_IS_ON(Z4,Z)
-                  #endif
-                  ;
+    const bool motor_on = MOTOR_IS_ON(Z,Z)
+      #if HAS_Z2_ENABLE
+        || MOTOR_IS_ON(Z2,Z)
+      #endif
+      #if HAS_Z3_ENABLE
+        || MOTOR_IS_ON(Z3,Z)
+      #endif
+      #if HAS_Z4_ENABLE
+        || MOTOR_IS_ON(Z4,Z)
+      #endif
+      || (DISABLED(CONTROLLER_FAN_USE_Z_ONLY) && (
+          MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
+          #if HAS_X2_ENABLE
+            || MOTOR_IS_ON(X2,X)
+          #endif
+          #if HAS_Y2_ENABLE
+            || MOTOR_IS_ON(Y2,Y)
+          #endif
+          #if E_STEPPERS
+            REPEAT(E_STEPPERS, _OR_ENABLED_E)
+          #endif
+        )
+      )
+    ;
 
-    // If any of the drivers or the bed are enabled...
-    if (xy_motor_on || z_motor_on
+    // If any of the drivers or the heated bed are enabled...
+    if (motor_on
       #if HAS_HEATED_BED
         || thermalManager.temp_bed.soft_pwm_amount > 0
-      #endif
-      #if E_STEPPERS
-        REPEAT(E_STEPPERS, _OR_ENABLED_E)
       #endif
     ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
