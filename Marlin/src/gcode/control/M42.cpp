@@ -38,7 +38,7 @@
  *  S<byte> Pin status from 0 - 255
  *  I       Flag to ignore Marlin's pin protection
  *
- * M<mode> Forces pin mode 0 for INPUT 1 for OUTPUT 2 INPUT_PULLUP
+ *  M<mode> Pin mode: 0=INPUT  1=OUTPUT  2=INPUT_PULLUP  3=INPUT_PULLDOWN
  */
 void GcodeSuite::M42() {
   const int pin_index = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
@@ -53,6 +53,9 @@ void GcodeSuite::M42() {
       case 0: pinMode(pin, INPUT); break;
       case 1: pinMode(pin, OUTPUT); break;
       case 2: pinMode(pin, INPUT_PULLUP); break;
+      #ifdef INPUT_PULLDOWN
+        case 3: pinMode(pin, INPUT_PULLDOWN); break;
+      #endif
       default: SERIAL_ECHOLNPGM("Invalid Pin Mode");
     }
     return;
