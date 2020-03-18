@@ -49,7 +49,7 @@ void GcodeSuite::M42() {
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   if (parser.seenval('M')) {
-    switch (parser.value_byte('M')) {
+    switch (parser.value_byte()) {
       case 0: pinMode(pin, INPUT); break;
       case 1: pinMode(pin, OUTPUT); break;
       case 2: pinMode(pin, INPUT_PULLUP); break;
