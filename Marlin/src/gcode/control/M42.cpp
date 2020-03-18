@@ -49,15 +49,12 @@ void GcodeSuite::M42() {
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   if (parser.seenval('M')) {
-    const uint8_t pin_mode = parser.value_byte();
-    if (pin_mode == 0)
-      pinMode(pin, INPUT);
-    else if (pin_mode == 1)
-      pinMode(pin, OUTPUT);
-    else if (pin_mode == 2)
-      pinMode(pin, INPUT_PULLUP);
-    else
-      SERIAL_ECHOLNPGM("Invalid Pin Mode");
+    switch (parser.value_byte('M')) {
+      case 0: pinMode(pin, INPUT); break;
+      case 1: pinMode(pin, OUTPUT); break;
+      case 2: pinMode(pin, INPUT_PULLUP); break;
+      default: SERIAL_ECHOLNPGM("Invalid Pin Mode");
+    }
     return;
   }
 
