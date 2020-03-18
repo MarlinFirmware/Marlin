@@ -188,6 +188,8 @@
   #include "ramps/pins_TANGO.h"                 // ATmega2560                             env:mega2560
 #elif MB(MKS_GEN_L_V2)
   #include "ramps/pins_MKS_GEN_L_V2.h"          // ATmega2560                             env:mega2560
+#elif MB(COPYMASTER_3D)
+  #include "ramps/pins_COPYMASTER_3D.h"         // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives

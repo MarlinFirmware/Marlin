@@ -174,9 +174,9 @@ const char* ftostr12ns(const float &f) {
   return &conv[3];
 }
 
-// Convert signed float to fixed-length string with 12.34 / -2.34 or 023.45 / -23.45 format
+// Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
 const char* ftostr42_52(const float &f) {
-  if (f <= -10 || f >= 100) return ftostr52(f); // need more digits
+  if (f <= -10 || f >= 100) return ftostr52(f); // -23.45 / 123.45
   long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
   conv[2] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 1000));
   conv[3] = DIGIMOD(i, 100);
@@ -198,9 +198,9 @@ const char* ftostr52(const float &f) {
   return &conv[1];
 }
 
-// Convert signed float to fixed-length string with 12.345 / -2.345 or 023.456 / -23.456 format
-const char* ftostr43_53(const float &f) {
-  if (f <= -10 || f >= 100) return ftostr53(f); // need more digits
+// Convert signed float to fixed-length string with 12.345 / _2.345 / -2.345 or -23.45 / 123.45 format
+const char* ftostr53_63(const float &f) {
+  if (f <= -10 || f >= 100) return ftostr63(f); // -23.456 / 123.456
   long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
   conv[1] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 10000));
   conv[2] = DIGIMOD(i, 1000);
@@ -212,7 +212,7 @@ const char* ftostr43_53(const float &f) {
 }
 
 // Convert signed float to fixed-length string with 023.456 / -23.456 format
-const char* ftostr53(const float &f) {
+const char* ftostr63(const float &f) {
   long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
   conv[0] = MINUSOR(i, DIGIMOD(i, 100000));
   conv[1] = DIGIMOD(i, 10000);
@@ -305,6 +305,19 @@ const char* ftostr52sign(const float &f) {
   conv[2] = DIGIMOD(i, 1000);
   conv[3] = DIGIMOD(i, 100);
   conv[4] = '.';
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = DIGIMOD(i, 1);
+  return conv;
+}
+
+// Convert signed float to string with +12.345 format
+const char* ftostr53sign(const float &f) {
+  long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
+  conv[0] = MINUSOR(i, '+');
+  conv[1] = DIGIMOD(i, 10000);
+  conv[2] = DIGIMOD(i, 1000);
+  conv[3] = '.';
+  conv[4] = DIGIMOD(i, 100);
   conv[5] = DIGIMOD(i, 10);
   conv[6] = DIGIMOD(i, 1);
   return conv;

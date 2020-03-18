@@ -196,7 +196,7 @@
 // Trinamic Software Serial
 //
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   #define X_SERIAL_TX_PIN  PG13
   #define X_SERIAL_RX_PIN  PG13
 

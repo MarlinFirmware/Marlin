@@ -50,7 +50,7 @@
 //#define BTN_EN1            P1_23   // EXP2.5
 //#define BTN_EN2            P1_22   // EXP2.3
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
