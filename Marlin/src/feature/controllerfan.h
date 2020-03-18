@@ -30,6 +30,13 @@ typedef struct {
   bool      auto_mode;       // Default true
 } controllerFan_settings_t;
 
+static constexpr controllerFan_settings_t controllerFan_defaults = {
+  CONTROLLERFAN_SPEED_ACTIVE,
+  CONTROLLERFAN_SPEED_IDLE,
+  CONTROLLERFAN_SECS,
+  true
+};
+
 #if ENABLED(USE_CONTROLLER_FAN)
 
 class ControllerFan {
@@ -38,10 +45,23 @@ class ControllerFan {
     static void set_fan_speed(const uint8_t s);
 
   public:
-    static controllerFan_settings_t settings;
+    #if ENABLED(CONTROLLER_FAN_EDITABLE)
+      static controllerFan_settings_t settings;
+    #else
+      static constexpr controllerFan_settings_t settings = {
+        CONTROLLERFAN_SPEED_ACTIVE,
+        CONTROLLERFAN_SPEED_IDLE,
+        CONTROLLERFAN_SECS,
+        true
+      };
+    #endif
     static inline bool state() { return speed > 0; }
-    static inline void init() { reset() };
-    static void reset();
+    static inline void init() { reset(); }
+    static inline void reset() {
+      #if ENABLED(CONTROLLER_FAN_EDITABLE)
+        settings = controllerFan_defaults;
+      #endif
+    }
     static void setup();
     static void update();
 };

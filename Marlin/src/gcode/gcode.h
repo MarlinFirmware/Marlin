@@ -972,7 +972,7 @@ private:
     static void M7219();
   #endif
 
-  #if ENABLED(USE_CONTROLLER_FAN)
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
     static void M710();
   #endif
 

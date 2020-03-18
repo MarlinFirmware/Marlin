@@ -123,6 +123,9 @@
 #endif
 
 #include "../feature/controllerfan.h"
+#if ENABLED(CONTROLLER_FAN_EDITABLE)
+  void M710_report(const bool forReplay);
+#endif
 
 #pragma pack(push, 1) // No padding between variables
 
@@ -892,12 +895,12 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(controllerFan_settings);
-      #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-        EEPROM_WRITE(controllerFan.settings);
+      #if ENABLED(USE_CONTROLLER_FAN)
+        const controllerFan_settings_t &cfs = controllerFan.settings;
       #else
-        controllerFan_settings_t temp = { 0 };
-        EEPROM_WRITE(temp);
+        controllerFan_settings_t cfs = controllerFan_defaults;
       #endif
+      EEPROM_WRITE(cfs);
     }
 
     //
@@ -1744,7 +1747,7 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(controllerFan_settings);
-        #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+        #if ENABLED(CONTROLLER_FAN_EDITABLE)
           const controllerFan_settings_t &cfs = controllerFan.settings;
         #else
           controllerFan_settings_t cfs = { 0 };
@@ -2625,7 +2628,7 @@ void MarlinSettings::reset() {
   // Controller Fan
   //
   {
-    #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+    #if ENABLED(USE_CONTROLLER_FAN)
       controllerFan.reset();
     #endif
   }
@@ -3192,6 +3195,10 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("LCD Contrast:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
+    #endif
+
+    #if ENABLED(CONTROLLER_FAN_EDITABLE)
+      M710_report(forReplay);
     #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)

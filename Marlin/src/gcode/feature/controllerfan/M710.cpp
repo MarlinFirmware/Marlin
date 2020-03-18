@@ -22,26 +22,21 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(USE_CONTROLLER_FAN)
+#if ENABLED(CONTROLLER_FAN_EDITABLE)
 
 #include "../../gcode.h"
 #include "../../../feature/controllerfan.h"
 
-void M710_report(const bool forReplay=true) {
-  if (!forReplay) SERIAL_ECHOLNPGM("; Controller Fan");
-  SERIAL_ECHOPAIR("M710 "
-    "S", int(controllerFan.settings.speed),
+void M710_report(const bool forReplay) {
+  if (!forReplay) { SERIAL_ECHOLNPGM("; Controller Fan"); SERIAL_ECHO_START(); }
+  SERIAL_ECHOLNPAIR("M710 "
+    "S", int(controllerFan.settings.active_speed),
     "I", int(controllerFan.settings.idle_speed),
     "A", int(controllerFan.settings.auto_mode),
-    "D", controllerFan.settings.duration
+    "D", controllerFan.settings.duration,
+    " ; (", (int(controllerFan.settings.active_speed) * 100) / 255, "%"
+    " ", (int(controllerFan.settings.idle_speed) * 100) / 255, "%)"
   );
-  if (!forReplay)
-    SERIAL_ECHOPAIR(" ; (",
-      (int(controllerFan.settings.active_speed) * 100) / 255, "% ",
-      (int(controllerFan.settings.idle_speed) * 100) / 255, "%)"
-    );
-
-  SERIAL_EOL();
 }
 
 /**
@@ -82,7 +77,7 @@ void GcodeSuite::M710() {
   if (seenR || seenS || seenI || seenA || seenD)
     controllerFan.update();
   else
-    M710_report();
+    M710_report(false);
 }
 
-#endif // USE_CONTROLLER_FAN
+#endif // CONTROLLER_FAN_EDITABLE

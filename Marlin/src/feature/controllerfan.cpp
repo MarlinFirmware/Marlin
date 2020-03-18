@@ -30,18 +30,15 @@
 
 ControllerFan controllerFan;
 
-controllerFan_settings_t ControllerFan::settings; // {0}
+uint8_t ControllerFan::speed;
+
+#if ENABLED(CONTROLLER_FAN_EDITABLE)
+  controllerFan_settings_t ControllerFan::settings; // {0}
+#endif
 
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
   init();
-}
-
-void ControllerFan::reset() {
-  settings.active_speed = CONTROLLERFAN_SPEED;      // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  settings.idle_speed   = CONTROLLERFAN_IDLE_SPEED; // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  settings.duration     = CONTROLLERFAN_SECS;       // Duration in seconds for the fan to run after all motors are disabled
-  settings.auto_mode    = true;
 }
 
 void ControllerFan::set_fan_speed(const uint8_t s) {

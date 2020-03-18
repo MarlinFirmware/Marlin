@@ -234,10 +234,10 @@ void menu_advanced_settings();
   void menu_controller_fan() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, CONTROLLERFAN_SPEED_MIN, 255, controllerFan.update);
+    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255, controllerFan.update);
     EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode, controllerFan.update);
     if (controllerFan.settings.auto_mode) {
-      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.speed, CONTROLLERFAN_SPEED_MIN, 255, controllerFan.update);
+      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255, controllerFan.update);
       EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800, controllerFan.update);
     }
     END_MENU();
