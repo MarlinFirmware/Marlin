@@ -2125,14 +2125,14 @@ void clean_up_after_endstop_or_probe_move() {
     bool bltouch_deploy_proc() {
       // Do a DEPLOY
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch DEPLOY requested");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch DEPLOY requested");
       #endif
 
       // Attempt to DEPLOY, wait for DEPLOY_DELAY or ALARM
       if (_bltouch_deploy_query_alarm()) {
         // The deploy might have failed or the probe is already triggered (nozzle too low?)
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
         #endif
 
         bltouch_clear();                               // Get the probe into start condition
@@ -2141,7 +2141,7 @@ void clean_up_after_endstop_or_probe_move() {
         if (_bltouch_deploy_query_alarm()) {
           // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Recovery Failed");
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch Recovery Failed");
           #endif
 
           SERIAL_ECHOLN(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
@@ -2160,7 +2160,7 @@ void clean_up_after_endstop_or_probe_move() {
       // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse
       // is registered.
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("bltouch.deploy_proc() end");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("bltouch.deploy_proc() end");
       #endif
 
       return false; // report success to caller
@@ -2169,7 +2169,7 @@ void clean_up_after_endstop_or_probe_move() {
     bool bltouch_stow_proc() {
       // Do a STOW
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch STOW requested");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch STOW requested");
       #endif
 
       // A STOW will clear a triggered condition in the probe (10ms pulse).
@@ -2182,7 +2182,7 @@ void clean_up_after_endstop_or_probe_move() {
       if (_bltouch_stow_query_alarm()) {
         // The stow might have failed
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch ALARM or TRIGGER after STOW, recovering");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch ALARM or TRIGGER after STOW, recovering");
         #endif
 
         _bltouch_reset();                              // This RESET will then also pull up the pin. If it doesn't
@@ -2192,7 +2192,7 @@ void clean_up_after_endstop_or_probe_move() {
         // Last attempt to STOW
         if (_bltouch_stow_query_alarm()) {             // so if there is now STILL an ALARM condition:
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Recovery Failed");
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch Recovery Failed");
           #endif
 
           SERIAL_ECHOLN(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
@@ -2203,7 +2203,7 @@ void clean_up_after_endstop_or_probe_move() {
       }
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("bltouch.stow_proc() end");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("bltouch.stow_proc() end");
       #endif
 
       return false; // report success to caller
@@ -2216,7 +2216,7 @@ void clean_up_after_endstop_or_probe_move() {
        */
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch STATUS requested");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch STATUS requested");
       #endif
 
       _bltouch_set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
@@ -2279,8 +2279,8 @@ void clean_up_after_endstop_or_probe_move() {
       #else
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLNPAIR("last_written_mode - ", (int)bltouch_last_written_mode);
-            DEBUG_ECHOLNPGM("config mode - "
+            SERIAL_ECHOLNPAIR("last_written_mode - ", int(bltouch_last_written_mode));
+            SERIAL_ECHOLNPGM("config mode - "
               #if ENABLED(BLTOUCH_SET_5V_MODE)
                 "BLTOUCH_SET_5V_MODE"
               #else
@@ -3707,7 +3707,8 @@ inline void gcode_G0_G1(
           const float e = clockwise ^ (r < 0) ? -1 : 1,             // clockwise -1/1, counterclockwise 1/-1
                       dx = p2 - p1, dy = q2 - q1,                   // X and Y differences
                       d = HYPOT(dx, dy),                            // Linear distance between the points
-                      h = SQRT(sq(r) - sq(d * 0.5f)),               // Distance to the arc pivot-point
+                      h2 = (r - 0.5f * d) * (r + 0.5f * d),         // factor to reduce rounding error
+                      h = (h2 >= 0) ? SQRT(h2) : 0.0f,              // Distance to the arc pivot-point
                       mx = (p1 + p2) * 0.5f, my = (q1 + q2) * 0.5f, // Point between the two points
                       sx = -dy / d, sy = dx / d,                    // Slope of the perpendicular bisector
                       cx = mx + e * h * sx, cy = my + e * h * sy;   // Pivot-point of the arc
@@ -5754,7 +5755,12 @@ void home_all_axes() { gcode_G28(true); }
 
           // Unapply the offset because it is going to be immediately applied
           // and cause compensation movement in Z
-          current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            const float fade_scaling_factor = planner.fade_scaling_factor_for_z(current_position[Z_AXIS]);
+          #else
+            constexpr float fade_scaling_factor = 1.0f;
+          #endif
+          current_position[Z_AXIS] -= fade_scaling_factor * bilinear_z_offset(current_position);
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
@@ -15452,7 +15458,7 @@ void setup() {
     enable_D();
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+  #if ENABLED(SDSUPPORT) && !(ENABLED(ULTRA_LCD) && PIN_EXISTS(SD_DETECT))
     card.beginautostart();
   #endif
 }
