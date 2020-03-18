@@ -47,10 +47,6 @@
   #endif
 #endif
 
-#if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-  #include "../../feature/controllerfan.h"
-#endif
-
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -231,24 +227,23 @@ void menu_advanced_settings();
   }
 #endif
 
-#if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
+#if ENABLED(CONTROLLER_FAN_MENU)
 
-   void _fancontroller_update() {
-     controllerFan.update();
-   }
+  #include "../../feature/controllerfan.h"
 
-   void menu_fancontroller() {
-      START_MENU();
-      BACK_ITEM(MSG_CONFIGURATION);
-      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, CONTROLLERFAN_SPEED_MIN, 255, _fancontroller_update);
-      EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode, _fancontroller_update);
-      if (controllerFan.settings.auto_mode) {
-        EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.speed, CONTROLLERFAN_SPEED_MIN, 255, _fancontroller_update);
-        EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800, _fancontroller_update);
-      }
-      END_MENU();
+  void menu_controller_fan() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, CONTROLLERFAN_SPEED_MIN, 255, controllerFan.update);
+    EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode, controllerFan.update);
+    if (controllerFan.settings.auto_mode) {
+      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.speed, CONTROLLERFAN_SPEED_MIN, 255, controllerFan.update);
+      EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800, controllerFan.update);
     }
-#endif //USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU
+    END_MENU();
+  }
+
+#endif
 
 #if ENABLED(CASE_LIGHT_MENU)
 
@@ -346,8 +341,8 @@ void menu_configuration() {
   //
   // Set Fan Controller speed
   //
-  #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-    SUBMENU( MSG_CONTROLLER_FAN, menu_fancontroller);
+  #if ENABLED(CONTROLLER_FAN_MENU)
+    SUBMENU(MSG_CONTROLLER_FAN, menu_controller_fan);
   #endif
 
   const bool busy = printer_busy();
