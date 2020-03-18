@@ -33,6 +33,13 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
+#ifdef OVERCLOCK
+  #if F_CPU != (1000000U * OC_TARGET_MHZ)
+    #undef F_CPU
+    #define F_CPU (1000000U * OC_TARGET_MHZ)
+  #endif
+#endif
+
 #include "fastio.h"
 #include "watchdog.h"
 

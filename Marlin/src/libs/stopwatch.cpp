@@ -28,6 +28,11 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#ifdef OVERCLOCK
+  // elapsed time adjustment
+  #define millis() ((millis()*OC_BASE_MHZ)/OC_TARGET_MHZ)
+#endif
+
 Stopwatch::State Stopwatch::state;
 millis_t Stopwatch::accumulator;
 millis_t Stopwatch::startTimestamp;

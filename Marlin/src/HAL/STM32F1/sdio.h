@@ -104,6 +104,11 @@
   #define SDIO_CLOCK                         18000000       /* 18 MHz */
 #endif
 
+#ifdef OVERCLOCK
+  #undef SDIO_CLOCK
+  #define SDIO_CLOCK ((18000000*OC_BASE_MHZ)/OC_TARGET_MHZ) /* 18 MHz */
+#endif
+
 #ifndef SDIO_READ_RETRIES
   #define SDIO_READ_RETRIES                  3
 #endif

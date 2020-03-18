@@ -81,7 +81,11 @@ void spiInit(uint8_t spiRate) {
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
   #if SPI_DEVICE == 1
-    #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
+    #if defined(OVERCLOCK) && OC_TARGET_MHZ > 96
+      #define SPI_CLOCK_MAX SPI_CLOCK_DIV8 // SKRmini onboard SD (Fysetc LCD is ok on SPI2)
+    #else
+      #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
+    #endif
   #else
     #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
   #endif

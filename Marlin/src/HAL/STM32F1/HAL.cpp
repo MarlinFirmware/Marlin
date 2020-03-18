@@ -246,7 +246,94 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   } }
 #endif
 
+#ifdef OVERCLOCK
+
+#define RCC_HSE_ON      ((uint32_t)0x00010000)
+#define RCC_SYSCLKSource_PLLCLK ((uint32_t)0x00000002)
+#define RCC_SYSCLK_Div1 ((uint32_t)0x00000000)
+#define RCC_HCLK_Div1   ((uint32_t)0x00000000)
+#define RCC_HCLK_Div2   ((uint32_t)0x00000400)
+#define RCC_PLLMul_9    ((uint32_t)0x001C0000) // 72 MHz
+#define RCC_PLLMul_10   ((uint32_t)0x00200000) // 80 MHz
+#define RCC_PLLMul_12   ((uint32_t)0x00280000) // 96 MHz
+#define RCC_PLLMul_13   ((uint32_t)0x002C0000) // 104MHz
+#define RCC_PLLMul_14   ((uint32_t)0x00300000) // 112MHz
+#define RCC_PLLMul_16   ((uint32_t)0x00380000) // 128MHz
+#define RCC_PLLSource_HSE_Div1  ((uint32_t)0x00010000)
+#define RCC_FLAG_PLLRDY ((uint8_t)0x39)
+#define FLASH_Latency_2 ((uint32_t)0x00000002)
+#define FLASH_PrefetchBuffer_Enable  ((uint32_t)0x00000010)
+
+extern "C" {
+  void RCC_DeInit(void);
+  void RCC_HSEConfig(uint32_t RCC_HSE);
+  void RCC_SYSCLKConfig(uint32_t RCC_SYSCLKSource);
+  uint8_t RCC_GetSYSCLKSource(void);
+  void RCC_HCLKConfig(uint32_t RCC_SYSCLK);
+  void RCC_PCLK1Config(uint32_t RCC_HCLK);
+  void RCC_PCLK2Config(uint32_t RCC_HCLK);
+  typedef enum {RESET = 0, SET = !RESET} FlagStatus;
+  FlagStatus RCC_GetFlagStatus(uint8_t RCC_FLAG);
+  typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
+  void RCC_PLLCmd(FunctionalState NewState);
+  void RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul);
+  typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
+  ErrorStatus RCC_WaitForHSEStartUp(void);
+  void FLASH_PrefetchBufferCmd(uint32_t FLASH_PrefetchBuffer);
+  void FLASH_SetLatency(uint32_t FLASH_Latency);
+}
+
+/* Overclock the STM32F103, up to 128 MHz */
+static uint32_t overclock_stm32f103() {
+  // Reset the RCC config. to the default state,
+  // doesn't modify PCLK, LSI, LSE and RTC clocks
+  RCC_DeInit();
+
+  // Enable the External High Speed oscillator
+  RCC_HSEConfig(RCC_HSE_ON);
+  ErrorStatus HSEStartUpStatus = RCC_WaitForHSEStartUp();
+  if (HSEStartUpStatus == SUCCESS) {
+    // Enable Prefetch Buffer
+    FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+    // Flash 2 wait state
+    FLASH_SetLatency(FLASH_Latency_2);
+
+    // HCLK = SYSCLK
+    RCC_HCLKConfig(RCC_SYSCLK_Div1);
+    // PCLK1 = HCLK/2
+    RCC_PCLK1Config(RCC_HCLK_Div2);
+    // PCLK2 = HCLK
+    RCC_PCLK2Config(RCC_HCLK_Div1);
+
+    uint32_t mul_pll = RCC_PLLMul_9;
+    switch(OC_TARGET_MHZ) {
+      case 80:  mul_pll = RCC_PLLMul_10; break;
+      case 96:  mul_pll = RCC_PLLMul_12; break;
+      case 104: mul_pll = RCC_PLLMul_13; break;
+      case 112: mul_pll = RCC_PLLMul_14; break;
+      case 128: mul_pll = RCC_PLLMul_16; break;
+    }
+    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, mul_pll);
+
+    // Enable main PLL
+    RCC_PLLCmd(ENABLE);
+    // Wait till PLL is ready
+    while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) {;}
+    // Select PLL as system clock source
+    RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+    // Wait till PLL is used as system clock source
+    while(RCC_GetSYSCLKSource() != 0x08) {;}
+
+    return OC_TARGET_MHZ;
+  }
+  return OC_BASE_MHZ;
+}
+#endif // OVERCLOCK
+
 void HAL_init() {
+  #ifdef OVERCLOCK
+    overclock_stm32f103();
+  #endif
   NVIC_SetPriorityGrouping(0x3);
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);

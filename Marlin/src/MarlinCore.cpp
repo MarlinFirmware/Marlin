@@ -965,11 +965,16 @@ void setup() {
     #endif
   #endif
 
-  MYSERIAL0.begin(BAUDRATE);
+  #ifdef OVERCLOCK
+    #define CLOCKRATE ((BAUDRATE*OC_BASE_MHZ)/OC_TARGET_MHZ)
+  #else
+    #define CLOCKRATE BAUDRATE
+  #endif
+  MYSERIAL0.begin(CLOCKRATE);
   uint32_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #if HAS_MULTI_SERIAL
-    MYSERIAL1.begin(BAUDRATE);
+    MYSERIAL1.begin(CLOCKRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
