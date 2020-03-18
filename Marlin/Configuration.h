@@ -1,3 +1,25 @@
+// Last Updated : 2020-03-18
+// Define TinyBoy Model --- Select One Only (只可選一項) --- 
+
+// #define TINYBOY_RA20
+// #define TINYBOY_RA30
+ #define TINYBOY_E10
+// #define TINYBOY_E16
+
+// #define TINYBOY_E30
+// #define TINYBOY_E40
+// #define TINYBOY_E8
+// #define TINYBOY_RE20
+
+// #define TINYBOY_M10
+// #define TINYBOY_M16
+
+// #define TINYBOY_J10
+// #define TINYBOY_L10  // Not Support from 2.0 Oversize with LCD and SD Module
+// #define TINYBOY_L16  // Not Support from 2.0 Oversize with LCD and SD Module
+// #define TINYBOY_A10
+// #define TINYBOY_MAGO // Not Support from 2.0 Oversize with LCD and SD Module
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -86,10 +108,19 @@
  */
 
 // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
-#define SHOW_BOOTSCREEN
+// fred
+#if ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_A10)
+#else
+    #define SHOW_BOOTSCREEN
+#endif
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-//#define SHOW_CUSTOM_BOOTSCREEN
+// fred
+#if ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20) || ENABLED(TINYBOY_RA30) || ENABLED(TINYBOY_A10)
+#elif ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_A10)
+#else
+  #define SHOW_CUSTOM_BOOTSCREEN
+#endif
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 //#define CUSTOM_STATUS_SCREEN_IMAGE
@@ -129,12 +160,45 @@
 //#define BLUETOOTH
 
 // Choose the name from boards.h that matches your setup
-#ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+// fred
+  #if ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_A10) || ENABLED(TINYBOY_MAGO)
+    #define MOTHERBOARD BOARD_MELZI
+  #else
+    #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #endif
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+// fred
+#if ENABLED(TINYBOY_J10)
+  #define CUSTOM_MACHINE_NAME "TinyBoy 2 J10"
+#elif ENABLED(TINYBOY_L10)
+  #define CUSTOM_MACHINE_NAME "TinyBoy 2 L10"
+#elif ENABLED(TINYBOY_L16)
+  #define CUSTOM_MACHINE_NAME "TinyBoy 2 L16"
+#elif ENABLED(TINYBOY_A10)
+  #define CUSTOM_MACHINE_NAME "TinyBoy 2 A10"
+#elif ENABLED(TINYBOY_E8)
+  #define CUSTOM_MACHINE_NAME "E8"
+#elif ENABLED(TINYBOY_E10)
+  #define CUSTOM_MACHINE_NAME "E10"
+#elif ENABLED(TINYBOY_E16)
+  #define CUSTOM_MACHINE_NAME "E16"
+#elif ENABLED(TINYBOY_E30)
+  #define CUSTOM_MACHINE_NAME "E30"
+#elif ENABLED(TINYBOY_E40)
+  #define CUSTOM_MACHINE_NAME "E40"
+#elif ENABLED(TINYBOY_M10)
+  #define CUSTOM_MACHINE_NAME "M10"
+#elif ENABLED(TINYBOY_M16)
+  #define CUSTOM_MACHINE_NAME "M16"
+#elif ENABLED(TINYBOY_RE20) 
+  #define CUSTOM_MACHINE_NAME "RE20"
+#elif ENABLED(TINYBOY_RA20)
+  #define CUSTOM_MACHINE_NAME "RA20"
+#elif ENABLED(TINYBOY_RA30)
+  #define CUSTOM_MACHINE_NAME "RA30"
+#endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -147,7 +211,8 @@
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+// fred
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -415,7 +480,13 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 0
+
+// fred
+#if ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20) || ENABLED(TINYBOY_RA30)
+    #define TEMP_SENSOR_BED 1
+#else    
+    #define TEMP_SENSOR_BED 0
+#endif   
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 
@@ -565,8 +636,9 @@
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
+ // fred
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 200
+#define EXTRUDE_MAXLENGTH 500
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -613,12 +685,23 @@
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
-#define USE_XMIN_PLUG
-#define USE_YMIN_PLUG
-#define USE_ZMIN_PLUG
-//#define USE_XMAX_PLUG
-//#define USE_YMAX_PLUG
-//#define USE_ZMAX_PLUG
+// fred
+#if ENABLED(TINYBOY_E8)
+  #define USE_XMIN_PLUG
+  //#define USE_YMIN_PLUG
+  #define USE_ZMIN_PLUG
+  //#define USE_XMAX_PLUG
+  #define USE_YMAX_PLUG
+  //#define USE_ZMAX_PLUG
+#else
+  //#define USE_XMIN_PLUG
+  #define USE_YMIN_PLUG
+  #define USE_ZMIN_PLUG
+  #define USE_XMAX_PLUG
+  //#define USE_YMAX_PLUG
+  //#define USE_ZMAX_PLUG
+#endif
+
 
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
@@ -647,13 +730,26 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+// fred
+#if ENABLED(TINYBOY_E8)
+  // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
+  #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+  #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+  #define X_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+  #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
+#else
+  // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
+  #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define X_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Y_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
+#endif
 
 /**
  * Stepper Drivers
@@ -731,14 +827,24 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+// fred 
+#if ENABLED(TINYBOY_E8)
+   #define DEFAULT_AXIS_STEPS_PER_UNIT   {400, 400, 6400, 170} // 0.9 degree
+#elif ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20)
+   #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 1600, 88.16}  // Z:M5:1612 兩頭螺紋 
+#elif ENABLED(TINYBOY_RA30)
+   #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 800, 144}  // Z:M8:1612 滾珠絲杆 
+#else
+   #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 6400, 88.16}  // default steps per unit 
+#endif
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+// fred 
+#define DEFAULT_MAX_FEEDRATE          { 800, 800, 2 ,60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -751,7 +857,8 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+// fred 
+#define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 5, 800 } // { 800, 800, 5, 800 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -766,10 +873,11 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
+// fred 
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
-
+#define DEFAULT_TRAVEL_ACCELERATION   2000    // X, Y, Z acceleration for travel (non printing) moves
+ 
 /**
  * Default Jerk limits (mm/s)
  * Override with M205 X Y Z E
@@ -780,9 +888,10 @@
  */
 //#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 10.0
-  #define DEFAULT_ZJERK  0.3
+// fred
+	#define DEFAULT_XJERK                 8 
+	#define DEFAULT_YJERK                 8 
+	#define DEFAULT_ZJERK                  0.4
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
@@ -861,8 +970,11 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
-//#define MANUAL_PROBE_START_Z 0.2
+// fred
+#if ENABLED(TINYBOY_E10) || ENABLED(TINYBOY_E16)
+  //#define PROBE_MANUALLY
+  //#define MANUAL_PROBE_START_Z 0.2
+#endif
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1036,7 +1148,7 @@
 // WARNING: When motors turn off there is a chance of losing position accuracy!
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_Z true // fred
 
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
@@ -1049,9 +1161,16 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+// fred
+#if ENABLED(TINYBOY_E8)
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR true
+  #define INVERT_Z_DIR false
+#else
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR false
+#endif
 
 // @section extruder
 
@@ -1071,30 +1190,81 @@
 
 //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
-//#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
+// fred
+#define Z_HOMING_HEIGHT  0      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
 
 //#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#if ENABLED(TINYBOY_E8)
+  #define X_HOME_DIR -1
+  #define Y_HOME_DIR  1
+  #define Z_HOME_DIR -1
+#elif ENABLED(TINYBOY_A10)
+  #define X_HOME_DIR -1
+  #define Y_HOME_DIR -1
+  #define Z_HOME_DIR -1
+#else  
+  #define X_HOME_DIR  1
+  #define Y_HOME_DIR -1
+  #define Z_HOME_DIR -1
+#endif
+
 
 // @section machine
 
 // The size of the print bed
 #define X_BED_SIZE 200
 #define Y_BED_SIZE 200
+// fred
+#if ENABLED(TINYBOY_E8)
+  #define X_BED_SIZE 80
+  #define Y_BED_SIZE 78
+#elif ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_J10) || ENABLED(TINYBOY_M10) || ENABLED(TINYBOY_E10) || ENABLED(TINYBOY_A10)
+  #define X_BED_SIZE 100
+  #define Y_BED_SIZE 100
+#elif ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_E16) || ENABLED(TINYBOY_M16)
+  #define X_BED_SIZE 100
+  #define Y_BED_SIZE 100
+#elif ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20)
+  #define X_BED_SIZE 120
+  #define Y_BED_SIZE 120
+#elif ENABLED(TINYBOY_RA30)
+  #define X_BED_SIZE 200
+  #define Y_BED_SIZE 200
+#elif ENABLED(TINYBOY_E30)
+  #define X_BED_SIZE 100
+  #define Y_BED_SIZE 100
+#elif ENABLED(TINYBOY_E40)
+  #define X_BED_SIZE 100
+  #define Y_BED_SIZE 100
+#endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
+// fred
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#if ENABLED(TINYBOY_E8)
+  #define Z_MAX_POS 80
+#elif ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_J10) || ENABLED(TINYBOY_M10) || ENABLED(TINYBOY_E10) || ENABLED(TINYBOY_A10)
+  #define Z_MAX_POS 105
+#elif ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_E16) || ENABLED(TINYBOY_M16)
+  #define Z_MAX_POS 165
+#elif ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20)
+  #define Z_MAX_POS 205
+#elif ENABLED(TINYBOY_RA30)
+  #define Z_MAX_POS 305
+#elif ENABLED(TINYBOY_E30)
+  #define Z_MAX_POS 305
+#elif ENABLED(TINYBOY_E40)
+  #define Z_MAX_POS 405
+#endif
+
 
 /**
  * Software Endstops
@@ -1133,8 +1303,15 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-//#define FILAMENT_RUNOUT_SENSOR
+// fred
+#if ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20) || ENABLED(TINYBOY_RA30) || ENABLED(TINYBOY_A10)
+#elif ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_A10)
+#else
+	#define FILAMENT_RUNOUT_SENSOR
+#endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FIL_RUNOUT_PIN       3
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
@@ -1195,11 +1372,14 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT
-//#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+ // fred
+#if ENABLED(TINYBOY_E10) || ENABLED(TINYBOY_E16)
+	//#define AUTO_BED_LEVELING_3POINT
+	//#define AUTO_BED_LEVELING_LINEAR
+	//#define AUTO_BED_LEVELING_BILINEAR
+	//#define AUTO_BED_LEVELING_UBL
+	//#define MESH_BED_LEVELING
+#endif
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
@@ -1304,7 +1484,10 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-//#define LCD_BED_LEVELING
+// fred
+#if ENABLED(TINYBOY_E10) || ENABLED(TINYBOY_E16)
+    #define LCD_BED_LEVELING
+#endif
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -1435,7 +1618,8 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+// fred
+#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #if ENABLED(EEPROM_SETTINGS)
@@ -1465,8 +1649,9 @@
 // @section temperature
 
 // Preheat Constants
+// fred
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 180
+#define PREHEAT_1_TEMP_HOTEND 190
 #define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
@@ -1486,11 +1671,13 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-//#define NOZZLE_PARK_FEATURE
+// fred 
+#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  // fred
+  #define NOZZLE_PARK_POINT { X_MAX_POS, Y_MAX_POS , 5 }
   #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // (mm/s) Z axis feedrate (not used for delta printers)
 #endif
@@ -1533,7 +1720,8 @@
  * Attention: EXPERIMENTAL. G-code arguments may change.
  *
  */
-//#define NOZZLE_CLEAN_FEATURE
+// fred
+#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   // Default number of pattern repetitions
@@ -1544,8 +1732,9 @@
 
   // Specify positions for each tool as { { X, Y, Z }, { X, Y, Z } }
   // Dual hotend system may use { {  -20, (Y_BED_SIZE / 2), (Z_MIN_POS + 1) },  {  420, (Y_BED_SIZE / 2), (Z_MIN_POS + 1) }}
-  #define NOZZLE_CLEAN_START_POINT { {  30, 30, (Z_MIN_POS + 1) } }
-  #define NOZZLE_CLEAN_END_POINT   { { 100, 60, (Z_MIN_POS + 1) } }
+  // fred
+  #define NOZZLE_CLEAN_START_POINT { X_MAX_POS, 00, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_END_POINT   { (X_MAX_POS-10), 00, (Z_MIN_POS + 1)}
 
   // Circular pattern radius
   #define NOZZLE_CLEAN_CIRCLE_RADIUS 6.5
@@ -1590,7 +1779,8 @@
  *
  * View the current statistics with M78.
  */
-//#define PRINTCOUNTER
+// fred
+#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
@@ -1648,7 +1838,12 @@
  * you must uncomment the following option or it won't work.
  *
  */
-//#define SDSUPPORT
+// fred 
+#if ENABLED(TINYBOY_RE20) || ENABLED(TINYBOY_RA20) || ENABLED(TINYBOY_RA30) || ENABLED(TINYBOY_A10)
+//#elif ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_A10)
+#else
+    #define SDSUPPORT
+#endif
 
 /**
  * SD CARD: SPI SPEED
@@ -1728,7 +1923,8 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-//#define INDIVIDUAL_AXIS_HOMING_MENU
+// fred
+#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //
 // SPEAKER/BUZZER
@@ -2049,6 +2245,21 @@
 //
 //#define OVERLORD_OLED
 
+// fred
+#if ENABLED(TINYBOY_E8)  || ENABLED(TINYBOY_J10) || \
+    ENABLED(TINYBOY_E10) || ENABLED(TINYBOY_E16) || \
+    ENABLED(TINYBOY_M10) || ENABLED(TINYBOY_M16) || \
+    ENABLED(TINYBOY_E30) || ENABLED(TINYBOY_E40)
+    #define TINYOLED
+    #define SAV_3DGLCD
+#elif ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16)
+    #define OLED_PANEL_TINYBOY2
+#endif  
+#if ENABLED(SAV_3DGLCD)
+//  #define U8GLIB_SSD1306
+  #define U8GLIB_SH1106
+#endif
+
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================
@@ -2192,15 +2403,23 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-//#define NEOPIXEL_LED
+// fred
+#if ENABLED(TINYBOY_L10) || ENABLED(TINYBOY_L16) || ENABLED(TINYBOY_A10)
+#else
+    #define NEOPIXEL_LED
+#endif
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN     4       // LED driving pin
+  #define NEOPIXEL_TYPE   NEO_RGB // NEO_GRBW / NEO_GRBW - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #if ENABLED(TINYBOY_RE20) 
+      #define NEOPIXEL_PIN  44       // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
+  #else
+    #define NEOPIXEL_PIN    4        // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
+  #endif
+  #define NEOPIXEL_PIXELS    20       // Number of LEDs in the strip
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+  #define NEOPIXEL_BRIGHTNESS 50   // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 
   // Use a single Neopixel LED for static (background) lighting
