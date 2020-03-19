@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "trinamic.h"
 #include "../stepper.h"
@@ -818,4 +818,4 @@ void reset_trinamic_drivers() {
   stepper.set_directions();
 }
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

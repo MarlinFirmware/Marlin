@@ -26,6 +26,14 @@
 #endif
 
 //
+// EEPROM
+//
+#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  //#define SDCARD_EEPROM_EMULATION
+#endif
+
+//
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION
@@ -79,7 +87,9 @@
     #define Z_MIN_PIN      P1_00   // PWRDET
   #endif
 #else
-  #define Z_STOP_PIN       P1_27   // Z-STOP
+  #ifndef Z_STOP_PIN
+    #define Z_STOP_PIN     P1_27   // Z-STOP
+  #endif
 #endif
 
 //
@@ -165,7 +175,7 @@
   #endif
 #endif
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *

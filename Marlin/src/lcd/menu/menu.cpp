@@ -127,7 +127,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *
  * The prerequisite is that in the header the type was already declared:
  *
- *   DEFINE_MENU_EDIT_ITEM_TYPE(int16_t, int3, i16tostr3, 1)
+ *   DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
  *
  * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into:
  *
@@ -193,7 +193,7 @@ DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(float52);     // _2.34, 12.34, -2.34 or 123.45, -23.45
+DEFINE_MENU_EDIT_ITEM(float42_52);  // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
@@ -396,11 +396,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
-    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-      const bool do_probe = (active_extruder == 0);
-    #else
-      constexpr bool do_probe = true;
-    #endif
+    const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
     if (ui.encoderPosition) {
       const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR_Z);
       ui.encoderPosition = 0;
@@ -429,14 +425,14 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), LCD_Z_OFFSET_FUNC(hotend_offset[active_extruder].z));
-        else
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
       #endif
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), LCD_Z_OFFSET_FUNC(probe.offset.z));
-
-      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        if (do_probe) _lcd_zoffset_overlay_gfx(probe.offset.z);
-      #endif
+      if (do_probe) {
+        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
+        #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+          _lcd_zoffset_overlay_gfx(probe.offset.z);
+        #endif
+      }
     }
   }
 

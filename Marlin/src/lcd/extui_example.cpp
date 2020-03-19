@@ -23,7 +23,7 @@
 
 #if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
-#include "extensible_ui/ui_api.h"
+#include "extui/ui_api.h"
 
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the

@@ -111,7 +111,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #if HAS_HEATED_BED
         _PREHEAT_ITEMS(1,0);
       #endif
-      for (uint8_t n = 1; n < HOTENDS; n++) PREHEAT_ITEMS(1,n);
+      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(1,n);
       ACTION_ITEM(MSG_PREHEAT_1_ALL, []() {
         #if HAS_HEATED_BED
           _preheat_bed(0);
@@ -139,7 +139,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #if HAS_HEATED_BED
         _PREHEAT_ITEMS(2,0);
       #endif
-      for (uint8_t n = 1; n < HOTENDS; n++) PREHEAT_ITEMS(2,n);
+      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(2,n);
       ACTION_ITEM(MSG_PREHEAT_2_ALL, []() {
         #if HAS_HEATED_BED
           _preheat_bed(1);

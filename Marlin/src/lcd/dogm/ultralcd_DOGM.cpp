@@ -219,9 +219,6 @@ bool MarlinUI::detected() { return true; }
 
   // Show the Marlin bootscreen, with the u8g loop and delays
   void MarlinUI::show_marlin_bootscreen() {
-    #ifndef BOOTSCREEN_TIMEOUT
-      #define BOOTSCREEN_TIMEOUT 2500
-    #endif
     constexpr uint8_t pages = two_part ? 2 : 1;
     for (uint8_t q = pages; q--;) {
       draw_marlin_bootscreen(q == 0);
@@ -327,11 +324,11 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, 'E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
-      lcd_put_u8str(i16tostr3(thermalManager.degHotend(extruder)));
+      lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
       if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
-        lcd_put_u8str(i16tostr3(thermalManager.degTargetHotend(extruder)));
+        lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
   #endif // ADVANCED_PAUSE_FEATURE
@@ -548,9 +545,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       if (PAGE_UNDER(7)) {
         const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
                        lpos = pos.asLogical();
-        lcd_put_u8str(5, 7, "X:");
+        lcd_put_u8str_P(5, 7, X_LBL);
         lcd_put_u8str(ftostr52(lpos.x));
-        lcd_put_u8str(74, 7, "Y:");
+        lcd_put_u8str_P(74, 7, Y_LBL);
         lcd_put_u8str(ftostr52(lpos.y));
       }
 
@@ -563,7 +560,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_wchar(')');
 
         // Show the location value
-        lcd_put_u8str(74, LCD_PIXEL_HEIGHT, "Z:");
+        lcd_put_u8str_P(74, LCD_PIXEL_HEIGHT, Z_LBL);
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else

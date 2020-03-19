@@ -50,7 +50,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #include "../core/language.h"
@@ -202,7 +202,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       #if HAS_BUZZER
         filament_change_beep(max_beep_count);
       #endif
-      idle(true);
+      idle_no_sleep();
     }
   }
 
@@ -280,7 +280,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
           lcd_pause_show_message(PAUSE_MESSAGE_OPTION);
-          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle(true);
+          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
       #endif
 
@@ -541,7 +541,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #endif
 
       // Wait for LCD click or M108
-      while (wait_for_user) idle(true);
+      while (wait_for_user) idle_no_sleep();
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_INFO, PSTR("Reheating"));
@@ -576,8 +576,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         filament_change_beep(max_beep_count, true);
       #endif
     }
-
-    idle(true);
+    idle_no_sleep();
   }
   #if ENABLED(DUAL_X_CARRIAGE)
     active_extruder = saved_ext;

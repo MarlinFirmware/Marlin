@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../../../feature/prusa_MMU2/mmu2.h"
+  #include "../../../feature/mmu2/mmu2.h"
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)

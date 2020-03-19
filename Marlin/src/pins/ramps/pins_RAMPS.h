@@ -133,7 +133,9 @@
   #define Y_CS_PIN         49
 #endif
 
-#define Z_STEP_PIN         46
+#ifndef Z_STEP_PIN
+  #define Z_STEP_PIN       46
+#endif
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
 #ifndef Z_CS_PIN
@@ -298,7 +300,7 @@
   #endif
 #endif
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -647,7 +649,7 @@
           #define NEOPIXEL_PIN    25
         #endif
 
-    #endif
+      #endif
 
     #elif ENABLED(MINIPANEL)
 
@@ -685,14 +687,7 @@
       #define BEEPER_PIN        33
 
       // Buttons are directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
-        #define SHIFT_OUT       40
-        #define SHIFT_CLK       44
-        #define SHIFT_LD        42
-        #define BTN_EN1         64
-        #define BTN_EN2         59
-        #define BTN_ENC         63
-      #elif ENABLED(PANEL_ONE)
+      #if ENABLED(PANEL_ONE)
         #define BTN_EN1         59   // AUX2 PIN 3
         #define BTN_EN2         63   // AUX2 PIN 4
         #define BTN_ENC         49   // AUX3 PIN 7
@@ -711,3 +706,18 @@
   #endif // NEWPANEL
 
 #endif // HAS_SPI_LCD
+
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define SHIFT_OUT        40
+  #define SHIFT_CLK        44
+  #define SHIFT_LD         42
+  #ifndef BTN_EN1
+    #define BTN_EN1        64
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2        59
+  #endif
+  #ifndef BTN_ENC
+    #define BTN_ENC        63
+  #endif
+#endif

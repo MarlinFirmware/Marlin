@@ -43,7 +43,7 @@ void GcodeSuite::G30() {
   const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
                          parser.linearval('Y', current_position.y + probe.offset_xy.y) };
 
-  if (!position_is_reachable_by_probe(pos)) return;
+  if (!probe.can_reach(pos)) return;
 
   // Disable leveling so the planner won't mess with us
   #if HAS_LEVELING

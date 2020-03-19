@@ -57,39 +57,22 @@ void safe_delay(millis_t ms) {
 
   void log_machine_info() {
     SERIAL_ECHOLNPGM("Machine Type: "
-      #if ENABLED(DELTA)
-        "Delta"
-      #elif IS_SCARA
-        "SCARA"
-      #elif IS_CORE
-        "Core"
-      #else
-        "Cartesian"
-      #endif
+      TERN(DELTA, "Delta", "")
+      TERN(IS_SCARA, "SCARA", "")
+      TERN(IS_CORE, "Core", "")
+      TERN(IS_CARTESIAN, "Cartesian", "")
     );
 
     SERIAL_ECHOLNPGM("Probe: "
-      #if ENABLED(PROBE_MANUALLY)
-        "PROBE_MANUALLY"
-      #elif ENABLED(NOZZLE_AS_PROBE)
-        "NOZZLE_AS_PROBE"
-      #elif ENABLED(FIX_MOUNTED_PROBE)
-        "FIX_MOUNTED_PROBE"
-      #elif ENABLED(BLTOUCH)
-        "BLTOUCH"
-      #elif HAS_Z_SERVO_PROBE
-        "SERVO PROBE"
-      #elif ENABLED(TOUCH_MI_PROBE)
-        "TOUCH_MI_PROBE"
-      #elif ENABLED(Z_PROBE_SLED)
-        "Z_PROBE_SLED"
-      #elif ENABLED(Z_PROBE_ALLEN_KEY)
-        "Z_PROBE_ALLEN_KEY"
-      #elif ENABLED(SOLENOID_PROBE)
-        "SOLENOID_PROBE"
-      #else
-        "NONE"
-      #endif
+      TERN(PROBE_MANUALLY, "PROBE_MANUALLY", "")
+      TERN(NOZZLE_AS_PROBE, "NOZZLE_AS_PROBE", "")
+      TERN(FIX_MOUNTED_PROBE, "FIX_MOUNTED_PROBE", "")
+      TERN(HAS_Z_SERVO_PROBE, TERN(BLTOUCH, "BLTOUCH", "SERVO PROBE"), "")
+      TERN(TOUCH_MI_PROBE, "TOUCH_MI_PROBE", "")
+      TERN(Z_PROBE_SLED, "Z_PROBE_SLED", "")
+      TERN(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY", "")
+      TERN(SOLENOID_PROBE, "SOLENOID_PROBE", "")
+      TERN(PROBE_SELECTED, "", "NONE")
     );
 
     #if HAS_BED_PROBE
@@ -107,20 +90,10 @@ void safe_delay(millis_t ms) {
         else
           SERIAL_ECHOPGM(" (Aligned With");
 
-        if (probe.offset_xy.y > 0) {
-          #if IS_SCARA
-            SERIAL_ECHOPGM("-Distal");
-          #else
-            SERIAL_ECHOPGM("-Back");
-          #endif
-        }
-        else if (probe.offset_xy.y < 0) {
-          #if IS_SCARA
-            SERIAL_ECHOPGM("-Proximal");
-          #else
-            SERIAL_ECHOPGM("-Front");
-          #endif
-        }
+        if (probe.offset_xy.y > 0)
+          serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Distal") : PSTR("-Back"));
+        else if (probe.offset_xy.y < 0)
+          serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Proximal") : PSTR("-Front"));
         else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
@@ -128,28 +101,19 @@ void safe_delay(millis_t ms) {
 
       #endif
 
-      if (probe.offset.z < 0)
-        SERIAL_ECHOPGM("Below");
-      else if (probe.offset.z > 0)
-        SERIAL_ECHOPGM("Above");
-      else
-        SERIAL_ECHOPGM("Same Z as");
+      serialprintPGM(probe.offset.z < 0 ? PSTR("Below") : probe.offset.z > 0 ? PSTR("Above") : PSTR("Same Z as"));
       SERIAL_ECHOLNPGM(" Nozzle)");
 
     #endif
 
     #if HAS_ABL_OR_UBL
-      SERIAL_ECHOLNPGM("Auto Bed Leveling: "
-        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-          "LINEAR"
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          "BILINEAR"
-        #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-          "3POINT"
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          "UBL"
-        #endif
+      SERIAL_ECHOPGM("Auto Bed Leveling: "
+        TERN(AUTO_BED_LEVELING_LINEAR, "LINEAR", "")
+        TERN(AUTO_BED_LEVELING_BILINEAR, "BILINEAR", "")
+        TERN(AUTO_BED_LEVELING_3POINT, "3POINT", "")
+        TERN(AUTO_BED_LEVELING_UBL, "UBL", "")
       );
+
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -160,7 +124,7 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
             float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
-            SERIAL_CHAR(' ', 'X' + char(a));
+            SERIAL_CHAR(' ', XYZ_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_ECHO(v);
           }

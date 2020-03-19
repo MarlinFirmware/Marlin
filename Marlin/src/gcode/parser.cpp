@@ -312,7 +312,9 @@ void GCodeParser::parse(char *p) {
         char * const valptr = has_val ? is_str ? unescape_string(p) : p : nullptr;
       #else
         const bool has_val = valid_float(p);
-        char * const valptr = has_val ? p : nullptr;
+        #if ENABLED(FASTER_GCODE_PARSER)
+          char * const valptr = has_val ? p : nullptr;
+        #endif
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)

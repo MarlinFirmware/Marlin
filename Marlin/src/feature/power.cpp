@@ -46,8 +46,8 @@ bool Power::is_power_needed() {
     HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;
   #endif
 
-  #if ENABLED(AUTO_POWER_CONTROLLERFAN, USE_CONTROLLER_FAN) && HAS_CONTROLLER_FAN
-    if (controllerfan_speed) return true;
+  #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+    if (controllerFan.state()) return true;
   #endif
 
   #if ENABLED(AUTO_POWER_CHAMBER_FAN)
@@ -108,7 +108,7 @@ void Power::power_on() {
   if (!powersupply_on) {
     PSU_PIN_ON();
 
-    #if HAS_TRINAMIC
+    #if HAS_TRINAMIC_CONFIG
       delay(PSU_POWERUP_DELAY); // Wait for power to settle
       restore_stepper_drivers();
     #endif

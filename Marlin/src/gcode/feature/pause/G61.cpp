@@ -56,16 +56,16 @@ void GcodeSuite::G61(void) {
 
   SERIAL_ECHOPAIR(STR_RESTORING_POS " S", int(slot));
   LOOP_XYZ(i) {
-    destination[i] = parser.seen(axis_codes[i])
+    destination[i] = parser.seen(XYZ_CHAR(i))
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
       : current_position[i];
-    SERIAL_CHAR(' ', axis_codes[i]);
+    SERIAL_CHAR(' ', XYZ_CHAR(i));
     SERIAL_ECHO_F(destination[i]);
   }
   SERIAL_EOL();
 
   // Move to the saved position
-  prepare_move_to_destination();
+  prepare_line_to_destination();
 }
 
 #endif // SAVED_POSITIONS

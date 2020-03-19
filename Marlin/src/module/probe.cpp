@@ -78,7 +78,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -89,7 +89,7 @@ Probe probe;
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_PROBE_XY_OFFSET
-  const xyz_pos_t &Probe::offset_xy = probe.offset;
+  const xyz_pos_t &Probe::offset_xy = Probe::offset;
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -455,10 +455,6 @@ bool Probe::set_deployed(const bool deploy) {
  * @return true to indicate an error
  */
 
-#if HAS_BED_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-  const char Probe::msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
-#endif
-
 /**
  * @brief Move down until the probe triggers or the low limit is reached
  *
@@ -473,13 +469,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::probe_down_to_z", current_position);
 
   #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-    // Wait for bed to heat back up between probing points
-    if (thermalManager.isHeatingBed()) {
-      serialprintPGM(msg_wait_for_bed_heating);
-      LCD_MESSAGEPGM(MSG_BED_HEATING);
-      thermalManager.wait_for_bed();
-      ui.reset_status();
-    }
+    thermalManager.wait_for_bed_heating();
   #endif
 
   #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
@@ -634,7 +624,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       #if EXTRA_PROBING
         // Insert Z measurement into probes[]. Keep it sorted ascending.
-        for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
+        LOOP_LE_N(i, p) {                            // Iterate the saved Zs to insert the new Z
           if (i == p || probes[i] > z) {                              // Last index or new Z is smaller than this Z
             for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
             probes[i] = z;                                            // Insert the new Z measurement
@@ -672,7 +662,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
           max_avg_idx--; else min_avg_idx++;
 
       // Return the average value of all remaining probes.
-      for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
+      LOOP_S_LE_N(i, min_avg_idx, max_avg_idx)
         probes_z_sum += probes[i];
 
     #endif
@@ -727,7 +717,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   // TODO: Adapt for SCARA, where the offset rotates
   xyz_pos_t npos = { rx, ry };
   if (probe_relative) {                                     // The given position is in terms of the probe
-    if (!position_is_reachable_by_probe(npos)) {
+    if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
       return NAN;
     }

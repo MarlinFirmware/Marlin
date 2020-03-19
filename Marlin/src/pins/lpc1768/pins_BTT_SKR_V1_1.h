@@ -24,6 +24,12 @@
 #define BOARD_INFO_NAME "BIGTREE SKR 1.1"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Limit Switches
 //
 
@@ -103,7 +109,7 @@
 
 // Trinamic driver support
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   // Using TMC devices in intelligent mode requires extra connections to each device. Unfortunately
   // the SKR does not have many free pins (especially if a display is in use). The SPI-based devices
   // will require 3 connections (clock, mosi, miso), plus a chip select line (CS) for each driver.

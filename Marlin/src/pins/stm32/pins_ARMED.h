@@ -118,6 +118,10 @@
 #define TEMP_1_PIN         PC1   // Analog Input
 #define TEMP_BED_PIN       PC2   // Analog Input
 
+#if HOTENDS == 1 && TEMP_SENSOR_PROBE
+  #define TEMP_PROBE_PIN   PC1
+#endif
+
 //
 // Heaters / Fans
 //
@@ -199,3 +203,29 @@
 #define EXT7_PIN           PD12
 #define EXT8_PIN           PB10
 #define EXT9_PIN           PB11
+
+#if HAS_TMC_UART
+  // TMC2208/TMC2209 stepper drivers
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN EXT0_PIN
+  #define X_SERIAL_RX_PIN EXT0_PIN
+
+  #define Y_SERIAL_TX_PIN EXT1_PIN
+  #define Y_SERIAL_RX_PIN EXT1_PIN
+
+  #define Z_SERIAL_TX_PIN EXT2_PIN
+  #define Z_SERIAL_RX_PIN EXT2_PIN
+
+  #define E0_SERIAL_TX_PIN EXT3_PIN
+  #define E0_SERIAL_RX_PIN EXT3_PIN
+
+  #define E1_SERIAL_RX_PIN EXT4_PIN
+  #define E1_SERIAL_TX_PIN EXT4_PIN
+
+  #define Z2_SERIAL_RX_PIN EXT4_PIN
+  #define Z2_SERIAL_TX_PIN EXT4_PIN
+
+  #define TMC_BAUD_RATE 19200
+#endif

@@ -32,6 +32,12 @@
 #define BOARD_INFO_NAME "Cohesion3D ReMix"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Servos
 //
 #define SERVO0_PIN         P2_04
@@ -45,6 +51,13 @@
 #define Y_MAX_PIN          P1_27   // 10k pullup to 3.3V
 #define Z_MIN_PIN          P1_28   // 10k pullup to 3.3V
 #define Z_MAX_PIN          P1_29   // 10k pullup to 3.3V
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  P1_29
+#endif
 
 //
 // Steppers

@@ -30,7 +30,7 @@
 /**
  * TMC2208/TMC2209 stepper drivers
  */
-#if HAS_TMC220x
+#if HAS_TMC_UART
   //
   // Software serial
   //

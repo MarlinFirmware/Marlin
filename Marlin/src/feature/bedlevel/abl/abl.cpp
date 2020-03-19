@@ -32,7 +32,7 @@
 #include "../../../core/debug_out.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 xy_pos_t bilinear_grid_spacing, bilinear_start;
@@ -115,8 +115,8 @@ void extrapolate_unprobed_bed_level() {
                       ylen = ctry1;
   #endif
 
-  for (uint8_t xo = 0; xo <= xlen; xo++)
-    for (uint8_t yo = 0; yo <= ylen; yo++) {
+  LOOP_LE_N(xo, xlen)
+    LOOP_LE_N(yo, ylen) {
       uint8_t x2 = ctrx2 + xo, y2 = ctry2 + yo;
       #ifndef HALF_IN_X
         const uint8_t x1 = ctrx1 - xo;
@@ -209,8 +209,8 @@ void print_bilinear_leveling_grid() {
 
   static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
     float row[4], column[4];
-    for (uint8_t i = 0; i < 4; i++) {
-      for (uint8_t j = 0; j < 4; j++) {
+    LOOP_L_N(i, 4) {
+      LOOP_L_N(j, 4) {
         column[j] = bed_level_virt_coord(i + x - 1, j + y - 1);
       }
       row[i] = bed_level_virt_cmr(column, 1, ty);
@@ -221,11 +221,11 @@ void print_bilinear_leveling_grid() {
   void bed_level_virt_interpolate() {
     bilinear_grid_spacing_virt = bilinear_grid_spacing / (BILINEAR_SUBDIVISIONS);
     bilinear_grid_factor_virt = bilinear_grid_spacing_virt.reciprocal();
-    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
-          for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; tx++) {
-            if ((ty && y == GRID_MAX_POINTS_Y - 1) || (tx && x == GRID_MAX_POINTS_X - 1))
+    LOOP_L_N(y, GRID_MAX_POINTS_Y)
+      LOOP_L_N(x, GRID_MAX_POINTS_X)
+        LOOP_L_N(ty, BILINEAR_SUBDIVISIONS)
+          LOOP_L_N(tx, BILINEAR_SUBDIVISIONS) {
+            if ((ty && y == (GRID_MAX_POINTS_Y) - 1) || (tx && x == (GRID_MAX_POINTS_X) - 1))
               continue;
             z_values_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
               bed_level_virt_2cmr(

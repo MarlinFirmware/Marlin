@@ -115,7 +115,7 @@
   #endif
 #endif
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -190,7 +190,7 @@
 // Onboard SD card
 //   NOT compatible with LCD
 //
-#if SDCARD_CONNECTION == ONBOARD && !defined(HAS_SPI_LCD)
+#if SDCARD_CONNECTION == ONBOARD && !HAS_SPI_LCD
   #define SOFTWARE_SPI            // Use soft SPI for onboard SD
   #define SDSS             PA4
   #define SCK_PIN          PA5
