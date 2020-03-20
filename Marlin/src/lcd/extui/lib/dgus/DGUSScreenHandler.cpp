@@ -45,6 +45,8 @@
   #include "../../../../feature/power_loss_recovery.h"
 #endif
 
+extern const char NUL_STR[];
+
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
   typedef struct {
     ExtUI::extruder_t extruder;     // which extruder to operate
