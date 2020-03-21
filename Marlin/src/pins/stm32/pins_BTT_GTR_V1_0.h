@@ -45,7 +45,9 @@
   #define SERVO0_PIN       PB11
 #endif
 
-#define PS_ON_PIN          PH6
+#define tool_sensor1 PH6
+#define tool_sensor2 PI4
+// #define tool_sensor3 PF4
 
 //
 // Limit Switches

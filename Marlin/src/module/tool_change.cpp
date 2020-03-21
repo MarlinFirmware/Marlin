@@ -365,15 +365,56 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   }
 
 #endif // PARKING_EXTRUDER
-
 #if ENABLED(SWITCHING_TOOLHEAD)
+
+  // Return a bitmask of runout pin states
+  static inline uint8_t poll_tool_sensor_pins() {
+    #define _OR_TOOL(N) | (READ(tool_sensor##N) ? _BV((N) - 1) : 0)
+    return (0 REPEAT_S(1, INCREMENT(2), _OR_TOOL));
+    #undef _OR_TOOL
+  }
+
+  bool disable_sensor = false;
+
+  uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error)
+  {
+    if ((poll_tool_sensor_pins()) == (0b1 << active_tool))
+      return active_tool ;
+    else if(kill_on_error == true && disable_sensor == false)
+    {
+      std::string status = "Tool sensor error " + std::to_string(active_tool);
+      kill(status.c_str());
+    }
+    else return -1;
+  }
 
   inline void swt_lock(const bool locked=true) {
     const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
     MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
   }
+#include <bitset>
 
-  void swt_init() { swt_lock(); }
+  void swt_init()
+  {
+    swt_lock();
+
+    // init tool sensors.
+    SET_INPUT_PULLUP(tool_sensor1);
+    SET_INPUT_PULLUP(tool_sensor2);
+
+    if (check_tool_sensor_stats(0) != 0)
+    {
+      std::string status = "TC ERROR " + std::bitset<8>(poll_tool_sensor_pins()).to_string();
+      ui.set_status_P(status.c_str());
+      swt_lock(false);
+      do
+      {
+      } while (check_tool_sensor_stats(0) != 0);
+      swt_lock();
+    }
+
+    ui.set_status_P("TC SUCCES");
+  }
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
@@ -390,6 +431,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
      */
 
     // 1. Move to switch position of current toolhead
+    // check tool status
+    check_tool_sensor_stats(active_extruder, true);
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("Start ST Tool-Change", current_position);
 
@@ -408,9 +451,11 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     fast_line_to_current(Y_AXIS);
 
     // 2. Unlock tool and drop it in the dock
+    disable_sensor = true;
 
     planner.synchronize();
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
+    safe_delay(200);
     swt_lock(false);
     safe_delay(500);
 
@@ -427,6 +472,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     fast_line_to_current(Y_AXIS); // move away from docked toolhead
 
     // 3. Move to the new toolhead
+    // check tool status
+    check_tool_sensor_stats(0) == -1;;
 
     current_position.x = grabxpos;
     if (DEBUGGING(LEVELING)) {
@@ -456,6 +503,11 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     // Wait for move to finish, pause 0.2s, move servo, pause 0.5s
     planner.synchronize();
     safe_delay(200);
+
+    // check tool status
+    disable_sensor = true;
+    check_tool_sensor_stats(new_tool, true);
+
     swt_lock();
     safe_delay(500);
 
@@ -463,6 +515,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     if (DEBUGGING(LEVELING)) DEBUG_POS("Move back Y clear", current_position);
     fast_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
+
+    // check tool status
+    check_tool_sensor_stats(new_tool, true);
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("ST Tool-Change done.", current_position);
   }
@@ -954,6 +1009,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if DISABLED(DUAL_X_CARRIAGE)
         active_extruder = new_tool; // Set the new active extruder
       #endif
+      
+      // check tool status
+      check_tool_sensor_stats(active_extruder, true);
 
       // The newly-selected extruder XYZ is actually at...
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");

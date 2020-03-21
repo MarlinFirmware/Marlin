@@ -101,6 +101,8 @@
   void swt_init();
 #endif
 
+uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error = false);
+
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
