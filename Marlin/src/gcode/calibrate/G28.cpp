@@ -59,10 +59,10 @@
     extern Planner planner;
     static void mWork_Home_EndStop(double A,double B,feedRate_t feedRate){
       float e_tam = 0;
-      #if ENABLED(mWorkDebugGoHome)
+      /*#if ENABLED(mWorkDebugGoHome)
         SERIAL_ECHOPAIR("feedRate Go Home :", feedRate );
         SERIAL_CHAR("\n");
-      #endif
+      #endif*/
       uint8_t extruder = 0;
       float mm = 360;
       planner.buffer_segment(A, B, delta.c, e_tam, feedRate, extruder, mm);
@@ -84,7 +84,7 @@
     }
     static void quick_home_xy() {
       mWork_Set_Pos_Frome_angles(0,0);
-      mWork_Home_EndStop(360.0 * X_HOME_DIR,360.0* X_HOME_DIR,homing_feedrate(X_AXIS)); //Move Y 360 angles and wait endstop
+      mWork_Home_EndStop(360.0 * X_HOME_DIR,360.0* X_HOME_DIR,homing_feedrate(X_AXIS)); //Move X 360 angles and wait endstop
       mWork_Set_Pos_Frome_angles(0,0);
       mWork_Home_EndStop( 0 , 360.0* Y_HOME_DIR , homing_feedrate(Y_AXIS)); //Move Y 360 angles and wait endstop
       mWork_Set_Pos_Frome_angles(X_POS_HOME_DEGREE,Y_POS_HOME_DEGREE);
