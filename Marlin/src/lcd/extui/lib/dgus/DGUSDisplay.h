@@ -55,7 +55,12 @@ public:
 
   // Force display into another screen.
   static void SwitchScreen(DGUS_Screen screen);
+  // Set the display brightness, ranging 0x00 - 0x64
   static void SetBrightness(uint8_t brightness);
+  // Play sounds using the display speaker.
+  //   start: position at which the sound was stored on the display.
+  //   len: how many sounds to play. Sounds will play consecutively from start to start+len-1.
+  //   volume: playback volume. 0 keeps the current volume.
   static void PlaySound(uint8_t start, uint8_t len = 1, uint8_t volume = 0);
   static void SetVolume(uint8_t volume);
 

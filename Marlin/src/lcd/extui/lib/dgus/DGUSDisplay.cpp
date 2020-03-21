@@ -85,14 +85,14 @@ void DGUSDisplay::SwitchScreen(DGUS_Screen screen) {
 
 void DGUSDisplay::SetBrightness(uint8_t brightness) {
   DEBUG_ECHOLNPAIR("SetBrightness ", brightness);
-  if (brightness > 0x64) brightness = 0x64; // Brightness range: 0x00-0x64
+  if (brightness > 0x64) brightness = 0x64;
   const uint8_t command[] = { brightness, brightness };
   WriteVariable(0x82, command, sizeof(command));
 }
 
 void DGUSDisplay::PlaySound(uint8_t start, uint8_t len, uint8_t volume) {
   DEBUG_ECHOLNPAIR("PlaySound ", start, ":", len, "\nVolume ", volume);
-  if (volume == 0) { // 0 = Do not change volume
+  if (volume == 0) {
     const uint8_t command[] = { start, len };
     WriteVariable(0xA0, command, sizeof(command));
   }
