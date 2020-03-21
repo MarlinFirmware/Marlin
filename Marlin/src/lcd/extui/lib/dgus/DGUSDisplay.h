@@ -37,6 +37,17 @@
 class DGUSDisplay {
 public:
 
+  enum dgus_control_type : uint8_t {
+    DGUS_VARIABLE_DATA_INPUT = 0x00,
+    DGUS_POPUP_WINDOW = 0x01,
+    DGUS_INCREMENTAL_ADJUST = 0x02,
+    DGUS_SLIDER_ADJUST = 0x03,
+    DGUS_RTC_SETTINGS = 0x04,
+    DGUS_RETURN_KEY_CODE = 0x05,
+    DGUS_TEXT_INPUT = 0x06,
+    DGUS_FIRMWARE_SETTINGS = 0x07
+  };
+
   DGUSDisplay() = default;
 
   static void Init();
@@ -63,6 +74,11 @@ public:
   //   volume: playback volume. 0 keeps the current volume.
   static void PlaySound(uint8_t start, uint8_t len = 1, uint8_t volume = 0);
   static void SetVolume(uint8_t volume);
+  // Enable/disable a specific touch control.
+  //   type: control type.
+  //   index: index of the control on the page (set during screen development).
+  static void EnableControl(DGUS_Screen screen, dgus_control_type type, uint8_t index);
+  static void DisableControl(DGUS_Screen screen, dgus_control_type type, uint8_t index);
 
   // Periodic tasks, eg. Rx-Queue handling.
   static void Loop();

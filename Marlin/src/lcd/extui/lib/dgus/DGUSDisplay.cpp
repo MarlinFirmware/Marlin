@@ -108,6 +108,20 @@ void DGUSDisplay::SetVolume(uint8_t volume) {
   WriteVariable(0xA1, command, sizeof(command));
 }
 
+void DGUSDisplay::EnableControl(DGUS_Screen screen, dgus_control_type type, uint8_t index) {
+  DEBUG_ECHOLNPAIR("EnableControl ", index, "\nScreen ", screen, "\nType ", type);
+
+  const uint8_t command[] = { 0x5A, 0xA5, 0x00, screen, index, type, 0x00, 0x01 };
+  WriteVariable(0xB0, command, sizeof(command));
+}
+
+void DGUSDisplay::DisableControl(DGUS_Screen screen, dgus_control_type type, uint8_t index) {
+  DEBUG_ECHOLNPAIR("DisableControl ", index, "\nScreen ", screen, "\nType ", type);
+
+  const uint8_t command[] = { 0x5A, 0xA5, 0x00, screen, index, type, 0x00, 0x00 };
+  WriteVariable(0xB0, command, sizeof(command));
+}
+
 void DGUSDisplay::ProcessRx() {
 
   #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
