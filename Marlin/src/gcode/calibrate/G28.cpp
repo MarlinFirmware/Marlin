@@ -66,7 +66,15 @@
       uint8_t extruder = 0;
       float mm = 360;
       planner.buffer_segment(A, B, delta.c, e_tam, feedRate, extruder, mm);
-      while(endstops.checkEndStop()==false){idle();}
+      unsigned long timeBegin = millis();
+      while(endstops.checkEndStop()==false){        
+        if( millis() - timeBegin > 1000){
+          timeBegin = millis();
+          float x_tam =planner.get_axis_position_degrees(A_AXIS), y_tam=planner.get_axis_position_degrees(B_AXIS);
+          if ((x_tam == A) && (y_tam == B))break;
+        }
+        idle();
+      }
       endstops.validate_homing_move();
     }
     static void mWork_Set_Pos_Frome_angles(double A, double B){
