@@ -33,13 +33,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../../core/debug_out.h"
 
-enum rx_datagram_state_t : uint8_t {
-  DGUS_IDLE,           //< waiting for DGUS_HEADER1.
-  DGUS_HEADER1_SEEN,   //< DGUS_HEADER1 received
-  DGUS_HEADER2_SEEN,   //< DGUS_HEADER2 received
-  DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
-};
-
 // Low-Level access to the display.
 class DGUSDisplay {
 public:
@@ -79,6 +72,23 @@ public:
   }
 
 private:
+  enum dgus_header : uint8_t {
+    DGUS_HEADER1 = 0x5A,
+    DGUS_HEADER2 = 0xA5
+  };
+
+  enum dgus_command : uint8_t {
+    DGUS_WRITEVAR = 0x82,
+    DGUS_READVAR = 0x83
+  };
+
+  enum rx_datagram_state_t : uint8_t {
+    DGUS_IDLE,           //< waiting for DGUS_HEADER1.
+    DGUS_HEADER1_SEEN,   //< DGUS_HEADER1 received
+    DGUS_HEADER2_SEEN,   //< DGUS_HEADER2 received
+    DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
+  };
+
   static void WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen);
   static void ProcessRx();
 

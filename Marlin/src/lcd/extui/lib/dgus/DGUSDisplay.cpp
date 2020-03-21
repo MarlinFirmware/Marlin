@@ -28,14 +28,7 @@
 
 #include "DGUSDisplay.h"
 
-// Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable
-constexpr uint8_t DGUS_HEADER1 = 0x5A;
-constexpr uint8_t DGUS_HEADER2 = 0xA5;
-
-constexpr uint8_t DGUS_CMD_WRITEVAR = 0x82;
-constexpr uint8_t DGUS_CMD_READVAR = 0x83;
-
-rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;
+DGUSDisplay::rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;
 uint8_t DGUSDisplay::rx_datagram_len = 0;
 
 bool DGUSDisplay::initialized = false;
@@ -57,7 +50,7 @@ void DGUSDisplay::Init() {
 void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
-  WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
+  WriteHeader(adr, DGUS_WRITEVAR, valueslen);
   while (valueslen--) {
     char x;
     if (!strend) x = *myvalues++;
@@ -72,7 +65,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
-  WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
+  WriteHeader(adr, DGUS_WRITEVAR, valueslen);
   while (valueslen--) {
     char x;
     if (!strend) x = pgm_read_byte(myvalues++);
@@ -171,7 +164,7 @@ void DGUSDisplay::ProcessRx() {
         }
         DEBUG_ECHOPGM(" # ");
         // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
-        if (command == DGUS_CMD_WRITEVAR && 'O' == tmp[0] && 'K' == tmp[1]) {
+        if (command == DGUS_WRITEVAR && 'O' == tmp[0] && 'K' == tmp[1]) {
           DEBUG_ECHOLNPGM(">");
           rx_datagram_state = DGUS_IDLE;
           break;
@@ -184,7 +177,7 @@ void DGUSDisplay::ProcessRx() {
         |        Header |  |    |    |   \_____\_ DATA (Words!)
         |     DatagramLen  /  VPAdr  |
         |           Command          DataLen (in Words) */
-        if (command == DGUS_CMD_READVAR) {
+        if (command == DGUS_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
           const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
           //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
