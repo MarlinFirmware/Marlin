@@ -1106,6 +1106,14 @@
 #define Z_MAX_POS 200
 
 /**
+Go Home Scara parameter
+*/
+#define mWorkGoHome
+#if ENABLED(mWorkGoHome)
+  #define X_POS_HOME_DEGREE -30  //  THETA DEGREE AT HOME
+  #define Y_POS_HOME_DEGREE 135  //PSI DEGREE AT HOME
+#endif
+/**
  * Software Endstops
  *
  * - Prevent moves outside the set machine bounds.
