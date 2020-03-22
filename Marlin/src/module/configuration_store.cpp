@@ -2467,15 +2467,33 @@ void MarlinSettings::reset() {
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+      toolchange_settings.extra_resume = TOOLCHANGE_FIL_EXTRA_RESUME_LENGTH;
+      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+      toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
       toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
       toolchange_settings.prime_speed = TOOLCHANGE_FIL_SWAP_PRIME_SPEED;
-      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+      toolchange_settings.fan_speed = TOOLCHANGE_FIL_SWAP_FAN_SPEED;
+      toolchange_settings.fan_time = TOOLCHANGE_FIL_SWAP_FAN_TIME;
     #endif
+
+    #if ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
+      enable_first_prime = false;
+    #endif
+
     #if ENABLED(TOOLCHANGE_PARK)
       constexpr xyz_pos_t tpxy = TOOLCHANGE_PARK_XY;
+      toolchange_settings.enable_park = true;
       toolchange_settings.change_point = tpxy;
     #endif
+    
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      migration_ending = 0;
+      migration_target = -1;//disable
+      migration_auto = false;
+      migration_in_progress = false;
+    #endif
   #endif
 
   #if ENABLED(BACKLASH_GCODE)

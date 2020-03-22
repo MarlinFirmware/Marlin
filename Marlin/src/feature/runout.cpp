@@ -39,6 +39,10 @@ bool FilamentMonitorBase::enabled = true,
   bool FilamentMonitorBase::host_handling; // = false
 #endif
 
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../module/tool_change.h"
+#endif
+
 /**
  * Called by FilamentSensorSwitch::run when filament is detected.
  * Called by FilamentSensorEncoder::block_completed when motion is detected.
@@ -78,6 +82,11 @@ void event_filament_runout() {
     if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
   #endif
 
+  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+    if (migration_in_progress) return;  // Action already in progress. Purge triggered repeated runout.
+    if (migration_auto) {extruder_migration(); return; };
+  #endif
+  
   #if ENABLED(EXTENSIBLE_UI)
     ExtUI::onFilamentRunout(ExtUI::getActiveTool());
   #endif

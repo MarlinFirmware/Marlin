@@ -28,10 +28,11 @@
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      float swap_length, extra_prime;
-      int16_t prime_speed, retract_speed;
+      float swap_length, extra_prime, extra_resume;
+      int16_t prime_speed, retract_speed, unretract_speed, fan, fan_speed, fan_time;
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
+      bool enable_park;
       xy_pos_t change_point;
     #endif
     float z_raise;
@@ -39,6 +40,24 @@
 
   extern toolchange_settings_t toolchange_settings;
 
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    extern void tool_change_e_move();
+    extern void tool_change_prime();
+  #endif
+
+  #if ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
+    extern bool enable_first_prime;
+  #endif
+
+  #if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
+    extern bool toolchange_extruder_ready[EXTRUDERS];
+  #endif
+
+  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+    extern int16_t migration_ending, migration_target;
+    extern bool migration_auto, migration_in_progress;
+    extern void extruder_migration();
+  #endif
 #endif
 
 #if DO_SWITCH_EXTRUDER
