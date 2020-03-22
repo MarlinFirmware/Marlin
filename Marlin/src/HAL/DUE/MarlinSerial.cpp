@@ -629,23 +629,19 @@ void MarlinSerial<Cfg>::printFloat(double number, uint8_t digits) {
 
 // If not using the USB port as serial port
 #if SERIAL_PORT >= 0
-
   // Preinstantiate
   template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>;
-
   // Instantiate
   MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
-
 #endif
 
-#ifdef SERIAL_PORT_2
-
-  // Preinstantiate
-  template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>>;
-
-  // Instantiate
-  MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
-
+#ifdef SERIAL_PORT_2 
+  #if SERIAL_PORT_2 >= 0
+    // Preinstantiate
+    template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>>;
+    // Instantiate
+    MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
+  #endif // SERIAL_PORT_2 >= 0
 #endif
 
 #endif // ARDUINO_ARCH_SAM

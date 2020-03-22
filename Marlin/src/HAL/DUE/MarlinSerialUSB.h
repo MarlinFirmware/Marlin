@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if SERIAL_PORT == -1
+#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 
 
 #include <WString.h>
 
@@ -88,6 +88,15 @@ private:
   static void printFloat(double, uint8_t);
 };
 
-extern MarlinSerialUSB customizedSerial1;
+  #if SERIAL_PORT == -1
+    extern MarlinSerialUSB customizedSerial1;
+  #endif // SERIAL_PORT == -1
 
-#endif // SERIAL_PORT == -1
+  #ifdef SERIAL_PORT_2
+    #if SERIAL_PORT_2 == -1
+      extern MarlinSerialUSB customizedSerial2;
+    #endif // SERIAL_PORT_2 == -1
+  #endif
+
+#endif // SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 
+
