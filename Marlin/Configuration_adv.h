@@ -1828,35 +1828,77 @@
 
 /**
  * Universal tool change settings.
+ * Firmware-based and LCD-controlled tool change ,priming and migration
+ * Add M217 commands(See more in documentation)
  * Applies to all types of extruders except where explicitly noted.
  */
 #if EXTRUDERS > 1
-  // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE     2  // (mm)
-  //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
-  #if ENABLED(TOOLCHANGE_NO_RETURN)
-    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
-  #endif
-
-  // Retract and prime filament on tool-change
-  //#define TOOLCHANGE_FILAMENT_SWAP
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
-    #define TOOLCHANGE_FIL_EXTRA_PRIME           2  // (mm)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
-    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
-  #endif
-
   /**
    * Position to park head during tool change.
    * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
    */
   //#define TOOLCHANGE_PARK
   #if ENABLED(TOOLCHANGE_PARK)
-    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
-    #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/m)
+    #define TOOLCHANGE_PARK_XY { X_MAX_POS, Y_MAX_POS } //-1 for disable axis
+    //#define TOOLCHANGE_PARK_X_ONLY // X axis only move
+    //#define TOOLCHANGE_PARK_Y_ONLY  // Y axis only move
+    #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60 // (mm/m)
   #endif
-#endif
+  // Z raise distance for tool-change, as needed for some extruders
+  #define TOOLCHANGE_ZRAISE     2  // (mm)
+  //#define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Z raise applied before swap retraction(if enabled)
+  //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
+  #if ENABLED(TOOLCHANGE_NO_RETURN)
+    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
+  #endif
+
+  /**
+   * Advanced Tool change feature
+   */
+  //#define TOOLCHANGE_FILAMENT_SWAP
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    // load/Unload
+    #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
+    #define TOOLCHANGE_FIL_EXTRA_RESUME_LENGTH       0  // (mm)	(added to swap length for better restart, fine tune by LCD/Gcode)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    50*60  // (mm/m) (Unloading)
+    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  25*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
+
+    // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
+    #define TOOLCHANGE_FIL_EXTRA_PRIME               0  // (mm) (Ex:50~150mm to purge a Volcano for no mixed color extrusion)
+    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED     4.6*60  // (mm/m)(Ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
+    #define TOOLCHANGE_FIL_SWAP_CUT_RETRACT          0  // (mm/m)(Retract before fan and recover after to avoid stringing while cooling and ease to cut filament on back)
+
+    // Blowing after priming (To avoid stringing and a clean nozzle on resume)
+    #define TOOLCHANGE_FIL_SWAP_FAN                 -1  // Fan count (-1 for disabling blowing)
+    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED          255  // 0 - 255
+    #define TOOLCHANGE_FIL_SWAP_FAN_TIME            10  // s.
+
+    // Swap an extruder not initialised (Can break filament because not retracted before)
+    // By using TOOLCHANGE_FIL_SWAP_PRIME_SPEED for all lengths(recover + prime)
+    //#define TOOLCHANGE_FIL_INIT_BEFORE_SWAP
+
+    // Prime the first called command T[...] even is the same or no toolchange/swap)
+    // Enable it (M217 V[0/1]) before printing, to avoid unwanted priming on host connect
+    //#define TOOLCHANGE_FIL_PRIME_FIRST_USED //false by default
+
+    /**
+     * Tool change migration Feature
+     *
+     *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
+     *   Transfer all properties : Temp + Flow + Gear position + Fwretract(Retract only, no swap status)
+     *   On runout/manually/Gcode
+     *   Utility to : Change color by one click/gcode while printing
+     *              : Finish old ended spool and start another automaticly
+     *              : Use another extruder if current jammed
+     *              Requires 2 or more extruders.
+     *              Requires FILAMENT_RUNOUT & ADVANCED_PAUSE_FEATURE for automatic migration after runout
+     *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
+     *              Requires same nozzle size
+     *              No dual extrusion printing
+     */
+    //#define TOOLCHANGE_MIGRATION_FEATURE
+  #endif // TOOLCHANGE_FILAMENT_SWAP
+#endif // EXTRUDERS > 1
 
 /**
  * Advanced Pause

@@ -38,6 +38,15 @@
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
 
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  int16_t migration_ending, migration_target;
+  bool migration_auto, enable_first_prime, migration_in_progress;
+#endif
+
+#if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
+  bool toolchange_extruder_ready[EXTRUDERS];
+#endif
+
 #if ENABLED(SINGLENOZZLE)
   uint16_t singlenozzle_temp[EXTRUDERS];
   #if FAN_COUNT > 0
@@ -83,6 +92,10 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
+#endif
+
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  #include "../gcode/gcode.h"
 #endif
 
 #if DO_SWITCH_EXTRUDER
@@ -769,6 +782,106 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #endif // DUAL_X_CARRIAGE
 
+#if EXTRUDERS
+  void tool_change_e_move(const float &length, const feedRate_t &fr_mm_s) {
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      do_pause_e_move(length,fr_mm_s);
+    #else
+      #if HAS_FILAMENT_SENSOR
+        runout.reset();
+      #endif
+      current_position.e += length / planner.e_factor[active_extruder];
+      line_to_current_position(fr_mm_s);
+      planner.synchronize();
+    #endif
+  };
+#endif
+
+/**
+ * Prime active tool using TOOLCHANGE_FILAMENT_SWAP settings
+ */
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  void tool_change_prime(){
+    if(//Extra prime >0  & not too cold
+     #if ENABLED(PREVENT_COLD_EXTRUSION)
+       !thermalManager.targetTooColdToExtrude(active_extruder) &&
+     #endif
+     toolchange_settings.extra_prime > 0 ){
+
+     destination = current_position;
+
+     #if ENABLED(TOOLCHANGE_PARK)
+       //Park
+       if (toolchange_settings.enable_park && all_axes_homed() ) {
+        // Z raise
+        #if DISABLED(SWITCHING_NOZZLE)
+          // Do a small lift to avoid the workpiece in the move back (below)
+          current_position.z += toolchange_settings.z_raise;
+          #if HAS_SOFTWARE_ENDSTOPS
+            NOMORE(current_position.z, soft_endstop.max.z);
+          #endif
+          fast_line_to_current(Z_AXIS);
+          planner.synchronize();
+        #endif
+
+        #if ENABLED(TOOLCHANGE_PARK)
+          current_position = toolchange_settings.change_point;
+          #if ENABLED(TOOLCHANGE_PARK_X_ONLY)
+            current_position.y = destination.y;
+          #endif
+          #if ENABLED(TOOLCHANGE_PARK_Y_ONLY)
+            current_position.x = destination.x;
+          #endif
+          planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
+          planner.synchronize();
+        #endif
+        }
+      #endif
+
+      //Prime (All distances are added and slowed down to ensure secure priming in all circumstances)
+      tool_change_e_move( (toolchange_settings.swap_length + toolchange_settings.extra_prime), MMM_TO_MMS(toolchange_settings.prime_speed));
+
+       //Cutting retractation
+      #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT >0
+        tool_change_e_move(-TOOLCHANGE_FIL_SWAP_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.retract_speed));
+      #endif
+
+      // BLOWING
+      #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
+        //Store current fan speed ,to restore later
+        int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
+
+        thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
+        gcode.dwell(toolchange_settings.fan_time *1000);
+        thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
+      #endif
+
+      #if ENABLED(TOOLCHANGE_NO_RETURN)
+        // Just move back down
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
+        do_blocking_move_to_z(destination.z,planner.settings.max_feedrate_mm_s[Z_AXIS]);
+      #else
+        // Move back to the original (or adjusted) position
+        if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
+        #if ENABLED(TOOLCHANGE_PARK)
+          do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+        #endif//TOOLCHANGE_PARK
+      #endif//TOOLCHANGE_NO_RETURN
+
+      //Cutting recover
+      tool_change_e_move(
+        #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT >0
+          TOOLCHANGE_FIL_SWAP_CUT_RETRACT +
+        #endif
+        toolchange_settings.extra_resume, MMM_TO_MMS(toolchange_settings.unretract_speed)
+      );
+
+      planner.synchronize();
+      planner.set_e_position_mm( current_position.e = destination.e ); //Resumed at the old position
+    }
+  };
+#endif
+
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
@@ -839,39 +952,60 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      const bool should_swap = can_move_away && toolchange_settings.swap_length;
-      #if ENABLED(PREVENT_COLD_EXTRUSION)
-        const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool));
-      #else
-        constexpr bool too_cold = false;
-      #endif
-      if (should_swap) {
-        if (too_cold) {
-          SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
-          #if ENABLED(SINGLENOZZLE)
-            active_extruder = new_tool;
-            return;
-          #endif
-        }
-        else {
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-          #else
-            current_position.e -= toolchange_settings.swap_length / planner.e_factor[old_tool];
-            planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), old_tool);
-            planner.synchronize();
-          #endif
-        }
-      }
-    #endif // TOOLCHANGE_FILAMENT_SWAP
-
     #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
       // Set current position to the physical position
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
+    //First tool priming
+    #if ENABLED (TOOLCHANGE_FILAMENT_SWAP) && ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
+      static bool first_tool_is_primed = false;
+      if ( new_tool == old_tool && first_tool_is_primed == false && enable_first_prime == true ) {
+        tool_change_prime();
+        first_tool_is_primed = true;
+        toolchange_extruder_ready[old_tool] = toolchange_extruder_ready[new_tool] = true; // Primed and initialised
+      }
+    #endif
+
     if (new_tool != old_tool) {
+      destination = current_position;
+
+      // Z raise before retractation
+      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
+        #if DISABLED(SWITCHING_NOZZLE)
+          #if ENABLED(TOOLCHANGE_PARK)
+            if (can_move_away && toolchange_settings.enable_park) {
+              // Do a small lift to avoid the workpiece in the move back (below)
+              current_position.z += toolchange_settings.z_raise;
+              #if HAS_SOFTWARE_ENDSTOPS
+                NOMORE(current_position.z, soft_endstop.max.z);
+              #endif
+              fast_line_to_current(Z_AXIS);
+              planner.synchronize();
+            }
+          #endif
+        #endif
+      #endif
+      // Tool change unload/Retract
+      #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+        planner.synchronize();//no homing or anything in progress that can reject swapping
+        const bool should_swap = can_move_away && toolchange_settings.swap_length;
+        #if ENABLED(PREVENT_COLD_EXTRUSION)
+          const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool));
+        #else
+          constexpr bool too_cold = false;
+        #endif
+        if (should_swap) {
+          if (too_cold) {
+            SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
+            #if ENABLED(SINGLENOZZLE)
+              active_extruder = new_tool;
+              return;
+            #endif
+          }
+          else tool_change_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+        }
+      #endif // TOOLCHANGE_FILAMENT_SWAP
 
       #if SWITCHING_NOZZLE_TWO_SERVOS
         raise_nozzle(old_tool);
@@ -892,22 +1026,28 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
-      destination = current_position;
+      // Toolchange park
+      #if DISABLED(SWITCHING_NOZZLE) && ENABLED(TOOLCHANGE_PARK)
+        if (can_move_away && toolchange_settings.enable_park) {
 
-      #if DISABLED(SWITCHING_NOZZLE)
-        if (can_move_away) {
-          // Do a small lift to avoid the workpiece in the move back (below)
-          current_position.z += toolchange_settings.z_raise;
-          #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position.z, soft_endstop.max.z);
+          #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
+            // Do a small lift to avoid the workpiece in the move back (below)
+            current_position.z += toolchange_settings.z_raise;
+            #if HAS_SOFTWARE_ENDSTOPS
+              NOMORE(current_position.z, soft_endstop.max.z);
+            #endif
+            fast_line_to_current(Z_AXIS);
           #endif
-          fast_line_to_current(Z_AXIS);
-          #if ENABLED(TOOLCHANGE_PARK)
-            current_position = toolchange_settings.change_point;
+          current_position = toolchange_settings.change_point;
+          #if ENABLED(TOOLCHANGE_PARK_X_ONLY)
+            current_position.y = destination.y;
           #endif
-          planner.buffer_line(current_position, feedrate_mm_s, old_tool);
+          #if ENABLED(TOOLCHANGE_PARK_Y_ONLY)
+            current_position.x = destination.x;
+          #endif
+          planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           planner.synchronize();
-        }
+        }//can_move_away && toolchange_settings.enable_park
       #endif
 
       #if HAS_HOTEND_OFFSET
@@ -990,18 +1130,31 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
-            #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
-              unscaled_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
+            #if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
+              if (!toolchange_extruder_ready[new_tool]) tool_change_e_move(0, toolchange_settings.prime_speed);//planner init
+              tool_change_e_move(toolchange_settings.swap_length, MMM_TO_MMS(
+                toolchange_extruder_ready[new_tool]? toolchange_settings.unretract_speed : toolchange_settings.prime_speed));
+                toolchange_extruder_ready[new_tool] = true; // Primed and initialised
             #else
-              current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
-              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), new_tool);
-              current_position.e += toolchange_settings.extra_prime / planner.e_factor[new_tool];
-              planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed * 0.2f), new_tool);
+              tool_change_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.unretract_speed ));
             #endif
-            planner.synchronize();
-            planner.set_e_position_mm((destination.e = current_position.e = current_position.e - (TOOLCHANGE_FIL_EXTRA_PRIME)));
-          }
+            //Prime
+            tool_change_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
+
+            //Cutting retractation
+            #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT >0
+              tool_change_e_move(-TOOLCHANGE_FIL_SWAP_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.retract_speed));
+            #endif
+
+            // BLOWING
+            #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
+              //Store current fan speed ,to restore later
+              int16_t fansp=thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
+              thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=toolchange_settings.fan_speed ;
+              gcode.dwell(toolchange_settings.fan_time *1000);
+              thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN]=fansp;
+            #endif
+          };//if (should_swap && !too_cold)
         #endif
 
         // Prevent a move outside physical bounds
@@ -1025,29 +1178,49 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #else
             // Move back to the original (or adjusted) position
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
-            do_blocking_move_to(destination);
+
+            #if ENABLED(TOOLCHANGE_PARK)
+              do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+            #else
+              do_blocking_move_to_xy(destination);
+            #endif
           #endif
-        }
+        }//can_move_away
+
         else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back skipped");
+
+        #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+          if (should_swap && !too_cold) {
+           //Cutting recover
+           tool_change_e_move(
+           #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT >0
+             TOOLCHANGE_FIL_SWAP_CUT_RETRACT +
+           #endif
+           toolchange_settings.extra_resume, MMM_TO_MMS(toolchange_settings.unretract_speed));
+
+           planner.synchronize();
+           planner.set_e_position_mm(destination.e = current_position.e = 0.0 ); //New extruder is primed and set to 0
+          }
+        #endif
 
         #if ENABLED(DUAL_X_CARRIAGE)
           active_extruder_parked = false;
         #endif
-      }
-      #if ENABLED(SWITCHING_NOZZLE)
+        }
+        #if ENABLED(SWITCHING_NOZZLE)
         else {
           // Move back down. (Including when the new tool is higher.)
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
         }
-      #endif
+        #endif
 
-      #if ENABLED(PRUSA_MMU2)
-        mmu2.tool_change(new_tool);
-      #endif
+        #if ENABLED(PRUSA_MMU2)
+          mmu2.tool_change(new_tool);
+        #endif
 
-      #if SWITCHING_NOZZLE_TWO_SERVOS
-        lower_nozzle(new_tool);
-      #endif
+        #if SWITCHING_NOZZLE_TWO_SERVOS
+          lower_nozzle(new_tool);
+        #endif
 
     } // (new_tool != old_tool)
 
@@ -1082,3 +1255,77 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
   #endif // EXTRUDERS > 1
 }
+
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  void extruder_migration() {
+
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      if (thermalManager.targetTooColdToExtrude(active_extruder) ) return;
+    #endif
+
+    int16_t migration_extruder=0;
+
+    //No auto migration and no specified target rejected
+    if  ((active_extruder >= migration_ending) && (migration_target < 0) ){
+      migration_auto = false;
+      return;
+    }
+    // Auto migration ok
+    if (    (migration_target < 0) // -1 disabled
+         && (migration_auto == true)
+         && (active_extruder < EXTRUDERS - 1)
+         && (active_extruder < migration_ending )
+       )
+      migration_extruder = active_extruder + 1;
+
+    // Specified target ok
+    if (  (migration_target > -1) &&( migration_target != active_extruder))
+      migration_extruder = migration_target;
+
+    //Now we have calculate migration_extruder
+    if ( migration_extruder == active_extruder)  return;
+
+    //Migration begins
+    migration_in_progress = true;//Stop runout script
+    //Store Gear exact position before migration
+    planner.synchronize();
+    const float resume_current_e = current_position.e;
+    const float resume_destination_e = destination.e;
+    const float resume_feedrate = feedrate_mm_s;
+
+    //Same temp
+    #if HOTENDS >1
+      thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
+    #endif
+    // Same flow
+    planner.flow_percentage[migration_extruder] = planner.flow_percentage[active_extruder];
+    // Same FwRetract status
+    #if ENABLED(FWRETRACT)
+      fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
+    #endif
+
+    #if HOTENDS >1
+      thermalManager.wait_for_hotend(active_extruder);
+    #endif
+
+    //Tool change
+    tool_change(migration_extruder);
+
+    //Retract if retracted before
+    #if ENABLED(FWRETRACT)
+       if (fwretract.retracted[active_extruder]) {
+        tool_change_e_move( -fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+       } ;
+    #endif
+    //If no available extruder
+    if ( (active_extruder >= EXTRUDERS - 2) || (active_extruder == migration_ending )) migration_auto = false;
+
+    migration_in_progress = false;
+
+    current_position.e = resume_current_e;
+    destination.e = resume_destination_e ;
+    feedrate_mm_s = resume_feedrate ;
+    planner.synchronize();
+    planner.set_e_position_mm( current_position.e ); //New extruder is primed and set to 0
+  };
+#endif
