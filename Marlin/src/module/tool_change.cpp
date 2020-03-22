@@ -505,7 +505,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     safe_delay(200);
 
     // check tool status
-    disable_sensor = true;
+    disable_sensor = false;
     check_tool_sensor_stats(new_tool, true);
 
     swt_lock();
