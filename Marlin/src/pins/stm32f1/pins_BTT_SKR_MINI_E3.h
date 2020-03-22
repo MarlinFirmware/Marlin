@@ -40,66 +40,66 @@
 //
 // Servos
 //
-#define SERVO0_PIN         PA1
+#define SERVO0_PIN                          PA1
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PC0
-#define Y_STOP_PIN         PC1
-#define Z_STOP_PIN         PC2
+#define X_STOP_PIN                          PC0
+#define Y_STOP_PIN                          PC1
+#define Z_STOP_PIN                          PC2
 
 //
 // Z Probe must be this pins
 //
-#define Z_MIN_PROBE_PIN    PC14
+#define Z_MIN_PROBE_PIN                     PC14
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC15   // "E0-STOP"
+  #define FIL_RUNOUT_PIN                    PC15  // "E0-STOP"
 #endif
 
 //
 // Steppers
 //
-#define X_ENABLE_PIN       PB14
-#define X_STEP_PIN         PB13
-#define X_DIR_PIN          PB12
+#define X_ENABLE_PIN                        PB14
+#define X_STEP_PIN                          PB13
+#define X_DIR_PIN                           PB12
 
-#define Y_ENABLE_PIN       PB11
-#define Y_STEP_PIN         PB10
-#define Y_DIR_PIN          PB2
+#define Y_ENABLE_PIN                        PB11
+#define Y_STEP_PIN                          PB10
+#define Y_DIR_PIN                           PB2
 
-#define Z_ENABLE_PIN       PB1
-#define Z_STEP_PIN         PB0
-#define Z_DIR_PIN          PC5
+#define Z_ENABLE_PIN                        PB1
+#define Z_STEP_PIN                          PB0
+#define Z_DIR_PIN                           PC5
 
-#define E0_ENABLE_PIN      PD2
-#define E0_STEP_PIN        PB3
-#define E0_DIR_PIN         PB4
+#define E0_ENABLE_PIN                       PD2
+#define E0_STEP_PIN                         PB3
+#define E0_DIR_PIN                          PB4
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // Analog Input
-#define TEMP_BED_PIN       PC3   // Analog Input
+#define TEMP_0_PIN                          PA0   // Analog Input
+#define TEMP_BED_PIN                        PC3   // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC8   // EXTRUDER
-#define HEATER_BED_PIN     PC9   // BED
-#define FAN_PIN            PA8
+#define HEATER_0_PIN                        PC8   // EXTRUDER
+#define HEATER_BED_PIN                      PC9   // BED
+#define FAN_PIN                             PA8
 
 //
 // USB connect control
 //
-#define USB_CONNECT_PIN    PC13
+#define USB_CONNECT_PIN                     PC13
 #define USB_CONNECT_INVERTING false
 
-#define SD_DETECT_PIN      PC4
+#define SD_DETECT_PIN                       PC4
 
 /**
  *                 _____
@@ -112,40 +112,40 @@
  *                 EXP1
  */
 
-#define EXPA1_03_PIN       PB7
-#define EXPA1_04_PIN       PB8
-#define EXPA1_05_PIN       PB9
-#define EXPA1_06_PIN       PA10
-#define EXPA1_07_PIN       -1
-#define EXPA1_08_PIN       PA9
-#define EXPA1_09_PIN       PB6
-#define EXPA1_10_PIN       PB5
+#define EXPA1_03_PIN                        PB7
+#define EXPA1_04_PIN                        PB8
+#define EXPA1_05_PIN                        PB9
+#define EXPA1_06_PIN                        PA10
+#define EXPA1_07_PIN                        -1
+#define EXPA1_08_PIN                        PA9
+#define EXPA1_09_PIN                        PB6
+#define EXPA1_10_PIN                        PB5
 
 #if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define BEEPER_PIN     EXPA1_10_PIN
+    #define BEEPER_PIN              EXPA1_10_PIN
 
-    #define BTN_EN1        EXPA1_08_PIN
-    #define BTN_EN2        EXPA1_06_PIN
-    #define BTN_ENC        EXPA1_09_PIN
+    #define BTN_EN1                 EXPA1_08_PIN
+    #define BTN_EN2                 EXPA1_06_PIN
+    #define BTN_ENC                 EXPA1_09_PIN
 
-    #define LCD_PINS_RS    EXPA1_04_PIN
-    #define LCD_PINS_ENABLE EXPA1_03_PIN
-    #define LCD_PINS_D4    EXPA1_05_PIN
+    #define LCD_PINS_RS             EXPA1_04_PIN
+    #define LCD_PINS_ENABLE         EXPA1_03_PIN
+    #define LCD_PINS_D4             EXPA1_05_PIN
 
-  #elif ENABLED(ZONESTAR_LCD)     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+  #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
 
-    #define LCD_PINS_RS    EXPA1_05_PIN
-    #define LCD_PINS_ENABLE EXPA1_09_PIN
-    #define LCD_PINS_D4    EXPA1_04_PIN
-    #define LCD_PINS_D5    EXPA1_06_PIN
-    #define LCD_PINS_D6    EXPA1_08_PIN
-    #define LCD_PINS_D7    EXPA1_10_PIN
-    #define ADC_KEYPAD_PIN PA1    // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    #define LCD_PINS_RS             EXPA1_05_PIN
+    #define LCD_PINS_ENABLE         EXPA1_09_PIN
+    #define LCD_PINS_D4             EXPA1_04_PIN
+    #define LCD_PINS_D5             EXPA1_06_PIN
+    #define LCD_PINS_D6             EXPA1_08_PIN
+    #define LCD_PINS_D7             EXPA1_10_PIN
+    #define ADC_KEYPAD_PIN                  PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
@@ -159,16 +159,16 @@
      *                   -----
      *                    EXP1
      */
-    #define BTN_EN1        EXPA1_08_PIN
-    #define BTN_EN2        EXPA1_06_PIN
-    #define BTN_ENC        EXPA1_09_PIN
+    #define BTN_EN1                 EXPA1_08_PIN
+    #define BTN_EN2                 EXPA1_06_PIN
+    #define BTN_ENC                 EXPA1_09_PIN
 
-    #define DOGLCD_CS      EXPA1_04_PIN
-    #define DOGLCD_A0      EXPA1_05_PIN
-    #define DOGLCD_SCK     EXPA1_10_PIN
-    #define DOGLCD_MOSI    EXPA1_03_PIN
+    #define DOGLCD_CS               EXPA1_04_PIN
+    #define DOGLCD_A0               EXPA1_05_PIN
+    #define DOGLCD_SCK              EXPA1_10_PIN
+    #define DOGLCD_MOSI             EXPA1_03_PIN
     #define FORCE_SOFT_SPI
-    #define LCD_BACKLIGHT_PIN -1
+    #define LCD_BACKLIGHT_PIN               -1
 
   #else
 
@@ -184,8 +184,8 @@
 #define HAS_ONBOARD_SD
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1    // SPI1
-#define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
+#define ON_BOARD_SPI_DEVICE 1                     // SPI1
+#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

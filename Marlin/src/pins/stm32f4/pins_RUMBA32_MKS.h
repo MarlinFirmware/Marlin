@@ -46,13 +46,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    PA7
+    #define TMC_SW_MOSI                     PA7
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    PA6
+    #define TMC_SW_MISO                     PA6
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     PA5
+    #define TMC_SW_SCK                      PA5
   #endif
 #endif
 
@@ -78,23 +78,23 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN  PA3
-  #define X_SERIAL_RX_PIN  PC14
+  #define X_SERIAL_TX_PIN                   PA3
+  #define X_SERIAL_RX_PIN                   PC14
 
-  #define Y_SERIAL_TX_PIN  PA4
-  #define Y_SERIAL_RX_PIN  PE4
+  #define Y_SERIAL_TX_PIN                   PA4
+  #define Y_SERIAL_RX_PIN                   PE4
 
-  #define Z_SERIAL_TX_PIN  PD13
-  #define Z_SERIAL_RX_PIN  PE0
+  #define Z_SERIAL_TX_PIN                   PD13
+  #define Z_SERIAL_RX_PIN                   PE0
 
-  #define E0_SERIAL_TX_PIN PD14
-  #define E0_SERIAL_RX_PIN PC13
+  #define E0_SERIAL_TX_PIN                  PD14
+  #define E0_SERIAL_RX_PIN                  PC13
 
-  #define E1_SERIAL_TX_PIN PD15
-  #define E1_SERIAL_RX_PIN PD5
+  #define E1_SERIAL_TX_PIN                  PD15
+  #define E1_SERIAL_RX_PIN                  PD5
 
-  #define E2_SERIAL_TX_PIN PD12
-  #define E2_SERIAL_RX_PIN PD1
+  #define E2_SERIAL_TX_PIN                  PD12
+  #define E2_SERIAL_RX_PIN                  PD1
 #endif
 
 //

@@ -30,8 +30,8 @@
 #define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
 
 // Use one of these or SDCard-based Emulation will be used
-//#define SRAM_EEPROM_EMULATION   // Use BackSRAM-based EEPROM emulation
-#define FLASH_EEPROM_EMULATION  // Use Flash-based EEPROM emulation
+//#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION                    // Use Flash-based EEPROM emulation
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
@@ -39,60 +39,60 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PD3
-#define Y_STOP_PIN         PD2
-#define Z_STOP_PIN         PD1   // Shares J4 connector with PC3
+#define X_STOP_PIN                          PD3
+#define Y_STOP_PIN                          PD2
+#define Z_STOP_PIN                          PD1   // Shares J4 connector with PC3
 
 //
 // Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  PD1
+  #define Z_MIN_PROBE_PIN                   PD1
 #endif
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PA15
+  #define FIL_RUNOUT_PIN                    PA15
 #endif
 
 //
 // Power Loss Detection
 //
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN   PD4
+  #define POWER_LOSS_PIN                    PD4
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN         PA9
-#define X_DIR_PIN          PA10
-#define X_ENABLE_PIN       PA8
+#define X_STEP_PIN                          PA9
+#define X_DIR_PIN                           PA10
+#define X_ENABLE_PIN                        PA8
 #ifndef X_CS_PIN
-  #define X_CS_PIN         PE2
+  #define X_CS_PIN                          PE2
 #endif
 
-#define Y_STEP_PIN         PC8
-#define Y_DIR_PIN          PC9
-#define Y_ENABLE_PIN       PC7
+#define Y_STEP_PIN                          PC8
+#define Y_DIR_PIN                           PC9
+#define Y_ENABLE_PIN                        PC7
  #ifndef Y_CS_PIN
-  #define Y_CS_PIN         PE3
+  #define Y_CS_PIN                          PE3
 #endif
 
-#define Z_STEP_PIN         PD15
-#define Z_DIR_PIN          PC6
-#define Z_ENABLE_PIN       PD14
+#define Z_STEP_PIN                          PD15
+#define Z_DIR_PIN                           PC6
+#define Z_ENABLE_PIN                        PD14
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN         PE4
+  #define Z_CS_PIN                          PE4
 #endif
 
-#define E0_STEP_PIN        PD12
-#define E0_DIR_PIN         PD13
-#define E0_ENABLE_PIN      PD11
+#define E0_STEP_PIN                         PD12
+#define E0_DIR_PIN                          PD13
+#define E0_ENABLE_PIN                       PD11
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN        PD7
+  #define E0_CS_PIN                         PD7
 #endif
 
 //
@@ -100,13 +100,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    PB15
+    #define TMC_SW_MOSI                     PB15
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    PB14
+    #define TMC_SW_MISO                     PB14
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     PB13
+    #define TMC_SW_SCK                      PB13
   #endif
 #endif
 
@@ -132,17 +132,17 @@
   //
   // Software serial  ##
   //
-  #define X_SERIAL_TX_PIN  PE2
-  #define X_SERIAL_RX_PIN  PE2
+  #define X_SERIAL_TX_PIN                   PE2
+  #define X_SERIAL_RX_PIN                   PE2
 
-  #define Y_SERIAL_TX_PIN  PE3
-  #define Y_SERIAL_RX_PIN  PE3
+  #define Y_SERIAL_TX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN                   PE3
 
-  #define Z_SERIAL_TX_PIN  PE4
-  #define Z_SERIAL_RX_PIN  PE4
+  #define Z_SERIAL_TX_PIN                   PE4
+  #define Z_SERIAL_RX_PIN                   PE4
 
-  #define E0_SERIAL_TX_PIN PD7
-  #define E0_SERIAL_RX_PIN PD7
+  #define E0_SERIAL_TX_PIN                  PD7
+  #define E0_SERIAL_RX_PIN                  PD7
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
@@ -151,32 +151,32 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA2   // T0 <-> E0
-#define TEMP_1_PIN         PA0   // T1 <-> E1
-#define TEMP_BED_PIN       PA1   // T2 <-> Bed
-#define TEMP_PROBE_PIN     PC3   // Shares J4 connector with PD1
+#define TEMP_0_PIN                          PA2   // T0 <-> E0
+#define TEMP_1_PIN                          PA0   // T1 <-> E1
+#define TEMP_BED_PIN                        PA1   // T2 <-> Bed
+#define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PE6   // Heater0
-#define HEATER_BED_PIN     PE5   // Hotbed
-#define FAN_PIN            PB8   // Fan1
-#define FAN1_PIN           PB9   // Fan0
+#define HEATER_0_PIN                        PE6   // Heater0
+#define HEATER_BED_PIN                      PE5   // Hotbed
+#define FAN_PIN                             PB8   // Fan1
+#define FAN1_PIN                            PB9   // Fan0
 
 // HAL SPI1 pins
 #define CUSTOM_SPI_PINS
 #if ENABLED(CUSTOM_SPI_PINS)
-  #define SCK_PIN          PA5   // SPI1 SCLK
-  #define SS_PIN           PA4   // SPI1 SSEL
-  #define MISO_PIN         PA6   // SPI1 MISO
-  #define MOSI_PIN         PA7   // SPI1 MOSI
+  #define SCK_PIN                           PA5   // SPI1 SCLK
+  #define SS_PIN                            PA4   // SPI1 SSEL
+  #define MISO_PIN                          PA6   // SPI1 MISO
+  #define MOSI_PIN                          PA7   // SPI1 MOSI
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS               PA4
+#define SDSS                                PA4
 
 /**
  * -------------------------------------BTT002 V1.0-----------------------------------------------
@@ -194,35 +194,35 @@
 // LCDs and Controllers
 //
 #if HAS_SPI_LCD
-  #define BEEPER_PIN       PE7
-  #define BTN_ENC          PB1
+  #define BEEPER_PIN                        PE7
+  #define BTN_ENC                           PB1
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS    PE12
+    #define LCD_PINS_RS                     PE12
 
-    #define BTN_EN1        PE9
-    #define BTN_EN2        PE10
+    #define BTN_EN1                         PE9
+    #define BTN_EN2                         PE10
 
-    #define LCD_PINS_ENABLE PE13
-    #define LCD_PINS_D4    PE11
+    #define LCD_PINS_ENABLE                 PE13
+    #define LCD_PINS_D4                     PE11
 
   #else
 
-    #define LCD_PINS_RS    PE8
+    #define LCD_PINS_RS                     PE8
 
-    #define BTN_EN1        PC5
-    #define BTN_EN2        PB0
-    #define SD_DETECT_PIN  PC4
+    #define BTN_EN1                         PC5
+    #define BTN_EN2                         PB0
+    #define SD_DETECT_PIN                   PC4
 
-    #define LCD_SDSS       PA4
+    #define LCD_SDSS                        PA4
 
-    #define LCD_PINS_ENABLE PE9
-    #define LCD_PINS_D4    PE10
+    #define LCD_PINS_ENABLE                 PE9
+    #define LCD_PINS_D4                     PE10
 
     #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5  PE11
-      #define LCD_PINS_D6  PE12
-      #define LCD_PINS_D7  PE13
+      #define LCD_PINS_D5                   PE11
+      #define LCD_PINS_D6                   PE12
+      #define LCD_PINS_D7                   PE13
     #endif
 
   #endif
@@ -240,14 +240,14 @@
 // RGB LEDs
 //
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN    PB5
+  #define RGB_LED_R_PIN                     PB5
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN    PB4
+  #define RGB_LED_G_PIN                     PB4
 #endif
 #ifndef RGB_LED_B_PIN
-  #define RGB_LED_B_PIN    PB3
+  #define RGB_LED_B_PIN                     PB3
 #endif
 #ifndef RGB_LED_W_PIN
-  #define RGB_LED_W_PIN    -1
+  #define RGB_LED_W_PIN                     -1
 #endif

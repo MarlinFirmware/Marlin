@@ -36,7 +36,7 @@
 // but it is literally the only board which uses it.
 #define FLASH_EEPROM_EMULATION
 
-#define SDSS SS_PIN
+#define SDSS                              SS_PIN
 
 // Based on PWM timer usage, we have to use these timers and soft PWM for the fans
 // On STM32F103:
@@ -50,43 +50,43 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PB4
-#define Y_MIN_PIN          PA15
-#define Z_MIN_PIN          PB5
+#define X_MIN_PIN                           PB4
+#define Y_MIN_PIN                           PA15
+#define Z_MIN_PIN                           PB5
 
 //
 // Steppers
 //
 // X & Y enable are the same
-#define X_STEP_PIN         PB14
-#define X_DIR_PIN          PB15
-#define X_ENABLE_PIN       PA8
+#define X_STEP_PIN                          PB14
+#define X_DIR_PIN                           PB15
+#define X_ENABLE_PIN                        PA8
 
-#define Y_STEP_PIN         PB12
-#define Y_DIR_PIN          PB13
-#define Y_ENABLE_PIN       PA8
+#define Y_STEP_PIN                          PB12
+#define Y_DIR_PIN                           PB13
+#define Y_ENABLE_PIN                        PA8
 
-#define Z_STEP_PIN         PB10
-#define Z_DIR_PIN          PB2
-#define Z_ENABLE_PIN       PB11
+#define Z_STEP_PIN                          PB10
+#define Z_DIR_PIN                           PB2
+#define Z_ENABLE_PIN                        PB11
 
-#define E0_STEP_PIN        PB0
-#define E0_DIR_PIN         PC13
-#define E0_ENABLE_PIN      PB1
+#define E0_STEP_PIN                         PB0
+#define E0_DIR_PIN                          PC13
+#define E0_ENABLE_PIN                       PB1
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // Analog Input (HOTEND0 thermistor)
-#define TEMP_BED_PIN       PA1   // Analog Input (BED thermistor)
+#define TEMP_0_PIN                          PA0   // Analog Input (HOTEND0 thermistor)
+#define TEMP_BED_PIN                        PA1   // Analog Input (BED thermistor)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PB6   // HOTEND0 MOSFET
-#define HEATER_BED_PIN     PB7   // BED MOSFET
+#define HEATER_0_PIN                        PB6   // HOTEND0 MOSFET
+#define HEATER_BED_PIN                      PB7   // BED MOSFET
 
-#define MALYAN_FAN1_PIN    PB8   // FAN1 header on board - PRINT FAN
-#define MALYAN_FAN2_PIN    PB3   // FAN2 header on board - CONTROLLER FAN
+#define MALYAN_FAN1_PIN                     PB8   // FAN1 header on board - PRINT FAN
+#define MALYAN_FAN2_PIN                     PB3   // FAN2 header on board - CONTROLLER FAN
 
-#define FAN1_PIN           MALYAN_FAN2_PIN
+#define FAN1_PIN                 MALYAN_FAN2_PIN

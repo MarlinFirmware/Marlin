@@ -42,56 +42,56 @@
 //
 // Servos
 //
-#define SERVO0_PIN         PA1    // SERVOS
+#define SERVO0_PIN                          PA1   // SERVOS
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PC1    // X-STOP
-#define Y_STOP_PIN         PC0    // Y-STOP
-#define Z_STOP_PIN         PC15   // Z-STOP
+#define X_STOP_PIN                          PC1   // X-STOP
+#define Y_STOP_PIN                          PC0   // Y-STOP
+#define Z_STOP_PIN                          PC15  // Z-STOP
 
 //
 // Z Probe must be this pin
 //
-#define Z_MIN_PROBE_PIN    PC14   // PROBE
+#define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   PC2    // E0-STOP
+  #define FIL_RUNOUT_PIN                    PC2   // E0-STOP
 #endif
 
 //
 // Steppers
 //
-#define X_ENABLE_PIN       PC7
-#define X_STEP_PIN         PC6
-#define X_DIR_PIN          PB15
+#define X_ENABLE_PIN                        PC7
+#define X_STEP_PIN                          PC6
+#define X_DIR_PIN                           PB15
 #ifndef X_CS_PIN
-  #define X_CS_PIN         PC10
+  #define X_CS_PIN                          PC10
 #endif
 
-#define Y_ENABLE_PIN       PB14
-#define Y_STEP_PIN         PB13
-#define Y_DIR_PIN          PB12
+#define Y_ENABLE_PIN                        PB14
+#define Y_STEP_PIN                          PB13
+#define Y_DIR_PIN                           PB12
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN         PC11
+  #define Y_CS_PIN                          PC11
 #endif
 
-#define Z_ENABLE_PIN       PB11
-#define Z_STEP_PIN         PB10
-#define Z_DIR_PIN          PB2
+#define Z_ENABLE_PIN                        PB11
+#define Z_STEP_PIN                          PB10
+#define Z_DIR_PIN                           PB2
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN         PC12
+  #define Z_CS_PIN                          PC12
 #endif
 
-#define E0_ENABLE_PIN      PB1
-#define E0_STEP_PIN        PB0
-#define E0_DIR_PIN         PC5
+#define E0_ENABLE_PIN                       PB1
+#define E0_STEP_PIN                         PB0
+#define E0_DIR_PIN                          PC5
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN        PD2
+  #define E0_CS_PIN                         PD2
 #endif
 
 //
@@ -99,13 +99,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    PB5
+    #define TMC_SW_MOSI                     PB5
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    PB4
+    #define TMC_SW_MISO                     PB4
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     PB3
+    #define TMC_SW_SCK                      PB3
   #endif
 #endif
 
@@ -124,17 +124,17 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN  PC10
-  #define X_SERIAL_RX_PIN  PC10
+  #define X_SERIAL_TX_PIN                   PC10
+  #define X_SERIAL_RX_PIN                   PC10
 
-  #define Y_SERIAL_TX_PIN  PC11
-  #define Y_SERIAL_RX_PIN  PC11
+  #define Y_SERIAL_TX_PIN                   PC11
+  #define Y_SERIAL_RX_PIN                   PC11
 
-  #define Z_SERIAL_TX_PIN  PC12
-  #define Z_SERIAL_RX_PIN  PC12
+  #define Z_SERIAL_TX_PIN                   PC12
+  #define Z_SERIAL_RX_PIN                   PC12
 
-  #define E0_SERIAL_TX_PIN PD2
-  #define E0_SERIAL_RX_PIN PD2
+  #define E0_SERIAL_TX_PIN                  PD2
+  #define E0_SERIAL_RX_PIN                  PD2
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
@@ -143,23 +143,23 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA0   // Analog Input "TH0"
-#define TEMP_BED_PIN       PC3   // Analog Input "TB0"
+#define TEMP_0_PIN                          PA0   // Analog Input "TH0"
+#define TEMP_BED_PIN                        PC3   // Analog Input "TB0"
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC8   // HE
-#define HEATER_BED_PIN     PC9   // HB
-#define FAN_PIN            PA8   // FAN0
+#define HEATER_0_PIN                        PC8   // HE
+#define HEATER_BED_PIN                      PC9   // HB
+#define FAN_PIN                             PA8   // FAN0
 
 //
 // USB connect control
 //
-#define USB_CONNECT_PIN    PC13
+#define USB_CONNECT_PIN                     PC13
 #define USB_CONNECT_INVERTING false
 
-#define SD_DETECT_PIN      PC4
+#define SD_DETECT_PIN                       PC4
 
 /**
  *                 _____
@@ -172,27 +172,27 @@
  *                 EXP1
  */
 
-#define EXPA1_03_PIN       PB7
-#define EXPA1_04_PIN       PB8
-#define EXPA1_05_PIN       PB9
-#define EXPA1_06_PIN       PA10
-#define EXPA1_07_PIN       -1
-#define EXPA1_08_PIN       PA9
-#define EXPA1_09_PIN       PB6
-#define EXPA1_10_PIN       PA15
+#define EXPA1_03_PIN                        PB7
+#define EXPA1_04_PIN                        PB8
+#define EXPA1_05_PIN                        PB9
+#define EXPA1_06_PIN                        PA10
+#define EXPA1_07_PIN                        -1
+#define EXPA1_08_PIN                        PA9
+#define EXPA1_09_PIN                        PB6
+#define EXPA1_10_PIN                        PA15
 
 #if HAS_SPI_LCD
-  #define BTN_ENC          EXPA1_09_PIN
-  #define BTN_EN1          EXPA1_08_PIN
-  #define BTN_EN2          EXPA1_06_PIN
+  #define BTN_ENC                   EXPA1_09_PIN
+  #define BTN_EN1                   EXPA1_08_PIN
+  #define BTN_EN2                   EXPA1_06_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define BEEPER_PIN     EXPA1_10_PIN
+    #define BEEPER_PIN              EXPA1_10_PIN
 
-    #define LCD_PINS_RS    EXPA1_04_PIN
-    #define LCD_PINS_ENABLE EXPA1_03_PIN
-    #define LCD_PINS_D4    EXPA1_05_PIN
+    #define LCD_PINS_RS             EXPA1_04_PIN
+    #define LCD_PINS_ENABLE         EXPA1_03_PIN
+    #define LCD_PINS_D4             EXPA1_05_PIN
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
@@ -207,12 +207,12 @@
      *                    EXP1
      */
 
-    #define DOGLCD_CS    EXPA1_04_PIN
-    #define DOGLCD_A0    EXPA1_05_PIN
-    #define DOGLCD_SCK   EXPA1_10_PIN
-    #define DOGLCD_MOSI  EXPA1_03_PIN
+    #define DOGLCD_CS               EXPA1_04_PIN
+    #define DOGLCD_A0               EXPA1_05_PIN
+    #define DOGLCD_SCK              EXPA1_10_PIN
+    #define DOGLCD_MOSI             EXPA1_03_PIN
     #define FORCE_SOFT_SPI
-    #define LCD_BACKLIGHT_PIN -1
+    #define LCD_BACKLIGHT_PIN               -1
 
   #else
     #error "Only CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY, and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_E3_DIP."
@@ -226,8 +226,8 @@
 #define HAS_ONBOARD_SD
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1    //SPI1
-#define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
+#define ON_BOARD_SPI_DEVICE 1                     //SPI1
+#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

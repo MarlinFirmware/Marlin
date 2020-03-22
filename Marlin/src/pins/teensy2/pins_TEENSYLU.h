@@ -82,82 +82,81 @@
 //
 // Limit Switch definitions that match the SCHEMATIC
 //
-//#define X_STOP_PIN       25   // B5
-//#define Y_STOP_PIN       26   // B6
-//#define Z_STOP_PIN       27   // B7
-//#define E_STOP_PIN       36   // E4
-
+//#define X_STOP_PIN                          25  // B5
+//#define Y_STOP_PIN                          26  // B6
+//#define Z_STOP_PIN                          27  // B7
+//#define E_STOP_PIN                          36  // E4
 
 //
 // Limit Switch definitions that match the SILKSCREEN
 //
-#define X_STOP_PIN         26   // B6
-#define Y_STOP_PIN         27   // B7
-#define Z_STOP_PIN         36   // E4
-//#define E_STOP_PIN       25   // B5
+#define X_STOP_PIN                            26  // B6
+#define Y_STOP_PIN                            27  // B7
+#define Z_STOP_PIN                            36  // E4
+//#define E_STOP_PIN                          25  // B5
 
 //
 // Steppers
 //
-#define X_STEP_PIN         28   // A0
-#define X_DIR_PIN          29   // A1
-#define X_ENABLE_PIN       19   // E7
+#define X_STEP_PIN                            28  // A0
+#define X_DIR_PIN                             29  // A1
+#define X_ENABLE_PIN                          19  // E7
 
-#define Y_STEP_PIN         30   // A2
-#define Y_DIR_PIN          31   // A3
-#define Y_ENABLE_PIN       18   // E6
+#define Y_STEP_PIN                            30  // A2
+#define Y_DIR_PIN                             31  // A3
+#define Y_ENABLE_PIN                          18  // E6
 
-#define Z_STEP_PIN         32   // A4
-#define Z_DIR_PIN          33   // A5
-#define Z_ENABLE_PIN       17   // C7
+#define Z_STEP_PIN                            32  // A4
+#define Z_DIR_PIN                             33  // A5
+#define Z_ENABLE_PIN                          17  // C7
 
-#define E0_STEP_PIN        34   // A6
-#define E0_DIR_PIN         35   // A7
-#define E0_ENABLE_PIN      13   // C3
+#define E0_STEP_PIN                           34  // A6
+#define E0_DIR_PIN                            35  // A7
+#define E0_ENABLE_PIN                         13  // C3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          7   // Analog Input (Extruder)
-#define TEMP_BED_PIN        6   // Analog Input (Bed)
+#define TEMP_0_PIN                             7  // Analog Input (Extruder)
+#define TEMP_BED_PIN                           6  // Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       15   // C5 PWM3B - Extruder
-#define HEATER_BED_PIN     14   // C4 PWM3C
+#define HEATER_0_PIN                          15  // C5 PWM3B - Extruder
+#define HEATER_BED_PIN                        14  // C4 PWM3C
 
 #ifndef FAN_PIN
-  #define FAN_PIN          16   // C6 PWM3A
+  #define FAN_PIN                             16  // C6 PWM3A
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS               20   // B0 JP31-6
-#define CASE_LIGHT_PIN      0   // D0 IO-14  PWM0B
+#define SDSS                                  20  // B0 JP31-6
+#define CASE_LIGHT_PIN                         0  // D0 IO-14  PWM0B
 
 //
 // LCD / Controller
 //
 #if BOTH(ULTRA_LCD, NEWPANEL)
 
-  #define BEEPER_PIN       -1
+  #define BEEPER_PIN                          -1
 
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1         3   // D3 IO-8
-    #define BTN_EN2         2   // D2 IO-10
-    #define BTN_ENC        41   // F3 IO-7
-    #define SDSS           38   // F0 IO-13 use SD card on Panelolu2
+    #define BTN_EN1                            3  // D3 IO-8
+    #define BTN_EN2                            2  // D2 IO-10
+    #define BTN_ENC                           41  // F3 IO-7
+    #define SDSS                              38  // F0 IO-13 use SD card on Panelolu2
   #endif
 
-  #define SD_DETECT_PIN    -1
+  #define SD_DETECT_PIN                       -1
 
 #endif // HAS_SPI_LCD && NEWPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN    24   // B4 IO-3 PWM2A - MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENA_PIN    39   // F1 IO-11 - Pin should have a pullup!
-#define SPINDLE_DIR_PIN          40   // F2 IO-9
+#define SPINDLE_LASER_PWM_PIN                 24  // B4 IO-3 PWM2A - MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENA_PIN                 39  // F1 IO-11 - Pin should have a pullup!
+#define SPINDLE_DIR_PIN                       40  // F2 IO-9
