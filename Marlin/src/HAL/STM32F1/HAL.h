@@ -160,6 +160,7 @@ void HAL_idletask();
 
 #ifndef digitalPinHasPWM
   #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
+  #define NO_COMPILE_TIME_PWM
 #endif
 
 #define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); (void)__iCliRetVal()
