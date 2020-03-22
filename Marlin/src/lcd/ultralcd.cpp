@@ -103,7 +103,7 @@ MarlinUI ui;
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "../feature/tmc_util.h"
 #endif
 
@@ -227,7 +227,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     SETCURSOR(col, row);
     if (!string) return;
 
-    auto _newline = [&col, &row]() {
+    auto _newline = [&col, &row]{
       col = 0; row++;                 // Move col to string len (plus space)
       SETCURSOR(0, row);              // Simulate carriage return
     };
@@ -1136,7 +1136,7 @@ void MarlinUI::update() {
       thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < adc_other_button)
-        for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
+        LOOP_L_N(i, ADC_KEY_NUM) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
           if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
@@ -1245,7 +1245,7 @@ void MarlinUI::update() {
         }
       #endif
 
-      #if HAS_SHIFT_ENCODER      
+      #if HAS_SHIFT_ENCODER
         /**
          * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
          * These values are independent of which pins are used for EN_A / EN_B indications.
@@ -1309,7 +1309,7 @@ void MarlinUI::update() {
 #if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "extensible_ui/ui_api.h"
+    #include "extui/ui_api.h"
   #endif
 
   ////////////////////////////////////////////

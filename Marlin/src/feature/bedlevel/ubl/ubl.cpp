@@ -37,7 +37,7 @@
   #include "../../../module/probe.h"
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "../../../lcd/extensible_ui/ui_api.h"
+    #include "../../../lcd/extui/ui_api.h"
   #endif
 
   #include "math.h"
@@ -49,7 +49,7 @@
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
     SERIAL_ECHO_MSG("  G29 I99");
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+    LOOP_L_N(x, GRID_MAX_POINTS_X)
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START();
@@ -101,9 +101,7 @@
     storage_slot = -1;
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          ExtUI::onMeshUpdate(x, y, 0);
+      GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
     if (was_enabled) report_current_position();
   }
@@ -114,13 +112,11 @@
   }
 
   void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-        z_values[x][y] = value;
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(x, y, value);
-        #endif
-      }
+    GRID_LOOP(x, y) {
+      z_values[x][y] = value;
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMeshUpdate(x, y, value);
+      #endif
     }
   }
 
@@ -190,7 +186,7 @@
       }
 
       // Row Values (I indexes)
-      for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      LOOP_L_N(i, GRID_MAX_POINTS_X) {
 
         // Opening Brace or Space
         const bool is_current = i == curr.x && j == curr.y;

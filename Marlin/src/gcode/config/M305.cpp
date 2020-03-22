@@ -71,7 +71,7 @@ void GcodeSuite::M305() {
         SERIAL_ECHO_MSG("!Invalid Steinhart-Hart C coeff. (-0.01 < C < +0.01)");
   }                       // If not setting then report parameters
   else if (t_index < 0) { // ...all user thermistors
-    for (uint8_t i = 0; i < USER_THERMISTORS; i++)
+    LOOP_L_N(i, USER_THERMISTORS)
       thermalManager.log_user_thermistor(i);
   }
   else                    // ...one user thermistor

@@ -24,34 +24,40 @@
 #define BOARD_INFO_NAME "BIGTREE SKR 1.1"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Limit Switches
 //
 
-#define X_MIN_PIN          P1_29
-#define X_MAX_PIN          P1_28
-#define Y_MIN_PIN          P1_27
-#define Y_MAX_PIN          P1_26
-#define Z_MIN_PIN          P1_25
-#define Z_MAX_PIN          P1_24
+#define X_MIN_PIN                          P1_29
+#define X_MAX_PIN                          P1_28
+#define Y_MIN_PIN                          P1_27
+#define Y_MAX_PIN                          P1_26
+#define Z_MIN_PIN                          P1_25
+#define Z_MAX_PIN                          P1_24
 
 //
 // Steppers
 //
-#define X_STEP_PIN         P0_04
-#define X_DIR_PIN          P0_05
-#define X_ENABLE_PIN       P4_28
+#define X_STEP_PIN                         P0_04
+#define X_DIR_PIN                          P0_05
+#define X_ENABLE_PIN                       P4_28
 
-#define Y_STEP_PIN         P2_01
-#define Y_DIR_PIN          P2_02
-#define Y_ENABLE_PIN       P2_00
+#define Y_STEP_PIN                         P2_01
+#define Y_DIR_PIN                          P2_02
+#define Y_ENABLE_PIN                       P2_00
 
-#define Z_STEP_PIN         P0_20
-#define Z_DIR_PIN          P0_21
-#define Z_ENABLE_PIN       P0_19
+#define Z_STEP_PIN                         P0_20
+#define Z_DIR_PIN                          P0_21
+#define Z_ENABLE_PIN                       P0_19
 
-#define E0_STEP_PIN        P0_11
-#define E0_DIR_PIN         P2_13
-#define E0_ENABLE_PIN      P2_12
+#define E0_STEP_PIN                        P0_11
+#define E0_DIR_PIN                         P2_13
+#define E0_ENABLE_PIN                      P2_12
 
 /**
  * LCD / Controller
@@ -67,19 +73,19 @@
  */
 
 #if HAS_SPI_LCD
-  #define BTN_EN1          P3_26
-  #define BTN_EN2          P3_25
-  #define BTN_ENC          P2_11
+  #define BTN_EN1                          P3_26
+  #define BTN_EN2                          P3_25
+  #define BTN_ENC                          P2_11
 
-  #define SD_DETECT_PIN    P1_31
-  #define LCD_SDSS         P1_23
-  #define LCD_PINS_RS      P0_16
-  #define LCD_PINS_ENABLE  P0_18
-  #define LCD_PINS_D4      P0_15
+  #define SD_DETECT_PIN                    P1_31
+  #define LCD_SDSS                         P1_23
+  #define LCD_PINS_RS                      P0_16
+  #define LCD_PINS_ENABLE                  P0_18
+  #define LCD_PINS_D4                      P0_15
 
   #if ENABLED(MKS_MINI_12864)
-    #define DOGLCD_CS      P2_06
-    #define DOGLCD_A0      P0_16
+    #define DOGLCD_CS                      P2_06
+    #define DOGLCD_A0                      P0_16
   #endif
 #endif
 
@@ -91,19 +97,19 @@
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 #ifndef SDCARD_CONNECTION
   #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-    #define SDCARD_CONNECTION LCD
+    #define SDCARD_CONNECTION                LCD
   #else
-    #define SDCARD_CONNECTION ONBOARD
+    #define SDCARD_CONNECTION            ONBOARD
   #endif
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SS_PIN           P1_23
+  #define SS_PIN                           P1_23
 #endif
 
 // Trinamic driver support
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   // Using TMC devices in intelligent mode requires extra connections to each device. Unfortunately
   // the SKR does not have many free pins (especially if a display is in use). The SPI-based devices
   // will require 3 connections (clock, mosi, miso), plus a chip select line (CS) for each driver.
@@ -131,49 +137,48 @@
   // When using any TMC SPI-based drivers, software SPI is used
   // because pins may be shared with the display or SD card.
   #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI       P0_18
-  #define TMC_SW_MISO       P0_17
+  #define TMC_SW_MOSI                      P0_18
+  #define TMC_SW_MISO                      P0_17
   // To minimize pin usage use the same clock pin as the display/SD card reader. (May generate LCD noise.)
-  #define TMC_SW_SCK        P0_15
+  #define TMC_SW_SCK                       P0_15
   // If pin 2_06 is unused, it can be used for the clock to avoid the LCD noise.
-  //#define TMC_SW_SCK        P2_06
+  //#define TMC_SW_SCK                     P2_06
 
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
 
     // Software enable allows the enable pins to be repurposed as chip-select pins.
     // Note: Requires the driver modules to be modified to always be enabled with the enable pin removed.
     #if AXIS_DRIVER_TYPE_X(TMC2130)
-      #define X_CS_PIN         P4_28
-      #undef  X_ENABLE_PIN
-      #define X_ENABLE_PIN     -1
+      #define X_CS_PIN                     P4_28
+      #undef X_ENABLE_PIN
+      #define X_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_Y(TMC2130)
-      #define Y_CS_PIN         P2_00
-      #undef  Y_ENABLE_PIN
-      #define Y_ENABLE_PIN     -1
+      #define Y_CS_PIN                     P2_00
+      #undef Y_ENABLE_PIN
+      #define Y_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_Z(TMC2130)
-      #define Z_CS_PIN         P0_19
-      #undef  Z_ENABLE_PIN
-      #define Z_ENABLE_PIN     -1
+      #define Z_CS_PIN                     P0_19
+      #undef Z_ENABLE_PIN
+      #define Z_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_E0(TMC2130)
-      #define E0_CS_PIN        P2_12
-      #undef  E0_ENABLE_PIN
-      #define E0_ENABLE_PIN    -1
+      #define E0_CS_PIN                    P2_12
+      #undef E0_ENABLE_PIN
+      #define E0_ENABLE_PIN                -1
     #endif
-
 
     #if AXIS_DRIVER_TYPE_E1(TMC2130)
-      #define E1_CS_PIN        P0_10
-      #undef  E1_ENABLE_PIN
-      #define E1_ENABLE_PIN    -1
+      #define E1_CS_PIN                    P0_10
+      #undef E1_ENABLE_PIN
+      #define E1_ENABLE_PIN                -1
     #endif
 
-  #else // !SOFTWARE_DRIVER_ENABLE
+  #else                                           // !SOFTWARE_DRIVER_ENABLE
 
     // A chip-select pin is needed for each driver.
 
@@ -186,11 +191,11 @@
       #if SD_CONNECTION_IS(LCD)
         #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
       #endif
-      #define X_CS_PIN      P1_23
-      #define Y_CS_PIN      P3_26
-      #define Z_CS_PIN      P2_11
-      #define E0_CS_PIN     P3_25
-      #define E1_CS_PIN     P1_31
+      #define X_CS_PIN                     P1_23
+      #define Y_CS_PIN                     P3_26
+      #define Z_CS_PIN                     P2_11
+      #define E0_CS_PIN                    P3_25
+      #define E1_CS_PIN                    P1_31
     #endif
 
     // Example 2: A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
@@ -201,16 +206,16 @@
       #if SD_CONNECTION_IS(LCD)
         #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
       #endif
-      #define X_CS_PIN      P0_02
-      #define Y_CS_PIN      P0_03
-      #define Z_CS_PIN      P2_06
+      #define X_CS_PIN                     P0_02
+      #define Y_CS_PIN                     P0_03
+      #define Z_CS_PIN                     P2_06
       // We use SD_DETECT_PIN for E0
       #undef SD_DETECT_PIN
-      #define E0_CS_PIN     P1_31
+      #define E0_CS_PIN                    P1_31
       // We use LCD_SDSS pin for E1
-      #undef  LCD_SDSS
-      #define LCD_SDSS      -1
-      #define E1_CS_PIN     P1_23
+      #undef LCD_SDSS
+      #define LCD_SDSS                     -1
+      #define E1_CS_PIN                    P1_23
     #endif
 
     // Example 3: Use the driver enable pins for chip-select.
@@ -218,11 +223,11 @@
     //            advanced features (like driver monitoring) will not be available.
     //#define SKR_USE_ENABLE_CS
     #if ENABLED(SKR_USE_ENABLE_FOR_CS)
-      #define X_CS_PIN      X_ENABLE_PIN
-      #define Y_CS_PIN      Y_ENABLE_PIN
-      #define Z_CS_PIN      Z_ENABLE_PIN
-      #define E0_CS_PIN     E0_ENABLE_PIN
-      #define E1_CS_PIN     E1_ENABLE_PIN
+      #define X_CS_PIN              X_ENABLE_PIN
+      #define Y_CS_PIN              Y_ENABLE_PIN
+      #define Z_CS_PIN              Z_ENABLE_PIN
+      #define E0_CS_PIN            E0_ENABLE_PIN
+      #define E1_CS_PIN            E1_ENABLE_PIN
     #endif
 
   #endif // SOFTWARE_DRIVER_ENABLE

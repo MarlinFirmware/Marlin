@@ -56,20 +56,20 @@
 // Temperature Sensors
 //
 #undef TEMP_0_PIN
-#define TEMP_0_PIN          9   // Analog Input
+#define TEMP_0_PIN                             9  // Analog Input
 
 #undef TEMP_1_PIN
-#define TEMP_1_PIN         11   // Analog Input
+#define TEMP_1_PIN                            11  // Analog Input
 
 #undef TEMP_BED_PIN
-#define TEMP_BED_PIN       10   // Analog Input
+#define TEMP_BED_PIN                          10  // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
 #undef MAX6675_SS_PIN
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN   69   // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      69  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN   69   // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      69  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -79,13 +79,13 @@
 
   #if BOTH(NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
-    #define LCD_PINS_D4  68
+    #define LCD_PINS_D4                       68
 
     #undef LCD_PINS_D5
-    #define LCD_PINS_D5  69
+    #define LCD_PINS_D5                       69
 
     #undef LCD_PINS_D7
-    #define LCD_PINS_D7  67
+    #define LCD_PINS_D7                       67
   #endif
 
   #if ENABLED(NEWPANEL)
@@ -93,36 +93,36 @@
     #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       #undef BTN_EN1
-      #define BTN_EN1 67
+      #define BTN_EN1                         67
 
       #undef BTN_ENC
-      #define BTN_ENC 66
+      #define BTN_ENC                         66
 
     #elif ENABLED(MINIPANEL)
 
       #undef DOGLCD_CS
-      #define DOGLCD_CS    69
+      #define DOGLCD_CS                       69
 
       #undef LCD_BACKLIGHT_PIN
-      #define LCD_BACKLIGHT_PIN 68   // backlight LED on A14/D68
+      #define LCD_BACKLIGHT_PIN               68  // backlight LED on A14/D68
 
       #undef KILL_PIN
-      #define KILL_PIN     67
+      #define KILL_PIN                        67
 
       #undef BTN_EN2
-      #define BTN_EN2      66
+      #define BTN_EN2                         66
 
     #else
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
         #undef BTN_EN1
-        #define BTN_EN1    67   // encoder
+        #define BTN_EN1                       67  // encoder
 
         #undef BTN_ENC
-        #define BTN_ENC    66   // enter button
+        #define BTN_ENC                       66  // enter button
       #elif ENABLED(PANEL_ONE)
         #undef BTN_EN2
-        #define BTN_EN2    66   // AUX2 PIN 4
+        #define BTN_EN2                       66  // AUX2 PIN 4
       #endif
     #endif
 

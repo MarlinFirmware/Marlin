@@ -69,7 +69,7 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 void event_filament_runout() {

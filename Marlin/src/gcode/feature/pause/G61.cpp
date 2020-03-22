@@ -65,7 +65,7 @@ void GcodeSuite::G61(void) {
   SERIAL_EOL();
 
   // Move to the saved position
-  prepare_move_to_destination();
+  prepare_line_to_destination();
 }
 
 #endif // SAVED_POSITIONS

@@ -41,76 +41,76 @@
 //
 // Servos
 //
-#define SERVO0_PIN          5
-#define SERVO1_PIN          3
+#define SERVO0_PIN                             5
+#define SERVO1_PIN                             3
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN          45
-#define X_MAX_PIN          39
-#define Y_MIN_PIN          46
-#define Y_MAX_PIN          41
-#define Z_MIN_PIN          47
-#define Z_MAX_PIN          43
+#define X_MIN_PIN                             45
+#define X_MAX_PIN                             39
+#define Y_MIN_PIN                             46
+#define Y_MAX_PIN                             41
+#define Z_MIN_PIN                             47
+#define Z_MAX_PIN                             43
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  43
+  #define Z_MIN_PROBE_PIN                     43
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN         37   // Support Extension Board
-#define X_DIR_PIN          36
-#define X_ENABLE_PIN       38
+#define X_STEP_PIN                            37  // Support Extension Board
+#define X_DIR_PIN                             36
+#define X_ENABLE_PIN                          38
 #ifndef X_CS_PIN
-  #define X_CS_PIN         -1
+  #define X_CS_PIN                            -1
 #endif
 
-#define Y_STEP_PIN         32   // Support Extension Board
-#define Y_DIR_PIN          35
-#define Y_ENABLE_PIN       34
+#define Y_STEP_PIN                            32  // Support Extension Board
+#define Y_DIR_PIN                             35
+#define Y_ENABLE_PIN                          34
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN         -1
+  #define Y_CS_PIN                            -1
 #endif
 
-#define Z_STEP_PIN         30   // Support Extension Board
-#define Z_DIR_PIN           2
-#define Z_ENABLE_PIN       33
+#define Z_STEP_PIN                            30  // Support Extension Board
+#define Z_DIR_PIN                              2
+#define Z_ENABLE_PIN                          33
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN         -1
+  #define Z_CS_PIN                            -1
 #endif
 
-#define E0_STEP_PIN        29
-#define E0_DIR_PIN         28
-#define E0_ENABLE_PIN      31
+#define E0_STEP_PIN                           29
+#define E0_DIR_PIN                            28
+#define E0_ENABLE_PIN                         31
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN        -1
+  #define E0_CS_PIN                           -1
 #endif
 
-#define E1_STEP_PIN        22
-#define E1_DIR_PIN         24
-#define E1_ENABLE_PIN      26
+#define E1_STEP_PIN                           22
+#define E1_DIR_PIN                            24
+#define E1_ENABLE_PIN                         26
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN        -1
+  #define E1_CS_PIN                           -1
 #endif
 
-#define E2_STEP_PIN        25
-#define E2_DIR_PIN         23
-#define E2_ENABLE_PIN      27
+#define E2_STEP_PIN                           25
+#define E2_DIR_PIN                            23
+#define E2_ENABLE_PIN                         27
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN        -1
+  #define E2_CS_PIN                           -1
 #endif
 
-#define E3_STEP_PIN        15   // Only For Extension Board
-#define E3_DIR_PIN         14
-#define E3_ENABLE_PIN      61
+#define E3_STEP_PIN                           15  // Only For Extension Board
+#define E3_DIR_PIN                            14
+#define E3_ENABLE_PIN                         61
 #ifndef E3_CS_PIN
-  #define E3_CS_PIN        -1
+  #define E3_CS_PIN                           -1
 #endif
 
 // For Future: Microstepping pins - Mapping not from fastio.h (?)
@@ -119,77 +119,77 @@
 //#define E3_MS3_PIN         ?
 
 #if HAS_CUSTOM_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  49
+  #define Z_MIN_PROBE_PIN                     49
 #endif
 
 #if HAS_FILAMENT_SENSOR
   #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN   Y_MIN_PIN
+    #define FIL_RUNOUT_PIN             Y_MIN_PIN
   #endif
 #endif
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       13
-#define HEATER_1_PIN       12
-#define HEATER_2_PIN       11
-#define HEATER_BED_PIN      7   // BED H1
+#define HEATER_0_PIN                          13
+#define HEATER_1_PIN                          12
+#define HEATER_2_PIN                          11
+#define HEATER_BED_PIN                         7  // BED H1
 
 #ifndef FAN_PIN
-  #define FAN_PIN           9
+  #define FAN_PIN                              9
 #endif
-#define FAN1_PIN            8
-#define CONTROLLER_FAN_PIN -1
+#define FAN1_PIN                               8
+#define CONTROLLER_FAN_PIN                    -1
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0   // ANALOG A0
-#define TEMP_1_PIN          1   // ANALOG A1
-#define TEMP_2_PIN          2   // ANALOG A2
-#define TEMP_3_PIN          3   // ANALOG A3
-#define TEMP_BED_PIN        4   // ANALOG A4
+#define TEMP_0_PIN                             0  // ANALOG A0
+#define TEMP_1_PIN                             1  // ANALOG A1
+#define TEMP_2_PIN                             2  // ANALOG A2
+#define TEMP_3_PIN                             3  // ANALOG A3
+#define TEMP_BED_PIN                           4  // ANALOG A4
 
 // The thermocouple uses Analog pins
-#if ENABLED(VER_WITH_THERMOCOUPLE) // Defined in Configuration.h
-  #define TEMP_4_PIN        5   // A5
-  #define TEMP_5_PIN        6   // A6 (Marlin 2.0 not support)
+#if ENABLED(VER_WITH_THERMOCOUPLE)                // Defined in Configuration.h
+  #define TEMP_4_PIN                           5  // A5
+  #define TEMP_5_PIN                           6  // A6 (Marlin 2.0 not support)
 #endif
 
 // SPI for Max6675 or Max31855 Thermocouple
 /*
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN   53
+  #define MAX6675_SS_PIN                      53
 #else
-  #define MAX6675_SS_PIN   49
+  #define MAX6675_SS_PIN                      49
 #endif
 */
 
 //
 // Misc. Functions
 //
-#define SDSS                4   // 4,10,52 if using HW SPI.
-#define LED_PIN            -1   // 13 - HEATER_0_PIN
-#define PS_ON_PIN          -1   // 65
+#define SDSS                                   4  // 4,10,52 if using HW SPI.
+#define LED_PIN                               -1  // 13 - HEATER_0_PIN
+#define PS_ON_PIN                             -1  // 65
 
 // MKS TFT / Nextion Use internal USART-1
-#define TFT_LCD_MODULE_COM        1
-#define TFT_LCD_MODULE_BAUDRATE   115600
+#define TFT_LCD_MODULE_COM                     1
+#define TFT_LCD_MODULE_BAUDRATE              115600
 
 // ESP WiFi Use internal USART-2
-#define ESP_WIFI_MODULE_COM       2
-#define ESP_WIFI_MODULE_BAUDRATE  115600
-#define ESP_WIFI_MODULE_RESET_PIN -1
-#define PIGGY_GPIO_PIN            -1
+#define ESP_WIFI_MODULE_COM                    2
+#define ESP_WIFI_MODULE_BAUDRATE             115600
+#define ESP_WIFI_MODULE_RESET_PIN             -1
+#define PIGGY_GPIO_PIN                        -1
 
 //
 // EEPROM
 //
-#define E2END 0x7FFF  // 32Kb (24lc256)
-#define I2C_EEPROM    // EEPROM on I2C-0
-//#define EEPROM_SD   // EEPROM on SDCARD
-//#define SPI_EEPROM  // EEPROM on SPI-0
+#define E2END 0x7FFF                              // 32Kb (24lc256)
+#define I2C_EEPROM                                // EEPROM on I2C-0
+//#define EEPROM_SD                               // EEPROM on SDCARD
+//#define SPI_EEPROM                              // EEPROM on SPI-0
 //#define SPI_CHAN_EEPROM1        ?
 //#define SPI_EEPROM1_CS          ?
 // 2K EEPROM
@@ -203,72 +203,72 @@
 #if HAS_SPI_LCD
 
   #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define BEEPER_PIN      62
-    #define LCD_PINS_D4     48
-    #define LCD_PINS_D5     50
-    #define LCD_PINS_D6     52
-    #define LCD_PINS_D7     53
-    #define SD_DETECT_PIN   51
+    #define BEEPER_PIN                        62
+    #define LCD_PINS_D4                       48
+    #define LCD_PINS_D5                       50
+    #define LCD_PINS_D6                       52
+    #define LCD_PINS_D7                       53
+    #define SD_DETECT_PIN                     51
   #endif
 
   #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-    #define LCD_PINS_RS     63
-    #define LCD_PINS_ENABLE 64
+    #define LCD_PINS_RS                       63
+    #define LCD_PINS_ENABLE                   64
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define LCD_PINS_RS     52
-    #define LCD_PINS_ENABLE 53
+    #define LCD_PINS_RS                       52
+    #define LCD_PINS_ENABLE                   53
 
   #elif HAS_SSD1306_OLED_I2C
 
-    #define BEEPER_PIN      62
-    #define LCD_SDSS        10
-    #define SD_DETECT_PIN   51
+    #define BEEPER_PIN                        62
+    #define LCD_SDSS                          10
+    #define SD_DETECT_PIN                     51
 
   #elif ENABLED(FYSETC_MINI_12864)
 
-    #define BEEPER_PIN      62
-    #define DOGLCD_CS       64
-    #define DOGLCD_A0       63
+    #define BEEPER_PIN                        62
+    #define DOGLCD_CS                         64
+    #define DOGLCD_A0                         63
 
-    //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
-                                //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+    //#define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
+                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-    #define LCD_RESET_PIN   48   // Must be high or open for LCD to operate normally.
+    #define LCD_RESET_PIN                     48  // Must be high or open for LCD to operate normally.
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN 50   // D5
+        #define RGB_LED_R_PIN                 50  // D5
       #endif
       #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN 52   // D6
+        #define RGB_LED_G_PIN                 52  // D6
       #endif
       #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN 53   // D7
+        #define RGB_LED_B_PIN                 53  // D7
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN    50   // D5
+      #define NEOPIXEL_PIN                    50  // D5
     #endif
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
 
     //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
     #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
-    //#define LCD_PINS_D4     29   //?
-    //#define LCD_PINS_ENABLE 27   //?
-    //#define LCD_PINS_RS     25   //?
-    //#define BTN_EN1         35   //?
-    //#define BTN_EN2         33   //?
-    //#define BTN_ENC         37   //?
+    //#define LCD_PINS_D4                     29  //?
+    //#define LCD_PINS_ENABLE                 27  //?
+    //#define LCD_PINS_RS                     25  //?
+    //#define BTN_EN1                         35  //?
+    //#define BTN_EN2                         33  //?
+    //#define BTN_ENC                         37  //?
 
   #endif // SPARK_FULL_GRAPHICS
 
   #if ENABLED(NEWPANEL)
-    #define BTN_EN1         44
-    #define BTN_EN2         42
-    #define BTN_ENC         40
+    #define BTN_EN1                           44
+    #define BTN_EN2                           42
+    #define BTN_ENC                           40
   #endif
 
 #endif // HAS_SPI_LCD
