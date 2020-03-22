@@ -39,53 +39,53 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PB14
-#define Y_MIN_PIN          PB13
-#define Z_MIN_PIN          PB12
+#define X_MIN_PIN                           PB14
+#define Y_MIN_PIN                           PB13
+#define Z_MIN_PIN                           PB12
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  PB9
+  #define Z_MIN_PROBE_PIN                   PB9
 #endif
 
 //
 // Steppers
 //
 // X & Y enable are the same
-#define X_STEP_PIN         PB7
-#define X_DIR_PIN          PB6
-#define X_ENABLE_PIN       PB8
+#define X_STEP_PIN                          PB7
+#define X_DIR_PIN                           PB6
+#define X_ENABLE_PIN                        PB8
 
-#define Y_STEP_PIN         PB5
-#define Y_DIR_PIN          PB4
-#define Y_ENABLE_PIN       PB8
+#define Y_STEP_PIN                          PB5
+#define Y_DIR_PIN                           PB4
+#define Y_ENABLE_PIN                        PB8
 
-#define Z_STEP_PIN         PA15
-#define Z_DIR_PIN          PA10
-#define Z_ENABLE_PIN       PB3
+#define Z_STEP_PIN                          PA15
+#define Z_DIR_PIN                           PA10
+#define Z_ENABLE_PIN                        PB3
 
-#define E0_STEP_PIN        PA8
-#define E0_DIR_PIN         PB15
-#define E0_ENABLE_PIN      PA9
+#define E0_STEP_PIN                         PA8
+#define E0_DIR_PIN                          PB15
+#define E0_ENABLE_PIN                       PA9
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PB1   // Analog Input (HOTEND thermistor)
-#define TEMP_BED_PIN       PB0   // Analog Input (BED thermistor)
+#define TEMP_0_PIN                          PB1   // Analog Input (HOTEND thermistor)
+#define TEMP_BED_PIN                        PB0   // Analog Input (BED thermistor)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PA2   // HOTEND MOSFET
-#define HEATER_BED_PIN     PA0   // BED MOSFET
+#define HEATER_0_PIN                        PA2   // HOTEND MOSFET
+#define HEATER_BED_PIN                      PA0   // BED MOSFET
 
-#define FAN_PIN            PA1   // FAN1 header on board - PRINT FAN
+#define FAN_PIN                             PA1   // FAN1 header on board - PRINT FAN
 
 //
 // Misc.
 //
-#define LED_PIN            PC13
-#define SDSS               PA3
+#define LED_PIN                             PC13
+#define SDSS                                PA3

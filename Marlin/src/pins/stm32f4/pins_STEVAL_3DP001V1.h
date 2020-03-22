@@ -51,13 +51,13 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          39   // PD8   X_STOP
-#define Y_MIN_PIN          40   // PD9   Y_STOP
-#define Z_MIN_PIN          41   // PD10  Z_STOP
+#define X_MIN_PIN                             39  // PD8   X_STOP
+#define Y_MIN_PIN                             40  // PD9   Y_STOP
+#define Z_MIN_PIN                             41  // PD10  Z_STOP
 
-#define X_MAX_PIN          44   // PD0   W_STOP
-#define Y_MAX_PIN          43   // PA8   V_STOP
-#define Z_MAX_PIN          42   // PD11  U_STOP
+#define X_MAX_PIN                             44  // PD0   W_STOP
+#define Y_MAX_PIN                             43  // PA8   V_STOP
+#define Z_MAX_PIN                             42  // PD11  U_STOP
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -69,64 +69,64 @@
 //
 // Filament runout
 //
-//#define FIL_RUNOUT_PIN     53   // PA3    BED_THE
+//#define FIL_RUNOUT_PIN                      53  // PA3    BED_THE
 
 //
 // Steppers
 //
 
-#define X_STEP_PIN         61  // PE14    X_PWM
-#define X_DIR_PIN          62  // PE15    X_DIR
-#define X_ENABLE_PIN       60  // PE13    X_RES
-#define X_CS_PIN           16  // PA4     SPI_CS
+#define X_STEP_PIN                            61  // PE14    X_PWM
+#define X_DIR_PIN                             62  // PE15    X_DIR
+#define X_ENABLE_PIN                          60  // PE13    X_RES
+#define X_CS_PIN                              16  // PA4     SPI_CS
 
-#define Y_STEP_PIN         64  // PB10    Y_PWM
-#define Y_DIR_PIN          65  // PE9     Y_DIR
-#define Y_ENABLE_PIN       63  // PE10    Y_RES
-#define Y_CS_PIN           16  // PA4     SPI_CS
+#define Y_STEP_PIN                            64  // PB10    Y_PWM
+#define Y_DIR_PIN                             65  // PE9     Y_DIR
+#define Y_ENABLE_PIN                          63  // PE10    Y_RES
+#define Y_CS_PIN                              16  // PA4     SPI_CS
 
-#define Z_STEP_PIN         67  // PC6     Z_PWM
-#define Z_DIR_PIN          68  // PC0     Z_DIR
-#define Z_ENABLE_PIN       66  // PC15    Z_RES
-#define Z_CS_PIN           16  // PA4     SPI_CS
+#define Z_STEP_PIN                            67  // PC6     Z_PWM
+#define Z_DIR_PIN                             68  // PC0     Z_DIR
+#define Z_ENABLE_PIN                          66  // PC15    Z_RES
+#define Z_CS_PIN                              16  // PA4     SPI_CS
 
-#define E0_STEP_PIN        71  // PD12    E1_PW
-#define E0_DIR_PIN         70  // PC13    E1_DIR
-#define E0_ENABLE_PIN      69  // PC14    E1_RE
-#define E0_CS_PIN          16  // PA4     SPI_CS
+#define E0_STEP_PIN                           71  // PD12    E1_PW
+#define E0_DIR_PIN                            70  // PC13    E1_DIR
+#define E0_ENABLE_PIN                         69  // PC14    E1_RE
+#define E0_CS_PIN                             16  // PA4     SPI_CS
 
-#define E1_STEP_PIN        73  // PE5     E2_PWM
-#define E1_DIR_PIN         74  // PE6     E2_DIR
-#define E1_ENABLE_PIN      72  // PE4     E2_RESE
-#define E1_CS_PIN          16  // PA4     SPI_CS
+#define E1_STEP_PIN                           73  // PE5     E2_PWM
+#define E1_DIR_PIN                            74  // PE6     E2_DIR
+#define E1_ENABLE_PIN                         72  // PE4     E2_RESE
+#define E1_CS_PIN                             16  // PA4     SPI_CS
 
-#define E2_STEP_PIN        77  // PB8     E3_PWM
-#define E2_DIR_PIN         76  // PE2     E3_DIR
-#define E2_ENABLE_PIN      75  // PE3     E3_RESE
-#define E2_CS_PIN          16  // PA4     SPI_CS
+#define E2_STEP_PIN                           77  // PB8     E3_PWM
+#define E2_DIR_PIN                            76  // PE2     E3_DIR
+#define E2_ENABLE_PIN                         75  // PE3     E3_RESE
+#define E2_CS_PIN                             16  // PA4     SPI_CS
 
 // needed to pass a sanity check
-#define X2_CS_PIN          16  // PA4     SPI_CS
-#define Y2_CS_PIN          16  // PA4     SPI_CS
-#define Z2_CS_PIN          16  // PA4     SPI_CS
-#define Z3_CS_PIN          16  // PA4     SPI_CS
-#define E3_CS_PIN          16  // PA4     SPI_CS
-#define E4_CS_PIN          16  // PA4     SPI_CS
-#define E5_CS_PIN          16  // PA4     SPI_CS
+#define X2_CS_PIN                             16  // PA4     SPI_CS
+#define Y2_CS_PIN                             16  // PA4     SPI_CS
+#define Z2_CS_PIN                             16  // PA4     SPI_CS
+#define Z3_CS_PIN                             16  // PA4     SPI_CS
+#define E3_CS_PIN                             16  // PA4     SPI_CS
+#define E4_CS_PIN                             16  // PA4     SPI_CS
+#define E5_CS_PIN                             16  // PA4     SPI_CS
 
 #if HAS_L64XX
-  #define L6470_CHAIN_SCK_PIN  17   // PA5
-  #define L6470_CHAIN_MISO_PIN 18   // PA6
-  #define L6470_CHAIN_MOSI_PIN 19   // PA7
-  #define L6470_CHAIN_SS_PIN   16   // PA4
+  #define L6470_CHAIN_SCK_PIN                 17  // PA5
+  #define L6470_CHAIN_MISO_PIN                18  // PA6
+  #define L6470_CHAIN_MOSI_PIN                19  // PA7
+  #define L6470_CHAIN_SS_PIN                  16  // PA4
 
-  //#define SCK_PIN        L6470_CHAIN_SCK_PIN
-  //#define MISO_PIN       L6470_CHAIN_MISO_PIN
-  //#define MOSI_PIN       L6470_CHAIN_MOSI_PIN
+  //#define SCK_PIN          L6470_CHAIN_SCK_PIN
+  //#define MISO_PIN        L6470_CHAIN_MISO_PIN
+  //#define MOSI_PIN        L6470_CHAIN_MOSI_PIN
 #else
-  //#define SCK_PIN        13   // PB13    SPI_S
-  //#define MISO_PIN       12   // PB14    SPI_M
-  //#define MOSI_PIN       11   // PB15    SPI_M
+  //#define SCK_PIN                           13  // PB13    SPI_S
+  //#define MISO_PIN                          12  // PB14    SPI_M
+  //#define MOSI_PIN                          11  // PB15    SPI_M
 #endif
 
 /**
@@ -147,64 +147,64 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          3   // Analog input 3,  digital pin 54   PA0     E1_THERMISTOR
-#define TEMP_1_PIN          4   // Analog input 4,  digital pin 55   PA1     E2_THERMISTOR
-#define TEMP_2_PIN          5   // Analog input 5,  digital pin 56   PA2     E3_THERMISTOR
-#define TEMP_BED_PIN        0   // Analog input 0,  digital pin 51   PC2     BED_THERMISTOR_1
-#define TEMP_BED_1_PIN      1   // Analog input 1,  digital pin 52   PC3     BED_THERMISTOR_2
-#define TEMP_BED_2_PIN      2   // Analog input 2,  digital pin 53   PA3     BED_THERMISTOR_3
+#define TEMP_0_PIN                             3  // Analog input 3,  digital pin 54   PA0     E1_THERMISTOR
+#define TEMP_1_PIN                             4  // Analog input 4,  digital pin 55   PA1     E2_THERMISTOR
+#define TEMP_2_PIN                             5  // Analog input 5,  digital pin 56   PA2     E3_THERMISTOR
+#define TEMP_BED_PIN                           0  // Analog input 0,  digital pin 51   PC2     BED_THERMISTOR_1
+#define TEMP_BED_1_PIN                         1  // Analog input 1,  digital pin 52   PC3     BED_THERMISTOR_2
+#define TEMP_BED_2_PIN                         2  // Analog input 2,  digital pin 53   PA3     BED_THERMISTOR_3
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       48   // PC7   E1_HEAT_PWM
-#define HEATER_1_PIN       49   // PB0   E2_HEAT_PWM
-#define HEATER_2_PIN       50   // PB1   E3_HEAT_PWM
-#define HEATER_BED_PIN     46   // PD14 (BED_HEAT_1 FET
-#define HEATER_BED_1_PIN   45   // PD13 (BED_HEAT_2 FET
-#define HEATER_BED_2_PIN   47   // PD15 (BED_HEAT_3 FET
+#define HEATER_0_PIN                          48  // PC7   E1_HEAT_PWM
+#define HEATER_1_PIN                          49  // PB0   E2_HEAT_PWM
+#define HEATER_2_PIN                          50  // PB1   E3_HEAT_PWM
+#define HEATER_BED_PIN                        46  // PD14 (BED_HEAT_1 FET
+#define HEATER_BED_1_PIN                      45  // PD13 (BED_HEAT_2 FET
+#define HEATER_BED_2_PIN                      47  // PD15 (BED_HEAT_3 FET
 
-#define FAN_PIN            57   // PC4   E1_FAN   PWM pin, Part cooling fan FET
-#define FAN1_PIN           58   // PC5   E2_FAN   PWM pin, Extruder fan FET
-#define ORIG_E0_AUTO_FAN_PIN  FAN1_PIN
-#define FAN2_PIN           59   // PE8   E3_FAN   PWM pin, Controller fan FET
+#define FAN_PIN                               57  // PC4   E1_FAN   PWM pin, Part cooling fan FET
+#define FAN1_PIN                              58  // PC5   E2_FAN   PWM pin, Extruder fan FET
+#define ORIG_E0_AUTO_FAN_PIN            FAN1_PIN
+#define FAN2_PIN                              59  // PE8   E3_FAN   PWM pin, Controller fan FET
 
 //
 // Misc functions
 //
-#define SDSS               16   // PA4    SPI_CS
-#define LED_PIN            -1   // 9 // PE1 green LED   Heart beat
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-#define POWER_LOSS_PIN     -1   // PWR_LOSS / nAC_FAULT
+#define SDSS                                  16  // PA4    SPI_CS
+#define LED_PIN                               -1  // 9 // PE1 green LED   Heart beat
+#define PS_ON_PIN                             -1
+#define KILL_PIN                              -1
+#define POWER_LOSS_PIN                        -1  // PWR_LOSS / nAC_FAULT
 
 //
 // LCD / Controller
 //
-//#define SD_DETECT_PIN      66   // PA15    SD_CA
-//#define BEEPER_PIN         24   // PC9     SDIO_D1
-//#define LCD_PINS_RS        65   // PE9     Y_DIR
-//#define LCD_PINS_ENABLE    59   // PE8     E3_FAN
-//#define LCD_PINS_D4        10   // PB12    SPI_C
-//#define LCD_PINS_D5        13   // PB13    SPI_S
-//#define LCD_PINS_D6        12   // PB14    SPI_M
-//#define LCD_PINS_D7        11   // PB15    SPI_M
-//#define BTN_EN1            57   // PC4     E1_FAN
-//#define BTN_EN2            58   // PC5     E2_FAN
-//#define BTN_ENC            52   // PC3     BED_THE
+//#define SD_DETECT_PIN                       66  // PA15    SD_CA
+//#define BEEPER_PIN                          24  // PC9     SDIO_D1
+//#define LCD_PINS_RS                         65  // PE9     Y_DIR
+//#define LCD_PINS_ENABLE                     59  // PE8     E3_FAN
+//#define LCD_PINS_D4                         10  // PB12    SPI_C
+//#define LCD_PINS_D5                         13  // PB13    SPI_S
+//#define LCD_PINS_D6                         12  // PB14    SPI_M
+//#define LCD_PINS_D7                         11  // PB15    SPI_M
+//#define BTN_EN1                             57  // PC4     E1_FAN
+//#define BTN_EN2                             58  // PC5     E2_FAN
+//#define BTN_ENC                             52  // PC3     BED_THE
 
 //
 // Extension pins
 //
-//#define EXT0_PIN           49   // PB0     E2_HEAT
-//#define EXT1_PIN           50   // PB1     E3_HEAT
-//#define EXT2_PIN                // PB2    not used (tied to ground
-//#define EXT3_PIN           39   // PD8     X_STOP
-//#define EXT4_PIN           40   // PD9     Y_STOP
-//#define EXT5_PIN           41   // PD10    Z_STOP
-//#define EXT6_PIN           42   // PD11
-//#define EXT7_PIN           71   // PD12    E1_PW
-//#define EXT8_PIN           64   // PB10    Y_PWM
+//#define EXT0_PIN                            49  // PB0     E2_HEAT
+//#define EXT1_PIN                            50  // PB1     E3_HEAT
+//#define EXT2_PIN                                // PB2    not used (tied to ground
+//#define EXT3_PIN                            39  // PD8     X_STOP
+//#define EXT4_PIN                            40  // PD9     Y_STOP
+//#define EXT5_PIN                            41  // PD10    Z_STOP
+//#define EXT6_PIN                            42  // PD11
+//#define EXT7_PIN                            71  // PD12    E1_PW
+//#define EXT8_PIN                            64  // PB10    Y_PWM
 
 // WIFI
 //  2   // PD3   CTS
@@ -214,7 +214,6 @@
 //  6   // PB5   WIFI_WAKEUP
 //  7   // PE11  WIFI_RESET
 //  8   // PE12  WIFI_BOOT
-
 
 // I2C USER
 // 14   // PB7   SDA
@@ -228,27 +227,27 @@
 //
 // Onboard SD support
 //
-#define SDIO_D0_PIN       23   // PC8   SDIO_D0
-#define SDIO_D1_PIN       24   // PC9   SDIO_D1
-//#define SD_CARD_DETECT_PIN 25   // PA15  SD_CARD_DETECT
-#define SDIO_D2_PIN       26   // PC10  SDIO_D2
-#define SDIO_D3_PIN       27   // PC11  SDIO_D3
-#define SDIO_CK_PIN       28   // PC12  SDIO_CK
-#define SDIO_CMD_PIN      29   // PD2   SDIO_CMD
+#define SDIO_D0_PIN                           23  // PC8   SDIO_D0
+#define SDIO_D1_PIN                           24  // PC9   SDIO_D1
+//#define SD_CARD_DETECT_PIN                  25  // PA15  SD_CARD_DETECT
+#define SDIO_D2_PIN                           26  // PC10  SDIO_D2
+#define SDIO_D3_PIN                           27  // PC11  SDIO_D3
+#define SDIO_CK_PIN                           28  // PC12  SDIO_CK
+#define SDIO_CMD_PIN                          29  // PD2   SDIO_CMD
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #if SDCARD_CONNECTION == ONBOARD
-  #define SDIO_SUPPORT     // Use SDIO for onboard SD
+  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT
-    #define SOFTWARE_SPI   // Use soft SPI for onboard SD
-    #define SDSS           SDIO_D3_PIN
-    #define SCK_PIN        SDIO_CK_PIN
-    #define MISO_PIN       SDIO_D0_PIN
-    #define MOSI_PIN       SDIO_CMD_PIN
+    #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
+    #define SDSS                     SDIO_D3_PIN
+    #define SCK_PIN                  SDIO_CK_PIN
+    #define MISO_PIN                 SDIO_D0_PIN
+    #define MOSI_PIN                SDIO_CMD_PIN
   #endif
 #endif
 
@@ -265,15 +264,12 @@
 // USERKET
 // 38   // PE7   USER_BUTTON
 
-
 //  0   // PA9   TX
 //  1   // PA10  RX
-
 
 // IR/PROBE
 // 32   // PD1   IR_OUT
 // 33   // PC1   IR_ON
-
 
 /**
  * Logical pin vs. port/pin cross reference

@@ -35,29 +35,29 @@
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN        7
+#define MOSFET_D_PIN                          7
 
 #include "pins_RAMPS.h"
 
 //
 // Misc. Functions
 //
-#define SDPOWER_PIN         1
+#define SDPOWER_PIN                           1
 
-#define PS_ON_PIN          12
+#define PS_ON_PIN                            12
 
 //
 // LCD / Controller
 //
 #if BOTH(ULTRA_LCD, NEWPANEL)
 
-  #define SD_DETECT_PIN     6
+  #define SD_DETECT_PIN                       6
 
 #endif // NEWPANEL && ULTRA_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#undef SPINDLE_LASER_PWM_PIN     // Definitions in pins_RAMPS.h are not valid with this board
+#undef SPINDLE_LASER_PWM_PIN                      // Definitions in pins_RAMPS.h are not valid with this board
 #undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN

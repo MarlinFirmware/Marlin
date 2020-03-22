@@ -46,55 +46,55 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PA1
-#define Y_STOP_PIN         PA0
-#define Z_STOP_PIN         PB14
+#define X_STOP_PIN                          PA1
+#define Y_STOP_PIN                          PA0
+#define Z_STOP_PIN                          PB14
 
 //
 // Filament runout
 //
 #ifdef pins_v2_20190128
-  #define FIL_RUNOUT_PIN   PB15
+  #define FIL_RUNOUT_PIN                    PB15
 #else
-  #define FIL_RUNOUT_PIN   PB5
+  #define FIL_RUNOUT_PIN                    PB5
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN         PB8
-#define X_DIR_PIN          PB9
-#define X_ENABLE_PIN       PA8
+#define X_STEP_PIN                          PB8
+#define X_DIR_PIN                           PB9
+#define X_ENABLE_PIN                        PA8
 
-#define Y_STEP_PIN         PB2
+#define Y_STEP_PIN                          PB2
 #ifdef pins_v2_20190128
-  #define Y_DIR_PIN        PB3
+  #define Y_DIR_PIN                         PB3
 #else
-  #define Y_DIR_PIN        PB0
+  #define Y_DIR_PIN                         PB0
 #endif
-#define Y_ENABLE_PIN       PB1
+#define Y_ENABLE_PIN                        PB1
 
-#define Z_STEP_PIN         PC0
-#define Z_DIR_PIN          PC1
-#define Z_ENABLE_PIN       PC2
+#define Z_STEP_PIN                          PC0
+#define Z_DIR_PIN                           PC1
+#define Z_ENABLE_PIN                        PC2
 
-#define E0_STEP_PIN        PC15
-#define E0_DIR_PIN         PC14
-#define E0_ENABLE_PIN      PC13
+#define E0_STEP_PIN                         PC15
+#define E0_DIR_PIN                          PC14
+#define E0_ENABLE_PIN                       PC13
 
 //
 // Stepper current PWM
 //
 
 // X:PA2 Y:PA3 Z:PB12 E:PB13 // changed for test
-//#define MOTOR_CURRENT_PWM_XY_PIN PA3
-//#define MOTOR_CURRENT_PWM_Z_PIN  PA2 // PB12
-//#define MOTOR_CURRENT_PWM_XY_PIN PB6
-//#define MOTOR_CURRENT_PWM_Z_PIN  PB7 // PB12
-//#define MOTOR_CURRENT_PWM_E_PIN  -1  // PB13
+//#define MOTOR_CURRENT_PWM_XY_PIN          PA3
+//#define MOTOR_CURRENT_PWM_Z_PIN           PA2   // PB12
+//#define MOTOR_CURRENT_PWM_XY_PIN          PB6
+//#define MOTOR_CURRENT_PWM_Z_PIN           PB7   // PB12
+//#define MOTOR_CURRENT_PWM_E_PIN           -1    // PB13
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500 // geo-f:old 2000
+  #define MOTOR_CURRENT_PWM_RANGE 1500            // geo-f:old 2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT  {500, 500, 400} // geo-f:old 1300 1300 1250
 
@@ -112,37 +112,37 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC7
-#define HEATER_BED_PIN     PC6
+#define HEATER_0_PIN                        PC7
+#define HEATER_BED_PIN                      PC6
 #ifndef FAN_PIN
-  #define FAN_PIN          PC8
+  #define FAN_PIN                           PC8
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN       PC5   // Analog Input
-#define TEMP_0_PIN         PC4   // Analog Input
+#define TEMP_BED_PIN                        PC5   // Analog Input
+#define TEMP_0_PIN                          PC4   // Analog Input
 
 //
 // Misc. Functions
 //
-#define SDSS               PA4
+#define SDSS                                PA4
 
 //
 // LCD Pins
 //
 #if HAS_SPI_LCD
 
-  #define BEEPER_PIN       PC9
+  #define BEEPER_PIN                        PC9
 
   #if HAS_GRAPHICAL_LCD
 
-    #define DOGLCD_A0      PA15
+    #define DOGLCD_A0                       PA15
     #ifdef pins_v2_20190128
-      #define DOGLCD_CS    PB5
+      #define DOGLCD_CS                     PB5
     #else
-      #define DOGLCD_CS    PB7
+      #define DOGLCD_CS                     PB7
     #endif
 
     //#define LCD_CONTRAST_INIT 190
@@ -153,36 +153,36 @@
   #endif
 
   // not connected to a pin
-  #define SD_DETECT_PIN    PC3
+  #define SD_DETECT_PIN                     PC3
 
   #if ENABLED(NEWPANEL)
     // The encoder and click button
-    #define BTN_EN1        PC10
-    #define BTN_EN2        PC11
-    #define BTN_ENC        PC12
+    #define BTN_EN1                         PC10
+    #define BTN_EN2                         PC11
+    #define BTN_ENC                         PC12
   #endif
 
   #ifdef pins_v2_20190128
-    #define LCD_RESET_PIN  PB4
+    #define LCD_RESET_PIN                   PB4
     #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN PB0
+      #define RGB_LED_R_PIN                 PB0
     #endif
     #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN PB6
+      #define RGB_LED_G_PIN                 PB6
     #endif
     #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN PB7
+      #define RGB_LED_B_PIN                 PB7
     #endif
   #else
-    #define LCD_RESET_PIN  PB6
+    #define LCD_RESET_PIN                   PB6
     #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN PB3
+      #define RGB_LED_R_PIN                 PB3
     #endif
     #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN PB4
+      #define RGB_LED_G_PIN                 PB4
     #endif
     #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN PB5
+      #define RGB_LED_B_PIN                 PB5
     #endif
   #endif
 
