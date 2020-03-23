@@ -59,10 +59,6 @@
     extern Planner planner;
     static void mWork_Home_EndStop(double A,double B,feedRate_t feedRate){
       float e_tam = 0;
-      #if ENABLED(mWorkDebugGoHome)
-        SERIAL_ECHOPAIR("feedRate Go Home :", feedRate );
-        SERIAL_CHAR("\n");
-      #endif
       uint8_t extruder = 0;
       float mm = 360;
       planner.buffer_segment(A, B, delta.c, e_tam, feedRate, extruder, mm);
@@ -75,9 +71,6 @@
         }
         idle();
       }
-     #if ENABLED(mWorkDEBUGProtocol)
-        SERIAL_CHAR("THOAT KHOI WIhLE LOOP \n");
-      #endif
       endstops.validate_homing_move();
     }
     static void mWork_Set_Pos_Frome_angles(double A, double B){

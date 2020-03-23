@@ -250,7 +250,7 @@ void report_current_position() { report_logical_position(current_position); }
  */
 void report_current_position_projected() {
   report_logical_position(current_position);
-  stepper.report_a_position(planner.position);
+  //stepper.report_a_position(planner.position); //IN inline void report_more_positions()-> REPORTED  stepper.report_positions();
 }
 
 /**
