@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 
+#if HAS_USB_SERIAL
 
 #include <WString.h>
 
@@ -91,8 +91,9 @@ private:
 #if SERIAL_PORT == -1
   extern MarlinSerialUSB customizedSerial1;
 #endif
+
 #if SERIAL_PORT_2 == -1
   extern MarlinSerialUSB customizedSerial2;
 #endif
 
-#endif // SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 
+#endif // HAS_USB_SERIAL

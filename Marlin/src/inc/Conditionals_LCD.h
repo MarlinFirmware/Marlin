@@ -683,6 +683,10 @@
   #define SPI_SPEED SPI_FULL_SPEED
 #endif
 
+#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
+  #define HAS_USB_SERIAL 1
+#endif
+
 /**
  * This setting is also used by M109 when trying to calculate
  * a ballpark safe margin to prevent wait-forever situation.
