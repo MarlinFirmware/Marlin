@@ -55,8 +55,45 @@
 #include "../../core/debug_out.h"
 
 #if ENABLED(QUICK_HOME)
-
-  static void quick_home_xy() {
+  #if IS_SCARA
+    extern Planner planner;
+    static void mWork_Home_EndStop(double A,double B,feedRate_t feedRate){
+      float e_tam = 0;
+      #if ENABLED(mWorkDebugGoHome)
+        SERIAL_ECHOPAIR("feedRate Go Home :", feedRate );
+        SERIAL_CHAR("\n");
+      #endif
+      uint8_t extruder = 0;
+      float mm = 360;
+      planner.buffer_segment(A, B, delta.c, e_tam, feedRate, extruder, mm);
+      unsigned long timeBegin = millis();
+      while(endstops.checkEndStop()==false){        
+        if( millis() - timeBegin > 1000){
+          timeBegin = millis();
+          float x_tam =planner.get_axis_position_degrees(A_AXIS), y_tam=planner.get_axis_position_degrees(B_AXIS);
+          if ((x_tam == A) && (y_tam == B))break;
+        }
+        idle();
+      }
+     #if ENABLED(mWorkDEBUGProtocol)
+        SERIAL_CHAR("THOAT KHOI WIhLE LOOP \n");
+      #endif
+      endstops.validate_homing_move();
+    }
+    static void mWork_Set_Pos_Frome_angles(double A, double B){
+      forward_kinematics_SCARA(A,B);
+      current_position.set(cartes.x, cartes.y);
+      sync_plan_position();
+    }
+    static void quick_home_xy() {
+      mWork_Set_Pos_Frome_angles(0,0);
+      mWork_Home_EndStop(360.0 * X_HOME_DIR,360.0* X_HOME_DIR,homing_feedrate(X_AXIS)); //Move Y 360 angles and wait endstop
+      mWork_Set_Pos_Frome_angles(0,0);
+      mWork_Home_EndStop( 0 , 360.0* Y_HOME_DIR , homing_feedrate(Y_AXIS)); //Move Y 360 angles and wait endstop
+      mWork_Set_Pos_Frome_angles(X_POS_HOME_DEGREE,Y_POS_HOME_DEGREE);
+    }
+  #else
+     static void quick_home_xy() {
 
     // Pretend the current position is 0,0
     current_position.set(0.0, 0.0);
@@ -101,8 +138,8 @@
         tmc_disable_stallguard(stepperY2, stealth_states.y2);
       #endif
     #endif
-  }
-
+  } 
+  #endif
 #endif // QUICK_HOME
 
 #if ENABLED(Z_SAFE_HOMING)
