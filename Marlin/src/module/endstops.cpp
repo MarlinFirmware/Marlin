@@ -327,6 +327,11 @@ void Endstops::not_homing() {
     if (trigger_state()) hit_on_purpose();
     else kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
   }
+  bool Endstops::checkEndStop() {
+    if (trigger_state()>0) { return true;}
+    return false;
+    //else kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+  }
 #endif
 
 // Enable / disable endstop z-probe checking

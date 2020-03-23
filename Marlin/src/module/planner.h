@@ -622,7 +622,12 @@ class Planner {
      * Add a block to the buffer that just updates the position
      */
     static void buffer_sync_block();
-
+    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
+        #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+          , const xyze_float_t &delta_mm_cart
+        #endif
+        , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      );
   #if IS_KINEMATIC
     private:
 
@@ -642,12 +647,7 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
-      #endif
-      , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
-    );
+    
 
     FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
       #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)

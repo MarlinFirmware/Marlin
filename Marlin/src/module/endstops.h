@@ -144,6 +144,7 @@ class Endstops {
     #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
       // If the last move failed to trigger an endstop, call kill
       static void validate_homing_move();
+      static bool checkEndStop();
     #else
       FORCE_INLINE static void validate_homing_move() { hit_on_purpose(); }
     #endif
