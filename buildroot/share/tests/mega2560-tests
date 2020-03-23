@@ -18,7 +18,7 @@ set -e
 # linear bed leveling, M48, leveling debug, and firmware retraction.
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
+opt_set MOTHERBOARD BOARD_MEGACONTROLLER
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_0 -2
 opt_set TEMP_SENSOR_1 1
