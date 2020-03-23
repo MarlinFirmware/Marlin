@@ -94,7 +94,6 @@
   #endif
 #endif
 
-
 #include "MarlinSerial.h"
 #include "MarlinSerialUSB.h"
 
