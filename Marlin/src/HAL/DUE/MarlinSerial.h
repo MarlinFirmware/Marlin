@@ -173,10 +173,8 @@ struct MarlinSerialCfg {
 
 #if SERIAL_PORT >= 0
   extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
-#endif // SERIAL_PORT >= 0
+#endif
 
-#ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 >= 0
-    extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
-  #endif // SERIAL_PORT_2 >= 0
+#if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
+  extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
 #endif
