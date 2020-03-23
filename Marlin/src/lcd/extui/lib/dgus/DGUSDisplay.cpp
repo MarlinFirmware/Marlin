@@ -30,10 +30,6 @@
   #error "More than 2 hotends not implemented on the Display UI design."
 #endif
 
-#include "DGUSDisplay.h"
-#include "DGUSVPVariable.h"
-#include "DGUSDisplayDef.h"
-
 #include "../../ui_api.h"
 
 #include "../../../../MarlinCore.h"
@@ -47,6 +43,10 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
+
+#include "DGUSDisplay.h"
+#include "DGUSVPVariable.h"
+#include "DGUSDisplayDef.h"
 
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable
 constexpr uint8_t DGUS_HEADER1 = 0x5A;
