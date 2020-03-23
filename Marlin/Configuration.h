@@ -93,7 +93,7 @@
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 //#define CUSTOM_STATUS_SCREEN_IMAGE
-#define MORGAN_SCARA
+//#define MORGAN_SCARA
 #if EITHER(MORGAN_SCARA, MP_SCARA)
   // If movement is choppy try lowering this value
   #define SCARA_SEGMENTS_PER_SECOND 1000
