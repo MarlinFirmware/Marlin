@@ -57,9 +57,7 @@ extern bool fast_move;/*=false*/
 
 // Private functions
 
-int FLG5X,
-    HomeDir5x,
-    Home5x;
+int FLG5X;
 
 double X_5,
       Y_5,
