@@ -1781,7 +1781,7 @@ void homeaxis(const AxisEnum axis) {
       );
    
       #if BOTH(SENSORLESS_HOMING, COREXY)
-        if (axis == ENABLED(HOME_Y_BEFORE_X) ? Y_AXIS : X_AXIS) safe_delay(200);  // Short delay to complete homing backoff
+        if (axis == (ENABLED(HOME_Y_BEFORE_X) ? Y_AXIS : X_AXIS)) safe_delay(200);  // Short delay to complete homing backoff
       #endif
     }
   #endif
