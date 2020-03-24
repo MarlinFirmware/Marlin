@@ -61,12 +61,33 @@
 // config/examples/delta directory and customize for your machine.
 //
 
-//===========================================================================
-//============================= SCARA Printer ===============================
-//===========================================================================
-// For a SCARA printer start with the configuration files in
-// config/examples/SCARA and customize for your machine.
+#define MORGAN_SCARA
 //
+#if EITHER(MORGAN_SCARA, MP_SCARA)
+  // If movement is choppy try lowering this value
+  #define SCARA_SEGMENTS_PER_SECOND 1000
+  // Length of inner and outer support arms. Measure arm lengths precisely.
+  #define SCARA_LINKAGE_1  430    // (mm)
+  #define SCARA_LINKAGE_2  230    // (mm)
+  // SCARA tower offset (position of Tower relative to bed zero position)
+  // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
+  #define SCARA_OFFSET_X    0       // (mm)
+  #define SCARA_OFFSET_Y    0       // (mm)
+  #if ENABLED(MORGAN_SCARA)
+    //#define DEBUG_SCARA_KINEMATICS
+   //#define SCARA_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
+    // Radius around the center where the arm cannot reach
+    #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+
+    #define THETA_HOMING_OFFSET  0  // Calculated from Calibration Guide and M360 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+    #define PSI_HOMING_OFFSET    0  // Calculated from Calibration Guide and M364 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+  #elif ENABLED(MP_SCARA)
+    #define SCARA_OFFSET_THETA1  12 // degrees
+    #define SCARA_OFFSET_THETA2 131 // degrees
+  #endif
+  #define X_POS_HOME_DEGREE -30 //THETA DEGREE AT LIMIT SWITCH
+  #define Y_POS_HOME_DEGREE 135 //PSI DEGREE AT LIMIT SWITCH
+#endif
 
 // @section info
 
@@ -777,7 +798,7 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define CLASSIC_JERK
+#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
   #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK 10.0

@@ -622,14 +622,6 @@ class Planner {
      * Add a block to the buffer that just updates the position
      */
     static void buffer_sync_block();
-
-  #if IS_KINEMATIC
-    private:
-
-      // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
-  #endif
-
     /**
      * Planner::buffer_segment
      *
@@ -648,6 +640,14 @@ class Planner {
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
+  #if IS_KINEMATIC
+    private:
+
+      // Allow do_homing_move to access internal functions, such as buffer_segment.
+      friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
+  #endif
+
+
 
     FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
       #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
