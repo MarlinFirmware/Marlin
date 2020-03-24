@@ -81,15 +81,15 @@
       static void quick_home_xy() {
         mWork_Set_Pos_Frome_angles(0,0);
         mWork_Home_EndStop(360.0 * X_HOME_DIR,360.0* X_HOME_DIR,homing_feedrate(X_AXIS)); //Move X 360 angles and wait endstop
-        mWork_Set_Pos_Frome_angles(0,0);
+        mWork_Set_Pos_Frome_angles(0,0); 
         mWork_Home_EndStop( 0 , 360.0* Y_HOME_DIR , homing_feedrate(Y_AXIS)); //Move Y 360 angles and wait endstop
-        mWork_Set_Pos_Frome_angles(X_POS_HOME_DEGREE,Y_POS_HOME_DEGREE);
+        mWork_Set_Pos_Frome_angles(THETA_DEGREE_AT_HOME,PSI_DEGREE_AT_HOME);  // Set Home position
       }
   #else
   static void quick_home_xy() {
 
     // Pretend the current position is 0,0
-    current_position.set(0.0, 0.0);
+    current_position.set(0.0, 0.0);  // Error with scara. x=0 y=0 -> theta = nul and psi = nul
     sync_plan_position();
 
     const int x_axis_home_dir = x_home_dir(active_extruder);
