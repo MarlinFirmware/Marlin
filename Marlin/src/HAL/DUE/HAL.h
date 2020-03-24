@@ -39,7 +39,7 @@
 #include <stdint.h>
 
 // Define MYSERIAL0/1 before MarlinSerial includes!
-#if SERIAL_PORT >= -1 && SERIAL_PORT <= 3 
+#if WITHIN(SERIAL_PORT, -1, 3)
   #define MYSERIAL0 customizedSerial1
 #else
   #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
@@ -48,7 +48,7 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 >= -1 and SERIAL_PORT_2 <= 3 
+  #elif WITHIN(SERIAL_PORT_2, -1, 3)
     #define MYSERIAL1 customizedSerial2
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
