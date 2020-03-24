@@ -44,7 +44,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Przerywanie...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Karta włożona");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Karta usunięta");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Karta zwolniona");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Oczekiwanie na kartę");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Bład odczytu karty");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Urządzenie USB usunięte");

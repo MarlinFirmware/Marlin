@@ -47,7 +47,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Ruším...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Karta vložená");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Karta vybraná");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Karta odpojená");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Čakám na kartu");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Chyba čítania karty");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB zaria. odstrán.");
