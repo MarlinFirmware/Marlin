@@ -26,6 +26,15 @@
 
 constexpr uint8_t all_on = 0xFF, all_off = 0x00;
 
+#if ENABLED(BACKLASH_GCODE)
+  #if IS_CORE
+    #define BL_EDITABLE(A) (A == NORMAL_AXIS)
+  #else
+    #define BL_EDITABLE(...) 1
+  #endif
+#endif
+#define AXIS_BL_EDITABLE(A) BL_EDITABLE(A##_AXIS)
+
 class Backlash {
 public:
   #if ENABLED(BACKLASH_GCODE)
