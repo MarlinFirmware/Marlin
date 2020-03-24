@@ -272,6 +272,8 @@
   #error "CONTROLLERFAN_PIN is now CONTROLLER_FAN_PIN, enabled with USE_CONTROLLER_FAN. Please update your Configuration_adv.h."
 #elif defined(CONTROLLERFAN_SPEED)
   #error "CONTROLLERFAN_SPEED is now CONTROLLERFAN_SPEED_ACTIVE. Please update your Configuration_adv.h."
+#elif defined(CONTROLLERFAN_SECS)
+  #error "CONTROLLERFAN_SECS is now CONTROLLERFAN_IDLE_TIME. Please update your Configuration_adv.h."
 #elif defined(MIN_RETRACT)
   #error "MIN_RETRACT is now MIN_AUTORETRACT and MAX_AUTORETRACT. Please update your Configuration_adv.h."
 #elif defined(ADVANCE)
