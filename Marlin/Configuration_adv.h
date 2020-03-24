@@ -3426,6 +3426,14 @@
 #define DRILLING_CANNED_CYCLES
 
 /**
+ * Drilling canned cycles
+ * 
+ * Enables G81, G82, G83 for CNC Drilling
+ * 
+ */
+//#define DRILLING_CANNED_CYCLES
+
+/**
  * Simple 5x Conversion
  * 
  * Enables M168 for 5 axis control

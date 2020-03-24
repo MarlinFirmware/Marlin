@@ -24,7 +24,6 @@
 
 #if ENABLED(CNC_5X)
 
-
 #include "../../feature/bedlevel/bedlevel.h"
 
 #include "../../MarlinCore.h"
@@ -299,7 +298,6 @@ void GcodeSuite::M168()
 
     if (parser.linearval('F') > 0)
     feedrate_mm_s = parser.value_feedrate();
-
 
     IA_5=A_5-OA_5;
     IB_5=B_5-OB_5;

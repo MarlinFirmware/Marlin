@@ -168,7 +168,7 @@
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
  * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M166 - Set the Gradient Mix for the mixing extruder. (Requires GRADIENT_MIX)
- * M168 - Set 5 axis motion on CNC. (Requires MIXING_EXTRUDER)
+ * M168 - Set 5 axis motion on CNC. (Requires MIXING_EXTRUDER and CNC_5X)
  * M190 - S<temp> Wait for bed current temp to reach target temp. ** Wait only when heating! **
  *        R<temp> Wait for bed current temp to reach target temp. ** Wait for heating or cooling. **
  * M193 - R<temp> Wait for cooler temp to reach target temp. ** Wait for cooling. **
