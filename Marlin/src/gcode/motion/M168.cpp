@@ -51,10 +51,10 @@ extern xyze_pos_t destination;
 
 extern bool fast_move;/*=false*/
 
-extern int FLG5X;
 
 // Private functions
 
+int FLG5X;
 
 double X_5,
       Y_5,
@@ -191,7 +191,7 @@ void GcodeSuite::M168()
       DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
     #endif
     
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       
       planner.synchronize();   
 

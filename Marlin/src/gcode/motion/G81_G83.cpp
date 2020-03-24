@@ -114,7 +114,7 @@ void GcodeSuite::G81()
 
     
         destination[Z_AXIS] = z_zero_pos + G81_R;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
       if(G81_Q == 0){
@@ -127,7 +127,7 @@ void GcodeSuite::G81()
       while (Z_fin_pos < G81_N_D){
 
         destination[Z_AXIS] = G81_N_D;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
         dwell(G81_P);
@@ -135,7 +135,7 @@ void GcodeSuite::G81()
         feedrate_mm_s = g0_feedrate_mm_s;
 
         destination[Z_AXIS] = z_zero_pos + G81_R;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
         feedrate_mm_s = MMM_TO_MMS(G81_F);
@@ -144,7 +144,7 @@ void GcodeSuite::G81()
       }
 
       destination[Z_AXIS] = z_zero_pos + G81_Z;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       planner.synchronize();
 
       dwell(G81_P);
@@ -152,7 +152,7 @@ void GcodeSuite::G81()
       feedrate_mm_s = g0_feedrate_mm_s;
 
       destination[Z_AXIS] = z_zero_pos + G81_R;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       planner.synchronize();
   
 
@@ -248,7 +248,7 @@ void GcodeSuite::G82()
 
     
         destination[Z_AXIS] = z_zero_pos + G82_R;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
       if(G82_Q == 0){
@@ -261,7 +261,7 @@ void GcodeSuite::G82()
       while (Z_fin_pos < G82_N_D){
 
         destination[Z_AXIS] = G82_N_D;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
         dwell(G82_P);
@@ -269,7 +269,7 @@ void GcodeSuite::G82()
         feedrate_mm_s = g0_feedrate_mm_s;
 
         destination[Z_AXIS] = z_zero_pos + G82_R;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
         feedrate_mm_s = MMM_TO_MMS(G82_F);
@@ -278,7 +278,7 @@ void GcodeSuite::G82()
       }
 
       destination[Z_AXIS] = z_zero_pos + G82_Z;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       planner.synchronize();
 
       dwell(G82_P);
@@ -286,7 +286,7 @@ void GcodeSuite::G82()
       feedrate_mm_s = g0_feedrate_mm_s;
 
       destination[Z_AXIS] = z_zero_pos + G82_R;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       planner.synchronize();
   
 
@@ -389,7 +389,7 @@ void GcodeSuite::G83()
 
     
         destination[Z_AXIS] = z_zero_pos + G83_R;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
       if(G83_Q == 0){
@@ -402,7 +402,7 @@ void GcodeSuite::G83()
       while (Z_fin_pos < N_D){
 
         destination[Z_AXIS] = N_D;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
         dwell(G83_P);
@@ -410,7 +410,7 @@ void GcodeSuite::G83()
         feedrate_mm_s = g0_feedrate_mm_s;
 
         destination[Z_AXIS] = z_zero_pos + G83_R;
-        prepare_move_to_destination();
+        prepare_internal_move_to_destination();
         planner.synchronize();
 
         feedrate_mm_s = MMM_TO_MMS(G83_F);
@@ -419,7 +419,7 @@ void GcodeSuite::G83()
       }
 
       destination[Z_AXIS] = z_zero_pos + G83_Z;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       planner.synchronize();
 
       dwell(G83_P);
@@ -427,7 +427,7 @@ void GcodeSuite::G83()
       feedrate_mm_s = g0_feedrate_mm_s;
 
       destination[Z_AXIS] = z_zero_pos + G83_R;
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination();
       planner.synchronize();
   
 
