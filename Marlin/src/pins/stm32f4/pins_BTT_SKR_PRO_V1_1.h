@@ -80,14 +80,24 @@
 #endif
 
 #define E0_STEP_PIN                         PE14
-#define E0_DIR_PIN                          PA0
+#if ENABLED(CNC_5X)
+  #define E0_DIR_PIN                        PD14 //Heater1 PIN for Workaround
+  #define EA_DIR_PIN                        PA0  //PIN for direct direction change on M168
+#else
+  #define E0_DIR_PIN                        PA0
+#endif
 #define E0_ENABLE_PIN                       PC3
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PB3
 #endif
 
 #define E1_STEP_PIN                         PD15
-#define E1_DIR_PIN                          PE7
+#if ENABLED(CNC_5X)
+  #define E1_DIR_PIN                        PB0 //Heater2 PIN for Workaround
+  #define EB_DIR_PIN                        PE7 //PIN for direct direction change on M168
+#else
+  #define E1_DIR_PIN                        PE7
+#endif
 #define E1_ENABLE_PIN                       PA3
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PG15
@@ -171,8 +181,10 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PB1   // Heater0
-#define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#if DISABLED(CNC_5X)
+#define HEATER_1_PIN                        PD14 // Heater1
+#define HEATER_2_PIN                        PB0  // Heater2
+#endif
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
@@ -210,6 +222,16 @@
  *               ￣￣                                               ￣￣
  *               EXP2                                              EXP1
  */
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+  #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
+    #define SPINDLE_LASER_ENA_PIN           TEMP_2_PIN    // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN           SERVO0_PIN   // Hardware PWM
+    #define SPINDLE_DIR_PIN                 TEMP_BED_PIN   
+  #endif
+
 
 //
 // LCDs and Controllers

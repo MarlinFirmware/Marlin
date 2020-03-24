@@ -71,6 +71,9 @@
  * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
  * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
+ * G81  - Drilling Cycles - drilling (Requires DRILLING_CANNED_CYCLES)
+ * G82  - Drilling Cycles - spot drill (Requires DRILLING_CANNED_CYCLES)
+ * G83  - Drilling Cycles - pecking (Requires DRILLING_CANNED_CYCLES)																			  
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
  * G92  - Set current position to coordinates given
@@ -160,6 +163,7 @@
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
  * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M166 - Set the Gradient Mix for the mixing extruder. (Requires GRADIENT_MIX)
+ * M168 - Set 5 axis motion on CNC. (Requires MIXING_EXTRUDER and CNC_5X)
  * M190 - S<temp> Wait for bed current temp to reach target temp. ** Wait only when heating! **
  *        R<temp> Wait for bed current temp to reach target temp. ** Wait for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
@@ -494,6 +498,12 @@ private:
     static void G80();
   #endif
 
+  #if ENABLED(DRILLING_CANNED_CYCLES)
+    static void G81();
+    static void G82();
+    static void G83();
+  #endif
+
   static void G92();
 
   #if ENABLED(CALIBRATION_GCODE)
@@ -679,6 +689,9 @@ private:
     #if ENABLED(GRADIENT_MIX)
       static void M166();
     #endif
+    #if ENABLED(CNC_5X)
+    static void M168();
+    #endif	
   #endif
 
   static void M200();

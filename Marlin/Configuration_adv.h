@@ -2743,6 +2743,33 @@
 //#define CNC_COORDINATE_SYSTEMS
 
 /**
+ * Drilling canned cycles
+ * 
+ * Enables G81, G82, G83 for CNC Drilling
+ * 
+ */
+//#define DRILLING_CANNED_CYCLES
+
+/**
+ * Simple 5x Conversion
+ * 
+ * Enables M168 for 5 axis control
+ * 
+ * Need to have enabled Mixing Extruder with only 2 steppers and only 1 Virtual tool to don't have any mistake with 5 axis
+ * 
+ * to be possible to had tool changer this feature enable the tool report to serial
+ * 
+ */
+#if ENABLED(MIXING_EXTRUDER)&&MIXING_STEPPERS==2&&MIXING_VIRTUAL_TOOLS==1
+  //#define CNC_5X         // Just can enable 2 axis
+    #if ENABLED(CNC_5X)
+      #define A_5x         // Enable A axis 
+      //#define B_5x         // Enable B axis 
+      #define C_5x         // Enable C axis 
+    #endif   
+#endif
+
+/**
  * Auto-report temperatures with M155 S<seconds>
  */
 #define AUTO_REPORT_TEMPERATURES
