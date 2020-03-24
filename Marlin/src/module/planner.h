@@ -633,18 +633,32 @@ class Planner {
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
+     * 
      */
+  #if IS_SCARA  //Move Buffer_segment to PUBLIC
     static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
       #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
         , const xyze_float_t &delta_mm_cart
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
-  #if IS_KINEMATIC
+    #if IS_KINEMATIC
+    private:
+      friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
+    #endif
+  #else // Marlin default -> Private
+    #if IS_KINEMATIC
     private:
 
       // Allow do_homing_move to access internal functions, such as buffer_segment.
       friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
+    #endif
+    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
+      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+        , const xyze_float_t &delta_mm_cart
+      #endif
+      , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+    );
   #endif
 
 
