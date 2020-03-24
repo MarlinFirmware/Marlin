@@ -121,7 +121,7 @@ uint8_t Max7219::suspended; // = 0;
   #define CRITICAL_SECTION_START() NOOP
   #define CRITICAL_SECTION_END()   NOOP
 #else
-  #define SIG_DELAY() DELAY_NS(188) // Delay for 0.1875µs (16MHz AVR) or 0.15µs (20MHz AVR)
+  #define SIG_DELAY() DELAY_NS(250) // Delay for 0.1875µs (16MHz AVR) or 0.15µs (20MHz AVR)
 #endif
 
 void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/*=-1*/) {
