@@ -64,7 +64,7 @@
         planner.buffer_segment(_theta, _psi, delta.c, e_tam, feedRate, extruder, mm);
         unsigned long timeBegin = millis();
         while(endstops.checkEndStop()==false){        
-          if( millis() - timeBegin > 1000){
+          if( millis() - timeBegin > 1000){ // check 
             timeBegin = millis();
             float x_tam =planner.get_axis_position_degrees(A_AXIS), y_tam=planner.get_axis_position_degrees(B_AXIS);
             if ((x_tam == _theta) && (y_tam == _psi)) break;
@@ -83,7 +83,7 @@
         mWork_Home_EndStop(360.0 * X_HOME_DIR,360.0* X_HOME_DIR,homing_feedrate(X_AXIS)); //Move X 360 angles and wait endstop
         mWork_Set_Pos_Frome_angles(0,0); 
         mWork_Home_EndStop( 0 , 360.0* Y_HOME_DIR , homing_feedrate(Y_AXIS)); //Move Y 360 angles and wait endstop
-        mWork_Set_Pos_Frome_angles(THETA_DEGREE_AT_HOME,PSI_DEGREE_AT_HOME);  // Set Home position
+        mWork_Set_Pos_Frome_angles(THETA_ANGLE_AT_HOME,PSI_ANGLE_AT_HOME);  // Set Home position
       }
   #else
   static void quick_home_xy() {

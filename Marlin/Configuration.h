@@ -61,7 +61,7 @@
 // config/examples/delta directory and customize for your machine.
 //
 
-#define MORGAN_SCARA
+//#define MORGAN_SCARA
 //
 #if EITHER(MORGAN_SCARA, MP_SCARA)
   // If movement is choppy try lowering this value
@@ -85,8 +85,8 @@
     #define SCARA_OFFSET_THETA1  12 // degrees
     #define SCARA_OFFSET_THETA2 131 // degrees
   #endif
-  #define X_POS_HOME_DEGREE -30 //THETA DEGREE AT LIMIT SWITCH
-  #define Y_POS_HOME_DEGREE 135 //PSI DEGREE AT LIMIT SWITCH
+  #define THETA_ANGLE_AT_HOME -30 //THETA DEGREE AT LIMIT SWITCH
+  #define PSI_ANGLE_AT_HOME 135 //PSI DEGREE AT LIMIT SWITCH
 #endif
 
 // @section info
