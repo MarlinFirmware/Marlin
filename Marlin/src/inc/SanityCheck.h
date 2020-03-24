@@ -2659,7 +2659,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
   #if IS_CORE
     constexpr float backlash_arr[] = BACKLASH_DISTANCE_MM;
-    static_assert(backlash_arr[0] == 0.0f && backlash_arr[1] == 0.0f, "BACKLASH_COMPENSATION is only supported for Z-axis with CORE kinematics.");
+    static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
+                  "BACKLASH_COMPENSATION can only apply to " STRINGIFY(NORMAL_AXIS) " with your CORE system.");
   #endif
 #endif
 
