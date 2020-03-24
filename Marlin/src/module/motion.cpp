@@ -218,7 +218,6 @@ inline void report_more_positions() {
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
   SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_E_LBL, lpos.e);
-  report_more_positions();
 }
 
 // Report the real current position according to the steppers.
@@ -237,10 +236,14 @@ void report_real_position() {
   #endif
 
   report_logical_position(npos);
+  report_more_positions();
 }
 
 // Report the logical current position according to the most recent G-code command
-void report_current_position() { report_logical_position(current_position); }
+void report_current_position() {
+  report_logical_position(current_position);
+  report_more_positions();
+}
 
 /**
  * Report the logical current position according to the most recent G-code command.
@@ -1776,6 +1779,13 @@ void homeaxis(const AxisEnum axis) {
         #endif
         homing_feedrate(axis)
       );
+
+      #if ENABLED(SENSORLESS_HOMING)
+        planner.synchronize();
+        #if IS_CORE
+          if (axis != NORMAL_AXIS) safe_delay(200);  // Short delay to allow belts to spring back
+        #endif
+      #endif
     }
   #endif
 
