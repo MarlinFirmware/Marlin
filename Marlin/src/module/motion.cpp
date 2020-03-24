@@ -1780,7 +1780,7 @@ void homeaxis(const AxisEnum axis) {
         homing_feedrate(axis)
       );
 
-      #if IS_CORE && ENABLED(SENSORLESS_HOMING)
+      #if BOTH(IS_CORE, SENSORLESS_HOMING)
         if (axis != NORMAL_AXIS) safe_delay(200);  // Short delay to allow belts to spring back
       #endif
     }
