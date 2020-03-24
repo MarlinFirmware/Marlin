@@ -49,95 +49,95 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          14
-#define X_MAX_PIN          15
-#define Y_MIN_PIN          16
-#define Y_MAX_PIN          17
-#define Z_MIN_PIN          23
-#define Z_MAX_PIN          22
+#define X_MIN_PIN                             14
+#define X_MAX_PIN                             15
+#define Y_MIN_PIN                             16
+#define Y_MAX_PIN                             17
+#define Z_MIN_PIN                             23
+#define Z_MAX_PIN                             22
 
 //
 // Steppers
 //
-#define X_STEP_PIN         55
-#define X_DIR_PIN          54
-#define X_ENABLE_PIN       60
+#define X_STEP_PIN                            55
+#define X_DIR_PIN                             54
+#define X_ENABLE_PIN                          60
 
-#define Y_STEP_PIN         57
-#define Y_DIR_PIN          56
-#define Y_ENABLE_PIN       61
+#define Y_STEP_PIN                            57
+#define Y_DIR_PIN                             56
+#define Y_ENABLE_PIN                          61
 
-#define Z_STEP_PIN         59
-#define Z_DIR_PIN          58
-#define Z_ENABLE_PIN       62
+#define Z_STEP_PIN                            59
+#define Z_DIR_PIN                             58
+#define Z_ENABLE_PIN                          62
 
-#define E0_STEP_PIN        67
-#define E0_DIR_PIN         24
-#define E0_ENABLE_PIN      26
+#define E0_STEP_PIN                           67
+#define E0_DIR_PIN                            24
+#define E0_ENABLE_PIN                         26
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          9   // Analog Input
-#define TEMP_1_PIN         10
-#define TEMP_BED_PIN       10
-#define TEMP_2_PIN         11
-#define TEMP_3_PIN         12
+#define TEMP_0_PIN                             9  // Analog Input
+#define TEMP_1_PIN                            10
+#define TEMP_BED_PIN                          10
+#define TEMP_2_PIN                            11
+#define TEMP_3_PIN                            12
 
 //
 // Heaters / Fans
 //
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN     10   // E0
+  #define HEATER_0_PIN                        10  // E0
 #endif
 #ifndef HEATER_1_PIN
-  #define HEATER_1_PIN      2   // E1
+  #define HEATER_1_PIN                         2  // E1
 #endif
-#define HEATER_BED_PIN      8   // HEAT-BED
+#define HEATER_BED_PIN                         8  // HEAT-BED
 
 #ifndef FAN_PIN
-  #define FAN_PIN           9
+  #define FAN_PIN                              9
 #endif
 #ifndef FAN_2_PIN
-  #define FAN_2_PIN         7
+  #define FAN_2_PIN                            7
 #endif
 
-#define SDPOWER_PIN        -1
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
+#define SDPOWER_PIN                           -1
+#define LED_PIN                               -1
+#define PS_ON_PIN                             -1
+#define KILL_PIN                              -1
 
-#define SSR_PIN             6
+#define SSR_PIN                                6
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN   66   // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN   66   // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
 // SD Support
 //
-#define SD_DETECT_PIN      49
-#define SDSS               53
+#define SD_DETECT_PIN                         49
+#define SDSS                                  53
 
 //
 // LCD / Controller
 //
-#define BEEPER_PIN         29
+#define BEEPER_PIN                            29
 
 #if HAS_SPI_LCD
-  #define LCD_PINS_RS      33
-  #define LCD_PINS_ENABLE  30
-  #define LCD_PINS_D4      35
-  #define LCD_PINS_D5      32
-  #define LCD_PINS_D6      37
-  #define LCD_PINS_D7      36
+  #define LCD_PINS_RS                         33
+  #define LCD_PINS_ENABLE                     30
+  #define LCD_PINS_D4                         35
+  #define LCD_PINS_D5                         32
+  #define LCD_PINS_D6                         37
+  #define LCD_PINS_D7                         36
 
-  #define BTN_EN1          47
-  #define BTN_EN2          48
-  #define BTN_ENC          31
+  #define BTN_EN1                             47
+  #define BTN_EN2                             48
+  #define BTN_ENC                             31
 
-  #define LCD_SDSS         53
+  #define LCD_SDSS                            53
 #endif

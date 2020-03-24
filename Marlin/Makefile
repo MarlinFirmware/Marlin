@@ -267,6 +267,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1147)
 else ifeq ($(HARDWARE_MOTHERBOARD),1148)
 # MKS GEN L V2
 else ifeq ($(HARDWARE_MOTHERBOARD),1149)
+# Copymaster 3D
+else ifeq ($(HARDWARE_MOTHERBOARD),1150)
 
 #
 # RAMBo and derivatives

@@ -227,7 +227,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     SETCURSOR(col, row);
     if (!string) return;
 
-    auto _newline = [&col, &row]() {
+    auto _newline = [&col, &row]{
       col = 0; row++;                 // Move col to string len (plus space)
       SETCURSOR(0, row);              // Simulate carriage return
     };

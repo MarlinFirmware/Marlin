@@ -103,6 +103,7 @@
 #define BOARD_HJC2560C_REV2           1147  // ADIMLab Gantry v2
 #define BOARD_TANGO                   1148  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1149  // MKS GEN L V2
+#define BOARD_COPYMASTER_3D           1150  // Copymaster 3D
 
 //
 // RAMBo and derivatives
