@@ -62,12 +62,14 @@
         uint8_t extruder = 0;
         float mm = 360;
         planner.buffer_segment(_theta, _psi, delta.c, e_tam, feedRate, extruder, mm);
-        unsigned long timeBegin = millis();
-        while(endstops.checkEndStop()==false){        
-          if( millis() - timeBegin > 1000){ // check 
-            timeBegin = millis();
-            float x_tam =planner.get_axis_position_degrees(A_AXIS), y_tam=planner.get_axis_position_degrees(B_AXIS);
-            if ((x_tam == _theta) && (y_tam == _psi)) break;
+        millis_t time_end = millis() + 1000;
+        while (!endstops.checkEndStop()) {
+          const millis_t ms = millis();
+          if (ELAPSED(ms, time_end) { // check
+            time_end = ms + 1000;
+            const float x_tam = planner.get_axis_position_degrees(A_AXIS),
+                        y_tam = planner.get_axis_position_degrees(B_AXIS);
+            if (NEAR(x_tam, _theta) && NEAR(y_tam, _psi)) break;
           }
           idle();
         }
