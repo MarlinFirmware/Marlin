@@ -157,3 +157,38 @@
   #define SDSS                              PD2
   #define SD_DETECT_PIN                     -1
 #endif
+
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial1
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+  //#define E2_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E4_HARDWARE_SERIAL Serial1
+
+  // Unused servo pins may be repurposed with SoftwareSerialM
+  //#define X_SERIAL_TX_PIN  PF8   // SERVO3_PIN
+  //#define Y_SERIAL_TX_PIN  PF9   // SERVO2_PIN
+  //#define Z_SERIAL_TX_PIN  PA1   // SERVO1_PIN
+  //#define E0_SERIAL_TX_PIN PC3   // SERVO0_PIN
+  //#define X_SERIAL_RX_PIN  X_SERIAL_TX_PIN
+  //#define Y_SERIAL_RX_PIN  Y_SERIAL_TX_PIN
+  //#define Z_SERIAL_RX_PIN  Z_SERIAL_TX_PIN
+  //#define E0_SERIAL_RX_PIN E0_SERIAL_TX_PIN
+
+  // Reduce baud rate for software serial reliability
+  #if HAS_TMC_SW_SERIAL
+    #define TMC_BAUD_RATE 19200
+  #endif
+#endif
