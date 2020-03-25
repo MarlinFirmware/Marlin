@@ -443,6 +443,7 @@ void DGUSScreenVariableHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variab
 
   void DGUSScreenVariableHandler::SDCardInserted() {
     top_file = 0;
+    filelist.refresh();
     auto cs = ScreenHandler.getCurrentScreen();
     if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_STATUS)
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
@@ -614,8 +615,10 @@ void DGUSScreenVariableHandler::HandleManualMove(DGUS_VP_Variable &var, void *va
 
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
   #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
-    const uint16_t choice = *(uint16_t*)var.memadr;
-    movevalue = movevalue > 0 ? choice : -choice;
+    if (movevalue) {
+      const uint16_t choice = *(uint16_t*)var.memadr;
+      movevalue = movevalue < 0 ? -choice : choice;
+    }
   #endif
   char axiscode;
   unsigned int speed = 1500;  //FIXME: get default feedrate for manual moves, dont hardcode.
