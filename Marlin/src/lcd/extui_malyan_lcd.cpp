@@ -194,18 +194,19 @@ void process_lcd_eb_command(const char* command) {
  * {J:E}{J:X+200}{J:E}
  * X, Y, Z, A (extruder)
  */
-void process_lcd_j_command(const char* command) {
-  auto move_axis = [command](const auto axis) {
-    const float dist = atof(command + 1) / 10.0;
-    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
-  };
+template<typename T>
+void j_move_axis(const char* command, const T axis) {
+  const float dist = atof(command + 1) / 10.0;
+  ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
+};
 
+void process_lcd_j_command(const char* command) {
   switch (command[0]) {
     case 'E': break;
-    case 'A': move_axis(ExtUI::extruder_t::E0); break;
-    case 'Y': move_axis(ExtUI::axis_t::Y); break;
-    case 'Z': move_axis(ExtUI::axis_t::Z); break;
-    case 'X': move_axis(ExtUI::axis_t::X); break;
+    case 'A': j_move_axis<ExtUI::extruder_t>(command, ExtUI::extruder_t::E0); break;
+    case 'Y': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Y); break;
+    case 'Z': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Z); break;
+    case 'X': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::X); break;
     default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
   }
 }
