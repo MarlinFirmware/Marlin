@@ -245,6 +245,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. ~");   // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent.");  // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. ~");  // Max 15 characters
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Controller vent.");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Vel. inattivo");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Modo autom.");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Vel. attivo");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Tempo inattivo");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flusso");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flusso ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controllo");
@@ -312,6 +317,9 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carica impostazioni");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Ripristina imp.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inizializza EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: CRC EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: Indice EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: Versione EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
