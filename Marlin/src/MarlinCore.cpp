@@ -407,7 +407,14 @@ void startOrResumeJob() {
     #if DISABLED(SD_ABORT_NO_COOLDOWN)
       thermalManager.disable_all_heaters();
     #endif
-    thermalManager.zero_fan_speeds();
+    #if !HAS_CUTTER
+      thermalManager.zero_fan_speeds();
+    #else
+      #if ENABLED(LASER_POWER_INLINE)
+        cutter.inline_disable();  // Disable all stepper ISR control of cutter to prevent bad things
+      #endif
+      cutter.disable();           // Shut down spindle/laser
+    #endif
     wait_for_heatup = false;
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.purge();
@@ -765,7 +772,14 @@ void idle(
 void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
-  SERIAL_ERROR_MSG(STR_ERR_KILLED);
+  #if HAS_CUTTER
+    #if ENABLED(LASER_POWER_INLINE)
+      cutter.inline_disable(); // Disable all stepper isr control of cutter incase bad things
+    #endif
+    cutter.disable(); // Shutdown spindle/laser
+  #endif
+
+  SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
@@ -793,6 +807,13 @@ void minkill(const bool steppers_off/*=false*/) {
 
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
+
+  #if HAS_CUTTER
+    #if ENABLED(LASER_POWER_INLINE)
+      cutter.inline_disable();
+    #endif
+    cutter.disable(); // Reiterate spindle/laser shutdown
+  #endif
 
   // Power off all steppers (for M112) or just the E steppers
   steppers_off ? disable_all_steppers() : disable_e_steppers();
