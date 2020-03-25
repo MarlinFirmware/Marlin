@@ -80,11 +80,12 @@ void LEDLights::setup() {
 }
 // fred
 void LEDLights::meter(int percent) {
+const uint32_t neocolor = neo.Color(255, 0, 0, 0);
   #if ENABLED(NEOPIXEL_LED)
      int i = percent * 0.01 * NEOPIXEL_PIXELS -1;
      if (percent > 0)
-      pixels.setPixelColor(i, pixels.Color(255, 0, 0));
-      pixels.show();
+      neo.set_pixel_color(i, neocolor);
+      neo.show();
   #endif
 }
 
