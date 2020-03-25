@@ -1733,39 +1733,53 @@ void homeaxis(const AxisEnum axis) {
     // Delta homing treats the axes as normal linear axes.
 
     #ifdef TMC_HOME_PHASE
+      static const abc_ulong_t home_phase = TMC_HOME_PHASE;
       int axisMicrostepSize;
-      int msPosition;
+      int phaseCurrent;
       bool invertDir;
             
       switch (axis) {
           case X_AXIS: 
             axisMicrostepSize = 256/X_MICROSTEPS;
-            msPosition = stepperX.MSCNT();
+            phaseCurrent = stepperX.MSCNT();
             invertDir = INVERT_X_DIR;
             break;
           case Y_AXIS: 
             axisMicrostepSize = 256/Y_MICROSTEPS;
-            msPosition = stepperY.MSCNT();
+            phaseCurrent = stepperY.MSCNT();
             invertDir = INVERT_Y_DIR;
             break;
           case Z_AXIS: 
             axisMicrostepSize = 256/Z_MICROSTEPS;
-            msPosition = stepperZ.MSCNT();
+            phaseCurrent = stepperZ.MSCNT();
             invertDir = INVERT_Z_DIR;
             break;
         default: break;
       }
+     
+      // depending on invert dir measure the distance to nearest home phase.
+      int phaseDelta = invertDir ? phaseCurrent - home_phase[axis] : home_phase[axis] - phaseCurrent;
 
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Enstop hit Position:", msPosition);
+      // check if home distance within endstop assumed repeatability noise of .1mm and warn.
+      if((abs(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05)
+        DEBUG_ECHOLNPAIR("Home phase too close to endstop trigger, pick a different phase, axis:", axis_codes[axis]);
+
+      // skip to next one if target position is behind current position. So we only move away from end stop.
+      if(phaseDelta < 0) phaseDelta += 1024;
+
+      // we take the int part(floor) of the usteps necessary to reach target. If phase is unreachable we will consistently stop at the ustep before or after depending on invertDir.
+      float mmDelta = ((int)(phaseDelta / axisMicrostepSize)) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
       
-      int msDelta = invertDir ? msPosition - TMC_HOME_PHASE : TMC_HOME_PHASE - msPosition;
-      if(msDelta < 0) msDelta += 1024;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Home phase Delta:", msDelta);
+      // add the delta endstop adjust
+      float adjDistance = mmDelta + delta_endstop_adj[axis];
 
-      float msDistance = ((int)(msDelta / axisMicrostepSize)) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Home phase Distance:", msDistance);
-
-      float adjDistance = msDistance + delta_endstop_adj[axis];
+      // optional debug messages.
+      if (DEBUGGING(LEVELING))
+      {
+        DEBUG_ECHOLNPAIR("Enstop ", axis_codes[axis]," hit at phase:", phaseCurrent);
+        DEBUG_ECHOLNPAIR("Home phase Delta:", phaseDelta);
+        DEBUG_ECHOLNPAIR("Home phase Distance:", mmDelta);
+      }
     #else
       float adjDistance = delta_endstop_adj[axis];
     #endif
@@ -1776,7 +1790,7 @@ void homeaxis(const AxisEnum axis) {
         && abs(adjDistance) > minDistance) // more than min distance
     {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj:");
-      do_homing_move(axis, adjDistance);
+      do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
 

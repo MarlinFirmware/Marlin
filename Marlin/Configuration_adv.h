@@ -2320,19 +2320,18 @@
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 
-/**
- * Homing stepper phase.
- * TMC Only. Delta Only.
- * Improve homing repeatability by homing to nearest stepper coil absolute phase position.
- * Trinamic drivers use a stepper phase table with 1024 values which spans 4 full steps 
- * with 256 positions each therefore 1024 positions. 
- * The full steps (positions 128, 384, 640, 896) have the highest holding torque.
- * The endstop needs to be repeatable to at least half a step.
- *  
- * Values from 0..1023
- */
-#define TMC_HOME_PHASE 128
-
+  /**
+   * Homing stepper phase.
+   * TMC Only. Delta Only.
+   * Improve homing repeatability by homing to nearest stepper coil absolute phase position.
+   * Trinamic drivers use a stepper phase table with 1024 values which spans 4 full steps 
+   * with 256 positions each therefore 1024 positions. 
+   * The full steps (positions 128, 384, 640, 896) have the highest holding torque.
+   * The endstop needs to be repeatable to at least half a step.
+   *  
+   * Values from 0..1023
+   */
+  #define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
    * Beta feature!
