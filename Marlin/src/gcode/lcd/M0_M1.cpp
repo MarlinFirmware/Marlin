@@ -73,12 +73,12 @@ void GcodeSuite::M0_M1() {
     }
 
   #elif ENABLED(EXTENSIBLE_UI)
-
-    if (parser.string_arg)
-      ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
-    else
-      ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
-
+    if (!seenQ) {
+      if (parser.string_arg)
+        ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
+      else
+        ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
+    }
   #else
 
     if (parser.string_arg) {
