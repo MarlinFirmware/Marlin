@@ -854,7 +854,9 @@
     };
 
   #endif
-#else // HAS_HEATED_CHAMBER
+#endif
+
+#ifndef STATUS_CHAMBER_WIDTH
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 

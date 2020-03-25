@@ -73,20 +73,12 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
       );
     }
 
-    const bool should_set = last_written_mode != (false
-      #if ENABLED(BLTOUCH_SET_5V_MODE)
-        || true
-      #endif
-    );
+    const bool should_set = last_written_mode != ENABLED(BLTOUCH_SET_5V_MODE);
 
   #endif
 
   if (should_set && set_voltage)
-    mode_conv_proc((false
-      #if ENABLED(BLTOUCH_SET_5V_MODE)
-        || true
-      #endif
-    ));
+    mode_conv_proc(ENABLED(BLTOUCH_SET_5V_MODE));
 }
 
 void BLTouch::clear() {

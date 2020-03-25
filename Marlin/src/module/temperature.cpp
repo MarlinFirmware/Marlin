@@ -33,7 +33,7 @@
 #include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #if ENABLED(MAX6675_IS_MAX31865)
@@ -80,7 +80,7 @@
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
-  #include "../feature/emergency_parser.h"
+  #include "../feature/e_parser.h"
 #endif
 
 #if ENABLED(PRINTER_EVENT_LEDS)
@@ -101,11 +101,13 @@
 
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
+    static const void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
     static constexpr uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
   #else
-    static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE, (void*)HEATER_5_TEMPTABLE);
-    static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN, HEATER_5_TEMPTABLE_LEN);
+    #define NEXT_TEMPTABLE(N) ,HEATER_##N##_TEMPTABLE
+    #define NEXT_TEMPTABLE_LEN(N) ,HEATER_##N##_TEMPTABLE_LEN
+    static const void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
+    static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
   #endif
 #endif
 
@@ -706,7 +708,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     }while(0)
 
     uint8_t fanDone = 0;
-    for (uint8_t f = 0; f < COUNT(fanBit); f++) {
+    LOOP_L_N(f, COUNT(fanBit)) {
       const uint8_t realFan = pgm_read_byte(&fanBit[f]);
       if (TEST(fanDone, realFan)) continue;
       const bool fan_on = TEST(fanState, realFan);
@@ -763,7 +765,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
 //
 
 inline void loud_kill(PGM_P const lcd_msg, const heater_ind_t heater) {
-  Running = false;
+  marlin_state = MF_KILLED;
   #if USE_BEEPER
     for (uint8_t i = 20; i--;) {
       WRITE(BEEPER_PIN, HIGH); delay(25);
@@ -828,6 +830,9 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 }
 
 #if HOTENDS
+  #if ENABLED(PID_DEBUG)
+    extern bool PID_Debug_Flag;
+  #endif
 
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
@@ -909,24 +914,15 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       #endif // PID_OPENLOOP
 
       #if ENABLED(PID_DEBUG)
-        if (ee == active_extruder) {
+        if (ee == active_extruder && PID_Debug_Flag) {
           SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR(
-            STR_PID_DEBUG, ee,
-            STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius,
-            STR_PID_DEBUG_OUTPUT, pid_output
-          );
+          SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)
-          {
-            SERIAL_ECHOPAIR(
-              STR_PID_DEBUG_PTERM, work_pid[ee].Kp,
-              STR_PID_DEBUG_ITERM, work_pid[ee].Ki,
-              STR_PID_DEBUG_DTERM, work_pid[ee].Kd
+            SERIAL_ECHOPAIR( STR_PID_DEBUG_PTERM, work_pid[ee].Kp, STR_PID_DEBUG_ITERM, work_pid[ee].Ki, STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif
             );
-          }
           #endif
           SERIAL_EOL();
         }
@@ -1028,10 +1024,6 @@ void Temperature::manage_heater() {
     if (!inited) return watchdog_refresh();
   #endif
 
-  #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
-    static bool last_pause_state;
-  #endif
-
   #if ENABLED(EMERGENCY_PARSER)
     if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
   #endif
@@ -1123,16 +1115,21 @@ void Temperature::manage_heater() {
       }
     #endif // WATCH_BED
 
+    #define PAUSE_CHANGE_REQD BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+    #if PAUSE_CHANGE_REQD
+      static bool last_pause_state;
+    #endif
+
     do {
 
       #if DISABLED(PIDTEMPBED)
         if (PENDING(ms, next_bed_check_ms)
-          #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+          #if PAUSE_CHANGE_REQD
             && paused == last_pause_state
           #endif
         ) break;
         next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-        #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+        #if PAUSE_CHANGE_REQD
           last_pause_state = paused;
         #endif
       #endif
@@ -1232,8 +1229,8 @@ void Temperature::manage_heater() {
   UNUSED(ms);
 }
 
-#define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
-#define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
+#define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
+#define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
 
 /**
  * Bisect search for the range of the 'raw' value, then interpolate
@@ -2000,7 +1997,7 @@ void Temperature::init() {
 
     /**
       SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
+      SERIAL_ECHOPGM("Thermal Runaway Running. Heater ID: ");
       if (heater_id == H_CHAMBER) SERIAL_ECHOPGM("chamber");
       if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
       SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
@@ -2419,7 +2416,7 @@ void Temperature::readings_ready() {
       #endif // HOTENDS > 1
     };
 
-    for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
+    LOOP_L_N(e, COUNT(temp_dir)) {
       const int8_t tdir = temp_dir[e];
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
@@ -3357,6 +3354,15 @@ void Temperature::tick() {
       if (wait_for_heatup) ui.reset_status();
 
       return wait_for_heatup;
+    }
+
+    void Temperature::wait_for_bed_heating() {
+      if (isHeatingBed()) {
+        SERIAL_ECHOLNPGM("Wait for bed heating...");
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        wait_for_bed();
+        ui.reset_status();
+      }
     }
 
   #endif // HAS_HEATED_BED

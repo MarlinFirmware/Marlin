@@ -49,7 +49,7 @@ void GcodeSuite::M111() {
   SERIAL_ECHOPGM(STR_DEBUG_PREFIX);
   if (marlin_debug_flags) {
     uint8_t comma = 0;
-    for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
+    LOOP_L_N(i, COUNT(debug_strings)) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
         serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));

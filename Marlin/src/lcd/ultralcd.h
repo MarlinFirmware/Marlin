@@ -27,10 +27,18 @@
   #include "../libs/buzzer.h"
 #endif
 
-#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
-#define HAS_ENCODER_WHEEL  ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2))
-#define HAS_DIGITAL_BUTTONS (HAS_ENCODER_WHEEL || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT))
-#define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
+#if HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY)
+  #define HAS_ENCODER_ACTION 1
+#endif
+#if (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2)
+  #define HAS_ENCODER_WHEEL 1
+#endif
+#if HAS_ENCODER_WHEEL || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT)
+  #define HAS_DIGITAL_BUTTONS 1
+#endif
+#if !HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL)))
+  #define HAS_SHIFT_ENCODER 1
+#endif
 
 // I2C buttons must be read in the main thread
 #define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
@@ -337,6 +345,9 @@ public:
       #endif
 
       #if ENABLED(SHOW_BOOTSCREEN)
+        #ifndef BOOTSCREEN_TIMEOUT
+          #define BOOTSCREEN_TIMEOUT 2500
+        #endif
         static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();

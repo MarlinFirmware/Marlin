@@ -104,7 +104,7 @@ void TWIBus::echodata(uint8_t bytes, const char prefix[], uint8_t adr) {
 
 void TWIBus::echobuffer(const char prefix[], uint8_t adr) {
   echoprefix(buffer_s, prefix, adr);
-  for (uint8_t i = 0; i < buffer_s; i++) SERIAL_CHAR(buffer[i]);
+  LOOP_L_N(i, buffer_s) SERIAL_CHAR(buffer[i]);
   SERIAL_EOL();
 }
 

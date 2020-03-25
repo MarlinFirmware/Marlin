@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 #include "../lcd/ultralcd.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include <TMCStepper.h>
 #include "../module/planner.h"
@@ -400,4 +400,4 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
   void tmc_init_cs_pins();
 #endif
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

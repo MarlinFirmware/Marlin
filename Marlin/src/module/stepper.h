@@ -411,6 +411,7 @@ class Stepper {
     static void set_axis_position(const AxisEnum a, const int32_t &v);
 
     // Report the positions of the steppers, in steps
+    static void report_a_position(const xyz_long_t &pos);
     static void report_positions();
 
     // Quickly stop all steppers

@@ -34,9 +34,9 @@ case $TESTENV in
     lin*) TESTENV='linux_native' ;;
  lpc?(8)) TESTENV='LPC1768' ;;
     lpc9) TESTENV='LPC1769' ;;
-    m128) TESTENV='megaatmega1280' ;;
-    m256) TESTENV='megaatmega2560' ;;
-    mega) TESTENV='megaatmega2560' ;;
+    m128) TESTENV='mega1280' ;;
+    m256) TESTENV='mega2560' ;;
+    mega) TESTENV='mega2560' ;;
      stm) TESTENV='STM32F103RE' ;;
       f1) TESTENV='STM32F103RE' ;;
       f4) TESTENV='STM32F4' ;;
@@ -214,6 +214,9 @@ echo "$OUT" | {
     fi
   done
 }
+
+# Make clear it's a TEST
+opt_set CUSTOM_MACHINE_NAME "\"$TESTENV-tests ($CHOICE)\""
 
 # Get a -y parameter the lazy way
 [[ "$2" == "-y" || "$3" == "-y" ]] && BUILD_YES='Y'

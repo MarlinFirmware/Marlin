@@ -30,7 +30,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #else // PRINTCOUNTER
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #include "printcounter.h"

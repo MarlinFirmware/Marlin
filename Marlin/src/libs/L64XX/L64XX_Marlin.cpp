@@ -508,7 +508,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   // Work on the drivers
   //
 
-  for (uint8_t k = 0; k < driver_count; k++) {
+  LOOP_L_N(k, driver_count) {
     uint8_t not_found = true;
     for (j = 1; j <= L64XX::chain[0]; j++) {
       PGM_P const str = (PGM_P)pgm_read_ptr(&index_to_axis[L64XX::chain[j]]);

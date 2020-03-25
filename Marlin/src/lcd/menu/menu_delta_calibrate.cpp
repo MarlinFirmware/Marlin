@@ -37,7 +37,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 void _man_probe_pt(const xy_pos_t &xy) {
@@ -103,7 +103,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
 #endif
 
 void lcd_delta_settings() {
-  auto _recalc_delta_settings = []() {
+  auto _recalc_delta_settings = []{
     #if HAS_LEVELING
       reset_bed_level(); // After changing kinematics bed-level data is no longer valid
     #endif

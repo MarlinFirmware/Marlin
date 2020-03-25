@@ -76,8 +76,8 @@
  */
 void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
-    for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
-      if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
+    LOOP_XYZ(a)
+      if (parser.seenval(XYZ_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         babystep.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)

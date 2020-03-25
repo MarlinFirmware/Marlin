@@ -157,7 +157,7 @@ float g26_extrusion_multiplier,
       g26_layer_height,
       g26_prime_length;
 
-xy_pos_t g26_pos; // = { 0, 0 }
+xy_pos_t g26_xy_pos; // = { 0, 0 }
 
 int16_t g26_bed_temp,
         g26_hotend_temp;
@@ -187,29 +187,27 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
 
   out_point.pos = -1;
 
-  for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-    for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
-      if (!circle_flags.marked(i, j)) {
-        // We found a circle that needs to be printed
-        const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
+  GRID_LOOP(i, j) {
+    if (!circle_flags.marked(i, j)) {
+      // We found a circle that needs to be printed
+      const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
 
-        // Get the distance to this intersection
-        float f = (pos - m).magnitude();
+      // Get the distance to this intersection
+      float f = (pos - m).magnitude();
 
-        // It is possible that we are being called with the values
-        // to let us find the closest circle to the start position.
-        // But if this is not the case, add a small weighting to the
-        // distance calculation to help it choose a better place to continue.
-        f += (g26_pos - m).magnitude() / 15.0f;
+      // It is possible that we are being called with the values
+      // to let us find the closest circle to the start position.
+      // But if this is not the case, add a small weighting to the
+      // distance calculation to help it choose a better place to continue.
+      f += (g26_xy_pos - m).magnitude() / 15.0f;
 
-        // Add the specified amount of Random Noise to our search
-        if (random_deviation > 1.0) f += random(0.0, random_deviation);
+      // Add the specified amount of Random Noise to our search
+      if (random_deviation > 1.0) f += random(0.0, random_deviation);
 
-        if (f < closest) {
-          closest = f;          // Found a closer un-printed location
-          out_point.pos.set(i, j);  // Save its data
-          out_point.distance = closest;
-        }
+      if (f < closest) {
+        closest = f;          // Found a closer un-printed location
+        out_point.pos.set(i, j);  // Save its data
+        out_point.distance = closest;
       }
     }
   }
@@ -308,51 +306,49 @@ inline bool look_for_lines_to_connect() {
   xyz_pos_t s, e;
   s.z = e.z = g26_layer_height;
 
-  for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-    for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
+  GRID_LOOP(i, j) {
 
-      #if HAS_LCD_MENU
-        if (user_canceled()) return true;
-      #endif
+    #if HAS_LCD_MENU
+      if (user_canceled()) return true;
+    #endif
 
-      if (i < GRID_MAX_POINTS_X) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
+    if (i < (GRID_MAX_POINTS_X)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
                                     // Already a half circle at the edge of the bed.
 
-        if (circle_flags.marked(i, j) && circle_flags.marked(i + 1, j)) {   // Test whether a leftward line can be done
-          if (!horizontal_mesh_line_flags.marked(i, j)) {
-            // Two circles need a horizontal line to connect them
-            s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
-            e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
+      if (circle_flags.marked(i, j) && circle_flags.marked(i + 1, j)) {   // Test whether a leftward line can be done
+        if (!horizontal_mesh_line_flags.marked(i, j)) {
+          // Two circles need a horizontal line to connect them
+          s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
+          e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
-            LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
-            s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-            LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
+          LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
+          s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
+          LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
+
+          if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+            print_line_from_here_to_there(s, e);
+
+          horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
+        }
+      }
+
+      if (j < (GRID_MAX_POINTS_Y)) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
+                                      // Already a half circle at the edge of the bed.
+
+        if (circle_flags.marked(i, j) && circle_flags.marked(i, j + 1)) {   // Test whether a downward line can be done
+          if (!vertical_mesh_line_flags.marked(i, j)) {
+            // Two circles that need a vertical line to connect them
+            s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
+            e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
+
+            s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
+            LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
             if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
               print_line_from_here_to_there(s, e);
 
-            horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-          }
-        }
-
-        if (j < GRID_MAX_POINTS_Y) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
-                                      // Already a half circle at the edge of the bed.
-
-          if (circle_flags.marked(i, j) && circle_flags.marked(i, j + 1)) {   // Test whether a downward line can be done
-            if (!vertical_mesh_line_flags.marked(i, j)) {
-              // Two circles that need a vertical line to connect them
-              s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
-              e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
-
-              s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-              LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-              LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-
-              if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-                print_line_from_here_to_there(s, e);
-
-              vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-            }
+            vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
           }
         }
       }
@@ -628,9 +624,9 @@ void GcodeSuite::G26() {
     return;
   }
 
-  g26_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
-              parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
-  if (!position_is_reachable(g26_pos.x, g26_pos.y)) {
+  g26_xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
+                 parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
+  if (!position_is_reachable(g26_xy_pos)) {
     SERIAL_ECHOLNPGM("?Specified X,Y coordinate out of bounds.");
     return;
   }
@@ -640,10 +636,8 @@ void GcodeSuite::G26() {
    */
   set_bed_leveling_enabled(!parser.seen('D'));
 
-  if (current_position.z < Z_CLEARANCE_BETWEEN_PROBES) {
+  if (current_position.z < Z_CLEARANCE_BETWEEN_PROBES)
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-    current_position = destination;
-  }
 
   #if DISABLED(NO_VOLUMETRICS)
     bool volumetric_was_enabled = parser.volumetric_enabled;
@@ -697,7 +691,7 @@ void GcodeSuite::G26() {
       #error "A_CNT must be a positive value. Please change A_INT."
     #endif
     float trig_table[A_CNT];
-    for (uint8_t i = 0; i < A_CNT; i++)
+    LOOP_L_N(i, A_CNT)
       trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
 
   #endif // !ARC_SUPPORT
@@ -705,7 +699,7 @@ void GcodeSuite::G26() {
   mesh_index_pair location;
   do {
     // Find the nearest confluence
-    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26_pos);
+    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26_xy_pos);
 
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
@@ -836,12 +830,9 @@ void GcodeSuite::G26() {
 
   retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
+  move_to(destination, 0);                                    // Raise the nozzle
 
-  move_to(destination, 0); // Raise the nozzle
-
-  destination.set(g26_pos.x, g26_pos.y);                      // Move back to the starting position
-  //destination.z = Z_CLEARANCE_BETWEEN_PROBES;               // Keep the nozzle where it is
-
+  destination = g26_xy_pos;                                   // Move back to the starting XY position
   move_to(destination, 0);                                    // Move back to the starting position
 
   #if DISABLED(NO_VOLUMETRICS)

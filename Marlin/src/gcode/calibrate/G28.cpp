@@ -62,13 +62,7 @@
     current_position.set(0.0, 0.0);
     sync_plan_position();
 
-    const int x_axis_home_dir =
-      #if ENABLED(DUAL_X_CARRIAGE)
-        x_home_dir(active_extruder)
-      #else
-        home_dir(X_AXIS)
-      #endif
-    ;
+    const int x_axis_home_dir = x_home_dir(active_extruder);
 
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
@@ -106,8 +100,6 @@
       #if AXIS_HAS_STALLGUARD(Y2)
         tmc_disable_stallguard(stepperY2, stealth_states.y2);
       #endif
-      do_blocking_move_to_xy(-0.5 * x_axis_home_dir, -0.5 * home_dir(Y_AXIS), fr_mm_s / 2);
-      safe_delay(100);
     #endif
   }
 
@@ -210,7 +202,7 @@
  *  Z   Home to the Z endstop
  *
  */
-void GcodeSuite::G28(const bool always_home_all) {
+void GcodeSuite::G28() {
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();
@@ -310,8 +302,9 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(DELTA)
 
+    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
+
     home_delta();
-    UNUSED(always_home_all);
 
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       end_slow_homing(slow_homing);
@@ -320,7 +313,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #else // NOT DELTA
 
     const bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'),
-               home_all = always_home_all || (homeX == homeY && homeX == homeZ),
+               home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
     destination = current_position;
@@ -331,12 +324,10 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     #endif
 
-    const float z_homing_height = (
-      #if ENABLED(UNKNOWN_Z_NO_RAISE)
-        !TEST(axis_known_position, Z_AXIS) ? 0 :
-      #endif
-          (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
-    );
+    const float z_homing_height =
+      (DISABLED(UNKNOWN_Z_NO_RAISE) || TEST(axis_known_position, Z_AXIS))
+        ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
+        : 0;
 
     if (z_homing_height && (doX || doY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
@@ -356,20 +347,13 @@ void GcodeSuite::G28(const bool always_home_all) {
     // Home Y (before X)
     #if ENABLED(HOME_Y_BEFORE_X)
 
-      if (doY
-        #if ENABLED(CODEPENDENT_XY_HOMING)
-          || doX
-        #endif
-      ) homeaxis(Y_AXIS);
+      if (doY || (doX && ENABLED(CODEPENDENT_XY_HOMING)))
+        homeaxis(Y_AXIS);
 
     #endif
 
     // Home X
-    if (doX
-      #if ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X)
-        || doY
-      #endif
-    ) {
+    if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
 
       #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -397,9 +381,8 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
 
     // Home Y (after X)
-    #if DISABLED(HOME_Y_BEFORE_X)
-      if (doY) homeaxis(Y_AXIS);
-    #endif
+    if (DISABLED(HOME_Y_BEFORE_X) && doY)
+      homeaxis(Y_AXIS);
 
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       end_slow_homing(slow_homing);
@@ -488,7 +471,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G28)
+  #if ENABLED(RESTORE_LEVELING_AFTER_G28)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 
@@ -496,12 +479,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Restore the active tool after homing
   #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    #if EITHER(PARKING_EXTRUDER, DUAL_X_CARRIAGE)
-      #define NO_FETCH false // fetch the previous toolhead
-    #else
-      #define NO_FETCH true
-    #endif
-    tool_change(old_tool_index, NO_FETCH);
+    tool_change(old_tool_index, NONE(PARKING_EXTRUDER, DUAL_X_CARRIAGE));   // Do move if one of these
   #endif
 
   #if HAS_HOMING_CURRENT
@@ -524,15 +502,8 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   report_current_position();
 
-  #if ENABLED(NANODLP_Z_SYNC)
-    #if ENABLED(NANODLP_ALL_AXIS)
-      #define _HOME_SYNC true       // For any axis, output sync text.
-    #else
-      #define _HOME_SYNC doZ        // Only for Z-axis
-    #endif
-    if (_HOME_SYNC)
-      SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
-  #endif
+  if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
+    SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
 

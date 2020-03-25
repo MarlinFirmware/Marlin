@@ -43,7 +43,7 @@
 #include "../../core/debug_out.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 bool leveling_is_valid() {
@@ -143,13 +143,12 @@ void reset_bed_level() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       bilinear_start.reset();
       bilinear_grid_spacing.reset();
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-          z_values[x][y] = NAN;
-          #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(x, y, 0);
-          #endif
-        }
+      GRID_LOOP(x, y) {
+        z_values[x][y] = NAN;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, y, 0);
+        #endif
+      }
     #elif ABL_PLANAR
       planner.bed_level_matrix.set_to_identity();
     #endif
@@ -173,7 +172,7 @@ void reset_bed_level() {
    */
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn) {
     #ifndef SCAD_MESH_OUTPUT
-      for (uint8_t x = 0; x < sx; x++) {
+      LOOP_L_N(x, sx) {
         serial_spaces(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(int(x));
       }
@@ -182,14 +181,14 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    for (uint8_t y = 0; y < sy; y++) {
+    LOOP_L_N(y, sy) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(int(y));
       #endif
-      for (uint8_t x = 0; x < sx; x++) {
+      LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
         const float offset = fn(x, y);
         if (!isnan(offset)) {
@@ -202,7 +201,7 @@ void reset_bed_level() {
               SERIAL_CHAR(' ');
             SERIAL_ECHOPGM("NAN");
           #else
-            for (uint8_t i = 0; i < precision + 3; i++)
+            LOOP_L_N(i, precision + 3)
               SERIAL_CHAR(i ? '=' : ' ');
           #endif
         }
