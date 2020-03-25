@@ -1793,7 +1793,6 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
-
   #else // CARTESIAN / CORE
 
     set_axis_is_at_home(axis);
