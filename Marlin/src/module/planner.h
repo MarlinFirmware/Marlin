@@ -197,6 +197,26 @@ typedef struct block_t {
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
+#if ENABLED(LASER_POWER_INLINE)
+  typedef struct {
+    /**
+     * Laser status bitmask; most bits are unused;
+     *  0: Planner buffer enable
+     *  1: Laser enable
+     *  2: Reserved for direction
+     */
+    uint8_t status,
+    /**
+     * Laser power: 0 or 255 in case of PWM-less laser,
+     * or the OCR value;
+     *
+     * Using OCR instead of raw power,
+     * as it avoids floating points during move loop
+     */
+    power;
+  } settings_laser_t;
+#endif
+
 typedef struct {
    uint32_t max_acceleration_mm_per_s2[XYZE_N], // (mm/s^2) M201 XYZE
             min_segment_time_us;                // (µs) M205 B
@@ -208,23 +228,6 @@ typedef struct {
  feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
   #if ENABLED(LASER_POWER_INLINE)
-    typedef struct {
-      /**
-       * Laser status bitmask; most bits are unused;
-       *  0: Planner buffer enable
-       *  1: Laser enable
-       *  2: Reserved for direction
-       */
-      uint8_t status,
-      /**
-       * Laser power: 0 or 255 in case of PWM-less laser,
-       * or the OCR value;
-       *
-       * Using OCR instead of raw power,
-       * as it avoids floating points during move loop
-       */
-      power;
-    } settings_laser_t;
     settings_laser_t laser;
   #endif
 } planner_settings_t;

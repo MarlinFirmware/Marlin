@@ -779,7 +779,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
     cutter.disable(); // Shutdown spindle/laser
   #endif
 
-  SERIAL_ERROR_MSG(MSG_ERR_KILLED);
+  SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);

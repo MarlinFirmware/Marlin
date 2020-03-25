@@ -70,7 +70,7 @@ public:
         pwrpc = pwr / SPEED_POWER_MAX * 100;
       #endif
     #else
-      pwrpc = pwr / 255 * 100;               // PWM to percent
+      return pwr;                           // PWM
     #endif
 
     #if ENABLED(SPINDLE_FEATURE)
