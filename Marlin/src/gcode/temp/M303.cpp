@@ -38,7 +38,13 @@
  *       E<extruder> (-1 for the bed) (default 0)
  *       C<cycles> Minimum 3. Default 5.
  *       U<bool> with a non-zero value will apply the result to current settings
+ *       D Toggles PID_DEBUG flag. No other action happens even if more parameters are specified.
  */
+
+#if ENABLED(PID_DEBUG)
+  bool PID_Debug_Flag = 0;
+#endif
+
 void GcodeSuite::M303() {
   #if ENABLED(PIDTEMPBED)
     #define SI H_BED
@@ -62,6 +68,16 @@ void GcodeSuite::M303() {
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
   const int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
+
+  #if ENABLED(PID_DEBUG)
+    bool d = parser.boolval('D');
+    if (d) {
+      PID_Debug_Flag = !PID_Debug_Flag;
+      SERIAL_ECHOPGM("PID Debug set to: ");
+      SERIAL_ECHOLN( PID_Debug_Flag );
+      return;
+    }
+  #endif
 
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);
