@@ -493,6 +493,10 @@
   #error "ORIG_Ex_AUTO_FAN_PIN is now just Ex_AUTO_FAN_PIN. Make sure your pins are up to date."
 #elif defined(ORIG_CHAMBER_AUTO_FAN_PIN)
   #error "ORIG_CHAMBER_AUTO_FAN_PIN is now just CHAMBER_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(HOMING_BACKOFF_MM)
+  #error "HOMING_BACKOFF_MM is now HOMING_BACKOFF_POST_MM. Please update Configuration_adv.h."
+#elif defined(X_HOME_BUMP_MM) || defined(Y_HOME_BUMP_MM) || defined(Z_HOME_BUMP_MM)
+  #error "[XYZ]_HOME_BUMP_MM is now HOMING_BUMP_MM. Please update Configuration_adv.h."
 #endif
 
 /**
