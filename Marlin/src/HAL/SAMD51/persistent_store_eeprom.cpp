@@ -27,7 +27,9 @@
 
 #include "../shared/persistent_store_api.h"
 
-#if ENABLED(FLASH_EEPROM_EMULATION)
+#if ENABLED(ONBOARD_SPI_EEPROM)
+  #include "QSPIFlash.h"<
+#elif ENABLED(FLASH_EEPROM_EMULATION)
   #define NVMCTRL_CMD(c)    do{                                                 \
                               SYNC(!NVMCTRL->STATUS.bit.READY);                 \
                               NVMCTRL->INTFLAG.bit.DONE = true;                 \
@@ -40,16 +42,27 @@
                             }while(0)
 #endif
 
+static bool initialized;
+
 bool PersistentStore::access_start() {
-  #if ENABLED(FLASH_EEPROM_EMULATION)
+  if (initialized) return true;
+
+  #if ENABLED(ONBOARD_SPI_EEPROM)
+    qspi.begin();
+  #elif ENABLED(FLASH_EEPROM_EMULATION)
     NVMCTRL->SEECFG.reg = NVMCTRL_SEECFG_WMODE_BUFFERED;  // Buffered mode and segment reallocation active
+    if (NVMCTRL->SEESTAT.bit.RLOCK)
+      NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_USEE);    // Unlock E2P data write access
   #endif
+  initialized = true;
 
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  #if ENABLED(FLASH_EEPROM_EMULATION)
+  #if ENABLED(ONBOARD_SPI_EEPROM)
+    qspi.flush();
+  #elif ENABLED(FLASH_EEPROM_EMULATION)
     NVMCTRL_FLUSH();
     if (!NVMCTRL->SEESTAT.bit.LOCK)
       NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_LSEE);    // Lock E2P data write access
@@ -59,14 +72,11 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  #if ENABLED(FLASH_EEPROM_EMULATION)
-    if (NVMCTRL->SEESTAT.bit.RLOCK)
-      NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_USEE);    // Unlock E2P data write access
-  #endif
-
   while (size--) {
     const uint8_t v = *value;
-    #if ENABLED(FLASH_EEPROM_EMULATION)
+    #if ENABLED(ONBOARD_SPI_EEPROM)
+      qspi.writeByte(pos, v);
+    #elif ENABLED(FLASH_EEPROM_EMULATION)
       SYNC(NVMCTRL->SEESTAT.bit.BUSY);
       if (NVMCTRL->INTFLAG.bit.SEESFULL)
         NVMCTRL_FLUSH();      // Next write will trigger a sector reallocation. I need to flush 'pagebuffer'
@@ -93,7 +103,9 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   while (size--) {
     uint8_t c;
-    #if ENABLED(FLASH_EEPROM_EMULATION)
+    #if ENABLED(ONBOARD_SPI_EEPROM)
+      c = qspi.readByte(pos);
+    #elif ENABLED(FLASH_EEPROM_EMULATION)
       SYNC(NVMCTRL->SEESTAT.bit.BUSY);
       c = ((volatile uint8_t *)SEEPROM_ADDR)[pos];
     #else
@@ -108,11 +120,13 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  #if ENABLED(FLASH_EEPROM_EMULATION)
+  #if ENABLED(ONBOARD_SPI_EEPROM)
+    return qspi.size();
+  #elif ENABLED(FLASH_EEPROM_EMULATION)
     const uint8_t psz = NVMCTRL->SEESTAT.bit.PSZ,
                   sblk = NVMCTRL->SEESTAT.bit.SBLK;
 
-         if (!psz && !sblk)         return     0;
+         if (!psz && !sblk)         return 0;
     else if (psz <= 2)              return (0x200 << psz);
     else if (sblk == 1 || psz == 3) return  4096;
     else if (sblk == 2 || psz == 4) return  8192;
