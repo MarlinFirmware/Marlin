@@ -29,6 +29,8 @@
 
 #if ENABLED(ONBOARD_SPI_EEPROM)
   #include "QSPIFlash.h"<
+
+  static bool initialized;
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   #define NVMCTRL_CMD(c)    do{                                                 \
                               SYNC(!NVMCTRL->STATUS.bit.READY);                 \
@@ -42,19 +44,19 @@
                             }while(0)
 #endif
 
-static bool initialized;
 
 bool PersistentStore::access_start() {
-  if (initialized) return true;
-
   #if ENABLED(ONBOARD_SPI_EEPROM)
+    if (initialized) return true;
+
     qspi.begin();
+    initialized = true;
   #elif ENABLED(FLASH_EEPROM_EMULATION)
     NVMCTRL->SEECFG.reg = NVMCTRL_SEECFG_WMODE_BUFFERED;  // Buffered mode and segment reallocation active
+
     if (NVMCTRL->SEESTAT.bit.RLOCK)
       NVMCTRL_CMD(NVMCTRL_CTRLB_CMD_USEE);    // Unlock E2P data write access
   #endif
-  initialized = true;
 
   return true;
 }
