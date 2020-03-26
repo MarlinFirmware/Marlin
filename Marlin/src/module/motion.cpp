@@ -1754,21 +1754,21 @@ void homeaxis(const AxisEnum axis) {
       bool invertDir;
             
       switch (axis) {
-          case X_AXIS: 
-            axisMicrostepSize = 256/X_MICROSTEPS;
-            phaseCurrent = stepperX.MSCNT();
-            invertDir = INVERT_X_DIR;
-            break;
-          case Y_AXIS: 
-            axisMicrostepSize = 256/Y_MICROSTEPS;
-            phaseCurrent = stepperY.MSCNT();
-            invertDir = INVERT_Y_DIR;
-            break;
-          case Z_AXIS: 
-            axisMicrostepSize = 256/Z_MICROSTEPS;
-            phaseCurrent = stepperZ.MSCNT();
-            invertDir = INVERT_Z_DIR;
-            break;
+        case X_AXIS:
+          axisMicrostepSize = 256 / (X_MICROSTEPS);
+          phaseCurrent = stepperX.MSCNT();
+          invertDir = INVERT_X_DIR;
+          break;
+        case Y_AXIS: 
+          axisMicrostepSize = 256 / (Y_MICROSTEPS);
+          phaseCurrent = stepperY.MSCNT();
+          invertDir = INVERT_Y_DIR;
+          break;
+        case Z_AXIS: 
+          axisMicrostepSize = 256 / (Z_MICROSTEPS);
+          phaseCurrent = stepperZ.MSCNT();
+          invertDir = INVERT_Z_DIR;
+          break;
         default: break;
       }
      
@@ -1776,35 +1776,35 @@ void homeaxis(const AxisEnum axis) {
       int phaseDelta = invertDir ? phaseCurrent - home_phase[axis] : home_phase[axis] - phaseCurrent;
 
       // check if home distance within endstop assumed repeatability noise of .1mm and warn.
-      if((abs(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05)
+      if ((ABS(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05f)
         DEBUG_ECHOLNPAIR("Home phase too close to endstop trigger, pick a different phase, axis:", axis_codes[axis]);
 
       // skip to next one if target position is behind current position. So we only move away from end stop.
-      if(phaseDelta < 0) phaseDelta += 1024;
+      if (phaseDelta < 0) phaseDelta += 1024;
 
       // we take the int part(floor) of the usteps necessary to reach target. If phase is unreachable we will consistently stop at the ustep before or after depending on invertDir.
-      float mmDelta = ((int)(phaseDelta / axisMicrostepSize)) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
+      const float mmDelta = ((int)(phaseDelta / axisMicrostepSize)) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
       
       // add the delta endstop adjust
-      float adjDistance = mmDelta + delta_endstop_adj[axis];
+      const float adjDistance = mmDelta + delta_endstop_adj[axis];
 
       // optional debug messages.
-      if (DEBUGGING(LEVELING))
-      {
-        DEBUG_ECHOLNPAIR("Enstop ", axis_codes[axis]," hit at phase:", phaseCurrent);
-        DEBUG_ECHOLNPAIR("Home phase Delta:", phaseDelta);
-        DEBUG_ECHOLNPAIR("Home phase Distance:", mmDelta);
+      if (DEBUGGING(LEVELING)) {
+        DEBUG_ECHOLNPAIR(
+          "Endstop ", axis_codes[axis],
+          " hit at Phase:", phaseCurrent,
+          " Delta:", phaseDelta,
+          " Distance:", mmDelta
+        );
       }
     #else
-      float adjDistance = delta_endstop_adj[axis];
+      const float adjDistance = delta_endstop_adj[axis];
     #endif
 
-    float minDistance = MIN_STEPS_PER_SEGMENT * planner.steps_to_mm[axis];
+    const float minDistance = (MIN_STEPS_PER_SEGMENT) * planner.steps_to_mm[axis];
     // retrace by the amount specified in delta_endstop_adj if more than min steps.
-    if ((adjDistance * Z_HOME_DIR) < 0 // away from endstop
-        && abs(adjDistance) > minDistance) // more than min distance
-    {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj:");
+    if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
