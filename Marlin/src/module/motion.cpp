@@ -1777,13 +1777,13 @@ void homeaxis(const AxisEnum axis) {
 
       // check if home distance within endstop assumed repeatability noise of .1mm and warn.
       if ((ABS(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05f)
-        DEBUG_ECHOLNPAIR("Home phase too close to endstop trigger, pick a different phase, axis:", axis_codes[axis]);
+        DEBUG_ECHOLNPAIR("Home phase too close to endstop trigger. Pick a different phase for ", axis_codes[axis]);
 
       // skip to next one if target position is behind current position. So we only move away from end stop.
       if (phaseDelta < 0) phaseDelta += 1024;
 
       // we take the int part(floor) of the usteps necessary to reach target. If phase is unreachable we will consistently stop at the ustep before or after depending on invertDir.
-      const float mmDelta = ((int)(phaseDelta / axisMicrostepSize)) * planner.steps_to_mm[axis] * -1.0f * Z_HOME_DIR;
+      const float mmDelta = int(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * -(Z_HOME_DIR);
       
       // add the delta endstop adjust
       const float adjDistance = mmDelta + delta_endstop_adj[axis];
