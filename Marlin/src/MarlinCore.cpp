@@ -437,9 +437,9 @@ void startOrResumeJob() {
         break;
 
       case 4:                                   // Display "Click to Continue..."
-        #if HAS_RESUME_CONTINUE                 // 30 min timeout with LCD, 1 min without
+        #if HAS_RESUME_CONTINUE                 // SD_FINISHED_USERINPUTTIMEOUT (default 30 min) timeout with LCD, 1 min without
           did_state = queue.enqueue_one_P(
-            print_job_timer.duration() < 60 ? PSTR("M0Q1P1") : PSTR("M0Q1S" TERN(HAS_LCD_MENU, "1800", "60"))
+            print_job_timer.duration() < 60 ? PSTR("M0Q1P1") : PSTR("M0Q1S" TERN(HAS_LCD_MENU, SD_FINISHED_USERINPUTTIMEOUT, "60"))
           );
         #endif
         break;

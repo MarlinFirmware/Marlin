@@ -1043,6 +1043,13 @@
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
   #define SDCARD_RATHERRECENTFIRST
 
+  /**
+   * This option allows you to modify the time the printer waits for user input
+   * when a print from the sd card finishes before it gets back to ready state.
+   * Especially handy when you you Pronteface or Octoprint to monitor your printer
+   */
+  #define SD_FINISHED_USERINPUTTIMEOUT "1800"
+
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
