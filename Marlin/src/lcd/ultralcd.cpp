@@ -524,7 +524,7 @@ void MarlinUI::status_screen() {
     #if PROGRESS_MSG_EXPIRE > 0
 
       // Handle message expire
-      if (expire_status_ms > 0) {
+      if (expire_status_ms) {
 
         // Expire the message if a job is active and the bar has ticks
         if (get_progress_percent() > 2 && !print_job_timer.isPaused()) {
@@ -1337,15 +1337,19 @@ void MarlinUI::update() {
       UNUSED(persist);
     #endif
 
+    #if ENABLED(LCD_PROGRESS_BAR) || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      const millis_t ms = millis();
+    #endif
+
     #if ENABLED(LCD_PROGRESS_BAR)
-      progress_bar_ms = millis();
+      progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
-        expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
+        expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
       #endif
     #endif
 
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-      next_filament_display = millis() + 5000UL; // Show status message for 5s
+      next_filament_display = ms + 5000UL; // Show status message for 5s
     #endif
 
     #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)
