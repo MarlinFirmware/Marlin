@@ -1772,18 +1772,18 @@ void homeaxis(const AxisEnum axis) {
         default: break;
       }
      
-      // depending on invert dir measure the distance to nearest home phase.
+      // Depending on invert dir measure the distance to nearest home phase.
       int phaseDelta = invertDir ? phaseCurrent - home_phase[axis] : home_phase[axis] - phaseCurrent;
 
-      // check if home distance within endstop assumed repeatability noise of .1mm and warn.
+      // Check if home distance within endstop assumed repeatability noise of .1mm and warn.
       if ((ABS(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05f)
         DEBUG_ECHOLNPAIR("Home phase too close to endstop trigger. Pick a different phase for ", axis_codes[axis]);
 
-      // skip to next one if target position is behind current position. So we only move away from end stop.
+      // Skip to next if target position is behind current. So it only moves away from endstop.
       if (phaseDelta < 0) phaseDelta += 1024;
 
-      // we take the int part(floor) of the usteps necessary to reach target. If phase is unreachable we will consistently stop at the ustep before or after depending on invertDir.
-      const float mmDelta = int(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * -(Z_HOME_DIR);
+      // Get the integer µsteps to target. Unreachable phase? Consistently stop at the µstep before / after based on invertDir.
+      const float mmDelta = -(int(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * (Z_HOME_DIR));
       
       // add the delta endstop adjust
       const float adjDistance = mmDelta + delta_endstop_adj[axis];
@@ -1791,10 +1791,8 @@ void homeaxis(const AxisEnum axis) {
       // optional debug messages.
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOLNPAIR(
-          "Endstop ", axis_codes[axis],
-          " hit at Phase:", phaseCurrent,
-          " Delta:", phaseDelta,
-          " Distance:", mmDelta
+          "Endstop ", axis_codes[axis], " hit at Phase:", phaseCurrent,
+          " Delta:", phaseDelta, " Distance:", mmDelta
         );
       }
     #else
