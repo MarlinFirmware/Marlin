@@ -2253,9 +2253,9 @@
   #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
 
   /**
-   * Monitor Trinamic drivers for error conditions,
-   * like overtemperature and short to ground.
-   * In the case of overtemperature Marlin can decrease the driver current until error condition clears.
+   * Monitor Trinamic drivers
+   * for error conditions like overtemperature and short to ground.
+   * To manage over-temp Marlin can decrease the driver current until the error condition clears.
    * Other detected conditions can be used to stop the current print.
    * Relevant g-codes:
    * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given.
