@@ -1231,7 +1231,7 @@ void MarlinSettings::postprocess() {
       #if HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
-        const xyz_ulong_t no_current{0};
+        const uint32_t no_current[3] = { 0 };
         EEPROM_WRITE(no_current);
       #endif
     }
