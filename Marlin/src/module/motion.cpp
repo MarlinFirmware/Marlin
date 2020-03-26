@@ -1345,13 +1345,13 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     planner.set_machine_position_mm(target);
     target[axis] = distance;
 
-    #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+    #if HAS_DIST_MM_ARG
       const xyze_float_t cart_dist_mm{0};
     #endif
 
     // Set delta/cartesian axes directly
     planner.buffer_segment(target
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+      #if HAS_DIST_MM_ARG
         , cart_dist_mm
       #endif
       , real_fr_mm_s, active_extruder
