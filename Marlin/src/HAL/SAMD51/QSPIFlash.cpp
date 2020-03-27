@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ONBOARD_SPI_EEPROM)
+#if ENABLED(QSPI_EEPROM)
 
 #include "QSPIFlash.h"
 
@@ -75,4 +75,4 @@ void QSPIFlash::flush() {
   _addr = INVALID_ADDR;
 }
 
-#endif // ONBOARD_SPI_EEPROM
+#endif // QSPI_EEPROM

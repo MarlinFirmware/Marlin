@@ -18,32 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS) && NONE(QSPI_EEPROM, FLASH_EEPROM_EMULATION)
+#if ENABLED(QSPI_EEPROM)
 
 #include "../shared/persistent_store_api.h"
 
-size_t PersistentStore::capacity() { return E2END + 1; }
+#include "QSPIFlash.h"
 
-bool PersistentStore::access_start() { return true; }
-bool PersistentStore::access_finish() { return true; }
+static bool initialized;
+
+size_t PersistentStore::capacity() { return qspi.size(); }
+
+bool PersistentStore::access_start() {
+  if (!initialized) {
+    qspi.begin();
+    initialized = true;
+  }
+  return true;
+}
+
+bool PersistentStore::access_finish() {
+  qspi.flush();
+  return true;
+}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     const uint8_t v = *value;
-    uint8_t * const p = (uint8_t * const)pos;
-    if (v != eeprom_read_byte(p)) {
-      eeprom_write_byte(p, v);
-      delay(2);
-      if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
-        return true;
-      }
-    }
+    qspi.writeByte(pos, v);
     crc16(crc, &v, 1);
     pos++;
     value++;
@@ -53,7 +58,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   while (size--) {
-    uint8_t c = eeprom_read_byte((uint8_t*)pos);
+    uint8_t c = qspi.readByte(pos);
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
@@ -62,5 +67,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-#endif // EEPROM_SETTINGS && !(QSPI_EEPROM || FLASH_EEPROM_EMULATION)
+#endif // QSPI_EEPROM
 #endif // __SAMD51__

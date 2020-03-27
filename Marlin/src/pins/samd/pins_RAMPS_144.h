@@ -44,7 +44,7 @@
 //
 // EEPROM
 //
-//#define ONBOARD_SPI_EEPROM                      // Use AGCM4 onboard QSPI EEPROM (Uses 4K of RAM)
+//#define QSPI_EEPROM                             // Use AGCM4 onboard QSPI EEPROM (Uses 4K of RAM)
 #define I2C_EEPROM                                // EEPROM on I2C-0
 #define E2END 0x7FFF                              // 32K (24lc256)
 

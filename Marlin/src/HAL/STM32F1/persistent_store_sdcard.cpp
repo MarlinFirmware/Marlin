@@ -101,5 +101,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 size_t PersistentStore::capacity() { return HAL_EEPROM_SIZE; }
 
 #endif // SDCARD_EEPROM_EMULATION
-
 #endif // __STM32F1__
