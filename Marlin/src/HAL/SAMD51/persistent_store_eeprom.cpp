@@ -28,9 +28,10 @@
 #include "../shared/persistent_store_api.h"
 
 #if ENABLED(ONBOARD_SPI_EEPROM)
-  #include "QSPIFlash.h"<
 
+  #include "QSPIFlash.h"
   static bool initialized;
+
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   #define NVMCTRL_CMD(c)    do{                                                 \
                               SYNC(!NVMCTRL->STATUS.bit.READY);                 \
@@ -141,5 +142,4 @@ size_t PersistentStore::capacity() {
 }
 
 #endif // EEPROM_SETTINGS
-
 #endif // __SAMD51__
