@@ -2342,7 +2342,7 @@
    *  
    * Values from 0..1023
    */
-   // #define TMC_HOME_PHASE { 896, 896, 896 }
+   //#define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
    * Beta feature!
