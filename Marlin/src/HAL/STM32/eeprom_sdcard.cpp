@@ -21,24 +21,23 @@
  */
 
 /**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  * Implementation of EEPROM settings in SD Card
  */
 
-#ifdef __STM32F1__
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SDCARD_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #ifndef E2END
   #define E2END 0xFFF // 4KB
 #endif
-#define HAL_EEPROM_SIZE (E2END + 1)
+#define HAL_EEPROM_SIZE int(E2END + 1)
 
-#define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
+#define _ALIGN(x) __attribute__ ((aligned(x)))
 static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
 
 #if ENABLED(SDSUPPORT)
@@ -52,7 +51,7 @@ static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
 
     SdFile file, root = card.getroot();
     if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
-      return true; // false aborts the save
+      return true;
 
     int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
     if (bytes_read < 0) return false;
@@ -76,7 +75,7 @@ static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
 
 #else // !SDSUPPORT
 
-  #error "Please define SPI_EEPROM (in Configuration.h) or disable EEPROM_SETTINGS."
+  #error "Please define an EEPROM, a SDCARD or disable EEPROM_SETTINGS."
 
 #endif // !SDSUPPORT
 
@@ -101,5 +100,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 size_t PersistentStore::capacity() { return HAL_EEPROM_SIZE; }
 
 #endif // SDCARD_EEPROM_EMULATION
-
-#endif // __STM32F1__
+#endif // STM32 && !STM32GENERIC

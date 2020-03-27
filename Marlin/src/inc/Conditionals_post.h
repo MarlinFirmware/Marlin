@@ -35,16 +35,19 @@
   #define HAS_LINEAR_E_JERK 1
 #endif
 
-// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
+// Determine which type of 'EEPROM' is in use
 #if ENABLED(EEPROM_SETTINGS)
-  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && EITHER(I2C_EEPROM, SPI_EEPROM)
-    #define USE_REAL_EEPROM 1
+  // EEPROM type may be defined by compile flags, configs, HALs, or pins
+  // Set additional flags to let HALs choose in their Conditionals_post.h
+  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && ANY(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM)
+    #define USE_WIRED_EEPROM    1
   #else
-    #define USE_EMULATED_EEPROM 1
+    #define USE_FALLBACK_EEPROM 1
   #endif
 #else
   #undef I2C_EEPROM
   #undef SPI_EEPROM
+  #undef QSPI_EEPROM
   #undef SDCARD_EEPROM_EMULATION
   #undef SRAM_EEPROM_EMULATION
   #undef FLASH_EEPROM_EMULATION

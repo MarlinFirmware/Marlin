@@ -56,11 +56,11 @@ void GcodeSuite::M0_M1() {
 
   planner.synchronize();
 
-  #if HAS_LCD_MENU || HAS_LEDS_OFF_FLAG
+  #if HAS_LEDS_OFF_FLAG
     const bool seenQ = parser.seen('Q');
-    #if HAS_LEDS_OFF_FLAG
-      if (seenQ) printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
-    #endif
+    if (seenQ) printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
+  #else
+    constexpr bool seenQ = false;
   #endif
 
   #if HAS_LCD_MENU
@@ -75,12 +75,12 @@ void GcodeSuite::M0_M1() {
     }
 
   #elif ENABLED(EXTENSIBLE_UI)
-
-    if (parser.string_arg)
-      ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
-    else
-      ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
-
+    if (!seenQ) {
+      if (parser.string_arg)
+        ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
+      else
+        ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
+    }
   #else
 
     if (parser.string_arg) {
@@ -94,7 +94,7 @@ void GcodeSuite::M0_M1() {
   wait_for_user = true;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
+    if (!seenQ) host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
   #endif
 
   if (ms > 0) ms += millis();  // wait until this time for a click
