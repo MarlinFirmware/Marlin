@@ -27,7 +27,7 @@
 
 #if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 
 // Only STM32F4 can support wear leveling at this time
