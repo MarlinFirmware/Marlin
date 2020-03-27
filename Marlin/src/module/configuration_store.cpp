@@ -385,7 +385,7 @@ typedef struct SettingsDataStruct {
   // HAS_CASE_LIGHT_BRIGHTNESS
   //
   #if HAS_CASE_LIGHT_BRIGHTNESS
-    uint8_t case_light_brightness2;
+    uint8_t case_light_brightness;
   #endif
 
 } SettingsData;
@@ -2190,10 +2190,8 @@ void MarlinSettings::postprocess() {
       // Case Light Brightness
       //
       #if HAS_CASE_LIGHT_BRIGHTNESS
-      {
         _FIELD_TEST(case_light_brightness);
         EEPROM_READ(case_light_brightness);
-      }
       #endif
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
