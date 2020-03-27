@@ -2340,7 +2340,7 @@
    * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
    * Full step positions (128, 384, 640, 896) have the highest holding torque.
    *  
-   * Values from 0..1023
+   * Values from 0..1023, -1 to disable homing phase for that axis.
    */
    //#define TMC_HOME_PHASE { 896, 896, 896 }
 

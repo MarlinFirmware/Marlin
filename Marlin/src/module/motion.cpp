@@ -1487,6 +1487,11 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
 {
   #ifdef TMC_HOME_PHASE
     static const abc_ulong_t home_phase = TMC_HOME_PHASE;
+    
+    // check if home phase is disabled for this axis.
+    if(home_phase[axis] < 0)
+      return;
+      
     int axisMicrostepSize;
     int phaseCurrent;
     bool invertDir;
