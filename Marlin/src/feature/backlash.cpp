@@ -113,7 +113,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
             error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
         }
       #endif
-      // Making a correction reduces the residual error and modifies delta_mm
+      // Making a correction reduces the residual error and adds block steps
       if (error_correction) {
         block->steps[axis] += ABS(error_correction);
         residual_error[axis] -= error_correction;

@@ -34,18 +34,31 @@
 /**
  * M303: PID relay autotune
  *
- *       S<temperature> sets the target temperature. (default 150C / 70C)
- *       E<extruder> (-1 for the bed) (default 0)
- *       C<cycles> Minimum 3. Default 5.
- *       U<bool> with a non-zero value will apply the result to current settings
- *       D Toggles PID_DEBUG flag. No other action happens even if more parameters are specified.
+ *  S<temperature>  Set the target temperature. (Default: 150C / 70C)
+ *  E<extruder>     Extruder number to tune, or -1 for the bed. (Default: E0)
+ *  C<cycles>       Number of times to repeat the procedure. (Minimum: 3, Default: 5)
+ *  U<bool>         Flag to apply the result to the current PID values
+ *
+ * With PID_DEBUG:
+ *  D               Toggle PID debugging and EXIT without further action.
  */
 
 #if ENABLED(PID_DEBUG)
-  bool PID_Debug_Flag = 0;
+  bool pid_debug_flag = 0;
 #endif
 
 void GcodeSuite::M303() {
+
+  #if ENABLED(PID_DEBUG)
+    if (parser.seen('D')) {
+      pid_debug_flag = !pid_debug_flag;
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("PID Debug ");
+      serialprintln_onoff(pid_debug_flag);
+      return;
+    }
+  #endif
+
   #if ENABLED(PIDTEMPBED)
     #define SI H_BED
   #else
@@ -68,16 +81,6 @@ void GcodeSuite::M303() {
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
   const int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
-
-  #if ENABLED(PID_DEBUG)
-    bool d = parser.boolval('D');
-    if (d) {
-      PID_Debug_Flag = !PID_Debug_Flag;
-      SERIAL_ECHOPGM("PID Debug set to: ");
-      SERIAL_ECHOLN( PID_Debug_Flag );
-      return;
-    }
-  #endif
 
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);
