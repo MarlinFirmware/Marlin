@@ -1329,9 +1329,7 @@ void MarlinSettings::postprocess() {
     // Case Light Brightness
     //
     #if HAS_CASE_LIGHT_BRIGHTNESS
-    {
       EEPROM_WRITE(case_light_brightness);
-    }
     #endif
 
     //
