@@ -1825,7 +1825,7 @@ void homeaxis(const AxisEnum axis) {
 
     // retrace by the amount specified in delta_endstop_adj if more than min steps.
     if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("adjDistance:", adjDistance);
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
