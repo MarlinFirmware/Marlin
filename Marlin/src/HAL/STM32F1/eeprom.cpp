@@ -24,7 +24,7 @@
 
 #if USE_WIRED_EEPROM
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 bool PersistentStore::access_start() {
   #if ENABLED(SPI_EEPROM)

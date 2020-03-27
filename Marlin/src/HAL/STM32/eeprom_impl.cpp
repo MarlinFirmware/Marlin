@@ -26,7 +26,7 @@
 
 #if EITHER(USE_WIRED_EEPROM, SRAM_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 bool PersistentStore::access_start() {
   return true;

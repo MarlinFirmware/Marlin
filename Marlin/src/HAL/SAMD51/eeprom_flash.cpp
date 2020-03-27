@@ -25,7 +25,7 @@
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #define NVMCTRL_CMD(c)    do{                                                 \
                             SYNC(!NVMCTRL->STATUS.bit.READY);                 \

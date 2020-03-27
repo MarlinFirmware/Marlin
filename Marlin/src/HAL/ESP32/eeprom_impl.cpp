@@ -26,7 +26,7 @@
 
 #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 #include "EEPROM.h"
 
 #define EEPROM_SIZE 4096

@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #define FLASH_EEPROM_EMULATION

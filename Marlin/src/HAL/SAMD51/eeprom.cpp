@@ -25,7 +25,7 @@
 
 #if ENABLED(EEPROM_SETTINGS) && NONE(QSPI_EEPROM, FLASH_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 size_t PersistentStore::capacity() { return E2END + 1; }
 

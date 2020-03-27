@@ -25,7 +25,7 @@
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 bool PersistentStore::access_start() { return true; }
 bool PersistentStore::access_finish() { return true; }

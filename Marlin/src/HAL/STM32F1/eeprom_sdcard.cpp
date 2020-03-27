@@ -31,7 +31,7 @@
 
 #if ENABLED(SDCARD_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #ifndef E2END
   #define E2END 0xFFF // 4KB
