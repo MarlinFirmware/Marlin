@@ -252,7 +252,7 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
 }
 
 #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
-  #include "../../../../../HAL/shared/persistent_store_api.h"
+  #include "../../../../../HAL/shared/eeprom_api.h"
 
   bool restoreEEPROM() {
     uint8_t data[ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE];
