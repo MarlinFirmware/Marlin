@@ -90,15 +90,11 @@ void GcodeSuite::M0_M1() {
 
   #endif
 
-  KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;
-
   #if ENABLED(HOST_PROMPT_SUPPORT)
     if (!seenQ) host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
   #endif
 
-  if (ms > 0) ms += millis();  // wait until this time for a click
-  while (wait_for_user && (ms == 0 || PENDING(millis(), ms))) idle();
+  wait_for_user_reponse(ms);
 
   #if HAS_LEDS_OFF_FLAG
     printerEventLEDs.onResumeAfterWait();
@@ -107,8 +103,6 @@ void GcodeSuite::M0_M1() {
   #if HAS_LCD_MENU
     if (!seenQ) ui.reset_status();
   #endif
-
-  wait_for_user = false;
 }
 
 #endif // HAS_RESUME_CONTINUE

@@ -776,6 +776,13 @@ void MarlinUI::update() {
     // If the action button is pressed...
     static bool wait_for_unclick; // = false
 
+    auto do_click = [&]{
+      wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
+      lcd_clicked = !wait_for_user && !no_reentry;    //  - Keep the click if not waiting for a user-click
+      wait_for_user = false;                          //  - Any click clears wait for user
+      quick_feedback();                               //  - Always make a click sound
+    };
+
     #if ENABLED(TOUCH_BUTTONS)
       if (touch_buttons) {
         RESET_STATUS_TIMEOUT();
@@ -796,12 +803,8 @@ void MarlinUI::update() {
             }
           }
         }
-        else if (!wait_for_unclick && (buttons & EN_C)) { // OK button, if not waiting for a debounce release:
-          wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
-          lcd_clicked = !wait_for_user && !no_reentry;    //  - Keep the click if not waiting for a user-click
-          wait_for_user = false;                          //  - Any click clears wait for user
-          quick_feedback();                               //  - Always make a click sound
-        }
+        else if (!wait_for_unclick && (buttons & EN_C))   // OK button, if not waiting for a debounce release:
+          do_click();
       }
       else // keep wait_for_unclick value
 
@@ -810,12 +813,7 @@ void MarlinUI::update() {
       {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) {                        // If not waiting for a debounce release:
-            wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-            lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-            wait_for_user = false;                        //  - Any click clears wait for user
-            quick_feedback();                             //  - Always make a click sound
-          }
+          if (!wait_for_unclick) do_click();              // Handle the click
         }
         else
           wait_for_unclick = false;

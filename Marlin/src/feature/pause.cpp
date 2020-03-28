@@ -184,7 +184,6 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #endif
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;    // LCD click or M108 will clear this
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
@@ -246,13 +245,13 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       if (show_lcd) lcd_pause_show_message(PAUSE_MESSAGE_PURGE);
     #endif
 
-    wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Filament Purging..."), CONTINUE_STR);
     #endif
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired_P(PSTR("Filament Purging..."));
     #endif
+    wait_for_user = true; // A click or M108 breaks the purge_length loop
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
     wait_for_user = false;
@@ -508,13 +507,13 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
   // Wait for filament insert by user and press button
   KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;    // LCD click or M108 will clear this
   #if ENABLED(HOST_PROMPT_SUPPORT)
     host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Nozzle Parked"), CONTINUE_STR);
   #endif
   #if ENABLED(EXTENSIBLE_UI)
     ExtUI::onUserConfirmRequired_P(PSTR("Nozzle Parked"));
   #endif
+  wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count);
@@ -540,8 +539,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         ExtUI::onUserConfirmRequired_P(PSTR("HeaterTimeout"));
       #endif
 
-      // Wait for LCD click or M108
-      while (wait_for_user) idle_no_sleep();
+      wait_for_user_response(0, true); // Wait for LCD click or M108
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_INFO, PSTR("Reheating"));

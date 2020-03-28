@@ -210,6 +210,24 @@ bool wait_for_heatup = true;
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
   bool wait_for_user; // = false;
+
+  void wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
+    #if DISABLED(ADVANCED_PAUSE_FEATURE)
+      UNUSED(no_sleep);
+    #endif
+    wait_for_user = true;
+    if (ms > 0) ms += millis();  // wait until this time
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+    while (wait_for_user && !(ms && ELAPSED(millis(), ms))) {
+      idle(
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          no_sleep
+        #endif
+      );
+    }
+    wait_for_user = false;
+  }
+
 #endif
 
 // Inactivity shutdown
