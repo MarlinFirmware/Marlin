@@ -84,7 +84,7 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) EDIT_ITEM_P(long5, PSTR(LABEL), &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+    #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_X STR_Y, 0);
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)

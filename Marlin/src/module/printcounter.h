@@ -28,7 +28,7 @@
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
 
-#if USE_REAL_EEPROM
+#if USE_WIRED_EEPROM
   // round up address to next page boundary (assuming 32 byte pages)
   #define STATS_EEPROM_ADDRESS 0x40
 #else
@@ -57,7 +57,7 @@ class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
 
-    #if USE_REAL_EEPROM || defined(CPU_32_BIT)
+    #if USE_WIRED_EEPROM || defined(CPU_32_BIT)
       typedef uint32_t eeprom_address_t;
     #else
       typedef uint16_t eeprom_address_t;

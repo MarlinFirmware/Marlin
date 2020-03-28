@@ -31,10 +31,9 @@
 
 #include "../../inc/MarlinConfig.h"
 
-// This is for EEPROM emulation in flash
-#if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #include <flash_stm32.h>
 #include <EEPROM.h>
@@ -108,5 +107,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
 
 size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
-#endif // EEPROM_SETTINGS && EEPROM FLASH
+#endif // FLASH_EEPROM_EMULATION
 #endif // __STM32F1__
