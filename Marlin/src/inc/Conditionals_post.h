@@ -139,6 +139,19 @@
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
 #endif
 
+// Calibration codes only for non-core axes
+#if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
+  #if IS_CORE
+    #define X_AXIS_INDEX 0
+    #define Y_AXIS_INDEX 1
+    #define Z_AXIS_INDEX 2
+    #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B##_INDEX)
+  #else
+    #define CAN_CALIBRATE(...) 1
+  #endif
+#endif
+#define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
+
 /**
  * No adjustable bed on non-cartesians
  */
