@@ -1,0 +1,39 @@
+name: Build Marlin for Malyan M300
+
+on:
+  push:
+    branches: [ malyan-m300* ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Arduino CLI
+      uses: arduino/setup-arduino-cli@v1.0.0
+    - name: Install platform
+      run: |
+        arduino-cli core update-index --additional-urls https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json
+        arduino-cli core install STM32:stm32@1.7.0 --additional-urls https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/package_stm_index.json
+    - name: Patch stm32duino 1.7.0
+      shell: bash
+      run: |
+        data_path=$(arduino-cli config dump | grep data: | sed 's/data://g')
+        cd $data_path/packages/STM32/hardware/stm32/1.7.0/
+        git init
+        git remote add -f origin https://github.com/papabricole/Arduino_Core_STM32.git
+        git reset --hard origin/malyan-m300
+    - name: Build Marlin
+      shell: bash
+      run: |
+        FQBN="STM32:stm32:3dprinter:pnum=MALYANM300_F070CB,upload_method=swdMethod,xserial=generic,usb=CDC,xusb=FS,opt=oslto,rtlib=nanofp"
+        arduino-cli compile --build-path /tmp/build --verbose --fqbn=$FQBN ./Marlin/Marlin.ino
+        mkdir firmware && touch firmware/fcupdate.flg
+        mv /tmp/build/Marlin.ino.bin firmware/firmware.bin
+    - uses: actions/upload-artifact@v1
+      with:
+        name: firmware
+        path: firmware
+
