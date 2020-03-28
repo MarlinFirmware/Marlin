@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
@@ -107,6 +107,12 @@ void GcodeSuite::M906() {
           #if AXIS_IS_TMC(E5)
             case 5: TMC_SET_CURRENT(E5); break;
           #endif
+          #if AXIS_IS_TMC(E6)
+            case 6: TMC_SET_CURRENT(E6); break;
+          #endif
+          #if AXIS_IS_TMC(E7)
+            case 7: TMC_SET_CURRENT(E7); break;
+          #endif
         }
       } break;
     }
@@ -155,7 +161,13 @@ void GcodeSuite::M906() {
     #if AXIS_IS_TMC(E5)
       TMC_SAY_CURRENT(E5);
     #endif
+    #if AXIS_IS_TMC(E6)
+      TMC_SAY_CURRENT(E6);
+    #endif
+    #if AXIS_IS_TMC(E7)
+      TMC_SAY_CURRENT(E7);
+    #endif
   }
 }
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

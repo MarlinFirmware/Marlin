@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,9 +30,9 @@
 
 #if HAS_DGUS_LCD
 
-#include "extensible_ui/ui_api.h"
-#include "extensible_ui/lib/dgus/DGUSDisplay.h"
-#include "extensible_ui/lib/dgus/DGUSDisplayDefinition.h"
+#include "extui/ui_api.h"
+#include "extui/lib/dgus/DGUSDisplay.h"
+#include "extui/lib/dgus/DGUSDisplayDef.h"
 
 extern const char NUL_STR[];
 
@@ -136,16 +136,16 @@ namespace ExtUI {
       SERIAL_ECHOLNPAIR("OnPidTuning:",rst);
       switch(rst) {
         case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_BAD_EXTRUDER_NUM));
+          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_TEMP_TOO_HIGH));
+          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_TIMEOUT));
+          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_TIMEOUT));
           break;
         case PID_DONE:
-          ScreenHandler.setstatusmessagePGM(PSTR(MSG_PID_AUTOTUNE_FINISHED));
+          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_AUTOTUNE_FINISHED));
           break;
       }
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -278,9 +278,9 @@
 #endif
 
 #define _E6_CS
+#define _E6_MS1
 #define _E6_MS2
 #define _E6_MS3
-#define _E6_MS4
 
 #if E_NEEDED(6)
   #if PIN_EXISTS(E6_CS) && AXIS_HAS_SPI(E6)
@@ -302,9 +302,9 @@
 #endif
 
 #define _E7_CS
+#define _E7_MS1
+#define _E7_MS2
 #define _E7_MS3
-#define _E7_MS4
-#define _E7_MS5
 
 #if E_NEEDED(7)
   #if PIN_EXISTS(E7_CS) && AXIS_HAS_SPI(E7)

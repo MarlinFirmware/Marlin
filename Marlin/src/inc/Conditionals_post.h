@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,6 +30,26 @@
   // Extras for CI testing
 #endif
 
+// Linear advance uses Jerk since E is an isolated axis
+#if DISABLED(CLASSIC_JERK) && ENABLED(LIN_ADVANCE)
+  #define HAS_LINEAR_E_JERK 1
+#endif
+
+// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
+#if ENABLED(EEPROM_SETTINGS)
+  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && EITHER(I2C_EEPROM, SPI_EEPROM)
+    #define USE_REAL_EEPROM 1
+  #else
+    #define USE_EMULATED_EEPROM 1
+  #endif
+#else
+  #undef I2C_EEPROM
+  #undef SPI_EEPROM
+  #undef SDCARD_EEPROM_EMULATION
+  #undef SRAM_EEPROM_EMULATION
+  #undef FLASH_EEPROM_EMULATION
+#endif
+
 #ifdef TEENSYDUINO
   #undef max
   #define max(a,b) ((a)>(b)?(a):(b))
@@ -39,9 +59,6 @@
   #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
   #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
-
-#define HAS_CLASSIC_JERK (ENABLED(CLASSIC_JERK) || IS_KINEMATIC)
-#define HAS_CLASSIC_E_JERK (ENABLED(CLASSIC_JERK) || DISABLED(LIN_ADVANCE))
 
 /**
  * Axis lengths and center
@@ -66,13 +83,8 @@
 // Define center values for future use
 #define _X_HALF_BED ((X_BED_SIZE) / 2)
 #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
-#if ENABLED(BED_CENTER_AT_0_0)
-  #define X_CENTER 0
-  #define Y_CENTER 0
-#else
-  #define X_CENTER _X_HALF_BED
-  #define Y_CENTER _Y_HALF_BED
-#endif
+#define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
+#define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
 
 // Get the linear boundaries of the bed
 #define X_MIN_BED (X_CENTER - _X_HALF_BED)
@@ -95,10 +107,18 @@
 /**
  * CoreXY, CoreXZ, and CoreYZ - and their reverse
  */
-#define CORE_IS_XY EITHER(COREXY, COREYX)
-#define CORE_IS_XZ EITHER(COREXZ, COREZX)
-#define CORE_IS_YZ EITHER(COREYZ, COREZY)
-#define IS_CORE (CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ)
+#if EITHER(COREXY, COREYX)
+  #define CORE_IS_XY 1
+#endif
+#if EITHER(COREXZ, COREZX)
+  #define CORE_IS_XZ 1
+#endif
+#if EITHER(COREYZ, COREZY)
+  #define CORE_IS_YZ 1
+#endif
+#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
+  #define IS_CORE 1
+#endif
 #if IS_CORE
   #if CORE_IS_XY
     #define CORE_AXIS_1 A_AXIS
@@ -113,11 +133,7 @@
     #define CORE_AXIS_1 B_AXIS
     #define CORE_AXIS_2 C_AXIS
   #endif
-  #if ANY(COREYX, COREZX, COREZY)
-    #define CORESIGN(n) (-(n))
-  #else
-    #define CORESIGN(n) (n)
-  #endif
+  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
 #endif
 
 /**
@@ -142,33 +158,23 @@
  */
 #ifdef MANUAL_X_HOME_POS
   #define X_HOME_POS MANUAL_X_HOME_POS
-#elif ENABLED(BED_CENTER_AT_0_0)
-  #if ENABLED(DELTA)
-    #define X_HOME_POS 0
-  #else
-    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
-  #endif
 #else
-  #if ENABLED(DELTA)
-    #define X_HOME_POS (X_MIN_POS + (X_BED_SIZE) * 0.5)
+  #define X_END_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+  #if ENABLED(BED_CENTER_AT_0_0)
+    #define X_HOME_POS TERN(DELTA, 0, X_END_POS)
   #else
-    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+    #define X_HOME_POS TERN(DELTA, X_MIN_POS + (X_BED_SIZE) * 0.5, X_END_POS)
   #endif
 #endif
 
 #ifdef MANUAL_Y_HOME_POS
   #define Y_HOME_POS MANUAL_Y_HOME_POS
-#elif ENABLED(BED_CENTER_AT_0_0)
-  #if ENABLED(DELTA)
-    #define Y_HOME_POS 0
-  #else
-    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
-  #endif
 #else
-  #if ENABLED(DELTA)
-    #define Y_HOME_POS (Y_MIN_POS + (Y_BED_SIZE) * 0.5)
+  #define Y_END_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+  #if ENABLED(BED_CENTER_AT_0_0)
+    #define Y_HOME_POS TERN(DELTA, 0, Y_END_POS)
   #else
-    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+    #define Y_HOME_POS TERN(DELTA, Y_MIN_POS + (Y_BED_SIZE) * 0.5, Y_END_POS)
   #endif
 #endif
 
@@ -271,7 +277,10 @@
   #define _LCD_CONTRAST_INIT  17
 #endif
 
-#define HAS_LCD_CONTRAST defined(_LCD_CONTRAST_INIT)
+#ifdef _LCD_CONTRAST_INIT
+  #define HAS_LCD_CONTRAST 1
+#endif
+
 #if HAS_LCD_CONTRAST
   #ifndef LCD_CONTRAST_MIN
     #ifdef _LCD_CONTRAST_MIN
@@ -298,10 +307,18 @@
 #endif
 
 /**
- * Override here because this is set in Configuration_adv.h
+ * Override the SD_DETECT_STATE set in Configuration_adv.h
  */
-#if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-  #undef SD_DETECT_INVERTED
+#if ENABLED(SDSUPPORT)
+  #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+    #undef SD_DETECT_STATE
+    #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define SD_DETECT_STATE HIGH
+    #endif
+  #endif
+  #ifndef SD_DETECT_STATE
+    #define SD_DETECT_STATE LOW
+  #endif
 #endif
 
 /**
@@ -578,99 +595,6 @@
 #define HOTEND_USES_THERMISTOR ANY( \
   HEATER_0_USES_THERMISTOR, HEATER_1_USES_THERMISTOR, HEATER_2_USES_THERMISTOR, HEATER_3_USES_THERMISTOR, \
   HEATER_4_USES_THERMISTOR, HEATER_5_USES_THERMISTOR, HEATER_6_USES_THERMISTOR, HEATER_7_USES_THERMISTOR )
-
-/**
- * Default hotend offsets, if not defined
- */
-#if HAS_HOTEND_OFFSET
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Z
-    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
-  #endif
-#endif
-
-/**
- * ARRAY_BY_EXTRUDERS based on EXTRUDERS
- */
-#define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
-#define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1)
-
-/**
- * ARRAY_BY_HOTENDS based on HOTENDS
- */
-#define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
-#define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
-
-/**
- * Driver Timings
- * NOTE: Driver timing order is longest-to-shortest duration.
- *       Preserve this ordering when adding new drivers.
- */
-
-#ifndef MINIMUM_STEPPER_POST_DIR_DELAY
-  #if HAS_DRIVER(TB6560)
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
-  #elif HAS_DRIVER(TB6600)
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 1500
-  #elif HAS_DRIVER(DRV8825)
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 650
-  #elif HAS_DRIVER(LV8729)
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 500
-  #elif HAS_DRIVER(A5984)
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 400
-  #elif HAS_DRIVER(A4988)
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 200
-  #elif HAS_TRINAMIC || HAS_TRINAMIC_STANDALONE
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
-  #else
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
-  #endif
-#endif
-
-#ifndef MINIMUM_STEPPER_PRE_DIR_DELAY
-  #define MINIMUM_STEPPER_PRE_DIR_DELAY MINIMUM_STEPPER_POST_DIR_DELAY
-#endif
-
-#ifndef MINIMUM_STEPPER_PULSE
-  #if HAS_DRIVER(TB6560)
-    #define MINIMUM_STEPPER_PULSE 30
-  #elif HAS_DRIVER(TB6600)
-    #define MINIMUM_STEPPER_PULSE 3
-  #elif HAS_DRIVER(DRV8825)
-    #define MINIMUM_STEPPER_PULSE 2
-  #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
-    #define MINIMUM_STEPPER_PULSE 1
-  #elif TRINAMICS
-    #define MINIMUM_STEPPER_PULSE 0
-  #elif HAS_DRIVER(LV8729)
-    #define MINIMUM_STEPPER_PULSE 0
-  #else
-    #define MINIMUM_STEPPER_PULSE 2
-  #endif
-#endif
-
-#ifndef MAXIMUM_STEPPER_RATE
-  #if HAS_DRIVER(TB6560)
-    #define MAXIMUM_STEPPER_RATE 15000
-  #elif HAS_DRIVER(TB6600)
-    #define MAXIMUM_STEPPER_RATE 150000
-  #elif HAS_DRIVER(DRV8825)
-    #define MAXIMUM_STEPPER_RATE 250000
-  #elif HAS_DRIVER(A4988)
-    #define MAXIMUM_STEPPER_RATE 500000
-  #elif HAS_DRIVER(LV8729)
-    #define MAXIMUM_STEPPER_RATE 1000000
-  #elif TRINAMICS
-    #define MAXIMUM_STEPPER_RATE 5000000
-  #else
-    #define MAXIMUM_STEPPER_RATE 250000
-  #endif
-#endif
 
 /**
  * X_DUAL_ENDSTOPS endstop reassignment
@@ -1386,21 +1310,41 @@
 #define HAS_SOLENOID_7    (PIN_EXISTS(SOL7))
 
 // Trinamic Stepper Drivers
-#if HAS_TRINAMIC
-  #define STEALTHCHOP_ENABLED ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
-  #define USE_SENSORLESS EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+#if HAS_TRINAMIC_CONFIG
+  #if ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
+    #define STEALTHCHOP_ENABLED 1
+  #endif
+  #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+    #define USE_SENSORLESS 1
+  #endif
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HOMING_Z_WITH_PROBE
     #undef Z_STALL_SENSITIVITY
   #endif
-  #define X_SENSORLESS  (AXIS_HAS_STALLGUARD(X)  && defined(X_STALL_SENSITIVITY))
-  #define X2_SENSORLESS (AXIS_HAS_STALLGUARD(X2) && defined(X2_STALL_SENSITIVITY))
-  #define Y_SENSORLESS  (AXIS_HAS_STALLGUARD(Y)  && defined(Y_STALL_SENSITIVITY))
-  #define Y2_SENSORLESS (AXIS_HAS_STALLGUARD(Y2) && defined(Y2_STALL_SENSITIVITY))
-  #define Z_SENSORLESS  (AXIS_HAS_STALLGUARD(Z)  && defined(Z_STALL_SENSITIVITY))
-  #define Z2_SENSORLESS (AXIS_HAS_STALLGUARD(Z2) && defined(Z2_STALL_SENSITIVITY))
-  #define Z3_SENSORLESS (AXIS_HAS_STALLGUARD(Z3) && defined(Z3_STALL_SENSITIVITY))
-  #define Z4_SENSORLESS (AXIS_HAS_STALLGUARD(Z4) && defined(Z4_STALL_SENSITIVITY))
+  #if defined(X_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(X)
+    #define X_SENSORLESS 1
+  #endif
+  #if defined(X2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2)
+    #define X2_SENSORLESS 1
+  #endif
+  #if defined(Y_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(Y)
+    #define Y_SENSORLESS 1
+  #endif
+  #if defined(Y2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2)
+    #define Y2_SENSORLESS 1
+  #endif
+  #if defined(Z_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(Z)
+    #define Z_SENSORLESS 1
+  #endif
+  #if defined(Z2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2)
+    #define Z2_SENSORLESS 1
+  #endif
+  #if defined(Z3_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3)
+    #define Z3_SENSORLESS 1
+  #endif
+  #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
+    #define Z4_SENSORLESS 1
+  #endif
   #if ENABLED(SPI_ENDSTOPS)
     #define X_SPI_SENSORLESS X_SENSORLESS
     #define Y_SPI_SENSORLESS Y_SENSORLESS
@@ -1443,7 +1387,6 @@
 #define HAS_Z4_MIN (PIN_EXISTS(Z4_MIN))
 #define HAS_Z4_MAX (PIN_EXISTS(Z4_MAX))
 #define HAS_Z_MIN_PROBE_PIN (HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE))
-#define HAS_CALIBRATION_PIN (PIN_EXISTS(CALIBRATION))
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
@@ -1485,23 +1428,48 @@
 #define HAS_HEATER_BED  (PIN_EXISTS(HEATER_BED))
 
 // Shorthand for common combinations
-#define HAS_HEATED_BED (HAS_TEMP_BED && HAS_HEATER_BED)
-#define BED_OR_CHAMBER (HAS_HEATED_BED || HAS_TEMP_CHAMBER)
-#define HAS_TEMP_SENSOR (HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE)
-#define HAS_HEATED_CHAMBER (HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER))
+#if HAS_TEMP_BED && HAS_HEATER_BED
+  #define HAS_HEATED_BED 1
+#endif
+#if HAS_HEATED_BED || HAS_TEMP_CHAMBER
+  #define BED_OR_CHAMBER 1
+#endif
+#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE
+  #define HAS_TEMP_SENSOR 1
+#endif
+#if HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER)
+  #define HAS_HEATED_CHAMBER 1
+#endif
 
 // PID heating
 #if !HAS_HEATED_BED
   #undef PIDTEMPBED
 #endif
-#define HAS_PID_HEATING EITHER(PIDTEMP, PIDTEMPBED)
-#define HAS_PID_FOR_BOTH BOTH(PIDTEMP, PIDTEMPBED)
+#if EITHER(PIDTEMP, PIDTEMPBED)
+  #define HAS_PID_HEATING 1
+#endif
+#if BOTH(PIDTEMP, PIDTEMPBED)
+  #define HAS_PID_FOR_BOTH 1
+#endif
 
 // Thermal protection
-#define HAS_THERMALLY_PROTECTED_BED (HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED))
-#define WATCH_HOTENDS (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0)
-#define WATCH_BED (HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0)
-#define WATCH_CHAMBER (HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER) && WATCH_CHAMBER_TEMP_PERIOD > 0)
+#if HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED)
+  #define HAS_THERMALLY_PROTECTED_BED 1
+#endif
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+  #define WATCH_HOTENDS 1
+#endif
+#if HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0
+  #define WATCH_BED 1
+#endif
+#if HAS_HEATED_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER) && WATCH_CHAMBER_TEMP_PERIOD > 0
+  #define WATCH_CHAMBER 1
+#endif
+#if  (ENABLED(THERMAL_PROTECTION_HOTENDS) || !EXTRUDERS) \
+  && (ENABLED(THERMAL_PROTECTION_BED)     || !HAS_HEATED_BED) \
+  && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER)
+  #define THERMALLY_SAFE 1
+#endif
 
 // Auto fans
 #define HAS_AUTO_FAN_0 (HOTENDS > 0 && PIN_EXISTS(E0_AUTO_FAN))
@@ -1523,6 +1491,7 @@
 #if !HAS_TEMP_SENSOR
   #undef AUTO_REPORT_TEMPERATURES
 #endif
+#define HAS_AUTO_REPORTING EITHER(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS)
 
 #if !HAS_AUTO_CHAMBER_FAN || AUTO_CHAMBER_IS_E
   #undef AUTO_POWER_CHAMBER_FAN
@@ -1547,36 +1516,52 @@
 #define HAS_SERVO_3 (PIN_EXISTS(SERVO3) && NUM_SERVOS > 3)
 #define HAS_SERVOS  (NUM_SERVOS > 0)
 
-#if HAS_SERVOS && !defined(Z_PROBE_SERVO_NR)
-  #define Z_PROBE_SERVO_NR -1
-#endif
-
-#define HAS_SERVO_ANGLES (EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE) || (HAS_Z_SERVO_PROBE && defined(Z_PROBE_SERVO_NR)))
-
-#if !HAS_SERVO_ANGLES || ENABLED(BLTOUCH)
-  #undef EDITABLE_SERVO_ANGLES
-#endif
-
 // Sensors
 #define HAS_FILAMENT_WIDTH_SENSOR (PIN_EXISTS(FILWIDTH))
 
 // User Interface
-#define HAS_HOME        (PIN_EXISTS(HOME))
-#define HAS_KILL        (PIN_EXISTS(KILL))
-#define HAS_SUICIDE     (PIN_EXISTS(SUICIDE))
-#define HAS_PHOTOGRAPH  (PIN_EXISTS(PHOTOGRAPH))
-#define HAS_BUZZER      (PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER))
-#define USE_BEEPER      (HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER))
-#define HAS_CASE_LIGHT  (PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE))
+#if PIN_EXISTS(HOME)
+  #define HAS_HOME 1
+#endif
+#if PIN_EXISTS(KILL)
+  #define HAS_KILL 1
+#endif
+#if PIN_EXISTS(SUICIDE)
+  #define HAS_SUICIDE 1
+#endif
+#if PIN_EXISTS(PHOTOGRAPH)
+  #define HAS_PHOTOGRAPH 1
+#endif
+#if PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #define HAS_BUZZER 1
+#endif
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #define USE_BEEPER 1
+#endif
+#if PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE)
+  #define HAS_CASE_LIGHT 1
+#endif
 
 // Digital control
-#define HAS_STEPPER_RESET     (PIN_EXISTS(STEPPER_RESET))
-#define HAS_DIGIPOTSS         (PIN_EXISTS(DIGIPOTSS))
-#define HAS_MOTOR_CURRENT_PWM ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+#if PIN_EXISTS(STEPPER_RESET)
+  #define HAS_STEPPER_RESET 1
+#endif
+#if PIN_EXISTS(DIGIPOTSS)
+  #define HAS_DIGIPOTSS 1
+#endif
+#if  ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+  #define HAS_MOTOR_CURRENT_PWM 1
+#endif
 
-#define HAS_SOME_Z_MICROSTEPS (HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS || HAS_Z4_MICROSTEPS)
-#define HAS_SOME_E_MICROSTEPS (HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS || HAS_E5_MICROSTEPS || HAS_E6_MICROSTEPS || HAS_E7_MICROSTEPS)
-#define HAS_MICROSTEPS (HAS_X_MICROSTEPS || HAS_X2_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Y2_MICROSTEPS || HAS_SOME_Z_MICROSTEPS || HAS_SOME_E_MICROSTEPS)
+#if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS || HAS_Z4_MICROSTEPS
+  #define HAS_SOME_Z_MICROSTEPS 1
+#endif
+#if HAS_E0_MICROSTEPS || HAS_E1_MICROSTEPS || HAS_E2_MICROSTEPS || HAS_E3_MICROSTEPS || HAS_E4_MICROSTEPS || HAS_E5_MICROSTEPS || HAS_E6_MICROSTEPS || HAS_E7_MICROSTEPS
+  #define HAS_SOME_E_MICROSTEPS 1
+#endif
+#if HAS_X_MICROSTEPS || HAS_X2_MICROSTEPS || HAS_Y_MICROSTEPS || HAS_Y2_MICROSTEPS || HAS_SOME_Z_MICROSTEPS || HAS_SOME_E_MICROSTEPS
+  #define HAS_MICROSTEPS 1
+#endif
 
 #if HAS_MICROSTEPS
 
@@ -1628,20 +1613,6 @@
   #define HAS_MICROSTEP128 defined(MICROSTEP128)
 
 #endif // HAS_MICROSTEPS
-
-#if !HAS_TEMP_SENSOR
-  #undef AUTO_REPORT_TEMPERATURES
-#endif
-
-#define HAS_AUTO_REPORTING EITHER(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS)
-
-/**
- * This setting is also used by M109 when trying to calculate
- * a ballpark safe margin to prevent wait-forever situation.
- */
-#ifndef EXTRUDE_MINTEMP
-  #define EXTRUDE_MINTEMP 170
-#endif
 
 /**
  * Heater signal inversion defaults
@@ -1882,26 +1853,6 @@
 #endif // SKEW_CORRECTION
 
 /**
- * Set granular options based on the specific type of leveling
- */
-#define UBL_SEGMENTED   BOTH(AUTO_BED_LEVELING_UBL, DELTA)
-#define ABL_PLANAR      EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
-#define ABL_GRID        EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
-#define HAS_ABL_NOT_UBL (ABL_PLANAR || ABL_GRID)
-#define HAS_ABL_OR_UBL  (HAS_ABL_NOT_UBL || ENABLED(AUTO_BED_LEVELING_UBL))
-#define HAS_LEVELING    (HAS_ABL_OR_UBL || ENABLED(MESH_BED_LEVELING))
-#define HAS_AUTOLEVEL   (HAS_ABL_OR_UBL && DISABLED(PROBE_MANUALLY))
-#define HAS_MESH        ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
-#define PLANNER_LEVELING      (HAS_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL))
-#define HAS_PROBING_PROCEDURE (HAS_ABL_OR_UBL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
-#define HAS_POSITION_MODIFIERS (ENABLED(FWRETRACT) || HAS_LEVELING || ENABLED(SKEW_CORRECTION))
-#define NEEDS_THREE_PROBE_POINTS EITHER(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_3POINT)
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #undef LCD_BED_LEVELING
-#endif
-
-/**
  * Heater, Fan, and Probe interactions
  */
 #if FAN_COUNT == 0
@@ -2025,8 +1976,8 @@
   #undef MESH_MAX_Y
 #endif
 
-#if (defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y))
-  #define HAS_FIXED_3POINT
+#if defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y)
+  #define HAS_FIXED_3POINT 1
 #endif
 
 /**
@@ -2064,10 +2015,10 @@
  * Z_HOMING_HEIGHT / Z_CLEARANCE_BETWEEN_PROBES
  */
 #ifndef Z_HOMING_HEIGHT
-  #ifndef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_HOMING_HEIGHT 0
-  #else
+  #ifdef Z_CLEARANCE_BETWEEN_PROBES
     #define Z_HOMING_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define Z_HOMING_HEIGHT 0
   #endif
 #endif
 
@@ -2095,15 +2046,16 @@
 #endif
 
 // Updated G92 behavior shifts the workspace
-#define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
-// The home offset also shifts the coordinate space
-#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_CARTESIAN)
-// The SCARA home offset applies only on G28
-#define HAS_SCARA_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_SCARA)
-// Cumulative offset to workspace to save some calculation
-#define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT && HAS_HOME_OFFSET)
-// M206 sets the home offset for Cartesian machines
-#define HAS_M206_COMMAND (HAS_HOME_OFFSET && !IS_SCARA)
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  #define HAS_POSITION_SHIFT 1
+  #if IS_CARTESIAN
+    #define HAS_HOME_OFFSET 1       // The home offset also shifts the coordinate space
+    #define HAS_WORKSPACE_OFFSET 1  // Cumulative offset to workspace to save some calculation
+    #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
+  #elif IS_SCARA
+    #define HAS_SCARA_OFFSET 1      // The SCARA home offset applies only on G28
+  #endif
+#endif
 
 // LCD timeout to status screen default is 15s
 #ifndef LCD_TIMEOUT_TO_STATUS
@@ -2111,7 +2063,9 @@
 #endif
 
 // Add commands that need sub-codes to this list
-#define USE_GCODE_SUBCODES ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
+#if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
+  #define USE_GCODE_SUBCODES
+#endif
 
 // Parking Extruder
 #if ENABLED(PARKING_EXTRUDER)
@@ -2124,34 +2078,7 @@
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
-#if ENABLED(SCROLL_LONG_FILENAMES)
-  #define MAX_VFAT_ENTRIES (5)
-#else
-  #define MAX_VFAT_ENTRIES (2)
-#endif
-
-// Set defaults for unspecified LED user colors
-#if ENABLED(LED_CONTROL_MENU)
-  #ifndef LED_USER_PRESET_RED
-    #define LED_USER_PRESET_RED       255
-  #endif
-  #ifndef LED_USER_PRESET_GREEN
-    #define LED_USER_PRESET_GREEN     255
-  #endif
-  #ifndef LED_USER_PRESET_BLUE
-    #define LED_USER_PRESET_BLUE      255
-  #endif
-  #ifndef LED_USER_PRESET_WHITE
-    #define LED_USER_PRESET_WHITE     0
-  #endif
-  #ifndef LED_USER_PRESET_BRIGHTNESS
-    #ifdef NEOPIXEL_BRIGHTNESS
-      #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
-    #else
-      #define LED_USER_PRESET_BRIGHTNESS 255
-    #endif
-  #endif
-#endif
+#define MAX_VFAT_ENTRIES TERN(SCROLL_LONG_FILENAMES, 5, 2)
 
 // Nozzle park for Delta
 #if BOTH(NOZZLE_PARK_FEATURE, DELTA)
@@ -2163,9 +2090,8 @@
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
 #if defined(TARGET_LPC1768) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && (SCK_PIN == LCD_PINS_D4)
-  #define SDCARD_SORT_ALPHA         // Keeps one directory level in RAM. Changing
-                                    // directory levels still glitches the screen,
-                                    // but the following LCD update cleans it up.
+  #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
+                                    // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
   #undef SDSORT_USES_RAM
   #undef SDSORT_USES_STACK
@@ -2189,37 +2115,30 @@
 #endif
 
 // Defined here to catch the above defines
-#if ENABLED(SDCARD_SORT_ALPHA)
-  #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
+#if ENABLED(SDCARD_SORT_ALPHA) && (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
+  #define HAS_FOLDER_SORTING 1
 #endif
-
-// If platform requires early initialization of watchdog to properly boot
-#define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
 
 #if HAS_SPI_LCD
   // Get LCD character width/height, which may be overridden by pins, configs, etc.
   #ifndef LCD_WIDTH
     #if HAS_GRAPHICAL_LCD
       #define LCD_WIDTH 21
-    #elif ENABLED(ULTIPANEL)
-      #define LCD_WIDTH 20
     #else
-      #define LCD_WIDTH 16
+      #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
     #if HAS_GRAPHICAL_LCD
       #define LCD_HEIGHT 5
-    #elif ENABLED(ULTIPANEL)
-      #define LCD_HEIGHT 4
     #else
-      #define LCD_HEIGHT 2
+      #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
   #endif
 #endif
 
 #if ENABLED(SDSUPPORT)
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE)
+  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
@@ -2235,11 +2154,4 @@
 
 #if !NUM_SERIAL
   #undef BAUD_RATE_GCODE
-#endif
-
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  #undef Z_STEPPER_ALIGN_AMP
-#endif
-#ifndef Z_STEPPER_ALIGN_AMP
-  #define Z_STEPPER_ALIGN_AMP 1.0
 #endif

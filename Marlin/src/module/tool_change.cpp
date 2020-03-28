@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -45,8 +45,8 @@
   #endif
 #endif
 
-#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
-  #include "../gcode/gcode.h" // for dwell()
+#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+  #include "../gcode/gcode.h"
 #endif
 
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
@@ -74,7 +74,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../feature/prusa_MMU2/mmu2.h"
+  #include "../feature/mmu2/mmu2.h"
 #endif
 
 #if HAS_LCD_MENU
@@ -251,7 +251,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    for (uint8_t n = 0; n <= 1; ++n)
+    LOOP_LE_N(n, 1)
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
         pe_activate_solenoid(n);
       #else
@@ -368,10 +368,15 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #if ENABLED(SWITCHING_TOOLHEAD)
 
+  inline void swt_lock(const bool locked=true) {
+    const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+  }
+
+  void swt_init() { swt_lock(); }
+
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
-
-    constexpr uint16_t angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
@@ -406,7 +411,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     planner.synchronize();
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[1]);
+    swt_lock(false);
     safe_delay(500);
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS;
@@ -451,7 +456,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     // Wait for move to finish, pause 0.2s, move servo, pause 0.5s
     planner.synchronize();
     safe_delay(200);
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[0]);
+    swt_lock();
     safe_delay(500);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
@@ -700,7 +705,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
     SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
-    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER);
   }
 #endif
 
@@ -843,7 +848,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
       if (should_swap) {
         if (too_cold) {
-          SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+          SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = new_tool;
             return;
@@ -861,7 +866,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
     #endif // TOOLCHANGE_FILAMENT_SWAP
 
-    #if HAS_LEVELING
+    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
       // Set current position to the physical position
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
@@ -1068,11 +1073,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
-      gcode.process_subcommands_now_P(EVENT_GCODE_AFTER_TOOLCHANGE);
+      if (!no_move)
+        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
     #endif
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // EXTRUDERS > 1
 }

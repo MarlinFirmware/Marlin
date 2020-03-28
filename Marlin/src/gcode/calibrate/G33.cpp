@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -100,7 +100,7 @@ void ac_cleanup(
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
   #if HAS_BED_PROBE
-    STOW_PROBE();
+    probe.stow();
   #endif
   restore_feedrate_and_scaling();
   #if HOTENDS > 1
@@ -190,7 +190,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
+    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true, false);
   #else
     UNUSED(stow);
     return lcd_probe_pt(xy);

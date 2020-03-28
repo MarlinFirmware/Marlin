@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -69,7 +69,7 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 void event_filament_runout() {
@@ -92,11 +92,7 @@ void event_filament_runout() {
 
   //action:out_of_filament
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
-    host_action_prompt_end();
-    host_action_prompt_begin(PSTR("FilamentRunout T"), false);
-    SERIAL_CHAR(tool);
-    SERIAL_EOL();
+    host_action_prompt_begin(PROMPT_FILAMENT_RUNOUT, PSTR("FilamentRunout T"), tool);
     host_action_prompt_show();
   #endif
 

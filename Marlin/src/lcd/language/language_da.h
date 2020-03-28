@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -105,7 +105,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gem i EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hent fra EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Gendan failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Gendan Defaults");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Genopfrisk");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info skærm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Forbered");

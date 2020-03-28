@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -141,7 +141,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCDコントラスト");               // "LCD contrast"
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("EEPROMヘホゾン");               // "Store memory"
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("EEPROMカラヨミコミ");               // "Load memory"
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("セッテイリセット");               // "Restore failsafe"
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("セッテイリセット");               // "Restore Defaults"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("リフレッシュ");                  // "Refresh"
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("ジョウホウガメン");               // "Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("ジュンビセッテイ");               // "Prepare"
@@ -166,7 +166,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("ホショウソクド mm/s");            // "UnRet  V"
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("ジドウヒキコミ");                 // "AutoRetr."
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("フィラメントコウカン");              // "Change filament"
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("メディアサイヨミコミ");             // "Init. SD card"
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("メディアサイヨミコミ");             // "Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("メディアコウカン");               // "Change SD card"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Zプローブ ベッドガイ");            // "Z probe out. bed"
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch ジコシンダン");          // "BLTouch Self-Test"

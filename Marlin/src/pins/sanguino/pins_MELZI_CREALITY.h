@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -46,15 +46,15 @@
 #undef LCD_PINS_D5
 #undef LCD_PINS_D6
 #undef LCD_PINS_D7
-#undef FIL_RUNOUT_PIN           // Uses Beeper/LED Pin Pulled to GND
+#undef FIL_RUNOUT_PIN                             // Uses Beeper/LED Pin Pulled to GND
 
-#define LCD_SDSS           31   // Smart Controller SD card reader (rather than the Melzi)
-#define LCD_PINS_RS        28   // ST9720 CS
-#define LCD_PINS_ENABLE    17   // ST9720 DAT
-#define LCD_PINS_D4        30   // ST9720 CLK
+#define LCD_SDSS                             31   // Smart Controller SD card reader (rather than the Melzi)
+#define LCD_PINS_RS                          28   // ST9720 CS
+#define LCD_PINS_ENABLE                      17   // ST9720 DAT
+#define LCD_PINS_D4                          30   // ST9720 CLK
 
 #if ENABLED(BLTOUCH)
-  #define SERVO0_PIN 27
+  #define SERVO0_PIN                         27
   #undef BEEPER_PIN
 #endif
 
@@ -67,7 +67,7 @@
 
 #if ENABLED(MINIPANEL)
   #undef DOGLCD_CS
-  #define DOGLCD_CS        LCD_PINS_RS
+  #define DOGLCD_CS LCD_PINS_RS
 #endif
 
 /**

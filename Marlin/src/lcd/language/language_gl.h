@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -117,7 +117,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Constraste LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gardar en memo.");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Cargar de memo.");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Cargar de firm.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Cargar de firm.");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Volver a cargar");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Monitorizacion");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
@@ -143,7 +143,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Retraccion auto.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambiar filamen.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambiar filamen. *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Iniciando SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Iniciando SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambiar SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda-Z sen cama");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Comprobar BLTouch");

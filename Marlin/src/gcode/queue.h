@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,9 +35,7 @@ public:
    * commands to Marlin, and lines will be checked for sequentiality.
    * M110 N<int> sets the current line number.
    */
-  static long last_N, stopped_N;
-
-  static inline void stop() { stopped_N = last_N; }
+  static long last_N;
 
   /**
    * GCode Command Queue
@@ -78,6 +76,12 @@ public:
    * Enqueue and return only when commands are actually enqueued
    */
   static void enqueue_one_now(const char* cmd);
+
+  /**
+   * Attempt to enqueue a single G-code command
+   * and return 'true' if successful.
+   */
+  static bool enqueue_one_P(PGM_P const pgcode);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued

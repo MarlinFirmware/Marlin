@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,7 +40,7 @@ void GcodeSuite::G60() {
   const uint8_t slot = parser.byteval('S');
 
   if (slot >= SAVED_POSITIONS) {
-    SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
+    SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
     return;
   }
 
@@ -49,7 +49,7 @@ void GcodeSuite::G60() {
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
     const xyze_pos_t &pos = stored_position[slot];
-    DEBUG_ECHOPAIR_F(MSG_SAVED_POS " S", slot);
+    DEBUG_ECHOPAIR_F(STR_SAVED_POS " S", slot);
     DEBUG_ECHOPAIR_F(" : X", pos.x);
     DEBUG_ECHOPAIR_F_P(SP_Y_STR, pos.y);
     DEBUG_ECHOLNPAIR_F_P(SP_Z_STR, pos.z);

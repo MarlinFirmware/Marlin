@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@
 #line 46
 
 // manually add pins that have names that are macros which don't play well with these macros
-#if (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY || defined(ARDUINO_ARCH_SAM))
+#if (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY || defined(ARDUINO_ARCH_SAM) || defined(TARGET_LPC1768))
   #if SERIAL_PORT == 0
     static const char RXD_NAME_0[] PROGMEM = { "RXD0" };
     static const char TXD_NAME_0[] PROGMEM = { "TXD0" };
@@ -116,6 +116,9 @@ const PinInfo pin_array[] PROGMEM = {
     #elif AVR_ATmega1284_FAMILY
       { RXD_NAME_0, 8, true },
       { TXD_NAME_0, 9, true },
+    #elif defined(TARGET_LPC1768)
+      { RXD_NAME_0, 3, true },
+      { TXD_NAME_0, 2, true },
     #endif
   #elif SERIAL_PORT == 1
     #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
@@ -124,16 +127,25 @@ const PinInfo pin_array[] PROGMEM = {
     #elif AVR_ATmega1284_FAMILY
       { RXD_NAME_1, 10, true },
       { TXD_NAME_1, 11, true },
+    #elif defined(TARGET_LPC1768)
+      { RXD_NAME_1, 16, true },
+      { TXD_NAME_1, 15, true },
     #endif
   #elif SERIAL_PORT == 2
     #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
       { RXD_NAME_2, 17, true },
       { TXD_NAME_2, 16, true },
+    #elif defined(TARGET_LPC1768)
+      { RXD_NAME_2, 11, true },
+      { TXD_NAME_2, 10, true },
     #endif
   #elif SERIAL_PORT == 3
     #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
       { RXD_NAME_3, 15, true },
       { TXD_NAME_3, 14, true },
+    #elif defined(TARGET_LPC1768)
+      { RXD_NAME_3, 1, true },
+      { TXD_NAME_3, 0, true },
     #endif
   #endif
 
@@ -145,6 +157,9 @@ const PinInfo pin_array[] PROGMEM = {
       #elif AVR_ATmega1284_FAMILY
         { RXD_NAME_0, 8, true },
         { TXD_NAME_0, 9, true },
+      #elif defined(TARGET_LPC1768)
+        { RXD_NAME_0, 3, true },
+        { TXD_NAME_0, 2, true },
       #endif
     #elif SERIAL_PORT_2 == 1
       #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
@@ -153,22 +168,31 @@ const PinInfo pin_array[] PROGMEM = {
       #elif AVR_ATmega1284_FAMILY
         { RXD_NAME_1, 10, true },
         { TXD_NAME_1, 11, true },
+      #elif defined(TARGET_LPC1768)
+        { RXD_NAME_1, 16, true },
+        { TXD_NAME_1, 15, true },
       #endif
     #elif SERIAL_PORT_2 == 2
       #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
         { RXD_NAME_2, 17, true },
         { TXD_NAME_2, 16, true },
+      #elif defined(TARGET_LPC1768)
+        { RXD_NAME_2, 11, true },
+        { TXD_NAME_2, 10, true },
       #endif
     #elif SERIAL_PORT_2 == 3
       #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
         { RXD_NAME_3, 15, true },
         { TXD_NAME_3, 14, true },
+      #elif defined(TARGET_LPC1768)
+        { RXD_NAME_3, 1, true },
+        { TXD_NAME_3, 0, true },
       #endif
     #endif
   #endif
 
   #include "pinsDebug_list.h"
-  #line 98
+  #line 172
 
 };
 
@@ -183,17 +207,32 @@ static void print_input_or_output(const bool isout) {
 }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = false, const char *start_string = "") {
+inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool extended=false, PGM_P const start_string=nullptr) {
   char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
-  for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
+  auto alt_pin_echo = [](const pin_t &pin) {
+    #if AVR_AT90USB1286_FAMILY
+      // Use FastIO for pins Teensy doesn't expose
+      if (pin == 46) {
+        print_input_or_output(IS_OUTPUT(46));
+        SERIAL_CHAR('0' + READ(46));
+        return false;
+      }
+      else if (pin == 47) {
+        print_input_or_output(IS_OUTPUT(47));
+        SERIAL_CHAR('0' + READ(47));
+        return false;
+      }
+    #endif
+    return true;
+  };
+
+  LOOP_L_N(x, COUNT(pin_array))  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
-      if (found) multi_name_pin = true;
-      found = true;
-      if (!multi_name_pin) {    // report digital and analog pin number only on the first time through
-        sprintf_P(buffer, PSTR("%sPIN: "), start_string);     // digital pin number
-        SERIAL_ECHO(buffer);
+      if (!found) {    // report digital and analog pin number only on the first time through
+        if (start_string) serialprintPGM(start_string);
+        serialprintPGM(PSTR("PIN: "));
         PRINT_PIN(pin);
         PRINT_PORT(pin);
         if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
@@ -204,27 +243,14 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
       }
       else {
         SERIAL_CHAR('.');
-        SERIAL_ECHO_SP(MULTI_NAME_PAD + strlen(start_string));  // add padding if not the first instance found
+        SERIAL_ECHO_SP(MULTI_NAME_PAD + (start_string ? strlen_P(start_string) : 0));  // add padding if not the first instance found
       }
       PRINT_ARRAY_NAME(x);
       if (extended) {
         if (pin_is_protected(pin) && !ignore)
           SERIAL_ECHOPGM("protected ");
         else {
-          #if AVR_AT90USB1286_FAMILY //Teensy IDEs don't know about these pins so must use FASTIO
-            if (pin == 46 || pin == 47) {
-              if (pin == 46) {
-                print_input_or_output(IS_OUTPUT(46));
-                SERIAL_CHAR('0' + READ(46));
-              }
-              else if (pin == 47) {
-                print_input_or_output(IS_OUTPUT(47));
-                SERIAL_CHAR('0' + READ(47));
-              }
-            }
-            else
-          #endif
-          {
+          if (alt_pin_echo(pin)) {
             if (!GET_ARRAY_IS_DIGITAL(x)) {
               sprintf_P(buffer, PSTR("Analog in = %5ld"), (long)analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
               SERIAL_ECHO(buffer);
@@ -250,12 +276,14 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
         }
       }
       SERIAL_EOL();
+      multi_name_pin = found;
+      found = true;
     }  // end of IF
   } // end of for loop
 
   if (!found) {
-    sprintf_P(buffer, PSTR("%sPIN: "), start_string);
-    SERIAL_ECHO(buffer);
+    if (start_string) serialprintPGM(start_string);
+    serialprintPGM(PSTR("PIN: "));
     PRINT_PIN(pin);
     PRINT_PORT(pin);
     if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
@@ -266,21 +294,8 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
       SERIAL_ECHO_SP(8);   // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
     if (extended) {
-      #if AVR_AT90USB1286_FAMILY  //Teensy IDEs don't know about these pins so must use FASTIO
-        if (pin == 46 || pin == 47) {
-          SERIAL_ECHO_SP(12);
-          if (pin == 46) {
-            print_input_or_output(IS_OUTPUT(46));
-            SERIAL_CHAR('0' + READ(46));
-          }
-          else {
-            print_input_or_output(IS_OUTPUT(47));
-            SERIAL_CHAR('0' + READ(47));
-          }
-        }
-        else
-      #endif
-      {
+
+      if (alt_pin_echo(pin)) {
         if (pwm_status(pin)) {
           // do nothing
         }

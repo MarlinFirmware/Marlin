@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,7 +30,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #else // PRINTCOUNTER
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #include "printcounter.h"
@@ -183,7 +183,7 @@ void PrintCounter::saveStats() {
 
 #if HAS_SERVICE_INTERVALS
   inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
-    SERIAL_ECHOPGM(MSG_STATS);
+    SERIAL_ECHOPGM(STR_STATS);
     serialprintPGM(msg);
     SERIAL_ECHOLNPAIR(" in ", duration_t(when).toString(buffer));
   }
@@ -192,7 +192,7 @@ void PrintCounter::saveStats() {
 void PrintCounter::showStats() {
   char buffer[21];
 
-  SERIAL_ECHOPGM(MSG_STATS);
+  SERIAL_ECHOPGM(STR_STATS);
   SERIAL_ECHOLNPAIR(
     "Prints: ", data.totalPrints,
     ", Finished: ", data.finishedPrints,
@@ -200,7 +200,7 @@ void PrintCounter::showStats() {
                     - ((isRunning() || isPaused()) ? 1 : 0) // Remove 1 from failures with an active counter
   );
 
-  SERIAL_ECHOPGM(MSG_STATS);
+  SERIAL_ECHOPGM(STR_STATS);
   duration_t elapsed = data.printTime;
   elapsed.toString(buffer);
   SERIAL_ECHOPAIR("Total time: ", buffer);
@@ -217,7 +217,7 @@ void PrintCounter::showStats() {
     SERIAL_CHAR(')');
   #endif
 
-  SERIAL_ECHOPAIR("\n" MSG_STATS "Filament used: ", data.filamentUsed / 1000);
+  SERIAL_ECHOPAIR("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
   SERIAL_CHAR('m');
   SERIAL_EOL();
 

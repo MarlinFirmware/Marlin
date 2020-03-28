@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -57,7 +57,8 @@
 
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
-  constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE;
+  constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
+                            manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
 #endif
 
 enum BlockFlagBit : char {
@@ -288,6 +289,12 @@ class Planner {
       static float extruder_advance_K[EXTRUDERS];
     #endif
 
+    /**
+     * The current position of the tool in absolute steps
+     * Recalculated if any axis_steps_per_mm are changed by gcode
+     */
+    static xyze_long_t position;
+
     #if HAS_POSITION_FLOAT
       static xyze_pos_t position_float;
     #endif
@@ -303,12 +310,6 @@ class Planner {
     #endif
 
   private:
-
-    /**
-     * The current position of the tool in absolute steps
-     * Recalculated if any axis_steps_per_mm are changed by gcode
-     */
-    static xyze_long_t position;
 
     /**
      * Speed of previous path line segment
@@ -402,7 +403,7 @@ class Planner {
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
         filament_size[e] = v;
         // make sure all extruders have some sane value for the filament size
-        for (uint8_t i = 0; i < COUNT(filament_size); i++)
+        LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
@@ -724,6 +725,16 @@ class Planner {
      */
     static float get_axis_position_mm(const AxisEnum axis);
 
+    static inline abce_pos_t get_axis_positions_mm() {
+      const abce_pos_t out = {
+        get_axis_position_mm(A_AXIS),
+        get_axis_position_mm(B_AXIS),
+        get_axis_position_mm(C_AXIS),
+        get_axis_position_mm(E_AXIS)
+      };
+      return out;
+    }
+
     // SCARA AB axes are in degrees, not mm
     #if IS_SCARA
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
@@ -762,60 +773,18 @@ class Planner {
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
-     * The current block. nullptr if the buffer is empty.
-     * This also marks the block as busy.
+     * Get the current block for processing
+     * and mark the block as busy.
+     * Return nullptr if the buffer is empty
+     * or if there is a first-block delay.
+     *
      * WARNING: Called from Stepper ISR context!
      */
-    static block_t* get_current_block() {
-
-      // Get the number of moves in the planner queue so far
-      const uint8_t nr_moves = movesplanned();
-
-      // If there are any moves queued ...
-      if (nr_moves) {
-
-        // If there is still delay of delivery of blocks running, decrement it
-        if (delay_before_delivering) {
-          --delay_before_delivering;
-          // If the number of movements queued is less than 3, and there is still time
-          //  to wait, do not deliver anything
-          if (nr_moves < 3 && delay_before_delivering) return nullptr;
-          delay_before_delivering = 0;
-        }
-
-        // If we are here, there is no excuse to deliver the block
-        block_t * const block = &block_buffer[block_buffer_tail];
-
-        // No trapezoid calculated? Don't execute yet.
-        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
-
-        #if HAS_SPI_LCD
-          block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
-        #endif
-
-        // As this block is busy, advance the nonbusy block pointer
-        block_buffer_nonbusy = next_block_index(block_buffer_tail);
-
-        // Push block_buffer_planned pointer, if encountered.
-        if (block_buffer_tail == block_buffer_planned)
-          block_buffer_planned = block_buffer_nonbusy;
-
-        // Return the block
-        return block;
-      }
-
-      // The queue became empty
-      #if HAS_SPI_LCD
-        clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
-      #endif
-
-      return nullptr;
-    }
+    static block_t* get_current_block();
 
     /**
      * "Discard" the block and "release" the memory.
      * Called when the current block is no longer needed.
-     * NB: There MUST be a current block to call this function!!
      */
     FORCE_INLINE static void discard_current_block() {
       if (has_blocks_queued())
@@ -823,47 +792,8 @@ class Planner {
     }
 
     #if HAS_SPI_LCD
-
-      static uint16_t block_buffer_runtime() {
-        #ifdef __AVR__
-          // Protect the access to the variable. Only required for AVR, as
-          //  any 32bit CPU offers atomic access to 32bit variables
-          bool was_enabled = STEPPER_ISR_ENABLED();
-          if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-        #endif
-
-        millis_t bbru = block_buffer_runtime_us;
-
-        #ifdef __AVR__
-          // Reenable Stepper ISR
-          if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
-        #endif
-
-        // To translate µs to ms a division by 1000 would be required.
-        // We introduce 2.4% error here by dividing by 1024.
-        // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
-        bbru >>= 10;
-        // limit to about a minute.
-        NOMORE(bbru, 0xFFFFul);
-        return bbru;
-      }
-
-      static void clear_block_buffer_runtime() {
-        #ifdef __AVR__
-          // Protect the access to the variable. Only required for AVR, as
-          //  any 32bit CPU offers atomic access to 32bit variables
-          bool was_enabled = STEPPER_ISR_ENABLED();
-          if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-        #endif
-
-        block_buffer_runtime_us = 0;
-
-        #ifdef __AVR__
-          // Reenable Stepper ISR
-          if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
-        #endif
-      }
-
+      static uint16_t block_buffer_runtime();
+      static void clear_block_buffer_runtime();
     #endif
 
     #if ENABLED(AUTOTEMP)
@@ -877,7 +807,7 @@ class Planner {
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
-          for (uint8_t i = 0; i < EXTRUDERS; i++)
+          LOOP_L_N(i, EXTRUDERS)
             max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
         #else
           max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);

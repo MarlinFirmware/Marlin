@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,10 +40,10 @@
   void GcodeSuite::M666() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> M666");
     LOOP_XYZ(i) {
-      if (parser.seen(axis_codes[i])) {
+      if (parser.seen(XYZ_CHAR(i))) {
         const float v = parser.value_linear_units();
         if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", axis_codes[i], "] = ", delta_endstop_adj[i]);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", XYZ_CHAR(i), "] = ", delta_endstop_adj[i]);
       }
     }
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< M666");
@@ -94,13 +94,8 @@
         SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
       #endif
       #if ENABLED(Z_MULTI_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Z2:", endstops.z2_endstop_adj);
-        #if NUM_Z_STEPPER_DRIVERS >= 3
-          SERIAL_ECHOPAIR(" Z3:", endstops.z3_endstop_adj);
-          #if NUM_Z_STEPPER_DRIVERS >= 4
-            SERIAL_ECHOPAIR(" Z4:", endstops.z4_endstop_adj);
-          #endif
-        #endif
+        #define _ECHO_ZADJ(N) SERIAL_ECHOPAIR(" Z" STRINGIFY(N) ":", endstops.z##N##_endstop_adj);
+        REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _ECHO_ZADJ)
       #endif
       SERIAL_EOL();
     }

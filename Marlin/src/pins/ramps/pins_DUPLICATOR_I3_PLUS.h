@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,68 +34,68 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN         54   // PF0 / A0
-#define Y_STOP_PIN         24   // PA2 / AD2
-#define Z_MIN_PIN          23   // PA1 / AD1
-#define Z_MAX_PIN          25   // PA3 / AD3
-#define SERVO0_PIN         40   // PG1 / !RD
+#define X_STOP_PIN                            54  // PF0 / A0
+#define Y_STOP_PIN                            24  // PA2 / AD2
+#define Z_MIN_PIN                             23  // PA1 / AD1
+#define Z_MAX_PIN                             25  // PA3 / AD3
+#define SERVO0_PIN                            40  // PG1 / !RD
 
 //
 // Steppers
 //
-#define X_STEP_PIN         61   // PF7 / A7
-#define X_DIR_PIN          62   // PK0 / A8
-#define X_ENABLE_PIN       60   // PF6 / A6
+#define X_STEP_PIN                            61  // PF7 / A7
+#define X_DIR_PIN                             62  // PK0 / A8
+#define X_ENABLE_PIN                          60  // PF6 / A6
 
-#define Y_STEP_PIN         64   // PK2 / A10
-#define Y_DIR_PIN          65   // PK3 / A11
-#define Y_ENABLE_PIN       63   // PK1 / A9
+#define Y_STEP_PIN                            64  // PK2 / A10
+#define Y_DIR_PIN                             65  // PK3 / A11
+#define Y_ENABLE_PIN                          63  // PK1 / A9
 
-#define Z_STEP_PIN         67   // PK5 / A13
-#define Z_DIR_PIN          69   // PK7 / A15
-#define Z_ENABLE_PIN       66   // PK4 / A12
-#define Z_MIN_PROBE_PIN    25   // PA3 / AD3
+#define Z_STEP_PIN                            67  // PK5 / A13
+#define Z_DIR_PIN                             69  // PK7 / A15
+#define Z_ENABLE_PIN                          66  // PK4 / A12
+#define Z_MIN_PROBE_PIN                       25  // PA3 / AD3
 
-#define E0_STEP_PIN        58   // PF4 / A4
-#define E0_DIR_PIN         59   // PF5 / A5
-#define E0_ENABLE_PIN      57   // PF3 / A3
+#define E0_STEP_PIN                           58  // PF4 / A4
+#define E0_DIR_PIN                            59  // PF5 / A5
+#define E0_ENABLE_PIN                         57  // PF3 / A3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          1   // PF1 / A1   Analog
-#define TEMP_BED_PIN       14   // PK6 / A14  Analog
+#define TEMP_0_PIN                             1  // PF1 / A1   Analog
+#define TEMP_BED_PIN                          14  // PK6 / A14  Analog
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        4   // PG5 / PWM4
-#define HEATER_BED_PIN      3   // PE5 / PWM3
+#define HEATER_0_PIN                           4  // PG5 / PWM4
+#define HEATER_BED_PIN                         3  // PE5 / PWM3
 
-#define FAN_PIN             5   // PE3 / PWM5
+#define FAN_PIN                                5  // PE3 / PWM5
 
 //
 // Misc. Functions
 //
-#define SDSS               53   // PB0 / SS
-#define LED_PIN            13   // PB7 / PWM13
+#define SDSS                                  53  // PB0 / SS
+#define LED_PIN                               13  // PB7 / PWM13
 
-#define MISO_PIN           50   // PB3
-#define MOSI_PIN           51   // PB2
-#define SCK_PIN            52   // PB1
+#define MISO_PIN                              50  // PB3
+#define MOSI_PIN                              51  // PB2
+#define SCK_PIN                               52  // PB1
 
 //
 // LCDs and Controllers
 //
 #if HAS_SPI_LCD
   #if ENABLED(ZONESTAR_LCD)
-    #define LCD_PINS_RS        2
-    #define LCD_PINS_ENABLE   36
-    #define LCD_PINS_D4       37
-    #define LCD_PINS_D5       34
-    #define LCD_PINS_D6       35
-    #define LCD_PINS_D7       32
-    #define ADC_KEYPAD_PIN    12   // Analog
+    #define LCD_PINS_RS                        2
+    #define LCD_PINS_ENABLE                   36
+    #define LCD_PINS_D4                       37
+    #define LCD_PINS_D5                       34
+    #define LCD_PINS_D6                       35
+    #define LCD_PINS_D7                       32
+    #define ADC_KEYPAD_PIN                    12  // Analog
   #endif
 #endif
 

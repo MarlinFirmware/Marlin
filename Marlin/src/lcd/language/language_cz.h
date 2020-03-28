@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -310,7 +310,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Uložit nastavení");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Načíst nastavení");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Obnovit výchozí");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Obnovit výchozí");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inic. EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aktualizace z SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset tiskárny");
@@ -369,7 +369,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Vysunout filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Vysunout vše");
 
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Načíst médium");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Načíst médium");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Vyměnit médium");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Vysunout médium");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z mimo podl");
