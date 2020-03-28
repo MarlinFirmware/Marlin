@@ -223,7 +223,6 @@ class TWIBus {
     #endif
 
     #if ENABLED(DEBUG_TWIBUS)
-
       /**
        * @brief Prints a debug message
        * @details Prints a simple debug message "TWIBus::function: value"
@@ -233,6 +232,10 @@ class TWIBus {
       static void debug(const char func[], char c);
       static void debug(const char func[], char adr[]);
       static inline void debug(const char func[], uint8_t v) { debug(func, (uint32_t)v); }
-
+    #else
+      static inline void debug(const char[], uint32_t) {}
+      static inline void debug(const char[], char) {}
+      static inline void debug(const char[], char[]) {}
+      static inline void debug(const char[], uint8_t) {}
     #endif
 };
