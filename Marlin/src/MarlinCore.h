@@ -83,6 +83,7 @@ enum MarlinState : uint8_t {
   MF_PAUSED       = _BV(1),
   MF_WAITING      = _BV(2),
   MF_STOPPED      = _BV(3),
+  MF_SD_COMPLETE  = _BV(4),
   MF_KILLED       = _BV(7)
 };
 
