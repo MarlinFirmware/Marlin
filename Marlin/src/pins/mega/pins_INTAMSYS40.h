@@ -41,19 +41,16 @@
 //
 // Limit Switches
 //
-//
-// Limit Switches
-//
-#define X_MIN_PIN                             22
-#define X_MAX_PIN                             -1
-#define Y_MIN_PIN                             26
-#define Y_MAX_PIN                             -1
+#define X_STOP_PIN                            22
+#define Y_STOP_PIN                            26
 #define Z_MIN_PIN                             29
 #define Z_MAX_PIN                             69
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     -1
+  #define Z_MIN_PROBE_PIN                     69
 #endif
+
+#define FIL_RUNOUT_PIN                        10
 
 //
 // Steppers
@@ -85,43 +82,47 @@
 
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE            2000
+  #define MOTOR_CURRENT_PWM_RANGE  2000
 #endif
-#define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
+#define DEFAULT_PWM_MOTOR_CURRENT  { 1300, 1300, 1250 }
 
 //
 // Temperature Sensors
-// Analog Inputs
 //
-#define TEMP_0_PIN                             8  // Analog Input D62 A8
-#define TEMP_BED_PIN                          10  // Analog Input D64 A10
+#define TEMP_0_PIN                             8  // Analog Input D62
+#define TEMP_BED_PIN                          10  // Analog Input D64
 
 #define TEMP_CHAMBER_PIN                       9  // Analog Input D63
 
 //
-// Heaters
+// Heaters / Fans
 //
-#define HEATER_0_PIN                           2
-#define HEATER_BED_PIN                         4
-#define HEATER_CHAMBER_PIN                     3
-
-//
-// Fans
-//
-#define FAN_PIN                                7
+#define HEATER_0_PIN                           2  // PWM
+#define HEATER_BED_PIN                         4  // PWM
+#define HEATER_CHAMBER_PIN                     3  // PWM
+#define FAN_PIN                                7  // PWM
 
 //
 // Misc. Functions
 //
 #define SDSS                                  53
 #define SD_DETECT_PIN                         39
-#define CASE_LIGHT_PIN                         8
+
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #define CASE_LIGHT_PIN                       8
+#endif
+
+#if ENABLED(PSU_CONTROL)
+  #define PS_ON_PIN                           38  // UPS Module
+#endif
 
 //
 // LCD Controller
 //
-//#define BEEPER_PIN                          18
 
+#define BEEPER_PIN                            18
+
+#if HAS_SPI_LCD
   #define LCD_PINS_RS                         20
   #define LCD_PINS_ENABLE                     30
   #define LCD_PINS_D4                         14
@@ -131,12 +132,7 @@
   #define BTN_EN1                             40
   #define BTN_EN2                             41
   #define BTN_ENC                             19
-
-// Common I/O
-
-#define FIL_RUNOUT_PIN                        10
-#define PS_ON_PIN                             38  // UPS Module
-#define BEEPER_PIN                            18
+#endif
 
 ///////////////////// SPARE HEADERS //////////////
 
