@@ -463,6 +463,12 @@
   #include "sam/pins_CNCONTROLS_15D.h"          // SAM3X8E                                env:DUE env:DUE_USB
 
 //
+// STM32 ARM Cortex-M0
+//
+#elif MB(MALYAN_M300)
+  #include "stm32/pins_MALYAN_M300.h"           // STM32F070
+
+//
 // STM32 ARM Cortex-M3
 //
 
