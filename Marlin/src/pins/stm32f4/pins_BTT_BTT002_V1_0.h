@@ -251,3 +251,7 @@
 #ifndef RGB_LED_W_PIN
   #define RGB_LED_W_PIN                     -1
 #endif
+
+#ifdef SPEAKER
+  #undef SPEAKER
+#endif

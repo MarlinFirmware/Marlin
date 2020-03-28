@@ -338,6 +338,10 @@
  *   P0_28  (58) (Open collector)
  */
 
+#ifdef SPEAKER
+  #undef SPEAKER
+#endif
+
 //
 // Include common SKR pins
 //
