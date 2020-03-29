@@ -1266,7 +1266,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const float resume_current_e = current_position.e;
 
     // Migrate the flow
-    planner.flow_percentage[migration_extruder] = planner.flow_percentage[active_extruder];
+    planner.set_flow(migration_extruder, planner.flow_percentage[active_extruder]);
 
     // Migrate the retracted state
     #if ENABLED(FWRETRACT)

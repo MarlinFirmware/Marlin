@@ -573,8 +573,7 @@ void DGUSScreenVariableHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, voi
       #endif
     }
 
-    planner.flow_percentage[target_extruder] = newvalue;
-    planner.refresh_e_factor(target_extruder);
+    planner.set_flow(target_extruder, newvalue);
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   #else
     UNUSED(var); UNUSED(val_ptr);
