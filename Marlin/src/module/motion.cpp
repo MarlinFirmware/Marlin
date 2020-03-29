@@ -1526,7 +1526,10 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
 
     // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
     if ((ABS(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05f)
-      DEBUG_ECHOLNPAIR("Home phase too close to endstop trigger. Pick a different phase for ", axis_codes[axis]);
+      DEBUG_ECHOLNPAIR(
+        "Selected home phase ", home_phase[axis], 
+        " too close to endstop trigger phase ", phaseCurrent, 
+        ". Pick a different phase for ", axis_codes[axis]);
 
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
