@@ -705,10 +705,7 @@ namespace ExtUI {
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
   void setFeedrate_mm_s(const feedRate_t fr)          { feedrate_mm_s = fr; }
-  void setFlow_percent(const int16_t flow, const extruder_t extr) {
-    planner.flow_percentage[extr] = flow;
-    planner.refresh_e_factor(extr);
-  }
+  void setFlow_percent(const int16_t flow, const extruder_t extr) { planner.set_flow(extr, flow); }
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
