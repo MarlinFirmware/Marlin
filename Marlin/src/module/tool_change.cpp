@@ -1239,21 +1239,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // No auto-migration or specified target?
-    if (active_extruder >= migration.last && migration.target < 0) {
+    if (!migration.target && active_extruder >= migration.last) {
       migration.automode = false;
       return;
     }
 
-    // Auto migration ok
+    // Migrate to a target or the next extruder
 
-    int16_t migration_extruder = 0;
+    uint8_t migration_extruder = active_extruder;
 
-    if (migration.target < 0 && migration.automode && active_extruder < EXTRUDERS - 1 && active_extruder < migration.last)
-      migration_extruder = active_extruder + 1;
-
-    // Specified target ok
-    if (migration.target >= 0 && migration.target != active_extruder)
-      migration_extruder = migration.target;
+    if (migration.target) {
+      // Specified target ok?
+      const int16_t t = migration.target - 1;
+      if (t != active_extruder) migration_extruder = t;
+    }
+    else if (migration.automode && migration_extruder < migration.last && migration_extruder < EXTRUDERS - 1)
+      migration_extruder++;
 
     if (migration_extruder == active_extruder) return;
 

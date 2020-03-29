@@ -73,7 +73,7 @@ void M217_report(const bool eeprom=false) {
  * M217 - Set SINGLENOZZLE toolchange parameters
  *
  *  // Tool change command
- *  A           Prime active tool and exit
+ *  Q           Prime active tool and exit
  *
  *  // Tool change settings
  *  S[linear]   Swap length
@@ -91,7 +91,7 @@ void M217_report(const bool eeprom=false) {
  *  G[linear/s] Fan time
  *
  * Tool migration settings
- *  C[0|1]      Enable auto-migration on runout
+ *  A[0|1]      Enable auto-migration on runout
  *  L[index]    Last extruder to use for auto-migration
  *
  * Tool migration command
@@ -103,7 +103,8 @@ void GcodeSuite::M217() {
 
     static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
 
-    if (parser.seen('A')) { tool_change_prime(); return; }
+    if (parser.seen('Q')) { tool_change_prime(); return; }
+
     if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
     if (parser.seenval('B')) { const float v = parser.value_linear_units(); toolchange_settings.extra_resume = constrain(v, -10, 10); }
     if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, max_extrude); }
@@ -129,32 +130,30 @@ void GcodeSuite::M217() {
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    migration.target = -1;  // init = disable = negative
+    migration.target = 0;       // 0 = disabled
 
-    if (parser.seenval('L')) {  // last
-      const float lval = parser.value_linear_units();
+    if (parser.seenval('L')) {  // Last
+      const int16_t lval = parser.value_int();
       if (WITHIN(lval, 0, EXTRUDERS - 1)) {
         migration.last = lval;
         migration.automode = (active_extruder < migration.last);
       }
     }
 
-    if (parser.seenval('C')) {  // auto on/off
-      const float cval = parser.value_linear_units();
-      if (WITHIN(cval, 0, 1)) migration.automode = cval;
-    }
+    if (parser.seen('A'))       // Auto on/off
+      migration.automode = parser.value_bool();
 
     if (parser.seen('T')) {     // Migrate now
       if (parser.has_value()) {
-        const float tval = parser.value_linear_units();
+        const int16_t tval = parser.value_int();
         if (WITHIN(tval, 0, EXTRUDERS - 1) && tval != active_extruder) {
-          migration.target = tval;
+          migration.target = tval + 1;
           extruder_migration();
-          migration.target = -1;  // disable
+          migration.target = 0; // disable
           return;
         }
         else
-          migration.target = -1;  // disable
+          migration.target = 0; // disable
       }
       else {
         extruder_migration();
