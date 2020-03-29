@@ -650,7 +650,7 @@
   #define DELTA_PRINTABLE_RADIUS 60.0     // (mm)
 
   // Center-to-center distance of the holes in the diagonal push rods.
-  #define DELTA_DIAGONAL_ROD 120.8        // (mm)
+  #define DELTA_DIAGONAL_ROD 130.8        // (mm)
 
   // Distance between bed and nozzle Z home position
   #define DELTA_HEIGHT 113.0             // (mm) Get this value from G33 auto calibrate
@@ -658,7 +658,7 @@
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS 63.0              // (mm) Get this value from G33 auto calibrate
+  #define DELTA_RADIUS 63.5              // (mm) Get this value from G33 auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
@@ -667,7 +667,7 @@
 
   // Delta radius and diagonal rod adjustments (mm)
   //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 }
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, -0.4 }
 
 #endif
 
@@ -798,9 +798,21 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
+// variables to calculate steps
+#define XYZ_FULL_STEPS_PER_ROTATION 200
+#define XYZ_MICROSTEPS 16
+#define XYZ_BELT_PITCH 2
+#define XYZ_PULLEY_TEETH 14
+
+#define E_FULL_STEPS_PER_ROTATION 200
+#define E_MICROSTEPS 16
+#define E_DIAMETER 7.0
+#define E_GEAR_RATIO (50.0 / 17.0)
+#define E_STEPS_PER_UNIT (E_FULL_STEPS_PER_ROTATION * E_MICROSTEPS * E_GEAR_RATIO) / (M_PI*E_DIAMETER)
 
 // delta speeds must be the same on xyz
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 114.28, 114.28, 114.28, 97.0 }
+#define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, E_STEPS_PER_UNIT }  // default steps per unit for Kossel (GT2, 20 tooth)
 
 /**
  * Default Max Feed Rate (mm/s)
