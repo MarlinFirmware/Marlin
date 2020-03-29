@@ -1828,28 +1828,15 @@
 
 /**
  * Universal tool change settings.
- * Firmware-based and LCD-controlled tool change ,priming and migration
- * Add M217 commands(See more in documentation)
  * Applies to all types of extruders except where explicitly noted.
  */
 #if EXTRUDERS > 1
-  /**
-   * Position to park head during tool change.
-   * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
-   */
-  //#define TOOLCHANGE_PARK
-  #if ENABLED(TOOLCHANGE_PARK)
-    #define TOOLCHANGE_PARK_XY { X_MAX_POS, Y_MAX_POS } //-1 for disable axis
-    //#define TOOLCHANGE_PARK_X_ONLY // X axis only move
-    //#define TOOLCHANGE_PARK_Y_ONLY  // Y axis only move
-    #define TOOLCHANGE_PARK_XY_FEEDRATE 100*60 // (mm/m)
-  #endif
   // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE     2  // (mm)
-  //#define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Z raise applied before swap retraction(if enabled)
-  //#define TOOLCHANGE_NO_RETURN   // Never return to the previous position on tool-change
+  #define TOOLCHANGE_ZRAISE                 2 // (mm)
+  //#define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Apply raise before swap retraction (if enabled)
+  //#define TOOLCHANGE_NO_RETURN              // Never return to previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
-    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // G-code to run after tool-change is complete
+    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // Extra G-code to run after tool-change
   #endif
 
   /**
@@ -1873,7 +1860,7 @@
     #define TOOLCHANGE_FIL_SWAP_FAN_SPEED          255  // 0 - 255
     #define TOOLCHANGE_FIL_SWAP_FAN_TIME            10  // s.
 
-    // Swap an extruder not initialised (Can break filament because not retracted before)
+    // Swap an extruder not initialized (Can break filament because not retracted before)
     // By using TOOLCHANGE_FIL_SWAP_PRIME_SPEED for all lengths(recover + prime)
     //#define TOOLCHANGE_FIL_INIT_BEFORE_SWAP
 
@@ -1896,8 +1883,21 @@
      *              Requires same nozzle size
      *              No dual extrusion printing
      */
-    //#define TOOLCHANGE_MIGRATION_FEATURE
-  #endif // TOOLCHANGE_FILAMENT_SWAP
+    #define TOOLCHANGE_MIGRATION_FEATURE
+
+  #endif
+
+  /**
+   * Position to park head during tool change.
+   * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
+   */
+  //#define TOOLCHANGE_PARK
+  #if ENABLED(TOOLCHANGE_PARK)
+    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
+    #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/m)
+    //#define TOOLCHANGE_PARK_X_ONLY          // X axis only move
+    //#define TOOLCHANGE_PARK_Y_ONLY          // Y axis only move
+  #endif
 #endif // EXTRUDERS > 1
 
 /**

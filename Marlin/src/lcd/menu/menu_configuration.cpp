@@ -104,23 +104,17 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      static constexpr float max_extrude =
-        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          EXTRUDE_MAXLENGTH
-        #else
-          500
-        #endif
-      ;
+      static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
       #if ENABLED(TOOLCHANGE_PARK)
         EDIT_ITEM(bool, MSG_FILAMENT_PARK_ENABLED, &toolchange_settings.enable_park);
       #endif
       EDIT_ITEM(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, max_extrude);
       EDIT_ITEM(float41sign, MSG_FILAMENT_SWAP_EXTRA, &toolchange_settings.extra_resume, -10, 10);
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_UNRETRACT_SPD, &toolchange_settings.unretract_speed, 10, 5400);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_UNRETRACT_SPEED, &toolchange_settings.unretract_speed, 10, 5400);
       EDIT_ITEM(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_FAN_SPD, &toolchange_settings.fan_speed, 0, 255);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_FAN_SPEED, &toolchange_settings.fan_speed, 0, 255);
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_FAN_TIME, &toolchange_settings.fan_time, 1, 30);
 
 
@@ -129,43 +123,29 @@ void menu_advanced_settings();
     END_MENU();
   }
 
- /**
-   *
-   * Tool Migration"  submenu
-   *
-   */
-  //Submenu
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    #include "../../module/motion.h" // for active_extruder and current_position
-    void toolchange_migration_submenu(){
+
+    #include "../../module/motion.h" // for active_extruder
+
+    void toolchange_migration_submenu() {
       START_MENU();
-      BACK_ITEM(MSG_BACK);
-      //Show ON/OFF
-      PGM_P const migration_on_off = migration_auto? GET_TEXT(MSG_TOOL_MIGRATION_ON) : GET_TEXT(MSG_TOOL_MIGRATION_OFF);
-      STATIC_ITEM_P(migration_on_off);
-      EDIT_ITEM(bool, MSG_TOOL_MIGRATION_AUTO, &migration_auto);
-      PGM_P const  migration_stop =  GET_TEXT(MSG_TOOL_MIGRATION_END);
-      EDIT_ITEM_P(int3,migration_stop, &migration_ending, 0, EXTRUDERS-1);
-      if (active_extruder !=0) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP0, PSTR("M217 T0"));
-      if (active_extruder !=1) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP1, PSTR("M217 T1"));
-      #if EXTRUDERS > 2
-        if (active_extruder !=2) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP2, PSTR("M217 T2"));
-      #endif
-      #if EXTRUDERS > 3
-        if (active_extruder !=3) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP3, PSTR("M217 T3"));
-      #endif
-      #if EXTRUDERS > 4
-        if (active_extruder !=4) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP4, PSTR("M217 T4"));
-      #endif
-      #if EXTRUDERS > 5
-        if (active_extruder !=5) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP4, PSTR("M217 T5"));
-      #endif
-      #if EXTRUDERS > 6
-        if (active_extruder !=6) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP4, PSTR("M217 T6"));
-      #endif
-      #if EXTRUDERS > 7
-        if (active_extruder !=7) GCODES_ITEM( MSG_TOOL_MIGRATION_SWAP4, PSTR("M217 T7"));
-      #endif
+      BACK_ITEM(MSG_CONFIGURATION);
+
+      // Auto mode ON/OFF
+      EDIT_ITEM(bool, MSG_TOOL_MIGRATION_AUTO, &migration.automode);
+      EDIT_ITEM(int3, MSG_TOOL_MIGRATION_END, &migration.last, 0, EXTRUDERS - 1);
+
+      // Migrate to a chosen extruder
+      PGM_P const msg_migrate = GET_TEXT(MSG_TOOL_MIGRATION_SWAP);
+      LOOP_L_N(s, EXTRUDERS) {
+        if (s != active_extruder) {
+          ACTION_ITEM_N_P(s, msg_migrate, []{
+            char cmd[12];
+            sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
+            lcd_enqueue_one_now(cmd);
+          });
+        }
+      }
       END_MENU();
     }
   #endif

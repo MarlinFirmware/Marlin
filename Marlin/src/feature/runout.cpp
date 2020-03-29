@@ -83,10 +83,10 @@ void event_filament_runout() {
   #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    if (migration_in_progress) return;  // Action already in progress. Purge triggered repeated runout.
-    if (migration_auto) {extruder_migration(); return; };
+    if (migration.in_progress) return;  // Action already in progress. Purge triggered repeated runout.
+    if (migration.automode) { extruder_migration(); return; }
   #endif
-  
+
   #if ENABLED(EXTENSIBLE_UI)
     ExtUI::onFilamentRunout(ExtUI::getActiveTool());
   #endif

@@ -41,7 +41,6 @@
   extern toolchange_settings_t toolchange_settings;
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    extern void tool_change_e_move();
     extern void tool_change_prime();
   #endif
 
@@ -54,9 +53,13 @@
   #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    extern int16_t migration_ending, migration_target;
-    extern bool migration_auto, migration_in_progress;
-    extern void extruder_migration();
+    typedef struct {
+      int8_t last, target;
+      bool automode, in_progress;
+    } migration_settings_t;
+    constexpr migration_settings_t migration_defaults = { 0, -1, false, false };
+    extern migration_settings_t migration;
+    void extruder_migration();
   #endif
 #endif
 

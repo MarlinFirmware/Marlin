@@ -812,6 +812,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
     #endif
   #endif
+
   #if ENABLED(TOOLCHANGE_PARK)
     #ifndef TOOLCHANGE_PARK_XY
       #error "TOOLCHANGE_PARK requires TOOLCHANGE_PARK_XY. Please update your Configuration."
