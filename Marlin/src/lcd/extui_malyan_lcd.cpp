@@ -429,6 +429,15 @@ namespace ExtUI {
      * {SYS:STARTED}{VER:29}{SYS:STARTED}{R:UD}
      */
 
+#if MB(MALYAN_M300)
+    // Turn the case led red when zmin is hit, white otherwise.
+    const bool is_hit = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+
+    OUT_WRITE(LED_RED, LOW);
+    OUT_WRITE(LED_GREEN, is_hit ? HIGH : LOW);
+    OUT_WRITE(LED_BLUE, is_hit ? HIGH : LOW);
+#endif
+
     // First report USB status.
     update_usb_status(false);
 
