@@ -49,8 +49,8 @@ void M217_report(const bool eeprom=false) {
                     " G", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" N", int(migration_auto));
-      SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration_ending));
+      SERIAL_ECHOPAIR(" N", int(migration.automode));
+      SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration.last));
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
@@ -129,32 +129,32 @@ void GcodeSuite::M217() {
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    migration_target = -1;  // init = disable = negative
+    migration.target = -1;  // init = disable = negative
 
-    if (parser.seenval('L')) {  // ending
+    if (parser.seenval('L')) {  // last
       const float lval = parser.value_linear_units();
       if (WITHIN(lval, 0, EXTRUDERS - 1)) {
-        migration_ending = lval;
-        migration_auto = (active_extruder < migration_ending);
+        migration.last = lval;
+        migration.automode = (active_extruder < migration.last);
       }
     }
 
     if (parser.seenval('C')) {  // auto on/off
       const float cval = parser.value_linear_units();
-      if (WITHIN(cval, 0, 1)) migration_auto = cval;
+      if (WITHIN(cval, 0, 1)) migration.automode = cval;
     }
 
     if (parser.seen('T')) {     // Migrate now
       if (parser.has_value()) {
         const float tval = parser.value_linear_units();
         if (WITHIN(tval, 0, EXTRUDERS - 1) && tval != active_extruder) {
-          migration_target = tval;
+          migration.target = tval;
           extruder_migration();
-          migration_target = -1;  // disable
+          migration.target = -1;  // disable
           return;
         }
         else
-          migration_target = -1;  // disable
+          migration.target = -1;  // disable
       }
       else {
         extruder_migration();

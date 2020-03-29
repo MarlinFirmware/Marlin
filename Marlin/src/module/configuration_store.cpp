@@ -2485,15 +2485,13 @@ void MarlinSettings::reset() {
       toolchange_settings.enable_park = true;
       toolchange_settings.change_point = tpxy;
     #endif
-    
+
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      migration_ending = 0;
-      migration_target = -1;//disable
-      migration_auto = false;
-      migration_in_progress = false;
+      migration = migration_defaults;
     #endif
+
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
