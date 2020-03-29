@@ -336,14 +336,16 @@ void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
   planner.buffer_line(current_position, fr_mm_s, active_extruder);
 }
 
-void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
-  #if HAS_FILAMENT_SENSOR
-    runout.reset();
-  #endif
-  current_position.e += length / planner.e_factor[active_extruder];
-  line_to_current_position(fr_mm_s);
-  planner.synchronize();
-}
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
+    #if HAS_FILAMENT_SENSOR
+      runout.reset();
+    #endif
+    current_position.e += length / planner.e_factor[active_extruder];
+    line_to_current_position(fr_mm_s);
+    planner.synchronize();
+  }
+#endif
 
 #if IS_KINEMATIC
 
