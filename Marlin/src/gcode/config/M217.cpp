@@ -39,26 +39,22 @@ void M217_report(const bool eeprom=false) {
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
-    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
-    SERIAL_ECHOPAIR(" B", LINEAR_UNIT(toolchange_settings.extra_resume));
-    SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime));
-    SERIAL_ECHOPAIR_P(SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
-    SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
-    SERIAL_ECHOPAIR(" UR", LINEAR_UNIT(toolchange_settings.unretract_speed));
-    SERIAL_ECHOPAIR(" FanS", LINEAR_UNIT(toolchange_settings.fan_speed));
-    SERIAL_ECHOPAIR(" FanT", LINEAR_UNIT(toolchange_settings.fan_time));
-
-    #if ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
-     SERIAL_ECHOPAIR(" AutoP", LINEAR_UNIT(enable_first_prime));
-    #endif
+    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length),
+                    " B", LINEAR_UNIT(toolchange_settings.extra_resume));
+    SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
+                      SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
+    SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
+                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
+                    " F", toolchange_settings.fan_speed,
+                    " G", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" AutoM", LINEAR_UNIT(migration_auto));
-      SERIAL_ECHOPAIR(" MigL", LINEAR_UNIT(migration_ending));
+      SERIAL_ECHOPAIR(" N", int(migration_auto));
+      SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration_ending));
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
-      SERIAL_ECHOPAIR(" ParK", LINEAR_UNIT(toolchange_settings.enable_park));
+      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(toolchange_settings.enable_park));
       SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
@@ -76,7 +72,10 @@ void M217_report(const bool eeprom=false) {
 /**
  * M217 - Set SINGLENOZZLE toolchange parameters
  *
- *  // Tool change
+ *  // Tool change command
+ *  A           Prime active tool and exit
+ *
+ *  // Tool change settings
  *  S[linear]   Swap length
  *  B[linear]   Extra Swap length
  *  E[linear]   Prime length
@@ -91,36 +90,18 @@ void M217_report(const bool eeprom=false) {
  *  F[linear]   Fan Speed 0-255
  *  G[linear/s] Fan time
  *
- * //Commands
- *  A           Prime active tool
+ * Tool migration settings
+ *  C[0|1]      Enable auto-migration on runout
+ *  L[index]    Last extruder to use for auto-migration
  *
- *  Tool migration
- *
- *  //Settings
- *  L[linear]   1/2/3/4/5/6/7 - End/last extruder to reach after runouts
- *  N[linear]   0/1 Auto Migration to next extruder enable (By Runout)
- *
- *  //Commands
- *  Q           Migrate to next
- *  T[linear]   0/1/2/3/4/5/6/7 : Migration to desired extruder
+ * Tool migration command
+ *  T[index]    Migrate to next extruder or the given extruder
  */
 void GcodeSuite::M217() {
 
-  #define SPR_PARAM
-  #define XY_PARAM
-
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
-    #undef SPR_PARAM
-    #define SPR_PARAM "SPRE"
-
-    static constexpr float max_extrude =
-      #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        EXTRUDE_MAXLENGTH
-      #else
-        500
-      #endif
-    ;
+    static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
 
     if (parser.seen('A')) { tool_change_prime(); return; }
     if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
@@ -140,8 +121,6 @@ void GcodeSuite::M217() {
   #endif
 
   #if ENABLED(TOOLCHANGE_PARK)
-    #undef XY_PARAM
-    #define XY_PARAM "XY"
     if (parser.seenval('W')) { toolchange_settings.enable_park = parser.value_linear_units(); }
     if (parser.seenval('X')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.x = constrain(v, X_MIN_POS, X_MAX_POS); }
     if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
@@ -150,33 +129,42 @@ void GcodeSuite::M217() {
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    migration_target = -1;// init = disable = negative
+    migration_target = -1;  // init = disable = negative
 
-    if (parser.seenval('L')) { //ending
-     if(( parser.value_linear_units() >= 0 ) && (parser.value_linear_units() < EXTRUDERS ) )
-      migration_ending = parser.value_linear_units();
-      if  (active_extruder < migration_ending ) migration_auto = true;
-      else  migration_auto = false;
-    }
-
-    if (parser.seenval('N')) { //auto on/off
-     if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() <= 1) )
-      migration_auto = parser.value_linear_units();
-    }
-
-    if (parser.seenval('T')) { //specific
-      if((parser.value_linear_units() >= 0 ) && (parser.value_linear_units() < EXTRUDERS ) && (parser.value_linear_units() != active_extruder)){
-        migration_target = parser.value_linear_units();
-        extruder_migration();
-        migration_target = -1;//disable
-        return ;
+    if (parser.seenval('L')) {  // ending
+      const float lval = parser.value_linear_units();
+      if (WITHIN(lval, 0, EXTRUDERS - 1)) {
+        migration_ending = lval;
+        migration_auto = (active_extruder < migration_ending);
       }
-      else migration_target = -1;//disable
     }
 
-    if (parser.seen('Q')) { extruder_migration(); return; }
+    if (parser.seenval('C')) {  // auto on/off
+      const float cval = parser.value_linear_units();
+      if (WITHIN(cval, 0, 1)) migration_auto = cval;
+    }
+
+    if (parser.seen('T')) {     // Migrate now
+      if (parser.has_value()) {
+        const float tval = parser.value_linear_units();
+        if (WITHIN(tval, 0, EXTRUDERS - 1) && tval != active_extruder) {
+          migration_target = tval;
+          extruder_migration();
+          migration_target = -1;  // disable
+          return;
+        }
+        else
+          migration_target = -1;  // disable
+      }
+      else {
+        extruder_migration();
+        return;
+      }
+    }
 
   #endif
+
   M217_report();
-  }
+}
+
 #endif // EXTRUDERS > 1
