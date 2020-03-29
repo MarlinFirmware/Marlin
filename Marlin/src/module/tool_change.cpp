@@ -1260,11 +1260,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Migration begins
 
     migration.in_progress = true; // Prevent runout script
+    planner.synchronize();
 
     // Remember position before migration
-    planner.synchronize();
-    const float resume_current_e = current_position.e,
-                resume_feedrate = feedrate_mm_s;
+    const float resume_current_e = current_position.e;
 
     // Migrate the flow
     planner.flow_percentage[migration_extruder] = planner.flow_percentage[active_extruder];
@@ -1275,7 +1274,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // Migrate the temperature to the new hotend
-    #if HOTENDS >1
+    #if HOTENDS > 1
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
       thermalManager.wait_for_hotend(active_extruder);
     #endif
@@ -1290,17 +1289,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // If no available extruder
-    if (active_extruder >= EXTRUDERS - 2 || active_extruder == migration.last)
+    if (EXTRUDERS < 2 || active_extruder >= EXTRUDERS - 2 || active_extruder == migration.last)
       migration.automode = false;
 
     migration.in_progress = false;
 
     current_position.e = resume_current_e;
+
     planner.synchronize();
-
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
-
-    feedrate_mm_s = resume_feedrate;
   }
 
 #endif // TOOLCHANGE_MIGRATION_FEATURE
