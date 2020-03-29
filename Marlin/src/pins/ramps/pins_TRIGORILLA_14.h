@@ -66,13 +66,13 @@
     #define RAMPS_D8_PIN     TRIGORILLA_FAN0_PIN
   #else
     // EEB
-    #define RAMPS_D8_PINTRIGORILLA_HEATER_BED_PIN
+    #define RAMPS_D8_PIN     TRIGORILLA_HEATER_BED_PIN
     #define FAN_PIN          TRIGORILLA_FAN0_PIN  // Override pin 4 in pins_RAMPS.h
   #endif
 #elif TEMP_SENSOR_BED
   // EFB (Anycubic Kossel default)
   #define RAMPS_D9_PIN       TRIGORILLA_FAN0_PIN
-  #define RAMPS_D8_PINTRIGORILLA_HEATER_BED_PIN
+  #define RAMPS_D8_PIN       TRIGORILLA_HEATER_BED_PIN
 #else
   // EFF
   #define RAMPS_D9_PIN       TRIGORILLA_FAN1_PIN
@@ -83,7 +83,7 @@
   #define FAN1_PIN           TRIGORILLA_FAN1_PIN
 #endif
 #define FAN2_PIN             TRIGORILLA_FAN2_PIN
-#define ORIG_E0_AUTO_FAN_PINTRIGORILLA_FAN2_PIN   // Used in Anycubic Kossel example config
+#define ORIG_E0_AUTO_FAN_PIN TRIGORILLA_FAN2_PIN   // Used in Anycubic Kossel example config
 
 #include "pins_RAMPS.h"
 
