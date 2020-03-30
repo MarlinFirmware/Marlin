@@ -121,6 +121,10 @@ MarlinUI ui;
   #endif
 #endif
 
+#if MB(FYSETC_CHEETAH)
+  #include "../module/stepper.h"
+#endif
+
 #if ENABLED(INIT_SDCARD_ON_BOOT)
   uint8_t lcd_sd_status;
 #endif
@@ -839,6 +843,9 @@ void MarlinUI::update() {
       if (sd_status) {
         safe_delay(500); // Some boards need a delay to get settled
         card.mount();
+        #if MB(FYSETC_CHEETAH)
+          reset_stepper_drivers();
+        #endif
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
