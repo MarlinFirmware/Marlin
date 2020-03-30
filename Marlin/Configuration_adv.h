@@ -1844,29 +1844,29 @@
    */
   //#define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    // load/Unload
+    // Load / Unload
     #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
     #define TOOLCHANGE_FIL_EXTRA_RESUME_LENGTH       0  // (mm)	(added to swap length for better restart, fine tune by LCD/Gcode)
     #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    50*60  // (mm/m) (Unloading)
-    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  25*60  // (mm/m) (On SINGLENOZZLE or bowden, loading must be slowed down)
+    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  25*60  // (mm/m) (On SINGLENOZZLE or Bowden loading must be slowed down)
 
-    // Single Nozzle utility : Purge length/feedrate (Prevent color mixing/dirty priming)
+    // Longer prime to clean out a SINGLENOZZLE
     #define TOOLCHANGE_FIL_EXTRA_PRIME               0  // (mm) (Ex:50~150mm to purge a Volcano for no mixed color extrusion)
     #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED     4.6*60  // (mm/m)(Ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
     #define TOOLCHANGE_FIL_SWAP_CUT_RETRACT          0  // (mm/m)(Retract before fan and recover after to avoid stringing while cooling and ease to cut filament on back)
 
-    // Blowing after priming (To avoid stringing and a clean nozzle on resume)
-    #define TOOLCHANGE_FIL_SWAP_FAN                 -1  // Fan count (-1 for disabling blowing)
-    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED          255  // 0 - 255
-    #define TOOLCHANGE_FIL_SWAP_FAN_TIME            10  // s.
+    // Cool after prime to reduce stringing
+    #define TOOLCHANGE_FIL_SWAP_FAN                 -1  // Fan index or -1 to skip
+    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED          255  // 0-255
+    #define TOOLCHANGE_FIL_SWAP_FAN_TIME            10  // (seconds)
 
-    // Swap an extruder not initialized (Can break filament because not retracted before)
-    // By using TOOLCHANGE_FIL_SWAP_PRIME_SPEED for all lengths(recover + prime)
+    // Swap uninitialized extruder with TOOLCHANGE_FIL_SWAP_PRIME_SPEED for all lengths (recover + prime)
+    // (May break filament if not retracted beforehand.)
     //#define TOOLCHANGE_FIL_INIT_BEFORE_SWAP
 
-    // Prime the first called command T[...] even is the same or no toolchange/swap)
+    // Prime on the first T command even if the same or no toolchange / swap
     // Enable it (M217 V[0/1]) before printing, to avoid unwanted priming on host connect
-    //#define TOOLCHANGE_FIL_PRIME_FIRST_USED //false by default
+    //#define TOOLCHANGE_FIL_PRIME_FIRST_USED
 
     /**
      * Tool change migration Feature

@@ -793,9 +793,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   void tool_change_prime() {
     if (toolchange_settings.extra_prime > 0
-      #if ENABLED(PREVENT_COLD_EXTRUSION)
-        && !thermalManager.targetTooColdToExtrude(active_extruder)
-      #endif
+      && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
     ) {
 
       destination = current_position; // Remember the old position
@@ -818,7 +816,6 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
           #if DISABLED(TOOLCHANGE_PARK_X_ONLY)
             current_position.y = toolchange_settings.change_point.y;
           #endif
-
           do_blocking_move_to(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
         }
       #endif
@@ -831,8 +828,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
         unscaled_e_move(-(TOOLCHANGE_FIL_SWAP_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
       #endif
 
-      // BLOWING
-      #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
+      // Cool after prime
+      #if FAN_COUNT > 0 && defined(TOOLCHANGE_FIL_SWAP_FAN) && TOOLCHANGE_FIL_SWAP_FAN >= 0
         const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
         thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN] = toolchange_settings.fan_speed;
         safe_delay(toolchange_settings.fan_time * 1000);
@@ -974,10 +971,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (should_swap) {
           if (too_cold) {
             SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
-            #if ENABLED(SINGLENOZZLE)
-              active_extruder = new_tool;
-              return;
-            #endif
+            if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
           else
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
@@ -1022,7 +1016,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #if DISABLED(TOOLCHANGE_PARK_X_ONLY)
             current_position.y = toolchange_settings.change_point.y;
           #endif
-          planner.buffer_line(current_position,MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
+          planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           planner.synchronize();
         }
       #endif
@@ -1068,9 +1062,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         move_nozzle_servo(new_tool);
       #endif
 
-      #if DISABLED(DUAL_X_CARRIAGE)
-        active_extruder = new_tool; // Set the new active extruder
-      #endif
+      // Set the new active extruder
+      if (DISABLED(DUAL_X_CARRIAGE)) active_extruder = new_tool;
 
       // The newly-selected extruder XYZ is actually at...
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
@@ -1108,15 +1101,21 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
+
+            float fr = toolchange_settings.unretract_speed;
+
             #if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
-              //if (!toolchange_extruder_ready[new_tool]) unscaled_e_move(0, MMM_TO_MMS(toolchange_settings.prime_speed)); // planner init
-              unscaled_e_move(toolchange_settings.swap_length,
-                MMM_TO_MMS(toolchange_extruder_ready[new_tool] ? toolchange_settings.unretract_speed : toolchange_settings.prime_speed)
-              );
-              toolchange_extruder_ready[new_tool] = true; // Primed and initialized
-            #else
-              unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.unretract_speed));
+
+              if (!toolchange_extruder_ready[new_tool]) {
+                toolchange_extruder_ready[new_tool] = true;
+                fr = toolchange_settings.prime_speed;       // Next move is a prime
+                unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
+              }
+
             #endif
+
+            // Unretract (or Prime)
+            unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr));
 
             // Extra Prime
             unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
