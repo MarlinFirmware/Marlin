@@ -69,7 +69,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
        .font(font_medium)
-       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
+       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE))
     #undef EDGE_R
     #define EDGE_R 30
        .font(font_small)
@@ -77,7 +77,9 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .text(BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_LCD_BRIGHTNESS), OPT_RIGHTX | OPT_CENTERY)
        .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
        .text(BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_SCREEN_LOCK),    OPT_RIGHTX | OPT_CENTERY);
+    #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
     cmd.text(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BOOT_SCREEN),    OPT_RIGHTX | OPT_CENTERY);
+    #endif
     #undef EDGE_R
   }
 
@@ -95,16 +97,18 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume,     0xFF)
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())
+    #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
        .tag(5).toggle2(BTN_POS(3,5), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::animations_enabled())
+    #endif
     #undef EDGE_R
     #define EDGE_R 0
     #ifdef TOUCH_UI_PORTRAIT
        .colors(normal_btn)
-       .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE_SOUNDS))
+       .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
        .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
     #else
-       .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SOUNDS))
+       .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
        .tag(1).button (BTN_POS(3,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
     #endif

@@ -131,10 +131,16 @@ namespace ExtUI {
     }
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLossResume() {
+      // Called on resume from power-loss
+    }
+  #endif
+
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      SERIAL_ECHOLNPAIR("onPidTuning:", rst);
+      SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
           StatusScreen::setStatusMessage(STR_PID_BAD_EXTRUDER_NUM);

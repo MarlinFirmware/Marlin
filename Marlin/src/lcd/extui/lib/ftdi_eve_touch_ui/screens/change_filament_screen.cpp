@@ -111,6 +111,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
+       .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
     #ifdef TOUCH_UI_PORTRAIT
        .font(font_large)
@@ -119,7 +120,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     #endif
        .text(BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_EXTRUDER_SELECTION))
     #ifdef TOUCH_UI_PORTRAIT
-       .text(BTN_POS(1,7), BTN_SIZE(1,1), F(""))
+       .text(BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
     #else
        .text(BTN_POS(3,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
        .font(font_small)
