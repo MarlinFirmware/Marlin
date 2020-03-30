@@ -357,7 +357,7 @@ void menu_move() {
     #elif E_MANUAL > 1
 
       // Independent extruders with one E-stepper per hotend
-      for (uint8_t n = 0; n < E_MANUAL; n++) SUBMENU_MOVE_E(n);
+      LOOP_L_N(n, E_MANUAL) SUBMENU_MOVE_E(n);
 
     #endif
 

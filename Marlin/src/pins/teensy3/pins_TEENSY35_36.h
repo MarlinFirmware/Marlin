@@ -37,7 +37,7 @@
   #define BOARD_INFO_NAME "Teensy3.6"
 #endif
 
-#define AT90USB 1286   // Disable MarlinSerial etc.
+#define AT90USB                              1286 // Disable MarlinSerial etc.
 #define USBCON //1286  // Disable MarlinSerial etc.
 /*
 
@@ -83,80 +83,80 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 //
 // Limit Switches
 //
-#define X_STOP_PIN         24
-#define Y_STOP_PIN         26
-#define Z_STOP_PIN         28
+#define X_STOP_PIN                            24
+#define Y_STOP_PIN                            26
+#define Z_STOP_PIN                            28
 
 //
 // Steppers
 //
-#define X_STEP_PIN         22
-#define X_DIR_PIN          21
-#define X_ENABLE_PIN       39
+#define X_STEP_PIN                            22
+#define X_DIR_PIN                             21
+#define X_ENABLE_PIN                          39
 
-#define Y_STEP_PIN         19
-#define Y_DIR_PIN          18
-#define Y_ENABLE_PIN       20
+#define Y_STEP_PIN                            19
+#define Y_DIR_PIN                             18
+#define Y_ENABLE_PIN                          20
 
-#define Z_STEP_PIN         38
-#define Z_DIR_PIN          37
-#define Z_ENABLE_PIN       17
+#define Z_STEP_PIN                            38
+#define Z_DIR_PIN                             37
+#define Z_ENABLE_PIN                          17
 
-#define E0_STEP_PIN        31
-#define E0_DIR_PIN         30
-#define E0_ENABLE_PIN      32
+#define E0_STEP_PIN                           31
+#define E0_DIR_PIN                            30
+#define E0_ENABLE_PIN                         32
 
-#define E1_STEP_PIN        33
-#define E1_DIR_PIN         34
-#define E1_ENABLE_PIN      35
+#define E1_STEP_PIN                           33
+#define E1_DIR_PIN                            34
+#define E1_ENABLE_PIN                         35
 
-#define HEATER_0_PIN       30
-#define HEATER_1_PIN       36
-#define HEATER_BED_PIN     31
+#define HEATER_0_PIN                          30
+#define HEATER_1_PIN                          36
+#define HEATER_BED_PIN                        31
 #ifndef FAN_PIN
-  #define FAN_PIN           2
+  #define FAN_PIN                              2
 #endif
 
-#define TEMP_0_PIN          2   // Extruder / Analog pin numbering: 2 => A2
-#define TEMP_1_PIN          0
-#define TEMP_BED_PIN        1   // Bed / Analog pin numbering
+#define TEMP_0_PIN                             2  // Extruder / Analog pin numbering: 2 => A2
+#define TEMP_1_PIN                             0
+#define TEMP_BED_PIN                           1  // Bed / Analog pin numbering
 
-#define SDSS               39   // 8
-#define LED_PIN            13
-#define PS_ON_PIN           1
-#define ALARM_PIN          -1
+#define SDSS                                  39  // 8
+#define LED_PIN                               13
+#define PS_ON_PIN                              1
+#define ALARM_PIN                             -1
 
-#define FILWIDTH_PIN        6
-#define SOL1_PIN           28
+#define FILWIDTH_PIN                           6
+#define SOL1_PIN                              28
 
 #if 0
 // Pretty sure this is obsolete!
 // Please use Marlin 1.1.x pins files as reference for new pins files.
 #ifndef SDSUPPORT
   // these are defined in the SD library if building with SD support
-  #define SCK_PIN          13
-  #define MISO_PIN         12
-  #define MOSI_PIN         11
+  #define SCK_PIN                             13
+  #define MISO_PIN                            12
+  #define MOSI_PIN                            11
 #endif
 #endif
 
 #if HAS_SPI_LCD
-  #define LCD_PINS_RS      40
-  #define LCD_PINS_ENABLE  41
-  #define LCD_PINS_D4      42
-  #define LCD_PINS_D5      43
-  #define LCD_PINS_D6      44
-  #define LCD_PINS_D7      45
+  #define LCD_PINS_RS                         40
+  #define LCD_PINS_ENABLE                     41
+  #define LCD_PINS_D4                         42
+  #define LCD_PINS_D5                         43
+  #define LCD_PINS_D6                         44
+  #define LCD_PINS_D7                         45
 #endif
 
 #if ENABLED(NEWPANEL)
-  #define BTN_EN1          46
-  #define BTN_EN2          47
-  #define BTN_ENC          48
+  #define BTN_EN1                             46
+  #define BTN_EN2                             47
+  #define BTN_ENC                             48
 #endif
 
 #if ENABLED(REPRAPWORLD_KEYPAD)
-  #define SHIFT_OUT        40
-  #define SHIFT_CLK        44
-  #define SHIFT_LD         42
+  #define SHIFT_OUT                           40
+  #define SHIFT_CLK                           44
+  #define SHIFT_LD                            42
 #endif

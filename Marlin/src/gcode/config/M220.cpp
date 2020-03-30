@@ -30,7 +30,7 @@
  *   S<percent> : Set the feed rate percentage factor
  *
  * Report the current speed percentage factor if no parameter is specified
- * 
+ *
  * With PRUSA_MMU2...
  *   B : Flag to back up the current factor
  *   R : Flag to restore the last-saved factor

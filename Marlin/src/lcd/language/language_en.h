@@ -248,6 +248,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra Fan Speed");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra Fan Speed ~");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Controller Fan");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Idle Speed");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Auto Mode");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Active Speed");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Idle Period");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
@@ -348,6 +353,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("Print Paused");
   PROGMEM Language_Str MSG_PRINTING                        = _UxGT("Printing...");
   PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Print Aborted");
+  PROGMEM Language_Str MSG_PRINT_DONE                      = _UxGT("Print Done");
   PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("No Move.");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("KILLED. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("STOPPED. ");

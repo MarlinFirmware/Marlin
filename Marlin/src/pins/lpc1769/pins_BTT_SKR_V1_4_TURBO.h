@@ -25,6 +25,12 @@
 #define SKR_HAS_LPC1769
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Include SKR 1.4 pins
 //
 #include "../lpc1768/pins_BTT_SKR_V1_4.h"

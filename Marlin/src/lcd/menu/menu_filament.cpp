@@ -114,7 +114,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
         GCODES_ITEM_P(msg, PSTR("M600 B0"));
     #else
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
-      for (uint8_t s = 0; s < E_STEPPERS; s++) {
+      LOOP_L_N(s, E_STEPPERS) {
         if (thermalManager.targetTooColdToExtrude(s))
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
@@ -138,7 +138,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
             GCODES_ITEM_P(msg_load, PSTR("M701"));
         #else
           PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
@@ -162,7 +162,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
           {
             bool too_cold = false;
-            for (uint8_t s = 0; s < E_STEPPERS; s++) {
+            LOOP_L_N(s, E_STEPPERS) {
               if (thermalManager.targetTooColdToExtrude(s)) {
                 too_cold = true; break;
               }
@@ -174,7 +174,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           }
           #endif
           PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {

@@ -130,7 +130,7 @@ Stepper stepper; // Singleton
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 // public:
@@ -2116,7 +2116,7 @@ void Stepper::init() {
   #if MB(ALLIGATOR)
     const float motor_current[] = MOTOR_CURRENT;
     unsigned int digipot_motor = 0;
-    for (uint8_t i = 0; i < 3 + EXTRUDERS; i++) {
+    LOOP_L_N(i, 3 + EXTRUDERS) {
       digipot_motor = 255 * (motor_current[i] / 2.5);
       dac084s085::setValue(i, digipot_motor);
     }
@@ -2756,7 +2756,7 @@ void Stepper::report_positions() {
         SPI.begin();
         SET_OUTPUT(DIGIPOTSS_PIN);
 
-        for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
+        LOOP_L_N(i, COUNT(digipot_motor_current)) {
           //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
           digipot_current(i, digipot_motor_current[i]);
         }

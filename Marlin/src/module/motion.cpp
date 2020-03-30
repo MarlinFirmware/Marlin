@@ -55,6 +55,10 @@
   #include "../lcd/ultralcd.h"
 #endif
 
+#if HAS_FILAMENT_SENSOR
+  #include "../feature/runout.h"
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
 #endif
@@ -218,7 +222,6 @@ inline void report_more_positions() {
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
   SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_E_LBL, lpos.e);
-  report_more_positions();
 }
 
 // Report the real current position according to the steppers.
@@ -237,10 +240,14 @@ void report_real_position() {
   #endif
 
   report_logical_position(npos);
+  report_more_positions();
 }
 
 // Report the logical current position according to the most recent G-code command
-void report_current_position() { report_logical_position(current_position); }
+void report_current_position() {
+  report_logical_position(current_position);
+  report_more_positions();
+}
 
 /**
  * Report the logical current position according to the most recent G-code command.
@@ -328,6 +335,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
   planner.buffer_line(current_position, fr_mm_s, active_extruder);
 }
+
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
+    #if HAS_FILAMENT_SENSOR
+      runout.reset();
+    #endif
+    current_position.e += length / planner.e_factor[active_extruder];
+    line_to_current_position(fr_mm_s);
+    planner.synchronize();
+  }
+#endif
 
 #if IS_KINEMATIC
 
@@ -1289,12 +1307,14 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
  */
 void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0) {
 
+  const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
+
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOPAIR(">>> do_homing_move(", axis_codes[axis], ", ", distance, ", ");
     if (fr_mm_s)
       DEBUG_ECHO(fr_mm_s);
     else
-      DEBUG_ECHOPAIR("[", homing_feedrate(axis), "]");
+      DEBUG_ECHOPAIR("[", real_fr_mm_s, "]");
     DEBUG_ECHOLNPGM(")");
   }
 
@@ -1328,7 +1348,6 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     #endif
   }
 
-  const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
   #if IS_SCARA
     // Tell the planner the axis is at 0
     current_position[axis] = 0;
@@ -1341,14 +1360,14 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     planner.set_machine_position_mm(target);
     target[axis] = distance;
 
-    #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-      const xyze_float_t delta_mm_cart{0};
+    #if HAS_DIST_MM_ARG
+      const xyze_float_t cart_dist_mm{0};
     #endif
 
     // Set delta/cartesian axes directly
     planner.buffer_segment(target
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , cart_dist_mm
       #endif
       , real_fr_mm_s, active_extruder
     );
@@ -1776,6 +1795,13 @@ void homeaxis(const AxisEnum axis) {
         #endif
         homing_feedrate(axis)
       );
+
+      #if ENABLED(SENSORLESS_HOMING)
+        planner.synchronize();
+        #if IS_CORE
+          if (axis != NORMAL_AXIS) safe_delay(200);  // Short delay to allow belts to spring back
+        #endif
+      #endif
     }
   #endif
 

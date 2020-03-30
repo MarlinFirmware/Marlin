@@ -29,7 +29,7 @@
   #include "../../../module/motion.h"
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "../../../lcd/extensible_ui/ui_api.h"
+    #include "../../../lcd/extui/ui_api.h"
   #endif
 
   mesh_bed_leveling mbl;
@@ -40,9 +40,9 @@
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
   mesh_bed_leveling::mesh_bed_leveling() {
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
+    LOOP_L_N(i, GRID_MAX_POINTS_X)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
+    LOOP_L_N(i, GRID_MAX_POINTS_Y)
       index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
@@ -51,9 +51,7 @@
     z_offset = 0;
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          ExtUI::onMeshUpdate(x, y, 0);
+      GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
   }
 

@@ -57,7 +57,7 @@
 #include "../MarlinCore.h"
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
-  #include "../HAL/shared/persistent_store_api.h"
+  #include "../HAL/shared/eeprom_api.h"
 #endif
 
 #include "probe.h"
@@ -71,7 +71,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #if HAS_SERVOS
@@ -87,7 +87,7 @@
 #include "../feature/fwretract.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 #include "../feature/pause.h"
@@ -119,7 +119,17 @@
 #endif
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
-  #include "../feature/probe_temp_compensation.h"
+  #include "../feature/probe_temp_comp.h"
+#endif
+
+#include "../feature/controllerfan.h"
+#if ENABLED(CONTROLLER_FAN_EDITABLE)
+  void M710_report(const bool forReplay);
+#endif
+
+#define HAS_CASE_LIGHT_BRIGHTNESS (ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS))
+#if HAS_CASE_LIGHT_BRIGHTNESS
+  #include "../feature/caselight.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -293,6 +303,11 @@ typedef struct SettingsDataStruct {
   int16_t lcd_contrast;                                 // M250 C
 
   //
+  // Controller fan settings
+  //
+  controllerFan_settings_t controllerFan_settings;      // M710
+
+  //
   // POWER_LOSS_RECOVERY
   //
   bool recovery_enabled;                                // M413 S
@@ -366,6 +381,13 @@ typedef struct SettingsDataStruct {
     uint8_t extui_data[ExtUI::eeprom_data_size];
   #endif
 
+  //
+  // HAS_CASE_LIGHT_BRIGHTNESS
+  //
+  #if HAS_CASE_LIGHT_BRIGHTNESS
+    uint8_t case_light_brightness;
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= E2END + 1, "EEPROM too small to contain SettingsData!");
@@ -429,6 +451,10 @@ void MarlinSettings::postprocess() {
 
   #if HAS_LINEAR_E_JERK
     planner.recalculate_max_e_jerk();
+  #endif
+
+  #if HAS_CASE_LIGHT_BRIGHTNESS
+    update_case_light();
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
@@ -583,7 +609,7 @@ void MarlinSettings::postprocess() {
 
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
-        for (uint8_t e = 1; e < HOTENDS; e++)
+        LOOP_S_L_N(e, 1, HOTENDS)
           EEPROM_WRITE(hotend_offset[e]);
       #endif
     }
@@ -878,6 +904,19 @@ void MarlinSettings::postprocess() {
         #endif
       ;
       EEPROM_WRITE(lcd_contrast);
+    }
+
+    //
+    // Controller Fan
+    //
+    {
+      _FIELD_TEST(controllerFan_settings);
+      #if ENABLED(USE_CONTROLLER_FAN)
+        const controllerFan_settings_t &cfs = controllerFan.settings;
+      #else
+        controllerFan_settings_t cfs = controllerFan_defaults;
+      #endif
+      EEPROM_WRITE(cfs);
     }
 
     //
@@ -1208,7 +1247,7 @@ void MarlinSettings::postprocess() {
       #if HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
-        const xyz_ulong_t no_current{0};
+        const uint32_t no_current[3] = { 0 };
         EEPROM_WRITE(no_current);
       #endif
     }
@@ -1284,6 +1323,13 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(extui_data);
         EEPROM_WRITE(extui_data);
       }
+    #endif
+
+    //
+    // Case Light Brightness
+    //
+    #if HAS_CASE_LIGHT_BRIGHTNESS
+      EEPROM_WRITE(case_light_brightness);
     #endif
 
     //
@@ -1420,7 +1466,7 @@ void MarlinSettings::postprocess() {
       {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
-          for (uint8_t e = 1; e < HOTENDS; e++)
+          LOOP_S_L_N(e, 1, HOTENDS)
             EEPROM_READ(hotend_offset[e]);
         #endif
       }
@@ -1531,10 +1577,10 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(planner_leveling_active);
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           const bool &planner_leveling_active = planner.leveling_active;
-          const uint8_t &ubl_storage_slot = ubl.storage_slot;
+          const int8_t &ubl_storage_slot = ubl.storage_slot;
         #else
           bool planner_leveling_active;
-          uint8_t ubl_storage_slot;
+          int8_t ubl_storage_slot;
         #endif
         EEPROM_READ(planner_leveling_active);
         EEPROM_READ(ubl_storage_slot);
@@ -1717,6 +1763,19 @@ void MarlinSettings::postprocess() {
         #if HAS_LCD_CONTRAST
           ui.set_contrast(lcd_contrast);
         #endif
+      }
+
+      //
+      // Controller Fan
+      //
+      {
+        _FIELD_TEST(controllerFan_settings);
+        #if ENABLED(CONTROLLER_FAN_EDITABLE)
+          const controllerFan_settings_t &cfs = controllerFan.settings;
+        #else
+          controllerFan_settings_t cfs = { 0 };
+        #endif
+        EEPROM_READ(cfs);
       }
 
       //
@@ -2127,6 +2186,14 @@ void MarlinSettings::postprocess() {
         }
       #endif
 
+      //
+      // Case Light Brightness
+      //
+      #if HAS_CASE_LIGHT_BRIGHTNESS
+        _FIELD_TEST(case_light_brightness);
+        EEPROM_READ(case_light_brightness);
+      #endif
+
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
@@ -2185,8 +2252,10 @@ void MarlinSettings::postprocess() {
     }
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
-      if (!validating) report();
+      // Report the EEPROM settings
+      if (!validating && (DISABLED(EEPROM_BOOT_SILENT) || IsRunning())) report();
     #endif
+
     EEPROM_FINISH();
 
     return !eeprom_error;
@@ -2421,6 +2490,14 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Case Light Brightness
+  //
+
+  #if HAS_CASE_LIGHT_BRIGHTNESS
+    case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
+  #endif
+
+  //
   // Magnetic Parking Extruder
   //
 
@@ -2589,6 +2666,13 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Controller Fan
+  //
+  #if ENABLED(USE_CONTROLLER_FAN)
+    controllerFan.reset();
+  #endif
+
+  //
   // Power-Loss Recovery
   //
 
@@ -2651,7 +2735,7 @@ void MarlinSettings::reset() {
 
   #if HAS_MOTOR_CURRENT_PWM
     constexpr uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    for (uint8_t q = 3; q--;)
+    LOOP_L_N(q, 3)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
 
@@ -2915,7 +2999,7 @@ void MarlinSettings::reset() {
     #if HAS_HOTEND_OFFSET
       CONFIG_ECHO_HEADING("Hotend offsets:");
       CONFIG_ECHO_START();
-      for (uint8_t e = 1; e < HOTENDS; e++) {
+      LOOP_S_L_N(e, 1, HOTENDS) {
         SERIAL_ECHOPAIR_P(
           PSTR("  M218 T"), (int)e,
           SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
@@ -3150,6 +3234,10 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("LCD Contrast:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
+    #endif
+
+    #if ENABLED(CONTROLLER_FAN_EDITABLE)
+      M710_report(forReplay);
     #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)

@@ -102,7 +102,7 @@
 
 static void createChar_P(const char c, const byte * const ptr) {
   byte temp[8];
-  for (uint8_t i = 0; i < 8; i++)
+  LOOP_L_N(i, 8)
     temp[i] = pgm_read_byte(&ptr[i]);
   lcd.createChar(c, temp);
 }
@@ -414,7 +414,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     else {
       PGM_P p = text;
       int dly = time / _MAX(slen, 1);
-      for (uint8_t i = 0; i <= slen; i++) {
+      LOOP_LE_N(i, slen) {
 
         // Print the text at the correct place
         lcd_put_u8str_max_P(col, line, p, len);

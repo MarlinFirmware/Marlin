@@ -36,7 +36,7 @@
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../feature/power_loss_recovery.h"
+  #include "../../../feature/powerloss.h"
 #endif
 
 /**

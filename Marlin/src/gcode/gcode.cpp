@@ -46,7 +46,7 @@ GcodeSuite gcode;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../sd/cardreader.h"
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 #if ENABLED(CANCEL_OBJECTS)
@@ -752,6 +752,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 702: M702(); break;                                  // M702: Unload Filament
       #endif
 
+      #if ENABLED(CONTROLLER_FAN_EDITABLE)
+        case 710: M710(); break;                                  // M710: Set Controller Fan settings
+      #endif
+
       #if ENABLED(GCODE_MACROS)
         case 810: case 811: case 812: case 813: case 814:
         case 815: case 816: case 817: case 818: case 819:
@@ -853,7 +857,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
-        case 1000: M1000(); break;                                // M1000: Resume from power-loss
+        case 1000: M1000(); break;                                // M1000: [INTERNAL] Resume from power-loss
+      #endif
+
+      #if ENABLED(SDSUPPORT)
+        case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 
       #if ENABLED(MAX7219_GCODE)

@@ -227,7 +227,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     SETCURSOR(col, row);
     if (!string) return;
 
-    auto _newline = [&col, &row]() {
+    auto _newline = [&col, &row]{
       col = 0; row++;                 // Move col to string len (plus space)
       SETCURSOR(0, row);              // Simulate carriage return
     };
@@ -524,7 +524,7 @@ void MarlinUI::status_screen() {
     #if PROGRESS_MSG_EXPIRE > 0
 
       // Handle message expire
-      if (expire_status_ms > 0) {
+      if (expire_status_ms) {
 
         // Expire the message if a job is active and the bar has ticks
         if (get_progress_percent() > 2 && !print_job_timer.isPaused()) {
@@ -779,6 +779,13 @@ void MarlinUI::update() {
     // If the action button is pressed...
     static bool wait_for_unclick; // = false
 
+    auto do_click = [&]{
+      wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
+      lcd_clicked = !wait_for_user && !no_reentry;    //  - Keep the click if not waiting for a user-click
+      wait_for_user = false;                          //  - Any click clears wait for user
+      quick_feedback();                               //  - Always make a click sound
+    };
+
     #if ENABLED(TOUCH_BUTTONS)
       if (touch_buttons) {
         RESET_STATUS_TIMEOUT();
@@ -799,12 +806,8 @@ void MarlinUI::update() {
             }
           }
         }
-        else if (!wait_for_unclick && (buttons & EN_C)) { // OK button, if not waiting for a debounce release:
-          wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
-          lcd_clicked = !wait_for_user && !no_reentry;    //  - Keep the click if not waiting for a user-click
-          wait_for_user = false;                          //  - Any click clears wait for user
-          quick_feedback();                               //  - Always make a click sound
-        }
+        else if (!wait_for_unclick && (buttons & EN_C))   // OK button, if not waiting for a debounce release:
+          do_click();
       }
       else // keep wait_for_unclick value
 
@@ -813,12 +816,7 @@ void MarlinUI::update() {
       {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) {                        // If not waiting for a debounce release:
-            wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-            lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-            wait_for_user = false;                        //  - Any click clears wait for user
-            quick_feedback();                             //  - Always make a click sound
-          }
+          if (!wait_for_unclick) do_click();              // Handle the click
         }
         else
           wait_for_unclick = false;
@@ -1139,7 +1137,7 @@ void MarlinUI::update() {
       thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < adc_other_button)
-        for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
+        LOOP_L_N(i, ADC_KEY_NUM) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
           if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
@@ -1312,7 +1310,7 @@ void MarlinUI::update() {
 #if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "extensible_ui/ui_api.h"
+    #include "extui/ui_api.h"
   #endif
 
   ////////////////////////////////////////////
@@ -1340,15 +1338,19 @@ void MarlinUI::update() {
       UNUSED(persist);
     #endif
 
+    #if ENABLED(LCD_PROGRESS_BAR) || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      const millis_t ms = millis();
+    #endif
+
     #if ENABLED(LCD_PROGRESS_BAR)
-      progress_bar_ms = millis();
+      progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
-        expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
+        expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
       #endif
     #endif
 
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-      next_filament_display = millis() + 5000UL; // Show status message for 5s
+      next_filament_display = ms + 5000UL; // Show status message for 5s
     #endif
 
     #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)

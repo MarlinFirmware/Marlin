@@ -61,6 +61,10 @@
                             manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
 #endif
 
+#if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+  #define HAS_DIST_MM_ARG 1
+#endif
+
 enum BlockFlagBit : char {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
@@ -403,7 +407,7 @@ class Planner {
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
         filament_size[e] = v;
         // make sure all extruders have some sane value for the filament size
-        for (uint8_t i = 0; i < COUNT(filament_size); i++)
+        LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
@@ -588,8 +592,8 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const xyze_pos_t &target_float
       #endif
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
@@ -611,8 +615,8 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const xyze_pos_t &target_float
       #endif
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
@@ -643,21 +647,21 @@ class Planner {
      *  millimeters - the length of the movement, if known
      */
     static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
     FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     ) {
       return buffer_segment(abce.a, abce.b, abce.c, abce.e
-        #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-          , delta_mm_cart
+        #if HAS_DIST_MM_ARG
+          , cart_dist_mm
         #endif
         , fr_mm_s, extruder, millimeters);
     }
@@ -807,7 +811,7 @@ class Planner {
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
-          for (uint8_t i = 0; i < EXTRUDERS; i++)
+          LOOP_L_N(i, EXTRUDERS)
             max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
         #else
           max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);

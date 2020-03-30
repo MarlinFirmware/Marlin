@@ -35,11 +35,11 @@
 #include "../module/configuration_store.h"
 
 #if ENABLED(EMERGENCY_PARSER)
-  #include "../feature/emergency_parser.h"
+  #include "../feature/e_parser.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -49,7 +49,6 @@
 // public:
 
 card_flags_t CardReader::flag;
-uint8_t CardReader::sdprinting_done_state;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 int8_t CardReader::autostart_index;
 
@@ -143,7 +142,7 @@ CardReader::CardReader() {
 //
 char *createFilename(char * const buffer, const dir_t &p) {
   char *pos = buffer;
-  for (uint8_t i = 0; i < 11; i++) {
+  LOOP_L_N(i, 11) {
     if (p.name[i] == ' ') continue;
     if (i == 8) *pos++ = '.';
     *pos++ = p.name[i];
@@ -435,7 +434,7 @@ void CardReader::getAbsFilename(char *dst) {
     if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
   };
 
-  for (uint8_t i = 0; i < workDirDepth; i++)                // Loop down to current work dir
+  LOOP_L_N(i, workDirDepth)                // Loop down to current work dir
     appendAtom(workDirParents[i]);
 
   if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH) - 1) {    // Leave room for filename and nul
@@ -1046,7 +1045,7 @@ void CardReader::cdroot() {
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         delete sort_order;
         #if ENABLED(SDSORT_CACHE_NAMES)
-          for (uint8_t i = 0; i < sort_count; ++i) {
+          LOOP_L_N(i, sort_count) {
             free(sortshort[i]); // strdup
             free(sortnames[i]); // strdup
           }
@@ -1089,7 +1088,7 @@ void CardReader::fileHasFinished() {
       presort();
     #endif
 
-    sdprinting_done_state = 1;
+    marlin_state = MF_SD_COMPLETE;
   }
 }
 

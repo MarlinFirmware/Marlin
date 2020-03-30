@@ -103,6 +103,7 @@
 #define BOARD_HJC2560C_REV2           1147  // ADIMLab Gantry v2
 #define BOARD_TANGO                   1148  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1149  // MKS GEN L V2
+#define BOARD_COPYMASTER_3D           1150  // Copymaster 3D
 
 //
 // RAMBo and derivatives
@@ -143,6 +144,7 @@
 #define BOARD_LEAPFROG_XEED2015       1321  // Leapfrog Xeed 2015
 #define BOARD_PICA_REVB               1322  // PICA Shield (original version)
 #define BOARD_PICA                    1323  // PICA Shield (rev C or later)
+#define BOARD_INTAMSYS40              1324  // Intamsys 4.0 (Funmat HT)
 
 //
 // ATmega1281, ATmega2561

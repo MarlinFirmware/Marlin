@@ -74,7 +74,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../feature/prusa_MMU2/mmu2.h"
+  #include "../feature/mmu2/mmu2.h"
 #endif
 
 #if HAS_LCD_MENU
@@ -251,7 +251,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    for (uint8_t n = 0; n <= 1; ++n)
+    LOOP_LE_N(n, 1)
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
         pe_activate_solenoid(n);
       #else
@@ -856,7 +856,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
         else {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+            unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
           #else
             current_position.e -= toolchange_settings.swap_length / planner.e_factor[old_tool];
             planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), old_tool);
@@ -991,8 +991,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
-              do_pause_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
+              unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
+              unscaled_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
             #else
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), new_tool);

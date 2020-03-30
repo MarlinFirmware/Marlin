@@ -287,7 +287,7 @@
 #include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "../feature/I2CPositionEncoder.h"
+  #include "../feature/encoder_i2c.h"
 #endif
 
 enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
@@ -968,8 +968,16 @@ private:
     static void M1000();
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    static void M1001();
+  #endif
+
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
+  #endif
+
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    static void M710();
   #endif
 
   static void T(const uint8_t tool_index);
