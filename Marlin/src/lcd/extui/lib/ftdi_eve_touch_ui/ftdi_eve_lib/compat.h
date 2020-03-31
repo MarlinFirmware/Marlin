@@ -176,11 +176,12 @@
     #undef MAKE_ARDUINO_PINS
   } // namespace fast_io
 
-  #define SET_INPUT(pin)               fast_io::pin::set_input()
-  #define SET_INPUT_PULLUP(pin)        fast_io::pin::set_input(); fast_io::pin::set_high()
-  #define SET_OUTPUT(pin)              fast_io::pin::set_output()
-  #define READ(pin)                    fast_io::pin::read()
-  #define WRITE(pin, value)            fast_io::pin::write(value)
+  #define SET_INPUT(pin)              fast_io::pin::set_input()
+  #define SET_INPUT_PULLUP(pin)       do{ fast_io::pin::set_input(); fast_io::pin::set_high(); }while(0)
+  #define SET_INPUT_PULLDOWN          SET_INPUT
+  #define SET_OUTPUT(pin)             fast_io::pin::set_output()
+  #define READ(pin)                   fast_io::pin::read()
+  #define WRITE(pin, value)           fast_io::pin::write(value)
 
   #ifndef pgm_read_word_far
   #define pgm_read_word_far pgm_read_word
@@ -195,11 +196,11 @@
   #endif
 
   #define SERIAL_ECHO_START()
-  #define SERIAL_ECHOLNPGM(str)        Serial.println(F(str))
-  #define SERIAL_ECHOPGM(str)          Serial.print(F(str))
-  #define SERIAL_ECHO_MSG(str)         Serial.println(str)
-  #define SERIAL_ECHOLNPAIR(str, val) {Serial.print(F(str)); Serial.println(val);}
-  #define SERIAL_ECHOPAIR(str, val)   {Serial.print(F(str)); Serial.print(val);}
+  #define SERIAL_ECHOLNPGM(str)       Serial.println(F(str))
+  #define SERIAL_ECHOPGM(str)         Serial.print(F(str))
+  #define SERIAL_ECHO_MSG(str)        Serial.println(str)
+  #define SERIAL_ECHOLNPAIR(str, val) do{ Serial.print(F(str)); Serial.println(val); }while(0)
+  #define SERIAL_ECHOPAIR(str, val)   do{ Serial.print(F(str)); Serial.print(val); }while(0)
 
   #define safe_delay delay
 

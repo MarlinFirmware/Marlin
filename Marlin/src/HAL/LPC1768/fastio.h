@@ -104,7 +104,7 @@
 /// set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)        do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
 // set pin as PWM
-#define SET_PWM(IO)           SET_OUTPUT(IO)
+#define SET_PWM               SET_OUTPUT
 
 /// check if pin is an input wrapper
 #define IS_INPUT(IO)          _IS_INPUT(IO)
