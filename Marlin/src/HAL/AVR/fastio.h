@@ -98,6 +98,7 @@
 
 #define SET_INPUT(IO)         _SET_INPUT(IO)
 #define SET_INPUT_PULLUP(IO)  do{ _SET_INPUT(IO); _WRITE(IO, HIGH); }while(0)
+#define SET_INPUT_PULLDOWN(IO)  do{ _SET_INPUT(IO); _WRITE(IO, LOW); }while(0)
 #define SET_OUTPUT(IO)        _SET_OUTPUT(IO)
 
 #define SET_PWM(IO)           SET_OUTPUT(IO)
