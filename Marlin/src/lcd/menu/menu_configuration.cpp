@@ -131,7 +131,7 @@ void menu_advanced_settings();
 
       // Auto mode ON/OFF
       EDIT_ITEM(bool, MSG_TOOL_MIGRATION_AUTO, &migration.automode);
-      EDIT_ITEM(int3, MSG_TOOL_MIGRATION_END, &migration.last, 0, EXTRUDERS - 1);
+      EDIT_ITEM(uint8, MSG_TOOL_MIGRATION_END, &migration.last, 0, EXTRUDERS - 1);
 
       // Migrate to a chosen extruder
       PGM_P const msg_migrate = GET_TEXT(MSG_TOOL_MIGRATION_SWAP);
