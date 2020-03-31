@@ -328,8 +328,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Rétraction auto");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Changement outil");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Augmenter Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Vitesse primaire");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Vitesse rétract°");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Vitesse primaire");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Vitesse rétract°");
   PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Garer Extrudeur");
   PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("Vitesse reprise");
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED          = _UxGT("Vit.  ventil.");
