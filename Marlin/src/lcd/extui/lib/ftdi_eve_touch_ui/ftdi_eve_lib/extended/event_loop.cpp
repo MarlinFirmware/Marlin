@@ -191,7 +191,7 @@ namespace FTDI {
 
             #if ENABLED(TOUCH_UI_DEBUG)
               SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Touch end: ", tag);
+              SERIAL_ECHOLNPAIR("Touch end: ", pressed_tag);
             #endif
 
             const uint8_t saved_pressed_tag = pressed_tag;

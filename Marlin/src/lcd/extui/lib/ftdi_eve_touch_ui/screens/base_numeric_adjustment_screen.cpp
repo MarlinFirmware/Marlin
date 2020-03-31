@@ -345,10 +345,14 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
   }
 
   cmd.font(LAYOUT_FONT);
- _button(cmd, tag+0, BTN_POS(5,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_X));
- _button(cmd, tag+1, BTN_POS(7,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_Y));
- _button(cmd, tag+2, BTN_POS(9,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_Z));
- _button(cmd, tag+3, BTN_POS(11,_line), BTN_SIZE(3,1), GET_TEXT_F(MSG_AXIS_ALL));
+ _button(cmd, tag+0, BTN_POS(5,_line),    BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_X));
+ _button(cmd, tag+1, BTN_POS(7,_line),    BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_Y));
+ #if DISABLED(Z_SAFE_HOMING)
+   _button(cmd, tag+2, BTN_POS(9,_line),  BTN_SIZE(2,1), GET_TEXT_F(MSG_AXIS_Z));
+   _button(cmd, tag+3, BTN_POS(11,_line), BTN_SIZE(3,1), GET_TEXT_F(MSG_AXIS_ALL));
+ #else
+   _button(cmd, tag+3, BTN_POS(9,_line),  BTN_SIZE(3,1), GET_TEXT_F(MSG_AXIS_ALL));
+ #endif
 
   _line++;
 }
