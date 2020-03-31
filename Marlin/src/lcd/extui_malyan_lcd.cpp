@@ -416,7 +416,7 @@ namespace ExtUI {
     write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));
 
     // send a version that says "unsupported"
-    write_to_lcd_P(PSTR("{VER:99}\r\n"));
+    write_to_lcd_P(PSTR("{VER:2.0.5}\r\n"));
 
     // No idea why it does this twice.
     write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));
