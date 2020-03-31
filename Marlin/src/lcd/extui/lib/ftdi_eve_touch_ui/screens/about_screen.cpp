@@ -92,16 +92,15 @@ void AboutScreen::onRedraw(draw_mode_t) {
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
-#if ENABLED(PRINTCOUNTER)
-    case 2: GOTO_SCREEN(StatisticsScreen); break;
-#endif
-#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-    case 3: GOTO_SCREEN(DeveloperMenu); break;
-#endif
+    #if ENABLED(PRINTCOUNTER)
+      case 2: GOTO_SCREEN(StatisticsScreen); break;
+    #endif
+    #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
+      case 3: GOTO_SCREEN(DeveloperMenu); break;
+    #endif
     default: return false;
   }
   return true;
 }
 
 #endif // TOUCH_UI_FTDI_EVE
-
