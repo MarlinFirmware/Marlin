@@ -48,14 +48,8 @@
 
   #ifdef PHOTO_RETRACT_MM
     inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
-      if (length && thermalManager.hotEnoughToExtrude(active_extruder)) {
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          do_pause_e_move(length, fr_mm_s);
-        #else
-          current_position.e += length / planner.e_factor[active_extruder];
-          line_to_current_position(fr_mm_s);
-        #endif
-      }
+      if (length && thermalManager.hotEnoughToExtrude(active_extruder))
+        unscaled_e_move(length, fr_mm_s);
     }
   #endif
 

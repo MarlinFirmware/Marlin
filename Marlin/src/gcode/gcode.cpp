@@ -857,7 +857,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
-        case 1000: M1000(); break;                                // M1000: Resume from power-loss
+        case 1000: M1000(); break;                                // M1000: [INTERNAL] Resume from power-loss
+      #endif
+
+      #if ENABLED(SDSUPPORT)
+        case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 
       #if ENABLED(MAX7219_GCODE)

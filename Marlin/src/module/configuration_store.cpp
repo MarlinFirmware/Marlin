@@ -57,7 +57,7 @@
 #include "../MarlinCore.h"
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
-  #include "../HAL/shared/persistent_store_api.h"
+  #include "../HAL/shared/eeprom_api.h"
 #endif
 
 #include "probe.h"
@@ -125,6 +125,11 @@
 #include "../feature/controllerfan.h"
 #if ENABLED(CONTROLLER_FAN_EDITABLE)
   void M710_report(const bool forReplay);
+#endif
+
+#define HAS_CASE_LIGHT_BRIGHTNESS (ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS))
+#if HAS_CASE_LIGHT_BRIGHTNESS
+  #include "../feature/caselight.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -376,6 +381,13 @@ typedef struct SettingsDataStruct {
     uint8_t extui_data[ExtUI::eeprom_data_size];
   #endif
 
+  //
+  // HAS_CASE_LIGHT_BRIGHTNESS
+  //
+  #if HAS_CASE_LIGHT_BRIGHTNESS
+    uint8_t case_light_brightness;
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= E2END + 1, "EEPROM too small to contain SettingsData!");
@@ -439,6 +451,10 @@ void MarlinSettings::postprocess() {
 
   #if HAS_LINEAR_E_JERK
     planner.recalculate_max_e_jerk();
+  #endif
+
+  #if HAS_CASE_LIGHT_BRIGHTNESS
+    update_case_light();
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
@@ -1231,7 +1247,7 @@ void MarlinSettings::postprocess() {
       #if HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
-        const xyz_ulong_t no_current{0};
+        const uint32_t no_current[3] = { 0 };
         EEPROM_WRITE(no_current);
       #endif
     }
@@ -1307,6 +1323,13 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(extui_data);
         EEPROM_WRITE(extui_data);
       }
+    #endif
+
+    //
+    // Case Light Brightness
+    //
+    #if HAS_CASE_LIGHT_BRIGHTNESS
+      EEPROM_WRITE(case_light_brightness);
     #endif
 
     //
@@ -2163,6 +2186,14 @@ void MarlinSettings::postprocess() {
         }
       #endif
 
+      //
+      // Case Light Brightness
+      //
+      #if HAS_CASE_LIGHT_BRIGHTNESS
+        _FIELD_TEST(case_light_brightness);
+        EEPROM_READ(case_light_brightness);
+      #endif
+
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
@@ -2459,6 +2490,14 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Case Light Brightness
+  //
+
+  #if HAS_CASE_LIGHT_BRIGHTNESS
+    case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
+  #endif
+
+  //
   // Magnetic Parking Extruder
   //
 
@@ -2696,7 +2735,7 @@ void MarlinSettings::reset() {
 
   #if HAS_MOTOR_CURRENT_PWM
     constexpr uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    for (uint8_t q = 3; q--;)
+    LOOP_L_N(q, 3)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
 

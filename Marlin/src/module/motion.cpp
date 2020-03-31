@@ -55,6 +55,10 @@
   #include "../lcd/ultralcd.h"
 #endif
 
+#if HAS_FILAMENT_SENSOR
+  #include "../feature/runout.h"
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
 #endif
@@ -331,6 +335,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
   planner.buffer_line(current_position, fr_mm_s, active_extruder);
 }
+
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s) {
+    #if HAS_FILAMENT_SENSOR
+      runout.reset();
+    #endif
+    current_position.e += length / planner.e_factor[active_extruder];
+    line_to_current_position(fr_mm_s);
+    planner.synchronize();
+  }
+#endif
 
 #if IS_KINEMATIC
 
@@ -1292,12 +1307,14 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
  */
 void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0) {
 
+  const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
+
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOPAIR(">>> do_homing_move(", axis_codes[axis], ", ", distance, ", ");
     if (fr_mm_s)
       DEBUG_ECHO(fr_mm_s);
     else
-      DEBUG_ECHOPAIR("[", homing_feedrate(axis), "]");
+      DEBUG_ECHOPAIR("[", real_fr_mm_s, "]");
     DEBUG_ECHOLNPGM(")");
   }
 
@@ -1331,7 +1348,6 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     #endif
   }
 
-  const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
   #if IS_SCARA
     // Tell the planner the axis is at 0
     current_position[axis] = 0;
@@ -1344,14 +1360,14 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     planner.set_machine_position_mm(target);
     target[axis] = distance;
 
-    #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-      const xyze_float_t delta_mm_cart{0};
+    #if HAS_DIST_MM_ARG
+      const xyze_float_t cart_dist_mm{0};
     #endif
 
     // Set delta/cartesian axes directly
     planner.buffer_segment(target
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , cart_dist_mm
       #endif
       , real_fr_mm_s, active_extruder
     );
