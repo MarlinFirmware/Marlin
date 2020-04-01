@@ -2164,7 +2164,7 @@
     #define SHARED_SD_CARD
   #endif
   #if DISABLED(SHARED_SD_CARD)
-    #define INIT_SDCARD_ON_BOOT
+    #define INIT_SDCARD_ON_BOOT 1
   #endif
 #endif
 

@@ -542,22 +542,14 @@ volatile bool Temperature::raw_temps_ready = false;
 
         // Make sure heating is actually working
         #if WATCH_BED || WATCH_HOTENDS
-          if (
-            #if WATCH_BED && WATCH_HOTENDS
-              true
-            #elif WATCH_HOTENDS
-              !isbed
-            #else
-              isbed
-            #endif
-          ) {
-            if (!heated) {                                          // If not yet reached target...
-              if (current_temp > next_watch_temp) {                      // Over the watch temp?
-                next_watch_temp = current_temp + watch_temp_increase;    // - set the next temp to watch for
-                temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
-                if (current_temp > watch_temp_target) heated = true;     // - Flag if target temperature reached
+          if (BOTH(WATCH_BED, WATCH_HOTENDS) || isbed == DISABLED(WATCH_HOTENDS)) {
+            if (!heated) {                                            // If not yet reached target...
+              if (current_temp > next_watch_temp) {                   // Over the watch temp?
+                next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
+                temp_change_ms = ms + watch_temp_period * 1000UL;     // - move the expiration timer up
+                if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+              else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
                 _temp_error(heater, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
