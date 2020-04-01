@@ -605,6 +605,8 @@ namespace Language_en {
   
   PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Level X Axis");
   PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Auto Calibrate");
+  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("HeaterTimeout");
+  PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 }
 
 #if FAN_COUNT == 1
