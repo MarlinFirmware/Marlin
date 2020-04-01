@@ -1,9 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +20,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#include "../../inc/MarlinConfigPre.h"
 
-#include "../shared/persistent_store_api.h"
+#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
-#define FLASH_EEPROM_EMULATION
+  #include "eeprom_api.h"
+  PersistentStore persistentStore;
+
+#endif

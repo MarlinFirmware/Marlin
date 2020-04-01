@@ -83,6 +83,7 @@ enum MarlinState : uint8_t {
   MF_PAUSED       = _BV(1),
   MF_WAITING      = _BV(2),
   MF_STOPPED      = _BV(3),
+  MF_SD_COMPLETE  = _BV(4),
   MF_KILLED       = _BV(7)
 };
 
@@ -98,6 +99,7 @@ extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
+  void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
 // Inactivity shutdown timer

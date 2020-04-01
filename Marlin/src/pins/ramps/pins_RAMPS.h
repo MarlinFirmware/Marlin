@@ -169,11 +169,11 @@
   #define TEMP_BED_PIN                        14  // Analog Input
 #endif
 
+//
 // SPI for Max6675 or Max31855 Thermocouple
-#if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
-#else
-  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
+//
+#ifndef MAX6675_SS_PIN
+  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card (SDSS) or 49 (SD_DETECT_PIN)
 #endif
 
 //

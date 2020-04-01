@@ -34,12 +34,31 @@
 /**
  * M303: PID relay autotune
  *
- *       S<temperature> sets the target temperature. (default 150C / 70C)
- *       E<extruder> (-1 for the bed) (default 0)
- *       C<cycles> Minimum 3. Default 5.
- *       U<bool> with a non-zero value will apply the result to current settings
+ *  S<temperature>  Set the target temperature. (Default: 150C / 70C)
+ *  E<extruder>     Extruder number to tune, or -1 for the bed. (Default: E0)
+ *  C<cycles>       Number of times to repeat the procedure. (Minimum: 3, Default: 5)
+ *  U<bool>         Flag to apply the result to the current PID values
+ *
+ * With PID_DEBUG:
+ *  D               Toggle PID debugging and EXIT without further action.
  */
+
+#if ENABLED(PID_DEBUG)
+  bool pid_debug_flag = 0;
+#endif
+
 void GcodeSuite::M303() {
+
+  #if ENABLED(PID_DEBUG)
+    if (parser.seen('D')) {
+      pid_debug_flag = !pid_debug_flag;
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("PID Debug ");
+      serialprintln_onoff(pid_debug_flag);
+      return;
+    }
+  #endif
+
   #if ENABLED(PIDTEMPBED)
     #define SI H_BED
   #else
@@ -54,7 +73,7 @@ void GcodeSuite::M303() {
   if (!WITHIN(e, SI, EI)) {
     SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::OnPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM);
+      ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM);
     #endif
     return;
   }

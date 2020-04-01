@@ -27,7 +27,7 @@
   #include "../bedlevel.h"
 
   #include "../../../MarlinCore.h"
-  #include "../../../HAL/shared/persistent_store_api.h"
+  #include "../../../HAL/shared/eeprom_api.h"
   #include "../../../libs/hex_print_routines.h"
   #include "../../../module/configuration_store.h"
   #include "../../../lcd/ultralcd.h"

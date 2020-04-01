@@ -35,5 +35,5 @@ const PROGMEM uint16_t logo_stroke[] = {0xADF3, 0x546C, 0x419D, 0x546F, 0x3D05, 
 
 #define LOGO_BACKGROUND logo_bg_rgb
 #define LOGO_PAINT_PATHS \
-  LOGO_PAINT_PATH(logo_stroke_rgb, logo_stroke) \
-  LOGO_PAINT_PATH(logo_fill_rgb,   logo_fill)
+  LOGO_PAINT_PATH(logo_fill_rgb,   logo_fill) \
+  LOGO_PAINT_PATH(logo_stroke_rgb, logo_stroke)

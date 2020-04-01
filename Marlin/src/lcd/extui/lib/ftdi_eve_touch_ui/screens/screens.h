@@ -76,6 +76,7 @@ enum {
   PRINTING_SCREEN_CACHE,
 #endif
 #if ENABLED(TOUCH_UI_COCOA_PRESS)
+  PREHEAT_MENU_CACHE,
   PREHEAT_TIMER_SCREEN_CACHE,
 #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
@@ -99,7 +100,7 @@ enum {
 
 class BaseScreen : public UIScreen {
   protected:
-    #ifdef LCD_TIMEOUT_TO_STATUS
+    #if LCD_TIMEOUT_TO_STATUS
       static uint32_t last_interaction;
     #endif
 
@@ -314,6 +315,12 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
 #endif
 
 #if ENABLED(TOUCH_UI_COCOA_PRESS)
+  class PreheatMenu : public BaseScreen, public CachedScreen<PREHEAT_MENU_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
   class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
     private:
       static uint16_t secondsRemaining();

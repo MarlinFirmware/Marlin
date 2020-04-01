@@ -24,21 +24,17 @@
 
 #if HAS_RESUME_CONTINUE
 
-#include "../gcode.h"
-#include "../../module/planner.h"
-
 #include "../../inc/MarlinConfig.h"
+
+#include "../gcode.h"
+
+#include "../../module/planner.h" // for synchronize()
+#include "../../MarlinCore.h"     // for wait_for_user_response()
 
 #if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
-#endif
-
-#if ENABLED(EXTENSIBLE_UI)
+#elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
-#endif
-
-#if HAS_LEDS_OFF_FLAG
-  #include "../../feature/leds/printer_event_leds.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -56,16 +52,11 @@ void GcodeSuite::M0_M1() {
 
   planner.synchronize();
 
-  const bool seenQ = parser.seen('Q');
-  #if HAS_LEDS_OFF_FLAG
-    if (seenQ) printerEventLEDs.onPrintCompleted();      // Change LED color for Print Completed
-  #endif
-
   #if HAS_LCD_MENU
 
     if (parser.string_arg)
       ui.set_status(parser.string_arg, true);
-    else if (!seenQ) {
+    else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();
@@ -73,12 +64,10 @@ void GcodeSuite::M0_M1() {
     }
 
   #elif ENABLED(EXTENSIBLE_UI)
-
     if (parser.string_arg)
       ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
     else
       ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
-
   #else
 
     if (parser.string_arg) {
@@ -88,25 +77,15 @@ void GcodeSuite::M0_M1() {
 
   #endif
 
-  KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;
-
   #if ENABLED(HOST_PROMPT_SUPPORT)
     host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
   #endif
 
-  if (ms > 0) ms += millis();  // wait until this time for a click
-  while (wait_for_user && (ms == 0 || PENDING(millis(), ms))) idle();
-
-  #if HAS_LEDS_OFF_FLAG
-    printerEventLEDs.onResumeAfterWait();
-  #endif
+  wait_for_user_response(ms);
 
   #if HAS_LCD_MENU
-    if (!seenQ) ui.reset_status();
+    ui.reset_status();
   #endif
-
-  wait_for_user = false;
 }
 
 #endif // HAS_RESUME_CONTINUE
