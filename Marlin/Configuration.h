@@ -887,6 +887,16 @@
 //#define BLTOUCH
 
 /**
+ * Use the probe for Z-axis homing when connected to a custom pin (i.e. a pin
+ * other than the board's Z_MIN_PIN), such as on the SKR 1.4 board which has a
+ * dedicated port for a BLTouch or servo probe's Z trigger.
+ *
+ * If using a custom pin without this option a separate Z-endstop must be
+ * connected to the board's native port.
+ */
+#define CUSTOM_PROBE_PIN_HOMING
+
+/**
  * Touch-MI Probe by hotends.fr
  *
  * This probe is deployed and activated by moving the X-axis to a magnet at the edge of the bed.
