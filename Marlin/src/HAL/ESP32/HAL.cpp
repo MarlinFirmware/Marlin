@@ -89,6 +89,8 @@ volatile int numPWMUsed = 0,
 
 #endif
 
+void HAL_init() { i2s_init(); }
+
 void HAL_init_board() {
 
   #if ENABLED(ESP3D_WIFISUPPORT)
@@ -125,7 +127,6 @@ void HAL_init_board() {
     #endif
   #endif
 
-  i2s_init();
 }
 
 void HAL_idletask() {
