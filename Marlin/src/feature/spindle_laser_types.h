@@ -34,16 +34,17 @@
   #define _MSG_CUTTER(M) MSG_LASER_##M
 #endif
 #define MSG_CUTTER(M) _MSG_CUTTER(M)
-#if ENABLED(CUTTER_POWER_RPM) && SPEED_POWER_MAX > 255
-  #define cutter_power_t            uint16_t
-  #define cutter_setPower_t         uint16_t
-  #define CUTTER_MENU_POWER_TYPE    uint16_5
+#if CUTTER_DISPLAY_IS(RPM) && SPEED_POWER_MAX > 255
+  #define cutter_power_t              uint16_t
+  #define cutter_setPower_t           uint16_t
+  #define CUTTER_MENU_POWER_TYPE      uint16_5
 #else
-  #define cutter_power_t            uint8_t
-  #define cutter_setPower_t         uint8_t
-  #define CUTTER_MENU_POWER_TYPE    uint8
+  #define cutter_power_t              uint8_t
+  #define cutter_setPower_t           uint8_t
+  #define CUTTER_MENU_POWER_TYPE      uint8
 #endif
+
 #if ENABLED(MARLIN_DEV_MODE)
-  #define cutter_frequency_t            uint16_t
-  #define CUTTER_MENU_FREQUENCY_TYPE    uint16_5
+  #define cutter_frequency_t          uint16_t
+  #define CUTTER_MENU_FREQUENCY_TYPE  uint16_5
 #endif

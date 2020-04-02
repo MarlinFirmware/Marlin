@@ -2005,7 +2005,6 @@ uint32_t Stepper::block_phase_isr() {
           LA_final_adv_steps = current_block->final_adv_steps;
           LA_max_adv_steps = current_block->max_adv_steps;
           initiateLA(); // Start the ISR
-          nextAdvanceISR = 0;
           LA_isr_rate = current_block->advance_speed;
         }
         else LA_isr_rate = LA_ADV_NEVER;

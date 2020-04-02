@@ -28,12 +28,6 @@
 #include "../../feature/spindle_laser.h"
 #include "../../module/stepper.h"
 
-#if ENABLED(LASER_POWER_INLINE_INVERT)
-  #define INLINE_I_STATE false
-#else
-  #define INLINE_I_STATE true
-#endif
-
 inline cutter_power_t get_s_power() {
   return cutter_power_t(
     parser.intval('S', cutter.interpret_power(SPEED_POWER_STARTUP))
@@ -84,7 +78,7 @@ inline cutter_power_t get_s_power() {
 void GcodeSuite::M3_M4(const bool is_M4) {
 
   #if ENABLED(LASER_POWER_INLINE)
-    if (parser.seen('I') == INLINE_I_STATE) {
+    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode
       cutter.inline_direction(is_M4); // Should always be unused
 
@@ -121,7 +115,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
  */
 void GcodeSuite::M5() {
   #if ENABLED(LASER_POWER_INLINE)
-    if (parser.seen('I') == INLINE_I_STATE) {
+    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       cutter.inline_enabled(false); // Laser power in inline mode
       return;
     }

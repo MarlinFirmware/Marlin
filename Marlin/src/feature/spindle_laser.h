@@ -44,9 +44,9 @@ public:
   #endif
 
   static cutter_setPower_t interpret_power(const float pwr) {     // convert speed/power to configured PWM, Percentage or RPM in relative or normal range
-    #if ENABLED(CUTTER_POWER_PERCENT)
+    #if CUTTER_DISPLAY_IS(PERCENT)
       return (pwr / SPEED_POWER_MAX) * 100;                                               // to percent
-    #elif ENABLED(CUTTER_POWER_RPM)                                                       // to RPM is unaltered
+    #elif CUTTER_DISPLAY_IS(RPM)                                                          // to RPM is unaltered
       return pwr;
     #else                                                                                 // to PWM
       #if ENABLED(CUTTER_POWER_RELATIVE)
@@ -61,9 +61,9 @@ public:
   **/
   static cutter_power_t translate_power(const float pwr) {
     float pwrpc;
-    #if ENABLED(CUTTER_POWER_PERCENT)
+    #if CUTTER_DISPLAY_IS(PERCENT)
       pwrpc = pwr;
-    #elif ENABLED(CUTTER_POWER_RPM)          // RPM to percent
+    #elif CUTTER_DISPLAY_IS(RPM)            // RPM to percent
      #if ENABLED(CUTTER_POWER_RELATIVE)
         pwrpc = (pwr - SPEED_POWER_MIN) / (SPEED_POWER_MAX - SPEED_POWER_MIN) * 100;
       #else
@@ -160,6 +160,13 @@ public:
       }
     #endif
   #endif
+
+  static inline void kill() {
+    #if ENABLED(LASER_POWER_INLINE)
+      inline_disable();
+    #endif
+    disable();
+  }
 };
 
 extern SpindleLaser cutter;

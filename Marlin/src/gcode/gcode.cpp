@@ -57,7 +57,7 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
-#include "../MarlinCore.h" // for idle() and suspend_auto_report
+#include "../MarlinCore.h" // for idle()
 
 millis_t GcodeSuite::previous_move_ms;
 
@@ -179,15 +179,14 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(LASER_MOVE_POWER)
     // Set the laser power in the planner to configure this move
-    if (parser.seen('S')) {
-      cutter.inline_power(
-        parser.value_int()
-      );
+    if (parser.seen('S'))
+      cutter.inline_power(parser.value_int());
+    else {
+      #if ENABLED(LASER_MOVE_G0_OFF)
+        if (parser.codenum == 0)        // G0
+          cutter.inline_enabled(false);
+      #endif
     }
-    #if ENABLED(LASER_MOVE_G0_OFF)
-      else if (parser.codenum == 0)     // G0
-        cutter.inline_enabled(false);
-    #endif
   #endif
 }
 

@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if NEEDS_PWM // Specific meta-flag for features that mandate PWM
+#if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
 
 #include "HAL.h"
 
@@ -278,5 +278,5 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-#endif // NEEDS_PWM
+#endif // NEEDS_HARDWARE_PWM
 #endif // __AVR__
