@@ -51,136 +51,136 @@ using namespace ExtUI;
 #endif
 
 void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts) {
-    CommandProcessor cmd;
+  CommandProcessor cmd;
 
-    #define TRANSFORM_2(X,Y,Z)  (X), (Y)                                                             // No transform
-    #define TRANSFORM_1(X,Y,Z)  TRANSFORM_2((X) + (Y) * slant, (Y) - (Z), 0)                         // Perspective
-    #define TRANSFORM(X,Y,Z)    TRANSFORM_1(float(X)/(cols-1) - 0.5, float(Y)/(rows-1)  - 0.5, (Z))  // Normalize
+  #define TRANSFORM_2(X,Y,Z)  (X), (Y)                                                             // No transform
+  #define TRANSFORM_1(X,Y,Z)  TRANSFORM_2((X) + (Y) * slant, (Y) - (Z), 0)                         // Perspective
+  #define TRANSFORM(X,Y,Z)    TRANSFORM_1(float(X)/(cols-1) - 0.5, float(Y)/(rows-1)  - 0.5, (Z))  // Normalize
 
-    constexpr uint8_t rows   = GRID_MAX_POINTS_Y;
-    constexpr uint8_t cols   = GRID_MAX_POINTS_X;
-    const float slant        = 0.5;
-    const float bounds_min[] = {TRANSFORM(0   ,0   ,0)};
-    const float bounds_max[] = {TRANSFORM(cols,rows,0)};
-    const float scale_x      = float(w)/(bounds_max[0] - bounds_min[0]);
-    const float scale_y      = float(h)/(bounds_max[1] - bounds_min[1]);
-    const float center_x     = x + w/2;
-    const float center_y     = y + h/2;
+  constexpr uint8_t rows   = GRID_MAX_POINTS_Y;
+  constexpr uint8_t cols   = GRID_MAX_POINTS_X;
+  const float slant        = 0.5;
+  const float bounds_min[] = {TRANSFORM(0   ,0   ,0)};
+  const float bounds_max[] = {TRANSFORM(cols,rows,0)};
+  const float scale_x      = float(w)/(bounds_max[0] - bounds_min[0]);
+  const float scale_y      = float(h)/(bounds_max[1] - bounds_min[1]);
+  const float center_x     = x + w/2;
+  const float center_y     = y + h/2;
 
-    float   val_mean = 0;
-    float   val_max  = -INFINITY;
-    float   val_min  =  INFINITY;
-    uint8_t val_cnt  = 0;
+  float   val_mean = 0;
+  float   val_max  = -INFINITY;
+  float   val_min  =  INFINITY;
+  uint8_t val_cnt  = 0;
 
-    if(opts & USE_AUTOSCALE) {
-        // Compute the mean
-        for(uint8_t y = 0; y < rows; y++) {
-          for(uint8_t x = 0; x < cols; x++) {
-            const float val = data[x][y];
-            if(!isnan(val)) {
-              val_mean += val;
-              val_max   = max(val_max, val);
-              val_min   = min(val_min, val);
-              val_cnt++;
-            }
-          }
-        }
-        if(val_cnt) {
-          val_mean /= val_cnt;
-          val_min  -= val_mean;
-          val_max  -= val_mean;
-        } else {
-          val_mean = 0;
-          val_min  = 0;
-          val_max  = 0;
-        }
-    }
-
-    const float scale_z = ((val_max == val_min) ? 1 : 1/(val_max - val_min)) * 0.1;
-
-    #undef  TRANSFORM_2
-    #define TRANSFORM_2(X,Y,Z)  center_x + (X) * scale_x, center_y + (Y) * scale_y      // Scale and position
-    #define VALUE(X,Y)         ((data && ISVAL(X,Y)) ? data[X][Y] : 0)
-    #define ISVAL(X,Y)         (data ? !isnan(data[X][Y]) : true)
-    #define HEIGHT(X,Y)        (VALUE(X,Y) * scale_z)
-
-    uint16_t basePointSize = min(scale_x,scale_y) / max(cols,rows);
-
-    cmd.cmd(SAVE_CONTEXT())
-       .cmd(VERTEX_FORMAT(0))
-       .cmd(TAG_MASK(false))
-       .cmd(SAVE_CONTEXT());
-
-    for(uint8_t y = 0; y < rows; y++) {
-      for(uint8_t x = 0; x < cols; x++) {
-        if(ISVAL(x,y)) {
-         const bool hasLeftSegment  = x < cols - 1 && ISVAL(x+1,y);
-         const bool hasRightSegment = y < rows - 1 && ISVAL(x,y+1);
-         if(hasLeftSegment || hasRightSegment) {
-           cmd.cmd(BEGIN(LINE_STRIP));
-           if(hasLeftSegment)  cmd.cmd(VERTEX2F(TRANSFORM(x + 1, y    , HEIGHT(x + 1, y    ))));
-           cmd.cmd(                    VERTEX2F(TRANSFORM(x    , y    , HEIGHT(x    , y    ))));
-           if(hasRightSegment) cmd.cmd(VERTEX2F(TRANSFORM(x    , y + 1, HEIGHT(x    , y + 1))));
-         }
+  if (opts & USE_AUTOSCALE) {
+    // Compute the mean
+    for (uint8_t y = 0; y < rows; y++) {
+      for (uint8_t x = 0; x < cols; x++) {
+        const float val = data[x][y];
+        if (!isnan(val)) {
+          val_mean += val;
+          val_max   = max(val_max, val);
+          val_min   = min(val_min, val);
+          val_cnt++;
         }
       }
+    }
+    if (val_cnt) {
+      val_mean /= val_cnt;
+      val_min  -= val_mean;
+      val_max  -= val_mean;
+    } else {
+      val_mean = 0;
+      val_min  = 0;
+      val_max  = 0;
+    }
+  }
 
-      if(opts & USE_POINTS) {
-          cmd.cmd(POINT_SIZE(basePointSize * 2));
-          cmd.cmd(BEGIN(POINTS));
-          for(uint8_t x = 0; x < cols; x++) {
-            if(ISVAL(x,y)) {
-              if(opts & USE_COLORS) {
-                  const float   val_dev  = VALUE(x, y) - val_mean;
-                  const uint8_t neg_byte = sq(val_dev) / sq(val_dev < 0 ? val_min : val_max) * 0xFF;
-                  const uint8_t pos_byte = 255 - neg_byte;
-                  cmd.cmd(COLOR_RGB(pos_byte, pos_byte, 0xFF));
-              }
-              cmd.cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
-            }
+  const float scale_z = ((val_max == val_min) ? 1 : 1/(val_max - val_min)) * 0.1;
+
+  #undef  TRANSFORM_2
+  #define TRANSFORM_2(X,Y,Z)  center_x + (X) * scale_x, center_y + (Y) * scale_y      // Scale and position
+  #define VALUE(X,Y)         ((data && ISVAL(X,Y)) ? data[X][Y] : 0)
+  #define ISVAL(X,Y)         (data ? !isnan(data[X][Y]) : true)
+  #define HEIGHT(X,Y)        (VALUE(X,Y) * scale_z)
+
+  uint16_t basePointSize = min(scale_x,scale_y) / max(cols,rows);
+
+  cmd.cmd(SAVE_CONTEXT())
+     .cmd(VERTEX_FORMAT(0))
+     .cmd(TAG_MASK(false))
+     .cmd(SAVE_CONTEXT());
+
+  for (uint8_t y = 0; y < rows; y++) {
+    for (uint8_t x = 0; x < cols; x++) {
+      if (ISVAL(x,y)) {
+       const bool hasLeftSegment  = x < cols - 1 && ISVAL(x+1,y);
+       const bool hasRightSegment = y < rows - 1 && ISVAL(x,y+1);
+       if (hasLeftSegment || hasRightSegment) {
+         cmd.cmd(BEGIN(LINE_STRIP));
+         if (hasLeftSegment)  cmd.cmd(VERTEX2F(TRANSFORM(x + 1, y    , HEIGHT(x + 1, y    ))));
+         cmd.cmd(                     VERTEX2F(TRANSFORM(x    , y    , HEIGHT(x    , y    ))));
+         if (hasRightSegment) cmd.cmd(VERTEX2F(TRANSFORM(x    , y + 1, HEIGHT(x    , y + 1))));
+       }
+      }
+    }
+
+    if (opts & USE_POINTS) {
+      cmd.cmd(POINT_SIZE(basePointSize * 2));
+      cmd.cmd(BEGIN(POINTS));
+      for (uint8_t x = 0; x < cols; x++) {
+        if (ISVAL(x,y)) {
+          if (opts & USE_COLORS) {
+            const float   val_dev  = VALUE(x, y) - val_mean;
+            const uint8_t neg_byte = sq(val_dev) / sq(val_dev < 0 ? val_min : val_max) * 0xFF;
+            const uint8_t pos_byte = 255 - neg_byte;
+            cmd.cmd(COLOR_RGB(pos_byte, pos_byte, 0xFF));
           }
-          if(opts & USE_COLORS) {
-            cmd.cmd(RESTORE_CONTEXT())
-               .cmd(SAVE_CONTEXT());
-          }
+          cmd.cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
         }
+      }
+      if (opts & USE_COLORS) {
+        cmd.cmd(RESTORE_CONTEXT())
+           .cmd(SAVE_CONTEXT());
+      }
     }
-    cmd.cmd(RESTORE_CONTEXT())
-       .cmd(TAG_MASK(true));
+  }
+  cmd.cmd(RESTORE_CONTEXT())
+     .cmd(TAG_MASK(true));
 
-    if(opts & USE_TAGS) {
-        cmd.cmd(COLOR_MASK(false, false, false, false))
-           .cmd(POINT_SIZE(basePointSize * 10))
-           .cmd(BEGIN(POINTS));
-        for(uint8_t y = 0; y < rows; y++) {
-            for(uint8_t x = 0; x < cols; x++) {
-                const uint8_t tag = pointToTag(x, y);
-                cmd.tag(tag).cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
-            }
-        }
-        cmd.cmd(COLOR_MASK(true, true, true, true));
+  if (opts & USE_TAGS) {
+    cmd.cmd(COLOR_MASK(false, false, false, false))
+       .cmd(POINT_SIZE(basePointSize * 10))
+       .cmd(BEGIN(POINTS));
+    for (uint8_t y = 0; y < rows; y++) {
+      for (uint8_t x = 0; x < cols; x++) {
+        const uint8_t tag = pointToTag(x, y);
+        cmd.tag(tag).cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
+      }
     }
+    cmd.cmd(COLOR_MASK(true, true, true, true));
+  }
 
-    if(opts & USE_HIGHLIGHT) {
-      const uint8_t tag = screen_data.BedMeshScreen.highlightedTag;
-      uint8_t x, y;
-      tagToPoint(tag, x, y);
-      cmd.cmd(COLOR_A(128))
-         .cmd(POINT_SIZE(basePointSize * 6))
-         .cmd(BEGIN(POINTS))
-         .tag(tag).cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
-    }
-    cmd.cmd(END());
-    cmd.cmd(RESTORE_CONTEXT());
+  if (opts & USE_HIGHLIGHT) {
+    const uint8_t tag = screen_data.BedMeshScreen.highlightedTag;
+    uint8_t x, y;
+    tagToPoint(tag, x, y);
+    cmd.cmd(COLOR_A(128))
+       .cmd(POINT_SIZE(basePointSize * 6))
+       .cmd(BEGIN(POINTS))
+       .tag(tag).cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
+  }
+  cmd.cmd(END());
+  cmd.cmd(RESTORE_CONTEXT());
 }
 
 uint8_t BedMeshScreen::pointToTag(uint8_t x, uint8_t y) {
-  return y * GRID_MAX_POINTS_X + x + 10;
+  return y * (GRID_MAX_POINTS_X) + x + 10;
 }
 
 void BedMeshScreen::tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y) {
-  x = (tag - 10) % GRID_MAX_POINTS_X;
-  y = (tag - 10) / GRID_MAX_POINTS_X;
+  x = (tag - 10) % (GRID_MAX_POINTS_X);
+  y = (tag - 10) / (GRID_MAX_POINTS_X);
 }
 
 void BedMeshScreen::onEntry() {
@@ -190,31 +190,30 @@ void BedMeshScreen::onEntry() {
 }
 
 float BedMeshScreen::getHightlightedValue() {
-  if(screen_data.BedMeshScreen.highlightedTag) {
-      xy_uint8_t pt;
-      tagToPoint(screen_data.BedMeshScreen.highlightedTag, pt.x, pt.y);
-      return ExtUI::getMeshPoint(pt);
+  if (screen_data.BedMeshScreen.highlightedTag) {
+    xy_uint8_t pt;
+    tagToPoint(screen_data.BedMeshScreen.highlightedTag, pt.x, pt.y);
+    return ExtUI::getMeshPoint(pt);
   }
   return NAN;
 }
 
 void BedMeshScreen::drawHighlightedPointValue() {
-    char str[16];
-    const float val = getHightlightedValue();
-    const bool isGood = !isnan(val);
-    if(isGood) {
-      dtostrf(val, 5, 3, str);
-    } else {
-      strcpy_P(str, PSTR("-"));
-    }
+  char str[16];
+  const float val = getHightlightedValue();
+  const bool isGood = !isnan(val);
+  if (isGood)
+    dtostrf(val, 5, 3, str);
+  else
+    strcpy_P(str, PSTR("-"));
 
-    CommandProcessor cmd;
-    cmd.font(Theme::font_medium)
-       .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
-       .text(Z_VALUE_POS, str)
-       .colors(action_btn)
-       .tag(1).button( BACK_POS, GET_TEXT_F(MSG_BACK))
-       .tag(0);
+  CommandProcessor cmd;
+  cmd.font(Theme::font_medium)
+     .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
+     .text(Z_VALUE_POS, str)
+     .colors(action_btn)
+     .tag(1).button( BACK_POS, GET_TEXT_F(MSG_BACK))
+     .tag(0);
 }
 
 void BedMeshScreen::onRedraw(draw_mode_t what) {
@@ -231,9 +230,7 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
 
   if (what & FOREGROUND) {
     const bool levelingFinished = screen_data.BedMeshScreen.count >= GRID_MAX_POINTS;
-    if(levelingFinished) {
-      drawHighlightedPointValue();
-    }
+    if (levelingFinished) drawHighlightedPointValue();
 
     BedMeshScreen::drawMesh(MESH_POS, ExtUI::getMeshArray(),
       USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (levelingFinished ? USE_COLORS : 0));
@@ -256,13 +253,12 @@ bool BedMeshScreen::onTouchEnd(uint8_t tag) {
 }
 
 void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
-  if (AT_SCREEN(BedMeshScreen)) {
+  if (AT_SCREEN(BedMeshScreen))
     onRefresh();
-  }
 }
 
 void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
-  if(state == ExtUI::PROBE_FINISH) {
+  if (state == ExtUI::PROBE_FINISH) {
     screen_data.BedMeshScreen.highlightedTag = pointToTag(x, y);
     screen_data.BedMeshScreen.count++;
   }
