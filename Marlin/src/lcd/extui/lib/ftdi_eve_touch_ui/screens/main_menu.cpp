@@ -147,13 +147,26 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 9: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS)); break;
     #endif
     #ifdef HAS_LEVELING
-    case 10:  SpinnerDialogBox::enqueueAndWait_P(F(
-      #ifdef BED_LEVELING_COMMANDS
-        BED_LEVELING_COMMANDS
-      #else
-        "G29"
-      #endif
-    ));            break;
+      case 10:
+        #if HAS_MESH
+          GOTO_SCREEN(BedMeshScreen);
+          injectCommands_P(PSTR(
+            #ifdef BED_LEVELING_COMMANDS
+              BED_LEVELING_COMMANDS
+            #else
+              "G29"
+            #endif
+          ));
+        #else
+          SpinnerDialogBox::enqueueAndWait_P(F(
+            #ifdef BED_LEVELING_COMMANDS
+              BED_LEVELING_COMMANDS
+            #else
+              "G29"
+            #endif
+          ));
+        #endif
+        break;
     #endif
     case 11: GOTO_SCREEN(AboutScreen);                                break;
     default:
