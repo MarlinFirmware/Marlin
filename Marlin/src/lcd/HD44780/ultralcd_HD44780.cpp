@@ -367,11 +367,11 @@ void MarlinUI::init_lcd() {
 }
 
 bool MarlinUI::detected() {
-  return true
+  return (true
     #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
       && lcd.LcdDetected() == 1
     #endif
-  ;
+  );
 }
 
 #if HAS_SLOW_BUTTONS

@@ -80,12 +80,14 @@ void BootScreen::onIdle() {
       SpinnerDialogBox::hide();
     }
 
-    if (UIData::animations_enabled()) {
-      // If there is a startup video in the flash SPI, play
-      // that, otherwise show a static splash screen.
-      if (!MediaPlayerScreen::playBootMedia())
-        showSplashScreen();
-    }
+    #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
+      if (UIData::animations_enabled()) {
+        // If there is a startup video in the flash SPI, play
+        // that, otherwise show a static splash screen.
+        if (!MediaPlayerScreen::playBootMedia())
+          showSplashScreen();
+      }
+    #endif
 
     StatusScreen::loadBitmaps();
 

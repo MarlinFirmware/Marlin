@@ -30,7 +30,7 @@ if platform.get_package_dir("tool-stm32duino") != None:
 
 env.Replace(
 	UPLOADER=UPLOAD_TOOL,
-	UPLOADCMD=expandvars(UPLOAD_TOOL + " -v -i rts,-dtr,dtr $UPLOAD_PORT -R -w \"" + join("$BUILD_DIR","${PROGNAME}.hex")+"\"")
+	UPLOADCMD=expandvars(UPLOAD_TOOL + " -v -i rts,-dtr,dtr -R -b 115200 -g 0x8000000 -w \"" + join("$BUILD_DIR","${PROGNAME}.hex")+"\"" + " $UPLOAD_PORT")
 )
 
 # Python callback

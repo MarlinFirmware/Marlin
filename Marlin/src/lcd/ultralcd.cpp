@@ -351,10 +351,8 @@ void MarlinUI::init() {
     #endif
   #endif
 
-  #if HAS_ENCODER_ACTION
-    #if HAS_SLOW_BUTTONS
-      slow_buttons = 0;
-    #endif
+  #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
+    slow_buttons = 0;
   #endif
 
   update_buttons();

@@ -71,7 +71,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     #define GRID_ROWS 9
 
        .font(font_medium)
-       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE_SOUNDS))
+       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
     #undef EDGE_R
     #define EDGE_R 30
        .font(font_small)

@@ -776,12 +776,16 @@
           : find_closest_mesh_point_of_type(INVALID, near, true);
 
         if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START);
+          #endif
           const float measured_z = probe.probe_at_point(
                         best.meshpos(),
                         stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level
                       );
           z_values[best.pos.x][best.pos.y] = measured_z;
           #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_FINISH);
             ExtUI::onMeshUpdate(best.pos, measured_z);
           #endif
         }
