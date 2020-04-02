@@ -341,7 +341,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
         ptr[a] = p; return false;
       };
     } sp_helper;
-    #define HW_SERIAL_BEGIN(A) do{ if (sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
+    #define HW_SERIAL_BEGIN(A) do{ if (!sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
                                          A##_HARDWARE_SERIAL.begin(TMC_BAUD_RATE); }while(0)
     #if AXIS_HAS_UART(X)
       #ifdef X_HARDWARE_SERIAL
