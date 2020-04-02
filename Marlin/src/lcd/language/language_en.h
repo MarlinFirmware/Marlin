@@ -240,6 +240,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
+  PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Nozzle Parked");
+  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Speed");
@@ -371,7 +373,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Raise");
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Prime Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Retract Speed");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Change Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Change Filament *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Load Filament");
@@ -605,7 +606,8 @@ namespace Language_en {
   
   PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Level X Axis");
   PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Auto Calibrate");
-  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("HeaterTimeout");
+  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Heater Timeout");
+  PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 }
 
