@@ -376,11 +376,11 @@
 #elif defined(SINGLENOZZLE_TOOLCHANGE_ZRAISE)
   #error "SINGLENOZZLE_TOOLCHANGE_ZRAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_LENGTH)
-  #error "SINGLENOZZLE_SWAP_LENGTH is now TOOLCHANGE_FIL_SWAP_LENGTH. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_LENGTH is now TOOLCHANGE_FS_LENGTH. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_RETRACT_SPEED)
-  #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now TOOLCHANGE_FS_RETRACT_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PRIME_SPEED)
-  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FS_PRIME_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PARK)
   #error "SINGLENOZZLE_SWAP_PARK is now TOOLCHANGE_PARK. Please update your configuration."
 #elif defined(SINGLENOZZLE_TOOLCHANGE_XY)
@@ -489,6 +489,14 @@
   #error "Z_QUAD_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
 #elif defined(DUGS_UI_MOVE_DIS_OPTION)
   #error "DUGS_UI_MOVE_DIS_OPTION is spelled DGUS_UI_MOVE_DIS_OPTION. Please update Configuration_adv.h."
+#elif defined(TOOLCHANGE_FIL_SWAP_LENGTH)
+  #error "TOOLCHANGE_FIL_SWAP_LENGTH is now TOOLCHANGE_FS_LENGTH. Please update Configuration_adv.h."
+#elif defined(TOOLCHANGE_FIL_EXTRA_PRIME)
+  #error "TOOLCHANGE_FIL_EXTRA_PRIME is now TOOLCHANGE_FS_EXTRA_PRIME. Please update Configuration_adv.h."
+#elif defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
+  #error "TOOLCHANGE_FIL_SWAP_RETRACT_SPEED is now TOOLCHANGE_FS_RETRACT_SPEED. Please update Configuration_adv.h."
+#elif defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
+  #error "TOOLCHANGE_FIL_SWAP_PRIME_SPEED is now TOOLCHANGE_FS_PRIME_SPEED. Please update Configuration_adv.h."
 #endif
 
 /**
@@ -819,12 +827,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #ifndef TOOLCHANGE_FIL_SWAP_LENGTH
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_LENGTH. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
+    #ifndef TOOLCHANGE_FS_LENGTH
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_LENGTH. Please update your Configuration_adv.h."
+    #elif !defined(TOOLCHANGE_FS_RETRACT_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_RETRACT_SPEED. Please update your Configuration_adv.h."
+    #elif !defined(TOOLCHANGE_FS_PRIME_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_PRIME_SPEED. Please update your Configuration_adv.h."
     #endif
   #endif
 

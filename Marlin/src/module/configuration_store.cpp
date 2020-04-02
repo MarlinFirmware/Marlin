@@ -2466,17 +2466,17 @@ void MarlinSettings::reset() {
 
   #if EXTRUDERS > 1
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
-      toolchange_settings.extra_resume = TOOLCHANGE_FIL_EXTRA_RESUME_LENGTH;
-      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
-      toolchange_settings.unretract_speed = TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED;
-      toolchange_settings.extra_prime = TOOLCHANGE_FIL_EXTRA_PRIME;
-      toolchange_settings.prime_speed = TOOLCHANGE_FIL_SWAP_PRIME_SPEED;
-      toolchange_settings.fan_speed = TOOLCHANGE_FIL_SWAP_FAN_SPEED;
-      toolchange_settings.fan_time = TOOLCHANGE_FIL_SWAP_FAN_TIME;
+      toolchange_settings.swap_length = TOOLCHANGE_FS_LENGTH;
+      toolchange_settings.extra_resume = TOOLCHANGE_FS_EXTRA_RESUME_LENGTH;
+      toolchange_settings.retract_speed = TOOLCHANGE_FS_RETRACT_SPEED;
+      toolchange_settings.unretract_speed = TOOLCHANGE_FS_UNRETRACT_SPEED;
+      toolchange_settings.extra_prime = TOOLCHANGE_FS_EXTRA_PRIME;
+      toolchange_settings.prime_speed = TOOLCHANGE_FS_PRIME_SPEED;
+      toolchange_settings.fan_speed = TOOLCHANGE_FS_FAN_SPEED;
+      toolchange_settings.fan_time = TOOLCHANGE_FS_FAN_TIME;
     #endif
 
-    #if ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
+    #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
       enable_first_prime = false;
     #endif
 

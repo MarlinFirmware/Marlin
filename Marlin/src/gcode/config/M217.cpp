@@ -111,13 +111,13 @@ void GcodeSuite::M217() {
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
     if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
-    #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
+    #if TOOLCHANGE_FS_FAN >= 0 && FAN_COUNT > 0
       if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
       if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
     #endif
   #endif
 
-  #if ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
+  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
     if (parser.seenval('V')) { enable_first_prime = parser.value_linear_units(); }
   #endif
 

@@ -1829,48 +1829,44 @@
   #endif
 
   /**
-   * Advanced Tool change feature
+   * Retract and prime filament on tool-change to reduce
+   * ooze and stringing and to get cleaner transitions.
    */
   //#define TOOLCHANGE_FILAMENT_SWAP
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     // Load / Unload
-    #define TOOLCHANGE_FIL_SWAP_LENGTH              12  // (mm)
-    #define TOOLCHANGE_FIL_EXTRA_RESUME_LENGTH       0  // (mm)	(added to swap length for better restart, fine tune by LCD/Gcode)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED    50*60  // (mm/m) (Unloading)
-    #define TOOLCHANGE_FIL_SWAP_UNRETRACT_SPEED  25*60  // (mm/m) (On SINGLENOZZLE or Bowden loading must be slowed down)
+    #define TOOLCHANGE_FS_LENGTH              12  // (mm) Load / Unload length
+    #define TOOLCHANGE_FS_EXTRA_RESUME_LENGTH  0  // (mm) Extra length for better restart, fine tune by LCD/Gcode)
+    #define TOOLCHANGE_FS_RETRACT_SPEED   (50*60) // (mm/m) (Unloading)
+    #define TOOLCHANGE_FS_UNRETRACT_SPEED (25*60) // (mm/m) (On SINGLENOZZLE or Bowden loading must be slowed down)
 
     // Longer prime to clean out a SINGLENOZZLE
-    #define TOOLCHANGE_FIL_EXTRA_PRIME               0  // (mm) (Ex:50~150mm to purge a Volcano for no mixed color extrusion)
-    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED     4.6*60  // (mm/m)(Ex:Max feedrate for 0.4 nozzle/volcano/50w heater)
-    #define TOOLCHANGE_FIL_SWAP_CUT_RETRACT          0  // (mm/m)(Retract before fan and recover after to avoid stringing while cooling and ease to cut filament on back)
+    #define TOOLCHANGE_FS_EXTRA_PRIME          0  // (mm) Extra priming length
+    #define TOOLCHANGE_FS_PRIME_SPEED    (4.6*60) // (mm/m) Extra priming feedrate
+    #define TOOLCHANGE_FS_CUT_RETRACT          0  // (mm/m) Retract before fan (recover after) to reduce stringing, improve cut, etc.
 
     // Cool after prime to reduce stringing
-    #define TOOLCHANGE_FIL_SWAP_FAN                 -1  // Fan index or -1 to skip
-    #define TOOLCHANGE_FIL_SWAP_FAN_SPEED          255  // 0-255
-    #define TOOLCHANGE_FIL_SWAP_FAN_TIME            10  // (seconds)
+    #define TOOLCHANGE_FS_FAN                 -1  // Fan index or -1 to skip
+    #define TOOLCHANGE_FS_FAN_SPEED          255  // 0-255
+    #define TOOLCHANGE_FS_FAN_TIME            10  // (seconds)
 
-    // Swap uninitialized extruder with TOOLCHANGE_FIL_SWAP_PRIME_SPEED for all lengths (recover + prime)
+    // Swap uninitialized extruder with TOOLCHANGE_FS_PRIME_SPEED for all lengths (recover + prime)
     // (May break filament if not retracted beforehand.)
-    //#define TOOLCHANGE_FIL_INIT_BEFORE_SWAP
+    //#define TOOLCHANGE_FS_INIT_BEFORE_SWAP
 
     // Prime on the first T command even if the same or no toolchange / swap
     // Enable it (M217 V[0/1]) before printing, to avoid unwanted priming on host connect
-    //#define TOOLCHANGE_FIL_PRIME_FIRST_USED
+    //#define TOOLCHANGE_FS_PRIME_FIRST_USED
 
     /**
-     * Tool change migration Feature
-     *
-     *   Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
-     *   Transfer all properties : Temp + Flow + Gear position + Fwretract(Retract only, no swap status)
-     *   On runout/manually/Gcode
-     *   Utility to : Change color by one click/gcode while printing
-     *              : Finish old ended spool and start another automaticly
-     *              : Use another extruder if current jammed
-     *              Requires 2 or more extruders.
-     *              Requires FILAMENT_RUNOUT & ADVANCED_PAUSE_FEATURE for automatic migration after runout
-     *              Requires 2 or more runout/motion sensors (One for each extruder and separated pins)
-     *              Requires same nozzle size
-     *              No dual extrusion printing
+     * Tool Change Migration
+     * This feature provides G-code and LCD options to switch tools mid-print.
+     * All applicable tool properties are migrated so the print can continue.
+     * Tools must be closely matching and other restrictions may apply.
+     * Useful to:
+     *   - Change filament color without interruption
+     *   - Switch spools automatically on filament runout
+     *   - Switch to a different nozzle on an extruder jam
      */
     #define TOOLCHANGE_MIGRATION_FEATURE
 
