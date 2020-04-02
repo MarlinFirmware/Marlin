@@ -236,7 +236,7 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, seg_length
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif

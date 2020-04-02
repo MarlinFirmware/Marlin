@@ -210,6 +210,19 @@ bool wait_for_heatup = true;
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
   bool wait_for_user; // = false;
+
+  void wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
+    #if DISABLED(ADVANCED_PAUSE_FEATURE)
+      UNUSED(no_sleep);
+    #endif
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;
+    if (ms) ms += millis(); // expire time
+    while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
+      idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
+    wait_for_user = false;
+  }
+
 #endif
 
 // Inactivity shutdown
@@ -425,52 +438,8 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-
-    bool did_state = true;
-    switch (card.sdprinting_done_state) {
-
-      case 1:
-        did_state = print_job_timer.duration() < 60 || queue.enqueue_one_P(PSTR("M31"));
-        break;
-
-      case 2:
-        did_state = queue.enqueue_one_P(PSTR("M77"));
-        break;
-
-      case 3:
-        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-          ui.set_progress_done();
-        #endif
-        break;
-
-      case 4:                                   // Display "Click to Continue..."
-        #if HAS_RESUME_CONTINUE                 // 30 min timeout with LCD, 1 min without
-          did_state = queue.enqueue_one_P(
-            print_job_timer.duration() < 60 ? PSTR("M0Q1P1") : PSTR("M0Q1S" TERN(HAS_LCD_MENU, "1800", "60"))
-          );
-        #endif
-        break;
-
-      case 5:
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          recovery.purge();
-        #endif
-
-        #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-          planner.finish_and_disable();
-        #endif
-
-        #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-          ui.reselect_last_file();
-        #endif
-
-        SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
-
-      default:
-        did_state = false;
-        card.sdprinting_done_state = 0;
-    }
-    if (did_state) ++card.sdprinting_done_state;
+    if (queue.enqueue_one_P(PSTR("M1001")))
+      marlin_state = MF_RUNNING;
   }
 
 #endif // SDSUPPORT
@@ -680,52 +649,54 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 /**
  * Standard idle routine keeps the machine alive
  */
-void idle(
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    bool no_stepper_sleep/*=false*/
-  #endif
-) {
+void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
+  // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
     recovery.outage();
   #endif
 
+  // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
     if (endstops.tmc_spi_homing.any
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        && ELAPSED(millis(), sg_guard_period)
-      #endif
-    ) {
-      for (uint8_t i = 4; i--;) // Read SGT 4 times per idle loop
+      && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
+    ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
         if (endstops.tmc_spi_homing_check()) break;
-    }
   #endif
 
+  // Max7219 heartbeat, animation, etc.
   #if ENABLED(MAX7219_DEBUG)
     max7219.idle_tasks();
   #endif
 
+  // Read Buttons and Update the LCD
   ui.update();
 
+  // Announce Host Keepalive state (if any)
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     gcode.host_keepalive();
   #endif
 
+  // Core Marlin activities
   manage_inactivity(
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
     #endif
   );
 
+  // Manage heaters (and Watchdog)
   thermalManager.manage_heater();
 
+  // Update the Print Job Timer state
   #if ENABLED(PRINTCOUNTER)
     print_job_timer.tick();
   #endif
 
+  // Update the Beeper queue
   #if USE_BEEPER
     buzzer.tick();
   #endif
 
+  // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
     static millis_t i2cpem_next_update_ms;
     if (planner.has_blocks_queued()) {
@@ -737,10 +708,12 @@ void idle(
     }
   #endif
 
+  // Run HAL idle tasks
   #ifdef HAL_IDLETASK
     HAL_idletask();
   #endif
 
+  // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
@@ -752,14 +725,17 @@ void idle(
     }
   #endif
 
+  // Handle USB Flash Drive insert / remove
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     Sd2Card::idle();
   #endif
 
+  // Update the Prusa MMU2
   #if ENABLED(PRUSA_MMU2)
     mmu2.mmu_loop();
   #endif
 
+  // Handle Joystick jogging
   #if ENABLED(POLL_JOG)
     joystick.inject_jog_moves();
   #endif
@@ -1229,7 +1205,7 @@ void loop() {
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
       if (card.flag.abort_sd_printing) abortSDPrinting();
-      if (card.sdprinting_done_state) finishSDPrinting();
+      if (marlin_state == MF_SD_COMPLETE) finishSDPrinting();
     #endif
 
     queue.advance();

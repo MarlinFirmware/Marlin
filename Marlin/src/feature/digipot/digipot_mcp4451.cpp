@@ -24,7 +24,7 @@
 
 #if ENABLED(DIGIPOT_I2C) && DISABLED(DIGIPOT_MCP4018)
 
-#include "Stream.h"
+#include <Stream.h>
 #include <Wire.h>
 
 #if MB(MKS_SBASE)

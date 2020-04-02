@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/shared/persistent_store_api.h"
+  #include "../HAL/shared/eeprom_api.h"
 #endif
 
 class MarlinSettings {

@@ -26,7 +26,7 @@
 
 #if ENABLED(SDCARD_EEPROM_EMULATION)
 
-#include "persistent_store_api.h"
+#include "eeprom_api.h"
 
 #include <chanfs/diskio.h>
 #include <chanfs/ff.h>

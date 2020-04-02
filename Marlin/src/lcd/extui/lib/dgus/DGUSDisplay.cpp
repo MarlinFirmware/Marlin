@@ -441,7 +441,6 @@ void DGUSScreenVariableHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variab
     DGUSLCD_SendStringToDisplay(var);
   }
 
-
   void DGUSScreenVariableHandler::SDCardInserted() {
     top_file = 0;
     auto cs = ScreenHandler.getCurrentScreen();

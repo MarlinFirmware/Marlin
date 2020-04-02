@@ -72,6 +72,10 @@
   #define Z_MIN_PROBE_PIN                     30
 #endif
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                       5
+#endif
+
 //
 // Steppers
 //
@@ -152,6 +156,13 @@
 #define SPINDLE_LASER_PWM_PIN                 45  // Hardware PWM
 #define SPINDLE_LASER_ENA_PIN                 31  // Pullup!
 #define SPINDLE_DIR_PIN                       32
+
+//
+// SPI for Max6675 or Max31855 Thermocouple
+//
+#ifndef MAX6675_SS_PIN
+  #define MAX6675_SS_PIN                      32  // SPINDLE_DIR_PIN / STAT_LED_BLUE_PIN
+#endif
 
 //
 // M7/M8/M9 - Coolant Control

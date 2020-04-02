@@ -968,6 +968,10 @@ private:
     static void M1000();
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    static void M1001();
+  #endif
+
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
   #endif

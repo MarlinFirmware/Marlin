@@ -112,6 +112,9 @@ namespace ExtUI {
     #if ENABLED(JOYSTICK)
       uint8_t jogging : 1;
     #endif
+    #if ENABLED(SDSUPPORT)
+      uint8_t was_sd_printing : 1;
+    #endif
   } flags;
 
   #ifdef __SAM3X8E__
@@ -1032,11 +1035,18 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMedia() {
-    return IFSD(card.isFileOpen(), false);
+    #if ENABLED(SDSUPPORT)
+      // Account for when IS_SD_PRINTING() reports the end of the
+      // print when there is still SD card data in the planner.
+      flags.was_sd_printing = card.isFileOpen() || (flags.was_sd_printing && commandsInQueue());
+      return flags.was_sd_printing;
+    #else
+      return false;
+    #endif
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
   }
 
   bool isMediaInserted() {
