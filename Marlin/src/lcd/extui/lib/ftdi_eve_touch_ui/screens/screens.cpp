@@ -56,6 +56,9 @@ SCREEN_TABLE {
 #if ENABLED(BABYSTEPPING)
   DECL_SCREEN(NudgeNozzleScreen),
 #endif
+#if HAS_MESH
+  DECL_SCREEN(BedMeshScreen),
+#endif
   DECL_SCREEN(MoveAxisScreen),
   DECL_SCREEN(StepsScreen),
 #if HAS_TRINAMIC_CONFIG

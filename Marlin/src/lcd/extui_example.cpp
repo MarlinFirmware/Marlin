@@ -93,6 +93,10 @@ namespace ExtUI {
     // Called when any mesh points are updated
   }
 
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+    // Called to indicate a special condition
+  }
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
       // Called on resume from power-loss
