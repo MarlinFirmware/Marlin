@@ -43,7 +43,7 @@
   bool enable_first_prime;
 #endif
 
-#if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
+#if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
   bool toolchange_extruder_ready[EXTRUDERS];
 #endif
 
@@ -96,9 +96,9 @@
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #include "../gcode/gcode.h"
-  #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT <= 0
-    #undef TOOLCHANGE_FIL_SWAP_CUT_RETRACT
-    #define TOOLCHANGE_FIL_SWAP_CUT_RETRACT 0
+  #if TOOLCHANGE_FS_CUT_RETRACT <= 0
+    #undef TOOLCHANGE_FS_CUT_RETRACT
+    #define TOOLCHANGE_FS_CUT_RETRACT 0
   #endif
 #endif
 
@@ -824,16 +824,16 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
       // Cutting retraction
-      #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT
-        unscaled_e_move(-(TOOLCHANGE_FIL_SWAP_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+      #if TOOLCHANGE_FS_CUT_RETRACT
+        unscaled_e_move(-(TOOLCHANGE_FS_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
       #endif
 
       // Cool after prime
-      #if FAN_COUNT > 0 && defined(TOOLCHANGE_FIL_SWAP_FAN) && TOOLCHANGE_FIL_SWAP_FAN >= 0
-        const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
-        thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN] = toolchange_settings.fan_speed;
+      #if FAN_COUNT > 0 && defined(TOOLCHANGE_FS_FAN) && TOOLCHANGE_FS_FAN >= 0
+        const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
+        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
         safe_delay(toolchange_settings.fan_time * 1000);
-        thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN] = fansp;
+        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
       #endif
 
       #if ENABLED(TOOLCHANGE_NO_RETURN)
@@ -849,7 +849,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       #endif
 
       // Cutting recover
-      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FIL_SWAP_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
 
       planner.synchronize();
       current_position.e = destination.e;
@@ -935,7 +935,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // First tool priming. To prime again, reboot the machine.
-    #if BOTH(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_FIL_PRIME_FIRST_USED)
+    #if BOTH(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_FS_PRIME_FIRST_USED)
       static bool first_tool_is_primed = false;
       if (new_tool == old_tool && !first_tool_is_primed && enable_first_prime) {
         tool_change_prime();
@@ -1104,7 +1104,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
             float fr = toolchange_settings.unretract_speed;
 
-            #if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
+            #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
 
               if (!toolchange_extruder_ready[new_tool]) {
                 toolchange_extruder_ready[new_tool] = true;
@@ -1121,16 +1121,16 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
             // Cutting retraction
-            #if TOOLCHANGE_FIL_SWAP_CUT_RETRACT
-              unscaled_e_move(-(TOOLCHANGE_FIL_SWAP_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+            #if TOOLCHANGE_FS_CUT_RETRACT
+              unscaled_e_move(-(TOOLCHANGE_FS_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
             #endif
 
             // Cool down with fan
-            #if TOOLCHANGE_FIL_SWAP_FAN >= 0 && FAN_COUNT > 0
-              const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN];
-              thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN] = toolchange_settings.fan_speed;
+            #if TOOLCHANGE_FS_FAN >= 0 && FAN_COUNT > 0
+              const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
+              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
               safe_delay(toolchange_settings.fan_time * 1000);
-              thermalManager.fan_speed[TOOLCHANGE_FIL_SWAP_FAN] = fansp;
+              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
             #endif
           }
         #endif
@@ -1170,7 +1170,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             // Cutting recover
-            unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FIL_SWAP_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+            unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
             current_position.e = 0;
             sync_plan_position_e(); // New extruder primed and set to 0
           }

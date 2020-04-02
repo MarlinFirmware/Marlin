@@ -44,11 +44,11 @@
     extern void tool_change_prime();
   #endif
 
-  #if ENABLED(TOOLCHANGE_FIL_PRIME_FIRST_USED)
+  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
     extern bool enable_first_prime;
   #endif
 
-  #if ENABLED(TOOLCHANGE_FIL_INIT_BEFORE_SWAP)
+  #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
     extern bool toolchange_extruder_ready[EXTRUDERS];
   #endif
 
