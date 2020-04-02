@@ -1038,18 +1038,15 @@ namespace ExtUI {
     #if ENABLED(SDSUPPORT)
       // Account for when IS_SD_PRINTING() reports the end of the
       // print when there is still SD card data in the planner.
-      if(card.isFileOpen() || (flags.was_sd_printing && (queue.has_commands_queued() || planner.movesplanned()))) {
-        flags.was_sd_printing = true;
-        return true;
-      } else {
-        flags.was_sd_printing = false;
-      }
+      flags.was_sd_printing = card.isFileOpen() || (flags.was_sd_printing && commandsInQueue());
+      return flags.was_sd_printing;
+    #else
+      return false;
     #endif
-    return false;
   }
 
   bool isPrinting() {
-    return (queue.has_commands_queued() || planner.movesplanned() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
   }
 
   bool isMediaInserted() {
