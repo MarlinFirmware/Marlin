@@ -73,6 +73,9 @@ public:
   static inline bool isMounted() { return flag.mounted; }
   static void ls();
 
+  // Handle media insert/remove
+  static void manage_media();
+
   // SD Card Logging
   static void openLogFile(char * const path);
   static void write_command(char * const buf);

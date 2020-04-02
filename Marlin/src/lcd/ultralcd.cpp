@@ -121,10 +121,6 @@ MarlinUI ui;
   #endif
 #endif
 
-#if ENABLED(INIT_SDCARD_ON_BOOT)
-  uint8_t lcd_sd_status;
-#endif
-
 #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
   bool MarlinUI::defer_return_to_status;
 #endif
@@ -342,13 +338,8 @@ void MarlinUI::init() {
 
   #endif // HAS_SHIFT_ENCODER
 
-  #if ENABLED(SDSUPPORT)
-    #if PIN_EXISTS(SD_DETECT)
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
-    #endif
-    #if ENABLED(INIT_SDCARD_ON_BOOT)
-      lcd_sd_status = 2; // UNKNOWN
-    #endif
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
   #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
@@ -744,11 +735,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
  */
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+millis_t next_lcd_update_ms;
 
 void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
-  static millis_t next_lcd_update_ms;
   millis_t ms = millis();
 
   #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
@@ -823,53 +814,6 @@ void MarlinUI::update() {
     }
 
   #endif // HAS_LCD_MENU
-
-  #if ENABLED(INIT_SDCARD_ON_BOOT)
-    //
-    // SPI SD Card detection (and first card init when the LCD is present)
-    //
-    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
-    if (sd_status != lcd_sd_status && detected()) {
-
-      uint8_t old_sd_status = lcd_sd_status; // prevent re-entry to this block!
-      lcd_sd_status = sd_status;
-
-      if (sd_status) {
-        safe_delay(500); // Some boards need a delay to get settled
-        card.mount();
-        if (old_sd_status == 2)
-          card.beginautostart();  // Initial boot
-        else
-          set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
-      }
-      #if PIN_EXISTS(SD_DETECT)
-        else {
-          card.release();
-          if (old_sd_status != 2) {
-            set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
-            #if HAS_LCD_MENU
-              return_to_status();
-            #endif
-          }
-        }
-
-        #if DISABLED(NO_LCD_REINIT)
-          init_lcd(); // May revive the LCD if static electricity killed it
-        #endif
-
-      #endif
-
-      refresh();
-
-      ms = millis();
-      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
-
-      #ifdef LED_BACKLIGHT_TIMEOUT
-        leds.reset_timeout(ms);
-      #endif
-    }
-
-  #endif // INIT_SDCARD_ON_BOOT
 
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
@@ -1595,3 +1539,55 @@ void MarlinUI::update() {
   }
 
 #endif // !HAS_DISPLAY
+
+#if ENABLED(SDSUPPORT)
+
+  void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
+    if (old_status == status) {
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMediaError();      // Failed to mount/unmount
+      #endif
+      return;
+    }
+
+    if (status) {
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMediaInserted();   // ExtUI response
+      #endif
+      if (old_status < 2)
+        set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+    }
+    else {
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMediaRemoved();    // ExtUI response
+      #endif
+      if (old_status < 2) {
+        #if PIN_EXISTS(SD_DETECT)
+          set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
+          #if HAS_LCD_MENU
+            return_to_status();
+          #endif
+        #endif
+      }
+    }
+
+    #if PIN_EXISTS(SD_DETECT) && DISABLED(NO_LCD_REINIT)
+      init_lcd(); // Revive a noisy shared SPI LCD
+    #endif
+
+    refresh();
+
+    #if HAS_SPI_LCD || defined(LED_BACKLIGHT_TIMEOUT)
+      const millis_t ms = millis();
+    #endif
+
+    #if HAS_SPI_LCD
+      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // Delay LCD update for SD activity
+    #endif
+
+    #ifdef LED_BACKLIGHT_TIMEOUT
+      leds.reset_timeout(ms);
+    #endif
+  }
+
+#endif // SDSUPPORT
