@@ -387,7 +387,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("Auto-migration");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Last Extruder");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migrate to *");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Change Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Change Filament *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Load Filament");
