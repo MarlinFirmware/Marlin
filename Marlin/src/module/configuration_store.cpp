@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V76"
+#define EEPROM_VERSION "V77"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -134,10 +134,10 @@
 
 #pragma pack(push, 1) // No padding between variables
 
-typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
-typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
-typedef struct {  int16_t X, Y, Z, X2;                                     } tmc_sgt_t;
-typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5; } tmc_stealth_enabled_t;
+typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
+typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_hybrid_threshold_t;
+typedef struct {  int16_t X, Y, Z, X2;                                                 } tmc_sgt_t;
+typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
 #define ALIM(I,ARR) _MIN(I, COUNT(ARR) - 1)
@@ -1391,7 +1391,7 @@ void MarlinSettings::postprocess() {
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
-        ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_VERSION));
+        LCD_MESSAGEPGM(MSG_ERR_EEPROM_VERSION);
       #endif
       eeprom_error = true;
     }
@@ -2199,7 +2199,7 @@ void MarlinSettings::postprocess() {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
         #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
-          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_INDEX));
+          LCD_MESSAGEPGM(MSG_ERR_EEPROM_INDEX);
         #endif
       }
       else if (working_crc != stored_crc) {
@@ -2207,7 +2207,7 @@ void MarlinSettings::postprocess() {
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         #if HAS_LCD_MENU && DISABLED(EEPROM_AUTO_INIT)
-          ui.set_status_P(GET_TEXT(MSG_ERR_EEPROM_CRC));
+          LCD_MESSAGEPGM(MSG_ERR_EEPROM_CRC);
         #endif
       }
       else if (!validating) {

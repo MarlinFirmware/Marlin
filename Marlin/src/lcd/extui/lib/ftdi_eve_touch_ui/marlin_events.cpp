@@ -127,12 +127,23 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshUpdate(const int8_t, const int8_t, const float) {
+    void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
+      BedMeshScreen::onMeshUpdate(x, y, val);
+    }
+
+    void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
+      BedMeshScreen::onMeshUpdate(x, y, state);
+    }
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLossResume() {
+      // Called on resume from power-loss
     }
   #endif
 
   #if HAS_PID_HEATING
-    void OnPidTuning(const result_t rst) {
+    void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
