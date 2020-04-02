@@ -137,11 +137,11 @@ class AboutScreen : public BaseScreen, public UncachedScreen {
 class BedMeshScreen : public BaseScreen, public CachedScreen<BED_MESH_SCREEN_CACHE> {
   private:
     enum MeshOpts {
-        USE_POINTS    = 0x01,
-        USE_COLORS    = 0x02,
-        USE_TAGS      = 0x04,
-        USE_HIGHLIGHT = 0x08,
-        USE_AUTOSCALE = 0x10
+      USE_POINTS    = 0x01,
+      USE_COLORS    = 0x02,
+      USE_TAGS      = 0x04,
+      USE_HIGHLIGHT = 0x08,
+      USE_AUTOSCALE = 0x10
     };
 
     static uint8_t pointToTag(uint8_t x, uint8_t y);
