@@ -125,15 +125,11 @@ void GcodeSuite::G76() {
   // Synchronize with planner
   planner.synchronize();
 
-  const xyz_pos_t parkpos = { temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z };
-  const xyz_pos_t ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5 };
-  // Nozzle position based on probe position
-  const xyz_pos_t noz_pos = ppos - probe.offset_xy;
-#if ENABLED(Z_SAFE_HOMING)
-  const xy_pos_t probe_pos = { Z_SAFE_HOMING_X_POINT - probe.offset_xy.x, Z_SAFE_HOMING_Y_POINT - probe.offset_xy.y };
-#else
-  const xy_pos_t probe_pos = { noz_pos.x, noz_pos.y }
-#endif
+  const xyz_pos_t parkpos = { temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z },
+                  ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5 },
+                  noz_pos = ppos - probe.offset_xy; // Nozzle position based on probe position
+
+  const xy_pos_t probe_pos = TERN(Z_SAFE_HOMING, safe_homing_xy - probe.offset_xy, noz_pos);
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
@@ -164,6 +160,10 @@ void GcodeSuite::G76() {
   // Report temperatures every second and handle heating timeouts
   millis_t next_temp_report = millis() + 1000;
 
+  auto report_targets = [&](const uint16_t tb, const uint16_t tp) {
+    SERIAL_ECHOLNPAIR("Target Bed:", tb, " Probe:", tp);
+  };
+
   if (do_bed_cal) {
 
     uint16_t target_bed = temp_comp.cali_info_init[TSI_BED].start_temp,
@@ -181,7 +181,7 @@ void GcodeSuite::G76() {
     for (;;) {
       thermalManager.setTargetBed(target_bed);
 
-      SERIAL_ECHOLNPAIR("Target Bed:", target_bed, " Probe:", target_probe);
+      report_targets(target_bed, target_probe);
 
       // Park nozzle
       do_blocking_move_to(parkpos);
@@ -237,8 +237,8 @@ void GcodeSuite::G76() {
     thermalManager.setTargetBed(target_bed);
 
     uint16_t target_probe = temp_comp.cali_info_init[TSI_PROBE].start_temp;
-	
-	SERIAL_ECHOLNPAIR("Target Bed:", target_bed, " Probe:", target_probe);
+
+    report_targets(target_bed, target_probe);
 
     // Wait for heatbed to reach target temp and probe to cool below target temp
     wait_for_temps(target_bed, target_probe, next_temp_report);
