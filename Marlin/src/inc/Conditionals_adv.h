@@ -116,7 +116,23 @@
   #define Z_STEPPER_ALIGN_AMP 1.0
 #endif
 
-#define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+//
+// Spindle/Laser power display types
+// Defined here so sanity checks can use them
+//
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+  #define HAS_CUTTER 1
+  #define _CUTTER_DISP_PWM     1
+  #define _CUTTER_DISP_PERCENT 2
+  #define _CUTTER_DISP_RPM     3
+  #define _CUTTER_DISP(V)      _CAT(_CUTTER_DISP_, V)
+  #define CUTTER_DISPLAY_IS(V) (_CUTTER_DISP(CUTTER_POWER_DISPLAY) == _CUTTER_DISP(V))
+#endif
+
+// Add features that need hardware PWM here
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_PWM)
+  #define NEEDS_HARDWARE_PWM 1
+#endif
 
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
@@ -289,4 +305,18 @@
   #else
     #define MAXIMUM_STEPPER_RATE 250000
   #endif
+#endif
+
+//
+// SD Card connection methods
+// Defined here so pins and sanity checks can use them
+//
+#if ENABLED(SDSUPPORT)
+  #define _SDCARD_LCD          1
+  #define _SDCARD_ONBOARD      2
+  #define _SDCARD_CUSTOM_CABLE 3
+  #define _SDCARD_ID(V) _CAT(_SDCARD_, V)
+  #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
+#else
+  #define SD_CONNECTION_IS(...) 0
 #endif

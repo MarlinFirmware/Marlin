@@ -283,7 +283,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = true;
     #endif
 
-    get_destination_from_command();
+    get_destination_from_command();   // Get X Y Z E F (and set cutter power)
 
     #if ENABLED(SF_ARC_FIX)
       relative_mode = relative_mode_backup;

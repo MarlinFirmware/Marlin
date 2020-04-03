@@ -420,7 +420,11 @@ void startOrResumeJob() {
     #if DISABLED(SD_ABORT_NO_COOLDOWN)
       thermalManager.disable_all_heaters();
     #endif
-    thermalManager.zero_fan_speeds();
+    #if !HAS_CUTTER
+      thermalManager.zero_fan_speeds();
+    #else
+      cutter.kill();              // Full cutter shutdown including ISR control
+    #endif
     wait_for_heatup = false;
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.purge();
@@ -741,6 +745,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
+  #if HAS_CUTTER
+    cutter.kill();              // Full cutter shutdown including ISR control
+  #endif
+
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #if HAS_DISPLAY
@@ -770,6 +778,10 @@ void minkill(const bool steppers_off/*=false*/) {
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
 
+  #if HAS_CUTTER
+    cutter.kill();  // Reiterate cutter shutdown
+  #endif
+
   // Power off all steppers (for M112) or just the E steppers
   steppers_off ? disable_all_steppers() : disable_e_steppers();
 
@@ -789,14 +801,14 @@ void minkill(const bool steppers_off/*=false*/) {
     // Wait for kill to be pressed
     while (READ(KILL_PIN)) watchdog_refresh();
 
-    void (*resetFunc)() = 0;  // Declare resetFunc() at address 0
+    void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
 
-  #else // !HAS_KILL
+  #else
 
-    for (;;) watchdog_refresh(); // Wait for reset
+    for (;;) watchdog_refresh();  // Wait for reset
 
-  #endif // !HAS_KILL
+  #endif
 }
 
 /**

@@ -69,7 +69,7 @@ void GcodeSuite::G0_G1(
       #endif
     #endif
 
-    get_destination_from_command();                 // Process X Y Z E F parameters
+    get_destination_from_command();                 // Get X Y Z E F (and set cutter power)
 
     #ifdef G0_FEEDRATE
       if (fast_move) {
