@@ -184,3 +184,8 @@ cmake-build-*
 
 #Python
 __pycache__
+platformio.ini
+Marlin/Configuration.h
+Marlin/Configuration_adv.h
+Marlin/_Bootscreen.h
+Marlin/_Statusscreen.h
