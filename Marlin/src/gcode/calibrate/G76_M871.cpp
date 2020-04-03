@@ -126,7 +126,14 @@ void GcodeSuite::G76() {
   planner.synchronize();
 
   const xyz_pos_t parkpos = { temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z };
-  const xy_pos_t ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y };
+  const xyz_pos_t ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5 };
+  // Nozzle position based on probe position
+  const xyz_pos_t noz_pos = ppos - probe.offset_xy;
+#if ENABLED(Z_SAFE_HOMING)
+  const xy_pos_t probe_pos = { Z_SAFE_HOMING_X_POINT - probe.offset_xy.x, Z_SAFE_HOMING_Y_POINT - probe.offset_xy.y };
+#else
+  const xy_pos_t probe_pos = { noz_pos.x, noz_pos.y }
+#endif
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
@@ -149,8 +156,6 @@ void GcodeSuite::G76() {
 
   remember_feedrate_scaling_off();
 
-  // Nozzle position based on probe position
-  const xy_pos_t noz_pos = ppos - probe.offset_xy;
 
   /******************************************
    * Calibrate bed temperature offsets
@@ -188,12 +193,12 @@ void GcodeSuite::G76() {
       }
 
       // Move the nozzle to the probing point and wait for the probe to reach target temp
-      do_blocking_move_to_xy(noz_pos);
+      do_blocking_move_to(noz_pos);
       SERIAL_ECHOLNPGM("Waiting for probe heating.");
       while (thermalManager.degProbe() < target_probe)
         report_temps(next_temp_report);
 
-      const float measured_z = g76_probe(noz_pos);
+      const float measured_z = g76_probe(probe_pos);
       if (isnan(measured_z)) break;
 
       if (target_bed == temp_comp.cali_info_init[TSI_BED].start_temp)
@@ -232,6 +237,8 @@ void GcodeSuite::G76() {
     thermalManager.setTargetBed(target_bed);
 
     uint16_t target_probe = temp_comp.cali_info_init[TSI_PROBE].start_temp;
+	
+	SERIAL_ECHOLNPAIR("Target Bed:", target_bed, " Probe:", target_probe);
 
     // Wait for heatbed to reach target temp and probe to cool below target temp
     wait_for_temps(target_bed, target_probe, next_temp_report);
@@ -244,7 +251,7 @@ void GcodeSuite::G76() {
     bool timeout = false;
     for (;;) {
       // Move probe to probing point and wait for it to reach target temperature
-      do_blocking_move_to_xy(noz_pos);
+      do_blocking_move_to(noz_pos);
 
       SERIAL_ECHOLNPAIR("Waiting for probe heating. Bed:", target_bed, " Probe:", target_probe);
       const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
@@ -257,7 +264,7 @@ void GcodeSuite::G76() {
       }
       if (timeout) break;
 
-      const float measured_z = g76_probe(noz_pos);
+      const float measured_z = g76_probe(probe_pos);
       if (isnan(measured_z)) break;
 
       if (target_probe == temp_comp.cali_info_init[TSI_PROBE].start_temp)
