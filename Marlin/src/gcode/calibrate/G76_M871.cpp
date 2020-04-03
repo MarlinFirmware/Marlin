@@ -131,8 +131,8 @@ void GcodeSuite::G76() {
   // Synchronize with planner
   planner.synchronize();
 
-  const xyz_pos_t parkpos = { temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z },
-                     ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5 },
+  const xyz_pos_t parkpos = temp_comp.park_point,
+                     ppos = temp_comp.measure_point + xyz_pos_t({ 0.0f, 0.0f, 0.5f }),
                   noz_pos = ppos - probe.offset_xy; // Nozzle position based on probe position
 
   const xy_pos_t probe_noz_pos = TERN(Z_SAFE_HOMING, safe_homing_xy - probe.offset_xy, noz_pos);
