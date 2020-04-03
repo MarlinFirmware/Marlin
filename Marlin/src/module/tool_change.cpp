@@ -96,9 +96,9 @@
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #include "../gcode/gcode.h"
-  #if TOOLCHANGE_FS_CUT_RETRACT <= 0
-    #undef TOOLCHANGE_FS_CUT_RETRACT
-    #define TOOLCHANGE_FS_CUT_RETRACT 0
+  #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
+    #undef TOOLCHANGE_FS_WIPE_RETRACT
+    #define TOOLCHANGE_FS_WIPE_RETRACT 0
   #endif
 #endif
 
@@ -824,8 +824,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
       // Cutting retraction
-      #if TOOLCHANGE_FS_CUT_RETRACT
-        unscaled_e_move(-(TOOLCHANGE_FS_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+      #if TOOLCHANGE_FS_WIPE_RETRACT
+        unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
       #endif
 
       // Cool after prime
@@ -849,7 +849,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       #endif
 
       // Cutting recover
-      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
 
       planner.synchronize();
       current_position.e = destination.e;
@@ -1121,8 +1121,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
             // Cutting retraction
-            #if TOOLCHANGE_FS_CUT_RETRACT
-              unscaled_e_move(-(TOOLCHANGE_FS_CUT_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+            #if TOOLCHANGE_FS_WIPE_RETRACT
+              unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
             #endif
 
             // Cool down with fan
@@ -1170,7 +1170,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             // Cutting recover
-            unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_CUT_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+            unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
             current_position.e = 0;
             sync_plan_position_e(); // New extruder primed and set to 0
           }
