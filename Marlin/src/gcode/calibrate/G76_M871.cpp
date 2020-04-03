@@ -207,7 +207,7 @@ void GcodeSuite::G76() {
         temp_comp.push_back_new_measurement(TSI_BED, measured_z);
 
       target_bed += temp_comp.cali_info_init[TSI_BED].temp_res;
-      if (target_bed > temp_comp.max_bed_temp) break;
+      if (target_bed > temp_comp.max_bed_temp - 10) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
