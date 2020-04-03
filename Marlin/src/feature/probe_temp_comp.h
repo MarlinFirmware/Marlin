@@ -44,16 +44,18 @@ typedef struct {
  * Z-probes like the P.I.N.D.A V2 allow for compensation of
  * measurement errors/shifts due to changed temperature.
  */
+
+static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
+    {  10,  5,  30,  30 + 10 *  5 },       // Probe
+    {  10,  5,  60,  60 + 10 *  5 },       // Bed
+  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+    {  20,  5, 180, 180 +  5 * 20 }        // Extruder
+  #endif
+};
+
 class ProbeTempComp {
   public:
 
-    static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-        {  10,  5,  30,  30 + 10 *  5 },       // Probe
-        {  10,  5,  60,  60 + 10 *  5 },       // Bed
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        {  20,  5, 180, 180 +  5 * 20 }        // Extruder
-      #endif
-    };
     static const temp_calib_t cali_info[TSI_COUNT];
 
     // Where to park nozzle to wait for probe cooldown

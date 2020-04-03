@@ -110,11 +110,11 @@ void GcodeSuite::G76() {
       SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
     else {
       SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
-      if (targ == temp_comp.cali_info_init[sid].start_temp)
+      if (targ == cali_info_init[sid].start_temp)
         temp_comp.prepare_new_calibration(measured_z);
       else
         temp_comp.push_back_new_measurement(sid, measured_z);
-      targ += temp_comp.cali_info_init[sid].temp_res;
+      targ += cali_info_init[sid].temp_res;
     }
     return measured_z;
   };
@@ -172,7 +172,7 @@ void GcodeSuite::G76() {
 
   if (do_bed_cal) {
 
-    uint16_t target_bed = temp_comp.cali_info_init[TSI_BED].start_temp,
+    uint16_t target_bed = cali_info_init[TSI_BED].start_temp,
              target_probe = temp_comp.bed_calib_probe_temp;
 
     SERIAL_ECHOLNPGM("Waiting for cooling.");
@@ -234,7 +234,7 @@ void GcodeSuite::G76() {
     const uint16_t target_bed = temp_comp.probe_calib_bed_temp;
     thermalManager.setTargetBed(target_bed);
 
-    uint16_t target_probe = temp_comp.cali_info_init[TSI_PROBE].start_temp;
+    uint16_t target_probe = cali_info_init[TSI_PROBE].start_temp;
 
     report_targets(target_bed, target_probe);
 
@@ -263,7 +263,7 @@ void GcodeSuite::G76() {
       if (timeout) break;
 
       const float measured_z = g76_probe(TSI_PROBE, target_probe, probe_noz_pos);
-      if (isnan(measured_z) || target_probe > temp_comp.cali_info_init[TSI_PROBE].end_temp) break;
+      if (isnan(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
