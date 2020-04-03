@@ -103,13 +103,19 @@ void GcodeSuite::G76() {
     return false;
   };
 
-  auto g76_probe = [](const xy_pos_t &xypos) {
+  auto g76_probe = [](const TempSensorID sid, uint16_t &targ, const xy_pos_t &nozpos) {
     do_blocking_move_to_z(5.0); // Raise nozzle before probing
-    const float measured_z = probe.probe_at_point(xypos, PROBE_PT_NONE, 0, false);  // verbose=0, probe_relative=false
+    const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_NONE, 0, false);  // verbose=0, probe_relative=false
     if (isnan(measured_z))
       SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
-    else
+    else {
       SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
+      if (targ == temp_comp.cali_info_init[sid].start_temp)
+        temp_comp.prepare_new_calibration(measured_z);
+      else
+        temp_comp.push_back_new_measurement(sid, measured_z);
+      targ += temp_comp.cali_info_init[sid].temp_res;
+    }
     return measured_z;
   };
 
@@ -126,10 +132,10 @@ void GcodeSuite::G76() {
   planner.synchronize();
 
   const xyz_pos_t parkpos = { temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z },
-                  ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5 },
+                     ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y, 0.5 },
                   noz_pos = ppos - probe.offset_xy; // Nozzle position based on probe position
 
-  const xy_pos_t probe_pos = TERN(Z_SAFE_HOMING, safe_homing_xy - probe.offset_xy, noz_pos);
+  const xy_pos_t probe_noz_pos = TERN(Z_SAFE_HOMING, safe_homing_xy - probe.offset_xy, noz_pos);
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
@@ -198,16 +204,8 @@ void GcodeSuite::G76() {
       while (thermalManager.degProbe() < target_probe)
         report_temps(next_temp_report);
 
-      const float measured_z = g76_probe(probe_pos);
-      if (isnan(measured_z)) break;
-
-      if (target_bed == temp_comp.cali_info_init[TSI_BED].start_temp)
-        temp_comp.prepare_new_calibration(measured_z);
-      else
-        temp_comp.push_back_new_measurement(TSI_BED, measured_z);
-
-      target_bed += temp_comp.cali_info_init[TSI_BED].temp_res;
-      if (target_bed > temp_comp.max_bed_temp - 10) break;
+      const float measured_z = g76_probe(TSI_BED, target_bed, probe_noz_pos);
+      if (isnan(measured_z) || target_bed > temp_comp.max_bed_temp - 10) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
@@ -264,16 +262,8 @@ void GcodeSuite::G76() {
       }
       if (timeout) break;
 
-      const float measured_z = g76_probe(probe_pos);
-      if (isnan(measured_z)) break;
-
-      if (target_probe == temp_comp.cali_info_init[TSI_PROBE].start_temp)
-        temp_comp.prepare_new_calibration(measured_z);
-      else
-        temp_comp.push_back_new_measurement(TSI_PROBE, measured_z);
-
-      target_probe += temp_comp.cali_info_init[TSI_PROBE].temp_res;
-      if (target_probe > temp_comp.cali_info_init[TSI_PROBE].end_temp) break;
+      const float measured_z = g76_probe(TSI_PROBE, target_probe, probe_noz_pos);
+      if (isnan(measured_z) || target_probe > temp_comp.cali_info_init[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
