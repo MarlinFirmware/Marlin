@@ -1149,28 +1149,7 @@ void MarlinUI::init() {
   ExtUI::onStartup();
 }
 
-void MarlinUI::update() {
-  #if ENABLED(SDSUPPORT)
-    static bool last_sd_status;
-    const bool sd_status = IS_SD_INSERTED();
-    if (sd_status != last_sd_status) {
-      last_sd_status = sd_status;
-      if (sd_status) {
-        card.mount();
-        if (card.isMounted())
-          ExtUI::onMediaInserted();
-        else
-          ExtUI::onMediaError();
-      }
-      else {
-        const bool ok = card.isMounted();
-        card.release();
-        if (ok) ExtUI::onMediaRemoved();
-      }
-    }
-  #endif // SDSUPPORT
-  ExtUI::onIdle();
-}
+void MarlinUI::update() { ExtUI::onIdle(); }
 
 void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
   using namespace ExtUI;

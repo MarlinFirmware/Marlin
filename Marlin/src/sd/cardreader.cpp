@@ -378,6 +378,42 @@ void CardReader::mount() {
   ui.refresh();
 }
 
+/**
+ * Handle SD card events
+ */
+#if MB(FYSETC_CHEETAH)
+  #include "../module/stepper.h"
+#endif
+
+void CardReader::manage_media() {
+  static uint8_t prev_stat = TERN(INIT_SDCARD_ON_BOOT, 2, 0);
+  uint8_t stat = uint8_t(IS_SD_INSERTED());
+  if (stat != prev_stat && ui.detected()) {
+
+    uint8_t old_stat = prev_stat;
+    prev_stat = stat;                 // Change now to prevent re-entry
+
+    if (stat) {                       // Media Inserted
+      safe_delay(500);                // Some boards need a delay to get settled
+      mount();                        // Try to mount the media
+      #if MB(FYSETC_CHEETAH)
+        reset_stepper_drivers();      // Workaround for Cheetah bug
+      #endif
+      if (!isMounted()) stat = 0;     // Not mounted?
+    }
+    else {
+      #if PIN_EXISTS(SD_DETECT)
+        release();                    // Card is released
+      #endif
+    }
+
+    ui.media_changed(old_stat, stat); // Update the UI
+
+    if (stat && old_stat == 2)        // First mount?
+      beginautostart();               // Look for autostart files soon
+  }
+}
+
 void CardReader::release() {
   endFilePrint();
   flag.mounted = false;
