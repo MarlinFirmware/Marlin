@@ -227,7 +227,7 @@ bool wait_for_heatup = true;
 
 // Inactivity shutdown
 millis_t max_inactive_time, // = 0
-         stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
+         stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_DEACTIVE_TIME);
 
 #if PIN_EXISTS(CHDK)
   extern millis_t chdk_timeout;
@@ -543,7 +543,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
-      && ELAPSED(ms, gcode.previous_move_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
       #if ENABLED(SWITCHING_EXTRUDER)

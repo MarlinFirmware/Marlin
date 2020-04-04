@@ -182,7 +182,7 @@ void GcodeSuite::G76() {
       do_blocking_move_to(parkpos);
 
       // Wait for heatbed to reach target temp and probe to cool below target temp
-      if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + 900UL * 1000UL)) {
+      if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + MIN_TO_MS(15))) {
         SERIAL_ECHOLNPGM("!Bed heating timeout.");
         break;
       }

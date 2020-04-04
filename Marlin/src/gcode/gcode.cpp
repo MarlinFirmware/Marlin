@@ -988,7 +988,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           break;
       }
     }
-    next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
+    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
   }
 
 #endif // HOST_KEEPALIVE_FEATURE
