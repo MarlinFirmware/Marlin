@@ -132,10 +132,8 @@ void GcodeSuite::G76() {
   planner.synchronize();
 
   const xyz_pos_t parkpos = temp_comp.park_point,
-                     ppos = temp_comp.measure_point + xyz_pos_t({ 0.0f, 0.0f, 0.5f }),
-                  noz_pos = ppos - probe.offset_xy; // Nozzle position based on probe position
-
-  const xy_pos_t probe_noz_pos = TERN(Z_SAFE_HOMING, safe_homing_xy - probe.offset_xy, noz_pos);
+            probe_pos_xyz = temp_comp.measure_point + xyz_pos_t({ 0.0f, 0.0f, 0.5f }),
+              noz_pos_xyz = probe_pos_xyz - probe.offset_xy; // Nozzle position based on probe position
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
@@ -144,7 +142,7 @@ void GcodeSuite::G76() {
       SERIAL_ECHOLNPGM("!Park");
     else {
       // Ensure probe position is reachable
-      reachable = probe.can_reach(ppos);
+      reachable = probe.can_reach(probe_pos_xyz);
       if (!reachable) SERIAL_ECHOLNPGM("!Probe");
     }
 
@@ -199,12 +197,12 @@ void GcodeSuite::G76() {
       }
 
       // Move the nozzle to the probing point and wait for the probe to reach target temp
-      do_blocking_move_to(noz_pos);
+      do_blocking_move_to(noz_pos_xyz);
       SERIAL_ECHOLNPGM("Waiting for probe heating.");
       while (thermalManager.degProbe() < target_probe)
         report_temps(next_temp_report);
 
-      const float measured_z = g76_probe(TSI_BED, target_bed, probe_noz_pos);
+      const float measured_z = g76_probe(TSI_BED, target_bed, noz_pos_xyz);
       if (isnan(measured_z) || target_bed > temp_comp.max_bed_temp - 10) break;
     }
 
@@ -249,7 +247,7 @@ void GcodeSuite::G76() {
     bool timeout = false;
     for (;;) {
       // Move probe to probing point and wait for it to reach target temperature
-      do_blocking_move_to(probe_noz_pos);
+      do_blocking_move_to(noz_pos_xyz);
 
       SERIAL_ECHOLNPAIR("Waiting for probe heating. Bed:", target_bed, " Probe:", target_probe);
       const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
@@ -262,7 +260,7 @@ void GcodeSuite::G76() {
       }
       if (timeout) break;
 
-      const float measured_z = g76_probe(TSI_PROBE, target_probe, probe_noz_pos);
+      const float measured_z = g76_probe(TSI_PROBE, target_probe, noz_pos_xyz);
       if (isnan(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
     }
 
