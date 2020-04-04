@@ -821,7 +821,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool >= EXTRUDERS)
       return invalid_extruder_error(new_tool);
 
-    if (!no_move && !all_axes_homed()) {
+    if (!no_move && !homing_needed()) {
       no_move = true;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move (not homed)");
     }
@@ -1073,7 +1073,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
-      if (!no_move)
+      if (!no_move && TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
         gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
     #endif
 
