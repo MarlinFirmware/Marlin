@@ -1073,11 +1073,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
-      if (!no_move
-        #if ENABLED(DUAL_X_CARRIAGE)
-          && dual_x_carriage_mode == DXC_AUTO_PARK_MODE
-        #endif
-      )
+      if (!no_move && TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
         gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
     #endif
 
