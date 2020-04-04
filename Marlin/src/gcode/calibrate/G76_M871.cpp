@@ -249,7 +249,7 @@ void GcodeSuite::G76() {
     bool timeout = false;
     for (;;) {
       // Move probe to probing point and wait for it to reach target temperature
-      do_blocking_move_to(noz_pos);
+      do_blocking_move_to(probe_noz_pos);
 
       SERIAL_ECHOLNPAIR("Waiting for probe heating. Bed:", target_bed, " Probe:", target_probe);
       const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
