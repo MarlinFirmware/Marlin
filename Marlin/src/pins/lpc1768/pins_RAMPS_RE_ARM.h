@@ -51,58 +51,58 @@
 //
 // Servos
 //
-#define SERVO0_PIN         P1_20   // (11)
-#define SERVO1_PIN         P1_21   // ( 6) also on J5-1
-#define SERVO2_PIN         P1_19   // ( 5)
-#define SERVO3_PIN         P1_18   // ( 4) 5V output
+#define SERVO0_PIN                         P1_20  // (11)
+#define SERVO1_PIN                         P1_21  // ( 6) also on J5-1
+#define SERVO2_PIN                         P1_19  // ( 5)
+#define SERVO3_PIN                         P1_18  // ( 4) 5V output
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN          P1_24   // ( 3) 10k pullup to 3.3V, 1K series
-#define X_MAX_PIN          P1_25   // ( 2) 10k pullup to 3.3V, 1K series
-#define Y_MIN_PIN          P1_26   // (14) 10k pullup to 3.3V, 1K series
-#define Y_MAX_PIN          P1_27   // (15) 10k pullup to 3.3V, 1K series
-#define Z_MIN_PIN          P1_29   // (18) 10k pullup to 3.3V, 1K series
-#define Z_MAX_PIN          P1_28   // (19) 10k pullup to 3.3V, 1K series
-#define ONBOARD_ENDSTOPPULLUPS     // Board has built-in pullups
+#define X_MIN_PIN                          P1_24  // ( 3) 10k pullup to 3.3V, 1K series
+#define X_MAX_PIN                          P1_25  // ( 2) 10k pullup to 3.3V, 1K series
+#define Y_MIN_PIN                          P1_26  // (14) 10k pullup to 3.3V, 1K series
+#define Y_MAX_PIN                          P1_27  // (15) 10k pullup to 3.3V, 1K series
+#define Z_MIN_PIN                          P1_29  // (18) 10k pullup to 3.3V, 1K series
+#define Z_MAX_PIN                          P1_28  // (19) 10k pullup to 3.3V, 1K series
+#define ONBOARD_ENDSTOPPULLUPS                    // Board has built-in pullups
 
 //
 // Steppers
 //
-#define X_STEP_PIN         P2_01   // (54)
-#define X_DIR_PIN          P0_11   // (55)
-#define X_ENABLE_PIN       P0_10   // (38)
+#define X_STEP_PIN                         P2_01  // (54)
+#define X_DIR_PIN                          P0_11  // (55)
+#define X_ENABLE_PIN                       P0_10  // (38)
 #ifndef X_CS_PIN
-  #define X_CS_PIN         P1_01   // ETH
+  #define X_CS_PIN                         P1_01  // ETH
 #endif
 
-#define Y_STEP_PIN         P2_02   // (60)
-#define Y_DIR_PIN          P0_20   // (61)
-#define Y_ENABLE_PIN       P0_19   // (56)
+#define Y_STEP_PIN                         P2_02  // (60)
+#define Y_DIR_PIN                          P0_20  // (61)
+#define Y_ENABLE_PIN                       P0_19  // (56)
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN         P1_04   // ETH
+  #define Y_CS_PIN                         P1_04  // ETH
 #endif
 
-#define Z_STEP_PIN         P2_03   // (46)
-#define Z_DIR_PIN          P0_22   // (48)
-#define Z_ENABLE_PIN       P0_21   // (62)
+#define Z_STEP_PIN                         P2_03  // (46)
+#define Z_DIR_PIN                          P0_22  // (48)
+#define Z_ENABLE_PIN                       P0_21  // (62)
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN         P1_10   // ETH
+  #define Z_CS_PIN                         P1_10  // ETH
 #endif
 
-#define E0_STEP_PIN        P2_00   // (26)
-#define E0_DIR_PIN         P0_05   // (28)
-#define E0_ENABLE_PIN      P0_04   // (24)
+#define E0_STEP_PIN                        P2_00  // (26)
+#define E0_DIR_PIN                         P0_05  // (28)
+#define E0_ENABLE_PIN                      P0_04  // (24)
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN        P1_14   // ETH
+  #define E0_CS_PIN                        P1_14  // ETH
 #endif
 
-#define E1_STEP_PIN        P2_08   // (36)
-#define E1_DIR_PIN         P2_13   // (34)
-#define E1_ENABLE_PIN      P4_29   // (30)
+#define E1_STEP_PIN                        P2_08  // (36)
+#define E1_DIR_PIN                         P2_13  // (34)
+#define E1_ENABLE_PIN                      P4_29  // (30)
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN        -1
+  #define E1_CS_PIN                        -1
 #endif
 
 //
@@ -110,17 +110,17 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    P1_00   // ETH
+    #define TMC_SW_MOSI                    P1_00  // ETH
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    P1_08   // ETH
+    #define TMC_SW_MISO                    P1_08  // ETH
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     P1_09   // ETH
+    #define TMC_SW_SCK                     P1_09  // ETH
   #endif
 #endif
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -136,31 +136,31 @@
   // P2_13 E1-Dir
 
   #ifndef X_SERIAL_TX_PIN
-    #define X_SERIAL_TX_PIN  P0_01
+    #define X_SERIAL_TX_PIN                P0_01
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN  P0_01
+    #define X_SERIAL_RX_PIN                P0_01
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
-    #define Y_SERIAL_TX_PIN  P0_00
+    #define Y_SERIAL_TX_PIN                P0_00
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN  P0_00
+    #define Y_SERIAL_RX_PIN                P0_00
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
-    #define Z_SERIAL_TX_PIN  P2_13
+    #define Z_SERIAL_TX_PIN                P2_13
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN  P2_13
+    #define Z_SERIAL_RX_PIN                P2_13
   #endif
 
   #ifndef E0_SERIAL_TX_PIN
-    #define E0_SERIAL_TX_PIN P2_08
+    #define E0_SERIAL_TX_PIN               P2_08
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN P2_08
+    #define E0_SERIAL_RX_PIN               P2_08
   #endif
 
   // Reduce baud rate to improve software serial reliability
@@ -171,14 +171,14 @@
 // Temperature Sensors
 //  3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          P0_23_A0   // A0 (T0) - (67) - TEMP_0_PIN
-#define TEMP_BED_PIN        P0_24_A1   // A1 (T1) - (68) - TEMP_BED_PIN
-#define TEMP_1_PIN          P0_25_A2   // A2 (T2) - (69) - TEMP_1_PIN
-#define TEMP_2_PIN          P0_26_A3   // A3 - (63) - J5-3 & AUX-2
-#define TEMP_3_PIN          P1_30_A4   // A4 - (37) - BUZZER_PIN
-//#define TEMP_4_PIN          P1_31_A5   // A5 - (49) - SD_DETECT_PIN
+#define TEMP_0_PIN                      P0_23_A0  // A0 (T0) - (67) - TEMP_0_PIN
+#define TEMP_BED_PIN                    P0_24_A1  // A1 (T1) - (68) - TEMP_BED_PIN
+#define TEMP_1_PIN                      P0_25_A2  // A2 (T2) - (69) - TEMP_1_PIN
+#define TEMP_2_PIN                      P0_26_A3  // A3 - (63) - J5-3 & AUX-2
+#define TEMP_3_PIN                      P1_30_A4  // A4 - (37) - BUZZER_PIN
+//#define TEMP_4_PIN                    P1_31_A5  // A5 - (49) - SD_DETECT_PIN
 //#define ??                  P0_03_A6   // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
-#define FILWIDTH_PIN        P0_02_A7   // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
+#define FILWIDTH_PIN                    P0_02_A7  // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
 
 //
 // Augmentation for auto-assigning RAMPS plugs
@@ -201,69 +201,69 @@
 // Heaters / Fans
 //
 #ifndef MOSFET_D_PIN
-  #define MOSFET_D_PIN     -1
+  #define MOSFET_D_PIN                     -1
 #endif
 #ifndef RAMPS_D8_PIN
-  #define RAMPS_D8_PIN     P2_07   // (8)
+  #define RAMPS_D8_PIN                     P2_07  // (8)
 #endif
 #ifndef RAMPS_D9_PIN
-  #define RAMPS_D9_PIN     P2_04   // (9)
+  #define RAMPS_D9_PIN                     P2_04  // (9)
 #endif
 #ifndef RAMPS_D10_PIN
-  #define RAMPS_D10_PIN    P2_05   // (10)
+  #define RAMPS_D10_PIN                    P2_05  // (10)
 #endif
 
-#define HEATER_0_PIN       RAMPS_D10_PIN
+#define HEATER_0_PIN               RAMPS_D10_PIN
 
-#if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
-  #define HEATER_BED_PIN   RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
-  #define HEATER_1_PIN     RAMPS_D9_PIN
-#elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
-  #define HEATER_1_PIN     RAMPS_D9_PIN
-  #define HEATER_BED_PIN   RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
-  #define FAN1_PIN         RAMPS_D8_PIN
-#elif DISABLED(IS_RAMPS_SF)                    // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
-  #define HEATER_BED_PIN   RAMPS_D8_PIN
+#if ENABLED(IS_RAMPS_EFB)                         // Hotend, Fan, Bed
+  #define HEATER_BED_PIN            RAMPS_D8_PIN
+#elif ENABLED(IS_RAMPS_EEF)                       // Hotend, Hotend, Fan
+  #define HEATER_1_PIN              RAMPS_D9_PIN
+#elif ENABLED(IS_RAMPS_EEB)                       // Hotend, Hotend, Bed
+  #define HEATER_1_PIN              RAMPS_D9_PIN
+  #define HEATER_BED_PIN            RAMPS_D8_PIN
+#elif ENABLED(IS_RAMPS_EFF)                       // Hotend, Fan, Fan
+  #define FAN1_PIN                  RAMPS_D8_PIN
+#elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
+  #define HEATER_BED_PIN            RAMPS_D8_PIN
   #if HOTENDS == 1
-    #define FAN1_PIN       MOSFET_D_PIN
+    #define FAN1_PIN                MOSFET_D_PIN
   #else
-    #define HEATER_1_PIN   MOSFET_D_PIN
+    #define HEATER_1_PIN            MOSFET_D_PIN
   #endif
 #endif
 
 #ifndef FAN_PIN
   #if EITHER(IS_RAMPS_EFB, IS_RAMPS_EFF)          // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN        RAMPS_D9_PIN
+    #define FAN_PIN                 RAMPS_D9_PIN
   #elif EITHER(IS_RAMPS_EEF, IS_RAMPS_SF)         // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN        RAMPS_D8_PIN
-  #elif ENABLED(IS_RAMPS_EEB)                  // Hotend, Hotend, Bed
-    #define FAN_PIN        P1_18               // (4) IO pin. Buffer needed
-  #else                                        // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-    #define FAN_PIN        RAMPS_D9_PIN
+    #define FAN_PIN                 RAMPS_D8_PIN
+  #elif ENABLED(IS_RAMPS_EEB)                     // Hotend, Hotend, Bed
+    #define FAN_PIN                        P1_18  // (4) IO pin. Buffer needed
+  #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
+    #define FAN_PIN                 RAMPS_D9_PIN
   #endif
 #endif
 
 //
 // Misc. Functions
 //
-#define LED_PIN            P4_28   // (13)
+#define LED_PIN                            P4_28  // (13)
 
 // define digital pin 5 for the filament runout sensor. Use the RAMPS 1.4 digital input 5 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   P1_19   // (5)
+  #define FIL_RUNOUT_PIN                   P1_19  // (5)
 #endif
 
-#define PS_ON_PIN          P2_12   // (12)
+#define PS_ON_PIN                          P2_12  // (12)
 
 #if !defined(MAX6675_SS_PIN) && DISABLED(USE_ZMAX_PLUG)
-  #define MAX6675_SS_PIN   P1_28
+  #define MAX6675_SS_PIN                   P1_28
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENA_PIN)
-  #if !defined(NUM_SERVOS) || NUM_SERVOS < 4   // Try to use servo connector
-    #define CASE_LIGHT_PIN P1_18   // (4) MUST BE HARDWARE PWM
+  #if !defined(NUM_SERVOS) || NUM_SERVOS < 4      // Try to use servo connector
+    #define CASE_LIGHT_PIN                 P1_18  // (4) MUST BE HARDWARE PWM
   #endif
 #endif
 
@@ -279,19 +279,19 @@
       #error "LASER_FEATURE requires 3 free servo pins."
     #endif
   #endif
-  #define SPINDLE_LASER_ENA_PIN SERVO1_PIN   // (6) Pin should have a pullup/pulldown!
-  #define SPINDLE_LASER_PWM_PIN SERVO3_PIN   // (4) MUST BE HARDWARE PWM
-  #define SPINDLE_DIR_PIN       SERVO2_PIN   // (5)
+  #define SPINDLE_LASER_ENA_PIN       SERVO1_PIN  // (6) Pin should have a pullup/pulldown!
+  #define SPINDLE_LASER_PWM_PIN       SERVO3_PIN  // (4) MUST BE HARDWARE PWM
+  #define SPINDLE_DIR_PIN             SERVO2_PIN  // (5)
 #endif
 
 //
 // Průša i3 MK2 Multiplexer Support
 //
 #if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
-  #define E_MUX0_PIN       P0_03   // ( 0) Z_CS_PIN
-  #define E_MUX1_PIN       P0_02   // ( 1) E0_CS_PIN
+  #define E_MUX0_PIN                       P0_03  // ( 0) Z_CS_PIN
+  #define E_MUX1_PIN                       P0_02  // ( 1) E0_CS_PIN
 #endif
-#define E_MUX2_PIN         P0_26   // (63) E1_CS_PIN
+#define E_MUX2_PIN                         P0_26  // (63) E1_CS_PIN
 
 /**
  * LCD / Controller
@@ -322,101 +322,101 @@
   // 10-pin IDC connector trimmed or replaced with a 12-pin IDC connector to fit J3.
   // Requires REVERSE_ENCODER_DIRECTION in Configuration.h
 
-  #define BEEPER_PIN       P2_11   // J3-3 & AUX-4
+  #define BEEPER_PIN                       P2_11  // J3-3 & AUX-4
 
-  #define BTN_EN1          P0_16   // J3-7 & AUX-4
-  #define BTN_EN2          P1_23   // J3-5 & AUX-4
-  #define BTN_ENC          P3_25   // J3-4 & AUX-4
+  #define BTN_EN1                          P0_16  // J3-7 & AUX-4
+  #define BTN_EN2                          P1_23  // J3-5 & AUX-4
+  #define BTN_ENC                          P3_25  // J3-4 & AUX-4
 
-  #define LCD_PINS_RS      P0_15   // J3-9 & AUX-4 (CS)
-  #define LCD_PINS_ENABLE  P0_18   // J3-10 & AUX-3 (SID, MOSI)
-  #define LCD_PINS_D4      P2_06   // J3-8 & AUX-3 (SCK, CLK)
+  #define LCD_PINS_RS                      P0_15  // J3-9 & AUX-4 (CS)
+  #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
+  #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
 #elif HAS_SPI_LCD
 
-  //#define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
-  //#define MISO_PIN         P0_17   // (50)  system defined J3-10 & AUX-3
-  //#define MOSI_PIN         P0_18   // (51)  system defined J3-10 & AUX-3
-  //#define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
+  //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
+  //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
+  //#define MOSI_PIN                       P0_18  // (51)  system defined J3-10 & AUX-3
+  //#define SS_PIN                         P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define BEEPER_PIN     P1_01
-    #define BTN_ENC        P1_04
+    #define BEEPER_PIN                     P1_01
+    #define BTN_ENC                        P1_04
   #else
-    #define BEEPER_PIN     P1_30   // (37) not 5V tolerant
-    #define BTN_ENC        P2_11   // (35) J3-3 & AUX-4
+    #define BEEPER_PIN                     P1_30  // (37) not 5V tolerant
+    #define BTN_ENC                        P2_11  // (35) J3-3 & AUX-4
   #endif
 
-  #define BTN_EN1          P3_26   // (31) J3-2 & AUX-4
-  #define BTN_EN2          P3_25   // (33) J3-4 & AUX-4
+  #define BTN_EN1                          P3_26  // (31) J3-2 & AUX-4
+  #define BTN_EN2                          P3_25  // (33) J3-4 & AUX-4
 
-  #define SD_DETECT_PIN    P1_31   // (49) J3-1 & AUX-3 (NOT 5V tolerant)
-  #define KILL_PIN         P1_22   // (41) J5-4 & AUX-4
-  #define LCD_PINS_RS      P0_16   // (16) J3-7 & AUX-4
-  #define LCD_SDSS         P0_16   // (16) J3-7 & AUX-4
+  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
+  #define LCD_PINS_RS                      P0_16  // (16) J3-7 & AUX-4
+  #define LCD_SDSS                         P0_16  // (16) J3-7 & AUX-4
 
   #if ENABLED(NEWPANEL)
     #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define SHIFT_OUT    P0_18   // (51) (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK    P0_15   // (52) (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD     P1_31   // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
+      #define SHIFT_OUT                    P0_18  // (51) (MOSI) J3-10 & AUX-3
+      #define SHIFT_CLK                    P0_15  // (52) (SCK)  J3-9 & AUX-3
+      #define SHIFT_LD                     P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
     #endif
   #else
-    //#define SHIFT_CLK      P3_26   // (31)  J3-2 & AUX-4
-    //#define SHIFT_LD       P3_25   // (33)  J3-4 & AUX-4
-    //#define SHIFT_OUT      P2_11   // (35)  J3-3 & AUX-4
-    //#define SHIFT_EN       P1_22   // (41)  J5-4 & AUX-4
+    //#define SHIFT_CLK                    P3_26  // (31)  J3-2 & AUX-4
+    //#define SHIFT_LD                     P3_25  // (33)  J3-4 & AUX-4
+    //#define SHIFT_OUT                    P2_11  // (35)  J3-3 & AUX-4
+    //#define SHIFT_EN                     P1_22  // (41)  J5-4 & AUX-4
   #endif
 
   #if ANY(VIKI2, miniVIKI)
     // #define LCD_SCREEN_ROT_180
 
-    #define DOGLCD_CS      P0_16   // (16)
-    #define DOGLCD_A0      P2_06   // (59) J3-8 & AUX-2
-    #define DOGLCD_SCK     SCK_PIN
-    #define DOGLCD_MOSI    MOSI_PIN
+    #define DOGLCD_CS                      P0_16  // (16)
+    #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
+    #define DOGLCD_SCK                   SCK_PIN
+    #define DOGLCD_MOSI                 MOSI_PIN
 
-    #define STAT_LED_BLUE_PIN P0_26 //(63)  may change if cable changes
-    #define STAT_LED_RED_PIN P1_21 // ( 6)  may change if cable changes
+    #define STAT_LED_BLUE_PIN              P0_26  //(63)  may change if cable changes
+    #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_SCK   P0_15
-      #define DOGLCD_MOSI  P0_18
+      #define DOGLCD_SCK                   P0_15
+      #define DOGLCD_MOSI                  P0_18
 
       // EXP1 on LCD adapter is not usable - using Ethernet connector instead
-      #define DOGLCD_CS    P1_09
-      #define DOGLCD_A0    P1_14
-      //#define FORCE_SOFT_SPI    // Use this if default of hardware SPI causes display problems
-                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+      #define DOGLCD_CS                    P1_09
+      #define DOGLCD_A0                    P1_14
+      //#define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
+                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-      #define LCD_RESET_PIN P0_16   // Must be high or open for LCD to operate normally.
+      #define LCD_RESET_PIN                P0_16  // Must be high or open for LCD to operate normally.
 
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN P1_00
+          #define RGB_LED_R_PIN            P1_00
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN P1_01
+          #define RGB_LED_G_PIN            P1_01
         #endif
         #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN P1_08
+          #define RGB_LED_B_PIN            P1_08
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN P1_00
+        #define NEOPIXEL_PIN               P1_00
       #endif
     #else
-      #define DOGLCD_CS    P0_26   // (63) J5-3 & AUX-2
-      #define DOGLCD_A0    P2_06   // (59) J3-8 & AUX-2
+      #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
+      #define DOGLCD_A0                    P2_06  // (59) J3-8 & AUX-2
     #endif
 
-    #define LCD_BACKLIGHT_PIN P0_16 //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_ENABLE P0_18  // (51) (MOSI) J3-10 & AUX-3
-    #define LCD_PINS_D4    P0_15   // (52) (SCK)  J3-9 & AUX-3
+    #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
+    #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
+    #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
     #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5  P1_17   // (71) ENET_MDIO
-      #define LCD_PINS_D6  P1_14   // (73) ENET_RX_ER
-      #define LCD_PINS_D7  P1_10   // (75) ENET_RXD1
+      #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
+      #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
+      #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
     #endif
   #endif
 
@@ -434,38 +434,38 @@
 // Ethernet pins
 //
 #if DISABLED(ULTIPANEL)
-  #define ENET_MDIO        P1_17   // (71)  J12-4
-  #define ENET_RX_ER       P1_14   // (73)  J12-6
-  #define ENET_RXD1        P1_10   // (75)  J12-8
+  #define ENET_MDIO                        P1_17  // (71)  J12-4
+  #define ENET_RX_ER                       P1_14  // (73)  J12-6
+  #define ENET_RXD1                        P1_10  // (75)  J12-8
 #endif
-#define ENET_MOC           P1_16   // (70)  J12-3
-#define REF_CLK            P1_15   // (72)  J12-5
-#define ENET_RXD0          P1_09   // (74)  J12-7
-#define ENET_CRS           P1_08   // (76)  J12-9
-#define ENET_TX_EN         P1_04   // (77)  J12-10
-#define ENET_TXD0          P1_00   // (78)  J12-11
-#define ENET_TXD1          P1_01   // (79)  J12-12
+#define ENET_MOC                           P1_16  // (70)  J12-3
+#define REF_CLK                            P1_15  // (72)  J12-5
+#define ENET_RXD0                          P1_09  // (74)  J12-7
+#define ENET_CRS                           P1_08  // (76)  J12-9
+#define ENET_TX_EN                         P1_04  // (77)  J12-10
+#define ENET_TXD0                          P1_00  // (78)  J12-11
+#define ENET_TXD1                          P1_01  // (79)  J12-12
 
 //
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ONBOARD_SD_CS_PIN  P0_06   // Chip select for "System" SD card
+#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN          P0_15   // (52)  system defined J3-9 & AUX-3
-  #define MISO_PIN         P0_17   // (50)  system defined J3-10 & AUX-3
-  #define MOSI_PIN         P0_18   // (51)  system defined J3-10 & AUX-3
-  #define SS_PIN           P1_23   // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #define SCK_PIN                          P0_15  // (52)  system defined J3-9 & AUX-3
+  #define MISO_PIN                         P0_17  // (50)  system defined J3-10 & AUX-3
+  #define MOSI_PIN                         P0_18  // (51)  system defined J3-10 & AUX-3
+  #define SS_PIN                           P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
-  #define SCK_PIN          P0_07
-  #define MISO_PIN         P0_08
-  #define MOSI_PIN         P0_09
-  #define SS_PIN           ONBOARD_SD_CS_PIN
+  #define SCK_PIN                          P0_07
+  #define MISO_PIN                         P0_08
+  #define MOSI_PIN                         P0_09
+  #define SS_PIN               ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
