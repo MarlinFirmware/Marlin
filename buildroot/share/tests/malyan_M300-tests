@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F070CB Malyan M300
+#
+
+# exit on first failure
+set -e
+
+use_example_configs delta/generic
+opt_set MOTHERBOARD BOARD_MALYAN_M300
+opt_set SERIAL_PORT -1
+opt_enable MALYAN_LCD
+opt_disable PSU_CONTROL
+exec_test $1 $2 "Malyan M300"
+
+# cleanup
+restore_configs
