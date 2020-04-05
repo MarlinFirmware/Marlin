@@ -1545,7 +1545,7 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
       );
     }
 
-    if (mmDelta > 0) 
+    if (mmDelta != 0) 
     {
       // retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
