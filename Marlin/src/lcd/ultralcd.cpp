@@ -1551,17 +1551,18 @@ void MarlinUI::update() {
     }
 
     if (status) {
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onMediaInserted();   // ExtUI response
-      #endif
-      if (old_status < 2)
+      if (old_status < 2) {
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaInserted(); // ExtUI response
+        #endif
         set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+      }
     }
     else {
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onMediaRemoved();    // ExtUI response
-      #endif
       if (old_status < 2) {
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaRemoved();  // ExtUI response
+        #endif
         #if PIN_EXISTS(SD_DETECT)
           set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
           #if HAS_LCD_MENU
