@@ -549,10 +549,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  #define MSG_1_LINE(A)     A "\0"   "\0"
-  #define MSG_2_LINE(A,B)   A "\0" B "\0"
-  #define MSG_3_LINE(A,B,C) A "\0" B "\0" C
-
   //
   // Filament Değişim ekranları 4 satırlı ekranda 3 satıra kadar gösterilir
   //                        ...veya 3 satırlı ekranda 2 satıra kadar
