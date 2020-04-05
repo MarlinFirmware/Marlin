@@ -185,7 +185,7 @@
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
 
 #define STR_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
-#define STR_SD_INIT_FAIL                    "SD init fail"
+#define STR_SD_INIT_FAIL                    "No SD card"
 #define STR_SD_VOL_INIT_FAIL                "volume.init failed"
 #define STR_SD_OPENROOT_FAIL                "openRoot failed"
 #define STR_SD_CARD_OK                      "SD card ok"
