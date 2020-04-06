@@ -39,7 +39,7 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
 
   #define GRID_ROWS 3
   #define GRID_COLS 2
-    
+
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled))
