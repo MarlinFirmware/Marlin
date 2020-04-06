@@ -20,11 +20,10 @@
  *
  */
 
-/*
- * Driver for the PCA9533 LED controller found on the MightyBoard
- * used by FlashForge Creator Pro, etc.
- * Written 2020 APR 01 by grauerfuchs
-*/
+/**
+ * PCA9533 LED controller driver (MightyBoard, FlashForge Creator Pro, etc.)
+ *  by @grauerfuchs - 1 Apr 2020
+ */
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(PCA9533)
@@ -69,62 +68,49 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
 
   uint8_t op_g = 0, op_r = 0, op_b = 0; // Opcodes - Green, Red, Blue
 
-  // Light theory, anyone? GREEN will take priority because
+  // Light theory! GREEN takes priority because
   // it's the most visible to the human eye.
-  if (green == 0)
-    op_g = PCA9533_LED_OP_OFF;
-  else if (green == 255)
-    op_g = PCA9533_LED_OP_ON;
-  else {
-    op_g = PCA9533_LED_OP_PWM0;
-    r_pwm0 = green;
-  } // end GREEN
+       if (green ==   0)  op_g = PCA9533_LED_OP_OFF;
+  else if (green == 255)  op_g = PCA9533_LED_OP_ON;
+  else { r_pwm0 = green;  op_g = PCA9533_LED_OP_PWM0; }
 
-  // process RED
-  if (red == 0)
-    op_r = PCA9533_LED_OP_OFF;
-  else if (red == 255)
-    op_r = PCA9533_LED_OP_ON;
+  // RED
+       if (red ==   0)    op_r = PCA9533_LED_OP_OFF;
+  else if (red == 255)    op_r = PCA9533_LED_OP_ON;
   else if (r_pwm0 == 0 || r_pwm0 == red) {
-    op_r = PCA9533_LED_OP_PWM0;
-    r_pwm0  = red;
+         r_pwm0 = red;    op_r = PCA9533_LED_OP_PWM0;
   }
   else {
-    op_r = PCA9533_LED_OP_PWM1;
-    r_pwm1 = red;
-  } // end RED
+         r_pwm1 = red;    op_r = PCA9533_LED_OP_PWM1;
+  }
 
-  // process BLUE
-  if (blue == 0)
-    op_b = PCA9533_LED_OP_OFF;
-  else if (blue == 255)
-    op_b = PCA9533_LED_OP_ON;
+  // BLUE
+       if (blue ==   0)   op_b = PCA9533_LED_OP_OFF;
+  else if (blue == 255)   op_b = PCA9533_LED_OP_ON;
   else if (r_pwm0 == 0 || r_pwm0 == blue) {
-    op_b = PCA9533_LED_OP_PWM0;
-    r_pwm0 = blue;
+         r_pwm0 = blue;   op_b = PCA9533_LED_OP_PWM0;
   }
   else if (r_pwm1 == 0 || r_pwm1 == blue) {
-    op_b = PCA9533_LED_OP_PWM1;
-    r_pwm1 = blue;
+         r_pwm1 = blue;   op_b = PCA9533_LED_OP_PWM1;
   }
   else {
     /**
-     * We have a conflict. 3 values are requested, but 2 channels exist.
-     * We know G is on channel 0 and R is on channel 1. Work from there.
-     * Find the closest match and average the values, then use the free channel.
+     * Conflict. 3 values are requested but only 2 channels exist.
+     * G is on channel 0 and R is on channel 1, so work from there.
+     * Find the closest match, average the values, then use the free channel.
      */
     uint8_t dgb = ABS(green - blue),
             dgr = ABS(green - red),
             dbr = ABS(blue - red);
-    if (dgb < dgr && dgb < dbr) { // Mix with green on channel 0.
+    if (dgb < dgr && dgb < dbr) {         // Mix with G on channel 0.
       op_b = PCA9533_LED_OP_PWM0;
       r_pwm0 = uint8_t(((uint16_t)green + (uint16_t)blue) / 2);
     }
-    else if (dbr <= dgr && dbr <= dgb) { // Mix with red on channel 1
+    else if (dbr <= dgr && dbr <= dgb) {  // Mix with R on channel 1.
       op_b = PCA9533_LED_OP_PWM1;
       r_pwm1 = uint8_t(((uint16_t)red + (uint16_t)blue) / 2);
     }
-    else { // Mix red and green on channel 0 and use channel 1.
+    else {                                // Mix R+G on 0 and put B on 1.
       op_r = PCA9533_LED_OP_PWM0;
       r_pwm0 = uint8_t(((uint16_t)green + (uint16_t)red) / 2);
       op_b = PCA9533_LED_OP_PWM1;
@@ -133,12 +119,8 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
   }
 
   // Write the changes to the hardware
-  PCA9533_writeAllRegisters(
-    0, r_pwm0, 0, r_pwm1, (
-        (op_g << PCA9533_LED_OFS_GRN)
-      | (op_r << PCA9533_LED_OFS_RED)
-      | (op_b << PCA9533_LED_OFS_BLU)
-    )
+  PCA9533_writeAllRegisters(0, r_pwm0, 0, r_pwm1,
+    (op_g << PCA9533_LED_OFS_GRN) | (op_r << PCA9533_LED_OFS_RED) | (op_b << PCA9533_LED_OFS_BLU)
   );
 }
 
