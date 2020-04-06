@@ -25,6 +25,10 @@
  * used by FlashForge Creator Pro, etc.
  * Written 2020 APR 01 by grauerfuchs
 */
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(PCA9533)
+
 #include "pca9533.h"
 #include <Wire.h>
 
@@ -65,7 +69,7 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
 
   uint8_t op_g = 0, op_r = 0, op_b = 0; // Opcodes - Green, Red, Blue
 
-  // Light theory, anyone? GREEN will take priority because 
+  // Light theory, anyone? GREEN will take priority because
   // it's the most visible to the human eye.
   if (green == 0)
     op_g = PCA9533_LED_OP_OFF;
@@ -82,7 +86,7 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
   else if (red == 255)
     op_r = PCA9533_LED_OP_ON;
   else if (r_pwm0 == 0 || r_pwm0 == red) {
-    op_r = PCA9533_LED_OP_PWM0; 
+    op_r = PCA9533_LED_OP_PWM0;
     r_pwm0  = red;
   }
   else {
@@ -96,7 +100,7 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
   else if (blue == 255)
     op_b = PCA9533_LED_OP_ON;
   else if (r_pwm0 == 0 || r_pwm0 == blue) {
-    op_b = PCA9533_LED_OP_PWM0; 
+    op_b = PCA9533_LED_OP_PWM0;
     r_pwm0 = blue;
   }
   else if (r_pwm1 == 0 || r_pwm1 == blue) {
@@ -121,7 +125,7 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
       r_pwm1 = uint8_t(((uint16_t)red + (uint16_t)blue) / 2);
     }
     else { // Mix red and green on channel 0 and use channel 1.
-      op_r = PCA9533_LED_OP_PWM0; 
+      op_r = PCA9533_LED_OP_PWM0;
       r_pwm0 = uint8_t(((uint16_t)green + (uint16_t)red) / 2);
       op_b = PCA9533_LED_OP_PWM1;
       r_pwm1 = blue;
@@ -137,3 +141,5 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
     )
   );
 }
+
+#endif // PCA9533
