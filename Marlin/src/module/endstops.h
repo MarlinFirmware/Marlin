@@ -29,13 +29,14 @@
 #include <stdint.h>
 
 enum EndstopEnum : char {
-  X_MIN,  Y_MIN,  Z_MIN,  Z_MIN_PROBE,
+  X_MIN,  Y_MIN,  Z_MIN, Z_MIN_PROBE,
   X_MAX,  Y_MAX,  Z_MAX,
   X2_MIN, X2_MAX,
   Y2_MIN, Y2_MAX,
   Z2_MIN, Z2_MAX,
   Z3_MIN, Z3_MAX,
-  Z4_MIN, Z4_MAX
+  Z4_MIN, Z4_MAX,
+  E_MIN,  E_MAX,  Z_MIN_M167
 };
 
 #define X_ENDSTOP (x_home_dir(active_extruder) < 0 ? X_MIN : X_MAX)

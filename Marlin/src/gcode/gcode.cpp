@@ -408,6 +408,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
 
+      #if ENABLED(DRILLING_CANNED_CYCLES)
+        case 81: G81(); break;
+        case 82: G82(); break;  
+        case 83: G83(); break; 
+      #endif
+
       case 90: set_relative_mode(false); break;                   // G90: Absolute Mode
       case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
 
@@ -629,6 +635,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
         #if ENABLED(GRADIENT_MIX)
           case 166: M166(); break;                                // M166: Set Gradient Mix
+        #endif
+        #if ENABLED(CNC_5X)
+            case 167: M167(); break;
+            case 168: M168(); break;                                
         #endif
       #endif
 

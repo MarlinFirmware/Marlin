@@ -256,6 +256,14 @@ void setup_endstop_interrupts() {
       pciSetup(Z_MIN_PROBE_PIN);
     #endif
   #endif
+  #if HAS_Z_MIN_M167_PIN
+    #if (digitalPinToInterrupt(Z_MIN_M167_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(Z_MIN_M167_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(Z_MIN_M167_PIN), "Z_MIN_M167_PIN is not interrupt-capable");
+      pciSetup(Z_MIN_M167_PIN);
+    #endif
+  #endif
 
   // If we arrive here without raising an assertion, each pin has either an EXT-interrupt or a PCI.
 }
