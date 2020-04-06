@@ -148,7 +148,7 @@ class BedMeshScreen : public BaseScreen, public CachedScreen<BED_MESH_SCREEN_CAC
     static void tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y);
     static float getHightlightedValue();
     static void drawHighlightedPointValue();
-    static void drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts);
+    static void drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max = 0.1);
 
   public:
     static void onMeshUpdate(const int8_t x, const int8_t y, const float val);

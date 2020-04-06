@@ -50,7 +50,7 @@ using namespace ExtUI;
   #define BACK_POS       BTN_POS(4,5), BTN_SIZE(2,1)
 #endif
 
-void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts) {
+void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max) {
   constexpr uint8_t rows       = GRID_MAX_POINTS_Y;
   constexpr uint8_t cols       = GRID_MAX_POINTS_X;
 
@@ -86,7 +86,7 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
     val_max  = 0;
   }
 
-  const float scale_z = 0.02 / ((val_max == val_min) ? 1.0 : (val_max - val_min));
+  const float scale_z = ((val_max == val_min) ? 1 : 1/(val_max - val_min)) * autoscale_max;
 
   // These equations determine the appearance of the grid on the screen.
 
@@ -259,10 +259,13 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
 
   if (what & FOREGROUND) {
     const bool levelingFinished = screen_data.BedMeshScreen.count >= GRID_MAX_POINTS;
+    const float levelingProgress = sq(float(screen_data.BedMeshScreen.count) / GRID_MAX_POINTS);
     if (levelingFinished) drawHighlightedPointValue();
 
     BedMeshScreen::drawMesh(INSET_POS(MESH_POS), ExtUI::getMeshArray(),
-      USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (levelingFinished ? USE_COLORS : 0));
+      USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (levelingFinished ? USE_COLORS : 0),
+      0.1f * levelingProgress
+    );
   }
 }
 
