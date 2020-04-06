@@ -25,10 +25,7 @@
  * Driver for the PCA9533 LED controller found on the MightyBoard
  * used by FlashForge Creator Pro, MakerBot, etc.
  * Written 2020 APR 01 by grauerfuchs
-*/
-#ifndef PCA9533_H_
-#define PCA9533_H_
-
+ */
 #include <Arduino.h>
 
 #define ENABLE_I2C_PULLUPS
@@ -60,5 +57,3 @@ void PCA9533_init();
 void PCA9533_reset();
 void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue);
 void PCA9533_setOff();
-
-#endif
