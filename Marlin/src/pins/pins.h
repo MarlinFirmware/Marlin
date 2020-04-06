@@ -468,7 +468,7 @@
 // STM32 ARM Cortex-M0
 //
 #elif MB(MALYAN_M300)
-  #include "stm32f0/pins_MALYAN_M300.h"         // STM32F070
+  #include "stm32f0/pins_MALYAN_M300.h"         // STM32F070                              env:malyan_M300
 
 //
 // STM32 ARM Cortex-M3

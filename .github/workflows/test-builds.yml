@@ -44,6 +44,7 @@ jobs:
 
         # Extended STM32 Environments
 
+        - malyan_M300
         - STM32F103RC_btt
         - STM32F103RC_btt_USB
         - STM32F103RE_btt
