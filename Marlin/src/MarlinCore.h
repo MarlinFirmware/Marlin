@@ -62,6 +62,11 @@ inline void idle_no_sleep() {
   extern bool G38_did_trigger;      // Flag from the ISR to indicate the endstop changed
 #endif
 
+#if ENABLED(CNC_5X)
+  extern uint8_t M167_move;          // Flag to tell the ISR that M167 is in progress, and the type
+  extern bool M167_did_trigger;      // Flag from the ISR to indicate the endstop changed
+#endif
+
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
@@ -134,5 +139,6 @@ void protected_pin_err();
 
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
                   SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
-                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
+                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[],
+                  A_LBL[], C_LBL[], SP_A_LBL[], SP_C_LBL[];
 

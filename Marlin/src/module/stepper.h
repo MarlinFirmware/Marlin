@@ -342,7 +342,7 @@ class Stepper {
     //
     // Exact steps at which an endstop was triggered
     //
-    static xyz_long_t endstops_trigsteps;
+    static xyze_long_t endstops_trigsteps;
 
     //
     // Positions of stepper motors, in step units
@@ -411,7 +411,7 @@ class Stepper {
     static void set_axis_position(const AxisEnum a, const int32_t &v);
 
     // Report the positions of the steppers, in steps
-    static void report_a_position(const xyz_long_t &pos);
+    static void report_a_position(const xyze_long_t &pos);
     static void report_positions();
 
     // Quickly stop all steppers

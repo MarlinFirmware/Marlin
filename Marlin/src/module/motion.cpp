@@ -70,14 +70,21 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-#define XYZ_CONSTS(T, NAME, OPT) const PROGMEM XYZval<T> NAME##_P = { X_##OPT, Y_##OPT, Z_##OPT }
+#define XYZE_CONSTS(T, NAME, OPT) const PROGMEM XYZEval<T> NAME##_P = { X_##OPT, Y_##OPT, Z_##OPT, E_##OPT }
 
-XYZ_CONSTS(float, base_min_pos,   MIN_POS);
-XYZ_CONSTS(float, base_max_pos,   MAX_POS);
-XYZ_CONSTS(float, base_home_pos,  HOME_POS);
-XYZ_CONSTS(float, max_length,     MAX_LENGTH);
-XYZ_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_CONSTS(signed char, home_dir, HOME_DIR);
+XYZE_CONSTS(float, base_min_pos,   MIN_POS);
+XYZE_CONSTS(float, base_max_pos,   MAX_POS);
+XYZE_CONSTS(float, base_home_pos,  HOME_POS);
+XYZE_CONSTS(float, max_length,     MAX_LENGTH);
+XYZE_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
+XYZE_CONSTS(signed char, home_dir, HOME_DIR);
+
+extern double OA_5,
+              OC_5;
+
+extern int HomeDir5x,
+           Home5x;
+
 
 /**
  * axis_homed
@@ -99,7 +106,7 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
+xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS, E_HOME_POS };
 
 /**
  * Cartesian Destination
@@ -217,7 +224,7 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_E_LBL, lpos.e);
+  SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_A_LBL, OA_5, SP_C_LBL, OA_5, SP_E_LBL, lpos.e);
 }
 
 // Report the real current position according to the steppers.
@@ -1510,7 +1517,15 @@ void homeaxis(const AxisEnum axis) {
     #else
       #define CAN_HOME_Z _CAN_HOME(Z)
     #endif
-    if (!CAN_HOME_X && !CAN_HOME_Y && !CAN_HOME_Z) return;
+
+    #if ENABLED(CNC_5X)
+      #define CAN_HOME_E _CAN_HOME(E)
+      if (!CAN_HOME_X && !CAN_HOME_Y && !CAN_HOME_Z && !CAN_HOME_E) return;
+
+    #else
+     if (!CAN_HOME_X && !CAN_HOME_Y && !CAN_HOME_Z) return;
+    #endif
+    
   #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");
@@ -1574,13 +1589,31 @@ void homeaxis(const AxisEnum axis) {
 
   // If a second homing move is configured...
   if (bump) {
-    // Move away from the endstop by the axis HOME_BUMP_MM
+    // Move away from the endstop by the axis HOME_BUMP_MM   
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away:");
+    
+    if(Home5x==1){
+
+      if (HomeDir5x==0 || HomeDir5x==2) {OUT_WRITE(EA_DIR_PIN,INVERT_EA_DIR);} else {OUT_WRITE(EA_DIR_PIN,!INVERT_EA_DIR);}
+    
+      if (HomeDir5x==0 || HomeDir5x==1) {OUT_WRITE(EB_DIR_PIN,INVERT_EB_DIR);} else {OUT_WRITE(EB_DIR_PIN,!INVERT_EB_DIR);}
+
+      do_homing_move(axis, bump);
+
+      if (HomeDir5x==0 || HomeDir5x==2) {OUT_WRITE(EA_DIR_PIN,!INVERT_EA_DIR);} else {OUT_WRITE(EA_DIR_PIN,INVERT_EA_DIR);}
+    
+      if (HomeDir5x==0 || HomeDir5x==1) {OUT_WRITE(EB_DIR_PIN,!INVERT_EB_DIR);} else {OUT_WRITE(EB_DIR_PIN,INVERT_EB_DIR);}
+
+
+    }
+    else{
     do_homing_move(axis, -bump
       #if HOMING_Z_WITH_PROBE
         , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0)
       #endif
     );
+
+    }
 
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");

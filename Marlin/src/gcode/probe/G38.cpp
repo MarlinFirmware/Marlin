@@ -32,7 +32,7 @@
 #include "../../module/probe.h"
 
 inline void G38_single_probe(const uint8_t move_value) {
-  endstops.enable(true);
+  endstops.enable(true);\
   G38_move = move_value;
   prepare_line_to_destination();
   planner.synchronize();
@@ -46,10 +46,10 @@ inline bool G38_run_probe() {
 
   bool G38_pass_fail = false;
 
-  #if MULTIPLE_PROBING > 1
+  #if MULTIPLE_PROBING_G38 > 1
     // Get direction of move and retract
-    xyz_float_t retract_mm;
-    LOOP_XYZ(i) {
+    xyze_float_t retract_mm;
+    LOOP_XYZE(i) {
       const float dist = destination[i] - current_position[i];
       retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
@@ -73,7 +73,7 @@ inline bool G38_run_probe() {
 
     G38_pass_fail = true;
 
-    #if MULTIPLE_PROBING > 1
+    #if MULTIPLE_PROBING_G38 > 1
       // Move away by the retract distance
       destination = current_position + retract_mm;
       endstops.enable(false);
@@ -119,7 +119,7 @@ void GcodeSuite::G38(const int8_t subcode) {
   ;
 
   // If any axis has enough movement, do the move
-  LOOP_XYZ(i)
+  LOOP_XYZE(i)
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error

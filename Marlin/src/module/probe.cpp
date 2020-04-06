@@ -505,7 +505,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
         #else
           Z_MIN_PROBE
         #endif
-      )
+      )||TEST(endstops.trigger_state(),Z_MIN_M167)
     #endif
   ;
 

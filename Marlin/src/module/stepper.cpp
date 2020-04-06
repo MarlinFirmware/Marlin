@@ -232,7 +232,7 @@ int32_t Stepper::ticks_nominal = -1;
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
-xyz_long_t Stepper::endstops_trigsteps;
+xyze_long_t Stepper::endstops_trigsteps;
 xyze_long_t Stepper::count_position{0};
 xyze_int8_t Stepper::count_direction{0};
 
@@ -1854,7 +1854,8 @@ uint32_t Stepper::block_phase_isr() {
       if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
-      //if (!!current_block->steps.e) SBI(axis_bits, E_AXIS);
+      
+      if (!!current_block->steps.e) SBI(axis_bits, E_AXIS);
       //if (!!current_block->steps.a) SBI(axis_bits, X_HEAD);
       //if (!!current_block->steps.b) SBI(axis_bits, Y_HEAD);
       //if (!!current_block->steps.c) SBI(axis_bits, Z_HEAD);
@@ -2448,7 +2449,7 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
-void Stepper::report_a_position(const xyz_long_t &pos) {
+void Stepper::report_a_position(const xyze_long_t &pos) {
   #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
     SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
   #else
@@ -2468,7 +2469,7 @@ void Stepper::report_positions() {
     const bool was_enabled = suspend();
   #endif
 
-  const xyz_long_t pos = count_position;
+  const xyze_long_t pos = count_position;
 
   #ifdef __AVR__
     if (was_enabled) wake_up();

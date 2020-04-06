@@ -81,4 +81,7 @@ void setup_endstop_interrupts() {
   #if HAS_Z_MIN_PROBE_PIN
     _ATTACH(Z_MIN_PROBE_PIN);
   #endif
+    #if HAS_Z_MIN_M167_PIN
+    _ATTACH(Z_MIN_M167_PIN);
+  #endif
 }

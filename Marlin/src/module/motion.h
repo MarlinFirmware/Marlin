@@ -117,16 +117,16 @@ extern int16_t feedrate_percentage;
 FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
 FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
-#define XYZ_DEFS(T, NAME, OPT) \
-  extern const XYZval<T> NAME##_P; \
+#define XYZE_DEFS(T, NAME, OPT) \
+  extern const XYZEval<T> NAME##_P; \
   FORCE_INLINE T NAME(AxisEnum axis) { return pgm_read_any(&NAME##_P[axis]); }
 
-XYZ_DEFS(float, base_min_pos,   MIN_POS);
-XYZ_DEFS(float, base_max_pos,   MAX_POS);
-XYZ_DEFS(float, base_home_pos,  HOME_POS);
-XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_DEFS(signed char, home_dir, HOME_DIR);
+XYZE_DEFS(float, base_min_pos,   MIN_POS);
+XYZE_DEFS(float, base_max_pos,   MAX_POS);
+XYZE_DEFS(float, base_home_pos,  HOME_POS);
+XYZE_DEFS(float, max_length,     MAX_LENGTH);
+XYZE_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
+XYZE_DEFS(signed char, home_dir, HOME_DIR);
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);

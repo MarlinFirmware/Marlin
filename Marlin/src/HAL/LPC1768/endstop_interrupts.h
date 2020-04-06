@@ -122,4 +122,10 @@ void setup_endstop_interrupts() {
     #endif
     _ATTACH(Z_MIN_PROBE_PIN);
   #endif
+  #if HAS_Z_MIN_M167_PIN
+    #if !LPC1768_PIN_INTERRUPT_M(Z_MIN_M167_PIN)
+      #error "Z_MIN_M167_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(Z_MIN_M167_PIN);
+  #endif
 }

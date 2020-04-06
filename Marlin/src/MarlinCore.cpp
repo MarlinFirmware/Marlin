@@ -127,6 +127,11 @@
   bool G38_did_trigger; // = false
 #endif
 
+#if ENABLED(CNC_5X)
+  uint8_t M167_move; // = 0
+  bool M167_did_trigger; // = false
+#endif
+
 #if ENABLED(DELTA)
   #include "module/delta.h"
 #elif IS_SCARA
@@ -196,10 +201,14 @@ const char NUL_STR[] PROGMEM = "",
               X_LBL[] PROGMEM =  "X:",
               Y_LBL[] PROGMEM =  "Y:",
               Z_LBL[] PROGMEM =  "Z:",
+              A_LBL[] PROGMEM =  "A:",
+              C_LBL[] PROGMEM =  "C:",
               E_LBL[] PROGMEM =  "E:",
            SP_X_LBL[] PROGMEM = " X:",
            SP_Y_LBL[] PROGMEM = " Y:",
            SP_Z_LBL[] PROGMEM = " Z:",
+           SP_A_LBL[] PROGMEM = " A:",
+           SP_C_LBL[] PROGMEM = " C:",
            SP_E_LBL[] PROGMEM = " E:";
 
 MarlinState marlin_state = MF_INITIALIZING;

@@ -276,6 +276,38 @@ void Endstops::init() {
     #endif
   #endif
 
+  #if HAS_E_MAX
+    #if ENABLED(ENDSTOPPULLUP_EMAX)
+      SET_INPUT_PULLUP(E_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_EMAX)
+      SET_INPUT_PULLDOWN(E_MAX_PIN);
+    #else
+      SET_INPUT(E_MAX_PIN);
+    #endif
+  #endif
+
+  #if HAS_E_MIN
+    #if ENABLED(ENDSTOPPULLUP_EMIN)
+      SET_INPUT_PULLUP(E_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_EMIN)
+      SET_INPUT_PULLDOWN(E_MIN_PIN);
+    #else
+      SET_INPUT(E_MIN_PIN);
+    #endif
+  #endif
+
+  #if HAS_Z_MIN_M167_PIN
+    #if ENABLED(ENDSTOPPULLUP_ZM167)
+      SET_INPUT_PULLUP(Z_MIN_M167_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_ZM167)
+      SET_INPUT_PULLDOWN(Z_MIN_PIN);
+    #else
+      SET_INPUT(Z_MIN_M167_PIN);
+    #endif
+  #endif
+  
+
+
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
   #endif
@@ -367,7 +399,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_SPI_LCD
-      char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
+      char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ', chrE = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
       #define _SET_STOP_CHAR(A,C) ;
@@ -376,7 +408,7 @@ void Endstops::event_handler() {
     #define _ENDSTOP_HIT_ECHO(A,C) do{ \
       SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); \
       _SET_STOP_CHAR(A,C); }while(0)
-
+    
     #define _ENDSTOP_HIT_TEST(A,C) \
       if (TEST(hit_state, A ##_MIN) || TEST(hit_state, A ##_MAX)) \
         _ENDSTOP_HIT_ECHO(A,C)
@@ -384,21 +416,35 @@ void Endstops::event_handler() {
     #define ENDSTOP_HIT_TEST_X() _ENDSTOP_HIT_TEST(X,'X')
     #define ENDSTOP_HIT_TEST_Y() _ENDSTOP_HIT_TEST(Y,'Y')
     #define ENDSTOP_HIT_TEST_Z() _ENDSTOP_HIT_TEST(Z,'Z')
+    #define ENDSTOP_HIT_TEST_E() _ENDSTOP_HIT_TEST(E,'E')
 
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
     ENDSTOP_HIT_TEST_X();
     ENDSTOP_HIT_TEST_Y();
     ENDSTOP_HIT_TEST_Z();
+    
+    #if ENABLED(CNC_5X)
+
+    ENDSTOP_HIT_TEST_E();
+
+    #endif
+
 
     #if HAS_CUSTOM_PROBE_PIN
       #define P_AXIS Z_AXIS
       if (TEST(hit_state, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
+    
+      #if ENABLED(CNC_5X)
+        if (TEST(hit_state, Z_MIN_M167)) _ENDSTOP_HIT_ECHO(P, 'P');  
+      #endif
+      
     #endif
+
     SERIAL_EOL();
 
     #if HAS_SPI_LCD
-      ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP);
+      ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c %c "), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP, chrE);
     #endif
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
@@ -473,8 +519,25 @@ void _O2 Endstops::report_states() {
   #if HAS_Z4_MAX
     ES_REPORT(Z4_MAX);
   #endif
+  #if HAS_E_MIN
+    ES_REPORT(E_MIN);
+  #endif
+  #if HAS_E_MAX
+    ES_REPORT(E_MAX);
+  #endif
+
+  #if HAS_Z_MIN_M167_PIN
+    ES_REPORT(Z_MIN_M167);
+  #endif
+  
   #if HAS_CUSTOM_PROBE_PIN
     print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(STR_Z_PROBE));
+
+    #if HAS_Z_MIN_M167_PIN
+  
+    print_es_state(READ(Z_MIN_M167_PIN) != Z_MIN_M167_ENDSTOP_INVERTING, PSTR(STR_Z_MIN_M167));
+    #endif
+
   #endif
   #if HAS_FILAMENT_SENSOR
     #if NUM_RUNOUT_SENSORS == 1
@@ -524,6 +587,10 @@ void Endstops::update() {
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
     if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
+  #endif
+
+    #if ENABLED(CNC_5X) && PIN_EXISTS(Z_MIN_M167) && !(CORE_IS_XY || CORE_IS_XZ)
+    if (M167_move) UPDATE_ENDSTOP_BIT(Z, MIN_M167);
   #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
@@ -629,6 +696,19 @@ void Endstops::update() {
   #if HAS_CUSTOM_PROBE_PIN
     UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
+
+  #if HAS_E_MIN
+    UPDATE_ENDSTOP_BIT(E, MIN);
+  #endif
+
+  #if HAS_Z_MIN_M167_PIN
+    UPDATE_ENDSTOP_BIT(Z, MIN_M167);
+  #endif
+
+  #if HAS_E_MAX
+    UPDATE_ENDSTOP_BIT(E, MAX);
+  #endif
+
 
   #if HAS_Z_MAX && !Z_SPI_SENSORLESS
     // Check both Z dual endstops
@@ -750,6 +830,11 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
+  #if ENABLED(CNC_5X)
+    #define PROCESS_ENDSTOP_E(MINMAX) PROCESS_ENDSTOP(E, MINMAX)
+  #endif
+
+
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     #if ENABLED(G38_PROBE_AWAY)
       #define _G38_OPEN_STATE (G38_move >= 4)
@@ -762,6 +847,19 @@ void Endstops::update() {
       else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
       else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
       G38_did_trigger = true;
+    }
+  #endif
+
+  #if ENABLED(CNC_5X) && PIN_EXISTS(Z_MIN_M167) && !(CORE_IS_XY || CORE_IS_XZ)
+
+      #define _M167_OPEN_STATE LOW
+
+    // If M167 command is active check Z_MIN_M167 for ALL movement
+    if (M167_move && TEST_ENDSTOP(_ENDSTOP(Z, MIN_M167)) != _M167_OPEN_STATE) {
+           if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
+      else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
+      else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
+      M167_did_trigger = true;
     }
   #endif
 
@@ -809,6 +907,9 @@ void Endstops::update() {
       #if HAS_CUSTOM_PROBE_PIN
         if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
       #endif
+      #if HAS_Z_MIN_M167_PIN
+        if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_M167); // M167_Z
+      #endif
     }
     else { // Z +direction. Gantry up, bed down.
       #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_DIR > 0)
@@ -817,6 +918,21 @@ void Endstops::update() {
         #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN  // No probe or probe is Z_MIN || Probe is not Z_MAX
           PROCESS_ENDSTOP(Z, MAX);
         #endif
+      #endif
+    }
+  }
+
+  if (stepper.axis_is_moving(E_AXIS)) {
+    if (stepper.motor_direction(E_AXIS)) { // -direction
+
+      #if HAS_E_MIN
+        PROCESS_ENDSTOP_E(MIN);
+      #endif
+    }
+    else { // +direction
+
+      #if HAS_E_MAX
+        PROCESS_ENDSTOP_E(MAX);
       #endif
     }
   }
@@ -907,6 +1023,9 @@ void Endstops::update() {
     #if HAS_Z_MIN_PROBE_PIN
       ES_GET_STATE(Z_MIN_PROBE);
     #endif
+    #if HAS_Z_MIN_M167_PIN
+      ES_GET_STATE(Z_MIN_M167);
+    #endif
     #if HAS_X2_MIN
       ES_GET_STATE(X2_MIN);
     #endif
@@ -937,6 +1056,12 @@ void Endstops::update() {
     #if HAS_Z4_MAX
       ES_GET_STATE(Z4_MAX);
     #endif
+    #if HAS_E_MIN
+      ES_GET_STATE(E_MIN);
+    #endif
+    #if HAS_E_MAX
+      ES_GET_STATE(E_MAX);
+    #endif
 
     uint16_t endstop_change = live_state_local ^ old_live_state_local;
     #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPAIR("  " STRINGIFY(S) ":", TEST(live_state_local, S))
@@ -962,6 +1087,9 @@ void Endstops::update() {
       #endif
       #if HAS_Z_MIN_PROBE_PIN
         ES_REPORT_CHANGE(Z_MIN_PROBE);
+      #endif
+      #if HAS_Z_MIN_M167_PIN
+        ES_REPORT_CHANGE(Z_MIN_M167);
       #endif
       #if HAS_X2_MIN
         ES_REPORT_CHANGE(X2_MIN);
@@ -993,6 +1121,13 @@ void Endstops::update() {
       #if HAS_Z4_MAX
         ES_REPORT_CHANGE(Z4_MAX);
       #endif
+      #if HAS_E_MIN
+        ES_REPORT_CHANGE(E_MIN);
+      #endif
+      #if HAS_E_MAX
+        ES_REPORT_CHANGE(E_MAX);
+      #endif
+      
       SERIAL_ECHOLNPGM("\n");
       analogWrite(pin_t(LED_PIN), local_LED_status);
       local_LED_status ^= 255;

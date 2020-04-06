@@ -66,6 +66,7 @@
 #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
 #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
+#define E_MAX_LENGTH (E_MAX_POS - (E_MIN_POS))
 
 // Defined only if the sanity-check is bypassed
 #ifndef X_BED_SIZE
@@ -182,6 +183,12 @@
   #define Z_HOME_POS MANUAL_Z_HOME_POS
 #else
   #define Z_HOME_POS (Z_HOME_DIR < 0 ? Z_MIN_POS : Z_MAX_POS)
+#endif
+
+#ifdef MANUAL_E_HOME_POS
+  #define E_HOME_POS MANUAL_E_HOME_POS
+#else
+  #define E_HOME_POS (E_HOME_DIR < 0 ? E_MIN_POS : E_MAX_POS)
 #endif
 
 /**
@@ -1189,6 +1196,18 @@
   #if ENABLED(USE_ZMIN_PLUG)
     #define ENDSTOPPULLUP_ZMIN
   #endif
+
+  #if ENABLED(USE_EMIN_PLUG)
+    #define ENDSTOPPULLUP_EMIN
+  #endif
+
+  #if ENABLED(USE_EMAX_PLUG)
+    #define ENDSTOPPULLUP_EMAX
+  #endif
+
+  #if ENABLED(USE_ZM167_PLUG)
+    #define ENDSTOPPULLUP_ZM167
+  #endif
 #endif
 
 /**
@@ -1387,6 +1406,9 @@
 #define HAS_Z4_MIN (PIN_EXISTS(Z4_MIN))
 #define HAS_Z4_MAX (PIN_EXISTS(Z4_MAX))
 #define HAS_Z_MIN_PROBE_PIN (HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE))
+#define HAS_E_MIN _HAS_STOP(E,MIN)
+#define HAS_E_MAX _HAS_STOP(E,MAX)
+#define HAS_Z_MIN_M167_PIN PIN_EXISTS(Z_MIN_M167)
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)

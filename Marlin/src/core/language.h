@@ -179,6 +179,9 @@
 #define STR_SOFT_ENDSTOPS                   "Soft endstops: "
 #define STR_SOFT_MIN                        "  Min: "
 #define STR_SOFT_MAX                        "  Max: "
+#define STR_E_MIN                           "e_min"
+#define STR_E_MAX                           "e_max"
+#define STR_Z_MIN_M167                          "M167"
 
 #define STR_SAVED_POS                       "Position saved"
 #define STR_RESTORING_POS                   "Restoring position"

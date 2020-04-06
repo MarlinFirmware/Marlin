@@ -69,12 +69,12 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
     if (enabled()) {
       #define _scaled(F) ((F - (SPEED_POWER_INTERCEPT)) * inv_slope)
       constexpr float inv_slope = RECIPROCAL(SPEED_POWER_SLOPE),
-                      min_ocr = _scaled(SPEED_POWER_MIN),
-                      max_ocr = _scaled(SPEED_POWER_MAX);
+                      min_ocr = 0, //_scaled(SPEED_POWER_MIN),
+                      max_ocr = 255; //_scaled(SPEED_POWER_MAX);
       int16_t ocr_val;
            if (inpow <= SPEED_POWER_MIN) ocr_val = min_ocr;       // Use minimum if set below
       else if (inpow >= SPEED_POWER_MAX) ocr_val = max_ocr;       // Use maximum if set above
-      else ocr_val = _scaled(inpow);                              // Use calculated OCR value
+      else ocr_val = map(power,0,SPEED_POWER_MAX,0,255); // _scaled(inpow);                              // Use calculated OCR value
       set_ocr(ocr_val & 0xFF);                                    // ...limited to Atmel PWM max
     }
     else {

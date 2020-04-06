@@ -29,6 +29,7 @@
 
 #define BOARD_INFO_NAME "BIGTREE SKR Pro 1.1" // redefined?
 
+extern int home5x;
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
@@ -42,11 +43,22 @@
 // Limit Switches
 //
 #define X_MIN_PIN                           PB10
-#define X_MAX_PIN                           PE15
+#if ENABLED (CNC_5X)
+  #define E_MIN_PIN                         PE15
+#else
+  #define X_MAX_PIN                         PE15  
+#endif
 #define Y_MIN_PIN                           PE12
-#define Y_MAX_PIN                           PE10
+#if ENABLED (CNC_5X)
+  #define Z_MIN_M167_PIN                    PE10
+  #define E_MAX_PIN                         PE6
+#else
+  #define Y_MAX_PIN                         PE10
+#endif
 #define Z_MIN_PIN                           PG8
 #define Z_MAX_PIN                           PG5
+
+
 
 //
 // Z Probe must be this pins
@@ -80,14 +92,24 @@
 #endif
 
 #define E0_STEP_PIN                         PE14
-#define E0_DIR_PIN                          PA0
+#if ENABLED(CNC_5X)
+  #define E0_DIR_PIN                      PD14  //Heater1 PIN for Workaround
+  #define EA_DIR_PIN                      PA0   //PIN for direct direction change on M168
+#else 
+  #define E0_DIR_PIN                        PA0
+#endif
 #define E0_ENABLE_PIN                       PC3
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PB3
 #endif
 
 #define E1_STEP_PIN                         PD15
-#define E1_DIR_PIN                          PE7
+#if ENABLED(CNC_5X)
+  #define E1_DIR_PIN                        PB0 //Heater2 PIN for Workaround
+  #define EB_DIR_PIN                        PE7 //PIN for direct direction change on M168
+#else
+  #define E1_DIR_PIN                        PE7
+#endif
 #define E1_ENABLE_PIN                       PA3
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PG15
@@ -171,13 +193,16 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PB1   // Heater0
-#define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#if DISABLED(CNC_5X)
+#define HEATER_1_PIN                        PD14 // Heater1
+#define HEATER_2_PIN                        PB0  // Heater2
+#endif
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
+#if DISABLED(CNC_5X)
 #define FAN2_PIN                            PE6   // Fan2
-
+#endif
 //
 // Misc. Functions
 //
@@ -210,6 +235,29 @@
  *               ￣￣                                               ￣￣
  *               EXP2                                              EXP1
  */
+
+//
+// Have I2C external EEPROM  (AT24C256)
+//
+#define I2C_EXT_EEPROM
+
+#if ENABLED(I2C_EXT_EEPROM)
+  #define I2C_EEPROM
+  #ifdef E2END
+     #undef E2END
+  #endif
+  #define E2END 0x7FFF // EEPROM end address AT24C256 (32kB)
+#endif
+
+//
+// M3/M4/M5 - Spindle/Laser Control
+//
+  #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
+    #define SPINDLE_LASER_ENA_PIN           TEMP_2_PIN    // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN           SERVO0_PIN   // Hardware PWM
+    #define SPINDLE_DIR_PIN                 PA2   
+  #endif
+
 
 //
 // LCDs and Controllers
