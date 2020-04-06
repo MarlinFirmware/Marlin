@@ -258,13 +258,14 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
+    constexpr float autoscale_max_amplitude = 0.075;
     const bool levelingFinished = screen_data.BedMeshScreen.count >= GRID_MAX_POINTS;
     const float levelingProgress = sq(float(screen_data.BedMeshScreen.count) / GRID_MAX_POINTS);
     if (levelingFinished) drawHighlightedPointValue();
 
     BedMeshScreen::drawMesh(INSET_POS(MESH_POS), ExtUI::getMeshArray(),
       USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (levelingFinished ? USE_COLORS : 0),
-      0.1f * levelingProgress
+      autoscale_max_amplitude * levelingProgress
     );
   }
 }
