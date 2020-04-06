@@ -40,6 +40,7 @@ static void PCA9533_writeAllRegisters(uint8_t psc0, uint8_t pwm0, uint8_t psc1, 
   Wire.endTransmission();
   delayMicroseconds(1);
 }
+
 static void PCA9533_writeRegister(uint8_t reg, uint8_t val){
   uint8_t data[2] = { reg, val };
   Wire.beginTransmission(PCA9533_Addr >> 1);
@@ -62,63 +63,66 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
   uint8_t r_pwm0 = 0; // Register data - PWM value
   uint8_t r_pwm1 = 0; // Register data - PWM value
 
-  uint8_t op_g = 0; // Opcode - Green
-  uint8_t op_r = 0; // Opcode - Red
-  uint8_t op_b = 0; // Opcode - Blue
+  uint8_t op_g = 0, op_r = 0, op_b = 0; // Opcodes - Green, Red, Blue
 
   // Light theory, anyone? GREEN will take priority because 
   // it's the most visible to the human eye.
-  if (green == 0){
+  if (green == 0)
     op_g = PCA9533_LED_OP_OFF;
-  } else if (green == 255) {
+  else if (green == 255)
     op_g = PCA9533_LED_OP_ON;
-  } else {
+  else {
     op_g = PCA9533_LED_OP_PWM0;
     r_pwm0 = green;
   } // end GREEN
 
   // process RED
-  if (red == 0){
+  if (red == 0)
     op_r = PCA9533_LED_OP_OFF;
-  } else if (red == 255) {
+  else if (red == 255)
     op_r = PCA9533_LED_OP_ON;
-  } else if (r_pwm0 == 0 || r_pwm0 == red){
+  else if (r_pwm0 == 0 || r_pwm0 == red) {
     op_r = PCA9533_LED_OP_PWM0; 
     r_pwm0  = red;
-  } else {
+  }
+  else {
     op_r = PCA9533_LED_OP_PWM1;
     r_pwm1 = red;
   } // end RED
 
   // process BLUE
-  if (blue == 0){
+  if (blue == 0)
     op_b = PCA9533_LED_OP_OFF;
-  } else if (blue == 255) {
+  else if (blue == 255)
     op_b = PCA9533_LED_OP_ON;
-  } else if (r_pwm0 == 0 || r_pwm0 == blue){
+  else if (r_pwm0 == 0 || r_pwm0 == blue) {
     op_b = PCA9533_LED_OP_PWM0; 
     r_pwm0 = blue;
-  } else if (r_pwm1 == 0 || r_pwm1 == blue){
+  }
+  else if (r_pwm1 == 0 || r_pwm1 == blue) {
     op_b = PCA9533_LED_OP_PWM1;
     r_pwm1 = blue;
-  } else {
-    /*
-    * We have a conflict. 3 values are requested, but 2 channels exist.
-    * We know G is on channel 0 and R is on channel 1. Work from there.
-    * Find the closest match and average the values, then use the free channel.
-    */
-    uint8_t dgb = abs(green - blue);
-    uint8_t dgr = abs(green - red);
-    uint8_t dbr = abs(blue - red);
-    if (dgb < dgr && dgb < dbr){ // Mix with green on channel 0.
+  }
+  else {
+    /**
+     * We have a conflict. 3 values are requested, but 2 channels exist.
+     * We know G is on channel 0 and R is on channel 1. Work from there.
+     * Find the closest match and average the values, then use the free channel.
+     */
+    uint8_t dgb = ABS(green - blue),
+            dgr = ABS(green - red),
+            dbr = ABS(blue - red);
+    if (dgb < dgr && dgb < dbr) { // Mix with green on channel 0.
       op_b = PCA9533_LED_OP_PWM0;
-      r_pwm0 = (uint8_t)(((uint16_t)green + (uint16_t)blue) / 2);
-    } else if (dbr <= dgr && dbr <= dgb){ // Mix with red on channel 1
+      r_pwm0 = uint8_t(((uint16_t)green + (uint16_t)blue) / 2);
+    }
+    else if (dbr <= dgr && dbr <= dgb) { // Mix with red on channel 1
       op_b = PCA9533_LED_OP_PWM1;
-      r_pwm1 = (uint8_t)(((uint16_t)red + (uint16_t)blue) / 2);
-    } else  {// Mix red and green on channel 0 and use channel 1.
+      r_pwm1 = uint8_t(((uint16_t)red + (uint16_t)blue) / 2);
+    }
+    else { // Mix red and green on channel 0 and use channel 1.
       op_r = PCA9533_LED_OP_PWM0; 
-      r_pwm0 = (uint8_t)(((uint16_t)green + (uint16_t)red) / 2);
+      r_pwm0 = uint8_t(((uint16_t)green + (uint16_t)red) / 2);
       op_b = PCA9533_LED_OP_PWM1;
       r_pwm1 = blue;
     }
@@ -126,10 +130,10 @@ void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
 
   // Write the changes to the hardware
   PCA9533_writeAllRegisters(
-      0, r_pwm0, 0, r_pwm1, (
+    0, r_pwm0, 0, r_pwm1, (
         (op_g << PCA9533_LED_OFS_GRN)
-        | (op_r << PCA9533_LED_OFS_RED)
-        | (op_b << PCA9533_LED_OFS_BLU)
-      )
+      | (op_r << PCA9533_LED_OFS_RED)
+      | (op_b << PCA9533_LED_OFS_BLU)
+    )
   );
 }
