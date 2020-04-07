@@ -258,7 +258,7 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    constexpr float autoscale_max_amplitude = 0.075;
+    constexpr float autoscale_max_amplitude = 0.03;
     const bool levelingFinished = screen_data.BedMeshScreen.count >= GRID_MAX_POINTS;
     const float levelingProgress = sq(float(screen_data.BedMeshScreen.count) / GRID_MAX_POINTS);
     if (levelingFinished) drawHighlightedPointValue();
