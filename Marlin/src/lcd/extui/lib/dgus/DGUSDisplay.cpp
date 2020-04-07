@@ -734,10 +734,10 @@ void DGUSScreenVariableHandler::HandleSettings(DGUS_VP_Variable &var, void *val_
       #if ENABLED(PRINTCOUNTER)
         print_job_timer.initStats();
       #endif
-      queue.enqueue_now_P(PSTR("M502\nM500"));
+      queue.inject_P(PSTR("M502\nM500"));
       break;
-    case 2: queue.enqueue_now_P(PSTR("M501")); break;
-    case 3: queue.enqueue_now_P(PSTR("M500")); break;
+    case 2: queue.inject_P(PSTR("M501")); break;
+    case 3: queue.inject_P(PSTR("M500")); break;
   }
 }
 
