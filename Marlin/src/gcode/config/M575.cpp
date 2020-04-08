@@ -38,7 +38,7 @@ void GcodeSuite::M575() {
   switch (baud) {
     case 2400: case 9600: case 19200: case 38400: case 57600:
     case 115200: case 230400: case 250000: case 500000: case 1000000:
-    case 2000000: case 4000000:{
+    case 2000000: case 4000000: {
       const int8_t port = parser.intval('P', -99);
       const bool set0 = (port == -99 || port == 0) && baud != MYSERIAL0.baudrate;
       if (set0) {
@@ -68,7 +68,8 @@ void GcodeSuite::M575() {
         if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
       #endif
 
-      if (parser.seen('U')) settings.save();
+      if (parser.seen('U')) (void)settings.save();
+
     } break;
     default: SERIAL_ECHO_MSG("?(B)aud rate implausible.");
   }

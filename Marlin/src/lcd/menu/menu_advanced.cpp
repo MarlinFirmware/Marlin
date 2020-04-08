@@ -472,52 +472,51 @@ void menu_cancelobject();
 
   #if ENABLED(BAUD_RATE_GCODE)
 
-    static void lcd_set_serial1_baud() {
+    inline void enqueue_M575(const uint8_t p, const uint32_t b) {
+      cmd[20];
+      sprintf_P(cmd, PSTR("M575P%dB%ldU"), int(p), b);
+      lcd_enqueue_one_now(cmd);
+    }
+
+    static void lcd_set_serial_baud(const uint8_t p) {
       START_MENU();
-      #if NUM_SERIAL == 1
-        MENU_BACK(MSG_ADVANCED_SETTINGS);
-      #else
-        MENU_BACK(MSG_SERIAL_SELECT);
-      #endif
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2400, PSTR("M575P0B2400U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_9600, PSTR("M575P0B9600U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_19200, PSTR("M575P0B19200U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_38400, PSTR("M575P0B38400U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_57600, PSTR("M575P0B57600U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_115200, PSTR("M575P0B115200U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_230400, PSTR("M575P0B230400U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_250000, PSTR("M575P0B250000U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_500000, PSTR("M575P0B500000U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_1000000, PSTR("M575P0B1000000U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2000000, PSTR("M575P0B2000000U"));
-      MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_4000000, PSTR("M575P0B4000000U"));
+      MENU_BACK(
+        #if NUM_SERIAL > 1
+          MSG_SET_BAUDRATE
+        #else
+          MSG_ADVANCED_SETTINGS
+        #endif
+      );
+      ACTION_ITEM(MSG_SERIAL_BAUD_2400,    []{ enqueue_M575(p,    2400) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_4800,    []{ enqueue_M575(p,    4800) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_9600,    []{ enqueue_M575(p,    9600) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_19200,   []{ enqueue_M575(p,   19200) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_38400,   []{ enqueue_M575(p,   38400) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_57600,   []{ enqueue_M575(p,   57600) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_115200,  []{ enqueue_M575(p,  115200) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_230400,  []{ enqueue_M575(p,  230400) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_250000,  []{ enqueue_M575(p,  250000) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_500000,  []{ enqueue_M575(p,  500000) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_1000000, []{ enqueue_M575(p, 1000000) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_2000000, []{ enqueue_M575(p, 2000000) });
+      ACTION_ITEM(MSG_SERIAL_BAUD_4000000, []{ enqueue_M575(p, 4000000) });
       END_MENU();
     }
 
-    #if NUM_SERIAL > 1
-      static void lcd_set_serial2_baud() {
-        START_MENU();
-        MENU_BACK(MSG_SERIAL_SELECT);
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2400, PSTR("M575P1B2400U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_9600, PSTR("M575P1B9600U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_19200, PSTR("M575P1B19200U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_38400, PSTR("M575P1B38400U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_57600, PSTR("M575P1B57600U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_115200, PSTR("M575P1B115200U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_230400, PSTR("M575P1B230400U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_250000, PSTR("M575P1B250000U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_500000, PSTR("M575P1B500000U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_1000000, PSTR("M575P1B1000000U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_2000000, PSTR("M575P1B2000000U"));
-        MENU_ITEM_P(gcode, MSG_SERIAL_BAUD_4000000, PSTR("M575P1B4000000U"));
-        END_MENU();
-      }
+    #ifdef SERIAL_PORT
+      static void lcd_set_serial1_baud() { lcd_set_serial_baud(0); }
+    #endif
 
+    #ifdef SERIAL_PORT_2
+      static void lcd_set_serial2_baud() { lcd_set_serial_baud(1); }
+    #endif
+
+    #if NUM_SERIAL > 1
       static void lcd_select_serial_baud() {
         START_MENU();
         MENU_BACK(MSG_ADVANCED_SETTINGS);
-        MENU_ITEM(submenu, MSG_SELECTSERIAL0, lcd_set_serial1_baud);
-        MENU_ITEM(submenu, MSG_SELECTSERIAL1, lcd_set_serial2_baud);
+        MENU_ITEM(submenu, MSG_SET_BAUDRATE_1, lcd_set_serial1_baud);
+        MENU_ITEM(submenu, MSG_SET_BAUDRATE_2, lcd_set_serial2_baud);
         END_MENU();
       }
     #endif
@@ -579,10 +578,12 @@ void menu_advanced_settings() {
     #endif
 
     #if ENABLED(BAUD_RATE_GCODE)
-      #if (NUM_SERIAL>1)
-        MENU_ITEM(submenu, MSG_SERIAL_SELECT, lcd_select_serial_baud);
-      #else
-        MENU_ITEM(submenu, MSG_SELECTSERIAL0, lcd_set_serial1_baud);
+      #if NUM_SERIAL > 1
+        MENU_ITEM(submenu, MSG_SET_BAUDRATE, lcd_select_serial_baud);
+      #elif defined(SERIAL_PORT)
+        MENU_ITEM(submenu, MSG_SET_BAUDRATE_1, lcd_set_serial1_baud);
+      #elif defined(SERIAL_PORT_2)
+        MENU_ITEM(submenu, MSG_SET_BAUDRATE_2, lcd_set_serial2_baud);
       #endif
     #endif
 

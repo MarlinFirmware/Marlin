@@ -45,16 +45,6 @@ void lcd_sd_updir() {
 
   void MarlinUI::reselect_last_file() {
     if (sd_encoder_position == 0xFFFF) return;
-    //#if HAS_GRAPHICAL_LCD
-    //  // This is a hack to force a screen update.
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.synchronize();
-    //  safe_delay(50);
-    //  ui.synchronize();
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.drawing_screen = ui.screen_changed = true;
-    //#endif
-
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
 

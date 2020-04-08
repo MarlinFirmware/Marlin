@@ -551,6 +551,22 @@ namespace Language_en {
   PROGMEM Language_Str MSG_START_Z                         = _UxGT("Start Z:");
   PROGMEM Language_Str MSG_END_Z                           = _UxGT("  End Z:");
 
+  PROGMEM Language_Str MSG_SET_BAUDRATE                    = _UxGT("Set Baudrate");
+  PROGMEM Language_Str MSG_SET_BAUDRATE_1                  = _UxGT("Set Baudrate 1");
+  PROGMEM Language_Str MSG_SET_BAUDRATE_2                  = _UxGT("Set Baudrate 2");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_2400                = _UxGT("2400 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_9600                = _UxGT("9600 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_19200               = _UxGT("19200 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_38400               = _UxGT("38400 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_57600               = _UxGT("57600 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_115200              = _UxGT("115200 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_230400              = _UxGT("230400 Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_250000              = _UxGT("250K Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_500000              = _UxGT("500K Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_1000000             = _UxGT("1M Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_2000000             = _UxGT("2M Baud");
+  PROGMEM Language_Str MSG_SERIAL_BAUD_4000000             = _UxGT("4M Baud");
+
   PROGMEM Language_Str MSG_GAMES                           = _UxGT("Games");
   PROGMEM Language_Str MSG_BRICKOUT                        = _UxGT("Brickout");
   PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
@@ -614,49 +630,4 @@ namespace Language_en {
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
   #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
-#ifndef MSG_SERIAL_SELECT
-  #define MSG_SERIAL_SELECT                   _UxGT("Serial Port Select")
-#endif
-#ifndef MSG_SELECTSERIAL0
-  #define MSG_SELECTSERIAL0                   _UxGT("Port 0")
-#endif
-#ifndef MSG_SELECTSERIAL1
-  #define MSG_SELECTSERIAL1                   _UxGT("Port 1")
-#endif
-#ifndef MSG_SERIAL_BAUD_2400
-  #define MSG_SERIAL_BAUD_2400                _UxGT("2400 Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_9600
-  #define MSG_SERIAL_BAUD_9600                _UxGT("9600 Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_19200
-  #define MSG_SERIAL_BAUD_19200               _UxGT("19.2k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_38400
-  #define MSG_SERIAL_BAUD_38400               _UxGT("38.4k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_57600
-  #define MSG_SERIAL_BAUD_57600               _UxGT("57.6k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_115200
-  #define MSG_SERIAL_BAUD_115200              _UxGT("115.2k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_230400
-  #define MSG_SERIAL_BAUD_230400              _UxGT("230.4k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_250000
-  #define MSG_SERIAL_BAUD_250000              _UxGT("250k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_500000
-  #define MSG_SERIAL_BAUD_500000              _UxGT("500k Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_1000000
-  #define MSG_SERIAL_BAUD_1000000             _UxGT("1m Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_2000000
-  #define MSG_SERIAL_BAUD_2000000             _UxGT("2m Baud")
-#endif
-#ifndef MSG_SERIAL_BAUD_4000000
-  #define MSG_SERIAL_BAUD_4000000             _UxGT("4m Baud")
 #endif
