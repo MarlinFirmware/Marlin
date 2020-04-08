@@ -35,3 +35,7 @@
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
+
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on STM32."
+#endif

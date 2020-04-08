@@ -28,6 +28,10 @@
   #error "framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries."
 #endif
 
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on LPC176x."
+#endif
+
 /**
  * Detect an old pins file by checking for old ADC pins values.
  */

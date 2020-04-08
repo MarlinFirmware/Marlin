@@ -41,3 +41,7 @@
   #warning "With TMC2208/9 consider using SoftwareSerialM with HAVE_SW_SERIAL and appropriate SS_TIMER."
   #error "Missing SoftwareSerial implementation."
 #endif
+
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on STM32F1."
+#endif

@@ -30,9 +30,13 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+  #error "FAST_PWM_FAN is not yet implemented for Teensy 3.5/3.6."
 #endif
 
 #if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on this platform."
+  #error "TMC220x Software Serial is not supported on Teensy 3.5/3.6."
+#endif
+
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on Teensy 3.5/3.6."
 #endif

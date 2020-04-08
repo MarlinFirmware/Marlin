@@ -36,3 +36,7 @@
 #if BOTH(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
+
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on ESP32."
+#endif

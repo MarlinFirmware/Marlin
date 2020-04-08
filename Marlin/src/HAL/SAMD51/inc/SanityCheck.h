@@ -28,7 +28,7 @@
 #endif
 
 #if defined(ADAFRUIT_GRAND_CENTRAL_M4) && SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
+  #error "No custom SD drive cable defined for SAMD51."
 #endif
 
 #if defined(MAX6675_SCK_PIN) && defined(MAX6675_DO_PIN) && (MAX6675_SCK_PIN == SCK1 || MAX6675_DO_PIN == MISO1)
@@ -44,5 +44,9 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+  #error "FAST_PWM_FAN is not yet implemented for SAMD51."
+#endif
+
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on SAMD51."
 #endif
