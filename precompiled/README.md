@@ -1,0 +1,3 @@
+Disclaimer: Use this firmware at your own risk. I do not take responsibility for any damage caused to you and/or your printer.
+
+This folder contains the precompiled firmware.bin file to flash the Ender 3. Be aware that this file includes my personal BLTouch-Offset so it might not work well for you. To flash the printer simply put the file on the root of the SD-Card, put it into your printer and power it on. The first boot takes a few seconds longer because it will flash the firmware to your printer. Dig through the printer menu, set the z-Offset for the nozzle/bltouch and you´ll be good to go.
