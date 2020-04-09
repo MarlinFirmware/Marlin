@@ -342,6 +342,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Done");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Back");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Proceed");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pausing...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause Print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resume Print");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop Print");
