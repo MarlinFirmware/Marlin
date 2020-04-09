@@ -325,6 +325,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: EEPROM CRC");
   PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: EEPROM Index");
   PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: EEPROM Version");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Settings Stored");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Media Update");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset Printer");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Refresh");
