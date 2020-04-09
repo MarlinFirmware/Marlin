@@ -30,7 +30,6 @@
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
-#define NOT_EXTENDED_ISO10646_1_5X7
 
 namespace Language_gl {
   using namespace Language_en; // Inherit undefined strings from English
