@@ -374,6 +374,10 @@
 
 #endif
 
+#if EITHER(LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+  #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
+#endif
+
 /**
  * Set defaults for missing (newer) options
  */
