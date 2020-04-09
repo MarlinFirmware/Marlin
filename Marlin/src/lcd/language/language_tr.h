@@ -191,8 +191,8 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Bellek Yuvası");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Yatak Mesh Yükle");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Yatak Mesh Kayıt Et");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Mesh %i yüklendi");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Mesh %i kayıtlandı");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Mesh %i yüklendi");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Mesh %i kayıtlandı");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Depolama Yok");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Hata: UBL Kayıt");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Hata: UBL Yenileme");
