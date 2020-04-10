@@ -186,8 +186,8 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Slot Pamięci");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Załaduj siatke stołu");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Zapisz siatke stołu");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Siatka %i załadowana");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Siatka %i Zapisana");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Siatka %i załadowana");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Siatka %i Zapisana");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Brak magazynu");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Błąd: Zapis UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Bład: Odczyt UBL");

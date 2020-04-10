@@ -189,8 +189,8 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Rañura Memoria");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Cargar Malla Cama");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Gardar Malla Cama");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Malla %i Cargada");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Malla %i Gardada");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Malla %i Cargada");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Malla %i Gardada");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Sen Gardar");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Erro: Gardadado UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Erro: Recuperación UBL");

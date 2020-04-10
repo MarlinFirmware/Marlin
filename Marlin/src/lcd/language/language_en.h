@@ -190,8 +190,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Memory Slot");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Load Bed Mesh");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Save Bed Mesh");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Mesh %i Loaded");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Mesh %i Saved");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Mesh %i Loaded");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Mesh %i Saved");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("No Storage");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Err: UBL Save");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Err: UBL Restore");

@@ -178,18 +178,18 @@ void menu_cancelobject();
     int16_t autotune_temp_bed = 70;
   #endif
 
+  #include "../../gcode/queue.h"
+
   void _lcd_autotune(const int16_t e) {
     char cmd[30];
     sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), e,
       #if HAS_PID_FOR_BOTH
         e < 0 ? autotune_temp_bed : autotune_temp[e]
-      #elif ENABLED(PIDTEMPBED)
-        autotune_temp_bed
       #else
-        autotune_temp[e]
+        TERN(PIDTEMPBED, autotune_temp_bed, autotune_temp[e])
       #endif
     );
-    lcd_enqueue_one_now(cmd);
+    queue.inject(cmd);
   }
 
 #endif // PID_AUTOTUNE_MENU
