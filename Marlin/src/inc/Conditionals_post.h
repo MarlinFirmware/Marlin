@@ -1576,6 +1576,9 @@
 #if PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE)
   #define HAS_CASE_LIGHT 1
 #endif
+#if PIN_EXISTS(FREEZE)
+  #define HAS_FREEZE 1
+#endif
 
 // Digital control
 #if PIN_EXISTS(STEPPER_RESET)
