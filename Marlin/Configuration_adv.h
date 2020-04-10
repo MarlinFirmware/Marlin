@@ -3076,6 +3076,14 @@
 #endif
 
 /**
+ * Instant freeze/unfreeze functionality
+ * Specified pin has pullup and connecting to ground will instantly pause motion.
+ * Potentially useful for emergency stop that allows being resumed.
+ */
+//#define KILL_PIN -1    // optional repurpose of KILL_PIN
+//#define FREEZE_PIN 41
+
+/**
  * MAX7219 Debug Matrix
  *
  * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip as a realtime status display.
