@@ -86,11 +86,15 @@ static int serial_count[NUM_SERIAL] = { 0 };
 bool send_ok[BUFSIZE];
 
 /**
- * Next Injected Command pointer. nullptr if no commands are being injected.
- * Used by Marlin internally to ensure that commands initiated from within
- * are enqueued ahead of any pending serial or sd card commands.
+ * Next Injected PROGMEM Command pointer. (nullptr == empty)
+ * Internal commands are enqueued ahead of serial / SD commands.
  */
-static PGM_P injected_commands_P = nullptr;
+PGM_P GCodeQueue::injected_commands_P; // = nullptr
+
+/**
+ * Injected SRAM Commands
+ */
+char GCodeQueue::injected_commands[64]; // = { 0 }
 
 GCodeQueue::GCodeQueue() {
   // Send "ok" after commands by default
@@ -101,7 +105,7 @@ GCodeQueue::GCodeQueue() {
  * Check whether there are any commands yet to be executed
  */
 bool GCodeQueue::has_commands_queued() {
-  return queue.length || injected_commands_P;
+  return queue.length || injected_commands_P || injected_commands[0];
 }
 
 /**
@@ -172,11 +176,10 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
 }
 
 /**
- * Process the next "immediate" command.
- * Return 'true' if any commands were processed,
- * or remain to process.
+ * Process the next "immediate" command from PROGMEM.
+ * Return 'true' if any commands were processed.
  */
-bool GCodeQueue::process_injected_command() {
+bool GCodeQueue::process_injected_command_P() {
   if (injected_commands_P == nullptr) return false;
 
   char c;
@@ -198,12 +201,27 @@ bool GCodeQueue::process_injected_command() {
 }
 
 /**
- * Enqueue one or many commands to run from program memory.
- * Do not inject a comment or use leading spaces!
- * Aborts the current queue, if any.
- * Note: process_injected_command() will be called to drain any commands afterwards
+ * Process the next "immediate" command from SRAM.
+ * Return 'true' if any commands were processed.
  */
-void GCodeQueue::inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+bool GCodeQueue::process_injected_command() {
+  if (injected_commands[0] == '\0') return false;
+
+  char c;
+  size_t i = 0;
+  while ((c = injected_commands[i]) && c != '\n') i++;
+
+  // Execute a non-blank command
+  if (i) {
+    injected_commands[i] = '\0';
+    parser.parse(injected_commands);
+    gcode.process_parsed_command();
+  }
+
+  // Copy the next command into place
+  strcpy(injected_commands, &injected_commands[i + (c != '\0')]);
+  return true;
+}
 
 /**
  * Enqueue and return only when commands are actually enqueued.
@@ -575,7 +593,7 @@ void GCodeQueue::get_serial_commands() {
 
 /**
  * Add to the circular command queue the next command from:
- *  - The command-injection queue (injected_commands_P)
+ *  - The command-injection queues (injected_commands_P, injected_commands)
  *  - The active serial input (usually USB)
  *  - The SD card file being actively printed
  */
@@ -594,7 +612,7 @@ void GCodeQueue::get_available_commands() {
 void GCodeQueue::advance() {
 
   // Process immediate commands
-  if (process_injected_command()) return;
+  if (process_injected_command_P() || process_injected_command()) return;
 
   // Return if the G-code buffer is empty
   if (!length) return;

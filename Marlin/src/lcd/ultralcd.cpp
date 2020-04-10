@@ -1454,7 +1454,7 @@ void MarlinUI::update() {
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
-      synchronize(GET_TEXT(MSG_PAUSE_PRINT));
+      synchronize(GET_TEXT(MSG_PAUSING));
     #endif
 
     #if ENABLED(HOST_PROMPT_SUPPORT)

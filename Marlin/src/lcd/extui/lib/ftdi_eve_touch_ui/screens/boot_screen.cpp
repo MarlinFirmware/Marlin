@@ -68,10 +68,10 @@ void BootScreen::onIdle() {
     InterfaceSettingsScreen::failSafeSettings();
 
     StatusScreen::loadBitmaps();
+    StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
     GOTO_SCREEN(TouchCalibrationScreen);
     current_screen.forget();
     PUSH_SCREEN(StatusScreen);
-    StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
   } else {
     if (!UIFlashStorage::is_valid()) {
       StatusScreen::loadBitmaps();
