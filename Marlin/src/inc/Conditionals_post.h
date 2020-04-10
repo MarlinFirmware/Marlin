@@ -324,17 +324,36 @@
 
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
+ * and enable sharing of onboard SD host drives (all platforms but AGCM4)
  */
 #if ENABLED(SDSUPPORT)
-  #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
-    #undef SD_DETECT_STATE
-    #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-      #define SD_DETECT_STATE HIGH
+
+  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
+    //
+    // The external SD card is not used. Hardware SPI is used to access the card.
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    //
+    #undef SD_DETECT_PIN
+    #define SHARED_SD_CARD
+  #endif
+
+  #if DISABLED(SHARED_SD_CARD)
+    #define INIT_SDCARD_ON_BOOT 1
+  #endif
+
+  #if PIN_EXISTS(SD_DETECT)
+    #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+      #undef SD_DETECT_STATE
+      #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+        #define SD_DETECT_STATE HIGH
+      #endif
+    #endif
+    #ifndef SD_DETECT_STATE
+      #define SD_DETECT_STATE LOW
     #endif
   #endif
-  #ifndef SD_DETECT_STATE
-    #define SD_DETECT_STATE LOW
-  #endif
+
 #endif
 
 /**
@@ -2150,21 +2169,6 @@
     #else
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
-  #endif
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
-    //
-    // The external SD card is not used. Hardware SPI is used to access the card.
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    //
-    #undef SD_DETECT_PIN
-    #define SHARED_SD_CARD
-  #endif
-  #if DISABLED(SHARED_SD_CARD)
-    #define INIT_SDCARD_ON_BOOT 1
   #endif
 #endif
 

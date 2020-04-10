@@ -1361,6 +1361,8 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
+    if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
+
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onConfigurationStoreWritten(!eeprom_error);
     #endif

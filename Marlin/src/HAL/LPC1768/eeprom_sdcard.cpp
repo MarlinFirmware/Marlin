@@ -79,21 +79,16 @@ static void debug_rw(const bool write, int &pos, const uint8_t *value, const siz
   PGM_P const rw_str = write ? PSTR("write") : PSTR("read");
   SERIAL_CHAR(' ');
   serialprintPGM(rw_str);
-  SERIAL_ECHOPAIR("_data(", pos);
-  SERIAL_ECHOPAIR(",", (int)value);
-  SERIAL_ECHOPAIR(",", (int)size);
-  SERIAL_ECHOLNPGM(", ...)");
+  SERIAL_ECHOLNPAIR("_data(", pos, ",", int(value), ",", int(size), ", ...)");
   if (total) {
     SERIAL_ECHOPGM(" f_");
     serialprintPGM(rw_str);
-    SERIAL_ECHOPAIR("()=", (int)s);
-    SERIAL_ECHOPAIR("\n size=", size);
-    SERIAL_ECHOPGM("\n bytes_");
+    SERIAL_ECHOPAIR("()=", int(s), "\n size=", int(size), "\n bytes_");
     serialprintPGM(write ? PSTR("written=") : PSTR("read="));
     SERIAL_ECHOLN(total);
   }
   else
-    SERIAL_ECHOLNPAIR(" f_lseek()=", (int)s);
+    SERIAL_ECHOLNPAIR(" f_lseek()=", int(s));
 }
 
 // File function return codes for type FRESULT. This goes away soon, but

@@ -227,7 +227,7 @@ bool wait_for_heatup = true;
 
 // Inactivity shutdown
 millis_t max_inactive_time, // = 0
-         stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
+         stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_DEACTIVE_TIME);
 
 #if PIN_EXISTS(CHDK)
   extern millis_t chdk_timeout;
@@ -420,7 +420,11 @@ void startOrResumeJob() {
     #if DISABLED(SD_ABORT_NO_COOLDOWN)
       thermalManager.disable_all_heaters();
     #endif
-    thermalManager.zero_fan_speeds();
+    #if !HAS_CUTTER
+      thermalManager.zero_fan_speeds();
+    #else
+      cutter.kill();              // Full cutter shutdown including ISR control
+    #endif
     wait_for_heatup = false;
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.purge();
@@ -439,7 +443,6 @@ void startOrResumeJob() {
 
 /**
  * Minimal management of Marlin's core activities:
- *  - Check for Filament Runout
  *  - Keep the command buffer full
  *  - Check for maximum inactive time between commands
  *  - Check for maximum inactive time between stepper commands
@@ -450,12 +453,7 @@ void startOrResumeJob() {
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  *  - Pulse FET_SAFETY_PIN if it exists
  */
-
 inline void manage_inactivity(const bool ignore_stepper_queue=false) {
-
-  #if HAS_FILAMENT_SENSOR
-    runout.run();
-  #endif
 
   if (queue.length < BUFSIZE) queue.get_available_commands();
 
@@ -545,7 +543,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
-      && ELAPSED(ms, gcode.previous_move_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
       #if ENABLED(SWITCHING_EXTRUDER)
@@ -640,9 +638,53 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 }
 
 /**
- * Standard idle routine keeps the machine alive
+ * Standard idle routine keeps the machine alive:
+ *  - Core Marlin activities
+ *  - Manage heaters (and Watchdog)
+ *  - Max7219 heartbeat, animation, etc.
+ *
+ *  Only after setup() is complete:
+ *  - Handle filament runout sensors
+ *  - Run HAL idle tasks
+ *  - Handle Power-Loss Recovery
+ *  - Run StallGuard endstop checks
+ *  - Handle SD Card insert / remove
+ *  - Handle USB Flash Drive insert / remove
+ *  - Announce Host Keepalive state (if any)
+ *  - Update the Print Job Timer state
+ *  - Update the Beeper queue
+ *  - Read Buttons and Update the LCD
+ *  - Run i2c Position Encoders
+ *  - Auto-report Temperatures / SD Status
+ *  - Update the Prusa MMU2
+ *  - Handle Joystick jogging
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
+
+  // Core Marlin activities
+  manage_inactivity(TERN_(ADVANCED_PAUSE_FEATURE, no_stepper_sleep));
+
+  // Manage Heaters (and Watchdog)
+  thermalManager.manage_heater();
+
+  // Max7219 heartbeat, animation, etc
+  #if ENABLED(MAX7219_DEBUG)
+    max7219.idle_tasks();
+  #endif
+
+  // Return if setup() isn't completed
+  if (marlin_state == MF_INITIALIZING) return;
+
+  // Handle filament runout sensors
+  #if HAS_FILAMENT_SENSOR
+    runout.run();
+  #endif
+
+  // Run HAL idle tasks
+  #ifdef HAL_IDLETASK
+    HAL_idletask();
+  #endif
+
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
     recovery.outage();
@@ -656,28 +698,20 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
         if (endstops.tmc_spi_homing_check()) break;
   #endif
 
-  // Max7219 heartbeat, animation, etc.
-  #if ENABLED(MAX7219_DEBUG)
-    max7219.idle_tasks();
+  // Handle SD Card insert / remove
+  #if ENABLED(SDSUPPORT)
+    card.manage_media();
   #endif
 
-  // Read Buttons and Update the LCD
-  ui.update();
+  // Handle USB Flash Drive insert / remove
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    Sd2Card::idle();
+  #endif
 
   // Announce Host Keepalive state (if any)
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     gcode.host_keepalive();
   #endif
-
-  // Core Marlin activities
-  manage_inactivity(
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      no_stepper_sleep
-    #endif
-  );
-
-  // Manage heaters (and Watchdog)
-  thermalManager.manage_heater();
 
   // Update the Print Job Timer state
   #if ENABLED(PRINTCOUNTER)
@@ -688,6 +722,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #if USE_BEEPER
     buzzer.tick();
   #endif
+
+  // Read Buttons and Update the LCD
+  ui.update();
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -701,11 +738,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     }
   #endif
 
-  // Run HAL idle tasks
-  #ifdef HAL_IDLETASK
-    HAL_idletask();
-  #endif
-
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
@@ -716,11 +748,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
         card.auto_report_sd_status();
       #endif
     }
-  #endif
-
-  // Handle USB Flash Drive insert / remove
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    Sd2Card::idle();
   #endif
 
   // Update the Prusa MMU2
@@ -740,6 +767,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
  */
 void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
+
+  #if HAS_CUTTER
+    cutter.kill();              // Full cutter shutdown including ISR control
+  #endif
 
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
@@ -770,6 +801,10 @@ void minkill(const bool steppers_off/*=false*/) {
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
 
+  #if HAS_CUTTER
+    cutter.kill();  // Reiterate cutter shutdown
+  #endif
+
   // Power off all steppers (for M112) or just the E steppers
   steppers_off ? disable_all_steppers() : disable_e_steppers();
 
@@ -789,14 +824,14 @@ void minkill(const bool steppers_off/*=false*/) {
     // Wait for kill to be pressed
     while (READ(KILL_PIN)) watchdog_refresh();
 
-    void (*resetFunc)() = 0;  // Declare resetFunc() at address 0
+    void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
 
-  #else // !HAS_KILL
+  #else
 
-    for (;;) watchdog_refresh(); // Wait for reset
+    for (;;) watchdog_refresh();  // Wait for reset
 
-  #endif // !HAS_KILL
+  #endif
 }
 
 /**
@@ -971,8 +1006,8 @@ void setup() {
     SETUP_RUN(ui.show_bootscreen());
   #endif
 
-  #if ENABLED(SDSUPPORT) && defined(SDCARD_CONNECTION) && !SD_CONNECTION_IS(LCD)
-    SETUP_RUN(card.mount());          // Mount onboard / custom SD card before settings.first_load
+  #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
+    SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
@@ -1137,10 +1172,6 @@ void setup() {
   #ifdef STARTUP_COMMANDS
     SETUP_LOG("STARTUP_COMMANDS");
     queue.inject_P(PSTR(STARTUP_COMMANDS));
-  #endif
-
-  #if ENABLED(INIT_SDCARD_ON_BOOT) && !HAS_SPI_LCD
-    SETUP_RUN(card.beginautostart());
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)

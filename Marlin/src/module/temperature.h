@@ -241,7 +241,7 @@ struct HeaterWatch {
       const int16_t newtarget = curr + INCREASE;
       if (newtarget < tgt - HYSTERESIS - 1) {
         target = newtarget;
-        next_ms = millis() + PERIOD * 1000UL;
+        next_ms = millis() + SEC_TO_MS(PERIOD);
         return;
       }
     }

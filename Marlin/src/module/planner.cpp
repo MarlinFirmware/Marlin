@@ -815,11 +815,10 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
-             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE);
-
+             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE),
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
-    uint32_t acceleration_time_inverse = get_period_inverse(acceleration_time);
-    uint32_t deceleration_time_inverse = get_period_inverse(deceleration_time);
+             acceleration_time_inverse = get_period_inverse(acceleration_time),
+             deceleration_time_inverse = get_period_inverse(deceleration_time);
   #endif
 
   // Store new block parameters
@@ -834,6 +833,47 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->cruise_rate = cruise_rate;
   #endif
   block->final_rate = final_rate;
+
+  /**
+   * Laser trapezoid calculations
+   *
+   * Approximate the trapezoid with the laser, incrementing the power every `entry_per` while accelerating
+   * and decrementing it every `exit_power_per` while decelerating, thus ensuring power is related to feedrate.
+   *
+   * LASER_POWER_INLINE_TRAPEZOID_CONT doesn't need this as it continuously approximates
+   *
+   * Note this may behave unreliably when running with S_CURVE_ACCELERATION
+   */
+  #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+    if (block->laser.power > 0) { // No need to care if power == 0
+      const uint8_t entry_power = block->laser.power * entry_factor; // Power on block entry
+      #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+        // Speedup power
+        const uint8_t entry_power_diff = block->laser.power - entry_power;
+        if (entry_power_diff) {
+          block->laser.entry_per = accelerate_steps / entry_power_diff;
+          block->laser.power_entry = entry_power;
+        }
+        else {
+          block->laser.entry_per = 0;
+          block->laser.power_entry = block->laser.power;
+        }
+        // Slowdown power
+        const uint8_t exit_power = block->laser.power * exit_factor, // Power on block entry
+                      exit_power_diff = block->laser.power - exit_power;
+        if (exit_power_diff) {
+          block->laser.exit_per = (block->step_event_count - block->decelerate_after) / exit_power_diff;
+          block->laser.power_exit = exit_power;
+        }
+        else {
+          block->laser.exit_per = 0;
+          block->laser.power_exit = block->laser.power;
+        }
+      #else
+        block->laser.power_entry = entry_power;
+      #endif
+    }
+  #endif
 }
 
 /*                            PLANNER SPEED DEFINITION
@@ -1812,6 +1852,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Set direction bits
   block->direction_bits = dm;
+
+  // Update block laser power
+  #if ENABLED(LASER_POWER_INLINE)
+    block->laser.status = settings.laser.status;
+    block->laser.power = settings.laser.power;
+  #endif
 
   // Number of steps for each axis
   // See http://www.corexy.com/theory.html
@@ -2839,7 +2885,7 @@ void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
       const xyze_float_t &max_acc_edit_scaled = max_accel_edit;
     #else
       constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION;
-      constexpr xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
+      const xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
   #endif
@@ -2856,7 +2902,7 @@ void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
       const xyze_float_t &max_fr_edit_scaled = max_fr_edit;
     #else
       constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE;
-      constexpr xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
+      const xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
     #endif
     limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
   #endif

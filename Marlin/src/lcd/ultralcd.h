@@ -274,6 +274,10 @@ public:
   // LCD implementations
   static void clear_lcd();
 
+  #if ENABLED(SDSUPPORT)
+    static void media_changed(const uint8_t old_stat, const uint8_t stat);
+  #endif
+
   #if HAS_SPI_LCD
     static bool detected();
     static void init_lcd();
