@@ -140,7 +140,7 @@ void menu_advanced_settings();
           ACTION_ITEM_N_P(s, msg_migrate, []{
             char cmd[12];
             sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
-            lcd_enqueue_one_now(cmd);
+            queue.inject(cmd);
           });
         }
       }
