@@ -181,6 +181,10 @@ bool Stepper::abort_current_block;
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 uint8_t Stepper::steps_per_isr;
 
+#if HAS_FREEZE
+uint8_t Stepper::frozen = 0;  // zero means not frozen
+#endif
+
 #if DISABLED(ADAPTIVE_STEP_SMOOTHING)
   constexpr
 #endif
@@ -1528,6 +1532,10 @@ void Stepper::pulse_phase_isr() {
 
   // If there is no current block, do nothing
   if (!current_block) return;
+
+#if HAS_FREEZE
+  if (frozen) return;  // skipping step processing causes motion to freeze
+#endif
 
   // Count of pending loops and events for this iteration
   const uint32_t pending_events = step_event_count - step_events_completed;
