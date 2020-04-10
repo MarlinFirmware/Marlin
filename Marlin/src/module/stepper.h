@@ -252,6 +252,10 @@ class Stepper {
       static bool initialized;
     #endif
 
+    #if HAS_FREEZE
+      static uint8_t frozen;  // Normally zero, set to nonzero to freeze motion
+    #endif
+    
   private:
 
     static block_t* current_block;          // A pointer to the block currently being traced
