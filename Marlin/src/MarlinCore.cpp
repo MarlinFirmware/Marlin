@@ -247,6 +247,10 @@ void setup_killpin() {
   #if HAS_KILL
     SET_INPUT_PULLUP(KILL_PIN);
   #endif
+  
+  #if HAS_FREEZE
+    SET_INPUT_PULLUP(FREEZE_PIN);
+  #endif
 }
 
 void setup_powerhold() {
@@ -518,6 +522,15 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       kill();
     }
   #endif
+
+  #if HAS_FREEZE
+    if (READ(FREEZE_PIN)) {
+      Stepper::frozen = 0;
+    }
+    else {
+      Stepper::frozen = 1;
+    }
+  #endif  // HAS_FREEZE
 
   #if HAS_HOME
     // Handle a standalone HOME button
