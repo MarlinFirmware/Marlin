@@ -557,11 +557,14 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))         // No probe trigger?
-      || (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2)  // Probe triggered too high?
-    ) {
+    bool probe_failed = probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST)); // No probe trigger?
+    bool sanity_failed = (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2); // Probe triggered too high?
+    if (probe_failed || sanity_failed) {
       if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLNPGM("FAST Probe fail!");
+        if (probe_failed)
+          DEBUG_ECHOLNPGM("FAST Probe fail! - No probe trigger.");
+        if (sanity_failed)
+          DEBUG_ECHOLNPGM("FAST Probe fail! - Probe triggered too high.");
         DEBUG_POS("<<< run_z_probe", current_position);
       }
       return NAN;
@@ -602,11 +605,14 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #endif
     {
       // Probe downward slowly to find the bed
-      if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))      // No probe trigger?
-        || (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2)  // Probe triggered too high?
-      ) {
+      bool probe_failed = probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW)); // No probe trigger?
+      bool sanity_failed = (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2); // Probe triggered too high?
+      if (probe_failed || sanity_failed) {
         if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOLNPGM("SLOW Probe fail!");
+          if (probe_failed)
+            DEBUG_ECHOLNPGM("SLOW Probe fail! - No probe trigger.");
+          if (sanity_failed)
+            DEBUG_ECHOLNPGM("SLOW Probe fail! - Probe triggered too high.");
           DEBUG_POS("<<< run_z_probe", current_position);
         }
         return NAN;
