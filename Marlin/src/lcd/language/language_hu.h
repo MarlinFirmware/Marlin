@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Hungarian
+ * Magyar
  *
  * LCD Menu Messages
  * See also http://marlinfw.org/docs/development/lcd_language.html
@@ -37,7 +37,7 @@
 
 namespace Language_hu {
   constexpr uint8_t    CHARSIZE                            = 2;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar")
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Kész.");
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
@@ -52,7 +52,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Tároló olvasási hiba");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB eltávolítva");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB eszköz hiba");
-  PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Végállás"); // Max length 8 characters
+  PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Végállás"); // Maximum 8 karakter
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Szoft. Végállás");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("<Fömenü>");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("További Beállítások");
@@ -90,6 +90,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Beáll");
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Egyedi Elömelegítés");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Visszahütés");
+  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Lézer Vezérlés");
   PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Lézer Ki");
   PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Lézer Be");
@@ -240,6 +241,8 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z ágy");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Fúvóka");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Fúvóka ~");
+  PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Fej Parkolva");
+  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Fej Készenlétbe");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Ágy");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Burkolat");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Hütés sebesség");
@@ -322,6 +325,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: EEPROM CRC");
   PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: EEPROM Index");
   PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: EEPROM Verzió");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Beállítások Mentve");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Tároló Frissítés");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Nyomtató Újraindítása");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Frissítés");
@@ -338,6 +342,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Kész");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Vissza");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Folytatás");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Szüneteltetve...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Nyomtatás Szünetelés");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Nyomtatás folytatása");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Nyomtatás leállítása");
@@ -371,7 +376,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Emelés");
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Fösebesség");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Visszah. Sebesség");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Fúvóka Készenlét");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Szál csere");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Szál csere *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Szál betöltés");
@@ -430,9 +434,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("XY Kezdöpont");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("A NYOMTATÓ LEFAGYOTT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Indítsd újra!");
-  PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n"); // One character only
-  PROGMEM Language_Str MSG_SHORT_HOUR                      = _UxGT("ó"); // One character only
-  PROGMEM Language_Str MSG_SHORT_MINUTE                    = _UxGT("p"); // One character only
+  PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n"); // Csak egy karakter
+  PROGMEM Language_Str MSG_SHORT_HOUR                      = _UxGT("ó"); // Csak egy karakter
+  PROGMEM Language_Str MSG_SHORT_MINUTE                    = _UxGT("p"); // Csak egy karakter
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Fütés...");
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Hütés...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Ágy fütés...");
@@ -555,13 +559,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  #define MSG_1_LINE(A)     A "\0"   "\0"
-  #define MSG_2_LINE(A,B)   A "\0" B "\0"
-  #define MSG_3_LINE(A,B,C) A "\0" B "\0" C
-
   //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
+  // Filamentváltó képernyők legfeljebb 3 sort jeleníthetnek meg egy 4 soros kijelzőn
+  //                        ...vagy legfeljebb 2 sor egy 3 soros kijelzőn
   //
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Nyomj gombot", "nyomtatás folytatáshoz"));
@@ -605,6 +605,9 @@ namespace Language_hu {
 
   PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("X Tengely Szint");
   PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Önkalibrálás");
+  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Fűtéskimaradás");
+  PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Újrafűt");
+  PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Újrafűtés...");
 }
 
 #if FAN_COUNT == 1
