@@ -37,7 +37,6 @@
  *
  *
  * Here are some standard links for getting your machine calibrated:
- *
  * http://reprap.org/wiki/Calibration
  * http://youtu.be/wAL9d7FgInk
  * http://calculator.josefprusa.cz
