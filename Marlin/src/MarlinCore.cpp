@@ -544,10 +544,10 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // Handle a standalone DISABLE_STEPPERS button
     constexpr millis_t DISABLE_STEPPERS_DEBOUNCE_DELAY = 1000UL;
     static millis_t next_DISABLE_STEPPERS_key_ms; // = 0
-    if (!IS_SD_PRINTING() && !READ(DISABLE_STEPPERS_PIN)) { // HOME_PIN goes LOW when pressed
+    if (!IS_SD_PRINTING() && !READ(DISABLE_STEPPERS_PIN)) { // DISABLE_STEPPERS_PIN goes LOW when pressed
       const millis_t ms = millis();
       if (ELAPSED(ms, next_DISABLE_STEPPERS_key_ms)) {
-        next_home_key_ms = ms + DISABLE_STEPPERS_DEBOUNCE_DELAY;
+        next_DISABLE_STEPPERS_key_ms = ms + DISABLE_STEPPERS_DEBOUNCE_DELAY;
        // LCD_MESSAGEPGM(MSG_AUTO_HOME);
         queue.enqueue_now_P(M84_STR);
       }
