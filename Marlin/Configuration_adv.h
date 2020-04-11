@@ -29,8 +29,8 @@
  * Some of these settings can damage your printer if improperly set!
  *
  * Basic settings can be found in Configuration.h
- *
  */
+
 #define CONFIGURATION_ADV_H_VERSION 020005
 
 #pragma region // Thermal Settings
