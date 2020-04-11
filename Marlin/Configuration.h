@@ -34,15 +34,8 @@
  * - Extra features
  *
  * Advanced settings can be found in Configuration_adv.h
- */
-
-#define CONFIGURATION_H_VERSION 020005
-
-// Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
-
-#pragma region // Getting Started
-/**
+ *
+ *
  * Here are some standard links for getting your machine calibrated:
  *
  * http://reprap.org/wiki/Calibration
@@ -53,7 +46,11 @@
  * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
  * http://www.thingiverse.com/thing:298812
  */
-#pragma endregion
+
+#define CONFIGURATION_H_VERSION 020005
+
+// Author info of this build printed to the host during boot and M115
+#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 
 #pragma region // Serial Ports
 /**
