@@ -438,22 +438,6 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #endif // BABYSTEP_ZPROBE_OFFSET
 
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-
-  void lcd_enqueue_one_now(const char * const cmd) {
-    no_reentry = true;
-    queue.enqueue_one_now(cmd);
-    no_reentry = false;
-  }
-
-  void lcd_enqueue_one_now_P(PGM_P const cmd) {
-    no_reentry = true;
-    queue.enqueue_now_P(cmd);
-    no_reentry = false;
-  }
-
-#endif
-
 #if ENABLED(EEPROM_SETTINGS)
   void lcd_store_settings() {
     const bool saved = settings.save();

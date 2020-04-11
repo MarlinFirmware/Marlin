@@ -159,8 +159,8 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Khe nhớ");                              // Memory Slot
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Tải lưới bàn");                         // Load Bed Mesh
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Lưu lưới bàn");                         // Save Bed Mesh
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 %i lưới được nạp");                // Mesh %i loaded
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 %i lưới đã lưu");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("%i lưới được nạp");                // Mesh %i loaded
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("%i lưới đã lưu");
   PROGMEM Language_Str MSG_NO_STORAGE                      = _UxGT("Không lưu trữ");                        // No Storage
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Điều sai: Lưu UBL");                    // Err: UBL Save
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Điều Sai: Khôi Phục UBL");              // Err: UBL Restore

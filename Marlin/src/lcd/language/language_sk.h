@@ -189,8 +189,8 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Pamäťový slot");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Načítať sieť bodov");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Uložiť sieť bodov");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Sieť %i načítaná");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Sieť %i uložená");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Sieť %i načítaná");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Sieť %i uložená");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Nedostatok miesta");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Chyba: Ukladanie UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Chyba: Obnovenie UBL");

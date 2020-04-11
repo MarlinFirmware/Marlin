@@ -167,8 +167,8 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Слот памяти");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Загрузить сетку стола");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Сохранить сетку стола");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Сетка %i загружена");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Сетка %i сохранена");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Сетка %i загружена");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Сетка %i сохранена");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Нет хранилища");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Ошибка: Сохран. UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Ошибка: Восстан. UBL");
