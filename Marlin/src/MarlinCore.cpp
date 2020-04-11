@@ -540,14 +540,14 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     }
   #endif
   
-  #if HAS_DISABLE-STEPPERS
-    // Handle a standalone DISABLE-STEPPERS button
-    constexpr millis_t DISABLE-STEPPERS_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_DISABLE-STEPPERS_key_ms; // = 0
-    if (!IS_SD_PRINTING() && !READ(DISABLE-STEPPERS_PIN)) { // DISABLE-STEPPERS_PIN goes LOW when pressed
+  #if HAS_DISABLESTEPPERS
+    // Handle a standalone DISABLESTEPPERS button
+    constexpr millis_t DISABLESTEPPERS_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_DISABLESTEPPERS_key_ms; // = 0
+    if (!IS_SD_PRINTING() && !READ(DISABLESTEPPERS_PIN)) { // DISABLESTEPPERS_PIN goes LOW when pressed
       const millis_t ms = millis();
-      if (ELAPSED(ms, next_DISABLE-STEPPERS_key_ms)) {
-        next_DISABLE-STEPPERS_key_ms = ms + DISABLE-STEPPERS_DEBOUNCE_DELAY;
+      if (ELAPSED(ms, next_DISABLESTEPPERS_key_ms)) {
+        next_DISABLESTEPPERS_key_ms = ms + DISABLESTEPPERS_DEBOUNCE_DELAY;
        // LCD_MESSAGEPGM(MSG_AUTO_HOME);
         queue.enqueue_now_P(M84_STR);
       }
@@ -1059,8 +1059,8 @@ void setup() {
     SET_INPUT_PULLUP(HOME_PIN);
   #endif
   
-  #if HAS_DISABLE-STEPPERS
-    SET_INPUT_PULLUP(DISABLE-STEPPERS_PIN);
+  #if HAS_DISABLESTEPPERS
+    SET_INPUT_PULLUP(DISABLESTEPPERS_PIN);
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)
