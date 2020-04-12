@@ -329,7 +329,7 @@ void GcodeSuite::G28() {
         ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
         : 0;
 
-    if (z_homing_height && (doX || doY)) {
+    if (z_homing_height && (doX || doY || ENABLED(Z_SAFE_HOMING))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
       if (destination.z > current_position.z) {
