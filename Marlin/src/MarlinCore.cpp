@@ -540,7 +540,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     if (!IS_SD_PRINTING() && !READ(DISABLE_STEPPERS_PIN)) { // DISABLE_STEPPERS goes LOW when pressed
       const millis_t ms = millis();
       if (ELAPSED(ms, next_disable_steppers_key_ms)) {
-        next_home_key_ms = ms + DISABLE_STEPPERS_DEBOUNCE_DELAY;
+        next_disable_steppers_key_ms = ms + DISABLE_STEPPERS_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_DISABLE_STEPPERS);
         queue.enqueue_now_P(M84_STR);
       }
