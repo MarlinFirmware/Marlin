@@ -1601,8 +1601,8 @@ void Planner::quick_stop() {
     clear_block_buffer_runtime();
   #endif
 
-  // Make sure to drop any attempt of queuing moves for at least 1 second
-  cleaning_buffer_counter = 1000;
+  // Make sure to drop any attempt of queuing moves for 1 second
+  cleaning_buffer_counter = TEMP_TIMER_FREQUENCY;
 
   // Reenable Stepper ISR
   if (was_enabled) stepper.wake_up();

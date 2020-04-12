@@ -262,7 +262,7 @@ void _lcd_pause_message(PGM_P const msg) {
   END_SCREEN();
 }
 
-void lcd_pause_pausing_message()  { _lcd_pause_message(GET_TEXT(MSG_PAUSE_PRINT_INIT));        }
+void lcd_pause_parking_message()  { _lcd_pause_message(GET_TEXT(MSG_PAUSE_PRINT_PARKING));     }
 void lcd_pause_changing_message() { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));    }
 void lcd_pause_unload_message()   { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD));  }
 void lcd_pause_heating_message()  { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); }
@@ -282,7 +282,7 @@ void lcd_pause_purge_message() {
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   switch (message) {
-    case PAUSE_MESSAGE_PAUSING:  return lcd_pause_pausing_message;
+    case PAUSE_MESSAGE_PARKING:  return lcd_pause_parking_message;
     case PAUSE_MESSAGE_CHANGING: return lcd_pause_changing_message;
     case PAUSE_MESSAGE_UNLOAD:   return lcd_pause_unload_message;
     case PAUSE_MESSAGE_WAITING:  return lcd_pause_waiting_message;

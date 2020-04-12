@@ -76,9 +76,6 @@ int32_t      MenuEditItemBase::minEditValue,
 screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
 
-// Prevent recursion into screen handlers
-bool no_reentry = false;
-
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
@@ -314,29 +311,18 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 ////////////////////////////////////////////
 
 //
-// Display the synchronize screen until moves are
-// finished, and don't return to the caller until
-// done. ** This blocks the command queue! **
+// Display a "synchronize" screen with a custom message until
+// all moves are finished. Go back to calling screen when done.
 //
-static PGM_P sync_message;
-
-void MarlinUI::_synchronize() {
-  if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
-  if (no_reentry) return;
-  // Make this the current handler till all moves are done
-  const screenFunc_t old_screen = currentScreen;
-  goto_screen(_synchronize);
-  no_reentry = true;
-  planner.synchronize(); // idle() is called until moves complete
-  no_reentry = false;
-  goto_screen(old_screen);
-}
-
-// Display the synchronize screen with a custom message
-// ** This blocks the command queue! **
 void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
-  sync_message = msg ?: GET_TEXT(MSG_MOVING);
-  _synchronize();
+  static PGM_P sync_message = msg ?: GET_TEXT(MSG_MOVING);
+  save_previous_screen();
+  goto_screen([]{
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
+  });
+  defer_status_screen();
+  planner.synchronize(); // idle() is called until moves complete
+  goto_previous_screen_no_defer();
 }
 
 /**

@@ -47,10 +47,6 @@
   #include "../../feature/host_actions.h"
 #endif
 
-#if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-  #include "../../module/planner.h"
-#endif
-
 #ifndef PE_LEDS_COMPLETED_TIME
   #define PE_LEDS_COMPLETED_TIME (30*60)
 #endif
@@ -95,9 +91,9 @@ void GcodeSuite::M1001() {
     }
   #endif
 
-  // Wait for the queue to empty (and "clean"), inject SD_FINISHED_RELEASECOMMAND
+  // Inject SD_FINISHED_RELEASECOMMAND, if any
   #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-    planner.finish_and_disable();
+    queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
 
   // Re-select the last printed file in the UI
