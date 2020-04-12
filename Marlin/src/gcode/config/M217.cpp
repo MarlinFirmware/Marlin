@@ -59,6 +59,10 @@ void M217_report(const bool eeprom=false) {
       SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
 
+    #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+      SERIAL_ECHOPAIR(" V", LINEAR_UNIT(enable_first_prime));
+    #endif
+
   #else
 
     UNUSED(eeprom);
