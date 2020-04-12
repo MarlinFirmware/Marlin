@@ -25,7 +25,7 @@
  * Russian
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 #define DISPLAY_CHARSET_ISO10646_5

@@ -25,7 +25,7 @@
  * Turkish
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  * Bu çeviri dosyasındaki sorunlar ve düzeltmeler için iletişim;
  * Contact for issues and corrections in this translation file;
