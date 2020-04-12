@@ -249,9 +249,9 @@ void setup_killpin() {
   #endif
 }
 
-void setup_filament_change() {
+void setup_filamentchange() {
   #if HAS_KILL
-    SET_INPUT_PULLUP(FILAMENT_CHANGE_PIN);
+    SET_INPUT_PULLUP(FILAMENTCHANGE_PIN);
   #endif
 }
 
@@ -540,14 +540,14 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     }
   #endif
 
-  #if HAS_FILAMENT_CHANGE
-    // Handle a standalone FILAMENT_CHANGE button
-    constexpr millis_t FILAMENT_CHANGE_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_filament_change_key_ms; // = 0
-    if !READ(FILAMENT_CHANGE_PIN)) { // FILAMENT_CHANGE_PIN goes LOW when pressed
+  #if HAS_FILAMENTCHANGE
+    // Handle a standalone FILAMENTCHANGE button
+    constexpr millis_t FILAMENTCHANGE_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_filamentchange_key_ms; // = 0
+    if !READ(FILAMENTCHANGE_PIN)) { // FILAMENTCHANGE_PIN goes LOW when pressed
       const millis_t ms = millis();
-      if (ELAPSED(ms, next_filament_change_key_ms)) {
-        next_filament_change_key_ms = ms + FILAMENT_CHANGE_DEBOUNCE_DELAY;
+      if (ELAPSED(ms, next_filamentchange_key_ms)) {
+        next_filamentchange_key_ms = ms + FILAMENTCHANGE_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_FILAMENTCHANGE);
         queue.enqueue_now_P(M600_STR);
       }
