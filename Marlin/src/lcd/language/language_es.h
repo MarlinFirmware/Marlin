@@ -186,8 +186,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Huecos de memoria");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Cargar Mallado cama");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Guardar Mallado cama");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Mall. %i Carga.");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Mall. %i Guard.");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Malla %i Cargada");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Malla %i Guardada");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Sin guardar");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Error: Guardar UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Error: Restaurar UBL");
@@ -368,8 +368,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Purgar longitud");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Cambiar Herramienta");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Aumentar Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Vel. de Cebado");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Vel. de retracción");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Vel. de Cebado");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Vel. de retracción");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambiar filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambiar filamento *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Cargar filamento");
