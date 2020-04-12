@@ -532,7 +532,35 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       }
     }
   #endif
-
+  
+  #if HAS_FAN_ON
+    // Handle a standalone FAN_ON button
+    constexpr millis_t FAN_ON_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_fan_on_key_ms; // = 0
+    if (!READ(FAN_ON_PIN)) { // FAN_ON_PIN goes LOW when pressed
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_fan_on_key_ms)) {
+        next_fan_on_key_ms = ms + FAN_ON_DEBOUNCE_DELAY;
+        LCD_MESSAGEPGM(MSG_FAN_ON);
+        queue.enqueue_now_P(M106_STR);
+      }
+    }
+  #endif
+  
+  #if HAS_FAN_OFF
+    // Handle a standalone FAN_OFF button
+    constexpr millis_t FAN_OFF_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_fan_off_key_ms; // = 0
+    if (!READ(FAN_OFF_PIN)) { // FAN_OFF_PIN goes LOW when pressed
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_fan_off_key_ms)) {
+        next_fan_off_key_ms = ms + FAN_OFF_DEBOUNCE_DELAY;
+        LCD_MESSAGEPGM(MSG_FAN_OFF);
+        queue.enqueue_now_P(M107_STR);
+      }
+    }
+  #endif
+  
   #if ENABLED(USE_CONTROLLER_FAN)
     controllerFan.update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
@@ -1080,6 +1108,14 @@ void setup() {
 
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
+  #endif
+   
+  #if HAS_FAN_ON
+    SET_INPUT_PULLUP(FAN_ON_PIN);
+  #endif
+
+  #if HAS_FAN_OFF
+    SET_INPUT_PULLUP(FAN_OFF_PIN);
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)

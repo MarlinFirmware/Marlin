@@ -233,6 +233,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bett");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Gehäuse");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Lüfter");
+  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Lüfter ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Geschw. Extralüfter");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Geschw. Extralüfter ~");

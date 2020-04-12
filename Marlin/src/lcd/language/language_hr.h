@@ -88,6 +88,8 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Brzina ventilatora");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Brzina ventilatora ~");
+  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Odaberi");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Odaberi *");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperature");

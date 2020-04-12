@@ -210,6 +210,8 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventoinha ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("+Vel. Ventoinha");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("+Vel. Ventoinha ~");
+  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Vazão");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Vazão ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controle");
