@@ -533,6 +533,20 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     }
   #endif
 
+    #if HAS_DISABLE_STEPPERS
+    // Handle a standalone disable_steppers button
+    constexpr millis_t DISABLE_STEPPERS_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_disable_steppers_key_ms; // = 0
+    if (!IS_SD_PRINTING() && !READ(DISABLE_STEPPERS_PIN)) { // DISABLE_STEPPERS goes LOW when pressed
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_disable_steppers_key_ms)) {
+        next_home_key_ms = ms + DISABLE_STEPPERS_DEBOUNCE_DELAY;
+        LCD_MESSAGEPGM(MSG_DISABLE_STEPPERS);
+        queue.enqueue_now_P(M84_STR);
+      }
+    }
+  #endif
+
   #if ENABLED(USE_CONTROLLER_FAN)
     controllerFan.update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
@@ -1082,6 +1096,10 @@ void setup() {
     SET_INPUT_PULLUP(HOME_PIN);
   #endif
 
+  #if HAS_DISABLE_STEPPERS
+    SET_INPUT_PULLUP(DISABLE_STEPPERS_PIN);
+  #endif
+  
   #if PIN_EXISTS(STAT_LED_RED)
     OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
