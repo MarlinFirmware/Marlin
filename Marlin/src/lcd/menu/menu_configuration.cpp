@@ -125,7 +125,7 @@ void menu_advanced_settings();
 
     #include "../../module/motion.h" // for active_extruder
 
-    void toolchange_migration_submenu() {
+    void menu_toolchange_migration() {
       START_MENU();
       BACK_ITEM(MSG_CONFIGURATION);
 
@@ -402,10 +402,9 @@ void menu_configuration() {
   #if EXTRUDERS > 1
     SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SUBMENU(MSG_TOOL_MIGRATION, toolchange_migration_submenu);
+      SUBMENU(MSG_TOOL_MIGRATION, menu_toolchange_migration);
     #endif
   #endif
-
 
   //
   // Set Case light on/off/brightness
