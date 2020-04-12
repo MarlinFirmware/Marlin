@@ -889,52 +889,15 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
-  HAL_init();
-
-  #if HAS_L64XX
-    L64xxManager.init();  // Set up SPI, init drivers
-  #endif
-
-  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
-    OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
-  #endif
-
-  #if ENABLED(DISABLE_DEBUG)
+  #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
     // Disable any hardware debug to free up pins for IO
-    #ifdef JTAGSWD_DISABLE
+    #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
       JTAGSWD_DISABLE();
     #elif defined(JTAG_DISABLE)
       JTAG_DISABLE();
     #else
-      #error "DISABLE_DEBUG is not supported for the selected MCU/Board"
+      #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
     #endif
-  #elif ENABLED(DISABLE_JTAG)
-    // Disable JTAG to free up pins for IO
-    #ifdef JTAG_DISABLE
-      JTAG_DISABLE();
-    #else
-      #error "DISABLE_JTAG is not supported for the selected MCU/Board"
-    #endif
-  #endif
-
-  #if HAS_FILAMENT_SENSOR
-    runout.setup();
-  #endif
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.setup();
-  #endif
-
-  setup_killpin();
-
-  #if HAS_TMC220x
-    tmc_serial_begin();
-  #endif
-
-  setup_powerhold();
-
-  #if HAS_STEPPER_RESET
-    disableStepperDrivers();
   #endif
 
   #if NUM_SERIAL > 0
@@ -946,10 +909,38 @@ void setup() {
       serial_connect_timeout = millis() + 1000UL;
       while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #endif
+    SERIAL_ECHO_MSG("start");
   #endif
 
-  SERIAL_ECHOLNPGM("start");
-  SERIAL_ECHO_START();
+  SETUP_RUN(HAL_init());
+
+  #if HAS_L64XX
+    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
+  #endif
+
+  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+    OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
+  #endif
+
+  #if HAS_FILAMENT_SENSOR
+    SETUP_RUN(runout.setup());
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    SETUP_RUN(recovery.setup());
+  #endif
+
+  SETUP_RUN(setup_killpin());
+
+  #if HAS_TMC220x
+    SETUP_RUN(tmc_serial_begin());
+  #endif
+
+  SETUP_RUN(setup_powerhold());
+
+  #if HAS_STEPPER_RESET
+    SETUP_RUN(disableStepperDrivers());
+  #endif
 
   #if HAS_TMC_SPI
     #if DISABLED(TMC_USE_SW_SPI)
@@ -966,7 +957,7 @@ void setup() {
   SETUP_RUN(esp_wifi_init());
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
-  byte mcu = HAL_get_reset_source();
+  const byte mcu = HAL_get_reset_source();
   if (mcu &  1) SERIAL_ECHOLNPGM(STR_POWERUP);
   if (mcu &  2) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
   if (mcu &  4) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
@@ -991,9 +982,6 @@ void setup() {
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPAIR(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-  // UI must be initialized before EEPROM
-  // (because EEPROM code calls the UI).
-
   // Set up LEDs early
   #if HAS_COLOR_LEDS
     SETUP_RUN(leds.setup());
@@ -1002,6 +990,9 @@ void setup() {
   #if ENABLED(USE_CONTROLLER_FAN)     // Set up fan controller to initialize also the default configurations.
     SETUP_RUN(controllerFan.setup());
   #endif
+
+  // UI must be initialized before EEPROM
+  // (because EEPROM code calls the UI).
 
   SETUP_RUN(ui.init());
   SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
