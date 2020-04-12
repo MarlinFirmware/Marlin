@@ -27,6 +27,10 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 
+#ifdef SD_FINISHED_RELEASECOMMAND
+  #include "../queue.h"
+#endif
+
 #if EITHER(LCD_SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/ultralcd.h"
 #endif
@@ -92,7 +96,7 @@ void GcodeSuite::M1001() {
   #endif
 
   // Inject SD_FINISHED_RELEASECOMMAND, if any
-  #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+  #ifdef SD_FINISHED_RELEASECOMMAND
     queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
 
