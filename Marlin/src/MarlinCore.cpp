@@ -1096,7 +1096,7 @@ void setup() {
     SET_INPUT_PULLUP(HOME_PIN);
   #endif
   
-  #if HAS_KILL
+  #if HAS_FILAMENTCHANGE
     SET_INPUT_PULLUP(FILAMENTCHANGE_PIN);
   #endif
 
