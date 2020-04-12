@@ -31,6 +31,10 @@
   #include "../queue.h"
 #endif
 
+#if HAS_LEDS_OFF_FLAG
+  #include "../../MarlinCore.h"
+#endif
+
 #if EITHER(LCD_SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/ultralcd.h"
 #endif
