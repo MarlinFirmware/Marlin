@@ -126,7 +126,7 @@ git push -f origin
 git push -f upstream | {
   while IFS= read -r line
   do
-    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite "http://marlinfw.org/"
+    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite "https://marlinfw.org/"
     echo "$line"
   done
 }

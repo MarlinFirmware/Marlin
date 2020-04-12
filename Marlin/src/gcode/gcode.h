@@ -31,7 +31,7 @@
  * -----------------
  *
  * Helpful G-code references:
- *  - http://marlinfw.org/meta/gcode
+ *  - https://marlinfw.org/meta/gcode
  *  - https://reprap.org/wiki/G-code
  *  - http://linuxcnc.org/docs/html/gcode.html
  *
