@@ -970,7 +970,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #endif
           fast_line_to_current(Z_AXIS);
           planner.synchronize();
-         }
+        }
       #endif
 
       // Unload / Retract
@@ -989,7 +989,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           else
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
         }
-      #endif// Unload / Retract
+      #endif // Unload / Retract
 
       #if SWITCHING_NOZZLE_TWO_SERVOS
         raise_nozzle(old_tool);
