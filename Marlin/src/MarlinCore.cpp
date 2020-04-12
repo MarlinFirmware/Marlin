@@ -249,6 +249,13 @@ void setup_killpin() {
   #endif
 }
 
+void setup_filament_change() {
+  #if HAS_KILL
+    SET_INPUT_PULLUP(FILAMENT_CHANGE_PIN);
+  #endif
+}
+
+
 void setup_powerhold() {
   #if HAS_SUICIDE
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
@@ -533,6 +540,20 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     }
   #endif
 
+  #if HAS_FILAMENT_CHANGE
+    // Handle a standalone FILAMENT_CHANGE button
+    constexpr millis_t FILAMENT_CHANGE_DEBOUNCE_DELAY = 1000UL;
+    static millis_t next_filament_change_key_ms; // = 0
+    if !READ(FILAMENT_CHANGE_PIN)) { // FILAMENT_CHANGE_PIN goes LOW when pressed
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_filament_change_key_ms)) {
+        next_filament_change_key_ms = ms + FILAMENT_CHANGE_DEBOUNCE_DELAY;
+        LCD_MESSAGEPGM(MSG_FILAMENTCHANGE);
+        queue.enqueue_now_P(M600_STR);
+      }
+    }
+  #endif
+  
   #if ENABLED(USE_CONTROLLER_FAN)
     controllerFan.update(); // Check if fan should be turned on to cool stepper drivers down
   #endif
