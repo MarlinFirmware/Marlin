@@ -831,8 +831,8 @@ void tool_change_prime() {
       }
     #endif
 
-    // Extra Prime
-    unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
+    // Prime (All distances are added and slowed down to ensure secure priming in all circumstances)
+    unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
