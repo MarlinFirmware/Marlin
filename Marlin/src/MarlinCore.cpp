@@ -249,13 +249,6 @@ void setup_killpin() {
   #endif
 }
 
-void setup_filamentchange() {
-  #if HAS_KILL
-    SET_INPUT_PULLUP(FILAMENTCHANGE_PIN);
-  #endif
-}
-
-
 void setup_powerhold() {
   #if HAS_SUICIDE
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
@@ -1101,6 +1094,10 @@ void setup() {
 
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
+  #endif
+  
+  #if HAS_KILL
+    SET_INPUT_PULLUP(FILAMENTCHANGE_PIN);
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)
