@@ -1298,6 +1298,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Migrate the temperature to the new hotend
     #if HOTENDS > 1
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
+      #if HAS_DISPLAY
+        thermalManager.set_heating_message(0);
+      #endif
       thermalManager.wait_for_hotend(active_extruder);
     #endif
 
