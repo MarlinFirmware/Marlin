@@ -106,8 +106,15 @@
 //
 // SD Card
 //
+#define SDCARD_CONNECTION ONBOARD
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       PD12
+
+//
+// EEPROM
+//
+//#define FLASH_EEPROM_EMULATION
+#define SDCARD_EEPROM_EMULATION
 
 //
 // LCD / Controller
