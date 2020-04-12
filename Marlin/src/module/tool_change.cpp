@@ -957,8 +957,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       destination = current_position;
 
       // Z raise before retraction
-      #if BOTH(TOOLCHANGE_PARK, TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
-        if (all_axes_homed() && can_move_away && toolchange_settings.enable_park) {
+      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
+        if (can_move_away
+          #if ENABLED(TOOLCHANGE_PARK)
+            && toolchange_settings.enable_park
+          #endif
+        ){
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -966,7 +970,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #endif
           fast_line_to_current(Z_AXIS);
           planner.synchronize();
-        }
+         }
       #endif
 
       // Unload / Retract
@@ -985,7 +989,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           else
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
         }
-      #endif
+      #endif// Unload / Retract
 
       #if SWITCHING_NOZZLE_TWO_SERVOS
         raise_nozzle(old_tool);
@@ -1006,18 +1010,24 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
+      #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
+        if (can_move_away
+          #if ENABLED(TOOLCHANGE_PARK)
+            && toolchange_settings.enable_park
+          #endif
+        ){
+          // Do a small lift to avoid the workpiece in the move back (below)
+          current_position.z += toolchange_settings.z_raise;
+          #if HAS_SOFTWARE_ENDSTOPS
+            NOMORE(current_position.z, soft_endstop.max.z);
+          #endif
+          fast_line_to_current(Z_AXIS);
+        }
+      #endif
+
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK) && DISABLED(SWITCHING_NOZZLE)
-        if (all_axes_homed() && can_move_away && toolchange_settings.enable_park) {
-          #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
-            // Do a small lift to avoid the workpiece in the move back (below)
-            current_position.z += toolchange_settings.z_raise;
-            #if HAS_SOFTWARE_ENDSTOPS
-              NOMORE(current_position.z, soft_endstop.max.z);
-            #endif
-            fast_line_to_current(Z_AXIS);
-          #endif
-
+        if (can_move_away && toolchange_settings.enable_park) {
           #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
             current_position.x = toolchange_settings.change_point.x;
           #endif
@@ -1113,13 +1123,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             float fr = toolchange_settings.unretract_speed;
 
             #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-
               if (!toolchange_extruder_ready[new_tool]) {
                 toolchange_extruder_ready[new_tool] = true;
                 fr = toolchange_settings.prime_speed;       // Next move is a prime
                 unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
               }
-
             #endif
 
             // Unretract (or Prime)
@@ -1160,16 +1168,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             // Just move back down
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
+
+            #if ENABLED(TOOLCHANGE_PARK)
+              if (toolchange_settings.enable_park)
+            #endif
             do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+
           #else
             // Move back to the original (or adjusted) position
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
 
             #if ENABLED(TOOLCHANGE_PARK)
-              do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+              if (toolchange_settings.enable_park) do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
             #else
               do_blocking_move_to_xy(destination);
             #endif
+
           #endif
         }
 
