@@ -791,72 +791,81 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
  */
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
-  void tool_change_prime() {
-    if (toolchange_settings.extra_prime > 0
-      && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
-    ) {
+void tool_change_prime() {
+  if (toolchange_settings.extra_prime > 0
+    && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
+  ) {
 
-      destination = current_position; // Remember the old position
+    destination = current_position; // Remember the old position
+    const bool can_move_away = all_axes_homed();
 
-      #if ENABLED(TOOLCHANGE_PARK)
+    #if ENABLED(TOOLCHANGE_PARK)
+      const bool ok = toolchange_settings.enable_park;
+    #else
+      const bool ok = true ;
+    #endif
 
-        if (toolchange_settings.enable_park && all_axes_homed()) {
-
-          #if DISABLED(SWITCHING_NOZZLE)
-            // Include a small lift to avoid the workpiece in the move back (below)
-            current_position.z += toolchange_settings.z_raise;
-            #if HAS_SOFTWARE_ENDSTOPS
-              NOMORE(current_position.z, soft_endstop.max.z);
-            #endif
-          #endif
-
-          #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
-            current_position.x = toolchange_settings.change_point.x;
-          #endif
-          #if DISABLED(TOOLCHANGE_PARK_X_ONLY)
-            current_position.y = toolchange_settings.change_point.y;
-          #endif
-          do_blocking_move_to(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
-        }
+    // Z raise
+    if (ok) {
+      // Do a small lift to avoid the workpiece in the move back (below)
+      current_position.z += toolchange_settings.z_raise;
+      #if HAS_SOFTWARE_ENDSTOPS
+        NOMORE(current_position.z, soft_endstop.max.z);
       #endif
-
-      // Prime (All distances are added and slowed down to ensure secure priming in all circumstances)
-      unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
-
-      // Cutting retraction
-      #if TOOLCHANGE_FS_WIPE_RETRACT
-        unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
-      #endif
-
-      // Cool after prime
-      #if FAN_COUNT > 0 && defined(TOOLCHANGE_FS_FAN) && TOOLCHANGE_FS_FAN >= 0
-        const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
-        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-        safe_delay(toolchange_settings.fan_time * 1000);
-        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
-      #endif
-
-      #if ENABLED(TOOLCHANGE_NO_RETURN)
-        // Just move back down
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move back Z only");
-        do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
-      #else
-        // Move back to the original (or adjusted) position
-        if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
-        #if ENABLED(TOOLCHANGE_PARK)
-          do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
-        #endif
-      #endif
-
-      // Cutting recover
-      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
-
+      fast_line_to_current(Z_AXIS);
       planner.synchronize();
-      current_position.e = destination.e;
-      sync_plan_position_e(); // Resume at the old E position
     }
-  }
 
+    // Park
+    #if ENABLED(TOOLCHANGE_PARK)
+      if (can_move_away && ok ){
+        // Toolchange park
+        #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
+          current_position.x = toolchange_settings.change_point.x;
+        #endif
+        #if DISABLED(TOOLCHANGE_PARK_X_ONLY)
+          current_position.y = toolchange_settings.change_point.y;
+        #endif
+        planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
+        planner.synchronize();
+      }
+    #endif
+
+    // Extra Prime
+    unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
+
+    // Cutting retraction
+    #if TOOLCHANGE_FS_WIPE_RETRACT
+      unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+    #endif
+
+    // Cool down with fan
+    #if TOOLCHANGE_FS_FAN >= 0 && FAN_COUNT > 0
+      const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
+      safe_delay(toolchange_settings.fan_time * 1000);
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
+    #endif
+
+    // Move back
+    #if ENABLED(TOOLCHANGE_PARK)
+      if (can_move_away && ok ){
+        #if ENABLED(TOOLCHANGE_NO_RETURN)
+          do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+        #else
+          do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+        #endif
+      }
+    #endif
+
+    // Cutting recover
+    unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+
+    planner.synchronize();
+    current_position.e = destination.e;
+    sync_plan_position_e(); // Resume at the old E position
+  }
+}
 #endif
 
 /**
