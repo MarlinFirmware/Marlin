@@ -537,7 +537,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // Handle a standalone FILAMENTCHANGE button
     constexpr millis_t FILAMENTCHANGE_DEBOUNCE_DELAY = 1000UL;
     static millis_t next_filamentchange_key_ms; // = 0
-    if !READ(FILAMENTCHANGE_PIN)) { // FILAMENTCHANGE_PIN goes LOW when pressed
+    if (!READ(FILAMENTCHANGE_PIN)) { // FILAMENTCHANGE_PIN goes LOW when pressed
       const millis_t ms = millis();
       if (ELAPSED(ms, next_filamentchange_key_ms)) {
         next_filamentchange_key_ms = ms + FILAMENTCHANGE_DEBOUNCE_DELAY;
