@@ -926,6 +926,9 @@
 #endif
 
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
+#if ENABLED(DIGIPOT_MCP4018)
+  //#define MCP4018_USE_RAW_VALUES  // Use the DIGIPOT_MOTOR_CURRENT raw wiper values instead of A4988 motor currents
+#endif
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8     MKS SBASE: 5
 // Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
 // These correspond to the physical drivers, so be mindful if the order is changed.
