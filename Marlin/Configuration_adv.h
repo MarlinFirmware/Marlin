@@ -3192,7 +3192,22 @@
       {  10.0,  700 }, \
       { -10.0,  400 }, \
       { -50.0, 2000 }
+    #if ENABLED(PRUSA_MMU2_S_MODE)
+      #define MMU2_CAN_LOAD_FEEDRATE 800
 
+      #define MMU2_CAN_LOAD_SEQUENCE \
+      {  60.0,  MMU2_CAN_LOAD_FEEDRATE }, \
+      { -52.0,  MMU2_CAN_LOAD_FEEDRATE }
+
+      #define MMU2_CAN_LOAD_RETRACT 6.0 // This value should be smaller than the difference of the MMU2_CAN_LOAD_SEQUENCE values
+
+      // to reuse within mmu2 module
+      #define MMU2_CAN_LOAD_INCREMENT 0.2 
+
+      #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
+      { -MMU2_CAN_LOAD_INCREMENT,  MMU2_CAN_LOAD_FEEDRATE }
+
+    #endif
   #endif
 
   //#define MMU2_DEBUG  // Write debug info to serial output

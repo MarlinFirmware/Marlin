@@ -112,6 +112,11 @@ char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
   static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
   static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE };
 
+  #if ENABLED(PRUSA_MMU2_S_MODE)
+    static constexpr E_Step can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE };
+    static constexpr E_Step can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE };
+  #endif
+
 #endif // MMU2_MENUS
 
 MMU2::MMU2() {
@@ -656,6 +661,39 @@ void MMU2::filament_runout() {
       tx_str_P(PSTR("A\n"));
     } 
     mmu2s_triggered = runout;
+  }
+
+  bool MMU2::can_load()
+  {
+    execute_extruder_sequence((const E_Step *)can_load_sequence, COUNT(can_load_sequence));
+    
+    int filament_detected count = 0;
+    const int steps = MMU2_CAN_LOAD_RETRACT / MMU2_CAN_LOAD_INCREMENT;
+    DEBUG_ECHOLNPGM("MMU can_load:"));
+    for(int i = 0; i < steps; ++i)
+    {
+        execute_extruder_sequence((const E_Step *)can_load_increment_sequence, COUNT(can_load_increment_sequence));
+        if(mmu2s_triggered)
+        {
+          DEBUG_ECHOPGM("O");
+          ++filament_detected_count;
+        }
+        else
+        {
+          DEBUG_ECHOPGM("o");
+        }
+    }
+    if (filament_detected_count > steps - 4) //maybe the 4 should be a variable as well?
+    {
+        DEBUG_ECHOLNPGM(" succeeded.");
+        return true;
+    }
+    else
+    {
+        DEBUG_ECHOLNPGM(" failed.");
+        return false;
+    }
+    
   }
 #endif
 
