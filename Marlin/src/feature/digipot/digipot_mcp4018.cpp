@@ -32,17 +32,20 @@
 
 #define DIGIPOT_A4988_Rsx               0.250
 #define DIGIPOT_A4988_Vrefmax           1.666
-#define DIGIPOT_A4988_MAX_VALUE         127
+#define DIGIPOT_MCP4018_MAX_VALUE         127
 
 #define DIGIPOT_A4988_Itripmax(Vref)    ((Vref)/(8.0*DIGIPOT_A4988_Rsx))
 
-#define DIGIPOT_A4988_FACTOR            ((DIGIPOT_A4988_MAX_VALUE)/DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
+#define DIGIPOT_A4988_FACTOR            ((DIGIPOT_MCP4018_MAX_VALUE)/DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
 #define DIGIPOT_A4988_MAX_CURRENT       2.0
 
+
+#if DISABLED(MCP4018_USE_RAW_VALUES)
 static byte current_to_wiper(const float current) {
   const int16_t value = ceil(float(DIGIPOT_A4988_FACTOR) * current);
-  return byte(constrain(value, 0, DIGIPOT_A4988_MAX_VALUE));
+  return byte(constrain(value, 0, DIGIPOT_MCP4018_MAX_VALUE));
 }
+#endif
 
 const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {
   DIGIPOTS_I2C_SDA_X
@@ -86,12 +89,20 @@ static void i2c_send(const uint8_t channel, const byte v) {
 
 // This is for the MCP4018 I2C based digipot
 void digipot_i2c_set_current(const uint8_t channel, const float current) {
-  i2c_send(channel, current_to_wiper(_MIN(_MAX(current, 0), float(DIGIPOT_A4988_MAX_CURRENT))));
+  #if ENABLED(MCP4018_USE_RAW_VALUES)
+    i2c_send(channel, byte(_MIN(_MAX(current, 0), DIGIPOT_MCP4018_MAX_VALUE)));
+  #else
+    i2c_send(channel, current_to_wiper(_MIN(_MAX(current, 0), float(DIGIPOT_A4988_MAX_CURRENT))));
+  #endif
 }
 
 void digipot_i2c_init() {
-  static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
-
+  static const float digipot_motor_current[] PROGMEM = 
+    #if ENABLED(MCP4018_USE_RAW_VALUES)
+      DIGIPOT_MOTOR_CURRENT;
+    #else
+      DIGIPOT_I2C_MOTOR_CURRENTS;
+    #endif
   LOOP_L_N(i, DIGIPOT_I2C_NUM_CHANNELS)
     pots[i].i2c_init();
 
