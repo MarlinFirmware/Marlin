@@ -501,13 +501,13 @@ namespace Language_it {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Ugello: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sens.filo termin.");  // Max 17 characters
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm filo term.");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Home fallito");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Home fallito");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondaggio fallito");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600:Troppo freddo");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SCELTA FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Agg.firmware MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Agg.firmware MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU chiede attenz.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Ripresa...");
@@ -551,7 +551,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Stampante errata");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Stampante errata");
 
   //
   // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe

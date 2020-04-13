@@ -467,7 +467,7 @@ namespace Language_es {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luz cabina");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Brillo cabina");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impresora incorrecta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impresora incorrecta");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Cont. de impresión");
@@ -503,13 +503,13 @@ namespace Language_es {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Boquilla: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sens. filamento");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist. filamento mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Ir a origen Fallado");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Ir a origen Fallado");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondeo Fallado");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Muy Frio");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ELIJE FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("¡Actu. MMU Firmware!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("¡Actu. MMU Firmware!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Necesita Cuidado");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Continuar imp.");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Resumiendo...");

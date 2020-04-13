@@ -437,7 +437,7 @@ namespace Language_pl {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Oświetlenie obudowy");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Jasność oświetlenia");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Niepoprawna drukarka");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Niepoprawna drukarka");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Wydrukowano");
@@ -473,13 +473,13 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Dysza: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Czujnik filamentu");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dystans do czujnika mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Zerowanie nieudane");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Zerowanie nieudane");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondowanie nieudane");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: za zimne");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("WYBIERZ FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Uaktualnij firmware MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Uaktualnij firmware MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU wymaga uwagi.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Wznów wydruk");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Wznawianie...");

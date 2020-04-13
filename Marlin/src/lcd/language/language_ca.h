@@ -211,7 +211,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Repren impressió");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora incorrecta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora incorrecta");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display

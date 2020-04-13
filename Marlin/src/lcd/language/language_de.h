@@ -433,7 +433,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Beleuchtung");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Helligkeit");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Falscher Drucker");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Falscher Drucker");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Gesamte Drucke");
@@ -469,13 +469,13 @@ namespace Language_de {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Düse: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout-Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout-Weg mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Homing gescheitert");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing gescheitert");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing gescheitert");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: zu kalt");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMENT WÄHLEN");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Update MMU Firmware!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU handeln erfor.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Druck fortsetzen");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Fortfahren...");
