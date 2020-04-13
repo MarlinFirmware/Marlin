@@ -797,10 +797,9 @@ void tool_change_prime() {
   ) {
 
     destination = current_position; // Remember the old position
-    const bool can_move_away = all_axes_homed();
 
     #if ENABLED(TOOLCHANGE_PARK)
-      const bool ok = toolchange_settings.enable_park;
+      const bool ok = all_axes_homed() && toolchange_settings.enable_park;
     #else
       const bool ok = true ;
     #endif
@@ -818,7 +817,7 @@ void tool_change_prime() {
 
     // Park
     #if ENABLED(TOOLCHANGE_PARK)
-      if (can_move_away && ok ){
+      if (ok){
         // Toolchange park
         #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
           current_position.x = toolchange_settings.change_point.x;
@@ -849,7 +848,7 @@ void tool_change_prime() {
 
     // Move back
     #if ENABLED(TOOLCHANGE_PARK)
-      if (can_move_away && ok ){
+      if (ok){
         #if ENABLED(TOOLCHANGE_NO_RETURN)
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
         #else
