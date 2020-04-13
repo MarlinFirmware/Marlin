@@ -3155,6 +3155,9 @@
   #define INTERNAL_SERIAL_PORT 2
   #define MMU2_SERIAL internalSerial
 
+  // has MMU2S like sensor
+  #define PRUSA_MMU2_S_MODE
+
   // Use hardware reset for MMU if a pin is defined for it
   //#define MMU2_RST_PIN 23
 

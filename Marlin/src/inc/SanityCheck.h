@@ -2714,6 +2714,17 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
+ * Prusa MMU2S requirements
+ */
+#if ENABLED(PRUSA_MMU2_S_MODE)
+  #if DISABLED(PRUSA_MMU2)
+    #error "PRUSA_MMU2_S_MODE requires PRUSA_MMU2."
+  #elif DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2_S_MODE requires FILAMENT_RUNOUT_SENSOR."
+ #endif
+#endif
+
+/**
  * Advanced PRINTCOUNTER settings
  */
 #if ENABLED(PRINTCOUNTER)

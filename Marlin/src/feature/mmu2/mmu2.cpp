@@ -91,6 +91,9 @@ MMU2 mmu2;
 #define mmuSerial   MMU2_SERIAL
 
 bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
+#if ENABLED(PRUSA_MMU2_S_MODE)
+  bool MMU2::mmu2s_triggered;
+#endif
 uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
 volatile int8_t MMU2::finda = 1;
@@ -227,6 +230,9 @@ void MMU2::mmu_loop() {
         DEBUG_ECHOLNPAIR("MMU => ", finda, "\nMMU - ENABLED");
 
         enabled = true;
+        #if ENABLED(PRUSA_MMU2_S_MODE)
+          mmu2s_triggered = false;
+        #endif
         state = 1;
       }
       break;
@@ -291,6 +297,10 @@ void MMU2::mmu_loop() {
         tx_str_P(PSTR("P0\n"));
         state = 2; // wait for response
       }
+      
+      #if ENABLED(PRUSA_MMU2_S_MODE)
+        check_filament();
+      #endif
       break;
 
     case 2:   // response to command P0
@@ -309,6 +319,9 @@ void MMU2::mmu_loop() {
       else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
+      #if ENABLED(PRUSA_MMU2_S_MODE)
+        check_filament();
+      #endif
       break;
 
     case 3:   // response to mmu commands
@@ -327,6 +340,9 @@ void MMU2::mmu_loop() {
         }
         state = 1;
       }
+      #if ENABLED(PRUSA_MMU2_S_MODE)
+        check_filament();
+      #endif
       break;
   }
 }
@@ -631,6 +647,21 @@ void MMU2::filament_runout() {
   queue.inject_P(PSTR(MMU2_FILAMENT_RUNOUT_SCRIPT));
   planner.synchronize();
 }
+
+#if ENABLED(PRUSA_MMU2_S_MODE)
+  void MMU2::check_filament() {
+    const bool runout = (FIL_RUNOUT_INVERTING) ? !READ(FIL_RUNOUT_PIN) : READ(FIL_RUNOUT_PIN);
+    if (runout && !mmu2s_triggered) {
+      DEBUG_ECHOLNPGM("MMU <= 'A'");
+      tx_str_P(PSTR("A\n")); 
+      mmu2s_triggered = true;
+    } 
+    else if (!runout) {
+      if (mmu2s_triggered) 
+        mmu2s_triggered = false;
+    }
+  }
+#endif
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
