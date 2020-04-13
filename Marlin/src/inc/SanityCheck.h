@@ -1425,6 +1425,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Volumetric Extruder Limit
+ */
+  #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+    #if ENABLED(NO_VOLUMETRICS)
+      #error "VOLUMETRIC_EXTRUDER_LIMIT requires NO_VOLUMETRICS to be disabled."
+    #endif
+    #if MIN_STEPS_PER_SEGMENT > 1
+      #error "VOLUMETRIC_EXTRUDER_LIMIT is not compatible with MIN_STEPS_PER_SEGMENT greater than 1."
+    #endif
+  #endif
+
+/**
  * ULTIPANEL encoder
  */
 #if ENABLED(ULTIPANEL) && NONE(NEWPANEL, SR_LCD_2W_NL) && !defined(SHIFT_CLK)

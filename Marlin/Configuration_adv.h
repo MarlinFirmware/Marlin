@@ -2779,14 +2779,17 @@
    */
   //#define VOLUMETRIC_DEFAULT_ON
 
-  /**
-   * Default volumetric extrusion limit in cubic millimeter per second (mm^3/sec).
-   * Volumetric based extrusion limit is activ as long as set to >0; set to '0' to disable any volumetric based extrusion limit.
-   * DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT is valid for all extruder but can be overwritten with 'M200 Tn Ln' at runtime.
-   *
-   * M200 Ln to set a new volumetric based extrusion limit for active extruder or use 'M200 Tn Ln' to set for a specific extruder. 
-   */
-  #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0.00
+  //#define VOLUMETRIC_EXTRUDER_LIMIT
+  #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+    /**
+     * Default volumetric extrusion limit in cubic millimeter per second (mm^3/sec).
+     * Volumetric based extrusion limit is activ as long as set to >0; set to '0' to disable any volumetric based extrusion limit.
+     * DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT is valid for all extruder but can be overwritten with 'M200 Tn Ln' at runtime.
+     *
+     * M200 Ln to set a new volumetric based extrusion limit for active extruder or use 'M200 Tn Ln' to set for a specific extruder. 
+     */
+    #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0.00
+  #endif
 #endif
 
 /**

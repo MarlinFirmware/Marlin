@@ -165,11 +165,14 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 #endif
 
 #if DISABLED(NO_VOLUMETRICS)
-  float Planner::filament_size[EXTRUDERS],              // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-        Planner::volumetric_extruder_limit[EXTRUDERS],  // max mm^3/sec the extruder is able to handle
-        Planner::volumetric_extruder_feedrate_limit[EXTRUDERS], // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
+  float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
         Planner::volumetric_area_nominal = CIRCLE_AREA(float(DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5f), // Nominal cross-sectional area
-        Planner::volumetric_multiplier[EXTRUDERS];      // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+        Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+#endif
+
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+  float Planner::volumetric_extruder_limit[EXTRUDERS],          // max mm^3/sec the extruder is able to handle
+        Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
 #if HAS_LEVELING
@@ -1414,10 +1417,16 @@ void Planner::check_axes_activity() {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
-    calculate_volumetric_extruder_limits(); // update volumetric_extruder_limits as well.
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      calculate_volumetric_extruder_limits(); // update volumetric_extruder_limits as well.
+    #endif
   }
 
-  /**
+#endif // !NO_VOLUMETRICS
+
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+
+    /**
    * Convert volumetric based limits into pre calculated extruder feedrate limits.
    */
   void Planner::calculate_volumetric_extruder_limits() {
@@ -1429,7 +1438,7 @@ void Planner::check_axes_activity() {
     }
   }
 
-#endif // !NO_VOLUMETRICS
+#endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   /**
@@ -2123,7 +2132,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
       
-      #if DISABLED(NO_VOLUMETRICS)
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
         const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] * MIX_FACTOR;
 
         // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.

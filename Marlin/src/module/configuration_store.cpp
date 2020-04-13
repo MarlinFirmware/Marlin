@@ -955,7 +955,12 @@ void MarlinSettings::postprocess() {
 
         EEPROM_WRITE(parser.volumetric_enabled);
         EEPROM_WRITE(planner.filament_size);
-        EEPROM_WRITE(planner.volumetric_extruder_limit);
+        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+          EEPROM_WRITE(planner.volumetric_extruder_limit);
+        #else
+          dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+          for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
+        #endif
 
       #else
 
@@ -1822,7 +1827,9 @@ void MarlinSettings::postprocess() {
         struct {
           bool volumetric_enabled;
           float filament_size[EXTRUDERS];
-          float volumetric_extruder_limit[EXTRUDERS];
+          #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+            float volumetric_extruder_limit[EXTRUDERS];
+          #endif
         } storage;
 
         _FIELD_TEST(parser_volumetric_enabled);
@@ -1832,7 +1839,9 @@ void MarlinSettings::postprocess() {
           if (!validating) {
             parser.volumetric_enabled = storage.volumetric_enabled;
             COPY(planner.filament_size, storage.filament_size);
-            COPY(planner.volumetric_extruder_limit, storage.volumetric_extruder_limit);
+            #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+              COPY(planner.volumetric_extruder_limit, storage.volumetric_extruder_limit);
+            #endif
           }
         #endif
       }
@@ -2709,8 +2718,10 @@ void MarlinSettings::reset() {
     ;
     LOOP_L_N(q, COUNT(planner.filament_size))
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
-    LOOP_L_N(q, COUNT(planner.volumetric_extruder_limit))
-      planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      LOOP_L_N(q, COUNT(planner.volumetric_extruder_limit))
+        planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+    #endif
 
   #endif
 
@@ -2895,15 +2906,19 @@ void MarlinSettings::reset() {
       #if EXTRUDERS == 1
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 L", LINEAR_UNIT(planner.volumetric_extruder_limit[0]));
+        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+          CONFIG_ECHO_START();
+          SERIAL_ECHOLNPAIR("  M200 L", LINEAR_UNIT(planner.volumetric_extruder_limit[0]));
+        #endif
       #elif EXTRUDERS
         LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
           SERIAL_ECHOPGM("  M200");
           if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
           SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
-          SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(planner.volumetric_extruder_limit[i]));
+          #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+            SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(planner.volumetric_extruder_limit[i]));
+          #endif
         }
       #endif
 

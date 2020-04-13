@@ -247,12 +247,14 @@ class Planner {
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
-      static float filament_size[EXTRUDERS],              // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-                   volumetric_extruder_limit[EXTRUDERS],  // max mm^3/sec the extruder can handle
-                   volumetric_extruder_feedrate_limit[EXTRUDERS], // pre calculated extruder feedrate limit in mm/s based on volumetric_extruder_limit
-                   volumetric_area_nominal,               // Nominal cross-sectional area
-                   volumetric_multiplier[EXTRUDERS];      // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
-                                                          // May be auto-adjusted by a filament width sensor
+      static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                   volumetric_area_nominal,           // Nominal cross-sectional area
+                   volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+                                                      // May be auto-adjusted by a filament width sensor
+    #endif
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      static float volumetric_extruder_limit[EXTRUDERS],          // max mm^3/sec the extruder can handle
+                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit in mm/s based on volumetric_extruder_limit
     #endif
 
     static planner_settings_t settings;
@@ -416,6 +418,10 @@ class Planner {
         LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
+
+    #endif
+
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
 
       FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float &v) {
         volumetric_extruder_limit[e] = v;

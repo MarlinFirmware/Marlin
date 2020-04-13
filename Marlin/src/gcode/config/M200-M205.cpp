@@ -49,15 +49,17 @@
       parser.volumetric_enabled = parser.value_bool();
     }
 
-    if (parser.seenval('L')) {
-      // setting any extruder volumetric limit in cubic millimeter per second (mm^3/sec).
-      const float newL = parser.value_float();
-      if (WITHIN(newL, 0, 20)) {
-        planner.set_volumetric_extruder_limit(target_extruder, newL);
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      if (parser.seenval('L')) {
+        // setting any extruder volumetric limit in cubic millimeter per second (mm^3/sec).
+        const float newL = parser.value_float();
+        if (WITHIN(newL, 0, 20)) {
+          planner.set_volumetric_extruder_limit(target_extruder, newL);
+        }
+        else
+          SERIAL_ECHOLNPGM("?L value out of range (0-20).");
       }
-      else
-        SERIAL_ECHOLNPGM("?L value out of range (0-20).");
-    }
+    #endif // VOLUMETRIC_EXTRUDER_LIMIT
     
     planner.calculate_volumetric_multipliers();
   }

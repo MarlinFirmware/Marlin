@@ -122,10 +122,12 @@ void menu_cancelobject();
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
-      EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
-      #if EXTRUDERS > 1
-        LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_FAST_N(float42_52, n, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[n], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
+        #if EXTRUDERS > 1
+          LOOP_L_N(n, EXTRUDERS)
+            EDIT_ITEM_FAST_N(float42_52, n, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[n], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
+        #endif
       #endif
 
       if (parser.volumetric_enabled) {
