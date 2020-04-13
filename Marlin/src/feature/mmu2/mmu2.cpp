@@ -650,16 +650,12 @@ void MMU2::filament_runout() {
 
 #if ENABLED(PRUSA_MMU2_S_MODE)
   void MMU2::check_filament() {
-    const bool runout = (FIL_RUNOUT_INVERTING) ? !READ(FIL_RUNOUT_PIN) : READ(FIL_RUNOUT_PIN);
+    const bool runout = READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING);
     if (runout && !mmu2s_triggered) {
       DEBUG_ECHOLNPGM("MMU <= 'A'");
-      tx_str_P(PSTR("A\n")); 
-      mmu2s_triggered = true;
+      tx_str_P(PSTR("A\n"));
     } 
-    else if (!runout) {
-      if (mmu2s_triggered) 
-        mmu2s_triggered = false;
-    }
+    mmu2s_triggered = runout;
   }
 #endif
 
