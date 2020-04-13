@@ -32,20 +32,38 @@
 
   #include "../../feature/spindle_laser.h"
 
+  void disableCutter()
+  {
+    cutter.disable();
+    ui.refresh();
+  }
+
+  void enableCutter()
+  {
+    cutter.enable_forward();
+    ui.refresh();
+  }
+
+  void enableCutterReverse()
+  {
+    cutter.enable_reverse();
+    ui.refresh();
+  }
+
   void menu_spindle_laser() {
 
     START_MENU();
     BACK_ITEM(MSG_MAIN);
     if (cutter.enabled()) {
+      ACTION_ITEM(MSG_CUTTER(OFF), disableCutter);
       #if ENABLED(SPINDLE_LASER_PWM)
         EDIT_ITEM(CUTTER_MENU_TYPE, MSG_CUTTER(POWER), &cutter.power, SPEED_POWER_MIN, SPEED_POWER_MAX);
       #endif
-      ACTION_ITEM(MSG_CUTTER(OFF), cutter.disable);
     }
     else {
-      ACTION_ITEM(MSG_CUTTER(ON), cutter.enable_forward);
+      ACTION_ITEM(MSG_CUTTER(ON), enableCutter);
       #if ENABLED(SPINDLE_CHANGE_DIR)
-        ACTION_ITEM(MSG_SPINDLE_REVERSE, cutter.enable_reverse);
+        ACTION_ITEM(MSG_SPINDLE_REVERSE, enableCutterReverse);
       #endif
     }
     END_MENU();
