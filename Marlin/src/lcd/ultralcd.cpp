@@ -638,8 +638,6 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 #if HAS_LCD_MENU
 
-  extern bool no_reentry; // Flag to prevent recursion into menu handlers
-
   int8_t manual_move_axis = (int8_t)NO_AXIS;
   millis_t manual_move_start_time = 0;
 
@@ -767,7 +765,7 @@ void MarlinUI::update() {
 
     auto do_click = [&]{
       wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
-      lcd_clicked = !wait_for_user && !no_reentry;    //  - Keep the click if not waiting for a user-click
+      lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
       wait_for_user = false;                          //  - Any click clears wait for user
       quick_feedback();                               //  - Always make a click sound
     };
@@ -1455,6 +1453,7 @@ void MarlinUI::update() {
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
       synchronize(GET_TEXT(MSG_PAUSING));
+      defer_status_screen();
     #endif
 
     #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -1465,7 +1464,7 @@ void MarlinUI::update() {
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       #if HAS_SPI_LCD
-        lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
+        lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       #endif
       queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)

@@ -27,6 +27,14 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 
+#ifdef SD_FINISHED_RELEASECOMMAND
+  #include "../queue.h"
+#endif
+
+#if HAS_LEDS_OFF_FLAG
+  #include "../../MarlinCore.h"
+#endif
+
 #if EITHER(LCD_SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/ultralcd.h"
 #endif
@@ -45,10 +53,6 @@
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../feature/host_actions.h"
-#endif
-
-#if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-  #include "../../module/planner.h"
 #endif
 
 #ifndef PE_LEDS_COMPLETED_TIME
@@ -95,9 +99,9 @@ void GcodeSuite::M1001() {
     }
   #endif
 
-  // Wait for the queue to empty (and "clean"), inject SD_FINISHED_RELEASECOMMAND
-  #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-    planner.finish_and_disable();
+  // Inject SD_FINISHED_RELEASECOMMAND, if any
+  #ifdef SD_FINISHED_RELEASECOMMAND
+    queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
 
   // Re-select the last printed file in the UI

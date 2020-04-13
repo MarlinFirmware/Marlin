@@ -65,7 +65,7 @@
 
 /**
  * Include all needed font files
- * (See http://marlinfw.org/docs/development/fonts.html)
+ * (See https://marlinfw.org/docs/development/fonts.html)
  */
 #include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
