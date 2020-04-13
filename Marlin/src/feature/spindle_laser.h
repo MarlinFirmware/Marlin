@@ -58,7 +58,7 @@ public:
 
   static inline void set_enabled(const bool enable) {
     const bool was = enabled();
-    set_power(enable ? 255 : 0);
+    set_power(enable ? SPEED_POWER_MIN : 0);
     if (was != enable) power_delay();
   }
 
