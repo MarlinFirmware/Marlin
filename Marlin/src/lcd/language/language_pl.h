@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Polish - includes accented characters
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -186,8 +186,8 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Slot Pamięci");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Załaduj siatke stołu");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Zapisz siatke stołu");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Siatka %i załadowana");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Siatka %i Zapisana");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Siatka %i załadowana");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Siatka %i Zapisana");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Brak magazynu");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Błąd: Zapis UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Bład: Odczyt UBL");
@@ -240,9 +240,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Stół");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Obudowa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Obroty wiatraka");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Obroty wiatraka ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Obroty dodatkowego wiatraka");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Obroty dodatkowego wiatraka ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Przepływ");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Przepływ ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ustawienia");
@@ -254,14 +254,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Wył.");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autostrojenie");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autostrojenie *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Wybierz");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Wybierz *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Przyspieszenie");
@@ -306,7 +298,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Zapisz w pamięci");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Wczytaj z pamięci");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Ustaw. fabryczne");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Ustaw. fabryczne");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initializuj EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Uaktualnij kartę");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetuj drukarkę");
@@ -358,7 +350,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Wyładuj Filament");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Wyładuj Filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Wyładuj wszystkie");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inicjal. karty SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inicjal. karty SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Zmiana karty SD");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Zwolnienie karty");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z za stołem");
@@ -531,17 +523,13 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  #define MSG_1_LINE(A)     A "\0"   "\0"
-  #define MSG_2_LINE(A,B)   A "\0" B "\0"
-  #define MSG_3_LINE(A,B,C) A "\0" B "\0" C
-
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display
   //
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Nacisnik przycisk", "by wznowić drukowanie"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkowanie..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkowanie..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Czekam na", "zmianę filamentu", "by wystartować"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Włóż filament", "i naciśnij przycisk", "by kontynuować"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Naciśnij przycisk", "by nagrzać dyszę"));
@@ -553,7 +541,7 @@ namespace Language_pl {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Czekam na", "wznowienie wydruku..."));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Kliknij by kontynuować"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkowanie..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkowanie..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Proszę czekać..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Włóż i kliknij"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Kliknij by nagrzać"));

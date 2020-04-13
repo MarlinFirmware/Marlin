@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,7 +40,7 @@
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN        7
+#define MOSFET_D_PIN                           7
 
 //
 // PSU / SERVO
@@ -48,8 +48,8 @@
 // If PSU_CONTROL is specified, always hijack Servo 3
 //
 #if ENABLED(PSU_CONTROL)
-  #define SERVO3_PIN       -1
-  #define PS_ON_PIN         4
+  #define SERVO3_PIN                          -1
+  #define PS_ON_PIN                            4
 #endif
 
 #include "pins_RAMPS.h"
@@ -104,44 +104,44 @@
   //
 
   // orange/white          SDCD
-  #define SD_DETECT_PIN    49
+  #define SD_DETECT_PIN                       49
 
   // white                 ENCA
-  #define BTN_EN1          35
+  #define BTN_EN1                             35
 
   // green                 ENCB
-  #define BTN_EN2          37
+  #define BTN_EN2                             37
 
   // purple                ENCBTN
-  #define BTN_ENC          31
+  #define BTN_ENC                             31
 
   // brown                 A0
-  #define DOGLCD_A0        27
+  #define DOGLCD_A0                           27
 
   // green/white           LCS
-  #define DOGLCD_CS        29
+  #define DOGLCD_CS                           29
 
                         // 50    gray   MISO
                         // 51    yellow MOSI
                         // 52    orange SCK
 
   // blue                  SDCS
-  //#define SDSS           53
+  //#define SDSS                              53
 
   //
   // VIKI2 4-wire lead
   //
 
   // blue                  BTN
-  #define KILL_PIN         23
+  #define KILL_PIN                            23
 
   // green                 BUZZER
-  #define BEEPER_PIN       25
+  #define BEEPER_PIN                          25
 
   // yellow                RED-LED
-  #define STAT_LED_RED_PIN 16
+  #define STAT_LED_RED_PIN                    16
 
   // white                 BLUE-LED
-  #define STAT_LED_BLUE_PIN 17
+  #define STAT_LED_BLUE_PIN                   17
 
 #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -64,7 +64,8 @@ void host_action(const char * const pstr, const bool eol) {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
-  const char CONTINUE_STR[] PROGMEM = "Continue";
+  const char CONTINUE_STR[] PROGMEM = "Continue",
+             DISMISS_STR[] PROGMEM = "Dismiss";
 
   #if HAS_RESUME_CONTINUE
     extern bool wait_for_user;
@@ -84,70 +85,78 @@ void host_action(const char * const pstr, const bool eol) {
     if (eol) SERIAL_EOL();
   }
 
-  void host_action_prompt_plus(const char * const ptype, const char * const pstr, const bool eol=true) {
+  void host_action_prompt_plus(const char * const ptype, const char * const pstr, const char extra_char='\0') {
     host_action_prompt(ptype, false);
     SERIAL_CHAR(' ');
     serialprintPGM(pstr);
-    if (eol) SERIAL_EOL();
+    if (extra_char != '\0') SERIAL_CHAR(extra_char);
+    SERIAL_EOL();
   }
-  void host_action_prompt_begin(const char * const pstr, const bool eol/*=true*/) { host_action_prompt_plus(PSTR("begin"), pstr, eol); }
+  void host_action_prompt_begin(const PromptReason reason, const char * const pstr, const char extra_char/*='\0'*/) {
+    host_action_prompt_end();
+    host_prompt_reason = reason;
+    host_action_prompt_plus(PSTR("begin"), pstr, extra_char);
+  }
   void host_action_prompt_button(const char * const pstr) { host_action_prompt_plus(PSTR("button"), pstr); }
   void host_action_prompt_end() { host_action_prompt(PSTR("end")); }
   void host_action_prompt_show() { host_action_prompt(PSTR("show")); }
-  void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const pbtn/*=nullptr*/) {
-    host_prompt_reason = reason;
-    host_action_prompt_end();
-    host_action_prompt_begin(pstr);
-    if (pbtn) host_action_prompt_button(pbtn);
+  void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const btn1/*=nullptr*/, const char * const btn2/*=nullptr*/) {
+    host_action_prompt_begin(reason, pstr);
+    if (btn1) host_action_prompt_button(btn1);
+    if (btn2) host_action_prompt_button(btn2);
     host_action_prompt_show();
   }
 
-  inline void say_m876_response(const char * const pstr) {
-    SERIAL_ECHOPGM("M876 Responding PROMPT_");
-    serialprintPGM(pstr);
-    SERIAL_EOL();
+  void filament_load_host_prompt() {
+    const bool disable_to_continue = (false
+      #if HAS_FILAMENT_SENSOR
+        || runout.filament_ran_out
+      #endif
+    );
+    host_prompt_do(PROMPT_FILAMENT_RUNOUT, PSTR("Paused"), PSTR("PurgeMore"),
+      disable_to_continue ? PSTR("DisableRunout") : CONTINUE_STR
+    );
   }
 
+  //
+  // Handle responses from the host, such as:
+  //  - Filament runout responses: Purge More, Continue
+  //  - General "Continue" response
+  //  - Resume Print response
+  //  - Dismissal of info
+  //
   void host_response_handler(const uint8_t response) {
     #ifdef DEBUG_HOST_ACTIONS
-      SERIAL_ECHOLNPAIR("M876 Handle Reason: ", host_prompt_reason);
-      SERIAL_ECHOLNPAIR("M876 Handle Response: ", response);
+      static const char m876_prefix[] PROGMEM = "M876 Handle Re";
+      serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("ason: ", host_prompt_reason);
+      serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("sponse: ", response);
     #endif
     const char *msg = PSTR("UNKNOWN STATE");
     const PromptReason hpr = host_prompt_reason;
-    host_prompt_reason = PROMPT_NOT_DEFINED;
+    host_prompt_reason = PROMPT_NOT_DEFINED;  // Reset now ahead of logic
     switch (hpr) {
       case PROMPT_FILAMENT_RUNOUT:
         msg = PSTR("FILAMENT_RUNOUT");
-        if (response == 0) {
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
-          #endif
-          host_action_prompt_end();   // Close current prompt
-          host_action_prompt_begin(PSTR("Paused"));
-          host_action_prompt_button(PSTR("Purge More"));
-          if (false
-            #if HAS_FILAMENT_SENSOR
-              || runout.filament_ran_out
+        switch (response) {
+
+          case 0: // "Purge More" button
+            #if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+              pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
-          )
-            host_action_prompt_button(PSTR("DisableRunout"));
-          else {
-            host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
-            host_action_prompt_button(CONTINUE_STR);
-          }
-          host_action_prompt_show();
-        }
-        else if (response == 1) {
-          #if HAS_FILAMENT_SENSOR
-            if (runout.filament_ran_out) {
-              runout.enabled = false;
-              runout.reset();
-            }
-          #endif
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
-          #endif
+            filament_load_host_prompt();                          // Initiate another host prompt. (NOTE: The loop in load_filament may also do this!)
+            break;
+
+          case 1: // "Continue" / "Disable Runout" button
+            #if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+              pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
+            #endif
+            #if HAS_FILAMENT_SENSOR
+              if (runout.filament_ran_out) {                      // Disable a triggered sensor
+                runout.enabled = false;
+                runout.reset();
+              }
+            #endif
+            break;
         }
         break;
       case PROMPT_USER_CONTINUE:
@@ -168,7 +177,9 @@ void host_action(const char * const pstr, const bool eol) {
         break;
       default: break;
     }
-    say_m876_response(msg);
+    SERIAL_ECHOPGM("M876 Responding PROMPT_");
+    serialprintPGM(msg);
+    SERIAL_EOL();
   }
 
 #endif // HOST_PROMPT_SUPPORT

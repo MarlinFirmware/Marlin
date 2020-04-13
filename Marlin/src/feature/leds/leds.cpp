@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(PCA9533)
-  #include <SailfishRGB_LED.h>
+  #include "pca9533.h"
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)
@@ -72,7 +72,7 @@ void LEDLights::setup() {
     neo.init();
   #endif
   #if ENABLED(PCA9533)
-    RGBinit();
+    PCA9533_init();
   #endif
   #if ENABLED(LED_USER_PRESET_STARTUP)
     set_default();
@@ -141,7 +141,7 @@ void LEDLights::set_color(const LEDColor &incol
   #endif
 
   #if ENABLED(PCA9533)
-    RGBsetColor(incol.r, incol.g, incol.b, true);
+    PCA9533_setColor(incol.r, incol.g, incol.b);
   #endif
 
   #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)

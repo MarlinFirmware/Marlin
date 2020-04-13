@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -46,6 +46,7 @@
  *     1 - monitor only X, Y, Z, E1
  *     2 - monitor only X2, Y2, Z2, E2
  *     3 - monitor only Z3, E3
+ *     4 - monitor only Z4, E4
  *
  * Xxxx, Yxxx, Zxxx, Exxx - axis to be monitored with displacement
  *     xxx (1-255) is distance moved on either side of current position

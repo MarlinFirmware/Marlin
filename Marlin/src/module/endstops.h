@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,7 +34,8 @@ enum EndstopEnum : char {
   X2_MIN, X2_MAX,
   Y2_MIN, Y2_MAX,
   Z2_MIN, Z2_MAX,
-  Z3_MIN, Z3_MAX
+  Z3_MIN, Z3_MAX,
+  Z4_MIN, Z4_MAX
 };
 
 class Endstops {
@@ -47,11 +48,14 @@ class Endstops {
       #if ENABLED(Y_DUAL_ENDSTOPS)
         static float y2_endstop_adj;
       #endif
-      #if Z_MULTI_ENDSTOPS
+      #if ENABLED(Z_MULTI_ENDSTOPS)
         static float z2_endstop_adj;
       #endif
-      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
         static float z3_endstop_adj;
+      #endif
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+        static float z4_endstop_adj;
       #endif
     #else
       typedef uint8_t esbits_t;

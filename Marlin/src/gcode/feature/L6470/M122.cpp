@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -115,6 +115,9 @@ void GcodeSuite::M122() {
   #if AXIS_IS_L64XX(Z3)
     L6470_say_status(Z3);
   #endif
+  #if AXIS_IS_L64XX(Z4)
+    L6470_say_status(Z4);
+  #endif
   #if AXIS_IS_L64XX(E0)
     L6470_say_status(E0);
   #endif
@@ -132,6 +135,12 @@ void GcodeSuite::M122() {
   #endif
   #if AXIS_IS_L64XX(E5)
     L6470_say_status(E5);
+  #endif
+  #if AXIS_IS_L64XX(E6)
+    L6470_say_status(E6);
+  #endif
+  #if AXIS_IS_L64XX(E7)
+    L6470_say_status(E7);
   #endif
 
   L64xxManager.spi_active = false;   // done with all SPI transfers - clear handshake flags

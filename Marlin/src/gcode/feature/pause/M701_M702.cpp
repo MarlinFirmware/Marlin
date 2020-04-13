@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../../../feature/prusa_MMU2/mmu2.h"
+  #include "../../../feature/mmu2/mmu2.h"
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)

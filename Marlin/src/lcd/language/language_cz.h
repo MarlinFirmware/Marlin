@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
@@ -197,8 +197,8 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Paměťový slot");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Načíst síť bodů");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Uložit síť bodů");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Síť %i načtena");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Síť %i uložena");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Síť %i načtena");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Síť %i uložena");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Nedostatek místa");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Ch.: Uložit UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Ch.: Obnovit UBL");
@@ -251,10 +251,10 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Podložka");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Komora");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Rychlost vent.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rychlost vent. =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Rychlost vent. ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ulož. vent. ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Rychlost ex. vent.");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rychlost ex. vent. =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rychlost ex. vent. ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Průtok");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Průtok ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ovládaní");
@@ -266,14 +266,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Vyp");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID automatika");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID automatika *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Vybrat");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Vybrat *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Zrychl");
@@ -318,7 +310,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Uložit nastavení");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Načíst nastavení");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Obnovit výchozí");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Obnovit výchozí");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inic. EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aktualizace z SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset tiskárny");
@@ -377,7 +369,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Vysunout filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Vysunout vše");
 
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Načíst médium");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Načíst médium");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Vyměnit médium");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Vysunout médium");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z mimo podl");
@@ -571,7 +563,7 @@ namespace Language_cz {
   #if LCD_HEIGHT >= 4
     // Up to 3 lines allowed
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Stikněte tlačítko", "pro obnovení tisku"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkování..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkování..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Čekejte prosím", "na zahájení", "výměny filamentu"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Vložte filament", "a stiskněte", "tlačítko..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Klikněte pro", "nahřátí trysky"));
@@ -584,7 +576,7 @@ namespace Language_cz {
   #else // LCD_HEIGHT < 4
     // Up to 2 lines allowed
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Stikněte tlač.", "pro obnovení"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkování..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkování..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Čekejte..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Vložte, klikněte"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Klikněte pro", "nahřátí"));

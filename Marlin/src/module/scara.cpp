@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -53,11 +53,13 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
       current_position[axis] = cartes[axis];
     #else
       // MP_SCARA uses a Cartesian XY home position
-      // SERIAL_ECHOLNPAIR("homeposition X:", homeposition.x, " Y:", homeposition.y);
+      // SERIAL_ECHOPGM("homeposition");
+      // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
       current_position[axis] = homeposition[axis];
     #endif
 
-    // SERIAL_ECHOLNPAIR("Cartesian X:", current_position.x, " Y:", current_position.y);
+    // SERIAL_ECHOPGM("Cartesian");
+    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
     update_software_endstops(axis);
   }
 }

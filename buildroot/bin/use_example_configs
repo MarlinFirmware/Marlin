@@ -2,13 +2,15 @@
 
 restore_configs
 
-EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/master/config/examples"
+
+EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/bugfix-2.0.x/config/examples"
 
 cd Marlin
 
-curl -LJO "$EXAMPLES/$@/Configuration.h"
-curl -LJO "$EXAMPLES/$@/Configuration_adv.h"
-curl -LJO "$EXAMPLES/$@/_Bootscreen.h"
-curl -LJO "$EXAMPLES/$@/_Statusscreen.h"
+wget -q "$EXAMPLES/$@/Configuration.h"     -O wgot && mv wgot Configuration.h
+wget -q "$EXAMPLES/$@/Configuration_adv.h" -O wgot && mv wgot Configuration_adv.h
+wget -q "$EXAMPLES/$@/_Bootscreen.h"       -O wgot && mv wgot _Bootscreen.h
+wget -q "$EXAMPLES/$@/_Statusscreen.h"     -O wgot && mv wgot _Statusscreen.h
+rm -f wgot
 
-cd -
+cd - >/dev/null

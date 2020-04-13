@@ -77,3 +77,7 @@ typedef const char Language_Str[];
 #define GET_TEXT_F(MSG) (const __FlashStringHelper*)GET_TEXT(MSG)
 
 #define MSG_CONCAT(A,B) pgm_p_pair_t(GET_TEXT(A),GET_TEXT(B))
+
+#define MSG_1_LINE(A)     A "\0"   "\0"
+#define MSG_2_LINE(A,B)   A "\0" B "\0"
+#define MSG_3_LINE(A,B,C) A "\0" B "\0" C

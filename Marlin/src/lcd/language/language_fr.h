@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * French
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -93,7 +93,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Allumer alim.");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Eteindre alim.");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrusion");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétraction");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétractation");
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
@@ -235,10 +235,10 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Lit");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Caisson");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vit.  ventil.  "); // 15 car. max
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vit.  ventil. =");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Vit.  enreg.  =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vit.  ventil. ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Vit.  enreg.  ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra ventil.  ");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra ventil. =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra ventil. ~");
 
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
@@ -282,7 +282,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Enregistrer config.");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Charger config.");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaurer défauts");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaurer défauts");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialiser EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("MaJ Firmware SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("RaZ imprimante");
@@ -317,7 +317,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("Moteurs bloqués");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("KILLED");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("STOPPÉ");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Rétraction mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Rétractation mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Ech. rétr. mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Vit. rétract°");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Saut Z mm");
@@ -340,7 +340,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Retrait filament");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Retrait filament *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Retirer tout");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Charger le média");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Charger le média");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Actualiser média");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Retirer le média");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonde Z hors lit");
@@ -384,7 +384,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SHORT_HOUR                      = _UxGT("h"); // One character only
   PROGMEM Language_Str MSG_SHORT_MINUTE                    = _UxGT("m"); // One character only
 
-  PROGMEM Language_Str MSG_HEATING                         = _UxGT("En chauffe...");
+  PROGMEM Language_Str MSG_HEATING                         = _UxGT("en chauffe...");
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Refroidissement");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Lit en chauffe...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Refroid. du lit...");
@@ -416,6 +416,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("Extrudeurs");
   PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Bauds");
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocole");
+  PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Protection inactive");
+  PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Protection active");
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Lumière caisson");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Luminosité");
 
@@ -437,7 +440,7 @@ namespace Language_fr {
 
   PROGMEM Language_Str MSG_INFO_MIN_TEMP                   = _UxGT("Temp Min");
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Temp Max");
-  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Alimentation");
+  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Alim.");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Puiss. moteur ");
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
@@ -505,7 +508,7 @@ namespace Language_fr {
   #if LCD_HEIGHT >= 4
     // Up to 3 lines allowed
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Presser bouton", "pour reprendre"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parking..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_2_LINE("Attente filament", "pour démarrer"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Insérer filament", "et app. bouton", "pour continuer..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Presser le bouton", "pour chauffer..."));

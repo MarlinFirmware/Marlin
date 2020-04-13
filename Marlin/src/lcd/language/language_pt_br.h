@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_pt_br {
@@ -156,8 +156,8 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Slot de Memória");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Ler Malha");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Salvar Malha");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Malha %i carregada");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Malha %i salva");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Malha %i carregada");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Malha %i salva");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Sem armazenamento");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Erro ao salvar UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Erro no restauro UBL");
@@ -207,9 +207,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Bocal ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Mesa");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. Ventoinha");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventoinha =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventoinha ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("+Vel. Ventoinha");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("+Vel. Ventoinha =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("+Vel. Ventoinha ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Vazão");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Vazão ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controle");
@@ -252,7 +252,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Salvar Configuração");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Ler Configuração");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restauro seguro");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restauro seguro");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Iniciar EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Atualiz. SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetar Impressora");
@@ -293,7 +293,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Carregar Filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Descarreg. Filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Descarregar Todos");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Iniciar SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Iniciar SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda fora da mesa");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Fator de Cisalho");

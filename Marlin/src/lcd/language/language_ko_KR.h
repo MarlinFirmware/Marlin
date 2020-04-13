@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Korean
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_ko_KR {
@@ -77,14 +77,14 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("노즐 ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("베드");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("펜 속도");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("펜 속도 =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("펜 속도 ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("엑스트라 펜 속도");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("엑스트라 펜 속도 =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("엑스트라 펜 속도 ~");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("온도");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("동작");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("설정 저장하기");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("설정 읽어오기");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("설정 되돌리기");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("설정 되돌리기");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM 초기화");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("새로고침");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("처음으로");
