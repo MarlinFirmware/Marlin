@@ -368,9 +368,6 @@ void CardReader::mount() {
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
-    #if ENABLED(SDCARD_EEPROM_EMULATION)
-      settings.first_load();
-    #endif
   }
   cdroot();
 
@@ -408,12 +405,17 @@ void CardReader::manage_media() {
 
     ui.media_changed(old_stat, stat); // Update the UI
 
-    if (stat && old_stat == 2) {      // First mount?
-      #if ENABLED(POWER_LOSS_RECOVERY)
-        recovery.check();
-      #else
-        beginautostart();             // Look for autostart files soon
+    if (stat) {
+      #if ENABLED(SDCARD_EEPROM_EMULATION)
+        settings.first_load();
       #endif
+      if (old_stat == 2) {            // First mount?
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.check();
+        #else
+          beginautostart();           // Look for autostart files soon
+        #endif
+      }
     }
   }
 }
