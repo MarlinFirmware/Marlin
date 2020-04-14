@@ -701,7 +701,7 @@ void MMU2::filament_runout() {
     
     int filament_detected_count = 0;
     const int steps = MMU2_CAN_LOAD_RETRACT / MMU2_CAN_LOAD_INCREMENT;
-    DEBUG_ECHOLNPGM("MMU can_load:"));
+    DEBUG_ECHOLNPGM("MMU can_load:");
     LOOP_L_N(i, steps) {
       execute_extruder_sequence((const E_Step *)can_load_increment_sequence, COUNT(can_load_increment_sequence));
       check_filament(); // Don't trust the idle function
