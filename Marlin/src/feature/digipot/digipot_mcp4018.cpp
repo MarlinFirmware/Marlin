@@ -89,27 +89,15 @@ static void i2c_send(const uint8_t channel, const byte v) {
 
 // This is for the MCP4018 I2C based digipot
 void digipot_i2c_set_current(const uint8_t channel, const float current) {
-  i2c_send(channel, 
-    #if ENABLED(MCP4018_USE_RAW_VALUES)
-      byte(_MIN(_MAX(current, 0), DIGIPOT_MCP4018_MAX_VALUE))
-    #else
-      current_to_wiper(_MIN(_MAX(current, 0), float(DIGIPOT_A4988_MAX_CURRENT)))
-    #endif
-  );
+  const float ival = _MIN(_MAX(current, 0), float(DIGIPOT_MCP4018_MAX_VALUE));
+  i2c_send(channel, TERN(MCP4018_USE_RAW_VALUES, byte, current_to_wiper)(ival));
 }
 
 void digipot_i2c_init() {
-  static const float digipot_motor_current[] PROGMEM = 
-    #if ENABLED(MCP4018_USE_RAW_VALUES)
-      DIGIPOT_MOTOR_CURRENT
-    #else
-      DIGIPOT_I2C_MOTOR_CURRENTS
-    #endif
-  ;
-  LOOP_L_N(i, DIGIPOT_I2C_NUM_CHANNELS)
-    pots[i].i2c_init();
+  LOOP_L_N(i, DIGIPOT_I2C_NUM_CHANNELS) pots[i].i2c_init();
 
-  // setup initial currents as defined in Configuration_adv.h
+  // Init currents according to Configuration_adv.h
+  static const float digipot_motor_current[] PROGMEM = TERN(MCP4018_USE_RAW_VALUES, DIGIPOT_MOTOR_CURRENT, DIGIPOT_I2C_MOTOR_CURRENTS);
   LOOP_L_N(i, COUNT(digipot_motor_current))
     digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }
