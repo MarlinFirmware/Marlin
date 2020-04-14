@@ -3155,9 +3155,6 @@
   #define INTERNAL_SERIAL_PORT 2
   #define MMU2_SERIAL internalSerial
 
-  // has MMU2S like sensor
-  // #define PRUSA_MMU2_S_MODE
-
   // Use hardware reset for MMU if a pin is defined for it
   //#define MMU2_RST_PIN 23
 
@@ -3192,22 +3189,22 @@
       {  10.0,  700 }, \
       { -10.0,  400 }, \
       { -50.0, 2000 }
-    #if ENABLED(PRUSA_MMU2_S_MODE)
-      #define MMU2_CAN_LOAD_FEEDRATE 800
 
-      #define MMU2_CAN_LOAD_SEQUENCE \
+  // Using a sensor like the MMU2S
+  //#define PRUSA_MMU2_S_MODE
+  #if ENABLED(PRUSA_MMU2_S_MODE)
+    #define MMU2_CAN_LOAD_FEEDRATE 800    // To reuse within MMU2 module
+    #define MMU2_CAN_LOAD_SEQUENCE \
       {  60.0,  MMU2_CAN_LOAD_FEEDRATE }, \
       { -52.0,  MMU2_CAN_LOAD_FEEDRATE }
 
-      #define MMU2_CAN_LOAD_RETRACT 6.0 // This value should be smaller than the difference of the MMU2_CAN_LOAD_SEQUENCE values
+    #define MMU2_CAN_LOAD_RETRACT   6.0   // Should be smaller than the difference between MMU2_CAN_LOAD_SEQUENCE values
 
-      // to reuse within mmu2 module
-      #define MMU2_CAN_LOAD_INCREMENT 0.2 
+    #define MMU2_CAN_LOAD_INCREMENT 0.2   // To reuse within MMU2 module
 
-      #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
+    #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
       { -MMU2_CAN_LOAD_INCREMENT,  MMU2_CAN_LOAD_FEEDRATE }
 
-    #endif
   #endif
 
   //#define MMU2_DEBUG  // Write debug info to serial output
