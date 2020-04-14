@@ -55,8 +55,8 @@ void GcodeSuite::M140() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
-       * Stop the timer at the end of print. Both hotend and bed target
-       * temperatures need to be set below mintemp. Order of M140 and M104
+       * Stop the timer at the end of print. Hotend, bed target, and chamber
+       * temperatures need to be set below mintemp. Order of M140, M104, and M141
        * at the end of the print does not matter.
        */
       thermalManager.check_timer_autostart(false, true);

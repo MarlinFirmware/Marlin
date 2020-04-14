@@ -56,10 +56,9 @@ void GcodeSuite::M141() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
-       * Stop the timer at the end of print. Start is managed by 'heat and wait' M109.
-       * Hotends use EXTRUDE_MINTEMP / 2 to allow nozzles to be put into hot standby
-       * mode, for instance in a dual extruder setup, without affecting the running
-       * print timer.
+       * Stop the timer at the end of print. Hotend, bed target, and chamber
+       * temperatures need to be set below mintemp. Order of M140, M104, and M141
+       * at the end of the print does not matter.
        */
       thermalManager.check_timer_autostart(false, true);
     #endif
