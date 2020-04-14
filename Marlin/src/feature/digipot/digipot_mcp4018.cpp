@@ -39,12 +39,11 @@
 #define DIGIPOT_A4988_FACTOR            ((DIGIPOT_MCP4018_MAX_VALUE)/DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
 #define DIGIPOT_A4988_MAX_CURRENT       2.0
 
-
 #if DISABLED(MCP4018_USE_RAW_VALUES)
-static byte current_to_wiper(const float current) {
-  const int16_t value = ceil(float(DIGIPOT_A4988_FACTOR) * current);
-  return byte(constrain(value, 0, DIGIPOT_MCP4018_MAX_VALUE));
-}
+  static byte current_to_wiper(const float current) {
+    const int16_t value = ceil(float(DIGIPOT_A4988_FACTOR) * current);
+    return byte(constrain(value, 0, DIGIPOT_MCP4018_MAX_VALUE));
+  }
 #endif
 
 const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {
