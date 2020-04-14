@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -85,13 +85,13 @@ public:
               *string_arg,                // string of command line
               command_letter;             // G, M, or T
   static int codenum;                     // 123
-  #if USE_GCODE_SUBCODES
+  #if ENABLED(USE_GCODE_SUBCODES)
     static uint8_t subcode;               // .1
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
     static int16_t motion_mode_codenum;
-    #if USE_GCODE_SUBCODES
+    #if ENABLED(USE_GCODE_SUBCODES)
       static uint8_t motion_mode_subcode;
     #endif
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
@@ -166,7 +166,6 @@ public:
     #ifdef CPU_32_BIT
       FORCE_INLINE static bool seen(const char * const str) { return !!(codebits & letter_bits(str)); }
     #else
-      // At least one of a list of code letters was seen
       FORCE_INLINE static bool seen(const char * const str) {
         const uint32_t letrbits = letter_bits(str);
         const uint8_t * const cb = (uint8_t*)&codebits;
@@ -177,14 +176,27 @@ public:
 
     static inline bool seen_any() { return !!codebits; }
 
-    #define SEEN_TEST(L) TEST32(codebits, LETTER_BIT(L))
+    FORCE_INLINE static bool seen_test(const char c) { return TEST32(codebits, LETTER_BIT(c)); }
 
   #else // !FASTER_GCODE_PARSER
+
+    #if ENABLED(GCODE_CASE_INSENSITIVE)
+      FORCE_INLINE static char* strgchr(char *p, char g) {
+        auto uppercase = [](char c) {
+          return c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);
+        };
+        const char d = uppercase(g);
+        for (char cc; (cc = uppercase(*p)); p++) if (cc == d) return p;
+        return nullptr;
+      }
+    #else
+      #define strgchr strchr
+    #endif
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
     static inline bool seen(const char c) {
-      char *p = strchr(command_args, c);
+      char *p = strgchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = valid_float(&p[1]) ? &p[1] : nullptr;
       return b;
@@ -192,12 +204,12 @@ public:
 
     static inline bool seen_any() { return *command_args == '\0'; }
 
-    #define SEEN_TEST(L) !!strchr(command_args, L)
+    FORCE_INLINE static bool seen_test(const char c) { return (bool)strgchr(command_args, c); }
 
     // At least one of a list of code letters was seen
     static inline bool seen(const char * const str) {
       for (uint8_t i = 0; const char c = str[i]; i++)
-        if (SEEN_TEST(c)) return true;
+        if (seen_test(c)) return true;
       return false;
     }
 
@@ -205,8 +217,14 @@ public:
 
   // Seen any axis parameter
   static inline bool seen_axis() {
-    return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
+    return seen_test('X') || seen_test('Y') || seen_test('Z') || seen_test('E');
   }
+
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+    static char* unescape_string(char* &src);
+  #else
+    FORCE_INLINE static char* unescape_string(char* &src) { return src; }
+  #endif
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
@@ -222,6 +240,9 @@ public:
 
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
+
+  // The value as a string
+  static inline char* value_string() { return value_ptr; }
 
   // Float removes 'E' to prevent scientific notation interpretation
   static inline float value_float() {
@@ -366,9 +387,10 @@ public:
 
   static inline feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 
-  void unknown_command_error();
+  void unknown_command_warning();
 
   // Provide simple value accessors with default option
+  static inline char*    stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
   static inline float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
   static inline bool     boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
   static inline uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }

@@ -6,8 +6,6 @@
 # exit on first failure
 set -e
 
-backup_ramps
-
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
 exec_test $1 $2 "Teensy3.5 with default config"
@@ -38,7 +36,7 @@ exec_test $1 $2 "Teensy3.5 with many features"
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
-opt_enable EEPROM_SETTINGS Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE GCODE_MACROS
+opt_enable EEPROM_SETTINGS Z_PROBE_SLED Z_SAFE_HOMING AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE GCODE_MACROS
 exec_test $1 $2 "Sled Z Probe with Linear leveling"
 
 #
@@ -102,15 +100,16 @@ opt_enable COREXZ
 exec_test $1 $2 "COREXZ"
 
 #
-# Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
+# Enable Dual Z with Dual Z endstops
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
-opt_enable Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
+opt_enable Z_MULTI_ENDSTOPS
+opt_set NUM_Z_STEPPER_DRIVERS 2
 pins_set ramps/RAMPS X_MAX_PIN -1
 opt_add Z2_MAX_PIN 2
 opt_enable USE_XMAX_PLUG
-exec_test $1 $2 "Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS"
+exec_test $1 $2 "Dual Z with Dual Z endstops"
 
 # Clean up
 restore_configs

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,7 +24,7 @@
 
 #if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
-#include "../../feature/prusa_MMU2/mmu2.h"
+#include "../../feature/mmu2/mmu2.h"
 #include "menu_mmu2.h"
 #include "menu.h"
 
@@ -54,7 +54,7 @@ void _mmu2_load_filament(uint8_t index) {
   ui.reset_status();
 }
 void action_mmu2_load_all() {
-  for (uint8_t i = 0; i < EXTRUDERS; i++)
+  LOOP_L_N(i, EXTRUDERS)
     _mmu2_load_filament(i);
   ui.return_to_status();
 }

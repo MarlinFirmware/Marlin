@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,10 +30,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_BED_PROBE
-  #include "probe.h"
-#endif
-
 #if IS_SCARA
   #include "scara.h"
 #endif
@@ -41,6 +37,7 @@
 // Axis homed and known-position states
 extern uint8_t axis_homed, axis_known_position;
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
 FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
@@ -57,12 +54,18 @@ FORCE_INLINE bool homing_needed() {
 }
 
 // Error margin to work around float imprecision
-constexpr float slop = 0.0001;
+constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
+
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+#endif
 
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
@@ -159,7 +162,9 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   #define update_software_endstops(...) NOOP
 #endif
 
+void report_real_position();
 void report_current_position();
+void report_current_position_projected();
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -179,7 +184,11 @@ void sync_plan_position_e();
  */
 void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
-void prepare_move_to_destination();
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+#endif
+
+void prepare_line_to_destination();
 
 void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
   #if IS_KINEMATIC
@@ -239,7 +248,7 @@ bool axis_unhomed_error(uint8_t axis_bits=0x07);
 
 void set_axis_is_at_home(const AxisEnum axis);
 
-void set_axis_is_not_at_home(const AxisEnum axis);
+void set_axis_not_trusted(const AxisEnum axis);
 
 void homeaxis(const AxisEnum axis);
 
@@ -291,6 +300,7 @@ void homeaxis(const AxisEnum axis);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
+
   #if HAS_SCARA_OFFSET
     extern abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
@@ -298,7 +308,7 @@ void homeaxis(const AxisEnum axis);
   // Return true if the given point is within the printable area
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + slop);
+      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
     #elif IS_SCARA
       const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
       return (
@@ -314,52 +324,23 @@ void homeaxis(const AxisEnum axis);
     return position_is_reachable(pos.x, pos.y, inset);
   }
 
-  #if HAS_BED_PROBE
-    // Return true if the both nozzle and the probe can reach the given point.
-    // Note: This won't work on SCARA since the probe offset rotates with the arm.
-    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
-             && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
-    }
-  #endif
-
 #else // CARTESIAN
 
   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    if (!WITHIN(ry, Y_MIN_POS - slop, Y_MAX_POS + slop)) return false;
+    if (!WITHIN(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
-        return WITHIN(rx, X2_MIN_POS - slop, X2_MAX_POS + slop);
+        return WITHIN(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
       else
-        return WITHIN(rx, X1_MIN_POS - slop, X1_MAX_POS + slop);
+        return WITHIN(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
     #else
-      return WITHIN(rx, X_MIN_POS - slop, X_MAX_POS + slop);
+      return WITHIN(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
     #endif
   }
   inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
 
-  #if HAS_BED_PROBE
-    /**
-     * Return whether the given position is within the bed, and whether the nozzle
-     * can reach the position required to put the probe at the given position.
-     *
-     * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
-     *          nozzle must be be able to reach +10,-10.
-     */
-    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
-          && WITHIN(rx, probe_min_x() - slop, probe_max_x() + slop)
-          && WITHIN(ry, probe_min_y() - slop, probe_max_y() + slop);
-    }
-  #endif
-
 #endif // CARTESIAN
-
-#if !HAS_BED_PROBE
-  FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
-#endif
-FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return position_is_reachable_by_probe(pos.x, pos.y); }
 
 /**
  * Duplication mode
@@ -398,11 +379,13 @@ FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return p
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#elif ENABLED(MULTI_NOZZLE_DUPLICATION)
+#else
 
-  enum DualXMode : char {
-    DXC_DUPLICATION_MODE = 2
-  };
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+    enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+  #endif
+
+  FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }
 
 #endif
 

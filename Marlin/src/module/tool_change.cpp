@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -29,7 +29,7 @@
 #include "planner.h"
 #include "temperature.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
@@ -45,8 +45,8 @@
   #endif
 #endif
 
-#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
-  #include "../gcode/gcode.h" // for dwell()
+#if ENABLED(MAGNETIC_PARKING_EXTRUDER) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+  #include "../gcode/gcode.h"
 #endif
 
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
@@ -74,7 +74,7 @@
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../feature/prusa_MMU2/mmu2.h"
+  #include "../feature/mmu2/mmu2.h"
 #endif
 
 #if HAS_LCD_MENU
@@ -251,7 +251,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    for (uint8_t n = 0; n <= 1; ++n)
+    LOOP_LE_N(n, 1)
       #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
         pe_activate_solenoid(n);
       #else
@@ -368,10 +368,15 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #if ENABLED(SWITCHING_TOOLHEAD)
 
+  inline void swt_lock(const bool locked=true) {
+    const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+  }
+
+  void swt_init() { swt_lock(); }
+
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
-
-    constexpr uint16_t angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
@@ -406,7 +411,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     planner.synchronize();
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[1]);
+    swt_lock(false);
     safe_delay(500);
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS;
@@ -451,7 +456,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     // Wait for move to finish, pause 0.2s, move servo, pause 0.5s
     planner.synchronize();
     safe_delay(200);
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, angles[0]);
+    swt_lock();
     safe_delay(500);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
@@ -700,7 +705,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
     SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
-    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+    SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER);
   }
 #endif
 
@@ -822,7 +827,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     }
 
     #if HAS_LCD_MENU
-      ui.return_to_status();
+      if (!no_move) ui.return_to_status();
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -843,7 +848,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
       if (should_swap) {
         if (too_cold) {
-          SERIAL_ECHO_MSG(MSG_ERR_HOTEND_TOO_COLD);
+          SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = new_tool;
             return;
@@ -851,7 +856,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
         else {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+            unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
           #else
             current_position.e -= toolchange_settings.swap_length / planner.e_factor[old_tool];
             planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), old_tool);
@@ -861,7 +866,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
     #endif // TOOLCHANGE_FILAMENT_SWAP
 
-    #if HAS_LEVELING
+    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
       // Set current position to the physical position
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
@@ -929,11 +934,20 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(SWITCHING_NOZZLE) && !SWITCHING_NOZZLE_TWO_SERVOS   // Switching Nozzle (single servo)
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
-        current_position.z += _MAX(-diff.z, 0.0) + toolchange_settings.z_raise;
-        #if HAS_SOFTWARE_ENDSTOPS
-          NOMORE(current_position.z, soft_endstop.max.z);
-        #endif
-        if (!no_move) fast_line_to_current(Z_AXIS);
+        if (!no_move) {
+          #if HAS_SOFTWARE_ENDSTOPS
+            const float maxz = _MIN(soft_endstop.max.z, Z_MAX_POS);
+          #else
+            constexpr float maxz = Z_MAX_POS;
+          #endif
+
+          // Check if Z has space to compensate at least z_offset, and if not, just abort now
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          if (newz > maxz) return;
+
+          current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
+          fast_line_to_current(Z_AXIS);
+        }
         move_nozzle_servo(new_tool);
       #endif
 
@@ -942,7 +956,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // The newly-selected extruder XYZ is actually at...
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Offset Tool XY by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
       current_position += diff;
 
       // Tell the planner the new "current position"
@@ -977,8 +991,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
-              do_pause_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
+              unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.prime_speed));
+              unscaled_e_move(toolchange_settings.extra_prime, ADVANCED_PAUSE_PURGE_FEEDRATE);
             #else
               current_position.e += toolchange_settings.swap_length / planner.e_factor[new_tool];
               planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.prime_speed), new_tool);
@@ -1058,8 +1072,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       fanmux_switch(active_extruder);
     #endif
 
+    #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
+      if (!no_move)
+        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
+    #endif
+
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // EXTRUDERS > 1
 }

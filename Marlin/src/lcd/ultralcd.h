@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,17 +27,25 @@
   #include "../libs/buzzer.h"
 #endif
 
-#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
-#define HAS_ENCODER_WHEEL  ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTON_EXISTS(EN1, EN2))
-#define HAS_DIGITAL_BUTTONS (HAS_ENCODER_WHEEL || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT))
-#define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
+#if HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY)
+  #define HAS_ENCODER_ACTION 1
+#endif
+#if (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2)
+  #define HAS_ENCODER_WHEEL 1
+#endif
+#if HAS_ENCODER_WHEEL || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT)
+  #define HAS_DIGITAL_BUTTONS 1
+#endif
+#if !HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL)))
+  #define HAS_SHIFT_ENCODER 1
+#endif
 
 // I2C buttons must be read in the main thread
 #define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
 
 #if HAS_SPI_LCD
 
-  #include "../Marlin.h"
+  #include "../MarlinCore.h"
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #include "../feature/pause.h"
@@ -337,6 +345,9 @@ public:
       #endif
 
       #if ENABLED(SHOW_BOOTSCREEN)
+        #ifndef BOOTSCREEN_TIMEOUT
+          #define BOOTSCREEN_TIMEOUT 2500
+        #endif
         static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
@@ -402,7 +413,7 @@ public:
     static void set_status(const char* const message, const bool persist=false);
     static void set_status_P(PGM_P const message, const int8_t level=0);
     static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
-    static void reset_status();
+    static void reset_status(const bool no_welcome=false);
 
   #else // No LCD
 
@@ -416,7 +427,7 @@ public:
     static inline void refresh() {}
     static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P const) {}
-    static inline void reset_status() {}
+    static inline void reset_status(const bool=false) {}
     static inline void reset_alert_level() {}
     static constexpr bool has_status() { return false; }
 
@@ -532,10 +543,12 @@ public:
 
   #endif
 
-  #if ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
-    static bool wait_for_bl_move;
+  #define LCD_HAS_WAIT_FOR_MOVE EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+
+  #if LCD_HAS_WAIT_FOR_MOVE
+    static bool wait_for_move;
   #else
-    static constexpr bool wait_for_bl_move = false;
+    static constexpr bool wait_for_move = false;
   #endif
 
   #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)

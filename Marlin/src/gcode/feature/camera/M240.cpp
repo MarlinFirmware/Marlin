@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(PHOTO_POSITION) && PHOTO_DELAY_MS > 0
-  #include "../../../Marlin.h" // for idle()
+  #include "../../../MarlinCore.h" // for idle()
 #endif
 
 #ifdef PHOTO_RETRACT_MM
@@ -48,25 +48,52 @@
 
   #ifdef PHOTO_RETRACT_MM
     inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
-      if (length && thermalManager.hotEnoughToExtrude(active_extruder)) {
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          do_pause_e_move(length, fr_mm_s);
-        #else
-          current_position.e += length / planner.e_factor[active_extruder];
-          line_to_current_position(fr_mm_s);
-        #endif
-      }
+      if (length && thermalManager.hotEnoughToExtrude(active_extruder))
+        unscaled_e_move(length, fr_mm_s);
     }
   #endif
 
 #endif
 
 #if PIN_EXISTS(PHOTOGRAPH)
-  constexpr uint8_t NUM_PULSES = 16;
-  constexpr float PULSE_LENGTH = 0.01524;
-  inline void set_photo_pin(const uint8_t state) { WRITE(PHOTOGRAPH_PIN, state); _delay_ms(PULSE_LENGTH); }
-  inline void tweak_photo_pin() { set_photo_pin(HIGH); set_photo_pin(LOW); }
-  inline void spin_photo_pin() { for (uint8_t i = NUM_PULSES; i--;) tweak_photo_pin(); }
+
+  FORCE_INLINE void set_photo_pin(const uint8_t state) {
+    constexpr uint32_t pulse_length = (
+      #ifdef PHOTO_PULSES_US
+        PHOTO_PULSE_DELAY_US
+      #else
+        15                    // 15.24 from _delay_ms(0.01524)
+      #endif
+    );
+    WRITE(PHOTOGRAPH_PIN, state);
+    delayMicroseconds(pulse_length);
+  }
+
+  FORCE_INLINE void tweak_photo_pin() { set_photo_pin(HIGH); set_photo_pin(LOW); }
+
+  #ifdef PHOTO_PULSES_US
+
+    inline void pulse_photo_pin(const uint32_t duration, const uint8_t state) {
+      if (state) {
+        for (const uint32_t stop = micros() + duration; micros() < stop;)
+          tweak_photo_pin();
+      }
+      else
+        delayMicroseconds(duration);
+    }
+
+    inline void spin_photo_pin() {
+      static constexpr uint32_t sequence[] = PHOTO_PULSES_US;
+      LOOP_L_N(i, COUNT(sequence))
+        pulse_photo_pin(sequence[i], !(i & 1));
+    }
+
+  #else
+
+    constexpr uint8_t NUM_PULSES = 16;
+    inline void spin_photo_pin() { for (uint8_t i = NUM_PULSES; i--;) tweak_photo_pin(); }
+
+  #endif
 #endif
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,7 +35,7 @@
 #include "planner.h"
 #include "endstops.h"
 #include "../lcd/ultralcd.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_BED_PROBE
   #include "probe.h"
@@ -86,19 +86,23 @@ void recalc_delta_settings() {
  * Get a safe radius for calibration
  */
 
-#if ENABLED(DELTA_AUTO_CALIBRATION)
-  float calibration_radius_factor = 1;
-#endif
+#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
 
-float delta_calibration_radius() {
-  return FLOOR((DELTA_PRINTABLE_RADIUS - (
-    #if HAS_BED_PROBE
-      _MAX(HYPOT(probe_offset.x, probe_offset.y), MIN_PROBE_EDGE)
-    #else
-      MIN_PROBE_EDGE
-    #endif
-  )) * calibration_radius_factor);
-}
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    float calibration_radius_factor = 1;
+  #endif
+
+  float delta_calibration_radius() {
+    return calibration_radius_factor * (
+      #if HAS_BED_PROBE
+        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), MIN_PROBE_EDGE))
+      #else
+        DELTA_PRINTABLE_RADIUS
+      #endif
+    );
+  }
+
+#endif
 
 /**
  * Delta Inverse Kinematics
@@ -247,10 +251,10 @@ void home_delta() {
   // Move all carriages together linearly until an endstop is hit.
   current_position.z = (delta_height + 10
     #if HAS_BED_PROBE
-      - probe_offset.z
+      - probe.offset.z
     #endif
   );
-  line_to_current_position(homing_feedrate(X_AXIS));
+  line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
@@ -275,6 +279,14 @@ void home_delta() {
   LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
 
   sync_plan_position();
+
+  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_MM)
+    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
+    if (endstop_backoff.z) {
+      current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
+      line_to_current_position(homing_feedrate(Z_AXIS));
+    }
+  #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }

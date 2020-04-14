@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -114,12 +114,12 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
         GCODES_ITEM_P(msg, PSTR("M600 B0"));
     #else
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
-      for (uint8_t s = 0; s < E_STEPPERS; s++) {
+      LOOP_L_N(s, E_STEPPERS) {
         if (thermalManager.targetTooColdToExtrude(s))
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
-            char cmd[12];
+            char cmd[13];
             sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
             lcd_enqueue_one_now(cmd);
           });
@@ -138,7 +138,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
             GCODES_ITEM_P(msg_load, PSTR("M701"));
         #else
           PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
@@ -162,7 +162,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
           {
             bool too_cold = false;
-            for (uint8_t s = 0; s < E_STEPPERS; s++) {
+            LOOP_L_N(s, E_STEPPERS) {
               if (thermalManager.targetTooColdToExtrude(s)) {
                 too_cold = true; break;
               }
@@ -174,7 +174,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           }
           #endif
           PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
@@ -233,7 +233,6 @@ void menu_pause_option() {
   #if HAS_FILAMENT_SENSOR
     if (runout.filament_ran_out)
       EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
-    else
   #endif
       ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
   END_MENU();

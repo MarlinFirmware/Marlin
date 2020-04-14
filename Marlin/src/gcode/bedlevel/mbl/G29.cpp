@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,7 +39,7 @@
 #include "../../../module/stepper.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 // Save 130 bytes with non-duplication of PSTR
@@ -88,7 +88,7 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      if (!ui.wait_for_bl_move) {
+      if (!ui.wait_for_move) {
         queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
@@ -148,7 +148,7 @@ void GcodeSuite::G29() {
         #endif
 
         #if ENABLED(LCD_BED_LEVELING)
-          ui.wait_for_bl_move = false;
+          ui.wait_for_move = false;
         #endif
       }
       break;

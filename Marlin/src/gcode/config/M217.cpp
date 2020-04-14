@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#include "../../Marlin.h" // for SP_X_STR, etc.
+#include "../../MarlinCore.h" // for SP_X_STR, etc.
 
 extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
@@ -37,7 +37,7 @@ void M217_report(const bool eeprom=false) {
     serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime));
-    SERIAL_ECHOPAIR(" P", LINEAR_UNIT(toolchange_settings.prime_speed));
+    SERIAL_ECHOPAIR_P(SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed));
 
     #if ENABLED(TOOLCHANGE_PARK)

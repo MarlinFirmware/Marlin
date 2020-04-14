@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,6 +34,8 @@
   #undef TEMP_SENSOR_3
   #undef TEMP_SENSOR_4
   #undef TEMP_SENSOR_5
+  #undef TEMP_SENSOR_6
+  #undef TEMP_SENSOR_7
   #undef FWRETRACT
   #undef PIDTEMP
   #undef AUTOTEMP
@@ -52,6 +54,66 @@
   #undef THERMAL_PROTECTION_PERIOD
   #undef WATCH_TEMP_PERIOD
   #undef SHOW_TEMP_ADC_VALUES
+#endif
+
+#if EITHER(DUAL_X_CARRIAGE, MULTI_NOZZLE_DUPLICATION)
+  #define HAS_DUPLICATION_MODE 1
+#endif
+
+#if ENABLED(PRINTCOUNTER) && (SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0)
+  #define HAS_SERVICE_INTERVALS 1
+#endif
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define HAS_FILAMENT_SENSOR 1
+#endif
+
+#if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
+  #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if HAS_PRINT_PROGRESS && EITHER(PRINT_PROGRESS_SHOW_DECIMALS, SHOW_REMAINING_TIME)
+  #define HAS_PRINT_PROGRESS_PERMYRIAD 1
+#endif
+
+#if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
+  #define HAS_GAMES 1
+  #if (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
+    #define HAS_GAME_MENU 1
+  #endif
+#endif
+
+#if ANY(FWRETRACT, HAS_LEVELING, SKEW_CORRECTION)
+  #define HAS_POSITION_MODIFIERS 1
+#endif
+
+#if ANY(X_DUAL_ENDSTOPS, Y_DUAL_ENDSTOPS, Z_MULTI_ENDSTOPS)
+  #define HAS_EXTRA_ENDSTOPS 1
+#endif
+#if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
+  #define HAS_SOFTWARE_ENDSTOPS 1
+#endif
+#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS)
+  #define HAS_RESUME_CONTINUE 1
+#endif
+
+#if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+  #define HAS_COLOR_LEDS 1
+#endif
+#if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
+  #define HAS_LEDS_OFF_FLAG 1
+#endif
+
+// Multiple Z steppers
+#ifndef NUM_Z_STEPPER_DRIVERS
+  #define NUM_Z_STEPPER_DRIVERS 1
+#endif
+
+#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #undef Z_STEPPER_ALIGN_AMP
+#endif
+#ifndef Z_STEPPER_ALIGN_AMP
+  #define Z_STEPPER_ALIGN_AMP 1.0
 #endif
 
 #define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
@@ -114,9 +176,6 @@
   #define LED_CONTROL_MENU
   #define LED_USER_PRESET_STARTUP
   #define LED_COLOR_PRESETS
-  #ifndef LED_USER_PRESET_RED
-    #define LED_USER_PRESET_RED        255
-  #endif
   #ifndef LED_USER_PRESET_GREEN
     #define LED_USER_PRESET_GREEN      128
   #endif
@@ -128,10 +187,106 @@
   #endif
 #endif
 
+// Set defaults for unspecified LED user colors
+#if ENABLED(LED_CONTROL_MENU)
+  #ifndef LED_USER_PRESET_RED
+    #define LED_USER_PRESET_RED       255
+  #endif
+  #ifndef LED_USER_PRESET_GREEN
+    #define LED_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED_USER_PRESET_BLUE
+    #define LED_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED_USER_PRESET_WHITE
+    #define LED_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL_BRIGHTNESS
+      #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
+    #else
+      #define LED_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
+// If platform requires early initialization of watchdog to properly boot
+#if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
+  #define EARLY_WATCHDOG 1
+#endif
+
 // Extensible UI pin mapping for RepRapDiscount
-#define TOUCH_UI_ULTIPANEL ENABLED(TOUCH_UI_FTDI_EVE) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
+  #define TOUCH_UI_ULTIPANEL 1
+#endif
 
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+/**
+ * Driver Timings
+ * NOTE: Driver timing order is longest-to-shortest duration.
+ *       Preserve this ordering when adding new drivers.
+ */
+
+#ifndef MINIMUM_STEPPER_POST_DIR_DELAY
+  #if HAS_DRIVER(TB6560)
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
+  #elif HAS_DRIVER(TB6600)
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 1500
+  #elif HAS_DRIVER(DRV8825)
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 650
+  #elif HAS_DRIVER(LV8729)
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 500
+  #elif HAS_DRIVER(A5984)
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 400
+  #elif HAS_DRIVER(A4988)
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 200
+  #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
+  #else
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
+  #endif
+#endif
+
+#ifndef MINIMUM_STEPPER_PRE_DIR_DELAY
+  #define MINIMUM_STEPPER_PRE_DIR_DELAY MINIMUM_STEPPER_POST_DIR_DELAY
+#endif
+
+#ifndef MINIMUM_STEPPER_PULSE
+  #if HAS_DRIVER(TB6560)
+    #define MINIMUM_STEPPER_PULSE 30
+  #elif HAS_DRIVER(TB6600)
+    #define MINIMUM_STEPPER_PULSE 3
+  #elif HAS_DRIVER(DRV8825)
+    #define MINIMUM_STEPPER_PULSE 2
+  #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
+    #define MINIMUM_STEPPER_PULSE 1
+  #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
+    #define MINIMUM_STEPPER_PULSE 0
+  #elif HAS_DRIVER(LV8729)
+    #define MINIMUM_STEPPER_PULSE 0
+  #else
+    #define MINIMUM_STEPPER_PULSE 2
+  #endif
+#endif
+
+#ifndef MAXIMUM_STEPPER_RATE
+  #if HAS_DRIVER(TB6560)
+    #define MAXIMUM_STEPPER_RATE 15000
+  #elif HAS_DRIVER(TB6600)
+    #define MAXIMUM_STEPPER_RATE 150000
+  #elif HAS_DRIVER(DRV8825)
+    #define MAXIMUM_STEPPER_RATE 250000
+  #elif HAS_DRIVER(A4988)
+    #define MAXIMUM_STEPPER_RATE 500000
+  #elif HAS_DRIVER(LV8729)
+    #define MAXIMUM_STEPPER_RATE 1000000
+  #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
+    #define MAXIMUM_STEPPER_RATE 5000000
+  #else
+    #define MAXIMUM_STEPPER_RATE 250000
+  #endif
 #endif

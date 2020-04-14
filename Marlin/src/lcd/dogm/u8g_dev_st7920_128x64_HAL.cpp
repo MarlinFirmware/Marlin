@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -59,8 +59,6 @@
 
 #include "HAL_LCD_com_defines.h"
 
-#define LCD_PIXEL_WIDTH  128
-#define LCD_PIXEL_HEIGHT  64
 #define PAGE_HEIGHT        8
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
@@ -74,7 +72,7 @@ static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
 
   0x038,              // 8 Bit interface (DL=1), basic instruction set (RE=0)
   0x00C,              // display on, cursor & blink off; 0x08: all off
-  0x006,              // Entry mode: Cursor move to right ,DDRAM address counter (AC) plus 1, no shift
+  0x006,              // Entry mode: Cursor move to right, DDRAM address counter (AC) plus 1, no shift
   0x002,              // disable scroll, enable CGRAM adress
   0x001,              // clear RAM, needs 1.6 ms
   U8G_ESC_DLY(100),   // delay 100 ms
@@ -89,11 +87,11 @@ void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev) {
   u8g_SetAddress(u8g, dev, 0);         // cmd mode
   u8g_WriteByte(u8g, dev, 0x08);       //display off, cursor+blink off
   u8g_WriteByte(u8g, dev, 0x3E);       //extended mode + GDRAM active
-  for (uint8_t y = 0; y < (LCD_PIXEL_HEIGHT) / 2; y++) { //clear GDRAM
+  LOOP_L_N(y, (LCD_PIXEL_HEIGHT) / 2) { //clear GDRAM
     u8g_WriteByte(u8g, dev, 0x80 | y); //set y
     u8g_WriteByte(u8g, dev, 0x80);     //set x = 0
     u8g_SetAddress(u8g, dev, 1);                  /* data mode */
-    for (uint8_t i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) //2x width clears both segments
+    LOOP_L_N(i, 2 * (LCD_PIXEL_WIDTH) / 8) //2x width clears both segments
       u8g_WriteByte(u8g, dev, 0);
     u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
   }

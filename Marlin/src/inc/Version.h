@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,11 @@
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
 #ifndef SHORT_BUILD_VERSION
+<<<<<<< HEAD
   #define SHORT_BUILD_VERSION "2.0.1"
+=======
+  #define SHORT_BUILD_VERSION "2.0.5.3"
+>>>>>>> pr/1
 #endif
 
 /**
@@ -42,7 +46,11 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
+<<<<<<< HEAD
   #define STRING_DISTRIBUTION_DATE "2019-12-24"
+=======
+  #define STRING_DISTRIBUTION_DATE "2020-03-31"
+>>>>>>> pr/1
 #endif
 
 /**
@@ -52,7 +60,7 @@
  * to alert users to major changes.
  */
 
-#define MARLIN_HEX_VERSION 020000
+#define MARLIN_HEX_VERSION 020005
 #ifndef REQUIRED_CONFIGURATION_H_VERSION
   #define REQUIRED_CONFIGURATION_H_VERSION MARLIN_HEX_VERSION
 #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -81,6 +81,8 @@
 
 Stepper stepper; // Singleton
 
+#define BABYSTEPPING_EXTRA_DIR_WAIT
+
 #if HAS_MOTOR_CURRENT_PWM
   bool Stepper::initialized; // = false
 #endif
@@ -98,8 +100,12 @@ Stepper stepper; // Singleton
 #include "../core/language.h"
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
+
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+  #include "../feature/babystep.h"
+#endif
 
 #if MB(ALLIGATOR)
   #include "../feature/dac/dac_dac084s085.h"
@@ -117,12 +123,14 @@ Stepper stepper; // Singleton
   #include "../feature/runout.h"
 #endif
 
-#if HAS_DRIVER(L6470)
-  #include "../libs/L6470/L6470_Marlin.h"
+#if HAS_L64XX
+  #include "../libs/L64XX/L64XX_Marlin.h"
+  uint8_t L6470_buf[MAX_L64XX + 1];   // chip command sequence - element 0 not used
+  bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 // public:
@@ -154,11 +162,16 @@ bool Stepper::abort_current_block;
 #if ENABLED(Y_DUAL_ENDSTOPS)
   bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
-#if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
-  bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
-#endif
-#if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
-  bool Stepper::locked_Z3_motor = false;
+
+#if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+  bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false
+       #if NUM_Z_STEPPER_DRIVERS >= 3
+         , Stepper::locked_Z3_motor = false
+         #if NUM_Z_STEPPER_DRIVERS >= 4
+           , Stepper::locked_Z4_motor = false
+         #endif
+       #endif
+       ;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
@@ -196,11 +209,8 @@ uint32_t Stepper::advance_divisor = 0,
   bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
 #endif
 
-uint32_t Stepper::nextMainISR = 0;
-
 #if ENABLED(LIN_ADVANCE)
 
-  constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
   uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
            Stepper::LA_isr_rate = LA_ADV_NEVER;
   uint16_t Stepper::LA_current_adv_steps = 0,
@@ -212,6 +222,10 @@ uint32_t Stepper::nextMainISR = 0;
   bool Stepper::LA_use_advance_lead;
 
 #endif // LIN_ADVANCE
+
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+  uint32_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
+#endif
 
 int32_t Stepper::ticks_nominal = -1;
 #if DISABLED(S_CURVE_ACCELERATION)
@@ -279,6 +293,42 @@ xyze_int8_t Stepper::count_direction{0};
     A##3_STEP_WRITE(V);                           \
   }
 
+#define QUAD_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
+  if (separate_multi_axis) {                                                                                                \
+    if (A##_HOME_DIR < 0) {                                                                                                 \
+      if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
+      if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##3_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##4_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
+    }                                                                                                                       \
+    else {                                                                                                                  \
+      if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
+      if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##3_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
+      if (!(TEST(endstops.state(), A##4_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
+    }                                                                                                                       \
+  }                                                                                                                         \
+  else {                                                                                                                    \
+    A##_STEP_WRITE(V);                                                                                                      \
+    A##2_STEP_WRITE(V);                                                                                                     \
+    A##3_STEP_WRITE(V);                                                                                                     \
+    A##4_STEP_WRITE(V);                                                                                                     \
+  }
+
+#define QUAD_SEPARATE_APPLY_STEP(A,V)             \
+  if (separate_multi_axis) {                      \
+    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
+    if (!locked_##A##3_motor) A##3_STEP_WRITE(V); \
+    if (!locked_##A##4_motor) A##4_STEP_WRITE(V); \
+  }                                               \
+  else {                                          \
+    A##_STEP_WRITE(V);                            \
+    A##2_STEP_WRITE(V);                           \
+    A##3_STEP_WRITE(V);                           \
+    A##4_STEP_WRITE(V);                           \
+  }
+
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -312,18 +362,27 @@ xyze_int8_t Stepper::count_direction{0};
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
 #endif
 
-#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+#if NUM_Z_STEPPER_DRIVERS == 4
+  #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); Z4_DIR_WRITE(v); }while(0)
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #define Z_APPLY_STEP(v,Q) QUAD_ENDSTOP_APPLY_STEP(Z,v)
+  #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #define Z_APPLY_STEP(v,Q) QUAD_SEPARATE_APPLY_STEP(Z,v)
+  #else
+    #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); Z4_STEP_WRITE(v); }while(0)
+  #endif
+#elif NUM_Z_STEPPER_DRIVERS == 3
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); }while(0)
-  #if ENABLED(Z_TRIPLE_ENDSTOPS)
+  #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
     #define Z_APPLY_STEP(v,Q) TRIPLE_SEPARATE_APPLY_STEP(Z,v)
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
   #endif
-#elif ENABLED(Z_DUAL_STEPPER_DRIVERS)
+#elif NUM_Z_STEPPER_DRIVERS == 2
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
-  #if ENABLED(Z_DUAL_ENDSTOPS)
+  #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
     #define Z_APPLY_STEP(v,Q) DUAL_SEPARATE_APPLY_STEP(Z,v)
@@ -350,17 +409,25 @@ constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_P
 #define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
 #define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
 
-#define START_TIMED_PULSE(DIR) (end_tick_count = HAL_timer_get_count(PULSE_TIMER_NUM) + PULSE_##DIR##_TICK_COUNT)
-#define AWAIT_TIMED_PULSE() while (HAL_timer_get_count(PULSE_TIMER_NUM) < end_tick_count) { }
+#define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
+#define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(PULSE_TIMER_NUM))
+#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count) { }
 #define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
+#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE(HIGH)
 #define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
-#define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE()
-#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE()
+#define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE(LOW)
 
-void Stepper::wake_up() {
-  // TCNT1 = 0;
-  ENABLE_STEPPER_DRIVER_INTERRUPT();
-}
+#if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
+  #define DIR_WAIT_BEFORE() DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY)
+#else
+  #define DIR_WAIT_BEFORE()
+#endif
+
+#if MINIMUM_STEPPER_POST_DIR_DELAY > 0
+  #define DIR_WAIT_AFTER() DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY)
+#else
+  #define DIR_WAIT_AFTER()
+#endif
 
 /**
  * Set the stepper direction of each axis
@@ -371,21 +438,15 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #if HAS_DRIVER(L6470)
-    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
-  #endif
-
-  #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
-    DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
-  #endif
+  DIR_WAIT_BEFORE();
 
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
-      A##_APPLY_DIR(INVERT_## A##_DIR, false);  \
+      A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
       count_direction[_AXIS(A)] = -1;           \
     }                                           \
     else {                                      \
-      A##_APPLY_DIR(!INVERT_## A##_DIR, false); \
+      A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
       count_direction[_AXIS(A)] = 1;            \
     }
 
@@ -425,31 +486,28 @@ void Stepper::set_directions() {
     #endif
   #endif // !LIN_ADVANCE
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
+    if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
+      if (L64xxManager.spi_active) {
+        L64xxManager.spi_abort = true;                    // Interrupted SPI transfer needs to shut down gracefully
+        for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
+          L6470_buf[j] = dSPIN_NOP;                         // Fill buffer with NOOPs
+        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
+        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
+        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
+      }
 
-    if (L6470.spi_active) {
-      L6470.spi_abort = true;                     // interrupted a SPI transfer - need to shut it down gracefully
-      for (uint8_t j = 1; j <= L6470::chain[0]; j++)
-        L6470_buf[j] = dSPIN_NOP;                 // fill buffer with NOOP commands
-      L6470.transfer(L6470_buf, L6470::chain[0]);  // send enough NOOPs to complete any command
-      L6470.transfer(L6470_buf, L6470::chain[0]);
-      L6470.transfer(L6470_buf, L6470::chain[0]);
+      // L64xxManager.dir_commands[] is an array that holds direction command for each stepper
+
+      // Scan command array, copy matches into L64xxManager.transfer
+      for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
+        L6470_buf[j] = L64xxManager.dir_commands[L64XX::chain[j]];
+
+      L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
     }
-
-    // The L6470.dir_commands[] array holds the direction command for each stepper
-
-    //scan command array and copy matches into L6470.transfer
-    for (uint8_t j = 1; j <= L6470::chain[0]; j++)
-      L6470_buf[j] = L6470.dir_commands[L6470::chain[j]];
-
-    L6470.transfer(L6470_buf, L6470::chain[0]);  // send the command stream to the drivers
-
   #endif
 
-  // A small delay may be needed after changing direction
-  #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
-    DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
-  #endif
+  DIR_WAIT_AFTER();
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -1278,6 +1336,9 @@ HAL_STEP_TIMER_ISR() {
 #endif
 
 void Stepper::isr() {
+
+  static uint32_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
+
   #ifndef __AVR__
     // Disable interrupts, to avoid ISR preemption while we reprogram the period
     // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
@@ -1301,36 +1362,56 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     ENABLE_ISRS();
 
-    // Run main stepping pulse phase ISR if we have to
-    if (!nextMainISR) Stepper::stepper_pulse_phase_isr();
+    if (!nextMainISR) pulse_phase_isr();                            // 0 = Do coordinated axes Stepper pulses
 
     #if ENABLED(LIN_ADVANCE)
-      // Run linear advance stepper ISR if we have to
-      if (!nextAdvanceISR) nextAdvanceISR = Stepper::advance_isr();
+      if (!nextAdvanceISR) nextAdvanceISR = advance_isr();          // 0 = Do Linear Advance E Stepper pulses
+    #endif
+
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      const bool is_babystep = (nextBabystepISR == 0);              // 0 = Do Babystepping (XY)Z pulses
+      if (is_babystep) nextBabystepISR = babystepping_isr();
     #endif
 
     // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
-    // Run main stepping block processing ISR if we have to
-    if (!nextMainISR) nextMainISR = Stepper::stepper_block_phase_isr();
+    if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
 
-    uint32_t interval =
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
+        NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
+
+      if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
+        NOLESS(nextBabystepISR, nextMainISR / 2);       // TODO: Only look at axes enabled for baby-stepping
+    #endif
+
+    // Get the interval to the next ISR call
+    const uint32_t interval = _MIN(
+      nextMainISR                                       // Time until the next Pulse / Block phase
       #if ENABLED(LIN_ADVANCE)
-        _MIN(nextAdvanceISR, nextMainISR)  // Nearest time interval
-      #else
-        nextMainISR                       // Remaining stepper ISR time
+        , nextAdvanceISR                                // Come back early for Linear Advance?
       #endif
-    ;
+      #if ENABLED(INTEGRATED_BABYSTEPPING)
+        , nextBabystepISR                               // Come back early for Babystepping?
+      #endif
+      , uint32_t(HAL_TIMER_TYPE_MAX)                    // Come back in a very long time
+    );
 
-    // Limit the value to the maximum possible value of the timer
-    NOMORE(interval, uint32_t(HAL_TIMER_TYPE_MAX));
+    //
+    // Compute remaining time for each ISR phase
+    //     NEVER : The phase is idle
+    //      Zero : The phase will occur on the next ISR call
+    //  Non-zero : The phase will occur on a future ISR call
+    //
 
-    // Compute the time remaining for the main isr
     nextMainISR -= interval;
 
     #if ENABLED(LIN_ADVANCE)
-      // Compute the time remaining for the advance isr
       if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
+    #endif
+
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
     #endif
 
     /**
@@ -1405,6 +1486,9 @@ void Stepper::isr() {
   ENABLE_ISRS();
 }
 
+#define ISR_PULSE_CONTROL (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+#define ISR_MULTI_STEPS (ISR_PULSE_CONTROL && DISABLED(I2S_STEPPER_STREAM))
+
 /**
  * This phase of the ISR should ONLY create the pulses for the steppers.
  * This prevents jitter caused by the interval between the start of the
@@ -1412,7 +1496,7 @@ void Stepper::isr() {
  * call to this method that might cause variation in the timing. The aim
  * is to keep pulse timing as regular as possible.
  */
-void Stepper::stepper_pulse_phase_isr() {
+void Stepper::pulse_phase_isr() {
 
   // If we must abort the current block, do so!
   if (abort_current_block) {
@@ -1435,15 +1519,17 @@ void Stepper::stepper_pulse_phase_isr() {
   step_events_completed += events_to_do;
 
   // Take multiple steps per interrupt (For high speed moves)
-  bool firstStep = true;
+  #if ISR_MULTI_STEPS
+    bool firstStep = true;
+    USING_TIMED_PULSE();
+  #endif
   xyze_bool_t step_needed{0};
-  hal_timer_t end_tick_count = 0;
 
   do {
-    #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
+    #define _APPLY_STEP(AXIS, INV, ALWAYS) AXIS ##_APPLY_STEP(INV, ALWAYS)
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
-    // Determine if pulses are needed
+    // Determine if a pulse is needed using Bresenham
     #define PULSE_PREP(AXIS) do{ \
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
       step_needed[_AXIS(AXIS)] = (delta_error[_AXIS(AXIS)] >= 0); \
@@ -1456,14 +1542,14 @@ void Stepper::stepper_pulse_phase_isr() {
     // Start an active pulse, if Bresenham says so, and update position
     #define PULSE_START(AXIS) do{ \
       if (step_needed[_AXIS(AXIS)]) { \
-        _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
+        _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
 
     // Stop an active pulse, if any, and adjust error term
     #define PULSE_STOP(AXIS) do { \
       if (step_needed[_AXIS(AXIS)]) { \
-        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
+        _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
 
@@ -1487,14 +1573,14 @@ void Stepper::stepper_pulse_phase_isr() {
           // Don't step E here - But remember the number of steps to perform
           motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
         #else
-          step_needed[E_AXIS] = delta_error.e >= 0;
+          step_needed.e = true;
         #endif
       }
     #elif HAS_E0_STEP
       PULSE_PREP(E);
     #endif
 
-    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    #if ISR_MULTI_STEPS
       if (firstStep)
         firstStep = false;
       else
@@ -1514,7 +1600,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-        if (step_needed[E_AXIS]) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+        if (step_needed.e) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
       #elif HAS_E0_STEP
         PULSE_START(E);
       #endif
@@ -1525,7 +1611,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #endif
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    #if ISR_MULTI_STEPS
       START_HIGH_PULSE();
       AWAIT_HIGH_PULSE();
     #endif
@@ -1543,22 +1629,16 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-
         if (delta_error.e >= 0) {
           delta_error.e -= advance_divisor;
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
+      #elif HAS_E0_STEP
+        PULSE_STOP(E);
+      #endif
+    #endif
 
-      #else // !MIXING_EXTRUDER
-
-        #if HAS_E0_STEP
-          PULSE_STOP(E);
-        #endif
-
-      #endif  // !MIXING_EXTRUDER
-    #endif // !LIN_ADVANCE
-
-    #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+    #if ISR_MULTI_STEPS
       if (events_to_do) START_LOW_PULSE();
     #endif
 
@@ -1569,10 +1649,10 @@ void Stepper::stepper_pulse_phase_isr() {
 // properly schedules blocks from the planner. This is executed after creating
 // the step pulses, so it is not time critical, as pulses are already done.
 
-uint32_t Stepper::stepper_block_phase_isr() {
+uint32_t Stepper::block_phase_isr() {
 
-  // If no queued movements, just wait 1ms for the next move
-  uint32_t interval = (STEPPER_TIMER_RATE) / 1000;
+  // If no queued movements, just wait 1ms for the next block
+  uint32_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
   // If there is a current block
   if (current_block) {
@@ -1606,16 +1686,14 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // acc_step_rate is in steps/second
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(acc_step_rate, oversampling_factor, &steps_per_isr);
+        interval = calc_timer_interval(acc_step_rate, &steps_per_isr);
         acceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
-          if (LA_use_advance_lead) {
-            // Fire ISR if final adv_rate is reached
-            if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
-          }
-          else if (LA_steps) nextAdvanceISR = 0;
-        #endif // LIN_ADVANCE
+          // Fire ISR if final adv_rate is reached
+          if (LA_steps && (!LA_use_advance_lead || LA_isr_rate != current_block->advance_speed))
+            initiateLA();
+        #endif
       }
       // Are we in Deceleration phase ?
       else if (step_events_completed > decelerate_after) {
@@ -1651,32 +1729,32 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // step_rate is in steps/second
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(step_rate, oversampling_factor, &steps_per_isr);
+        interval = calc_timer_interval(step_rate, &steps_per_isr);
         deceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
           if (LA_use_advance_lead) {
             // Wake up eISR on first deceleration loop and fire ISR if final adv_rate is reached
             if (step_events_completed <= decelerate_after + steps_per_isr || (LA_steps && LA_isr_rate != current_block->advance_speed)) {
-              nextAdvanceISR = 0;
+              initiateLA();
               LA_isr_rate = current_block->advance_speed;
             }
           }
-          else if (LA_steps) nextAdvanceISR = 0;
-        #endif // LIN_ADVANCE
+          else if (LA_steps) initiateLA();
+        #endif
       }
       // We must be in cruise phase otherwise
       else {
 
         #if ENABLED(LIN_ADVANCE)
           // If there are any esteps, fire the next advance_isr "now"
-          if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
+          if (LA_steps && LA_isr_rate != current_block->advance_speed) initiateLA();
         #endif
 
         // Calculate the ticks_nominal for this nominal speed, if not done yet
         if (ticks_nominal < 0) {
           // step_rate to timer interval and loops for the nominal speed
-          ticks_nominal = calc_timer_interval(current_block->nominal_rate, oversampling_factor, &steps_per_isr);
+          ticks_nominal = calc_timer_interval(current_block->nominal_rate, &steps_per_isr);
         }
 
         // The timer interval is just the nominal value for the nominal speed
@@ -1785,17 +1863,17 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
 
-      uint8_t oversampling = 0;                         // Assume we won't use it
+      uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        // At this point, we must decide if we can use Stepper movement axis smoothing.
+        // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
-        while (max_rate < MIN_STEP_ISR_FREQUENCY) {
-          max_rate <<= 1;
-          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break;
-          ++oversampling;
+        while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
+          max_rate <<= 1;                                   // Try to double the rate
+          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break; // Don't exceed the estimated ISR limit
+          ++oversampling;                                   // Increase the oversampling (used for left-shift)
         }
-        oversampling_factor = oversampling;
+        oversampling_factor = oversampling;                 // For all timer interval calculations
       #endif
 
       // Based on the oversampling factor, do the calculations
@@ -1833,16 +1911,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
         if ((LA_use_advance_lead = current_block->use_advance_lead)) {
           LA_final_adv_steps = current_block->final_adv_steps;
           LA_max_adv_steps = current_block->max_adv_steps;
-          //Start the ISR
-          nextAdvanceISR = 0;
+          initiateLA(); // Start the ISR
           LA_isr_rate = current_block->advance_speed;
         }
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
       if (
-        #if HAS_DRIVER(L6470)
-          true  // Always set direction for L6470 (This also enables the chips)
+        #if HAS_L64XX
+          true  // Always set direction for L64xx (This also enables the chips)
         #else
           current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
@@ -1853,6 +1930,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
         last_direction_bits = current_block->direction_bits;
         #if EXTRUDERS > 1
           last_moved_extruder = stepper_extruder;
+        #endif
+
+        #if HAS_L64XX
+          L64XX_OK_to_power_up = true;
         #endif
         set_directions();
       }
@@ -1870,7 +1951,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps.z) enable_Z();
+        if (current_block->steps.z) ENABLE_AXIS_Z();
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -1889,7 +1970,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Calculate the initial timer interval
-      interval = calc_timer_interval(current_block->initial_rate, oversampling_factor, &steps_per_isr);
+      interval = calc_timer_interval(current_block->initial_rate, &steps_per_isr);
     }
   }
 
@@ -1921,9 +2002,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     else
       interval = LA_ADV_NEVER;
 
-    #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
-      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
-    #endif
+    DIR_WAIT_BEFORE();
 
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
@@ -1939,19 +2018,18 @@ uint32_t Stepper::stepper_block_phase_isr() {
         REV_E_DIR(stepper_extruder);
     #endif
 
-    // A small delay may be needed after changing direction
-    #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
-      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
-    #endif
+    DIR_WAIT_AFTER();
 
     //const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
-    bool firstStep = true;
-    hal_timer_t end_tick_count = 0;
+    #if ISR_MULTI_STEPS
+      bool firstStep = true;
+      USING_TIMED_PULSE();
+    #endif
 
     while (LA_steps) {
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE) && DISABLED(I2S_STEPPER_STREAM)
+      #if ISR_MULTI_STEPS
         if (firstStep)
           firstStep = false;
         else
@@ -1966,13 +2044,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+      #if ISR_PULSE_CONTROL
         START_HIGH_PULSE();
       #endif
 
       LA_steps < 0 ? ++LA_steps : --LA_steps;
 
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+      #if ISR_PULSE_CONTROL
         AWAIT_HIGH_PULSE();
       #endif
 
@@ -1985,14 +2063,25 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
-      #if (MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE)
+      #if ISR_PULSE_CONTROL
         if (LA_steps) START_LOW_PULSE();
       #endif
     } // LA_steps
 
     return interval;
   }
+
 #endif // LIN_ADVANCE
+
+#if ENABLED(INTEGRATED_BABYSTEPPING)
+
+  // Timer interrupt for baby-stepping
+  uint32_t Stepper::babystepping_isr() {
+    babystep.task();
+    return babystep.has_steps() ? BABYSTEP_TICKS : BABYSTEP_NEVER;
+  }
+
+#endif
 
 // Check if the given block is busy or not - Must not be called from ISR contexts
 // The current_block could change in the middle of the read by an Stepper ISR, so
@@ -2027,11 +2116,11 @@ void Stepper::init() {
   #if MB(ALLIGATOR)
     const float motor_current[] = MOTOR_CURRENT;
     unsigned int digipot_motor = 0;
-    for (uint8_t i = 0; i < 3 + EXTRUDERS; i++) {
+    LOOP_L_N(i, 3 + EXTRUDERS) {
       digipot_motor = 255 * (motor_current[i] / 2.5);
       dac084s085::setValue(i, digipot_motor);
     }
-  #endif//MB(ALLIGATOR)
+  #endif
 
   // Init Microstepping Pins
   #if HAS_MICROSTEPS
@@ -2040,114 +2129,135 @@ void Stepper::init() {
 
   // Init Dir Pins
   #if HAS_X_DIR
-    X_DIR_INIT;
+    X_DIR_INIT();
   #endif
   #if HAS_X2_DIR
-    X2_DIR_INIT;
+    X2_DIR_INIT();
   #endif
   #if HAS_Y_DIR
-    Y_DIR_INIT;
+    Y_DIR_INIT();
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_DIR
-      Y2_DIR_INIT;
+      Y2_DIR_INIT();
     #endif
   #endif
   #if HAS_Z_DIR
-    Z_DIR_INIT;
-    #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_DIR
-      Z2_DIR_INIT;
+    Z_DIR_INIT();
+    #if NUM_Z_STEPPER_DRIVERS >= 2 && HAS_Z2_DIR
+      Z2_DIR_INIT();
     #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_DIR
-      Z3_DIR_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 3 && HAS_Z3_DIR
+      Z3_DIR_INIT();
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4 && HAS_Z4_DIR
+      Z4_DIR_INIT();
     #endif
   #endif
   #if HAS_E0_DIR
-    E0_DIR_INIT;
+    E0_DIR_INIT();
   #endif
   #if HAS_E1_DIR
-    E1_DIR_INIT;
+    E1_DIR_INIT();
   #endif
   #if HAS_E2_DIR
-    E2_DIR_INIT;
+    E2_DIR_INIT();
   #endif
   #if HAS_E3_DIR
-    E3_DIR_INIT;
+    E3_DIR_INIT();
   #endif
   #if HAS_E4_DIR
-    E4_DIR_INIT;
+    E4_DIR_INIT();
   #endif
   #if HAS_E5_DIR
-    E5_DIR_INIT;
+    E5_DIR_INIT();
+  #endif
+  #if HAS_E6_DIR
+    E6_DIR_INIT();
+  #endif
+  #if HAS_E7_DIR
+    E7_DIR_INIT();
   #endif
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
-    X_ENABLE_INIT;
+    X_ENABLE_INIT();
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
     #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
-      X2_ENABLE_INIT;
+      X2_ENABLE_INIT();
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_Y_ENABLE
-    Y_ENABLE_INIT;
+    Y_ENABLE_INIT();
     if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
-      Y2_ENABLE_INIT;
+      Y2_ENABLE_INIT();
       if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_Z_ENABLE
-    Z_ENABLE_INIT;
+    Z_ENABLE_INIT();
     if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
-    #if Z_MULTI_STEPPER_DRIVERS && HAS_Z2_ENABLE
-      Z2_ENABLE_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 2 && HAS_Z2_ENABLE
+      Z2_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
     #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && HAS_Z3_ENABLE
-      Z3_ENABLE_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 3 && HAS_Z3_ENABLE
+      Z3_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH);
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4 && HAS_Z4_ENABLE
+      Z4_ENABLE_INIT();
+      if (!Z_ENABLE_ON) Z4_ENABLE_WRITE(HIGH);
     #endif
   #endif
   #if HAS_E0_ENABLE
-    E0_ENABLE_INIT;
+    E0_ENABLE_INIT();
     if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E1_ENABLE
-    E1_ENABLE_INIT;
+    E1_ENABLE_INIT();
     if (!E_ENABLE_ON) E1_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E2_ENABLE
-    E2_ENABLE_INIT;
+    E2_ENABLE_INIT();
     if (!E_ENABLE_ON) E2_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E3_ENABLE
-    E3_ENABLE_INIT;
+    E3_ENABLE_INIT();
     if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E4_ENABLE
-    E4_ENABLE_INIT;
+    E4_ENABLE_INIT();
     if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E5_ENABLE
-    E5_ENABLE_INIT;
+    E5_ENABLE_INIT();
     if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
   #endif
+  #if HAS_E6_ENABLE
+    E6_ENABLE_INIT();
+    if (!E_ENABLE_ON) E6_ENABLE_WRITE(HIGH);
+  #endif
+  #if HAS_E7_ENABLE
+    E7_ENABLE_INIT();
+    if (!E_ENABLE_ON) E7_ENABLE_WRITE(HIGH);
+  #endif
 
-  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
+  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT()
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
-  #define _DISABLE(AXIS) disable_## AXIS()
+  #define _DISABLE_AXIS(AXIS) DISABLE_AXIS_## AXIS()
 
   #define AXIS_INIT(AXIS, PIN) \
     _STEP_INIT(AXIS); \
     _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
-    _DISABLE(AXIS)
+    _DISABLE_AXIS(AXIS)
 
   #define E_AXIS_INIT(NUM) AXIS_INIT(E## NUM, E)
 
   // Init Step Pins
   #if HAS_X_STEP
     #if EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE)
-      X2_STEP_INIT;
+      X2_STEP_INIT();
       X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
     AXIS_INIT(X, X);
@@ -2155,20 +2265,24 @@ void Stepper::init() {
 
   #if HAS_Y_STEP
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-      Y2_STEP_INIT;
+      Y2_STEP_INIT();
       Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
     #endif
     AXIS_INIT(Y, Y);
   #endif
 
   #if HAS_Z_STEP
-    #if Z_MULTI_STEPPER_DRIVERS
-      Z2_STEP_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 2
+      Z2_STEP_INIT();
       Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
-    #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-      Z3_STEP_INIT;
+    #if NUM_Z_STEPPER_DRIVERS >= 3
+      Z3_STEP_INIT();
       Z3_STEP_WRITE(INVERT_Z_STEP_PIN);
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      Z4_STEP_INIT();
+      Z4_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
     AXIS_INIT(Z, Z);
   #endif
@@ -2191,10 +2305,16 @@ void Stepper::init() {
   #if E_STEPPERS > 5 && HAS_E5_STEP
     E_AXIS_INIT(5);
   #endif
+  #if E_STEPPERS > 6 && HAS_E6_STEP
+    E_AXIS_INIT(6);
+  #endif
+  #if E_STEPPERS > 7 && HAS_E7_STEP
+    E_AXIS_INIT(7);
+  #endif
 
   #if DISABLED(I2S_STEPPER_STREAM)
     HAL_timer_start(STEP_TIMER_NUM, 122); // Init Stepper ISR to 122 Hz for quick starting
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    wake_up();
     sei();
   #endif
 
@@ -2248,17 +2368,41 @@ int32_t Stepper::position(const AxisEnum axis) {
   #ifdef __AVR__
     // Protect the access to the position. Only required for AVR, as
     //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = suspend();
   #endif
 
   const int32_t v = count_position[axis];
 
   #ifdef __AVR__
     // Reenable Stepper ISR
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) wake_up();
   #endif
   return v;
+}
+
+// Set the current position in steps
+void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+  planner.synchronize();
+  const bool was_enabled = suspend();
+  _set_position(a, b, c, e);
+  if (was_enabled) wake_up();
+}
+
+void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
+  planner.synchronize();
+
+  #ifdef __AVR__
+    // Protect the access to the position. Only required for AVR, as
+    //  any 32bit CPU offers atomic access to 32bit variables
+    const bool was_enabled = suspend();
+  #endif
+
+  count_position[a] = v;
+
+  #ifdef __AVR__
+    // Reenable Stepper ISR
+    if (was_enabled) wake_up();
+  #endif
 }
 
 // Signal endstops were triggered - This function can be called from
@@ -2269,8 +2413,7 @@ int32_t Stepper::position(const AxisEnum axis) {
 // is properly canceled
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
-  const bool was_enabled = STEPPER_ISR_ENABLED();
-  if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+  const bool was_enabled = suspend();
   endstops_trigsteps[axis] = (
     #if IS_CORE
       (axis == CORE_AXIS_2
@@ -2285,54 +2428,61 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
   // Discard the rest of the move if there is a current block
   quick_stop();
 
-  if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+  if (was_enabled) wake_up();
 }
 
 int32_t Stepper::triggered_position(const AxisEnum axis) {
   #ifdef __AVR__
     // Protect the access to the position. Only required for AVR, as
     //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = suspend();
   #endif
 
   const int32_t v = endstops_trigsteps[axis];
 
   #ifdef __AVR__
     // Reenable Stepper ISR
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) wake_up();
   #endif
 
   return v;
+}
+
+void Stepper::report_a_position(const xyz_long_t &pos) {
+  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
+    SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
+  #else
+    SERIAL_ECHOPAIR_P(PSTR(STR_COUNT_X), pos.x, SP_Y_LBL, pos.y);
+  #endif
+  #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
+    SERIAL_ECHOLNPAIR(" C:", pos.z);
+  #else
+    SERIAL_ECHOLNPAIR_P(SP_Z_LBL, pos.z);
+  #endif
 }
 
 void Stepper::report_positions() {
 
   #ifdef __AVR__
     // Protect the access to the position.
-    const bool was_enabled = STEPPER_ISR_ENABLED();
-    if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    const bool was_enabled = suspend();
   #endif
 
   const xyz_long_t pos = count_position;
 
   #ifdef __AVR__
-    if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    if (was_enabled) wake_up();
   #endif
 
-  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_ECHOPAIR(MSG_COUNT_A, pos.x, " B:", pos.y);
-  #else
-    SERIAL_ECHOPAIR(MSG_COUNT_X, pos.x, " Y:", pos.y);
-  #endif
-  #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
-    SERIAL_ECHOLNPAIR(" C:", pos.z);
-  #else
-    SERIAL_ECHOLNPAIR(" Z:", pos.z);
-  #endif
+  report_a_position(pos);
 }
 
 #if ENABLED(BABYSTEPPING)
+
+  #define _ENABLE_AXIS(AXIS) ENABLE_AXIS_## AXIS()
+  #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
+  #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
+  #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if MINIMUM_STEPPER_PULSE
     #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
@@ -2347,44 +2497,76 @@ void Stepper::report_positions() {
   #endif
   #define EXTRA_CYCLES_BABYSTEP (STEP_PULSE_CYCLES - (CYCLES_EATEN_BABYSTEP))
 
-  #define _ENABLE(AXIS) enable_## AXIS()
-  #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
-  #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
-  #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
-
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START const hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM)
-    #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
+    #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM)
+    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
-    #define _SAVE_START NOOP
+    #define _SAVE_START() NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
-      #define _PULSE_WAIT DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
+      #define _PULSE_WAIT() DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
     #elif ENABLED(DELTA)
-      #define _PULSE_WAIT DELAY_US(2);
+      #define _PULSE_WAIT() DELAY_US(2);
     #elif STEP_PULSE_CYCLES > 0
-      #define _PULSE_WAIT NOOP
+      #define _PULSE_WAIT() NOOP
     #else
-      #define _PULSE_WAIT DELAY_US(4);
+      #define _PULSE_WAIT() DELAY_US(4);
     #endif
   #endif
 
-  #define BABYSTEP_AXIS(AXIS, INVERT, DIR) {            \
+  #if ENABLED(BABYSTEPPING_EXTRA_DIR_WAIT)
+    #define EXTRA_DIR_WAIT_BEFORE DIR_WAIT_BEFORE
+    #define EXTRA_DIR_WAIT_AFTER  DIR_WAIT_AFTER
+  #else
+    #define EXTRA_DIR_WAIT_BEFORE()
+    #define EXTRA_DIR_WAIT_AFTER()
+  #endif
+
+  #if DISABLED(DELTA)
+
+    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{           \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
-      _ENABLE(AXIS);                                    \
-      DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);              \
-      _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);              \
-      _SAVE_START;                                      \
-      _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
-      _PULSE_WAIT;                                      \
-      _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true);  \
+      _ENABLE_AXIS(AXIS);                               \
+      DIR_WAIT_BEFORE();                                \
+      _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INV);      \
+      DIR_WAIT_AFTER();                                 \
+      _SAVE_START();                                    \
+      _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), true); \
+      _PULSE_WAIT();                                    \
+      _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), true);  \
+      EXTRA_DIR_WAIT_BEFORE();                          \
       _APPLY_DIR(AXIS, old_dir);                        \
-    }
+      EXTRA_DIR_WAIT_AFTER();                           \
+    }while(0)
+
+  #elif IS_CORE
+
+    #define BABYSTEP_CORE(A, B, INV, DIR, ALT) do{              \
+      const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
+      _ENABLE_AXIS(A); _ENABLE_AXIS(B);                         \
+      DIR_WAIT_BEFORE();                                        \
+      _APPLY_DIR(A, _INVERT_DIR(A)^DIR^INV);                    \
+      _APPLY_DIR(B, _INVERT_DIR(B)^DIR^INV^ALT);                \
+      DIR_WAIT_AFTER();                                         \
+      _SAVE_START();                                            \
+      _APPLY_STEP(A, !_INVERT_STEP_PIN(A), true);               \
+      _APPLY_STEP(B, !_INVERT_STEP_PIN(B), true);               \
+      _PULSE_WAIT();                                            \
+      _APPLY_STEP(A, _INVERT_STEP_PIN(A), true);                \
+      _APPLY_STEP(B, _INVERT_STEP_PIN(B), true);                \
+      EXTRA_DIR_WAIT_BEFORE();                                  \
+      _APPLY_DIR(A, old_dir.a); _APPLY_DIR(B, old_dir.b);       \
+      EXTRA_DIR_WAIT_AFTER();                                   \
+    }while(0)
+
+  #endif
 
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
-  void Stepper::babystep(const AxisEnum axis, const bool direction) {
-    cli();
+  void Stepper::do_babystep(const AxisEnum axis, const bool direction) {
+
+    #if DISABLED(INTEGRATED_BABYSTEPPING)
+      cli();
+    #endif
 
     switch (axis) {
 
@@ -2392,25 +2574,21 @@ void Stepper::report_positions() {
 
         case X_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_AXIS(X, false, direction);
-            BABYSTEP_AXIS(Y, false, direction);
+            BABYSTEP_CORE(X, Y, 0, direction, 0);
           #elif CORE_IS_XZ
-            BABYSTEP_AXIS(X, false, direction);
-            BABYSTEP_AXIS(Z, false, direction);
+            BABYSTEP_CORE(X, Z, 0, direction, 0);
           #else
-            BABYSTEP_AXIS(X, false, direction);
+            BABYSTEP_AXIS(X, 0, direction);
           #endif
           break;
 
         case Y_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_AXIS(X, false, direction);
-            BABYSTEP_AXIS(Y, false, direction^(CORESIGN(1)<0));
+            BABYSTEP_CORE(X, Y, 0, direction, (CORESIGN(1)<0));
           #elif CORE_IS_YZ
-            BABYSTEP_AXIS(Y, false, direction);
-            BABYSTEP_AXIS(Z, false, direction^(CORESIGN(1)<0));
+            BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));
           #else
-            BABYSTEP_AXIS(Y, false, direction);
+            BABYSTEP_AXIS(Y, 0, direction);
           #endif
           break;
 
@@ -2419,13 +2597,9 @@ void Stepper::report_positions() {
       case Z_AXIS: {
 
         #if CORE_IS_XZ
-          BABYSTEP_AXIS(X, BABYSTEP_INVERT_Z, direction);
-          BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z, direction^(CORESIGN(1)<0));
-
+          BABYSTEP_CORE(X, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
         #elif CORE_IS_YZ
-          BABYSTEP_AXIS(Y, BABYSTEP_INVERT_Z, direction);
-          BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z, direction^(CORESIGN(1)<0));
-
+          BABYSTEP_CORE(Y, Z, BABYSTEP_INVERT_Z, direction, (CORESIGN(1)<0));
         #elif DISABLED(DELTA)
           BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z, direction);
 
@@ -2433,42 +2607,40 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          enable_X();
-          enable_Y();
-          enable_Z();
+          ENABLE_AXIS_X();
+          ENABLE_AXIS_Y();
+          ENABLE_AXIS_Z();
 
-          #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
-            DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY);
-          #endif
+          DIR_WAIT_BEFORE();
 
-          const uint8_t old_x_dir_pin = X_DIR_READ(),
-                        old_y_dir_pin = Y_DIR_READ(),
-                        old_z_dir_pin = Z_DIR_READ();
+          const xyz_byte_t old_dir = { X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ() };
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
 
-          #if MINIMUM_STEPPER_POST_DIR_DELAY > 0
-            DELAY_NS(MINIMUM_STEPPER_POST_DIR_DELAY);
-          #endif
+          DIR_WAIT_AFTER();
 
-          _SAVE_START;
+          _SAVE_START();
 
           X_STEP_WRITE(!INVERT_X_STEP_PIN);
           Y_STEP_WRITE(!INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(!INVERT_Z_STEP_PIN);
 
-          _PULSE_WAIT;
+          _PULSE_WAIT();
 
           X_STEP_WRITE(INVERT_X_STEP_PIN);
           Y_STEP_WRITE(INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
 
           // Restore direction bits
-          X_DIR_WRITE(old_x_dir_pin);
-          Y_DIR_WRITE(old_y_dir_pin);
-          Z_DIR_WRITE(old_z_dir_pin);
+          EXTRA_DIR_WAIT_BEFORE();
+
+          X_DIR_WRITE(old_dir.x);
+          Y_DIR_WRITE(old_dir.y);
+          Z_DIR_WRITE(old_dir.z);
+
+          EXTRA_DIR_WAIT_AFTER();
 
         #endif
 
@@ -2476,7 +2648,10 @@ void Stepper::report_positions() {
 
       default: break;
     }
-    sei();
+
+    #if DISABLED(INTEGRATED_BABYSTEPPING)
+      sei();
+    #endif
   }
 
 #endif // BABYSTEPPING
@@ -2581,7 +2756,7 @@ void Stepper::report_positions() {
         SPI.begin();
         SET_OUTPUT(DIGIPOTSS_PIN);
 
-        for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
+        LOOP_L_N(i, COUNT(digipot_motor_current)) {
           //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
           digipot_current(i, digipot_motor_current[i]);
         }
@@ -2683,6 +2858,13 @@ void Stepper::report_positions() {
         SET_OUTPUT(Z3_MS3_PIN);
       #endif
     #endif
+    #if HAS_Z4_MICROSTEPS
+      SET_OUTPUT(Z4_MS1_PIN);
+      SET_OUTPUT(Z4_MS2_PIN);
+      #if PIN_EXISTS(Z4_MS3)
+        SET_OUTPUT(Z4_MS3_PIN);
+      #endif
+    #endif
     #if HAS_E0_MICROSTEPS
       SET_OUTPUT(E0_MS1_PIN);
       SET_OUTPUT(E0_MS2_PIN);
@@ -2725,6 +2907,20 @@ void Stepper::report_positions() {
         SET_OUTPUT(E5_MS3_PIN);
       #endif
     #endif
+    #if HAS_E6_MICROSTEPS
+      SET_OUTPUT(E6_MS1_PIN);
+      SET_OUTPUT(E6_MS2_PIN);
+      #if PIN_EXISTS(E6_MS3)
+        SET_OUTPUT(E6_MS3_PIN);
+      #endif
+    #endif
+    #if HAS_E7_MICROSTEPS
+      SET_OUTPUT(E7_MS1_PIN);
+      SET_OUTPUT(E7_MS2_PIN);
+      #if PIN_EXISTS(E7_MS3)
+        SET_OUTPUT(E7_MS3_PIN);
+      #endif
+    #endif
 
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
@@ -2753,7 +2949,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS
+      #if HAS_SOME_Z_MICROSTEPS
         case 2:
           #if HAS_Z_MICROSTEPS
             WRITE(Z_MS1_PIN, ms1);
@@ -2764,25 +2960,34 @@ void Stepper::report_positions() {
           #if HAS_Z3_MICROSTEPS
             WRITE(Z3_MS1_PIN, ms1);
           #endif
+          #if HAS_Z4_MICROSTEPS
+            WRITE(Z4_MS1_PIN, ms1);
+          #endif
           break;
       #endif
       #if HAS_E0_MICROSTEPS
-        case 3: WRITE(E0_MS1_PIN, ms1); break;
+        case  3: WRITE(E0_MS1_PIN, ms1); break;
       #endif
       #if HAS_E1_MICROSTEPS
-        case 4: WRITE(E1_MS1_PIN, ms1); break;
+        case  4: WRITE(E1_MS1_PIN, ms1); break;
       #endif
       #if HAS_E2_MICROSTEPS
-        case 5: WRITE(E2_MS1_PIN, ms1); break;
+        case  5: WRITE(E2_MS1_PIN, ms1); break;
       #endif
       #if HAS_E3_MICROSTEPS
-        case 6: WRITE(E3_MS1_PIN, ms1); break;
+        case  6: WRITE(E3_MS1_PIN, ms1); break;
       #endif
       #if HAS_E4_MICROSTEPS
-        case 7: WRITE(E4_MS1_PIN, ms1); break;
+        case  7: WRITE(E4_MS1_PIN, ms1); break;
       #endif
       #if HAS_E5_MICROSTEPS
-        case 8: WRITE(E5_MS1_PIN, ms1); break;
+        case  8: WRITE(E5_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E6_MICROSTEPS
+        case  9: WRITE(E6_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E7_MICROSTEPS
+        case 10: WRITE(E7_MS1_PIN, ms1); break;
       #endif
     }
     if (ms2 >= 0) switch (driver) {
@@ -2806,7 +3011,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS
+      #if HAS_SOME_Z_MICROSTEPS
         case 2:
           #if HAS_Z_MICROSTEPS
             WRITE(Z_MS2_PIN, ms2);
@@ -2817,25 +3022,34 @@ void Stepper::report_positions() {
           #if HAS_Z3_MICROSTEPS
             WRITE(Z3_MS2_PIN, ms2);
           #endif
+          #if HAS_Z4_MICROSTEPS
+            WRITE(Z4_MS2_PIN, ms2);
+          #endif
           break;
       #endif
       #if HAS_E0_MICROSTEPS
-        case 3: WRITE(E0_MS2_PIN, ms2); break;
+        case  3: WRITE(E0_MS2_PIN, ms2); break;
       #endif
       #if HAS_E1_MICROSTEPS
-        case 4: WRITE(E1_MS2_PIN, ms2); break;
+        case  4: WRITE(E1_MS2_PIN, ms2); break;
       #endif
       #if HAS_E2_MICROSTEPS
-        case 5: WRITE(E2_MS2_PIN, ms2); break;
+        case  5: WRITE(E2_MS2_PIN, ms2); break;
       #endif
       #if HAS_E3_MICROSTEPS
-        case 6: WRITE(E3_MS2_PIN, ms2); break;
+        case  6: WRITE(E3_MS2_PIN, ms2); break;
       #endif
       #if HAS_E4_MICROSTEPS
-        case 7: WRITE(E4_MS2_PIN, ms2); break;
+        case  7: WRITE(E4_MS2_PIN, ms2); break;
       #endif
       #if HAS_E5_MICROSTEPS
-        case 8: WRITE(E5_MS2_PIN, ms2); break;
+        case  8: WRITE(E5_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E6_MICROSTEPS
+        case  9: WRITE(E6_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E7_MICROSTEPS
+        case 10: WRITE(E7_MS2_PIN, ms2); break;
       #endif
     }
     if (ms3 >= 0) switch (driver) {
@@ -2859,7 +3073,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Z_MICROSTEPS || HAS_Z2_MICROSTEPS || HAS_Z3_MICROSTEPS
+      #if HAS_SOME_Z_MICROSTEPS
         case 2:
           #if HAS_Z_MICROSTEPS && PIN_EXISTS(Z_MS3)
             WRITE(Z_MS3_PIN, ms3);
@@ -2870,25 +3084,34 @@ void Stepper::report_positions() {
           #if HAS_Z3_MICROSTEPS && PIN_EXISTS(Z3_MS3)
             WRITE(Z3_MS3_PIN, ms3);
           #endif
+          #if HAS_Z4_MICROSTEPS && PIN_EXISTS(Z4_MS3)
+            WRITE(Z4_MS3_PIN, ms3);
+          #endif
           break;
       #endif
       #if HAS_E0_MICROSTEPS && PIN_EXISTS(E0_MS3)
-        case 3: WRITE(E0_MS3_PIN, ms3); break;
+        case  3: WRITE(E0_MS3_PIN, ms3); break;
       #endif
       #if HAS_E1_MICROSTEPS && PIN_EXISTS(E1_MS3)
-        case 4: WRITE(E1_MS3_PIN, ms3); break;
+        case  4: WRITE(E1_MS3_PIN, ms3); break;
       #endif
       #if HAS_E2_MICROSTEPS && PIN_EXISTS(E2_MS3)
-        case 5: WRITE(E2_MS3_PIN, ms3); break;
+        case  5: WRITE(E2_MS3_PIN, ms3); break;
       #endif
       #if HAS_E3_MICROSTEPS && PIN_EXISTS(E3_MS3)
-        case 6: WRITE(E3_MS3_PIN, ms3); break;
+        case  6: WRITE(E3_MS3_PIN, ms3); break;
       #endif
       #if HAS_E4_MICROSTEPS && PIN_EXISTS(E4_MS3)
-        case 7: WRITE(E4_MS3_PIN, ms3); break;
+        case  7: WRITE(E4_MS3_PIN, ms3); break;
       #endif
       #if HAS_E5_MICROSTEPS && PIN_EXISTS(E5_MS3)
-        case 8: WRITE(E5_MS3_PIN, ms3); break;
+        case  8: WRITE(E5_MS3_PIN, ms3); break;
+      #endif
+      #if HAS_E6_MICROSTEPS && PIN_EXISTS(E6_MS3)
+        case  9: WRITE(E6_MS3_PIN, ms3); break;
+      #endif
+      #if HAS_E7_MICROSTEPS && PIN_EXISTS(E7_MS3)
+        case 10: WRITE(E7_MS3_PIN, ms3); break;
       #endif
     }
   }
@@ -2925,77 +3148,94 @@ void Stepper::report_positions() {
   }
 
   void Stepper::microstep_readings() {
-    SERIAL_ECHOPGM("MS1,MS2,MS3 Pins\nX: ");
+    SERIAL_ECHOLNPGM("MS1|MS2|MS3 Pins");
     #if HAS_X_MICROSTEPS
-      SERIAL_CHAR('0' + READ(X_MS1_PIN));
-      SERIAL_CHAR('0' + READ(X_MS2_PIN));
-      #if PIN_EXISTS(X_MS3)
-        SERIAL_ECHOLN((int)READ(X_MS3_PIN));
-      #endif
+      SERIAL_ECHOPGM("X: ");
+      SERIAL_CHAR('0' + READ(X_MS1_PIN), '0' + READ(X_MS2_PIN)
+        #if PIN_EXISTS(X_MS3)
+          , '0' + READ(X_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_Y_MICROSTEPS
       SERIAL_ECHOPGM("Y: ");
-      SERIAL_CHAR('0' + READ(Y_MS1_PIN));
-      SERIAL_CHAR('0' + READ(Y_MS2_PIN));
-      #if PIN_EXISTS(Y_MS3)
-        SERIAL_ECHOLN((int)READ(Y_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(Y_MS1_PIN), '0' + READ(Y_MS2_PIN)
+        #if PIN_EXISTS(Y_MS3)
+          , '0' + READ(Y_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_Z_MICROSTEPS
       SERIAL_ECHOPGM("Z: ");
-      SERIAL_CHAR('0' + READ(Z_MS1_PIN));
-      SERIAL_CHAR('0' + READ(Z_MS2_PIN));
-      #if PIN_EXISTS(Z_MS3)
-        SERIAL_ECHOLN((int)READ(Z_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(Z_MS1_PIN), '0' + READ(Z_MS2_PIN)
+        #if PIN_EXISTS(Z_MS3)
+          , '0' + READ(Z_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_E0_MICROSTEPS
       SERIAL_ECHOPGM("E0: ");
-      SERIAL_CHAR('0' + READ(E0_MS1_PIN));
-      SERIAL_CHAR('0' + READ(E0_MS2_PIN));
-      #if PIN_EXISTS(E0_MS3)
-        SERIAL_ECHOLN((int)READ(E0_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(E0_MS1_PIN), '0' + READ(E0_MS2_PIN)
+        #if PIN_EXISTS(E0_MS3)
+          , '0' + READ(E0_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_E1_MICROSTEPS
       SERIAL_ECHOPGM("E1: ");
-      SERIAL_CHAR('0' + READ(E1_MS1_PIN));
-      SERIAL_CHAR('0' + READ(E1_MS2_PIN));
-      #if PIN_EXISTS(E1_MS3)
-        SERIAL_ECHOLN((int)READ(E1_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(E1_MS1_PIN), '0' + READ(E1_MS2_PIN)
+        #if PIN_EXISTS(E1_MS3)
+          , '0' + READ(E1_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_E2_MICROSTEPS
       SERIAL_ECHOPGM("E2: ");
-      SERIAL_CHAR('0' + READ(E2_MS1_PIN));
-      SERIAL_CHAR('0' + READ(E2_MS2_PIN));
-      #if PIN_EXISTS(E2_MS3)
-        SERIAL_ECHOLN((int)READ(E2_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(E2_MS1_PIN), '0' + READ(E2_MS2_PIN)
+        #if PIN_EXISTS(E2_MS3)
+          , '0' + READ(E2_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_E3_MICROSTEPS
       SERIAL_ECHOPGM("E3: ");
-      SERIAL_CHAR('0' + READ(E3_MS1_PIN));
-      SERIAL_CHAR('0' + READ(E3_MS2_PIN));
-      #if PIN_EXISTS(E3_MS3)
-        SERIAL_ECHOLN((int)READ(E3_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(E3_MS1_PIN), '0' + READ(E3_MS2_PIN)
+        #if PIN_EXISTS(E3_MS3)
+          , '0' + READ(E3_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_E4_MICROSTEPS
       SERIAL_ECHOPGM("E4: ");
-      SERIAL_CHAR('0' + READ(E4_MS1_PIN));
-      SERIAL_CHAR('0' + READ(E4_MS2_PIN));
-      #if PIN_EXISTS(E4_MS3)
-        SERIAL_ECHOLN((int)READ(E4_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(E4_MS1_PIN), '0' + READ(E4_MS2_PIN)
+        #if PIN_EXISTS(E4_MS3)
+          , '0' + READ(E4_MS3_PIN)
+        #endif
+      );
     #endif
     #if HAS_E5_MICROSTEPS
       SERIAL_ECHOPGM("E5: ");
-      SERIAL_CHAR('0' + READ(E5_MS1_PIN));
-      SERIAL_ECHOLN((int)READ(E5_MS2_PIN));
-      #if PIN_EXISTS(E5_MS3)
-        SERIAL_ECHOLN((int)READ(E5_MS3_PIN));
-      #endif
+      SERIAL_CHAR('0' + READ(E5_MS1_PIN), '0' + READ(E5_MS2_PIN)
+        #if PIN_EXISTS(E5_MS3)
+          , '0' + READ(E5_MS3_PIN)
+        #endif
+      );
+    #endif
+    #if HAS_E6_MICROSTEPS
+      SERIAL_ECHOPGM("E6: ");
+      SERIAL_CHAR('0' + READ(E6_MS1_PIN), '0' + READ(E6_MS2_PIN)
+        #if PIN_EXISTS(E6_MS3)
+          , '0' + READ(E6_MS3_PIN)
+        #endif
+      );
+    #endif
+    #if HAS_E7_MICROSTEPS
+      SERIAL_ECHOPGM("E7: ");
+      SERIAL_CHAR('0' + READ(E7_MS1_PIN), '0' + READ(E7_MS2_PIN)
+        #if PIN_EXISTS(E7_MS3)
+          , '0' + READ(E7_MS3_PIN)
+        #endif
+      );
     #endif
   }
 

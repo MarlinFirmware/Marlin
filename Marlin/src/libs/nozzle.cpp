@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,7 +28,7 @@
 
 Nozzle nozzle;
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../module/motion.h"
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
@@ -54,7 +54,7 @@ Nozzle nozzle;
     #endif
 
     // Start the stroke pattern
-    for (uint8_t i = 0; i < (strokes >> 1); i++) {
+    LOOP_L_N(i, strokes >> 1) {
       do_blocking_move_to_xy(end);
       do_blocking_move_to_xy(start);
     }
@@ -91,7 +91,7 @@ Nozzle nozzle;
     const bool horiz = ABS(diff.x) >= ABS(diff.y);    // Do a horizontal wipe?
     const float P = (horiz ? diff.x : diff.y) / zigs; // Period of each zig / zag
     const xyz_pos_t *side;
-    for (uint8_t j = 0; j < strokes; j++) {
+    LOOP_L_N(j, strokes) {
       for (int8_t i = 0; i < zigs; i++) {
         side = (i & 1) ? &end : &start;
         if (horiz)
@@ -134,8 +134,8 @@ Nozzle nozzle;
       do_blocking_move_to(start);
     #endif
 
-    for (uint8_t s = 0; s < strokes; s++)
-      for (uint8_t i = 0; i < NOZZLE_CLEAN_CIRCLE_FN; i++)
+    LOOP_L_N(s, strokes)
+      LOOP_L_N(i, NOZZLE_CLEAN_CIRCLE_FN)
         do_blocking_move_to_xy(
           middle.x + sin((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius,
           middle.y + cos((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius
@@ -157,26 +157,24 @@ Nozzle nozzle;
    * @param argument depends on the cleaning pattern
    */
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
-    xyz_pos_t start = NOZZLE_CLEAN_START_POINT, end = NOZZLE_CLEAN_END_POINT;
+    xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
     if (pattern == 2) {
       if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
         SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
         return;
       }
-      constexpr xyz_pos_t middle NOZZLE_CLEAN_CIRCLE_MIDDLE;
-      end = middle;
     }
     else {
-      if (!TEST(cleans, X_AXIS)) start.x = end.x = current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start.y = end.y = current_position.y;
+      if (!TEST(cleans, X_AXIS)) start[active_extruder].x = end[active_extruder].x = current_position.x;
+      if (!TEST(cleans, Y_AXIS)) start[active_extruder].y = end[active_extruder].y = current_position.y;
     }
-    if (!TEST(cleans, Z_AXIS)) start.z = end.z = current_position.z;
+    if (!TEST(cleans, Z_AXIS)) start[active_extruder].z = end[active_extruder].z = current_position.z;
 
     switch (pattern) {
-       case 1: zigzag(start, end, strokes, objects); break;
-       case 2: circle(start, end, strokes, radius);  break;
-      default: stroke(start, end, strokes);
+       case 1: zigzag(start[active_extruder], end[active_extruder], strokes, objects); break;
+       case 2: circle(start[active_extruder], middle[active_extruder], strokes, radius);  break;
+      default: stroke(start[active_extruder], end[active_extruder], strokes);
     }
   }
 

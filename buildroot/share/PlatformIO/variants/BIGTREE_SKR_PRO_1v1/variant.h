@@ -232,6 +232,10 @@ extern "C" {
 //#define PWM_RESOLUTION          8
 //#define PWM_MAX_DUTY_CYCLE      255
 
+// On-board LED pin number
+#define LED_BUILTIN             PA7
+//#define LED_GREEN             LED_BUILTIN   should be defined here but omitted to avoid redefinition in SailfishRGB_LED
+
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one
 // SPI Definitions
@@ -247,14 +251,17 @@ extern "C" {
 // Timer Definitions
 //Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 #define TIMER_TONE              TIM2
+#define TIMER_SERVO             TIM5 // Only 1 Servo PIN on SKR-PRO, so use the same timer as defined in PeripheralPins
 #define TIMER_SERIAL            TIM7
 
-// Do not use basic timer: OC is required
-#define TIMER_SERVO             TIM6  //TODO: advanced-control timers don't work
-
 // UART Definitions
-// Define here Serial instance number to map on Serial generic name
-#define SERIAL_UART_INSTANCE    1 //ex: 2 for Serial2 (USART2)
+//#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
+#define ENABLE_HWSERIAL3
+#define ENABLE_HWSERIAL6
+
+// Define here Serial instance number to map on Serial generic name (if not already used by SerialUSB)
+#define SERIAL_UART_INSTANCE    1 //1 for Serial = Serial1 (USART1)
+
 // DEBUG_UART could be redefined to print on another instance than 'Serial'
 //#define DEBUG_UART              ((USART_TypeDef *) U(S)ARTX) // ex: USART3
 // DEBUG_UART baudrate, default: 9600 if not defined
@@ -266,6 +273,19 @@ extern "C" {
 // Mandatory for Firmata
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
+
+// Optional PIN_SERIALn_RX and PIN_SERIALn_TX where 'n' is the U(S)ART number
+// Used when user instanciate a hardware Serial using its peripheral name.
+// Example: HardwareSerial mySerial(USART3);
+// will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
+#define PIN_SERIAL1_RX          PA10
+#define PIN_SERIAL1_TX          PA9
+#define PIN_SERIAL3_RX          PD9
+#define PIN_SERIAL3_TX          PD8
+#define PIN_SERIAL6_RX          PC7
+#define PIN_SERIAL6_TX          PC6
+//#define PIN_SERIALLP1_RX        x // For LPUART1 RX
+//#define PIN_SERIALLP1_TX        x // For LPUART1 TX
 
 #ifdef __cplusplus
 } // extern "C"
@@ -290,6 +310,8 @@ extern "C" {
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_MONITOR     Serial
-#define SERIAL_PORT_HARDWARE    Serial1
+#define SERIAL_PORT_MONITOR         Serial
+#define SERIAL_PORT_HARDWARE        Serial1
+#define SERIAL_PORT_HARDWARE_OPEN   Serial3
+#define SERIAL_PORT_HARDWARE_OPEN1  Serial6
 #endif

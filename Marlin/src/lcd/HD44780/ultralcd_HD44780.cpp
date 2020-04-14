@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -102,7 +102,7 @@
 
 static void createChar_P(const char c, const byte * const ptr) {
   byte temp[8];
-  for (uint8_t i = 0; i < 8; i++)
+  LOOP_L_N(i, 8)
     temp[i] = pgm_read_byte(&ptr[i]);
   lcd.createChar(c, temp);
 }
@@ -414,7 +414,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     else {
       PGM_P p = text;
       int dly = time / _MAX(slen, 1);
-      for (uint8_t i = 0; i <= slen; i++) {
+      LOOP_LE_N(i, slen) {
 
         // Print the text at the correct place
         lcd_put_u8str_max_P(col, line, p, len);
@@ -530,7 +530,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char pref
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3(t1 + 0.5));
+  lcd_put_u8str(i16tostr3rj(t1 + 0.5));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -582,7 +582,7 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
       #endif
     ));
     if (progress)
-      lcd_put_u8str(ui8tostr3(progress));
+      lcd_put_u8str(ui8tostr3rj(progress));
     else
       lcd_put_u8str_P(PSTR("---"));
     lcd_put_wchar('%');
@@ -631,7 +631,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       lcd_put_u8str_P(PSTR("Dia "));
       lcd_put_u8str(ftostr12ns(filwidth.measured_mm));
       lcd_put_u8str_P(PSTR(" V"));
-      lcd_put_u8str(i16tostr3(planner.volumetric_percent(parser.volumetric_enabled)));
+      lcd_put_u8str(i16tostr3rj(planner.volumetric_percent(parser.volumetric_enabled)));
       lcd_put_wchar('%');
       return;
     }
@@ -829,7 +829,7 @@ void MarlinUI::draw_status_screen() {
                 && !printingIsActive()
               #endif
             ) {
-              xy_pos_t lpos = current_position; toLogical(lpos);
+              const xy_pos_t lpos = current_position.asLogical();
               _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
               lcd_put_wchar(' ');
               _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
@@ -863,7 +863,7 @@ void MarlinUI::draw_status_screen() {
     #if LCD_HEIGHT > 3
 
       lcd_put_wchar(0, 2, LCD_STR_FEEDRATE[0]);
-      lcd_put_u8str(i16tostr3(feedrate_percentage));
+      lcd_put_u8str(i16tostr3rj(feedrate_percentage));
       lcd_put_wchar('%');
 
       char buffer[14];
@@ -902,7 +902,7 @@ void MarlinUI::draw_status_screen() {
               #endif
             }
           lcd_put_wchar(c);
-          lcd_put_u8str(i16tostr3(per));
+          lcd_put_u8str(i16tostr3rj(per));
           lcd_put_wchar('%');
         #endif
       #endif
@@ -941,7 +941,7 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     lcd_put_wchar(LCD_WIDTH - 9, 1, LCD_STR_FEEDRATE[0]);
-    lcd_put_u8str(i16tostr3(feedrate_percentage));
+    lcd_put_u8str(i16tostr3rj(feedrate_percentage));
     lcd_put_wchar('%');
 
     // ========== Line 3 ==========
@@ -1092,6 +1092,21 @@ void MarlinUI::draw_status_screen() {
           #if HAS_FAN2
             || thermalManager.fan_speed[2]
           #endif
+          #if HAS_FAN3
+            || thermalManager.fan_speed[3]
+          #endif
+          #if HAS_FAN4
+            || thermalManager.fan_speed[4]
+          #endif
+          #if HAS_FAN5
+            || thermalManager.fan_speed[5]
+          #endif
+          #if HAS_FAN6
+            || thermalManager.fan_speed[6]
+          #endif
+          #if HAS_FAN7
+            || thermalManager.fan_speed[7]
+          #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0
 
@@ -1197,10 +1212,10 @@ void MarlinUI::draw_status_screen() {
         #define _LCD_W_POS 12
         #define _PLOT_X 1
         #define _MAP_X 3
-        #define _LABEL(C,X,Y) lcd_put_u8str(X, Y, C)
-        #define _XLABEL(X,Y) _LABEL("X:",X,Y)
-        #define _YLABEL(X,Y) _LABEL("Y:",X,Y)
-        #define _ZLABEL(X,Y) _LABEL("Z:",X,Y)
+        #define _LABEL(C,X,Y) lcd_put_u8str_P(X, Y, C)
+        #define _XLABEL(X,Y) _LABEL(X_LBL,X,Y)
+        #define _YLABEL(X,Y) _LABEL(Y_LBL,X,Y)
+        #define _ZLABEL(X,Y) _LABEL(Z_LBL,X,Y)
       #else
         #define _LCD_W_POS 8
         #define _PLOT_X 0
@@ -1400,9 +1415,9 @@ void MarlinUI::draw_status_screen() {
        * Print plot position
        */
       lcd_put_wchar(_LCD_W_POS, 0, '(');
-      lcd_put_u8str(ui8tostr3(x_plot));
+      lcd_put_u8str(ui8tostr3rj(x_plot));
       lcd_put_wchar(',');
-      lcd_put_u8str(ui8tostr3(y_plot));
+      lcd_put_u8str(ui8tostr3rj(y_plot));
       lcd_put_wchar(')');
 
       #if LCD_HEIGHT <= 3   // 16x2 or 20x2 display
