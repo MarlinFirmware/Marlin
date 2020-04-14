@@ -3189,6 +3189,7 @@
       {  10.0,  700 }, \
       { -10.0,  400 }, \
       { -50.0, 2000 }
+  #endif
 
   // Using a sensor like the MMU2S
   //#define PRUSA_MMU2_S_MODE
