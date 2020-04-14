@@ -39,37 +39,53 @@
 #define SERVO0_PIN                          PA1
 
 //
+// Trinamic Stallguard pins
+//
+#define X_DIAG_PIN                          PB10  // X-
+#define Y_DIAG_PIN                          PE12  // Y-
+#define Z_DIAG_PIN                          PG8   // Z-
+
+//
 // Limit Switches
 //
-// SKR Pro v1.1 only has MIN switch connector for axes.
-// The pins defined below as MAX are marked on the board as
-// extruder endstops (E0, E1, E2). Trinamic-based StallGuard-capable
-// stepper drivers are wired on the board to corresponding endstop
-// pins, with extruder steppers wired to E0, E1, and E2.
-// Delta printers always home to MAX and can not use the default
-// MIN endstops.
-//
-// Marlin though does not support endstops for extruders as of the
-// time of this writing. Hence, for Delta, if TMC2209 is used, the endstops
-// are just swapped.
-#if BOTH(DELTA, HAS_STALLGUARD)
-  #define X_MAX_PIN                           PB10
-  #define X_MIN_PIN                           PE15
-  #define Y_MAX_PIN                           PE12
-  #define Y_MIN_PIN                           PE10
-  #define Z_MAX_PIN                           PG8
-  #define Z_MIN_PIN                           PG5
+#if X_STALL_SENSITIVITY
+  #define X_STOP_PIN                  X_DIAG_PIN
+  #if X_HOME_DIR < 0
+    #define X_MAX_PIN                       PE15  // E0
+  #else
+    #define X_MIN_PIN                       PE15  // E0
+  #endif
 #else
-  #define X_MIN_PIN                           PB10
-  #define X_MAX_PIN                           PE15
-  #define Y_MIN_PIN                           PE12
-  #define Y_MAX_PIN                           PE10
-  #define Z_MIN_PIN                           PG8
-  #define Z_MAX_PIN                           PG5
+  #define X_MIN_PIN                         PB10  // X-
+  #define X_MAX_PIN                         PE15  // E0
+#endif
+
+#if Y_STALL_SENSITIVITY
+  #define Y_STOP_PIN                  Y_DIAG_PIN
+  #if Y_HOME_DIR < 0
+    #define Y_MAX_PIN                       PE10  // E1
+  #else
+    #define Y_MIN_PIN                       PE10  // E1
+  #endif
+#else
+  #define Y_MIN_PIN                         PE12  // Y-
+  #define Y_MAX_PIN                         PE10  // E1
+#endif
+
+#if Z_STALL_SENSITIVITY
+  #define Z_STOP_PIN                  Z_DIAG_PIN
+  #if Z_HOME_DIR < 0
+    #define Z_MAX_PIN                       PG5   // E2
+  #else
+    #define Z_MIN_PIN                       PG5   // E2
+  #endif
+#else
+  #define Z_MIN_PIN                         PG8   // Z-
+  #define Z_MAX_PIN                         PG5   // E2
 #endif
 
 //
-// Z Probe must be this pins
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PA2
