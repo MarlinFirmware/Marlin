@@ -339,6 +339,7 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired_P(PGM_P const pstr);
   void onStatusChanged(const char * const msg);
+  void onStatusChanged_P(PGM_P const pstr);
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
