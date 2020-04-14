@@ -89,20 +89,23 @@ static void i2c_send(const uint8_t channel, const byte v) {
 
 // This is for the MCP4018 I2C based digipot
 void digipot_i2c_set_current(const uint8_t channel, const float current) {
-  #if ENABLED(MCP4018_USE_RAW_VALUES)
-    i2c_send(channel, byte(_MIN(_MAX(current, 0), DIGIPOT_MCP4018_MAX_VALUE)));
-  #else
-    i2c_send(channel, current_to_wiper(_MIN(_MAX(current, 0), float(DIGIPOT_A4988_MAX_CURRENT))));
-  #endif
+  i2c_send(channel, 
+    #if ENABLED(MCP4018_USE_RAW_VALUES)
+      byte(_MIN(_MAX(current, 0), DIGIPOT_MCP4018_MAX_VALUE))
+    #else
+      current_to_wiper(_MIN(_MAX(current, 0), float(DIGIPOT_A4988_MAX_CURRENT)))
+    #endif
+  );
 }
 
 void digipot_i2c_init() {
   static const float digipot_motor_current[] PROGMEM = 
     #if ENABLED(MCP4018_USE_RAW_VALUES)
-      DIGIPOT_MOTOR_CURRENT;
+      DIGIPOT_MOTOR_CURRENT
     #else
-      DIGIPOT_I2C_MOTOR_CURRENTS;
+      DIGIPOT_I2C_MOTOR_CURRENTS
     #endif
+  ;
   LOOP_L_N(i, DIGIPOT_I2C_NUM_CHANNELS)
     pots[i].i2c_init();
 
