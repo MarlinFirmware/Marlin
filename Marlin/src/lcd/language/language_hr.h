@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -98,9 +98,9 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD-a");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Pohrani u memoriju");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Učitaj memoriju");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Učitaj failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Učitaj Defaults");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Osvježi");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info screen");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info screen");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Pripremi");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pauziraj print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Nastavi print");
@@ -112,7 +112,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("ZAUSTAVLJEN. ");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Promijeni filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Promijeni filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. SD karticu");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD karticu");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Promijeni SD karticu");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Grijanje neuspješno");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Grijanje...");

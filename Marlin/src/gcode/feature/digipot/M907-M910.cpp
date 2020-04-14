@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -46,7 +46,7 @@ void GcodeSuite::M907() {
 
     LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) stepper.digipot_current(i, parser.value_int());
     if (parser.seenval('B')) stepper.digipot_current(4, parser.value_int());
-    if (parser.seenval('S')) for (uint8_t i = 0; i <= 4; i++) stepper.digipot_current(i, parser.value_int());
+    if (parser.seenval('S')) LOOP_LE_N(i, 4) stepper.digipot_current(i, parser.value_int());
 
   #elif HAS_MOTOR_CURRENT_PWM
 
@@ -74,7 +74,7 @@ void GcodeSuite::M907() {
   #if ENABLED(DAC_STEPPER_CURRENT)
     if (parser.seenval('S')) {
       const float dac_percent = parser.value_float();
-      for (uint8_t i = 0; i <= 4; i++) dac_current_percent(i, dac_percent);
+      LOOP_LE_N(i, 4) dac_current_percent(i, dac_percent);
     }
     LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) dac_current_percent(i, parser.value_float());
   #endif

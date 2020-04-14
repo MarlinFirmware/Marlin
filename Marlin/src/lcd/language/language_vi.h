@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -210,9 +210,9 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Đầu phun ~");                           // Nozzle
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bàn");                                  // bed
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Tốc độ quạt");                          // fan speed
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Tốc độ quạt =");                        // fan speed
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Tốc độ quạt ~");                        // fan speed
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Tốc độ quạt phụ");                      // Extra fan speed
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Tốc độ quạt phụ =");                    // Extra fan speed
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Tốc độ quạt phụ ~");                    // Extra fan speed
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Lưu Lượng");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Lưu Lượng ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Điều khiển");                           // Control
@@ -222,14 +222,6 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Nhiệt độ tự động");                     // Autotemp
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Bật");                                  // on
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Tắt");                                  // off
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Lựa");                                  // Select
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Lựa *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Tăng Tốc");
@@ -274,12 +266,12 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Độ tương phản LCD");                    // LCD contrast
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Lưu các thiết lập");                    // Store settings
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Tải các cài đặt");                      // Load settings
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Khôi phục phòng hư");                   // Restore failsafe
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Khôi phục phòng hư");                   // Restore Defaults
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Khởi Tạo EEPROM");                      // Initialize EEPROM
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Cập Nhật phương tiện");                 // Update media
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Bặt Lại Máy In");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Cập Nhật");            // Refresh
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Màn Hình Thông Tin");                   // Info screen
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Màn Hình Thông Tin");                   // Info screen
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Chuẩn bị");                             // Prepare
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Điều Chỉnh");                           // Tune
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Tạm dừng in");                          // Pause print
@@ -317,7 +309,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Dỡ dây nhựa");                          // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Dỡ dây nhựa *");                        // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Dỡ tất cả");                            // Unload All
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Khởi tạo phương tiện");                 // Init. media
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Khởi tạo phương tiện");                 // Attach media
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Thay phương tiện");                     // Change midea
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Phát hành phương tiện");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Đầu Dò Z qua bàn");                     // Z Probe past bed

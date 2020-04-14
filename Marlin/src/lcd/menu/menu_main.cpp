@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -81,7 +81,7 @@ extern const char M21_STR[];
 
 void menu_main() {
   START_MENU();
-  BACK_ITEM(MSG_WATCH);
+  BACK_ITEM(MSG_INFO_SCREEN);
 
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
@@ -134,7 +134,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
           ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
         #endif
       }
@@ -228,7 +228,7 @@ void menu_main() {
       #if PIN_EXISTS(SD_DETECT)
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);
       #else
-        GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
+        GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
         ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
       #endif
     }
@@ -271,20 +271,24 @@ void menu_main() {
     #if ENABLED(GAMES_EASTER_EGG)
       SKIP_ITEM();
       SKIP_ITEM();
+      SKIP_ITEM();
     #endif
-    SUBMENU(MSG_GAMES, (
-      #if HAS_GAME_MENU
-        menu_game
-      #elif ENABLED(MARLIN_BRICKOUT)
-        brickout.enter_game
-      #elif ENABLED(MARLIN_INVADERS)
-        invaders.enter_game
-      #elif ENABLED(MARLIN_SNAKE)
-        snake.enter_game
-      #elif ENABLED(MARLIN_MAZE)
-        maze.enter_game
-      #endif
-    ));
+    // Game sub-menu or the individual game
+    {
+      SUBMENU(
+        #if HAS_GAME_MENU
+          MSG_GAMES, menu_game
+        #elif ENABLED(MARLIN_BRICKOUT)
+          MSG_BRICKOUT, brickout.enter_game
+        #elif ENABLED(MARLIN_INVADERS)
+          MSG_INVADERS, invaders.enter_game
+        #elif ENABLED(MARLIN_SNAKE)
+          MSG_SNAKE, snake.enter_game
+        #elif ENABLED(MARLIN_MAZE)
+          MSG_MAZE, maze.enter_game
+        #endif
+      );
+    }
   #endif
 
   END_MENU();

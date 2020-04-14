@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -152,6 +152,24 @@ void menu_info_thermistors() {
     VALUE_ITEM_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_5_MAXTEMP), SS_LEFT);
   #endif
 
+  #if TEMP_SENSOR_6 != 0
+    #undef THERMISTOR_ID
+    #define THERMISTOR_ID TEMP_SENSOR_6
+    #include "../thermistornames.h"
+    STATIC_ITEM_P(PSTR(LCD_STR_E6 ": " THERMISTOR_NAME), SS_INVERT);
+    VALUE_ITEM_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_6_MINTEMP), SS_LEFT);
+    VALUE_ITEM_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_6_MAXTEMP), SS_LEFT);
+  #endif
+
+  #if TEMP_SENSOR_7 != 0
+    #undef THERMISTOR_ID
+    #define THERMISTOR_ID TEMP_SENSOR_7
+    #include "../thermistornames.h"
+    STATIC_ITEM_P(PSTR(LCD_STR_E7 ": " THERMISTOR_NAME), SS_INVERT);
+    VALUE_ITEM_P(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_7_MINTEMP), SS_LEFT);
+    VALUE_ITEM_P(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_7_MAXTEMP), SS_LEFT);
+  #endif
+
   #if EXTRUDERS
   {
     STATIC_ITEM(
@@ -247,7 +265,7 @@ void menu_info_board() {
   void menu_info_printer() {
     if (ui.use_click()) return ui.go_back();
     START_SCREEN();
-    STATIC_ITEM_P(PSTR(MSG_MARLIN), SS_CENTER|SS_INVERT);       // Marlin
+    STATIC_ITEM(MSG_MARLIN, SS_CENTER|SS_INVERT);               // Marlin
     STATIC_ITEM_P(PSTR(SHORT_BUILD_VERSION));                   // x.x.x-Branch
     STATIC_ITEM_P(PSTR(STRING_DISTRIBUTION_DATE));              // YYYY-MM-DD HH:MM
     STATIC_ITEM_P(PSTR(MACHINE_NAME));                          // My3DPrinter
@@ -302,19 +320,22 @@ void menu_info() {
       SKIP_ITEM();
       SKIP_ITEM();
     #endif
-    SUBMENU(MSG_GAMES, (
-      #if HAS_GAME_MENU
-        menu_game
-      #elif ENABLED(MARLIN_BRICKOUT)
-        brickout.enter_game
-      #elif ENABLED(MARLIN_INVADERS)
-        invaders.enter_game
-      #elif ENABLED(MARLIN_SNAKE)
-        snake.enter_game
-      #elif ENABLED(MARLIN_MAZE)
-        maze.enter_game
-      #endif
-    ));
+    // Game sub-menu or the individual game
+    {
+      SUBMENU(
+        #if HAS_GAME_MENU
+          MSG_GAMES, menu_game
+        #elif ENABLED(MARLIN_BRICKOUT)
+          MSG_BRICKOUT, brickout.enter_game
+        #elif ENABLED(MARLIN_INVADERS)
+          MSG_INVADERS, invaders.enter_game
+        #elif ENABLED(MARLIN_SNAKE)
+          MSG_SNAKE, snake.enter_game
+        #elif ENABLED(MARLIN_MAZE)
+          MSG_MAZE, maze.enter_game
+        #endif
+      );
+    }
   #endif
 
   END_MENU();

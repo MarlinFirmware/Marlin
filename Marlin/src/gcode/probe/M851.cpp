@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,32 +37,49 @@ void GcodeSuite::M851() {
 
   // Show usage with no parameters
   if (!parser.seen("XYZ")) {
-    SERIAL_ECHOLNPAIR_P(PSTR(MSG_PROBE_OFFSET " X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR, probe_offset.z);
+    SERIAL_ECHOLNPAIR_P(
+      #if HAS_PROBE_XY_OFFSET
+        PSTR(STR_PROBE_OFFSET " X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR
+      #else
+        PSTR(STR_PROBE_OFFSET " X0 Y0 Z")
+      #endif
+      , probe.offset.z
+    );
     return;
   }
 
-  xyz_pos_t offs = probe_offset;
+  // Start with current offsets and modify
+  xyz_pos_t offs = probe.offset;
 
+  // Assume no errors
   bool ok = true;
 
   if (parser.seenval('X')) {
     const float x = parser.value_float();
-    if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
-      offs.x = x;
-    else {
-      SERIAL_ECHOLNPAIR("?X out of range (-", int(X_BED_SIZE), " to ", int(X_BED_SIZE), ")");
-      ok = false;
-    }
+    #if HAS_PROBE_XY_OFFSET
+      if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
+        offs.x = x;
+      else {
+        SERIAL_ECHOLNPAIR("?X out of range (-", int(X_BED_SIZE), " to ", int(X_BED_SIZE), ")");
+        ok = false;
+      }
+    #else
+      if (x) SERIAL_ECHOLNPAIR("?X must be 0 (NOZZLE_AS_PROBE)."); // ...but let 'ok' stay true
+    #endif
   }
 
   if (parser.seenval('Y')) {
     const float y = parser.value_float();
-    if (WITHIN(y, -(Y_BED_SIZE), Y_BED_SIZE))
-      offs.y = y;
-    else {
-      SERIAL_ECHOLNPAIR("?Y out of range (-", int(Y_BED_SIZE), " to ", int(Y_BED_SIZE), ")");
-      ok = false;
-    }
+    #if HAS_PROBE_XY_OFFSET
+      if (WITHIN(y, -(Y_BED_SIZE), Y_BED_SIZE))
+        offs.y = y;
+      else {
+        SERIAL_ECHOLNPAIR("?Y out of range (-", int(Y_BED_SIZE), " to ", int(Y_BED_SIZE), ")");
+        ok = false;
+      }
+    #else
+      if (y) SERIAL_ECHOLNPAIR("?Y must be 0 (NOZZLE_AS_PROBE)."); // ...but let 'ok' stay true
+    #endif
   }
 
   if (parser.seenval('Z')) {
@@ -76,7 +93,7 @@ void GcodeSuite::M851() {
   }
 
   // Save the new offsets
-  if (ok) probe_offset = offs;
+  if (ok) probe.offset = offs;
 }
 
 #endif // HAS_BED_PROBE

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -111,7 +111,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #if HAS_HEATED_BED
         _PREHEAT_ITEMS(1,0);
       #endif
-      for (uint8_t n = 1; n < HOTENDS; n++) PREHEAT_ITEMS(1,n);
+      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(1,n);
       ACTION_ITEM(MSG_PREHEAT_1_ALL, []() {
         #if HAS_HEATED_BED
           _preheat_bed(0);
@@ -139,7 +139,7 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #if HAS_HEATED_BED
         _PREHEAT_ITEMS(2,0);
       #endif
-      for (uint8_t n = 1; n < HOTENDS; n++) PREHEAT_ITEMS(2,n);
+      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(2,n);
       ACTION_ITEM(MSG_PREHEAT_2_ALL, []() {
         #if HAS_HEATED_BED
           _preheat_bed(1);
@@ -172,8 +172,8 @@ void menu_temperature() {
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_TARGET(N) EDIT_ITEM_FAST_N(int3, N, MSG_NOZZLE_N, &thermalManager.temp_hotend[N].target, 0, heater_maxtemp[N] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); })
-    HOTEND_LOOP() EDIT_TARGET(e);
+    HOTEND_LOOP()
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, heater_maxtemp[e] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
   #if ENABLED(SINGLENOZZLE)
@@ -191,40 +191,79 @@ void menu_temperature() {
   // Chamber:
   //
   #if HAS_HEATED_CHAMBER
-    EDIT_ITEM_FAST(int3, MSG_CHAMBER, &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 5, thermalManager.start_watching_chamber);
+    EDIT_ITEM_FAST(int3, MSG_CHAMBER, &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 10, thermalManager.start_watching_chamber);
   #endif
 
   //
   // Fan Speed:
   //
   #if FAN_COUNT > 0
+
+    auto on_fan_update = []{
+      thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+    };
+
+    #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
+      auto fan_edit_items = [&](const uint8_t f) {
+        editable.uint8 = thermalManager.fan_speed[f];
+        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
+        #endif
+      };
+    #endif
+
+    #define SNFAN(N) (ENABLED(SINGLENOZZLE) && !HAS_FAN##N && EXTRUDERS > N)
+    #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
+      auto singlenozzle_item = [&](const uint8_t f) {
+        editable.uint8 = thermalManager.fan_speed[f];
+        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
+      };
+    #endif
+
     #if HAS_FAN0
       editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST_N(percent, 1, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(0, editable.uint8); });
+      EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 1, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
+        EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
     #if HAS_FAN1
-      editable.uint8 = thermalManager.fan_speed[1];
-      EDIT_ITEM_FAST_N(percent, 2, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(1, editable.uint8); });
-      #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 2, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[1], 3, 255);
-      #endif
-    #elif ENABLED(SINGLENOZZLE) && EXTRUDERS > 1
-      editable.uint8 = thermalManager.fan_speed[1];
-      EDIT_ITEM_FAST_N(percent, 2, MSG_STORED_FAN_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(1, editable.uint8); });
+      fan_edit_items(1);
+    #elif SNFAN(1)
+      singlenozzle_item(1);
     #endif
     #if HAS_FAN2
-      editable.uint8 = thermalManager.fan_speed[2];
-      EDIT_ITEM_FAST_N(percent, 3, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(2, editable.uint8); });
-      #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 3, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[2], 3, 255);
-      #endif
-    #elif ENABLED(SINGLENOZZLE) && EXTRUDERS > 2
-      editable.uint8 = thermalManager.fan_speed[2];
-      EDIT_ITEM_FAST_N(percent, 3, MSG_STORED_FAN_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(2, editable.uint8); });
+      fan_edit_items(2);
+    #elif SNFAN(2)
+      singlenozzle_item(1);
     #endif
+    #if HAS_FAN3
+      fan_edit_items(3);
+    #elif SNFAN(3)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN4
+      fan_edit_items(4);
+    #elif SNFAN(4)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN5
+      fan_edit_items(5);
+    #elif SNFAN(5)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN6
+      fan_edit_items(6);
+    #elif SNFAN(6)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN7
+      fan_edit_items(7);
+    #elif SNFAN(7)
+      singlenozzle_item(1);
+    #endif
+
   #endif // FAN_COUNT > 0
 
   #if HAS_TEMP_HOTEND
@@ -232,7 +271,7 @@ void menu_temperature() {
     //
     // Preheat for Material 1 and 2
     //
-    #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_5 != 0 || HAS_HEATED_BED
+    #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_5 != 0 || TEMP_SENSOR_6 != 0 || TEMP_SENSOR_7 != 0 || HAS_HEATED_BED
       SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
       SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
     #else

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,7 +32,7 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -65,7 +65,7 @@
     }
     if (ui.should_draw()) {
       const float spm = planner.steps_to_mm[axis];
-      MenuEditItemBase::draw_edit_screen(msg, ftostr54sign(spm * babystep.accum));
+      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
         const bool in_view = (true
           #if HAS_GRAPHICAL_LCD
@@ -81,7 +81,7 @@
           #endif
           lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
           lcd_put_wchar(':');
-          lcd_put_u8str(ftostr54sign(spm * babystep.axis_total[BS_TOTAL_AXIS(axis)]));
+          lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
         }
       #endif
     }
@@ -128,8 +128,8 @@ void menu_tune() {
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(0); });
   #elif HOTENDS > 1
-    #define EDIT_NOZZLE(N) EDIT_ITEM_FAST_N(int3, N, MSG_NOZZLE_N, &thermalManager.temp_hotend[N].target, 0, heater_maxtemp[N] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); })
-    HOTEND_LOOP() EDIT_NOZZLE(e);
+    HOTEND_LOOP()
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, heater_maxtemp[e] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
   #if ENABLED(SINGLENOZZLE)
@@ -147,45 +147,96 @@ void menu_tune() {
   // Fan Speed:
   //
   #if FAN_COUNT > 0
+
+    auto on_fan_update = []{
+      thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+    };
+
+    #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
+      auto fan_edit_items = [&](const uint8_t f) {
+        editable.uint8 = thermalManager.fan_speed[f];
+        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
+        #if ENABLED(EXTRA_FAN_SPEED)
+          EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
+        #endif
+      };
+    #endif
+
+    #define SNFAN(N) (ENABLED(SINGLENOZZLE) && !HAS_FAN##N && EXTRUDERS > N)
+    #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
+      auto singlenozzle_item = [&](const uint8_t f) {
+        editable.uint8 = thermalManager.fan_speed[f];
+        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
+      };
+    #endif
+
     #if HAS_FAN0
       editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST_N(percent, 1, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(0, editable.uint8); });
+      EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
       #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 1, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
+        EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
     #endif
     #if HAS_FAN1
-      editable.uint8 = thermalManager.fan_speed[1];
-      EDIT_ITEM_FAST_N(percent, 2, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(1, editable.uint8); });
-      #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 2, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[1], 3, 255);
-      #endif
-    #elif ENABLED(SINGLENOZZLE) && EXTRUDERS > 1
-      editable.uint8 = thermalManager.fan_speed[1];
-      EDIT_ITEM_FAST_N(percent, 2, MSG_STORED_FAN_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(1, editable.uint8); });
+      fan_edit_items(1);
+    #elif SNFAN(1)
+      singlenozzle_item(1);
     #endif
     #if HAS_FAN2
-      editable.uint8 = thermalManager.fan_speed[2];
-      EDIT_ITEM_FAST_N(percent, 3, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(2, editable.uint8); });
-      #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 3, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[2], 3, 255);
-      #endif
-    #elif ENABLED(SINGLENOZZLE) && EXTRUDERS > 2
-      editable.uint8 = thermalManager.fan_speed[2];
-      EDIT_ITEM_FAST_N(percent, 3, MSG_STORED_FAN_N, &editable.uint8, 0, 255, []{ thermalManager.set_fan_speed(2, editable.uint8); });
+      fan_edit_items(2);
+    #elif SNFAN(2)
+      singlenozzle_item(1);
     #endif
+    #if HAS_FAN3
+      fan_edit_items(3);
+    #elif SNFAN(3)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN4
+      fan_edit_items(4);
+    #elif SNFAN(4)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN5
+      fan_edit_items(5);
+    #elif SNFAN(5)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN6
+      fan_edit_items(6);
+    #elif SNFAN(6)
+      singlenozzle_item(1);
+    #endif
+    #if HAS_FAN7
+      fan_edit_items(7);
+    #elif SNFAN(7)
+      singlenozzle_item(1);
+    #endif
+
   #endif // FAN_COUNT > 0
 
   //
   // Flow:
-  // Flow [1-5]:
   //
-  #if EXTRUDERS == 1
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, []{ planner.refresh_e_factor(0); });
-  #elif EXTRUDERS
+  #if EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
-    #define EDIT_FLOW(N) EDIT_ITEM_N(int3, N, MSG_FLOW_N, &planner.flow_percentage[N], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); })
-    for (uint8_t n = 0; n < EXTRUDERS; n++) EDIT_FLOW(n);
+    // Flow En:
+    #if EXTRUDERS > 1
+      LOOP_L_N(n, EXTRUDERS)
+        EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+    #endif
+  #endif
+
+  //
+  // Advance K:
+  //
+  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
+    #if EXTRUDERS == 1
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+    #elif EXTRUDERS > 1
+      LOOP_L_N(n, EXTRUDERS)
+        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+    #endif
   #endif
 
   //

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,7 +28,7 @@
 #include "../queue.h"
 #include "../../libs/hex_print_routines.h"
 
-#include "../../Marlin.h" // for idle()
+#include "../../MarlinCore.h" // for idle()
 
 /**
  * M100 Free Memory Watcher
@@ -158,14 +158,14 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     while (start_free_memory < end_free_memory) {
       print_hex_address(start_free_memory);             // Print the address
       SERIAL_CHAR(':');
-      for (uint8_t i = 0; i < 16; i++) {  // and 16 data bytes
+      LOOP_L_N(i, 16) {  // and 16 data bytes
         if (i == 8) SERIAL_CHAR('-');
         print_hex_byte(start_free_memory[i]);
         SERIAL_CHAR(' ');
       }
       serial_delay(25);
       SERIAL_CHAR('|');                   // Point out non test bytes
-      for (uint8_t i = 0; i < 16; i++) {
+      LOOP_L_N(i, 16) {
         char ccc = (char)start_free_memory[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
         ccc = (ccc == TEST_BYTE) ? ' ' : '?';
         SERIAL_CHAR(ccc);
@@ -238,12 +238,12 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
 
   if (block_cnt == 0)       // Make sure the special case of no free blocks shows up as an
-    block_cnt = -1;         // error to the calling code!
+    block_cnt = -1;         //  error to the calling code!
 
   SERIAL_ECHOPGM(" return=");
   if (block_cnt == 1) {
-    SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
-    SERIAL_EOL();             // area and it is appropriate to say 'no corruption'.
+    SERIAL_CHAR('0');       // If the block_cnt is 1, nothing has broken up the free memory
+    SERIAL_EOL();           //  area and it is appropriate to say 'no corruption'.
     return 0;
   }
   SERIAL_ECHOLNPGM("true");

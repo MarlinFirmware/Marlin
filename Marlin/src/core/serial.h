@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -66,7 +66,6 @@ extern uint8_t marlin_debug_flags;
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()          _PORT_RESTORE(1)
 
-#define SERIAL_CHAR(x)          SERIAL_OUT(write, x)
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
 #define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
@@ -82,6 +81,22 @@ extern uint8_t marlin_debug_flags;
 #else
   #define SERIAL_FLUSHTX()
 #endif
+
+// Print up to 10 chars from a list
+#define __CHAR_N(N,V...)  _CHAR_##N(V)
+#define _CHAR_N(N,V...)   __CHAR_N(N,V)
+#define _CHAR_1(c)        SERIAL_OUT(write, c)
+#define _CHAR_2(a,b)      do{ _CHAR_1(a); _CHAR_1(b); }while(0)
+#define _CHAR_3(a,V...)   do{ _CHAR_1(a); _CHAR_2(V); }while(0)
+#define _CHAR_4(a,V...)   do{ _CHAR_1(a); _CHAR_3(V); }while(0)
+#define _CHAR_5(a,V...)   do{ _CHAR_1(a); _CHAR_4(V); }while(0)
+#define _CHAR_6(a,V...)   do{ _CHAR_1(a); _CHAR_5(V); }while(0)
+#define _CHAR_7(a,V...)   do{ _CHAR_1(a); _CHAR_6(V); }while(0)
+#define _CHAR_8(a,V...)   do{ _CHAR_1(a); _CHAR_7(V); }while(0)
+#define _CHAR_9(a,V...)   do{ _CHAR_1(a); _CHAR_8(V); }while(0)
+#define _CHAR_10(a,V...)  do{ _CHAR_1(a); _CHAR_9(V); }while(0)
+
+#define SERIAL_CHAR(V...) _CHAR_N(NUM_ARGS(V),V)
 
 // Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
 #define __SEP_N(N,V...)   _SEP_##N(V)
@@ -245,8 +260,8 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ERROR_START()        serial_error_start()
 #define SERIAL_EOL()                SERIAL_CHAR('\n')
 
-#define SERIAL_ECHO_MSG(S)          do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPGM(S); }while(0)
-#define SERIAL_ERROR_MSG(S)         do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(S); }while(0)
+#define SERIAL_ECHO_MSG(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
+#define SERIAL_ERROR_MSG(V...)      do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(V); }while(0)
 
 #define SERIAL_ECHO_SP(C)           serial_spaces(C)
 
@@ -277,7 +292,6 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-
 void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
 
 inline void print_xyz(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {

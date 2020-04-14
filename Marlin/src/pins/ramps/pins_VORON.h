@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,7 +28,7 @@
 
 #define BOARD_INFO_NAME "VORON Design v2"
 
-#define RAMPS_D8_PIN       11
+#define RAMPS_D8_PIN                         11
 
 #include "pins_RAMPS.h"
 
@@ -36,10 +36,10 @@
 // Heaters / Fans
 //
 #undef FAN_PIN
-#define FAN_PIN             5   // Using the pin for the controller fan since controller fan is always on.
-#define CONTROLLER_FAN_PIN  8
-#define ORIG_E0_AUTO_FAN_PIN 6  // Servo pin 6 for E3D Fan
-#define ORIG_E1_AUTO_FAN_PIN 6  // Servo pin 6 for E3D Fan (same pin for both extruders since it's the same fan)
+#define FAN_PIN                               5   // Using the pin for the controller fan since controller fan is always on.
+#define CONTROLLER_FAN_PIN                    8
+#define ORIG_E0_AUTO_FAN_PIN                  6   // Servo pin 6 for E3D Fan
+#define ORIG_E1_AUTO_FAN_PIN                  6   // Servo pin 6 for E3D Fan (same pin for both extruders since it's the same fan)
 
 //
 // LCDs and Controllers

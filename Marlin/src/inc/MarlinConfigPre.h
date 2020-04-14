@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,12 +37,8 @@
 #include "../../Configuration.h"
 
 #ifdef CUSTOM_VERSION_FILE
-  #if defined(__has_include)
-    #if __has_include(XSTR(../../CUSTOM_VERSION_FILE))
-      #include XSTR(../../CUSTOM_VERSION_FILE)
-    #endif
-  #else
-    #include XSTR(../../CUSTOM_VERSION_FILE)
+  #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
+    #include STRINGIFY(../../CUSTOM_VERSION_FILE)
   #endif
 #endif
 

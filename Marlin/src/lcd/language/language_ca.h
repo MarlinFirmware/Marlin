@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -94,7 +94,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Llit");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. Ventilador");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VViatge min");
@@ -120,9 +120,9 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Desa memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carrega memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaura valors");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaura valors");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualitza");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantalla Info.");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantalla Info.");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ajusta");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa impressio");
@@ -146,7 +146,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Auto retraccio");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Canvia filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Canvia filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inicialitza SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inicialitza SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Canvia SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z fora");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reinicia BLTouch");

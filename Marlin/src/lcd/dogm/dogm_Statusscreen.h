@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -785,7 +785,9 @@
     #endif
 
   #endif
-#else
+#endif
+
+#ifndef STATUS_BED_WIDTH
   #define STATUS_BED_WIDTH 0
 #endif
 
@@ -852,7 +854,9 @@
     };
 
   #endif
-#else // HAS_HEATED_CHAMBER
+#endif
+
+#ifndef STATUS_CHAMBER_WIDTH
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 
@@ -1368,7 +1372,7 @@
     #define STATUS_LOGO_X 0
   #endif
   #ifndef STATUS_LOGO_Y
-    #define STATUS_LOGO_Y _MIN(0, 10 - (STATUS_LOGO_HEIGHT) / 2)
+    #define STATUS_LOGO_Y _MIN(0U, (10 - (STATUS_LOGO_HEIGHT) / 2))
   #endif
   #ifndef STATUS_LOGO_HEIGHT
     #define STATUS_LOGO_HEIGHT (sizeof(status_logo_bmp) / (STATUS_LOGO_BYTEWIDTH))
@@ -1729,8 +1733,8 @@
 
 #define DO_DRAW_LOGO (STATUS_LOGO_WIDTH && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
 #define DO_DRAW_HOTENDS (HOTENDS > 0)
-#define DO_DRAW_CUTTER (HAS_CUTTER)
-#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 4)
+#define DO_DRAW_BED (HAS_HEATED_BED && HOTENDS <= 4)
+#define DO_DRAW_CUTTER (HAS_CUTTER && !DO_DRAW_BED)
 #define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
 

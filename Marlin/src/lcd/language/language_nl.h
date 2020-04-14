@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -99,7 +99,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan snelheid");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
@@ -123,9 +123,9 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD contrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Geheugen opslaan");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Geheugen laden");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Noodstop reset");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Noodstop reset");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ververs");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info scherm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info scherm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Voorbereiden");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Afstellen");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Print pauzeren");
@@ -149,7 +149,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Verv. Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Verv. Filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. SD kaart");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD kaart");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Verv. SD Kaart");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe uit. bed");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch Zelf-Test");

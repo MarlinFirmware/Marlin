@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -92,7 +92,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ακροφύσιο ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Κλίνη");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ταχύτητα ανεμιστήρα");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Ροή");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Ροή ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Έλεγχος");
@@ -102,14 +102,6 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Αυτομ. ρύθμιση θερμοκρασίας");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Ενεργοποιημένο");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Απενεργοποιημένο");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Επιτάχυνση");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Vαντίδραση");
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_A;
@@ -120,7 +112,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("Vμεγ ") LCD_STR_B;
   PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("Vμεγ ") LCD_STR_C;
   PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Vμεγ ") LCD_STR_E;
-  PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Vμεγ *");
+  PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("Vμεγ *");
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("Vελαχ");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("Vελάχ. μετατόπιση");
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Accel");
@@ -146,9 +138,9 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Αποθήκευση");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Φόρτωση");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ανανέωση");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Οθόνη πληροφόρησης");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Οθόνη πληροφόρησης");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Προετοιμασία");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Συντονισμός");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Παύση εκτύπωσης");
@@ -172,7 +164,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Αυτόματη ανάσυρση");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Αλλαγή νήματος");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Αλλαγή νήματος *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Προετοιμασία κάρτας SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Προετοιμασία κάρτας SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Αλλαγή κάρτας SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Διερεύνηση Z εκτός κλίνης");
   PROGMEM Language_Str MSG_YX_UNHOMED                      = _UxGT("Επαναφορά Χ/Υ πριν από Ζ");

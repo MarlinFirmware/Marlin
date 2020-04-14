@@ -115,7 +115,7 @@ extern "C" {
 #define NUM_ANALOG_FIRST        80
 
 // PWM resolution
-#define PWM_RESOLUTION          8
+#define PWM_RESOLUTION          12
 #define PWM_FREQUENCY           20000 // >= 20 Khz => inaudible noise for fans
 #define PWM_MAX_DUTY_CYCLE      255
 
@@ -149,11 +149,12 @@ extern "C" {
 /* HAL configuration */
 #define HSE_VALUE               12000000U
 
-#define FLASH_PAGE_SIZE			((uint32_t)(4*1024))
+#define FLASH_PAGE_SIZE         (4U * 1024U)
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
+
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
  *----------------------------------------------------------------------------*/

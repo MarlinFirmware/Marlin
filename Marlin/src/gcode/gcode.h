@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -67,6 +67,9 @@
  * G34  - Z Stepper automatic alignment using probe: I<iterations> T<accuracy> A<amplification> (Requires Z_STEPPER_AUTO_ALIGN)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G60  - Save current position. (Requires SAVED_POSITIONS)
+ * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
+ * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
@@ -227,7 +230,8 @@
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
- * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops (Requires [XYZ]_DUAL_ENDSTOPS).
+ * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
+ * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
@@ -243,6 +247,7 @@
  * M867 - Enable/disable or toggle error correction for position encoder modules.
  * M868 - Report or set position encoder module error correction threshold.
  * M869 - Report position encoder module error.
+ * M871 - Print/reset/clear first layer temperature offset values. (Requires PROBE_TEMP_COMPENSATION)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
@@ -282,7 +287,7 @@
 #include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "../feature/I2CPositionEncoder.h"
+  #include "../feature/encoder_i2c.h"
 #endif
 
 enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
@@ -345,6 +350,18 @@ public:
     extern const char G28_STR[];
     process_subcommands_now_P(G28_STR);
   }
+
+  #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+    static bool autoreport_paused;
+    static inline bool set_autoreport_paused(const bool p) {
+      const bool was = autoreport_paused;
+      autoreport_paused = p;
+      return was;
+    }
+  #else
+    static constexpr bool autoreport_paused = false;
+    static inline bool set_autoreport_paused(const bool) { return false; }
+  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
@@ -417,7 +434,7 @@ private:
     static void G27();
   #endif
 
-  static void G28(const bool always_home_all);
+  static void G28();
 
   #if HAS_LEVELING
     #if ENABLED(G29_RETRY_AND_RECOVER)
@@ -462,6 +479,15 @@ private:
     static void G57();
     static void G58();
     static void G59();
+  #endif
+
+  #if ENABLED(PROBE_TEMP_COMPENSATION)
+    static void G76();
+  #endif
+
+  #if SAVED_POSITIONS
+    static void G60();
+    static void G61();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
@@ -844,6 +870,10 @@ private:
     static void M666();
   #endif
 
+  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+    static void M672();
+  #endif
+
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     static void M701();
     static void M702();
@@ -874,11 +904,15 @@ private:
     FORCE_INLINE static void M869() { I2CPEM.M869(); }
   #endif
 
+  #if ENABLED(PROBE_TEMP_COMPENSATION)
+    static void M871();
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
     static void M900();
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     static void M122();
     static void M906();
     #if HAS_STEALTHCHOP
@@ -896,7 +930,7 @@ private:
     #endif
   #endif
 
-  #if HAS_DRIVER(L6470)
+  #if HAS_L64XX
     static void M122();
     static void M906();
     static void M916();
@@ -934,8 +968,16 @@ private:
     static void M1000();
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    static void M1001();
+  #endif
+
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
+  #endif
+
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    static void M710();
   #endif
 
   static void T(const uint8_t tool_index);

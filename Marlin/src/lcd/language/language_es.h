@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -240,9 +240,9 @@ namespace Language_es {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Cama");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Recinto");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ventilador");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ventilador =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ventilador ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Vel. Ext. ventilador");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Vel. Ext. ventilador =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Vel. Ext. ventilador ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flujo");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flujo ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
@@ -284,12 +284,12 @@ namespace Language_es {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Guardar EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Cargar EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Rest. fábrica");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Rest. fábrica");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inicializar EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Actualizar SD/USB");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetear Impresora");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Recargar");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantalla de Inf.");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantalla de Inf.");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ajustar");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Iniciar impresión");
@@ -337,7 +337,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Descargar filamento");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Descargar fil. *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Descargar todo");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Iniciar SD/USB");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Iniciar SD/USB");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambiar SD/USB");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Lanzar SD/USB");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z fuera cama");
@@ -345,8 +345,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Auto-Prueba");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reiniciar");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Bajar pistón");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Subir pistón");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Subir pistón");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Bajar pistón");
   PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: Modo Software");
   PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: Modo 5V");
   PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: Modo OD");

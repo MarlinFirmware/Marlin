@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -67,7 +67,7 @@
 #ifdef CPU_32_BIT
   /**
    * Duration of START_TIMED_PULSE
-   * 
+   *
    * ...as measured on an LPC1768 with a scope and converted to cycles.
    * Not applicable to other 32-bit processors, but as long as others
    * take longer, pulses will be longer. For example the SKR Pro
@@ -274,11 +274,15 @@ class Stepper {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       static bool locked_Y_motor, locked_Y2_motor;
     #endif
-    #if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
-      static bool locked_Z_motor, locked_Z2_motor;
-    #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
-      static bool locked_Z3_motor;
+    #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+      static bool locked_Z_motor, locked_Z2_motor
+                  #if NUM_Z_STEPPER_DRIVERS >= 3
+                    , locked_Z3_motor
+                    #if NUM_Z_STEPPER_DRIVERS >= 4
+                      , locked_Z4_motor
+                    #endif
+                  #endif
+                  ;
     #endif
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
@@ -317,13 +321,18 @@ class Stepper {
       static bool bezier_2nd_half; // If Bézier curve has been initialized or not
     #endif
 
-    static uint32_t nextMainISR;   // time remaining for the next Step ISR
     #if ENABLED(LIN_ADVANCE)
+      static constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
       static uint32_t nextAdvanceISR, LA_isr_rate;
       static uint16_t LA_current_adv_steps, LA_final_adv_steps, LA_max_adv_steps; // Copy from current executed block. Needed because current_block is set to NULL "too early".
       static int8_t LA_steps;
       static bool LA_use_advance_lead;
-    #endif // LIN_ADVANCE
+    #endif
+
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      static constexpr uint32_t BABYSTEP_NEVER = 0xFFFFFFFF;
+      static uint32_t nextBabystepISR;
+    #endif
 
     static int32_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
@@ -347,28 +356,47 @@ class Stepper {
 
   public:
 
-    //
-    // Constructor / initializer
-    //
-    Stepper() {};
-
     // Initialize stepper hardware
     static void init();
 
-    // Interrupt Service Routines
+    // Interrupt Service Routine and phases
+
+    // The stepper subsystem goes to sleep when it runs out of things to execute.
+    // Call this to notify the subsystem that it is time to go to work.
+    static inline void wake_up() { ENABLE_STEPPER_DRIVER_INTERRUPT(); }
+
+    static inline bool is_awake() { return STEPPER_ISR_ENABLED(); }
+
+    static inline bool suspend() {
+      const bool awake = is_awake();
+      if (awake) DISABLE_STEPPER_DRIVER_INTERRUPT();
+      return awake;
+    }
 
     // The ISR scheduler
     static void isr();
 
-    // The stepper pulse phase ISR
-    static void stepper_pulse_phase_isr();
+    // The stepper pulse ISR phase
+    static void pulse_phase_isr();
 
-    // The stepper block processing phase ISR
-    static uint32_t stepper_block_phase_isr();
+    // The stepper block processing ISR phase
+    static uint32_t block_phase_isr();
 
     #if ENABLED(LIN_ADVANCE)
-      // The Linear advance stepper ISR
+      // The Linear advance ISR phase
       static uint32_t advance_isr();
+      FORCE_INLINE static void initiateLA() { nextAdvanceISR = 0; }
+    #endif
+
+    #if ENABLED(INTEGRATED_BABYSTEPPING)
+      // The Babystepping ISR phase
+      static uint32_t babystepping_isr();
+      FORCE_INLINE static void initiateBabystepping() {
+        if (nextBabystepISR == BABYSTEP_NEVER) {
+          nextBabystepISR = 0;
+          wake_up();
+        }
+      }
     #endif
 
     // Check if the given block is busy or not - Must not be called from ISR contexts
@@ -377,12 +405,14 @@ class Stepper {
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
 
-    // Report the positions of the steppers, in steps
-    static void report_positions();
+    // Set the current position in steps
+    static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
+    static inline void set_position(const xyze_long_t &abce) { set_position(abce.a, abce.b, abce.c, abce.e); }
+    static void set_axis_position(const AxisEnum a, const int32_t &v);
 
-    // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
-    // to notify the subsystem that it is time to go to work.
-    static void wake_up();
+    // Report the positions of the steppers, in steps
+    static void report_a_position(const xyz_long_t &pos);
+    static void report_positions();
 
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
@@ -430,49 +460,24 @@ class Stepper {
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
-    #if Z_MULTI_ENDSTOPS || (ENABLED(Z_STEPPER_AUTO_ALIGN) && Z_MULTI_STEPPER_DRIVERS)
+    #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
-    #endif
-    #if ENABLED(Z_TRIPLE_ENDSTOPS) || BOTH(Z_STEPPER_AUTO_ALIGN, Z_TRIPLE_STEPPER_DRIVERS)
-      FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
+      #if NUM_Z_STEPPER_DRIVERS >= 3
+        FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
+        #if NUM_Z_STEPPER_DRIVERS >= 4
+          FORCE_INLINE static void set_z4_lock(const bool state) { locked_Z4_motor = state; }
+        #endif
+      #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
       static void refresh_motor_power();
     #endif
-
-    // Set the current position in steps
-    static inline void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
-      planner.synchronize();
-      const bool was_enabled = STEPPER_ISR_ENABLED();
-      if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-      _set_position(a, b, c, e);
-      if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
-    }
-    static inline void set_position(const xyze_long_t &abce) { set_position(abce.a, abce.b, abce.c, abce.e); }
-
-    static inline void set_axis_position(const AxisEnum a, const int32_t &v) {
-      planner.synchronize();
-
-      #ifdef __AVR__
-        // Protect the access to the position. Only required for AVR, as
-        //  any 32bit CPU offers atomic access to 32bit variables
-        const bool was_enabled = STEPPER_ISR_ENABLED();
-        if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-      #endif
-
-      count_position[a] = v;
-
-      #ifdef __AVR__
-        // Reenable Stepper ISR
-        if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
-      #endif
-    }
 
     // Set direction bits for all steppers
     static void set_directions();
@@ -483,11 +488,11 @@ class Stepper {
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
     FORCE_INLINE static void _set_position(const abce_long_t &spos) { _set_position(spos.a, spos.b, spos.c, spos.e); }
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t scale, uint8_t* loops) {
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t* loops) {
       uint32_t timer;
 
       // Scale the frequency, as requested by the caller
-      step_rate <<= scale;
+      step_rate <<= oversampling_factor;
 
       uint8_t multistep = 1;
       #if DISABLED(DISABLE_MULTI_STEPPING)

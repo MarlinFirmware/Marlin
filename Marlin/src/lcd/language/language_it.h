@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,6 +38,7 @@ namespace Language_it {
   PROGMEM Language_Str LANGUAGE                            = _UxGT("Italian");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" pronto.");
+  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
   PROGMEM Language_Str MSG_YES                             = _UxGT("SI");
   PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Indietro");
@@ -240,10 +241,15 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Piatto");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Camera");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventola");     // Max 15 characters
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola =");   // Max 15 characters
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. =");   // Max 15 characters
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventola ~");   // Max 15 characters
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. ~");   // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent.");  // Max 15 characters
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. =");  // Max 15 characters
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. ~");  // Max 15 characters
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Controller vent.");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Vel. inattivo");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Modo autom.");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Vel. attivo");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Tempo inattivo");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flusso");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flusso ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controllo");
@@ -263,6 +269,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
   PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
   PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
+  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
+  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seleziona");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seleziona *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
@@ -307,12 +315,15 @@ namespace Language_it {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrasto LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Salva impostazioni");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carica impostazioni");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Ripristina imp.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Ripristina imp.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inizializza EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: CRC EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: Indice EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: Versione EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Schermata info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Schermata info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Regola");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Avvia stampa");
@@ -365,7 +376,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Rimuovi filamento");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Rimuovi tutto");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inizializ. media");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Collega media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambia media");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Rilascia media");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe fuori piatto");
@@ -391,7 +402,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Ritrai BLTouch");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Ritrai Sonda-Z");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s prima");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset sonda Z");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Offsets sonda");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Offset X sonda");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Offset Y sonda");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset Z sonda");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");

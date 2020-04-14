@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-arduino --verify --board teensy:avr:teensy35:usb=serial,speed=120,opt=o1std,keys=en-us Marlin/Marlin.ino

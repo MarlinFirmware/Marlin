@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,7 +34,7 @@ void report_M92(const bool echo=true, const int8_t e=-1) {
   SERIAL_EOL();
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+    LOOP_L_N(i, E_STEPPERS) {
       if (e >= 0 && i != e) continue;
       if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
       SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), (int)i,

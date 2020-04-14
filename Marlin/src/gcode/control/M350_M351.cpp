@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,7 +33,7 @@
  * Warning: Steps-per-unit remains unchanged.
  */
 void GcodeSuite::M350() {
-  if (parser.seen('S')) for (uint8_t i = 0; i <= 4; i++) stepper.microstep_mode(i, parser.value_byte());
+  if (parser.seen('S')) LOOP_LE_N(i, 4) stepper.microstep_mode(i, parser.value_byte());
   LOOP_XYZE(i) if (parser.seen(axis_codes[i])) stepper.microstep_mode(i, parser.value_byte());
   if (parser.seen('B')) stepper.microstep_mode(4, parser.value_byte());
   stepper.microstep_readings();
