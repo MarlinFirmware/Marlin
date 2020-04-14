@@ -57,7 +57,10 @@ void AboutScreen::onRedraw(draw_mode_t) {
 
   char about_str[
     strlen_P(GET_TEXT(MSG_ABOUT_TOUCH_PANEL_2)) +
-    strlen_P(TOOLHEAD_NAME) + 1
+    #ifdef TOOLHEAD_NAME
+      strlen_P(TOOLHEAD_NAME) +
+    #endif
+    1
   ];
   #ifdef TOOLHEAD_NAME
     // If MSG_ABOUT_TOUCH_PANEL_2 has %s, substitute in the toolhead name.
