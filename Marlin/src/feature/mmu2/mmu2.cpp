@@ -664,37 +664,25 @@ void MMU2::filament_runout() {
     mmu2s_triggered = runout;
   }
 
-  bool MMU2::can_load()
-  {
+  bool MMU2::can_load() {
     execute_extruder_sequence((const E_Step *)can_load_sequence, COUNT(can_load_sequence));
     
     int filament_detected count = 0;
     const int steps = MMU2_CAN_LOAD_RETRACT / MMU2_CAN_LOAD_INCREMENT;
     DEBUG_ECHOLNPGM("MMU can_load:"));
-    for(int i = 0; i < steps; ++i)
-    {
-        execute_extruder_sequence((const E_Step *)can_load_increment_sequence, COUNT(can_load_increment_sequence));
-        if(mmu2s_triggered)
-        {
-          DEBUG_ECHOPGM("O");
-          ++filament_detected_count;
-        }
-        else
-        {
-          DEBUG_ECHOPGM("o");
-        }
+    LOOP_L_N(i, steps) {
+      execute_extruder_sequence((const E_Step *)can_load_increment_sequence, COUNT(can_load_increment_sequence));
+      DEBUG_CHAR(mmu2s_triggered ? 'O' : 'o');
+      if (mmu2s_triggered) ++filament_detected_count;
     }
-    if (filament_detected_count > steps - 4) //maybe the 4 should be a variable as well?
-    {
-        DEBUG_ECHOLNPGM(" succeeded.");
-        return true;
+
+    if (filament_detected_count <= steps - 4) { // maybe the 4 should be a variable as well?
+      DEBUG_ECHOLNPGM(" failed.");
+      return false;
     }
-    else
-    {
-        DEBUG_ECHOLNPGM(" failed.");
-        return false;
-    }
-    
+
+    DEBUG_ECHOLNPGM(" succeeded.");
+    return true;
   }
 #endif
 
