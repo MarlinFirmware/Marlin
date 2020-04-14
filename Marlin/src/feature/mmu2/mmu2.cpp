@@ -699,7 +699,7 @@ void MMU2::filament_runout() {
   bool MMU2::can_load() {
     execute_extruder_sequence((const E_Step *)can_load_sequence, COUNT(can_load_sequence));
     
-    int filament_detected count = 0;
+    int filament_detected_count = 0;
     const int steps = MMU2_CAN_LOAD_RETRACT / MMU2_CAN_LOAD_INCREMENT;
     DEBUG_ECHOLNPGM("MMU can_load:"));
     LOOP_L_N(i, steps) {
