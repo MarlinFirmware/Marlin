@@ -159,6 +159,51 @@ Nozzle nozzle;
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
+    #if ANY(SINGLENOZZLE, MIXING_EXTRUDER)
+      const uint8_t arrPos = 0;
+    #else
+      const uint8_t arrPos = active_extruder;
+    #endif
+
+    #if HAS_SOFTWARE_ENDSTOPS
+      NOMORE(start[arrPos].x, soft_endstop.max.x);
+      NOMORE(middle[arrPos].x, soft_endstop.max.x);
+      NOMORE(end[arrPos].x, soft_endstop.max.x);
+      NOMORE(start[arrPos].y, soft_endstop.max.y);
+      NOMORE(middle[arrPos].y, soft_endstop.max.y);
+      NOMORE(end[arrPos].y, soft_endstop.max.y);
+      NOMORE(start[arrPos].z, soft_endstop.max.z);
+      NOMORE(middle[arrPos].z, soft_endstop.max.z);
+      NOMORE(end[arrPos].z, soft_endstop.max.z);
+
+      NOLESS(start[arrPos].x, );
+      NOLESS(middle[arrPos].x, soft_endstop.min.x);
+      NOLESS(end[arrPos].x, soft_endstop.min.x);
+      NOLESS(start[arrPos].y, soft_endstop.min.y);
+      NOLESS(middle[arrPos].y, soft_endstop.min.y);
+      NOLESS(end[arrPos].y, soft_endstop.min.y);
+      NOLESS(start[arrPos].z, soft_endstop.min.z);
+      NOLESS(middle[arrPos].z, soft_endstop.min.z);
+      NOLESS(end[arrPos].z, soft_endstop.min.z);
+
+      bool radiusOutOfRange = false;
+      if(middle.x + (radius / 3.14) > soft_endstop.max.x)
+        radiusOutOfRange = true;
+      if(middle.x + (radius / 3.14) < soft_endstop.min.x)
+        radiusOutOfRange = true;
+      if(middle.y + (radius / 3.14) > soft_endstop.max.y)
+        radiusOutOfRange = true;
+      if(middle.y + (radius / 3.14) < soft_endstop.min.y)
+        radiusOutOfRange = true;
+
+      if(radiusOutOfRange && pattern == 2)
+      {
+        SERIAL_ECHOLNPGM("Warning : Radius Out of Range");
+        return;
+      }
+
+    #endif
+
     if (pattern == 2) {
       if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
         SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
@@ -166,15 +211,15 @@ Nozzle nozzle;
       }
     }
     else {
-      if (!TEST(cleans, X_AXIS)) start[active_extruder].x = end[active_extruder].x = current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start[active_extruder].y = end[active_extruder].y = current_position.y;
+      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = current_position.x;
+      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = current_position.y;
     }
-    if (!TEST(cleans, Z_AXIS)) start[active_extruder].z = end[active_extruder].z = current_position.z;
+    if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = current_position.z;
 
     switch (pattern) {
-       case 1: zigzag(start[active_extruder], end[active_extruder], strokes, objects); break;
-       case 2: circle(start[active_extruder], middle[active_extruder], strokes, radius);  break;
-      default: stroke(start[active_extruder], end[active_extruder], strokes);
+       case 1: zigzag(start[arrPos], end[arrPos], strokes, objects); break;
+       case 2: circle(start[arrPos], middle[arrPos], strokes, radius);  break;
+      default: stroke(start[arrPos], end[arrPos], strokes);
     }
   }
 
