@@ -523,11 +523,43 @@ void MMU2::tool_change(const char* special) {
         command(MMU_CMD_T0 + index);
         manage_response(true, true);
         command(MMU_CMD_C0);
+
+        #if ENABLED(PRUSA_MMU2_S_MODE)
+          // if Filament has not reached gears, continue loading
+          manage_response(true, true);
+          LOOP_L_N(i, MMU2_C0_RETRY) {
+            if(!mmu2s_triggered){
+              command(MMU_CMD_C0);
+              manage_response(true, true);
+              check_filament();
+            }
+            else
+            {
+              break;
+            }
+              
+          }
+          if (mmu2s_triggered) {
+            bool success = can_load();
+            if (success && mmu2s_triggered) {
+        #endif
+
         mmu_loop();
 
         ENABLE_AXIS_E0();
         extruder = index;
         active_extruder = 0;
+        #if ENABLED(PRUSA_MMU2_S_MODE)
+            }
+          }
+          LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
+          BUZZ(100, 659);
+          BUZZ(200, 698);
+          BUZZ(100, 659);
+          BUZZ(300, 440);
+          BUZZ(100, 659);  
+          
+        #endif
       } break;
 
       case 'c': {
@@ -672,11 +704,12 @@ void MMU2::filament_runout() {
     DEBUG_ECHOLNPGM("MMU can_load:"));
     LOOP_L_N(i, steps) {
       execute_extruder_sequence((const E_Step *)can_load_increment_sequence, COUNT(can_load_increment_sequence));
+      check_filament(); // Don't trust the idle function
       DEBUG_CHAR(mmu2s_triggered ? 'O' : 'o');
       if (mmu2s_triggered) ++filament_detected_count;
     }
 
-    if (filament_detected_count <= steps - 4) { // maybe the 4 should be a variable as well?
+    if (filament_detected_count <= steps - (MMU2_CAN_LOAD_DEVIATION / MMU2_CAN_LOAD_INCREMENT)) { 
       DEBUG_ECHOLNPGM(" failed.");
       return false;
     }
@@ -714,8 +747,28 @@ void MMU2::filament_runout() {
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       command(MMU_CMD_C0);
-      mmu_loop();
 
+      #if ENABLED(PRUSA_MMU2_S_MODE)
+        // if Filament has not reached gears, continue loading
+        manage_response(true, true);
+        LOOP_L_N(i, MMU2_C0_RETRY) {
+          if(!mmu2s_triggered){
+            command(MMU_CMD_C0);
+            manage_response(true, true);
+            check_filament();
+          }
+          else
+          {
+            break;
+          }
+            
+        }
+        if (mmu2s_triggered) {
+          bool success = can_load();
+          if (success && mmu2s_triggered) {
+      #endif
+
+      mmu_loop();
       extruder = index;
       active_extruder = 0;
 
@@ -723,6 +776,20 @@ void MMU2::filament_runout() {
 
       BUZZ(200, 404);
       return true;
+
+      #if ENABLED(PRUSA_MMU2_S_MODE)
+          }
+        }
+        LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
+        BUZZ(100, 659);
+        BUZZ(200, 698);
+        BUZZ(100, 659);
+        BUZZ(300, 440);
+        BUZZ(100, 659);
+        return false;
+        
+
+      #endif
     }
   }
 

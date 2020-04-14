@@ -3193,12 +3193,16 @@
   // Using a sensor like the MMU2S
   //#define PRUSA_MMU2_S_MODE
   #if ENABLED(PRUSA_MMU2_S_MODE)
+    #define MMU2_C0_RETRY   5         // Number of retries (total time = timeout x retry)
+
     #define MMU2_CAN_LOAD_FEEDRATE 800    // To reuse within MMU2 module
     #define MMU2_CAN_LOAD_SEQUENCE \
       {  60.0, MMU2_CAN_LOAD_FEEDRATE }, \
       { -52.0, MMU2_CAN_LOAD_FEEDRATE }
 
     #define MMU2_CAN_LOAD_RETRACT   6.0   // Should be smaller than the difference between MMU2_CAN_LOAD_SEQUENCE values
+
+    #define MMU2_CAN_LOAD_DEVIATION 0.8   // Acceptable deviation
 
     #define MMU2_CAN_LOAD_INCREMENT 0.2   // To reuse within MMU2 module
 
