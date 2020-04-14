@@ -47,7 +47,6 @@ public:
 
     static bool set_deployed(const bool deploy);
 
-
     #if IS_KINEMATIC
 
       #if HAS_PROBE_XY_OFFSET

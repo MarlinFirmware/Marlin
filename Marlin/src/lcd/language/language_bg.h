@@ -25,7 +25,7 @@
  * Bulgarian
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -149,5 +149,5 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Калибровка Y");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Калибровка Z");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Калибровка Център");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неправилен принтер");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Неправилен принтер");
 }

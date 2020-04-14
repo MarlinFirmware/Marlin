@@ -25,7 +25,7 @@
  * Traditional Chinese
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_zh_TW {
@@ -459,7 +459,7 @@ namespace Language_zh_TW {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("外殼燈");     // "Case light"
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("燈亮度");     // "Light BRIGHTNESS"
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("打印機不正確");     // "The printer is incorrect"
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("打印機不正確");     // "The printer is incorrect"
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("列印計數");     //"Print Count"
@@ -496,13 +496,13 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  噴嘴: ");     // "  Nozzle: "
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("斷絲偵測");    //"Runout Sensor"
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("絲距離mm");   //"Runout Dist mm"
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("歸原位失敗");     // "Homing failed"
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("歸原位失敗");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探針探測失敗");     // "Probing failed"
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太冷");     // "M600: Too cold"
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Update MMU Firmware!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Needs Attention.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Resume Print");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Resuming...");
@@ -552,7 +552,7 @@ namespace Language_zh_TW {
   //
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("按下按鈕", "恢復列印")); //"Press Button to resume print"
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("停車中 ..."));   //"Parking..."
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("停車中 ..."));   //"Parking..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("等待開始", "絲料", "變更"));     //"Wait for start of the filament change"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("等待", "卸下絲料"));     //"Wait for filament unload"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("插入絲料", "並按鍵", "繼續 ..."));     //"Insert filament and press button to continue..."
@@ -564,7 +564,7 @@ namespace Language_zh_TW {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("等待列印", "恢復"));     //"Wait for print to resume"
   #else // LCD_HEIGHT < 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("按下繼續.."));   //"Click to continue"
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("停車中 ..."));     //"Parking..."
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("停車中 ..."));     //"Parking..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("請等待 ..."));     //"Please wait..."
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("插入並點擊"));     //"Insert and Click"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("按下加熱.."));     //"Click to heat"

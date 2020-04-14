@@ -25,7 +25,7 @@
  * Turkish
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  * Bu çeviri dosyasındaki sorunlar ve düzeltmeler için iletişim;
  * Contact for issues and corrections in this translation file;
@@ -463,7 +463,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Aydınlatmayı Aç");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Aydınlatma Parlaklğı");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Yanlış Yazıcı");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Yanlış Yazıcı");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Baskı Sayısı");
@@ -499,13 +499,13 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozul: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensörü");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Aşınma Farkı mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Sıfırlama Başarısız");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Sıfırlama Başarısız");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Başarısız");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Çok Soğuk");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMAN SEÇ");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("MMU Yaz. Güncelle!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("MMU Yaz. Güncelle!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Dikkat Gerektirir.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Yaz. Devam Et");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Sürdürülüyor...");
@@ -556,7 +556,7 @@ namespace Language_tr {
   #if LCD_HEIGHT >= 4
 
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Baskıya devam etmek", "için Butona bas"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Park Ediliyor..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Park Ediliyor..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Filaman değişimi", "için başlama", "bekleniyor"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Filamanı yükle", "ve devam için", "tuşa bas..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Nozulü Isıtmak için", "Butona Bas."));
@@ -568,7 +568,7 @@ namespace Language_tr {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Baskının devam ", "etmesi için bekle"));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Sürdürmek İçin Tıkla"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Park Ediliyor..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Park Ediliyor..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Lütfen bekleyiniz..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Yükle ve bas"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Isıtmak için Tıkla"));

@@ -433,7 +433,7 @@ bool MMU2::rx_ok() {
 void MMU2::check_version() {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
     SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
-    kill(GET_TEXT(MSG_MMU2_WRONG_FIRMWARE));
+    kill(GET_TEXT(MSG_KILL_MMU2_FIRMWARE));
   }
 }
 

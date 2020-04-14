@@ -25,12 +25,11 @@
  * Galician language (ISO "gl")
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
-#define NOT_EXTENDED_ISO10646_1_5X7
 
 namespace Language_gl {
   using namespace Language_en; // Inherit undefined strings from English
@@ -324,6 +323,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Erro: CRC EEPROM");
   PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Erro: Índice EEPROM");
   PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Erro: Versión EEPROM");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Config Gardada");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Actualizar SD/USB");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reiniciar Impresora");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Recargar");
@@ -340,6 +340,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Listo");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Atrás");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Proceder");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pausando...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausar impresión");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Retomar impresión");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Deter impresión");
@@ -350,8 +351,8 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Tarxeta SD");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Sen tarxeta SD");
   PROGMEM Language_Str MSG_DWELL                           = _UxGT("En repouso...");
-  PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("A espera...");
-  PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("Prema para Retomar");
+  PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("Prema para Retomar..");
+  PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("Impresión Pausada");
   PROGMEM Language_Str MSG_PRINTING                        = _UxGT("Imprimindo...");
   PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Impresión Cancelada");
   PROGMEM Language_Str MSG_PRINT_DONE                      = _UxGT("Fin Impresión");
@@ -470,7 +471,7 @@ namespace Language_gl {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luz da Caixa");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Brillo Luces");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("IMPRESORA INCORRECTA");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("IMPRESORA INCORRECTA");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Total Impresións");
@@ -506,13 +507,13 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Bico: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sensor Filamento");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm Sensor Fil");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Fallo ao ir á Orixe");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Fallo ao ir á Orixe");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Fallo ao Sondar");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Moi Frío");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ESCOLLE FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Actualizar FW MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Actualizar FW MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Precisa Atención.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Retomar impr.");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Retomando...");
@@ -558,7 +559,7 @@ namespace Language_gl {
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Preme o botón para", "continuar impresión"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Estacionando..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Estacionando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Agarde para", "comezar cambio", "de filamento"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Introduza o", "filamento e", "faga click"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Prema o botón para", "quentar o bico"));
@@ -570,7 +571,7 @@ namespace Language_gl {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_3_LINE("Agarde a que", "se retome", "a impresión"));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Premer para continuar"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Estacionando..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Estacionando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Agarde..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Introduza e click"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Prema para quentar"));
