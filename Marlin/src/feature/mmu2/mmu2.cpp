@@ -109,13 +109,14 @@ char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
     feedRate_t feedRate;  //!< feed rate in mm/s
   };
 
-  static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
-  static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE };
-
-  #if ENABLED(PRUSA_MMU2_S_MODE)
-    static constexpr E_Step can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE };
-    static constexpr E_Step can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE };
-  #endif
+  static constexpr E_Step
+      ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE }
+    , load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE }
+    #if ENABLED(PRUSA_MMU2_S_MODE)
+      , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
+      , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
+    #endif
+  ;
 
 #endif // MMU2_MENUS
 
