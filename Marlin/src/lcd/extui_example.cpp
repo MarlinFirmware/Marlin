@@ -23,7 +23,7 @@
 
 #if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
-#include "extui/ui_api.h"
+#include "extensible_ui/ui_api.h"
 
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the
@@ -60,7 +60,7 @@ namespace ExtUI {
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
-    // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
+    // This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
 
@@ -70,7 +70,7 @@ namespace ExtUI {
   }
 
   void onLoadSettings(const char *buff) {
-    // Called while loading settings from EEPROM. If the ExtUI
+    // This is called while loading settings from EEPROM. If the ExtUI
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
 
@@ -80,30 +80,18 @@ namespace ExtUI {
   }
 
   void onConfigurationStoreWritten(bool success) {
-    // Called after the entire EEPROM has been written,
+    // This is called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
   void onConfigurationStoreRead(bool success) {
-    // Called after the entire EEPROM has been read,
+    // This is called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-    // Called when any mesh points are updated
+    // This is called when any mesh points are updated
   }
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-    }
-  #endif
-
-  #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
-      // Called for temperature PID tuning result
-    }
-  #endif
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,11 +30,11 @@
 /**
  * G31: Deploy the Z probe
  */
-void GcodeSuite::G31() { probe.deploy(); }
+void GcodeSuite::G31() { DEPLOY_PROBE(); }
 
 /**
  * G32: Stow the Z probe
  */
-void GcodeSuite::G32() { probe.stow(); }
+void GcodeSuite::G32() { STOW_PROBE(); }
 
 #endif // Z_PROBE_SLED

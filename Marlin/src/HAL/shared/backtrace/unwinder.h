@@ -164,7 +164,7 @@ typedef struct {
  * link register (i.e. not a normal register) and the stack pointer value
  * supplied.
  *
- * -If the program was compiled with -funwind-tables it will use them to
+ * -If the program was compiled with -funwind-tables , it will use them to
  * perform the traceback. Otherwise, brute force will be employed
  * -If the program was compiled with -mpoke-function-name, then you will
  * get function names in the traceback. Otherwise, you will not.

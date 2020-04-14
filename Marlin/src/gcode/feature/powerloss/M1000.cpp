@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,12 +25,9 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
 
 #include "../../gcode.h"
-#include "../../../feature/powerloss.h"
+#include "../../../feature/power_loss_recovery.h"
 #include "../../../module/motion.h"
 #include "../../../lcd/ultralcd.h"
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extui/ui_api.h"
-#endif
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../../../core/debug_out.h"
@@ -47,10 +44,6 @@ inline void plr_error(PGM_P const prefix) {
   #endif
 }
 
-#if HAS_LCD_MENU
-  void lcd_power_loss_recovery_cancel();
-#endif
-
 /**
  * M1000: Resume from power-loss (undocumented)
  *   - With 'S' go to the Resume/Cancel menu
@@ -62,20 +55,8 @@ void GcodeSuite::M1000() {
     if (parser.seen('S')) {
       #if HAS_LCD_MENU
         ui.goto_screen(menu_job_recovery);
-      #elif ENABLED(EXTENSIBLE_UI)
-        ExtUI::onPowerLossResume();
       #else
         SERIAL_ECHO_MSG("Resume requires LCD.");
-      #endif
-    }
-    else if (parser.seen('C')) {
-      #if HAS_LCD_MENU
-        lcd_power_loss_recovery_cancel();
-      #else
-        recovery.cancel();
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onPrintTimerStopped();
       #endif
     }
     else

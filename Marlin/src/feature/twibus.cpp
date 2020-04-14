@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -49,27 +49,37 @@ void TWIBus::address(const uint8_t adr) {
 
   addr = adr;
 
-  debug(PSTR("address"), adr);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("address"), adr);
+  #endif
 }
 
 void TWIBus::addbyte(const char c) {
   if (buffer_s >= COUNT(buffer)) return;
   buffer[buffer_s++] = c;
-  debug(PSTR("addbyte"), c);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("addbyte"), c);
+  #endif
 }
 
 void TWIBus::addbytes(char src[], uint8_t bytes) {
-  debug(PSTR("addbytes"), bytes);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("addbytes"), bytes);
+  #endif
   while (bytes--) addbyte(*src++);
 }
 
 void TWIBus::addstring(char str[]) {
-  debug(PSTR("addstring"), str);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("addstring"), str);
+  #endif
   while (char c = *str++) addbyte(c);
 }
 
 void TWIBus::send() {
-  debug(PSTR("send"), addr);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("send"), addr);
+  #endif
 
   Wire.beginTransmission(I2C_ADDRESS(addr));
   Wire.write(buffer, buffer_s);
@@ -79,33 +89,37 @@ void TWIBus::send() {
 }
 
 // static
-void TWIBus::echoprefix(uint8_t bytes, const char pref[], uint8_t adr) {
+void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
   SERIAL_ECHO_START();
-  serialprintPGM(pref);
+  serialprintPGM(prefix);
   SERIAL_ECHOPAIR(": from:", adr, " bytes:", bytes, " data:");
 }
 
 // static
-void TWIBus::echodata(uint8_t bytes, const char pref[], uint8_t adr) {
-  echoprefix(bytes, pref, adr);
+void TWIBus::echodata(uint8_t bytes, const char prefix[], uint8_t adr) {
+  echoprefix(bytes, prefix, adr);
   while (bytes-- && Wire.available()) SERIAL_CHAR(Wire.read());
   SERIAL_EOL();
 }
 
-void TWIBus::echobuffer(const char pref[], uint8_t adr) {
-  echoprefix(buffer_s, pref, adr);
-  LOOP_L_N(i, buffer_s) SERIAL_CHAR(buffer[i]);
+void TWIBus::echobuffer(const char prefix[], uint8_t adr) {
+  echoprefix(buffer_s, prefix, adr);
+  for (uint8_t i = 0; i < buffer_s; i++) SERIAL_CHAR(buffer[i]);
   SERIAL_EOL();
 }
 
 bool TWIBus::request(const uint8_t bytes) {
   if (!addr) return false;
 
-  debug(PSTR("request"), bytes);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("request"), bytes);
+  #endif
 
   // requestFrom() is a blocking function
   if (Wire.requestFrom(addr, bytes) == 0) {
-    debug("request fail", addr);
+    #if ENABLED(DEBUG_TWIBUS)
+      debug("request fail", addr);
+    #endif
     return false;
   }
 
@@ -113,7 +127,9 @@ bool TWIBus::request(const uint8_t bytes) {
 }
 
 void TWIBus::relay(const uint8_t bytes) {
-  debug(PSTR("relay"), bytes);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("relay"), bytes);
+  #endif
 
   if (request(bytes))
     echodata(bytes, PSTR("i2c-reply"), addr);
@@ -125,7 +141,9 @@ uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
   while (count < bytes && Wire.available())
     dst[count++] = Wire.read();
 
-  debug(PSTR("capture"), count);
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("capture"), count);
+  #endif
 
   return count;
 }
@@ -138,12 +156,16 @@ void TWIBus::flush() {
 #if I2C_SLAVE_ADDRESS > 0
 
   void TWIBus::receive(uint8_t bytes) {
-    debug(PSTR("receive"), bytes);
+    #if ENABLED(DEBUG_TWIBUS)
+      debug(PSTR("receive"), bytes);
+    #endif
     echodata(bytes, PSTR("i2c-receive"), 0);
   }
 
   void TWIBus::reply(char str[]/*=nullptr*/) {
-    debug(PSTR("reply"), str);
+    #if ENABLED(DEBUG_TWIBUS)
+      debug(PSTR("reply"), str);
+    #endif
 
     if (str) {
       reset();
