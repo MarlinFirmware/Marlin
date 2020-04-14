@@ -359,7 +359,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luz da Impressora");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Intensidade Brilho");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora Incorreta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Total de Impressões");
@@ -389,7 +389,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Continuar Impressão");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Bocal: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sensor filamento");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Falha ao ir à origem");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Falha ao ir à origem");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Falha ao sondar");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Muito frio");
 

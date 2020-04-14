@@ -470,7 +470,7 @@ namespace Language_gl {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luz da Caixa");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Brillo Luces");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("IMPRESORA INCORRECTA");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("IMPRESORA INCORRECTA");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Total Impresións");
@@ -506,13 +506,13 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Bico: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sensor Filamento");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm Sensor Fil");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Fallo ao ir á Orixe");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Fallo ao ir á Orixe");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Fallo ao Sondar");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Moi Frío");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ESCOLLE FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Actualizar FW MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Actualizar FW MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Precisa Atención.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Retomar impr.");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Retomando...");

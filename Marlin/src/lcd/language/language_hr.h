@@ -132,7 +132,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Osvjetljenje");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Neispravan pisač");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Neispravan pisač");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Broj printova");

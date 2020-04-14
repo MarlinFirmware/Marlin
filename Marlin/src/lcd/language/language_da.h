@@ -185,7 +185,7 @@ namespace Language_da {
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Forsæt print");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Forkert printer");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Forkert printer");
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Vent på start", "af filament", "skift"));

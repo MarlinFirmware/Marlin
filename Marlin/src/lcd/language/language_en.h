@@ -52,6 +52,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Media read error");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB device removed");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB start failed");
+  PROGMEM Language_Str MSG_KILL_SUBCALL_OVERFLOW           = _UxGT("Subcall Overflow");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Soft Endstops");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Main");
@@ -473,7 +474,7 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Case Light");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Light Brightness");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("INCORRECT PRINTER");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("INCORRECT PRINTER");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Print Count");
@@ -509,13 +510,13 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Homing Failed");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Too Cold");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Update MMU Firmware!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Needs Attention.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Resume Print");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Resuming...");

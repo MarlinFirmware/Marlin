@@ -459,7 +459,7 @@ namespace Language_zh_TW {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("外殼燈");     // "Case light"
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("燈亮度");     // "Light BRIGHTNESS"
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("打印機不正確");     // "The printer is incorrect"
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("打印機不正確");     // "The printer is incorrect"
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("列印計數");     //"Print Count"
@@ -496,13 +496,13 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  噴嘴: ");     // "  Nozzle: "
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("斷絲偵測");    //"Runout Sensor"
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("絲距離mm");   //"Runout Dist mm"
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("歸原位失敗");     // "Homing failed"
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("歸原位失敗");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探針探測失敗");     // "Probing failed"
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太冷");     // "M600: Too cold"
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Update MMU Firmware!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Needs Attention.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Resume Print");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Resuming...");
