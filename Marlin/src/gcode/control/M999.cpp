@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,7 +23,7 @@
 #include "../gcode.h"
 
 #include "../../lcd/ultralcd.h" // for lcd_reset_alert_level
-#include "../../MarlinCore.h"   // for marlin_state
+#include "../../Marlin.h"       // for Running
 #include "../queue.h"           // for flush_and_request_resend
 
 /**
@@ -37,7 +37,7 @@
  *
  */
 void GcodeSuite::M999() {
-  marlin_state = MF_RUNNING;
+  Running = true;
   ui.reset_alert_level();
 
   if (parser.boolval('S')) return;

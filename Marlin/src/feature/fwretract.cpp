@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -73,7 +73,7 @@ void FWRetract::reset() {
   settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
-  LOOP_L_N(i, EXTRUDERS) {
+  for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;
     #if EXTRUDERS > 1
       retracted_swap[i] = false;
@@ -117,7 +117,7 @@ void FWRetract::retract(const bool retracting
       " swapping ", swapping,
       " active extruder ", active_extruder
     );
-    LOOP_L_N(i, EXTRUDERS) {
+    for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
       #if EXTRUDERS > 1
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
@@ -201,7 +201,7 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("retracting ", retracting);
     SERIAL_ECHOLNPAIR("swapping ", swapping);
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
-    LOOP_L_N(i, EXTRUDERS) {
+    for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
       #if EXTRUDERS > 1
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);

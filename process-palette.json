@@ -12,7 +12,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Build",
-      "command": "python buildroot/share/vscode/auto_build.py build",
+      "command": "python buildroot/share/atom/auto_build.py build",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -55,7 +55,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Clean",
-      "command": "python buildroot/share/vscode/auto_build.py clean",
+      "command": "python buildroot/share/atom/auto_build.py clean",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -98,7 +98,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Upload",
-      "command": "python buildroot/share/vscode/auto_build.py upload",
+      "command": "python buildroot/share/atom/auto_build.py upload",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -141,7 +141,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Upload (traceback)",
-      "command": "python buildroot/share/vscode/auto_build.py traceback",
+      "command": "python buildroot/share/atom/auto_build.py traceback",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -184,7 +184,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Upload using Programmer",
-      "command": "python buildroot/share/vscode/auto_build.py program",
+      "command": "python buildroot/share/atom/auto_build.py program",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -227,7 +227,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Test",
-      "command": "python buildroot/share/vscode/auto_build.py test",
+      "command": "python buildroot/share/atom/auto_build.py test",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -270,7 +270,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Debug",
-      "command": "python buildroot/share/vscode/auto_build.py debug",
+      "command": "python buildroot/share/atom/auto_build.py debug",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],
@@ -313,7 +313,7 @@
     {
       "namespace": "process-palette",
       "action": "PIO Remote",
-      "command": "python buildroot/share/vscode/auto_build.py remote",
+      "command": "python buildroot/share/atom/auto_build.py remote",
       "arguments": [],
       "cwd": "{projectPath}",
       "inputDialogs": [],

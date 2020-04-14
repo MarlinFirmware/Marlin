@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 #
-# mfqp [1|2|3]
+# mfqp [-q|--quick] [1|2]
 #
-#  - git add .
-#  - git commit --amend
-#  - ghpc
+# Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
 
 MFINFO=$(mfinfo "$@") || exit 1
@@ -17,14 +15,26 @@ IND=6
 while [ $IND -lt ${#INFO[@]} ]; do
   ARG=${INFO[$IND]}
   case "$ARG" in
+    -q|--quick ) QUICK="-q" ;;
      -h|--help ) USAGE=1 ;;
              * ) USAGE=1 ; echo "unknown option: $ARG" ;;
   esac
   let IND+=1
 done
 
-[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2|3]" 1>&2 ; exit 1 ; }
+[[ ${INFO[4]} =~ [0-9] ]] && USAGE=1
 
-[[ $CURR == $TARG && $REPO != "MarlinDocumentation" ]] && { echo "Don't alter the PR Target branch."; exit 1 ; }
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [-hq] [1|2]" 1>&2 ; exit 1 ; }
 
-git add . && git commit --amend && git push -f
+git add .
+git commit -m "patch"
+
+if [[ $CURR == $TARG ]]; then
+  if [[ $REPO == "MarlinDocumentation" ]]; then
+    git rebase -i HEAD~2 && git push -f
+  else
+    echo "Don't alter the PR Target branch."; exit 1
+  fi
+else
+  mfrb $QUICK "$@" && git push -f
+fi

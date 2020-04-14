@@ -2,14 +2,18 @@
 
 restore_configs
 
-EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/bugfix-2.0.x/config/examples"
+if [ -f "config/examples/$@/Configuration.h" ]; then
+  cp "config/examples/$@/Configuration.h" Marlin/
+fi
 
-cd Marlin
+if [ -f "config/examples/$@/Configuration_adv.h" ]; then
+  cp "config/examples/$@/Configuration_adv.h" Marlin/
+fi
 
-wget -q "$EXAMPLES/$@/Configuration.h"     -O wgot && mv wgot Configuration.h
-wget -q "$EXAMPLES/$@/Configuration_adv.h" -O wgot && mv wgot Configuration_adv.h
-wget -q "$EXAMPLES/$@/_Bootscreen.h"       -O wgot && mv wgot _Bootscreen.h
-wget -q "$EXAMPLES/$@/_Statusscreen.h"     -O wgot && mv wgot _Statusscreen.h
-rm -f wgot
+if [ -f "config/examples/$@/_Bootscreen.h" ]; then
+  cp "config/examples/$@/_Bootscreen.h" Marlin/
+fi
 
-cd - >/dev/null
+if [ -f "config/examples/$@/_Statusscreen.h" ]; then
+  cp "config/examples/$@/_Statusscreen.h" Marlin/
+fi

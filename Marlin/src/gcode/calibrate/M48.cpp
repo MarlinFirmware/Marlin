@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -53,9 +53,6 @@
  *
  * This function requires the machine to be homed before invocation.
  */
-
-extern const char SP_Y_STR[];
-
 void GcodeSuite::M48() {
 
   if (axis_unhomed_error()) return;
@@ -80,11 +77,11 @@ void GcodeSuite::M48() {
   xy_float_t next_pos = current_position;
 
   const xy_pos_t probe_pos = {
-    parser.linearval('X', next_pos.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', next_pos.y + probe.offset_xy.y)   // If no Y, ditto
+    parser.linearval('X', next_pos.x + probe_offset.x),
+    parser.linearval('Y', next_pos.y + probe_offset.y)
   };
 
-  if (!probe.can_reach(probe_pos)) {
+  if (!position_is_reachable_by_probe(probe_pos)) {
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -120,13 +117,13 @@ void GcodeSuite::M48() {
   float mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
   // Move to the first point, deploy, and probe
-  const float t = probe.probe_at_point(probe_pos, raise_after, verbose_level);
+  const float t = probe_at_point(probe_pos, raise_after, verbose_level);
   bool probing_good = !isnan(t);
 
   if (probing_good) {
     randomSeed(millis());
 
-    LOOP_L_N(n, n_samples) {
+    for (uint8_t n = 0; n < n_samples; n++) {
       #if HAS_SPI_LCD
         // Display M48 progress in the status bar
         ui.status_printf_P(0, PSTR(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
@@ -149,7 +146,7 @@ void GcodeSuite::M48() {
           SERIAL_ECHOLNPGM("CW");
         }
 
-        LOOP_L_N(l, n_legs - 1) {
+        for (uint8_t l = 0; l < n_legs - 1; l++) {
           float delta_angle;
 
           if (schizoid_flag) {
@@ -169,9 +166,8 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;   // outside of this range.   It looks like they behave correctly with
                                                 // numbers outside of the range, but just to be safe we clamp them.
 
-          const xy_pos_t noz_pos = probe_pos - probe.offset_xy;
-          next_pos.set(noz_pos.x + cos(RADIANS(angle)) * radius,
-                       noz_pos.y + sin(RADIANS(angle)) * radius);
+          next_pos.set(probe_pos.x - probe_offset.x + cos(RADIANS(angle)) * radius,
+                       probe_pos.y - probe_offset.y + sin(RADIANS(angle)) * radius);
 
           #if DISABLED(DELTA)
             LIMIT(next_pos.x, X_MIN_POS, X_MAX_POS);
@@ -179,7 +175,7 @@ void GcodeSuite::M48() {
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while (!probe.can_reach(next_pos)) {
+            while (!position_is_reachable_by_probe(next_pos)) {
               next_pos *= 0.8f;
               if (verbose_level > 3)
                 SERIAL_ECHOLNPAIR_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
@@ -194,7 +190,7 @@ void GcodeSuite::M48() {
       } // n_legs
 
       // Probe a single point
-      sample_set[n] = probe.probe_at_point(probe_pos, raise_after, 0);
+      sample_set[n] = probe_at_point(probe_pos, raise_after, 0);
 
       // Break the loop if the probe fails
       probing_good = !isnan(sample_set[n]);
@@ -204,7 +200,7 @@ void GcodeSuite::M48() {
        * Get the current mean for the data points we have so far
        */
       float sum = 0.0;
-      LOOP_LE_N(j, n) sum += sample_set[j];
+      for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
 
       NOMORE(min, sample_set[n]);
@@ -215,7 +211,7 @@ void GcodeSuite::M48() {
        * data points we have so far
        */
       sum = 0.0;
-      LOOP_LE_N(j, n)
+      for (uint8_t j = 0; j <= n; j++)
         sum += sq(sample_set[j] - mean);
 
       sigma = SQRT(sum / (n + 1));
@@ -238,7 +234,7 @@ void GcodeSuite::M48() {
     } // n_samples loop
   }
 
-  probe.stow();
+  STOW_PROBE();
 
   if (probing_good) {
     SERIAL_ECHOLNPGM("Finished!");

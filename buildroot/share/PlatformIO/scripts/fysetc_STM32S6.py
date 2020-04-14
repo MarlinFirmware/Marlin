@@ -1,5 +1,5 @@
 from os.path import join
-Import("env")
+Import("env", "projenv")
 
 import os,shutil
 from SCons.Script import DefaultEnvironment

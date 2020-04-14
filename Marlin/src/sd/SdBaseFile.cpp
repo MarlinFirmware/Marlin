@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,12 +20,6 @@
  *
  */
 
-#if __GNUC__ > 8
-  // The NXP platform updated GCC from 7.2.1 to 9.2.1
-  // and this new warning apparently can be ignored.
-  #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
-#endif
-
 /**
  * Arduino SdFat Library
  * Copyright (c) 2009 by William Greiman
@@ -39,7 +33,7 @@
 
 #include "SdBaseFile.h"
 
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 SdBaseFile* SdBaseFile::cwd_ = 0;   // Pointer to Current Working Directory
 
 // callback function for date/time
@@ -204,7 +198,7 @@ bool SdBaseFile::dirEntry(dir_t* dir) {
  */
 void SdBaseFile::dirName(const dir_t& dir, char* name) {
   uint8_t j = 0;
-  LOOP_L_N(i, 11) {
+  for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) name[j++] = '.';
     name[j++] = dir.name[i];
@@ -345,10 +339,10 @@ int8_t SdBaseFile::lsPrintNext(uint8_t flags, uint8_t indent) {
         && DIR_IS_FILE_OR_SUBDIR(&dir)) break;
   }
   // indent for dir level
-  LOOP_L_N(i, indent) SERIAL_CHAR(' ');
+  for (uint8_t i = 0; i < indent; i++) SERIAL_CHAR(' ');
 
   // print name
-  LOOP_L_N(i, 11) {
+  for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) {
       SERIAL_CHAR('.');
@@ -478,7 +472,7 @@ bool SdBaseFile::mkdir(SdBaseFile* parent, const uint8_t dname[11]) {
   // make entry for '.'
   memcpy(&d, p, sizeof(d));
   d.name[0] = '.';
-  LOOP_S_L_N(i, 1, 11) d.name[i] = ' ';
+  for (uint8_t i = 1; i < 11; i++) d.name[i] = ' ';
 
   // cache block for '.'  and '..'
   block = vol_->clusterStartBlock(firstCluster_);
@@ -1088,7 +1082,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
         if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
           // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
           n = (seq - 1) * (FILENAME_LENGTH);
-          LOOP_L_N(i, FILENAME_LENGTH)
+          for (uint8_t i = 0; i < FILENAME_LENGTH; i++)
             longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
           // If this VFAT entry is the last one, add a NUL terminator at the end of the string
           if (VFAT->sequenceNumber & 0x40) longFilename[n + FILENAME_LENGTH] = '\0';

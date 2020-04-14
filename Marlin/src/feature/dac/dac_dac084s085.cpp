@@ -10,7 +10,7 @@
 
 #include "dac_dac084s085.h"
 
-#include "../../MarlinCore.h"
+#include "../../Marlin.h"
 #include "../../module/stepper.h"
 #include "../../HAL/shared/Delay.h"
 

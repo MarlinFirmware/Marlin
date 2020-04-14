@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -57,9 +57,6 @@
 #if AXIS_DRIVER_TYPE_Z3(TMC26X)
   _TMC26X_DEFINE(Z3);
 #endif
-#if AXIS_DRIVER_TYPE_Z4(TMC26X)
-  _TMC26X_DEFINE(Z4);
-#endif
 #if AXIS_DRIVER_TYPE_E0(TMC26X)
   _TMC26X_DEFINE(E0);
 #endif
@@ -77,12 +74,6 @@
 #endif
 #if AXIS_DRIVER_TYPE_E5(TMC26X)
   _TMC26X_DEFINE(E5);
-#endif
-#if AXIS_DRIVER_TYPE_E6(TMC26X)
-  _TMC26X_DEFINE(E6);
-#endif
-#if AXIS_DRIVER_TYPE_E7(TMC26X)
-  _TMC26X_DEFINE(E7);
 #endif
 
 #define _TMC26X_INIT(A) do{ \
@@ -112,9 +103,6 @@ void tmc26x_init_to_defaults() {
   #if AXIS_DRIVER_TYPE_Z3(TMC26X)
     _TMC26X_INIT(Z3);
   #endif
-  #if AXIS_DRIVER_TYPE_Z4(TMC26X)
-    _TMC26X_INIT(Z4);
-  #endif
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     _TMC26X_INIT(E0);
   #endif
@@ -132,12 +120,6 @@ void tmc26x_init_to_defaults() {
   #endif
   #if AXIS_DRIVER_TYPE_E5(TMC26X)
     _TMC26X_INIT(E5);
-  #endif
-  #if AXIS_DRIVER_TYPE_E6(TMC26X)
-    _TMC26X_INIT(E6);
-  #endif
-  #if AXIS_DRIVER_TYPE_E7(TMC26X)
-    _TMC26X_INIT(E7);
   #endif
 }
 
