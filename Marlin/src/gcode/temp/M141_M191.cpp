@@ -51,7 +51,19 @@
  */
 void GcodeSuite::M141() {
   if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) thermalManager.setTargetChamber(parser.value_celsius());
+  if (parser.seenval('S')) {
+    thermalManager.setTargetChamber(parser.value_celsius());
+
+    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+      /**
+       * Stop the timer at the end of print. Start is managed by 'heat and wait' M109.
+       * Hotends use EXTRUDE_MINTEMP / 2 to allow nozzles to be put into hot standby
+       * mode, for instance in a dual extruder setup, without affecting the running
+       * print timer.
+       */
+      thermalManager.check_timer_autostart(false, true);
+    #endif
+  }
 }
 
 /**
