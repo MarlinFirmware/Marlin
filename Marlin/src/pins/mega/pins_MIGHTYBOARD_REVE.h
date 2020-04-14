@@ -203,6 +203,7 @@
 #define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
+//#define CUTOFF_SR_CHECK_PIN                     // PG4 ( TOSC1 ) physical pin 29
 
 //
 // LCD / Controller
