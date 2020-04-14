@@ -41,12 +41,32 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PB10
-#define X_MAX_PIN                           PE15
-#define Y_MIN_PIN                           PE12
-#define Y_MAX_PIN                           PE10
-#define Z_MIN_PIN                           PG8
-#define Z_MAX_PIN                           PG5
+// SKR Pro v1.1 only has MIN switch connector for axes.
+// The pins defined below as MAX are marked on the board as
+// extruder endstops (E0, E1, E2). Trinamic-based StallGuard-capable
+// stepper drivers are wired on the board to corresponding endstop
+// pins, with extruder steppers wired to E0, E1, and E2.
+// Delta printers always home to MAX and can not use the default
+// MIN endstops.
+//
+// Marlin though does not support endstops for extruders as of the
+// time of this writing. Hence, for Delta, if TMC2209 is used, the endstops
+// are just swapped.
+#if BOTH(DELTA, HAS_STALLGUARD)
+  #define X_MAX_PIN                           PB10
+  #define X_MIN_PIN                           PE15
+  #define Y_MAX_PIN                           PE12
+  #define Y_MIN_PIN                           PE10
+  #define Z_MAX_PIN                           PG8
+  #define Z_MIN_PIN                           PG5
+#else
+  #define X_MIN_PIN                           PB10
+  #define X_MAX_PIN                           PE15
+  #define Y_MIN_PIN                           PE12
+  #define Y_MAX_PIN                           PE10
+  #define Z_MIN_PIN                           PG8
+  #define Z_MAX_PIN                           PG5
+#endif
 
 //
 // Z Probe must be this pins
