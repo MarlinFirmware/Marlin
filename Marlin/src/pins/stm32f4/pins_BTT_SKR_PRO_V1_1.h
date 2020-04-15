@@ -44,6 +44,9 @@
 #define X_DIAG_PIN                          PB10  // X-
 #define Y_DIAG_PIN                          PE12  // Y-
 #define Z_DIAG_PIN                          PG8   // Z-
+#define E0_DIAG_PIN                         PE15  // E0
+#define E1_DIAG_PIN                         PE10  // E1
+#define E2_DIAG_PIN                         PG5   // E2
 
 //
 // Limit Switches
