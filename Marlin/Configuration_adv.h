@@ -271,9 +271,16 @@
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
-#define AUTOTEMP
-#if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT 0.98
+ #define AUTOTEMP
+ #if ENABLED(AUTOTEMP)
+   #define AUTOTEMP_OLDWEIGHT 0.98
+   // On M109 command , start autotemp with this proportional values of target hotend temp
+   #define AUTOTEMP_PROPORTIONAL
+   #if ENABLED(AUTOTEMP_PROPORTIONAL)
+     #define AUTOTEMP_MIN_P    0   // Added to target temp value
+     #define AUTOTEMP_MAX_P    5   // Added to target temp value
+    #define AUTOTEMP_FACTOR_P  1  // Apply value
+   #endif
 #endif
 
 // Extra options for the M114 "Current Position" report
