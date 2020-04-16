@@ -159,46 +159,28 @@ Nozzle nozzle;
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
-    #if ANY(SINGLENOZZLE, MIXING_EXTRUDER)
-      const uint8_t arrPos = 0;
-    #else
-      const uint8_t arrPos = active_extruder;
-    #endif
+    const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
     #if HAS_SOFTWARE_ENDSTOPS
-      NOMORE(start[arrPos].x, soft_endstop.max.x);
-      NOMORE(middle[arrPos].x, soft_endstop.max.x);
-      NOMORE(end[arrPos].x, soft_endstop.max.x);
-      NOMORE(start[arrPos].y, soft_endstop.max.y);
-      NOMORE(middle[arrPos].y, soft_endstop.max.y);
-      NOMORE(end[arrPos].y, soft_endstop.max.y);
-      NOMORE(start[arrPos].z, soft_endstop.max.z);
-      NOMORE(middle[arrPos].z, soft_endstop.max.z);
-      NOMORE(end[arrPos].z, soft_endstop.max.z);
 
-      NOLESS(start[arrPos].x, );
-      NOLESS(middle[arrPos].x, soft_endstop.min.x);
-      NOLESS(end[arrPos].x, soft_endstop.min.x);
-      NOLESS(start[arrPos].y, soft_endstop.min.y);
-      NOLESS(middle[arrPos].y, soft_endstop.min.y);
-      NOLESS(end[arrPos].y, soft_endstop.min.y);
-      NOLESS(start[arrPos].z, soft_endstop.min.z);
-      NOLESS(middle[arrPos].z, soft_endstop.min.z);
-      NOLESS(end[arrPos].z, soft_endstop.min.z);
+      #define LIMIT_AXIS(A) do{ \
+        LIMIT( start[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
+        LIMIT(middle[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
+        LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
+      }while(0)
 
-      bool radiusOutOfRange = false;
-      if(middle.x + (radius / 3.14) > soft_endstop.max.x)
-        radiusOutOfRange = true;
-      if(middle.x + (radius / 3.14) < soft_endstop.min.x)
-        radiusOutOfRange = true;
-      if(middle.y + (radius / 3.14) > soft_endstop.max.y)
-        radiusOutOfRange = true;
-      if(middle.y + (radius / 3.14) < soft_endstop.min.y)
-        radiusOutOfRange = true;
+      LIMIT_AXIS(x);
+      LIMIT_AXIS(y);
+      LIMIT_AXIS(z);
 
-      if(radiusOutOfRange && pattern == 2)
-      {
-        SERIAL_ECHOLNPGM("Warning : Radius Out of Range");
+      const float arc_part = radius / M_PI;
+      const bool radiusOutOfRange = (middle.x + arc_part > soft_endstop.max.x)
+                                 || (middle.x + arc_part < soft_endstop.min.x)
+                                 || (middle.y + arc_part > soft_endstop.max.y)
+                                 || (middle.y + arc_part < soft_endstop.min.y);
+
+      if (radiusOutOfRange && pattern == 2) {
+        SERIAL_ECHOLNPGM("Warning: Radius Out of Range");
         return;
       }
 
@@ -206,7 +188,7 @@ Nozzle nozzle;
 
     if (pattern == 2) {
       if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
-        SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
+        SERIAL_ECHOLNPGM("Warning: Clean Circle requires XY");
         return;
       }
     }
