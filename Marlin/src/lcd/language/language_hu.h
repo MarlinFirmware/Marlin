@@ -22,20 +22,16 @@
 #pragma once
 
 /**
- * Magyar
+ * Hungarian
  *
  * LCD Menu Messages
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
-#define hu 1234
-#if LCD_LANGUAGE == hu
-  #define NOT_EXTENDED_ISO10646_1_5X7
-#endif
-#undef hu
-
 namespace Language_hu {
+  using namespace Language_en; // Inherit undefined strings from English
+
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar")
 
