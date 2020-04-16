@@ -52,13 +52,13 @@
   #endif
   namespace FTDI {
     IS_FT800
-    constexpr bool Use_Crystal              = true;  // 0 = use internal oscillator, 1 = module has a crystal populated
-    constexpr bool GPIO_0_Audio_Enable      = false; /* 1 = does use GPIO00 for amplifier control, 0 = not in use for Audio */
-    constexpr bool GPIO_1_Audio_Shutdown    = true;  /* 1 = does use GPIO01 for amplifier control, 0 = not in use for Audio */
-    constexpr uint8_t Swizzle               = 2;
-    constexpr uint8_t CSpread               = 1;
+    constexpr bool Use_Crystal            = true;  // 0 = use internal oscillator, 1 = module has a crystal populated
+    constexpr bool GPIO_0_Audio_Enable    = false; /* 1 = does use GPIO00 for amplifier control, 0 = not in use for Audio */
+    constexpr bool GPIO_1_Audio_Shutdown  = true;  /* 1 = does use GPIO01 for amplifier control, 0 = not in use for Audio */
+    constexpr uint8_t Swizzle             = 2;
+    constexpr uint8_t CSpread             = 1;
 
-    constexpr uint16_t touch_threshold      = 1200; /* touch-sensitivity */
+    constexpr uint16_t touch_threshold    = 1200; /* touch-sensitivity */
   }
 
 /**
@@ -80,12 +80,12 @@
   #endif
   namespace FTDI {
     IS_FT800
-    constexpr bool Use_Crystal              = true; // 0 = use internal oscillator, 1 = module has a crystal populated
-    constexpr bool GPIO_0_Audio_Enable      = false;
-    constexpr bool GPIO_1_Audio_Shutdown    = false;
-    constexpr uint8_t Swizzle               = 0;
-    constexpr uint8_t CSpread               = 1;
-    constexpr uint16_t touch_threshold      = 2000; /* touch-sensitivity */
+    constexpr bool Use_Crystal            = true; // 0 = use internal oscillator, 1 = module has a crystal populated
+    constexpr bool GPIO_0_Audio_Enable    = false;
+    constexpr bool GPIO_1_Audio_Shutdown  = false;
+    constexpr uint8_t Swizzle             = 0;
+    constexpr uint8_t CSpread             = 1;
+    constexpr uint16_t touch_threshold    = 2000; /* touch-sensitivity */
   }
 
 /**
@@ -103,12 +103,12 @@
   #endif
   namespace FTDI {
     IS_FT810
-    constexpr bool Use_Crystal              = true; // 0 = use internal oscillator, 1 = module has a crystal populated
-    constexpr bool GPIO_0_Audio_Enable      = false;
-    constexpr bool GPIO_1_Audio_Shutdown    = false;
-    constexpr uint8_t Swizzle               = 0;
-    constexpr uint8_t CSpread               = 1;
-    constexpr uint16_t touch_threshold      = 2000; /* touch-sensitivity */
+    constexpr bool Use_Crystal            = true; // 0 = use internal oscillator, 1 = module has a crystal populated
+    constexpr bool GPIO_0_Audio_Enable    = false;
+    constexpr bool GPIO_1_Audio_Shutdown  = false;
+    constexpr uint8_t Swizzle             = 0;
+    constexpr uint8_t CSpread             = 1;
+    constexpr uint16_t touch_threshold    = 2000; /* touch-sensitivity */
   }
 
 /**
@@ -126,12 +126,12 @@
   #endif
   namespace FTDI {
     IS_FT800
-    constexpr bool Use_Crystal              = true; // 0 = use internal oscillator, 1 = module has a crystal populated
-    constexpr bool GPIO_0_Audio_Enable      = false;
-    constexpr bool GPIO_1_Audio_Shutdown    = true;
-    constexpr uint8_t Swizzle               = 0;
-    constexpr uint8_t CSpread               = 1;
-    constexpr uint16_t touch_threshold      = 1200; /* touch-sensitivity */
+    constexpr bool Use_Crystal            = true; // 0 = use internal oscillator, 1 = module has a crystal populated
+    constexpr bool GPIO_0_Audio_Enable    = false;
+    constexpr bool GPIO_1_Audio_Shutdown  = true;
+    constexpr uint8_t Swizzle             = 0;
+    constexpr uint8_t CSpread             = 1;
+    constexpr uint16_t touch_threshold    = 1200; /* touch-sensitivity */
   }
 
 /**
@@ -149,12 +149,12 @@
   #endif
   namespace FTDI {
     IS_FT810
-    constexpr bool Use_Crystal              = false; // 0 = use internal oscillator, 1 = module has a crystal populated
-    constexpr bool GPIO_0_Audio_Enable      = true;  // The AO CLCD uses GPIO0 to enable audio
-    constexpr bool GPIO_1_Audio_Shutdown    = false;
-    constexpr uint8_t Swizzle               = 0;
-    constexpr uint8_t CSpread               = 0;
-    constexpr uint16_t touch_threshold      = 2000; /* touch-sensitivity */
+    constexpr bool Use_Crystal            = false; // 0 = use internal oscillator, 1 = module has a crystal populated
+    constexpr bool GPIO_0_Audio_Enable    = true;  // The AO CLCD uses GPIO0 to enable audio
+    constexpr bool GPIO_1_Audio_Shutdown  = false;
+    constexpr uint8_t Swizzle             = 0;
+    constexpr uint8_t CSpread             = 0;
+    constexpr uint16_t touch_threshold    = 2000; /* touch-sensitivity */
   }
 
 /**
@@ -172,12 +172,12 @@
   #endif
   namespace FTDI {
     IS_FT810
-    constexpr bool Use_Crystal              = false; // 0 = use internal oscillator, 1 = module has a crystal populated
-    constexpr bool GPIO_0_Audio_Enable      = true;  // The AO CLCD uses GPIO0 to enable audio
-    constexpr bool GPIO_1_Audio_Shutdown    = false;
-    constexpr uint8_t Swizzle               = 0;
-    constexpr uint8_t CSpread               = 0;
-    constexpr uint16_t touch_threshold      = 2000; /* touch-sensitivity */
+    constexpr bool Use_Crystal            = false; // 0 = use internal oscillator, 1 = module has a crystal populated
+    constexpr bool GPIO_0_Audio_Enable    = true;  // The AO CLCD uses GPIO0 to enable audio
+    constexpr bool GPIO_1_Audio_Shutdown  = false;
+    constexpr uint8_t Swizzle             = 0;
+    constexpr uint8_t CSpread             = 0;
+    constexpr uint16_t touch_threshold    = 2000; /* touch-sensitivity */
   }
 #else
 
