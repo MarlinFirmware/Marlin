@@ -40,7 +40,7 @@
 #endif
 
 #ifndef SD_DETECT_PIN
-  #define SD_DETECT_PIN                         49  // Always define onboard SD detect
+  #define SD_DETECT_PIN                       49  // Always define onboard SD detect
 #endif
 
 #define PS_ON_PIN                             40  // Used by CR2020 Industrial series
