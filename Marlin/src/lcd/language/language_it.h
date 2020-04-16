@@ -50,6 +50,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Err.leggendo media");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Dispos.USB rimosso");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("Avvio USB fallito");
+  PROGMEM Language_Str MSG_KILL_SUBCALL_OVERFLOW           = _UxGT("Overflow subchiamate");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Finecor."); // Max 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Finecorsa Soft");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu principale");
@@ -321,6 +322,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: CRC EEPROM");
   PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: Indice EEPROM");
   PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: Versione EEPROM");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Impostazioni mem.");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
@@ -337,6 +339,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Fatto");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Indietro");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procedi");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Messa in pausa...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa stampa");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arresta stampa");
