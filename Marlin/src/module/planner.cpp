@@ -2972,17 +2972,21 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 
 #if ENABLED(AUTOTEMP)
 
-void Planner::autotemp_M104_M109() {
-  //F0 gcode to disable autotemp
-  if ((autotemp_enabled = parser.seen('F')? parser.value_float() : false )) autotemp_factor = parser.value_float();
-  if (parser.seen('S')) autotemp_min = parser.value_celsius();
-  if (parser.seen('B')) autotemp_max = parser.value_celsius();
+  void Planner::autotemp_M104_M109() {
+    // F0 will disable autotemp
+    if (parser.seenval('F')) {
+      autotemp_factor = parser.value_float();
+      autotemp_enabled = autotemp_factor != 0;
+    }
+    if (parser.seenval('S')) autotemp_min = parser.value_celsius();
+    if (parser.seenval('B')) autotemp_max = parser.value_celsius();
 
-  #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    autotemp_min = thermalManager.degTargetHotend(active_extruder) + AUTOTEMP_MIN_P;
-    autotemp_max = thermalManager.degTargetHotend(active_extruder) + AUTOTEMP_MAX_P;
-    autotemp_factor = AUTOTEMP_FACTOR_P;
-  #endif
-}
+    #if ENABLED(AUTOTEMP_PROPORTIONAL)
+      const int16_t target = thermalManager.degTargetHotend(active_extruder);
+      autotemp_min = target + AUTOTEMP_MIN_P;
+      autotemp_max = target + AUTOTEMP_MAX_P;
+      autotemp_factor = AUTOTEMP_FACTOR_P;
+    #endif
+  }
 
 #endif
