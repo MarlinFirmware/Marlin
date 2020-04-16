@@ -12,7 +12,7 @@ set -e
 restore_configs
 opt_set SERIAL_PORT -1
 opt_set MOTHERBOARD BOARD_AGCM4_RAMPS_144
-opt_set TEMP_SENSOR_1 11
+opt_set TEMP_SENSOR_0 11
 opt_set TEMP_SENSOR_BED 11
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2209
