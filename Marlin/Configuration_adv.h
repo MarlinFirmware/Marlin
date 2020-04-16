@@ -1413,6 +1413,7 @@
   //#define LCD_LANGUAGE_3 de
   //#define LCD_LANGUAGE_4 es
   //#define LCD_LANGUAGE_5 it
+  //#define LCD_LANGUAGE_6 hu
 
   // Use a numeric passcode for "Screen lock" keypad.
   // (recommended for smaller displays)
