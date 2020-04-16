@@ -2986,7 +2986,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const int16_t target = thermalManager.degTargetHotend(active_extruder);
       autotemp_min = target + AUTOTEMP_MIN_P;
       autotemp_max = target + AUTOTEMP_MAX_P;
-      autotemp_factor = AUTOTEMP_FACTOR_P;
+      autotemp_enabled = autotemp_factor = AUTOTEMP_FACTOR_P;
     #endif
   }
 
