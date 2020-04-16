@@ -44,6 +44,7 @@
 #include "feature/closedloop.h"
 
 #include "HAL/shared/Delay.h"
+#include "HAL/shared/esp_wifi.h"
 
 #include "module/stepper/indirection.h"
 
@@ -961,6 +962,8 @@ void setup() {
     SETUP_LOG("BOARD_INIT");
     BOARD_INIT();
   #endif
+
+  SETUP_RUN(esp_wifi_init());
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = HAL_get_reset_source();
