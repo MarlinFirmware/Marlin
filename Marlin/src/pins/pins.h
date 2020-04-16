@@ -516,6 +516,10 @@
   #include "stm32f1/pins_MKS_ROBIN_LITE3.h"     // STM32F1                                env:mks_robin_lite3
 #elif MB(MKS_ROBIN_PRO)
   #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
+#elif MB(MKS_ROBIN_E3D)
+  #include "stm32f1/pins_MKS_ROBIN_E3D.h"         // STM32F1                                env:mks_robin_e3d
+#elif MB(MKS_ROBIN_E3)
+  #include "stm32f1/pins_MKS_ROBIN_E3.h"         // STM32F1                                env:mks_robin_e3
 
 //
 // ARM Cortex-M4F
