@@ -177,6 +177,33 @@
     constexpr uint16_t touch_threshold      = 2000; /* touch-sensitivity */
   }
 
+/*
+ * Where to get the FYSETC Color LCD
+ *
+ *    https://www.aliexpress.com/item/4000627651757.html
+ *
+ * Product informations:
+ *
+ *    https://github.com/FYSETC/TFT81050
+ *
+ */
+#elif defined(LCD_FYSETC_TFT81050)
+  #if !HAS_RESOLUTION
+    #define TOUCH_UI_800x480
+  #endif
+  #ifndef FTDI_API_LEVEL
+    #define FTDI_API_LEVEL                810
+  #endif
+    namespace FTDI {
+      IS_FT810
+      constexpr bool Use_Crystal              = false; // 0 = use internal oscillator, 1 = module has a crystal populated
+      constexpr bool GPIO_0_Audio_Enable      = true;  // The AO CLCD uses GPIO0 to enable audio
+      constexpr bool GPIO_1_Audio_Shutdown    = false;
+      constexpr uint8_t Swizzle               = 0;
+      constexpr uint8_t CSpread               = 0;
+      constexpr uint16_t touch_threshold      = 2000; /* touch-sensitivity */
+    }
+  
 #else
 
   #error "Unknown or no TOUCH_UI_FTDI_EVE board specified. To add a new board, modify 'ftdi_eve_boards.h'."
