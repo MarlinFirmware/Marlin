@@ -239,7 +239,7 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#if SDCARD_CONNECTION == ONBOARD
+#if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT
