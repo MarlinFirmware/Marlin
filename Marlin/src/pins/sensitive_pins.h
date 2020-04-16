@@ -389,6 +389,31 @@
 // Heaters, Fans, Temp Sensors
 //
 
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN -1
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN -1
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN -1
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN -1
+#endif
+#ifndef E4_AUTO_FAN_PIN
+  #define E4_AUTO_FAN_PIN -1
+#endif
+#ifndef E5_AUTO_FAN_PIN
+  #define E5_AUTO_FAN_PIN -1
+#endif
+#ifndef E6_AUTO_FAN_PIN
+  #define E6_AUTO_FAN_PIN -1
+#endif
+#ifndef E7_AUTO_FAN_PIN
+  #define E7_AUTO_FAN_PIN -1
+#endif
+
 #define _H0_PINS
 #define _H1_PINS
 #define _H2_PINS

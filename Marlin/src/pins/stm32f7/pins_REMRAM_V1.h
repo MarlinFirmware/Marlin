@@ -99,7 +99,9 @@
 #endif
 #define FAN1_PIN                              32  // "FAN2"
 
-#define ORIG_E0_AUTO_FAN_PIN                  32  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     32
+#endif
 
 //
 // Servos
