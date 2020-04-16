@@ -2344,13 +2344,22 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                     sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
 
         vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0f - sin_theta_d2);
+		
         if (block->millimeters < 1) {
-
-          // Fast acos approximation, minus the error bar to be safe
-          const float junction_theta = (RADIANS(-40) * sq(junction_cos_theta) - RADIANS(50)) * junction_cos_theta + RADIANS(90) - 0.18f;
+          // Fast acos approximation (max. error +-0.033 rads)
+          // Based on MinMax polynomial published by W. Randolph Franklin, see
+          // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
+          // (acos(x) = pi/2 - asin(x) with pi/2 = 1.5707963268f)
+          float junction_theta = 0;
+          if (junction_cos_theta >= 0){
+            junction_theta =  1.5707963268f - (0.032843707f+(-1.451838349f+(29.66153956f+(-131.1123477f+(262.8130562f+(-242.7199627f+84.31466202f*junction_cos_theta)*junction_cos_theta)*junction_cos_theta)*junction_cos_theta)*junction_cos_theta)*junction_cos_theta);
+          } else {
+            junction_theta =  1.5707963268f + (0.032843707f+(-1.451838349f+(29.66153956f+(-131.1123477f+(262.8130562f+(-242.7199627f+84.31466202f*(-junction_cos_theta))*(-junction_cos_theta))*(-junction_cos_theta))*(-junction_cos_theta))*(-junction_cos_theta))*(-junction_cos_theta));
+          }
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
+            // NOTE: MinMax acos approximation and thereby also junction_theta top out at pi-0.033, which avoids division by 0
             const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
