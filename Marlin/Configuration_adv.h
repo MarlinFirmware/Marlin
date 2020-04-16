@@ -266,21 +266,21 @@
  * The hotend target temperature is calculated by all the buffered lines of gcode.
  * The maximum buffered steps/sec of the extruder motor is called "se".
  * Start autotemp mode with M109 S<mintemp> B<maxtemp> F<factor>
- * The target temperature is set to mintemp+factor*se[steps/sec] and is limited by
- * mintemp and maxtemp. Turn this off by executing M109 without F*
+ * The target temperature is set to mintemp+factor*se[steps/sec] and is limited
+ * by mintemp and maxtemp. Turn off by executing M109 without F.
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
- #define AUTOTEMP
- #if ENABLED(AUTOTEMP)
-   #define AUTOTEMP_OLDWEIGHT 0.98
-   // On M109 command , start autotemp with this proportional values of target hotend temp
-   #define AUTOTEMP_PROPORTIONAL
-   #if ENABLED(AUTOTEMP_PROPORTIONAL)
-     #define AUTOTEMP_MIN_P    0   // Added to target temp value
-     #define AUTOTEMP_MAX_P    5   // Added to target temp value
-    #define AUTOTEMP_FACTOR_P  1  // Apply value
-   #endif
+#define AUTOTEMP
+#if ENABLED(AUTOTEMP)
+  #define AUTOTEMP_OLDWEIGHT    0.98
+  // On M109 command start autotemp using these proportions of the target
+  #define AUTOTEMP_PROPORTIONAL
+  #if ENABLED(AUTOTEMP_PROPORTIONAL)
+    #define AUTOTEMP_MIN_P      0 // Added to target temp value
+    #define AUTOTEMP_MAX_P      5 // Added to target temp value
+    #define AUTOTEMP_FACTOR_P   1 // Apply this value always
+  #endif
 #endif
 
 // Extra options for the M114 "Current Position" report
