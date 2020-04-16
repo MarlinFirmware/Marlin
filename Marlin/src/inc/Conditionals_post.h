@@ -339,7 +339,7 @@
   #endif
 
   #if DISABLED(SHARED_SD_CARD)
-    #define INIT_SDCARD_ON_BOOT 1
+    #define INIT_SDCARD_ON_BOOT
   #endif
 
   #if PIN_EXISTS(SD_DETECT)
