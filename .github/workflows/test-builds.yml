@@ -57,6 +57,7 @@ jobs:
         - mks_robin
         - ARMED
         - FYSETC_S6
+        - malyan_M300
 
         # Put lengthy tests last
 
