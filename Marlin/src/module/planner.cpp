@@ -2991,13 +2991,12 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const int16_t target = thermalManager.degTargetHotend(active_extruder);
       autotemp_min = target + AUTOTEMP_MIN_P;
       autotemp_max = target + AUTOTEMP_MAX_P;
-      autotemp_factor = AUTOTEMP_FACTOR_P;
     #endif
 
     if (parser.seenval('S')) autotemp_min = parser.value_celsius();
     if (parser.seenval('B')) autotemp_max = parser.value_celsius();
-    //F0 to disable & F'Positive' to enable
-    if (parser.seenval('F')) autotemp_enabled = (autotemp_factor = parser.value_float());
 
+    autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    if (!autotemp_factor) autotemp_enabled = false; // F0 will disable autotemp
   }
 #endif
