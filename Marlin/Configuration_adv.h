@@ -272,8 +272,7 @@
  * Autotemp is calculated by (mintemp + factor * mm_per_sec), capped to maxtemp.
  *
  * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
- * Disable by sending M104/M109 with F0 parameter (or with AUTOTEMP_FACTOR_P = 0).
- * Enable by sending F <Positive> (or with AUTOTEMP_FACTOR_P > 0).
+ * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
  */
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
