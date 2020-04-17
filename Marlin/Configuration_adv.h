@@ -787,6 +787,7 @@
 // Frequency limit
 // See nophead's blog for more info
 // Not working O
+// M201 F<positive>
 //#define XY_FREQUENCY_LIMIT  15
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end

@@ -258,6 +258,10 @@ typedef struct {
   #endif
 } skew_factor_t;
 
+#ifdef XY_FREQUENCY_LIMIT
+  extern uint16_t max_frequency_time_lcd_gcode;
+#endif
+
 class Planner {
   public:
 
@@ -286,6 +290,7 @@ class Planner {
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
+
 
     #if EXTRUDERS
       static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
@@ -384,6 +389,7 @@ class Planner {
     #ifdef XY_FREQUENCY_LIMIT
       // Used for the frequency limit
       #define MAX_FREQ_TIME_US (uint32_t)(1000000.0 / XY_FREQUENCY_LIMIT)
+      static uint32_t max_frequency_time ;
       // Old direction bits. Used for speed calculations
       static unsigned char old_direction_bits;
       // Segment times (in µs). Used for speed calculations

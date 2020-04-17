@@ -48,6 +48,10 @@
   float lcd_runout_distance_mm;
 #endif
 
+#ifdef XY_FREQUENCY_LIMIT
+  uint16_t max_frequency_time_lcd_gcode  = XY_FREQUENCY_LIMIT ;
+#endif
+
 #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
   #include "../../module/configuration_store.h"
 #endif
@@ -415,6 +419,10 @@ void menu_cancelobject();
         EDIT_ITEM_FAST_N(long5_25, n, MSG_AMAX_EN, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(n)], 100, max_accel_edit_scaled.e, []{ _reset_e_acceleration_rate(MenuItemBase::itemIndex); });
     #elif E_STEPPERS
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
+    #endif
+
+    #ifdef XY_FREQUENCY_LIMIT
+      EDIT_ITEM(uint16_3, MSG_XY_FREQUENCY_LIMIT, &max_frequency_time_lcd_gcode, 1, 100);
     #endif
 
     END_MENU();

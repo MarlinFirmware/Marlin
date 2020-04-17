@@ -204,6 +204,7 @@ float Planner::previous_nominal_speed_sqr;
   unsigned char Planner::old_direction_bits = 0;
   // Segment times (in µs). Used for speed calculations
   xy_ulong_t Planner::axis_segment_time_us[3] = { { MAX_FREQ_TIME_US + 1, MAX_FREQ_TIME_US + 1 } };
+  uint32_t Planner::max_frequency_time  = MAX_FREQ_TIME_US;
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -2074,7 +2075,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Max segment time in µs.
   #ifdef XY_FREQUENCY_LIMIT
-
+  max_frequency_time = ( max_frequency_time_lcd_gcode / 1000000.0 ) ;
+  LOOP_L_N(i, 2) {
+    axis_segment_time_us[i].x = max_frequency_time +1 ;
+    axis_segment_time_us[i].y = max_frequency_time +1 ;
+  }
     // Check and limit the xy direction change frequency
     const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
     old_direction_bits = block->direction_bits;
@@ -2104,8 +2109,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     const uint32_t max_x_segment_time = _MAX(xs0, xs1, xs2),
                    max_y_segment_time = _MAX(ys0, ys1, ys2),
                    min_xy_segment_time = _MIN(max_x_segment_time, max_y_segment_time);
-    if (min_xy_segment_time < MAX_FREQ_TIME_US) {
-      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
+    if (min_xy_segment_time < max_frequency_time) {
+      const float low_sf = speed_factor * min_xy_segment_time / (max_frequency_time);
       NOMORE(speed_factor, low_sf);
     }
   #endif // XY_FREQUENCY_LIMIT
