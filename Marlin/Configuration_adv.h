@@ -3196,8 +3196,9 @@
   #if ENABLED(PRUSA_MMU2_S_MODE)
     #define MMU2_C0_RETRY   5         // Number of retries (total time = timeout x retry)
 
-    #define MMU2_CAN_LOAD_FEEDRATE 800    // To reuse within MMU2 module
+    #define MMU2_CAN_LOAD_FEEDRATE 800    // To reuse within MMU2 module, added hotfix initial Sequence
     #define MMU2_CAN_LOAD_SEQUENCE \
+      {  0.1, MMU2_CAN_LOAD_FEEDRATE }, \
       {  60.0, MMU2_CAN_LOAD_FEEDRATE }, \
       { -52.0, MMU2_CAN_LOAD_FEEDRATE }
 

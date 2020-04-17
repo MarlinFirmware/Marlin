@@ -509,13 +509,18 @@ void MMU2::tool_change(uint8_t index) {
 
     #if ENABLED(PRUSA_MMU2_S_MODE)
         }
+        else {
+          LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
+          BUZZ(100, 659);
+          BUZZ(200, 698);
+          BUZZ(100, 659);
+          BUZZ(300, 440);
+          BUZZ(100, 659);  
+        }
+
+
       }
-      LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
-      BUZZ(100, 659);
-      BUZZ(200, 698);
-      BUZZ(100, 659);
-      BUZZ(300, 440);
-      BUZZ(100, 659);  
+      
       
     #endif
   }
