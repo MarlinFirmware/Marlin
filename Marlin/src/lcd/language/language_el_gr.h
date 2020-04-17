@@ -94,7 +94,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Ταχύτητα ανεμιστήρα");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Ταχύτητα ανεμιστήρα ~");
   PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off")
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Ροή");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Ροή ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Έλεγχος");

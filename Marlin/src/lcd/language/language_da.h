@@ -86,7 +86,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Blæser hastighed");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Blæser hastighed ~");
   PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off")
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrol");
   PROGMEM Language_Str MSG_MIN                             = _UxGT(" \002 Min");
   PROGMEM Language_Str MSG_MAX                             = _UxGT(" \002 Max");

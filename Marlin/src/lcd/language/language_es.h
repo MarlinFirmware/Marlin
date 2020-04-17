@@ -252,7 +252,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Velocidad Activa");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Periodo de reposo");
   PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off")
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flujo");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flujo ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");

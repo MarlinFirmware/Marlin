@@ -256,7 +256,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Rychlost ex. vent.");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rychlost ex. vent. ~");
   PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off")
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Průtok");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Průtok ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Ovládaní");

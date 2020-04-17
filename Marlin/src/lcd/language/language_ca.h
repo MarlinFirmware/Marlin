@@ -96,7 +96,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. Ventilador");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. Ventilador ~");
   PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off")
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VViatge min");
