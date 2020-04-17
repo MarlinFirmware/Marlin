@@ -2425,7 +2425,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           #endif
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
-          if ((M_PI / 2) - junction_theta > RADIANS(135)) {
+          if (junction_theta > RADIANS(135)) {
             // NOTE: MinMax acos approximation and thereby also junction_theta top out at pi-0.033, which avoids division by 0
             const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
             NOMORE(vmax_junction_sqr, limit_sqr);
