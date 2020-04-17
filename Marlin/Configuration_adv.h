@@ -729,7 +729,7 @@
   #define SCREWS_TILT_ADJUST_PROBE_XY { {  20, 20 }, { 200,  20 }, { 200, 200 }, { 20, 200 } }  
 
   // Define positions names for probing points.
-  #define SCREWS_TILT_ADJUST_PROBE_NAMES { "Front Right", "Front Left", "Rear Left", "Rear Right" } 
+  #define SCREWS_TILT_ADJUST_PROBE_NAMES { "Front Left", "Front Right", "Rear Right", "Rear Left" } 
 
   // Enable to restore leveling setup after operation
   #define RESTORE_LEVELING_AFTER_G35
