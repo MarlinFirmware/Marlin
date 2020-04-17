@@ -2996,8 +2996,8 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 
     if (parser.seenval('S')) autotemp_min = parser.value_celsius();
     if (parser.seenval('B')) autotemp_max = parser.value_celsius();
-    if (parser.seenval('F')) autotemp_factor = parser.value_float();
-    if (!autotemp_factor) autotemp_enabled = false; // F0 will disable autotemp
-  }
+    //F0 to disable & F'Positive' to enable
+    if (parser.seenval('F')) autotemp_enabled = (autotemp_factor = parser.value_float());
 
+  }
 #endif
