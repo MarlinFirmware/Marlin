@@ -34,6 +34,37 @@
   #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
+// Make sure macros aren't borked
+#define TEST1
+#define TEST2 1
+#define TEST3 0
+#define TEST4 true
+#if ENABLED(TEST0)
+  #error "ENABLED is borked!"
+#endif
+#if DISABLED(TEST1)
+  #error "DISABLED is borked!"
+#endif
+#if !ENABLED(TEST2)
+  #error "ENABLED is borked!"
+#endif
+#if ENABLED(TEST3)
+  #error "ENABLED is borked!"
+#endif
+#if DISABLED(TEST4)
+  #error "DISABLED is borked!"
+#endif
+#if !ANY(TEST1, TEST2, TEST3, TEST4) || ANY(TEST0, TEST3)
+  #error "ANY is borked!"
+#endif
+#if DISABLED(TEST0, TEST1, TEST2, TEST4)
+  #error "DISABLED is borked!"
+#endif
+#undef TEST1
+#undef TEST2
+#undef TEST3
+#undef TEST4
+
 /**
  * We try our best to include sanity checks for all changed configuration
  * directives because users have a tendency to use outdated config files with
@@ -68,7 +99,9 @@
 #elif defined(X_HOME_RETRACT_MM)
   #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
 #elif defined(SDCARDDETECTINVERTED)
-  #error "SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration."
+  #error "SDCARDDETECTINVERTED is now SD_DETECT_STATE (HIGH). Please update your configuration."
+#elif defined(SD_DETECT_INVERTED)
+  #error "SD_DETECT_INVERTED is now SD_DETECT_STATE (HIGH). Please update your configuration."
 #elif defined(BTENABLED)
   #error "BTENABLED is now BLUETOOTH. Please update your configuration."
 #elif defined(CUSTOM_MENDEL_NAME)
@@ -237,6 +270,10 @@
   #error "Replace SLED_PIN with SOL1_PIN (applies to both Z_PROBE_SLED and SOLENOID_PROBE)."
 #elif defined(CONTROLLERFAN_PIN)
   #error "CONTROLLERFAN_PIN is now CONTROLLER_FAN_PIN, enabled with USE_CONTROLLER_FAN. Please update your Configuration_adv.h."
+#elif defined(CONTROLLERFAN_SPEED)
+  #error "CONTROLLERFAN_SPEED is now CONTROLLERFAN_SPEED_ACTIVE. Please update your Configuration_adv.h."
+#elif defined(CONTROLLERFAN_SECS)
+  #error "CONTROLLERFAN_SECS is now CONTROLLERFAN_IDLE_TIME. Please update your Configuration_adv.h."
 #elif defined(MIN_RETRACT)
   #error "MIN_RETRACT is now MIN_AUTORETRACT and MAX_AUTORETRACT. Please update your Configuration_adv.h."
 #elif defined(ADVANCE)
@@ -450,6 +487,31 @@
   #error "Z_TRIPLE_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
 #elif defined(Z_QUAD_ENDSTOPS)
   #error "Z_QUAD_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
+#elif defined(DUGS_UI_MOVE_DIS_OPTION)
+  #error "DUGS_UI_MOVE_DIS_OPTION is spelled DGUS_UI_MOVE_DIS_OPTION. Please update Configuration_adv.h."
+#elif defined(ORIG_E0_AUTO_FAN_PIN) || defined(ORIG_E1_AUTO_FAN_PIN) || defined(ORIG_E2_AUTO_FAN_PIN) || defined(ORIG_E3_AUTO_FAN_PIN) || defined(ORIG_E4_AUTO_FAN_PIN) || defined(ORIG_E5_AUTO_FAN_PIN) || defined(ORIG_E6_AUTO_FAN_PIN) || defined(ORIG_E7_AUTO_FAN_PIN)
+  #error "ORIG_Ex_AUTO_FAN_PIN is now just Ex_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(ORIG_CHAMBER_AUTO_FAN_PIN)
+  #error "ORIG_CHAMBER_AUTO_FAN_PIN is now just CHAMBER_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(HOMING_BACKOFF_MM)
+  #error "HOMING_BACKOFF_MM is now HOMING_BACKOFF_POST_MM. Please update Configuration_adv.h."
+#elif defined(X_HOME_BUMP_MM) || defined(Y_HOME_BUMP_MM) || defined(Z_HOME_BUMP_MM)
+  #error "[XYZ]_HOME_BUMP_MM is now HOMING_BUMP_MM. Please update Configuration_adv.h."
+#endif
+
+/**
+ * Probe temp compensation requirements
+ */
+#if ENABLED(PROBE_TEMP_COMPENSATION)
+  #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
+    #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array). Please update Configuration_adv.h."
+  #elif !defined(PTC_PARK_POS)
+    #error "PROBE_TEMP_COMPENSATION requires PTC_PARK_POS."
+  #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
+    #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array). Please update Configuration_adv.h."
+  #elif !defined(PTC_PROBE_POS)
+    #error "PROBE_TEMP_COMPENSATION requires PTC_PROBE_POS."
+  #endif
 #endif
 
 /**
@@ -1237,7 +1299,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL_NOT_UBL && !PROBE_SELECTED
-    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
+    #error "Auto Bed Leveling requires one of these: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or a Z Servo."
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -1361,8 +1423,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
-  static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_BED, X_MAX_BED), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
-  static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_BED, Y_MAX_BED), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+  static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
+  static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
 #endif
 
 /**
@@ -1412,7 +1474,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
 #if ENABLED(Z_PROBE_ALLEN_KEY) && (Z_HOME_DIR < 0) && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-  #error "You can't home to a z min endstop with a Z_PROBE_ALLEN_KEY"
+  #error "You can't home to a z min endstop with a Z_PROBE_ALLEN_KEY."
 #endif
 
 /**
@@ -1753,8 +1815,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Endstop Tests
  */
 
-#define _PLUG_UNUSED_TEST(AXIS,PLUG) (DISABLED(USE_##PLUG##MIN_PLUG, USE_##PLUG##MAX_PLUG) && !(ENABLED(AXIS##_DUAL_ENDSTOPS) && WITHIN(AXIS##2_USE_ENDSTOP, _##PLUG##MAX_, _##PLUG##MIN_)))
-#define _AXIS_PLUG_UNUSED_TEST(AXIS) (_PLUG_UNUSED_TEST(AXIS,X) && _PLUG_UNUSED_TEST(AXIS,Y) && _PLUG_UNUSED_TEST(AXIS,Z))
+#define _PLUG_UNUSED_TEST(A,P) (DISABLED(USE_##P##MIN_PLUG, USE_##P##MAX_PLUG) \
+  && !(ENABLED(A##_DUAL_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) \
+  && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
+#define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
 // At least 3 endstop plugs must be used
 #if _AXIS_PLUG_UNUSED_TEST(X)
@@ -1779,8 +1843,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Enable USE_YMAX_PLUG when homing Y to MAX."
   #endif
 #endif
-#if Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
+
+// Z homing direction and plug usage flags
+#if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
   #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+#elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
   #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
 #endif
@@ -1948,7 +2016,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Auto Fan check for PWM pins
  */
-#if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
+#if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255 && DISABLED(NO_COMPILE_TIME_PWM)
   #define AF_ERR_SUFF "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."
   #if HAS_AUTO_FAN_0
     static_assert(PWM_PIN(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
@@ -1958,7 +2026,22 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     static_assert(PWM_PIN(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_3
     static_assert(PWM_PIN(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_4
+    static_assert(PWM_PIN(E4_AUTO_FAN_PIN), "E4" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_5
+    static_assert(PWM_PIN(E5_AUTO_FAN_PIN), "E5" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_6
+    static_assert(PWM_PIN(E6_AUTO_FAN_PIN), "E6" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_7
+    static_assert(PWM_PIN(E7_AUTO_FAN_PIN), "E7" AF_ERR_SUFF);
   #endif
+#endif
+
+/**
+ * Make sure only one EEPROM type is enabled
+ */
+#if ENABLED(EEPROM_SETTINGS) && 1 < ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
+  #error "Please select only one of SDCARD, FLASH, or SRAM_EEPROM_EMULATION."
 #endif
 
 /**
@@ -2057,6 +2140,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "An SPI driven TMC driver on Z2 requires Z2_CS_PIN."
 #elif INVALID_TMC_SPI(Z3)
   #error "An SPI driven TMC driver on Z3 requires Z3_CS_PIN."
+#elif INVALID_TMC_SPI(Z4)
+  #error "An SPI driven TMC driver on Z4 requires Z4_CS_PIN."
 #elif INVALID_TMC_SPI(E0)
   #error "An SPI driven TMC driver on E0 requires E0_CS_PIN."
 #elif INVALID_TMC_SPI(E1)
@@ -2094,6 +2179,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TMC2208 or TMC2209 on Z2 requires Z2_HARDWARE_SERIAL or Z2_SERIAL_(RX|TX)_PIN."
 #elif INVALID_TMC_UART(Z3)
   #error "TMC2208 or TMC2209 on Z3 requires Z3_HARDWARE_SERIAL or Z3_SERIAL_(RX|TX)_PIN."
+#elif INVALID_TMC_UART(Z4)
+  #error "TMC2208 or TMC2209 on Z4 requires Z4_HARDWARE_SERIAL or Z4_SERIAL_(RX|TX)_PIN."
 #elif INVALID_TMC_UART(E0)
   #error "TMC2208 or TMC2209 on E0 requires E0_HARDWARE_SERIAL or E0_SERIAL_(RX|TX)_PIN."
 #elif INVALID_TMC_UART(E1)
@@ -2131,6 +2218,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   INVALID_TMC_ADDRESS(Z2);
 #elif AXIS_DRIVER_TYPE_Z3(TMC2209)
   INVALID_TMC_ADDRESS(Z3);
+#elif AXIS_DRIVER_TYPE_Z4(TMC2209)
+  INVALID_TMC_ADDRESS(Z4);
 #elif AXIS_DRIVER_TYPE_E0(TMC2209)
   INVALID_TMC_ADDRESS(E0);
 #elif AXIS_DRIVER_TYPE_E1(TMC2209)
@@ -2149,6 +2238,47 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   INVALID_TMC_ADDRESS(E7);
 #endif
 #undef INVALID_TMC_ADDRESS
+
+#define _TMC_MICROSTEP_IS_VALID(MS) (MS == 0 || MS == 2 || MS == 4 || MS == 8 || MS == 16 || MS == 32 || MS == 64 || MS == 128 || MS == 256)
+#define TMC_MICROSTEP_IS_VALID(M) (!AXIS_IS_TMC(M) || _TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS))
+#define INVALID_TMC_MS(ST) static_assert(0, "Invalid " STRINGIFY(ST) "_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256.")
+
+#if !TMC_MICROSTEP_IS_VALID(X)
+  INVALID_TMC_MS(X);
+#elif !TMC_MICROSTEP_IS_VALID(Y)
+  INVALID_TMC_MS(Y)
+#elif !TMC_MICROSTEP_IS_VALID(Z)
+  INVALID_TMC_MS(Z)
+#elif !TMC_MICROSTEP_IS_VALID(X2)
+  INVALID_TMC_MS(X2);
+#elif !TMC_MICROSTEP_IS_VALID(Y2)
+  INVALID_TMC_MS(Y2)
+#elif !TMC_MICROSTEP_IS_VALID(Z2)
+  INVALID_TMC_MS(Z2)
+#elif !TMC_MICROSTEP_IS_VALID(Z3)
+  INVALID_TMC_MS(Z3)
+#elif !TMC_MICROSTEP_IS_VALID(Z4)
+  INVALID_TMC_MS(Z4)
+#elif !TMC_MICROSTEP_IS_VALID(E0)
+  INVALID_TMC_MS(E0)
+#elif !TMC_MICROSTEP_IS_VALID(E1)
+  INVALID_TMC_MS(E1)
+#elif !TMC_MICROSTEP_IS_VALID(E2)
+  INVALID_TMC_MS(E2)
+#elif !TMC_MICROSTEP_IS_VALID(E3)
+  INVALID_TMC_MS(E3)
+#elif !TMC_MICROSTEP_IS_VALID(E4)
+  INVALID_TMC_MS(E4)
+#elif !TMC_MICROSTEP_IS_VALID(E5)
+  INVALID_TMC_MS(E5)
+#elif !TMC_MICROSTEP_IS_VALID(E6)
+  INVALID_TMC_MS(E6)
+#elif !TMC_MICROSTEP_IS_VALID(E7)
+  INVALID_TMC_MS(E7)
+#endif
+#undef INVALID_TMC_MS
+#undef TMC_MICROSTEP_IS_VALID
+#undef _TMC_MICROSTEP_IS_VALID
 
 #if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
   #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
@@ -2256,17 +2386,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
 #endif
 
+/**
+ * TMC SPI Chaining
+ */
 #define IN_CHAIN(A) ((A##_CHAIN_POS > 0) && !HAS_L64XX)
-// TMC SPI Chaining
-#if IN_CHAIN(X) || IN_CHAIN(Y) || IN_CHAIN(Z) || IN_CHAIN(X2) || IN_CHAIN(Y2) || IN_CHAIN(Z2) || IN_CHAIN(Z3) || IN_CHAIN(E0) || IN_CHAIN(E1) || IN_CHAIN(E2) || IN_CHAIN(E3) || IN_CHAIN(E4) || IN_CHAIN(E5)
-  #if  (IN_CHAIN(X)  && !PIN_EXISTS(X_CS) ) || (IN_CHAIN(Y)  && !PIN_EXISTS(Y_CS) ) \
-    || (IN_CHAIN(Z)  && !PIN_EXISTS(Z_CS) ) || (IN_CHAIN(X2) && !PIN_EXISTS(X2_CS)) \
-    || (IN_CHAIN(Y2) && !PIN_EXISTS(Y2_CS)) || (IN_CHAIN(Z2) && !PIN_EXISTS(Z2_CS)) \
-    || (IN_CHAIN(Z3) && !PIN_EXISTS(Z3_CS)) || (IN_CHAIN(E0) && !PIN_EXISTS(E0_CS)) \
-    || (IN_CHAIN(E1) && !PIN_EXISTS(E1_CS)) || (IN_CHAIN(E2) && !PIN_EXISTS(E2_CS)) \
-    || (IN_CHAIN(E3) && !PIN_EXISTS(E3_CS)) || (IN_CHAIN(E4) && !PIN_EXISTS(E4_CS)) \
-    || (IN_CHAIN(E5) && !PIN_EXISTS(E5_CS)) || (IN_CHAIN(E6) && !PIN_EXISTS(E6_CS)) \
-    || (IN_CHAIN(E7) && !PIN_EXISTS(E7_CS))
+#if  IN_CHAIN(X ) || IN_CHAIN(Y ) || IN_CHAIN(Z ) || IN_CHAIN(X2) || IN_CHAIN(Y2) || IN_CHAIN(Z2) || IN_CHAIN(Z3) || IN_CHAIN(Z4) \
+  || IN_CHAIN(E0) || IN_CHAIN(E1) || IN_CHAIN(E2) || IN_CHAIN(E3) || IN_CHAIN(E4) || IN_CHAIN(E5) || IN_CHAIN(E6) || IN_CHAIN(E7)
+  #define BAD_CHAIN(A) (IN_CHAIN(A) && !PIN_EXISTS(A##_CS))
+  #if  BAD_CHAIN(X ) || BAD_CHAIN(Y ) || BAD_CHAIN(Z ) || BAD_CHAIN(X2) || BAD_CHAIN(Y2) || BAD_CHAIN(Z2) || BAD_CHAIN(Z3) || BAD_CHAIN(Z4) \
+    || BAD_CHAIN(E0) || BAD_CHAIN(E1) || BAD_CHAIN(E2) || BAD_CHAIN(E3) || BAD_CHAIN(E4) || BAD_CHAIN(E5) || BAD_CHAIN(E6) || BAD_CHAIN(E7)
     #error "All chained TMC drivers need a CS pin."
   #else
     #if IN_CHAIN(X)
@@ -2300,18 +2428,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #elif IN_CHAIN(E7)
       #define CS_COMPARE E7_CS_PIN
     #endif
-    #if  (IN_CHAIN(X)  && X_CS_PIN  != CS_COMPARE) || (IN_CHAIN(Y)  && Y_CS_PIN  != CS_COMPARE) \
-      || (IN_CHAIN(Z)  && Z_CS_PIN  != CS_COMPARE) || (IN_CHAIN(X2) && X2_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(Y2) && Y2_CS_PIN != CS_COMPARE) || (IN_CHAIN(Z2) && Z2_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(Z3) && Z3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E0) && E0_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(E1) && E1_CS_PIN != CS_COMPARE) || (IN_CHAIN(E2) && E2_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(E3) && E3_CS_PIN != CS_COMPARE) || (IN_CHAIN(E4) && E4_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(E5) && E5_CS_PIN != CS_COMPARE) || (IN_CHAIN(E6) && E6_CS_PIN != CS_COMPARE) \
-      || (IN_CHAIN(E7) && E7_CS_PIN != CS_COMPARE)
+    #define BAD_CS_PIN(A) (IN_CHAIN(A) && A##_CS_PIN != CS_COMPARE)
+    #if  BAD_CS_PIN(X ) || BAD_CS_PIN(Y ) || BAD_CS_PIN(Z ) || BAD_CS_PIN(X2) || BAD_CS_PIN(Y2) || BAD_CS_PIN(Z2) || BAD_CS_PIN(Z3) || BAD_CS_PIN(Z4) \
+      || BAD_CS_PIN(E0) || BAD_CS_PIN(E1) || BAD_CS_PIN(E2) || BAD_CS_PIN(E3) || BAD_CS_PIN(E4) || BAD_CS_PIN(E5) || BAD_CS_PIN(E6) || BAD_CS_PIN(E7)
       #error "All chained TMC drivers must use the same CS pin."
     #endif
+    #undef BAD_CS_PIN
+    #undef CS_COMPARE
   #endif
-  #undef CS_COMPARE
+  #undef BAD_CHAIN
 #endif
 #undef IN_CHAIN
 
@@ -2432,8 +2557,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "Z_STEPPER_AUTO_ALIGN requires NUM_Z_STEPPER_DRIVERS greater than 1."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
-  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && NUM_Z_STEPPER_DRIVERS != 3
-    #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires NUM_Z_STEPPER_DRIVERS to be 3."
+  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && NUM_Z_STEPPER_DRIVERS < 3
+    #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires NUM_Z_STEPPER_DRIVERS to be 3 or 4."
   #endif
 #endif
 
@@ -2474,17 +2599,97 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     constexpr char _chr5 = USER_GCODE_5[strlen(USER_GCODE_5) - 1];
     static_assert(_chr5 != '\n' && _chr5 != '\r', "USER_GCODE_5 cannot have a newline at the end. Please remove it.");
   #endif
+  #ifdef USER_GCODE_6
+    constexpr char _chr6 = USER_GCODE_6[strlen(USER_GCODE_6) - 1];
+    static_assert(_chr6 != '\n' && _chr6 != '\r', "USER_GCODE_6 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_7
+    constexpr char _chr7 = USER_GCODE_7[strlen(USER_GCODE_7) - 1];
+    static_assert(_chr7 != '\n' && _chr7 != '\r', "USER_GCODE_7 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_8
+    constexpr char _chr8 = USER_GCODE_8[strlen(USER_GCODE_8) - 1];
+    static_assert(_chr8 != '\n' && _chr8 != '\r', "USER_GCODE_8 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_9
+    constexpr char _chr9 = USER_GCODE_9[strlen(USER_GCODE_9) - 1];
+    static_assert(_chr9 != '\n' && _chr9 != '\r', "USER_GCODE_9 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_10
+    constexpr char _chr10 = USER_GCODE_10[strlen(USER_GCODE_10) - 1];
+    static_assert(_chr10 != '\n' && _chr10 != '\r', "USER_GCODE_10 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_11
+    constexpr char _chr11 = USER_GCODE_11[strlen(USER_GCODE_11) - 1];
+    static_assert(_chr11 != '\n' && _chr11 != '\r', "USER_GCODE_11 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_12
+    constexpr char _chr12 = USER_GCODE_12[strlen(USER_GCODE_12) - 1];
+    static_assert(_chr12 != '\n' && _chr12 != '\r', "USER_GCODE_12 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_13
+    constexpr char _chr13 = USER_GCODE_13[strlen(USER_GCODE_13) - 1];
+    static_assert(_chr13 != '\n' && _chr13 != '\r', "USER_GCODE_13 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_14
+    constexpr char _chr14 = USER_GCODE_14[strlen(USER_GCODE_14) - 1];
+    static_assert(_chr14 != '\n' && _chr14 != '\r', "USER_GCODE_14 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_15
+    constexpr char _chr15 = USER_GCODE_15[strlen(USER_GCODE_15) - 1];
+    static_assert(_chr15 != '\n' && _chr15 != '\r', "USER_GCODE_15 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_16
+    constexpr char _chr16 = USER_GCODE_16[strlen(USER_GCODE_16) - 1];
+    static_assert(_chr16 != '\n' && _chr16 != '\r', "USER_GCODE_16 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_17
+    constexpr char _chr17 = USER_GCODE_17[strlen(USER_GCODE_17) - 1];
+    static_assert(_chr17 != '\n' && _chr17 != '\r', "USER_GCODE_17 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_18
+    constexpr char _chr18 = USER_GCODE_18[strlen(USER_GCODE_18) - 1];
+    static_assert(_chr18 != '\n' && _chr18 != '\r', "USER_GCODE_18 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_19
+    constexpr char _chr19 = USER_GCODE_19[strlen(USER_GCODE_19) - 1];
+    static_assert(_chr19 != '\n' && _chr19 != '\r', "USER_GCODE_19 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_20
+    constexpr char _chr20 = USER_GCODE_20[strlen(USER_GCODE_20) - 1];
+    static_assert(_chr20 != '\n' && _chr20 != '\r', "USER_GCODE_20 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_21
+    constexpr char _chr21 = USER_GCODE_21[strlen(USER_GCODE_21) - 1];
+    static_assert(_chr21 != '\n' && _chr21 != '\r', "USER_GCODE_21 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_22
+    constexpr char _chr22 = USER_GCODE_22[strlen(USER_GCODE_22) - 1];
+    static_assert(_chr22 != '\n' && _chr22 != '\r', "USER_GCODE_22 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_23
+    constexpr char _chr23 = USER_GCODE_23[strlen(USER_GCODE_23) - 1];
+    static_assert(_chr23 != '\n' && _chr23 != '\r', "USER_GCODE_23 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_24
+    constexpr char _chr24 = USER_GCODE_24[strlen(USER_GCODE_24) - 1];
+    static_assert(_chr24 != '\n' && _chr24 != '\r', "USER_GCODE_24 cannot have a newline at the end. Please remove it.");
+  #endif
+  #ifdef USER_GCODE_25
+    constexpr char _chr25 = USER_GCODE_25[strlen(USER_GCODE_25) - 1];
+    static_assert(_chr25 != '\n' && _chr25 != '\r', "USER_GCODE_25 cannot have a newline at the end. Please remove it.");
+  #endif
 #endif
 
 #if ENABLED(BACKLASH_COMPENSATION)
-  #if IS_CORE
-    #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
-  #endif
   #ifndef BACKLASH_DISTANCE_MM
-    #error "BACKLASH_COMPENSATION requires BACKLASH_DISTANCE_MM"
-  #endif
-  #ifndef BACKLASH_CORRECTION
-    #error "BACKLASH_COMPENSATION requires BACKLASH_CORRECTION"
+    #error "BACKLASH_COMPENSATION requires BACKLASH_DISTANCE_MM."
+  #elif !defined(BACKLASH_CORRECTION)
+    #error "BACKLASH_COMPENSATION requires BACKLASH_CORRECTION."
+  #elif IS_CORE
+    constexpr float backlash_arr[] = BACKLASH_DISTANCE_MM;
+    static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
+                  "BACKLASH_COMPENSATION can only apply to " STRINGIFY(NORMAL_AXIS) " with your CORE system.");
   #endif
 #endif
 
@@ -2560,6 +2765,45 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #if HAS_CUTTER
+  #ifndef CUTTER_POWER_DISPLAY
+    #error "CUTTER_POWER_DISPLAY is required with a spindle or laser. Please update your Configuration_adv.h."
+  #elif !CUTTER_DISPLAY_IS(PWM) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
+    #error "CUTTER_POWER_DISPLAY must be PWM, PERCENT, or RPM. Please update your Configuration_adv.h."
+  #endif
+
+  #if ENABLED(LASER_POWER_INLINE)
+    #if ENABLED(SPINDLE_CHANGE_DIR)
+      #error "SPINDLE_CHANGE_DIR and LASER_POWER_INLINE are incompatible."
+    #elif ENABLED(LASER_MOVE_G0_OFF) && DISABLED(LASER_MOVE_POWER)
+      #error "LASER_MOVE_G0_OFF requires LASER_MOVE_POWER. Please update your Configuration_adv.h."
+    #endif
+    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+      #if DISABLED(SPINDLE_LASER_PWM)
+        #error "LASER_POWER_INLINE_TRAPEZOID requires SPINDLE_LASER_PWM to function."
+      #elif ENABLED(S_CURVE_ACCELERATION)
+        //#ifndef LASER_POWER_INLINE_S_CURVE_ACCELERATION_WARN
+        //  #define LASER_POWER_INLINE_S_CURVE_ACCELERATION_WARN
+        //  #warning "Combining LASER_POWER_INLINE_TRAPEZOID with S_CURVE_ACCELERATION may result in unintended behavior."
+        //#endif
+      #endif
+    #endif
+    #if ENABLED(LASER_POWER_INLINE_INVERT)
+      //#ifndef LASER_POWER_INLINE_INVERT_WARN
+      //  #define LASER_POWER_INLINE_INVERT_WARN
+      //  #warning "Enabling LASER_POWER_INLINE_INVERT means that `M5` won't kill the laser immediately; use `M5 I` instead."
+      //#endif
+    #endif
+  #else
+    #if SPINDLE_LASER_POWERUP_DELAY < 1
+      #error "SPINDLE_LASER_POWERUP_DELAY must be greater than 0."
+    #elif SPINDLE_LASER_POWERDOWN_DELAY < 1
+      #error "SPINDLE_LASER_POWERDOWN_DELAY must be greater than 0."
+    #elif ENABLED(LASER_MOVE_POWER)
+      #error "LASER_MOVE_POWER requires LASER_POWER_INLINE."
+    #elif ANY(LASER_POWER_INLINE_TRAPEZOID, LASER_POWER_INLINE_INVERT, LASER_MOVE_G0_OFF, LASER_MOVE_POWER)
+      #error "Enabled an inline laser feature without inline laser power being enabled."
+    #endif
+  #endif
   #define _PIN_CONFLICT(P) (PIN_EXISTS(P) && P##_PIN == SPINDLE_LASER_PWM_PIN)
   #if BOTH(SPINDLE_FEATURE, LASER_FEATURE)
     #error "Enable only one of SPINDLE_FEATURE or LASER_FEATURE."
@@ -2572,13 +2816,9 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
       #error "SPINDLE_LASER_PWM_PIN is required for SPINDLE_LASER_PWM."
     #elif !PWM_PIN(SPINDLE_LASER_PWM_PIN)
       #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
-    #elif SPINDLE_LASER_POWERUP_DELAY < 1
-      #error "SPINDLE_LASER_POWERUP_DELAY must be greater than 0."
-    #elif SPINDLE_LASER_POWERDOWN_DELAY < 1
-      #error "SPINDLE_LASER_POWERDOWN_DELAY must be greater than 0."
     #elif !defined(SPINDLE_LASER_PWM_INVERT)
       #error "SPINDLE_LASER_PWM_INVERT is required for (SPINDLE|LASER)_FEATURE."
-    #elif !defined(SPEED_POWER_SLOPE) || !defined(SPEED_POWER_INTERCEPT) || !defined(SPEED_POWER_MIN) || !defined(SPEED_POWER_MAX)
+    #elif !defined(SPEED_POWER_SLOPE) || !defined(SPEED_POWER_INTERCEPT) || !defined(SPEED_POWER_MIN) || !defined(SPEED_POWER_MAX) || !defined(SPEED_POWER_STARTUP)
       #error "SPINDLE_LASER_PWM equation constant(s) missing."
     #elif _PIN_CONFLICT(X_MIN)
       #error "SPINDLE_LASER_PWM pin conflicts with X_MIN_PIN."
@@ -2651,4 +2891,9 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  */
 #if HAS_TMC_SPI && ALL(MONITOR_DRIVER_STATUS, SDSUPPORT, USES_SHARED_SPI)
   #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
+#endif
+
+// G60/G61 Position Save
+#if SAVED_POSITIONS > 256
+  #error "SAVED_POSITIONS must be an integer from 0 to 256."
 #endif

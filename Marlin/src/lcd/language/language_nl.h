@@ -25,7 +25,7 @@
  * Dutch
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -123,7 +123,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD contrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Geheugen opslaan");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Geheugen laden");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Noodstop reset");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Noodstop reset");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ververs");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info scherm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Voorbereiden");
@@ -149,7 +149,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Verv. Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Verv. Filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. SD kaart");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD kaart");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Verv. SD Kaart");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe uit. bed");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch Zelf-Test");
@@ -193,7 +193,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Case licht");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Onjuiste printer");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Onjuiste printer");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Printed Aantal");

@@ -24,8 +24,7 @@
 
 #if BOTH(DIGIPOT_I2C, DIGIPOT_MCP4018)
 
-#include "Stream.h"
-#include "utility/twi.h"
+#include <Stream.h>
 #include <SlowSoftI2CMaster.h>  //https://github.com/stawel/SlowSoftI2CMaster
 
 // Settings for the I2C based DIGIPOT (MCP4018) based on WT150
@@ -92,11 +91,11 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
 void digipot_i2c_init() {
   static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
 
-  for (uint8_t i = 0; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
+  LOOP_L_N(i, DIGIPOT_I2C_NUM_CHANNELS)
     pots[i].i2c_init();
 
   // setup initial currents as defined in Configuration_adv.h
-  for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++)
+  LOOP_L_N(i, COUNT(digipot_motor_current))
     digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }
 

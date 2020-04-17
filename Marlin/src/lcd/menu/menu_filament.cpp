@@ -31,6 +31,7 @@
 #include "menu.h"
 #include "../../module/temperature.h"
 #include "../../feature/pause.h"
+#include "../../gcode/queue.h"
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
@@ -60,7 +61,7 @@ static void _change_filament_temp(const uint16_t temperature) {
   char cmd[11];
   sprintf_P(cmd, _change_filament_temp_command(), _change_filament_temp_extruder);
   thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
-  lcd_enqueue_one_now(cmd);
+  queue.inject(cmd);
 }
 
 //
@@ -114,14 +115,14 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
         GCODES_ITEM_P(msg, PSTR("M600 B0"));
     #else
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
-      for (uint8_t s = 0; s < E_STEPPERS; s++) {
+      LOOP_L_N(s, E_STEPPERS) {
         if (thermalManager.targetTooColdToExtrude(s))
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
             char cmd[13];
             sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
-            lcd_enqueue_one_now(cmd);
+            queue.inject(cmd);
           });
         }
       }
@@ -138,14 +139,14 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
             GCODES_ITEM_P(msg_load, PSTR("M701"));
         #else
           PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
               ACTION_ITEM_N_P(s, msg_load, []{
                 char cmd[12];
                 sprintf_P(cmd, PSTR("M701 T%i"), int(MenuItemBase::itemIndex));
-                lcd_enqueue_one_now(cmd);
+                queue.inject(cmd);
               });
             }
           }
@@ -162,7 +163,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
           {
             bool too_cold = false;
-            for (uint8_t s = 0; s < E_STEPPERS; s++) {
+            LOOP_L_N(s, E_STEPPERS) {
               if (thermalManager.targetTooColdToExtrude(s)) {
                 too_cold = true; break;
               }
@@ -174,14 +175,14 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           }
           #endif
           PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD_E);
-          for (uint8_t s = 0; s < E_STEPPERS; s++) {
+          LOOP_L_N(s, E_STEPPERS) {
             if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
               ACTION_ITEM_N_P(s, msg_unload, []{
                 char cmd[12];
                 sprintf_P(cmd, PSTR("M702 T%i"), int(MenuItemBase::itemIndex));
-                lcd_enqueue_one_now(cmd);
+                queue.inject(cmd);
               });
             }
           }
@@ -261,7 +262,7 @@ void _lcd_pause_message(PGM_P const msg) {
   END_SCREEN();
 }
 
-void lcd_pause_pausing_message()  { _lcd_pause_message(GET_TEXT(MSG_PAUSE_PRINT_INIT));        }
+void lcd_pause_parking_message()  { _lcd_pause_message(GET_TEXT(MSG_PAUSE_PRINT_PARKING));     }
 void lcd_pause_changing_message() { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));    }
 void lcd_pause_unload_message()   { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD));  }
 void lcd_pause_heating_message()  { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); }
@@ -281,7 +282,7 @@ void lcd_pause_purge_message() {
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   switch (message) {
-    case PAUSE_MESSAGE_PAUSING:  return lcd_pause_pausing_message;
+    case PAUSE_MESSAGE_PARKING:  return lcd_pause_parking_message;
     case PAUSE_MESSAGE_CHANGING: return lcd_pause_changing_message;
     case PAUSE_MESSAGE_UNLOAD:   return lcd_pause_unload_message;
     case PAUSE_MESSAGE_WAITING:  return lcd_pause_waiting_message;

@@ -25,7 +25,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 Stopwatch::State Stopwatch::state;
@@ -106,8 +106,7 @@ void Stopwatch::reset() {
 }
 
 millis_t Stopwatch::duration() {
-  return ((isRunning() ? millis() : stopTimestamp)
-          - startTimestamp) / 1000UL + accumulator;
+  return accumulator + MS_TO_SEC((isRunning() ? millis() : stopTimestamp) - startTimestamp);
 }
 
 #if ENABLED(DEBUG_STOPWATCH)

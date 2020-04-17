@@ -25,7 +25,7 @@
  * Danish
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -105,7 +105,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gem i EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hent fra EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Gendan failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Gendan Defaults");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Genopfrisk");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info skærm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Forbered");
@@ -185,7 +185,7 @@ namespace Language_da {
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Forsæt print");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Forkert printer");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Forkert printer");
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Vent på start", "af filament", "skift"));

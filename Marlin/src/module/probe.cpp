@@ -78,7 +78,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -89,7 +89,7 @@ Probe probe;
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_PROBE_XY_OFFSET
-  const xyz_pos_t &Probe::offset_xy = probe.offset;
+  const xyz_pos_t &Probe::offset_xy = Probe::offset;
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -134,12 +134,10 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       LCD_MESSAGEPGM(MSG_MANUAL_DEPLOY_TOUCHMI);
       ui.return_to_status();
 
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true; // LCD click or M108 will clear this
       #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), CONTINUE_STR);
+        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI"), CONTINUE_STR);
       #endif
-      while (wait_for_user) idle();
+      wait_for_user_response();
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -297,15 +295,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       serialprintPGM(ds_str);
       SERIAL_EOL();
 
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR);
       #endif
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe"));
       #endif
-      while (wait_for_user) idle();
+      wait_for_user_response();
       ui.reset_status();
 
     } while(
@@ -328,15 +324,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
+  #elif ENABLED(BLTOUCH)
+
+    deploy ? bltouch.deploy() : bltouch.stow();
+
   #elif HAS_Z_SERVO_PROBE
 
-    #if DISABLED(BLTOUCH)
-      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-    #elif ENABLED(BLTOUCH_HS_MODE)
-      // In HIGH SPEED MODE, use the normal retractable probe logic in this code
-      // i.e. no intermediate STOWs and DEPLOYs in between individual probe actions
-      if (deploy) bltouch.deploy(); else bltouch.stow();
-    #endif
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
@@ -392,7 +386,7 @@ bool Probe::set_deployed(const bool deploy) {
         _BV(X_AXIS)
       #endif
     )) {
-      SERIAL_ERROR_MSG(MSG_STOP_UNHOMED);
+      SERIAL_ERROR_MSG(STR_STOP_UNHOMED);
       stop();
       return true;
     }
@@ -455,10 +449,6 @@ bool Probe::set_deployed(const bool deploy) {
  * @return true to indicate an error
  */
 
-#if HAS_BED_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-  const char Probe::msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
-#endif
-
 /**
  * @brief Move down until the probe triggers or the low limit is reached
  *
@@ -473,13 +463,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::probe_down_to_z", current_position);
 
   #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-    // Wait for bed to heat back up between probing points
-    if (thermalManager.isHeatingBed()) {
-      serialprintPGM(msg_wait_for_bed_heating);
-      LCD_MESSAGEPGM(MSG_BED_HEATING);
-      thermalManager.wait_for_bed();
-      ui.reset_status();
-    }
+    thermalManager.wait_for_bed_heating();
   #endif
 
   #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
@@ -559,9 +543,28 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
-float Probe::run_z_probe() {
+float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::run_z_probe", current_position);
+
+  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) {
+    // Do a first probe at the fast speed
+    const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
+               early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
+        DEBUG_PRINT_P(plbl);
+        DEBUG_ECHOPGM(" Probe fail! -");
+        if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
+        if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
+        DEBUG_EOL();
+        DEBUG_POS("<<< run_z_probe", current_position);
+      }
+    #else
+      UNUSED(plbl);
+    #endif
+    return probe_fail || early_fail;
+  };
 
   // Stop the probe before it goes too low to prevent damage.
   // If Z isn't known then probe to -10mm.
@@ -571,15 +574,8 @@ float Probe::run_z_probe() {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))         // No probe trigger?
-      || current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2  // Probe triggered too high?
-    ) {
-      if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLNPGM("FAST Probe fail!");
-        DEBUG_POS("<<< run_z_probe", current_position);
-      }
-      return NAN;
-    }
+    if (try_to_probe(PSTR("FAST"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST),
+                     sanity_check, _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2) ) return NAN;
 
     const float first_probe_z = current_position.z;
 
@@ -616,15 +612,8 @@ float Probe::run_z_probe() {
   #endif
     {
       // Probe downward slowly to find the bed
-      if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))      // No probe trigger?
-        || current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2  // Probe triggered too high?
-      ) {
-        if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOLNPGM("SLOW Probe fail!");
-          DEBUG_POS("<<< run_z_probe", current_position);
-        }
-        return NAN;
-      }
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
+                       sanity_check, _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2) ) return NAN;
 
       #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
         backlash.measure_with_probe();
@@ -634,7 +623,7 @@ float Probe::run_z_probe() {
 
       #if EXTRA_PROBING
         // Insert Z measurement into probes[]. Keep it sorted ascending.
-        for (uint8_t i = 0; i <= p; i++) {                            // Iterate the saved Zs to insert the new Z
+        LOOP_LE_N(i, p) {                            // Iterate the saved Zs to insert the new Z
           if (i == p || probes[i] > z) {                              // Last index or new Z is smaller than this Z
             for (int8_t m = p; --m >= i;) probes[m + 1] = probes[m];  // Shift items down after the insertion point
             probes[i] = z;                                            // Insert the new Z measurement
@@ -672,7 +661,7 @@ float Probe::run_z_probe() {
           max_avg_idx--; else min_avg_idx++;
 
       // Return the average value of all remaining probes.
-      for (uint8_t i = min_avg_idx; i <= max_avg_idx; i++)
+      LOOP_S_LE_N(i, min_avg_idx, max_avg_idx)
         probes_z_sum += probes[i];
 
     #endif
@@ -709,7 +698,7 @@ float Probe::run_z_probe() {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
+float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPAIR(
       ">>> Probe::probe_at_point(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
@@ -727,7 +716,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   // TODO: Adapt for SCARA, where the offset rotates
   xyz_pos_t npos = { rx, ry };
   if (probe_relative) {                                     // The given position is in terms of the probe
-    if (!position_is_reachable_by_probe(npos)) {
+    if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
       return NAN;
     }
@@ -751,7 +740,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   do_blocking_move_to(npos);
 
   float measured_z = NAN;
-  if (!deploy()) measured_z = run_z_probe() + offset.z;
+  if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
@@ -771,7 +760,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   if (isnan(measured_z)) {
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
-    SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
+    SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
   }
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< Probe::probe_at_point");

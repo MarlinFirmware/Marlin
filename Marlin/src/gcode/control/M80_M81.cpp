@@ -44,7 +44,7 @@
   // Could be moved to a feature, but this is all the data
   bool powersupply_on;
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     #include "../../feature/tmc_util.h"
   #endif
 
@@ -110,6 +110,6 @@ void GcodeSuite::M81() {
   #endif
 
   #if HAS_LCD_MENU
-    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " MSG_OFF "."));
+    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
   #endif
 }

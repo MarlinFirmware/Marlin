@@ -33,7 +33,7 @@ char conv[8] = { 0 };
 #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
 
 // Convert a full-range unsigned 8bit int to a percentage
-const char* ui8tostr4pct(const uint8_t i) {
+const char* ui8tostr4pctrj(const uint8_t i) {
   const uint8_t n = ui8_to_percent(i);
   conv[3] = RJDIGIT(n, 100);
   conv[4] = RJDIGIT(n, 10);
@@ -43,7 +43,7 @@ const char* ui8tostr4pct(const uint8_t i) {
 }
 
 // Convert unsigned 8bit int to string 123 format
-const char* ui8tostr3(const uint8_t i) {
+const char* ui8tostr3rj(const uint8_t i) {
   conv[4] = RJDIGIT(i, 100);
   conv[5] = RJDIGIT(i, 10);
   conv[6] = DIGIMOD(i, 1);
@@ -51,7 +51,7 @@ const char* ui8tostr3(const uint8_t i) {
 }
 
 // Convert signed 8bit int to rj string with 123 or -12 format
-const char* i8tostr3(const int8_t x) {
+const char* i8tostr3rj(const int8_t x) {
   int xx = x;
   conv[4] = MINUSOR(xx, RJDIGIT(xx, 100));
   conv[5] = RJDIGIT(xx, 10);
@@ -88,7 +88,7 @@ const char* i8tostr3(const int8_t x) {
 #endif
 
 // Convert unsigned 16bit int to string 12345 format
-const char* ui16tostr5(const uint16_t xx) {
+const char* ui16tostr5rj(const uint16_t xx) {
   conv[2] = RJDIGIT(xx, 10000);
   conv[3] = RJDIGIT(xx, 1000);
   conv[4] = RJDIGIT(xx, 100);
@@ -98,7 +98,7 @@ const char* ui16tostr5(const uint16_t xx) {
 }
 
 // Convert unsigned 16bit int to string 1234 format
-const char* ui16tostr4(const uint16_t xx) {
+const char* ui16tostr4rj(const uint16_t xx) {
   conv[3] = RJDIGIT(xx, 1000);
   conv[4] = RJDIGIT(xx, 100);
   conv[5] = RJDIGIT(xx, 10);
@@ -107,7 +107,7 @@ const char* ui16tostr4(const uint16_t xx) {
 }
 
 // Convert unsigned 16bit int to string 123 format
-const char* ui16tostr3(const uint16_t xx) {
+const char* ui16tostr3rj(const uint16_t xx) {
   conv[4] = RJDIGIT(xx, 100);
   conv[5] = RJDIGIT(xx, 10);
   conv[6] = DIGIMOD(xx, 1);
@@ -115,7 +115,7 @@ const char* ui16tostr3(const uint16_t xx) {
 }
 
 // Convert signed 16bit int to rj string with 123 or -12 format
-const char* i16tostr3(const int16_t x) {
+const char* i16tostr3rj(const int16_t x) {
   int xx = x;
   conv[4] = MINUSOR(xx, RJDIGIT(xx, 100));
   conv[5] = RJDIGIT(xx, 10);
@@ -136,7 +136,7 @@ const char* i16tostr3left(const int16_t i) {
 }
 
 // Convert signed 16bit int to rj string with 1234, _123, -123, _-12, or __-1 format
-const char* i16tostr4sign(const int16_t i) {
+const char* i16tostr4signrj(const int16_t i) {
   const bool neg = i < 0;
   const int ii = neg ? -i : i;
   if (i >= 1000) {
@@ -174,9 +174,9 @@ const char* ftostr12ns(const float &f) {
   return &conv[3];
 }
 
-// Convert signed float to fixed-length string with 12.34 / -2.34 format or 123.45 / -23.45 format
+// Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
 const char* ftostr42_52(const float &f) {
-  if (f <= -10 || f >= 100) return ftostr52(f); // need more digits
+  if (f <= -10 || f >= 100) return ftostr52(f); // -23.45 / 123.45
   long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
   conv[2] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 1000));
   conv[3] = DIGIMOD(i, 100);
@@ -198,12 +198,38 @@ const char* ftostr52(const float &f) {
   return &conv[1];
 }
 
+// Convert signed float to fixed-length string with 12.345 / _2.345 / -2.345 or -23.45 / 123.45 format
+const char* ftostr53_63(const float &f) {
+  if (f <= -10 || f >= 100) return ftostr63(f); // -23.456 / 123.456
+  long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
+  conv[1] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 10000));
+  conv[2] = DIGIMOD(i, 1000);
+  conv[3] = '.';
+  conv[4] = DIGIMOD(i, 100);
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = DIGIMOD(i, 1);
+  return &conv[1];
+}
+
+// Convert signed float to fixed-length string with 023.456 / -23.456 format
+const char* ftostr63(const float &f) {
+  long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
+  conv[0] = MINUSOR(i, DIGIMOD(i, 100000));
+  conv[1] = DIGIMOD(i, 10000);
+  conv[2] = DIGIMOD(i, 1000);
+  conv[3] = '.';
+  conv[4] = DIGIMOD(i, 100);
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = DIGIMOD(i, 1);
+  return &conv[0];
+}
+
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
 
   // Convert float to rj string with 1234, _123, -123, _-12, 12.3, _1.2, or -1.2 format
   const char* ftostr4sign(const float &f) {
     const int i = (f * 100 + (f < 0 ? -5: 5)) / 10;
-    if (!WITHIN(i, -99, 999)) return i16tostr4sign((int)f);
+    if (!WITHIN(i, -99, 999)) return i16tostr4signrj((int)f);
     const bool neg = i < 0;
     const int ii = neg ? -i : i;
     conv[3] = neg ? '-' : (ii >= 100 ? DIGIMOD(ii, 100) : ' ');
@@ -255,7 +281,7 @@ const char* ftostr54sign(const float &f, char plus/*=' '*/) {
 // Convert unsigned float to rj string with 12345 format
 const char* ftostr5rj(const float &f) {
   const long i = ((f < 0 ? -f : f) * 10 + 5) / 10;
-  return ui16tostr5(i);
+  return ui16tostr5rj(i);
 }
 
 // Convert signed float to string with +1234.5 format
@@ -284,7 +310,20 @@ const char* ftostr52sign(const float &f) {
   return conv;
 }
 
-// Convert unsigned float to string with 1234.5 format omitting trailing zeros
+// Convert signed float to string with +12.345 format
+const char* ftostr53sign(const float &f) {
+  long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
+  conv[0] = MINUSOR(i, '+');
+  conv[1] = DIGIMOD(i, 10000);
+  conv[2] = DIGIMOD(i, 1000);
+  conv[3] = '.';
+  conv[4] = DIGIMOD(i, 100);
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = DIGIMOD(i, 1);
+  return conv;
+}
+
+// Convert unsigned float to string with ____4.5, __34.5, _234.5, 1234.5 format
 const char* ftostr51rj(const float &f) {
   const long i = ((f < 0 ? -f : f) * 100 + 5) / 10;
   conv[0] = ' ';

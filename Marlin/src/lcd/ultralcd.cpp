@@ -103,7 +103,7 @@ MarlinUI ui;
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "../feature/tmc_util.h"
 #endif
 
@@ -119,10 +119,6 @@ MarlinUI ui;
   #if ENABLED(TOUCH_BUTTONS)
     #include "../feature/touch/xpt2046.h"
   #endif
-#endif
-
-#if ENABLED(INIT_SDCARD_ON_BOOT)
-  uint8_t lcd_sd_status;
 #endif
 
 #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
@@ -227,7 +223,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     SETCURSOR(col, row);
     if (!string) return;
 
-    auto _newline = [&col, &row]() {
+    auto _newline = [&col, &row]{
       col = 0; row++;                 // Move col to string len (plus space)
       SETCURSOR(0, row);              // Simulate carriage return
     };
@@ -342,19 +338,12 @@ void MarlinUI::init() {
 
   #endif // HAS_SHIFT_ENCODER
 
-  #if ENABLED(SDSUPPORT)
-    #if PIN_EXISTS(SD_DETECT)
-      SET_INPUT_PULLUP(SD_DETECT_PIN);
-    #endif
-    #if ENABLED(INIT_SDCARD_ON_BOOT)
-      lcd_sd_status = 2; // UNKNOWN
-    #endif
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
-  #if HAS_ENCODER_ACTION
-    #if HAS_SLOW_BUTTONS
-      slow_buttons = 0;
-    #endif
+  #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
+    slow_buttons = 0;
   #endif
 
   update_buttons();
@@ -391,7 +380,7 @@ bool MarlinUI::get_blink() {
 
     void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
       move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-      encoderPosition = dir;
+      ui.encoderPosition = dir;
       switch (axis) {
         case X_AXIS: lcd_move_x(); break;
         case Y_AXIS: lcd_move_y(); break;
@@ -524,7 +513,7 @@ void MarlinUI::status_screen() {
     #if PROGRESS_MSG_EXPIRE > 0
 
       // Handle message expire
-      if (expire_status_ms > 0) {
+      if (expire_status_ms) {
 
         // Expire the message if a job is active and the bar has ticks
         if (get_progress_percent() > 2 && !print_job_timer.isPaused()) {
@@ -649,8 +638,6 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 #if HAS_LCD_MENU
 
-  extern bool no_reentry; // Flag to prevent recursion into menu handlers
-
   int8_t manual_move_axis = (int8_t)NO_AXIS;
   millis_t manual_move_start_time = 0;
 
@@ -746,11 +733,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
  */
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+millis_t next_lcd_update_ms;
 
 void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
-  static millis_t next_lcd_update_ms;
   millis_t ms = millis();
 
   #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
@@ -776,6 +763,13 @@ void MarlinUI::update() {
     // If the action button is pressed...
     static bool wait_for_unclick; // = false
 
+    auto do_click = [&]{
+      wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
+      lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
+      wait_for_user = false;                          //  - Any click clears wait for user
+      quick_feedback();                               //  - Always make a click sound
+    };
+
     #if ENABLED(TOUCH_BUTTONS)
       if (touch_buttons) {
         RESET_STATUS_TIMEOUT();
@@ -796,12 +790,8 @@ void MarlinUI::update() {
             }
           }
         }
-        else if (!wait_for_unclick && (buttons & EN_C)) { // OK button, if not waiting for a debounce release:
-          wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
-          lcd_clicked = !wait_for_user && !no_reentry;    //  - Keep the click if not waiting for a user-click
-          wait_for_user = false;                          //  - Any click clears wait for user
-          quick_feedback();                               //  - Always make a click sound
-        }
+        else if (!wait_for_unclick && (buttons & EN_C))   // OK button, if not waiting for a debounce release:
+          do_click();
       }
       else // keep wait_for_unclick value
 
@@ -810,12 +800,7 @@ void MarlinUI::update() {
       {
         // Integrated LCD click handling via button_pressed
         if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) {                        // If not waiting for a debounce release:
-            wait_for_unclick = true;                      //  - Set debounce flag to ignore continous clicks
-            lcd_clicked = !wait_for_user && !no_reentry;  //  - Keep the click if not waiting for a user-click
-            wait_for_user = false;                        //  - Any click clears wait for user
-            quick_feedback();                             //  - Always make a click sound
-          }
+          if (!wait_for_unclick) do_click();              // Handle the click
         }
         else
           wait_for_unclick = false;
@@ -827,53 +812,6 @@ void MarlinUI::update() {
     }
 
   #endif // HAS_LCD_MENU
-
-  #if ENABLED(INIT_SDCARD_ON_BOOT)
-    //
-    // SPI SD Card detection (and first card init when the LCD is present)
-    //
-    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
-    if (sd_status != lcd_sd_status && detected()) {
-
-      uint8_t old_sd_status = lcd_sd_status; // prevent re-entry to this block!
-      lcd_sd_status = sd_status;
-
-      if (sd_status) {
-        safe_delay(500); // Some boards need a delay to get settled
-        card.mount();
-        if (old_sd_status == 2)
-          card.beginautostart();  // Initial boot
-        else
-          set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
-      }
-      #if PIN_EXISTS(SD_DETECT)
-        else {
-          card.release();
-          if (old_sd_status != 2) {
-            set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
-            #if HAS_LCD_MENU
-              return_to_status();
-            #endif
-          }
-        }
-
-        #if DISABLED(NO_LCD_REINIT)
-          init_lcd(); // May revive the LCD if static electricity killed it
-        #endif
-
-      #endif
-
-      refresh();
-
-      ms = millis();
-      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // delay LCD update until after SD activity completes
-
-      #ifdef LED_BACKLIGHT_TIMEOUT
-        leds.reset_timeout(ms);
-      #endif
-    }
-
-  #endif // INIT_SDCARD_ON_BOOT
 
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD
@@ -1136,7 +1074,7 @@ void MarlinUI::update() {
       thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
       if (currentkpADCValue < adc_other_button)
-        for (uint8_t i = 0; i < ADC_KEY_NUM; i++) {
+        LOOP_L_N(i, ADC_KEY_NUM) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
           if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
@@ -1148,27 +1086,6 @@ void MarlinUI::update() {
 #endif // HAS_ADC_BUTTONS
 
 #if HAS_ENCODER_ACTION
-
-  #if DISABLED(ADC_KEYPAD) && (ENABLED(REPRAPWORLD_KEYPAD) || !HAS_DIGITAL_BUTTONS)
-
-    /**
-     * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
-     * These values are independent of which pins are used for EN_A and EN_B indications
-     * The rotary encoder part is also independent to the chipset used for the LCD
-     */
-    #define GET_SHIFT_BUTTON_STATES(DST) \
-      uint8_t new_##DST = 0; \
-      WRITE(SHIFT_LD, LOW); \
-      WRITE(SHIFT_LD, HIGH); \
-      for (int8_t i = 0; i < 8; i++) { \
-        new_##DST >>= 1; \
-        if (READ(SHIFT_OUT)) SBI(new_##DST, 7); \
-        WRITE(SHIFT_CLK, HIGH); \
-        WRITE(SHIFT_CLK, LOW); \
-      } \
-      DST = ~new_##DST; //invert it, because a pressed switch produces a logical 0
-
-  #endif
 
   /**
    * Read encoder buttons from the hardware registers
@@ -1267,15 +1184,25 @@ void MarlinUI::update() {
       #endif
 
       #if HAS_SHIFT_ENCODER
-
-        GET_SHIFT_BUTTON_STATES((
-          #if ENABLED(REPRAPWORLD_KEYPAD)
-            keypad_buttons
-          #else
-            buttons
-          #endif
-        ));
-
+        /**
+         * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
+         * These values are independent of which pins are used for EN_A / EN_B indications.
+         * The rotary encoder part is also independent of the LCD chipset.
+         */
+        uint8_t val = 0;
+        WRITE(SHIFT_LD, LOW);
+        WRITE(SHIFT_LD, HIGH);
+        LOOP_L_N(i, 8) {
+          val >>= 1;
+          if (READ(SHIFT_OUT)) SBI(val, 7);
+          WRITE(SHIFT_CLK, HIGH);
+          WRITE(SHIFT_CLK, LOW);
+        }
+        #if ENABLED(REPRAPWORLD_KEYPAD)
+          keypad_buttons = ~val;
+        #else
+          buttons = ~val;
+        #endif
       #endif
 
     } // next_button_update_ms
@@ -1320,7 +1247,7 @@ void MarlinUI::update() {
 #if HAS_DISPLAY
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "extensible_ui/ui_api.h"
+    #include "extui/ui_api.h"
   #endif
 
   ////////////////////////////////////////////
@@ -1348,15 +1275,19 @@ void MarlinUI::update() {
       UNUSED(persist);
     #endif
 
+    #if ENABLED(LCD_PROGRESS_BAR) || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      const millis_t ms = millis();
+    #endif
+
     #if ENABLED(LCD_PROGRESS_BAR)
-      progress_bar_ms = millis();
+      progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
-        expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
+        expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
       #endif
     #endif
 
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
-      next_filament_display = millis() + 5000UL; // Show status message for 5s
+      next_filament_display = ms + 5000UL; // Show status message for 5s
     #endif
 
     #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1453,7 +1384,7 @@ void MarlinUI::update() {
   /**
    * Reset the status message
    */
-  void MarlinUI::reset_status() {
+  void MarlinUI::reset_status(const bool no_welcome) {
     PGM_P printing = GET_TEXT(MSG_PRINTING);
     PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0
@@ -1485,8 +1416,10 @@ void MarlinUI::update() {
       else if (print_job_timer.needsService(3)) msg = service3;
     #endif
 
-    else
+    else if (!no_welcome)
       msg = welcome;
+    else
+      return;
 
     set_status_P(msg, -1);
   }
@@ -1519,7 +1452,8 @@ void MarlinUI::update() {
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
-      synchronize(GET_TEXT(MSG_PAUSE_PRINT));
+      synchronize(GET_TEXT(MSG_PAUSING));
+      defer_status_screen();
     #endif
 
     #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -1530,7 +1464,7 @@ void MarlinUI::update() {
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       #if HAS_SPI_LCD
-        lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
+        lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);  // Show message immediately to let user know about pause in progress
       #endif
       queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
@@ -1604,3 +1538,56 @@ void MarlinUI::update() {
   }
 
 #endif // !HAS_DISPLAY
+
+#if ENABLED(SDSUPPORT)
+
+  void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
+    if (old_status == status) {
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMediaError();      // Failed to mount/unmount
+      #endif
+      return;
+    }
+
+    if (status) {
+      if (old_status < 2) {
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaInserted(); // ExtUI response
+        #endif
+        set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+      }
+    }
+    else {
+      if (old_status < 2) {
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaRemoved();  // ExtUI response
+        #endif
+        #if PIN_EXISTS(SD_DETECT)
+          set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
+          #if HAS_LCD_MENU
+            return_to_status();
+          #endif
+        #endif
+      }
+    }
+
+    #if PIN_EXISTS(SD_DETECT) && DISABLED(NO_LCD_REINIT)
+      init_lcd(); // Revive a noisy shared SPI LCD
+    #endif
+
+    refresh();
+
+    #if HAS_SPI_LCD || defined(LED_BACKLIGHT_TIMEOUT)
+      const millis_t ms = millis();
+    #endif
+
+    #if HAS_SPI_LCD
+      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;  // Delay LCD update for SD activity
+    #endif
+
+    #ifdef LED_BACKLIGHT_TIMEOUT
+      leds.reset_timeout(ms);
+    #endif
+  }
+
+#endif // SDSUPPORT

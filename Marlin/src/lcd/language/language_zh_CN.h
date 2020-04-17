@@ -25,7 +25,7 @@
  * Simplified Chinese
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_zh_CN {
@@ -136,8 +136,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("存储槽");     // "Memory Slot"
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("装载热床网格");     // "Load Bed Mesh"
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("保存热床网格");     // "Save Bed Mesh"
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 网格 %i 已装载");     // "Mesh %i loaded"
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 网格 %i 已保存");     // "Mesh %i saved"
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("网格 %i 已装载");     // "Mesh %i loaded"
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("网格 %i 已保存");     // "Mesh %i saved"
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("没有存储");     // "No storage"
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("错误: UBL保存");     // "Err: UBL Save"
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("错误: UBL还原");     // "Err: UBL Restore"
@@ -240,7 +240,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD对比度");     //"LCD contrast"
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("保存设置");     //"Store memory"
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("装载设置");     //"Load memory"
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("恢复安全值");     //"Restore failsafe"
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("恢复安全值");     //"Restore Defaults"
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("初始化设置");     // "Initialize EEPROM"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("刷新");     //"Refresh"
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"
@@ -274,7 +274,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("卸载丝料");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("卸载丝料 *");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("卸载全部");     // "Unload All"
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("初始化存储卡");     //"Init. SD card"
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("初始化存储卡");     //"Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("更换存储卡");     //"Change SD card"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探针在热床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因数");     // "Skew Factor"
@@ -331,7 +331,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("外壳灯");     // "Case light"
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("灯亮度");     // "Light BRIGHTNESS"
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("打印机不正确");     // "The printer is incorrect"
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("打印机不正确");     // "The printer is incorrect"
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("打印计数");     //"Print Count"
@@ -363,7 +363,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("清除更多");     // "Purge more"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("恢复打印");     //"Resume print"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  喷嘴: ");     // "  Nozzle: "
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("归原位失败");     // "Homing failed"
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("归原位失败");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探针探测失败");     // "Probing failed"
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太凉");     // "M600: Too cold"
 

@@ -234,7 +234,7 @@ extern "C" {
 
 // On-board LED pin number
 #define LED_BUILTIN             PA7
-//#define LED_GREEN             LED_BUILTIN   should be defined here but omitted to avoid redefinition in SailfishRGB_LED
+#define LED_GREEN               LED_BUILTIN
 
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one

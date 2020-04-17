@@ -25,7 +25,7 @@
  * Catalan
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_ca {
@@ -120,7 +120,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Desa memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carrega memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaura valors");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaura valors");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualitza");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantalla Info.");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
@@ -146,7 +146,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Auto retraccio");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Canvia filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Canvia filament *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inicialitza SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inicialitza SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Canvia SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z fora");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reinicia BLTouch");
@@ -211,7 +211,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Repren impressió");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora incorrecta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora incorrecta");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display
