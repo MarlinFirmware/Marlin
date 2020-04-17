@@ -2409,7 +2409,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                                 + t * ( FIXED(262.8130562f)
                                 + t * (-FIXED(242.7199627f) + t * FIXED(84.31466202f)) ))));
 
-            const float junction_theta = RADIANS(90) - (float(neg * n) * RECIPROCAL(0x10000L));
+            const float junction_theta = RADIANS(90) - (float(neg * asinx) * RECIPROCAL(0x10000L));
 
           #else
 
