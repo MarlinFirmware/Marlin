@@ -284,6 +284,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Charger config.");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaurer défauts");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialiser EEPROM");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Config. enregistrée");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("MaJ Firmware SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("RaZ imprimante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualiser");
@@ -300,6 +301,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Terminé");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Retour");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procéder");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Mise en pause...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause impression");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Reprendre impr.");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arrêter impr.");
