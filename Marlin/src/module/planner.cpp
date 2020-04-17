@@ -2397,32 +2397,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
           // (acos(x) = pi / 2 - asin(x))
 
-          #if ENABLED(FIXED_POINT_ACOS)
-
-            #define FIXED(f) int32_t(0x10000L * f)
-            const int32_t neg = junction_cos_theta < 0 ? -1 : 1,
-                          t = neg * FIXED(junction_cos_theta),
-                          asinx =       FIXED(0.032843707f)
-                                + t * (-FIXED(1.451838349f)
-                                + t * ( FIXED(29.66153956f)
-                                + t * (-FIXED(131.1123477f)
-                                + t * ( FIXED(262.8130562f)
-                                + t * (-FIXED(242.7199627f) + t * FIXED(84.31466202f)) ))));
-
-            const float junction_theta = RADIANS(90) - (float(neg * asinx) * RECIPROCAL(0x10000L));
-
-          #else
-
-            const float neg = junction_cos_theta < 0 ? -1 : 1,
-                        t = neg * junction_cos_theta,
-                        asinx =       0.032843707f
-                              + t * (-1.451838349f
-                              + t * ( 29.66153956f
-                              + t * (-131.1123477f
-                              + t * ( 262.8130562f
-                              + t * (-242.7199627f + t * 84.31466202f) )))),
-                        junction_theta = RADIANS(90) - neg * asinx;
-          #endif
+          const float neg = junction_cos_theta < 0 ? -1 : 1,
+                      t = neg * junction_cos_theta,
+                      asinx =       0.032843707f
+                            + t * (-1.451838349f
+                            + t * ( 29.66153956f
+                            + t * (-131.1123477f
+                            + t * ( 262.8130562f
+                            + t * (-242.7199627f + t * 84.31466202f) )))),
+                      junction_theta = RADIANS(90) - neg * asinx;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
