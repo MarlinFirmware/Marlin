@@ -7,6 +7,7 @@
 set -e
 
 use_example_configs "delta/Malyan M300"
+opt_disable AUTO_BED_LEVELING_3POINT
 exec_test $1 $2 "Malyan M300 (delta)"
 
 # cleanup
