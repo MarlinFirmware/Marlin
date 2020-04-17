@@ -46,8 +46,8 @@ typedef void (*twiRequestFunc_t)();
  * for the host to interpret.
  *
  *  For more information see
- *    - http://marlinfw.org/docs/gcode/M260.html
- *    - http://marlinfw.org/docs/gcode/M261.html
+ *    - https://marlinfw.org/docs/gcode/M260.html
+ *    - https://marlinfw.org/docs/gcode/M261.html
  *
  */
 class TWIBus {
@@ -223,7 +223,6 @@ class TWIBus {
     #endif
 
     #if ENABLED(DEBUG_TWIBUS)
-
       /**
        * @brief Prints a debug message
        * @details Prints a simple debug message "TWIBus::function: value"
@@ -233,6 +232,10 @@ class TWIBus {
       static void debug(const char func[], char c);
       static void debug(const char func[], char adr[]);
       static inline void debug(const char func[], uint8_t v) { debug(func, (uint32_t)v); }
-
+    #else
+      static inline void debug(const char[], uint32_t) {}
+      static inline void debug(const char[], char) {}
+      static inline void debug(const char[], char[]) {}
+      static inline void debug(const char[], uint8_t) {}
     #endif
 };

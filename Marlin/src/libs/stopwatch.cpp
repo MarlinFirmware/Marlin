@@ -106,8 +106,7 @@ void Stopwatch::reset() {
 }
 
 millis_t Stopwatch::duration() {
-  return ((isRunning() ? millis() : stopTimestamp)
-          - startTimestamp) / 1000UL + accumulator;
+  return accumulator + MS_TO_SEC((isRunning() ? millis() : stopTimestamp) - startTimestamp);
 }
 
 #if ENABLED(DEBUG_STOPWATCH)

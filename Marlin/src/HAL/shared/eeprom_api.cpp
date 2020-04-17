@@ -24,7 +24,7 @@
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
-  #include "persistent_store_api.h"
+  #include "eeprom_api.h"
   PersistentStore persistentStore;
 
 #endif

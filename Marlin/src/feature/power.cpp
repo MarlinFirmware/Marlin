@@ -98,7 +98,7 @@ void Power::check() {
     nextPowerCheck = ms + 2500UL;
     if (is_power_needed())
       power_on();
-    else if (!lastPowerOn || ELAPSED(ms, lastPowerOn + (POWER_TIMEOUT) * 1000UL))
+    else if (!lastPowerOn || ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT)))
       power_off();
   }
 }

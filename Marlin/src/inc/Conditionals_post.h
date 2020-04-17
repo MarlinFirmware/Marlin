@@ -35,16 +35,19 @@
   #define HAS_LINEAR_E_JERK 1
 #endif
 
-// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
+// Determine which type of 'EEPROM' is in use
 #if ENABLED(EEPROM_SETTINGS)
-  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && EITHER(I2C_EEPROM, SPI_EEPROM)
-    #define USE_REAL_EEPROM 1
+  // EEPROM type may be defined by compile flags, configs, HALs, or pins
+  // Set additional flags to let HALs choose in their Conditionals_post.h
+  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && ANY(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM)
+    #define USE_WIRED_EEPROM    1
   #else
-    #define USE_EMULATED_EEPROM 1
+    #define USE_FALLBACK_EEPROM 1
   #endif
 #else
   #undef I2C_EEPROM
   #undef SPI_EEPROM
+  #undef QSPI_EEPROM
   #undef SDCARD_EEPROM_EMULATION
   #undef SRAM_EEPROM_EMULATION
   #undef FLASH_EEPROM_EMULATION
@@ -135,6 +138,19 @@
   #endif
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
 #endif
+
+// Calibration codes only for non-core axes
+#if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
+  #if IS_CORE
+    #define X_AXIS_INDEX 0
+    #define Y_AXIS_INDEX 1
+    #define Z_AXIS_INDEX 2
+    #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B##_INDEX)
+  #else
+    #define CAN_CALIBRATE(A,B) 1
+  #endif
+#endif
+#define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
 
 /**
  * No adjustable bed on non-cartesians
@@ -308,17 +324,36 @@
 
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
+ * and enable sharing of onboard SD host drives (all platforms but AGCM4)
  */
 #if ENABLED(SDSUPPORT)
-  #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
-    #undef SD_DETECT_STATE
-    #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-      #define SD_DETECT_STATE HIGH
+
+  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
+    //
+    // The external SD card is not used. Hardware SPI is used to access the card.
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    //
+    #undef SD_DETECT_PIN
+    #define SHARED_SD_CARD
+  #endif
+
+  #if DISABLED(SHARED_SD_CARD)
+    #define INIT_SDCARD_ON_BOOT
+  #endif
+
+  #if PIN_EXISTS(SD_DETECT)
+    #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+      #undef SD_DETECT_STATE
+      #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+        #define SD_DETECT_STATE HIGH
+      #endif
+    #endif
+    #ifndef SD_DETECT_STATE
+      #define SD_DETECT_STATE LOW
     #endif
   #endif
-  #ifndef SD_DETECT_STATE
-    #define SD_DETECT_STATE LOW
-  #endif
+
 #endif
 
 /**
@@ -2134,21 +2169,6 @@
     #else
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
-  #endif
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
-    //
-    // The external SD card is not used. Hardware SPI is used to access the card.
-    // When sharing the SD card with a PC we want the menu options to
-    // mount/unmount the card and refresh it. So we disable card detect.
-    //
-    #undef SD_DETECT_PIN
-    #define SHARED_SD_CARD
-  #endif
-  #if DISABLED(SHARED_SD_CARD)
-    #define INIT_SDCARD_ON_BOOT
   #endif
 #endif
 

@@ -84,7 +84,7 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) EDIT_ITEM_P(long5, PSTR(LABEL), &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+    #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_X STR_Y, 0);
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
@@ -178,18 +178,18 @@ void menu_cancelobject();
     int16_t autotune_temp_bed = 70;
   #endif
 
+  #include "../../gcode/queue.h"
+
   void _lcd_autotune(const int16_t e) {
     char cmd[30];
     sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), e,
       #if HAS_PID_FOR_BOTH
         e < 0 ? autotune_temp_bed : autotune_temp[e]
-      #elif ENABLED(PIDTEMPBED)
-        autotune_temp_bed
       #else
-        autotune_temp[e]
+        TERN(PIDTEMPBED, autotune_temp_bed, autotune_temp[e])
       #endif
     );
-    lcd_enqueue_one_now(cmd);
+    queue.inject(cmd);
   }
 
 #endif // PID_AUTOTUNE_MENU

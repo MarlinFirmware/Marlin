@@ -27,7 +27,7 @@
   #include "../bedlevel.h"
 
   #include "../../../MarlinCore.h"
-  #include "../../../HAL/shared/persistent_store_api.h"
+  #include "../../../HAL/shared/eeprom_api.h"
   #include "../../../libs/hex_print_routines.h"
   #include "../../../module/configuration_store.h"
   #include "../../../lcd/ultralcd.h"
@@ -451,8 +451,8 @@
               SERIAL_ECHO(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
-            const xy_pos_t near = g29_pos + probe.offset_xy;
-            probe_entire_mesh(near, parser.seen('T'), parser.seen('E'), parser.seen('U'));
+            const xy_pos_t near_probe_xy = g29_pos + probe.offset_xy;
+            probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
             probe_deployed = true;
@@ -776,12 +776,16 @@
           : find_closest_mesh_point_of_type(INVALID, near, true);
 
         if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START);
+          #endif
           const float measured_z = probe.probe_at_point(
                         best.meshpos(),
                         stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level
                       );
           z_values[best.pos.x][best.pos.y] = measured_z;
           #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_FINISH);
             ExtUI::onMeshUpdate(best.pos, measured_z);
           #endif
         }

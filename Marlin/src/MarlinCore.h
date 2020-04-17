@@ -38,19 +38,9 @@
 
 void stop();
 
-void idle(
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    bool no_stepper_sleep=false    // Pass true to keep steppers from timing out
-  #endif
-);
-
-inline void idle_no_sleep() {
-  idle(
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      true
-    #endif
-  );
-}
+// Pass true to keep steppers from timing out
+void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep=false));
+inline void idle_no_sleep() { idle(TERN_(ADVANCED_PAUSE_FEATURE, true)); }
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"
@@ -83,6 +73,7 @@ enum MarlinState : uint8_t {
   MF_PAUSED       = _BV(1),
   MF_WAITING      = _BV(2),
   MF_STOPPED      = _BV(3),
+  MF_SD_COMPLETE  = _BV(4),
   MF_KILLED       = _BV(7)
 };
 
@@ -98,6 +89,7 @@ extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
+  void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
 // Inactivity shutdown timer

@@ -433,7 +433,7 @@ bool MMU2::rx_ok() {
 void MMU2::check_version() {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
     SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
-    kill(GET_TEXT(MSG_MMU2_WRONG_FIRMWARE));
+    kill(GET_TEXT(MSG_KILL_MMU2_FIRMWARE));
   }
 }
 
@@ -707,14 +707,13 @@ void MMU2::filament_runout() {
     if (recover)  {
       LCD_MESSAGEPGM(MSG_MMU2_EJECT_RECOVER);
       BUZZ(200, 404);
-      wait_for_user = true;
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR);
       #endif
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover"));
       #endif
-      while (wait_for_user) idle();
+      wait_for_user_response();
       BUZZ(200, 404);
       BUZZ(200, 404);
 

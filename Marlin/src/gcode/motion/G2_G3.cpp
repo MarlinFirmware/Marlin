@@ -236,7 +236,7 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, seg_length
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
@@ -283,7 +283,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = true;
     #endif
 
-    get_destination_from_command();
+    get_destination_from_command();   // Get X Y Z E F (and set cutter power)
 
     #if ENABLED(SF_ARC_FIX)
       relative_mode = relative_mode_backup;

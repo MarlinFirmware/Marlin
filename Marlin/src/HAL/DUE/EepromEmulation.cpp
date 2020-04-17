@@ -57,7 +57,7 @@
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/Marduino.h"
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #define EEPROMSize     4096
 #define PagesPerGroup   128

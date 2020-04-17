@@ -60,6 +60,12 @@ union screen_data_t {
     struct base_numeric_adjustment_t placeholder;
     float e_rel[ExtUI::extruderCount];
   } MoveAxisScreen;
+#if HAS_MESH
+  struct {
+    uint8_t count;
+    uint8_t highlightedTag;
+  } BedMeshScreen;
+#endif
 #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
   struct {
     uint32_t next_watchdog_trigger;

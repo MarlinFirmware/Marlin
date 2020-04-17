@@ -55,6 +55,9 @@ enum {
   MAX_VELOCITY_SCREEN_CACHE,
   MAX_ACCELERATION_SCREEN_CACHE,
   DEFAULT_ACCELERATION_SCREEN_CACHE,
+#if HAS_MESH
+  BED_MESH_SCREEN_CACHE,
+#endif
 #if DISABLED(CLASSIC_JERK)
   JUNC_DEV_SCREEN_CACHE,
 #else
@@ -76,6 +79,7 @@ enum {
   PRINTING_SCREEN_CACHE,
 #endif
 #if ENABLED(TOUCH_UI_COCOA_PRESS)
+  PREHEAT_MENU_CACHE,
   PREHEAT_TIMER_SCREEN_CACHE,
 #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
@@ -99,7 +103,7 @@ enum {
 
 class BaseScreen : public UIScreen {
   protected:
-    #ifdef LCD_TIMEOUT_TO_STATUS
+    #if LCD_TIMEOUT_TO_STATUS
       static uint32_t last_interaction;
     #endif
 
@@ -128,6 +132,33 @@ class AboutScreen : public BaseScreen, public UncachedScreen {
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);
 };
+
+#if HAS_MESH
+class BedMeshScreen : public BaseScreen, public CachedScreen<BED_MESH_SCREEN_CACHE> {
+  private:
+    enum MeshOpts {
+      USE_POINTS    = 0x01,
+      USE_COLORS    = 0x02,
+      USE_TAGS      = 0x04,
+      USE_HIGHLIGHT = 0x08,
+      USE_AUTOSCALE = 0x10
+    };
+
+    static uint8_t pointToTag(uint8_t x, uint8_t y);
+    static bool tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y);
+    static float getHightlightedValue();
+    static void drawHighlightedPointValue();
+    static void drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max = 0.1);
+
+  public:
+    static void onMeshUpdate(const int8_t x, const int8_t y, const float val);
+    static void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t);
+    static void onEntry();
+    static void onRedraw(draw_mode_t);
+    static bool onTouchStart(uint8_t tag);
+    static bool onTouchEnd(uint8_t tag);
+};
+#endif
 
 #if ENABLED(PRINTCOUNTER)
   class StatisticsScreen : public BaseScreen, public UncachedScreen {
@@ -314,6 +345,12 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
 #endif
 
 #if ENABLED(TOUCH_UI_COCOA_PRESS)
+  class PreheatMenu : public BaseScreen, public CachedScreen<PREHEAT_MENU_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
   class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
     private:
       static uint16_t secondsRemaining();

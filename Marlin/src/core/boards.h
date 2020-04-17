@@ -144,6 +144,7 @@
 #define BOARD_LEAPFROG_XEED2015       1321  // Leapfrog Xeed 2015
 #define BOARD_PICA_REVB               1322  // PICA Shield (original version)
 #define BOARD_PICA                    1323  // PICA Shield (rev C or later)
+#define BOARD_INTAMSYS40              1324  // Intamsys 4.0 (Funmat HT)
 
 //
 // ATmega1281, ATmega2561
@@ -297,6 +298,9 @@
 #define BOARD_GTM32_MINI              4021  // STM32F103VET6 controller
 #define BOARD_GTM32_MINI_A30          4022  // STM32F103VET6 controller
 #define BOARD_GTM32_REV_B             4023  // STM32F103VET6 controller
+#define BOARD_MKS_ROBIN_E3D           4024  // MKS Robin E3D(STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3            4025  // MKS Robin E3(STM32F103RCT6)
+#define BOARD_MALYAN_M300             4026  // STM32F070-based delta
 
 //
 // ARM Cortex-M4F
@@ -318,7 +322,7 @@
 #define BOARD_BLACK_STM32F407ZE       4206  // BLACK_STM32F407ZE
 #define BOARD_STEVAL_3DP001V1         4207  // STEVAL-3DP001V1 3D PRINTER BOARD
 #define BOARD_BTT_SKR_PRO_V1_1        4208  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
-#define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VE)
+#define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VG)
 #define BOARD_BTT_GTR_V1_0            4210  // BigTreeTech GTR v1.0 (STM32F407IGT)
 #define BOARD_LERDGE_K                4211  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_X                4212  // Lerdge X (STM32F407VE)

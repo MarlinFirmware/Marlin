@@ -26,7 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  * Translated by Michal Holeš, Farma MaM
  * http://www.facebook.com/farmamam
@@ -189,8 +189,8 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Pamäťový slot");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Načítať sieť bodov");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Uložiť sieť bodov");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Sieť %i načítaná");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Sieť %i uložená");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Sieť %i načítaná");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Sieť %i uložená");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Nedostatok miesta");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Chyba: Ukladanie UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Chyba: Obnovenie UBL");
@@ -453,7 +453,7 @@ namespace Language_sk {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Osvetlenie");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Jas svetla");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Nesprávna tlačiareň");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Nesprávna tlačiareň");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Počet tlačí");
@@ -489,13 +489,13 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Tryska: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Senzor filamentu");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Vzd. mm fil. senz.");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Parkovanie zlyhalo");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Parkovanie zlyhalo");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Kalibrácia zlyhala");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Príliš studený");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("VYBERTE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU2");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Aktualizujte FW MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Aktualizujte FW MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU potrebuje zásah.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Obnoviť tlač");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Obnovovanie...");
@@ -545,7 +545,7 @@ namespace Language_sk {
   //
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Stlačte tlačidlo", "pre obnovu tlače"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkovanie..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkovanie..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Čakajte prosím", "na spustenie", "výmeny filamentu"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Vložte filament", "a stlačte tlačidlo", "pre pokračovanie"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Stlačte tlačidlo", "pre ohrev trysky"));
@@ -557,7 +557,7 @@ namespace Language_sk {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Čakajte prosím na", "obnovenie tlače..."));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Kliknite pre pokr."));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkovanie..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkovanie..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Čakajte prosím..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Vložte a kliknite"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Kliknite pre ohrev"));

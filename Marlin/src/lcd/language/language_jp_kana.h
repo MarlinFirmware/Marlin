@@ -26,7 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -228,7 +228,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD            = _UxGT(MSG_2_LINE("フィラメントソウテンチュウ", "シバラクオマチクダサイ"));   // "Wait for filament load"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME          = _UxGT(MSG_2_LINE("プリントヲサイカイシマス", "シバラクオマチクダサイ"));   // "Wait for print to resume"
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("マチガッタプリンター");               // "Wrong printer"
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("マチガッタプリンター");               // "Wrong printer"
 
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("セッテイカンリ");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("ショウサイセッテイ");

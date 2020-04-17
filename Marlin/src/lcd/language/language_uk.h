@@ -25,7 +25,7 @@
  * Ukrainian
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -194,7 +194,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Протокол");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Підсвітка");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неправильний принтер");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Неправильний принтер");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("К-сть друків");
