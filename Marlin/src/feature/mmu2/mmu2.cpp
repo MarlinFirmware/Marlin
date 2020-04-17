@@ -478,6 +478,25 @@ void MMU2::tool_change(uint8_t index) {
     manage_response(true, true);
 
     command(MMU_CMD_C0);
+    #if ENABLED(PRUSA_MMU2_S_MODE)
+      // if Filament has not reached gears, continue loading
+      manage_response(true, true);
+      LOOP_L_N(i, MMU2_C0_RETRY) {
+        if(!mmu2s_triggered){
+          command(MMU_CMD_C0);
+          manage_response(true, true);
+          check_filament();
+        }
+        else
+        {
+          break;
+        }
+          
+      }
+      if (mmu2s_triggered) {
+        bool success = can_load();
+        if (success && mmu2s_triggered) {
+    #endif
     extruder = index; //filament change is finished
     active_extruder = 0;
 
@@ -487,6 +506,18 @@ void MMU2::tool_change(uint8_t index) {
     SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
 
     ui.reset_status();
+
+    #if ENABLED(PRUSA_MMU2_S_MODE)
+        }
+      }
+      LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
+      BUZZ(100, 659);
+      BUZZ(200, 698);
+      BUZZ(100, 659);
+      BUZZ(300, 440);
+      BUZZ(100, 659);  
+      
+    #endif
   }
 
   set_runout_valid(true);
