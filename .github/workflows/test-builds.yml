@@ -44,7 +44,6 @@ jobs:
 
         # Extended STM32 Environments
 
-        - malyan_M300
         - STM32F103RC_btt
         - STM32F103RC_btt_USB
         - STM32F103RE_btt
@@ -58,6 +57,7 @@ jobs:
         - mks_robin
         - ARMED
         - FYSETC_S6
+        - malyan_M300
 
         # Put lengthy tests last
 
