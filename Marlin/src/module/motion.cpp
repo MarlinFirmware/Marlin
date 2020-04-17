@@ -1478,7 +1478,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
 
 /**
  * Move the axis back to its home_phase if set and driver is capable (TMC)
- * 
+ *
  * Improves homing repeatability by homing to stepper coil's nearest absolute
  * phase position. Trinamic drivers use a stepper phase table with 1024 values
  * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
@@ -1487,11 +1487,11 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
 {
   #ifdef TMC_HOME_PHASE
     static const abc_ulong_t home_phase = TMC_HOME_PHASE;
-    
+
     // check if home phase is disabled for this axis.
     if(home_phase[axis] < 0)
       return;
-      
+
     int axisMicrostepSize;
     int phaseCurrent;
     bool invertDir;
@@ -1505,14 +1505,14 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
           break;
       #endif
       #ifdef Y_MICROSTEPS
-        case Y_AXIS: 
+        case Y_AXIS:
           axisMicrostepSize = 256 / (Y_MICROSTEPS);
           phaseCurrent = stepperY.MSCNT();
           invertDir = INVERT_Y_DIR;
           break;
       #endif
       #ifdef Z_MICROSTEPS
-        case Z_AXIS: 
+        case Z_AXIS:
           axisMicrostepSize = 256 / (Z_MICROSTEPS);
           phaseCurrent = stepperZ.MSCNT();
           invertDir = INVERT_Z_DIR;
@@ -1520,23 +1520,22 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
       #endif
       default: return;
     }
-  
+
     // Depending on invert dir measure the distance to nearest home phase.
     int phaseDelta = invertDir ? phaseCurrent - home_phase[axis] : home_phase[axis] - phaseCurrent;
 
     // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
     if ((ABS(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05f)
-      DEBUG_ECHOLNPAIR(
-        "Selected home phase ", home_phase[axis], 
-        " too close to endstop trigger phase ", phaseCurrent, 
-        ". Pick a different phase for ", axis_codes[axis]);
+      DEBUG_ECHOLNPAIR("Selected home phase ", home_phase[axis],
+                       " too close to endstop trigger phase ", phaseCurrent,
+                       ". Pick a different phase for ", axis_codes[axis]);
 
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
     // Get the integer µsteps to target. Unreachable phase? Consistently stop at the µstep before / after based on invertDir.
     const float mmDelta = -(int(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * (Z_HOME_DIR));
-    
+
     // optional debug messages.
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOLNPAIR(
@@ -1545,14 +1544,13 @@ void backout_to_tmc_homing_phase(const AxisEnum axis)
       );
     }
 
-    if (mmDelta != 0) 
-    {
+    if (mmDelta != 0) {
       // retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
     }
   #endif
 }
-  
+
 
 /**
  * Home an individual "raw axis" to its endstop.
@@ -1828,10 +1826,10 @@ void homeaxis(const AxisEnum axis) {
     // so here it re-homes each tower in turn.
     // Delta homing treats the axes as normal linear axes.
 
-    const float adjDistance = delta_endstop_adj[axis];
-    const float minDistance = (MIN_STEPS_PER_SEGMENT) * planner.steps_to_mm[axis];
+    const float adjDistance = delta_endstop_adj[axis],
+                minDistance = (MIN_STEPS_PER_SEGMENT) * planner.steps_to_mm[axis];
 
-    // retrace by the amount specified in delta_endstop_adj if more than min steps.
+    // Retrace by the amount specified in delta_endstop_adj if more than min steps.
     if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("adjDistance:", adjDistance);
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
