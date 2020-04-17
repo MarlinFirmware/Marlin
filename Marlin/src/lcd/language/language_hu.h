@@ -251,6 +251,8 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Automatikus Mód");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Aktív Sebesség");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Készenlét");
+  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off")
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Folyás");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Folyás ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Konfiguráció");

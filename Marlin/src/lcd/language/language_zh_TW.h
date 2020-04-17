@@ -242,6 +242,8 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan =");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("額外風扇速率");     // "Extra fan speed"
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("額外風扇速率 =");
+  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
+  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("擠出速率");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("擠出速率 ~");     //"Flow"
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("控制");     //"Control"
