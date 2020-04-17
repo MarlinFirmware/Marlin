@@ -1482,15 +1482,13 @@ void set_axis_not_trusted(const AxisEnum axis) {
  * Improves homing repeatability by homing to stepper coil's nearest absolute
  * phase position. Trinamic drivers use a stepper phase table with 1024 values
  * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
-*/
-void backout_to_tmc_homing_phase(const AxisEnum axis)
-{
+ */
+void backout_to_tmc_homing_phase(const AxisEnum axis) {
   #ifdef TMC_HOME_PHASE
     static const abc_ulong_t home_phase = TMC_HOME_PHASE;
 
     // check if home phase is disabled for this axis.
-    if(home_phase[axis] < 0)
-      return;
+    if (home_phase[axis] < 0) return;
 
     int axisMicrostepSize;
     int phaseCurrent;
@@ -1627,14 +1625,7 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
   #endif
 
-  do_homing_move(axis, 1.5f * max_length(
-    #if ENABLED(DELTA)
-      Z_AXIS
-    #else
-      axis
-    #endif
-    ) * axis_home_dir
-  );
+  do_homing_move(axis, 1.5f * max_length(TERN(DELTA, Z_AXIS, axis) * axis_home_dir);
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
     if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
