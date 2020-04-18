@@ -27,9 +27,9 @@
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
  * Marlin 2.0.x bugfix Magyar fordítása. A fordítást folyamatosan javítom és frissítem.
  * A Magyar fordítást készítette: AntoszHUN
- * Youtube csatornám: https://www.youtube.com/3dprintingantosz
- * Ha szeretnél támogatni megteheted PayPal-on: https://www.paypal.me/3dprintingantosz
- * De akár Patreon-on is: https://www.patreon.com/3dprintingantosz
+ *
+ *
+ *
  */
 
 namespace Language_hu {
