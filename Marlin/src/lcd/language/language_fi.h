@@ -80,8 +80,6 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Alusta");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Tuul. nopeus");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Tuul. nopeus ~");
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Virtaus");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Virtaus ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrolli");

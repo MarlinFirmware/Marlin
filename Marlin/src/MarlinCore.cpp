@@ -188,24 +188,20 @@ const char NUL_STR[] PROGMEM = "",
            M21_STR[] PROGMEM = "M21",
            M23_STR[] PROGMEM = "M23 %s",
            M24_STR[] PROGMEM = "M24",
-          M600_STR[] PROGMEM = "M600",
-           M84_STR[] PROGMEM = "M84",
-          M106_STR[] PROGMEM = "M106",
-          M107_STR[] PROGMEM = "M107",
-          SP_P_STR[] PROGMEM = " P",
-          SP_T_STR[] PROGMEM = " T",
-          SP_X_STR[] PROGMEM = " X",
-          SP_Y_STR[] PROGMEM = " Y",
-          SP_Z_STR[] PROGMEM = " Z",
-          SP_E_STR[] PROGMEM = " E",
-             X_LBL[] PROGMEM =  "X:",
-             Y_LBL[] PROGMEM =  "Y:",
-             Z_LBL[] PROGMEM =  "Z:",
-             E_LBL[] PROGMEM =  "E:",
-          SP_X_LBL[] PROGMEM = " X:",
-          SP_Y_LBL[] PROGMEM = " Y:",
-          SP_Z_LBL[] PROGMEM = " Z:",
-          SP_E_LBL[] PROGMEM = " E:";
+           SP_P_STR[] PROGMEM = " P",
+           SP_T_STR[] PROGMEM = " T",
+           SP_X_STR[] PROGMEM = " X",
+           SP_Y_STR[] PROGMEM = " Y",
+           SP_Z_STR[] PROGMEM = " Z",
+           SP_E_STR[] PROGMEM = " E",
+              X_LBL[] PROGMEM =  "X:",
+              Y_LBL[] PROGMEM =  "Y:",
+              Z_LBL[] PROGMEM =  "Z:",
+              E_LBL[] PROGMEM =  "E:",
+           SP_X_LBL[] PROGMEM = " X:",
+           SP_Y_LBL[] PROGMEM = " Y:",
+           SP_Z_LBL[] PROGMEM = " Z:",
+           SP_E_LBL[] PROGMEM = " E:";
 
 MarlinState marlin_state = MF_INITIALIZING;
 
@@ -534,62 +530,6 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
         queue.enqueue_now_P(G28_STR);
-      }
-    }
-  #endif
-  
-  #if HAS_FILAMENTCHANGE
-      // Handle a standalone FILAMENTCHANGE button
-    constexpr millis_t FILAMENTCHANGE_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_filamentchange_key_ms; // = 0
-    if (!READ(FILAMENTCHANGE_PIN)) { // FILAMENTCHANGE_PIN goes LOW when pressed
-      const millis_t ms = millis();
-      if (ELAPSED(ms, next_filamentchange_key_ms)) {
-        next_filamentchange_key_ms = ms + FILAMENTCHANGE_DEBOUNCE_DELAY;
-        LCD_MESSAGEPGM(MSG_FILAMENTCHANGE);
-        queue.enqueue_now_P(M600_STR);
-      }
-    }
-  #endif
-  
-  #if HAS_DISABLE_STEPPERS
-    // Handle a standalone disable_steppers button
-    constexpr millis_t DISABLE_STEPPERS_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_disable_steppers_key_ms; // = 0
-    if (!IS_SD_PRINTING() && !READ(DISABLE_STEPPERS_PIN)) { // DISABLE_STEPPERS goes LOW when pressed
-      const millis_t ms = millis();
-      if (ELAPSED(ms, next_disable_steppers_key_ms)) {
-        next_disable_steppers_key_ms = ms + DISABLE_STEPPERS_DEBOUNCE_DELAY;
-        LCD_MESSAGEPGM(MSG_DISABLE_STEPPERS);
-        queue.enqueue_now_P(M84_STR);
-      }
-    }
-  #endif
-  
-  #if HAS_FAN_ON
-    // Handle a standalone FAN_ON button
-    constexpr millis_t FAN_ON_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_fan_on_key_ms; // = 0
-    if (!READ(FAN_ON_PIN)) { // FAN_ON_PIN goes LOW when pressed
-      const millis_t ms = millis();
-      if (ELAPSED(ms, next_fan_on_key_ms)) {
-        next_fan_on_key_ms = ms + FAN_ON_DEBOUNCE_DELAY;
-        LCD_MESSAGEPGM(MSG_FAN_ON);
-        queue.enqueue_now_P(M106_STR);
-      }
-    }
-  #endif
-
-  #if HAS_FAN_OFF
-    // Handle a standalone FAN_OFF button
-    constexpr millis_t FAN_OFF_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_fan_off_key_ms; // = 0
-    if (!READ(FAN_OFF_PIN)) { // FAN_OFF_PIN goes LOW when pressed
-      const millis_t ms = millis();
-      if (ELAPSED(ms, next_fan_off_key_ms)) {
-        next_fan_off_key_ms = ms + FAN_OFF_DEBOUNCE_DELAY;
-        LCD_MESSAGEPGM(MSG_FAN_OFF);
-        queue.enqueue_now_P(M107_STR);
       }
     }
   #endif
@@ -1144,22 +1084,6 @@ void setup() {
 
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
-  #endif
-  
-  #if HAS_FILAMENTCHANGE
-    SET_INPUT_PULLUP(FILAMENTCHANGE_PIN);
-  #endif
-  
-  #if HAS_DISABLE_STEPPERS
-    SET_INPUT_PULLUP(DISABLE_STEPPERS_PIN);
-  #endif
-  
-  #if HAS_FAN_ON
-    SET_INPUT_PULLUP(FAN_ON_PIN);
-  #endif
-
-  #if HAS_FAN_OFF
-    SET_INPUT_PULLUP(FAN_OFF_PIN);
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)

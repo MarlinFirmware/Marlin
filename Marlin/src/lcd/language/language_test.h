@@ -155,8 +155,6 @@ namespace Language_test {
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
     PROGMEM Language_Str MSG_FAN_SPEED                       = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
-	PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-    PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
