@@ -150,8 +150,6 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Haizagailu abiadura ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Haiz.gehig. abiadura");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Haiz.gehig. abiadura ~");
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Fluxua");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Fluxua ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrola");

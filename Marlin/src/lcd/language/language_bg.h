@@ -84,8 +84,6 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" Легло");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Вентилатор");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Вентилатор ~");
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Поток");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Поток ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Управление");

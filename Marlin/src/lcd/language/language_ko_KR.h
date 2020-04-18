@@ -80,8 +80,6 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("펜 속도 ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("엑스트라 펜 속도");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("엑스트라 펜 속도 ~");
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("온도");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("동작");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("설정 저장하기");

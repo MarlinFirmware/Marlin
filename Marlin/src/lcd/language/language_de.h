@@ -241,8 +241,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Motorlast Modus");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Lüfter Motorlast");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Ausschalt Delay");
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flussrate");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flussrate ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Einstellungen");

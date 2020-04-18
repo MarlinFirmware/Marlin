@@ -227,8 +227,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Автовключение");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Рабочие обороты");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Простой после");
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Поток");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Поток ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Настройки");

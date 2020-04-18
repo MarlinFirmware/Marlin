@@ -102,8 +102,6 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("ノズル");                       // "Nozzle"
   PROGMEM Language_Str MSG_BED                             = _UxGT("ベッド");                       // "Bed"
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("ファンソクド");                    // "Fan speed"
-  PROGMEM Language_Str MSG_FAN_ON                          = _UxGT("Fan on");
-  PROGMEM Language_Str MSG_FAN_OFF                         = _UxGT("Fan off");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("トシュツリョウ");                   // "Flow"
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("セイギョ");                      // "Control"
   PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER _UxGT(" サイテイ"); // " Min"
