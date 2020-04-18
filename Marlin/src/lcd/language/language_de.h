@@ -150,9 +150,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = PREHEAT_1_LABEL _UxGT(" Netz validieren");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = PREHEAT_2_LABEL _UxGT(" Netz validieren");
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Eig. Netz validieren");
-  PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Bett aufheizen");
-  PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Düse aufheizen");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 heizt Bett");
+  PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Düse aufheizen");
   PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Feste Länge Prime");
   PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("Priming fertig");
   PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26 abgebrochen");
@@ -233,7 +232,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Düse");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Düse ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Düse geparkt");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Düse Standby");
+  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Düsen-Standby");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bett");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Gehäuse");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Lüfter");
@@ -322,7 +321,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("SD-Druck pausieren");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("SD-Druck fortsetzen");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("SD-Druck abbrechen");
-  PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Zurück");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Objekt abbrechen");
   PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Objekt abbrechen =");
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Wiederh. n. Stroma.");
@@ -352,7 +350,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z anheben");
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Prime-Geschwin.");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Einzug-Geschwin.");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Düsen-Standby");
+
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Filament wechseln");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Filament wechseln *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Filament laden");
@@ -386,9 +384,9 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Z-Sonde ausfahren");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Z-Sonde einfahren");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Vorher %s%s%s homen");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Sondenversatz");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Sondenversatz X");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Sondenversatz Y");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Sondenversatz");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Sondenversatz X");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Sondenversatz Y");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Sondenversatz Z");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
