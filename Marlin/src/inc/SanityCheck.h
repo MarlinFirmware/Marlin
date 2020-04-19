@@ -1581,6 +1581,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 // Pins are required for heaters
 #if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif HOTENDS && !HAS_TEMP_HOTEND
+  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
 #endif
