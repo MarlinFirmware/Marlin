@@ -45,19 +45,19 @@ static byte current_to_wiper(const float current) {
 
 static SlowSoftI2CMaster pots[DIGIPOT_I2C_NUM_CHANNELS] = {
   SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_X, DIGIPOTS_I2C_SCL)
-  #if DIGIPOT_I2C_NUM_CHANNELS >= 2
+  #if DIGIPOT_I2C_NUM_CHANNELS > 1
     , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_Y, DIGIPOTS_I2C_SCL)
-    #if DIGIPOT_I2C_NUM_CHANNELS >= 3
+    #if DIGIPOT_I2C_NUM_CHANNELS > 2
       , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_Z, DIGIPOTS_I2C_SCL)
-      #if DIGIPOT_I2C_NUM_CHANNELS >= 4
+      #if DIGIPOT_I2C_NUM_CHANNELS > 3
         , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E0, DIGIPOTS_I2C_SCL)
-        #if DIGIPOT_I2C_NUM_CHANNELS >= 5
+        #if DIGIPOT_I2C_NUM_CHANNELS > 4
           , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E1, DIGIPOTS_I2C_SCL)
-          #if DIGIPOT_I2C_NUM_CHANNELS >= 6
+          #if DIGIPOT_I2C_NUM_CHANNELS > 5
             , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E2, DIGIPOTS_I2C_SCL)
-            #if DIGIPOT_I2C_NUM_CHANNELS >= 7
+            #if DIGIPOT_I2C_NUM_CHANNELS > 6
               , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E3, DIGIPOTS_I2C_SCL)
-              #if DIGIPOT_I2C_NUM_CHANNELS >= 8
+              #if DIGIPOT_I2C_NUM_CHANNELS > 7
                 , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E4, DIGIPOTS_I2C_SCL)
               #endif
             #endif
