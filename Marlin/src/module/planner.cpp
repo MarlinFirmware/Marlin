@@ -2133,17 +2133,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if EXTRUDERS
     {
       current_speed.e = steps_dist_mm.e * inverse_secs;
-      #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
+      #if HAS_MIXER_SYNC_CHANNEL
         // Move all mixing extruders at the specified rate
         if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
           current_speed.e *= MIXING_STEPPERS;
       #endif
       const feedRate_t cs = ABS(current_speed.e),
-                   max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                              #if BOTH(MIXING_EXTRUDER, RETRACT_SYNC_MIXING)
-                                * MIXING_STEPPERS
-                              #endif
-                            );
+                   max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
+                            * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
       if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
     }
   #endif
