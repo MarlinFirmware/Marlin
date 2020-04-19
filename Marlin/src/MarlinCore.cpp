@@ -1161,10 +1161,6 @@ void setup() {
     SETUP_RUN(est_init());
   #endif
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    SETUP_RUN(recovery.check());
-  #endif
-
   #if ENABLED(USE_WATCHDOG)
     SETUP_RUN(watchdog_init());       // Reinit watchdog after HAL_get_reset_source call
   #endif

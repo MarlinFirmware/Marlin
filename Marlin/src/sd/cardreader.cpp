@@ -408,8 +408,13 @@ void CardReader::manage_media() {
 
     ui.media_changed(old_stat, stat); // Update the UI
 
-    if (stat && old_stat == 2)        // First mount?
-      beginautostart();               // Look for autostart files soon
+    if (stat && old_stat == 2) {      // First mount?
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        recovery.check();
+      #else
+        beginautostart();             // Look for autostart files soon
+      #endif
+    }
   }
 }
 
