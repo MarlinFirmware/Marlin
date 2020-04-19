@@ -44,32 +44,25 @@ static byte current_to_wiper(const float current) {
   return byte(constrain(value, 0, DIGIPOT_MCP4018_MAX_VALUE));
 }
 
-const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {
-  DIGIPOTS_I2C_SDA_X
-  #if DIGIPOT_I2C_NUM_CHANNELS > 1
-    , DIGIPOTS_I2C_SDA_Y
-    #if DIGIPOT_I2C_NUM_CHANNELS > 2
-      , DIGIPOTS_I2C_SDA_Z
-      #if DIGIPOT_I2C_NUM_CHANNELS > 3
-        , DIGIPOTS_I2C_SDA_E0
-        #if DIGIPOT_I2C_NUM_CHANNELS > 4
-          , DIGIPOTS_I2C_SDA_E1
-        #endif
-      #endif
-    #endif
-  #endif
-};
-
 static SlowSoftI2CMaster pots[DIGIPOT_I2C_NUM_CHANNELS] = {
-  SlowSoftI2CMaster { sda_pins[X_AXIS], DIGIPOTS_I2C_SCL }
-  #if DIGIPOT_I2C_NUM_CHANNELS > 1
-    , SlowSoftI2CMaster { sda_pins[Y_AXIS], DIGIPOTS_I2C_SCL }
-    #if DIGIPOT_I2C_NUM_CHANNELS > 2
-      , SlowSoftI2CMaster { sda_pins[Z_AXIS], DIGIPOTS_I2C_SCL }
-      #if DIGIPOT_I2C_NUM_CHANNELS > 3
-        , SlowSoftI2CMaster { sda_pins[E_AXIS], DIGIPOTS_I2C_SCL }
-        #if DIGIPOT_I2C_NUM_CHANNELS > 4
-          , SlowSoftI2CMaster { sda_pins[E_AXIS + 1], DIGIPOTS_I2C_SCL }
+  SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_X, DIGIPOTS_I2C_SCL)
+  #if DIGIPOT_I2C_NUM_CHANNELS >= 2
+    , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_Y, DIGIPOTS_I2C_SCL)
+    #if DIGIPOT_I2C_NUM_CHANNELS >= 3
+      , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_Z, DIGIPOTS_I2C_SCL)
+      #if DIGIPOT_I2C_NUM_CHANNELS >= 4
+        , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E0, DIGIPOTS_I2C_SCL)
+        #if DIGIPOT_I2C_NUM_CHANNELS >= 5
+          , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E1, DIGIPOTS_I2C_SCL)
+          #if DIGIPOT_I2C_NUM_CHANNELS >= 6
+            , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E2, DIGIPOTS_I2C_SCL)
+            #if DIGIPOT_I2C_NUM_CHANNELS >= 7
+              , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E3, DIGIPOTS_I2C_SCL)
+              #if DIGIPOT_I2C_NUM_CHANNELS >= 8
+                , SlowSoftI2CMaster(DIGIPOTS_I2C_SDA_E4, DIGIPOTS_I2C_SCL)
+              #endif
+            #endif
+          #endif
         #endif
       #endif
     #endif
