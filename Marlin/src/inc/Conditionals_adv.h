@@ -113,6 +113,10 @@
   #define HAS_LEDS_OFF_FLAG 1
 #endif
 
+#if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+  #define HAS_I2C_DIGIPOT 1
+#endif
+
 // Multiple Z steppers
 #ifndef NUM_Z_STEPPER_DRIVERS
   #define NUM_Z_STEPPER_DRIVERS 1
