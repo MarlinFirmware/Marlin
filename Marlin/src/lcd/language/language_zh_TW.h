@@ -379,21 +379,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("重置BLTouch");     // "Reset BLTouch"
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("裝載BLTouch");     // "Stow BLTouch"
   PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("部署BLTouch");     // "Deploy BLTouch"
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: SW-Mode");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: 5V-Mode");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: OD-Mode");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: Mode-Store");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Set BLTouch to 5V");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Set BLTouch to OD");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Report Drain");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?");
-  PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
-  PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("Init TouchMI");
-  PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Z Offset Test");
-  PROGMEM Language_Str MSG_TOUCHMI_SAVE                    = _UxGT("Save");
-  PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("Deploy TouchMI");
-  PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Deploy Z-Probe");
-  PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
+
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("歸位 %s%s%s 先");     //"Home ... first"
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("探針偏移");   //Probe Offsets
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("探針X偏移量");   //Probe X Offset
@@ -500,52 +486,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探針探測失敗");     // "Probing failed"
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太冷");     // "M600: Too cold"
 
-  PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
-  PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
-  PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Needs Attention.");
-  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("MMU Resume");
-  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("MMU Resuming...");
-  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("MMU Load");
-  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("MMU Load All");
-  PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("MMU Load to Nozzle");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("MMU Eject");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("MMU Eject ~");
-  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("MMU Unload");
-  PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Loading Fil. %i...");
-  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Ejecting Fil. ...");
-  PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("Unloading Fil....");
-  PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("All");
-  PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("Filament ~");
-  PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("Reset MMU");
-  PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("MMU Resetting...");
-  PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Remove, click");
-
-  PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Component =");
-  PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixer");
-  PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
-  PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Full Gradient");
-  PROGMEM Language_Str MSG_TOGGLE_MIX                      = _UxGT("Toggle Mix");
-  PROGMEM Language_Str MSG_CYCLE_MIX                       = _UxGT("Cycle Mix");
-  PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("Gradient Mix");
-  PROGMEM Language_Str MSG_REVERSE_GRADIENT                = _UxGT("Reverse Gradient");
-  PROGMEM Language_Str MSG_ACTIVE_VTOOL                    = _UxGT("Active V-tool");
-  PROGMEM Language_Str MSG_START_VTOOL                     = _UxGT("Start V-tool");
-  PROGMEM Language_Str MSG_END_VTOOL                       = _UxGT("  End V-tool");
-  PROGMEM Language_Str MSG_GRADIENT_ALIAS                  = _UxGT("Alias V-tool");
-  PROGMEM Language_Str MSG_RESET_VTOOLS                    = _UxGT("Reset V-tools");
-  PROGMEM Language_Str MSG_COMMIT_VTOOL                    = _UxGT("Commit V-tool Mix");
-  PROGMEM Language_Str MSG_VTOOLS_RESET                    = _UxGT("V-tools Were Reset");
-  PROGMEM Language_Str MSG_START_Z                         = _UxGT("Start Z:");
-  PROGMEM Language_Str MSG_END_Z                           = _UxGT("  End Z:");
-
-  PROGMEM Language_Str MSG_GAMES                           = _UxGT("Games");
-  PROGMEM Language_Str MSG_BRICKOUT                        = _UxGT("Brickout");
-  PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
-  PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
-  PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
-
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display
@@ -576,20 +516,6 @@ namespace Language_zh_TW {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("恢復中 ..."));     //"Resuming..."
   #endif // LCD_HEIGHT < 4
 
-  PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("TMC Drivers");
-  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Driver Current");
-  PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("Hybrid Threshold");
-  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Sensorless Homing");
-  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Stepping Mode");
-  PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("StealthChop Enabled");
-  PROGMEM Language_Str MSG_SERVICE_RESET                   = _UxGT("Reset");
-  PROGMEM Language_Str MSG_SERVICE_IN                      = _UxGT(" in:");
-  PROGMEM Language_Str MSG_BACKLASH                        = _UxGT("Backlash");
-  PROGMEM Language_Str MSG_BACKLASH_A                      = LCD_STR_A;
-  PROGMEM Language_Str MSG_BACKLASH_B                      = LCD_STR_B;
-  PROGMEM Language_Str MSG_BACKLASH_C                      = LCD_STR_C;
-  PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Correction");
-  PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Smoothing");
 }
 
 #if FAN_COUNT == 1
