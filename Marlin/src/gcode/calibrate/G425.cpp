@@ -51,7 +51,6 @@
   #undef CALIBRATION_MEASURE_AT_TOP_EDGES
 #endif
 
-
 /**
  * G425 backs away from the calibration object by various distances
  * depending on the confidence level:
@@ -256,7 +255,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
     #endif
   }
 
-  if (AXIS_CAN_CALIBRATE(X) && axis == X_AXIS || AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS) {
+  if ((AXIS_CAN_CALIBRATE(X) && axis == X_AXIS) || (AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS)) {
     // Move to safe distance to the side of the calibration object
     current_position[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty);
     calibration_move();

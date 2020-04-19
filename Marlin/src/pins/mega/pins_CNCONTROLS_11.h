@@ -95,10 +95,22 @@
   //#define FAN_PIN                            7  // common PWM pin for all tools
 #endif
 
-#define ORIG_E0_AUTO_FAN_PIN                   7
-#define ORIG_E1_AUTO_FAN_PIN                   7
-#define ORIG_E2_AUTO_FAN_PIN                   7
-#define ORIG_E3_AUTO_FAN_PIN                   7
+//
+// Auto fans
+//
+#define AUTO_FAN_PIN                           7
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
 
 //
 // Misc. Functions

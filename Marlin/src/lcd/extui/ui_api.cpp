@@ -780,7 +780,7 @@ namespace ExtUI {
      */
     int16_t mmToWholeSteps(const float mm, const axis_t axis) {
       const float steps = mm / planner.steps_to_mm[axis];
-      return steps > 0 ? ceil(steps) : floor(steps);
+      return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
   #endif
 
@@ -1069,6 +1069,12 @@ namespace ExtUI {
     char msg[strlen_P(pstr) + 1];
     strcpy_P(msg, pstr);
     onUserConfirmRequired(msg);
+  }
+
+  void onStatusChanged_P(PGM_P const pstr) {
+    char msg[strlen_P(pstr) + 1];
+    strcpy_P(msg, pstr);
+    onStatusChanged(msg);
   }
 
   FileList::FileList() { refresh(); }

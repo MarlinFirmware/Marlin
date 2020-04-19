@@ -489,6 +489,16 @@
   #error "Z_QUAD_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
 #elif defined(DUGS_UI_MOVE_DIS_OPTION)
   #error "DUGS_UI_MOVE_DIS_OPTION is spelled DGUS_UI_MOVE_DIS_OPTION. Please update Configuration_adv.h."
+#elif defined(ORIG_E0_AUTO_FAN_PIN) || defined(ORIG_E1_AUTO_FAN_PIN) || defined(ORIG_E2_AUTO_FAN_PIN) || defined(ORIG_E3_AUTO_FAN_PIN) || defined(ORIG_E4_AUTO_FAN_PIN) || defined(ORIG_E5_AUTO_FAN_PIN) || defined(ORIG_E6_AUTO_FAN_PIN) || defined(ORIG_E7_AUTO_FAN_PIN)
+  #error "ORIG_Ex_AUTO_FAN_PIN is now just Ex_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(ORIG_CHAMBER_AUTO_FAN_PIN)
+  #error "ORIG_CHAMBER_AUTO_FAN_PIN is now just CHAMBER_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(HOMING_BACKOFF_MM)
+  #error "HOMING_BACKOFF_MM is now HOMING_BACKOFF_POST_MM. Please update Configuration_adv.h."
+#elif defined(X_HOME_BUMP_MM) || defined(Y_HOME_BUMP_MM) || defined(Z_HOME_BUMP_MM)
+  #error "[XYZ]_HOME_BUMP_MM is now HOMING_BUMP_MM. Please update Configuration_adv.h."
+#elif defined(DIGIPOT_I2C)
+  #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #endif
 
 /**
@@ -1579,6 +1589,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 // Pins are required for heaters
 #if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif HOTENDS && !HAS_TEMP_HOTEND
+  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
 #endif
@@ -1807,8 +1819,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Endstop Tests
  */
 
-#define _PLUG_UNUSED_TEST(AXIS,PLUG) (DISABLED(USE_##PLUG##MIN_PLUG, USE_##PLUG##MAX_PLUG) && !(ENABLED(AXIS##_DUAL_ENDSTOPS) && WITHIN(AXIS##2_USE_ENDSTOP, _##PLUG##MAX_, _##PLUG##MIN_)))
-#define _AXIS_PLUG_UNUSED_TEST(AXIS) (_PLUG_UNUSED_TEST(AXIS,X) && _PLUG_UNUSED_TEST(AXIS,Y) && _PLUG_UNUSED_TEST(AXIS,Z))
+#define _PLUG_UNUSED_TEST(A,P) (DISABLED(USE_##P##MIN_PLUG, USE_##P##MAX_PLUG) \
+  && !(ENABLED(A##_DUAL_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) \
+  && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
+#define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
 // At least 3 endstop plugs must be used
 #if _AXIS_PLUG_UNUSED_TEST(X)
@@ -1833,8 +1847,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Enable USE_YMAX_PLUG when homing Y to MAX."
   #endif
 #endif
-#if Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
+
+// Z homing direction and plug usage flags
+#if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
   #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+#elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
   #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
 #endif
@@ -2429,10 +2447,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Digipot requirement
  */
-#if ENABLED(DIGIPOT_MCP4018)
-  #if !defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) \
+#if HAS_I2C_DIGIPOT
+  #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+    #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
+  #elif !defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) \
     || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1)
-      #error "DIGIPOT_MCP4018 requires DIGIPOTS_I2C_SDA_* pins to be defined."
+      #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif
 #endif
 

@@ -453,7 +453,7 @@ namespace Language_sk {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Osvetlenie");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Jas svetla");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Nesprávna tlačiareň");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Nesprávna tlačiareň");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Počet tlačí");
@@ -489,13 +489,13 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Tryska: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Senzor filamentu");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Vzd. mm fil. senz.");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Parkovanie zlyhalo");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Parkovanie zlyhalo");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Kalibrácia zlyhala");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Príliš studený");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("VYBERTE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU2");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Aktualizujte FW MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Aktualizujte FW MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU potrebuje zásah.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Obnoviť tlač");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Obnovovanie...");

@@ -407,7 +407,7 @@ namespace Language_ru {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Подсветка корпуса");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яркость подсветки");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неверный принтер");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Неверный принтер");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Счётчик печати");
@@ -438,7 +438,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("Выдавить ещё");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Возобновить печать");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Сопла: ");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Возврат не удался");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Возврат не удался");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Не удалось прощупать");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Низкая Т");
 

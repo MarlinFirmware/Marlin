@@ -31,7 +31,7 @@
 #define ENABLE_I2C_PULLUPS
 
 // Chip address (for Wire)
-#define PCA9533_Addr        0xC4 
+#define PCA9533_Addr        0xC4
 
 // Control registers
 #define PCA9533_REG_READ    0x00

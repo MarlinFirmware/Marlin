@@ -206,7 +206,7 @@
   // A well-chosen Kc value should add just enough power to melt the increased material volume.
   //#define PID_EXTRUSION_SCALING
   #if ENABLED(PID_EXTRUSION_SCALING)
-    #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
+    #define DEFAULT_Kc (100) // heating power = Kc * e_speed
     #define LPQ_MAX_LEN 50
   #endif
 
@@ -262,18 +262,28 @@
 #endif
 
 /**
- * Automatic Temperature:
- * The hotend target temperature is calculated by all the buffered lines of gcode.
- * The maximum buffered steps/sec of the extruder motor is called "se".
- * Start autotemp mode with M109 S<mintemp> B<maxtemp> F<factor>
- * The target temperature is set to mintemp+factor*se[steps/sec] and is limited by
- * mintemp and maxtemp. Turn this off by executing M109 without F*
- * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
- * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
+ * Automatic Temperature Mode
+ *
+ * Dynamically adjust the hotend target temperature based on planned E moves.
+ *
+ * (Contrast with PID_EXTRUSION_SCALING, which tracks E movement and adjusts PID
+ *  behavior using an additional kC value.)
+ *
+ * Autotemp is calculated by (mintemp + factor * mm_per_sec), capped to maxtemp.
+ *
+ * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
+ * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
  */
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT 0.98
+  #define AUTOTEMP_OLDWEIGHT    0.98
+  // Turn on AUTOTEMP on M104/M109 by default using proportions set here
+  //#define AUTOTEMP_PROPORTIONAL
+  #if ENABLED(AUTOTEMP_PROPORTIONAL)
+    #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
+    #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
+    #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
+  #endif
 #endif
 
 // Extra options for the M114 "Current Position" report
@@ -425,6 +435,8 @@
 #define E3_AUTO_FAN_PIN -1
 #define E4_AUTO_FAN_PIN -1
 #define E5_AUTO_FAN_PIN -1
+#define E6_AUTO_FAN_PIN -1
+#define E7_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
 
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
@@ -580,8 +592,7 @@
 
   // Default x offset in duplication mode (typically set to half print bed width)
   #define DEFAULT_DUPLICATION_X_OFFSET 100
-
-#endif // DUAL_X_CARRIAGE
+#endif
 
 // Activate a solenoid on the active extruder with M380. Disable all with M381.
 // Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
@@ -589,19 +600,24 @@
 
 // @section homing
 
-// Homing hits each endstop, retracts by these distances, then does a slower bump.
-#define X_HOME_BUMP_MM 5
-#define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 2
-#define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-//#define QUICK_HOME                     // If homing includes X and Y, do a diagonal move initially
-//#define HOMING_BACKOFF_MM { 2, 2, 2 }  // (mm) Move away from the endstops after homing
+/**
+ * Homing Procedure
+ * Homing (G28) does an indefinite move towards the endstops to establish
+ * the position of the toolhead relative to the workspace.
+ */
 
-// When G28 is called, this option will make Y home before X
-//#define HOME_Y_BEFORE_X
+//#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
 
-// Enable this if X or Y can't home without homing the other axis first.
-//#define CODEPENDENT_XY_HOMING
+#define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
+#define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+
+//#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
+
+//#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
+//#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
+//#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
+
+// @section bltouch
 
 #if ENABLED(BLTOUCH)
   /**
@@ -669,6 +685,8 @@
   //#define BLTOUCH_LCD_VOLTAGE_MENU
 
 #endif // BLTOUCH
+
+// @section extras
 
 /**
  * Z Steppers Auto-Alignment
@@ -908,9 +926,20 @@
 //#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 //#define DAC_MOTOR_CURRENT_DEFAULT { 70, 80, 90, 80 }    // Default drive percent - X, Y, Z, E axis
 
-// Use an I2C based DIGIPOT (e.g., Azteeg X3 Pro)
-//#define DIGIPOT_I2C
-#if ENABLED(DIGIPOT_I2C) && !defined(DIGIPOT_I2C_ADDRESS_A)
+/**
+ * I2C-based DIGIPOTs (e.g., Azteeg X3 Pro)
+ */
+//#define DIGIPOT_MCP4018             // Requires https://github.com/stawel/SlowSoftI2CMaster
+//#define DIGIPOT_MCP4451
+#if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+  #define DIGIPOT_I2C_NUM_CHANNELS 8  // 5DPRINT:4   AZTEEG_X3_PRO:8   MKS_SBASE:5   MIGHTYBOARD_REVE:5
+
+  // Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
+  // These correspond to the physical drivers, so be mindful if the order is changed.
+  #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
+
+  //#define DIGIPOT_USE_RAW_VALUES    // Use DIGIPOT_MOTOR_CURRENT raw wiper values (instead of A4988 motor currents)
+
   /**
    * Common slave addresses:
    *
@@ -921,15 +950,9 @@
    * AZTEEG_X5_MINI_WIFI         0x58              0x5C        MCP4451
    * MIGHTYBOARD_REVE      0x2F (0x5E)                         MCP4018
    */
-  #define DIGIPOT_I2C_ADDRESS_A 0x2C  // unshifted slave address for first DIGIPOT
-  #define DIGIPOT_I2C_ADDRESS_B 0x2D  // unshifted slave address for second DIGIPOT
+  //#define DIGIPOT_I2C_ADDRESS_A 0x2C  // Unshifted slave address for first DIGIPOT
+  //#define DIGIPOT_I2C_ADDRESS_B 0x2D  // Unshifted slave address for second DIGIPOT
 #endif
-
-//#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
-#define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8     MKS SBASE: 5
-// Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
-// These correspond to the physical drivers, so be mindful if the order is changed.
-#define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -1034,6 +1057,8 @@
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
   //#define SD_DETECT_STATE HIGH
+
+  #define SD_PROCEDURE_DEPTH 1              // Increase if you need more nested M32 calls
 
   #define SD_FINISHED_STEPPERRELEASE true   // Disable steppers when SD Print is finished
   #define SD_FINISHED_RELEASECOMMAND "M84"  // Use "M84XYE" to keep Z enabled so your bed stays in place
@@ -1342,6 +1367,7 @@
   //#define LCD_HAOYU_FT800CB         // Haoyu with 4.3" or 5" (480x272)
   //#define LCD_HAOYU_FT810CB         // Haoyu with 5" (800x480)
   //#define LCD_ALEPHOBJECTS_CLCD_UI  // Aleph Objects Color LCD UI
+  //#define LCD_FYSETC_TFT81050       // FYSETC with 5" (800x480)
 
   // Correct the resolution if not using the stock TFT panel.
   //#define TOUCH_UI_320x240
@@ -2304,7 +2330,7 @@
    *    HIGHEST       255      -64    (Too sensitive => False positive)
    *    LOWEST         0        63    (Too insensitive => No trigger)
    *
-   * It is recommended to set [XYZ]_HOME_BUMP_MM to 0.
+   * It is recommended to set HOMING_BUMP_MM to { 0, 0, 0 }.
    *
    * SPI_ENDSTOPS  *** Beta feature! *** TMC2130 Only ***
    * Poll the driver through SPI to determine load when homing.

@@ -284,7 +284,7 @@ void menu_temperature() {
     //
     bool has_heat = false;
     HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       if (thermalManager.temp_bed.target) has_heat = true;
     #endif
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);

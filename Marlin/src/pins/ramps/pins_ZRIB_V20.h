@@ -39,10 +39,21 @@
 #define ZRIB_V20_D29_PIN                      29
 #define ZRIB_V20_D37_PIN                      37
 
-#define ORIG_E0_AUTO_FAN_PIN     ZRIB_V20_D6_PIN
-#define ORIG_E1_AUTO_FAN_PIN     ZRIB_V20_D6_PIN
-#define ORIG_E2_AUTO_FAN_PIN     ZRIB_V20_D6_PIN
-#define ORIG_E3_AUTO_FAN_PIN     ZRIB_V20_D6_PIN
+//
+// Auto fans
+//
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN        ZRIB_V20_D6_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN        ZRIB_V20_D6_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN        ZRIB_V20_D6_PIN
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN        ZRIB_V20_D6_PIN
+#endif
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                        11  // Analog Input

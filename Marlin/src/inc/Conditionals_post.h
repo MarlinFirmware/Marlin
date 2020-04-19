@@ -147,7 +147,7 @@
     #define Z_AXIS_INDEX 2
     #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B##_INDEX)
   #else
-    #define CAN_CALIBRATE(...) 1
+    #define CAN_CALIBRATE(A,B) 1
   #endif
 #endif
 #define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
@@ -339,7 +339,7 @@
   #endif
 
   #if DISABLED(SHARED_SD_CARD)
-    #define INIT_SDCARD_ON_BOOT 1
+    #define INIT_SDCARD_ON_BOOT
   #endif
 
   #if PIN_EXISTS(SD_DETECT)

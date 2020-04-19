@@ -136,7 +136,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
         #if DISABLED(CLASSIC_JERK)
           MSG_JUNCTION_DEVIATION
         #else
-          JERK_POS
+          MSG_JERK
         #endif
        ))
       .enabled(

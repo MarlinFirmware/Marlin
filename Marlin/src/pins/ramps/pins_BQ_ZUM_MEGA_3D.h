@@ -42,10 +42,18 @@
 //
 // Auto fans
 //
-#define ORIG_E0_AUTO_FAN_PIN                  11
-#define ORIG_E1_AUTO_FAN_PIN                   6
-#define ORIG_E2_AUTO_FAN_PIN                   6
-#define ORIG_E3_AUTO_FAN_PIN                   6
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     11
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                      6
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN                      6
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN                      6
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

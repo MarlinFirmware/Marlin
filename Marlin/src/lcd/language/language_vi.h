@@ -403,7 +403,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Tiếp tục");                             // continue
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Đầu Phun: ");                         // Nozzle
   PROGMEM Language_Str MSG_RUNOUT_SENSOR_ENABLE            = _UxGT("Cảm Biến Hết");                         // Runout Sensor
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Sự nhà không thành công");              // Homing failed
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Sự nhà không thành công");              // Homing failed
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT(" không thành công");                    // Probing failed
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Quá lạnh");
 

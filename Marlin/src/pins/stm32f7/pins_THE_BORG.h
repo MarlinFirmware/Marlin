@@ -127,7 +127,9 @@
 #define FAN1_PIN                            PA0
 #define FAN2_PIN                            PA1
 
-#define ORIG_E0_AUTO_FAN_PIN                PA1   // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PA1
+#endif
 
 //
 // Misc. Functions
