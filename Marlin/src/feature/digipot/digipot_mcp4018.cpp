@@ -32,11 +32,11 @@
 
 #define DIGIPOT_A4988_Rsx               0.250
 #define DIGIPOT_A4988_Vrefmax           1.666
-#define DIGIPOT_MCP4018_MAX_VALUE         127
+#define DIGIPOT_MCP4018_MAX_VALUE     127
 
-#define DIGIPOT_A4988_Itripmax(Vref)    ((Vref)/(8.0*DIGIPOT_A4988_Rsx))
+#define DIGIPOT_A4988_Itripmax(Vref)    ((Vref) / (8.0 * DIGIPOT_A4988_Rsx))
 
-#define DIGIPOT_A4988_FACTOR            ((DIGIPOT_MCP4018_MAX_VALUE)/DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
+#define DIGIPOT_A4988_FACTOR            ((DIGIPOT_MCP4018_MAX_VALUE) / DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
 #define DIGIPOT_A4988_MAX_CURRENT       2.0
 
 #if DISABLED(MCP4018_USE_RAW_VALUES)
