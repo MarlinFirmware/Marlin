@@ -167,7 +167,7 @@
 #define BOARD_STB_11                  1507  // STB V1.1
 #define BOARD_AZTEEG_X1               1508  // Azteeg X1
 #define BOARD_ANET_10                 1509  // Anet 1.0 (Melzi clone)
-#define BOARD_MELZI_ANYCUBIC          1510  // Melzi (Anycubic) 
+#define BOARD_MELZI_ANYCUBIC          1510  // Melzi (Anycubic)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
