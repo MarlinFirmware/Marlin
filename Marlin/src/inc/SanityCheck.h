@@ -489,6 +489,8 @@
   #error "Z_QUAD_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
 #elif defined(DUGS_UI_MOVE_DIS_OPTION)
   #error "DUGS_UI_MOVE_DIS_OPTION is spelled DGUS_UI_MOVE_DIS_OPTION. Please update Configuration_adv.h."
+#elif defined(DIGIPOT_I2C)
+  #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #endif
 
 /**
@@ -2429,10 +2431,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Digipot requirement
  */
-#if ENABLED(DIGIPOT_MCP4018)
-  #if !defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) \
+#if HAS_I2C_DIGIPOT
+  #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+    #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
+  #elif !defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) \
     || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1)
-      #error "DIGIPOT_MCP4018 requires DIGIPOTS_I2C_SDA_* pins to be defined."
+      #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif
 #endif
 
