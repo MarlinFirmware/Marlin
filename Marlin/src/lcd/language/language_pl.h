@@ -507,21 +507,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_CYCLE_MIX                       = _UxGT("Cycle Mix");
   PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("Gradient Mix");
   PROGMEM Language_Str MSG_REVERSE_GRADIENT                = _UxGT("Odwrotny gradient");
-  PROGMEM Language_Str MSG_ACTIVE_VTOOL                    = _UxGT("Active V-tool");
-  PROGMEM Language_Str MSG_START_VTOOL                     = _UxGT("Start V-tool");
-  PROGMEM Language_Str MSG_END_VTOOL                       = _UxGT("  End V-tool");
-  PROGMEM Language_Str MSG_GRADIENT_ALIAS                  = _UxGT("Alias V-tool");
-  PROGMEM Language_Str MSG_RESET_VTOOLS                    = _UxGT("Reset V-tools");
-  PROGMEM Language_Str MSG_COMMIT_VTOOL                    = _UxGT("Commit V-tool Mix");
-  PROGMEM Language_Str MSG_VTOOLS_RESET                    = _UxGT("V-tools Were Reset");
-  PROGMEM Language_Str MSG_START_Z                         = _UxGT("Start Z:");
-  PROGMEM Language_Str MSG_END_Z                           = _UxGT("  End Z:");
-
-  PROGMEM Language_Str MSG_GAMES                           = _UxGT("Games");
-  PROGMEM Language_Str MSG_BRICKOUT                        = _UxGT("Brickout");
-  PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
-  PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
-  PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display
@@ -552,18 +537,4 @@ namespace Language_pl {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("Kliknij by zakończyć"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Wznawianie..."));
   #endif
-  PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("TMC Drivers");
-  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Driver Current");
-  PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("Hybrid Threshold");
-  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Sensorless Homing");
-  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Stepping Mode");
-  PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("StealthChop Enabled");
-  PROGMEM Language_Str MSG_SERVICE_RESET                   = _UxGT("Reset");
-  PROGMEM Language_Str MSG_SERVICE_IN                      = _UxGT(" in:");
-  PROGMEM Language_Str MSG_BACKLASH                        = _UxGT("Backlash");
-  PROGMEM Language_Str MSG_BACKLASH_A                      = LCD_STR_A;
-  PROGMEM Language_Str MSG_BACKLASH_B                      = LCD_STR_B;
-  PROGMEM Language_Str MSG_BACKLASH_C                      = LCD_STR_C;
-  PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Correction");
-  PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Smoothing");
 }
