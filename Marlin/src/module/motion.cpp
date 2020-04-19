@@ -1492,34 +1492,34 @@ void set_axis_not_trusted(const AxisEnum axis) {
  */
 void backout_to_tmc_homing_phase(const AxisEnum axis) {
   #ifdef TMC_HOME_PHASE
-    static const abc_ulong_t home_phase = TMC_HOME_PHASE;
+    const abc_long_t home_phase = TMC_HOME_PHASE;
 
     // check if home phase is disabled for this axis.
     if (home_phase[axis] < 0) return;
 
-    int axisMicrostepSize;
-    int phaseCurrent;
+    int16_t axisMicrostepSize;
+    int16_t phaseCurrent;
     bool invertDir;
 
     switch (axis) {
       #ifdef X_MICROSTEPS
         case X_AXIS:
           axisMicrostepSize = 256 / (X_MICROSTEPS);
-          phaseCurrent = stepperX.MSCNT();
+          phaseCurrent = stepperX.get_microstep_counter();
           invertDir = INVERT_X_DIR;
           break;
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
           axisMicrostepSize = 256 / (Y_MICROSTEPS);
-          phaseCurrent = stepperY.MSCNT();
+          phaseCurrent = stepperY.get_microstep_counter();
           invertDir = INVERT_Y_DIR;
           break;
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
           axisMicrostepSize = 256 / (Z_MICROSTEPS);
-          phaseCurrent = stepperZ.MSCNT();
+          phaseCurrent = stepperZ.get_microstep_counter();
           invertDir = INVERT_Z_DIR;
           break;
       #endif
