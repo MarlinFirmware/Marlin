@@ -2390,13 +2390,26 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                     sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
 
         vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0f - sin_theta_d2);
-        if (block->millimeters < 1) {
 
-          // Fast acos approximation, minus the error bar to be safe
-          const float junction_theta = (RADIANS(-40) * sq(junction_cos_theta) - RADIANS(50)) * junction_cos_theta + RADIANS(90) - 0.18f;
+        if (block->millimeters < 1) {
+          // Fast acos approximation (max. error +-0.033 rads)
+          // Based on MinMax polynomial published by W. Randolph Franklin, see
+          // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
+          // (acos(x) = pi / 2 - asin(x))
+
+          const float neg = junction_cos_theta < 0 ? -1 : 1,
+                      t = neg * junction_cos_theta,
+                      asinx =       0.032843707f
+                            + t * (-1.451838349f
+                            + t * ( 29.66153956f
+                            + t * (-131.1123477f
+                            + t * ( 262.8130562f
+                            + t * (-242.7199627f + t * 84.31466202f) )))),
+                      junction_theta = RADIANS(90) - neg * asinx;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
+            // NOTE: MinMax acos approximation and thereby also junction_theta top out at pi-0.033, which avoids division by 0
             const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
@@ -2973,9 +2986,19 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 #if ENABLED(AUTOTEMP)
 
   void Planner::autotemp_M104_M109() {
-    if ((autotemp_enabled = parser.seen('F'))) autotemp_factor = parser.value_float();
-    if (parser.seen('S')) autotemp_min = parser.value_celsius();
-    if (parser.seen('B')) autotemp_max = parser.value_celsius();
-  }
 
+    #if ENABLED(AUTOTEMP_PROPORTIONAL)
+      const int16_t target = thermalManager.degTargetHotend(active_extruder);
+      autotemp_min = target + AUTOTEMP_MIN_P;
+      autotemp_max = target + AUTOTEMP_MAX_P;
+    #endif
+
+    if (parser.seenval('S')) autotemp_min = parser.value_celsius();
+    if (parser.seenval('B')) autotemp_max = parser.value_celsius();
+
+    // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
+    // Normally, leaving off F also disables autotemp.
+    autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp_enabled = autotemp_factor != 0;
+  }
 #endif

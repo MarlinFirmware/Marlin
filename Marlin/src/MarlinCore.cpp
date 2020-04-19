@@ -44,6 +44,7 @@
 #include "feature/closedloop.h"
 
 #include "HAL/shared/Delay.h"
+#include "HAL/shared/esp_wifi.h"
 
 #include "module/stepper/indirection.h"
 
@@ -875,6 +876,19 @@ void stop() {
  */
 void setup() {
 
+  #if ENABLED(MARLIN_DEV_MODE)
+    auto log_current_ms = [&](PGM_P const msg) {
+      SERIAL_ECHO_START();
+      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHO("] ");
+      serialprintPGM(msg);
+      SERIAL_EOL();
+    };
+    #define SETUP_LOG(M) log_current_ms(PSTR(M))
+  #else
+    #define SETUP_LOG(...) NOOP
+  #endif
+  #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
+
   HAL_init();
 
   #if HAS_L64XX
@@ -939,14 +953,17 @@ void setup() {
 
   #if HAS_TMC_SPI
     #if DISABLED(TMC_USE_SW_SPI)
-      SPI.begin();
+      SETUP_RUN(SPI.begin());
     #endif
-    tmc_init_cs_pins();
+    SETUP_RUN(tmc_init_cs_pins());
   #endif
 
   #ifdef BOARD_INIT
+    SETUP_LOG("BOARD_INIT");
     BOARD_INIT();
   #endif
+
+  SETUP_RUN(esp_wifi_init());
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = HAL_get_reset_source();
@@ -976,19 +993,6 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
-
-  #if ENABLED(MARLIN_DEV_MODE)
-    auto log_current_ms = [&](PGM_P const msg) {
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHO("] ");
-      serialprintPGM(msg);
-      SERIAL_EOL();
-    };
-    #define SETUP_LOG(M) log_current_ms(PSTR(M))
-  #else
-    #define SETUP_LOG(...) NOOP
-  #endif
-  #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
   // Set up LEDs early
   #if HAS_COLOR_LEDS

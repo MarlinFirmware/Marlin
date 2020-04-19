@@ -280,8 +280,8 @@ void home_delta() {
 
   sync_plan_position();
 
-  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_MM)
-    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
+  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_POST_MM)
+    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
     if (endstop_backoff.z) {
       current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
       line_to_current_position(homing_feedrate(Z_AXIS));

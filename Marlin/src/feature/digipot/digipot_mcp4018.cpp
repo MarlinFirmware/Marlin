@@ -25,7 +25,6 @@
 #if ENABLED(DIGIPOT_MCP4018)
 
 #include <Stream.h>
-#include <utility/twi.h>
 #include <SlowSoftI2CMaster.h>  // https://github.com/stawel/SlowSoftI2CMaster
 
 // Settings for the I2C based DIGIPOT (MCP4018) based on WT150

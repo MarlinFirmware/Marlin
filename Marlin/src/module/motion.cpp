@@ -74,15 +74,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-#define XYZ_CONSTS(T, NAME, OPT) const PROGMEM XYZval<T> NAME##_P = { X_##OPT, Y_##OPT, Z_##OPT }
-
-XYZ_CONSTS(float, base_min_pos,   MIN_POS);
-XYZ_CONSTS(float, base_max_pos,   MAX_POS);
-XYZ_CONSTS(float, base_home_pos,  HOME_POS);
-XYZ_CONSTS(float, max_length,     MAX_LENGTH);
-XYZ_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_CONSTS(signed char, home_dir, HOME_DIR);
-
 /**
  * axis_homed
  *   Flags that each linear axis was homed.
@@ -1567,14 +1558,13 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
   #endif
 
-  do_homing_move(axis, 1.5f * max_length(
-    #if ENABLED(DELTA)
-      Z_AXIS
-    #else
-      axis
-    #endif
-    ) * axis_home_dir
-  );
+  #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
+    const xy_float_t backoff = SENSORLESS_BACKOFF_MM;
+    if (((ENABLED(X_SENSORLESS) && axis == X_AXIS) || (ENABLED(Y_SENSORLESS) && axis == Y_AXIS)) && backoff[axis])
+      do_homing_move(axis, -ABS(backoff[axis]) * axis_home_dir, homing_feedrate(axis));
+  #endif
+
+  do_homing_move(axis, 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir);
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
     if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
@@ -1583,14 +1573,14 @@ void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
     #if HOMING_Z_WITH_PROBE
-      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? _MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_HOME_BUMP_MM) :
+      (axis == Z_AXIS && home_bump_mm(Z_AXIS)) ? _MAX(Z_CLEARANCE_BETWEEN_PROBES, home_bump_mm(Z_AXIS)) :
     #endif
     home_bump_mm(axis)
   );
 
   // If a second homing move is configured...
   if (bump) {
-    // Move away from the endstop by the axis HOME_BUMP_MM
+    // Move away from the endstop by the axis HOMING_BUMP_MM
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away:");
     do_homing_move(axis, -bump
       #if HOMING_Z_WITH_PROBE
@@ -1785,8 +1775,8 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && probe.stow()) return;
   #endif
 
-  #if DISABLED(DELTA) && defined(HOMING_BACKOFF_MM)
-    const xyz_float_t endstop_backoff = HOMING_BACKOFF_MM;
+  #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
+    const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
     if (endstop_backoff[axis]) {
       current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
       line_to_current_position(

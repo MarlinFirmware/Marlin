@@ -57,6 +57,7 @@
 // fr         French
 // gl         Galician
 // hr         Croatian
+// hu         Hungarian
 // it         Italian
 // jp_kana    Japanese
 // ko_KR      Korean (South Korea)

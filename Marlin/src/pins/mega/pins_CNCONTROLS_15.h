@@ -88,11 +88,26 @@
 // Fans
 //
 #define FAN_PIN                                8
-#define ORIG_E0_AUTO_FAN_PIN                  30
-#define ORIG_E1_AUTO_FAN_PIN                  30
-#define ORIG_E2_AUTO_FAN_PIN                  30
-#define ORIG_E3_AUTO_FAN_PIN                  30
-//#define ORIG_CHAMBER_AUTO_FAN_PIN           10
+
+//
+// Auto fans
+//
+#define AUTO_FAN_PIN                          30
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef CHAMBER_AUTO_FAN_PIN
+  //#define CHAMBER_AUTO_FAN_PIN              10
+#endif
 
 //
 // Misc. Functions

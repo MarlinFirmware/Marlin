@@ -1071,6 +1071,12 @@ namespace ExtUI {
     onUserConfirmRequired(msg);
   }
 
+  void onStatusChanged_P(PGM_P const pstr) {
+    char msg[strlen_P(pstr) + 1];
+    strcpy_P(msg, pstr);
+    onStatusChanged(msg);
+  }
+
   FileList::FileList() { refresh(); }
 
   void FileList::refresh() { num_files = 0xFFFF; }

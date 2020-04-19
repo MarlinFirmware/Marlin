@@ -83,7 +83,10 @@
   #define FAN1_PIN                   TG_FAN1_PIN
 #endif
 #define FAN2_PIN                     TG_FAN2_PIN
-#define ORIG_E0_AUTO_FAN_PIN         TG_FAN2_PIN  // Used in Anycubic Kossel example config
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN            TG_FAN2_PIN  // Used in Anycubic Kossel example config
+#endif
 
 #include "pins_RAMPS.h"
 
