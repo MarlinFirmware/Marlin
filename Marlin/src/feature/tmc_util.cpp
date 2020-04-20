@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "tmc_util.h"
 #include "../MarlinCore.h"
@@ -954,7 +954,7 @@
     static void tmc_get_ic_registers(TMC2208Stepper, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
   #endif
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     template<class TMC>
     static void tmc_get_registers(TMC &st, const TMC_get_registers_enum i) {
       switch (i) {
@@ -1096,8 +1096,11 @@
   }
 
   bool tmc_enable_stallguard(TMC2209Stepper &st) {
+    const bool stealthchop_was_enabled = !st.en_spreadCycle();
+
     st.TCOOLTHRS(0xFFFFF);
-    return !st.en_spreadCycle();
+    st.en_spreadCycle(false);
+    return stealthchop_was_enabled;
   }
   void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth) {
     st.en_spreadCycle(!restore_stealth);
@@ -1251,7 +1254,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
     #endif
   }
 
-  if (axis_connection) ui.set_status_P(GET_TEXT(MSG_ERROR_TMC));
+  if (axis_connection) LCD_MESSAGEPGM(MSG_ERROR_TMC);
 }
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

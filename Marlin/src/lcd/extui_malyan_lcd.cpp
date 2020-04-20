@@ -47,7 +47,7 @@
 
 #define DEBUG_MALYAN_LCD
 
-#include "extensible_ui/ui_api.h"
+#include "extui/ui_api.h"
 
 #include "ultralcd.h"
 #include "../sd/cardreader.h"
@@ -81,7 +81,7 @@ void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = _MIN(strlen_P(message), sizeof(encoded_message));
 
-  for (uint8_t i = 0; i < message_length; i++)
+  LOOP_L_N(i, message_length)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -91,7 +91,7 @@ void write_to_lcd(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   const uint8_t message_length = _MIN(strlen(message), sizeof(encoded_message));
 
-  for (uint8_t i = 0; i < message_length; i++)
+  LOOP_L_N(i, message_length)
     encoded_message[i] = message[i] | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -483,6 +483,7 @@ namespace ExtUI {
   void onLoadSettings(const char*) {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
+  void onPidTuning(const result_t) {}
 }
 
 #endif // MALYAN_LCD

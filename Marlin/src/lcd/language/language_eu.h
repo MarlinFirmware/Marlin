@@ -25,7 +25,7 @@
  * Basque-Euskera
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -187,7 +187,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrastea");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gorde memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Kargatu memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Larri. berriz.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Larri. berriz.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM-a hasieratu");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantaila info");
@@ -221,7 +221,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Harizpia deskargatu");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Harizpia deskargatu *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Erabat deskargatu");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Hasieratu SD-a");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Hasieratu SD-a");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Aldatu txartela");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z zunda kanpora");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Okertze faktorea");
@@ -306,11 +306,11 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_HEADER   = _UxGT("ALDAKETA AUKERAK:");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Inprima. jarraitu");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Pita: ");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Hasi. huts egin du");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Hasi. huts egin du");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Neurketak huts egin du");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: hotzegi");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Inprimagailu okerra");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Inprimagailu okerra");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display

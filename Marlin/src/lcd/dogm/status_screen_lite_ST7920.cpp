@@ -209,7 +209,7 @@ void ST7920_Lite_Status_Screen::clear_ddram() {
 
 /* This fills the entire graphics buffer with zeros */
 void ST7920_Lite_Status_Screen::clear_gdram() {
-  for (uint8_t y = 0; y < BUFFER_HEIGHT; y++) {
+  LOOP_L_N(y, BUFFER_HEIGHT) {
     set_gdram_address(0, y);
     begin_data();
     for (uint8_t i = (BUFFER_WIDTH) / 16; i--;) write_word(0);
@@ -407,7 +407,7 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, const b
     const uint8_t x_word  = x >> 1,
                   y_top   = degree_symbol_y_top,
                   y_bot   = y_top + COUNT(degree_symbol);
-    for (uint8_t i = y_top; i < y_bot; i++) {
+    LOOP_S_L_N(i, y_top, y_bot) {
       uint8_t byte = pgm_read_byte(p_bytes++);
       set_gdram_address(x_word, i + y * 16);
       begin_data();
@@ -431,7 +431,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
 
   // Draw the static icons in GDRAM
   draw_gdram_icon(0, 0, nozzle_icon);
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     draw_gdram_icon(0, 1, nozzle_icon);
     draw_gdram_icon(0, 2, bed_icon);
   #else
@@ -467,10 +467,10 @@ void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
   const uint8_t char_pcnt  = 100 / width; // How many percent does each 16-bit word represent?
 
   // Draw the progress bar as a bitmap in CGRAM
-  for (uint8_t y = top; y <= bottom; y++) {
+  LOOP_S_LE_N(y, top, bottom) {
     set_gdram_address(left, y);
     begin_data();
-    for (uint8_t x = 0; x < width; x++) {
+    LOOP_L_N(x, width) {
       uint16_t gfx_word = 0x0000;
       if ((x + 1) * char_pcnt <= value)
         gfx_word = 0xFFFF;                                              // Draw completely filled bytes
@@ -584,7 +584,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
 #if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
-    draw_temps(HOTENDS > 1 ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
+    draw_temps(HAS_MULTI_HOTEND ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
     display_state.bed_show_target = show_target;
   }
 #endif
@@ -704,7 +704,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   const uint16_t   feedrate_perc     = feedrate_percentage;
   const uint16_t   fs                = thermalManager.scaledFanSpeed(0);
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
   #if HAS_HEATED_BED
@@ -731,7 +731,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const uint16_t   feedrate_perc     = feedrate_percentage;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
@@ -741,7 +741,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #endif
 
     draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
     #endif
     #if HAS_HEATED_BED

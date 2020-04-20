@@ -26,7 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_pt_br {
@@ -156,8 +156,8 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Slot de Memória");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Ler Malha");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Salvar Malha");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Malha %i carregada");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Malha %i salva");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Malha %i carregada");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Malha %i salva");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Sem armazenamento");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Erro ao salvar UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Erro no restauro UBL");
@@ -252,7 +252,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Salvar Configuração");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Ler Configuração");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restauro seguro");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restauro seguro");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Iniciar EEPROM");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Atualiz. SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetar Impressora");
@@ -293,7 +293,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Carregar Filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Descarreg. Filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Descarregar Todos");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Iniciar SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Iniciar SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda fora da mesa");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Fator de Cisalho");
@@ -359,7 +359,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luz da Impressora");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Intensidade Brilho");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora Incorreta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Total de Impressões");
@@ -389,7 +389,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Continuar Impressão");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Bocal: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sensor filamento");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Falha ao ir à origem");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Falha ao ir à origem");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Falha ao sondar");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Muito frio");
 

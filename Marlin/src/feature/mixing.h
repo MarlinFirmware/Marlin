@@ -52,25 +52,19 @@ enum MixTool {
   LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1,
   NR_USER_VIRTUAL_TOOLS,
   MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS,
-  #if ENABLED(RETRACT_SYNC_MIXING)
+  #if HAS_MIXER_SYNC_CHANNEL
     MIXER_AUTORETRACT_TOOL,
   #endif
   NR_MIXING_VIRTUAL_TOOLS
 };
 
-#if ENABLED(RETRACT_SYNC_MIXING)
-  #define MAX_VTOOLS 254
-#else
-  #define MAX_VTOOLS 255
-#endif
+#define MAX_VTOOLS TERN(HAS_MIXER_SYNC_CHANNEL, 254, 255)
 static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
-
-#define MIXER_STEPPER_LOOP(VAR) \
-  for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
 #define MIXER_BLOCK_FIELD       mixer_comp_t b_color[MIXING_STEPPERS]
 #define MIXER_POPULATE_BLOCK()  mixer.populate_block(block->b_color)
 #define MIXER_STEPPER_SETUP()   mixer.stepper_setup(current_block->b_color)
+#define MIXER_STEPPER_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
 #if ENABLED(GRADIENT_MIX)
 

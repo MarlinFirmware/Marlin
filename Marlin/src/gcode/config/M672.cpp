@@ -62,7 +62,7 @@
 //  b3 b2 b1 b0 ~b0  ... lo bits, NOT last bit
 //
 void M672_send(uint8_t b) {    // bit rate requirement: 1KHz +/- 30%
-  for (uint8_t bits = 0; bits < 14; bits++) {
+  LOOP_L_N(bits, 14) {
     switch (bits) {
       default: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN, !!(b & 0x80)); b <<= 1; break; } // send bit, shift next into place
       case  7:

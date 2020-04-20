@@ -25,7 +25,7 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
 
 #include "../../gcode.h"
-#include "../../../feature/power_loss_recovery.h"
+#include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
 #include "../../../lcd/ultralcd.h"
 

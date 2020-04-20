@@ -30,10 +30,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_BED_PROBE
-  #include "probe.h"
-#endif
-
 #if IS_SCARA
   #include "scara.h"
 #endif
@@ -58,7 +54,7 @@ FORCE_INLINE bool homing_needed() {
 }
 
 // Error margin to work around float imprecision
-constexpr float slop = 0.0001;
+constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
@@ -118,19 +114,24 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
+inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
+inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
-  extern const XYZval<T> NAME##_P; \
-  FORCE_INLINE T NAME(AxisEnum axis) { return pgm_read_any(&NAME##_P[axis]); }
-
+  inline T NAME(const AxisEnum axis) { \
+    static const XYZval<T> NAME##_P PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    return pgm_read_any(&NAME##_P[axis]); \
+  }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_DEFS(signed char, home_dir, HOME_DIR);
+
+inline float home_bump_mm(const AxisEnum axis) {
+  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
+  return pgm_read_any(&home_bump_mm_P[axis]);
+}
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);
@@ -166,7 +167,9 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   #define update_software_endstops(...) NOOP
 #endif
 
+void report_real_position();
 void report_current_position();
+void report_current_position_projected();
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -186,7 +189,11 @@ void sync_plan_position_e();
  */
 void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
-void prepare_move_to_destination();
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+#endif
+
+void prepare_line_to_destination();
 
 void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
   #if IS_KINEMATIC
@@ -246,7 +253,7 @@ bool axis_unhomed_error(uint8_t axis_bits=0x07);
 
 void set_axis_is_at_home(const AxisEnum axis);
 
-void set_axis_is_not_at_home(const AxisEnum axis);
+void set_axis_not_trusted(const AxisEnum axis);
 
 void homeaxis(const AxisEnum axis);
 
@@ -306,7 +313,7 @@ void homeaxis(const AxisEnum axis);
   // Return true if the given point is within the printable area
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + slop);
+      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
     #elif IS_SCARA
       const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
       return (
@@ -322,66 +329,23 @@ void homeaxis(const AxisEnum axis);
     return position_is_reachable(pos.x, pos.y, inset);
   }
 
-  #if HAS_BED_PROBE
-
-    #if HAS_PROBE_XY_OFFSET
-
-      // Return true if the both nozzle and the probe can reach the given point.
-      // Note: This won't work on SCARA since the probe offset rotates with the arm.
-      inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-        return position_is_reachable(rx - probe.offset_xy.x, ry - probe.offset_xy.y)
-               && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
-      }
-
-    #else
-
-      FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-        return position_is_reachable(rx, ry, MIN_PROBE_EDGE);
-      }
-
-    #endif
-
-  #endif // HAS_BED_PROBE
-
 #else // CARTESIAN
 
   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    if (!WITHIN(ry, Y_MIN_POS - slop, Y_MAX_POS + slop)) return false;
+    if (!WITHIN(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
-        return WITHIN(rx, X2_MIN_POS - slop, X2_MAX_POS + slop);
+        return WITHIN(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
       else
-        return WITHIN(rx, X1_MIN_POS - slop, X1_MAX_POS + slop);
+        return WITHIN(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
     #else
-      return WITHIN(rx, X_MIN_POS - slop, X_MAX_POS + slop);
+      return WITHIN(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
     #endif
   }
   inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
 
-  #if HAS_BED_PROBE
-
-    /**
-     * Return whether the given position is within the bed, and whether the nozzle
-     * can reach the position required to put the probe at the given position.
-     *
-     * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
-     *          nozzle must be be able to reach +10,-10.
-     */
-    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe.offset_xy.x, ry - probe.offset_xy.y)
-          && WITHIN(rx, probe.min_x() - slop, probe.max_x() + slop)
-          && WITHIN(ry, probe.min_y() - slop, probe.max_y() + slop);
-    }
-
-  #endif // HAS_BED_PROBE
-
 #endif // CARTESIAN
-
-#if !HAS_BED_PROBE
-  FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
-#endif
-FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return position_is_reachable_by_probe(pos.x, pos.y); }
 
 /**
  * Duplication mode
@@ -420,11 +384,13 @@ FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return p
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#elif ENABLED(MULTI_NOZZLE_DUPLICATION)
+#else
 
-  enum DualXMode : char {
-    DXC_DUPLICATION_MODE = 2
-  };
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+    enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+  #endif
+
+  FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }
 
 #endif
 

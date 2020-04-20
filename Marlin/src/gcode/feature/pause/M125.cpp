@@ -35,6 +35,10 @@
   #include "../../../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../feature/powerloss.h"
+#endif
+
 /**
  * M125: Store current position and move to parking position.
  *       Called on pause (by M25) to prevent material leaking onto the
@@ -78,13 +82,16 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_LCD_MENU
-    lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);
+    lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);
     const bool show_lcd = parser.seenval('P');
   #else
     constexpr bool show_lcd = false;
   #endif
 
   if (pause_print(retract, park_point, 0, show_lcd)) {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true);
+    #endif
     if (!sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);

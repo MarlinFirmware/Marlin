@@ -35,7 +35,7 @@ void GcodeSuite::G4() {
 
   planner.synchronize();
   #if ENABLED(NANODLP_Z_SYNC)
-    SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+    SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
   #endif
 
   if (!ui.has_status()) LCD_MESSAGEPGM(MSG_DWELL);

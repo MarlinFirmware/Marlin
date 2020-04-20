@@ -25,7 +25,7 @@
  * Standard Marlin Status Screen bitmaps
  *
  * Use the Marlin Bitmap Converter to make your own:
- * http://marlinfw.org/tools/u8glib/converter.html
+ * https://marlinfw.org/tools/u8glib/converter.html
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -278,7 +278,7 @@
     //
     // Status Screen Hotends bitmaps
     //
-    #if HOTENDS
+    #if HAS_HOTEND
 
       #define STATUS_HOTEND1_WIDTH  16
 
@@ -785,7 +785,9 @@
     #endif
 
   #endif
-#else
+#endif
+
+#ifndef STATUS_BED_WIDTH
   #define STATUS_BED_WIDTH 0
 #endif
 
@@ -852,7 +854,9 @@
     };
 
   #endif
-#else // HAS_HEATED_CHAMBER
+#endif
+
+#ifndef STATUS_CHAMBER_WIDTH
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 
@@ -1339,7 +1343,7 @@
     #undef STATUS_LOGO_WIDTH
   #endif
 
-  #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
+  #if (HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
     #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
@@ -1470,7 +1474,7 @@
 
     constexpr uint8_t status_hotend_x[HOTENDS] = ARRAY_N(HOTENDS, STATUS_HOTEND1_X, STATUS_HOTEND2_X, STATUS_HOTEND3_X, STATUS_HOTEND4_X, STATUS_HOTEND5_X, STATUS_HOTEND6_X);
     #define STATUS_HOTEND_X(N) status_hotend_x[N]
-  #elif HOTENDS > 1
+  #elif HAS_MULTI_HOTEND
     #define STATUS_HOTEND_X(N) ((N) ? STATUS_HOTEND2_X : STATUS_HOTEND1_X)
   #else
     #define STATUS_HOTEND_X(N) STATUS_HOTEND1_X
@@ -1729,8 +1733,8 @@
 
 #define DO_DRAW_LOGO (STATUS_LOGO_WIDTH && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
 #define DO_DRAW_HOTENDS (HOTENDS > 0)
-#define DO_DRAW_CUTTER (HAS_CUTTER)
-#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 4)
+#define DO_DRAW_BED (HAS_HEATED_BED && HOTENDS <= 4)
+#define DO_DRAW_CUTTER (HAS_CUTTER && !DO_DRAW_BED)
 #define DO_DRAW_CHAMBER (HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4)
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && HOTENDS <= 4 && defined(STATUS_FAN_FRAMES))
 

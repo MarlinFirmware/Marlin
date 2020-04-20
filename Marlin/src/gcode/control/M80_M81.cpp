@@ -44,7 +44,7 @@
   // Could be moved to a feature, but this is all the data
   bool powersupply_on;
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     #include "../../feature/tmc_util.h"
   #endif
 
@@ -72,16 +72,15 @@
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)
-      delay(PSU_POWERUP_DELAY); // Wait for power to settle
+      delay(PSU_POWERUP_DELAY);
       restore_stepper_drivers();
+      TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
     #endif
 
-    #if HAS_LCD_MENU
-      ui.reset_status();
-    #endif
+    TERN_(HAS_LCD_MENU, ui.reset_status());
   }
 
-#endif // ENABLED(PSU_CONTROL)
+#endif // PSU_CONTROL
 
 /**
  * M81: Turn off Power, including Power Supply, if there is one.
@@ -110,6 +109,6 @@ void GcodeSuite::M81() {
   #endif
 
   #if HAS_LCD_MENU
-    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " MSG_OFF "."));
+    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
   #endif
 }

@@ -31,12 +31,9 @@
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
 #define ST7920_CS_PIN   LCD_PINS_RS
 
-//#define PAGE_HEIGHT 8   //128 byte framebuffer
-#define PAGE_HEIGHT 16  //256 byte framebuffer
-//#define PAGE_HEIGHT 32  //512 byte framebuffer
-
-#define LCD_PIXEL_WIDTH 128
-#define LCD_PIXEL_HEIGHT 64
+//#define PAGE_HEIGHT 8   // 128 byte framebuffer
+#define PAGE_HEIGHT 16    // 256 byte framebuffer
+//#define PAGE_HEIGHT 32  // 512 byte framebuffer
 
 #include <U8glib.h>
 
@@ -49,11 +46,11 @@
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(50)
-#elif MB(3DRAG, K8200, K8400, SILVER_GATE)
+#elif MB(3DRAG, K8200, K8400)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(188)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)
-#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO)
+#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO, SILVER_GATE)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(250)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)

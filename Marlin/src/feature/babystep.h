@@ -32,32 +32,34 @@
 #endif
 
 #if IS_CORE || EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
-  #define BS_TODO_AXIS(A) A
+  #define BS_AXIS_IND(A) A
+  #define BS_AXIS(I) AxisEnum(I)
 #else
-  #define BS_TODO_AXIS(A) 0
+  #define BS_AXIS_IND(A) 0
+  #define BS_AXIS(I) Z_AXIS
 #endif
 
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
   #if ENABLED(BABYSTEP_XY)
-    #define BS_TOTAL_AXIS(A) A
+    #define BS_TOTAL_IND(A) A
   #else
-    #define BS_TOTAL_AXIS(A) 0
+    #define BS_TOTAL_IND(A) 0
   #endif
 #endif
 
 class Babystep {
 public:
-  static volatile int16_t steps[BS_TODO_AXIS(Z_AXIS) + 1];
+  static volatile int16_t steps[BS_AXIS_IND(Z_AXIS) + 1];
   static int16_t accum;                                     // Total babysteps in current edit
 
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-    static int16_t axis_total[BS_TOTAL_AXIS(Z_AXIS) + 1];   // Total babysteps since G28
+    static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
     static inline void reset_total(const AxisEnum axis) {
       if (true
         #if ENABLED(BABYSTEP_XY)
           && axis == Z_AXIS
         #endif
-      ) axis_total[BS_TOTAL_AXIS(axis)] = 0;
+      ) axis_total[BS_TOTAL_IND(axis)] = 0;
     }
   #endif
 
@@ -65,7 +67,7 @@ public:
   static void add_mm(const AxisEnum axis, const float &mm);
 
   static inline bool has_steps() {
-    return steps[BS_TODO_AXIS(X_AXIS)] || steps[BS_TODO_AXIS(Y_AXIS)] || steps[BS_TODO_AXIS(Z_AXIS)];
+    return steps[BS_AXIS_IND(X_AXIS)] || steps[BS_AXIS_IND(Y_AXIS)] || steps[BS_AXIS_IND(Z_AXIS)];
   }
 
   //
@@ -73,7 +75,7 @@ public:
   // apply accumulated babysteps to the axes.
   //
   static inline void task() {
-    LOOP_L_N(axis, BS_TODO_AXIS(Z_AXIS)) step_axis((AxisEnum)axis);
+    LOOP_LE_N(i, BS_AXIS_IND(Z_AXIS)) step_axis(BS_AXIS(i));
   }
 
 private:

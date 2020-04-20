@@ -74,8 +74,6 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
-#define DUMMY_PID_VALUE 3000.0f
-
 #if ENABLED(PIDTEMP)
   #define _PID_Kp(H) Temperature::temp_hotend[H].pid.Kp
   #define _PID_Ki(H) Temperature::temp_hotend[H].pid.Ki
@@ -92,9 +90,9 @@ hotend_pid_t;
     #define _PID_Kf(H) 0
   #endif
 #else
-  #define _PID_Kp(H) DUMMY_PID_VALUE
-  #define _PID_Ki(H) DUMMY_PID_VALUE
-  #define _PID_Kd(H) DUMMY_PID_VALUE
+  #define _PID_Kp(H) NAN
+  #define _PID_Ki(H) NAN
+  #define _PID_Kd(H) NAN
   #define _PID_Kc(H) 1
 #endif
 
@@ -243,7 +241,7 @@ struct HeaterWatch {
       const int16_t newtarget = curr + INCREASE;
       if (newtarget < tgt - HYSTERESIS - 1) {
         target = newtarget;
-        next_ms = millis() + PERIOD * 1000UL;
+        next_ms = millis() + SEC_TO_MS(PERIOD);
         return;
       }
     }
@@ -319,12 +317,12 @@ class Temperature {
 
   public:
 
-    #if HOTENDS
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         #define HOTEND_TEMPS (HOTENDS + 1)
       #else
         #define HOTEND_TEMPS HOTENDS
       #endif
+    #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
     #endif
     #if HAS_HEATED_BED
@@ -498,7 +496,7 @@ class Temperature {
       }
     #endif
 
-    #if HOTENDS
+    #if HAS_HOTEND
       static float analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
 
@@ -626,7 +624,7 @@ class Temperature {
       static inline void start_watching_hotend(const uint8_t=0) {}
     #endif
 
-    #if HOTENDS
+    #if HAS_HOTEND
 
       static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
@@ -700,6 +698,8 @@ class Temperature {
           , const bool click_to_cancel=false
         #endif
       );
+
+      static void wait_for_bed_heating();
 
     #endif // HAS_HEATED_BED
 

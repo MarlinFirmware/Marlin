@@ -25,7 +25,7 @@
  * Greek (Greece)
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -138,7 +138,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Αποθήκευση");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Φόρτωση");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Επαναφορά ασφαλούς αντιγράφου");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ανανέωση");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Οθόνη πληροφόρησης");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Προετοιμασία");
@@ -164,7 +164,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Αυτόματη ανάσυρση");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Αλλαγή νήματος");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Αλλαγή νήματος *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Προετοιμασία κάρτας SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Προετοιμασία κάρτας SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Αλλαγή κάρτας SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Διερεύνηση Z εκτός κλίνης");
   PROGMEM Language_Str MSG_YX_UNHOMED                      = _UxGT("Επαναφορά Χ/Υ πριν από Ζ");
@@ -189,5 +189,5 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Βαθμονόμηση Z");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Βαθμονόμηση κέντρου");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Εσφαλμένος εκτυπωτής");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Εσφαλμένος εκτυπωτής");
 }

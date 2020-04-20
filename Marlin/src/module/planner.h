@@ -52,13 +52,17 @@
 #endif
 
 #if HAS_CUTTER
-  #include "../feature/spindle_laser.h"
+  #include "../feature/spindle_laser_types.h"
 #endif
 
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
                             manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
+#endif
+
+#if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+  #define HAS_DIST_MM_ARG 1
 #endif
 
 enum BlockFlagBit : char {
@@ -83,6 +87,23 @@ enum BlockFlag : char {
   BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
   BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
 };
+
+#if ENABLED(LASER_POWER_INLINE)
+
+  typedef struct {
+    uint8_t status,           // See planner settings for meaning
+            power;            // Ditto; When in trapezoid mode this is nominal power
+    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+      uint8_t   power_entry;  // Entry power for the laser
+      #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+        uint8_t   power_exit; // Exit power for the laser
+        uint32_t  entry_per,  // Steps per power increment (to avoid floats in stepper calcs)
+                  exit_per;   // Steps per power decrement
+      #endif
+    #endif
+  } block_laser_t;
+
+#endif
 
 /**
  * struct block_t
@@ -170,11 +191,35 @@ typedef struct block_t {
     uint32_t sdpos;
   #endif
 
+  #if ENABLED(LASER_POWER_INLINE)
+    block_laser_t laser;
+  #endif
+
 } block_t;
 
 #define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL)
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
+
+#if ENABLED(LASER_POWER_INLINE)
+  typedef struct {
+    /**
+     * Laser status bitmask; most bits are unused;
+     *  0: Planner buffer enable
+     *  1: Laser enable
+     *  2: Reserved for direction
+     */
+    uint8_t status;
+    /**
+     * Laser power: 0 or 255 in case of PWM-less laser,
+     * or the OCR value;
+     *
+     * Using OCR instead of raw power,
+     * as it avoids floating points during move loop
+     */
+    uint8_t power;
+  } settings_laser_t;
+#endif
 
 typedef struct {
    uint32_t max_acceleration_mm_per_s2[XYZE_N], // (mm/s^2) M201 XYZE
@@ -186,6 +231,9 @@ typedef struct {
             travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
  feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
+  #if ENABLED(LASER_POWER_INLINE)
+    settings_laser_t laser;
+  #endif
 } planner_settings_t;
 
 #if DISABLED(SKEW_CORRECTION)
@@ -289,6 +337,12 @@ class Planner {
       static float extruder_advance_K[EXTRUDERS];
     #endif
 
+    /**
+     * The current position of the tool in absolute steps
+     * Recalculated if any axis_steps_per_mm are changed by gcode
+     */
+    static xyze_long_t position;
+
     #if HAS_POSITION_FLOAT
       static xyze_pos_t position_float;
     #endif
@@ -304,12 +358,6 @@ class Planner {
     #endif
 
   private:
-
-    /**
-     * The current position of the tool in absolute steps
-     * Recalculated if any axis_steps_per_mm are changed by gcode
-     */
-    static xyze_long_t position;
 
     /**
      * Speed of previous path line segment
@@ -403,7 +451,7 @@ class Planner {
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
         filament_size[e] = v;
         // make sure all extruders have some sane value for the filament size
-        for (uint8_t i = 0; i < COUNT(filament_size); i++)
+        LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
@@ -588,8 +636,8 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const xyze_pos_t &target_float
       #endif
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
@@ -611,8 +659,8 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const xyze_pos_t &target_float
       #endif
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
@@ -643,21 +691,21 @@ class Planner {
      *  millimeters - the length of the movement, if known
      */
     static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
     FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
-      #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-        , const xyze_float_t &delta_mm_cart
+      #if HAS_DIST_MM_ARG
+        , const xyze_float_t &cart_dist_mm
       #endif
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     ) {
       return buffer_segment(abce.a, abce.b, abce.c, abce.e
-        #if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
-          , delta_mm_cart
+        #if HAS_DIST_MM_ARG
+          , cart_dist_mm
         #endif
         , fr_mm_s, extruder, millimeters);
     }
@@ -725,6 +773,16 @@ class Planner {
      */
     static float get_axis_position_mm(const AxisEnum axis);
 
+    static inline abce_pos_t get_axis_positions_mm() {
+      const abce_pos_t out = {
+        get_axis_position_mm(A_AXIS),
+        get_axis_position_mm(B_AXIS),
+        get_axis_position_mm(C_AXIS),
+        get_axis_position_mm(E_AXIS)
+      };
+      return out;
+    }
+
     // SCARA AB axes are in degrees, not mm
     #if IS_SCARA
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
@@ -749,12 +807,7 @@ class Planner {
     // Periodic tick to handle cleaning timeouts
     // Called from the Temperature ISR at ~1kHz
     static void tick() {
-      if (cleaning_buffer_counter) {
-        --cleaning_buffer_counter;
-        #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-          if (!cleaning_buffer_counter) queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-        #endif
-      }
+      if (cleaning_buffer_counter) --cleaning_buffer_counter;
     }
 
     /**
@@ -797,7 +850,7 @@ class Planner {
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
-          for (uint8_t i = 0; i < EXTRUDERS; i++)
+          LOOP_L_N(i, EXTRUDERS)
             max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
         #else
           max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);

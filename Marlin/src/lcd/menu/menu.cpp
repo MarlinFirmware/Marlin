@@ -76,9 +76,6 @@ int32_t      MenuEditItemBase::minEditValue,
 screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
 
-// Prevent recursion into screen handlers
-bool no_reentry = false;
-
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
@@ -127,7 +124,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *
  * The prerequisite is that in the header the type was already declared:
  *
- *   DEFINE_MENU_EDIT_ITEM_TYPE(int16_t, int3, i16tostr3, 1)
+ *   DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
  *
  * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into:
  *
@@ -193,7 +190,7 @@ DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123        right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(float52);     // _2.34, 12.34, -2.34 or 123.45, -23.45
+DEFINE_MENU_EDIT_ITEM(float42_52);  // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
 DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
@@ -314,29 +311,18 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 ////////////////////////////////////////////
 
 //
-// Display the synchronize screen until moves are
-// finished, and don't return to the caller until
-// done. ** This blocks the command queue! **
+// Display a "synchronize" screen with a custom message until
+// all moves are finished. Go back to calling screen when done.
 //
-static PGM_P sync_message;
-
-void MarlinUI::_synchronize() {
-  if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
-  if (no_reentry) return;
-  // Make this the current handler till all moves are done
-  no_reentry = true;
-  const screenFunc_t old_screen = currentScreen;
-  goto_screen(_synchronize);
-  planner.synchronize(); // idle() is called until moves complete
-  no_reentry = false;
-  goto_screen(old_screen);
-}
-
-// Display the synchronize screen with a custom message
-// ** This blocks the command queue! **
 void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
-  sync_message = msg ?: GET_TEXT(MSG_MOVING);
-  _synchronize();
+  static PGM_P sync_message = msg ?: GET_TEXT(MSG_MOVING);
+  save_previous_screen();
+  goto_screen([]{
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
+  });
+  defer_status_screen();
+  planner.synchronize(); // idle() is called until moves complete
+  goto_previous_screen_no_defer();
 }
 
 /**
@@ -396,11 +382,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
-    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-      const bool do_probe = (active_extruder == 0);
-    #else
-      constexpr bool do_probe = true;
-    #endif
+    const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
     if (ui.encoderPosition) {
       const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR_Z);
       ui.encoderPosition = 0;
@@ -429,34 +411,18 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), LCD_Z_OFFSET_FUNC(hotend_offset[active_extruder].z));
-        else
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
       #endif
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), LCD_Z_OFFSET_FUNC(probe.offset.z));
-
-      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-        if (do_probe) _lcd_zoffset_overlay_gfx(probe.offset.z);
-      #endif
+      if (do_probe) {
+        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
+        #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+          _lcd_zoffset_overlay_gfx(probe.offset.z);
+        #endif
+      }
     }
   }
 
 #endif // BABYSTEP_ZPROBE_OFFSET
-
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-
-  void lcd_enqueue_one_now(const char * const cmd) {
-    no_reentry = true;
-    queue.enqueue_one_now(cmd);
-    no_reentry = false;
-  }
-
-  void lcd_enqueue_one_now_P(PGM_P const cmd) {
-    no_reentry = true;
-    queue.enqueue_now_P(cmd);
-    no_reentry = false;
-  }
-
-#endif
 
 #if ENABLED(EEPROM_SETTINGS)
   void lcd_store_settings() {
