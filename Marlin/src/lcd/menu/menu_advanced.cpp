@@ -576,9 +576,7 @@ void menu_advanced_settings() {
       //
       const bool new_state = !settings.sd_update_status(),
                  didset = settings.set_sd_update_status(new_state);
-      #if HAS_BUZZER
-        ui.completion_feedback(didset);
-      #endif
+      TERN_(HAS_BUZZER, ui.completion_feedback(didset));
       ui.return_to_status();
       if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
     });
@@ -589,9 +587,7 @@ void menu_advanced_settings() {
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
       []{
         const bool inited = settings.init_eeprom();
-        #if HAS_BUZZER
-          ui.completion_feedback(inited);
-        #endif
+        TERN_(HAS_BUZZER, ui.completion_feedback(inited));
         UNUSED(inited);
       },
       ui.goto_previous_screen,

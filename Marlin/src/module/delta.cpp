@@ -249,11 +249,7 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position.z = (delta_height + 10
-    #if HAS_BED_PROBE
-      - probe.offset.z
-    #endif
-  );
+  current_position.z = (delta_height + 10 - TERN0(HAS_BED_PROBE, probe.offset.z));
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
 

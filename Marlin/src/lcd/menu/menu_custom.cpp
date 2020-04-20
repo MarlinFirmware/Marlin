@@ -42,9 +42,7 @@ void _lcd_user_gcode(PGM_P const cmd) {
   #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
     ui.completion_feedback();
   #endif
-  #if ENABLED(USER_SCRIPT_RETURN)
-    ui.return_to_status();
-  #endif
+  TERN_(USER_SCRIPT_RETURN, ui.return_to_status());
 }
 
 void menu_user() {

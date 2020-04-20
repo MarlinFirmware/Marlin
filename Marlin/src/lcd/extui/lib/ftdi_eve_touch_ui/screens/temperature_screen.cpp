@@ -97,12 +97,8 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
     case 30:
       #define _HOTEND_OFF(N) setTargetTemp_celsius(0,E##N);
       REPEAT(HOTENDS, _HOTEND_OFF);
-      #if HAS_HEATED_BED
-        setTargetTemp_celsius(0,BED);
-      #endif
-      #if HAS_HEATED_CHAMBER
-        setTargetTemp_celsius(0,CHAMBER);
-      #endif
+      TERN_(HAS_HEATED_BED, setTargetTemp_celsius(0,BED));
+      TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0,CHAMBER));
       #if FAN_COUNT > 0
         setTargetFan_percent(0,FAN0);
       #endif

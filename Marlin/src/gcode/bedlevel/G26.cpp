@@ -165,9 +165,7 @@ int8_t g26_prime_flag;
   bool user_canceled() {
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
     ui.set_status_P(GET_TEXT(MSG_G26_CANCELED), 99);
-    #if HAS_LCD_MENU
-      ui.quick_feedback();
-    #endif
+    TERN_(HAS_LCD_MENU, ui.quick_feedback());
     ui.wait_for_release();
     return true;
   }
@@ -301,9 +299,7 @@ inline bool look_for_lines_to_connect() {
 
   GRID_LOOP(i, j) {
 
-    #if HAS_LCD_MENU
-      if (user_canceled()) return true;
-    #endif
+    if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
 
     if (i < (GRID_MAX_POINTS_X)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
                                     // Already a half circle at the edge of the bed.
@@ -364,9 +360,7 @@ inline bool turn_on_heaters() {
       #if HAS_SPI_LCD
         ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
         ui.quick_feedback();
-        #if HAS_LCD_MENU
-          ui.capture();
-        #endif
+        TERN_(HAS_LCD_MENU, ui.capture());
       #endif
       thermalManager.setTargetBed(g26_bed_temp);
 
@@ -390,11 +384,10 @@ inline bool turn_on_heaters() {
 
   // Wait for the temperature to stabilize
   if (!thermalManager.wait_for_hotend(active_extruder, true
-      #if G26_CLICK_CAN_CANCEL
-        , true
-      #endif
-    )
-  ) return G26_ERR;
+    #if G26_CLICK_CAN_CANCEL
+      , true
+    #endif
+  )) return G26_ERR;
 
   #if HAS_SPI_LCD
     ui.reset_status();
@@ -665,9 +658,7 @@ void GcodeSuite::G26() {
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
 
-  #if HAS_LCD_MENU
-    ui.capture();
-  #endif
+  TERN_(HAS_LCD_MENU, ui.capture());
 
   #if DISABLED(ARC_SUPPORT)
 
@@ -762,9 +753,7 @@ void GcodeSuite::G26() {
         feedrate_mm_s = old_feedrate;
         destination = current_position;
 
-        #if HAS_LCD_MENU
-          if (user_canceled()) goto LEAVE; // Check if the user wants to stop the Mesh Validation
-        #endif
+        if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
       #else // !ARC_SUPPORT
 
@@ -788,9 +777,7 @@ void GcodeSuite::G26() {
 
         for (int8_t ind = start_ind; ind <= end_ind; ind++) {
 
-          #if HAS_LCD_MENU
-            if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
-          #endif
+          if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
           xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
                       q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
@@ -833,14 +820,10 @@ void GcodeSuite::G26() {
     planner.calculate_volumetric_multipliers();
   #endif
 
-  #if HAS_LCD_MENU
-    ui.release();                                             // Give back control of the LCD
-  #endif
+  TERN_(HAS_LCD_MENU, ui.release()); // Give back control of the LCD
 
   if (!g26_keep_heaters_on) {
-    #if HAS_HEATED_BED
-      thermalManager.setTargetBed(0);
-    #endif
+    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
     thermalManager.setTargetHotend(active_extruder, 0);
   }
 }
