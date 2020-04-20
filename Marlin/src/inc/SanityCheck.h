@@ -34,8 +34,6 @@
   #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
-{ // Private scope
-
 // Make sure macros aren't borked
 #define TEST1
 #define TEST2 1
@@ -2909,5 +2907,3 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if SAVED_POSITIONS > 256
   #error "SAVED_POSITIONS must be an integer from 0 to 256."
 #endif
-
-} // Private scope
