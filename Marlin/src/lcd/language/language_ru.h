@@ -40,7 +40,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Назад");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Карта вставлена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Карта извлечена");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD карта не активна");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Эндстопы"); // Max length 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Прогр. эндстопы");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
