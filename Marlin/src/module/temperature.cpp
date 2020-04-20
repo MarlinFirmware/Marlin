@@ -37,7 +37,7 @@
 #endif
 
 #if ENABLED(MAX6675_IS_MAX31865)
-  #include "Adafruit_MAX31865.h"
+  #include <Adafruit_MAX31865.h>
   #ifndef MAX31865_CS_PIN
     #define MAX31865_CS_PIN     MAX6675_SS_PIN  // HW:49   SW:65    for example
   #endif
@@ -140,7 +140,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   bool Temperature::adaptive_fan_slowing = true;
 #endif
 
-#if HOTENDS
+#if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTEND_TEMPS]; // = { 0 }
 #endif
 
@@ -298,7 +298,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) < (HEATER_##N##_RAW_HI_TEMP) ? 1 : -1)
 
-#if HOTENDS
+#if HAS_HOTEND
   // Init mintemp and maxtemp with extreme values to prevent false errors during startup
   constexpr temp_range_t sensor_heater_0 { HEATER_0_RAW_LO_TEMP, HEATER_0_RAW_HI_TEMP, 0, 16383 },
                          sensor_heater_1 { HEATER_1_RAW_LO_TEMP, HEATER_1_RAW_HI_TEMP, 0, 16383 },
@@ -399,7 +399,7 @@ volatile bool Temperature::raw_temps_ready = false;
       const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
       const float watch_temp_target = target - float(watch_temp_increase + GTV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
-      millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
+      millis_t temp_change_ms = next_temp_ms + SEC_TO_MS(watch_temp_period);
       float next_watch_temp = 0.0;
       bool heated = false;
     #endif
@@ -411,7 +411,7 @@ volatile bool Temperature::raw_temps_ready = false;
     if (target > GHV(BED_MAXTEMP - 10, temp_range[heater].maxtemp - 15)) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
+        ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
       #endif
       return;
     }
@@ -527,7 +527,7 @@ volatile bool Temperature::raw_temps_ready = false;
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
+          ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
         #endif
         break;
       }
@@ -542,22 +542,14 @@ volatile bool Temperature::raw_temps_ready = false;
 
         // Make sure heating is actually working
         #if WATCH_BED || WATCH_HOTENDS
-          if (
-            #if WATCH_BED && WATCH_HOTENDS
-              true
-            #elif WATCH_HOTENDS
-              !isbed
-            #else
-              isbed
-            #endif
-          ) {
-            if (!heated) {                                          // If not yet reached target...
-              if (current_temp > next_watch_temp) {                      // Over the watch temp?
-                next_watch_temp = current_temp + watch_temp_increase;    // - set the next temp to watch for
-                temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
-                if (current_temp > watch_temp_target) heated = true;     // - Flag if target temperature reached
+          if (BOTH(WATCH_BED, WATCH_HOTENDS) || isbed == DISABLED(WATCH_HOTENDS)) {
+            if (!heated) {                                            // If not yet reached target...
+              if (current_temp > next_watch_temp) {                   // Over the watch temp?
+                next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
+                temp_change_ms = ms + SEC_TO_MS(watch_temp_period);     // - move the expiration timer up
+                if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+              else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
                 _temp_error(heater, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
@@ -572,7 +564,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
+          ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
         #endif
         SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -623,7 +615,7 @@ volatile bool Temperature::raw_temps_ready = false;
           printerEventLEDs.onPidTuningDone(color);
         #endif
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
+          ExtUI::onPidTuning(ExtUI::result_t::PID_DONE);
         #endif
 
         goto EXIT_M303;
@@ -637,7 +629,7 @@ volatile bool Temperature::raw_temps_ready = false;
       printerEventLEDs.onPidTuningDone(color);
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
+      ExtUI::onPidTuning(ExtUI::result_t::PID_DONE);
     #endif
 
     EXIT_M303:
@@ -663,7 +655,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     #endif
     default:
       return (0
-        #if HOTENDS
+        #if HAS_HOTEND
           + temp_hotend[heater_id].soft_pwm_amount
         #endif
       );
@@ -680,7 +672,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
       0
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         #define _NEXT_FAN(N) , REPEAT2(N,_EFAN,N) N
         RREPEAT_S(1, HOTENDS, _NEXT_FAN)
       #endif
@@ -829,7 +821,10 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
   _temp_error(heater, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
-#if HOTENDS
+#if HAS_HOTEND
+  #if ENABLED(PID_DEBUG)
+    extern bool pid_debug_flag;
+  #endif
 
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
@@ -911,24 +906,15 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       #endif // PID_OPENLOOP
 
       #if ENABLED(PID_DEBUG)
-        if (ee == active_extruder) {
+        if (ee == active_extruder && pid_debug_flag) {
           SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR(
-            STR_PID_DEBUG, ee,
-            STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius,
-            STR_PID_DEBUG_OUTPUT, pid_output
-          );
+          SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)
-          {
-            SERIAL_ECHOPAIR(
-              STR_PID_DEBUG_PTERM, work_pid[ee].Kp,
-              STR_PID_DEBUG_ITERM, work_pid[ee].Ki,
-              STR_PID_DEBUG_DTERM, work_pid[ee].Kd
+            SERIAL_ECHOPAIR( STR_PID_DEBUG_PTERM, work_pid[ee].Kp, STR_PID_DEBUG_ITERM, work_pid[ee].Ki, STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif
             );
-          }
           #endif
           SERIAL_EOL();
         }
@@ -1050,7 +1036,7 @@ void Temperature::manage_heater() {
 
   millis_t ms = millis();
 
-  #if HOTENDS
+  #if HAS_HOTEND
 
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
@@ -1398,7 +1384,7 @@ void Temperature::manage_heater() {
   }
 #endif
 
-#if HOTENDS
+#if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
   float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
@@ -1589,7 +1575,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(HEATER_1_USES_MAX6675)
     temp_hotend[1].raw = READ_MAX6675(1);
   #endif
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   #endif
   #if HAS_HEATED_BED
@@ -1850,7 +1836,7 @@ void Temperature::init() {
   // Wait for temperature measurement to settle
   delay(250);
 
-  #if HOTENDS
+  #if HAS_HOTEND
 
     #define _TEMP_MIN_E(NR) do{ \
       temp_range[NR].mintemp = HEATER_ ##NR## _MINTEMP; \
@@ -1869,7 +1855,7 @@ void Temperature::init() {
     #ifdef HEATER_0_MAXTEMP
       _TEMP_MAX_E(0);
     #endif
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       #ifdef HEATER_1_MINTEMP
         _TEMP_MIN_E(1);
       #endif
@@ -1924,7 +1910,7 @@ void Temperature::init() {
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
+    #endif // HAS_MULTI_HOTEND
 
   #endif // HOTENDS
 
@@ -2065,7 +2051,7 @@ void Temperature::init() {
         #endif
 
         if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
-          sm.timer = millis() + period_seconds * 1000UL;
+          sm.timer = millis() + SEC_TO_MS(period_seconds);
           break;
         }
         else if (PENDING(millis(), sm.timer)) break;
@@ -2084,7 +2070,7 @@ void Temperature::disable_all_heaters() {
     planner.autotemp_enabled = false;
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() setTargetHotend(0, e);
   #endif
 
@@ -2127,7 +2113,7 @@ void Temperature::disable_all_heaters() {
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
 
   bool Temperature::over_autostart_threshold() {
-    #if HOTENDS
+    #if HAS_HOTEND
       HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
     #endif
     #if HAS_HEATED_BED
@@ -2372,7 +2358,7 @@ void Temperature::readings_ready() {
     filwidth.reading_ready();
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].reset();
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       temp_hotend[1].reset();
@@ -2401,7 +2387,7 @@ void Temperature::readings_ready() {
     joystick.z.reset();
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
 
     static constexpr int8_t temp_dir[] = {
       #if ENABLED(HEATER_0_USES_MAX6675)
@@ -2409,7 +2395,7 @@ void Temperature::readings_ready() {
       #else
         TEMPDIR(0)
       #endif
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         #define _TEMPDIR(N) , TEMPDIR(N)
         #if ENABLED(HEATER_1_USES_MAX6675)
           , 0
@@ -2419,7 +2405,7 @@ void Temperature::readings_ready() {
         #if HOTENDS > 2
           REPEAT_S(2, HOTENDS, _TEMPDIR)
         #endif // HOTENDS > 2
-      #endif // HOTENDS > 1
+      #endif // HAS_MULTI_HOTEND
     };
 
     LOOP_L_N(e, COUNT(temp_dir)) {
@@ -2545,7 +2531,7 @@ void Temperature::tick() {
     static bool ADCKey_pressed = false;
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     static SoftPWM soft_pwm_hotend[HOTENDS];
   #endif
 
@@ -2579,7 +2565,7 @@ void Temperature::tick() {
     if (pwm_count_tmp >= 127) {
       pwm_count_tmp -= 127;
 
-      #if HOTENDS
+      #if HAS_HOTEND
         #define _PWM_MOD_E(N) _PWM_MOD(N,soft_pwm_hotend[N],temp_hotend[N]);
         REPEAT(HOTENDS, _PWM_MOD_E);
       #endif
@@ -2626,7 +2612,7 @@ void Temperature::tick() {
     }
     else {
       #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_HEATER_##N(LOW); }while(0)
-      #if HOTENDS
+      #if HAS_HOTEND
         #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N]);
         REPEAT(HOTENDS, _PWM_LOW_E);
       #endif
@@ -2692,7 +2678,7 @@ void Temperature::tick() {
 
     if (slow_pwm_count == 0) {
 
-      #if HOTENDS
+      #if HAS_HOTEND
         #define _SLOW_PWM_E(N) _SLOW_PWM(N, soft_pwm_hotend[N], temp_hotend[N]);
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
@@ -2703,7 +2689,7 @@ void Temperature::tick() {
 
     } // slow_pwm_count == 0
 
-    #if HOTENDS
+    #if HAS_HOTEND
       #define _PWM_OFF_E(N) _PWM_OFF(N, soft_pwm_hotend[N]);
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
@@ -2786,7 +2772,7 @@ void Temperature::tick() {
       slow_pwm_count++;
       slow_pwm_count &= 0x7F;
 
-      #if HOTENDS
+      #if HAS_HOTEND
         HOTEND_LOOP() soft_pwm_hotend[e].dec();
       #endif
       #if HAS_HEATED_BED
@@ -3004,7 +2990,7 @@ void Temperature::tick() {
     }
     SERIAL_CHAR(' ');
     SERIAL_CHAR(k);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
     SERIAL_CHAR(':');
@@ -3066,7 +3052,7 @@ void Temperature::tick() {
         , H_PROBE
       );
     #endif // HAS_TEMP_PROBE
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(e)
@@ -3081,7 +3067,7 @@ void Temperature::tick() {
     #if HAS_HEATED_CHAMBER
       SERIAL_ECHOPAIR(" C@:", getHeaterPower(H_CHAMBER));
     #endif
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       HOTEND_LOOP() {
         SERIAL_ECHOPAIR(" @", e);
         SERIAL_CHAR(':');
@@ -3110,7 +3096,7 @@ void Temperature::tick() {
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,
-        #if HOTENDS > 1
+        #if HAS_MULTI_HOTEND
           PSTR("E%c " S_FMT), '1' + e
         #else
           PSTR("E " S_FMT)
@@ -3138,7 +3124,7 @@ void Temperature::tick() {
         millis_t residency_start_ms = 0;
         bool first_loop = true;
         // Loop until the temperature has stabilized
-        #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
+        #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + SEC_TO_MS(TEMP_RESIDENCY_TIME)))
       #else
         // Loop until the temperature is very close target
         #define TEMP_CONDITIONS (wants_to_cool ? isCoolingHotend(target_extruder) : isHeatingHotend(target_extruder))
@@ -3174,7 +3160,7 @@ void Temperature::tick() {
           #if TEMP_RESIDENCY_TIME > 0
             SERIAL_ECHOPGM(" W:");
             if (residency_start_ms)
-              SERIAL_ECHO(long((((TEMP_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+              SERIAL_ECHO(long((SEC_TO_MS(TEMP_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
             else
               SERIAL_CHAR('?');
           #endif
@@ -3199,7 +3185,7 @@ void Temperature::tick() {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_WINDOW) {
               residency_start_ms = now;
-              if (first_loop) residency_start_ms += (TEMP_RESIDENCY_TIME) * 1000UL;
+              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_RESIDENCY_TIME);
             }
           }
           else if (temp_diff > TEMP_HYSTERESIS) {
@@ -3261,7 +3247,7 @@ void Temperature::tick() {
         millis_t residency_start_ms = 0;
         bool first_loop = true;
         // Loop until the temperature has stabilized
-        #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_BED_RESIDENCY_TIME) * 1000UL))
+        #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + SEC_TO_MS(TEMP_BED_RESIDENCY_TIME)))
       #else
         // Loop until the temperature is very close target
         #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
@@ -3298,7 +3284,7 @@ void Temperature::tick() {
           #if TEMP_BED_RESIDENCY_TIME > 0
             SERIAL_ECHOPGM(" W:");
             if (residency_start_ms)
-              SERIAL_ECHO(long((((TEMP_BED_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+              SERIAL_ECHO(long((SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
             else
               SERIAL_CHAR('?');
           #endif
@@ -3323,7 +3309,7 @@ void Temperature::tick() {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_BED_WINDOW) {
               residency_start_ms = now;
-              if (first_loop) residency_start_ms += (TEMP_BED_RESIDENCY_TIME) * 1000UL;
+              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_BED_RESIDENCY_TIME);
             }
           }
           else if (temp_diff > TEMP_BED_HYSTERESIS) {
@@ -3387,7 +3373,7 @@ void Temperature::tick() {
         millis_t residency_start_ms = 0;
         bool first_loop = true;
         // Loop until the temperature has stabilized
-        #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL))
+        #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME)))
       #else
         // Loop until the temperature is very close target
         #define TEMP_CHAMBER_CONDITIONS (wants_to_cool ? isCoolingChamber() : isHeatingChamber())
@@ -3419,7 +3405,7 @@ void Temperature::tick() {
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SERIAL_ECHOPGM(" W:");
             if (residency_start_ms)
-              SERIAL_ECHO(long((((TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+              SERIAL_ECHO(long((SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL));
             else
               SERIAL_CHAR('?');
           #endif
@@ -3439,7 +3425,7 @@ void Temperature::tick() {
             // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_CHAMBER_WINDOW) {
               residency_start_ms = now;
-              if (first_loop) residency_start_ms += (TEMP_CHAMBER_RESIDENCY_TIME) * 1000UL;
+              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME);
             }
           }
           else if (temp_diff > TEMP_CHAMBER_HYSTERESIS) {

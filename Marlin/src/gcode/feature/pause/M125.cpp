@@ -82,7 +82,7 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_LCD_MENU
-    lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);
+    lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);
     const bool show_lcd = parser.seenval('P');
   #else
     constexpr bool show_lcd = false;

@@ -1,6 +1,8 @@
 /**
  * Marlin 3D Printer Firmware
+ *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,47 +18,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef __MK20DX256__
+#ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(QSPI_EEPROM)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
-bool PersistentStore::access_start() { return true; }
-bool PersistentStore::access_finish() { return true; }
+#include "QSPIFlash.h"
+
+static bool initialized;
+
+size_t PersistentStore::capacity() { return qspi.size(); }
+
+bool PersistentStore::access_start() {
+  if (!initialized) {
+    qspi.begin();
+    initialized = true;
+  }
+  return true;
+}
+
+bool PersistentStore::access_finish() {
+  qspi.flush();
+  return true;
+}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
-    uint8_t v = *value;
-    // EEPROM has only ~100,000 write cycles,
-    // so only write bytes that have changed!
-    if (v != eeprom_read_byte(p)) {
-      eeprom_write_byte(p, v);
-      if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
-        return true;
-      }
-    }
+    const uint8_t v = *value;
+    qspi.writeByte(pos, v);
     crc16(crc, &v, 1);
     pos++;
     value++;
-  };
+  }
   return false;
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
-  do {
-    uint8_t c = eeprom_read_byte((uint8_t*)pos);
+  while (size--) {
+    uint8_t c = qspi.readByte(pos);
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
     value++;
-  } while (--size);
+  }
   return false;
 }
 
-#endif // EEPROM_SETTINGS
-#endif // __MK20DX256__
+#endif // QSPI_EEPROM
+#endif // __SAMD51__

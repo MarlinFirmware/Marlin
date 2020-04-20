@@ -22,6 +22,15 @@
 #pragma once
 
 /**
+ * Override default LCD timing for Formbot T-Rex 2+ machines.
+ * The long LCD cables and the routing near electrically noisy stepper motors
+ * requires a slightly longer setup and hold time on the signals.
+ */
+#define BOARD_ST7920_DELAY_1 DELAY_NS(200)
+#define BOARD_ST7920_DELAY_2 DELAY_NS(200)
+#define BOARD_ST7920_DELAY_3 DELAY_NS(200)
+
+/**
  * Formbot pin assignments
  */
 
@@ -121,7 +130,7 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else

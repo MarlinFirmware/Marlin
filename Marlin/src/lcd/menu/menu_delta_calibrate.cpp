@@ -61,16 +61,14 @@ void _man_probe_pt(const xy_pos_t &xy) {
 
   float lcd_probe_pt(const xy_pos_t &xy) {
     _man_probe_pt(xy);
-    KEEPALIVE_STATE(PAUSED_FOR_USER);
     ui.defer_status_screen();
-    wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), CONTINUE_STR);
     #endif
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress"));
     #endif
-    while (wait_for_user) idle();
+    wait_for_user_response();
     ui.goto_previous_screen_no_defer();
     return current_position.z;
   }

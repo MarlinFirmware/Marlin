@@ -507,7 +507,7 @@ bool UIFlashStorage::is_present = false;
       }
     #else
       return VERIFY_ERROR;
-    #endif // ENABLED(SDSUPPORT)
+    #endif // SDSUPPORT
   }
 
   bool UIFlashStorage::BootMediaReader::isAvailable(uint32_t slot) {

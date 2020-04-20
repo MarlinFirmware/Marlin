@@ -483,7 +483,7 @@ namespace ExtUI {
   void onLoadSettings(const char*) {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
-  void OnPidTuning(const result_t) {}
+  void onPidTuning(const result_t) {}
 }
 
 #endif // MALYAN_LCD

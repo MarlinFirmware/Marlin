@@ -72,16 +72,15 @@
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)
-      delay(PSU_POWERUP_DELAY); // Wait for power to settle
+      delay(PSU_POWERUP_DELAY);
       restore_stepper_drivers();
+      TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
     #endif
 
-    #if HAS_LCD_MENU
-      ui.reset_status();
-    #endif
+    TERN_(HAS_LCD_MENU, ui.reset_status());
   }
 
-#endif // ENABLED(PSU_CONTROL)
+#endif // PSU_CONTROL
 
 /**
  * M81: Turn off Power, including Power Supply, if there is one.

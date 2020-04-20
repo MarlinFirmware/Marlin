@@ -65,7 +65,7 @@
 
 /**
  * Include all needed font files
- * (See http://marlinfw.org/docs/development/fonts.html)
+ * (See https://marlinfw.org/docs/development/fonts.html)
  */
 #include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
@@ -244,13 +244,7 @@ void MarlinUI::init_lcd() {
   #if DISABLED(MKS_LCD12864B)
 
     #if PIN_EXISTS(LCD_BACKLIGHT)
-      OUT_WRITE(LCD_BACKLIGHT_PIN, (
-        #if ENABLED(DELAYED_BACKLIGHT_INIT)
-          LOW  // Illuminate after reset
-        #else
-          HIGH // Illuminate right away
-        #endif
-      ));
+      OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
     #endif
 
     #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)

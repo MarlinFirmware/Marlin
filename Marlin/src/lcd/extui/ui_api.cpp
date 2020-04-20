@@ -112,6 +112,9 @@ namespace ExtUI {
     #if ENABLED(JOYSTICK)
       uint8_t jogging : 1;
     #endif
+    #if ENABLED(SDSUPPORT)
+      uint8_t was_sd_printing : 1;
+    #endif
   } flags;
 
   #ifdef __SAM3X8E__
@@ -189,7 +192,7 @@ namespace ExtUI {
           case CHAMBER: return; // Chamber has no idle timer
         #endif
         default:
-          #if HOTENDS
+          #if HAS_HOTEND
             thermalManager.reset_hotend_idle_timer(heater - H0);
           #endif
           break;
@@ -255,7 +258,7 @@ namespace ExtUI {
           case CHAMBER: return false; // Chamber has no idle timer
         #endif
         default:
-          #if HOTENDS
+          #if HAS_HOTEND
             return thermalManager.hotend_idle[heater - H0].timed_out;
           #else
             return false;
@@ -777,7 +780,7 @@ namespace ExtUI {
      */
     int16_t mmToWholeSteps(const float mm, const axis_t axis) {
       const float steps = mm / planner.steps_to_mm[axis];
-      return steps > 0 ? ceil(steps) : floor(steps);
+      return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
   #endif
 
@@ -982,7 +985,7 @@ namespace ExtUI {
       else
     #endif
       {
-        #if HOTENDS
+        #if HAS_HOTEND
           static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
           const int16_t e = heater - H0;
           thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
@@ -994,7 +997,7 @@ namespace ExtUI {
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
-    #if HOTENDS
+    #if HAS_HOTEND
       constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
@@ -1032,11 +1035,18 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMedia() {
-    return IFSD(card.isFileOpen(), false);
+    #if ENABLED(SDSUPPORT)
+      // Account for when IS_SD_PRINTING() reports the end of the
+      // print when there is still SD card data in the planner.
+      flags.was_sd_printing = card.isFileOpen() || (flags.was_sd_printing && commandsInQueue());
+      return flags.was_sd_printing;
+    #else
+      return false;
+    #endif
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
   }
 
   bool isMediaInserted() {
@@ -1059,6 +1069,12 @@ namespace ExtUI {
     char msg[strlen_P(pstr) + 1];
     strcpy_P(msg, pstr);
     onUserConfirmRequired(msg);
+  }
+
+  void onStatusChanged_P(PGM_P const pstr) {
+    char msg[strlen_P(pstr) + 1];
+    strcpy_P(msg, pstr);
+    onStatusChanged(msg);
   }
 
   FileList::FileList() { refresh(); }
@@ -1139,28 +1155,7 @@ void MarlinUI::init() {
   ExtUI::onStartup();
 }
 
-void MarlinUI::update() {
-  #if ENABLED(SDSUPPORT)
-    static bool last_sd_status;
-    const bool sd_status = IS_SD_INSERTED();
-    if (sd_status != last_sd_status) {
-      last_sd_status = sd_status;
-      if (sd_status) {
-        card.mount();
-        if (card.isMounted())
-          ExtUI::onMediaInserted();
-        else
-          ExtUI::onMediaError();
-      }
-      else {
-        const bool ok = card.isMounted();
-        card.release();
-        if (ok) ExtUI::onMediaRemoved();
-      }
-    }
-  #endif // SDSUPPORT
-  ExtUI::onIdle();
-}
+void MarlinUI::update() { ExtUI::onIdle(); }
 
 void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
   using namespace ExtUI;

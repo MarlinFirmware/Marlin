@@ -305,12 +305,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
-  const AxisEnum a = (
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      axis == E_AXIS ? X_AXIS :
-    #endif
-    axis
-  );
+  const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
   const uint8_t offs = (XYZ_SPACING) * a;
   lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
   lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
@@ -332,11 +327,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  static char xstring[5
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      + 7
-    #endif
-  ], ystring[5], zstring[8];
+  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif
@@ -365,11 +356,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif
 
-  const bool showxy = (true
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      && !printingIsActive()
-    #endif
-  );
+  const bool showxy = TERN1(LCD_SHOW_E_TOTAL, !printingIsActive());
 
   // At the first page, generate new display values
   if (first_page) {
@@ -411,13 +398,7 @@ void MarlinUI::draw_status_screen() {
 
     // Progress / elapsed / estimation updates and string formatting to avoid float math on each LCD draw
     #if HAS_PRINT_PROGRESS
-      const progress_t progress =
-        #if HAS_PRINT_PROGRESS_PERMYRIAD
-          get_progress_permyriad()
-        #else
-          get_progress_percent()
-        #endif
-      ;
+      const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
       duration_t elapsed = print_job_timer.duration();
       const uint8_t p = progress & 0xFF, ev = elapsed.value & 0xFF;
       if (p != lastProgress) {
@@ -433,15 +414,9 @@ void MarlinUI::draw_status_screen() {
               estimation_x_pos = _SD_INFO_X(0);
             #endif
           }
-          else {
-            strcpy(progress_string, (
-              #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
-                permyriadtostr4(progress)
-              #else
-                ui8tostr3rj(progress / (PROGRESS_SCALE))
-              #endif
-            ));
-          }
+          else
+            strcpy(progress_string, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
+
           #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
             progress_x_pos = _SD_INFO_X(strlen(progress_string) + 1);
           #endif
@@ -570,8 +545,12 @@ void MarlinUI::draw_status_screen() {
     // Laser / Spindle
     #if DO_DRAW_CUTTER
       if (cutter.power && PAGE_CONTAINS(STATUS_CUTTER_TEXT_Y - INFO_FONT_ASCENT, STATUS_CUTTER_TEXT_Y - 1)) {
-        lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, i16tostr3rj(cutter.powerPercent(cutter.power)));
-        lcd_put_wchar('%');
+        lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, i16tostr3rj(cutter.power));
+        #if CUTTER_DISPLAY_IS(PERCENT)
+          lcd_put_wchar('%');
+        #elif CUTTER_DISPLAY_IS(RPM)
+          lcd_put_wchar('K');
+        #endif
       }
     #endif
 
