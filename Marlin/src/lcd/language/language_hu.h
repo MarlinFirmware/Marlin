@@ -47,7 +47,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Megszakítás...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Tároló Behelyezve");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tároló Eltávolítva");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Tároló Leválasztva");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Várakozás a tárolóra");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Tároló olvasási hiba");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB eltávolítva");
