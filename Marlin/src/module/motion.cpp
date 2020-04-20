@@ -1527,10 +1527,10 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
     }
 
     // Depending on invert dir measure the distance to nearest home phase.
-    int phaseDelta = invertDir ? phaseCurrent - home_phase[axis] : home_phase[axis] - phaseCurrent;
+    int16_t phaseDelta = (invertDir ? -1 : 1) * (home_phase[axis] - phaseCurrent);
 
     // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
-    if ((ABS(phaseDelta) / axisMicrostepSize * planner.steps_to_mm[axis]) < 0.05f)
+    if (ABS(phaseDelta) * planner.steps_to_mm[axis] / axisMicrostepSize < 0.05f)
       DEBUG_ECHOLNPAIR("Selected home phase ", home_phase[axis],
                        " too close to endstop trigger phase ", phaseCurrent,
                        ". Pick a different phase for ", axis_codes[axis]);
@@ -1539,7 +1539,7 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
     if (phaseDelta < 0) phaseDelta += 1024;
 
     // Get the integer µsteps to target. Unreachable phase? Consistently stop at the µstep before / after based on invertDir.
-    const float mmDelta = -(int(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * (Z_HOME_DIR));
+    const float mmDelta = -(int16_t(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * (Z_HOME_DIR));
 
     // optional debug messages.
     if (DEBUGGING(LEVELING)) {
