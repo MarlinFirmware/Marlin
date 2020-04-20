@@ -466,6 +466,14 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #if HOTENDS > 1
+    #define HAS_MULTI_HOTEND 1
+    #define HAS_HOTEND_OFFSET 1
+  #endif
+#endif
+
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
@@ -479,10 +487,6 @@
 
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
-#endif
-
-#if HOTENDS > 1
-  #define HAS_HOTEND_OFFSET 1
 #endif
 
 /**

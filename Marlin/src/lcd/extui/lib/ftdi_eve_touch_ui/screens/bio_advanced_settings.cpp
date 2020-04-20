@@ -58,7 +58,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
       .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .enabled(
-        #if HOTENDS > 1
+        #if HAS_MULTI_HOTEND
           1
         #endif
       )
@@ -105,7 +105,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 4: GOTO_SCREEN(StepperBumpSensitivityScreen);     break;
     #endif
     case 5: GOTO_SCREEN(EndstopStatesScreen);              break;
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
     case 6: GOTO_SCREEN(NozzleOffsetScreen);               break;
     #endif
 

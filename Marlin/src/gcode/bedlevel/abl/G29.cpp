@@ -60,7 +60,7 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif
 
@@ -283,7 +283,7 @@ G29_TYPE GcodeSuite::G29() {
    */
   if (!g29_in_progress) {
 
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       if (active_extruder != 0) tool_change(0);
     #endif
 

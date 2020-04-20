@@ -3194,7 +3194,7 @@ void MarlinSettings::reset() {
         HOTEND_LOOP() {
           CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(
-            #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
+            #if HAS_MULTI_HOTEND && ENABLED(PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
               SP_P_STR
             #else
