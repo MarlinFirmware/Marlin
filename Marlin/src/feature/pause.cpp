@@ -585,7 +585,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  * - Display "wait for print to resume"
  * - Retract to prevent oozing
  * - Move the nozzle back to resume_position
- * - Deretract
+ * - Unretract
  * - Re-prime the nozzle...
  *   -  FWRETRACT: Recover/prime from the prior G10.
  *   - !FWRETRACT: Retract by resume_position.e, if negative.
@@ -629,7 +629,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Move Z_AXIS to saved position
   do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
-  // Deretract
+  // Unretract
   unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   // Intelligent resuming
