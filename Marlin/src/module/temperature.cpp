@@ -30,7 +30,6 @@
 #include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
 #include "planner.h"
-#include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"

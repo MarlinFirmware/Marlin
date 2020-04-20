@@ -51,7 +51,6 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "../lcd/ultralcd.h"
-#include "../core/language.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"

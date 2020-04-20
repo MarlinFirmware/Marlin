@@ -53,7 +53,6 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#include "../core/language.h"
 #include "../lcd/ultralcd.h"
 
 #if HAS_BUZZER
