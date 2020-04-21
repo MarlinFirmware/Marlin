@@ -431,7 +431,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
 
   // Draw the static icons in GDRAM
   draw_gdram_icon(0, 0, nozzle_icon);
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     draw_gdram_icon(0, 1, nozzle_icon);
     draw_gdram_icon(0, 2, bed_icon);
   #else
@@ -584,7 +584,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
 #if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
-    draw_temps(HOTENDS > 1 ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
+    draw_temps(HAS_MULTI_HOTEND ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
     display_state.bed_show_target = show_target;
   }
 #endif
@@ -704,7 +704,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   const uint16_t   feedrate_perc     = feedrate_percentage;
   const uint16_t   fs                = thermalManager.scaledFanSpeed(0);
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
   #if HAS_HEATED_BED
@@ -731,7 +731,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const uint16_t   feedrate_perc     = feedrate_percentage;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
@@ -741,7 +741,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #endif
 
     draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
     #endif
     #if HAS_HEATED_BED

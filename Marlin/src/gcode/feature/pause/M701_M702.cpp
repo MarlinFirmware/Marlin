@@ -163,16 +163,18 @@ void GcodeSuite::M702() {
 
     #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
       float mix_multiplier = 1.0;
-      if (!parser.seenval('T')) {
+      const bool seenT = parser.seenval('T');
+      if (!seenT) {
         mixer.T(MIXER_AUTORETRACT_TOOL);
         mix_multiplier = MIXING_STEPPERS;
       }
-      else
+    #else
+      constexpr bool seenT = true;
     #endif
-    {
+
+    if (seenT) {
       const int8_t target_e_stepper = get_target_e_stepper_from_command();
       if (target_e_stepper < 0) return;
-
       mixer.T(MIXER_DIRECT_SET_TOOL);
       MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (i == (uint8_t)target_e_stepper) ? 1.0 : 0.0);
       mixer.normalize();

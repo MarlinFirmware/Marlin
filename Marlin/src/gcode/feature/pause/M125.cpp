@@ -82,7 +82,7 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_LCD_MENU
-    lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);
+    lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);
     const bool show_lcd = parser.seenval('P');
   #else
     constexpr bool show_lcd = false;
@@ -94,7 +94,7 @@ void GcodeSuite::M125() {
     #endif
     if (!sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
-      resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);
+      resume_print(0, 0, -retract, 0);
     }
   }
 }

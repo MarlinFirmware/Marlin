@@ -21,7 +21,7 @@
  */
 #pragma once
 
-// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
-#if ENABLED(EEPROM_SETTINGS) && NONE(USE_WIRED_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION)
-  #define SDCARD_EEPROM_EMULATION
+#undef USE_WIRED_EEPROM
+#if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
+  #define USE_WIRED_EEPROM 1
 #endif

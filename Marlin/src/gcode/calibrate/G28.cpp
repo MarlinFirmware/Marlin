@@ -27,7 +27,7 @@
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 
@@ -285,7 +285,7 @@ void GcodeSuite::G28() {
   #endif
 
   // Always home with tool 0 active
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
     #endif
@@ -329,7 +329,7 @@ void GcodeSuite::G28() {
         ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
         : 0;
 
-    if (z_homing_height && (doX || doY)) {
+    if (z_homing_height && (doX || doY || ENABLED(Z_SAFE_HOMING))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
       if (destination.z > current_position.z) {
@@ -474,7 +474,7 @@ void GcodeSuite::G28() {
   restore_feedrate_and_scaling();
 
   // Restore the active tool after homing
-  #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
     tool_change(old_tool_index, NONE(PARKING_EXTRUDER, DUAL_X_CARRIAGE));   // Do move if one of these
   #endif
 

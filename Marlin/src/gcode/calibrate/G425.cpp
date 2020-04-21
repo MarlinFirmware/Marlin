@@ -51,7 +51,6 @@
   #undef CALIBRATION_MEASURE_AT_TOP_EDGES
 #endif
 
-
 /**
  * G425 backs away from the calibration object by various distances
  * depending on the confidence level:
@@ -127,7 +126,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   calibration_move();
 }
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
@@ -256,7 +255,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
     #endif
   }
 
-  if (AXIS_CAN_CALIBRATE(X) && axis == X_AXIS || AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS) {
+  if ((AXIS_CAN_CALIBRATE(X) && axis == X_AXIS) || (AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS)) {
     // Move to safe distance to the side of the calibration object
     current_position[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty);
     calibration_move();
@@ -506,7 +505,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   TEMPORARY_BACKLASH_CORRECTION(all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     set_nozzle(m, extruder);
   #else
     UNUSED(extruder);
@@ -549,7 +548,7 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
     normalize_hotend_offsets();
   #endif
 
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     set_nozzle(m, 0);
   #endif
 }
@@ -583,7 +582,7 @@ inline void calibrate_all() {
   #endif
 
   // Cycle the toolheads so the servos settle into their "natural" positions
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     HOTEND_LOOP() set_nozzle(m, e);
   #endif
 

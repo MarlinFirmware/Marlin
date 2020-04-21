@@ -53,6 +53,10 @@ GcodeSuite gcode;
   #include "../feature/cancel_object.h"
 #endif
 
+#if ENABLED(LASER_MOVE_POWER)
+  #include "../feature/spindle_laser.h"
+#endif
+
 #include "../MarlinCore.h" // for idle()
 
 millis_t GcodeSuite::previous_move_ms;
@@ -171,6 +175,18 @@ void GcodeSuite::get_destination_from_command() {
   // Get ABCDHI mixing factors
   #if BOTH(MIXING_EXTRUDER, DIRECT_MIXING_IN_G1)
     M165();
+  #endif
+
+  #if ENABLED(LASER_MOVE_POWER)
+    // Set the laser power in the planner to configure this move
+    if (parser.seen('S'))
+      cutter.inline_power(parser.value_int());
+    else {
+      #if ENABLED(LASER_MOVE_G0_OFF)
+        if (parser.codenum == 0)        // G0
+          cutter.inline_enabled(false);
+      #endif
+    }
   #endif
 }
 
@@ -778,7 +794,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || EITHER(DIGIPOT_I2C, DAC_STEPPER_CURRENT)
+      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || HAS_I2C_DIGIPOT || ENABLED(DAC_STEPPER_CURRENT)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
         #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
@@ -972,7 +988,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           break;
       }
     }
-    next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
+    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
   }
 
 #endif // HOST_KEEPALIVE_FEATURE
