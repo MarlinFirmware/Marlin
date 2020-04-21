@@ -258,11 +258,6 @@ typedef struct {
   #endif
 } skew_factor_t;
 
-#ifdef XY_FREQUENCY_LIMIT
-  extern uint16_t frequency_settings;
-  extern uint16_t freq_min_feedrate;
-#endif
-
 class Planner {
   public:
 
@@ -291,7 +286,6 @@ class Planner {
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
-
 
     #if EXTRUDERS
       static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
@@ -381,24 +375,28 @@ class Planner {
     #endif
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-      /**
-       * Counters to manage disabling inactive extruders
-       */
+       // Counters to manage disabling inactive extruders
       static uint8_t g_uc_extruder_last_move[EXTRUDERS];
-    #endif // DISABLE_INACTIVE_EXTRUDER
-    
+    #endif
+
     #ifdef XY_FREQUENCY_LIMIT
-      // Used for the frequency limit
-      #define MAX_FREQ_TIME_US (uint32_t)(1000000.0 / XY_FREQUENCY_LIMIT)
-      static uint32_t max_frequency_time_us ;
-      // Old direction bits. Used for speed calculations
-      static unsigned char old_direction_bits;
-      // Segment times (in µs). Used for speed calculations
-      static xy_ulong_t axis_segment_time_us[3];
+      static int8_t xy_freq_limit_hz;         // Minimum XY frequency setting
+      static float xy_freq_min_speed_factor;  // Minimum speed factor setting
+      static int32_t xy_freq_min_interval_us; // Minimum segment time based on xy_freq_limit_hz
+      static inline void refresh_frequency_limit() {
+        xy_freq_min_interval_us = xy_freq_limit_hz ?: LROUND(1000000.0f / xy_freq_limit_hz);
+      }
+      static inline void set_min_speed_factor_u8(const uint8_t v255) {
+        xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
+      }
+      static inline void set_frequency_limit(const uint8_t hz) {
+        xy_freq_limit_hz = constrain(hz, 0, 100);
+        refresh_frequency_limit();
+      }
     #endif
 
     #if HAS_SPI_LCD
-      volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
+      volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
   public:

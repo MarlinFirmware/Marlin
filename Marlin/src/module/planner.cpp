@@ -111,15 +111,9 @@
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
 
-#ifdef XY_FREQUENCY_LIMIT
-  uint16_t frequency_settings  = XY_FREQUENCY_LIMIT ;
-  uint16_t freq_min_feedrate  = XY_FREQUENCY_MIN_FEEDRATE ;
-#endif
-
-
 Planner planner;
 
-  // public:
+// public:
 
 /**
  * A ring buffer of moves described in steps
@@ -206,10 +200,9 @@ float Planner::previous_nominal_speed_sqr;
 #endif
 
 #ifdef XY_FREQUENCY_LIMIT
-  // Old direction bits. Used for speed calculations
-  unsigned char Planner::old_direction_bits = 0;
-  // Segment times (in µs). Used for speed calculations
-  uint32_t Planner::max_frequency_time_us  = MAX_FREQ_TIME_US;
+  int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
+  float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
+  int32_t Planner::xy_freq_min_interval_us = uint32_t(1000000.0 / (XY_FREQUENCY_LIMIT) + 0.5);
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -2012,7 +2005,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if EITHER(SLOWDOWN, ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
-    uint32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
+    int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
 
   #if ENABLED(SLOWDOWN)
@@ -2020,9 +2013,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #define SLOWDOWN_DIVISOR 2
     #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
-      if (segment_time_us < settings.min_segment_time_us) {
-        // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        const uint32_t nst = segment_time_us + LROUND(2 * (settings.min_segment_time_us - segment_time_us) / moves_queued);
+      const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
+      if (time_diff > 0) {
+        // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
+        const int32_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
         inverse_secs = 1000000.0f / nst;
         #if defined(XY_FREQUENCY_LIMIT) || HAS_SPI_LCD
           segment_time_us = nst;
@@ -2078,47 +2072,38 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
   #endif
 
-  // Max segment time in µs.
   #ifdef XY_FREQUENCY_LIMIT
-    if (frequency_settings){
-      max_frequency_time_us = ( 1000000.0f /frequency_settings ) ;
 
+    static uint8_t old_direction_bits; // = 0
+
+    if (xy_freq_limit_hz) {
       // Check and limit the xy direction change frequency
-      const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
+      const uint8_t direction_change = block->direction_bits ^ old_direction_bits;
       old_direction_bits = block->direction_bits;
-      segment_time_us = LROUND((float)segment_time_us / speed_factor);
+      segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
-      static uint32_t xs0 , xs1 , xs2 ,
-                      ys0 , ys1 , ys2 ;
+      static int32_t xs0, xs1, xs2, ys0, ys1, ys2;
 
-      xs2 = xs1 ; xs1 = xs0 ; xs0 = max_frequency_time_us ;
-      ys2 = ys1 ; ys1 = ys0 ; ys0 = max_frequency_time_us ;
+      xs2 = xs1; xs1 = xs0; xs0 = xy_freq_min_interval_us;
+      ys2 = ys1; ys1 = ys0; ys0 = xy_freq_min_interval_us;
 
-      if( segment_time_us > max_frequency_time_us ) {
-        xs2 = xs1 = xs0 = max_frequency_time_us ;
-        ys2 = ys1 = ys0 = max_frequency_time_us ;
+      if (segment_time_us > xy_freq_min_interval_us) {
+        xs2 = xs1 = xs0 = xy_freq_min_interval_us;
+        ys2 = ys1 = ys0 = xy_freq_min_interval_us;
       }
-      if (TEST(direction_change, X_AXIS)) {
-        xs0 = segment_time_us;
-      }
-      if (TEST(direction_change, Y_AXIS)) {
-        ys0 = segment_time_us;
-      }
+      if (TEST(direction_change, X_AXIS)) xs0 = segment_time_us;
+      if (TEST(direction_change, Y_AXIS)) ys0 = segment_time_us;
 
-      if (segment_time_us < max_frequency_time_us){
-
-        const uint32_t max_x_segment_time = _MAX(xs0, xs1, xs2),
-        max_y_segment_time = _MAX(ys0, ys1, ys2),
-        min_xy_segment_time = _MIN(max_x_segment_time, max_y_segment_time);
-
-        if (min_xy_segment_time < max_frequency_time_us){
-          const float freq_xy_feedrate = ( speed_factor * min_xy_segment_time ) / max_frequency_time_us;
+      if (segment_time_us < xy_freq_min_interval_us) {
+        const int32_t least_xy_segment_time = _MIN(_MAX(xs0, xs1, xs2), _MAX(ys0, ys1, ys2));
+        if (least_xy_segment_time < xy_freq_min_interval_us) {
+          const float freq_xy_feedrate = (speed_factor * least_xy_segment_time) / xy_freq_min_interval_us;
+          NOLESS(freq_xy_feedrate, xy_freq_min_speed_factor);
           NOMORE(speed_factor, freq_xy_feedrate);
-          NOLESS(speed_factor,(freq_min_feedrate/100));
         }
-
       }
-   }
+    }
+
   #endif // XY_FREQUENCY_LIMIT
 
   // Correct the speed
@@ -2843,7 +2828,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const bool was_enabled = stepper.suspend();
     #endif
 
-    millis_t bbru = block_buffer_runtime_us;
+    uint32_t bbru = block_buffer_runtime_us;
 
     #ifdef __AVR__
       // Reenable Stepper ISR
@@ -2855,7 +2840,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
     // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
     bbru >>= 10;
     // limit to about a minute.
-    NOMORE(bbru, 0xFFFFul);
+    NOMORE(bbru, 0x0000FFFFUL);
     return bbru;
   }
 

@@ -61,8 +61,8 @@ void GcodeSuite::M201() {
   if (target_extruder < 0) return;
 
   #ifdef XY_FREQUENCY_LIMIT
-    if ( parser.seenval('F') ) frequency_settings  = parser.value_linear_units();
-    if ( parser.seenval('G') ) freq_min_feedrate  = parser.value_linear_units();
+    if (parser.seenval('F')) planner.set_frequency_limit(parser.value_byte());
+    if (parser.seenval('G')) planner.xy_freq_min_speed_factor = constrain(parser.value_float(), 1, 100) / 100;
   #endif
 
   LOOP_XYZE(i) {
