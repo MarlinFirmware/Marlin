@@ -302,6 +302,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-Retract");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-Travel");
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Frequency max");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Feed min");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_LENGTH             = _UxGT("long min");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Steps/mm");
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("steps/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("steps/mm");

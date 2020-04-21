@@ -788,7 +788,10 @@
 // See nophead's blog for more info
 // Not working O
 // M201 F<positive>
-//#define XY_FREQUENCY_LIMIT  15
+#define XY_FREQUENCY_LIMIT  10 // hz (M201 F..)
+#ifdef XY_FREQUENCY_LIMIT
+  #define XY_FREQUENCY_MIN_FEEDRATE  1  //(M201 G..) Minimum percent of current feedrate when segment slowdown to avoid extra long movement
+#endif
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
