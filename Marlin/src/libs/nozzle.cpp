@@ -174,10 +174,10 @@ Nozzle nozzle;
       LIMIT_AXIS(z);
 
       const float arc_part = radius / M_PI;
-      const bool radiusOutOfRange = (middle.x + arc_part > soft_endstop.max.x)
-                                 || (middle.x + arc_part < soft_endstop.min.x)
-                                 || (middle.y + arc_part > soft_endstop.max.y)
-                                 || (middle.y + arc_part < soft_endstop.min.y);
+      const bool radiusOutOfRange = (middle[arrPos].x + arc_part > soft_endstop.max.x)
+                                 || (middle[arrPos].x + arc_part < soft_endstop.min.x)
+                                 || (middle[arrPos].y + arc_part > soft_endstop.max.y)
+                                 || (middle[arrPos].y + arc_part < soft_endstop.min.y);
 
       if (radiusOutOfRange && pattern == 2) {
         SERIAL_ECHOLNPGM("Warning: Radius Out of Range");
