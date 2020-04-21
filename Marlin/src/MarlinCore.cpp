@@ -70,7 +70,7 @@
   #include "libs/buzzer.h"
 #endif
 
-#if ENABLED(DIGIPOT_I2C)
+#if HAS_I2C_DIGIPOT
   #include "feature/digipot/digipot.h"
 #endif
 
@@ -1070,7 +1070,7 @@ void setup() {
     SETUP_RUN(enableStepperDrivers());
   #endif
 
-  #if ENABLED(DIGIPOT_I2C)
+  #if HAS_I2C_DIGIPOT
     SETUP_RUN(digipot_i2c_init());
   #endif
 
@@ -1154,7 +1154,7 @@ void setup() {
   #endif
 
   #if ENABLED(SWITCHING_TOOLHEAD)
-    swt_init();
+    SETUP_RUN(swt_init());
   #endif
 
   #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)

@@ -794,7 +794,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || EITHER(DIGIPOT_I2C, DAC_STEPPER_CURRENT)
+      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || HAS_I2C_DIGIPOT || ENABLED(DAC_STEPPER_CURRENT)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
         #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.

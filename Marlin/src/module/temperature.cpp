@@ -30,7 +30,6 @@
 #include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
 #include "planner.h"
-#include "../core/language.h"
 #include "../HAL/shared/Delay.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
@@ -140,7 +139,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   bool Temperature::adaptive_fan_slowing = true;
 #endif
 
-#if HOTENDS
+#if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTEND_TEMPS]; // = { 0 }
 #endif
 
@@ -298,7 +297,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) < (HEATER_##N##_RAW_HI_TEMP) ? 1 : -1)
 
-#if HOTENDS
+#if HAS_HOTEND
   // Init mintemp and maxtemp with extreme values to prevent false errors during startup
   constexpr temp_range_t sensor_heater_0 { HEATER_0_RAW_LO_TEMP, HEATER_0_RAW_HI_TEMP, 0, 16383 },
                          sensor_heater_1 { HEATER_1_RAW_LO_TEMP, HEATER_1_RAW_HI_TEMP, 0, 16383 },
@@ -655,7 +654,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     #endif
     default:
       return (0
-        #if HOTENDS
+        #if HAS_HOTEND
           + temp_hotend[heater_id].soft_pwm_amount
         #endif
       );
@@ -672,7 +671,7 @@ int16_t Temperature::getHeaterPower(const heater_ind_t heater_id) {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
       0
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         #define _NEXT_FAN(N) , REPEAT2(N,_EFAN,N) N
         RREPEAT_S(1, HOTENDS, _NEXT_FAN)
       #endif
@@ -821,7 +820,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
   _temp_error(heater, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
-#if HOTENDS
+#if HAS_HOTEND
   #if ENABLED(PID_DEBUG)
     extern bool pid_debug_flag;
   #endif
@@ -1036,7 +1035,7 @@ void Temperature::manage_heater() {
 
   millis_t ms = millis();
 
-  #if HOTENDS
+  #if HAS_HOTEND
 
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
@@ -1384,7 +1383,7 @@ void Temperature::manage_heater() {
   }
 #endif
 
-#if HOTENDS
+#if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
   float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
@@ -1575,7 +1574,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(HEATER_1_USES_MAX6675)
     temp_hotend[1].raw = READ_MAX6675(1);
   #endif
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   #endif
   #if HAS_HEATED_BED
@@ -1836,7 +1835,7 @@ void Temperature::init() {
   // Wait for temperature measurement to settle
   delay(250);
 
-  #if HOTENDS
+  #if HAS_HOTEND
 
     #define _TEMP_MIN_E(NR) do{ \
       temp_range[NR].mintemp = HEATER_ ##NR## _MINTEMP; \
@@ -1855,7 +1854,7 @@ void Temperature::init() {
     #ifdef HEATER_0_MAXTEMP
       _TEMP_MAX_E(0);
     #endif
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       #ifdef HEATER_1_MINTEMP
         _TEMP_MIN_E(1);
       #endif
@@ -1910,7 +1909,7 @@ void Temperature::init() {
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
-    #endif // HOTENDS > 1
+    #endif // HAS_MULTI_HOTEND
 
   #endif // HOTENDS
 
@@ -2070,7 +2069,7 @@ void Temperature::disable_all_heaters() {
     planner.autotemp_enabled = false;
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() setTargetHotend(0, e);
   #endif
 
@@ -2113,7 +2112,7 @@ void Temperature::disable_all_heaters() {
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
 
   bool Temperature::over_autostart_threshold() {
-    #if HOTENDS
+    #if HAS_HOTEND
       HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
     #endif
     #if HAS_HEATED_BED
@@ -2358,7 +2357,7 @@ void Temperature::readings_ready() {
     filwidth.reading_ready();
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].reset();
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       temp_hotend[1].reset();
@@ -2387,7 +2386,7 @@ void Temperature::readings_ready() {
     joystick.z.reset();
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
 
     static constexpr int8_t temp_dir[] = {
       #if ENABLED(HEATER_0_USES_MAX6675)
@@ -2395,7 +2394,7 @@ void Temperature::readings_ready() {
       #else
         TEMPDIR(0)
       #endif
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         #define _TEMPDIR(N) , TEMPDIR(N)
         #if ENABLED(HEATER_1_USES_MAX6675)
           , 0
@@ -2405,7 +2404,7 @@ void Temperature::readings_ready() {
         #if HOTENDS > 2
           REPEAT_S(2, HOTENDS, _TEMPDIR)
         #endif // HOTENDS > 2
-      #endif // HOTENDS > 1
+      #endif // HAS_MULTI_HOTEND
     };
 
     LOOP_L_N(e, COUNT(temp_dir)) {
@@ -2531,7 +2530,7 @@ void Temperature::tick() {
     static bool ADCKey_pressed = false;
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     static SoftPWM soft_pwm_hotend[HOTENDS];
   #endif
 
@@ -2565,7 +2564,7 @@ void Temperature::tick() {
     if (pwm_count_tmp >= 127) {
       pwm_count_tmp -= 127;
 
-      #if HOTENDS
+      #if HAS_HOTEND
         #define _PWM_MOD_E(N) _PWM_MOD(N,soft_pwm_hotend[N],temp_hotend[N]);
         REPEAT(HOTENDS, _PWM_MOD_E);
       #endif
@@ -2612,7 +2611,7 @@ void Temperature::tick() {
     }
     else {
       #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_HEATER_##N(LOW); }while(0)
-      #if HOTENDS
+      #if HAS_HOTEND
         #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N]);
         REPEAT(HOTENDS, _PWM_LOW_E);
       #endif
@@ -2678,7 +2677,7 @@ void Temperature::tick() {
 
     if (slow_pwm_count == 0) {
 
-      #if HOTENDS
+      #if HAS_HOTEND
         #define _SLOW_PWM_E(N) _SLOW_PWM(N, soft_pwm_hotend[N], temp_hotend[N]);
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
@@ -2689,7 +2688,7 @@ void Temperature::tick() {
 
     } // slow_pwm_count == 0
 
-    #if HOTENDS
+    #if HAS_HOTEND
       #define _PWM_OFF_E(N) _PWM_OFF(N, soft_pwm_hotend[N]);
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
@@ -2772,7 +2771,7 @@ void Temperature::tick() {
       slow_pwm_count++;
       slow_pwm_count &= 0x7F;
 
-      #if HOTENDS
+      #if HAS_HOTEND
         HOTEND_LOOP() soft_pwm_hotend[e].dec();
       #endif
       #if HAS_HEATED_BED
@@ -2990,7 +2989,7 @@ void Temperature::tick() {
     }
     SERIAL_CHAR(' ');
     SERIAL_CHAR(k);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
     SERIAL_CHAR(':');
@@ -3052,7 +3051,7 @@ void Temperature::tick() {
         , H_PROBE
       );
     #endif // HAS_TEMP_PROBE
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(e)
@@ -3067,7 +3066,7 @@ void Temperature::tick() {
     #if HAS_HEATED_CHAMBER
       SERIAL_ECHOPAIR(" C@:", getHeaterPower(H_CHAMBER));
     #endif
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       HOTEND_LOOP() {
         SERIAL_ECHOPAIR(" @", e);
         SERIAL_CHAR(':');
@@ -3096,7 +3095,7 @@ void Temperature::tick() {
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,
-        #if HOTENDS > 1
+        #if HAS_MULTI_HOTEND
           PSTR("E%c " S_FMT), '1' + e
         #else
           PSTR("E " S_FMT)

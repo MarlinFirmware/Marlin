@@ -94,7 +94,7 @@ void GcodeSuite::M125() {
     #endif
     if (!sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
-      resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);
+      resume_print(0, 0, -retract, 0);
     }
   }
 }

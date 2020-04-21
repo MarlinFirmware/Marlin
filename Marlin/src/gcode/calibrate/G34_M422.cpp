@@ -32,7 +32,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 
@@ -124,7 +124,7 @@ void GcodeSuite::G34() {
     #endif
 
     // Always home with tool 0 active
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       const uint8_t old_tool_index = active_extruder;
       tool_change(0, true);
     #endif
@@ -386,7 +386,7 @@ void GcodeSuite::G34() {
     #endif
 
     // Restore the active tool after homing
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous tool for parking extruder
     #endif
 
