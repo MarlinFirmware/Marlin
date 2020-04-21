@@ -2157,25 +2157,20 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     {
       current_speed.e = steps_dist_mm.e * inverse_secs;
       #if HAS_MIXER_SYNC_CHANNEL
-        #define MIX_FACTOR MIXING_STEPPERS
-      #else
-        #define MIX_FACTOR 1
-      #endif
-
-      #if MIX_FACTOR > 1
         // Move all mixing extruders at the specified rate
         if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
-          current_speed.e *= MIX_FACTOR;
+          current_speed.e *= MIXING_STEPPERS;
       #endif
 
       const feedRate_t cs = ABS(current_speed.e),
-                   max_fr = (settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                             * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+                   max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
+                            * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
       if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
       
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] * MIX_FACTOR;
+        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] 
+                                   * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
         // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
 
