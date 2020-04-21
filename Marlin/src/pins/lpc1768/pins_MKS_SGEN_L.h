@@ -33,12 +33,6 @@
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
 
 //
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P1_23  // SERVO P1.23

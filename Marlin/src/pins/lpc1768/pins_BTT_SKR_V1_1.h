@@ -24,12 +24,6 @@
 #define BOARD_INFO_NAME "BIGTREE SKR 1.1"
 
 //
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
-
-//
 // Limit Switches
 //
 
