@@ -423,10 +423,10 @@
 #define _H6_PINS
 #define _H7_PINS
 
-#if HOTENDS
+#if HAS_HOTEND
   #undef _H0_PINS
   #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #undef _H1_PINS
     #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
     #if HOTENDS > 2
@@ -453,7 +453,7 @@
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
+  #endif // HAS_MULTI_HOTEND
 #endif // HOTENDS
 
 //

@@ -936,7 +936,7 @@
 
   // Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
   // These correspond to the physical drivers, so be mindful if the order is changed.
-  #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
+  #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } // AZTEEG_X3_PRO
 
   //#define DIGIPOT_USE_RAW_VALUES    // Use DIGIPOT_MOTOR_CURRENT raw wiper values (instead of A4988 motor currents)
 
@@ -2272,9 +2272,9 @@
   #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
 
   /**
-   * Monitor Trinamic drivers for error conditions,
-   * like overtemperature and short to ground.
-   * In the case of overtemperature Marlin can decrease the driver current until error condition clears.
+   * Monitor Trinamic drivers
+   * for error conditions like overtemperature and short to ground.
+   * To manage over-temp Marlin can decrease the driver current until the error condition clears.
    * Other detected conditions can be used to stop the current print.
    * Relevant g-codes:
    * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given.
@@ -2350,6 +2350,18 @@
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
+
+  /**
+   * TMC Homing stepper phase.
+   *
+   * Improve homing repeatability by homing to stepper coil's nearest absolute
+   * phase position. Trinamic drivers use a stepper phase table with 1024 values
+   * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
+   * Full step positions (128, 384, 640, 896) have the highest holding torque.
+   *
+   * Values from 0..1023, -1 to disable homing phase for that axis.
+   */
+   //#define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
    * Beta feature!

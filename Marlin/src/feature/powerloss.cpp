@@ -366,11 +366,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore all hotend temperatures
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() {
       const int16_t et = info.target_temperature[e];
       if (et) {
-        #if HOTENDS > 1
+        #if HAS_MULTI_HOTEND
           sprintf_P(cmd, PSTR("T%i"), e);
           gcode.process_subcommands_now(cmd);
         #endif
@@ -517,7 +517,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
 
-        #if HOTENDS
+        #if HAS_HOTEND
           DEBUG_ECHOPGM("target_temperature: ");
           HOTEND_LOOP() {
             DEBUG_ECHO(info.target_temperature[e]);

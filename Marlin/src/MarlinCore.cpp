@@ -1154,7 +1154,7 @@ void setup() {
   #endif
 
   #if ENABLED(SWITCHING_TOOLHEAD)
-    swt_init();
+    SETUP_RUN(swt_init());
   #endif
 
   #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)

@@ -45,7 +45,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Cancelando...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Tarxeta inserida");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tarxeta retirada");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD/USB lanzado");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Agardando ao SD/USB");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Erro lectura SD/USB");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Disp. USB retirado");

@@ -158,6 +158,8 @@ void InterfaceSettingsScreen::onIdle() {
     switch (cmd.track_tag(value)) {
       case 2:
         screen_data.InterfaceSettingsScreen.brightness = float(value) * 128 / 0xFFFF;
+        if (screen_data.InterfaceSettingsScreen.brightness > 1)
+          screen_data.InterfaceSettingsScreen.brightness = 1;
         CLCD::set_brightness(screen_data.InterfaceSettingsScreen.brightness);
         SaveSettingsDialogBox::settingsChanged();
         break;

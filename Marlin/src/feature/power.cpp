@@ -107,11 +107,9 @@ void Power::power_on() {
   lastPowerOn = millis();
   if (!powersupply_on) {
     PSU_PIN_ON();
-
-    #if HAS_TRINAMIC_CONFIG
-      delay(PSU_POWERUP_DELAY); // Wait for power to settle
-      restore_stepper_drivers();
-    #endif
+    delay(PSU_POWERUP_DELAY);
+    restore_stepper_drivers();
+    TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
   }
 }
 

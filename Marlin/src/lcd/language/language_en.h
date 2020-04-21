@@ -47,7 +47,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Aborting...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media Inserted");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media Removed");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Media Released");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Waiting for media");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Media read error");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB device removed");

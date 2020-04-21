@@ -42,7 +42,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("正在中止...");   //"Aborting..."
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("記憶卡已插入");     //"Card inserted"
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("記憶卡被拔出");     //"Card removed"
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("記憶卡被釋放");   //"Media Released"
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("等待記憶卡");    //"Waiting for media"
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("記憶卡讀取錯誤"); //"Media read error"
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB裝置已移除");   //"USB device removed"
@@ -251,18 +250,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("自動控溫");     //"Autotemp"
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("開 ");     //"On"
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("關 ");     //"Off"
-  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");     //"PID-P"
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");     //"PID-I"
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");     //"PID-D"
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");     //"PID-C"
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");    //"PID-F"
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
+
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("選擇");     //"Select"
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("選擇 *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("加速度");     //"Accel" acceleration
@@ -271,7 +259,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("軸抖動速率") LCD_STR_B;     //"Vb-jerk"
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("軸抖動速率") LCD_STR_C;     //"Vc-jerk"
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("擠出機抖動速率");     //"Ve-jerk"
-  PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Junction Dev");
+
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("速度");     // "Velocity"
   PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("最大進料速率") LCD_STR_A;     //"Vmax " max_feedrate_mm_s
   PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("最大進料速率") LCD_STR_B;
@@ -374,7 +362,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("釋放媒體");   //"Release Media"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探針在熱床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因數");     // "Skew Factor"
-  PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");     // "BLTouch"
+
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch 自檢");     // "BLTouch Self-Test"
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("重置BLTouch");     // "Reset BLTouch"
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("裝載BLTouch");     // "Stow BLTouch"
@@ -515,7 +503,6 @@ namespace Language_zh_TW {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("按下完成.."));     //"Click to finish"
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("恢復中 ..."));     //"Resuming..."
   #endif // LCD_HEIGHT < 4
-
 }
 
 #if FAN_COUNT == 1

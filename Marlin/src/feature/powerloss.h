@@ -68,7 +68,7 @@ typedef struct {
     #endif
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     int16_t target_temperature[HOTENDS];
   #endif
 

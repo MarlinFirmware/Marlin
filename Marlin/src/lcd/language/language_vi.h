@@ -39,7 +39,6 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Đang hủy bỏ...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Phương tiện được cắm vào");             // Media inserted
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Phương tiện được rút ra");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Phương tiện đã phát hành");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Chờ đợi phương tiện");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Lỗi đọc phương tiện");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB được rút ra");

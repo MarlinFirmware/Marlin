@@ -806,6 +806,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(NOZZLE_PARK_FEATURE)
   constexpr float npp[] = NOZZLE_PARK_POINT;
   static_assert(COUNT(npp) == XYZ, "NOZZLE_PARK_POINT requires X, Y, and Z values.");
+  constexpr xyz_pos_t npp_xyz = NOZZLE_PARK_POINT;
+  static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
+  static_assert(WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+  static_assert(WITHIN(npp_xyz.z, Z_MIN_POS, Z_MAX_POS), "NOZZLE_PARK_POINT.Z is out of bounds (Z_MIN_POS, Z_MAX_POS).");
 #endif
 
 /**
@@ -1591,11 +1595,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif HOTENDS && !HAS_TEMP_HOTEND
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
+#elif (HAS_MULTI_HOTEND || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #if ENABLED(HEATER_1_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS2)
     #error "MAX6675_SS2_PIN (required for TEMP_SENSOR_1) not defined for this board."
   #elif TEMP_SENSOR_1 == 0

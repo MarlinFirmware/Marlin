@@ -30,7 +30,6 @@
 #include "../lcd/ultralcd.h"
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
-#include "../core/language.h"
 #include "../gcode/queue.h"
 #include "../module/configuration_store.h"
 

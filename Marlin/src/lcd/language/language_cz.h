@@ -49,7 +49,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Rušení...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Médium vloženo");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Médium vyjmuto");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Médium uvolněno");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Čekání na médium");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Chyba čtení média");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB odstraněno");
