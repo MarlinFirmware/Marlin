@@ -159,7 +159,7 @@
 #define HBP_PIN                               45  // L4
 #define EXTRA_FET_PIN                         44  // L5
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #if TEMP_SENSOR_BED
     #define IS_EEB
   #else

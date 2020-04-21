@@ -35,7 +35,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 

@@ -68,7 +68,7 @@ SCREEN_TABLE {
 #if HAS_BED_PROBE
   DECL_SCREEN(ZOffsetScreen),
 #endif
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   DECL_SCREEN(NozzleOffsetScreen),
 #endif
 #if ENABLED(BACKLASH_GCODE)

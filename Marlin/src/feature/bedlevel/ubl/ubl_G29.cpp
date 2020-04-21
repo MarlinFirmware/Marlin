@@ -38,7 +38,7 @@
   #include "../../../gcode/gcode.h"
   #include "../../../libs/least_squares_fit.h"
 
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #include "../../../module/tool_change.h"
   #endif
 

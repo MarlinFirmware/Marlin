@@ -43,7 +43,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Abbruch...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Medium erkannt");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Medium entfernt");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Medium freigegeben");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Warten auf Medium");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Medium Lesefehler");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB Gerät entfernt");

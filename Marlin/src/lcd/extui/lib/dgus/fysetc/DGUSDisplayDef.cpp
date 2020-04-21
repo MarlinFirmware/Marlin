@@ -37,7 +37,7 @@
 #include "../../../../ultralcd.h"
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
-  uint16_t distanceToMove = 0.1;
+  uint16_t distanceToMove = 10;
 #endif
 
 const uint16_t VPList_Boot[] PROGMEM = {

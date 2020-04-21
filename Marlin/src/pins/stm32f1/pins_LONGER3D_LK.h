@@ -159,11 +159,11 @@
   #define EEPROM_MISO        BOARD_SPI1_MISO_PIN  // PA6 pin 31
   #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE 0x1000U                // 4KB (from datasheet)
-  #define E2END ((16 * EEPROM_PAGE_SIZE)-1) // Limit to 64KB for now...
+  #define E2END (16UL * (EEPROM_PAGE_SIZE) - 1UL) // Limit to 64KB for now...
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
-  #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
-  #define EEPROM_PAGE_SIZE     (0x800U)     // 2KB, but will use 2x more (4KB)
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define E2END (EEPROM_PAGE_SIZE - 1)
 #else
   #define E2END (0x7FFU) // On SD, Limit to 2KB, require this amount of RAM

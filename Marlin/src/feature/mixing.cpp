@@ -115,7 +115,7 @@ void Mixer::init() {
 
   reset_vtools();
 
-  #if ENABLED(RETRACT_SYNC_MIXING)
+  #if HAS_MIXER_SYNC_CHANNEL
     // AUTORETRACT_TOOL gets the same amount of all filaments
     MIXER_STEPPER_LOOP(i)
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;

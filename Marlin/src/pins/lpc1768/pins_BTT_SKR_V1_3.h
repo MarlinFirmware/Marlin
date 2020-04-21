@@ -31,18 +31,18 @@
   //#define SDCARD_EEPROM_EMULATION
 #endif
 
-/**
- * Trinamic Stallguard pins
- */
+//
+// Trinamic Stallguard pins
+//
 #define X_DIAG_PIN                         P1_29  // X-
 #define Y_DIAG_PIN                         P1_27  // Y-
 #define Z_DIAG_PIN                         P1_25  // Z-
 #define E0_DIAG_PIN                        P1_28  // X+
 #define E1_DIAG_PIN                        P1_26  // Y+
 
-/**
- * Limit Switches
- */
+//
+// Limit Switches
+//
 #if X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_DIR < 0
