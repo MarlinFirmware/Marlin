@@ -745,7 +745,7 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 1 or Bed Temperature
       //
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         lcd_moveto(8, 0);
         _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
       #elif HAS_HEATED_BED
@@ -763,7 +763,7 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 1 or Bed Temperature
       //
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         lcd_moveto(10, 0);
         _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
       #elif HAS_HEATED_BED
@@ -791,7 +791,7 @@ void MarlinUI::draw_status_screen() {
         // If the first line has two extruder temps,
         // show more temperatures on the next line
 
-        #if HOTENDS > 2 || (HOTENDS > 1 && HAS_HEATED_BED)
+        #if HOTENDS > 2 || (HAS_MULTI_HOTEND && HAS_HEATED_BED)
 
           #if HOTENDS > 2
             _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
@@ -924,7 +924,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(LCD_WIDTH - 9, 0);
     _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
-    #if HAS_LEVELING && (HOTENDS > 1 || !HAS_HEATED_BED)
+    #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
       lcd_put_wchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');
     #endif
 
@@ -934,7 +934,7 @@ void MarlinUI::draw_status_screen() {
     // Hotend 1 or Bed Temperature
     //
     lcd_moveto(0, 1);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
     #elif HAS_HEATED_BED
       _draw_bed_status(blink);
@@ -952,7 +952,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(0, 2);
     #if HOTENDS > 2
       _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
-    #elif HOTENDS > 1 && HAS_HEATED_BED
+    #elif HAS_MULTI_HOTEND && HAS_HEATED_BED
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS
@@ -1077,7 +1077,7 @@ void MarlinUI::draw_status_screen() {
         if (thermalManager.degTargetBed() > 0) leds |= LED_A;
       #endif
 
-      #if HOTENDS
+      #if HAS_HOTEND
         if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
       #endif
 
@@ -1110,7 +1110,7 @@ void MarlinUI::draw_status_screen() {
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0
 
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         if (thermalManager.degTargetHotend(1) > 0) leds |= LED_C;
       #endif
 

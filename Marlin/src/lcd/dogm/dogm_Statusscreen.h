@@ -278,7 +278,7 @@
     //
     // Status Screen Hotends bitmaps
     //
-    #if HOTENDS
+    #if HAS_HOTEND
 
       #define STATUS_HOTEND1_WIDTH  16
 
@@ -1343,7 +1343,7 @@
     #undef STATUS_LOGO_WIDTH
   #endif
 
-  #if (HOTENDS > 1 && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
+  #if (HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
     #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
@@ -1474,7 +1474,7 @@
 
     constexpr uint8_t status_hotend_x[HOTENDS] = ARRAY_N(HOTENDS, STATUS_HOTEND1_X, STATUS_HOTEND2_X, STATUS_HOTEND3_X, STATUS_HOTEND4_X, STATUS_HOTEND5_X, STATUS_HOTEND6_X);
     #define STATUS_HOTEND_X(N) status_hotend_x[N]
-  #elif HOTENDS > 1
+  #elif HAS_MULTI_HOTEND
     #define STATUS_HOTEND_X(N) ((N) ? STATUS_HOTEND2_X : STATUS_HOTEND1_X)
   #else
     #define STATUS_HOTEND_X(N) STATUS_HOTEND1_X

@@ -30,7 +30,6 @@
 #include "../lcd/ultralcd.h"
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
-#include "../core/language.h"
 #include "../gcode/queue.h"
 #include "../module/configuration_store.h"
 
@@ -155,12 +154,13 @@ char *createFilename(char * const buffer, const dir_t &p) {
 // Return 'true' if the item is a folder or G-code file
 //
 bool CardReader::is_dir_or_gcode(const dir_t &p) {
-  uint8_t pn0 = p.name[0];
+  //uint8_t pn0 = p.name[0];
 
-  if ( pn0 == DIR_NAME_FREE || pn0 == DIR_NAME_DELETED  // Clear or Deleted entry
-    || pn0 == '.' || longFilename[0] == '.'             // Hidden file
-    || !DIR_IS_FILE_OR_SUBDIR(&p)                       // Not a File or Directory
-    || (p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
+  if ( (p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
+    // When readDir() > 0 these must be false:
+    //|| pn0 == DIR_NAME_FREE || pn0 == DIR_NAME_DELETED  // Clear or Deleted entry
+    //|| pn0 == '.' || longFilename[0] == '.'             // Hidden file
+    //|| !DIR_IS_FILE_OR_SUBDIR(&p)                       // Not a File or Directory
   ) return false;
 
   flag.filenameIsDir = DIR_IS_SUBDIR(&p);               // We know it's a File or Folder
@@ -369,9 +369,6 @@ void CardReader::mount() {
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
-    #if ENABLED(SDCARD_EEPROM_EMULATION)
-      settings.first_load();
-    #endif
   }
   cdroot();
 
@@ -409,8 +406,18 @@ void CardReader::manage_media() {
 
     ui.media_changed(old_stat, stat); // Update the UI
 
-    if (stat && old_stat == 2)        // First mount?
-      beginautostart();               // Look for autostart files soon
+    if (stat) {
+      #if ENABLED(SDCARD_EEPROM_EMULATION)
+        settings.first_load();
+      #endif
+      if (old_stat == 2) {            // First mount?
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.check();
+        #else
+          beginautostart();           // Look for autostart files soon
+        #endif
+      }
+    }
   }
 }
 

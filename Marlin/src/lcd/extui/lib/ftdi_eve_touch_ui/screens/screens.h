@@ -514,7 +514,7 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
   };
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   class NozzleOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<NOZZLE_OFFSET_SCREEN_CACHE> {
     public:
       static void onEntry();

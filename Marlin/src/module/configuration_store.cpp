@@ -51,7 +51,6 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "../lcd/ultralcd.h"
-#include "../core/language.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"
@@ -3194,7 +3193,7 @@ void MarlinSettings::reset() {
         HOTEND_LOOP() {
           CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(
-            #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
+            #if HAS_MULTI_HOTEND && ENABLED(PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
               SP_P_STR
             #else

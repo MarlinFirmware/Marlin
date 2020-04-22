@@ -317,12 +317,12 @@ class Temperature {
 
   public:
 
-    #if HOTENDS
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         #define HOTEND_TEMPS (HOTENDS + 1)
       #else
         #define HOTEND_TEMPS HOTENDS
       #endif
+    #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
     #endif
     #if HAS_HEATED_BED
@@ -496,7 +496,7 @@ class Temperature {
       }
     #endif
 
-    #if HOTENDS
+    #if HAS_HOTEND
       static float analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
 
@@ -624,7 +624,7 @@ class Temperature {
       static inline void start_watching_hotend(const uint8_t=0) {}
     #endif
 
-    #if HOTENDS
+    #if HAS_HOTEND
 
       static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;

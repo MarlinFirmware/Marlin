@@ -21,54 +21,6 @@
  */
 
 /**
- * Marlin Firmware -- G26 - Mesh Validation Tool
- */
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(G26_MESH_VALIDATION)
-
-#define G26_OK false
-#define G26_ERR true
-
-#include "../../gcode/gcode.h"
-#include "../../feature/bedlevel/bedlevel.h"
-
-#include "../../MarlinCore.h"
-#include "../../module/planner.h"
-#include "../../module/stepper.h"
-#include "../../module/motion.h"
-#include "../../module/tool_change.h"
-#include "../../module/temperature.h"
-#include "../../lcd/ultralcd.h"
-
-#define EXTRUSION_MULTIPLIER 1.0
-#define PRIME_LENGTH 10.0
-#define OOZE_AMOUNT 0.3
-
-#define INTERSECTION_CIRCLE_RADIUS 5
-#define CROSSHAIRS_SIZE 3
-
-#ifndef G26_RETRACT_MULTIPLIER
-  #define G26_RETRACT_MULTIPLIER 1.0 // x 1mm
-#endif
-
-#ifndef G26_XY_FEEDRATE
-  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
-#endif
-
-#if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
-  #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
-#endif
-
-#define G26_OK false
-#define G26_ERR true
-
-#if ENABLED(ARC_SUPPORT)
-  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
-#endif
-
-/**
  *   G26 Mesh Validation Tool
  *
  *   G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
@@ -141,13 +93,54 @@
  *   Y #  Y Coord.    Specify the starting location of the drawing activity.
  */
 
-// External references
+#include "../../inc/MarlinConfig.h"
 
-// Private functions
+#if ENABLED(G26_MESH_VALIDATION)
+
+#define G26_OK false
+#define G26_ERR true
+
+#include "../../gcode/gcode.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
+#include "../../MarlinCore.h"
+#include "../../module/planner.h"
+#include "../../module/stepper.h"
+#include "../../module/motion.h"
+#include "../../module/tool_change.h"
+#include "../../module/temperature.h"
+#include "../../lcd/ultralcd.h"
+
+#define EXTRUSION_MULTIPLIER 1.0
+#define PRIME_LENGTH 10.0
+#define OOZE_AMOUNT 0.3
+
+#define INTERSECTION_CIRCLE_RADIUS 5
+#define CROSSHAIRS_SIZE 3
+
+#ifndef G26_RETRACT_MULTIPLIER
+  #define G26_RETRACT_MULTIPLIER 1.0 // x 1mm
+#endif
+
+#ifndef G26_XY_FEEDRATE
+  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
+#endif
+
+#if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
+  #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
+#endif
+
+#define G26_OK false
+#define G26_ERR true
+
+#if ENABLED(ARC_SUPPORT)
+  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
+#endif
+
+constexpr float g26_e_axis_feedrate = 0.025;
 
 static MeshFlags circle_flags, horizontal_mesh_line_flags, vertical_mesh_line_flags;
-float g26_e_axis_feedrate = 0.025,
-      random_deviation = 0.0;
+float random_deviation = 0.0;
 
 static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
                                    // retracts/recovers won't result in a bad state.
