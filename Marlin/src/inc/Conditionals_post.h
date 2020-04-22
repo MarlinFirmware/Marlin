@@ -39,7 +39,9 @@
 #if ENABLED(EEPROM_SETTINGS)
   // EEPROM type may be defined by compile flags, configs, HALs, or pins
   // Set additional flags to let HALs choose in their Conditionals_post.h
-  #if NONE(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION) && ANY(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM)
+  #if ANY(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
+    #define USE_EMULATED_EEPROM 1
+  #elif ANY(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM)
     #define USE_WIRED_EEPROM    1
   #else
     #define USE_FALLBACK_EEPROM 1
