@@ -56,44 +56,6 @@ public:
       #endif
     #endif
   }
-  /**
-  * Translate speed/power --> percentage --> PWM value
-  **/
-  static cutter_power_t translate_power(const float pwr) {
-    float pwrpc;
-    #if CUTTER_DISPLAY_IS(PERCENT)
-      pwrpc = pwr;
-    #elif CUTTER_DISPLAY_IS(RPM)            // RPM to percent
-     #if ENABLED(CUTTER_POWER_RELATIVE)
-        pwrpc = (pwr - SPEED_POWER_MIN) / (SPEED_POWER_MAX - SPEED_POWER_MIN) * 100;
-      #else
-        pwrpc = pwr / SPEED_POWER_MAX * 100;
-      #endif
-    #else
-      return pwr;                           // PWM
-    #endif
-
-    #if ENABLED(SPINDLE_FEATURE)
-      #if ENABLED(CUTTER_POWER_RELATIVE)
-        constexpr float spmin = 0;
-      #else
-        constexpr float spmin = SPEED_POWER_MIN / SPEED_POWER_MAX * 100; // convert to percentage
-      #endif
-      constexpr float spmax = 100;
-    #else
-      constexpr float spmin = SPEED_POWER_MIN;
-      constexpr float spmax = SPEED_POWER_MAX;
-    #endif
-
-    constexpr float inv_slope = RECIPROCAL(SPEED_POWER_SLOPE),
-                    min_ocr = (spmin - (SPEED_POWER_INTERCEPT)) * inv_slope,         // Minimum allowed
-                    max_ocr = (spmax - (SPEED_POWER_INTERCEPT)) * inv_slope;         // Maximum allowed
-    float ocr_val;
-    if (pwrpc < spmin) ocr_val = min_ocr;                                           // Use minimum if set below
-    else if (pwrpc > spmax) ocr_val = max_ocr;                                      // Use maximum if set above
-    else ocr_val = (pwrpc - (SPEED_POWER_INTERCEPT)) * inv_slope;                   // Use calculated OCR value
-    return ocr_val;                                                                 // ...limited to Atmel PWM max
-  }
 
   static void init();
 
@@ -113,7 +75,7 @@ public:
   #if ENABLED(SPINDLE_LASER_PWM)
     static void set_ocr(const uint8_t ocr);
     static inline void set_ocr_power(const uint8_t pwr) { power = pwr; set_ocr(pwr); }
-    // static uint8_t translate_power(const cutter_power_t pwr); // Used by update output for power->OCR translation
+    static cutter_power_t translate_power(const float pwr); // Used by update output for power->OCR translation
   #endif
 
   // Wait for spindle to spin up or spin down
@@ -140,7 +102,7 @@ public:
     static inline void inline_disable() { planner.settings.laser.status = 0; planner.settings.laser.power = 0; isOn = false;}
 
     // Inline modes of all other functions; all enable planner inline power control
-    static inline void inline_enabled(const bool enable) { enable ? inline_power(SPEED_POWER_STARTUP) : inline_ocr_power(0); }
+    static inline void inline_enabled(const bool enable) { enable ? inline_power(SPEED_POWER_STARTUP) : inline_power(0); }
 
     static void inline_power(const cutter_power_t pwr) {
       #if ENABLED(SPINDLE_LASER_PWM)

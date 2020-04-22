@@ -1873,8 +1873,9 @@ uint32_t Stepper::block_phase_isr() {
         if (!(current_block = planner.get_current_block()))
           return interval; // No more queued movements!
       }
-
-      TERN_(HAS_CUTTER, cutter.apply_power(current_block->cutter_power));
+      #if DISABLED(LASER_POWER_INLINE)
+        TERN_(HAS_CUTTER, cutter.apply_power(current_block->cutter_power));
+      #endif
 
       TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = current_block->sdpos);
 
@@ -2043,7 +2044,7 @@ uint32_t Stepper::block_phase_isr() {
             if (TEST(stat, 1))                        // Laser is on
               cutter.set_ocr_power(laser.cur_power);
             else
-              cutter.set_power(0);
+              cutter.set_ocr_power(0);
           }
         #else
           if (TEST(stat, 0)) {                        // Planner controls the laser
@@ -2051,7 +2052,7 @@ uint32_t Stepper::block_phase_isr() {
               if (TEST(stat, 1))                      // Laser is on
                 cutter.set_ocr_power(current_block->laser.power);
               else
-                cutter.set_power(0);
+                cutter.set_ocr_power(0);
             #else
               cutter.set_enabled(TEST(stat, 1));
             #endif
@@ -2100,7 +2101,7 @@ uint32_t Stepper::block_phase_isr() {
             if (TEST(stat, 1))           // Laser is on
               cutter.set_ocr_power(planner.settings.laser.power);
             else
-              cutter.set_power(0);
+              cutter.set_ocr_power(0);
           #else
             cutter.set_enabled(TEST(stat, 1));
           #endif
