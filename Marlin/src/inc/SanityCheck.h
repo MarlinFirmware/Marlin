@@ -2784,8 +2784,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if HAS_CUTTER
   #ifndef CUTTER_POWER_DISPLAY
     #error "CUTTER_POWER_DISPLAY is required with a spindle or laser. Please update your Configuration_adv.h."
-  #elif !CUTTER_DISPLAY_IS(PWM) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
-    #error "CUTTER_POWER_DISPLAY must be PWM, PERCENT, or RPM. Please update your Configuration_adv.h."
+  #elif !CUTTER_DISPLAY_IS(PWM255) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
+    #error "CUTTER_POWER_DISPLAY must be PWM255, PERCENT, or RPM. Please update your Configuration_adv.h."
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)
