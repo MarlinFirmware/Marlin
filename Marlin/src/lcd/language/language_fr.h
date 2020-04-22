@@ -44,7 +44,6 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Annulation...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Média inséré");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Média retiré");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Média libéré");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Attente média");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Err lecture média");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB débranché");
@@ -284,6 +283,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Charger config.");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaurer défauts");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialiser EEPROM");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Config. enregistrée");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("MaJ Firmware SD");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("RaZ imprimante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Actualiser");
@@ -300,6 +300,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Terminé");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Retour");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procéder");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Mise en pause...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause impression");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Reprendre impr.");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arrêter impr.");
@@ -433,7 +434,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Lumière caisson");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Luminosité");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Imprimante incorrecte");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Imprimante incorrecte");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Nbre impressions");
@@ -469,7 +470,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Reprendre impr.");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Buse: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Capteur fil.");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Echec origine");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Echec origine");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Echec sonde");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Trop froid");
 

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || EITHER(DIGIPOT_I2C, DAC_STEPPER_CURRENT)
+#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || HAS_I2C_DIGIPOT || ENABLED(DAC_STEPPER_CURRENT)
 
 #include "../../gcode.h"
 
@@ -30,7 +30,7 @@
   #include "../../../module/stepper.h"
 #endif
 
-#if ENABLED(DIGIPOT_I2C)
+#if HAS_I2C_DIGIPOT
   #include "../../../feature/digipot/digipot.h"
 #endif
 
@@ -62,7 +62,7 @@ void GcodeSuite::M907() {
 
   #endif
 
-  #if ENABLED(DIGIPOT_I2C)
+  #if HAS_I2C_DIGIPOT
     // this one uses actual amps in floating point
     LOOP_XYZE(i) if (parser.seenval(axis_codes[i])) digipot_i2c_set_current(i, parser.value_float());
     // Additional extruders use B,C,D for channels 4,5,6.
@@ -103,4 +103,4 @@ void GcodeSuite::M907() {
 
 #endif // DAC_STEPPER_CURRENT
 
-#endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT || HAS_MOTOR_CURRENT_PWM || DIGIPOT_I2C
+#endif // HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || HAS_I2C_DIGIPOT || DAC_STEPPER_CURRENT

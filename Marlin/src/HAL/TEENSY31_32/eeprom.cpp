@@ -20,7 +20,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if USE_WIRED_EEPROM
 
 #include "../shared/eeprom_api.h"
 
@@ -58,5 +58,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-#endif // EEPROM_SETTINGS
+#endif // USE_WIRED_EEPROM
 #endif // __MK20DX256__

@@ -19,8 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#include "../shared/eeprom_api.h"
+#include "../../inc/MarlinConfig.h"
+#include "Delay.h"
 
-#define FLASH_EEPROM_EMULATION
+void esp_wifi_init(void) {
+  #if PIN_EXISTS(ESP_WIFI_MODULE_RESET)
+    OUT_WRITE(ESP_WIFI_MODULE_RESET_PIN, LOW);
+    delay(1);
+    OUT_WRITE(ESP_WIFI_MODULE_RESET_PIN, HIGH);
+  #endif
+  #if PIN_EXISTS(ESP_WIFI_MODULE_ENABLE)
+    OUT_WRITE(ESP_WIFI_MODULE_ENABLE_PIN, HIGH);
+  #endif
+}

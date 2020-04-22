@@ -159,5 +159,5 @@ namespace Language_pt {
 
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Fim de curso");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora Incorreta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
 }
