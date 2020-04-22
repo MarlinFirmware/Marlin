@@ -127,9 +127,7 @@ void GCodeQueue::_commit_command(bool say_ok
   #if NUM_SERIAL > 1
     port[index_w] = p;
   #endif
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.commit_sdpos(index_w);
-  #endif
+  TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
   if (++index_w >= BUFSIZE) index_w = 0;
   length++;
 }
@@ -522,9 +520,7 @@ void GCodeQueue::get_serial_commands() {
           // Process critical commands early
           if (strcmp(command, "M108") == 0) {
             wait_for_heatup = false;
-            #if HAS_LCD_MENU
-              wait_for_user = false;
-            #endif
+            TERN_(HAS_LCD_MENU, wait_for_user = false);
           }
           if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
@@ -601,9 +597,7 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  #if ENABLED(SDSUPPORT)
-    get_sdcard_commands();
-  #endif
+  TERN_(SDSUPPORT, get_sdcard_commands());
 }
 
 /**

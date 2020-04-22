@@ -126,9 +126,9 @@
   void M710_report(const bool forReplay);
 #endif
 
-#define HAS_CASE_LIGHT_BRIGHTNESS (ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS))
-#if HAS_CASE_LIGHT_BRIGHTNESS
+#if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
   #include "../feature/caselight.h"
+  #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -235,7 +235,7 @@ typedef struct SettingsDataStruct {
             #if ENABLED(USE_TEMP_EXT_COMPENSATION)
               , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
             #endif
-          ;
+            ;
   #endif
 
   //
@@ -411,13 +411,9 @@ void MarlinSettings::postprocess() {
 
   // Make sure delta kinematics are updated before refreshing the
   // planner position so the stepper counts will be set correctly.
-  #if ENABLED(DELTA)
-    recalc_delta_settings();
-  #endif
+  TERN_(DELTA, recalc_delta_settings());
 
-  #if ENABLED(PIDTEMP)
-    thermalManager.updatePID();
-  #endif
+  TERN_(PIDTEMP, thermalManager.updatePID());
 
   #if DISABLED(NO_VOLUMETRICS)
     planner.calculate_volumetric_multipliers();
@@ -432,29 +428,17 @@ void MarlinSettings::postprocess() {
     update_software_endstops((AxisEnum)i);
   }
 
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    set_z_fade_height(new_z_fade_height, false); // false = no report
-  #endif
+  TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    refresh_bed_level();
-  #endif
+  TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
 
-  #if HAS_MOTOR_CURRENT_PWM
-    stepper.refresh_motor_power();
-  #endif
+  TERN_(HAS_MOTOR_CURRENT_PWM, stepper.refresh_motor_power());
 
-  #if ENABLED(FWRETRACT)
-    fwretract.refresh_autoretract();
-  #endif
+  TERN_(FWRETRACT, fwretract.refresh_autoretract());
 
-  #if HAS_LINEAR_E_JERK
-    planner.recalculate_max_e_jerk();
-  #endif
+  TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  #if HAS_CASE_LIGHT_BRIGHTNESS
-    update_case_light();
-  #endif
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, update_case_light());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -585,9 +569,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
-      #if ENABLED(CLASSIC_JERK)
-        dummyf = 0.02f;
-      #endif
+      TERN_(CLASSIC_JERK, dummyf = 0.02f);
       EEPROM_WRITE(TERN(CLASSIC_JERK, dummyf, planner.junction_deviation_mm));
     }
 
@@ -1130,18 +1112,10 @@ void MarlinSettings::postprocess() {
     {
       tmc_sgt_t tmc_sgt{0};
       #if USE_SENSORLESS
-        #if X_SENSORLESS
-          tmc_sgt.X = stepperX.homing_threshold();
-        #endif
-        #if X2_SENSORLESS
-          tmc_sgt.X2 = stepperX2.homing_threshold();
-        #endif
-        #if Y_SENSORLESS
-          tmc_sgt.Y = stepperY.homing_threshold();
-        #endif
-        #if Z_SENSORLESS
-          tmc_sgt.Z = stepperZ.homing_threshold();
-        #endif
+        TERN_(X_SENSORLESS, tmc_sgt.X = stepperX.homing_threshold());
+        TERN_(X2_SENSORLESS, tmc_sgt.X2 = stepperX2.homing_threshold());
+        TERN_(Y_SENSORLESS, tmc_sgt.Y = stepperY.homing_threshold());
+        TERN_(Z_SENSORLESS, tmc_sgt.Z = stepperZ.homing_threshold());
       #endif
       EEPROM_WRITE(tmc_sgt);
     }
@@ -1362,9 +1336,7 @@ void MarlinSettings::postprocess() {
 
     if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
 
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onConfigurationStoreWritten(!eeprom_error);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
 
     return !eeprom_error;
   }
@@ -1703,12 +1675,8 @@ void MarlinSettings::postprocess() {
               PID_PARAM(Kp, e) = pidcf.Kp;
               PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
               PID_PARAM(Kd, e) = scalePID_d(pidcf.Kd);
-              #if ENABLED(PID_EXTRUSION_SCALING)
-                PID_PARAM(Kc, e) = pidcf.Kc;
-              #endif
-              #if ENABLED(PID_FAN_SCALING)
-                PID_PARAM(Kf, e) = pidcf.Kf;
-              #endif
+              TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = pidcf.Kc);
+              TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = pidcf.Kf);
             }
           #endif
         }
@@ -1761,9 +1729,7 @@ void MarlinSettings::postprocess() {
 
         int16_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
-        #if HAS_LCD_CONTRAST
-          ui.set_contrast(lcd_contrast);
-        #endif
+        TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
       }
 
       //
@@ -1981,9 +1947,7 @@ void MarlinSettings::postprocess() {
                 stepperX2.homing_threshold(tmc_sgt.X);
               #endif
             #endif
-            #if X2_SENSORLESS
-              stepperX2.homing_threshold(tmc_sgt.X2);
-            #endif
+            TERN_(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
             #ifdef Y_STALL_SENSITIVITY
               #if AXIS_HAS_STALLGUARD(Y)
                 stepperY.homing_threshold(tmc_sgt.Y);
@@ -2284,9 +2248,7 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::load() {
     if (validate()) {
       const bool success = _load();
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onConfigurationStoreRead(success);
-      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreRead(success));
       return success;
     }
     reset();
@@ -2428,9 +2390,7 @@ void MarlinSettings::reset() {
       #define DEFAULT_ZJERK 0
     #endif
     planner.max_jerk.set(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK);
-    #if HAS_CLASSIC_E_JERK
-      planner.max_jerk.e = DEFAULT_EJERK;
-    #endif
+    TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK;);
   #endif
 
   #if DISABLED(CLASSIC_JERK)
@@ -2443,9 +2403,7 @@ void MarlinSettings::reset() {
     home_offset.reset();
   #endif
 
-  #if HAS_HOTEND_OFFSET
-    reset_hotend_offsets();
-  #endif
+  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
   //
   // Filament Runout Sensor
@@ -2486,37 +2444,23 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onFactoryReset();
-  #endif
+  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 
   //
   // Case Light Brightness
   //
-
-  #if HAS_CASE_LIGHT_BRIGHTNESS
-    case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
-  #endif
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
   // Magnetic Parking Extruder
   //
-
-  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    mpe_settings_init();
-  #endif
+  TERN_(MAGNETIC_PARKING_EXTRUDER, mpe_settings_init());
 
   //
   // Global Leveling
   //
-
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    new_z_fade_height = 0.0;
-  #endif
-
-  #if HAS_LEVELING
-    reset_bed_level();
-  #endif
+  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = 0.0);
+  TERN_(HAS_LEVELING, reset_bed_level());
 
   #if HAS_BED_PROBE
     constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
@@ -2532,18 +2476,12 @@ void MarlinSettings::reset() {
   //
   // Z Stepper Auto-alignment points
   //
-
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    z_stepper_align.reset_to_default();
-  #endif
+  TERN_(Z_STEPPER_AUTO_ALIGN, z_stepper_align.reset_to_default());
 
   //
   // Servo Angles
   //
-
-  #if ENABLED(EDITABLE_SERVO_ANGLES)
-    COPY(servo_angles, base_servo_angles);  // When not editable only one copy of servo angles exists
-  #endif
+  TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
   // BLTOUCH
@@ -2564,7 +2502,6 @@ void MarlinSettings::reset() {
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
-
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -2622,23 +2559,15 @@ void MarlinSettings::reset() {
       PID_PARAM(Kp, e) = float(DEFAULT_Kp);
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        PID_PARAM(Kc, e) = DEFAULT_Kc;
-      #endif
-
-      #if ENABLED(PID_FAN_SCALING)
-        PID_PARAM(Kf, e) = DEFAULT_Kf;
-      #endif
+      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = DEFAULT_Kc);
+      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = DEFAULT_Kf);
     }
   #endif
 
   //
   // PID Extrusion Scaling
   //
-
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    thermalManager.lpq_len = 20;  // Default last-position-queue size
-  #endif
+  TERN_(PID_EXTRUSION_SCALING, thermalManager.lpq_len = 20); // Default last-position-queue size
 
   //
   // Heated Bed PID
@@ -2653,67 +2582,39 @@ void MarlinSettings::reset() {
   //
   // User-Defined Thermistors
   //
-
-  #if HAS_USER_THERMISTORS
-    thermalManager.reset_user_thermistors();
-  #endif
+  TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
 
   //
   // LCD Contrast
   //
-
-  #if HAS_LCD_CONTRAST
-    ui.set_contrast(DEFAULT_LCD_CONTRAST);
-  #endif
+  TERN_(HAS_LCD_CONTRAST, ui.set_contrast(DEFAULT_LCD_CONTRAST));
 
   //
   // Controller Fan
   //
-  #if ENABLED(USE_CONTROLLER_FAN)
-    controllerFan.reset();
-  #endif
+  TERN_(USE_CONTROLLER_FAN, controllerFan.reset());
 
   //
   // Power-Loss Recovery
   //
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.enable(ENABLED(PLR_ENABLED_DEFAULT));
-  #endif
+  TERN_(POWER_LOSS_RECOVERY, recovery.enable(ENABLED(PLR_ENABLED_DEFAULT)));
 
   //
   // Firmware Retraction
   //
-
-  #if ENABLED(FWRETRACT)
-    fwretract.reset();
-  #endif
+  TERN_(FWRETRACT, fwretract.reset());
 
   //
   // Volumetric & Filament Size
   //
 
   #if DISABLED(NO_VOLUMETRICS)
-
-    parser.volumetric_enabled =
-      #if ENABLED(VOLUMETRIC_DEFAULT_ON)
-        true
-      #else
-        false
-      #endif
-    ;
+    parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
     LOOP_L_N(q, COUNT(planner.filament_size))
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
-
   #endif
 
-  endstops.enable_globally(
-    #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-      true
-    #else
-      false
-    #endif
-  );
+  endstops.enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
 
   reset_stepper_drivers();
 
@@ -2724,9 +2625,7 @@ void MarlinSettings::reset() {
   #if ENABLED(LIN_ADVANCE)
     LOOP_L_N(i, EXTRUDERS) {
       planner.extruder_advance_K[i] = LIN_ADVANCE_K;
-      #if ENABLED(EXTRA_LIN_ADVANCE_K)
-        other_extruder_advance_K[i] = LIN_ADVANCE_K;
-      #endif
+      TERN_(EXTRA_LIN_ADVANCE_K, other_extruder_advance_K[i] = LIN_ADVANCE_K);
     }
   #endif
 
@@ -2743,15 +2642,11 @@ void MarlinSettings::reset() {
   //
   // CNC Coordinate System
   //
-
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    (void)gcode.select_coordinate_system(-1); // Go back to machine space
-  #endif
+  TERN_(CNC_COORDINATE_SYSTEMS, (void)gcode.select_coordinate_system(-1)); // Go back to machine space
 
   //
   // Skew Correction
   //
-
   #if ENABLED(SKEW_CORRECTION_GCODE)
     planner.skew_factor.xy = XY_SKEW_FACTOR;
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
@@ -2763,7 +2658,6 @@ void MarlinSettings::reset() {
   //
   // Advanced Pause filament load & unload lengths
   //
-
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     LOOP_L_N(e, EXTRUDERS) {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
@@ -2776,9 +2670,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHO_START();
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onFactoryReset();
-  #endif
+  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)
@@ -2959,9 +2851,7 @@ void MarlinSettings::reset() {
       #endif
       #if HAS_CLASSIC_JERK
         " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>"
-        #if HAS_CLASSIC_E_JERK
-          " E<max_e_jerk>"
-        #endif
+        TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")
       #endif
     );
     CONFIG_ECHO_START();
@@ -3237,9 +3127,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
     #endif
 
-    #if ENABLED(CONTROLLER_FAN_EDITABLE)
-      M710_report(forReplay);
-    #endif
+    TERN_(CONTROLLER_FAN_EDITABLE, M710_report(forReplay));
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       CONFIG_ECHO_HEADING("Power-Loss Recovery:");

@@ -197,7 +197,9 @@ typedef struct block_t {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL)
+#if ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL)
+  #define HAS_POSITION_FLOAT 1
+#endif
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -547,44 +549,22 @@ class Planner {
     #if HAS_POSITION_MODIFIERS
       FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos
         #if HAS_LEVELING
-          , bool leveling =
-          #if PLANNER_LEVELING
-            true
-          #else
-            false
-          #endif
+          , bool leveling = ENABLED(PLANNER_LEVELING)
         #endif
       ) {
-        #if ENABLED(SKEW_CORRECTION)
-          skew(pos);
-        #endif
-        #if HAS_LEVELING
-          if (leveling) apply_leveling(pos);
-        #endif
-        #if ENABLED(FWRETRACT)
-          apply_retract(pos);
-        #endif
+        TERN_(SKEW_CORRECTION, skew(pos));
+        TERN_(HAS_LEVELING, if (leveling) apply_leveling(pos));
+        TERN_(FWRETRACT, apply_retract(pos));
       }
 
       FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos
         #if HAS_LEVELING
-          , bool leveling =
-          #if PLANNER_LEVELING
-            true
-          #else
-            false
-          #endif
+          , bool leveling = ENABLED(PLANNER_LEVELING)
         #endif
       ) {
-        #if ENABLED(FWRETRACT)
-          unapply_retract(pos);
-        #endif
-        #if HAS_LEVELING
-          if (leveling) unapply_leveling(pos);
-        #endif
-        #if ENABLED(SKEW_CORRECTION)
-          unskew(pos);
-        #endif
+        TERN_(FWRETRACT, unapply_retract(pos));
+        TERN_(HAS_LEVELING, if (leveling) unapply_leveling(pos));
+        TERN_(SKEW_CORRECTION, unskew(pos));
       }
     #endif // HAS_POSITION_MODIFIERS
 

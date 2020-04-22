@@ -46,9 +46,7 @@ void GcodeSuite::G30() {
   if (!probe.can_reach(pos)) return;
 
   // Disable leveling so the planner won't mess with us
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(false);
-  #endif
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
   remember_feedrate_scaling_off();
 

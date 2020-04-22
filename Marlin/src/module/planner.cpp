@@ -236,17 +236,11 @@ Planner::Planner() { init(); }
 
 void Planner::init() {
   position.reset();
-  #if HAS_POSITION_FLOAT
-    position_float.reset();
-  #endif
-  #if IS_KINEMATIC
-    position_cart.reset();
-  #endif
+  TERN_(HAS_POSITION_FLOAT, position_float.reset());
+  TERN_(IS_KINEMATIC, position_cart.reset());
   previous_speed.reset();
   previous_nominal_speed_sqr = 0;
-  #if ABL_PLANAR
-    bed_level_matrix.set_to_identity();
-  #endif
+  TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
   clear_block_buffer();
   delay_before_delivering = 0;
 }
@@ -738,9 +732,8 @@ block_t* Planner::get_current_block() {
     // No trapezoid calculated? Don't execute yet.
     if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
 
-    #if HAS_SPI_LCD
-      block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
-    #endif
+    // We can't be sure how long an active block will take, so don't count it.
+    TERN_(HAS_SPI_LCD, block_buffer_runtime_us -= block->segment_time_us);
 
     // As this block is busy, advance the nonbusy block pointer
     block_buffer_nonbusy = next_block_index(block_buffer_tail);
@@ -754,9 +747,7 @@ block_t* Planner::get_current_block() {
   }
 
   // The queue became empty
-  #if HAS_SPI_LCD
-    clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
-  #endif
+  TERN_(HAS_SPI_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
 
   return nullptr;
 }
@@ -1304,12 +1295,8 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(BARICUDA)
-      #if HAS_HEATER_1
-        tail_valve_pressure = block->valve_pressure;
-      #endif
-      #if HAS_HEATER_2
-        tail_e_to_p_pressure = block->e_to_p_pressure;
-      #endif
+      TERN_(HAS_HEATER_1, tail_valve_pressure = block->valve_pressure);
+      TERN_(HAS_HEATER_2, tail_e_to_p_pressure = block->e_to_p_pressure);
     #endif
 
     #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
@@ -1321,9 +1308,7 @@ void Planner::check_axes_activity() {
   }
   else {
 
-    #if HAS_CUTTER
-      cutter.refresh();
-    #endif
+    TERN_(HAS_CUTTER, cutter.refresh());
 
     #if FAN_COUNT > 0
       FANS_LOOP(i)
@@ -1331,30 +1316,18 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(BARICUDA)
-      #if HAS_HEATER_1
-        tail_valve_pressure = baricuda_valve_pressure;
-      #endif
-      #if HAS_HEATER_2
-        tail_e_to_p_pressure = baricuda_e_to_p_pressure;
-      #endif
+      TERN_(HAS_HEATER_1, tail_valve_pressure = baricuda_valve_pressure);
+      TERN_(HAS_HEATER_2, tail_e_to_p_pressure = baricuda_e_to_p_pressure);
     #endif
   }
 
   //
   // Disable inactive axes
   //
-  #if ENABLED(DISABLE_X)
-    if (!axis_active.x) DISABLE_AXIS_X();
-  #endif
-  #if ENABLED(DISABLE_Y)
-    if (!axis_active.y) DISABLE_AXIS_Y();
-  #endif
-  #if ENABLED(DISABLE_Z)
-    if (!axis_active.z) DISABLE_AXIS_Z();
-  #endif
-  #if ENABLED(DISABLE_E)
-    if (!axis_active.e) disable_e_steppers();
-  #endif
+  if (TERN0(DISABLE_X, !axis_active.x)) DISABLE_AXIS_X();
+  if (TERN0(DISABLE_Y, !axis_active.y)) DISABLE_AXIS_Y();
+  if (TERN0(DISABLE_Z, !axis_active.z)) DISABLE_AXIS_Z();
+  if (TERN0(DISABLE_E, !axis_active.e)) disable_e_steppers();
 
   //
   // Update Fan speeds
@@ -1391,43 +1364,21 @@ void Planner::check_axes_activity() {
     #endif
     #define FAN_SET(F) do{ KICKSTART_FAN(F); _FAN_SET(F); }while(0)
 
-    #if HAS_FAN0
-      FAN_SET(0);
-    #endif
-    #if HAS_FAN1
-      FAN_SET(1);
-    #endif
-    #if HAS_FAN2
-      FAN_SET(2);
-    #endif
-    #if HAS_FAN3
-      FAN_SET(3);
-    #endif
-    #if HAS_FAN4
-      FAN_SET(4);
-    #endif
-    #if HAS_FAN5
-      FAN_SET(5);
-    #endif
-    #if HAS_FAN6
-      FAN_SET(6);
-    #endif
-    #if HAS_FAN7
-      FAN_SET(7);
-    #endif
+    TERN_(HAS_FAN0, FAN_SET(0));
+    TERN_(HAS_FAN1, FAN_SET(1));
+    TERN_(HAS_FAN2, FAN_SET(2));
+    TERN_(HAS_FAN3, FAN_SET(3));
+    TERN_(HAS_FAN4, FAN_SET(4));
+    TERN_(HAS_FAN5, FAN_SET(5));
+    TERN_(HAS_FAN6, FAN_SET(6));
+    TERN_(HAS_FAN7, FAN_SET(7));
   #endif // FAN_COUNT > 0
 
-  #if ENABLED(AUTOTEMP)
-    getHighESpeed();
-  #endif
+  TERN_(AUTOTEMP, getHighESpeed());
 
   #if ENABLED(BARICUDA)
-    #if HAS_HEATER_1
-      analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure);
-    #endif
-    #if HAS_HEATER_2
-      analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure);
-    #endif
+    TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
+    TERN_(HAS_HEATER_2, analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
 
@@ -1477,11 +1428,8 @@ void Planner::check_axes_activity() {
 #if HAS_LEVELING
 
   constexpr xy_pos_t level_fulcrum = {
-    #if ENABLED(Z_SAFE_HOMING)
-      Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT
-    #else
-      X_HOME_POS, Y_HOME_POS
-    #endif
+    TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_X_POINT, X_HOME_POS),
+    TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_HOME_POS)
   };
 
   /**
@@ -1779,9 +1727,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
           position.e = target.e; // Behave as if the move really took place, but ignore E part
-          #if HAS_POSITION_FLOAT
-            position_float.e = target_float.e;
-          #endif
+          TERN_(HAS_POSITION_FLOAT, position_float.e = target_float.e);
           de = 0; // no difference
           SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
         }
@@ -1801,9 +1747,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           #endif
           if (ignore_e) {
             position.e = target.e; // Behave as if the move really took place, but ignore E part
-            #if HAS_POSITION_FLOAT
-              position_float.e = target_float.e;
-            #endif
+            TERN_(HAS_POSITION_FLOAT, position_float.e = target_float.e);
             de = 0; // no difference
             SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
           }
@@ -1882,9 +1826,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
    * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
-    #if IS_CORE
-      xyz_pos_t head;
-    #endif
+    TERN_(IS_CORE, xyz_pos_t head);
   } steps_dist_mm;
   #if IS_CORE
     #if CORE_IS_XY
@@ -1918,9 +1860,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     steps_dist_mm.e = 0.0f;
   #endif
 
-  #if ENABLED(LCD_SHOW_E_TOTAL)
-    e_move_accumulator += steps_dist_mm.e;
-  #endif
+  TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += steps_dist_mm.e);
 
   if (block->steps.a < MIN_STEPS_PER_SEGMENT && block->steps.b < MIN_STEPS_PER_SEGMENT && block->steps.c < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = (0
@@ -1954,9 +1894,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
      */
-    #if ENABLED(BACKLASH_COMPENSATION)
-      backlash.add_correction_steps(da, db, dc, dm, block);
-    #endif
+    TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(da, db, dc, dm, block));
   }
 
   #if EXTRUDERS
@@ -1972,9 +1910,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     MIXER_POPULATE_BLOCK();
   #endif
 
-  #if HAS_CUTTER
-    block->cutter_power = cutter.power;
-  #endif
+  TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
   #if FAN_COUNT > 0
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
@@ -2026,9 +1962,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Enable extruder(s)
   #if EXTRUDERS
     if (esteps) {
-      #if ENABLED(AUTO_POWER_CONTROL)
-        powerManager.power_on();
-      #endif
+      TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
@@ -2195,9 +2129,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (!block->steps.a && !block->steps.b && !block->steps.c) {
     // convert to: acceleration steps/sec^2
     accel = CEIL(settings.retract_acceleration * steps_per_mm);
-    #if ENABLED(LIN_ADVANCE)
-      block->use_advance_lead = false;
-    #endif
+    TERN_(LIN_ADVANCE, block->use_advance_lead = false);
   }
   else {
     #define LIMIT_ACCEL_LONG(AXIS,INDX) do{ \
@@ -2260,9 +2192,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           block->use_advance_lead = false;
         else {
           const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K[active_extruder] * block->e_D_ratio) * steps_per_mm;
-          #if ENABLED(LA_DEBUG)
-            if (accel > max_accel_steps_per_s2) SERIAL_ECHOLNPGM("Acceleration limited.");
-          #endif
+          if (TERN0(LA_DEBUG, accel > max_accel_steps_per_s2))
+            SERIAL_ECHOLNPGM("Acceleration limited.");
           NOMORE(accel, max_accel_steps_per_s2);
         }
       }
@@ -2561,22 +2492,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   previous_speed = current_speed;
   previous_nominal_speed_sqr = block->nominal_speed_sqr;
 
-  // Update the position
-  position = target;
-  #if HAS_POSITION_FLOAT
-    position_float = target_float;
-  #endif
+  position = target;  // Update the position
 
-  #if ENABLED(GRADIENT_MIX)
-    mixer.gradient_control(target_float.z);
-  #endif
+  TERN_(HAS_POSITION_FLOAT, position_float = target_float);
+  TERN_(GRADIENT_MIX, mixer.gradient_control(target_float.z));
+  TERN_(POWER_LOSS_RECOVERY, block->sdpos = recovery.command_sdpos());
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    block->sdpos = recovery.command_sdpos();
-  #endif
+  return true;        // Movement was accepted
 
-  // Movement was accepted
-  return true;
 } // _populate_block()
 
 /**
@@ -2654,15 +2577,9 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   #endif
 
   // DRYRUN prevents E moves from taking place
-  if (DEBUGGING(DRYRUN)
-    #if ENABLED(CANCEL_OBJECTS)
-      || cancelable.skipping
-    #endif
-  ) {
+  if (DEBUGGING(DRYRUN) || TERN0(CANCEL_OBJECTS, cancelable.skipping)) {
     position.e = target.e;
-    #if HAS_POSITION_FLOAT
-      position_float.e = e;
-    #endif
+    TERN_(HAS_POSITION_FLOAT, position_float.e = e);
   }
 
   /* <-- add a slash to enable
@@ -2697,16 +2614,14 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   //*/
 
   // Queue the movement
-  if (
-    !_buffer_steps(target
+  if (!_buffer_steps(target
       #if HAS_POSITION_FLOAT
         , target_float
       #endif
       #if HAS_DIST_MM_ARG
         , cart_dist_mm
       #endif
-      , fr_mm_s, extruder, millimeters
-    )
+      , fr_mm_s, extruder, millimeters)
   ) return false;
 
   stepper.wake_up();
@@ -2730,9 +2645,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
   #endif
 ) {
   xyze_pos_t machine = { rx, ry, rz, e };
-  #if HAS_POSITION_MODIFIERS
-    apply_modifiers(machine);
-  #endif
+  TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
 
   #if IS_KINEMATIC
 
@@ -2785,12 +2698,8 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
  */
 
 void Planner::set_machine_position_mm(const float &a, const float &b, const float &c, const float &e) {
-  #if ENABLED(DISTINCT_E_FACTORS)
-    last_extruder = active_extruder;
-  #endif
-  #if HAS_POSITION_FLOAT
-    position_float.set(a, b, c, e);
-  #endif
+  TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
+  TERN_(HAS_POSITION_FLOAT, position_float.set(a, b, c, e));
   position.set(LROUND(a * settings.axis_steps_per_mm[A_AXIS]),
                LROUND(b * settings.axis_steps_per_mm[B_AXIS]),
                LROUND(c * settings.axis_steps_per_mm[C_AXIS]),
@@ -2807,13 +2716,11 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
 void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
   xyze_pos_t machine = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
-  {
     apply_modifiers(machine
       #if HAS_LEVELING
         , true
       #endif
     );
-  }
   #endif
   #if IS_KINEMATIC
     position_cart.set(rx, ry, rz, e);
@@ -2829,21 +2736,13 @@ void Planner::set_position_mm(const float &rx, const float &ry, const float &rz,
  */
 void Planner::set_e_position_mm(const float &e) {
   const uint8_t axis_index = E_AXIS_N(active_extruder);
-  #if ENABLED(DISTINCT_E_FACTORS)
-    last_extruder = active_extruder;
-  #endif
-  #if ENABLED(FWRETRACT)
-    float e_new = e - fwretract.current_retract[active_extruder];
-  #else
-    const float e_new = e;
-  #endif
+  TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
+
+  const float e_new = e - TERN0(FWRETRACT, fwretract.current_retract[active_extruder]);
   position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
-  #if HAS_POSITION_FLOAT
-    position_float.e = e_new;
-  #endif
-  #if IS_KINEMATIC
-    position_cart.e = e;
-  #endif
+  TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
+  TERN_(IS_KINEMATIC, position_cart.e = e);
+
   if (has_blocks_queued())
     buffer_sync_block();
   else
@@ -2863,9 +2762,7 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
-  #if HAS_LINEAR_E_JERK
-    recalculate_max_e_jerk();
-  #endif
+  TERN_(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
 }
 
 // Recalculate position, steps_to_mm if settings.axis_steps_per_mm changes!

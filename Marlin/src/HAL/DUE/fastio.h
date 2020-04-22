@@ -174,7 +174,7 @@
 #define IS_OUTPUT(IO)        ((digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO)) != 0)
 
 // Shorthand
-#define OUT_WRITE(IO,V)       { SET_OUTPUT(IO); WRITE(IO,V); }
+#define OUT_WRITE(IO,V)      do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)

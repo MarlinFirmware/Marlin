@@ -41,7 +41,9 @@
 #endif
 
 // I2C buttons must be read in the main thread
-#define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+#if EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+  #define HAS_SLOW_BUTTONS 1
+#endif
 
 #if HAS_SPI_LCD
 
@@ -64,11 +66,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(TOUCH_BUTTONS)
-    #define LCD_UPDATE_INTERVAL 50
-  #else
-    #define LCD_UPDATE_INTERVAL 100
-  #endif
+  #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
 
@@ -207,12 +205,12 @@
   #define BL_DW 4   // Down
   #define BL_RI 3   // Right
   #define BL_ST 2   // Red Button
-  #define B_LE (_BV(BL_LE))
-  #define B_UP (_BV(BL_UP))
-  #define B_MI (_BV(BL_MI))
-  #define B_DW (_BV(BL_DW))
-  #define B_RI (_BV(BL_RI))
-  #define B_ST (_BV(BL_ST))
+  #define B_LE _BV(BL_LE)
+  #define B_UP _BV(BL_UP)
+  #define B_MI _BV(BL_MI)
+  #define B_DW _BV(BL_DW)
+  #define B_RI _BV(BL_RI)
+  #define B_ST _BV(BL_ST)
 
   #ifndef BUTTON_CLICK
     #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
@@ -258,9 +256,7 @@ class MarlinUI {
 public:
 
   MarlinUI() {
-    #if HAS_LCD_MENU
-      currentScreen = status_screen;
-    #endif
+    TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
   #if HAS_BUZZER
@@ -530,9 +526,7 @@ public:
 
     #if ENABLED(G26_MESH_VALIDATION)
       FORCE_INLINE static void chirp() {
-        #if HAS_BUZZER
-          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-        #endif
+        TERN_(HAS_BUZZER, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
       }
     #endif
 
@@ -605,15 +599,11 @@ public:
     }
 
     FORCE_INLINE static void encoder_direction_menus() {
-      #if ENABLED(REVERSE_MENU_DIRECTION)
-        encoderDirection = -(ENCODERBASE);
-      #endif
+      TERN_(REVERSE_MENU_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
     FORCE_INLINE static void encoder_direction_select() {
-      #if ENABLED(REVERSE_SELECT_DIRECTION)
-        encoderDirection = -(ENCODERBASE);
-      #endif
+      TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
   #else
