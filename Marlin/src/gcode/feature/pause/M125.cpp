@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,6 +33,10 @@
 
 #if HAS_LCD_MENU
   #include "../../../lcd/ultralcd.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../feature/powerloss.h"
 #endif
 
 /**
@@ -85,6 +89,9 @@ void GcodeSuite::M125() {
   #endif
 
   if (pause_print(retract, park_point, 0, show_lcd)) {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true);
+    #endif
     if (!sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);

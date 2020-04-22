@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -48,14 +48,8 @@
 
   #ifdef PHOTO_RETRACT_MM
     inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
-      if (length && thermalManager.hotEnoughToExtrude(active_extruder)) {
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          do_pause_e_move(length, fr_mm_s);
-        #else
-          current_position.e += length / planner.e_factor[active_extruder];
-          line_to_current_position(fr_mm_s);
-        #endif
-      }
+      if (length && thermalManager.hotEnoughToExtrude(active_extruder))
+        unscaled_e_move(length, fr_mm_s);
     }
   #endif
 
@@ -90,7 +84,7 @@
 
     inline void spin_photo_pin() {
       static constexpr uint32_t sequence[] = PHOTO_PULSES_US;
-      for (uint8_t i = 0; i < COUNT(sequence); i++)
+      LOOP_L_N(i, COUNT(sequence))
         pulse_photo_pin(sequence[i], !(i & 1));
     }
 

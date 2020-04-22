@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,6 +20,10 @@
  *
  */
 #pragma once
+
+#if !defined(__has_include)
+  #define __has_include(...) 1
+#endif
 
 #define ABCE 4
 #define XYZE 4
@@ -177,17 +181,25 @@
 // Macros to support option testing
 #define _CAT(a,V...) a##V
 #define CAT(a,V...) _CAT(a,V)
-#define SWITCH_ENABLED_false 0
-#define SWITCH_ENABLED_true  1
-#define SWITCH_ENABLED_0     0
-#define SWITCH_ENABLED_1     1
-#define SWITCH_ENABLED_0x0   0
-#define SWITCH_ENABLED_0x1   1
-#define SWITCH_ENABLED_      1
-#define _ENA_1(O)           _CAT(SWITCH_ENABLED_, O)
-#define _DIS_1(O)           !_ENA_1(O)
+
+#define _ISENA_     ~,1
+#define _ISENA_1    ~,1
+#define _ISENA_0x1  ~,1
+#define _ISENA_true ~,1
+#define _ISENA(V...)        IS_PROBE(V)
+
+#define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
+#define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)
@@ -196,12 +208,14 @@
 #define EITHER(V1,V2)       ANY(V1,V2)
 
 // Macros to support pins/buttons exist testing
-#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
-#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
+#define _PINEX_1            PIN_EXISTS
+#define PINS_EXIST(V...)    DO(PINEX,&&,V)
 #define ANY_PIN(V...)       DO(PINEX,||,V)
 
-#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
-#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define BUTTON_EXISTS(BN)   (defined(BTN_##BN) && BTN_##BN >= 0)
+#define _BTNEX_1            BUTTON_EXISTS
+#define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
@@ -240,6 +254,11 @@
 
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
+
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
 
 #define NOOP (void(0))
 
@@ -388,8 +407,9 @@
 //
 // Primitives supporting precompiler REPEAT
 //
-#define FIRST(a,...)    a
-#define SECOND(a,b,...) b
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
 
 // Defer expansion
 #define EMPTY()
@@ -457,3 +477,21 @@
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
 #define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)
+
+// Use RREPEAT macros with REPEAT macros for nesting
+#define _RREPEAT(_RPT_I,_RPT_N,_RPT_OP)                           \
+  _RPT_OP(_RPT_I)                                                 \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) )    \
+    ( /* Do nothing */ )
+#define __RREPEAT() _RREPEAT
+#define _RREPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                               \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __RREPEAT2() _RREPEAT2
+#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
+#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)

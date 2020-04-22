@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -113,7 +113,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Guardar na memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carregar da memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Rest. de emergen.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Rest. de emergen.");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT(" Recarregar");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Monitorizar");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
@@ -139,7 +139,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Trocar filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Trocar filamento *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inici. cartão SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inici. cartão SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar cartão SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sensor fora/base");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Desvio Z");

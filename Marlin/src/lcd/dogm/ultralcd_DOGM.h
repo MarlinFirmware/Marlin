@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -194,13 +194,6 @@
   #else
     #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                      // HW-SPI
   #endif
-#endif
-
-#ifndef LCD_PIXEL_WIDTH
-  #define LCD_PIXEL_WIDTH 128
-#endif
-#ifndef LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_HEIGHT 64
 #endif
 
 // LCD_FULL_PIXEL_WIDTH =

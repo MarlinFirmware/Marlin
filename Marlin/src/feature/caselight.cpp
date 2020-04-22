@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -58,7 +58,7 @@ void update_case_light() {
   if (case_light_arg_flag && case_light_on)
     case_light_brightness = case_light_brightness_sav;  // restore last brightens if this is an S1 argument
 
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) || NONE(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_NO_BRIGHTNESS)
+  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) || DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
     const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
   #endif
 

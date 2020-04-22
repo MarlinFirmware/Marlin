@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -95,7 +95,7 @@ void recalc_delta_settings() {
   float delta_calibration_radius() {
     return calibration_radius_factor * (
       #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe_offset_xy.x, probe_offset_xy.y), MIN_PROBE_EDGE))
+        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), MIN_PROBE_EDGE))
       #else
         DELTA_PRINTABLE_RADIUS
       #endif
@@ -251,7 +251,7 @@ void home_delta() {
   // Move all carriages together linearly until an endstop is hit.
   current_position.z = (delta_height + 10
     #if HAS_BED_PROBE
-      - probe_offset.z
+      - probe.offset.z
     #endif
   );
   line_to_current_position(homing_feedrate(Z_AXIS));

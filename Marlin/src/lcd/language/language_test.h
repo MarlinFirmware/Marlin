@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -149,7 +149,7 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
@@ -186,7 +186,7 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
@@ -222,7 +222,7 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";

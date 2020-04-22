@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,13 +28,16 @@
 
   unified_bed_leveling ubl;
 
+  #include "../../../MarlinCore.h"
+  #include "../../../gcode/gcode.h"
+
   #include "../../../module/configuration_store.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
   #include "../../../module/probe.h"
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "../../../lcd/extensible_ui/ui_api.h"
+    #include "../../../lcd/extui/ui_api.h"
   #endif
 
   #include "math.h"
@@ -46,7 +49,7 @@
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
     SERIAL_ECHO_MSG("  G29 I99");
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+    LOOP_L_N(x, GRID_MAX_POINTS_X)
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START();
@@ -98,9 +101,7 @@
     storage_slot = -1;
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          ExtUI::onMeshUpdate(x, y, 0);
+      GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
     if (was_enabled) report_current_position();
   }
@@ -111,13 +112,11 @@
   }
 
   void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-        z_values[x][y] = value;
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(x, y, value);
-        #endif
-      }
+    GRID_LOOP(x, y) {
+      z_values[x][y] = value;
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMeshUpdate(x, y, value);
+      #endif
     }
   }
 
@@ -151,9 +150,7 @@
    *   4: Compact Human-Readable
    */
   void unified_bed_leveling::display_map(const int map_type) {
-    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
-      suspend_auto_report = true;
-    #endif
+    const bool was = gcode.set_autoreport_paused(true);
 
     constexpr uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
                       twixt = eachsp * (GRID_MAX_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
@@ -173,10 +170,10 @@
       serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    // Add XY probe offset from extruder because probe_at_point() subtracts them when
+    // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
     // moving to the XY position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
-    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe_offset_xy);
+    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
@@ -189,7 +186,7 @@
       }
 
       // Row Values (I indexes)
-      for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      LOOP_L_N(i, GRID_MAX_POINTS_X) {
 
         // Opening Brace or Space
         const bool is_current = i == curr.x && j == curr.y;
@@ -229,9 +226,7 @@
       SERIAL_EOL();
     }
 
-    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
-      suspend_auto_report = false;
-    #endif
+    gcode.set_autoreport_paused(was);
   }
 
   bool unified_bed_leveling::sanity_check() {

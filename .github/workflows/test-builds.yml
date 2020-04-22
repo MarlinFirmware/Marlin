@@ -29,29 +29,31 @@ jobs:
         - DUE
         - esp32
         - linux_native
-        - megaatmega2560
+        - mega2560
         - teensy31
         - teensy35
+        - SAMD51_grandcentral_m4
 
         # Extended AVR Environments
 
         - FYSETC_F6_13
-        - megaatmega1280
+        - mega1280
         - rambo
-        - sanguino_atmega1284p
-        - sanguino_atmega644p
+        - sanguino1284p
+        - sanguino644p
 
         # Extended STM32 Environments
 
-        - STM32F103RC_bigtree
-        - STM32F103RC_bigtree_USB
-        - STM32F103RE_bigtree
-        - STM32F103RE_bigtree_USB
+        - STM32F103RC_btt
+        - STM32F103RC_btt_USB
+        - STM32F103RE_btt
+        - STM32F103RE_btt_USB
         - STM32F103RC_fysetc
         - jgaurora_a5s_a1
         - STM32F103VE_longer
         - STM32F407VE_black
         - BIGTREE_SKR_PRO
+        - BIGTREE_GTR_V1_0
         - mks_robin
         - ARMED
         - FYSETC_S6
@@ -75,7 +77,6 @@ jobs:
         #- mks_robin_lite
         #- mks_robin_mini
         #- mks_robin_nano
-        #- SAMD51_grandcentral_m4
 
     steps:
 

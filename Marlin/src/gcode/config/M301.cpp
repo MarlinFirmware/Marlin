@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -68,7 +68,7 @@ void GcodeSuite::M301() {
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
-    #endif // PID_PARAMS_PER_HOTEND
+    #endif
     SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
                     " i:", unscalePID_i(PID_PARAM(Ki, e)),
                     " d:", unscalePID_d(PID_PARAM(Kd, e)));
@@ -82,7 +82,7 @@ void GcodeSuite::M301() {
     SERIAL_EOL();
   }
   else
-    SERIAL_ERROR_MSG(MSG_INVALID_EXTRUDER);
+    SERIAL_ERROR_MSG(STR_INVALID_EXTRUDER);
 }
 
 #endif // PIDTEMP

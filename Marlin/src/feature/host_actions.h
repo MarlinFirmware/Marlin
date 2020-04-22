@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -46,7 +46,7 @@ void host_action(const char * const pstr, const bool eol=true);
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
-  extern const char CONTINUE_STR[];
+  extern const char CONTINUE_STR[], DISMISS_STR[];
 
   enum PromptReason : uint8_t {
     PROMPT_NOT_DEFINED,
@@ -61,13 +61,15 @@ void host_action(const char * const pstr, const bool eol=true);
 
   void host_response_handler(const uint8_t response);
   void host_action_notify(const char * const message);
-  void host_action_prompt_begin(const char * const pstr, const bool eol=true);
+  void host_action_prompt_begin(const PromptReason reason, const char * const pstr, const char extra_char='\0');
   void host_action_prompt_button(const char * const pstr);
   void host_action_prompt_end();
   void host_action_prompt_show();
-  void host_prompt_do(const PromptReason type, const char * const pstr, const char * const pbtn=nullptr);
-  inline void host_prompt_open(const PromptReason reason, const char * const pstr, const char * const pbtn=nullptr) {
-    if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, pbtn);
+  void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const btn1=nullptr, const char * const btn2=nullptr);
+  inline void host_prompt_open(const PromptReason reason, const char * const pstr, const char * const btn1=nullptr, const char * const btn2=nullptr) {
+    if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, btn1, btn2);
   }
+
+  void filament_load_host_prompt();
 
 #endif
