@@ -41,7 +41,8 @@ static int16_t ubl_storage_slot = 0,
                ubl_fillin_amount = 5,
                ubl_height_amount = 1;
 
-static uint8_t n_edit_pts = 1, x_plot = 0, y_plot = 0;
+static uint8_t n_edit_pts = 1;
+static int8_t  x_plot = 0, y_plot = 0;//can be negative during move
 
 #if HAS_HEATED_BED
   static int16_t custom_bed_temp = 50;
@@ -436,16 +437,8 @@ void ubl_map_move_to_xy() {
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 
-void _lcd_hard_stop() {
-  const screenFunc_t old_screen = ui.currentScreen;
-  lcd_limbo();
-  planner.quick_stop();
-  ui.currentScreen = old_screen;
-  set_current_from_steppers_for_axis(ALL_AXES);
-  sync_plan_position();
-}
-
 void _lcd_ubl_output_map_lcd() {
+  if (planner.movesplanned())return;
   static int16_t step_scaler = 0;
 
   if (ui.use_click()) return _lcd_ubl_map_lcd_edit_cmd();
@@ -495,9 +488,6 @@ void _lcd_ubl_output_map_lcd() {
   if (ui.should_draw()) {
     ui.ubl_plot(x_plot, y_plot);
 
-    if (planner.movesplanned()) // If the nozzle is already moving, cancel the move.
-      _lcd_hard_stop();
-
     ubl_map_move_to_xy();       // Move to new location
   }
 }
@@ -510,6 +500,7 @@ void _lcd_ubl_output_map_lcd_cmd() {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }
+  if (planner.movesplanned())return;
   ui.goto_screen(_lcd_ubl_map_homing);
 }
 
