@@ -194,18 +194,15 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
         break;
 
-      default: // Raise to at least the Z-park height and raise not less than NOZZLE_PARK_Z_RAISE_MIN
-        do_blocking_move_to_z(
-                _MAX(
-                    park.z,
-                    _MIN(current_position.z +
-                        #ifdef NOZZLE_PARK_Z_RAISE_MIN
-                            NOZZLE_PARK_Z_RAISE_MIN
-                        #else
-                            0
-                        #endif // NOZZLE_PARK_Z_RAISE_MIN
-                        , Z_MAX_POS)),
-                fr_z);
+      default: {
+        // Apply a minimum raise, overriding G27 Z
+        const float min_raised_z =_MIN(Z_MAX_POS, current_position.z
+          #ifdef NOZZLE_PARK_Z_RAISE_MIN
+            + NOZZLE_PARK_Z_RAISE_MIN
+          #endif
+        );
+        do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
+      } break;
     }
 
     do_blocking_move_to_xy(park, fr_xy);
