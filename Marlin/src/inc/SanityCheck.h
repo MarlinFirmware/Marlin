@@ -376,11 +376,11 @@
 #elif defined(SINGLENOZZLE_TOOLCHANGE_ZRAISE)
   #error "SINGLENOZZLE_TOOLCHANGE_ZRAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_LENGTH)
-  #error "SINGLENOZZLE_SWAP_LENGTH is now TOOLCHANGE_FS_LENGTH. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_LENGTH is now TOOLCHANGE_FIL_SWAP_LENGTH. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_RETRACT_SPEED)
-  #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now TOOLCHANGE_FS_RETRACT_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_RETRACT_SPEED is now TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PRIME_SPEED)
-  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FS_PRIME_SPEED. Please update your configuration."
+  #error "SINGLENOZZLE_SWAP_PRIME_SPEED is now TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your configuration."
 #elif defined(SINGLENOZZLE_SWAP_PARK)
   #error "SINGLENOZZLE_SWAP_PARK is now TOOLCHANGE_PARK. Please update your configuration."
 #elif defined(SINGLENOZZLE_TOOLCHANGE_XY)
@@ -489,14 +489,16 @@
   #error "Z_QUAD_ENDSTOPS is now Z_MULTI_ENDSTOPS. Please update Configuration_adv.h."
 #elif defined(DUGS_UI_MOVE_DIS_OPTION)
   #error "DUGS_UI_MOVE_DIS_OPTION is spelled DGUS_UI_MOVE_DIS_OPTION. Please update Configuration_adv.h."
-#elif defined(TOOLCHANGE_FIL_SWAP_LENGTH)
-  #error "TOOLCHANGE_FIL_SWAP_LENGTH is now TOOLCHANGE_FS_LENGTH. Please update Configuration_adv.h."
-#elif defined(TOOLCHANGE_FIL_EXTRA_PRIME)
-  #error "TOOLCHANGE_FIL_EXTRA_PRIME is now TOOLCHANGE_FS_EXTRA_PRIME. Please update Configuration_adv.h."
-#elif defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
-  #error "TOOLCHANGE_FIL_SWAP_RETRACT_SPEED is now TOOLCHANGE_FS_RETRACT_SPEED. Please update Configuration_adv.h."
-#elif defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
-  #error "TOOLCHANGE_FIL_SWAP_PRIME_SPEED is now TOOLCHANGE_FS_PRIME_SPEED. Please update Configuration_adv.h."
+#elif defined(ORIG_E0_AUTO_FAN_PIN) || defined(ORIG_E1_AUTO_FAN_PIN) || defined(ORIG_E2_AUTO_FAN_PIN) || defined(ORIG_E3_AUTO_FAN_PIN) || defined(ORIG_E4_AUTO_FAN_PIN) || defined(ORIG_E5_AUTO_FAN_PIN) || defined(ORIG_E6_AUTO_FAN_PIN) || defined(ORIG_E7_AUTO_FAN_PIN)
+  #error "ORIG_Ex_AUTO_FAN_PIN is now just Ex_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(ORIG_CHAMBER_AUTO_FAN_PIN)
+  #error "ORIG_CHAMBER_AUTO_FAN_PIN is now just CHAMBER_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(HOMING_BACKOFF_MM)
+  #error "HOMING_BACKOFF_MM is now HOMING_BACKOFF_POST_MM. Please update Configuration_adv.h."
+#elif defined(X_HOME_BUMP_MM) || defined(Y_HOME_BUMP_MM) || defined(Z_HOME_BUMP_MM)
+  #error "[XYZ]_HOME_BUMP_MM is now HOMING_BUMP_MM. Please update Configuration_adv.h."
+#elif defined(DIGIPOT_I2C)
+  #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #endif
 
 /**
