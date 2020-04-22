@@ -74,13 +74,9 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 
 void event_filament_runout() {
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
-  #endif
+  if (TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print)) return;  // Action already in progress. Purge triggered repeated runout.
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onFilamentRunout(ExtUI::getActiveTool());
-  #endif
+  TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getActiveTool()));
 
   #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
     const char tool = '0'

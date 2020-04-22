@@ -148,7 +148,7 @@
     __HAL_RCC_SDIO_CLK_ENABLE();  // turn on SDIO clock
   }
 
-  constexpr uint8_t SD_RETRY_COUNT = 1 + 2 * ENABLED(SD_CHECK_AND_RETRY);
+  constexpr uint8_t SD_RETRY_COUNT = TERN(SD_CHECK_AND_RETRY, 3, 1);
 
   bool SDIO_Init() {
     //init SDIO and get SD card info

@@ -421,9 +421,7 @@ void menu_configuration() {
   if (!busy)
     ACTION_ITEM(MSG_RESTORE_DEFAULTS, []{
       settings.reset();
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
+      TERN_(HAS_BUZZER, ui.completion_feedback());
     });
 
   END_MENU();

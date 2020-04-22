@@ -922,9 +922,8 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
   uint32_t command_read_ptr;
 
   #if ENABLED(TOUCH_UI_DEBUG)
-  if (command_write_ptr == 0xFFFFFFFFul) {
-    SERIAL_ECHO_MSG("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
-  }
+    if (command_write_ptr == 0xFFFFFFFFul)
+      SERIAL_ECHO_MSG("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
   #endif
 
   /* Wait until there is enough space in the circular buffer for the transfer */
@@ -1160,24 +1159,15 @@ void CLCD::default_display_orientation() {
     // processor to do this since it will also update the transform matrices.
     if (FTDI::ftdi_chip >= 810) {
       CommandFifo cmd;
-      cmd.setrotate(0
-        #if ENABLED(TOUCH_UI_MIRRORED)
-          + 4
-        #endif
-        #if ENABLED(TOUCH_UI_PORTRAIT)
-          + 2
-        #endif
-        #if ENABLED(TOUCH_UI_INVERTED)
-          + 1
-        #endif
+      cmd.setrotate(
+          ENABLED(TOUCH_UI_MIRRORED) * 4
+        + ENABLED(TOUCH_UI_PORTRAIT) * 2
+        + ENABLED(TOUCH_UI_INVERTED) * 1
       );
       cmd.execute();
     }
-    else {
-      #if ENABLED(TOUCH_UI_INVERTED)
-        mem_write_32(REG::ROTATE, 1);
-      #endif
-    }
+    else
+      TERN_(TOUCH_UI_INVERTED, mem_write_32(REG::ROTATE, 1));
   #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)

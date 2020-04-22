@@ -56,7 +56,7 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if DUAL_MIXING_EXTRUDER
+#if HAS_DUAL_MIXING
   #include "../../feature/mixing.h"
 #endif
 
@@ -365,15 +365,11 @@ void MarlinUI::draw_status_screen() {
       #if ANIM_HOTEND
         HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, HEATBIT_HOTEND + e);
       #endif
-      #if ANIM_BED
-        if (thermalManager.isHeatingBed()) SBI(new_bits, HEATBIT_BED);
-      #endif
+      if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, HEATBIT_BED);
       #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber()) SBI(new_bits, HEATBIT_CHAMBER);
       #endif
-      #if ANIM_CUTTER
-        if (cutter.enabled()) SBI(new_bits, HEATBIT_CUTTER);
-      #endif
+      if (TERN0(ANIM_CUTTER, cutter.enabled())) SBI(new_bits, HEATBIT_CUTTER);
       heat_bits = new_bits;
     #endif
 
@@ -555,14 +551,10 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     // Heated Bed
-    #if DO_DRAW_BED
-      _draw_bed_status(blink);
-    #endif
+    TERN_(DO_DRAW_BED, _draw_bed_status(blink));
 
     // Heated Chamber
-    #if DO_DRAW_CHAMBER
-      _draw_chamber_status();
-    #endif
+    TERN_(DO_DRAW_CHAMBER, _draw_chamber_status());
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
@@ -695,7 +687,7 @@ void MarlinUI::draw_status_screen() {
         u8g.setColorIndex(0); // white on black
       #endif
 
-      #if DUAL_MIXING_EXTRUDER
+      #if HAS_DUAL_MIXING
 
         // Two-component mix / gradient instead of XY
 

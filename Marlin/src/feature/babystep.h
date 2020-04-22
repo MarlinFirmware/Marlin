@@ -55,11 +55,8 @@ public:
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
     static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
     static inline void reset_total(const AxisEnum axis) {
-      if (true
-        #if ENABLED(BABYSTEP_XY)
-          && axis == Z_AXIS
-        #endif
-      ) axis_total[BS_TOTAL_IND(axis)] = 0;
+      if (TERN1(BABYSTEP_XY, axis == Z_AXIS))
+        axis_total[BS_TOTAL_IND(axis)] = 0;
     }
   #endif
 
