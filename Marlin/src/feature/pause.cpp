@@ -541,11 +541,13 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  *   - a nozzle timed out, or
  *   - the nozzle is already heated.
  * - Display "wait for print to resume"
+ * - Retract to prevent oozing
+ * - Move the nozzle back to resume_position
+ * - Unretract
  * - Re-prime the nozzle...
  *   -  FWRETRACT: Recover/prime from the prior G10.
  *   - !FWRETRACT: Retract by resume_position.e, if negative.
  *                 Not sure how this logic comes into use.
- * - Move the nozzle back to resume_position
  * - Sync the planner E to resume_position.e
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
@@ -574,6 +576,18 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_RESUME));
 
+  // Retract to prevent oozing
+  unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+
+  // Move XY to starting position, then Z
+  do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+
+  // Move Z_AXIS to saved position
+  do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+
+  // Unretract
+  unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+
   // Intelligent resuming
   #if ENABLED(FWRETRACT)
     // If retracted before goto pause
@@ -583,13 +597,6 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   // If resume_position is negative
   if (resume_position.e < 0) unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
-
-  // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
-
-  // Move Z_AXIS to saved position
-  do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
-
   #if ADVANCED_PAUSE_RESUME_PRIME != 0
     unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
   #endif
@@ -611,10 +618,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("Resuming"), DISMISS_STR));
 
   #if ENABLED(SDSUPPORT)
-    if (did_pause_print) {
-      card.startFileprint();
-      --did_pause_print;
-    }
+    if (did_pause_print) { card.startFileprint(); --did_pause_print; }
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
