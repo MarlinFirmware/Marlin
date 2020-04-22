@@ -49,21 +49,13 @@
   #define EEPROM_WRITE_DELAY    5
 #endif
 
-// ------------------------
-// Private Variables
-// ------------------------
-static uint8_t eeprom_device_address = EEPROM_DEVICE_ADRESS;
-
-static void i2c_eeprom_init() {
-    Wire.begin();
-  }
+const uint8_t i2c_eeprom_address = I2C_ADDRESS((uint8_t)EEPROM_DEVICE_ADRESS);
 
 static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
   unsigned eeprom_address = (unsigned) pos;
 
-  i2c_eeprom_init();
-
-  Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
+  Wire.begin();
+  Wire.beginTransmission(i2c_eeprom_address);
   Wire.write((int)(eeprom_address >> 8));   // MSB
   Wire.write((int)(eeprom_address & 0xFF)); // LSB
   Wire.write(value);
@@ -77,15 +69,13 @@ static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
 static uint8_t i2c_eeprom_read_byte(uint8_t *pos) {
 
   unsigned eeprom_address = (unsigned)pos;
-  uint8_t device_address = I2C_ADDRESS(eeprom_device_address);
 
-  i2c_eeprom_init();
-
-  Wire.beginTransmission(device_address);
+  Wire.begin();
+  Wire.beginTransmission(i2c_eeprom_address);
   Wire.write((int)(eeprom_address >> 8));   // MSB
   Wire.write((int)(eeprom_address & 0xFF)); // LSB
   Wire.endTransmission();
-  Wire.requestFrom(device_address, (uint8_t)1);
+  Wire.requestFrom(i2c_eeprom_address, (uint8_t)1);
 
   return Wire.available() ? Wire.read() : 0xFF;
 }
