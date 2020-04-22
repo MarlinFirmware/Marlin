@@ -34,7 +34,7 @@
 
 #if ENABLED(I2C_EEPROM)
 
-#include "../shared/eeprom_api.h"
+#include "eeprom_api.h"
 #include <Wire.h>
 
 #ifndef EEPROM_DEVICE_ADRESS
@@ -54,44 +54,41 @@
 // ------------------------
 static uint8_t eeprom_device_address = EEPROM_DEVICE_ADRESS;
 
-struct PersistentStore::Helper {
-
-  static void eeprom_init() {
+static void i2c_eeprom_init() {
     Wire.begin();
   }
 
-  static void eeprom_write_byte(uint8_t *pos, unsigned char value) {
-    unsigned eeprom_address = (unsigned) pos;
+static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
+  unsigned eeprom_address = (unsigned) pos;
 
-    eeprom_init();
+  i2c_eeprom_init();
 
-    Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
-    Wire.write((int)(eeprom_address >> 8));   // MSB
-    Wire.write((int)(eeprom_address & 0xFF)); // LSB
-    Wire.write(value);
-    Wire.endTransmission();
+  Wire.beginTransmission(I2C_ADDRESS(eeprom_device_address));
+  Wire.write((int)(eeprom_address >> 8));   // MSB
+  Wire.write((int)(eeprom_address & 0xFF)); // LSB
+  Wire.write(value);
+  Wire.endTransmission();
 
-    // wait for write cycle to complete
-    // this could be done more efficiently with "acknowledge polling"
-    delay(EEPROM_WRITE_DELAY);
-  }
+  // wait for write cycle to complete
+  // this could be done more efficiently with "acknowledge polling"
+  delay(EEPROM_WRITE_DELAY);
+}
 
-  static uint8_t eeprom_read_byte(uint8_t *pos) {
+static uint8_t i2c_eeprom_read_byte(uint8_t *pos) {
 
-    unsigned eeprom_address = (unsigned)pos;
-    uint8_t device_address = I2C_ADDRESS(eeprom_device_address);
+  unsigned eeprom_address = (unsigned)pos;
+  uint8_t device_address = I2C_ADDRESS(eeprom_device_address);
 
-    eeprom_init();
+  i2c_eeprom_init();
 
-    Wire.beginTransmission(device_address);
-    Wire.write((int)(eeprom_address >> 8));   // MSB
-    Wire.write((int)(eeprom_address & 0xFF)); // LSB
-    Wire.endTransmission();
-    Wire.requestFrom(device_address, (uint8_t)1);
+  Wire.beginTransmission(device_address);
+  Wire.write((int)(eeprom_address >> 8));   // MSB
+  Wire.write((int)(eeprom_address & 0xFF)); // LSB
+  Wire.endTransmission();
+  Wire.requestFrom(device_address, (uint8_t)1);
 
-    return Wire.available() ? Wire.read() : 0xFF;
-  }
-};
+  return Wire.available() ? Wire.read() : 0xFF;
+}
 
 bool PersistentStore::access_start() {
   return true;
@@ -108,11 +105,9 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // EEPROM has only ~100,000 write cycles,
     // so only write bytes that have changed!
     uint8_t * const p = (uint8_t * const)pos;
-    if (v != Helper::eeprom_read_byte(p)) {
-
-      Helper::eeprom_write_byte(p, v);
-      const uint8_t r = Helper::eeprom_read_byte(p);
-
+    if (v != i2c_eeprom_read_byte(p)) {
+      i2c_eeprom_write_byte(p, v);
+      const uint8_t r = i2c_eeprom_read_byte(p);
       if (r != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
@@ -130,7 +125,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     // Read from external EEPROM
-    const uint8_t c = Helper::eeprom_read_byte((uint8_t*)pos);
+    const uint8_t c = i2c_eeprom_read_byte((uint8_t*)pos);
 
     if (writing) *value = c;
     crc16(crc, &c, 1);
