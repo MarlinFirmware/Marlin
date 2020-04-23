@@ -86,11 +86,15 @@ static int serial_count[NUM_SERIAL] = { 0 };
 bool send_ok[BUFSIZE];
 
 /**
- * Next Injected Command pointer. nullptr if no commands are being injected.
- * Used by Marlin internally to ensure that commands initiated from within
- * are enqueued ahead of any pending serial or sd card commands.
+ * Next Injected PROGMEM Command pointer. (nullptr == empty)
+ * Internal commands are enqueued ahead of serial / SD commands.
  */
-static PGM_P injected_commands_P = nullptr;
+PGM_P GCodeQueue::injected_commands_P; // = nullptr
+
+/**
+ * Injected SRAM Commands
+ */
+char GCodeQueue::injected_commands[64]; // = { 0 }
 
 GCodeQueue::GCodeQueue() {
   // Send "ok" after commands by default
@@ -101,7 +105,7 @@ GCodeQueue::GCodeQueue() {
  * Check whether there are any commands yet to be executed
  */
 bool GCodeQueue::has_commands_queued() {
-  return queue.length || injected_commands_P;
+  return queue.length || injected_commands_P || injected_commands[0];
 }
 
 /**
@@ -123,9 +127,7 @@ void GCodeQueue::_commit_command(bool say_ok
   #if NUM_SERIAL > 1
     port[index_w] = p;
   #endif
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.commit_sdpos(index_w);
-  #endif
+  TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
   if (++index_w >= BUFSIZE) index_w = 0;
   length++;
 }
@@ -172,11 +174,10 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
 }
 
 /**
- * Process the next "immediate" command.
- * Return 'true' if any commands were processed,
- * or remain to process.
+ * Process the next "immediate" command from PROGMEM.
+ * Return 'true' if any commands were processed.
  */
-bool GCodeQueue::process_injected_command() {
+bool GCodeQueue::process_injected_command_P() {
   if (injected_commands_P == nullptr) return false;
 
   char c;
@@ -198,12 +199,27 @@ bool GCodeQueue::process_injected_command() {
 }
 
 /**
- * Enqueue one or many commands to run from program memory.
- * Do not inject a comment or use leading spaces!
- * Aborts the current queue, if any.
- * Note: process_injected_command() will be called to drain any commands afterwards
+ * Process the next "immediate" command from SRAM.
+ * Return 'true' if any commands were processed.
  */
-void GCodeQueue::inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+bool GCodeQueue::process_injected_command() {
+  if (injected_commands[0] == '\0') return false;
+
+  char c;
+  size_t i = 0;
+  while ((c = injected_commands[i]) && c != '\n') i++;
+
+  // Execute a non-blank command
+  if (i) {
+    injected_commands[i] = '\0';
+    parser.parse(injected_commands);
+    gcode.process_parsed_command();
+  }
+
+  // Copy the next command into place
+  strcpy(injected_commands, &injected_commands[i + (c != '\0')]);
+  return true;
+}
 
 /**
  * Enqueue and return only when commands are actually enqueued.
@@ -504,9 +520,7 @@ void GCodeQueue::get_serial_commands() {
           // Process critical commands early
           if (strcmp(command, "M108") == 0) {
             wait_for_heatup = false;
-            #if HAS_LCD_MENU
-              wait_for_user = false;
-            #endif
+            TERN_(HAS_LCD_MENU, wait_for_user = false);
           }
           if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
@@ -575,7 +589,7 @@ void GCodeQueue::get_serial_commands() {
 
 /**
  * Add to the circular command queue the next command from:
- *  - The command-injection queue (injected_commands_P)
+ *  - The command-injection queues (injected_commands_P, injected_commands)
  *  - The active serial input (usually USB)
  *  - The SD card file being actively printed
  */
@@ -583,9 +597,7 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  #if ENABLED(SDSUPPORT)
-    get_sdcard_commands();
-  #endif
+  TERN_(SDSUPPORT, get_sdcard_commands());
 }
 
 /**
@@ -594,7 +606,7 @@ void GCodeQueue::get_available_commands() {
 void GCodeQueue::advance() {
 
   // Process immediate commands
-  if (process_injected_command()) return;
+  if (process_injected_command_P() || process_injected_command()) return;
 
   // Return if the G-code buffer is empty
   if (!length) return;

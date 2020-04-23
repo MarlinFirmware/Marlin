@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/shared/persistent_store_api.h"
+  #include "../HAL/shared/eeprom_api.h"
 #endif
 
 class MarlinSettings {
@@ -38,9 +38,7 @@ class MarlinSettings {
       reset();
       #if ENABLED(EEPROM_SETTINGS)
         const bool success = save();
-        #if ENABLED(EEPROM_CHITCHAT)
-          if (success) report();
-        #endif
+        if (TERN0(EEPROM_CHITCHAT, success)) report();
         return success;
       #else
         return true;

@@ -267,6 +267,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1147)
 else ifeq ($(HARDWARE_MOTHERBOARD),1148)
 # MKS GEN L V2
 else ifeq ($(HARDWARE_MOTHERBOARD),1149)
+# Copymaster 3D
+else ifeq ($(HARDWARE_MOTHERBOARD),1150)
 
 #
 # RAMBo and derivatives
@@ -684,7 +686,7 @@ ifeq ($(HARDWARE_VARIANT), Teensy)
 
 else ifeq ($(HARDWARE_VARIANT), archim)
   CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__ -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT="Archim"'
-  LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp PluggableUSB.cpp  USBCore.cpp
+  LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp PluggableUSB.cpp USBCore.cpp
   LIB_SRC    += cortex_handlers.c iar_calls_sam3.c syscalls_sam3.c dtostrf.c itoa.c
 
   ifeq ($(U8GLIB), 1)

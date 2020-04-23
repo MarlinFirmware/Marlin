@@ -23,8 +23,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#define THERMISTOR_TABLE_ADC_RESOLUTION 1024
-#define THERMISTOR_TABLE_SCALE (HAL_ADC_RANGE / (THERMISTOR_TABLE_ADC_RESOLUTION))
+#define THERMISTOR_TABLE_ADC_RESOLUTION 10
+#define THERMISTOR_TABLE_SCALE (HAL_ADC_RANGE / _BV(THERMISTOR_TABLE_ADC_RESOLUTION))
 #if ENABLED(HAL_ADC_FILTERED)
   #define OVERSAMPLENR 1
 #else
@@ -150,6 +150,9 @@
 #endif
 #if ANY_THERMISTOR_IS(201) // Pt100 with LMV324 Overlord
   #include "thermistor_201.h"
+#endif
+#if ANY_THERMISTOR_IS(202) // 200K thermistor in Copymaker3D hotend
+  #include "thermistor_202.h"
 #endif
 #if ANY_THERMISTOR_IS(331) // Like table 1, but with 3V3 as input voltage for MEGA
   #include "thermistor_331.h"

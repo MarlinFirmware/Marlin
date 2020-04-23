@@ -388,6 +388,6 @@ void analogWrite(pin_t pin, int pwm_val8) {
     analogWrite(uint8_t(pin), pwm_val8);
 }
 
-void flashFirmware(int16_t value) { nvic_sys_reset(); }
+void flashFirmware(const int16_t) { nvic_sys_reset(); }
 
 #endif // __STM32F1__

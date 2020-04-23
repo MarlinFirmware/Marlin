@@ -21,10 +21,8 @@
  */
 #pragma once
 
-#if ENABLED(EEPROM_SETTINGS)
-  #undef USE_REAL_EEPROM
-  #define USE_EMULATED_EEPROM 1
-  #if DISABLED(FLASH_EEPROM_EMULATION)
-    #define SDCARD_EEPROM_EMULATION 1
-  #endif
+#undef I2C_EEPROM // Arduino framework provides code for I2C
+
+#if USE_FALLBACK_EEPROM
+  #define FLASH_EEPROM_EMULATION
 #endif

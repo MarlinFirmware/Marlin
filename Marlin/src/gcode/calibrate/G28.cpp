@@ -27,7 +27,7 @@
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 
@@ -126,22 +126,16 @@
      */
     destination.set(safe_homing_xy, current_position.z);
 
-    #if HOMING_Z_WITH_PROBE
-      destination -= probe.offset_xy;
-    #endif
+    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
     if (position_is_reachable(destination)) {
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
 
       // This causes the carriage on Dual X to unpark
-      #if ENABLED(DUAL_X_CARRIAGE)
-        active_extruder_parked = false;
-      #endif
+      TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
 
-      #if ENABLED(SENSORLESS_HOMING)
-        safe_delay(500); // Short delay needed to settle
-      #endif
+      TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
@@ -175,9 +169,7 @@
   void end_slow_homing(const slow_homing_t &slow_homing) {
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    #if HAS_CLASSIC_JERK
-      planner.max_jerk = slow_homing.jerk_xy;
-    #endif
+    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_homing.jerk_xy);
     planner.reset_acceleration_rates();
   }
 
@@ -237,64 +229,56 @@ void GcodeSuite::G28() {
   #if HAS_LEVELING
 
     // Cancel the active G29 session
-    #if ENABLED(PROBE_MANUALLY)
-      g29_in_progress = false;
-    #endif
+    TERN_(PROBE_MANUALLY, g29_in_progress = false);
 
-    #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-      const bool leveling_was_active = planner.leveling_active;
-    #endif
+    TERN_(RESTORE_LEVELING_AFTER_G28, const bool leveling_was_active = planner.leveling_active);
     set_bed_leveling_enabled(false);
   #endif
 
-  #if ENABLED(CNC_WORKSPACE_PLANES)
-    workspace_plane = PLANE_XY;
-  #endif
+  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #define HAS_HOMING_CURRENT (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2))
+  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
+    #define HAS_HOMING_CURRENT 1
+  #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](const char * const s, const int16_t a, const int16_t b){
-      DEBUG_ECHO(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
+    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
+      serialprintPGM(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
       stepperX.rms_current(X_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("X", tmc_save_current_X, X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("X"), tmc_save_current_X, X_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(X2)
       const int16_t tmc_save_current_X2 = stepperX2.getMilliamps();
       stepperX2.rms_current(X2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("X2", tmc_save_current_X2, X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y)
       const int16_t tmc_save_current_Y = stepperY.getMilliamps();
       stepperY.rms_current(Y_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("Y", tmc_save_current_Y, Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y2)
       const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
       stepperY2.rms_current(Y2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("Y2", tmc_save_current_Y2, Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
   #endif
 
-  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    slow_homing_t slow_homing = begin_slow_homing();
-  #endif
+  TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
 
   // Always home with tool 0 active
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
     #endif
     tool_change(0, true);
   #endif
 
-  #if HAS_DUPLICATION_MODE
-    extruder_duplication_enabled = false;
-  #endif
+  TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
 
   remember_feedrate_scaling_off();
 
@@ -306,9 +290,7 @@ void GcodeSuite::G28() {
 
     home_delta();
 
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      end_slow_homing(slow_homing);
-    #endif
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
   #else // NOT DELTA
 
@@ -329,7 +311,7 @@ void GcodeSuite::G28() {
         ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
         : 0;
 
-    if (z_homing_height && (doX || doY)) {
+    if (z_homing_height && (doX || doY || ENABLED(Z_SAFE_HOMING))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
       if (destination.z > current_position.z) {
@@ -345,12 +327,8 @@ void GcodeSuite::G28() {
     #endif
 
     // Home Y (before X)
-    #if ENABLED(HOME_Y_BEFORE_X)
-
-      if (doY || (doX && ENABLED(CODEPENDENT_XY_HOMING)))
-        homeaxis(Y_AXIS);
-
-    #endif
+    if (ENABLED(HOME_Y_BEFORE_X) && (doY || (ENABLED(CODEPENDENT_XY_HOMING) && doX)))
+      homeaxis(Y_AXIS);
 
     // Home X
     if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
@@ -384,17 +362,13 @@ void GcodeSuite::G28() {
     if (DISABLED(HOME_Y_BEFORE_X) && doY)
       homeaxis(Y_AXIS);
 
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      end_slow_homing(slow_homing);
-    #endif
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
 
       if (doZ) {
-        #if ENABLED(BLTOUCH)
-          bltouch.init();
-        #endif
+        TERN_(BLTOUCH, bltouch.init());
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
@@ -429,9 +403,7 @@ void GcodeSuite::G28() {
 
     if (dxc_is_duplicating()) {
 
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        slow_homing = begin_slow_homing();
-      #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
@@ -452,9 +424,7 @@ void GcodeSuite::G28() {
       dual_x_carriage_mode         = IDEX_saved_mode;
       stepper.set_directions();
 
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        end_slow_homing(slow_homing);
-      #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
     }
 
   #endif // DUAL_X_CARRIAGE
@@ -462,23 +432,19 @@ void GcodeSuite::G28() {
   endstops.not_homing();
 
   // Clear endstop state for polled stallGuard endstops
-  #if ENABLED(SPI_ENDSTOPS)
-    endstops.clear_endstop_state();
-  #endif
+  TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
   #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-    set_bed_leveling_enabled(leveling_was_active);
-  #endif
+  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_was_active));
 
   restore_feedrate_and_scaling();
 
   // Restore the active tool after homing
-  #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
     tool_change(old_tool_index, NONE(PARKING_EXTRUDER, DUAL_X_CARRIAGE));   // Do move if one of these
   #endif
 

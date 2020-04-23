@@ -32,10 +32,17 @@
 
 SpindleLaser cutter;
 
-cutter_power_t SpindleLaser::power; // = 0
-
+cutter_power_t SpindleLaser::power;
+bool SpindleLaser::isOn;                                                       // state to determine when to apply setPower to power
+cutter_setPower_t SpindleLaser::setPower = interpret_power(SPEED_POWER_MIN);   // spindle/laser speed/power control in PWM, Percentage or RPM
+#if ENABLED(MARLIN_DEV_MODE)
+  cutter_frequency_t SpindleLaser::frequency;                                  // setting PWM frequency; range: 2K - 50K
+#endif
 #define SPINDLE_LASER_PWM_OFF ((SPINDLE_LASER_PWM_INVERT) ? 255 : 0)
 
+//
+// Init the cutter to a safe OFF state
+//
 void SpindleLaser::init() {
   OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH); // Init spindle to off
   #if ENABLED(SPINDLE_CHANGE_DIR)
@@ -45,41 +52,37 @@ void SpindleLaser::init() {
     SET_PWM(SPINDLE_LASER_PWM_PIN);
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // set to lowest speed
   #endif
+  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+    set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
+    TERN_(MARLIN_DEV_MODE, frequency = SPINDLE_LASER_FREQUENCY);
+  #endif
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)
 
   /**
-   * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line
-   *
-   * it accepts inputs of 0-255
-   */
+  * Set the cutter PWM directly to the given ocr value
+  **/
   void SpindleLaser::set_ocr(const uint8_t ocr) {
-    WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on (active low)
+    WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
 
 #endif
 
+//
+// Set cutter ON state (and PWM) to the given cutter power value
+//
 void SpindleLaser::apply_power(const cutter_power_t inpow) {
   static cutter_power_t last_power_applied = 0;
   if (inpow == last_power_applied) return;
   last_power_applied = inpow;
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (enabled()) {
-      #define _scaled(F) ((F - (SPEED_POWER_INTERCEPT)) * inv_slope)
-      constexpr float inv_slope = RECIPROCAL(SPEED_POWER_SLOPE),
-                      min_ocr = _scaled(SPEED_POWER_MIN),
-                      max_ocr = _scaled(SPEED_POWER_MAX);
-      int16_t ocr_val;
-           if (inpow <= SPEED_POWER_MIN) ocr_val = min_ocr;       // Use minimum if set below
-      else if (inpow >= SPEED_POWER_MAX) ocr_val = max_ocr;       // Use maximum if set above
-      else ocr_val = _scaled(inpow);                              // Use calculated OCR value
-      set_ocr(ocr_val & 0xFF);                                    // ...limited to Atmel PWM max
-    }
+    if (enabled())
+      set_ocr(translate_power(inpow));
     else {
-      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);   // Turn spindle off (active low)
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // Only write low byte
+      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off
+      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);                   // Only write low byte
     }
   #else
     WRITE(SPINDLE_LASER_ENA_PIN, (SPINDLE_LASER_ACTIVE_HIGH) ? enabled() : !enabled());
@@ -88,11 +91,13 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
 
 #if ENABLED(SPINDLE_CHANGE_DIR)
 
+  //
+  // Set the spindle direction and apply immediately
+  // Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
+  //
   void SpindleLaser::set_direction(const bool reverse) {
     const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
-    #if ENABLED(SPINDLE_STOP_ON_DIR_CHANGE)
-      if (enabled() && READ(SPINDLE_DIR_PIN) != dir_state) disable();
-    #endif
+    if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
 

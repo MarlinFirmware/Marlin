@@ -67,6 +67,11 @@ inline void toggle_pins() {
     else {
       watchdog_refresh();
       report_pin_state_extended(pin, ignore_protection, true, PSTR("Pulsing   "));
+      #ifdef __STM32F1__
+        const auto prior_mode = _GET_MODE(i);
+      #else
+        const bool prior_mode = GET_PINMODE(pin);
+      #endif
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
           SET_OUTPUT(TEENSY_E2);
@@ -95,6 +100,11 @@ inline void toggle_pins() {
           watchdog_refresh();
         }
       }
+      #ifdef __STM32F1__
+        _SET_MODE(i, prior_mode);
+      #else
+        pinMode(pin, prior_mode);
+      #endif
     }
     SERIAL_EOL();
   }
@@ -330,12 +340,8 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called"));
-      #endif
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called")));
     #endif
 
     for (;;) {
@@ -356,9 +362,7 @@ void GcodeSuite::M43() {
         }
       }
 
-      #if HAS_RESUME_CONTINUE
-        if (!wait_for_user) break;
-      #endif
+      if (TERN0(HAS_RESUME_CONTINUE, !wait_for_user)) break;
 
       safe_delay(200);
     }

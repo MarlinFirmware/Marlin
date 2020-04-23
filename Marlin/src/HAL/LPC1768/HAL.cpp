@@ -67,14 +67,10 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
   return ind > -1 ? ind : dval;
 }
 
-void flashFirmware(int16_t value) {
-  NVIC_SystemReset();
-}
+void flashFirmware(const int16_t) { NVIC_SystemReset(); }
 
 void HAL_clear_reset_source(void) {
-  #if ENABLED(USE_WATCHDOG)
-    watchdog_clear_timeout_flag();
-  #endif
+  TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
 }
 
 uint8_t HAL_get_reset_source(void) {

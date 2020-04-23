@@ -86,6 +86,10 @@
                       || AXIS_DRIVER_TYPE_X2(T) || AXIS_DRIVER_TYPE_Y2(T) || AXIS_DRIVER_TYPE_Z2(T) \
                       || AXIS_DRIVER_TYPE_Z3(T) || AXIS_DRIVER_TYPE_Z4(T) || HAS_E_DRIVER(T) )
 
+//
+// Trinamic Stepper Drivers
+//
+
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
 #if (    HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) \
@@ -171,17 +175,9 @@
   #define HAS_TMC_SPI 1
 #endif
 
-// Defines that can't be evaluated now
-#define HAS_TMC_SW_SERIAL ANY_AXIS_HAS(SW_SERIAL)
-
 //
-// Stretching 'drivers.h' to include LPC/SAMD51 SD options
+// L64XX Stepper Drivers
 //
-#define _SDCARD_LCD          1
-#define _SDCARD_ONBOARD      2
-#define _SDCARD_CUSTOM_CABLE 3
-#define _SDCARD_ID(V) _CAT(_SDCARD_, V)
-#define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
 
 #if HAS_DRIVER(L6470) || HAS_DRIVER(L6474) || HAS_DRIVER(L6480) || HAS_DRIVER(POWERSTEP01)
   #define HAS_L64XX 1

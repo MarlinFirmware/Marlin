@@ -45,7 +45,7 @@ enum PauseMode : char {
 };
 
 enum PauseMessage : char {
-  PAUSE_MESSAGE_PAUSING,
+  PAUSE_MESSAGE_PARKING,
   PAUSE_MESSAGE_CHANGING,
   PAUSE_MESSAGE_WAITING,
   PAUSE_MESSAGE_UNLOAD,
@@ -82,8 +82,6 @@ extern uint8_t did_pause_print;
   #define DXC_ARGS
   #define DXC_PASS
 #endif
-
-void do_pause_e_move(const float &length, const feedRate_t &fr_mm_s);
 
 bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 

@@ -32,6 +32,12 @@
 #define BOARD_INFO_NAME "Azteeg X5 MINI WIFI"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // DIGIPOT slave addresses
 //
 #ifndef DIGIPOT_I2C_ADDRESS_A
