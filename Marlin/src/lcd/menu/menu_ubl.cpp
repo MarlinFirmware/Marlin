@@ -438,7 +438,9 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 
 void _lcd_ubl_output_map_lcd() {
-  if (planner.movesplanned())return;
+
+  if (planner.movesplanned()) return;
+
   static int16_t step_scaler = 0;
 
   if (ui.use_click()) return _lcd_ubl_map_lcd_edit_cmd();
@@ -500,7 +502,7 @@ void _lcd_ubl_output_map_lcd_cmd() {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }
-  if (planner.movesplanned())return;
+  if (planner.movesplanned()) return;
   ui.goto_screen(_lcd_ubl_map_homing);
 }
 
