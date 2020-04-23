@@ -947,11 +947,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // Z raise before retraction
       #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
-        if (can_move_away
-          #if ENABLED(TOOLCHANGE_PARK)
-            && toolchange_settings.enable_park
-          #endif
-        ){
+        if (can_move_away && TERN1(toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -965,11 +961,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Unload / Retract
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
         const bool should_swap = can_move_away && toolchange_settings.swap_length;
-        #if ENABLED(PREVENT_COLD_EXTRUSION)
-          const bool too_cold = !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool));
-        #else
-          constexpr bool too_cold = false;
-        #endif
+                   too_cold = TERN0(PREVENT_COLD_EXTRUSION,
+                     !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool))
+                   );
         if (should_swap) {
           if (too_cold) {
             SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
@@ -978,7 +972,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           else
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
         }
-      #endif // Unload / Retract
+      #endif
 
       #if SWITCHING_NOZZLE_TWO_SERVOS
         raise_nozzle(old_tool);
@@ -1000,11 +994,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
-        if (can_move_away
-          #if ENABLED(TOOLCHANGE_PARK)
-            && toolchange_settings.enable_park
-          #endif
-        ){
+        if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -1030,9 +1020,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       #if HAS_HOTEND_OFFSET
         xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
-        #if ENABLED(DUAL_X_CARRIAGE)
-          diff.x = 0;
-        #endif
+        TERN_(DUAL_X_CARRIAGE, diff.x = 0);
       #else
         constexpr xyz_pos_t diff{0};
       #endif
