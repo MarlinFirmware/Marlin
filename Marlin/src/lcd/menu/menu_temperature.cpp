@@ -48,7 +48,7 @@ uint8_t MarlinUI::preheat_fan_speed[2];
 //
 
 void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const uint8_t fan) {
-  #if HOTENDS
+  #if HAS_HOTEND
     if (temph > 0) thermalManager.setTargetHotend(_MIN(heater_maxtemp[endnum] - 15, temph), endnum);
   #endif
   #if HAS_HEATED_BED
@@ -107,18 +107,16 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #else
         ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
       #endif
-    #elif HOTENDS > 1
+    #elif HAS_MULTI_HOTEND
       #if HAS_HEATED_BED
         _PREHEAT_ITEMS(1,0);
       #endif
       LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(1,n);
       ACTION_ITEM(MSG_PREHEAT_1_ALL, []() {
-        #if HAS_HEATED_BED
-          _preheat_bed(0);
-        #endif
+        TERN_(HAS_HEATED_BED, _preheat_bed(0));
         HOTEND_LOOP() thermalManager.setTargetHotend(ui.preheat_hotend_temp[0], e);
       });
-    #endif // HOTENDS > 1
+    #endif // HAS_MULTI_HOTEND
     #if HAS_HEATED_BED
       ACTION_ITEM(MSG_PREHEAT_1_BEDONLY, []{ _preheat_bed(0); });
     #endif
@@ -135,18 +133,16 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
       #else
         ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
       #endif
-    #elif HOTENDS > 1
+    #elif HAS_MULTI_HOTEND
       #if HAS_HEATED_BED
         _PREHEAT_ITEMS(2,0);
       #endif
       LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(2,n);
       ACTION_ITEM(MSG_PREHEAT_2_ALL, []() {
-        #if HAS_HEATED_BED
-          _preheat_bed(1);
-        #endif
+        TERN_(HAS_HEATED_BED, _preheat_bed(1));
         HOTEND_LOOP() thermalManager.setTargetHotend(ui.preheat_hotend_temp[1], e);
       });
-    #endif // HOTENDS > 1
+    #endif // HAS_MULTI_HOTEND
     #if HAS_HEATED_BED
       ACTION_ITEM(MSG_PREHEAT_2_BEDONLY, []{ _preheat_bed(1); });
     #endif
@@ -171,7 +167,7 @@ void menu_temperature() {
   //
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(0); });
-  #elif HOTENDS > 1
+  #elif HAS_MULTI_HOTEND
     HOTEND_LOOP()
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, heater_maxtemp[e] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
@@ -284,9 +280,7 @@ void menu_temperature() {
     //
     bool has_heat = false;
     HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
-    #if HAS_TEMP_BED
-      if (thermalManager.temp_bed.target) has_heat = true;
-    #endif
+    if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
 
   #endif // HAS_TEMP_HOTEND

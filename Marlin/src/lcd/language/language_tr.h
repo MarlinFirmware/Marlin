@@ -49,7 +49,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Durduruluyor...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("SD K. Yerleştirildi.");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("SD Kart Çıkarıldı.");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD Kart Serbest");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("SD Kart Bekleniyor");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Kart Okuma Hatası");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB Çıkarıldı");
@@ -366,8 +365,8 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Tasfiye uzunluğu");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Takım Değişimi");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Yükselt");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Birincil Hız");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Geri Çekme Hızı");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Birincil Hız");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Geri Çekme Hızı");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozul Beklemede");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Filaman Değiştir");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Filaman Değiştir *");
@@ -463,7 +462,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Aydınlatmayı Aç");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Aydınlatma Parlaklğı");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Yanlış Yazıcı");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Yanlış Yazıcı");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Baskı Sayısı");
@@ -499,13 +498,13 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozul: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensörü");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Aşınma Farkı mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Sıfırlama Başarısız");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Sıfırlama Başarısız");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Başarısız");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Çok Soğuk");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMAN SEÇ");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("MMU Yaz. Güncelle!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("MMU Yaz. Güncelle!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Dikkat Gerektirir.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Yaz. Devam Et");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Sürdürülüyor...");

@@ -25,7 +25,9 @@
 
 #if ENABLED(SDSUPPORT)
 
-#define SD_RESORT BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
+#if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
+  #define SD_RESORT 1
+#endif
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
@@ -113,11 +115,7 @@ public:
   static void getAbsFilename(char *dst);
   static void printFilename();
   static void startFileprint();
-  static void endFilePrint(
-    #if SD_RESORT
-      const bool re_sort=false
-    #endif
-  );
+  static void endFilePrint(TERN_(SD_RESORT, const bool re_sort=false));
   static void report_status();
   static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }

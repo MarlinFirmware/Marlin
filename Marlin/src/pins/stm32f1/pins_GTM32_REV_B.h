@@ -112,7 +112,10 @@
 //#define FAN_PIN                           PB9   // EXT0 port
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
-#define ORIG_E0_AUTO_FAN_PIN                PB9   // EXT0 port, used as main extruder fan
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PB9   // EXT0 port, used as main extruder fan
+#endif
 
 //
 // Temperature Sensors

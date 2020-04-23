@@ -115,7 +115,9 @@
 #define FAN1_PIN                            PF6
 #define FAN2_PIN                            PF7
 
-#define ORIG_E0_AUTO_FAN_PIN            FAN1_PIN  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PF6
+#endif
 
 //
 // LED / Lighting

@@ -47,11 +47,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Aborting...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media Inserted");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media Removed");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Media Released");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Waiting for media");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Media read error");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB device removed");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB start failed");
+  PROGMEM Language_Str MSG_KILL_SUBCALL_OVERFLOW           = _UxGT("Subcall Overflow");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Soft Endstops");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Main");
@@ -371,11 +371,22 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Swap Length");
+  PROGMEM Language_Str MSG_FILAMENT_SWAP_EXTRA             = _UxGT("Swap Extra");
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Purge Length");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Tool Change");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Raise");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Prime Speed");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Retract Speed");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Prime Speed");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Retract Speed");
+  PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Park Head");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("Recover Speed");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED          = _UxGT("Fan Speed");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("Fan Time");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("Auto ON");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("Auto OFF");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("Tool Migration");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("Auto-migration");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Last Extruder");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migrate to *");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Change Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Change Filament *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Load Filament");
@@ -473,7 +484,7 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Case Light");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Light Brightness");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("INCORRECT PRINTER");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("INCORRECT PRINTER");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Print Count");
@@ -509,13 +520,13 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Homing Failed");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Too Cold");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Update MMU Firmware!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Update MMU Firmware!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Needs Attention.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Resume Print");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Resuming...");

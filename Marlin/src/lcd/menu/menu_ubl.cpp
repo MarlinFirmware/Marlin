@@ -68,9 +68,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
 
   if (ui.should_draw()) {
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
-    #if ENABLED(MESH_EDIT_GFX_OVERLAY)
-      _lcd_zoffset_overlay_gfx(mesh_edit_value);
-    #endif
+    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(mesh_edit_value));
   }
 }
 
@@ -188,8 +186,8 @@ void _lcd_ubl_edit_mesh() {
  */
 void _lcd_ubl_validate_custom_mesh() {
   char ubl_lcd_gcode[24];
-  const int temp = TERN(HAS_HEATED_BED, custom_bed_temp, 0);
-  sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26 C B%i H%i P"), temp, custom_hotend_temp);
+  const int16_t temp = TERN(HAS_HEATED_BED, custom_bed_temp, 0);
+  sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26 C B%" PRIi16 " H%" PRIi16 " P"), temp, custom_hotend_temp);
   queue.inject(ubl_lcd_gcode);
 }
 

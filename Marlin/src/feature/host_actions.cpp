@@ -108,11 +108,7 @@ void host_action(const char * const pstr, const bool eol) {
   }
 
   void filament_load_host_prompt() {
-    const bool disable_to_continue = (false
-      #if HAS_FILAMENT_SENSOR
-        || runout.filament_ran_out
-      #endif
-    );
+    const bool disable_to_continue = TERN0(HAS_FILAMENT_SENSOR, runout.filament_ran_out);
     host_prompt_do(PROMPT_FILAMENT_RUNOUT, PSTR("Paused"), PSTR("PurgeMore"),
       disable_to_continue ? PSTR("DisableRunout") : CONTINUE_STR
     );
@@ -160,9 +156,7 @@ void host_action(const char * const pstr, const bool eol) {
         }
         break;
       case PROMPT_USER_CONTINUE:
-        #if HAS_RESUME_CONTINUE
-          wait_for_user = false;
-        #endif
+        TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
         msg = PSTR("FILAMENT_RUNOUT_CONTINUE");
         break;
       case PROMPT_PAUSE_RESUME:

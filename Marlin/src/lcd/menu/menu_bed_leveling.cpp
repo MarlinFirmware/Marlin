@@ -75,9 +75,7 @@
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
+      TERN_(HAS_BUZZER, ui.completion_feedback());
     }
     if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);

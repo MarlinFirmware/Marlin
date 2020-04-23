@@ -31,7 +31,7 @@
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
-//#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION                    // Use Flash-based EEPROM emulation
 
 //
 // Servos
@@ -39,17 +39,56 @@
 #define SERVO0_PIN                          PA1
 
 //
-// Limit Switches
+// Trinamic Stallguard pins
 //
-#define X_MIN_PIN                           PB10
-#define X_MAX_PIN                           PE15
-#define Y_MIN_PIN                           PE12
-#define Y_MAX_PIN                           PE10
-#define Z_MIN_PIN                           PG8
-#define Z_MAX_PIN                           PG5
+#define X_DIAG_PIN                          PB10  // X-
+#define Y_DIAG_PIN                          PE12  // Y-
+#define Z_DIAG_PIN                          PG8   // Z-
+#define E0_DIAG_PIN                         PE15  // E0
+#define E1_DIAG_PIN                         PE10  // E1
+#define E2_DIAG_PIN                         PG5   // E2
 
 //
-// Z Probe must be this pins
+// Limit Switches
+//
+#if X_STALL_SENSITIVITY
+  #define X_STOP_PIN                  X_DIAG_PIN
+  #if X_HOME_DIR < 0
+    #define X_MAX_PIN                       PE15  // E0
+  #else
+    #define X_MIN_PIN                       PE15  // E0
+  #endif
+#else
+  #define X_MIN_PIN                         PB10  // X-
+  #define X_MAX_PIN                         PE15  // E0
+#endif
+
+#if Y_STALL_SENSITIVITY
+  #define Y_STOP_PIN                  Y_DIAG_PIN
+  #if Y_HOME_DIR < 0
+    #define Y_MAX_PIN                       PE10  // E1
+  #else
+    #define Y_MIN_PIN                       PE10  // E1
+  #endif
+#else
+  #define Y_MIN_PIN                         PE12  // Y-
+  #define Y_MAX_PIN                         PE10  // E1
+#endif
+
+#if Z_STALL_SENSITIVITY
+  #define Z_STOP_PIN                  Z_DIAG_PIN
+  #if Z_HOME_DIR < 0
+    #define Z_MAX_PIN                       PG5   // E2
+  #else
+    #define Z_MIN_PIN                       PG5   // E2
+  #endif
+#else
+  #define Z_MIN_PIN                         PG8   // Z-
+  #define Z_MAX_PIN                         PG5   // E2
+#endif
+
+//
+// Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PA2
@@ -176,7 +215,11 @@
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6   // Fan2
+#define FAN2_PIN                            PE6
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN               FAN1_PIN
+#endif
 
 //
 // Misc. Functions
@@ -188,16 +231,14 @@
 
 //
 // Onboard SD card
-//   NOT compatible with LCD
+// Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#if SDCARD_CONNECTION == ONBOARD && !HAS_SPI_LCD
+#if SD_CONNECTION_IS(ONBOARD)
   #define SOFTWARE_SPI                            // Use soft SPI for onboard SD
   #define SDSS                              PA4
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PB5
-#else
-  #define SDSS                              PB12
 #endif
 
 /**
@@ -217,6 +258,9 @@
 #if HAS_SPI_LCD
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
+  #if SD_CONNECTION_IS(LCD)
+    #define SDSS                            PB12  // Uses default hardware SPI for LCD's SD
+  #endif
 
   #if ENABLED(CR10_STOCKDISPLAY)
     #define LCD_PINS_RS                     PG6
@@ -232,6 +276,10 @@
     #undef ST7920_DELAY_1
     #undef ST7920_DELAY_2
     #undef ST7920_DELAY_3
+
+  #elif ENABLED(MKS_MINI_12864)
+    #define DOGLCD_A0                       PG6
+    #define DOGLCD_CS                       PG3
 
   #else
 
@@ -282,3 +330,21 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// WIFI
+//
+
+/**
+ *          _____
+ *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
+ *  Enable | 3 4 | GPIO2    Reset  PG0   // Leave as unused (OK to leave floating)
+ *   Reset | 5 6 | GPIO0    GPIO2  PF15  // Leave as unused (best to leave floating)
+ *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (best to leave floating)
+ *           ￣￣
+ *            W1
+ */
+#define ESP_WIFI_MODULE_COM 6                     // Must also set SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+#define ESP_WIFI_MODULE_RESET_PIN           -1
+#define ESP_WIFI_MODULE_ENABLE_PIN          PG1
