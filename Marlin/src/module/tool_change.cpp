@@ -795,14 +795,9 @@ void tool_change_prime() {
   if (toolchange_settings.extra_prime > 0
     && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
   ) {
-
     destination = current_position; // Remember the old position
 
-    #if ENABLED(TOOLCHANGE_PARK)
-      const bool ok = all_axes_homed() && toolchange_settings.enable_park;
-    #else
-      const bool ok = true ;
-    #endif
+    const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
     // Z raise
     if (ok) {
@@ -817,14 +812,9 @@ void tool_change_prime() {
 
     // Park
     #if ENABLED(TOOLCHANGE_PARK)
-      if (ok){
-        // Toolchange park
-        #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
-          current_position.x = toolchange_settings.change_point.x;
-        #endif
-        #if DISABLED(TOOLCHANGE_PARK_X_ONLY)
-          current_position.y = toolchange_settings.change_point.y;
-        #endif
+      if (ok) {
+        TERN(TOOLCHANGE_PARK_Y_ONLY,,current_position.x = toolchange_settings.change_point.x);
+        TERN(TOOLCHANGE_PARK_X_ONLY,,current_position.y = toolchange_settings.change_point.y);
         planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
         planner.synchronize();
       }
@@ -848,11 +838,11 @@ void tool_change_prime() {
 
     // Move back
     #if ENABLED(TOOLCHANGE_PARK)
-      if (ok){
+      if (ok) {
         #if ENABLED(TOOLCHANGE_NO_RETURN)
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
         #else
-          do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+          do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
         #endif
       }
     #endif
