@@ -157,9 +157,7 @@ void InterfaceSettingsScreen::onIdle() {
     CommandProcessor cmd;
     switch (cmd.track_tag(value)) {
       case 2:
-        screen_data.InterfaceSettingsScreen.brightness = float(value) * 128 / 0xFFFF;
-        if (screen_data.InterfaceSettingsScreen.brightness > 1)
-          screen_data.InterfaceSettingsScreen.brightness = 1;
+        screen_data.InterfaceSettingsScreen.brightness = constrain((value * 128UL) / 0xFFFF, 1, 11);
         CLCD::set_brightness(screen_data.InterfaceSettingsScreen.brightness);
         SaveSettingsDialogBox::settingsChanged();
         break;
@@ -252,9 +250,7 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   for(uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
     InterfaceSoundsScreen::event_sounds[i] = eeprom.event_sounds[i];
 
-  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-    StressTestScreen::startupCheck();
-  #endif
+  TERN_(TOUCH_UI_DEVELOPER_MENU, StressTestScreen::startupCheck());
 }
 
 #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE

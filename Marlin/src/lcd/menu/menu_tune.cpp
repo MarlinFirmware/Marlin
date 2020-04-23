@@ -67,18 +67,10 @@
       const float spm = planner.steps_to_mm[axis];
       MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        const bool in_view = (true
-          #if HAS_GRAPHICAL_LCD
-            && PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1)
-          #endif
-        );
+        const bool in_view = TERN1(HAS_GRAPHICAL_LCD, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
-          #if HAS_GRAPHICAL_LCD
-            ui.set_font(FONT_MENU);
-            lcd_moveto(0, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT);
-          #else
-            lcd_moveto(0, LCD_HEIGHT - 1);
-          #endif
+          TERN_(HAS_GRAPHICAL_LCD, ui.set_font(FONT_MENU));
+          lcd_moveto(0, TERN(HAS_GRAPHICAL_LCD, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
           lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
           lcd_put_wchar(':');
           lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
