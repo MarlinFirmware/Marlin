@@ -49,13 +49,16 @@
   #define EEPROM_WRITE_DELAY    5
 #endif
 
-const uint8_t i2c_eeprom_address = I2C_ADDRESS((uint8_t)EEPROM_DEVICE_ADRESS);
+const uint8_t eeprom_device_address = I2C_ADDRESS((uint8_t)EEPROM_DEVICE_ADRESS);
+
+static void i2c_eeprom_init() {
+  Wire.begin();
+}
 
 static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
   unsigned eeprom_address = (unsigned) pos;
 
-  Wire.begin();
-  Wire.beginTransmission(i2c_eeprom_address);
+  Wire.beginTransmission(eeprom_device_address);
   Wire.write((int)(eeprom_address >> 8));   // MSB
   Wire.write((int)(eeprom_address & 0xFF)); // LSB
   Wire.write(value);
@@ -70,17 +73,17 @@ static uint8_t i2c_eeprom_read_byte(uint8_t *pos) {
 
   unsigned eeprom_address = (unsigned)pos;
 
-  Wire.begin();
-  Wire.beginTransmission(i2c_eeprom_address);
+  Wire.beginTransmission(eeprom_device_address);
   Wire.write((int)(eeprom_address >> 8));   // MSB
   Wire.write((int)(eeprom_address & 0xFF)); // LSB
   Wire.endTransmission();
-  Wire.requestFrom(i2c_eeprom_address, (uint8_t)1);
+  Wire.requestFrom(eeprom_device_address, (uint8_t)1);
 
   return Wire.available() ? Wire.read() : 0xFF;
 }
 
 bool PersistentStore::access_start() {
+  i2c_eeprom_init();
   return true;
 }
 
@@ -97,8 +100,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     uint8_t * const p = (uint8_t * const)pos;
     if (v != i2c_eeprom_read_byte(p)) {
       i2c_eeprom_write_byte(p, v);
-      const uint8_t r = i2c_eeprom_read_byte(p);
-      if (r != v) {
+      if (i2c_eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
       }

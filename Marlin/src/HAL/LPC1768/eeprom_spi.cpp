@@ -106,8 +106,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     uint8_t * const p = (uint8_t * const)pos;
     if (v != spi_eeprom_read_byte(p)) {
       spi_eeprom_write_byte(p, v);
-      const uint8_t r = spi_eeprom_read_byte(p);
-      if (r != v) {
+      if (spi_eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
       }
