@@ -365,8 +365,8 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Tasfiye uzunluğu");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Takım Değişimi");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Yükselt");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Birincil Hız");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Geri Çekme Hızı");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Birincil Hız");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Geri Çekme Hızı");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozul Beklemede");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Filaman Değiştir");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Filaman Değiştir *");

@@ -339,8 +339,8 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Długość oczyszczania");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Zmiana narzędzia");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Podniesienie Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Prędkość napełniania");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Prędkość wycofania");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Prędkość napełniania");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Prędkość wycofania");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Dysza w oczekiwaniu");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Zmień filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Zmień filament *");

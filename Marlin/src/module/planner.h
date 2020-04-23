@@ -423,12 +423,14 @@ class Planner {
 
     #if EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-        e_factor[e] = (flow_percentage[e] * 0.01f
-          #if DISABLED(NO_VOLUMETRICS)
-            * volumetric_multiplier[e]
-          #endif
-        );
+        e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
       }
+
+      static inline void set_flow(const uint8_t e, const int16_t flow) {
+        flow_percentage[e] = flow;
+        refresh_e_factor(e);
+      }
+
     #endif
 
     // Manage fans, paste pressure, etc.

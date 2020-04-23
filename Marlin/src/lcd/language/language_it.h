@@ -370,8 +370,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Lunghezza spurgo");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Cambio utensile");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Risalita Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Velocità innesco");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Velocità retrazione");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Velocità innesco");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Velocità retrazione");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Ugello Parcheggiato");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Standby ugello");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambia filamento");
