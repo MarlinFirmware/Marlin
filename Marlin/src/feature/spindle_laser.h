@@ -162,9 +162,7 @@ public:
   #endif
 
   static inline void kill() {
-    #if ENABLED(LASER_POWER_INLINE)
-      inline_disable();
-    #endif
+    TERN_(LASER_POWER_INLINE, inline_disable());
     disable();
   }
 };

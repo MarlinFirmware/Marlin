@@ -14,7 +14,7 @@ FORK=${INFO[1]}
 REPO=${INFO[2]}
 BRANCH=${INFO[5]}
 
-git push --set-upstream origin $BRANCH
+git push --set-upstream origin HEAD:$BRANCH
 
 which xdg-open >/dev/null && TOOL=xdg-open
 which gnome-open >/dev/null && TOOL=gnome-open

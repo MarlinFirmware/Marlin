@@ -22,18 +22,22 @@
 #pragma once
 
 /**
- * Hungarian
+ * Magyar
  *
- * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
+ * Marlin 2.0.x bugfix Magyar fordítása. A fordítást folyamatosan javítom és frissítem.
+ * A Magyar fordítást készítette: AntoszHUN
+ *
+ *
  *
  */
 
 namespace Language_hu {
-  using namespace Language_en; // Inherit undefined strings from English
+  using namespace Language_en; // A fordítás az örökölt Amerikai Angol (English) karakterláncokat használja.
 
+namespace Language_hu {
   constexpr uint8_t    CHARSIZE                            = 2;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar")
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Kész.");
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
@@ -43,11 +47,11 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Megszakítás...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Tároló Behelyezve");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tároló Eltávolítva");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Tároló Leválasztva");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Várakozás a tárolóra");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Tároló olvasási hiba");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB eltávolítva");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB eszköz hiba");
+  PROGMEM Language_Str MSG_KILL_SUBCALL_OVERFLOW           = _UxGT("Túlfolyás");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Végállás"); // Maximum 8 karakter
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Szoft. Végállás");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("<Fömenü>");
@@ -469,7 +473,7 @@ namespace Language_hu {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Munkalámpa");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Fényerösség");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("HELYTELEN NYOMTATÓ");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("HELYTELEN NYOMTATÓ");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Nyomtatás Számláló");
@@ -505,13 +509,13 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Fúvóka: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Túlfutás Szenzor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Túlfutás Táv. mm");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Tájolási hiba");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Tájolási hiba");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Szondázás hiba");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Túl hideg");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SZÁLVÁLASZTÁS");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("MMU Szoftver Feltöltése!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("MMU Szoftver Feltöltése!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU Figyelmeztetés.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Nyomtatás Folytatása");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Folytatás...");
@@ -556,12 +560,12 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
   //
-  // Filamentváltó képernyők legfeljebb 3 sort jeleníthetnek meg egy 4 soros kijelzőn
-  //                        ...vagy legfeljebb 2 sor egy 3 soros kijelzőn
+  // Filament Change screens show up to 3 lines on a 4-line display
+  //                        ...or up to 2 lines on a 3-line display
   //
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Nyomj gombot", "nyomtatás folytatáshoz"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkolás..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkolás..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Várj míg", "szál csere", "indítás"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Szál behelyezés", "majd nyomj gombot", "a folytatáshoz"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Nyomj gombot", "a fúvóka fűtéséhez"));
@@ -573,7 +577,7 @@ namespace Language_hu {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd foltyat..."));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Katt a folytatáshoz"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parkolás..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkolás..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Kérlek Várj..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Behelyez majd katt"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Katt a fűtéshez"));

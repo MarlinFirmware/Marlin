@@ -113,9 +113,7 @@
   void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
     GRID_LOOP(x, y) {
       z_values[x][y] = value;
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onMeshUpdate(x, y, value);
-      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
     }
   }
 
