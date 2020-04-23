@@ -239,7 +239,7 @@ void menu_main() {
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {
       print_job_timer.resetServiceInterval(index);
-      TERN_(HAS_BUZZER, ui.completion_feedback());
+      ui.completion_feedback();
       ui.reset_status();
       ui.return_to_status();
     };

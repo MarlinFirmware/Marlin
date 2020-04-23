@@ -587,7 +587,7 @@ void menu_advanced_settings() {
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
       []{
         const bool inited = settings.init_eeprom();
-        TERN_(HAS_BUZZER, ui.completion_feedback(inited));
+        ui.completion_feedback(inited);
         UNUSED(inited);
       },
       ui.goto_previous_screen,

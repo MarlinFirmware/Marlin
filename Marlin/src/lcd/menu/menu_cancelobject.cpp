@@ -44,7 +44,7 @@ static void lcd_cancel_object_confirm() {
   MenuItem_confirm::confirm_screen(
     []{
       cancelable.cancel_object(MenuItemBase::itemIndex - 1);
-      TERN_(HAS_BUZZER, ui.completion_feedback());
+      ui.completion_feedback();
       ui.goto_previous_screen();
     },
     ui.goto_previous_screen,
