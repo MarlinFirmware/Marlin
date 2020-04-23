@@ -28,8 +28,6 @@
 #include "../../libs/crc16.h"
 
 class PersistentStore {
-private:
-  struct Helper;
 public:
   static bool access_start();
   static bool access_finish();
