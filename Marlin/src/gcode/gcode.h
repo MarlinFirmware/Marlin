@@ -351,7 +351,7 @@ public:
     process_subcommands_now_P(G28_STR);
   }
 
-  #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+  #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
     static bool autoreport_paused;
     static inline bool set_autoreport_paused(const bool p) {
       const bool was = autoreport_paused;
@@ -610,7 +610,7 @@ private:
 
   TERN_(HAS_COLOR_LEDS, static void M150());
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
+  #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
     static void M155();
   #endif
 
@@ -812,9 +812,9 @@ private:
     static void M918();
   #endif
 
-  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || HAS_I2C_DIGIPOT || ENABLED(DAC_STEPPER_CURRENT)
+  #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
     static void M907();
-    #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+    #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
       static void M908();
       #if ENABLED(DAC_STEPPER_CURRENT)
         static void M909();

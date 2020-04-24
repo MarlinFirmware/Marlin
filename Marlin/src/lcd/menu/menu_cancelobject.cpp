@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(CANCEL_OBJECTS)
+#if BOTH(HAS_LCD_MENU, CANCEL_OBJECTS)
 
 #include "menu.h"
 #include "menu_addon.h"

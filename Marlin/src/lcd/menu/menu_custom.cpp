@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(CUSTOM_USER_MENUS)
+#if BOTH(HAS_LCD_MENU, CUSTOM_USER_MENUS)
 
 #include "menu.h"
 #include "../../gcode/queue.h"
@@ -39,9 +39,7 @@
 
 void _lcd_user_gcode(PGM_P const cmd) {
   queue.inject_P(cmd);
-  #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
-    ui.completion_feedback();
-  #endif
+  TERN_(USER_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
   TERN_(USER_SCRIPT_RETURN, ui.return_to_status());
 }
 

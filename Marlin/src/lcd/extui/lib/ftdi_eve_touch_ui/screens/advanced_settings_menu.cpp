@@ -38,7 +38,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   }
 
     #ifdef TOUCH_UI_PORTRAIT
-      #if HAS_CASE_LIGHT || ENABLED(SENSORLESS_HOMING)
+      #if EITHER(HAS_CASE_LIGHT, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
         #define GRID_ROWS 8
@@ -59,7 +59,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #define BACKLASH_POS            BTN_POS(2,7), BTN_SIZE(1,1)
       #define CASE_LIGHT_POS          BTN_POS(1,8), BTN_SIZE(1,1)
       #define TMC_HOMING_THRS_POS     BTN_POS(2,8), BTN_SIZE(1,1)
-      #if HAS_CASE_LIGHT || ENABLED(SENSORLESS_HOMING)
+      #if EITHER(HAS_CASE_LIGHT, SENSORLESS_HOMING)
         #define BACK_POS              BTN_POS(1,9), BTN_SIZE(2,1)
       #else
         #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)

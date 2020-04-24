@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
 
 #include "menu.h"
 #include "../../module/temperature.h"
