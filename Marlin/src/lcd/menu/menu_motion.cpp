@@ -86,28 +86,16 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     #if HAS_SOFTWARE_ENDSTOPS
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
-          #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-            min = soft_endstop.min.x;
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-            max = soft_endstop.max.x;
-          #endif
+          TERN_(MIN_SOFTWARE_ENDSTOP_X, min = soft_endstop.min.x);
+          TERN_(MAX_SOFTWARE_ENDSTOP_X, max = soft_endstop.max.x);
           break;
         case Y_AXIS:
-          #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            min = soft_endstop.min.y;
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            max = soft_endstop.max.y;
-          #endif
+          TERN_(MIN_SOFTWARE_ENDSTOP_Y, min = soft_endstop.min.y);
+          TERN_(MAX_SOFTWARE_ENDSTOP_Y, max = soft_endstop.max.y);
           break;
         case Z_AXIS:
-          #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-            min = soft_endstop.min.z;
-          #endif
-          #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-            max = soft_endstop.max.z;
-          #endif
+          TERN_(MIN_SOFTWARE_ENDSTOP_Z, min = soft_endstop.min.z);
+          TERN_(MAX_SOFTWARE_ENDSTOP_Z, max = soft_endstop.max.z);
         default: break;
       }
     #endif // HAS_SOFTWARE_ENDSTOPS
@@ -230,9 +218,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, SS_CENTER|SS_INVERT); break;
       case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, SS_CENTER|SS_INVERT); break;
       default:
-        #if ENABLED(MANUAL_E_MOVES_RELATIVE)
-          manual_move_e_origin = current_position.e;
-        #endif
+        TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
         STATIC_ITEM(MSG_MOVE_E, SS_CENTER|SS_INVERT);
         break;
     }
@@ -271,24 +257,16 @@ void menu_move() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
 
-  #if HAS_SOFTWARE_ENDSTOPS && ENABLED(SOFT_ENDSTOPS_MENU_ITEM)
+  #if BOTH(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
     EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstops_enabled);
   #endif
 
-  if (
+  if (true
     #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-      all_axes_homed()
-    #else
-      true
+      && all_axes_homed()
     #endif
   ) {
-    if (
-      #if ENABLED(DELTA)
-        current_position.z <= delta_clip_start_height
-      #else
-        true
-      #endif
-    ) {
+    if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
       SUBMENU(MSG_MOVE_X, []{ _menu_move_distance(X_AXIS, lcd_move_x); });
       SUBMENU(MSG_MOVE_Y, []{ _menu_move_distance(Y_AXIS, lcd_move_y); });
     }

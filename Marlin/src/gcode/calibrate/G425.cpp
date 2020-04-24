@@ -285,37 +285,19 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     probe_side(m, uncertainty, TOP);
   #endif
 
-  #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-    probe_side(m, uncertainty, RIGHT, probe_top_at_edge);
-  #endif
-
-  #if ENABLED(CALIBRATION_MEASURE_FRONT)
-    probe_side(m, uncertainty, FRONT, probe_top_at_edge);
-  #endif
-
-  #if ENABLED(CALIBRATION_MEASURE_LEFT)
-    probe_side(m, uncertainty, LEFT,  probe_top_at_edge);
-  #endif
-  #if ENABLED(CALIBRATION_MEASURE_BACK)
-    probe_side(m, uncertainty, BACK,  probe_top_at_edge);
-  #endif
+  TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, RIGHT, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_FRONT, probe_side(m, uncertainty, FRONT, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, LEFT,  probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_BACK,  probe_side(m, uncertainty, BACK,  probe_top_at_edge));
 
   // Compute the measured center of the calibration object.
-  #if HAS_X_CENTER
-    m.obj_center.x = (m.obj_side[LEFT] + m.obj_side[RIGHT]) / 2;
-  #endif
-  #if HAS_Y_CENTER
-    m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2;
-  #endif
+  TERN_(HAS_X_CENTER, m.obj_center.x = (m.obj_side[LEFT] + m.obj_side[RIGHT]) / 2);
+  TERN_(HAS_Y_CENTER, m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2);
 
   // Compute the outside diameter of the nozzle at the height
   // at which it makes contact with the calibration object
-  #if HAS_X_CENTER
-    m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x;
-  #endif
-  #if HAS_Y_CENTER
-    m.nozzle_outer_dimension.y = m.obj_side[BACK]  - m.obj_side[FRONT] - dimensions.y;
-  #endif
+  TERN_(HAS_X_CENTER, m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x);
+  TERN_(HAS_Y_CENTER, m.nozzle_outer_dimension.y = m.obj_side[BACK]  - m.obj_side[FRONT] - dimensions.y);
 
   park_above_object(m, uncertainty);
 
@@ -544,13 +526,9 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
 
-  #if HAS_HOTEND_OFFSET
-    normalize_hotend_offsets();
-  #endif
+  TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
 
-  #if HAS_MULTI_HOTEND
-    set_nozzle(m, 0);
-  #endif
+  TERN_(HAS_MULTI_HOTEND, set_nozzle(m, 0));
 }
 
 /**
@@ -567,9 +545,7 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 inline void calibrate_all() {
   measurements_t m;
 
-  #if HAS_HOTEND_OFFSET
-    reset_hotend_offsets();
-  #endif
+  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
   TEMPORARY_BACKLASH_CORRECTION(all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
@@ -577,9 +553,7 @@ inline void calibrate_all() {
   // Do a fast and rough calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN);
 
-  #if ENABLED(BACKLASH_GCODE)
-    calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
-  #endif
+  TERN_(BACKLASH_GCODE, calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN));
 
   // Cycle the toolheads so the servos settle into their "natural" positions
   #if HAS_MULTI_HOTEND

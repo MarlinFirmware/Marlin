@@ -186,7 +186,7 @@ namespace ExtUI {
     void setLinearAdvance_mm_mm_s(const float, const extruder_t);
   #endif
 
-  #if DISABLED(CLASSIC_JERK)
+  #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
     void setJunctionDeviation_mm(const float);
   #else

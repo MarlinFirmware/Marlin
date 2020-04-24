@@ -99,7 +99,7 @@ int16_t MMU2::version = -1, MMU2::buildnr = -1;
 millis_t MMU2::last_request, MMU2::next_P0_request;
 char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   struct E_Step {
     float extrude;        //!< extrude distance in mm
@@ -632,7 +632,7 @@ void MMU2::filament_runout() {
   planner.synchronize();
 }
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   // Load filament into MMU2
   void MMU2::load_filament(uint8_t index) {
@@ -707,12 +707,8 @@ void MMU2::filament_runout() {
     if (recover)  {
       LCD_MESSAGEPGM(MSG_MMU2_EJECT_RECOVER);
       BUZZ(200, 404);
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover"));
-      #endif
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover")));
       wait_for_user_response();
       BUZZ(200, 404);
       BUZZ(200, 404);

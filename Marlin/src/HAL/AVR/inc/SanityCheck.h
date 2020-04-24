@@ -46,10 +46,10 @@
 /**
  * The Trinamic library includes SoftwareSerial.h, leading to a compile error.
  */
-#if HAS_TRINAMIC_CONFIG && ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+#if BOTH(HAS_TRINAMIC_CONFIG, ENDSTOP_INTERRUPTS_FEATURE)
   #error "TMCStepper includes SoftwareSerial.h which is incompatible with ENDSTOP_INTERRUPTS_FEATURE. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
 #endif
 
-#if HAS_TMC_SW_SERIAL && ENABLED(MONITOR_DRIVER_STATUS)
+#if BOTH(HAS_TMC_SW_SERIAL, MONITOR_DRIVER_STATUS)
   #error "MONITOR_DRIVER_STATUS causes performance issues when used with SoftwareSerial-connected drivers. Disable MONITOR_DRIVER_STATUS or use hardware serial to continue."
 #endif

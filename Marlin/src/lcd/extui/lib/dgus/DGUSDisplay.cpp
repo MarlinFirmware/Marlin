@@ -573,8 +573,7 @@ void DGUSScreenVariableHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, voi
       #endif
     }
 
-    planner.flow_percentage[target_extruder] = newvalue;
-    planner.refresh_e_factor(target_extruder);
+    planner.set_flow(target_extruder, newvalue);
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   #else
     UNUSED(var); UNUSED(val_ptr);
@@ -734,9 +733,7 @@ void DGUSScreenVariableHandler::HandleSettings(DGUS_VP_Variable &var, void *val_
   switch (value) {
     default: break;
     case 1:
-      #if ENABLED(PRINTCOUNTER)
-        print_job_timer.initStats();
-      #endif
+      TERN_(PRINTCOUNTER, print_job_timer.initStats());
       queue.enqueue_now_P(PSTR("M502\nM500"));
       break;
     case 2: queue.enqueue_now_P(PSTR("M501")); break;
@@ -958,17 +955,13 @@ void DGUSScreenVariableHandler::HandleHeaterControl(DGUS_VP_Variable &var, void 
       #if HOTENDS >= 1
         case VP_E0_BED_PREHEAT:
           thermalManager.setTargetHotend(e_temp, 0);
-          #if HAS_HEATED_BED
-            thermalManager.setTargetBed(bed_temp);
-          #endif
+          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
           break;
       #endif
       #if HOTENDS >= 2
         case VP_E1_BED_PREHEAT:
           thermalManager.setTargetHotend(e_temp, 1);
-          #if HAS_HEATED_BED
-            thermalManager.setTargetBed(bed_temp);
-          #endif
+          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
         break;
       #endif
     }
@@ -1002,9 +995,7 @@ void DGUSScreenVariableHandler::HandleHeaterControl(DGUS_VP_Variable &var, void 
         #endif
         break;
       case 1: // Load ABS
-        #if ENABLED(PREHEAT_2_TEMP_HOTEND)
-          e_temp = PREHEAT_2_TEMP_HOTEND;
-        #endif
+        TERN_(PREHEAT_2_TEMP_HOTEND, e_temp = PREHEAT_2_TEMP_HOTEND);
         break;
       case 2: // Load PET
         #ifdef PREHEAT_3_TEMP_HOTEND
@@ -1227,9 +1218,8 @@ bool DGUSScreenVariableHandler::loop() {
 
   #if ENABLED(SHOW_BOOTSCREEN)
     static bool booted = false;
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      if (!booted && recovery.valid()) booted = true;
-    #endif
+    if (!booted && TERN0(POWER_LOSS_RECOVERY, recovery.valid()))
+      booted = true;
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
       GotoScreen(DGUSLCD_SCREEN_MAIN);

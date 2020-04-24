@@ -126,22 +126,16 @@
      */
     destination.set(safe_homing_xy, current_position.z);
 
-    #if HOMING_Z_WITH_PROBE
-      destination -= probe.offset_xy;
-    #endif
+    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
     if (position_is_reachable(destination)) {
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
 
       // This causes the carriage on Dual X to unpark
-      #if ENABLED(DUAL_X_CARRIAGE)
-        active_extruder_parked = false;
-      #endif
+      TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
 
-      #if ENABLED(SENSORLESS_HOMING)
-        safe_delay(500); // Short delay needed to settle
-      #endif
+      TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
@@ -175,9 +169,7 @@
   void end_slow_homing(const slow_homing_t &slow_homing) {
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    #if HAS_CLASSIC_JERK
-      planner.max_jerk = slow_homing.jerk_xy;
-    #endif
+    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_homing.jerk_xy);
     planner.reset_acceleration_rates();
   }
 
@@ -237,22 +229,18 @@ void GcodeSuite::G28() {
   #if HAS_LEVELING
 
     // Cancel the active G29 session
-    #if ENABLED(PROBE_MANUALLY)
-      g29_in_progress = false;
-    #endif
+    TERN_(PROBE_MANUALLY, g29_in_progress = false);
 
-    #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-      const bool leveling_was_active = planner.leveling_active;
-    #endif
+    TERN_(RESTORE_LEVELING_AFTER_G28, const bool leveling_was_active = planner.leveling_active);
     set_bed_leveling_enabled(false);
   #endif
 
-  #if ENABLED(CNC_WORKSPACE_PLANES)
-    workspace_plane = PLANE_XY;
-  #endif
+  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #define HAS_HOMING_CURRENT (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2))
+  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
+    #define HAS_HOMING_CURRENT 1
+  #endif
 
   #if HAS_HOMING_CURRENT
     auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
@@ -280,9 +268,7 @@ void GcodeSuite::G28() {
     #endif
   #endif
 
-  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    slow_homing_t slow_homing = begin_slow_homing();
-  #endif
+  TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
 
   // Always home with tool 0 active
   #if HAS_MULTI_HOTEND
@@ -292,9 +278,7 @@ void GcodeSuite::G28() {
     tool_change(0, true);
   #endif
 
-  #if HAS_DUPLICATION_MODE
-    extruder_duplication_enabled = false;
-  #endif
+  TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
 
   remember_feedrate_scaling_off();
 
@@ -306,9 +290,7 @@ void GcodeSuite::G28() {
 
     home_delta();
 
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      end_slow_homing(slow_homing);
-    #endif
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
   #else // NOT DELTA
 
@@ -380,17 +362,13 @@ void GcodeSuite::G28() {
     if (DISABLED(HOME_Y_BEFORE_X) && doY)
       homeaxis(Y_AXIS);
 
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      end_slow_homing(slow_homing);
-    #endif
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
 
       if (doZ) {
-        #if ENABLED(BLTOUCH)
-          bltouch.init();
-        #endif
+        TERN_(BLTOUCH, bltouch.init());
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
         #else
@@ -425,9 +403,7 @@ void GcodeSuite::G28() {
 
     if (dxc_is_duplicating()) {
 
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        slow_homing = begin_slow_homing();
-      #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
@@ -448,9 +424,7 @@ void GcodeSuite::G28() {
       dual_x_carriage_mode         = IDEX_saved_mode;
       stepper.set_directions();
 
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        end_slow_homing(slow_homing);
-      #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
     }
 
   #endif // DUAL_X_CARRIAGE
@@ -458,18 +432,14 @@ void GcodeSuite::G28() {
   endstops.not_homing();
 
   // Clear endstop state for polled stallGuard endstops
-  #if ENABLED(SPI_ENDSTOPS)
-    endstops.clear_endstop_state();
-  #endif
+  TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
   #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-    set_bed_leveling_enabled(leveling_was_active);
-  #endif
+  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_was_active));
 
   restore_feedrate_and_scaling();
 
