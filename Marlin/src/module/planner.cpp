@@ -2309,29 +2309,49 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec),
                     sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
-
-        vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0f - sin_theta_d2);
+        vmax_junction_sqr = JUNC_SQ(junction_deviation_mm, sin_theta_d2);
 
         if (block->millimeters < 1) {
-          // Fast acos approximation (max. error +-0.033 rads)
-          // Based on MinMax polynomial published by W. Randolph Franklin, see
-          // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
-          // (acos(x) = pi / 2 - asin(x))
-
           const float neg = junction_cos_theta < 0 ? -1 : 1,
-                      t = neg * junction_cos_theta,
-                      asinx =       0.032843707f
-                            + t * (-1.451838349f
-                            + t * ( 29.66153956f
-                            + t * (-131.1123477f
-                            + t * ( 262.8130562f
-                            + t * (-242.7199627f + t * 84.31466202f) )))),
-                      junction_theta = RADIANS(90) - neg * asinx;
+                        t = neg * junction_cos_theta;
 
-          // If angle is greater than 135 degrees (octagon), find speed for approximate arc
-          if (junction_theta > RADIANS(135)) {
-            // NOTE: MinMax acos approximation and thereby also junction_theta top out at pi-0.033, which avoids division by 0
-            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
+          // If angle is under 45 degrees (octagon), find speed for approximate arc
+          if (t < -0.7071067812f) {
+
+            #if ENABLED(JD_USE_CURVE_FITTING)
+
+              // Use curve-fitting to get "close enough" to acos(-t)
+
+              const float junction_theta =
+                  (t >= -0.93f) ? ( (t >= -0.85f) ? 0.7850f  + (t + 0.7071067812f)
+                                  : (t >= -0.89f) ? 0.5550f  + (t + 0.85f) * 2
+                                                  : 0.4750f  + (t + 0.89f) * 2.46f )
+                : (t >= -0.98f) ? ( (t >= -0.97f) ? 0.3766f  + (t + 0.93f) * 3.275f
+                                                  : 0.2456f  + (t + 0.97f) * 4.527f )
+                :                 ( (t >= -0.99f) ? 0.20033f + (t + 0.98f) * 5.879f
+                                                  : 0.14154f + (t + 0.99f) * 14.154f + 0.00001f );
+
+            #else
+
+              // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
+              // Based on MinMax polynomial published by W. Randolph Franklin, see
+              // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
+              //  acos( t) = pi / 2 - asin(x)
+              //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
+
+              const float asinx =       0.032843707f
+                                + t * (-1.451838349f
+                                + t * ( 29.66153956f
+                                + t * (-131.1123477f
+                                + t * ( 262.8130562f
+                                + t * (-242.7199627f
+                                + t * ( 84.31466202f ) ))))),
+                          junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+
+            #endif
+
+            // NOTE: MinMax acos(-t) approximation (junction_theta) bottoms out at 0.033 which avoids divide by 0.
+            const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
         }
