@@ -631,7 +631,7 @@ namespace ExtUI {
     }
   #endif
 
-  #if DISABLED(CLASSIC_JERK)
+  #if HAS_JUNCTION_DEVIATION
 
     float getJunctionDeviation_mm() {
       return planner.junction_deviation_mm;

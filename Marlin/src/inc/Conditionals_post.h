@@ -31,7 +31,7 @@
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
-#if DISABLED(CLASSIC_JERK) && ENABLED(LIN_ADVANCE)
+#if HAS_JUNCTION_DEVIATION && ENABLED(LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
 #endif
 

@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && DISABLED(CLASSIC_JERK)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_JUNCTION_DEVIATION
 
 #include "screens.h"
 

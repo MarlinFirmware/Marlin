@@ -680,6 +680,10 @@
   #define HAS_CLASSIC_JERK 1
 #endif
 
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
+#endif
+
 // E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
 #if ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE))
   #define HAS_CLASSIC_E_JERK 1

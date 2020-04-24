@@ -132,7 +132,7 @@ uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived 
 
 float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 
-#if DISABLED(CLASSIC_JERK)
+#if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;       // (mm) M205 J
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -2151,7 +2151,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     #if ENABLED(LIN_ADVANCE)
 
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         #if ENABLED(DISTINCT_E_FACTORS)
           #define MAX_E_JERK max_e_jerk[extruder]
         #else
@@ -2238,7 +2238,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
-  #if DISABLED(CLASSIC_JERK)
+  #if HAS_JUNCTION_DEVIATION
     /**
      * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
      * Let a circle be tangent to both previous and current path line segments, where the junction
@@ -2285,7 +2285,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     ;
     unit_vec *= inverse_millimeters;
 
-    #if IS_CORE && DISABLED(CLASSIC_JERK)
+    #if IS_CORE && HAS_JUNCTION_DEVIATION
       /**
        * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
        * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
@@ -2460,7 +2460,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     previous_safe_speed = safe_speed;
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
       vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
     #else
       vmax_junction_sqr = sq(vmax_junction);
@@ -2649,7 +2649,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
 
   #if IS_KINEMATIC
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
       const xyze_pos_t cart_dist_mm = {
         rx - position_cart.x, ry - position_cart.y,
         rz - position_cart.z, e  - position_cart.e
@@ -2675,7 +2675,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
       const feedRate_t feedrate = fr_mm_s;
     #endif
     if (buffer_segment(delta.a, delta.b, delta.c, machine.e
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         , cart_dist_mm
       #endif
       , feedrate, extruder, mm
