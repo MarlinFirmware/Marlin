@@ -60,7 +60,7 @@ MarlinUI ui;
   constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+#if EITHER(HAS_SPI_LCD, EXTENSIBLE_UI)
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
@@ -366,7 +366,7 @@ bool MarlinUI::get_blink() {
 ///////////// Keypad Handling //////////////
 ////////////////////////////////////////////
 
-#if ENABLED(REPRAPWORLD_KEYPAD) && HAS_ENCODER_ACTION
+#if BOTH(REPRAPWORLD_KEYPAD, HAS_ENCODER_ACTION)
 
   volatile uint8_t MarlinUI::keypad_buttons;
 
@@ -566,7 +566,7 @@ void MarlinUI::status_screen() {
     if (old_frm != new_frm) {
       feedrate_percentage = new_frm;
       encoderPosition = 0;
-      #if HAS_BUZZER && ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+      #if BOTH(HAS_BUZZER, BEEP_ON_FEEDRATE_CHANGE)
         static millis_t next_beep;
         #ifndef GOT_MS
           const millis_t ms = millis();
@@ -827,7 +827,7 @@ void MarlinUI::update() {
       if (encoderPastThreshold || lcd_clicked) {
         if (encoderPastThreshold) {
 
-          #if HAS_LCD_MENU && ENABLED(ENCODER_RATE_MULTIPLIER)
+          #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
 
             int32_t encoderMultiplier = 1;
 
@@ -888,7 +888,7 @@ void MarlinUI::update() {
       refresh(LCDVIEW_REDRAW_NOW);
     }
 
-    #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
+    #if BOTH(HAS_LCD_MENU, SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == menu_media && !lcd_status_update_delay--) {
@@ -1134,12 +1134,8 @@ void MarlinUI::update() {
           #if HAS_SLOW_BUTTONS
             | slow_buttons
           #endif
-          #if ENABLED(TOUCH_BUTTONS) && HAS_ENCODER_ACTION
-            | (touch_buttons
-              #if HAS_ENCODER_WHEEL
-                & (~(EN_A | EN_B))
-              #endif
-            )
+          #if BOTH(TOUCH_BUTTONS, HAS_ENCODER_ACTION)
+            | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
           #endif
         );
 
@@ -1261,7 +1257,7 @@ void MarlinUI::update() {
       next_filament_display = ms + 5000UL; // Show status message for 5s
     #endif
 
-    #if HAS_SPI_LCD && ENABLED(STATUS_MESSAGE_SCROLLING)
+    #if BOTH(HAS_SPI_LCD, STATUS_MESSAGE_SCROLLING)
       status_scroll_offset = 0;
     #endif
 

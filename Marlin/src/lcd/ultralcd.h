@@ -27,7 +27,7 @@
   #include "../libs/buzzer.h"
 #endif
 
-#if HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY)
+#if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
 #if (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2)
@@ -397,6 +397,8 @@ public:
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
+      #else
+        static inline void completion_feedback(const bool=true) {}
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)

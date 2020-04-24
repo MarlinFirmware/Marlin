@@ -231,7 +231,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Düse");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Düse ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Düse geparkt");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Düsen-Standby");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bett");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Gehäuse");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Lüfter");

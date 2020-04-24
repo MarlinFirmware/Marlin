@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_MULTI_HOTEND
+#if BOTH(TOUCH_UI_FTDI_EVE, HAS_MULTI_HOTEND)
 
 #include "screens.h"
 
