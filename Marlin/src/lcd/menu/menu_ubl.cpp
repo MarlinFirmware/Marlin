@@ -73,16 +73,21 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
   }
 }
 
+void lcd_limbo() {
+  ui.currentScreen = []{};
+  ui.defer_status_screen();
+}
+
 float lcd_mesh_edit() {
+  lcd_limbo();
   ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDITOR));
   return mesh_edit_value;
 }
 
 void lcd_mesh_edit_setup(const float &initial) {
-  ui.currentScreen = []{};
-  ui.defer_status_screen();
   mesh_edit_value = mesh_edit_accumulator = initial;
+  lcd_limbo();
 }
 
 void _lcd_z_offset_edit() {
