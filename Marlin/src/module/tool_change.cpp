@@ -914,7 +914,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if HAS_LEVELING && DISABLED(SINGLENOZZLE)
+    #if HAS_LEVELING
       // Set current position to the physical position
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
@@ -947,7 +947,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // Unload / Retract
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-        const bool should_swap = can_move_away && toolchange_settings.swap_length;
+        const bool should_swap = can_move_away && toolchange_settings.swap_length,
                    too_cold = TERN0(PREVENT_COLD_EXTRUSION,
                      !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool))
                    );

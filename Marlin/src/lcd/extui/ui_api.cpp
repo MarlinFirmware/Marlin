@@ -631,14 +631,14 @@ namespace ExtUI {
     }
   #endif
 
-  #if DISABLED(CLASSIC_JERK)
+  #if HAS_JUNCTION_DEVIATION
 
     float getJunctionDeviation_mm() {
       return planner.junction_deviation_mm;
     }
 
     void setJunctionDeviation_mm(const float value) {
-      planner.junction_deviation_mm = constrain(value, 0.01, 0.3);
+      planner.junction_deviation_mm = constrain(value, 0.001, 0.3);
       TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
     }
 

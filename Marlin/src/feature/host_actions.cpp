@@ -136,14 +136,14 @@ void host_action(const char * const pstr, const bool eol) {
         switch (response) {
 
           case 0: // "Purge More" button
-            #if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+            #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
             filament_load_host_prompt();                          // Initiate another host prompt. (NOTE: The loop in load_filament may also do this!)
             break;
 
           case 1: // "Continue" / "Disable Runout" button
-            #if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+            #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
             #endif
             #if HAS_FILAMENT_SENSOR

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(SDSUPPORT)
+#if BOTH(HAS_LCD_MENU, SDSUPPORT)
 
 #include "menu.h"
 #include "../../sd/cardreader.h"

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(LEVEL_BED_CORNERS)
+#if BOTH(HAS_LCD_MENU, LEVEL_BED_CORNERS)
 
 #include "menu.h"
 #include "../../module/motion.h"
