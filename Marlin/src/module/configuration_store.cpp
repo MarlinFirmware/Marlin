@@ -2824,8 +2824,8 @@ void MarlinSettings::reset() {
       #endif
     );
     #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START();
       LOOP_L_N(i, E_STEPPERS) {
+        CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
             PSTR("  M203 T"), (int)i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
@@ -2844,12 +2844,13 @@ void MarlinSettings::reset() {
       #endif
     );
     #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START();
-      LOOP_L_N(i, E_STEPPERS)
+      LOOP_L_N(i, E_STEPPERS) {
+        CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
             PSTR("  M201 T"), (int)i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
         );
+      }
     #endif
 
     CONFIG_ECHO_HEADING("Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
@@ -3522,12 +3523,14 @@ void MarlinSettings::reset() {
      */
     #if ENABLED(LIN_ADVANCE)
       CONFIG_ECHO_HEADING("Linear Advance:");
-      CONFIG_ECHO_START();
       #if EXTRUDERS < 2
+        CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR("  M900 K", planner.extruder_advance_K[0]);
       #else
-        LOOP_L_N(i, EXTRUDERS)
+        LOOP_L_N(i, EXTRUDERS) {
+          CONFIG_ECHO_START();
           SERIAL_ECHOLNPAIR("  M900 T", int(i), " K", planner.extruder_advance_K[i]);
+        }
       #endif
     #endif
 
