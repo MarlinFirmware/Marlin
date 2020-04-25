@@ -105,7 +105,7 @@ bool TWIBus::request(const uint8_t bytes) {
 
   // requestFrom() is a blocking function
   if (Wire.requestFrom(I2C_ADDRESS(addr), bytes) == 0) {
-    debug("request fail", addr);
+    debug("request fail", I2C_ADDRESS(addr));
     return false;
   }
 
