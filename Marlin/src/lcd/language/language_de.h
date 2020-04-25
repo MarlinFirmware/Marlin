@@ -349,7 +349,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z anheben");
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Prime-Geschwin.");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Einzug-Geschwin.");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Düsen-Standby");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Filament wechseln");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Filament wechseln *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Filament laden");
