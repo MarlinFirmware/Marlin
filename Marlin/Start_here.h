@@ -1,5 +1,5 @@
 #pragma once
-#define SHORT_BUILD_VERSION "Bugfix 2+ Build 493"
+#define SHORT_BUILD_VERSION "Bugfix 2+ Build 494"
 #define CUSTOM_MACHINE_NAME "3D Printer"
 
 // Ctrl+click to open links
