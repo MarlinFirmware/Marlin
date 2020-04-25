@@ -44,7 +44,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Przerywanie...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Karta włożona");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Karta usunięta");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Karta zwolniona");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Oczekiwanie na kartę");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Bład odczytu karty");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Urządzenie USB usunięte");
@@ -340,8 +339,8 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Długość oczyszczania");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Zmiana narzędzia");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Podniesienie Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Prędkość napełniania");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Prędkość wycofania");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Prędkość napełniania");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Prędkość wycofania");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Dysza w oczekiwaniu");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Zmień filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Zmień filament *");

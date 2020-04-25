@@ -51,21 +51,9 @@ namespace ExtUI {
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
 
-  void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardInserted();
-    #endif
-  }
-  void onMediaError()    {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardError();
-    #endif
-  }
-  void onMediaRemoved()  {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardRemoved();
-    #endif
-  }
+  void onMediaInserted() { TERN_(SDSUPPORT, ScreenHandler.SDCardInserted()); }
+  void onMediaError()    { TERN_(SDSUPPORT, ScreenHandler.SDCardError()); }
+  void onMediaRemoved()  { TERN_(SDSUPPORT, ScreenHandler.SDCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}

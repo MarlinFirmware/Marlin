@@ -46,7 +46,6 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("メディアガソウニュウサレマシタ");        // "Card inserted"
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("メディアガアリマセン");               // "Card removed"
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("メディアノトリダシ");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("メディアガアリマセン");               // "Card removed"
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("エンドストップ");                  // "Endstops" // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("メイン");                       // "Main"
   PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("ジドウカイシ");                   // "Autostart"

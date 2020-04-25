@@ -55,26 +55,16 @@ public:
 
   static inline float get_measurement(const AxisEnum a) {
     // Return the measurement averaged over all readings
-    return (
-      #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-        measured_count[a] > 0 ? measured_mm[a] / measured_count[a] :
-      #endif
-      0
+    return TERN(MEASURE_BACKLASH_WHEN_PROBING
+      , measured_count[a] > 0 ? measured_mm[a] / measured_count[a] : 0
+      , 0
     );
-    #if DISABLED(MEASURE_BACKLASH_WHEN_PROBING)
-      UNUSED(a);
-    #endif
+    TERN(MEASURE_BACKLASH_WHEN_PROBING,,UNUSED(a));
   }
 
   static inline bool has_measurement(const AxisEnum a) {
-    return (false
-      #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-        || (measured_count[a] > 0)
-      #endif
-    );
-    #if DISABLED(MEASURE_BACKLASH_WHEN_PROBING)
-      UNUSED(a);
-    #endif
+    return TERN0(MEASURE_BACKLASH_WHEN_PROBING, measured_count[a] > 0);
+    TERN(MEASURE_BACKLASH_WHEN_PROBING,,UNUSED(a));
   }
 
   static inline bool has_any_measurement() {

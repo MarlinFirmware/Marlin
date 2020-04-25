@@ -355,7 +355,7 @@
   #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values. Please update your Configuration.h."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
-#elif DISABLED(CLASSIC_JERK) && defined(JUNCTION_DEVIATION_FACTOR)
+#elif HAS_JUNCTION_DEVIATION && defined(JUNCTION_DEVIATION_FACTOR)
   #error "JUNCTION_DEVIATION_FACTOR is now JUNCTION_DEVIATION_MM. Please update your configuration."
 #elif defined(JUNCTION_ACCELERATION_FACTOR)
   #error "JUNCTION_ACCELERATION_FACTOR is obsolete. Delete it from Configuration_adv.h."
@@ -662,7 +662,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif PROGRESS_MSG_EXPIRE < 0
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
-#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && !HAS_GRAPHICAL_LCD && DISABLED(EXTENSIBLE_UI)
+#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_GRAPHICAL_LCD, EXTENSIBLE_UI)
   #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Graphical LCD, or EXTENSIBLE_UI."
 #endif
 
@@ -673,7 +673,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !(HAS_GRAPHICAL_LCD || ENABLED(TOUCH_UI_FTDI_EVE))
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_GRAPHICAL_LCD, TOUCH_UI_FTDI_EVE)
   #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
   #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
@@ -833,14 +833,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #ifndef TOOLCHANGE_FIL_SWAP_LENGTH
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_LENGTH. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
+    #ifndef TOOLCHANGE_FS_LENGTH
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_LENGTH. Please update your Configuration_adv.h."
+    #elif !defined(TOOLCHANGE_FS_RETRACT_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_RETRACT_SPEED. Please update your Configuration_adv.h."
+    #elif !defined(TOOLCHANGE_FS_PRIME_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_PRIME_SPEED. Please update your Configuration_adv.h."
     #endif
   #endif
+
   #if ENABLED(TOOLCHANGE_PARK)
     #ifndef TOOLCHANGE_PARK_XY
       #error "TOOLCHANGE_PARK requires TOOLCHANGE_PARK_XY. Please update your Configuration."
@@ -964,6 +965,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     WITHIN(LIN_ADVANCE_K, 0, 10),
     "LIN_ADVANCE_K must be a value from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
   );
+  #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
+    #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
+  #endif
 #endif
 
 /**
@@ -1133,7 +1137,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Junction deviation is incompatible with kinematic systems.
  */
-#if DISABLED(CLASSIC_JERK) && IS_KINEMATIC
+#if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
   #error "CLASSIC_JERK is required for DELTA and SCARA."
 #endif
 
@@ -1387,7 +1391,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "G26_MESH_VALIDATION requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
 #endif
 
-#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !(ENABLED(AUTO_BED_LEVELING_UBL) && HAS_GRAPHICAL_LCD)
+#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !BOTH(AUTO_BED_LEVELING_UBL, HAS_GRAPHICAL_LCD)
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
@@ -1595,7 +1599,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif HOTENDS && !HAS_TEMP_HOTEND
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif (HAS_MULTI_HOTEND || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
+#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
 #endif
 
@@ -2120,6 +2124,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #undef IS_RRW_KEYPAD
 #undef IS_EXTUI
 #undef IS_ULTIPANEL
+
+#if 1 < ENABLED(LCD_SCREEN_ROT_0) + ENABLED(LCD_SCREEN_ROT_90) + ENABLED(LCD_SCREEN_ROT_180) + ENABLED(LCD_SCREEN_ROT_270)
+  #error "Please enable only one LCD_SCREEN_ROT_* option: 0, 90, 180, or 270."
+#endif
 
 /**
  * FYSETC Mini 12864 RGB backlighting required
@@ -2777,8 +2785,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if HAS_CUTTER
   #ifndef CUTTER_POWER_DISPLAY
     #error "CUTTER_POWER_DISPLAY is required with a spindle or laser. Please update your Configuration_adv.h."
-  #elif !CUTTER_DISPLAY_IS(PWM) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
-    #error "CUTTER_POWER_DISPLAY must be PWM, PERCENT, or RPM. Please update your Configuration_adv.h."
+  #elif !CUTTER_DISPLAY_IS(PWM255) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
+    #error "CUTTER_POWER_DISPLAY must be PWM255, PERCENT, or RPM. Please update your Configuration_adv.h."
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)

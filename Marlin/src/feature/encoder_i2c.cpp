@@ -459,9 +459,7 @@ void I2CPositionEncoder::reset() {
   Wire.write(I2CPE_RESET_COUNT);
   Wire.endTransmission();
 
-  #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-    ZERO(err);
-  #endif
+  TERN_(I2CPE_ERR_ROLLING_AVERAGE, ZERO(err));
 }
 
 

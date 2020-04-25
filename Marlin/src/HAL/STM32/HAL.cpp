@@ -76,20 +76,18 @@ void HAL_init() {
   #endif
 
   #if ENABLED(SRAM_EEPROM_EMULATION)
-  // Enable access to backup SRAM
-  __HAL_RCC_PWR_CLK_ENABLE();
-  HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_BKPSRAM_CLK_ENABLE();
-
-  // Enable backup regulator
-  LL_PWR_EnableBkUpRegulator();
-  // Wait until backup regulator is initialized
-  while (!LL_PWR_IsActiveFlag_BRR());
-  #endif // EEPROM_EMULATED_SRAM
+    __HAL_RCC_PWR_CLK_ENABLE();
+    HAL_PWR_EnableBkUpAccess();           // Enable access to backup SRAM
+    __HAL_RCC_BKPSRAM_CLK_ENABLE();
+    LL_PWR_EnableBkUpRegulator();         // Enable backup regulator
+    while (!LL_PWR_IsActiveFlag_BRR());   // Wait until backup regulator is initialized
+  #endif
 
   #if HAS_TMC_SW_SERIAL
     SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
   #endif
+
+  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
 }
 
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }

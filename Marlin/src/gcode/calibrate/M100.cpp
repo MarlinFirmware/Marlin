@@ -116,12 +116,17 @@
 // Utility functions
 //
 
-// Location of a variable on its stack frame. Returns a value above
-// the stack (once the function returns to the caller).
-char* top_of_stack() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"
+
+// Location of a variable in its stack frame.
+// The returned address will be above the stack (after it returns).
+char *top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
 }
+
+#pragma GCC diagnostic pop
 
 // Count the number of test bytes at the specified location.
 inline int32_t count_test_bytes(const char * const start_free_memory) {

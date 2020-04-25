@@ -69,15 +69,9 @@ class TMCStorage {
     }
 
     struct {
-      #if HAS_STEALTHCHOP
-        bool stealthChop_enabled = false;
-      #endif
-      #if ENABLED(HYBRID_THRESHOLD)
-        uint8_t hybrid_thrs = 0;
-      #endif
-      #if USE_SENSORLESS
-        int16_t homing_thrs = 0;
-      #endif
+      TERN_(HAS_STEALTHCHOP, bool stealthChop_enabled = false);
+      TERN_(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0);
+      TERN_(USE_SENSORLESS, int16_t homing_thrs = 0);
     } stored;
 };
 
@@ -118,9 +112,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       }
       void set_pwm_thrs(const uint32_t thrs) {
         TMC::TPWMTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
-        #if HAS_LCD_MENU
-          this->stored.hybrid_thrs = thrs;
-        #endif
+        TERN_(HAS_LCD_MENU, this->stored.hybrid_thrs = thrs);
       }
     #endif
 
@@ -129,9 +121,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       void homing_threshold(int16_t sgt_val) {
         sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
         TMC::sgt(sgt_val);
-        #if HAS_LCD_MENU
-          this->stored.homing_thrs = sgt_val;
-        #endif
+        TERN_(HAS_LCD_MENU, this->stored.homing_thrs = sgt_val);
       }
       #if ENABLED(SPI_ENDSTOPS)
         bool test_stall_status();
@@ -184,9 +174,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       }
       void set_pwm_thrs(const uint32_t thrs) {
         TMC2208Stepper::TPWMTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
-        #if HAS_LCD_MENU
-          this->stored.hybrid_thrs = thrs;
-        #endif
+        TERN_(HAS_LCD_MENU, this->stored.hybrid_thrs = thrs);
       }
     #endif
 
@@ -231,9 +219,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       }
       void set_pwm_thrs(const uint32_t thrs) {
         TMC2209Stepper::TPWMTHRS(_tmc_thrs(this->microsteps(), thrs, planner.settings.axis_steps_per_mm[AXIS_ID]));
-        #if HAS_LCD_MENU
-          this->stored.hybrid_thrs = thrs;
-        #endif
+        TERN_(HAS_LCD_MENU, this->stored.hybrid_thrs = thrs);
       }
     #endif
     #if USE_SENSORLESS
@@ -241,9 +227,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       void homing_threshold(int16_t sgt_val) {
         sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
         TMC2209Stepper::SGTHRS(sgt_val);
-        #if HAS_LCD_MENU
-          this->stored.homing_thrs = sgt_val;
-        #endif
+        TERN_(HAS_LCD_MENU, this->stored.homing_thrs = sgt_val);
       }
     #endif
 
@@ -283,9 +267,7 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
       void homing_threshold(int16_t sgt_val) {
         sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
         TMC2660Stepper::sgt(sgt_val);
-        #if HAS_LCD_MENU
-          this->stored.homing_thrs = sgt_val;
-        #endif
+        TERN_(HAS_LCD_MENU, this->stored.homing_thrs = sgt_val);
       }
     #endif
 
@@ -367,9 +349,7 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
     struct slow_homing_t {
       xy_ulong_t acceleration;
-      #if HAS_CLASSIC_JERK
-        xy_float_t jerk_xy;
-      #endif
+      TERN_(HAS_CLASSIC_JERK, xy_float_t jerk_xy);
     };
   #endif
 

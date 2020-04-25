@@ -40,7 +40,7 @@
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "eeprom_api.h"
+#include "../shared/eeprom_api.h"
 
 extern "C" {
   #include <lpc17xx_iap.h>

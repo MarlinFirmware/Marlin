@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+#if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu.h"
 #include "../../gcode/gcode.h"
@@ -68,9 +68,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
 
   if (ui.should_draw()) {
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
-    #if ENABLED(MESH_EDIT_GFX_OVERLAY)
-      _lcd_zoffset_overlay_gfx(mesh_edit_value);
-    #endif
+    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(mesh_edit_value));
   }
 }
 
