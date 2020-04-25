@@ -140,14 +140,7 @@ void menu_media() {
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
-      const uint16_t nr =
-        #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-          fileCnt - 1 -
-        #endif
-      i;
-
-      card.getfilename_sorted(nr);
-
+      card.getfilename_sorted(SD_ORDER(i, fileCnt));
       if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else
