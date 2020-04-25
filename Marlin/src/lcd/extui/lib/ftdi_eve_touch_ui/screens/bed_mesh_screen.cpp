@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_MESH
+#if BOTH(TOUCH_UI_FTDI_EVE, HAS_MESH)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -298,4 +298,4 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
   BedMeshScreen::onMeshUpdate(x, y, 0);
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // TOUCH_UI_FTDI_EVE && HAS_MESH

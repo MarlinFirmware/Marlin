@@ -466,7 +466,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
-        #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+        #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
           if (ubl.lcd_map_control) {
             ubl.lcd_map_control = false;
             ui.defer_status_screen(false);
@@ -943,7 +943,7 @@ void setup() {
   SETUP_RUN(ui.init());
   SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
 
-  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+  #if BOTH(HAS_SPI_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
   #endif
 

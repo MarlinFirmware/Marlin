@@ -450,10 +450,7 @@ void menu_configuration() {
   #endif
 
   if (!busy)
-    ACTION_ITEM(MSG_RESTORE_DEFAULTS, []{
-      settings.reset();
-      TERN_(HAS_BUZZER, ui.completion_feedback());
-    });
+    ACTION_ITEM(MSG_RESTORE_DEFAULTS, []{ settings.reset(); ui.completion_feedback(); });
 
   END_MENU();
 }

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(LED_CONTROL_MENU)
+#if BOTH(HAS_LCD_MENU, LED_CONTROL_MENU)
 
 #include "menu.h"
 #include "../../feature/leds/leds.h"
