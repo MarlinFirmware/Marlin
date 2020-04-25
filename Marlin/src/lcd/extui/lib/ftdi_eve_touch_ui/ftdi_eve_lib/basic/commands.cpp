@@ -1124,7 +1124,7 @@ void CLCD::init() {
 
   mem_write_8(REG::PCLK, Pclk); // Turns on Clock by setting PCLK Register to the value necessary for the module
 
-  mem_write_16(REG::PWM_HZ, ENABLED(LCD_FYSETC_TFT81050) ? 0x2710 : 0x00FA);
+  mem_write_16(REG::PWM_HZ, 0x00FA);
 
   // Turning off dithering seems to help prevent horizontal line artifacts on certain colors
   mem_write_8(REG::DITHER,  0);
