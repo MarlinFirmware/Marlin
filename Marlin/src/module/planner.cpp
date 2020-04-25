@@ -135,19 +135,13 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;       // (mm) M205 J
   #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(DISTINCT_E_FACTORS)
-      float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
-    #else
-      float Planner::max_e_jerk;
-    #endif
+    float Planner::max_e_jerk               // Calculated from junction_deviation_mm
+      TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
   #endif
 #endif
+
 #if HAS_CLASSIC_JERK
-  #if HAS_LINEAR_E_JERK
-    xyz_pos_t Planner::max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
-  #else
-    xyze_pos_t Planner::max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
-  #endif
+  TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) Planner::max_jerk;
 #endif
 
 #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
@@ -2382,12 +2376,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
 
     uint8_t limited = 0;
-    #if HAS_LINEAR_E_JERK
-      LOOP_XYZ(i)
-    #else
-      LOOP_XYZE(i)
-    #endif
-    {
+    TERN(HAS_LINEAR_E_JERK, LOOP_XYZ, LOOP_XYZE)(i) {
       const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
                   maxj = (max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f)); // mj : The max jerk setting for this axis
       if (jerk > maxj) {                          // cs > mj : New current speed too fast?
