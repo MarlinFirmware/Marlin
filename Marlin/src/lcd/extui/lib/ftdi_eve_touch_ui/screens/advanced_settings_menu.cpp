@@ -38,7 +38,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   }
 
     #ifdef TOUCH_UI_PORTRAIT
-      #if HAS_CASE_LIGHT || ENABLED(SENSORLESS_HOMING)
+      #if EITHER(HAS_CASE_LIGHT, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
         #define GRID_ROWS 8
@@ -59,7 +59,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #define BACKLASH_POS            BTN_POS(2,7), BTN_SIZE(1,1)
       #define CASE_LIGHT_POS          BTN_POS(1,8), BTN_SIZE(1,1)
       #define TMC_HOMING_THRS_POS     BTN_POS(2,8), BTN_SIZE(1,1)
-      #if HAS_CASE_LIGHT || ENABLED(SENSORLESS_HOMING)
+      #if EITHER(HAS_CASE_LIGHT, SENSORLESS_HOMING)
         #define BACK_POS              BTN_POS(1,9), BTN_SIZE(2,1)
       #else
         #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
@@ -133,7 +133,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(5) .button( VELOCITY_POS,           GET_TEXT_F(MSG_VELOCITY))
       .tag(6) .button( ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
       .tag(7) .button( JERK_POS,               GET_TEXT_F(
-        #if DISABLED(CLASSIC_JERK)
+        #if HAS_JUNCTION_DEVIATION
           MSG_JUNCTION_DEVIATION
         #else
           MSG_JERK
@@ -163,7 +163,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 5:  GOTO_SCREEN(MaxVelocityScreen);          break;
     case 6:  GOTO_SCREEN(DefaultAccelerationScreen);  break;
     case 7:
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         GOTO_SCREEN(JunctionDeviationScreen);
       #else
         GOTO_SCREEN(JerkScreen);

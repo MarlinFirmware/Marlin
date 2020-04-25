@@ -99,7 +99,7 @@ int16_t MMU2::version = -1, MMU2::buildnr = -1;
 millis_t MMU2::last_request, MMU2::next_P0_request;
 char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   struct E_Step {
     float extrude;        //!< extrude distance in mm
@@ -575,7 +575,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         resume_position = current_position;
 
         if (move_axes && all_axes_homed())
-          nozzle.park(2, park_point /*= NOZZLE_PARK_POINT*/);
+          nozzle.park(0, park_point /*= NOZZLE_PARK_POINT*/);
 
         if (turn_off_nozzle) thermalManager.setTargetHotend(0, active_extruder);
 
@@ -632,7 +632,7 @@ void MMU2::filament_runout() {
   planner.synchronize();
 }
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   // Load filament into MMU2
   void MMU2::load_filament(uint8_t index) {

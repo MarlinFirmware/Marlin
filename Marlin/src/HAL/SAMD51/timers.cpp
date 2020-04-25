@@ -121,14 +121,15 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     tc->COUNT32.CTRLA.bit.SWRST = true;
     SYNC(tc->COUNT32.SYNCBUSY.bit.SWRST);
 
-    // Wave mode, reset counter on overflow on 0 (I use count down to prevent double buffer use)
+    // Wave mode, reset counter on compare match
     tc->COUNT32.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
     tc->COUNT32.CTRLA.reg = TC_CTRLA_MODE_COUNT32 | TC_CTRLA_PRESCALER_DIV1;
-    tc->COUNT32.CTRLBSET.reg = TC_CTRLBCLR_DIR;
+    tc->COUNT32.CTRLBCLR.reg = TC_CTRLBCLR_DIR;
     SYNC(tc->COUNT32.SYNCBUSY.bit.CTRLB);
 
     // Set compare value
-    tc->COUNT32.COUNT.reg = tc->COUNT32.CC[0].reg = (HAL_TIMER_RATE) / frequency;
+    tc->COUNT32.CC[0].reg = (HAL_TIMER_RATE) / frequency;
+    tc->COUNT32.COUNT.reg = 0;
 
     // Enable interrupt on compare
     tc->COUNT32.INTFLAG.reg = TC_INTFLAG_OVF;   // reset pending interrupt
