@@ -934,7 +934,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // Z raise before retraction
       #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
-        if (can_move_away && TERN1(toolchange_settings.enable_park)) {
+        if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
@@ -956,8 +956,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
-          else
-            unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+          else {
+            // If first newtool, toolchange without unloading the old not itinialised 'Just prime/init the new '
+            if ( first_tool_is_primed ) unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+            else first_tool_is_primed = true ; // Now the first new tool will be primed by toolchanging
+          }
         }
       #endif
 
