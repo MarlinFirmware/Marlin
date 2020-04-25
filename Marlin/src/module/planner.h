@@ -61,7 +61,7 @@
                             manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
 #endif
 
-#if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+#if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
   #define HAS_DIST_MM_ARG 1
 #endif
 
@@ -304,23 +304,17 @@ class Planner {
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
     static float steps_to_mm[XYZE_N];           // Millimeters per step
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)
         static float max_e_jerk                 // Calculated from junction_deviation_mm
-          #if ENABLED(DISTINCT_E_FACTORS)
-            [EXTRUDERS]
-          #endif
-        ;
+          TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
       #endif
     #endif
 
     #if HAS_CLASSIC_JERK
-      #if HAS_LINEAR_E_JERK
-        static xyz_pos_t max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
-      #else
-        static xyze_pos_t max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
-      #endif
+      // (mm/s^2) M205 XYZ(E) - The largest speed change requiring no acceleration.
+      static TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) max_jerk;
     #endif
 
     #if HAS_LEVELING
@@ -900,7 +894,7 @@ class Planner {
 
     static void recalculate();
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
 
       FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
         float magnitude_sq = 0;

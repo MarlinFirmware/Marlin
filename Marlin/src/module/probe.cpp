@@ -441,7 +441,7 @@ bool Probe::set_deployed(const bool deploy) {
 bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::probe_down_to_z", current_position);
 
-  #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
     thermalManager.wait_for_bed_heating();
   #endif
 

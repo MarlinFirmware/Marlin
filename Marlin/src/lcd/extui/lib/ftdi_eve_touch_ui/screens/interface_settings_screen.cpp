@@ -74,7 +74,9 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #define EDGE_R 30
        .font(font_small)
        .tag(0)
+    #if DISABLED(LCD_FYSETC_TFT81050)
        .text(BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_LCD_BRIGHTNESS), OPT_RIGHTX | OPT_CENTERY)
+    #endif
        .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
        .text(BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_SCREEN_LOCK),    OPT_RIGHTX | OPT_CENTERY);
     #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
@@ -93,7 +95,9 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     cmd.font(font_medium)
     #define EDGE_R 30
        .colors(ui_slider)
+    #if DISABLED(LCD_FYSETC_TFT81050)
        .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.brightness, 128)
+    #endif
        .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume,     0xFF)
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())

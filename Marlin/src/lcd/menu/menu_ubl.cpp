@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+#if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu.h"
 #include "../../gcode/gcode.h"

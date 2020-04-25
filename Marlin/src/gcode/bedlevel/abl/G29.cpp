@@ -223,7 +223,7 @@ G29_TYPE GcodeSuite::G29() {
     ABL_VAR int abl_probe_index;
   #endif
 
-  #if HAS_SOFTWARE_ENDSTOPS && ENABLED(PROBE_MANUALLY)
+  #if BOTH(HAS_SOFTWARE_ENDSTOPS, PROBE_MANUALLY)
     ABL_VAR bool saved_soft_endstops_state = true;
   #endif
 

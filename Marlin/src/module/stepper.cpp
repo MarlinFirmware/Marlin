@@ -138,7 +138,7 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+#if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
 #endif
 
@@ -2265,7 +2265,7 @@ void Stepper::init() {
   TERN_(HAS_X2_DIR, X2_DIR_INIT());
   #if HAS_Y_DIR
     Y_DIR_INIT();
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_DIR
+    #if BOTH(Y_DUAL_STEPPER_DRIVERS, HAS_Y2_DIR)
       Y2_DIR_INIT();
     #endif
   #endif
@@ -2318,7 +2318,7 @@ void Stepper::init() {
   #if HAS_Y_ENABLE
     Y_ENABLE_INIT();
     if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
+    #if BOTH(Y_DUAL_STEPPER_DRIVERS, HAS_Y2_ENABLE)
       Y2_ENABLE_INIT();
       if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
     #endif

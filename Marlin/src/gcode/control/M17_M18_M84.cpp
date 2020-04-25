@@ -63,7 +63,7 @@ void GcodeSuite::M18_M84() {
     else
       planner.finish_and_disable();
 
-    #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+    #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
       if (ubl.lcd_map_control) {
         ubl.lcd_map_control = false;
         ui.defer_status_screen(false);
