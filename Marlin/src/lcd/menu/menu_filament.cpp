@@ -53,7 +53,6 @@ inline PGM_P _change_filament_temp_command() {
     default:
       return PSTR("M600 B0 T%d");
   }
-  return GET_TEXT(MSG_FILAMENTCHANGE);
 }
 
 // Initiate Filament Load/Unload/Change at the specified temperature
