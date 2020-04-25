@@ -305,7 +305,9 @@ class Planner {
     static float steps_to_mm[XYZE_N];           // Millimeters per step
 
     #if HAS_JUNCTION_DEVIATION
-      static float junction_deviation_mm;       // (mm) M205 J
+      static float junction_deviation_mm,       // (mm) M205 J
+                   del_angle_decay,             // (1/mm) Fractional reduction of del_angle_indicator per mm traveled
+                   del_angle_threshold;         // (rads/mm) Threshold for delta_angle_indicator, resulting in recalculation of limit_sqr
       #if ENABLED(LIN_ADVANCE)
         static float max_e_jerk                 // Calculated from junction_deviation_mm
           TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
@@ -364,6 +366,23 @@ class Planner {
      * Nominal speed of previous path line segment (mm/s)^2
      */
     static float previous_nominal_speed_sqr;
+
+    #if HAS_JUNCTION_DEVIATION
+      /**
+       * Speed limit of previous segment (mm^2/s^2)
+       */
+      static float previous_limit_sqr;
+      
+      /**
+       * Junction angle theta of previous segment (rads)
+       */
+      static float previous_junction_theta;
+  
+      /**
+       * Indicator of current angular change per mm traveled (°/mm)
+       */
+      static float del_angle_indicator;
+    #endif
 
     /**
      * Limit where 64bit math is necessary for acceleration calculation
