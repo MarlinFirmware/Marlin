@@ -21,75 +21,28 @@
  */
 
 /**
- * Description: functions for I2C connected external EEPROM.
- * Not platform dependent.
- *
- * TODO: Some platform Arduino libraries define these functions
- *       so Marlin needs to add a glue layer to prevent the conflict.
+ * I2C/SPI EEPROM interface for LPC1768
  */
 
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(I2C_EEPROM)
+#if USE_WIRED_EEPROM
 
-#include "eeprom_api.h"
+#include "../shared/eeprom_api.h"
 #include <Wire.h>
-
-#ifndef EEPROM_DEVICE_ADRESS
-  #define EEPROM_DEVICE_ADRESS  0x50
-#endif
 
 #ifndef EEPROM_SIZE
   #define EEPROM_SIZE           0x8000 // 32kB‬
 #endif
 
-#ifndef EEPROM_WRITE_DELAY
-  #define EEPROM_WRITE_DELAY    5
-#endif
-
-constexpr uint8_t eeprom_device_address = uint8_t(I2C_ADDRESS(EEPROM_DEVICE_ADRESS));
-
-static void i2c_eeprom_init() {
-  Wire.begin();
-}
-
-static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
-  uint16_t eeprom_address = (uint16_t)pos;
-
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write((int)(eeprom_address >> 8));   // MSB
-  Wire.write((int)(eeprom_address & 0xFF)); // LSB
-  Wire.write(value);
-  Wire.endTransmission();
-
-  // wait for write cycle to complete
-  // this could be done more efficiently with "acknowledge polling"
-  delay(EEPROM_WRITE_DELAY);
-}
-
-static uint8_t i2c_eeprom_read_byte(uint8_t *pos) {
-
-  uint16_t eeprom_address = (uint16_t)pos;
-
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write((int)(eeprom_address >> 8));   // MSB
-  Wire.write((int)(eeprom_address & 0xFF)); // LSB
-  Wire.endTransmission();
-  Wire.requestFrom(eeprom_device_address, (uint8_t)1);
-
-  return Wire.available() ? Wire.read() : 0xFF;
-}
-
 bool PersistentStore::access_start() {
-  i2c_eeprom_init();
+  TERN_(SPI_EEPROM, eeprom_init());
   return true;
 }
 
-bool PersistentStore::access_finish() {
-  return true;
-}
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -98,9 +51,9 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // EEPROM has only ~100,000 write cycles,
     // so only write bytes that have changed!
     uint8_t * const p = (uint8_t * const)pos;
-    if (v != i2c_eeprom_read_byte(p)) {
-      i2c_eeprom_write_byte(p, v);
-      if (i2c_eeprom_read_byte(p) != v) {
+    if (v != eeprom_read_byte(p)) {
+      eeprom_write_byte(p, v);
+      if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
       }
@@ -117,7 +70,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     // Read from external EEPROM
-    const uint8_t c = i2c_eeprom_read_byte((uint8_t*)pos);
+    const uint8_t c = eeprom_read_byte((uint8_t*)pos);
 
     if (writing) *value = c;
     crc16(crc, &c, 1);
@@ -127,9 +80,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-size_t PersistentStore::capacity() {
-  return EEPROM_SIZE;
-}
+size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
-#endif // I2C_EEPROM
+#endif // USE_WIRED_EEPROM
 #endif // TARGET_LPC1768

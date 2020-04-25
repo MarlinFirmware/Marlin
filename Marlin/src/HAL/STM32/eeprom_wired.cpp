@@ -28,13 +28,8 @@
 
 #include "../shared/eeprom_api.h"
 
-bool PersistentStore::access_start() {
-  return true;
-}
-
-bool PersistentStore::access_finish() {
-  return true;
-}
+bool PersistentStore::access_start()  { return true; }
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
