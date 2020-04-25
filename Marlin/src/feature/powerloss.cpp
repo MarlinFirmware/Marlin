@@ -427,7 +427,7 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved Z
   dtostrf(info.current_position.z, 1, 3, str_1);
-  #if Z_HOME_DIR > 0 ||  ENABLED(POWER_LOSS_ZHOME)
+  #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_ZHOME)
     sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   #else
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
