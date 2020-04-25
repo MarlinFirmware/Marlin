@@ -2097,7 +2097,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (segment_time_us < xy_freq_min_interval_us) {
         const int32_t least_xy_segment_time = _MIN(_MAX(xs0, xs1, xs2), _MAX(ys0, ys1, ys2));
         if (least_xy_segment_time < xy_freq_min_interval_us) {
-          const float freq_xy_feedrate = (speed_factor * least_xy_segment_time) / xy_freq_min_interval_us;
+          float freq_xy_feedrate = (speed_factor * least_xy_segment_time) / xy_freq_min_interval_us;
           NOLESS(freq_xy_feedrate, xy_freq_min_speed_factor);
           NOMORE(speed_factor, freq_xy_feedrate);
         }

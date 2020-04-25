@@ -352,6 +352,23 @@ class Planner {
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
     #endif
+    #ifdef XY_FREQUENCY_LIMIT
+      static int8_t xy_freq_limit_hz;         // Minimum XY frequency setting
+      static float xy_freq_min_speed_factor;  // Minimum speed factor setting
+      static int32_t xy_freq_min_interval_us; // Minimum segment time based on xy_freq_limit_hz
+      static inline void refresh_frequency_limit() {
+        //xy_freq_min_interval_us = xy_freq_limit_hz ?: LROUND(1000000.0f / xy_freq_limit_hz);
+        if ( !xy_freq_limit_hz ) return ;
+        else xy_freq_min_interval_us = LROUND(1000000.0f / xy_freq_limit_hz);
+      }
+      static inline void set_min_speed_factor_u8(const uint8_t v255) {
+        xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
+      }
+      static inline void set_frequency_limit(const uint8_t hz) {
+        xy_freq_limit_hz = constrain(hz, 0, 100);
+        refresh_frequency_limit();
+      }
+    #endif
 
   private:
 
@@ -377,22 +394,6 @@ class Planner {
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
        // Counters to manage disabling inactive extruders
       static uint8_t g_uc_extruder_last_move[EXTRUDERS];
-    #endif
-
-    #ifdef XY_FREQUENCY_LIMIT
-      static int8_t xy_freq_limit_hz;         // Minimum XY frequency setting
-      static float xy_freq_min_speed_factor;  // Minimum speed factor setting
-      static int32_t xy_freq_min_interval_us; // Minimum segment time based on xy_freq_limit_hz
-      static inline void refresh_frequency_limit() {
-        xy_freq_min_interval_us = xy_freq_limit_hz ?: LROUND(1000000.0f / xy_freq_limit_hz);
-      }
-      static inline void set_min_speed_factor_u8(const uint8_t v255) {
-        xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
-      }
-      static inline void set_frequency_limit(const uint8_t hz) {
-        xy_freq_limit_hz = constrain(hz, 0, 100);
-        refresh_frequency_limit();
-      }
     #endif
 
     #if HAS_SPI_LCD
