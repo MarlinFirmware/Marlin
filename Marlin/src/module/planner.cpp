@@ -133,7 +133,9 @@ uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived 
 float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
-  float Planner::junction_deviation_mm;         // (mm) M205 J
+  float Planner::junction_deviation_mm,         // (mm) M205 J
+        Planner::del_angle_decay = 0.75f,              // (1/mm) Fractional reduction of del_angle_indicator per mm traveled
+        Planner::del_angle_threshold = RADIANS(0.1f);  // (rads/mm) Threshold for del_angle_indicator, resulting in recalculation of limit_sqr
   #if HAS_LINEAR_E_JERK
     float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
@@ -194,6 +196,12 @@ uint32_t Planner::cutoff_long;
 xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed_sqr;
 
+#if HAS_JUNCTION_DEVIATION
+float Planner::previous_junction_theta,
+      Planner::previous_limit_sqr,
+      Planner::del_angle_indicator;
+#endif
+
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
   uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
 #endif
@@ -232,6 +240,11 @@ void Planner::init() {
   TERN_(IS_KINEMATIC, position_cart.reset());
   previous_speed.reset();
   previous_nominal_speed_sqr = 0;
+  #if HAS_JUNCTION_DEVIATION
+    previous_limit_sqr = 0.0f;
+    previous_junction_theta = 0.0f;
+    del_angle_indicator = 0.0f;
+  #endif
   TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
   clear_block_buffer();
   delay_before_delivering = 0;
@@ -2210,6 +2223,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
+  float limit_sqr;         // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
+  float junction_theta;
 
   #if HAS_JUNCTION_DEVIATION
     /**
@@ -2291,86 +2306,97 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         vmax_junction_sqr = junction_acceleration * junction_deviation_mm * sin_theta_d2 / (1.0f - sin_theta_d2);
 
-        // For small moves with >135° junction (octagon) find speed for approximate arc
+        #if ENABLED(JD_USE_MATH_ACOS)
+
+          #error "TODO: Inline maths with the MCU / FPU."
+
+        #elif ENABLED(JD_USE_LOOKUP_TABLE)
+
+          // Fast acos approximation (max. error +-0.01 rads)
+          // Based on LUT table and linear interpolation
+
+          /**
+           *  // Generate the JD Lookup Table
+           *  constexpr float c = 1.00751317f; // Correction factor to center error around 0
+           *  for (int i = 0; i < jd_lut_count - 1; ++i) {
+           *    const float x0 = (sq(i) - 1) / sq(i),
+           *                y0 = acos(x0) * (i ? c : 1),
+           *                x1 = 0.5 * x0 + 0.5,
+           *                y1 = acos(x1) * c;
+           *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
+           *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
+           *  }
+           *  jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
+           *
+           *  // Compute correction factor (Set c to 1.0f first!)
+           *  float min = INFINITY, max = -min;
+           *  for (float t = 0; t <= 1; t += 0.0003f) {
+           *    const float e = acos(t) / approx(t);
+           *    if (isfinite(e)) {
+           *      if (e < min) min = e;
+           *      if (e > max) max = e;
+           *    }
+           *  }
+           *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
+           */
+          static constexpr int16_t  jd_lut_count = 15;
+          static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
+          static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count
+          static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
+            -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
+            -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
+            -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
+          static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
+            1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
+            4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
+            26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
+
+          const float neg = junction_cos_theta < 0 ? -1 : 1,
+                      t = neg * junction_cos_theta;
+
+          const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+
+          junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
+          if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
+
+        #else
+
+          // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
+          // Based on MinMax polynomial published by W. Randolph Franklin, see
+          // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
+          //  acos( t) = pi / 2 - asin(x)
+          //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
+
+          const float neg = junction_cos_theta < 0 ? -1 : 1,
+                      t = neg * junction_cos_theta,
+                      asinx =       0.032843707f
+                            + t * (-1.451838349f
+                            + t * ( 29.66153956f
+                            + t * (-131.1123477f
+                            + t * ( 262.8130562f
+                            + t * (-242.7199627f
+                            + t * ( 84.31466202f ) )))));
+          junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+
+          // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
+
+        #endif
+
+        limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
+
+        // Estimate, how much the junction angle is changing per mm traveled
+        // NOTE: To keep the math involved simple & fast(-ish), changes in del_angle_indicator are not fully independent of the block length.
+        //       Therefore, three segments of length 0.2 mm will result in a slightly different decay than two segments of length 0.3 mm.
+        const float del_theta = junction_theta - previous_junction_theta;
+        del_angle_indicator = del_angle_indicator * _MAX(0.0f, 1.0f - del_angle_decay * block->millimeters) + ABS(del_theta) * inverse_millimeters;
+
+        // In case theta is changing slower than our threshold, we just keep the higher speed and "coast".
+        if (del_angle_indicator < del_angle_threshold) {
+          limit_sqr = _MAX(limit_sqr, previous_limit_sqr);
+        }
+
+        // If the angle is greater than 135 degrees (octagon) and the element is small, pick the lower speed limit.
         if (block->millimeters < 1 && junction_cos_theta < -0.7071067812f) {
-
-          #if ENABLED(JD_USE_MATH_ACOS)
-
-            #error "TODO: Inline maths with the MCU / FPU."
-
-          #elif ENABLED(JD_USE_LOOKUP_TABLE)
-
-            // Fast acos approximation (max. error +-0.01 rads)
-            // Based on LUT table and linear interpolation
-
-            /**
-             *  // Generate the JD Lookup Table
-             *  constexpr float c = 1.00751317f; // Correction factor to center error around 0
-             *  for (int i = 0; i < jd_lut_count - 1; ++i) {
-             *    const float x0 = (sq(i) - 1) / sq(i),
-             *                y0 = acos(x0) * (i ? c : 1),
-             *                x1 = 0.5 * x0 + 0.5,
-             *                y1 = acos(x1) * c;
-             *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
-             *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
-             *  }
-             *  jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
-             *
-             *  // Compute correction factor (Set c to 1.0f first!)
-             *  float min = INFINITY, max = -min;
-             *  for (float t = 0; t <= 1; t += 0.0003f) {
-             *    const float e = acos(t) / approx(t);
-             *    if (isfinite(e)) {
-             *      if (e < min) min = e;
-             *      if (e > max) max = e;
-             *    }
-             *  }
-             *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
-             */
-            static constexpr int16_t  jd_lut_count = 15;
-            static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
-            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count
-            static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
-              -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
-              -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
-              -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
-            static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-              1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
-              4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
-              26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
-
-            const float neg = junction_cos_theta < 0 ? -1 : 1,
-                        t = neg * junction_cos_theta;
-
-            const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
-
-            float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
-            if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
-
-          #else
-
-            // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
-            // Based on MinMax polynomial published by W. Randolph Franklin, see
-            // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
-            //  acos( t) = pi / 2 - asin(x)
-            //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
-
-            const float neg = junction_cos_theta < 0 ? -1 : 1,
-                        t = neg * junction_cos_theta,
-                        asinx =       0.032843707f
-                              + t * (-1.451838349f
-                              + t * ( 29.66153956f
-                              + t * (-131.1123477f
-                              + t * ( 262.8130562f
-                              + t * (-242.7199627f
-                              + t * ( 84.31466202f ) ))))),
-                        junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
-
-            // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
-
-          #endif
-
-          const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
           NOMORE(vmax_junction_sqr, limit_sqr);
         }
       }
@@ -2517,6 +2543,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;
   previous_nominal_speed_sqr = block->nominal_speed_sqr;
+  #if HAS_JUNCTION_DEVIATION
+    previous_limit_sqr = limit_sqr;
+    previous_junction_theta = junction_theta;
+  #endif
 
   position = target;  // Update the position
 
