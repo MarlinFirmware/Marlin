@@ -49,14 +49,14 @@
   #define EEPROM_WRITE_DELAY    5
 #endif
 
-const uint8_t eeprom_device_address = I2C_ADDRESS((uint8_t)EEPROM_DEVICE_ADRESS);
+constexpr uint8_t eeprom_device_address = uint8_t(I2C_ADDRESS(EEPROM_DEVICE_ADRESS));
 
 static void i2c_eeprom_init() {
   Wire.begin();
 }
 
 static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
-  unsigned eeprom_address = (unsigned) pos;
+  uint16_t eeprom_address = (uint16_t)pos;
 
   Wire.beginTransmission(eeprom_device_address);
   Wire.write((int)(eeprom_address >> 8));   // MSB
@@ -71,7 +71,7 @@ static void i2c_eeprom_write_byte(uint8_t *pos, unsigned char value) {
 
 static uint8_t i2c_eeprom_read_byte(uint8_t *pos) {
 
-  unsigned eeprom_address = (unsigned)pos;
+  uint16_t eeprom_address = (uint16_t)pos;
 
   Wire.beginTransmission(eeprom_device_address);
   Wire.write((int)(eeprom_address >> 8));   // MSB
