@@ -266,7 +266,7 @@ void SPIClass::endTransaction() { }
 
 uint16_t SPIClass::read() {
   while (!spi_is_rx_nonempty(_currentSetting->spi_d)) { /* nada */ }
-  return (uint16)spi_rx_reg(_currentSetting->spi_d);
+  return (uint16_t)spi_rx_reg(_currentSetting->spi_d);
 }
 
 void SPIClass::read(uint8_t *buf, uint32_t len) {
