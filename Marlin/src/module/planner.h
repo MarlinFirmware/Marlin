@@ -137,9 +137,7 @@ typedef struct block_t {
     static constexpr uint8_t extruder = 0;
   #endif
 
-  #if ENABLED(MIXING_EXTRUDER)
-    MIXER_BLOCK_FIELD;                      // Normalized color for the mixing steppers
-  #endif
+  TERN_(MIXING_EXTRUDER, MIXER_BLOCK_FIELD); // Normalized color for the mixing steppers
 
   // Settings for the trapezoid generator
   uint32_t accelerate_until,                // The index of the step event on which to stop acceleration

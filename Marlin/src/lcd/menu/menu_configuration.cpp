@@ -206,13 +206,7 @@ void menu_advanced_settings();
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
       SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", (int)bltouch.last_written_mode);
-      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - "
-        #if ENABLED(BLTOUCH_SET_5V_MODE)
-          "5V"
-        #else
-          "OD"
-        #endif
-      );
+      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode - "));
       strcpy_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
@@ -411,11 +405,7 @@ void menu_configuration() {
   //
   #if ENABLED(CASE_LIGHT_MENU)
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (true
-        #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-          && PWM_PIN(CASE_LIGHT_PIN)
-        #endif
-      )
+      if (TERN1(CASE_LIGHT_USE_NEOPIXEL, PWM_PIN(CASE_LIGHT_PIN)))
         SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif

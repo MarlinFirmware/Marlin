@@ -103,12 +103,8 @@ void GcodeSuite::M600() {
   #if EXTRUDERS > 1
     // Change toolhead if specified
     const uint8_t active_extruder_before_filament_change = active_extruder;
-    if (
-      active_extruder != target_extruder
-      #if ENABLED(DUAL_X_CARRIAGE)
-        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_MIRRORED_MODE
-      #endif
-    ) tool_change(target_extruder, false);
+    if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !dxc_is_duplicating()))
+      tool_change(target_extruder, false);
   #endif
 
   // Initial retract before move to filament change position

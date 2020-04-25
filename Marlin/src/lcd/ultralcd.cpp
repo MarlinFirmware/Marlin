@@ -638,7 +638,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     float manual_move_offset = 0;
   #endif
 
-  #if E_MANUAL > 1
+  #if MULTI_MANUAL
     int8_t MarlinUI::manual_move_e_index = 0;
   #endif
 
