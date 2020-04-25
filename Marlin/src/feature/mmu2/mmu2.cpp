@@ -575,7 +575,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         resume_position = current_position;
 
         if (move_axes && all_axes_homed())
-          nozzle.park(2, park_point /*= NOZZLE_PARK_POINT*/);
+          nozzle.park(0, park_point /*= NOZZLE_PARK_POINT*/);
 
         if (turn_off_nozzle) thermalManager.setTargetHotend(0, active_extruder);
 
