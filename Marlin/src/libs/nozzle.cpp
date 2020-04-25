@@ -188,7 +188,11 @@ Nozzle nozzle;
       } break;
     }
 
-    do_blocking_move_to_xy(park, fr_xy);
+    do_blocking_move_to_xy(
+      TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
+      TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
+      fr_xy
+    );
 
     report_current_position();
   }
