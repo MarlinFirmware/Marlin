@@ -318,11 +318,8 @@ void PrintJobRecovery::resume() {
       "G28R0"
       #if ENABLED(MARLIN_DEV_MODE)
         "S"
-      #elif !IS_KINEMATIC
+      #elif !EITHER(IS_KINEMATIC, POWER_LOSS_ZHOME)
         "XY"
-      #endif
-      #if ENABLED(POWER_LOSS_ZHOME)
-        "Z"
       #endif
     #endif
   ));
