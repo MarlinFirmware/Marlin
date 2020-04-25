@@ -181,14 +181,10 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MAX(park.z, current_position.z), fr_z);
     }
 
-    #if EITHER(NOZZLE_PARK_X_ONLY , NOZZLE_PARK_Y_ONLY )
-      xyz_pos_t park_ = park ;
-      TERN_( NOZZLE_PARK_X_ONLY, park_.y = current_position.y );
-      TERN_( NOZZLE_PARK_Y_ONLY, park_.x = current_position.x );
-      do_blocking_move_to_xy(park_ , fr_xy) ;
-    #else
-       do_blocking_move_to_xy(park_, fr_xy) ;
-    #endif
+    xyz_pos_t park_ = park;
+    TERN_(NOZZLE_PARK_X_ONLY, park_.y = current_position.y);
+    TERN_(NOZZLE_PARK_Y_ONLY, park_.x = current_position.x);
+    do_blocking_move_to_xy(park_, fr_xy);
 
     report_current_position();
   }
