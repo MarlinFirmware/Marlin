@@ -73,21 +73,16 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
   }
 }
 
-void lcd_limbo() {
-  ui.currentScreen = []{};
-  ui.defer_status_screen();
-}
-
 float lcd_mesh_edit() {
-  lcd_limbo();
   ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDITOR));
   return mesh_edit_value;
 }
 
 void lcd_mesh_edit_setup(const float &initial) {
+  ui.currentScreen = []{};
+  ui.defer_status_screen();
   mesh_edit_value = mesh_edit_accumulator = initial;
-  lcd_limbo();
 }
 
 void _lcd_z_offset_edit() {
@@ -452,11 +447,7 @@ void _lcd_ubl_output_map_lcd() {
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
 
-  #if IS_KINEMATIC
-    #define KEEP_LOOPING true   // Loop until a valid point is found
-  #else
-    #define KEEP_LOOPING false
-  #endif
+  #define KEEP_LOOPING ENABLED(IS_KINEMATIC) // Loop until a valid point is found
 
   do {
     // Encoder to the right (++)
@@ -489,7 +480,6 @@ void _lcd_ubl_output_map_lcd() {
 
   if (ui.should_draw()) {
     ui.ubl_plot(x_plot, y_plot);
-
     ubl_map_move_to_xy();       // Move to new location
   }
 }
