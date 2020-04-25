@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(POWER_LOSS_RECOVERY)
+#if BOTH(HAS_LCD_MENU, POWER_LOSS_RECOVERY)
 
 #include "menu.h"
 #include "../../gcode/queue.h"

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
 #include "../../feature/mmu2/mmu2.h"
 #include "menu_mmu2.h"
@@ -171,4 +171,4 @@ uint8_t mmu2_choose_filament() {
   return currentTool;
 }
 
-#endif //  HAS_LCD_MENU && ENABLED(PRUSA_MMU2_MENUS)
+#endif // HAS_LCD_MENU && MMU2_MENUS

@@ -2393,7 +2393,7 @@ void MarlinSettings::reset() {
     TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK;);
   #endif
 
-  #if DISABLED(CLASSIC_JERK)
+  #if HAS_JUNCTION_DEVIATION
     planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #endif
 
@@ -2862,7 +2862,7 @@ void MarlinSettings::reset() {
 
     CONFIG_ECHO_HEADING(
       "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         " J<junc_dev>"
       #endif
       #if HAS_CLASSIC_JERK
@@ -2875,7 +2875,7 @@ void MarlinSettings::reset() {
         PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
       , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
       , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
       #endif
       #if HAS_CLASSIC_JERK
@@ -3099,7 +3099,7 @@ void MarlinSettings::reset() {
         HOTEND_LOOP() {
           CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(
-            #if HAS_MULTI_HOTEND && ENABLED(PID_PARAMS_PER_HOTEND)
+            #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
               SP_P_STR
             #else
