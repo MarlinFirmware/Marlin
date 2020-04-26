@@ -310,6 +310,7 @@
 #define BOARD_CCROBOT_MEEB_3DP        4029  // ccrobot-online.com MEEB_3DP (STM32F103RC)
 #define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CREALITY_V4             4032  // Creality v4.x (STM32F103RE)
 
 //
 // ARM Cortex-M4F

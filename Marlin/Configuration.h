@@ -683,9 +683,9 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-//#define X_DRIVER_TYPE  A4988
-//#define Y_DRIVER_TYPE  A4988
-//#define Z_DRIVER_TYPE  A4988
+//#define X_DRIVER_TYPE A4988
+//#define Y_DRIVER_TYPE A4988
+//#define Z_DRIVER_TYPE A4988
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
@@ -903,6 +903,11 @@
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
 //#define BLTOUCH
+
+/**
+ * Pressure sensor with a BLTouch-like interface
+ */
+//#define CREALITY_TOUCH
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -2129,6 +2134,11 @@
 // Robin nano v2.0 SPI touch screen
 //
 //#define SPI_GRAPHICAL_TFT
+
+//
+// Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
+//
+//#define DWIN_CREALITY_LCD
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
