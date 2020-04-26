@@ -33,6 +33,11 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
+#if MB(MALYANM200, MALYANM300)
+  #define STEP_TIMER 1
+  #define TEMP_TIMER 3
+#endif
+
 #ifdef STM32F0xx
 
   #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
