@@ -3224,31 +3224,33 @@ void MarlinSettings::reset() {
 
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
         say_M906(forReplay);
-        #if AXIS_IS_TMC(X)
-          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX.getMilliamps());
-        #endif
-        #if AXIS_IS_TMC(Y)
-          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY.getMilliamps());
-        #endif
-        #if AXIS_IS_TMC(Z)
-          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.getMilliamps());
-        #endif
-        SERIAL_EOL();
+        SERIAL_ECHOLNPAIR_P(
+          #if AXIS_IS_TMC(X)
+            SP_X_STR, stepperX.getMilliamps(),
+          #endif
+          #if AXIS_IS_TMC(Y)
+            SP_Y_STR, stepperY.getMilliamps(),
+          #endif
+          #if AXIS_IS_TMC(Z)
+            SP_Z_STR, stepperZ.getMilliamps()
+          #endif
+        );
       #endif
 
       #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
         say_M906(forReplay);
         SERIAL_ECHOPGM(" I1");
-        #if AXIS_IS_TMC(X2)
-          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX2.getMilliamps());
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY2.getMilliamps());
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.getMilliamps());
-        #endif
-        SERIAL_EOL();
+        SERIAL_ECHOLNPAIR_P(
+          #if AXIS_IS_TMC(X2)
+            SP_X_STR, stepperX2.getMilliamps(),
+          #endif
+          #if AXIS_IS_TMC(Y2)
+            SP_Y_STR, stepperY2.getMilliamps(),
+          #endif
+          #if AXIS_IS_TMC(Z2)
+            SP_Z_STR, stepperZ2.getMilliamps()
+          #endif
+        );
       #endif
 
       #if AXIS_IS_TMC(Z3)
@@ -3451,9 +3453,9 @@ void MarlinSettings::reset() {
 
         if (chop_x || chop_y || chop_z) {
           say_M569(forReplay);
-          if (chop_x) SERIAL_ECHO_P(SP_X_STR);
-          if (chop_y) SERIAL_ECHO_P(SP_Y_STR);
-          if (chop_z) SERIAL_ECHO_P(SP_Z_STR);
+          if (chop_x) SERIAL_ECHOPGM_P(SP_X_STR);
+          if (chop_y) SERIAL_ECHOPGM_P(SP_Y_STR);
+          if (chop_z) SERIAL_ECHOPGM_P(SP_Z_STR);
           SERIAL_EOL();
         }
 
@@ -3475,9 +3477,9 @@ void MarlinSettings::reset() {
 
         if (chop_x2 || chop_y2 || chop_z2) {
           say_M569(forReplay, PSTR("I1"));
-          if (chop_x2) SERIAL_ECHO_P(SP_X_STR);
-          if (chop_y2) SERIAL_ECHO_P(SP_Y_STR);
-          if (chop_z2) SERIAL_ECHO_P(SP_Z_STR);
+          if (chop_x2) SERIAL_ECHOPGM_P(SP_X_STR);
+          if (chop_y2) SERIAL_ECHOPGM_P(SP_Y_STR);
+          if (chop_z2) SERIAL_ECHOPGM_P(SP_Z_STR);
           SERIAL_EOL();
         }
 
