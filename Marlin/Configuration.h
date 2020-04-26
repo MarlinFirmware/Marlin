@@ -149,6 +149,12 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
+// Store Temps & Fanspeeds (Require M104/109 T[..] or M106 T[..] by extruder).
+// Require FAN0
+#if ENABLED(SINGLENOZZLE)
+  #define SINGLENOZZLE_STDBY_TEMP
+  #define SINGLENOZZLE_STDBY_FANSPEED
+#endif
 
 /**
  * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
