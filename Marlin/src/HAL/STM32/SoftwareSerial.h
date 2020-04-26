@@ -83,7 +83,7 @@ class SoftwareSerial : public Stream {
     void setRX();
     void setSpeed(uint32_t speed);
     void setRXTX(bool input);
-    static void handleInterrupt(HardwareTimer *timer);
+    static void handleInterrupt();
 
   public:
     // public methods

@@ -135,10 +135,10 @@
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-extern void Step_Handler(HardwareTimer *htim);
-extern void Temp_Handler(HardwareTimer *htim);
-#define HAL_STEP_TIMER_ISR() void Step_Handler(HardwareTimer *htim)
-#define HAL_TEMP_TIMER_ISR() void Temp_Handler(HardwareTimer *htim)
+extern void Step_Handler();
+extern void Temp_Handler();
+#define HAL_STEP_TIMER_ISR() void Step_Handler()
+#define HAL_TEMP_TIMER_ISR() void Temp_Handler()
 
 // ------------------------
 // Public Variables

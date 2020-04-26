@@ -287,7 +287,7 @@ inline void SoftwareSerial::recv() {
 //
 
 /* static */
-inline void SoftwareSerial::handleInterrupt(HardwareTimer*) {
+inline void SoftwareSerial::handleInterrupt() {
   if (active_in)   active_in->recv();
   if (active_out) active_out->send();
 }
