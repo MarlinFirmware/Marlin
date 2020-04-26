@@ -990,10 +990,10 @@
 
         #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
           current_position.z = h_offset;                    // Move Z to the given 'H' offset before editing
-          line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
+          line_to_current_position(homing_feedrate(Z_AXIS));
         #endif
 
-        ui.synchronize();                                   // Display "Moving" until move completes
+        //ui.synchronize();                                   // Display "Moving" until move completes
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
 
