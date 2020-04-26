@@ -70,7 +70,7 @@ uint8_t GcodeSuite::axis_relative = (
   | (ar_init.e ? _BV(REL_E) : 0)
 );
 
-#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+#if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
   bool GcodeSuite::autoreport_paused; // = false
 #endif
 
@@ -202,7 +202,7 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
+#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
 
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
@@ -218,9 +218,7 @@ void GcodeSuite::dwell(millis_t time) {
       }
     }
 
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_action_prompt_end();
-    #endif
+    TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
 
     #ifdef G29_SUCCESS_COMMANDS
       process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
@@ -506,7 +504,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
-      #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
+      #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
       #endif
 
@@ -794,9 +792,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || HAS_I2C_DIGIPOT || ENABLED(DAC_STEPPER_CURRENT)
+      #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
-        #if HAS_DIGIPOTSS || ENABLED(DAC_STEPPER_CURRENT)
+        #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
           #if ENABLED(DAC_STEPPER_CURRENT)
             case 909: M909(); break;                              // M909: Print digipot/DAC current value

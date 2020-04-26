@@ -357,8 +357,8 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Délka zavedení");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Výměna nástroje");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Zdvih Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Rychlost primár.");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Rychlost retrak.");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Rychlost primár.");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Rychlost retrak.");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Tryska standby");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Vyměnit filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Vyměnit filament *");

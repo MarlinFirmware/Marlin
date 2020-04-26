@@ -48,13 +48,7 @@
   static uint8_t manual_probe_index;
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = (
-    #if ENABLED(AUTO_BED_LEVELING_3POINT)
-      3
-    #elif ABL_GRID || ENABLED(MESH_BED_LEVELING)
-      GRID_MAX_POINTS
-    #endif
-  );
+  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -75,9 +69,7 @@
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
+      ui.completion_feedback();
     }
     if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);

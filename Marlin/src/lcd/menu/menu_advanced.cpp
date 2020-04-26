@@ -235,12 +235,14 @@ void menu_cancelobject();
 
 #if HAS_HOTEND
   DEFINE_PIDTEMP_FUNCS(0);
-  #if HAS_MULTI_HOTEND && ENABLED(PID_PARAMS_PER_HOTEND)
+  #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
     REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
   #endif
 #endif
 
-#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
+#if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+  #define SHOW_MENU_ADVANCED_TEMPERATURE 1
+#endif
 
 //
 // Advanced Settings > Temperature
@@ -253,7 +255,7 @@ void menu_cancelobject();
     //
     // Autotemp, Min, Max, Fact
     //
-    #if ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND
+    #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND)
       EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       EDIT_ITEM(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
       EDIT_ITEM(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
@@ -308,7 +310,7 @@ void menu_cancelobject();
     #endif
 
     PID_EDIT_MENU_ITEMS(0);
-    #if HAS_MULTI_HOTEND && ENABLED(PID_PARAMS_PER_HOTEND)
+    #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
     #endif
 
@@ -423,7 +425,7 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
       #if ENABLED(LIN_ADVANCE)
         EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f, planner.recalculate_max_e_jerk);
       #else
@@ -576,9 +578,7 @@ void menu_advanced_settings() {
       //
       const bool new_state = !settings.sd_update_status(),
                  didset = settings.set_sd_update_status(new_state);
-      #if HAS_BUZZER
-        ui.completion_feedback(didset);
-      #endif
+      TERN_(HAS_BUZZER, ui.completion_feedback(didset));
       ui.return_to_status();
       if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
     });
@@ -589,9 +589,7 @@ void menu_advanced_settings() {
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
       []{
         const bool inited = settings.init_eeprom();
-        #if HAS_BUZZER
-          ui.completion_feedback(inited);
-        #endif
+        ui.completion_feedback(inited);
         UNUSED(inited);
       },
       ui.goto_previous_screen,

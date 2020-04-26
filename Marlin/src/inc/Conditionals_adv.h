@@ -139,7 +139,7 @@
 //
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define HAS_CUTTER 1
-  #define _CUTTER_DISP_PWM     1
+  #define _CUTTER_DISP_PWM255  1
   #define _CUTTER_DISP_PERCENT 2
   #define _CUTTER_DISP_RPM     3
   #define _CUTTER_DISP(V)      _CAT(_CUTTER_DISP_, V)

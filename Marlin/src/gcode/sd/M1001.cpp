@@ -31,10 +31,6 @@
   #include "../queue.h"
 #endif
 
-#if HAS_LEDS_OFF_FLAG
-  #include "../../MarlinCore.h"
-#endif
-
 #if EITHER(LCD_SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/ultralcd.h"
 #endif
@@ -44,6 +40,7 @@
 #endif
 
 #if HAS_LEDS_OFF_FLAG
+  #include "../../MarlinCore.h" // for wait_for_user_response
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 
@@ -72,14 +69,10 @@ void GcodeSuite::M1001() {
   gcode.process_subcommands_now_P(PSTR("M77"));
 
   // Set the progress bar "done" state
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    ui.set_progress_done();
-  #endif
+  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress_done());
 
   // Purge the recovery file
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.purge();
-  #endif
+  TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
   // Announce SD file completion
   SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
@@ -88,12 +81,8 @@ void GcodeSuite::M1001() {
   #if HAS_LEDS_OFF_FLAG
     if (long_print) {
       printerEventLEDs.onPrintCompleted();
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE));
-      #endif
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR);
-      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE)));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR));
       wait_for_user_response(1000UL * TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30));
       printerEventLEDs.onResumeAfterWait();
     }
@@ -105,9 +94,7 @@ void GcodeSuite::M1001() {
   #endif
 
   // Re-select the last printed file in the UI
-  #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-    ui.reselect_last_file();
-  #endif
+  TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
 }
 
 #endif // SDSUPPORT

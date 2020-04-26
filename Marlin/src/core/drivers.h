@@ -86,6 +86,10 @@
                       || AXIS_DRIVER_TYPE_X2(T) || AXIS_DRIVER_TYPE_Y2(T) || AXIS_DRIVER_TYPE_Z2(T) \
                       || AXIS_DRIVER_TYPE_Z3(T) || AXIS_DRIVER_TYPE_Z4(T) || HAS_E_DRIVER(T) )
 
+//
+// Trinamic Stepper Drivers
+//
+
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
 #if (    HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2160) \
@@ -171,8 +175,9 @@
   #define HAS_TMC_SPI 1
 #endif
 
-// Defines that can't be evaluated now
-#define HAS_TMC_SW_SERIAL ANY_AXIS_HAS(SW_SERIAL)
+//
+// L64XX Stepper Drivers
+//
 
 #if HAS_DRIVER(L6470) || HAS_DRIVER(L6474) || HAS_DRIVER(L6480) || HAS_DRIVER(POWERSTEP01)
   #define HAS_L64XX 1

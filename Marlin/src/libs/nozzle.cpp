@@ -42,9 +42,7 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    */
   void Nozzle::stroke(const xyz_pos_t &start, const xyz_pos_t &end, const uint8_t &strokes) {
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const xyz_pos_t oldpos = current_position;
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t oldpos = current_position);
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
@@ -59,9 +57,7 @@ Nozzle nozzle;
       do_blocking_move_to_xy(start);
     }
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      do_blocking_move_to(oldpos);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
   }
 
   /**
@@ -77,9 +73,7 @@ Nozzle nozzle;
     const xy_pos_t diff = end - start;
     if (!diff.x || !diff.y) return;
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const xyz_pos_t back = current_position;
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
 
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start);
@@ -108,9 +102,7 @@ Nozzle nozzle;
       }
     }
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      do_blocking_move_to(back);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
   }
 
   /**
@@ -124,15 +116,8 @@ Nozzle nozzle;
   void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const float &radius) {
     if (strokes == 0) return;
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const xyz_pos_t back = current_position;
-    #endif
-
-    #if ENABLED(NOZZLE_CLEAN_NO_Z)
-      do_blocking_move_to_xy(start);
-    #else
-      do_blocking_move_to(start);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
+    TERN(NOZZLE_CLEAN_NO_Z, do_blocking_move_to_xy, do_blocking_move_to)(start);
 
     LOOP_L_N(s, strokes)
       LOOP_L_N(i, NOZZLE_CLEAN_CIRCLE_FN)
@@ -144,9 +129,7 @@ Nozzle nozzle;
     // Let's be safe
     do_blocking_move_to_xy(start);
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      do_blocking_move_to(back);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
   }
 
   /**
@@ -194,11 +177,22 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
         break;
 
-      default: // Raise to at least the Z-park height
-        do_blocking_move_to_z(_MAX(park.z, current_position.z), fr_z);
+      default: {
+        // Apply a minimum raise, overriding G27 Z
+        const float min_raised_z =_MIN(Z_MAX_POS, current_position.z
+          #ifdef NOZZLE_PARK_Z_RAISE_MIN
+            + NOZZLE_PARK_Z_RAISE_MIN
+          #endif
+        );
+        do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
+      } break;
     }
 
-    do_blocking_move_to_xy(park, fr_xy);
+    do_blocking_move_to_xy(
+      TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
+      TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
+      fr_xy
+    );
 
     report_current_position();
   }

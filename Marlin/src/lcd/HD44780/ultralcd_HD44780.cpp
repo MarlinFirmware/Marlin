@@ -275,7 +275,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
+  #if BOTH(SDSUPPORT, HAS_LCD_MENU)
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -325,7 +325,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
+          #if BOTH(SDSUPPORT, HAS_LCD_MENU)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -802,7 +802,7 @@ void MarlinUI::draw_status_screen() {
 
         #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
-          #if DUAL_MIXING_EXTRUDER
+          #if HAS_DUAL_MIXING
 
             // Two-component mix / gradient instead of XY
 
@@ -822,13 +822,9 @@ void MarlinUI::draw_status_screen() {
             sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
             lcd_put_u8str(mixer_messages);
 
-          #else // !DUAL_MIXING_EXTRUDER
+          #else // !HAS_DUAL_MIXING
 
-            if (true
-              #if ENABLED(LCD_SHOW_E_TOTAL)
-                && !printingIsActive()
-              #endif
-            ) {
+            if (TERN1(LCD_SHOW_E_TOTAL, !printingIsActive())) {
               const xy_pos_t lpos = current_position.asLogical();
               _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
               lcd_put_wchar(' ');
@@ -843,7 +839,7 @@ void MarlinUI::draw_status_screen() {
               #endif
             }
 
-          #endif // !DUAL_MIXING_EXTRUDER
+          #endif // !HAS_DUAL_MIXING
 
         #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
@@ -1073,46 +1069,22 @@ void MarlinUI::draw_status_screen() {
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
 
-      #if HAS_HEATED_BED
-        if (thermalManager.degTargetBed() > 0) leds |= LED_A;
-      #endif
-
-      #if HAS_HOTEND
-        if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
-      #endif
+      if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0)) leds |= LED_A;
+      if (TERN0(HAS_HOTEND, thermalManager.degTargetHotend(0) > 0)) leds |= LED_B;
 
       #if FAN_COUNT > 0
-        if (0
-          #if HAS_FAN0
-            || thermalManager.fan_speed[0]
-          #endif
-          #if HAS_FAN1
-            || thermalManager.fan_speed[1]
-          #endif
-          #if HAS_FAN2
-            || thermalManager.fan_speed[2]
-          #endif
-          #if HAS_FAN3
-            || thermalManager.fan_speed[3]
-          #endif
-          #if HAS_FAN4
-            || thermalManager.fan_speed[4]
-          #endif
-          #if HAS_FAN5
-            || thermalManager.fan_speed[5]
-          #endif
-          #if HAS_FAN6
-            || thermalManager.fan_speed[6]
-          #endif
-          #if HAS_FAN7
-            || thermalManager.fan_speed[7]
-          #endif
+        if ( TERN0(HAS_FAN0, thermalManager.fan_speed[0])
+          || TERN0(HAS_FAN1, thermalManager.fan_speed[1])
+          || TERN0(HAS_FAN2, thermalManager.fan_speed[2])
+          || TERN0(HAS_FAN3, thermalManager.fan_speed[3])
+          || TERN0(HAS_FAN4, thermalManager.fan_speed[4])
+          || TERN0(HAS_FAN5, thermalManager.fan_speed[5])
+          || TERN0(HAS_FAN6, thermalManager.fan_speed[6])
+          || TERN0(HAS_FAN7, thermalManager.fan_speed[7])
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0
 
-      #if HAS_MULTI_HOTEND
-        if (thermalManager.degTargetHotend(1) > 0) leds |= LED_C;
-      #endif
+      if (TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1) > 0)) leds |= LED_C;
 
       if (leds != ledsprev) {
         lcd.setBacklight(leds);
