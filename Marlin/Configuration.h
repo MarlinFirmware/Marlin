@@ -128,12 +128,12 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  /** 
-   * Marlin/src/pins/ramps/pins_K8600.h based on older Marlin 1.x code from Velleman. 
+  /**
+   * Marlin/src/pins/ramps/pins_K8600.h based on older Marlin 1.x code from Velleman.
    * Changed to be based on pins_RAMPS.h instead of pins_RAMPS_14.h from the previous 1.x version.
    * boards.h has BOARD_K8600 added with ID of "1175" (Based on the older ID of "75" from Marlin 1.x from Velleman.)
    */
-  #define MOTHERBOARD BOARD_K8600 
+  #define MOTHERBOARD BOARD_K8600
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -2225,7 +2225,7 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-#define NEOPIXEL_LED
+//#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN     7       // LED driving pin

@@ -33,7 +33,7 @@
 #define BOARD_INFO_NAME      "K8600"
 #define DEFAULT_MACHINE_NAME "Vertex Nano"
 
-//#define CASE_LIGHT_PIN          7  // Disabled as NEOPIXEL uses it as a data pin. See Configuration.h
+#define CASE_LIGHT_PIN          7
 
 #undef X_STEP_PIN
 #undef X_DIR_PIN
