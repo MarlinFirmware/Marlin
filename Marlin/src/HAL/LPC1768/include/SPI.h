@@ -31,7 +31,7 @@
 class SPISettings {
   public:
     SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
-    uint32_t spiRate() { return spi_speed; }
+    uint32_t spiRate() const { return spi_speed; }
   private:
     uint32_t spi_speed;
 };
