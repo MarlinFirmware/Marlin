@@ -978,22 +978,17 @@
 
         done_flags.mark(lpos);                              // Mark this location as 'adjusted' so a new
                                                             // location is used on the next loop
-        const xy_pos_t raw = {
+        const xyz_pos_t raw = {
           mesh_index_to_xpos(lpos.x),
-          mesh_index_to_ypos(lpos.y)
+          mesh_index_to_ypos(lpos.y),
+          Z_CLEARANCE_BETWEEN_PROBES
         };
 
         if (!position_is_reachable(raw)) break;             // SHOULD NOT OCCUR (find_closest_mesh_point_of_type only returns reachable)
 
-        current_position = raw;
-        line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
+        do_blocking_move_to(raw);                           // Move the nozzle to the edit point with probe clearance
 
-        #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-          current_position.z = h_offset;                    // Move Z to the given 'H' offset before editing
-          line_to_current_position(homing_feedrate(Z_AXIS));
-        #endif
-
-        //ui.synchronize();                                   // Display "Moving" until move completes
+        TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset)); // Move Z to the given 'H' offset before editing
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
 

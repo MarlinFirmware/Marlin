@@ -429,7 +429,6 @@ void ubl_map_move_to_xy() {
 
   destination.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
   prepare_internal_move_to_destination(fr_mm_s);
-  ui.synchronize();
 }
 
 /**
@@ -439,6 +438,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 
 void _lcd_ubl_output_map_lcd() {
+
+  if (planner.movesplanned()) return;
 
   static int16_t step_scaler = 0;
 
@@ -496,6 +497,7 @@ void _lcd_ubl_output_map_lcd_cmd() {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }
+  if (planner.movesplanned()) return;
   ui.goto_screen(_lcd_ubl_map_homing);
 }
 
@@ -576,7 +578,6 @@ void _lcd_ubl_step_by_step() {
  */
 
 void _lcd_ubl_level_bed() {
-  const bool is_moving = planner.movesplanned();
   START_MENU();
   BACK_ITEM(MSG_MOTION);
   if (planner.leveling_active)
@@ -584,10 +585,7 @@ void _lcd_ubl_level_bed() {
   else
     GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
   SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
-
-  if (!is_moving)
-    ACTION_ITEM(MSG_UBL_MESH_EDIT, _lcd_ubl_output_map_lcd_cmd);
-
+  ACTION_ITEM(MSG_UBL_MESH_EDIT, _lcd_ubl_output_map_lcd_cmd);
   SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
