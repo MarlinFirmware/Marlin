@@ -34,8 +34,8 @@
   #include "game/game.h"
 #endif
 
-#define VALUE_ITEM(MSG, VALUE, STYL)    do{ strcpy_P(buffer, PSTR(": ")); strcpy(buffer + 2, VALUE); STATIC_ITEM(MSG, STYL, buffer); }while(0)
-#define VALUE_ITEM_P(MSG, PVALUE, STYL) do{ strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, buffer); }while(0)
+#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char buffer[21]; strcpy_P(buffer, PSTR(": ")); strcpy(buffer + 2, VALUE); STATIC_ITEM(MSG, STYL, buffer); }while(0)
+#define VALUE_ITEM_P(MSG, PVALUE, STYL) do{ char buffer[21]; strcpy_P(buffer, PSTR(": ")); strcpy_P(buffer + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, buffer); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -50,8 +50,6 @@
     char buffer[21];  // For macro usage
 
     printStatistics stats = print_job_timer.getStats();
-
-    char buffer[21];
 
     START_SCREEN();                                                                         // 12345678901234567890
     VALUE_ITEM(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), SS_LEFT);            // Print Count: 999
@@ -99,8 +97,6 @@
 //
 void menu_info_thermistors() {
   if (ui.use_click()) return ui.go_back();
-
-  char buffer[21];  // For macro usage
 
   START_SCREEN();
 
@@ -208,8 +204,6 @@ void menu_info_thermistors() {
 void menu_info_board() {
   if (ui.use_click()) return ui.go_back();
 
-  char buffer[21];  // For macro usage
-
   START_SCREEN();
   STATIC_ITEM_P(PSTR(BOARD_INFO_NAME), SS_CENTER|SS_INVERT);       // MyPrinterController
   #ifdef BOARD_WEBSITE_URL
@@ -248,7 +242,6 @@ void menu_info_board() {
     STATIC_ITEM_P(PSTR(STRING_DISTRIBUTION_DATE));              // YYYY-MM-DD HH:MM
     STATIC_ITEM_P(PSTR(MACHINE_NAME));                          // My3DPrinter
     STATIC_ITEM_P(PSTR(WEBSITE_URL));                           // www.my3dprinter.com
-    char buffer[21];
     VALUE_ITEM_P(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       STATIC_ITEM(MSG_3POINT_LEVELING);                         // 3-Point Leveling
