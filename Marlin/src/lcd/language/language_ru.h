@@ -25,7 +25,7 @@
  * Russian
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 #define DISPLAY_CHARSET_ISO10646_5
@@ -40,7 +40,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Назад");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Карта вставлена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Карта извлечена");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD карта не активна");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Эндстопы"); // Max length 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Прогр. эндстопы");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
@@ -167,8 +166,8 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Слот памяти");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Загрузить сетку стола");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Сохранить сетку стола");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Сетка %i загружена");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Сетка %i сохранена");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Сетка %i загружена");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Сетка %i сохранена");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Нет хранилища");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Ошибка: Сохран. UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Ошибка: Восстан. UBL");
@@ -222,6 +221,11 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Кулер ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Кулер доп.");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Кулер доп. ~");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Обдув платы");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Обороты простоя");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Автовключение");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Рабочие обороты");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Простой после");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Поток");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Поток ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Настройки");
@@ -402,7 +406,7 @@ namespace Language_ru {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Подсветка корпуса");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яркость подсветки");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неверный принтер");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Неверный принтер");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Счётчик печати");
@@ -433,7 +437,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("Выдавить ещё");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Возобновить печать");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Сопла: ");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Возврат не удался");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Возврат не удался");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Не удалось прощупать");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Низкая Т");
 

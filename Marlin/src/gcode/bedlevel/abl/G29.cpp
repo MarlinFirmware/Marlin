@@ -60,7 +60,7 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif
 
@@ -223,7 +223,7 @@ G29_TYPE GcodeSuite::G29() {
     ABL_VAR int abl_probe_index;
   #endif
 
-  #if HAS_SOFTWARE_ENDSTOPS && ENABLED(PROBE_MANUALLY)
+  #if BOTH(HAS_SOFTWARE_ENDSTOPS, PROBE_MANUALLY)
     ABL_VAR bool saved_soft_endstops_state = true;
   #endif
 
@@ -283,9 +283,7 @@ G29_TYPE GcodeSuite::G29() {
    */
   if (!g29_in_progress) {
 
-    #if HOTENDS > 1
-      if (active_extruder != 0) tool_change(0);
-    #endif
+    TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
 
     #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
       abl_probe_index = -1;
@@ -322,12 +320,8 @@ G29_TYPE GcodeSuite::G29() {
         if (WITHIN(i, 0, GRID_MAX_POINTS_X - 1) && WITHIN(j, 0, GRID_MAX_POINTS_Y)) {
           set_bed_leveling_enabled(false);
           z_values[i][j] = rz;
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_interpolate();
-          #endif
-          #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(i, j, rz);
-          #endif
+          TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
+          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           set_bed_leveling_enabled(abl_should_enable);
           if (abl_should_enable) report_current_position();
         }
@@ -492,14 +486,10 @@ G29_TYPE GcodeSuite::G29() {
     // Abort current G29 procedure, go back to idle state
     if (seenA && g29_in_progress) {
       SERIAL_ECHOLNPGM("Manual G29 aborted");
-      #if HAS_SOFTWARE_ENDSTOPS
-        soft_endstops_enabled = saved_soft_endstops_state;
-      #endif
+      TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = saved_soft_endstops_state);
       set_bed_leveling_enabled(abl_should_enable);
       g29_in_progress = false;
-      #if ENABLED(LCD_BED_LEVELING)
-        ui.wait_for_move = false;
-      #endif
+      TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
     }
 
     // Query G29 status
@@ -517,9 +507,7 @@ G29_TYPE GcodeSuite::G29() {
 
     if (abl_probe_index == 0) {
       // For the initial G29 S2 save software endstop state
-      #if HAS_SOFTWARE_ENDSTOPS
-        saved_soft_endstops_state = soft_endstops_enabled;
-      #endif
+      TERN_(HAS_SOFTWARE_ENDSTOPS, saved_soft_endstops_state = soft_endstops_enabled);
       // Move close to the bed before the first point
       do_blocking_move_to_z(0);
     }
@@ -551,9 +539,7 @@ G29_TYPE GcodeSuite::G29() {
 
         const float newz = measured_z + zoffset;
         z_values[meshCount.x][meshCount.y] = newz;
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(meshCount, newz);
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_P(PSTR("Save X"), meshCount.x, SP_Y_STR, meshCount.y, SP_Z_STR, measured_z + zoffset);
 
@@ -580,9 +566,7 @@ G29_TYPE GcodeSuite::G29() {
 
         probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
 
-        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-          indexIntoAB[meshCount.x][meshCount.y] = abl_probe_index;
-        #endif
+        TERN_(AUTO_BED_LEVELING_LINEAR, indexIntoAB[meshCount.x][meshCount.y] = abl_probe_index);
 
         // Keep looping till a reachable point is found
         if (position_is_reachable(probePos)) break;
@@ -606,9 +590,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("Grid probing done.");
 
         // Re-enable software endstops, if needed
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = saved_soft_endstops_state;
-        #endif
+        TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = saved_soft_endstops_state);
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -629,9 +611,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("3-point probing done.");
 
         // Re-enable software endstops, if needed
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = saved_soft_endstops_state;
-        #endif
+        TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = saved_soft_endstops_state);
 
         if (!dryrun) {
           vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
@@ -688,9 +668,7 @@ G29_TYPE GcodeSuite::G29() {
 
           probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
 
-          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-            indexIntoAB[meshCount.x][meshCount.y] = ++abl_probe_index; // 0...
-          #endif
+          TERN_(AUTO_BED_LEVELING_LINEAR, indexIntoAB[meshCount.x][meshCount.y] = ++abl_probe_index); // 0...
 
           #if IS_KINEMATIC
             // Avoid probing outside the round or hexagonal area
@@ -698,9 +676,7 @@ G29_TYPE GcodeSuite::G29() {
           #endif
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
-          #if HAS_DISPLAY
-            ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS));
-          #endif
+          TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS)));
 
           measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(probePos, raise_after, verbose_level);
 
@@ -712,9 +688,7 @@ G29_TYPE GcodeSuite::G29() {
           #if ENABLED(PROBE_TEMP_COMPENSATION)
             temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), measured_z);
             temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), measured_z);
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(), measured_z);
-            #endif
+            TERN_(USE_TEMP_EXT_COMPENSATION, temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(), measured_z));
           #endif
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -730,9 +704,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             z_values[meshCount.x][meshCount.y] = measured_z + zoffset;
-            #if ENABLED(EXTENSIBLE_UI)
-              ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]);
-            #endif
+            TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]));
 
           #endif
 
@@ -748,9 +720,7 @@ G29_TYPE GcodeSuite::G29() {
 
       LOOP_L_N(i, 3) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i), "/3.");
-        #if HAS_DISPLAY
-          ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i));
-        #endif
+        TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i)));
 
         // Retain the last probe position
         probePos = points[i];
@@ -773,9 +743,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    #if HAS_DISPLAY
-      ui.reset_status();
-    #endif
+    TERN_(HAS_DISPLAY, ui.reset_status());
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {
@@ -799,9 +767,7 @@ G29_TYPE GcodeSuite::G29() {
 
   #if ENABLED(PROBE_MANUALLY)
     g29_in_progress = false;
-    #if ENABLED(LCD_BED_LEVELING)
-      ui.wait_for_move = false;
-    #endif
+    TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   #endif
 
   // Calculate leveling, print reports, correct the position
@@ -813,9 +779,7 @@ G29_TYPE GcodeSuite::G29() {
 
       refresh_bed_level();
 
-      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        print_bilinear_leveling_grid_virt();
-      #endif
+      TERN_(ABL_BILINEAR_SUBDIVISION, print_bilinear_leveling_grid_virt());
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 

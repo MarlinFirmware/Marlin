@@ -209,7 +209,7 @@
 
   }
 
-#endif // ENABLED(LPC_SOFTWARE_SPI)
+#endif // LPC_SOFTWARE_SPI
 
 void SPIClass::begin() { spiBegin(); }
 

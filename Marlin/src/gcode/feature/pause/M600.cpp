@@ -97,7 +97,7 @@ void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
-    if (axes_need_homing()) home_all_axes();
+    if (!all_axes_known()) home_all_axes();
   #endif
 
   #if EXTRUDERS > 1
@@ -112,11 +112,7 @@ void GcodeSuite::M600() {
   #endif
 
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
-    #ifdef PAUSE_PARK_RETRACT_LENGTH
-      + (PAUSE_PARK_RETRACT_LENGTH)
-    #endif
-  );
+  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
 
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
@@ -149,11 +145,9 @@ void GcodeSuite::M600() {
                                                         : fc_settings[active_extruder].load_length);
   #endif
 
-  const int beep_count = parser.intval('B',
+  const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
-      FILAMENT_CHANGE_ALERT_BEEPS
-    #else
-      -1
+      + 1 + FILAMENT_CHANGE_ALERT_BEEPS
     #endif
   );
 
@@ -173,9 +167,7 @@ void GcodeSuite::M600() {
       tool_change(active_extruder_before_filament_change, false);
   #endif
 
-  #if ENABLED(MIXING_EXTRUDER)
-    mixer.T(old_mixing_tool); // Restore original mixing tool
-  #endif
+  TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

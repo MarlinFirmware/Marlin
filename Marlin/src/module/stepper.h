@@ -240,7 +240,7 @@ class Stepper {
 
   public:
 
-    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
     #endif
 
@@ -339,23 +339,35 @@ class Stepper {
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
-    //
     // Exact steps at which an endstop was triggered
-    //
     static xyz_long_t endstops_trigsteps;
 
-    //
     // Positions of stepper motors, in step units
-    //
     static xyze_long_t count_position;
 
-    //
-    // Current direction of stepper motors (+1 or -1)
-    //
+    // Current stepper motor directions (+1 or -1)
     static xyze_int8_t count_direction;
 
-  public:
+    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
 
+      typedef struct {
+        bool trap_en;       // Trapezoid needed flag (i.e., laser on, planner in control)
+        uint8_t cur_power;  // Current laser power
+        bool cruise_set;    // Power set up for cruising?
+
+        #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+          uint32_t last_step_count, // Step count from the last update
+                   acc_step_count;  // Bresenham counter for laser accel/decel
+        #else
+          uint16_t till_update;     // Countdown to the next update
+        #endif
+      } stepper_laser_t;
+
+      static stepper_laser_t laser;
+
+    #endif
+
+  public:
     // Initialize stepper hardware
     static void init();
 
@@ -449,7 +461,7 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)

@@ -195,7 +195,9 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 void HAL_idletask();
 
 #define PLATFORM_M997_SUPPORT
-void flashFirmware(int16_t value);
+void flashFirmware(const int16_t);
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 
 /**
  * set_pwm_frequency

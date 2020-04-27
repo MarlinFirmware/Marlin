@@ -76,9 +76,6 @@ int32_t      MenuEditItemBase::minEditValue,
 screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
 
-// Prevent recursion into screen handlers
-bool no_reentry = false;
-
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
@@ -144,9 +141,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
  */
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
-  #if ENABLED(TOUCH_BUTTONS)
-    ui.repeat_delay = BUTTON_DELAY_EDIT;
-  #endif
+  TERN_(TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
@@ -225,13 +220,9 @@ bool printer_busy() {
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
 
-    #if ENABLED(TOUCH_BUTTONS)
-      repeat_delay = BUTTON_DELAY_MENU;
-    #endif
+    TERN_(TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      progress_reset();
-    #endif
+    TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
 
     #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;
@@ -278,9 +269,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     screen_items = items;
     if (screen == status_screen) {
       defer_status_screen(false);
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.lcd_map_control = false;
-      #endif
+      TERN_(AUTO_BED_LEVELING_UBL, ubl.lcd_map_control = false);
       screen_history_depth = 0;
     }
 
@@ -297,13 +286,9 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     refresh(LCDVIEW_CALL_REDRAW_NEXT);
     screen_changed = true;
-    #if HAS_GRAPHICAL_LCD
-      drawing_screen = false;
-    #endif
+    TERN_(HAS_GRAPHICAL_LCD, drawing_screen = false);
 
-    #if HAS_LCD_MENU
-      encoder_direction_normal();
-    #endif
+    TERN_(HAS_LCD_MENU, encoder_direction_normal());
 
     set_selection(false);
   }
@@ -314,29 +299,18 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 ////////////////////////////////////////////
 
 //
-// Display the synchronize screen until moves are
-// finished, and don't return to the caller until
-// done. ** This blocks the command queue! **
+// Display a "synchronize" screen with a custom message until
+// all moves are finished. Go back to calling screen when done.
 //
-static PGM_P sync_message;
-
-void MarlinUI::_synchronize() {
-  if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
-  if (no_reentry) return;
-  // Make this the current handler till all moves are done
-  const screenFunc_t old_screen = currentScreen;
-  goto_screen(_synchronize);
-  no_reentry = true;
-  planner.synchronize(); // idle() is called until moves complete
-  no_reentry = false;
-  goto_screen(old_screen);
-}
-
-// Display the synchronize screen with a custom message
-// ** This blocks the command queue! **
 void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
-  sync_message = msg ?: GET_TEXT(MSG_MOVING);
-  _synchronize();
+  static PGM_P sync_message = msg ?: GET_TEXT(MSG_MOVING);
+  save_previous_screen();
+  goto_screen([]{
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
+  });
+  defer_status_screen();
+  planner.synchronize(); // idle() is called until moves complete
+  goto_previous_screen_no_defer();
 }
 
 /**
@@ -414,10 +388,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
 
-        if (do_probe) probe.offset.z = new_offs;
-        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else hotend_offset[active_extruder].z = new_offs;
-        #endif
+        if (do_probe)
+          probe.offset.z = new_offs;
+        else
+          TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }
@@ -429,44 +403,22 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       #endif
       if (do_probe) {
         MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
-        #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-          _lcd_zoffset_overlay_gfx(probe.offset.z);
-        #endif
+        TERN_(BABYSTEP_ZPROBE_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(probe.offset.z));
       }
     }
   }
 
 #endif // BABYSTEP_ZPROBE_OFFSET
 
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-
-  void lcd_enqueue_one_now(const char * const cmd) {
-    no_reentry = true;
-    queue.enqueue_one_now(cmd);
-    no_reentry = false;
-  }
-
-  void lcd_enqueue_one_now_P(PGM_P const cmd) {
-    no_reentry = true;
-    queue.enqueue_now_P(cmd);
-    no_reentry = false;
-  }
-
-#endif
-
 #if ENABLED(EEPROM_SETTINGS)
   void lcd_store_settings() {
     const bool saved = settings.save();
-    #if HAS_BUZZER
-      ui.completion_feedback(saved);
-    #endif
+    ui.completion_feedback(saved);
     UNUSED(saved);
   }
   void lcd_load_settings() {
     const bool loaded = settings.load();
-    #if HAS_BUZZER
-      ui.completion_feedback(loaded);
-    #endif
+    ui.completion_feedback(loaded);
     UNUSED(loaded);
   }
 #endif

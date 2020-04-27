@@ -25,7 +25,7 @@
  * Korean
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_ko_KR {
@@ -100,5 +100,5 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("취소됨");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("죽음. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("멈춤. ");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("잘못된 프린터");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("잘못된 프린터");
 }

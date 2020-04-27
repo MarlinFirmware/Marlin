@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F407VET6 BigTreeTech BTT002
+# Build tests for STM32F407VGT6 BigTreeTech BTT002 V1.0
 #
 
 # exit on first failure

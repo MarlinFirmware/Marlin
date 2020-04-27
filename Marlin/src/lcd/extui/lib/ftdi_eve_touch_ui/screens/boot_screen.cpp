@@ -68,10 +68,10 @@ void BootScreen::onIdle() {
     InterfaceSettingsScreen::failSafeSettings();
 
     StatusScreen::loadBitmaps();
+    StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
     GOTO_SCREEN(TouchCalibrationScreen);
     current_screen.forget();
     PUSH_SCREEN(StatusScreen);
-    StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
   } else {
     if (!UIFlashStorage::is_valid()) {
       StatusScreen::loadBitmaps();
@@ -80,12 +80,14 @@ void BootScreen::onIdle() {
       SpinnerDialogBox::hide();
     }
 
-    if (UIData::animations_enabled()) {
-      // If there is a startup video in the flash SPI, play
-      // that, otherwise show a static splash screen.
-      if (!MediaPlayerScreen::playBootMedia())
-        showSplashScreen();
-    }
+    #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
+      if (UIData::animations_enabled()) {
+        // If there is a startup video in the flash SPI, play
+        // that, otherwise show a static splash screen.
+        if (!MediaPlayerScreen::playBootMedia())
+          showSplashScreen();
+      }
+    #endif
 
     StatusScreen::loadBitmaps();
 

@@ -37,81 +37,89 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
+  #ifdef TOUCH_UI_PORTRAIT
+    #define GRID_ROWS 8
+    #define GRID_COLS 2
+    #define ABOUT_PRINTER_POS     BTN_POS(1,1), BTN_SIZE(2,1)
+    #define ADVANCED_SETTINGS_POS BTN_POS(1,2), BTN_SIZE(2,1)
+    #define FILAMENTCHANGE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
+    #define TEMPERATURE_POS       BTN_POS(1,4), BTN_SIZE(2,1)
+    #define MOVE_AXIS_POS         BTN_POS(1,5), BTN_SIZE(1,1)
+    #define DISABLE_STEPPERS_POS  BTN_POS(2,5), BTN_SIZE(1,1)
+    #define AUTO_HOME_POS         BTN_POS(1,6), BTN_SIZE(1,1)
+    #define CLEAN_NOZZLE_POS      BTN_POS(2,6), BTN_SIZE(1,1)
+    #define LEVEL_BED_POS         BTN_POS(1,7), BTN_SIZE(1,1)
+    #define LEVEL_AXIS_POS        BTN_POS(2,7), BTN_SIZE(1,1)
+    #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
+  #else
+    #define GRID_ROWS 6
+    #define GRID_COLS 2
+    #define ADVANCED_SETTINGS_POS BTN_POS(1,1), BTN_SIZE(1,1)
+    #define ABOUT_PRINTER_POS     BTN_POS(2,1), BTN_SIZE(1,1)
+    #define AUTO_HOME_POS         BTN_POS(1,2), BTN_SIZE(1,1)
+    #define CLEAN_NOZZLE_POS      BTN_POS(2,2), BTN_SIZE(1,1)
+    #define MOVE_AXIS_POS         BTN_POS(1,3), BTN_SIZE(1,1)
+    #define DISABLE_STEPPERS_POS  BTN_POS(2,3), BTN_SIZE(1,1)
+    #define TEMPERATURE_POS       BTN_POS(1,4), BTN_SIZE(1,1)
+    #define FILAMENTCHANGE_POS    BTN_POS(2,4), BTN_SIZE(1,1)
+    #define LEVEL_BED_POS         BTN_POS(1,5), BTN_SIZE(1,1)
+    #define LEVEL_AXIS_POS        BTN_POS(2,5), BTN_SIZE(1,1)
+    #define BACK_POS              BTN_POS(1,6), BTN_SIZE(2,1)
+  #endif
+
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-    #ifdef TOUCH_UI_PORTRAIT
-      #define GRID_ROWS 8
-      #define GRID_COLS 2
-        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_AUTO_HOME))
-        .enabled(
-          #if ENABLED(NOZZLE_CLEAN_FEATURE)
-            1
-          #endif
+       .tag(2).button( AUTO_HOME_POS, GET_TEXT_F(MSG_AUTO_HOME))
+       .enabled(
+           #if ANY(NOZZLE_CLEAN_FEATURE, TOUCH_UI_COCOA_PRESS)
+             1
+           #endif
+         )
+       .tag(3).button( CLEAN_NOZZLE_POS, GET_TEXT_F(
+         #if ENABLED(TOUCH_UI_COCOA_PRESS)
+            MSG_PREHEAT_1
+         #else
+            MSG_CLEAN_NOZZLE
+         #endif
+       ))
+       .tag(4).button( MOVE_AXIS_POS,        GET_TEXT_F(MSG_MOVE_AXIS))
+       .tag(5).button( DISABLE_STEPPERS_POS, GET_TEXT_F(MSG_DISABLE_STEPPERS))
+       .tag(6).button( TEMPERATURE_POS,      GET_TEXT_F(MSG_TEMPERATURE))
+       .enabled(
+           #if DISABLED(TOUCH_UI_LULZBOT_BIO)
+             1
+           #endif
+         )
+       .tag(7).button( FILAMENTCHANGE_POS, GET_TEXT_F(
+         #if ENABLED(TOUCH_UI_COCOA_PRESS)
+             MSG_CASE_LIGHT
+         #else
+             MSG_FILAMENTCHANGE
+         #endif
+        ))
+       .tag(8).button( ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
+       .enabled(
+         #ifdef PRINTCOUNTER
+           1
+         #endif
         )
-        .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_CLEAN_NOZZLE))
-        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MOVE_AXIS))
-        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISABLE_STEPPERS))
-        .tag(6).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_TEMPERATURE))
-        .enabled(
-          #if NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
-            1
-          #endif
+       .enabled(
+         #ifdef AXIS_LEVELING_COMMANDS
+           1
+         #endif
         )
-        .tag(7).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
-        .tag(8).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-        .enabled(
-          #ifdef PRINTCOUNTER
-            1
-          #endif
+       .tag(9).button( LEVEL_AXIS_POS, GET_TEXT_F(MSG_AUTOLEVEL_X_AXIS))
+       .enabled(
+         #ifdef HAS_LEVELING
+           1
+         #endif
         )
-        .tag(9).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_STATS_MENU))
-        .tag(10).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_MENU))
-        .colors(action_btn)
-        .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
-      #undef GRID_COLS
-      #undef GRID_ROWS
-    #else
-      #define GRID_ROWS 5
-      #define GRID_COLS 2
-        .tag(2).button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_AUTO_HOME))
-        #if ENABLED(TOUCH_UI_COCOA_PRESS)
-          .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_PREHEAT_1))
-        #else
-          .enabled(
-            #if ENABLED(NOZZLE_CLEAN_FEATURE)
-              1
-            #endif
-          )
-          .tag(3).button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_CLEAN_NOZZLE))
-        #endif
-        .tag(4).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MOVE_AXIS))
-        .tag(5).button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISABLE_STEPPERS))
-        .tag(6).button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TEMPERATURE))
-        #if ENABLED(TOUCH_UI_COCOA_PRESS)
-          .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_CASE_LIGHT))
-        #else
-          .enabled(
-            #if DISABLED(TOUCH_UI_LULZBOT_BIO)
-              1
-            #endif
-          )
-          .tag(7).button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
-        #endif
-        .tag(8).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-        .enabled(
-          #ifdef PRINTCOUNTER
-            1
-          #endif
-        )
-        .tag(9).button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_INFO_STATS_MENU))
-        .tag(10).button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_INFO_MENU))
-        .colors(action_btn)
-        .tag(1).button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACK));
-      #undef GRID_COLS
-      #undef GRID_ROWS
-    #endif
+       .tag(10).button( LEVEL_BED_POS, GET_TEXT_F(MSG_LEVEL_BED))
+       .tag(11).button( ABOUT_PRINTER_POS, GET_TEXT_F(MSG_INFO_MENU))
+       .colors(action_btn)
+       .tag(1).button( BACK_POS, GET_TEXT_F(MSG_BACK));
   }
 }
 
@@ -122,23 +130,36 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 1:  SaveSettingsDialogBox::promptToSaveSettings();           break;
     case 2:  SpinnerDialogBox::enqueueAndWait_P(F("G28"));            break;
     #if ENABLED(TOUCH_UI_COCOA_PRESS)
-    case 3:  GOTO_SCREEN(PreheatTimerScreen);                         break;
+    case 3:  GOTO_SCREEN(PreheatMenu);                                break;
     #elif ENABLED(NOZZLE_CLEAN_FEATURE)
     case 3: injectCommands_P(PSTR("G12")); GOTO_SCREEN(StatusScreen); break;
     #endif
     case 4:  GOTO_SCREEN(MoveAxisScreen);                             break;
     case 5:  injectCommands_P(PSTR("M84"));                           break;
     case 6:  GOTO_SCREEN(TemperatureScreen);                          break;
-    #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    #if BOTH(TOUCH_UI_COCOA_PRESS, HAS_CASE_LIGHT)
     case 7:  GOTO_SCREEN(CaseLightScreen);                            break;
     #else
     case 7:  GOTO_SCREEN(ChangeFilamentScreen);                       break;
     #endif
     case 8:  GOTO_SCREEN(AdvancedSettingsMenu);                       break;
-#if ENABLED(PRINTCOUNTER)
-    case 9:  GOTO_SCREEN(StatisticsScreen);                           break;
-#endif
-    case 10: GOTO_SCREEN(AboutScreen);                                break;
+    #ifdef AXIS_LEVELING_COMMANDS
+    case 9: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS)); break;
+    #endif
+    #if HAS_LEVELING
+      case 10:
+        #ifndef BED_LEVELING_COMMANDS
+          #define BED_LEVELING_COMMANDS "G29"
+        #endif
+        #if HAS_MESH
+          GOTO_SCREEN(BedMeshScreen);
+          injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
+        #else
+          SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
+        #endif
+        break;
+    #endif
+    case 11: GOTO_SCREEN(AboutScreen);                                break;
     default:
       return false;
   }

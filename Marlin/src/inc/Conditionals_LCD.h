@@ -361,7 +361,7 @@
   #define HAS_DGUS_LCD 1
 #endif
 
-// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+// Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
@@ -431,7 +431,9 @@
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
-  #define DUAL_MIXING_EXTRUDER (MIXING_STEPPERS == 2)
+  #if MIXING_STEPPERS == 2
+    #define HAS_DUAL_MIXING 1
+  #endif
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
@@ -466,6 +468,14 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #if HOTENDS > 1
+    #define HAS_MULTI_HOTEND 1
+    #define HAS_HOTEND_OFFSET 1
+  #endif
+#endif
+
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
@@ -479,10 +489,6 @@
 
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
-#endif
-
-#if HOTENDS > 1
-  #define HAS_HOTEND_OFFSET 1
 #endif
 
 /**
@@ -583,7 +589,7 @@
   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #define HAS_CUSTOM_PROBE_PIN 1
   #endif
-  #if Z_HOME_DIR < 0 && !HAS_CUSTOM_PROBE_PIN
+  #if Z_HOME_DIR < 0 && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT
@@ -674,6 +680,10 @@
   #define HAS_CLASSIC_JERK 1
 #endif
 
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
+#endif
+
 // E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
 #if ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE))
   #define HAS_CLASSIC_E_JERK 1
@@ -681,6 +691,10 @@
 
 #ifndef SPI_SPEED
   #define SPI_SPEED SPI_FULL_SPEED
+#endif
+
+#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
+  #define HAS_USB_SERIAL 1
 #endif
 
 /**

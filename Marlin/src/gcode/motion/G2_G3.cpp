@@ -70,14 +70,12 @@ void plan_arc(
   ab_float_t rvec = -offset;
 
   const float radius = HYPOT(rvec.a, rvec.b),
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
-                start_L  = current_position[l_axis],
-              #endif
               center_P = current_position[p_axis] - rvec.a,
               center_Q = current_position[q_axis] - rvec.b,
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
-              linear_travel = cart[l_axis] - current_position[l_axis],
+              start_L = current_position[l_axis],
+              linear_travel = cart[l_axis] - start_L,
               extruder_travel = cart.e - current_position.e;
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
@@ -157,7 +155,6 @@ void plan_arc(
   // Initialize the extruder axis
   raw.e = current_position.e;
 
-
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     const float inv_duration = scaled_fr_mm_s / seg_length;
   #endif
@@ -220,15 +217,12 @@ void plan_arc(
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
-    ))
-      break;
+    )) break;
   }
 
   // Ensure last segment arrives at target location.
   raw = cart;
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    raw[l_axis] = start_L;
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
 
   apply_motion_limits(raw);
 
@@ -236,16 +230,15 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, seg_length
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
   );
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    raw[l_axis] = start_L;
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
   current_position = raw;
+
 } // plan_arc
 
 /**
@@ -283,11 +276,9 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = true;
     #endif
 
-    get_destination_from_command();
+    get_destination_from_command();   // Get X Y Z E F (and set cutter power)
 
-    #if ENABLED(SF_ARC_FIX)
-      relative_mode = relative_mode_backup;
-    #endif
+    TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
 
     ab_float_t arc_offset = { 0, 0 };
     if (parser.seenval('R')) {

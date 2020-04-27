@@ -140,9 +140,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -181,9 +179,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -331,115 +327,126 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     #endif
   #endif
 
+  enum TMCAxis : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7, TOTAL };
+
   void tmc_serial_begin() {
+    struct {
+      const void *ptr[TMCAxis::TOTAL];
+      bool began(const TMCAxis a, const void * const p) {
+        LOOP_L_N(i, a) if (p == ptr[i]) return true;
+        ptr[a] = p; return false;
+      };
+    } sp_helper;
+    #define HW_SERIAL_BEGIN(A) do{ if (!sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
+                                         A##_HARDWARE_SERIAL.begin(TMC_BAUD_RATE); }while(0)
     #if AXIS_HAS_UART(X)
       #ifdef X_HARDWARE_SERIAL
-        X_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(X);
       #else
         stepperX.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(X2)
       #ifdef X2_HARDWARE_SERIAL
-        X2_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(X2);
       #else
         stepperX2.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Y)
       #ifdef Y_HARDWARE_SERIAL
-        Y_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(Y);
       #else
         stepperY.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Y2)
       #ifdef Y2_HARDWARE_SERIAL
-        Y2_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(Y2);
       #else
         stepperY2.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z)
       #ifdef Z_HARDWARE_SERIAL
-        Z_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(Z);
       #else
         stepperZ.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z2)
       #ifdef Z2_HARDWARE_SERIAL
-        Z2_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(Z2);
       #else
         stepperZ2.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z3)
       #ifdef Z3_HARDWARE_SERIAL
-        Z3_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(Z3);
       #else
         stepperZ3.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(Z4)
       #ifdef Z4_HARDWARE_SERIAL
-        Z4_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(Z4);
       #else
         stepperZ4.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E0)
       #ifdef E0_HARDWARE_SERIAL
-        E0_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E0);
       #else
         stepperE0.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E1)
       #ifdef E1_HARDWARE_SERIAL
-        E1_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E1);
       #else
         stepperE1.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E2)
       #ifdef E2_HARDWARE_SERIAL
-        E2_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E2);
       #else
         stepperE2.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E3)
       #ifdef E3_HARDWARE_SERIAL
-        E3_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E3);
       #else
         stepperE3.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E4)
       #ifdef E4_HARDWARE_SERIAL
-        E4_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E4);
       #else
         stepperE4.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E5)
       #ifdef E5_HARDWARE_SERIAL
-        E5_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E5);
       #else
         stepperE5.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E6)
       #ifdef E6_HARDWARE_SERIAL
-        E6_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E6);
       #else
         stepperE6.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E7)
       #ifdef E7_HARDWARE_SERIAL
-        E7_HARDWARE_SERIAL.begin(TMC_BAUD_RATE);
+        HW_SERIAL_BEGIN(E7);
       #else
         stepperE7.beginSerial(TMC_BAUD_RATE);
       #endif
@@ -464,9 +471,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -512,9 +517,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -558,15 +561,10 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     st.sdoff(0);
     st.rms_current(mA);
     st.microsteps(microsteps);
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      st.dedge(true);
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, st.dedge(true));
     st.intpol(INTERPOLATE);
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
-
-    #if ENABLED(TMC_DEBUG)
-      st.rdsel(0b01);
-    #endif
+    TERN_(TMC_DEBUG, st.rdsel(0b01));
   }
 #endif // TMC2660
 
@@ -581,9 +579,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -622,9 +618,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);

@@ -56,6 +56,10 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
+  #define HAS_MIXER_SYNC_CHANNEL 1
+#endif
+
 #if EITHER(DUAL_X_CARRIAGE, MULTI_NOZZLE_DUPLICATION)
   #define HAS_DUPLICATION_MODE 1
 #endif
@@ -66,6 +70,15 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+#endif
+
+// Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
+#if ENABLED(SD_FINISHED_STEPPERRELEASE)
+  #ifndef SD_FINISHED_RELEASECOMMAND
+    #define SD_FINISHED_RELEASECOMMAND "M84" // planner.finish_and_disable()
+  #endif
+#else
+  #undef SD_FINISHED_RELEASECOMMAND
 #endif
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
@@ -93,7 +106,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER)
+#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -102,6 +115,10 @@
 #endif
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
   #define HAS_LEDS_OFF_FLAG 1
+#endif
+
+#if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+  #define HAS_I2C_DIGIPOT 1
 #endif
 
 // Multiple Z steppers
@@ -116,7 +133,23 @@
   #define Z_STEPPER_ALIGN_AMP 1.0
 #endif
 
-#define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+//
+// Spindle/Laser power display types
+// Defined here so sanity checks can use them
+//
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+  #define HAS_CUTTER 1
+  #define _CUTTER_DISP_PWM255  1
+  #define _CUTTER_DISP_PERCENT 2
+  #define _CUTTER_DISP_RPM     3
+  #define _CUTTER_DISP(V)      _CAT(_CUTTER_DISP_, V)
+  #define CUTTER_DISPLAY_IS(V) (_CUTTER_DISP(CUTTER_POWER_DISPLAY) == _CUTTER_DISP(V))
+#endif
+
+// Add features that need hardware PWM here
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_PWM)
+  #define NEEDS_HARDWARE_PWM 1
+#endif
 
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
@@ -289,4 +322,18 @@
   #else
     #define MAXIMUM_STEPPER_RATE 250000
   #endif
+#endif
+
+//
+// SD Card connection methods
+// Defined here so pins and sanity checks can use them
+//
+#if ENABLED(SDSUPPORT)
+  #define _SDCARD_LCD          1
+  #define _SDCARD_ONBOARD      2
+  #define _SDCARD_CUSTOM_CABLE 3
+  #define _SDCARD_ID(V) _CAT(_SDCARD_, V)
+  #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
+#else
+  #define SD_CONNECTION_IS(...) 0
 #endif

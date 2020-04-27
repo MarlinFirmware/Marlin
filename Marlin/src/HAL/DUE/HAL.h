@@ -39,7 +39,7 @@
 #include <stdint.h>
 
 // Define MYSERIAL0/1 before MarlinSerial includes!
-#if SERIAL_PORT == -1
+#if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
   #define MYSERIAL0 customizedSerial1
 #elif SERIAL_PORT == 0
   #define MYSERIAL0 Serial
@@ -56,7 +56,7 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
+  #elif SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
     #define MYSERIAL1 customizedSerial2
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
@@ -93,7 +93,6 @@
     #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 #endif
-
 
 #include "MarlinSerial.h"
 #include "MarlinSerialUSB.h"

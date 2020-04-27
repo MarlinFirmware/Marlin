@@ -103,7 +103,7 @@ void PrintJobRecovery::check() {
   //if (!card.isMounted()) card.mount();
   if (card.isMounted()) {
     load();
-    if (!valid()) return purge();
+    if (!valid()) return cancel();
     queue.inject_P(PSTR("M1000 S"));
   }
 }
@@ -172,12 +172,8 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 
     // Machine state
     info.current_position = current_position;
-    #if HAS_HOME_OFFSET
-      info.home_offset = home_offset;
-    #endif
-    #if HAS_POSITION_SHIFT
-      info.position_shift = position_shift;
-    #endif
+    TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
+    TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
     #if EXTRUDERS > 1
@@ -197,9 +193,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
     #endif
 
-    #if HAS_HEATED_BED
-      info.target_temperature_bed = thermalManager.temp_bed.target;
-    #endif
+    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
 
     #if FAN_COUNT
       COPY(info.fan_speed, thermalManager.fan_speed);
@@ -207,18 +201,10 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 
     #if HAS_LEVELING
       info.leveling = planner.leveling_active;
-      info.fade = (
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          planner.z_fade_height
-        #else
-          0
-        #endif
-      );
+      info.fade = TERN0(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height);
     #endif
 
-    #if ENABLED(GRADIENT_MIX)
-      memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient));
-    #endif
+    TERN_(GRADIENT_MIX, memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient)));
 
     #if ENABLED(FWRETRACT)
       COPY(info.retract, fwretract.current_retract);
@@ -244,9 +230,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       lock = true;
     #endif
     if (IS_SD_PRINTING()) save(true);
-    #if ENABLED(BACKUP_POWER_SUPPLY)
-      raise_z();
-    #endif
+    TERN_(BACKUP_POWER_SUPPLY, raise_z());
 
     kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
@@ -299,9 +283,7 @@ void PrintJobRecovery::resume() {
       // If Z homing goes to max, just reset E and home all
       "\n"
       "G28R0"
-      #if ENABLED(MARLIN_DEV_MODE)
-        "S"
-      #endif
+      TERN_(MARLIN_DEV_MODE, "S")
 
     #else // "G92.9 E0 ..."
 
@@ -366,11 +348,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore all hotend temperatures
-  #if HOTENDS
+  #if HAS_HOTEND
     HOTEND_LOOP() {
       const int16_t et = info.target_temperature[e];
       if (et) {
-        #if HOTENDS > 1
+        #if HAS_MULTI_HOTEND
           sprintf_P(cmd, PSTR("T%i"), e);
           gcode.process_subcommands_now(cmd);
         #endif
@@ -460,12 +442,8 @@ void PrintJobRecovery::resume() {
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
 
-  #if HAS_HOME_OFFSET
-    home_offset = info.home_offset;
-  #endif
-  #if HAS_POSITION_SHIFT
-    position_shift = info.position_shift;
-  #endif
+  TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
+  TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
     LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
   #endif
@@ -517,7 +495,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
 
-        #if HOTENDS
+        #if HAS_HOTEND
           DEBUG_ECHOPGM("target_temperature: ");
           HOTEND_LOOP() {
             DEBUG_ECHO(info.target_temperature[e]);

@@ -51,21 +51,9 @@ namespace ExtUI {
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
 
-  void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardInserted();
-    #endif
-  }
-  void onMediaError()    {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardError();
-    #endif
-  }
-  void onMediaRemoved()  {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardRemoved();
-    #endif
-  }
+  void onMediaInserted() { TERN_(SDSUPPORT, ScreenHandler.SDCardInserted()); }
+  void onMediaError()    { TERN_(SDSUPPORT, ScreenHandler.SDCardError()); }
+  void onMediaRemoved()  { TERN_(SDSUPPORT, ScreenHandler.SDCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}
@@ -122,8 +110,12 @@ namespace ExtUI {
     // Called when any mesh points are updated
   }
 
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+    // Called to indicate a special condition
+  }
+
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void OnPowerLossResume() {
+    void onPowerLossResume() {
       // Called on resume from power-loss
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
     }
@@ -131,9 +123,9 @@ namespace ExtUI {
 
 
   #if HAS_PID_HEATING
-    void OnPidTuning(const result_t rst) {
+    void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      SERIAL_ECHOLNPAIR("OnPidTuning:",rst);
+      SERIAL_ECHOLNPAIR("onPidTuning:",rst);
       switch(rst) {
         case PID_BAD_EXTRUDER_NUM:
           ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_BAD_EXTRUDER_NUM));

@@ -305,7 +305,7 @@ int32_t I2CPositionEncoder::get_raw_count() {
 
   encoderCount.val = 0x00;
 
-  if (Wire.requestFrom((int)i2cAddress, 3) != 3) {
+  if (Wire.requestFrom(I2C_ADDRESS(i2cAddress), 3) != 3) {
     //houston, we have a problem...
     H = I2CPE_MAG_SIG_NF;
     return 0;
@@ -459,9 +459,7 @@ void I2CPositionEncoder::reset() {
   Wire.write(I2CPE_RESET_COUNT);
   Wire.endTransmission();
 
-  #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-    ZERO(err);
-  #endif
+  TERN_(I2CPE_ERR_ROLLING_AVERAGE, ZERO(err));
 }
 
 
@@ -746,7 +744,7 @@ void I2CPositionEncodersMgr::report_module_firmware(const uint8_t address) {
   Wire.endTransmission();
 
   // Read value
-  if (Wire.requestFrom((int)address, 32)) {
+  if (Wire.requestFrom(I2C_ADDRESS(address), 32)) {
     char c;
     while (Wire.available() > 0 && (c = (char)Wire.read()) > 0)
       SERIAL_ECHO(c);

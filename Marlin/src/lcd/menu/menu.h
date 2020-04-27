@@ -29,7 +29,7 @@
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
-#if HOTENDS
+#if HAS_HOTEND
   constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
 #endif
 
@@ -545,11 +545,6 @@ void _lcd_draw_homing();
 
 #if HAS_LINE_TO_Z
   void line_to_z(const float &z);
-#endif
-
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-  void lcd_enqueue_one_now(const char * const cmd);
-  void lcd_enqueue_one_now_P(PGM_P const cmd);
 #endif
 
 #if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)

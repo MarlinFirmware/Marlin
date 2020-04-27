@@ -26,11 +26,12 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
 
 #include "menu.h"
 #include "../../module/temperature.h"
 #include "../../feature/pause.h"
+#include "../../gcode/queue.h"
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
@@ -38,29 +39,27 @@
 //
 // Change Filament > Change/Unload/Load Filament
 //
-static PauseMode _change_filament_temp_mode; // =PAUSE_MODE_PAUSE_PRINT
-static int8_t _change_filament_temp_extruder; // =0
+static PauseMode _change_filament_mode; // = PAUSE_MODE_PAUSE_PRINT
+static int8_t _change_filament_extruder; // = 0
 
-inline PGM_P _change_filament_temp_command() {
-  switch (_change_filament_temp_mode) {
-    case PAUSE_MODE_LOAD_FILAMENT:
-      return PSTR("M701 T%d");
-    case PAUSE_MODE_UNLOAD_FILAMENT:
-      return _change_filament_temp_extruder >= 0 ? PSTR("M702 T%d") : PSTR("M702 ;%d");
+inline PGM_P _change_filament_command() {
+  switch (_change_filament_mode) {
+    case PAUSE_MODE_LOAD_FILAMENT:    return PSTR("M701 T%d");
+    case PAUSE_MODE_UNLOAD_FILAMENT:  return _change_filament_extruder >= 0
+                                           ? PSTR("M702 T%d") : PSTR("M702 ;%d");
     case PAUSE_MODE_CHANGE_FILAMENT:
     case PAUSE_MODE_PAUSE_PRINT:
-    default:
-      return PSTR("M600 B0 T%d");
+    default: break;
   }
-  return GET_TEXT(MSG_FILAMENTCHANGE);
+  return PSTR("M600 B0 T%d");
 }
 
 // Initiate Filament Load/Unload/Change at the specified temperature
-static void _change_filament_temp(const uint16_t temperature) {
+static void _change_filament(const uint16_t celsius) {
   char cmd[11];
-  sprintf_P(cmd, _change_filament_temp_command(), _change_filament_temp_extruder);
-  thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
-  lcd_enqueue_one_now(cmd);
+  sprintf_P(cmd, _change_filament_command(), _change_filament_extruder);
+  thermalManager.setTargetHotend(celsius, _change_filament_extruder);
+  queue.inject(cmd);
 }
 
 //
@@ -69,25 +68,23 @@ static void _change_filament_temp(const uint16_t temperature) {
 
 inline PGM_P change_filament_header(const PauseMode mode) {
   switch (mode) {
-    case PAUSE_MODE_LOAD_FILAMENT:
-      return GET_TEXT(MSG_FILAMENTLOAD);
-    case PAUSE_MODE_UNLOAD_FILAMENT:
-      return GET_TEXT(MSG_FILAMENTUNLOAD);
+    case PAUSE_MODE_LOAD_FILAMENT:   return GET_TEXT(MSG_FILAMENTLOAD);
+    case PAUSE_MODE_UNLOAD_FILAMENT: return GET_TEXT(MSG_FILAMENTUNLOAD);
     default: break;
   }
   return GET_TEXT(MSG_FILAMENTCHANGE);
 }
 
 void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
-  _change_filament_temp_mode = mode;
-  _change_filament_temp_extruder = extruder;
+  _change_filament_mode = mode;
+  _change_filament_extruder = extruder;
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_CENTER|SS_INVERT);
   BACK_ITEM(MSG_BACK);
-  ACTION_ITEM(MSG_PREHEAT_1, []{ _change_filament_temp(ui.preheat_hotend_temp[0]); });
-  ACTION_ITEM(MSG_PREHEAT_2, []{ _change_filament_temp(ui.preheat_hotend_temp[1]); });
-  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_temp_extruder].target, EXTRUDE_MINTEMP, heater_maxtemp[extruder] - 15, []{
-    _change_filament_temp(thermalManager.temp_hotend[_change_filament_temp_extruder].target);
+  ACTION_ITEM(MSG_PREHEAT_1, []{ _change_filament(ui.preheat_hotend_temp[0]); });
+  ACTION_ITEM(MSG_PREHEAT_2, []{ _change_filament(ui.preheat_hotend_temp[1]); });
+  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_extruder].target, EXTRUDE_MINTEMP, heater_maxtemp[extruder] - 15, []{
+    _change_filament(thermalManager.temp_hotend[_change_filament_extruder].target);
   });
   END_MENU();
 }
@@ -121,7 +118,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           ACTION_ITEM_N_P(s, msg, []{
             char cmd[13];
             sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
-            lcd_enqueue_one_now(cmd);
+            queue.inject(cmd);
           });
         }
       }
@@ -145,7 +142,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
               ACTION_ITEM_N_P(s, msg_load, []{
                 char cmd[12];
                 sprintf_P(cmd, PSTR("M701 T%i"), int(MenuItemBase::itemIndex));
-                lcd_enqueue_one_now(cmd);
+                queue.inject(cmd);
               });
             }
           }
@@ -181,7 +178,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
               ACTION_ITEM_N_P(s, msg_unload, []{
                 char cmd[12];
                 sprintf_P(cmd, PSTR("M702 T%i"), int(MenuItemBase::itemIndex));
-                lcd_enqueue_one_now(cmd);
+                queue.inject(cmd);
               });
             }
           }
@@ -261,7 +258,7 @@ void _lcd_pause_message(PGM_P const msg) {
   END_SCREEN();
 }
 
-void lcd_pause_pausing_message()  { _lcd_pause_message(GET_TEXT(MSG_PAUSE_PRINT_INIT));        }
+void lcd_pause_parking_message()  { _lcd_pause_message(GET_TEXT(MSG_PAUSE_PRINT_PARKING));     }
 void lcd_pause_changing_message() { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));    }
 void lcd_pause_unload_message()   { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD));  }
 void lcd_pause_heating_message()  { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); }
@@ -281,7 +278,7 @@ void lcd_pause_purge_message() {
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   switch (message) {
-    case PAUSE_MESSAGE_PAUSING:  return lcd_pause_pausing_message;
+    case PAUSE_MESSAGE_PARKING:  return lcd_pause_parking_message;
     case PAUSE_MESSAGE_CHANGING: return lcd_pause_changing_message;
     case PAUSE_MESSAGE_UNLOAD:   return lcd_pause_unload_message;
     case PAUSE_MESSAGE_WAITING:  return lcd_pause_waiting_message;

@@ -58,7 +58,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
       .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .enabled(
-        #if HOTENDS > 1
+        #if HAS_MULTI_HOTEND
           1
         #endif
       )
@@ -68,7 +68,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
       .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
       .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JUNCTION_DEVIATION))
       #else
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JERK))
@@ -85,7 +85,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
         #endif
       )
       .tag(12) .button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
-      .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
+      .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE))
       .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_DEFAULTS))
       .colors(action_btn)
       .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
@@ -105,7 +105,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 4: GOTO_SCREEN(StepperBumpSensitivityScreen);     break;
     #endif
     case 5: GOTO_SCREEN(EndstopStatesScreen);              break;
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
     case 6: GOTO_SCREEN(NozzleOffsetScreen);               break;
     #endif
 
@@ -113,7 +113,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 8: GOTO_SCREEN(MaxVelocityScreen);                break;
     case 9: GOTO_SCREEN(DefaultAccelerationScreen);        break;
     case 10:
-      #if DISABLED(CLASSIC_JERK)
+      #if HAS_JUNCTION_DEVIATION
         GOTO_SCREEN(JunctionDeviationScreen);
       #else
         GOTO_SCREEN(JerkScreen);

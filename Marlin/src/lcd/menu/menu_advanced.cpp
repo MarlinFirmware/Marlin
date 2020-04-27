@@ -84,7 +84,7 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) EDIT_ITEM_P(long5, PSTR(LABEL), &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+    #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_X STR_Y, 0);
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
@@ -178,18 +178,18 @@ void menu_cancelobject();
     int16_t autotune_temp_bed = 70;
   #endif
 
+  #include "../../gcode/queue.h"
+
   void _lcd_autotune(const int16_t e) {
     char cmd[30];
     sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), e,
       #if HAS_PID_FOR_BOTH
         e < 0 ? autotune_temp_bed : autotune_temp[e]
-      #elif ENABLED(PIDTEMPBED)
-        autotune_temp_bed
       #else
-        autotune_temp[e]
+        TERN(PIDTEMPBED, autotune_temp_bed, autotune_temp[e])
       #endif
     );
-    lcd_enqueue_one_now(cmd);
+    queue.inject(cmd);
   }
 
 #endif // PID_AUTOTUNE_MENU
@@ -233,14 +233,16 @@ void menu_cancelobject();
   #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N);
 #endif
 
-#if HOTENDS
+#if HAS_HOTEND
   DEFINE_PIDTEMP_FUNCS(0);
-  #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
+  #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
     REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
   #endif
 #endif
 
-#define SHOW_MENU_ADVANCED_TEMPERATURE ((ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
+#if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+  #define SHOW_MENU_ADVANCED_TEMPERATURE 1
+#endif
 
 //
 // Advanced Settings > Temperature
@@ -253,7 +255,7 @@ void menu_cancelobject();
     //
     // Autotemp, Min, Max, Fact
     //
-    #if ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND
+    #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND)
       EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       EDIT_ITEM(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
       EDIT_ITEM(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
@@ -308,7 +310,7 @@ void menu_cancelobject();
     #endif
 
     PID_EDIT_MENU_ITEMS(0);
-    #if HOTENDS > 1 && ENABLED(PID_PARAMS_PER_HOTEND)
+    #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
     #endif
 
@@ -376,12 +378,12 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-    static float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[A_AXIS], planner.settings.max_acceleration_mm_per_s2[B_AXIS], planner.settings.max_acceleration_mm_per_s2[C_AXIS]);
+    const float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[A_AXIS], planner.settings.max_acceleration_mm_per_s2[B_AXIS], planner.settings.max_acceleration_mm_per_s2[C_AXIS]);
     // M204 P Acceleration
     EDIT_ITEM_FAST(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
 
     // M204 R Retract Acceleration
-    EDIT_ITEM_FAST(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, max_accel);
+    EDIT_ITEM_FAST(float5, MSG_A_RETRACT, &planner.settings.retract_acceleration, 100, planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)]);
 
     // M204 T Travel Acceleration
     EDIT_ITEM_FAST(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
@@ -423,7 +425,7 @@ void menu_cancelobject();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
       #if ENABLED(LIN_ADVANCE)
         EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f, planner.recalculate_max_e_jerk);
       #else
@@ -576,9 +578,7 @@ void menu_advanced_settings() {
       //
       const bool new_state = !settings.sd_update_status(),
                  didset = settings.set_sd_update_status(new_state);
-      #if HAS_BUZZER
-        ui.completion_feedback(didset);
-      #endif
+      TERN_(HAS_BUZZER, ui.completion_feedback(didset));
       ui.return_to_status();
       if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
     });
@@ -589,9 +589,7 @@ void menu_advanced_settings() {
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
       []{
         const bool inited = settings.init_eeprom();
-        #if HAS_BUZZER
-          ui.completion_feedback(inited);
-        #endif
+        ui.completion_feedback(inited);
         UNUSED(inited);
       },
       ui.goto_previous_screen,

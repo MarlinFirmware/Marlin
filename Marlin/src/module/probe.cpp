@@ -134,12 +134,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       LCD_MESSAGEPGM(MSG_MANUAL_DEPLOY_TOUCHMI);
       ui.return_to_status();
 
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true; // LCD click or M108 will clear this
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI probe."), CONTINUE_STR);
-      #endif
-      while (wait_for_user) idle();
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI"), CONTINUE_STR));
+      wait_for_user_response();
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -243,23 +239,17 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 #if QUIET_PROBING
 
   void Probe::set_probing_paused(const bool p) {
-    #if ENABLED(PROBING_HEATERS_OFF)
-      thermalManager.pause(p);
-    #endif
-    #if ENABLED(PROBING_FANS_OFF)
-      thermalManager.set_fans_paused(p);
-    #endif
+    TERN_(PROBING_HEATERS_OFF, thermalManager.pause(p));
+    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(p));
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
         DISABLE_AXIS_X(); DISABLE_AXIS_Y();
       #endif
     #endif
-    if (p) safe_delay(
+    if (p) safe_delay(25
       #if DELAY_BEFORE_PROBING > 25
-        DELAY_BEFORE_PROBING
-      #else
-        25
+        - 25 + DELAY_BEFORE_PROBING
       #endif
     );
   }
@@ -297,24 +287,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       serialprintPGM(ds_str);
       SERIAL_EOL();
 
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true;
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe"));
-      #endif
-      while (wait_for_user) idle();
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
+
+      wait_for_user_response();
       ui.reset_status();
 
-    } while(
-      #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        true
-      #else
-        false
-      #endif
-    );
+    } while (ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED));
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
 
@@ -328,15 +307,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
+  #elif ENABLED(BLTOUCH)
+
+    deploy ? bltouch.deploy() : bltouch.stow();
+
   #elif HAS_Z_SERVO_PROBE
 
-    #if DISABLED(BLTOUCH)
-      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-    #elif ENABLED(BLTOUCH_HS_MODE)
-      // In HIGH SPEED MODE, use the normal retractable probe logic in this code
-      // i.e. no intermediate STOWs and DEPLOYs in between individual probe actions
-      if (deploy) bltouch.deploy(); else bltouch.stow();
-    #endif
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
@@ -387,11 +364,7 @@ bool Probe::set_deployed(const bool deploy) {
     do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
-    if (axis_unhomed_error(
-      #if ENABLED(Z_PROBE_SLED)
-        _BV(X_AXIS)
-      #endif
-    )) {
+    if (axis_unhomed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
       SERIAL_ERROR_MSG(STR_STOP_UNHOMED);
       stop();
       return true;
@@ -468,7 +441,7 @@ bool Probe::set_deployed(const bool deploy) {
 bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::probe_down_to_z", current_position);
 
-  #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
     thermalManager.wait_for_bed_heating();
   #endif
 
@@ -487,9 +460,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     endstops.enable(true);
   #endif
 
-  #if QUIET_PROBING
-    set_probing_paused(true);
-  #endif
+  TERN_(QUIET_PROBING, set_probing_paused(true));
 
   // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
@@ -499,19 +470,11 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     #if BOTH(DELTA, SENSORLESS_PROBING)
       endstops.trigger_state() & (_BV(X_MIN) | _BV(Y_MIN) | _BV(Z_MIN))
     #else
-      TEST(endstops.trigger_state(),
-        #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-          Z_MIN
-        #else
-          Z_MIN_PROBE
-        #endif
-      )
+      TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))
     #endif
   ;
 
-  #if QUIET_PROBING
-    set_probing_paused(false);
-  #endif
+  TERN_(QUIET_PROBING, set_probing_paused(false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -553,6 +516,25 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::run_z_probe", current_position);
 
+  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) {
+    // Do a first probe at the fast speed
+    const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
+               early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
+        DEBUG_PRINT_P(plbl);
+        DEBUG_ECHOPGM(" Probe fail! -");
+        if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
+        if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
+        DEBUG_EOL();
+        DEBUG_POS("<<< run_z_probe", current_position);
+      }
+    #else
+      UNUSED(plbl);
+    #endif
+    return probe_fail || early_fail;
+  };
+
   // Stop the probe before it goes too low to prevent damage.
   // If Z isn't known then probe to -10mm.
   const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -offset.z + Z_PROBE_LOW_POINT : -10.0;
@@ -561,15 +543,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))         // No probe trigger?
-      || (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2)  // Probe triggered too high?
-    ) {
-      if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLNPGM("FAST Probe fail!");
-        DEBUG_POS("<<< run_z_probe", current_position);
-      }
-      return NAN;
-    }
+    if (try_to_probe(PSTR("FAST"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST),
+                     sanity_check, _MAX(Z_CLEARANCE_BETWEEN_PROBES, 4) / 2) ) return NAN;
 
     const float first_probe_z = current_position.z;
 
@@ -606,19 +581,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #endif
     {
       // Probe downward slowly to find the bed
-      if (probe_down_to_z(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))      // No probe trigger?
-        || (sanity_check && current_position.z > -offset.z + _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2)  // Probe triggered too high?
-      ) {
-        if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOLNPGM("SLOW Probe fail!");
-          DEBUG_POS("<<< run_z_probe", current_position);
-        }
-        return NAN;
-      }
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
+                       sanity_check, _MAX(Z_CLEARANCE_MULTI_PROBE, 4) / 2) ) return NAN;
 
-      #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-        backlash.measure_with_probe();
-      #endif
+      TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
       const float z = current_position.z;
 
@@ -639,11 +605,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       #if TOTAL_PROBING > 2
         // Small Z raise after all but the last probe
-        if (p
-          #if EXTRA_PROBING
-            < TOTAL_PROBING - 1
-          #endif
-        ) do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+        if (TERN(EXTRA_PROBING, p < TOTAL_PROBING - 1, p))
+          do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       #endif
     }
 
