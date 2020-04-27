@@ -213,7 +213,7 @@
 
 void SPIClass::begin() { spiBegin(); }
 
-void SPIClass::beginTransaction(SPISettings cfg) {
+void SPIClass::beginTransaction(const SPISettings &cfg) {
   uint8_t spiRate;
   switch (cfg.spiRate()) {
     case 8000000: spiRate = 0; break;

@@ -87,11 +87,7 @@ void MarlinUI::save_previous_screen() {
     screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items };
 }
 
-void MarlinUI::_goto_previous_screen(
-  #if ENABLED(TURBO_BACK_MENU_ITEM)
-    const bool is_back/*=false*/
-  #endif
-) {
+void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
   #if DISABLED(TURBO_BACK_MENU_ITEM)
     constexpr bool is_back = false;
   #endif
@@ -233,33 +229,15 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
       }
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-
-        #if ENABLED(BABYSTEP_WITHOUT_HOMING)
-          constexpr bool can_babystep = true;
-        #else
-          const bool can_babystep = all_axes_known();
-        #endif
-        #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
-          constexpr bool should_babystep = true;
-        #else
-          const bool should_babystep = printer_busy();
-        #endif
-
-        if (should_babystep && can_babystep) {
-          screen =
-            #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-              lcd_babystep_zoffset
-            #else
-              lcd_babystep_z
-            #endif
-          ;
-        }
-        #if ENABLED(MOVE_Z_WHEN_IDLE)
-          else {
+        if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known())
+          && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
+          screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
+        else {
+          #if ENABLED(MOVE_Z_WHEN_IDLE)
             move_menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
             screen = lcd_move_z;
-          }
-        #endif
+          #endif
+        }
       }
     #endif
 
@@ -277,11 +255,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     // Re-initialize custom characters that may be re-used
     #if HAS_CHARACTER_LCD
-      if (true
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          && !ubl.lcd_map_control
-        #endif
-      ) set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
+      if (TERN1(AUTO_BED_LEVELING_UBL, !ubl.lcd_map_control))
+        set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
 
     refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -377,13 +352,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
                   new_probe_offset = probe.offset.z + diff,
-                  new_offs =
-                    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                      do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
-                    #else
-                      new_probe_offset
-                    #endif
-                  ;
+                  new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
+                    , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
+                    , new_probe_offset
+                  );
       if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
         babystep.add_steps(Z_AXIS, babystep_increment);
@@ -397,13 +369,14 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       }
     }
     if (ui.should_draw()) {
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        if (!do_probe)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
-      #endif
       if (do_probe) {
         MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
         TERN_(BABYSTEP_ZPROBE_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(probe.offset.z));
+      }
+      else {
+        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
+        #endif
       }
     }
   }
@@ -411,16 +384,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #endif // BABYSTEP_ZPROBE_OFFSET
 
 #if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings() {
-    const bool saved = settings.save();
-    ui.completion_feedback(saved);
-    UNUSED(saved);
-  }
-  void lcd_load_settings() {
-    const bool loaded = settings.load();
-    ui.completion_feedback(loaded);
-    UNUSED(loaded);
-  }
+  void lcd_store_settings() { ui.completion_feedback(settings.save()); }
+  void lcd_load_settings()  { ui.completion_feedback(settings.load()); }
 #endif
 
 void _lcd_draw_homing() {

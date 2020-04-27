@@ -293,7 +293,7 @@ namespace ExtUI {
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
     #else
       UNUSED(fan);
@@ -302,7 +302,7 @@ namespace ExtUI {
   }
 
   float getActualFan_percent(const fan_t fan) {
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
     #else
       UNUSED(fan);
@@ -940,14 +940,13 @@ namespace ExtUI {
     #endif
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAXTEMP - 10)));
+        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET)));
       else
     #endif
       {
         #if HAS_HOTEND
-          static constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
+          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
         #endif
       }
   }
@@ -957,15 +956,14 @@ namespace ExtUI {
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     #if HAS_HOTEND
-      constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(LROUND(constrain(value, 0, heater_maxtemp[e] - 15)), e);
+      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
     #endif
   }
 
   void setTargetFan_percent(const float value, const fan_t fan) {
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       if (fan < FAN_COUNT)
         thermalManager.set_fan_speed(fan - FAN0, map(constrain(value, 0, 100), 0, 100, 0, 255));
     #else
@@ -1041,13 +1039,7 @@ namespace ExtUI {
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      const uint16_t nr =
-        #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-          count() - 1 -
-        #endif
-      pos;
-
-      card.getfilename_sorted(nr);
+      card.getfilename_sorted(SD_ORDER(pos, count()));
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);

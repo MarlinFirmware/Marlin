@@ -784,10 +784,16 @@
   #define SLOWDOWN_DIVISOR 2
 #endif
 
-// Frequency limit
-// See nophead's blog for more info
-// Not working O
-//#define XY_FREQUENCY_LIMIT  15
+/**
+ * XY Frequency limit
+ * Reduce resonance by limiting the frequency of small zigzag infill moves.
+ * See http://hydraraptor.blogspot.com/2010/12/frequency-limit.html
+ * Use M201 F<freq> G<min%> to change limits at runtime.
+ */
+//#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
+#ifdef XY_FREQUENCY_LIMIT
+  #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
+#endif
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed

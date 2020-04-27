@@ -29,10 +29,6 @@
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
-#if HAS_HOTEND
-  constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
-#endif
-
 void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();
 
@@ -526,7 +522,7 @@ void menu_move();
 #endif
 
 // First Fan Speed title in "Tune" and "Control>Temperature" menus
-#if FAN_COUNT > 0 && HAS_FAN0
+#if HAS_FAN && HAS_FAN0
   #if FAN_COUNT > 1
     #define FAN_SPEED_1_SUFFIX " 1"
   #else
