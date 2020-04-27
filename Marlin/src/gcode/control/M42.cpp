@@ -58,7 +58,6 @@ void GcodeSuite::M42() {
       #endif
       default: SERIAL_ECHOLNPGM("Invalid Pin Mode");
     }
-    return;
   }
 
   if (!parser.seenval('S')) return;
