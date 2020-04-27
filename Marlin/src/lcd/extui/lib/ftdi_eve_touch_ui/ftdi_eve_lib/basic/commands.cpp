@@ -1082,22 +1082,20 @@ void CLCD::init() {
 
   /* make sure that all units are in working conditions, usually the touch-controller needs a little more time */
   for (counter = 0; counter < 100; counter++) {
-   uint8_t reset_status = mem_read_8(REG::CPURESET) & 0x03;
-   if (reset_status == 0x00) {
-     #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_MSG("FTDI chip all units running ");
-     #endif
-     break;
-   }
-   else
-     delay(1);
+    uint8_t reset_status = mem_read_8(REG::CPURESET) & 0x03;
+    if (reset_status == 0x00) {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("FTDI chip all units running ");
+      #endif
+      break;
+    }
+    else
+      delay(1);
 
-   if (counter == 99) {
-     #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_START();
-       SERIAL_ECHOLNPAIR("Timeout waiting for resets status, should be 0x00, got ", reset_status);
-     #endif
-   }
+    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
+    }
   }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default
