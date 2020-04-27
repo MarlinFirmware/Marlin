@@ -149,11 +149,12 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
-// Store Temps & Fanspeeds (Require M104/109 T[..] or M106 T[..] by extruder).
-// Require FAN0
+
+// Save and restore temperature and fan speed on tool-change.
+// Set standby for the unselected tool with M104/106/109 T...
 #if ENABLED(SINGLENOZZLE)
-  #define SINGLENOZZLE_STDBY_TEMP
-  #define SINGLENOZZLE_STDBY_FANSPEED
+  //#define SINGLENOZZLE_STANDBY_TEMP
+  //#define SINGLENOZZLE_STANDBY_FAN
 #endif
 
 /**

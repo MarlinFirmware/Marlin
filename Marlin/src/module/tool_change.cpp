@@ -47,11 +47,11 @@
   bool toolchange_extruder_ready[EXTRUDERS];
 #endif
 
-#if ENABLED(SINGLENOZZLE_STDBY_TEMP)
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   uint16_t singlenozzle_temp[EXTRUDERS];
 #endif
 
-#if BOTH(HAS_FAN, SINGLENOZZLE_STDBY_FANSPEED)
+#if BOTH(HAS_FAN, SINGLENOZZLE_STANDBY_FAN)
   uint8_t singlenozzle_fan_speed[EXTRUDERS];
 #endif
 
@@ -1063,12 +1063,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if BOTH(HAS_FAN, SINGLENOZZLE_STDBY_FANSPEED)
+        #if BOTH(HAS_FAN, SINGLENOZZLE_STANDBY_FAN)
           singlenozzle_fan_speed[old_tool] = thermalManager.fan_speed[0];
           thermalManager.fan_speed[0] = singlenozzle_fan_speed[new_tool];
         #endif
 
-        #if ENABLED(SINGLENOZZLE_STDBY_TEMP)
+        #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
           singlenozzle_temp[old_tool] = thermalManager.temp_hotend[0].target;
           if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
             thermalManager.setTargetHotend(singlenozzle_temp[new_tool], 0);
