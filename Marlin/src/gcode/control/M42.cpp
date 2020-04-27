@@ -56,7 +56,7 @@ void GcodeSuite::M42() {
       #ifdef INPUT_PULLDOWN
         case 3: pinMode(pin, INPUT_PULLDOWN); break;
       #endif
-      default: SERIAL_ECHOLNPGM("Invalid Pin Mode");
+      default: SERIAL_ECHOLNPGM("Invalid Pin Mode"); return;
     }
   }
 
