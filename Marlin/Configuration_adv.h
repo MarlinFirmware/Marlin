@@ -784,10 +784,16 @@
   #define SLOWDOWN_DIVISOR 2
 #endif
 
-// Frequency limit
-// See nophead's blog for more info
-// Not working O
-//#define XY_FREQUENCY_LIMIT  15
+/**
+ * XY Frequency limit
+ * Reduce resonance by limiting the frequency of small zigzag infill moves.
+ * See http://hydraraptor.blogspot.com/2010/12/frequency-limit.html
+ * Use M201 F<freq> G<min%> to change limits at runtime.
+ */
+//#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
+#ifdef XY_FREQUENCY_LIMIT
+  #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
+#endif
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
@@ -3267,6 +3273,25 @@
       {  10.0,  700 }, \
       { -10.0,  400 }, \
       { -50.0, 2000 }
+  #endif
+
+  // Using a sensor like the MMU2S
+  //#define PRUSA_MMU2_S_MODE
+  #if ENABLED(PRUSA_MMU2_S_MODE)
+    #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)
+
+    #define MMU2_CAN_LOAD_FEEDRATE 800    // (mm/m)
+    #define MMU2_CAN_LOAD_SEQUENCE \
+      {  0.1, MMU2_CAN_LOAD_FEEDRATE }, \
+      {  60.0, MMU2_CAN_LOAD_FEEDRATE }, \
+      { -52.0, MMU2_CAN_LOAD_FEEDRATE }
+
+    #define MMU2_CAN_LOAD_RETRACT   6.0   // (mm) Keep under the distance between Load Sequence values
+    #define MMU2_CAN_LOAD_DEVIATION 0.8   // (mm) Acceptable deviation
+
+    #define MMU2_CAN_LOAD_INCREMENT 0.2   // (mm) To reuse within MMU2 module
+    #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
+      { -MMU2_CAN_LOAD_INCREMENT, MMU2_CAN_LOAD_FEEDRATE }
 
   #endif
 

@@ -30,6 +30,14 @@
 
 #include "MarlinCore.h"
 
+#include "HAL/shared/Delay.h"
+#include "HAL/shared/esp_wifi.h"
+
+#ifdef ARDUINO
+  #include <pins_arduino.h>
+#endif
+#include <math.h>
+
 #include "core/utility.h"
 #include "lcd/ultralcd.h"
 #include "module/motion.h"
@@ -43,15 +51,8 @@
 #include "module/printcounter.h" // PrintCounter or Stopwatch
 #include "feature/closedloop.h"
 
-#include "HAL/shared/Delay.h"
-#include "HAL/shared/esp_wifi.h"
-
 #include "module/stepper/indirection.h"
 
-#ifdef ARDUINO
-  #include <pins_arduino.h>
-#endif
-#include <math.h>
 #include "libs/nozzle.h"
 
 #include "gcode/gcode.h"

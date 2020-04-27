@@ -49,7 +49,7 @@
 
 #if ENABLED(SINGLENOZZLE)
   uint16_t singlenozzle_temp[EXTRUDERS];
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint8_t singlenozzle_fan_speed[EXTRUDERS];
   #endif
 #endif
@@ -819,7 +819,7 @@ void tool_change_prime() {
     #endif
 
     // Cool down with fan
-    #if TOOLCHANGE_FS_FAN >= 0 && FAN_COUNT > 0
+    #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
       const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       safe_delay(toolchange_settings.fan_time * 1000);
@@ -1060,7 +1060,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       if (should_move) {
 
         #if ENABLED(SINGLENOZZLE)
-          #if FAN_COUNT > 0
+          #if HAS_FAN
             singlenozzle_fan_speed[old_tool] = thermalManager.fan_speed[0];
             thermalManager.fan_speed[0] = singlenozzle_fan_speed[new_tool];
           #endif
@@ -1098,7 +1098,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             // Cool down with fan
-            #if TOOLCHANGE_FS_FAN >= 0 && FAN_COUNT > 0
+            #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
               const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
               safe_delay(toolchange_settings.fan_time * 1000);
@@ -1244,7 +1244,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // Migrate the temperature to the new hotend
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
       #if HAS_DISPLAY
         thermalManager.set_heating_message(0);

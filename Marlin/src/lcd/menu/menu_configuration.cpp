@@ -206,13 +206,7 @@ void menu_advanced_settings();
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
       SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", (int)bltouch.last_written_mode);
-      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - "
-        #if ENABLED(BLTOUCH_SET_5V_MODE)
-          "5V"
-        #else
-          "OD"
-        #endif
-      );
+      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode - "));
       strcpy_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
@@ -331,10 +325,10 @@ void menu_advanced_settings();
     BACK_ITEM(MSG_CONFIGURATION);
     EDIT_ITEM(percent, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
-      EDIT_ITEM(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
+      EDIT_ITEM(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
     #endif
     #if HAS_HEATED_BED
-      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
+      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
@@ -411,11 +405,7 @@ void menu_configuration() {
   //
   #if ENABLED(CASE_LIGHT_MENU)
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (true
-        #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-          && PWM_PIN(CASE_LIGHT_PIN)
-        #endif
-      )
+      if (TERN1(CASE_LIGHT_USE_NEOPIXEL, PWM_PIN(CASE_LIGHT_PIN)))
         SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif

@@ -96,6 +96,9 @@ void GcodeSuite::M115() {
     // PROMPT SUPPORT (M876)
     cap_line(PSTR("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
 
+    // SDCARD (M20, M23, M24, etc.)
+    cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
 

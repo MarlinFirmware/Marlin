@@ -113,7 +113,7 @@
 
 Planner planner;
 
-  // public:
+// public:
 
 /**
  * A ring buffer of moves described in steps
@@ -200,10 +200,9 @@ float Planner::previous_nominal_speed_sqr;
 #endif
 
 #ifdef XY_FREQUENCY_LIMIT
-  // Old direction bits. Used for speed calculations
-  unsigned char Planner::old_direction_bits = 0;
-  // Segment times (in µs). Used for speed calculations
-  xy_ulong_t Planner::axis_segment_time_us[3] = { { MAX_FREQ_TIME_US + 1, MAX_FREQ_TIME_US + 1 } };
+  int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
+  float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
+  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0 / (XY_FREQUENCY_LIMIT));
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -1264,7 +1263,7 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint8_t tail_fan_speed[FAN_COUNT];
   #endif
 
@@ -1279,11 +1278,11 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if FAN_COUNT > 0 || ENABLED(BARICUDA)
+    #if HAS_FAN || ENABLED(BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
     #endif
@@ -1304,7 +1303,7 @@ void Planner::check_axes_activity() {
 
     TERN_(HAS_CUTTER, cutter.refresh());
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
     #endif
@@ -1326,7 +1325,7 @@ void Planner::check_axes_activity() {
   //
   // Update Fan speeds
   //
-  #if FAN_COUNT > 0
+  #if HAS_FAN
 
     #if FAN_KICKSTART_TIME > 0
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
@@ -1366,7 +1365,7 @@ void Planner::check_axes_activity() {
     TERN_(HAS_FAN5, FAN_SET(5));
     TERN_(HAS_FAN6, FAN_SET(6));
     TERN_(HAS_FAN7, FAN_SET(7));
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   TERN_(AUTOTEMP, getHighESpeed());
 
@@ -1906,7 +1905,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
@@ -2006,7 +2005,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if EITHER(SLOWDOWN, ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
-    uint32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
+    int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
 
   #if ENABLED(SLOWDOWN)
@@ -2014,9 +2013,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #define SLOWDOWN_DIVISOR 2
     #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
-      if (segment_time_us < settings.min_segment_time_us) {
-        // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        const uint32_t nst = segment_time_us + LROUND(2 * (settings.min_segment_time_us - segment_time_us) / moves_queued);
+      const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
+      if (time_diff > 0) {
+        // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
+        const int32_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
         inverse_secs = 1000000.0f / nst;
         #if defined(XY_FREQUENCY_LIMIT) || HAS_SPI_LCD
           segment_time_us = nst;
@@ -2072,42 +2072,36 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
   #endif
 
-  // Max segment time in µs.
   #ifdef XY_FREQUENCY_LIMIT
 
-    // Check and limit the xy direction change frequency
-    const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
-    old_direction_bits = block->direction_bits;
-    segment_time_us = LROUND((float)segment_time_us / speed_factor);
+    static uint8_t old_direction_bits; // = 0
 
-    uint32_t xs0 = axis_segment_time_us[0].x,
-             xs1 = axis_segment_time_us[1].x,
-             xs2 = axis_segment_time_us[2].x,
-             ys0 = axis_segment_time_us[0].y,
-             ys1 = axis_segment_time_us[1].y,
-             ys2 = axis_segment_time_us[2].y;
+    if (xy_freq_limit_hz) {
+      // Check and limit the xy direction change frequency
+      const uint8_t direction_change = block->direction_bits ^ old_direction_bits;
+      old_direction_bits = block->direction_bits;
+      segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
-    if (TEST(direction_change, X_AXIS)) {
-      xs2 = axis_segment_time_us[2].x = xs1;
-      xs1 = axis_segment_time_us[1].x = xs0;
-      xs0 = 0;
+      static int32_t xs0, xs1, xs2, ys0, ys1, ys2;
+      if (segment_time_us > xy_freq_min_interval_us)
+        xs2 = xs1 = ys2 = ys1 = xy_freq_min_interval_us;
+      else {
+        xs2 = xs1; xs1 = xs0;
+        ys2 = ys1; ys1 = ys0;
+      }
+      xs0 = TEST(direction_change, X_AXIS) ? segment_time_us : xy_freq_min_interval_us;
+      ys0 = TEST(direction_change, Y_AXIS) ? segment_time_us : xy_freq_min_interval_us;
+
+      if (segment_time_us < xy_freq_min_interval_us) {
+        const int32_t least_xy_segment_time = _MIN(_MAX(xs0, xs1, xs2), _MAX(ys0, ys1, ys2));
+        if (least_xy_segment_time < xy_freq_min_interval_us) {
+          float freq_xy_feedrate = (speed_factor * least_xy_segment_time) / xy_freq_min_interval_us;
+          NOLESS(freq_xy_feedrate, xy_freq_min_speed_factor);
+          NOMORE(speed_factor, freq_xy_feedrate);
+        }
+      }
     }
-    xs0 = axis_segment_time_us[0].x = xs0 + segment_time_us;
 
-    if (TEST(direction_change, Y_AXIS)) {
-      ys2 = axis_segment_time_us[2].y = axis_segment_time_us[1].y;
-      ys1 = axis_segment_time_us[1].y = axis_segment_time_us[0].y;
-      ys0 = 0;
-    }
-    ys0 = axis_segment_time_us[0].y = ys0 + segment_time_us;
-
-    const uint32_t max_x_segment_time = _MAX(xs0, xs1, xs2),
-                   max_y_segment_time = _MAX(ys0, ys1, ys2),
-                   min_xy_segment_time = _MIN(max_x_segment_time, max_y_segment_time);
-    if (min_xy_segment_time < MAX_FREQ_TIME_US) {
-      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
-      NOMORE(speed_factor, low_sf);
-    }
   #endif // XY_FREQUENCY_LIMIT
 
   // Correct the speed
@@ -2832,7 +2826,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const bool was_enabled = stepper.suspend();
     #endif
 
-    millis_t bbru = block_buffer_runtime_us;
+    uint32_t bbru = block_buffer_runtime_us;
 
     #ifdef __AVR__
       // Reenable Stepper ISR
@@ -2844,7 +2838,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
     // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
     bbru >>= 10;
     // limit to about a minute.
-    NOMORE(bbru, 0xFFFFul);
+    NOMORE(bbru, 0x0000FFFFUL);
     return bbru;
   }
 
