@@ -358,8 +358,8 @@ class Planner {
       static int32_t xy_freq_min_interval_us; // Minimum segment time based on xy_freq_limit_hz
       static inline void refresh_frequency_limit() {
         //xy_freq_min_interval_us = xy_freq_limit_hz ?: LROUND(1000000.0f / xy_freq_limit_hz);
-        if ( !xy_freq_limit_hz ) return ;
-        else xy_freq_min_interval_us = LROUND(1000000.0f / xy_freq_limit_hz);
+        if (xy_freq_limit_hz)
+          xy_freq_min_interval_us = LROUND(1000000.0f / xy_freq_limit_hz);
       }
       static inline void set_min_speed_factor_u8(const uint8_t v255) {
         xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
