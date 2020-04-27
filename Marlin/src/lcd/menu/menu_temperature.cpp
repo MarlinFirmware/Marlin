@@ -65,7 +65,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
       #if FAN_COUNT > 1
         active_extruder < FAN_COUNT ? active_extruder :
       #endif
-      0), ui.preheat_fan_speed[m]
+      0), ui.preheat_fan_speed[indh]
     );
   #endif
   ui.return_to_status();
