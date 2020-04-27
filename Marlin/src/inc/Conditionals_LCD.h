@@ -472,7 +472,10 @@
 
 #if HOTENDS
   #define HAS_HOTEND 1
-  #if HOTENDS > 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
+  #if HOTENDS_ > 1
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
   #endif

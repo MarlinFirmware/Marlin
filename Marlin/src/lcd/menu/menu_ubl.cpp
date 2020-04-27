@@ -128,7 +128,7 @@ void _lcd_ubl_build_custom_mesh() {
 void _lcd_ubl_custom_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_BUILD_MESH_MENU);
-  EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP - 15));
+  EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
   #if HAS_HEATED_BED
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
   #endif

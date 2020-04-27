@@ -588,7 +588,7 @@ class Temperature {
             start_preheat_time(ee);
         #endif
         TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
-        temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - 15);
+        temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - HOTEND_OVERSHOOT);
         start_watching_hotend(ee);
       }
 
