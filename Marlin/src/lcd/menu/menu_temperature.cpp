@@ -52,8 +52,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
     if (indh >= 0 && ui.preheat_hotend_temp[indh] > 0)
       setTargetHotend(_MIN(thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.preheat_hotend_temp[indh]), e);
   #else
-    UNUSED(e);
-    UNUSED(temph);
+    UNUSED(e); UNUSED(indh);
   #endif
   #if HAS_HEATED_BED
     if (indb >= 0 && ui.preheat_bed_temp[indb] > 0) setTargetBed(ui.preheat_bed_temp[indb]);
