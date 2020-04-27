@@ -83,7 +83,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   BACK_ITEM(MSG_BACK);
   ACTION_ITEM(MSG_PREHEAT_1, []{ _change_filament(ui.preheat_hotend_temp[0]); });
   ACTION_ITEM(MSG_PREHEAT_2, []{ _change_filament(ui.preheat_hotend_temp[1]); });
-  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_extruder].target, EXTRUDE_MINTEMP, heater_maxtemp[extruder] - 15, []{
+  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_extruder].target, EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT, []{
     _change_filament(thermalManager.temp_hotend[_change_filament_extruder].target);
   });
   END_MENU();

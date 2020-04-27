@@ -554,7 +554,7 @@ private:
 
   static void M105();
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     static void M106();
     static void M107();
   #endif
