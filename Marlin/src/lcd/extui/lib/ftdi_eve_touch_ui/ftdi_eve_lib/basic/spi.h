@@ -55,7 +55,7 @@ namespace FTDI {
       #ifdef CLCD_USE_SOFT_SPI
         return _soft_spi_xfer(0x00);
       #else
-        SPI_OBJ.transfer(0x00);
+        return SPI_OBJ.transfer(0x00);
       #endif
     };
 
