@@ -51,7 +51,7 @@
   uint16_t singlenozzle_temp[EXTRUDERS];
 #endif
 
-#if HAS_FAN && ENABLED(SINGLENOZZLE_STDBY_FANSPEED)
+#if BOTH(HAS_FAN, SINGLENOZZLE_STDBY_FANSPEED)
   uint8_t singlenozzle_fan_speed[EXTRUDERS];
 #endif
 
@@ -962,6 +962,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if ( first_tool_is_primed ) unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
             else first_tool_is_primed = true ; // Now the first new tool will be primed by toolchanging
           }
+        }
       #endif
 
       TERN_(SWITCHING_NOZZLE_TWO_SERVOS, raise_nozzle(old_tool));
@@ -1062,7 +1063,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if HAS_FAN && ENABLED(SINGLENOZZLE_STDBY_FANSPEED)
+        #if BOTH(HAS_FAN, SINGLENOZZLE_STDBY_FANSPEED)
           singlenozzle_fan_speed[old_tool] = thermalManager.fan_speed[0];
           thermalManager.fan_speed[0] = singlenozzle_fan_speed[new_tool];
         #endif
@@ -1111,7 +1112,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
             #endif
           }
-
         #endif
 
         // Prevent a move outside physical bounds
@@ -1204,7 +1204,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // EXTRUDERS > 1
-  }
 }
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

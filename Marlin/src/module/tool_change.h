@@ -112,7 +112,7 @@
   extern uint16_t singlenozzle_temp[EXTRUDERS];
 #endif
 
-#if BOTH(HAS_FAN, SINGLENOZZLE_STDBY_FANSPEED)
+#if #if BOTH(HAS_FAN, SINGLENOZZLE_STDBY_FANSPEED)
   extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
 #endif
 
