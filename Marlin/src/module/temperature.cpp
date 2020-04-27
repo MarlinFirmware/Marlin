@@ -28,9 +28,10 @@
 #include "endstops.h"
 
 #include "../MarlinCore.h"
-#include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../HAL/shared/Delay.h"
+
+#include "../lcd/ultralcd.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -2241,22 +2242,14 @@ void Temperature::readings_ready() {
   #if HAS_HOTEND
 
     static constexpr int8_t temp_dir[] = {
-      #if ENABLED(HEATER_0_USES_MAX6675)
-        0
-      #else
-        TEMPDIR(0)
-      #endif
+      TERN(HEATER_0_USES_MAX6675, 0, TEMPDIR(0))
       #if HAS_MULTI_HOTEND
-        #define _TEMPDIR(N) , TEMPDIR(N)
-        #if ENABLED(HEATER_1_USES_MAX6675)
-          , 0
-        #else
-          _TEMPDIR(1)
-        #endif
+        , TERN(HEATER_1_USES_MAX6675, 0, TEMPDIR(1))
         #if HOTENDS > 2
+          #define _TEMPDIR(N) , TEMPDIR(N)
           REPEAT_S(2, HOTENDS, _TEMPDIR)
-        #endif // HOTENDS > 2
-      #endif // HAS_MULTI_HOTEND
+        #endif
+      #endif
     };
 
     LOOP_L_N(e, COUNT(temp_dir)) {

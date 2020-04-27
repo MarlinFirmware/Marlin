@@ -47,21 +47,27 @@ uint8_t MarlinUI::preheat_fan_speed[2];
 // "Temperature" submenu items
 //
 
-void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const uint8_t fan) {
+
+void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
   #if HAS_HOTEND
-    if (temph > 0) thermalManager.setTargetHotend(_MIN(heater_maxtemp[endnum] - 15, temph), endnum);
+    if (indh >= 0 && ui.preheat_hotend_temp[indh] > 0)
+      setTargetHotend(_MIN(heater_maxtemp[e] - 15, ui.preheat_hotend_temp[indh]), e);
+  #else
+    UNUSED(temph);
   #endif
   #if HAS_HEATED_BED
-    if (tempb >= 0) thermalManager.setTargetBed(tempb);
+    if (indb >= 0 && ui.preheat_bed_temp[indb] >= 0) setTargetBed(ui.preheat_bed_temp[indb]);
   #else
-    UNUSED(tempb);
+    UNUSED(indb);
   #endif
-  #if FAN_COUNT > 0
-    #if FAN_COUNT > 1
-      thermalManager.set_fan_speed(active_extruder < FAN_COUNT ? active_extruder : 0, fan);
-    #else
-      thermalManager.set_fan_speed(0, fan);
-    #endif
+  #if HAS_FAN
+    set_fan_speed((
+      #if FAN_COUNT > 1
+        active_extruder < FAN_COUNT ? active_extruder : 0
+      #else
+        0
+      #endif
+    ), fan);
   #else
     UNUSED(fan);
   #endif
@@ -70,17 +76,17 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 
 #if HAS_TEMP_HOTEND
   inline void _preheat_end(const uint8_t m, const uint8_t e) {
-    _lcd_preheat(e, ui.preheat_hotend_temp[m], -1, ui.preheat_fan_speed[m]);
+    thermalManager.lcd_preheat(e, m, -1);
   }
   #if HAS_HEATED_BED
     inline void _preheat_both(const uint8_t m, const uint8_t e) {
-      _lcd_preheat(e, ui.preheat_hotend_temp[m], ui.preheat_bed_temp[m], ui.preheat_fan_speed[m]);
+      thermalManager.lcd_preheat(e, m, m);
     }
   #endif
 #endif
 #if HAS_HEATED_BED
   inline void _preheat_bed(const uint8_t m) {
-    _lcd_preheat(0, 0, ui.preheat_bed_temp[m], ui.preheat_fan_speed[m]);
+    thermalManager.lcd_preheat(-1, -1, m);
   }
 #endif
 
