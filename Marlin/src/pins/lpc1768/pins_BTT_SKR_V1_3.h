@@ -99,17 +99,17 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                   P1_28
+  #define FIL_RUNOUT_PIN                   P1_24
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                         P2_02
-#define X_DIR_PIN                          P2_06
-#define X_ENABLE_PIN                       P2_01
+#define X_STEP_PIN                         P0_01
+#define X_DIR_PIN                          P0_00
+#define X_ENABLE_PIN                       P0_10
 #ifndef X_CS_PIN
-  #define X_CS_PIN                         P1_17
+  #define X_CS_PIN                         P1_01
 #endif
 
 #define Y_STEP_PIN                         P0_19
@@ -133,9 +133,9 @@
   #define E0_CS_PIN                        P1_08
 #endif
 
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN                        P1_01
-#endif
+//#ifndef E1_CS_PIN
+//  #define E1_CS_PIN                        P1_01
+//#endif
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -174,8 +174,8 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN                  P4_29
-  #define X_SERIAL_RX_PIN                  P1_17
+  #define X_SERIAL_TX_PIN                  P1_04
+  #define X_SERIAL_RX_PIN                  P1_01
 
   #define Y_SERIAL_TX_PIN                  P1_16
   #define Y_SERIAL_RX_PIN                  P1_15
@@ -186,8 +186,8 @@
   #define E0_SERIAL_TX_PIN                 P1_09
   #define E0_SERIAL_RX_PIN                 P1_08
 
-  #define E1_SERIAL_TX_PIN                 P1_04
-  #define E1_SERIAL_RX_PIN                 P1_01
+ // #define E1_SERIAL_TX_PIN                 P1_04
+ // #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
