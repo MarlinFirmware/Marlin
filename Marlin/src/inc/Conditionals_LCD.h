@@ -408,6 +408,8 @@
  */
 
 #if EXTRUDERS == 0
+  #undef EXTRUDERS
+  #define EXTRUDERS 0
   #undef DISTINCT_E_FACTORS
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER

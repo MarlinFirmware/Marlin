@@ -334,7 +334,7 @@ void menu_advanced_settings();
       EDIT_ITEM(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
     #if HAS_HEATED_BED
-      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
+      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);

@@ -477,7 +477,7 @@ class Temperature {
       static float analog_to_celsius_chamber(const int raw);
     #endif
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
 
       static uint8_t fan_speed[FAN_COUNT];
       #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
@@ -517,10 +517,10 @@ class Temperature {
         void set_fans_paused(const bool p);
       #endif
 
-    #endif // FAN_COUNT > 0
+    #endif // HAS_FAN
 
     static inline void zero_fan_speeds() {
-      #if FAN_COUNT > 0
+      #if HAS_FAN
         FANS_LOOP(i) set_fan_speed(i, 0);
       #endif
     }
@@ -634,7 +634,7 @@ class Temperature {
         TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
         temp_bed.target =
           #ifdef BED_MAXTEMP
-            _MIN(celsius, BED_MAXTEMP - 10)
+            _MIN(celsius, BED_MAX_TARGET)
           #else
             celsius
           #endif

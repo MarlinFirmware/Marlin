@@ -1264,7 +1264,7 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint8_t tail_fan_speed[FAN_COUNT];
   #endif
 
@@ -1279,11 +1279,11 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if FAN_COUNT > 0 || ENABLED(BARICUDA)
+    #if HAS_FAN || ENABLED(BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
     #endif
@@ -1304,7 +1304,7 @@ void Planner::check_axes_activity() {
 
     TERN_(HAS_CUTTER, cutter.refresh());
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
     #endif
@@ -1326,7 +1326,7 @@ void Planner::check_axes_activity() {
   //
   // Update Fan speeds
   //
-  #if FAN_COUNT > 0
+  #if HAS_FAN
 
     #if FAN_KICKSTART_TIME > 0
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
@@ -1366,7 +1366,7 @@ void Planner::check_axes_activity() {
     TERN_(HAS_FAN5, FAN_SET(5));
     TERN_(HAS_FAN6, FAN_SET(6));
     TERN_(HAS_FAN7, FAN_SET(7));
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   TERN_(AUTOTEMP, getHighESpeed());
 
@@ -1906,7 +1906,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 

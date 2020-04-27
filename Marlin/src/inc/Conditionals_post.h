@@ -1707,6 +1707,7 @@
 // Shorthand for common combinations
 #if HAS_TEMP_BED && HAS_HEATER_BED
   #define HAS_HEATED_BED 1
+  #define BED_MAX_TARGET (BED_MAXTEMP - 10)
 #endif
 #if HAS_HEATED_BED || HAS_TEMP_CHAMBER
   #define BED_OR_CHAMBER 1
@@ -2084,6 +2085,7 @@
 #endif
 
 #if FAN_COUNT > 0
+  #define HAS_FAN 1
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 #endif
 

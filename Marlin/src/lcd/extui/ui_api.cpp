@@ -293,7 +293,7 @@ namespace ExtUI {
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
     #else
       UNUSED(fan);
@@ -302,7 +302,7 @@ namespace ExtUI {
   }
 
   float getActualFan_percent(const fan_t fan) {
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
     #else
       UNUSED(fan);
@@ -940,7 +940,7 @@ namespace ExtUI {
     #endif
     #if HAS_HEATED_BED
       if (heater == BED)
-        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAXTEMP - 10)));
+        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET)));
       else
     #endif
       {
@@ -963,7 +963,7 @@ namespace ExtUI {
   }
 
   void setTargetFan_percent(const float value, const fan_t fan) {
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       if (fan < FAN_COUNT)
         thermalManager.set_fan_speed(fan - FAN0, map(constrain(value, 0, 100), 0, 100, 0, 255));
     #else

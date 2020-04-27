@@ -522,7 +522,7 @@ void menu_move();
 #endif
 
 // First Fan Speed title in "Tune" and "Control>Temperature" menus
-#if FAN_COUNT > 0 && HAS_FAN0
+#if HAS_FAN && HAS_FAN0
   #if FAN_COUNT > 1
     #define FAN_SPEED_1_SUFFIX " 1"
   #else

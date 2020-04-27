@@ -47,47 +47,38 @@ uint8_t MarlinUI::preheat_fan_speed[2];
 // "Temperature" submenu items
 //
 
-
 void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
   #if HAS_HOTEND
     if (indh >= 0 && ui.preheat_hotend_temp[indh] > 0)
       setTargetHotend(_MIN(heater_maxtemp[e] - 15, ui.preheat_hotend_temp[indh]), e);
   #else
+    UNUSED(e);
     UNUSED(temph);
   #endif
   #if HAS_HEATED_BED
-    if (indb >= 0 && ui.preheat_bed_temp[indb] >= 0) setTargetBed(ui.preheat_bed_temp[indb]);
+    if (indb >= 0 && ui.preheat_bed_temp[indb] > 0) setTargetBed(ui.preheat_bed_temp[indb]);
   #else
     UNUSED(indb);
   #endif
   #if HAS_FAN
     set_fan_speed((
       #if FAN_COUNT > 1
-        active_extruder < FAN_COUNT ? active_extruder : 0
-      #else
-        0
+        active_extruder < FAN_COUNT ? active_extruder :
       #endif
-    ), fan);
-  #else
-    UNUSED(fan);
+      0), ui.preheat_fan_speed[m]
+    );
   #endif
   ui.return_to_status();
 }
 
 #if HAS_TEMP_HOTEND
-  inline void _preheat_end(const uint8_t m, const uint8_t e) {
-    thermalManager.lcd_preheat(e, m, -1);
-  }
+  inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
   #if HAS_HEATED_BED
-    inline void _preheat_both(const uint8_t m, const uint8_t e) {
-      thermalManager.lcd_preheat(e, m, m);
-    }
+    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
   #endif
 #endif
 #if HAS_HEATED_BED
-  inline void _preheat_bed(const uint8_t m) {
-    thermalManager.lcd_preheat(-1, -1, m);
-  }
+  inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
 #endif
 
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
@@ -186,7 +177,7 @@ void menu_temperature() {
   // Bed:
   //
   #if HAS_HEATED_BED
-    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
+    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
   #endif
 
   //
@@ -199,7 +190,7 @@ void menu_temperature() {
   //
   // Fan Speed:
   //
-  #if FAN_COUNT > 0
+  #if HAS_FAN
 
     auto on_fan_update = []{
       thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
@@ -266,7 +257,7 @@ void menu_temperature() {
       singlenozzle_item(1);
     #endif
 
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   #if HAS_TEMP_HOTEND
 

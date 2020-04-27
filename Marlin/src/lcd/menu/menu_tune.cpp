@@ -132,13 +132,13 @@ void menu_tune() {
   // Bed:
   //
   #if HAS_HEATED_BED
-    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
+    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
   #endif
 
   //
   // Fan Speed:
   //
-  #if FAN_COUNT > 0
+  #if HAS_FAN
 
     auto on_fan_update = []{
       thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
@@ -205,7 +205,7 @@ void menu_tune() {
       singlenozzle_item(1);
     #endif
 
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   //
   // Flow:
