@@ -2277,9 +2277,9 @@ void Temperature::readings_ready() {
 
   #if HAS_HEATED_BED
     #if TEMPDIR(BED) < 0
-      #define BEDCMP(A,B) ((A)<=(B))
+      #define BEDCMP(A,B) ((A)<(B))
     #else
-      #define BEDCMP(A,B) ((A)>=(B))
+      #define BEDCMP(A,B) ((A)>(B))
     #endif
     const bool bed_on = temp_bed.target > 0
       || TERN0(PIDTEMPBED, temp_bed.soft_pwm_amount) > 0
@@ -2290,9 +2290,9 @@ void Temperature::readings_ready() {
 
   #if HAS_HEATED_CHAMBER
     #if TEMPDIR(CHAMBER) < 0
-      #define CHAMBERCMP(A,B) ((A)<=(B))
+      #define CHAMBERCMP(A,B) ((A)<(B))
     #else
-      #define CHAMBERCMP(A,B) ((A)>=(B))
+      #define CHAMBERCMP(A,B) ((A)>(B))
     #endif
     const bool chamber_on = (temp_chamber.target > 0);
     if (CHAMBERCMP(temp_chamber.raw, maxtemp_raw_CHAMBER)) max_temp_error(H_CHAMBER);
