@@ -292,7 +292,7 @@
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
-#define I2C_ADDRESS(A) int(TERN(TARGET_LPC1768, (A) << 1, A))
+#define I2C_ADDRESS(A) (typeof(A))(TERN(TARGET_LPC1768, (A) << 1, A))
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
