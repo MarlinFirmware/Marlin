@@ -50,7 +50,7 @@ uint8_t MarlinUI::preheat_fan_speed[2];
 void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
   #if HAS_HOTEND
     if (indh >= 0 && ui.preheat_hotend_temp[indh] > 0)
-      setTargetHotend(_MIN(heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.preheat_hotend_temp[indh]), e);
+      setTargetHotend(_MIN(thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.preheat_hotend_temp[indh]), e);
   #else
     UNUSED(e);
     UNUSED(temph);
@@ -166,7 +166,7 @@ void menu_temperature() {
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(0); });
   #elif HAS_MULTI_HOTEND
     HOTEND_LOOP()
-      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, heater_maxtemp[e] - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
   #if ENABLED(SINGLENOZZLE)
