@@ -53,14 +53,10 @@ static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRE
 // Public functions
 // ------------------------
 
-static void eeprom_init() {
-  Wire.begin();
-}
+static void eeprom_init() { Wire.begin(); }
 
 void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   const unsigned eeprom_address = (unsigned)pos;
-
-  TERN(TARGET_LPC1768,,eeprom_init());
 
   Wire.beginTransmission(eeprom_device_address);
   Wire.write(int(eeprom_address >> 8));   // MSB
@@ -106,8 +102,6 @@ void eeprom_update_block(const void *pos, void *__dst, size_t n) {
 
 uint8_t eeprom_read_byte(uint8_t *pos) {
   const unsigned eeprom_address = (unsigned)pos;
-
-  TERN(TARGET_LPC1768,,eeprom_init());
 
   Wire.beginTransmission(eeprom_device_address);
   Wire.write(int(eeprom_address >> 8));   // MSB
