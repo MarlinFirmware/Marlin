@@ -1072,17 +1072,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
             thermalManager.setTargetHotend(singlenozzle_temp[new_tool], 0);
             #if ENABLED(AUTOTEMP)
-              #if ENABLED(AUTOTEMP_PROPORTIONAL)
-                const int16_t target = thermalManager.degTargetHotend(new_tool);
-                autotemp_min = target + AUTOTEMP_MIN_P;
-                autotemp_max = target + AUTOTEMP_MAX_P;
-              #endif
-            autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-            autotemp_enabled = autotemp_factor != 0;
+              planner.autotemp_update();
             #endif
-            #if HAS_DISPLAY
-              thermalManager.set_heating_message(0);
-            #endif
+            TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
             (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
           }
         #endif
@@ -1212,6 +1204,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // EXTRUDERS > 1
+  }
 }
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
@@ -1263,18 +1256,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
      thermalManager.setTargetHotend(thermalManager.temp_hotend[active_extruder].target, migration_extruder);
 
       #if ENABLED(AUTOTEMP)
-        #if ENABLED(AUTOTEMP_PROPORTIONAL)
-          const int16_t target = thermalManager.degTargetHotend(migration_extruder);
-          autotemp_min = target + AUTOTEMP_MIN_P;
-          autotemp_max = target + AUTOTEMP_MAX_P;
-        #endif
-      autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-      autotemp_enabled = autotemp_factor != 0;
+        planner.autotemp_update();
       #endif
 
-      #if HAS_DISPLAY
-        thermalManager.set_heating_message(0);
-      #endif
+      TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
       thermalManager.wait_for_hotend(active_extruder);
     #endif
 
