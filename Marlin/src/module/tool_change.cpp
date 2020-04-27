@@ -823,7 +823,7 @@ void tool_change_prime() {
     #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
       const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-      safe_delay(toolchange_settings.fan_time * 1000);
+      gcode.dwell(toolchange_settings.fan_time * 1000);
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
     #endif
 

@@ -412,10 +412,12 @@ void menu_cancelobject();
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT
-      EDIT_ITEM(uint16_3, MSG_XY_FREQUENCY_LIMIT, &planner.xy_freq_limit_hz, 0, 100, refresh_frequency_limit(), true);
-      editable.uint8 = ROUND(planner.xy_freq_min_speed_factor * 255 * 100); // percent to u8
+      editable.uint8 = planner.xy_freq_limit_hz;
+      EDIT_ITEM(uint8, MSG_XY_FREQUENCY_LIMIT, &editable.uint8, 0, 100, []{ planner.refresh_frequency_limit() ; }, true);
+      editable.uint8 = LROUND(planner.xy_freq_min_speed_factor * 255); // percent to u8
       EDIT_ITEM(percent, MSG_XY_FREQUENCY_FEEDRATE, &editable.uint8, 3, 255, []{ planner.set_min_speed_factor_u8(editable.uint8); }, true);
     #endif
+
 
     END_MENU();
   }

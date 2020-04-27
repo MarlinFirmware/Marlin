@@ -1888,7 +1888,7 @@
     // (May break filament if not retracted beforehand.)
     //#define TOOLCHANGE_FS_INIT_BEFORE_SWAP
 
-    // Prime on the first T0 (If other TOOLCHANGE_FS_INIT_BEFORE_SWAP applied)
+    // Prime on the first T0 (If other, TOOLCHANGE_FS_INIT_BEFORE_SWAP applied)
     // Enable it (M217 V[0/1]) before printing, to avoid unwanted priming on host connect
     //#define TOOLCHANGE_FS_PRIME_FIRST_USED
 
