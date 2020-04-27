@@ -171,13 +171,9 @@
 #endif
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
-<<<<<<< HEAD
-  #define BTN_EN1                           EXPA1_08_PIN // TODO: Rename to BNT_EN2 when fix the SKR E3/DIP EXT1 mapping
-=======
   #define BEEPER_PIN                        EXPA1_10_PIN
 
   #define BTN_EN2                           EXPA1_08_PIN
->>>>>>> b1a195207f... Rearangle again
 
   #define CLCD_SPI_BUS 2
   //#define CLCD_USE_SOFT_SPI
