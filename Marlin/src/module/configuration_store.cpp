@@ -3224,33 +3224,29 @@ void MarlinSettings::reset() {
 
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
         say_M906(forReplay);
-        SERIAL_ECHOLNPAIR_P(
-          #if AXIS_IS_TMC(X)
-            SP_X_STR, stepperX.getMilliamps(),
-          #endif
-          #if AXIS_IS_TMC(Y)
-            SP_Y_STR, stepperY.getMilliamps(),
-          #endif
-          #if AXIS_IS_TMC(Z)
-            SP_Z_STR, stepperZ.getMilliamps()
-          #endif
-        );
+        #if AXIS_IS_TMC(X)
+          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX.getMilliamps());
+        #endif
+        #if AXIS_IS_TMC(Y)
+          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY.getMilliamps());
+        #endif
+        #if AXIS_IS_TMC(Z)
+          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.getMilliamps());
+        #endif
       #endif
 
       #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
         say_M906(forReplay);
         SERIAL_ECHOPGM(" I1");
-        SERIAL_ECHOLNPAIR_P(
-          #if AXIS_IS_TMC(X2)
-            SP_X_STR, stepperX2.getMilliamps(),
-          #endif
-          #if AXIS_IS_TMC(Y2)
-            SP_Y_STR, stepperY2.getMilliamps(),
-          #endif
-          #if AXIS_IS_TMC(Z2)
-            SP_Z_STR, stepperZ2.getMilliamps()
-          #endif
-        );
+        #if AXIS_IS_TMC(X2)
+          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX2.getMilliamps());
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY2.getMilliamps());
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.getMilliamps());
+        #endif
       #endif
 
       #if AXIS_IS_TMC(Z3)

@@ -175,7 +175,7 @@ typedef struct block_t {
     cutter_power_t cutter_power;            // Power level for Spindle, Laser, etc.
   #endif
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 

@@ -28,9 +28,10 @@
 #include "endstops.h"
 
 #include "../MarlinCore.h"
-#include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../HAL/shared/Delay.h"
+
+#include "../lcd/ultralcd.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -151,7 +152,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   uint8_t Temperature::chamberfan_speed; // = 0
 #endif
 
-#if FAN_COUNT > 0
+#if HAS_FAN
 
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
 
@@ -218,7 +219,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
   #endif
 
-#endif // FAN_COUNT > 0
+#endif // HAS_FAN
 
 #if WATCH_HOTENDS
   hotend_watch_t Temperature::watch_hotend[HOTENDS]; // = { { 0 } }
@@ -399,7 +400,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
 
-    if (target > GHV(BED_MAXTEMP - 10, temp_range[heater].maxtemp - 15)) {
+    if (target > GHV(BED_MAX_TARGET, temp_range[heater].maxtemp - HOTEND_OVERSHOOT)) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
       return;
@@ -2241,22 +2242,14 @@ void Temperature::readings_ready() {
   #if HAS_HOTEND
 
     static constexpr int8_t temp_dir[] = {
-      #if ENABLED(HEATER_0_USES_MAX6675)
-        0
-      #else
-        TEMPDIR(0)
-      #endif
+      TERN(HEATER_0_USES_MAX6675, 0, TEMPDIR(0))
       #if HAS_MULTI_HOTEND
-        #define _TEMPDIR(N) , TEMPDIR(N)
-        #if ENABLED(HEATER_1_USES_MAX6675)
-          , 0
-        #else
-          _TEMPDIR(1)
-        #endif
+        , TERN(HEATER_1_USES_MAX6675, 0, TEMPDIR(1))
         #if HOTENDS > 2
+          #define _TEMPDIR(N) , TEMPDIR(N)
           REPEAT_S(2, HOTENDS, _TEMPDIR)
-        #endif // HOTENDS > 2
-      #endif // HAS_MULTI_HOTEND
+        #endif
+      #endif
     };
 
     LOOP_L_N(e, COUNT(temp_dir)) {
