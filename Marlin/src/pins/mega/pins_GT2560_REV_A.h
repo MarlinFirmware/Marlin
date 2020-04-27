@@ -44,8 +44,13 @@
 #define Y_MIN_PIN                             26
 #define Y_MAX_PIN                             28
 #define Z_MIN_PIN                             30
+
 #if ENABLED(BLTOUCH)
-  #define SERVO0_PIN                          32
+  #if MB(GT2560_REV_A_PLUS)
+    #define SERVO0_PIN                        11
+  #else
+    #define SERVO0_PIN                        32
+  #endif
   #define Z_MAX_PIN                           -1
 #else
   #define Z_MAX_PIN                           32
