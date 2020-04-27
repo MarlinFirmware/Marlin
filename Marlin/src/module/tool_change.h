@@ -110,7 +110,7 @@
 
 #if ENABLED(SINGLENOZZLE)
   extern uint16_t singlenozzle_temp[EXTRUDERS];
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
   #endif
 #endif

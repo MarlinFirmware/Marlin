@@ -1707,6 +1707,7 @@
 // Shorthand for common combinations
 #if HAS_TEMP_BED && HAS_HEATER_BED
   #define HAS_HEATED_BED 1
+  #define BED_MAX_TARGET (BED_MAXTEMP - 10)
 #endif
 #if HAS_HEATED_BED || HAS_TEMP_CHAMBER
   #define BED_OR_CHAMBER 1
@@ -1752,7 +1753,7 @@
 #if HAS_HOTEND && PIN_EXISTS(E0_AUTO_FAN)
   #define HAS_AUTO_FAN_0 1
 #endif
-#if HOTENDS > 1 && PIN_EXISTS(E1_AUTO_FAN)
+#if HAS_MULTI_HOTEND && PIN_EXISTS(E1_AUTO_FAN)
   #define HAS_AUTO_FAN_1 1
 #endif
 #if HOTENDS > 2 && PIN_EXISTS(E2_AUTO_FAN)
@@ -1996,7 +1997,7 @@
  */
 
 #define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
-#if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
+#if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
   #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
   #if HOTENDS > 2
     #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
@@ -2016,7 +2017,7 @@
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
-#endif // HOTENDS > 1
+#endif // HAS_MULTI_HOTEND || HEATERS_PARALLEL
 #if ENABLED(HEATERS_PARALLEL)
   #define WRITE_HEATER_0(v) { WRITE_HEATER_0P(v); WRITE_HEATER_1(v); }
 #else
@@ -2084,6 +2085,7 @@
 #endif
 
 #if FAN_COUNT > 0
+  #define HAS_FAN 1
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 #endif
 

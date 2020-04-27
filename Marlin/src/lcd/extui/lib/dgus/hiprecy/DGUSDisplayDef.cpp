@@ -56,7 +56,7 @@ const uint16_t VPList_Main[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set, VP_BED_STATUS,
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     VP_Fan0_Percentage, VP_FAN0_STATUS,
   #endif
   VP_XPos, VP_YPos, VP_ZPos,
@@ -92,7 +92,7 @@ const uint16_t VPList_Status[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     VP_Fan0_Percentage,
   #endif
   VP_XPos, VP_YPos, VP_ZPos,
@@ -191,7 +191,7 @@ const uint16_t VPList_SD_PrintManipulation[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     VP_Fan0_Percentage,
     #if FAN_COUNT > 1
       VP_Fan1_Percentage,
@@ -212,7 +212,7 @@ const uint16_t VPList_SDPrintTune[] PROGMEM = {
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   VP_Feedrate_Percentage,
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     VP_Fan0_Percentage,
   #endif
   VP_Flowrate_E0,
@@ -409,7 +409,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   // Fan Data
-  #if FAN_COUNT
+  #if HAS_FAN
     #define FAN_VPHELPER(N) \
       VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay), \
       VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], &DGUSScreenVariableHandler::HandleFanControl, nullptr), \
