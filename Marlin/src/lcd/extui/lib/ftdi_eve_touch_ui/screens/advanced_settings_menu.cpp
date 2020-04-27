@@ -115,11 +115,17 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       )
       .tag(14).button( TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
       .enabled(
-        #if HAS_MULTI_HOTEND
+        #if HAS_MULTI_HOTEND || ENABLED(BLTOUCH)
           1
         #endif
       )
-      .tag(4) .button( OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(4) .button( OFFSETS_POS, GET_TEXT_F(
+          #if HOTENDS > 1
+            MSG_OFFSETS_MENU
+          #else
+            MSG_RESET_BLTOUCH
+          #endif
+      ))
       .enabled(
         #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
           1
@@ -157,9 +163,13 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 2:  GOTO_SCREEN(ZOffsetScreen);              break;
     #endif
     case 3:  GOTO_SCREEN(StepsScreen);                break;
-    #if HAS_MULTI_HOTEND
-    case 4:  GOTO_SCREEN(NozzleOffsetScreen);         break;
-    #endif
+    case 4:
+      #if HAS_MULTI_HOTEND
+        GOTO_SCREEN(NozzleOffsetScreen);
+      #elif ENABLED(BLTOUCH)
+        injectCommands_P(PSTR("M280 P0 S60"));
+      #endif
+      break;
     case 5:  GOTO_SCREEN(MaxVelocityScreen);          break;
     case 6:  GOTO_SCREEN(DefaultAccelerationScreen);  break;
     case 7:
