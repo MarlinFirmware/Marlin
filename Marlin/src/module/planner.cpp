@@ -2861,6 +2861,17 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 
 #if ENABLED(AUTOTEMP)
 
+void Planner::autotemp_update() {
+  
+  #if ENABLED(AUTOTEMP_PROPORTIONAL)
+    const int16_t target = thermalManager.degTargetHotend(active_extruder);
+    autotemp_min = target + AUTOTEMP_MIN_P;
+    autotemp_max = target + AUTOTEMP_MAX_P;
+  #endif
+  autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+  autotemp_enabled = autotemp_factor != 0;
+}
+
   void Planner::autotemp_M104_M109() {
 
     #if ENABLED(AUTOTEMP_PROPORTIONAL)

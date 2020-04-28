@@ -193,7 +193,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
     NOMORE(speed, 255U);
 
-    #if ENABLED(SINGLENOZZLE)
+    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
       if (target != active_extruder) {
         if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
         return;
@@ -2386,7 +2386,7 @@ void Temperature::tick() {
 
   #if DISABLED(SLOW_PWM_HEATERS)
 
-    #if HOTENDS || HAS_HEATED_BED || HAS_HEATED_CHAMBER
+    #if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
       constexpr uint8_t pwm_mask =
         #if ENABLED(SOFT_PWM_DITHER)
           _BV(SOFT_PWM_SCALE) - 1
@@ -2931,7 +2931,7 @@ void Temperature::tick() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if HOTENDS && HAS_DISPLAY
+  #if HAS_HOTEND && HAS_DISPLAY
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,
