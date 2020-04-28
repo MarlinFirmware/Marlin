@@ -54,9 +54,7 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
-    #if ENABLED(MARLIN_DEV_MODE)
-      frequency = SPINDLE_LASER_FREQUENCY;
-    #endif
+    TERN_(MARLIN_DEV_MODE, frequency = SPINDLE_LASER_FREQUENCY);
   #endif
 }
 
@@ -99,9 +97,7 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
   //
   void SpindleLaser::set_direction(const bool reverse) {
     const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
-    #if ENABLED(SPINDLE_STOP_ON_DIR_CHANGE)
-      if (enabled() && READ(SPINDLE_DIR_PIN) != dir_state) disable();
-    #endif
+    if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
 

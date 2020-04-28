@@ -26,4 +26,5 @@
   #undef SRAM_EEPROM_EMULATION
   #undef SDCARD_EEPROM_EMULATION
   #define FLASH_EEPROM_EMULATION
+  #warning "Forcing use of FLASH_EEPROM_EMULATION."
 #endif

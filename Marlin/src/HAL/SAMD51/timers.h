@@ -97,13 +97,13 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   // Should never be called with timer RTC_TIMER_NUM
   Tc * const tc = TimerConfig[timer_num].pTc;
-  tc->COUNT32.CC[0].reg = HAL_TIMER_TYPE_MAX - compare;
+  tc->COUNT32.CC[0].reg = compare;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   // Should never be called with timer RTC_TIMER_NUM
   Tc * const tc = TimerConfig[timer_num].pTc;
-  return (hal_timer_t)(HAL_TIMER_TYPE_MAX - tc->COUNT32.CC[0].reg);
+  return (hal_timer_t)tc->COUNT32.CC[0].reg;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
@@ -111,7 +111,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   Tc * const tc = TimerConfig[timer_num].pTc;
   tc->COUNT32.CTRLBSET.reg = TC_CTRLBCLR_CMD_READSYNC;
   SYNC(tc->COUNT32.SYNCBUSY.bit.CTRLB || tc->COUNT32.SYNCBUSY.bit.COUNT);
-  return HAL_TIMER_TYPE_MAX - tc->COUNT32.COUNT.reg;
+  return tc->COUNT32.COUNT.reg;
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num);

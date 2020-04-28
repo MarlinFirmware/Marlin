@@ -45,7 +45,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Cancelando...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Tarxeta inserida");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tarxeta retirada");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD/USB lanzado");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Agardando ao SD/USB");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Erro lectura SD/USB");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Disp. USB retirado");
@@ -372,8 +371,8 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Lonxitude de Purga");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Cambiar Ferramenta");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Levantar Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Velocidade prim.");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Vel. de Retracción");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Velocidade prim.");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Vel. de Retracción");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambiar Filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambiar Filamento *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Cargar Filamento");

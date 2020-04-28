@@ -27,7 +27,7 @@
   #include "../libs/buzzer.h"
 #endif
 
-#if HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY)
+#if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
 #if (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2)
@@ -41,7 +41,13 @@
 #endif
 
 // I2C buttons must be read in the main thread
-#define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+#if EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+  #define HAS_SLOW_BUTTONS 1
+#endif
+
+#if E_MANUAL > 1
+  #define MULTI_MANUAL 1
+#endif
 
 #if HAS_SPI_LCD
 
@@ -64,11 +70,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(TOUCH_BUTTONS)
-    #define LCD_UPDATE_INTERVAL 50
-  #else
-    #define LCD_UPDATE_INTERVAL 100
-  #endif
+  #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
 
@@ -207,12 +209,12 @@
   #define BL_DW 4   // Down
   #define BL_RI 3   // Right
   #define BL_ST 2   // Red Button
-  #define B_LE (_BV(BL_LE))
-  #define B_UP (_BV(BL_UP))
-  #define B_MI (_BV(BL_MI))
-  #define B_DW (_BV(BL_DW))
-  #define B_RI (_BV(BL_RI))
-  #define B_ST (_BV(BL_ST))
+  #define B_LE _BV(BL_LE)
+  #define B_UP _BV(BL_UP)
+  #define B_MI _BV(BL_MI)
+  #define B_DW _BV(BL_DW)
+  #define B_RI _BV(BL_RI)
+  #define B_ST _BV(BL_ST)
 
   #ifndef BUTTON_CLICK
     #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
@@ -258,9 +260,7 @@ class MarlinUI {
 public:
 
   MarlinUI() {
-    #if HAS_LCD_MENU
-      currentScreen = status_screen;
-    #endif
+    TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
   #if HAS_BUZZER
@@ -401,6 +401,8 @@ public:
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
+      #else
+        static inline void completion_feedback(const bool=true) {}
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
@@ -493,15 +495,9 @@ public:
     static void save_previous_screen();
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
-    #if ENABLED(TURBO_BACK_MENU_ITEM)
-      static void _goto_previous_screen(const bool is_back);
-      static inline void goto_previous_screen() { _goto_previous_screen(false); }
-      static inline void go_back()              { _goto_previous_screen(true); }
-    #else
-      static void _goto_previous_screen();
-      FORCE_INLINE static void goto_previous_screen() { _goto_previous_screen(); }
-      FORCE_INLINE static void go_back()              { _goto_previous_screen(); }
-    #endif
+    static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
+    static inline void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
+    static inline void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
 
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }
@@ -512,11 +508,7 @@ public:
     #endif
 
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      #if LCD_TIMEOUT_TO_STATUS
-        defer_return_to_status = defer;
-      #else
-        UNUSED(defer);
-      #endif
+      TERN(LCD_TIMEOUT_TO_STATUS, defer_return_to_status = defer, UNUSED(defer));
     }
 
     static inline void goto_previous_screen_no_defer() {
@@ -530,9 +522,7 @@ public:
 
     #if ENABLED(G26_MESH_VALIDATION)
       FORCE_INLINE static void chirp() {
-        #if HAS_BUZZER
-          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-        #endif
+        TERN_(HAS_BUZZER, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
       }
     #endif
 
@@ -586,11 +576,7 @@ public:
 
     static uint32_t encoderPosition;
 
-    #if ENABLED(REVERSE_ENCODER_DIRECTION)
-      #define ENCODERBASE -1
-    #else
-      #define ENCODERBASE +1
-    #endif
+    #define ENCODERBASE (TERN(REVERSE_ENCODER_DIRECTION, -1, +1))
 
     #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
@@ -605,15 +591,11 @@ public:
     }
 
     FORCE_INLINE static void encoder_direction_menus() {
-      #if ENABLED(REVERSE_MENU_DIRECTION)
-        encoderDirection = -(ENCODERBASE);
-      #endif
+      TERN_(REVERSE_MENU_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
     FORCE_INLINE static void encoder_direction_select() {
-      #if ENABLED(REVERSE_SELECT_DIRECTION)
-        encoderDirection = -(ENCODERBASE);
-      #endif
+      TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
   #else

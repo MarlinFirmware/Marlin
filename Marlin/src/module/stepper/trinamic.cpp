@@ -140,9 +140,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -181,9 +179,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -475,9 +471,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -523,9 +517,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -569,15 +561,10 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     st.sdoff(0);
     st.rms_current(mA);
     st.microsteps(microsteps);
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      st.dedge(true);
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, st.dedge(true));
     st.intpol(INTERPOLATE);
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
-
-    #if ENABLED(TMC_DEBUG)
-      st.rdsel(0b01);
-    #endif
+    TERN_(TMC_DEBUG, st.rdsel(0b01));
   }
 #endif // TMC2660
 
@@ -592,9 +579,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -633,9 +618,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     chopconf.intpol = INTERPOLATE;
     chopconf.hend = chopper_timing.hend + 3;
     chopconf.hstrt = chopper_timing.hstrt - 1;
-    #if ENABLED(SQUARE_WAVE_STEPPING)
-      chopconf.dedge = true;
-    #endif
+    TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -787,39 +770,14 @@ void reset_trinamic_drivers() {
   #endif
 
   #if USE_SENSORLESS
-    #if X_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(X)
-        stepperX.homing_threshold(X_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(X2) && !X2_SENSORLESS
-        stepperX2.homing_threshold(X_STALL_SENSITIVITY);
-      #endif
-    #endif
-    #if X2_SENSORLESS
-      stepperX2.homing_threshold(X2_STALL_SENSITIVITY);
-    #endif
-    #if Y_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(Y)
-        stepperY.homing_threshold(Y_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Y2)
-        stepperY2.homing_threshold(Y_STALL_SENSITIVITY);
-      #endif
-    #endif
-    #if Z_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(Z)
-        stepperZ.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z2)
-        stepperZ2.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z3)
-        stepperZ3.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z4)
-        stepperZ4.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-    #endif
+    TERN_(X_SENSORLESS,  stepperX.homing_threshold(X_STALL_SENSITIVITY));
+    TERN_(X2_SENSORLESS, stepperX2.homing_threshold(X2_STALL_SENSITIVITY));
+    TERN_(Y_SENSORLESS,  stepperY.homing_threshold(Y_STALL_SENSITIVITY));
+    TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(Y2_STALL_SENSITIVITY));
+    TERN_(Z_SENSORLESS,  stepperZ.homing_threshold(Z_STALL_SENSITIVITY));
+    TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(Z2_STALL_SENSITIVITY));
+    TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(Z3_STALL_SENSITIVITY));
+    TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(Z4_STALL_SENSITIVITY));
   #endif
 
   #ifdef TMC_ADV

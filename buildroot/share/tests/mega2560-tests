@@ -71,7 +71,7 @@ opt_set NUM_SERVOS 1
 opt_enable ZONESTAR_LCD Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE BOOT_MARLIN_LOGO_ANIMATED \
            AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT M114_DETAIL \
            NO_VOLUMETRICS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET JOYSTICK \
-           PRUSA_MMU2 MMU2_MENUS NOZZLE_PARK_FEATURE ADVANCED_PAUSE_FEATURE Z_SAFE_HOMING
+           PRUSA_MMU2 MMU2_MENUS PRUSA_MMU2_S_MODE FILAMENT_RUNOUT_SENSOR NOZZLE_PARK_FEATURE ADVANCED_PAUSE_FEATURE Z_SAFE_HOMING
 exec_test $1 $2 "RAMPS | ZONESTAR_LCD | MMU2 | Servo Probe | ABL 3-Pt | Debug Leveling | EEPROM | G38 ..."
 
 #
@@ -127,13 +127,15 @@ exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Cyrillic"
 # Test many less common options
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_MEGATRONICS_32
+opt_set MOTHERBOARD BOARD_MIGHTYBOARD_REVE
+opt_set TEMP_SENSOR_0 -2
+opt_set DIGIPOT_I2C_NUM_CHANNELS 5
 opt_set LCD_LANGUAGE it
 opt_set MIXING_STEPPERS 2
 opt_set SERVO_DELAY "{ 300, 300, 300 }"
 opt_enable COREYX USE_XMAX_PLUG MIXING_EXTRUDER GRADIENT_MIX \
            BABYSTEPPING BABYSTEP_DISPLAY_TOTAL FILAMENT_LCD_DISPLAY \
-           REPRAP_DISCOUNT_SMART_CONTROLLER MENU_ADDAUTOSTART SDSUPPORT SDCARD_SORT_ALPHA \
+           REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER MENU_ADDAUTOSTART SDSUPPORT SDCARD_SORT_ALPHA \
            ENDSTOP_NOISE_THRESHOLD FAN_SOFT_PWM \
            FIX_MOUNTED_PROBE AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE FILAMENT_WIDTH_SENSOR \
            Z_SAFE_HOMING SHOW_TEMP_ADC_VALUES HOME_Y_BEFORE_X EMERGENCY_PARSER \
@@ -143,7 +145,7 @@ opt_set FAN_MIN_PWM 50
 opt_set FAN_KICKSTART_TIME 100
 opt_set XY_FREQUENCY_LIMIT 15
 opt_add FILWIDTH_PIN 5
-exec_test $1 $2 "Megatronics 3.2 | Gradient Mix | Endstop Int. | Home Y > X | FW Retract ..."
+exec_test $1 $2 "Mightyboard Rev. E | CoreXY, Gradient Mix | Endstop Int. | Home Y > X | FW Retract ..."
 
 ######## Other Standard LCD/Panels ##############
 #
@@ -231,11 +233,11 @@ exec_test $1 $2 "Megatronics 3.2 | Gradient Mix | Endstop Int. | Home Y > X | FW
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 
 ######## Example Configurations ##############
 #

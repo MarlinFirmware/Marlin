@@ -48,13 +48,7 @@
   static uint8_t manual_probe_index;
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = (
-    #if ENABLED(AUTO_BED_LEVELING_3POINT)
-      3
-    #elif ABL_GRID || ENABLED(MESH_BED_LEVELING)
-      GRID_MAX_POINTS
-    #endif
-  );
+  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -75,9 +69,7 @@
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
+      ui.completion_feedback();
     }
     if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -232,10 +224,11 @@
  *    Save Settings       (Req: EEPROM_SETTINGS)
  */
 void menu_bed_leveling() {
+  const bool is_homed = all_axes_known(),
+             is_valid = leveling_is_valid();
+
   START_MENU();
   BACK_ITEM(MSG_MOTION);
-
-  const bool is_homed = all_axes_known();
 
   // Auto Home if not using manual probing
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -252,21 +245,22 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(MESH_EDIT_MENU)
-    if (leveling_is_valid())
-      SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
+    if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
   #endif
 
   // Homed and leveling is valid? Then leveling can be toggled.
-  if (is_homed && leveling_is_valid()) {
+  if (is_homed && is_valid) {
     bool show_state = planner.leveling_active;
     EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
   }
 
   // Z Fade Height
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    // Shadow for editing the fade height
-    editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
+    MENU_ITEM_IF (1) {
+      // Shadow for editing the fade height
+      editable.decimal = planner.z_fade_height;
+      EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
+    }
   #endif
 
   //

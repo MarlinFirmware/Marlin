@@ -58,7 +58,7 @@ void CLCD::FontMetrics::load(const uint8_t font) {
 uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
   uint16_t width = 0;
   const uint8_t *p = (const uint8_t *) str;
-  for(;;) {
+  for (;;) {
     const uint8_t val = *p++; n--;
     if (!val || n == 0) break;
     width += val < 128 ? char_widths[val] : 0;
@@ -69,7 +69,7 @@ uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
 uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
   uint16_t width = 0;
   const uint8_t *p = (const uint8_t *) str;
-  for(;;) {
+  for (;;) {
     const uint8_t val = pgm_read_byte(p++); n--;
     if (!val || n == 0) break;
     width += val < 128 ? char_widths[val] : 0;
@@ -79,7 +79,7 @@ uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
 
 /************************** HOST COMMAND FUNCTION *********************************/
 
-void CLCD::host_cmd (unsigned char host_command, unsigned char byte2) {  // Sends 24-Bit Host Command to LCD
+void CLCD::host_cmd(unsigned char host_command, unsigned char byte2) {  // Sends 24-Bit Host Command to LCD
   if (host_command != FTDI::ACTIVE) {
     host_command |= 0x40;
   }
@@ -92,7 +92,7 @@ void CLCD::host_cmd (unsigned char host_command, unsigned char byte2) {  // Send
 
 /************************** MEMORY READ FUNCTIONS *********************************/
 
-void CLCD::spi_read_addr  (uint32_t reg_address) {
+void CLCD::spi_read_addr(uint32_t reg_address) {
   spi_send((reg_address >> 16) & 0x3F);  // Address [21:16]
   spi_send((reg_address >> 8 ) & 0xFF);  // Address [15:8]
   spi_send((reg_address >> 0)  & 0xFF);  // Address [7:0]
@@ -100,7 +100,7 @@ void CLCD::spi_read_addr  (uint32_t reg_address) {
 }
 
 // Write 4-Byte Address, Read Multiple Bytes
-void CLCD::mem_read_bulk (uint32_t reg_address, uint8_t *data, uint16_t len) {
+void CLCD::mem_read_bulk(uint32_t reg_address, uint8_t *data, uint16_t len) {
   spi_ftdi_select();
   spi_read_addr(reg_address);
   spi_read_bulk (data, len);
@@ -108,7 +108,7 @@ void CLCD::mem_read_bulk (uint32_t reg_address, uint8_t *data, uint16_t len) {
 }
 
 // Write 4-Byte Address, Read 1-Byte Data
-uint8_t CLCD::mem_read_8 (uint32_t reg_address) {
+uint8_t CLCD::mem_read_8(uint32_t reg_address) {
   spi_ftdi_select();
   spi_read_addr(reg_address);
   uint8_t r_data = spi_read_8();
@@ -117,7 +117,7 @@ uint8_t CLCD::mem_read_8 (uint32_t reg_address) {
 }
 
 // Write 4-Byte Address, Read 2-Bytes Data
-uint16_t CLCD::mem_read_16 (uint32_t reg_address) {
+uint16_t CLCD::mem_read_16(uint32_t reg_address) {
   using namespace SPI::least_significant_byte_first;
   spi_ftdi_select();
   spi_read_addr(reg_address);
@@ -127,7 +127,7 @@ uint16_t CLCD::mem_read_16 (uint32_t reg_address) {
 }
 
 // Write 4-Byte Address, Read 4-Bytes Data
-uint32_t CLCD::mem_read_32 (uint32_t reg_address) {
+uint32_t CLCD::mem_read_32(uint32_t reg_address) {
   using namespace SPI::least_significant_byte_first;
   spi_ftdi_select();
   spi_read_addr(reg_address);
@@ -147,14 +147,14 @@ static inline uint8_t reverse_byte(uint8_t a) {
 }
 static inline uint8_t xbm_write(const uint8_t *p) {return reverse_byte(pgm_read_byte(p));}
 
-void CLCD::spi_write_addr (uint32_t reg_address) {
+void CLCD::spi_write_addr(uint32_t reg_address) {
   spi_send((reg_address >> 16) | 0x80);  // Address [21:16]
   spi_send((reg_address >> 8 ) & 0xFF);  // Address [15:8]
   spi_send((reg_address >> 0)  & 0xFF);  // Address [7:0]
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from RAM
-void CLCD::mem_write_bulk (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_bulk(uint32_t reg_address, const void *data, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<ram_write>(data, len, padding);
@@ -162,7 +162,7 @@ void CLCD::mem_write_bulk (uint32_t reg_address, const void *data, uint16_t len,
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM
-void CLCD::mem_write_bulk (uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_bulk(uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<pgm_write>(str, len, padding);
@@ -170,7 +170,7 @@ void CLCD::mem_write_bulk (uint32_t reg_address, progmem_str str, uint16_t len, 
 }
 
  // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM
-void CLCD::mem_write_pgm (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_pgm(uint32_t reg_address, const void *data, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<pgm_write>(data, len, padding);
@@ -178,7 +178,7 @@ void CLCD::mem_write_pgm (uint32_t reg_address, const void *data, uint16_t len, 
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM, reversing bytes (suitable for loading XBM images)
-void CLCD::mem_write_xbm (uint32_t reg_address, progmem_str data, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_xbm(uint32_t reg_address, progmem_str data, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<xbm_write>(data, len, padding);
@@ -186,7 +186,7 @@ void CLCD::mem_write_xbm (uint32_t reg_address, progmem_str data, uint16_t len, 
 }
 
 // Write 3-Byte Address, Write 1-Byte Data
-void CLCD::mem_write_8 (uint32_t reg_address, uint8_t data) {
+void CLCD::mem_write_8(uint32_t reg_address, uint8_t data) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_8(data);
@@ -194,16 +194,16 @@ void CLCD::mem_write_8 (uint32_t reg_address, uint8_t data) {
 }
 
 // Write 3-Byte Address, Write 2-Bytes Data
-void CLCD::mem_write_16 (uint32_t reg_address, uint16_t data) {
+void CLCD::mem_write_16(uint32_t reg_address, uint16_t data) {
   using namespace SPI::least_significant_byte_first;
   spi_ftdi_select();
   spi_write_addr(reg_address);
-  spi_write_32(data);
+  spi_write_16(data);
   spi_ftdi_deselect();
 }
 
 // Write 3-Byte Address, Write 4-Bytes Data
-void CLCD::mem_write_32 (uint32_t reg_address, uint32_t data) {
+void CLCD::mem_write_32(uint32_t reg_address, uint32_t data) {
   using namespace SPI::least_significant_byte_first;
   spi_ftdi_select();
   spi_write_addr(reg_address);
@@ -281,7 +281,7 @@ void CLCD::CommandFifo::text(int16_t x, int16_t y, int16_t font,  uint16_t optio
 }
 
 // This sends the a toggle command to the command preprocessor, must be followed by str()
-void CLCD::CommandFifo::toggle (int16_t x, int16_t y, int16_t w, int16_t font, uint16_t options, bool state) {
+void CLCD::CommandFifo::toggle(int16_t x, int16_t y, int16_t w, int16_t font, uint16_t options, bool state) {
   struct {
     int32_t type = CMD_TOGGLE;
     int16_t x;
@@ -303,7 +303,7 @@ void CLCD::CommandFifo::toggle (int16_t x, int16_t y, int16_t w, int16_t font, u
 }
 
 // This sends the a keys command to the command preprocessor, must be followed by str()
-void CLCD::CommandFifo::keys (int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options) {
+void CLCD::CommandFifo::keys(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options) {
   struct {
     int32_t type = CMD_KEYS;
     int16_t x;
@@ -324,7 +324,7 @@ void CLCD::CommandFifo::keys (int16_t x, int16_t y, int16_t w, int16_t h, int16_
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::clock (int16_t x, int16_t y, int16_t r, uint16_t options, int16_t h, int16_t m, int16_t s, int16_t ms)
+void CLCD::CommandFifo::clock(int16_t x, int16_t y, int16_t r, uint16_t options, int16_t h, int16_t m, int16_t s, int16_t ms)
 {
   struct {
     int32_t type = CMD_CLOCK;
@@ -350,7 +350,7 @@ void CLCD::CommandFifo::clock (int16_t x, int16_t y, int16_t r, uint16_t options
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::gauge (int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t major, uint16_t minor, uint16_t val, uint16_t range)
+void CLCD::CommandFifo::gauge(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t major, uint16_t minor, uint16_t val, uint16_t range)
 {
   struct {
     int32_t  type = CMD_GAUGE;
@@ -376,7 +376,7 @@ void CLCD::CommandFifo::gauge (int16_t x, int16_t y, int16_t r, uint16_t options
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::dial (int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t val)
+void CLCD::CommandFifo::dial(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t val)
 {
   struct {
     int32_t  type = CMD_DIAL;
@@ -396,7 +396,7 @@ void CLCD::CommandFifo::dial (int16_t x, int16_t y, int16_t r, uint16_t options,
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::scrollbar (int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t size, uint16_t range) {
+void CLCD::CommandFifo::scrollbar(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t size, uint16_t range) {
   struct {
     int32_t  type = CMD_SCROLLBAR;
     int16_t  x;
@@ -421,7 +421,7 @@ void CLCD::CommandFifo::scrollbar (int16_t x, int16_t y, int16_t w, int16_t h, u
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::progress (int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options,  uint16_t val, uint16_t range) {
+void CLCD::CommandFifo::progress(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options,  uint16_t val, uint16_t range) {
   struct {
     int32_t  type = CMD_PROGRESS;
     int16_t  x;
@@ -444,7 +444,7 @@ void CLCD::CommandFifo::progress (int16_t x, int16_t y, int16_t w, int16_t h, ui
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::slider (int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t range) {
+void CLCD::CommandFifo::slider(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t range) {
   struct {
     int32_t type = CMD_SLIDER;
     int16_t x;
@@ -467,7 +467,7 @@ void CLCD::CommandFifo::slider (int16_t x, int16_t y, int16_t w, int16_t h, uint
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::gradient (int16_t x0, int16_t y0, uint32_t rgb0, int16_t x1, int16_t y1, uint32_t rgb1) {
+void CLCD::CommandFifo::gradient(int16_t x0, int16_t y0, uint32_t rgb0, int16_t x1, int16_t y1, uint32_t rgb1) {
   struct {
     int32_t type = CMD_GRADIENT;
     int16_t x0;
@@ -488,7 +488,7 @@ void CLCD::CommandFifo::gradient (int16_t x0, int16_t y0, uint32_t rgb0, int16_t
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::number (int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n) {
+void CLCD::CommandFifo::number(int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n) {
   struct {
     int32_t  type = CMD_NUMBER;
     int16_t  x;
@@ -507,7 +507,7 @@ void CLCD::CommandFifo::number (int16_t x, int16_t y, int16_t font, uint16_t opt
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::memzero (uint32_t ptr, uint32_t size) {
+void CLCD::CommandFifo::memzero(uint32_t ptr, uint32_t size) {
   struct {
     uint32_t  type = CMD_MEMZERO;
     uint32_t  ptr;
@@ -520,7 +520,7 @@ void CLCD::CommandFifo::memzero (uint32_t ptr, uint32_t size) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::memset (uint32_t ptr, uint32_t val, uint32_t size) {
+void CLCD::CommandFifo::memset(uint32_t ptr, uint32_t val, uint32_t size) {
   struct {
     uint32_t  type = CMD_MEMSET;
     uint32_t  ptr;
@@ -535,7 +535,7 @@ void CLCD::CommandFifo::memset (uint32_t ptr, uint32_t val, uint32_t size) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::memcpy (uint32_t dst, uint32_t src, uint32_t size) {
+void CLCD::CommandFifo::memcpy(uint32_t dst, uint32_t src, uint32_t size) {
   struct {
     uint32_t  type = CMD_MEMCPY;
     uint32_t  dst;
@@ -550,7 +550,7 @@ void CLCD::CommandFifo::memcpy (uint32_t dst, uint32_t src, uint32_t size) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::memcrc (uint32_t ptr, uint32_t num, uint32_t result) {
+void CLCD::CommandFifo::memcrc(uint32_t ptr, uint32_t num, uint32_t result) {
   struct {
     uint32_t  type = CMD_MEMCRC;
     uint32_t  ptr;
@@ -565,7 +565,7 @@ void CLCD::CommandFifo::memcrc (uint32_t ptr, uint32_t num, uint32_t result) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::memwrite (uint32_t ptr, uint32_t value) {
+void CLCD::CommandFifo::memwrite(uint32_t ptr, uint32_t value) {
   struct {
     uint32_t  type = CMD_MEMWRITE;
     uint32_t  ptr;
@@ -580,7 +580,7 @@ void CLCD::CommandFifo::memwrite (uint32_t ptr, uint32_t value) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::append (uint32_t ptr, uint32_t size) {
+void CLCD::CommandFifo::append(uint32_t ptr, uint32_t size) {
   struct {
     uint32_t  type = CMD_APPEND;
     uint32_t  ptr;
@@ -593,7 +593,7 @@ void CLCD::CommandFifo::append (uint32_t ptr, uint32_t size) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::inflate (uint32_t ptr) {
+void CLCD::CommandFifo::inflate(uint32_t ptr) {
   struct {
     uint32_t  type = CMD_INFLATE;
     uint32_t  ptr;
@@ -604,7 +604,7 @@ void CLCD::CommandFifo::inflate (uint32_t ptr) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::getptr (uint32_t result) {
+void CLCD::CommandFifo::getptr(uint32_t result) {
   struct {
     uint32_t  type = CMD_GETPTR;
     uint32_t  result;
@@ -696,7 +696,7 @@ void CLCD::CommandFifo::loadimage(uint32_t ptr, uint32_t options) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::getprops (uint32_t ptr, uint32_t width, uint32_t height) {
+void CLCD::CommandFifo::getprops(uint32_t ptr, uint32_t width, uint32_t height) {
   struct {
     uint32_t  type = CMD_GETPROPS;
     uint32_t  ptr;
@@ -735,7 +735,7 @@ void CLCD::CommandFifo::rotate(int32_t a) {
   cmd( &cmd_data, sizeof(cmd_data) );
 }
 
-void CLCD::CommandFifo::translate (int32_t tx, int32_t ty) {
+void CLCD::CommandFifo::translate(int32_t tx, int32_t ty) {
   struct {
     uint32_t type = CMD_TRANSLATE;
     int32_t  tx;
@@ -749,7 +749,7 @@ void CLCD::CommandFifo::translate (int32_t tx, int32_t ty) {
 }
 
 #if FTDI_API_LEVEL >= 810
-void CLCD::CommandFifo::setbase (uint8_t base) {
+void CLCD::CommandFifo::setbase(uint8_t base) {
   struct {
     int32_t  type = CMD_SETBASE;
     uint32_t base;
@@ -855,7 +855,7 @@ void CLCD::CommandFifo::playvideo(uint32_t options) {
 #endif
 
 #if FTDI_API_LEVEL >= 810
-void CLCD::CommandFifo::setrotate (uint8_t rotation) {
+void CLCD::CommandFifo::setrotate(uint8_t rotation) {
   struct {
     uint32_t  type = CMD_SETROTATE;
     uint32_t  rotation;
@@ -868,7 +868,7 @@ void CLCD::CommandFifo::setrotate (uint8_t rotation) {
 #endif
 
 #if FTDI_API_LEVEL >= 810
-void CLCD::CommandFifo::romfont (uint8_t font, uint8_t romslot) {
+void CLCD::CommandFifo::romfont(uint8_t font, uint8_t romslot) {
   struct {
     uint32_t  type = CMD_ROMFONT;
     uint32_t  font;
@@ -922,9 +922,8 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
   uint32_t command_read_ptr;
 
   #if ENABLED(TOUCH_UI_DEBUG)
-  if (command_write_ptr == 0xFFFFFFFFul) {
-    SERIAL_ECHO_MSG("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
-  }
+    if (command_write_ptr == 0xFFFFFFFFul)
+      SERIAL_ECHO_MSG("Attempt to write to FIFO before CommandFifo::Cmd_Start().");
   #endif
 
   /* Wait until there is enough space in the circular buffer for the transfer */
@@ -1055,18 +1054,14 @@ void CLCD::init() {
   spi_init();                                  // Set Up I/O Lines for SPI and FT800/810 Control
   ftdi_reset();                                // Power down/up the FT8xx with the apropriate delays
 
-  if (Use_Crystal == 1) {
-    host_cmd(CLKEXT, 0);
-  }
-  else {
-    host_cmd(CLKINT, 0);
-  }
-
+  host_cmd(Use_Crystal ? CLKEXT : CLKINT, 0);
   host_cmd(FTDI::ACTIVE, 0);                        // Activate the System Clock
+
+  delay(40); // FTDI/BRT recommendation: no SPI traffic during startup. EVE needs at the very least 45ms to start, so leave her alone for a little while.
 
   /* read the device-id until it returns 0x7c or times out, should take less than 150ms */
   uint8_t counter;
-  for(counter = 0; counter < 250; counter++) {
+  for (counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
    if (device_id == 0x7c) {
      #if ENABLED(TOUCH_UI_DEBUG)
@@ -1074,15 +1069,33 @@ void CLCD::init() {
      #endif
      break;
    }
-   else {
+   else
      delay(1);
-   }
+
    if (counter == 249) {
      #if ENABLED(TOUCH_UI_DEBUG)
        SERIAL_ECHO_START();
        SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
      #endif
    }
+  }
+
+  /* make sure that all units are in working conditions, usually the touch-controller needs a little more time */
+  for (counter = 0; counter < 100; counter++) {
+    uint8_t reset_status = mem_read_8(REG::CPURESET) & 0x03;
+    if (reset_status == 0x00) {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("FTDI chip all units running ");
+      #endif
+      break;
+    }
+    else
+      delay(1);
+
+    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
+    }
   }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default
@@ -1131,13 +1144,10 @@ void CLCD::init() {
 
   mem_write_8(REG::PCLK, Pclk); // Turns on Clock by setting PCLK Register to the value necessary for the module
 
-  mem_write_16(REG::PWM_HZ,  0x00FA);
+  mem_write_16(REG::PWM_HZ, 0x00FA);
 
   // Turning off dithering seems to help prevent horizontal line artifacts on certain colors
   mem_write_8(REG::DITHER,  0);
-
-  // Initialize the command FIFO
-  CommandFifo::reset();
 
   default_touch_transform();
   default_display_orientation();
@@ -1158,26 +1168,13 @@ void CLCD::default_display_orientation() {
   #if FTDI_API_LEVEL >= 810
     // Set the initial display orientation. On the FT810, we use the command
     // processor to do this since it will also update the transform matrices.
-    if (FTDI::ftdi_chip >= 810) {
-      CommandFifo cmd;
-      cmd.setrotate(0
-        #if ENABLED(TOUCH_UI_MIRRORED)
-          + 4
-        #endif
-        #if ENABLED(TOUCH_UI_PORTRAIT)
-          + 2
-        #endif
-        #if ENABLED(TOUCH_UI_INVERTED)
-          + 1
-        #endif
-      );
-      cmd.execute();
-    }
-    else {
-      #if ENABLED(TOUCH_UI_INVERTED)
-        mem_write_32(REG::ROTATE, 1);
-      #endif
-    }
+    CommandFifo cmd;
+    cmd.setrotate(
+        ENABLED(TOUCH_UI_MIRRORED) * 4
+      + ENABLED(TOUCH_UI_PORTRAIT) * 2
+      + ENABLED(TOUCH_UI_INVERTED) * 1
+    );
+    cmd.execute();
   #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)

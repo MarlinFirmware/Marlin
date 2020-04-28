@@ -58,7 +58,7 @@ enum {
 #if HAS_MESH
   BED_MESH_SCREEN_CACHE,
 #endif
-#if DISABLED(CLASSIC_JERK)
+#if HAS_JUNCTION_DEVIATION
   JUNC_DEV_SCREEN_CACHE,
 #else
   JERK_SCREEN_CACHE,
@@ -223,7 +223,6 @@ class ConfirmStartPrintDialogBox : public DialogBoxBaseClass, public UncachedScr
 
     static const char *getFilename(bool longName);
   public:
-    static void onEntry();
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t);
 
@@ -514,7 +513,7 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
   };
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   class NozzleOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<NOZZLE_OFFSET_SCREEN_CACHE> {
     public:
       static void onEntry();
@@ -566,7 +565,7 @@ class DefaultAccelerationScreen : public BaseNumericAdjustmentScreen, public Cac
     static bool onTouchHeld(uint8_t tag);
 };
 
-#if DISABLED(CLASSIC_JERK)
+#if HAS_JUNCTION_DEVIATION
   class JunctionDeviationScreen : public BaseNumericAdjustmentScreen, public CachedScreen<JUNC_DEV_SCREEN_CACHE> {
     public:
       static void onRedraw(draw_mode_t);

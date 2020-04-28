@@ -28,8 +28,8 @@
 
 #if HAS_SPI_LCD
 
+#include "../inc/MarlinConfig.h"
 #include "lcdprint.h"
-#include "../core/language.h"
 
 /**
  * lcd_put_u8str_ind_P

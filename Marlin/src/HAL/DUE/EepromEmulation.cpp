@@ -992,7 +992,7 @@ void eeprom_write_byte(uint8_t* addr, uint8_t value) {
   ee_Write((uint32_t)addr, value);
 }
 
-void eeprom_update_block(const void* __src, void* __dst, size_t __n) {
+void eeprom_update_block(const void *__src, void *__dst, size_t __n) {
   uint8_t* dst = (uint8_t*)__dst;
   const uint8_t* src = (const uint8_t*)__src;
   while (__n--) {
@@ -1002,7 +1002,7 @@ void eeprom_update_block(const void* __src, void* __dst, size_t __n) {
   }
 }
 
-void eeprom_read_block(void* __dst, const void* __src, size_t __n) {
+void eeprom_read_block(void *__dst, const void *__src, size_t __n) {
   uint8_t* dst = (uint8_t*)__dst;
   uint8_t* src = (uint8_t*)__src;
   while (__n--) {

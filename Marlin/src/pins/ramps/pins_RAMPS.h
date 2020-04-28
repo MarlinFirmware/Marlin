@@ -180,7 +180,7 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else
@@ -721,3 +721,47 @@
     #define BTN_ENC                           63
   #endif
 #endif
+
+#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+
+  #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_RAMPS.h' for details. Comment out this line to continue."
+
+  /** FYSECT TFT TFT81050 display pinout
+   *
+   *               Board                                     Display
+   *               _____                                     _____
+   *  (SCK)   D52 | 1 2 | D50    (MISO)                MISO | 1 2 | SCK
+   *  (SD_CS) D53 | 3 4 | D33 (BNT_EN2) (BNT_EN2) MOD_RESET | 3 4 | SD_CS
+   *  (MOSI)  D51 | 5 6   D31 (BNT_EN1) (BNT_EN1)    LCD_CS | 5 6   MOSI
+   *        RESET | 7 8 | D49  (SD_DET)              SD_DET | 7 8 | RESET
+   *           NC | 9 10| GND                           GND | 9 10| 5V
+   *               -----                                     -----
+   *                EXP2                                      EXP1
+   *
+   * Needs custom cable:
+   *
+   *    Board   Adapter   Display
+   *           _________
+   *   EXP2-1 ----------- EXP1-10
+   *   EXP2-2 ----------- EXP1-9
+   *   EXP2-4 ----------- EXP1-8
+   *   EXP2-4 ----------- EXP1-7
+   *   EXP2-3 ----------- EXP1-6
+   *   EXP2-6 ----------- EXP1-5
+   *   EXP2-7 ----------- EXP1-4
+   *   EXP2-8 ----------- EXP1-3
+   *   EXP2-1 ----------- EXP1-2
+   *  EXP1-10 ----------- EXP1-1
+   *
+   */
+
+  #define BEEPER_PIN                          37
+
+  #define BTN_EN1                             31
+  #define LCD_PINS_RS                         33
+
+  #define SD_DETECT_PIN                       49
+
+  #define KILL_PIN                            -1
+
+#endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
