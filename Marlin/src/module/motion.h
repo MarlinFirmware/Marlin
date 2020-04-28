@@ -186,7 +186,7 @@ void sync_plan_position_e();
 void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
 #if EXTRUDERS
-  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+  extern void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
 #endif
 
 void prepare_line_to_destination();

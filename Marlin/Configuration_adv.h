@@ -1111,18 +1111,42 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  //#define POWER_LOSS_RECOVERY
+  #define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     #define PLR_ENABLED_DEFAULT   false // Power Loss Recovery enabled by default. (Set with 'M413 Sn' & M500)
-    //#define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
-    //#define POWER_LOSS_ZRAISE       2 // (mm) Z axis raise on resume (on power loss with UPS)
-    //#define POWER_LOSS_PIN         44 // Pin to detect power loss. Set to -1 to disable default pin on boards without module.
-    //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
-    //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
-    //#define POWER_LOSS_PURGE_LEN   20 // (mm) Length of filament to purge on resume
-    //#define POWER_LOSS_RETRACT_LEN 10 // (mm) Length of filament to retract on fail. Requires backup power.
+    #define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
+    #define POWER_LOSS_PIN         44 // Pin to detect power loss. Set to -1 to disable default pin on boards without module.
+    #define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
+    #define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
+    #define POWER_LOSS_PURGE_LEN           20   // (mm) Length of filament to purge on resume
+    #define POWER_LOSS_ZRAISE               2   // (mm) Z axis raise on resume (on power loss with UPS)
 
-    // Without a POWER_LOSS_PIN the following option helps reduce wear on the SD card,
+    // Go to park, disable hotends, bed in economy temp, wait until UPS OFF or continue print
+    #define BACKUP_POWER_SUPPLY_PARK_WAITING
+    #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
+      #define BACKUP_POWER_SUPPLY_DELAY_BEFORE 5*60  //Delay before go to pause 'depending of UPS capacity', 
+      #define BACKUP_POWER_SUPPLY_BED_TEMP   50   // Reduce bed temp/current consumption (Hotends turn OFF)
+
+      // If enabled will use TOOL_CHANGE_SWAP for priming and return
+      //#define POWER_LOSS_USE_TOOLCHANGE_SWAP_PRIME
+      //Retract
+      #define POWER_LOSS_RETRACT_L         10   // (mm) Length of filament to retract on fail. Requires backup power.
+      #define POWER_LOSS_UNRETRACT_L         10   // (mm) Length of filament to retract on fail. Requires backup power.
+      //Park use POWER_LOSS_ZRAISE
+      #define POWER_LOSS_PARK_X_ONLY
+      #define POWER_LOSS_PARK_Y_ONLY
+      #define POWER_LOSS_PARK_X             467   // Disable for only one axis park
+      #define POWER_LOSS_PARK_Y             215   // Disable for only one axis park
+      //Prime with POWER_LOSS_PURGE_LEN + travel back
+      #define POWER_LOSS_TRAVEL_RETRACT_L       3   // (mm) Length of filament to retract on back
+
+      //Feedrates
+      #define POWER_LOSS_RETRACT_F           50   // (ms) Retract Feedrate
+      #define POWER_LOSS_UNRETRACT_F         25   // (ms) UnRetract Feedrate
+      #define POWER_LOSS_F                12000   // (ms) Move Feedrate
+      #define POWER_LOSS_PURGE_F            4.6   // (mm) Purge Feedrate
+
+    #endif
     // especially with "vase mode" printing. Set too high and vases cannot be continued.
     #define POWER_LOSS_MIN_Z_CHANGE 0.05 // (mm) Minimum Z change before saving power-loss data
   #endif
