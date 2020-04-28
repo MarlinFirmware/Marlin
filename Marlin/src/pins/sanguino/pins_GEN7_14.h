@@ -38,14 +38,14 @@
 
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
-#define X_ENABLE_PIN       38 
+#define X_ENABLE_PIN       38
 #define X_MIN_PIN           3
 #define X_MAX_PIN          -1 // 2
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
-#define Y_MIN_PIN          14 
+#define Y_MIN_PIN          14
 #define Y_MAX_PIN          -1 // 15
 
 #define Z_STEP_PIN         46
@@ -111,81 +111,15 @@
 //#define LCD_SCREEN_ROT_270
 #endif
 
-<<<<<<< HEAD
-#define BOARD_INFO_NAME "Gen7 v1.4"
-
-#define GEN7_VERSION                          14  // v1.4
-
-//
-// Limit switches
-//
-#define X_STOP_PIN                             0
-#define Y_STOP_PIN                             1
-#define Z_STOP_PIN                             2
-
-//
-// Steppers
-//
-#define X_STEP_PIN                            29
-#define X_DIR_PIN                             28
-#define X_ENABLE_PIN                          25
-
-#define Y_STEP_PIN                            27
-#define Y_DIR_PIN                             26
-#define Y_ENABLE_PIN                          25
-
-#define Z_STEP_PIN                            23
-#define Z_DIR_PIN                             22
-#define Z_ENABLE_PIN                          25
-
-#define E0_STEP_PIN                           19
-#define E0_DIR_PIN                            18
-#define E0_ENABLE_PIN                         25
-
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           0  // Analog Input
-
-//
-// Heaters
-//
-#define HEATER_0_PIN                           4
-#define HEATER_BED_PIN                         3
-
-//
-// Misc. Functions
-//
-#define PS_ON_PIN                             15
-
-#ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                      15  // Hardware PWM
-#endif
-
-// A pin for debugging
-#define DEBUG_PIN                              0
-
-// RS485 pins
-#define TX_ENABLE_PIN                         12
-#define RX_ENABLE_PIN                         13
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_ENA_PIN                 20  // Pullup or pulldown!
-#define SPINDLE_LASER_PWM_PIN                 16  // Hardware PWM
-#define SPINDLE_DIR_PIN                       21
-=======
 #if ENABLED (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-		
+
 		//#define DOGLCD_A0  27
 		//#define DOGLCD_CS  25
-		//#define LCD_BACKLIGHT_PIN 65  // backlight LED on A11/D65	
-		
+		//#define LCD_BACKLIGHT_PIN 65  // backlight LED on A11/D65
+
 		// GLCD features
-		#define LCD_CONTRAST 190		
-		
+		#define LCD_CONTRAST 190
+
 		#define BEEPER_PIN -1//37
 		#define BTN_ENC 35  //the click switch
 		#define LCD_PINS_RS     16
@@ -199,7 +133,7 @@
 		#define BTN_EN1 33
 		#define SD_DETECT_PIN 49
 		#define KILL_PIN 64
-		
+
 		// Uncomment screen orientation
 //#define LCD_SCREEN_ROT_90
 //#define LCD_SCREEN_ROT_180
@@ -306,4 +240,3 @@
 #define HEATER_3_PIN       7
 #define HEATER_4_PIN       7
 //Test----------------------
->>>>>>> Cfg start
