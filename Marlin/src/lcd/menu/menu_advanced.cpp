@@ -415,7 +415,7 @@ void menu_cancelobject();
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
     #endif
 
-    #ifdef XY_FREQUENCY_LIMI
+    #ifdef XY_FREQUENCY_LIMIT
       MENU_ITEM_IF(1) {
         editable.uint8 = planner.xy_freq_limit_hz;
         EDIT_ITEM(uint8, MSG_XY_FREQUENCY_LIMIT, &editable.uint8, 0, 100, []{ planner.refresh_frequency_limit(); }, true);
