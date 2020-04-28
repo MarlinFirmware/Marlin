@@ -51,6 +51,8 @@
   #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
+#elif SERIAL_PORT == 0
+  #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 SerialUART1
 #elif SERIAL_PORT == 2
@@ -74,6 +76,8 @@
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
+  #elif SERIAL_PORT_2 == 0
+    #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 SerialUART1
   #elif SERIAL_PORT_2 == 2
@@ -103,6 +107,8 @@
     #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
+  #elif DGUS_SERIAL_PORT == 0
+    #define DGUS_SERIAL Serial1
   #elif DGUS_SERIAL_PORT == 1
     #define DGUS_SERIAL SerialUART1
   #elif DGUS_SERIAL_PORT == 2
