@@ -1124,7 +1124,7 @@
     // Go to park, disable hotends, bed in economy temp, wait until UPS OFF or continue print
     #define BACKUP_POWER_SUPPLY_PARK_WAITING
     #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
-      #define BACKUP_POWER_SUPPLY_DELAY_BEFORE 5*60  //Delay before go to pause 'depending of UPS capacity', 
+      #define BACKUP_POWER_SUPPLY_DELAY_BEFORE 30  //Delay before go to pause 'depending of UPS capacity', strong value increase risk of never go to pause if many long power_loss
       #define BACKUP_POWER_SUPPLY_BED_TEMP   50   // Reduce bed temp/current consumption (Hotends turn OFF)
 
       // If enabled will use TOOL_CHANGE_SWAP for priming and return
