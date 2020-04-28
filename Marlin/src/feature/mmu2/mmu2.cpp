@@ -301,7 +301,7 @@ void MMU2::mmu_loop() {
         tx_str_P(PSTR("P0\n"));
         state = 2; // wait for response
       }
-      
+
       TERN_(PRUSA_MMU2_S_MODE, check_filament());
       break;
 
@@ -672,13 +672,13 @@ void MMU2::filament_runout() {
     if (runout && !mmu2s_triggered) {
       DEBUG_ECHOLNPGM("MMU <= 'A'");
       tx_str_P(PSTR("A\n"));
-    } 
+    }
     mmu2s_triggered = runout;
   }
 
   bool MMU2::can_load() {
     execute_extruder_sequence((const E_Step *)can_load_sequence, COUNT(can_load_sequence));
-    
+
     int filament_detected_count = 0;
     const int steps = MMU2_CAN_LOAD_RETRACT / MMU2_CAN_LOAD_INCREMENT;
     DEBUG_ECHOLNPGM("MMU can_load:");
@@ -689,7 +689,7 @@ void MMU2::filament_runout() {
       if (mmu2s_triggered) ++filament_detected_count;
     }
 
-    if (filament_detected_count <= steps - (MMU2_CAN_LOAD_DEVIATION / MMU2_CAN_LOAD_INCREMENT)) { 
+    if (filament_detected_count <= steps - (MMU2_CAN_LOAD_DEVIATION / MMU2_CAN_LOAD_INCREMENT)) {
       DEBUG_ECHOLNPGM(" failed.");
       return false;
     }
