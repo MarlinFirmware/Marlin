@@ -1933,7 +1933,6 @@ void MarlinSettings::postprocess() {
 
       //
       // TMC StallGuard threshold.
-      // X, Y, Z, X2, Y2, Z2, Z3, and Z4 all use separate values
       //
       {
         tmc_sgt_t tmc_sgt;
