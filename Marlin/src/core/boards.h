@@ -104,7 +104,7 @@
 #define BOARD_TANGO                   1148  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1149  // MKS GEN L V2
 #define BOARD_COPYMASTER_3D           1150  // Copymaster 3D
-
+#define BOARD_K8600                   1175  // Velleman K8600 Controller (Vertex Nano)
 //
 // RAMBo and derivatives
 //
