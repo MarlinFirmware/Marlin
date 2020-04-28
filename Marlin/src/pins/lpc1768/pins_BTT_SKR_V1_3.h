@@ -24,14 +24,6 @@
 #define BOARD_INFO_NAME "BIGTREE SKR 1.3"
 
 //
-// EEPROM
-//
-#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  //#define SDCARD_EEPROM_EMULATION
-#endif
-
-//
 // Trinamic Stallguard pins
 //
 #define X_DIAG_PIN                         P1_29  // X-

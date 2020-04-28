@@ -21,7 +21,7 @@
  */
 #pragma once
 
-// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
+// If no real or emulated EEPROM selected, fall back to SD emulation
 #if USE_FALLBACK_EEPROM
   #define SDCARD_EEPROM_EMULATION
 #endif

@@ -32,14 +32,6 @@
 #define BOARD_INFO_NAME   "MKS SGen"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN"
 
-//
-// EEPROM
-//
-#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  //#define SDCARD_EEPROM_EMULATION
-#endif
-
 #define MKS_HAS_LPC1769
 #include "../lpc1768/pins_MKS_SBASE.h"
 

@@ -32,14 +32,6 @@
 #define BOARD_INFO_NAME "Cohesion3D Mini"
 
 //
-// EEPROM
-//
-#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  //#define SDCARD_EEPROM_EMULATION
-#endif
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P1_23
