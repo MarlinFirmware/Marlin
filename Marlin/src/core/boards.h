@@ -104,6 +104,7 @@
 #define BOARD_TANGO                   1148  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1149  // MKS GEN L V2
 #define BOARD_COPYMASTER_3D           1150  // Copymaster 3D
+#define BOARD_ORTUR_4                 1151  // Ortur 4
 
 //
 // RAMBo and derivatives
