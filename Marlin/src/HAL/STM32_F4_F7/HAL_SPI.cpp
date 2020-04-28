@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
@@ -29,8 +30,6 @@
 /**
  * Adapted to the Marlin STM32F4/7 HAL
  */
-
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 #include "../../inc/MarlinConfig.h"
 

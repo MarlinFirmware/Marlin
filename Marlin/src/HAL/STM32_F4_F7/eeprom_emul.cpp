@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    EEPROM/EEPROM_Emulation/src/eeprom.c
+  * @file    eeprom_emul.cpp
   * @author  MCD Application Team
   * @version V1.2.6
   * @date    04-November-2016
@@ -48,6 +48,10 @@
   * @{
   */
 #if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
 /* Includes ------------------------------------------------------------------*/
 #include "eeprom_emul.h"
@@ -518,6 +522,7 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data) {
   return HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, NewPageAddress, VALID_PAGE);
 }
 
+#endif // FLASH_EEPROM_EMULATION
 #endif // STM32GENERIC && (STM32F4 || STM32F7)
 
 /**
