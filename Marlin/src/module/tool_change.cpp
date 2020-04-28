@@ -1073,9 +1073,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           singlenozzle_temp[old_tool] = thermalManager.temp_hotend[0].target;
           if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
             thermalManager.setTargetHotend(singlenozzle_temp[new_tool], 0);
-            #if ENABLED(AUTOTEMP)
-              planner.autotemp_update();
-            #endif
+            TERN_(AUTOTEMP, planner.autotemp_update());
             TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
             (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
           }
@@ -1253,12 +1251,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Migrate the temperature to the new hotend
     #if HAS_MULTI_HOTEND
-     thermalManager.setTargetHotend(thermalManager.temp_hotend[active_extruder].target, migration_extruder);
-
-      #if ENABLED(AUTOTEMP)
-        planner.autotemp_update();
-      #endif
-
+      thermalManager.setTargetHotend(thermalManager.temp_hotend[active_extruder].target, migration_extruder);
+      TERN_(AUTOTEMP, planner.autotemp_update());
       TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
       thermalManager.wait_for_hotend(active_extruder);
     #endif
