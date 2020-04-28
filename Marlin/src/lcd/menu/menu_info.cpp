@@ -51,6 +51,8 @@
 
     printStatistics stats = print_job_timer.getStats();
 
+    char buffer[21];
+
     START_SCREEN();                                                                         // 12345678901234567890
     VALUE_ITEM(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), SS_LEFT);            // Print Count: 999
     VALUE_ITEM(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), SS_LEFT);    // Completed  : 666
