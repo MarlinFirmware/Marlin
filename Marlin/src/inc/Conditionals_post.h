@@ -1508,6 +1508,9 @@
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HOMING_Z_WITH_PROBE
     #undef Z_STALL_SENSITIVITY
+    #undef Z2_STALL_SENSITIVITY
+    #undef Z3_STALL_SENSITIVITY
+    #undef Z4_STALL_SENSITIVITY
   #endif
   #if defined(X_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(X)
     #define X_SENSORLESS 1
