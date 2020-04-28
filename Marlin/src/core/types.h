@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,7 +24,7 @@
 #include <math.h>
 #include <stddef.h>
 
-#include "millis_t.h"
+#include "../inc/MarlinConfigPre.h"
 
 class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
@@ -50,12 +50,6 @@ enum AxisEnum : uint8_t {
 //
 // Loop over XYZE axes
 //
-
-#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
-#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
-#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
-#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
-
 #define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
 #define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
@@ -187,6 +181,12 @@ struct XYval {
   };
   FI void set(const T px)                               { x = px; }
   FI void set(const T px, const T py)                   { x = px; y = py; }
+  FI void set(const T (&arr)[XY])                       { x = arr[0]; y = arr[1]; }
+  FI void set(const T (&arr)[XYZ])                      { x = arr[0]; y = arr[1]; }
+  FI void set(const T (&arr)[XYZE])                     { x = arr[0]; y = arr[1]; }
+  #if XYZE_N > XYZE
+    FI void set(const T (&arr)[XYZE_N])                 { x = arr[0]; y = arr[1]; }
+  #endif
   FI void reset()                                       { x = y = 0; }
   FI T magnitude()                                const { return (T)sqrtf(x*x + y*y); }
   FI operator T* ()                                     { return pos; }
@@ -197,6 +197,8 @@ struct XYval {
   FI XYval<int16_t>    asInt()                    const { return { int16_t(x), int16_t(y) }; }
   FI XYval<int32_t>   asLong()                          { return { int32_t(x), int32_t(y) }; }
   FI XYval<int32_t>   asLong()                    const { return { int32_t(x), int32_t(y) }; }
+  FI XYval<int32_t>   ROUNDL()                          { return { int32_t(LROUND(x)), int32_t(LROUND(y)) }; }
+  FI XYval<int32_t>   ROUNDL()                    const { return { int32_t(LROUND(x)), int32_t(LROUND(y)) }; }
   FI XYval<float>    asFloat()                          { return {   float(x),   float(y) }; }
   FI XYval<float>    asFloat()                    const { return {   float(x),   float(y) }; }
   FI XYval<float> reciprocal()                    const { return {  _RECIP(x),  _RECIP(y) }; }
@@ -290,6 +292,12 @@ struct XYZval {
   FI void set(const T px, const T py)                  { x = px; y = py; }
   FI void set(const T px, const T py, const T pz)      { x = px; y = py; z = pz; }
   FI void set(const XYval<T> pxy, const T pz)          { x = pxy.x; y = pxy.y; z = pz; }
+  FI void set(const T (&arr)[XY])                      { x = arr[0]; y = arr[1]; }
+  FI void set(const T (&arr)[XYZ])                     { x = arr[0]; y = arr[1]; z = arr[2]; }
+  FI void set(const T (&arr)[XYZE])                    { x = arr[0]; y = arr[1]; z = arr[2]; }
+  #if XYZE_N > XYZE
+    FI void set(const T (&arr)[XYZE_N])                { x = arr[0]; y = arr[1]; z = arr[2]; }
+  #endif
   FI void reset()                                      { x = y = z = 0; }
   FI T magnitude()                               const { return (T)sqrtf(x*x + y*y + z*z); }
   FI operator T* ()                                    { return pos; }
@@ -300,6 +308,8 @@ struct XYZval {
   FI XYZval<int16_t>   asInt()                   const { return { int16_t(x), int16_t(y), int16_t(z) }; }
   FI XYZval<int32_t>  asLong()                         { return { int32_t(x), int32_t(y), int32_t(z) }; }
   FI XYZval<int32_t>  asLong()                   const { return { int32_t(x), int32_t(y), int32_t(z) }; }
+  FI XYZval<int32_t>  ROUNDL()                         { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)) }; }
+  FI XYZval<int32_t>  ROUNDL()                   const { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)) }; }
   FI XYZval<float>   asFloat()                         { return {   float(x),   float(y),   float(z) }; }
   FI XYZval<float>   asFloat()                   const { return {   float(x),   float(y),   float(z) }; }
   FI XYZval<float> reciprocal()                  const { return {  _RECIP(x),  _RECIP(y),  _RECIP(z) }; }
@@ -397,12 +407,20 @@ struct XYZEval {
   FI void set(const XYval<T> pxy, const T pz, const T pe)     { x = pxy.x;  y = pxy.y;  z = pz;     e = pe;    }
   FI void set(const XYval<T> pxy, const XYval<T> pze)         { x = pxy.x;  y = pxy.y;  z = pze.z;  e = pze.e; }
   FI void set(const XYZval<T> pxyz, const T pe)               { x = pxyz.x; y = pxyz.y; z = pxyz.z; e = pe;    }
+  FI void set(const T (&arr)[XY])                             { x = arr[0]; y = arr[1]; }
+  FI void set(const T (&arr)[XYZ])                            { x = arr[0]; y = arr[1]; z = arr[2]; }
+  FI void set(const T (&arr)[XYZE])                           { x = arr[0]; y = arr[1]; z = arr[2]; e = arr[3]; }
+  #if XYZE_N > XYZE
+    FI void set(const T (&arr)[XYZE_N])                       { x = arr[0]; y = arr[1]; z = arr[2]; e = arr[3]; }
+  #endif
   FI XYZEval<T>          copy()                         const { return *this; }
   FI XYZEval<T>           ABS()                         const { return { T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(e)) }; }
   FI XYZEval<int16_t>   asInt()                               { return { int16_t(x), int16_t(y), int16_t(z), int16_t(e) }; }
   FI XYZEval<int16_t>   asInt()                         const { return { int16_t(x), int16_t(y), int16_t(z), int16_t(e) }; }
-  FI XYZEval<int32_t>  asLong()                         const { return { int32_t(x), int32_t(y), int32_t(z), int32_t(e) }; }
   FI XYZEval<int32_t>  asLong()                               { return { int32_t(x), int32_t(y), int32_t(z), int32_t(e) }; }
+  FI XYZEval<int32_t>  asLong()                         const { return { int32_t(x), int32_t(y), int32_t(z), int32_t(e) }; }
+  FI XYZEval<int32_t>  ROUNDL()                               { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(e)) }; }
+  FI XYZEval<int32_t>  ROUNDL()                         const { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(e)) }; }
   FI XYZEval<float>   asFloat()                               { return {   float(x),   float(y),   float(z),   float(e) }; }
   FI XYZEval<float>   asFloat()                         const { return {   float(x),   float(y),   float(z),   float(e) }; }
   FI XYZEval<float> reciprocal()                        const { return {  _RECIP(x),  _RECIP(y),  _RECIP(z),  _RECIP(e) }; }
@@ -483,3 +501,4 @@ struct XYZEval {
 #undef FI
 
 const xyze_char_t axis_codes { 'X', 'Y', 'Z', 'E' };
+#define XYZ_CHAR(A) ('X' + char(A))

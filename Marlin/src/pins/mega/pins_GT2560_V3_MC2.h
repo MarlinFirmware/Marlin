@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,9 +27,9 @@
 
 #define BOARD_INFO_NAME "GT2560 V3.0 (MC2)"
 
-#define X_MIN_PIN          22
-#define X_MAX_PIN          24
-#define Y_MIN_PIN          26
-#define Y_MAX_PIN          28
+#define X_MIN_PIN                            22
+#define X_MAX_PIN                            24
+#define Y_MIN_PIN                            26
+#define Y_MAX_PIN                            28
 
 #include "pins_GT2560_V3.h"

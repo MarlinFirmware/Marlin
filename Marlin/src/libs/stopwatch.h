@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -113,6 +113,10 @@ class Stopwatch {
        * @details Print a simple debug message "Stopwatch::function"
        */
       static void debug(const char func[]);
+
+    #else
+
+      static inline void debug(const char[]) {}
 
     #endif
 };

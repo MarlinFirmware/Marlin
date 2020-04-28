@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,15 +25,15 @@
  * Geeetech A20M pin assignment
  */
 
-#define LCD_PINS_RS       5
-#define LCD_PINS_ENABLE  36
-#define LCD_PINS_D4      21
-#define LCD_PINS_D7       6
+#define LCD_PINS_RS                           5
+#define LCD_PINS_ENABLE                      36
+#define LCD_PINS_D4                          21
+#define LCD_PINS_D7                           6
 
 #if ENABLED(NEWPANEL)
-  #define BTN_EN1        16
-  #define BTN_EN2        17
-  #define BTN_ENC        19
+  #define BTN_EN1                            16
+  #define BTN_EN2                            17
+  #define BTN_ENC                            19
 #endif
 
 #include "pins_GT2560_V3.h"

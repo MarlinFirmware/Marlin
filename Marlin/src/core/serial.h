@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -245,10 +245,11 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHOLIST(pre,V...)   do{ SERIAL_ECHOPGM(pre); _SLST_N(NUM_ARGS(V),V); }while(0)
 #define SERIAL_ECHOLIST_N(N,V...)   _SLST_N(N,LIST_N(N,V))
 
-#define SERIAL_ECHO_P(P)            (serialprintPGM(P))
+#define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
+#define SERIAL_ECHOLNPGM_P(P)       (serialprintPGM(P "\n"))
 
-#define SERIAL_ECHOPGM(S)           (SERIAL_ECHO_P(PSTR(S)))
-#define SERIAL_ECHOLNPGM(S)         (SERIAL_ECHO_P(PSTR(S "\n")))
+#define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
+#define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
 
 #define SERIAL_ECHOPAIR_F_P(P,V...) do{ serialprintPGM(P); SERIAL_ECHO_F(V); }while(0)
 #define SERIAL_ECHOLNPAIR_F_P(V...) do{ SERIAL_ECHOPAIR_F_P(V); SERIAL_EOL(); }while(0)
@@ -260,8 +261,8 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ERROR_START()        serial_error_start()
 #define SERIAL_EOL()                SERIAL_CHAR('\n')
 
-#define SERIAL_ECHO_MSG(S)          do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPGM(S); }while(0)
-#define SERIAL_ERROR_MSG(S)         do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(S); }while(0)
+#define SERIAL_ECHO_MSG(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
+#define SERIAL_ERROR_MSG(V...)      do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(V); }while(0)
 
 #define SERIAL_ECHO_SP(C)           serial_spaces(C)
 
@@ -292,7 +293,6 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-
 void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
 
 inline void print_xyz(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {

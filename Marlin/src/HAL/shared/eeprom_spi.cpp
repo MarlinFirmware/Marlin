@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,6 +34,10 @@
 #define CMD_WREN  6   // WREN
 #define CMD_READ  2   // WRITE
 #define CMD_WRITE 2   // WRITE
+
+#ifndef EEPROM_WRITE_DELAY
+  #define EEPROM_WRITE_DELAY    7
+#endif
 
 uint8_t eeprom_read_byte(uint8_t* pos) {
   uint8_t v;
@@ -90,7 +94,7 @@ void eeprom_write_byte(uint8_t* pos, uint8_t value) {
 
   spiSend(SPI_CHAN_EEPROM1, value);
   WRITE(SPI_EEPROM1_CS, HIGH);
-  delay(7);   // wait for page write to complete
+  delay(EEPROM_WRITE_DELAY);   // wait for page write to complete
 }
 
 void eeprom_update_block(const void* src, void* eeprom_address, size_t n) {
@@ -112,7 +116,7 @@ void eeprom_update_block(const void* src, void* eeprom_address, size_t n) {
 
   spiSend(SPI_CHAN_EEPROM1, (const uint8_t*)src, n);
   WRITE(SPI_EEPROM1_CS, HIGH);
-  delay(7);   // wait for page write to complete
+  delay(EEPROM_WRITE_DELAY);   // wait for page write to complete
 }
 
 #endif // SPI_EEPROM

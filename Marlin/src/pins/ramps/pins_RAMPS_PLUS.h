@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -44,8 +44,8 @@
 
 #define BOARD_INFO_NAME "RAMPS 1.4 Plus"
 
-#define RAMPS_D8_PIN  10
-#define RAMPS_D10_PIN  8
+#define RAMPS_D8_PIN                          10
+#define RAMPS_D10_PIN                          8
 
 #include "pins_RAMPS.h"
 
@@ -60,13 +60,13 @@
 #undef E1_DIR_PIN
 #undef E1_ENABLE_PIN
 
-#define E0_STEP_PIN        36
-#define E0_DIR_PIN         34
-#define E0_ENABLE_PIN      30
+#define E0_STEP_PIN                           36
+#define E0_DIR_PIN                            34
+#define E0_ENABLE_PIN                         30
 
-#define E1_STEP_PIN        26
-#define E1_DIR_PIN         28
-#define E1_ENABLE_PIN      24
+#define E1_STEP_PIN                           26
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         24
 
 #undef X_CS_PIN
 #undef Y_CS_PIN
@@ -77,10 +77,10 @@
 #if ENABLED(ULTRA_LCD, REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(NEWPANEL, PANEL_ONE)
   #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     #undef LCD_PINS_RS
-    #define LCD_PINS_RS     42   // 3DYMY boards pin 16 -> 42
+    #define LCD_PINS_RS                       42  // 3DYMY boards pin 16 -> 42
     #undef LCD_PINS_ENABLE
-    #define LCD_PINS_ENABLE 44   // 3DYMY boards pin 17 -> 44
+    #define LCD_PINS_ENABLE                   44  // 3DYMY boards pin 17 -> 44
   #endif
   #undef LCD_PINS_D7
-  #define LCD_PINS_D7       53   // 3DYMY boards pin 29 -> 53
+  #define LCD_PINS_D7                         53  // 3DYMY boards pin 29 -> 53
 #endif
