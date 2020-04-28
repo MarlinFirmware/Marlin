@@ -799,7 +799,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(ui_preheat_hotend_temp);
 
-      #if HOTENDS && HAS_LCD_MENU
+      #if HAS_HOTEND && HAS_LCD_MENU
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                       (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
         const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
@@ -1649,7 +1649,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(ui_preheat_hotend_temp);
 
-        #if HOTENDS && HAS_LCD_MENU
+        #if HAS_HOTEND && HAS_LCD_MENU
           int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                   (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
           uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
@@ -2557,7 +2557,7 @@ void MarlinSettings::reset() {
   // Preheat parameters
   //
 
-  #if HOTENDS && HAS_LCD_MENU
+  #if HAS_HOTEND && HAS_LCD_MENU
     ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
     ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
@@ -3077,7 +3077,7 @@ void MarlinSettings::reset() {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if HOTENDS && HAS_LCD_MENU
+    #if HAS_HOTEND && HAS_LCD_MENU
 
       CONFIG_ECHO_HEADING("Material heatup parameters:");
       LOOP_L_N(i, COUNT(ui.preheat_hotend_temp)) {

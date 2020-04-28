@@ -82,16 +82,16 @@ void GcodeSuite::M24() {
  */
 void GcodeSuite::M25() {
 
-  // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
-  #if ENABLED(SDSUPPORT)
-    if (IS_SD_PRINTING()) card.pauseSDPrint();
-  #endif
-
   #if ENABLED(PARK_HEAD_ON_PAUSE)
 
     M125();
 
   #else
+
+    // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
+    #if ENABLED(SDSUPPORT)
+      if (IS_SD_PRINTING()) card.pauseSDPrint();
+    #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true);

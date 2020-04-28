@@ -84,15 +84,15 @@ void menu_configuration();
 extern const char M21_STR[];
 
 void menu_main() {
-  START_MENU();
-  BACK_ITEM(MSG_INFO_SCREEN);
-
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isMounted()
       , card_open = card_detected && card.isFileOpen()
     #endif
   ;
+
+  START_MENU();
+  BACK_ITEM(MSG_INFO_SCREEN);
 
   if (busy) {
     #if MACHINE_CAN_PAUSE
@@ -119,7 +119,7 @@ void menu_main() {
       // Autostart
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        if (!busy) ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
       #endif
 
       if (card_detected) {
@@ -144,7 +144,7 @@ void menu_main() {
 
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+    MENU_ITEM_IF (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     SUBMENU(MSG_MOTION, menu_motion);
@@ -176,9 +176,9 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+      MENU_ITEM_IF (thermalManager.targetHotEnoughToExtrude(active_extruder))
         GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      else
+      MENU_ITEM_ELSE
         SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
@@ -197,41 +197,44 @@ void menu_main() {
   // Switch power on/off
   //
   #if ENABLED(PSU_CONTROL)
-    if (powersupply_on)
+    MENU_ITEM_IF (powersupply_on)
       GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
-    else
+    MENU_ITEM_ELSE
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
   #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
 
-    // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
+    if (!busy) {
 
-    //
-    // Autostart
-    //
-    #if ENABLED(MENU_ADDAUTOSTART)
-      if (!busy) ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
-    #endif
+      // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
 
-    if (card_detected) {
-      if (!card_open) {
-        MENU_ITEM(gcode,
-          #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_MEDIA, M21_STR
-          #else
-            MSG_RELEASE_MEDIA, PSTR("M22")
-          #endif
-        );
-        SUBMENU(MSG_MEDIA_MENU, menu_media);
-      }
-    }
-    else {
-      #if PIN_EXISTS(SD_DETECT)
-        ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-      #else
-        GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+      //
+      // Autostart
+      //
+      #if ENABLED(MENU_ADDAUTOSTART)
+        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
       #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          MENU_ITEM(gcode,
+            #if PIN_EXISTS(SD_DETECT)
+              MSG_CHANGE_MEDIA, M21_STR
+            #else
+              MSG_RELEASE_MEDIA, PSTR("M22")
+            #endif
+          );
+          SUBMENU(MSG_MEDIA_MENU, menu_media);
+        }
+      }
+      else {
+        #if PIN_EXISTS(SD_DETECT)
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+        #endif
+      }
     }
 
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
