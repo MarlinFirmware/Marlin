@@ -35,3 +35,11 @@
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
+
+#if ENABLED(SDCARD_EEPROM_EMULATION) && DISABLED(SDSUPPORT)
+  #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise
+  #if USE_FALLBACK_EEPROM
+    #warning "EEPROM type not specified. Fallback is SDCARD_EEPROM_EMULATION."
+  #endif
+  #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
+#endif
