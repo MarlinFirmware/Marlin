@@ -197,8 +197,10 @@ void menu_temperature() {
 
     #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
       auto fan_edit_items = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
-        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
+        MENU_ITEM_IF(1) {
+          editable.uint8 = thermalManager.fan_speed[f];
+          EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
+        }
         #if ENABLED(EXTRA_FAN_SPEED)
           EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
         #endif
@@ -208,14 +210,18 @@ void menu_temperature() {
     #define SNFAN(N) (ENABLED(SINGLENOZZLE) && !HAS_FAN##N && EXTRUDERS > N)
     #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
       auto singlenozzle_item = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
-        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
+        MENU_ITEM_IF(1) {
+          editable.uint8 = thermalManager.fan_speed[f];
+          EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
+        }
       };
     #endif
 
     #if HAS_FAN0
-      editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
+      MENU_ITEM_IF(1) {
+        editable.uint8 = thermalManager.fan_speed[0];
+        EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
+      }
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif
@@ -274,10 +280,12 @@ void menu_temperature() {
     //
     // Cooldown
     //
-    bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
-    if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
-    if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
+    MENU_ITEM_IF(1) {
+      bool has_heat = false;
+      HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+      if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
+      if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
+    }
 
   #endif // HAS_TEMP_HOTEND
 

@@ -376,9 +376,8 @@ void _lcd_ubl_storage_mesh() {
   int16_t a = settings.calc_num_meshes();
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
-  if (!WITHIN(ubl_storage_slot, 0, a - 1)) {
+  if (!WITHIN(ubl_storage_slot, 0, a - 1))
     STATIC_ITEM(MSG_UBL_NO_STORAGE);
-  }
   else {
     EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
     ACTION_ITEM(MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
@@ -580,9 +579,9 @@ void _lcd_ubl_step_by_step() {
 void _lcd_ubl_level_bed() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
-  if (planner.leveling_active)
+  MENU_ITEM_IF (planner.leveling_active)
     GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
-  else
+  MENU_ITEM_ELSE
     GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
   SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   ACTION_ITEM(MSG_UBL_MESH_EDIT, _lcd_ubl_output_map_lcd_cmd);
