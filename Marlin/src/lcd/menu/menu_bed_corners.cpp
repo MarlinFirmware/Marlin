@@ -79,19 +79,14 @@ static inline void _lcd_level_bed_corners_homing() {
     bed_corner = 0;
     ui.goto_screen([]{
       MenuItem_confirm::select_screen(
-        GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE),
-        _lcd_goto_next_corner,
-        []{
-          TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
-          ui.goto_previous_screen_no_defer();
-        },
-        GET_TEXT(
-          #if ENABLED(LEVEL_CENTER_TOO)
-            MSG_LEVEL_BED_NEXT_POINT
-          #else
-            MSG_NEXT_CORNER
-          #endif
-        ), (PGM_P)nullptr, PSTR("?")
+          GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE)
+        , _lcd_goto_next_corner
+        , []{
+            TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+            ui.goto_previous_screen_no_defer();
+          }
+        , GET_TEXT(TERN(LEVEL_CENTER_TOO, MSG_LEVEL_BED_NEXT_POINT, MSG_NEXT_CORNER))
+        , (PGM_P)nullptr, PSTR("?")
       );
     });
     ui.set_selection(true);
