@@ -275,7 +275,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
+  #if BOTH(SDSUPPORT, HAS_LCD_MENU)
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -325,7 +325,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
+          #if BOTH(SDSUPPORT, HAS_LCD_MENU)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -1072,7 +1072,7 @@ void MarlinUI::draw_status_screen() {
       if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0)) leds |= LED_A;
       if (TERN0(HAS_HOTEND, thermalManager.degTargetHotend(0) > 0)) leds |= LED_B;
 
-      #if FAN_COUNT > 0
+      #if HAS_FAN
         if ( TERN0(HAS_FAN0, thermalManager.fan_speed[0])
           || TERN0(HAS_FAN1, thermalManager.fan_speed[1])
           || TERN0(HAS_FAN2, thermalManager.fan_speed[2])
@@ -1082,7 +1082,7 @@ void MarlinUI::draw_status_screen() {
           || TERN0(HAS_FAN6, thermalManager.fan_speed[6])
           || TERN0(HAS_FAN7, thermalManager.fan_speed[7])
         ) leds |= LED_C;
-      #endif // FAN_COUNT > 0
+      #endif // HAS_FAN
 
       if (TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1) > 0)) leds |= LED_C;
 

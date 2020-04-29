@@ -26,14 +26,6 @@
 #endif
 
 //
-// EEPROM
-//
-#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  //#define SDCARD_EEPROM_EMULATION
-#endif
-
-//
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION
@@ -57,7 +49,7 @@
 //
 // Limit Switches
 //
-#if X_STALL_SENSITIVITY
+#ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_DIR < 0
     #define X_MAX_PIN                      P1_26  // E0DET
@@ -68,7 +60,7 @@
   #define X_STOP_PIN                       P1_29  // X-STOP
 #endif
 
-#if Y_STALL_SENSITIVITY
+#ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_DIR < 0
     #define Y_MAX_PIN                      P1_25  // E1DET
@@ -79,7 +71,7 @@
   #define Y_STOP_PIN                       P1_28  // Y-STOP
 #endif
 
-#if Z_STALL_SENSITIVITY
+#ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
   #if Z_HOME_DIR < 0
     #define Z_MAX_PIN                      P1_00  // PWRDET

@@ -770,39 +770,14 @@ void reset_trinamic_drivers() {
   #endif
 
   #if USE_SENSORLESS
-    #if X_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(X)
-        stepperX.homing_threshold(X_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(X2) && !X2_SENSORLESS
-        stepperX2.homing_threshold(X_STALL_SENSITIVITY);
-      #endif
-    #endif
-    #if X2_SENSORLESS
-      stepperX2.homing_threshold(X2_STALL_SENSITIVITY);
-    #endif
-    #if Y_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(Y)
-        stepperY.homing_threshold(Y_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Y2)
-        stepperY2.homing_threshold(Y_STALL_SENSITIVITY);
-      #endif
-    #endif
-    #if Z_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(Z)
-        stepperZ.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z2)
-        stepperZ2.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z3)
-        stepperZ3.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z4)
-        stepperZ4.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
-    #endif
+    TERN_(X_SENSORLESS,  stepperX.homing_threshold(X_STALL_SENSITIVITY));
+    TERN_(X2_SENSORLESS, stepperX2.homing_threshold(X2_STALL_SENSITIVITY));
+    TERN_(Y_SENSORLESS,  stepperY.homing_threshold(Y_STALL_SENSITIVITY));
+    TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(Y2_STALL_SENSITIVITY));
+    TERN_(Z_SENSORLESS,  stepperZ.homing_threshold(Z_STALL_SENSITIVITY));
+    TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(Z2_STALL_SENSITIVITY));
+    TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(Z3_STALL_SENSITIVITY));
+    TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(Z4_STALL_SENSITIVITY));
   #endif
 
   #ifdef TMC_ADV

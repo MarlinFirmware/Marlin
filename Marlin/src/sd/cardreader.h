@@ -29,6 +29,9 @@
   #define SD_RESORT 1
 #endif
 
+#define SD_ORDER(N,C) (TERN(SDCARD_RATHERRECENTFIRST, C - 1 - (N), N))
+#define IFSD(A,B) TERN(SDSUPPORT,A,B)
+
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"

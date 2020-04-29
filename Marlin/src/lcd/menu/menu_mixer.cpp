@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(MIXING_EXTRUDER)
+#if BOTH(HAS_LCD_MENU, MIXING_EXTRUDER)
 
 #include "menu.h"
 #include "menu_addon.h"
@@ -237,11 +237,7 @@ void menu_mixer() {
   BACK_ITEM(MSG_MAIN);
 
   v_index = mixer.get_current_vtool();
-  EDIT_ITEM(uint8, MSG_ACTIVE_VTOOL, &v_index, 0, MIXING_VIRTUAL_TOOLS - 1, _lcd_mixer_select_vtool
-    #if HAS_DUAL_MIXING
-      , true
-    #endif
-  );
+  EDIT_ITEM(uint8, MSG_ACTIVE_VTOOL, &v_index, 0, MIXING_VIRTUAL_TOOLS - 1, _lcd_mixer_select_vtool, ENABLED(HAS_DUAL_MIXING));
 
   #if HAS_DUAL_MIXING
   {
