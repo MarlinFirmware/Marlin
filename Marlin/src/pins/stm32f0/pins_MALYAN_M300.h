@@ -31,7 +31,9 @@
 //
 // EEPROM Emulation
 //
-#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 
 //
 // SD CARD SPI

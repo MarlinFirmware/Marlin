@@ -20,18 +20,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
+#ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if ENABLED(FLASH_EEPROM_EMULATION)
+
+#include "../../inc/MarlinConfig.h"
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
+#if !defined(E2END)
+  #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
+#endif
+
+extern void eeprom_flush();
+
 size_t PersistentStore::capacity()    { return E2END + 1; }
 bool PersistentStore::access_start()  { return true; }
-bool PersistentStore::access_finish() { return true; }
+
+bool PersistentStore::access_finish() {
+  eeprom_flush();
+  return true;
+}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -41,6 +53,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
+      delay(2);
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
@@ -65,4 +78,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 #endif // EEPROM_SETTINGS
-#endif // STM32GENERIC && (STM32F4 || STM32F7)
+#endif // ARDUINO_ARCH_SAM

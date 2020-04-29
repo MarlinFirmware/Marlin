@@ -21,19 +21,18 @@
  */
 
 /**
- * Description: functions for I2C connected external EEPROM.
- * Not platform dependent.
- *
- * TODO: Some platform Arduino libraries define these functions
- *       so Marlin needs to add a glue layer to prevent the conflict.
+ * Platform-independent Arduino functions for I2C EEPROM.
+ * Enable USE_SHARED_EEPROM if not supplied by the framework.
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(I2C_EEPROM)
+#if BOTH(USE_SHARED_EEPROM, I2C_EEPROM)
 
 #include "../HAL.h"
 #include <Wire.h>
+
+#include "eeprom_if.h"
 
 #ifndef EEPROM_WRITE_DELAY
   #define EEPROM_WRITE_DELAY    5
@@ -126,4 +125,4 @@ void eeprom_read_block(void* pos, const void *__dst, size_t n) {
     if (Wire.available()) *((uint8_t*)pos + c) = Wire.read();
 }
 
-#endif // I2C_EEPROM
+#endif // USE_SHARED_EEPROM && I2C_EEPROM

@@ -57,6 +57,7 @@
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/Marduino.h"
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
 #define EEPROMSize     4096
