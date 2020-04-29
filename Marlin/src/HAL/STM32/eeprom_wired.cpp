@@ -38,6 +38,7 @@ size_t PersistentStore::capacity()    { return E2END + 1; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start()  {
+  eeprom_init();
   return true;
 }
 

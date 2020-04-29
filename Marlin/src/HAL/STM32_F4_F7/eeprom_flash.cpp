@@ -34,7 +34,28 @@
   //#define FLASH_FLAG_PGSERR FLASH_FLAG_ERSERR
 #endif
 
-void ee_init() {
+void ee_write_byte(uint8_t *pos, unsigned char value) {
+  HAL_FLASH_Unlock();
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+
+  const unsigned eeprom_address = (unsigned)pos;
+  if (EE_WriteVariable(eeprom_address, uint16_t(value)) != EE_OK)
+    for (;;) HAL_Delay(1); // Spin forever until watchdog reset
+
+  HAL_FLASH_Lock();
+}
+
+uint8_t ee_read_byte(uint8_t *pos) {
+  uint16_t data = 0xFF;
+  const unsigned eeprom_address = (unsigned)pos;
+  (void)EE_ReadVariable(eeprom_address, &data); // Data unchanged on error
+  return uint8_t(data);
+}
+
+size_t PersistentStore::capacity()    { return E2END + 1; }
+bool PersistentStore::access_finish() { return true; }
+
+bool PersistentStore::access_start()  {
   static bool ee_initialized = false;
   if (!ee_initialized) {
     HAL_FLASH_Unlock();
@@ -48,34 +69,8 @@ void ee_init() {
     HAL_FLASH_Lock();
     ee_initialized = true;
   }
+  return true;
 }
-
-void ee_write_byte(uint8_t *pos, unsigned char value) {
-  ee_init();
-
-  HAL_FLASH_Unlock();
-  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-
-  const unsigned eeprom_address = (unsigned)pos;
-  if (EE_WriteVariable(eeprom_address, uint16_t(value)) != EE_OK)
-    for (;;) HAL_Delay(1); // Spin forever until watchdog reset
-
-  HAL_FLASH_Lock();
-}
-
-uint8_t ee_read_byte(uint8_t *pos) {
-  ee_init();
-
-  uint16_t data = 0xFF;
-  const unsigned eeprom_address = (unsigned)pos;
-  (void)EE_ReadVariable(eeprom_address, &data); // Data unchanged on error
-
-  return uint8_t(data);
-}
-
-size_t PersistentStore::capacity()    { return E2END + 1; }
-bool PersistentStore::access_start()  { return true; }
-bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
