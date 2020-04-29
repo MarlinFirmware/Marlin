@@ -68,37 +68,6 @@ void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   delay(EEPROM_WRITE_DELAY);
 }
 
-// WARNING: address is a page address, 6-bit end will wrap around
-// also, data can be maximum of about 30 bytes, because the Wire library has a buffer of 32 bytes
-void eeprom_update_block(const void *pos, void *__dst, size_t n) {
-  const unsigned eeprom_address = (unsigned)__dst;
-
-  eeprom_init();
-
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // MSB
-  Wire.write(int(eeprom_address & 0xFF)); // LSB
-  Wire.endTransmission();
-
-  uint8_t *ptr = (uint8_t*)pos;
-  uint8_t flag = 0;
-  Wire.requestFrom(eeprom_device_address, (byte)n);
-  for (byte c = 0; c < n && Wire.available(); c++)
-    flag |= Wire.read() ^ ptr[c];
-
-  if (flag) {
-    Wire.beginTransmission(eeprom_device_address);
-    Wire.write(int(eeprom_address >> 8));   // MSB
-    Wire.write(int(eeprom_address & 0xFF)); // LSB
-    Wire.write((uint8_t*)pos, n);
-    Wire.endTransmission();
-
-    // wait for write cycle to complete
-    // this could be done more efficiently with "acknowledge polling"
-    delay(EEPROM_WRITE_DELAY);
-  }
-}
-
 uint8_t eeprom_read_byte(uint8_t *pos) {
   const unsigned eeprom_address = (unsigned)pos;
 
@@ -108,21 +77,6 @@ uint8_t eeprom_read_byte(uint8_t *pos) {
   Wire.endTransmission();
   Wire.requestFrom(eeprom_device_address, (byte)1);
   return Wire.available() ? Wire.read() : 0xFF;
-}
-
-// Don't read more than 30..32 bytes at a time!
-void eeprom_read_block(void* pos, const void *__dst, size_t n) {
-  const unsigned eeprom_address = (unsigned)__dst;
-
-  eeprom_init();
-
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // MSB
-  Wire.write(int(eeprom_address & 0xFF)); // LSB
-  Wire.endTransmission();
-  Wire.requestFrom(eeprom_device_address, (byte)n);
-  for (byte c = 0; c < n; c++ )
-    if (Wire.available()) *((uint8_t*)pos + c) = Wire.read();
 }
 
 #endif // USE_SHARED_EEPROM && I2C_EEPROM
