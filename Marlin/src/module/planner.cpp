@@ -134,8 +134,8 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm,       // (mm) M205 J
-        Planner::del_angle_decay = 0.75f,              // (1/mm) Fractional reduction of del_angle_indicator per mm traveled
-        Planner::del_angle_threshold = RADIANS(0.1f);  // (rads/mm) Threshold for del_angle_indicator, resulting in recalculation of limit_sqr
+        Planner::d_theta_decay = 0.75f,              // (1/mm) Fractional reduction of d_theta_indicator per mm traveled
+        Planner::d_theta_threshold = RADIANS(0.1f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
   #if ENABLED(LIN_ADVANCE)
     float Planner::max_e_jerk               // Calculated from junction_deviation_mm
       TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
@@ -200,7 +200,7 @@ float Planner::previous_nominal_speed_sqr;
 #if HAS_JUNCTION_DEVIATION
 float Planner::previous_junction_theta,
       Planner::previous_limit_sqr,
-      Planner::del_angle_indicator;
+      Planner::d_theta_indicator;
 #endif
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
@@ -245,7 +245,7 @@ void Planner::init() {
   #if HAS_JUNCTION_DEVIATION
     previous_limit_sqr = 0.0f;
     previous_junction_theta = 0.0f;
-    del_angle_indicator = 0.0f;
+    d_theta_indicator = 0.0f;
   #endif
   TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
   clear_block_buffer();
@@ -2345,13 +2345,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
 
         // Estimate, how much the junction angle is changing per mm traveled
-        // NOTE: To keep the math involved simple & fast(-ish), changes in del_angle_indicator are not fully independent of the block length.
+        // NOTE: To keep the math involved simple & fast(-ish), changes in d_theta_indicator are not fully independent of the block length.
         //       Therefore, three segments of length 0.2 mm will result in a slightly different decay than two segments of length 0.3 mm.
-        const float del_theta = junction_theta - previous_junction_theta;
-        del_angle_indicator = del_angle_indicator * _MAX(0.0f, 1.0f - del_angle_decay * block->millimeters) + ABS(del_theta) * inverse_millimeters;
+        const float d_theta = junction_theta - previous_junction_theta;
+        d_theta_indicator = d_theta_indicator * _MAX(0.0f, 1.0f - d_theta_decay * block->millimeters) + ABS(d_theta) * inverse_millimeters;
 		
         // In case theta is changing slower than our threshold, we just keep the higher speed and "coast".
-        if (del_angle_indicator < del_angle_threshold) {
+        if (d_theta_indicator < d_theta_threshold) {
           limit_sqr = _MAX(limit_sqr, previous_limit_sqr);
         }
 

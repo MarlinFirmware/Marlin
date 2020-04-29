@@ -306,8 +306,8 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm,       // (mm) M205 J
-                   del_angle_decay,             // (1/mm) Fractional reduction of del_angle_indicator per mm traveled
-                   del_angle_threshold;         // (rads/mm) Threshold for delta_angle_indicator, resulting in recalculation of limit_sqr
+                   d_theta_decay,               // (1/mm) Fractional reduction of d_theta_indicator per mm traveled
+                   d_theta_threshold;           // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
       #if ENABLED(LIN_ADVANCE)
         static float max_e_jerk                 // Calculated from junction_deviation_mm
           TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
@@ -379,9 +379,9 @@ class Planner {
       static float previous_junction_theta;
   
       /**
-       * Indicator of current angular change per mm traveled (°/mm)
+       * Indicator of current angular change per mm traveled (rads/mm)
        */
-      static float del_angle_indicator;
+      static float d_theta_indicator;
     #endif
 
     /**
