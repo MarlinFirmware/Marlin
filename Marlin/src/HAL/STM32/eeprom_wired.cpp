@@ -28,13 +28,8 @@
 
 #include "../shared/eeprom_api.h"
 
-bool PersistentStore::access_start() {
-  return true;
-}
-
-bool PersistentStore::access_finish() {
-  return true;
-}
+bool PersistentStore::access_start()  { return true; }
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -84,13 +79,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  return (
-    #if USE_WIRED_EEPROM
-      E2END + 1
-    #else
-      4096 // 4kB
-    #endif
-  );
+  return TERN(USE_WIRED_EEPROM, E2END + 1, 4096); // 4K for emulated
 }
 
 #endif // USE_WIRED_EEPROM || SRAM_EEPROM_EMULATION

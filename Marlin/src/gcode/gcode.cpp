@@ -467,7 +467,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 105: M105(); return;                                   // M105: Report Temperatures (and say "ok")
 
-      #if FAN_COUNT > 0
+      #if HAS_FAN
         case 106: M106(); break;                                  // M106: Fan On
         case 107: M107(); break;                                  // M107: Fan Off
       #endif
@@ -544,7 +544,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if HOTENDS && HAS_LCD_MENU
+      #if HAS_HOTEND && HAS_LCD_MENU
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 

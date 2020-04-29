@@ -386,11 +386,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Ultimo estrusore");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migra a *");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambia filamento");
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambia filamento *");
+  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambia filam. *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Carica filamento");
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Carica filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Rimuovi filamento");
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filamento *");
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filam. *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Rimuovi tutto");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Collega media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambia media");

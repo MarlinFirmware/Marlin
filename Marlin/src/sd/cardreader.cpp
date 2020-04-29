@@ -924,7 +924,7 @@ void CardReader::cdroot() {
 
         // Init sort order.
         for (uint16_t i = 0; i < fileCnt; i++) {
-          sort_order[i] = TERN(SDCARD_RATHERRECENTFIRST, fileCnt - 1 - i, i);
+          sort_order[i] = SD_ORDER(i, fileCnt);
           // If using RAM then read all filenames now.
           #if ENABLED(SDSORT_USES_RAM)
             selectFileByIndex(i);

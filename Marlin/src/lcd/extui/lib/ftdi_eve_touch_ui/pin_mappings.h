@@ -27,6 +27,24 @@
  * without adding new pin definitions to the board.
  */
 
+#ifdef CHEETAH_TFT_PINMAP
+  #ifndef __MARLIN_FIRMWARE__
+    #error "This pin mapping requires Marlin."
+  #endif
+
+    #define CLCD_SPI_BUS    2
+
+    #define CLCD_MOD_RESET  PC9
+    #define CLCD_SPI_CS     PB12
+
+    //#define CLCD_USE_SOFT_SPI
+    #if ENABLED(CLCD_USE_SOFT_SPI)
+      #define CLCD_SOFT_SPI_MOSI PB15
+      #define CLCD_SOFT_SPI_MISO PB14
+      #define CLCD_SOFT_SPI_SCLK PB13
+    #endif
+#endif
+
 #ifdef S6_TFT_PINMAP
   #ifndef __MARLIN_FIRMWARE__
     #error "This pin mapping requires Marlin."

@@ -118,6 +118,8 @@ void lcd_delta_settings() {
 }
 
 void menu_delta_calibrate() {
+  const bool all_homed = all_axes_homed();
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -133,7 +135,7 @@ void menu_delta_calibrate() {
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
     SUBMENU(MSG_AUTO_HOME, _lcd_delta_calibrate_home);
-    if (all_axes_homed()) {
+    if (all_homed) {
       SUBMENU(MSG_DELTA_CALIBRATE_X, _goto_tower_x);
       SUBMENU(MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
       SUBMENU(MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
