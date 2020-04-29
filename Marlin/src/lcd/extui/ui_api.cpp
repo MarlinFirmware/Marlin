@@ -226,7 +226,7 @@ namespace ExtUI {
 
   bool isHeaterIdle(const extruder_t extruder) {
     #if HAS_HOTEND && HEATER_IDLE_HANDLER
-      return thermalManager.hotend_idle[extruder - E0].timed_out
+      return thermalManager.hotend_idle[extruder - E0].timed_out;
     #else
       UNUSED(extruder);
       return false;
