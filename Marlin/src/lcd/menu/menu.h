@@ -340,8 +340,8 @@ class MenuItem_bool : public MenuEditItemBase {
  * menu item that exists in two screen segments is drawn and processed twice per screen
  * update. With each item processed 5, 10, 20, or 40 times the logic has to be simple.
  *
- * To keep performance optimal, use the MENU_ITEM_IF/ELSE/ELIF macros. If function calls
- * are needed to test conditions, they should come before START_MENU / START_SCREEN.
+ * To avoid repetition and side-effects, function calls for testing menu item conditions
+ * should be done before the menu loop (START_MENU / START_SCREEN).
  */
 
 /**
@@ -535,17 +535,6 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define YESNO_ITEM_N_P(N,PLABEL, V...)      _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
 #define YESNO_ITEM_N(N,LABEL, V...)            YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
-
-/**
- * MENU_ITEM_IF/ELSE/ELIF
- *
- * Apply a condition for a menu item to exist.
- * When the condition passes, NEXT_ITEM updates _thisItemNr.
- * This cannot be used to wrap multiple menu items.
- */
-#define MENU_ITEM_IF(COND)        if ((_menuLineNr == _thisItemNr) && (COND))
-#define MENU_ITEM_ELIF(COND) else if ((_menuLineNr == _thisItemNr) && (COND))
-#define MENU_ITEM_ELSE       else if  (_menuLineNr == _thisItemNr)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////

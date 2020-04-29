@@ -70,10 +70,8 @@ void menu_led_custom() {
 void menu_led() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
-  MENU_ITEM_IF(1) {
-    bool led_on = leds.lights_on;
-    EDIT_ITEM(bool, MSG_LEDS, &led_on, leds.toggle);
-  }
+  bool led_on = leds.lights_on;
+  EDIT_ITEM(bool, MSG_LEDS, &led_on, leds.toggle);
   ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
   #if ENABLED(LED_COLOR_PRESETS)
     SUBMENU(MSG_LED_PRESETS, menu_led_presets);

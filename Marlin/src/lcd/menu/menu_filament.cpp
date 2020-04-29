@@ -116,16 +116,16 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     // Change filament
     #if E_STEPPERS == 1
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE);
-      MENU_ITEM_IF (thermalManager.targetTooColdToExtrude(active_extruder))
+      if (thermalManager.targetTooColdToExtrude(active_extruder))
         SUBMENU_P(msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
-      MENU_ITEM_ELSE
+      else
         GCODES_ITEM_P(msg, PSTR("M600 B0"));
     #else
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
       LOOP_L_N(s, E_STEPPERS) {
-        MENU_ITEM_IF (thermalManager.targetTooColdToExtrude(s))
+        if (thermalManager.targetTooColdToExtrude(s))
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
-        MENU_ITEM_ELSE {
+        else {
           ACTION_ITEM_N_P(s, msg, []{
             char cmd[13];
             sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
@@ -140,16 +140,16 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
         // Load filament
         #if E_STEPPERS == 1
           PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD);
-          MENU_ITEM_IF (thermalManager.targetTooColdToExtrude(active_extruder))
+          if (thermalManager.targetTooColdToExtrude(active_extruder))
             SUBMENU_P(msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
-          MENU_ITEM_ELSE
+          else
             GCODES_ITEM_P(msg_load, PSTR("M701"));
         #else
           PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD_E);
           LOOP_L_N(s, E_STEPPERS) {
-            MENU_ITEM_IF (thermalManager.targetTooColdToExtrude(s))
+            if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
-            MENU_ITEM_ELSE {
+            else {
               ACTION_ITEM_N_P(s, msg_load, []{
                 char cmd[12];
                 sprintf_P(cmd, PSTR("M701 T%i"), int(MenuItemBase::itemIndex));
@@ -162,22 +162,22 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
         // Unload filament
         #if E_STEPPERS == 1
           PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD);
-          MENU_ITEM_IF (thermalManager.targetTooColdToExtrude(active_extruder))
+          if (thermalManager.targetTooColdToExtrude(active_extruder))
             SUBMENU_P(msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 0); });
-          MENU_ITEM_ELSE
+          else
             GCODES_ITEM_P(msg_unload, PSTR("M702"));
         #else
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-            MENU_ITEM_IF (too_cold)
+            if (too_cold)
               SUBMENU(MSG_FILAMENTUNLOAD_ALL, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, -1); });
-            MENU_ITEM_ELSE
+            else
               GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
           #endif
           PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD_E);
           LOOP_L_N(s, E_STEPPERS) {
-            MENU_ITEM_IF (thermalManager.targetTooColdToExtrude(s))
+            if (thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_P(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
-            MENU_ITEM_ELSE {
+            else {
               ACTION_ITEM_N_P(s, msg_unload, []{
                 char cmd[12];
                 sprintf_P(cmd, PSTR("M702 T%i"), int(MenuItemBase::itemIndex));
@@ -230,13 +230,13 @@ void menu_pause_option() {
 
   #if HAS_FILAMENT_SENSOR
     const bool still_out = runout.filament_ran_out;
-    MENU_ITEM_IF (still_out)
+    if (still_out)
       EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
   #else
     constexpr bool still_out = false;
   #endif
 
-  MENU_ITEM_IF (!still_out)
+  if (!still_out)
     ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
 
   END_MENU();

@@ -144,7 +144,7 @@ void menu_main() {
 
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    MENU_ITEM_IF (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     SUBMENU(MSG_MOTION, menu_motion);
@@ -176,9 +176,9 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      MENU_ITEM_IF (thermalManager.targetHotEnoughToExtrude(active_extruder))
+      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
         GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      MENU_ITEM_ELSE
+      else
         SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
@@ -197,9 +197,9 @@ void menu_main() {
   // Switch power on/off
   //
   #if ENABLED(PSU_CONTROL)
-    MENU_ITEM_IF (powersupply_on)
+    if (powersupply_on)
       GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
-    MENU_ITEM_ELSE
+    else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
