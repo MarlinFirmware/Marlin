@@ -52,7 +52,7 @@ static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRE
 // Public functions
 // ------------------------
 
-static void eeprom_init() { Wire.begin(); }
+void eeprom_init() { Wire.begin(); }
 
 void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   const unsigned eeprom_address = (unsigned)pos;
