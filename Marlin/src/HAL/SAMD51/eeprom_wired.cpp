@@ -22,13 +22,18 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if USE_WIRED_EEPROM
+#if USE_WIRED_EEPROM && DISABLED(QSPI_EEPROM)
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
 size_t PersistentStore::capacity()    { return E2END + 1; }
-bool PersistentStore::access_start()  { return true; }
+
+bool PersistentStore::access_start() {
+  TERN_(I2C_EEPROM, eeprom_init());
+  return true;
+}
+
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
