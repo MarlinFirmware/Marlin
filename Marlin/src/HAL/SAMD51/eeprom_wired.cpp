@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if USE_WIRED_EEPROM && DISABLED(QSPI_EEPROM)
+#if USE_WIRED_EEPROM
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
