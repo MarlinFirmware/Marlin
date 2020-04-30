@@ -2408,6 +2408,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       vmax_junction_sqr = 0;
 
     prev_unit_vec = unit_vec;
+    previous_limit_sqr = limit_sqr;
+    previous_junction_theta = junction_theta;
 
   #endif
 
@@ -2543,10 +2545,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;
   previous_nominal_speed_sqr = block->nominal_speed_sqr;
-  #if HAS_JUNCTION_DEVIATION
-    previous_limit_sqr = limit_sqr;
-    previous_junction_theta = junction_theta;
-  #endif
 
   position = target;  // Update the position
 
