@@ -138,6 +138,8 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
     float Planner::max_e_jerk               // Calculated from junction_deviation_mm
       TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
   #endif
+  constexpr float Planner::junction_deviation_lut_k[];
+  constexpr float Planner::junction_deviation_lut_b[];
 #endif
 
 #if HAS_CLASSIC_JERK
@@ -2307,20 +2309,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0f - sin_theta_d2);
 
         if (block->millimeters < 1) {
-          // Fast acos approximation (max. error +-0.033 rads)
-          // Based on MinMax polynomial published by W. Randolph Franklin, see
-          // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
-          // (acos(x) = pi / 2 - asin(x))
+          // Fast acos approximation (max. error +-0.01 rads)
+          // Based on LUT table and linear interpolation
 
-          const float neg = junction_cos_theta < 0 ? -1 : 1,
-                      t = neg * junction_cos_theta,
-                      asinx =       0.032843707f
-                            + t * (-1.451838349f
-                            + t * ( 29.66153956f
-                            + t * (-131.1123477f
-                            + t * ( 262.8130562f
-                            + t * (-242.7199627f + t * 84.31466202f) )))),
-                      junction_theta = RADIANS(90) - neg * asinx;
+          const float t = junction_cos_theta < 0 ? -junction_cos_theta : junction_cos_theta;
+
+          const int idx = __builtin_clz( int( (1.0f-t) * junction_deviation_lut_tll) ) - junction_deviation_lut_tll0;
+
+          float junction_theta = junction_deviation_lut_k[idx]*t + junction_deviation_lut_b[idx];
+
+          if( junction_cos_theta < 0 )
+            junction_theta = RADIANS(180) - junction_theta;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
