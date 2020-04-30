@@ -2222,9 +2222,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
   #endif
 
-  float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
-  float limit_sqr;         // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
-  float junction_theta;
+  float vmax_junction_sqr, // Initial limit on the segment entry velocity (mm/s)^2
+        limit_sqr,         // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
+        junction_theta;
 
   #if HAS_JUNCTION_DEVIATION
     /**
@@ -2293,6 +2293,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (junction_cos_theta > 0.999999f) {
         // For a 0 degree acute junction, just set minimum junction speed.
         vmax_junction_sqr = sq(float(MINIMUM_PLANNER_SPEED));
+
+        // Update limit_sqr with meaningful value to make sure, that previous_limit_sqr is consistent
+        limit_sqr = vmax_junction_sqr;
+
+        // Update junction_theta to make sure, that previous_junction_theta is consistent
+        junction_theta = 0.0f;
+
+        // Estimate, how much the junction angle is changing per mm traveled
+        const float d_theta = -previous_junction_theta;
+        d_theta_indicator = d_theta_indicator * _MAX(0.0f, 1.0f - d_theta_decay * block->millimeters) + ABS(d_theta) * inverse_millimeters;
+
+        // Do not go limit_sqr = _MAX(limit_sqr, previous_limit_sqr) here. This is a 0° junction and we really don't want to "keep the speed" through this.
       }
       else {
         NOLESS(junction_cos_theta, -0.999999f); // Check for numerical round-off to avoid divide by zero.
