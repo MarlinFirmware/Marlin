@@ -24,7 +24,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if USE_WIRED_EEPROM
+
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with simple implementations supplied by Marlin.
+ */
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
@@ -32,6 +37,10 @@
 size_t PersistentStore::capacity()    { return E2END + 1; }
 bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
+
+bool PersistentStore::access_start()  {
+  return true;
+}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -64,5 +73,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-#endif // EEPROM_SETTINGS
+#endif // USE_WIRED_EEPROM
 #endif // STM32GENERIC && (STM32F4 || STM32F7)
