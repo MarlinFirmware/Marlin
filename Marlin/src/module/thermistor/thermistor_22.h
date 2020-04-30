@@ -20,6 +20,7 @@
  *
  */
 
+// 100k hotend thermistor with 4.7k pull up to 3.3v and 220R to analog input as in GTM32 Pro vB
 const short temptable_22[][2] PROGMEM = {
    { OV(1), 352},
    { OV(6), 341},
