@@ -28,13 +28,12 @@
 #include "../shared/eeprom_api.h"
 
 size_t PersistentStore::capacity()    { return E2END + 1; }
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start() {
-  TERN_(I2C_EEPROM, eeprom_init());
+  eeprom_init();
   return true;
 }
-
-bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
