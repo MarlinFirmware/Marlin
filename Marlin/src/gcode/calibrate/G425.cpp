@@ -92,8 +92,6 @@ struct measurements_t {
   xy_float_t nozzle_outer_dimension = nod;
 };
 
-#define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
-
 #if ENABLED(BACKLASH_GCODE)
   #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash.correction, value)
 #else

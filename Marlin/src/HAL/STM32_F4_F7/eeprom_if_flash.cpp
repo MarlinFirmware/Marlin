@@ -16,12 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 /**
- * Description: Functions for a Flash emulated EEPROM
- * Not platform dependent.
+ * Arduino-style interface for Flash emulated EEPROM
  */
 
 // Include configs and pins to get all EEPROM flags
@@ -35,6 +33,7 @@
 
 #include "HAL.h"
 #include "eeprom_emul.h"
+#include "../shared/eeprom_if.h"
 
 // ------------------------
 // Local defines

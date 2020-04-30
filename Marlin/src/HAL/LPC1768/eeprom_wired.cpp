@@ -19,19 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * I2C/SPI EEPROM interface for LPC1768
- */
-
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
 
 #if USE_WIRED_EEPROM
 
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
-#include <Wire.h>
 
 #ifndef EEPROM_SIZE
   #define EEPROM_SIZE           0x8000 // 32kB‬

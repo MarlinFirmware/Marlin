@@ -17,14 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 
 #if USE_WIRED_EEPROM
 
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
+
+size_t PersistentStore::capacity()    { return E2END + 1; }
 
 bool PersistentStore::access_start() {
   #if ENABLED(SPI_EEPROM)
@@ -70,8 +72,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   } while (--size);
   return false;
 }
-
-size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // USE_WIRED_EEPROM
 #endif // __STM32F1__

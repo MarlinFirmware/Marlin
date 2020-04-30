@@ -20,7 +20,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #include "../../inc/MarlinConfig.h"
@@ -30,7 +29,8 @@
 #include "../shared/eeprom_api.h"
 #include <avr/eeprom.h>
 
-bool PersistentStore::access_start() { return true; }
+size_t PersistentStore::capacity()    { return E2END + 1; }
+bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -63,8 +63,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   } while (--size);
   return false;
 }
-
-size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // USE_WIRED_EEPROM
 #endif // __MK64FX512__ || __MK66FX1M0__

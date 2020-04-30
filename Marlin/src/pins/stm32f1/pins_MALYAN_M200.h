@@ -31,10 +31,10 @@
 
 #define BOARD_INFO_NAME "Malyan M200"
 
-// Enable EEPROM Emulation for this board
-// This setting should probably be in configuration.h
-// but it is literally the only board which uses it.
-#define FLASH_EEPROM_EMULATION
+// Assume Flash EEPROM
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 
 #define SDSS                              SS_PIN
 

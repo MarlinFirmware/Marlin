@@ -217,7 +217,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
     SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
-    MENU_ITEM_IF (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
+    if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
       extern const char NUL_STR[];
       SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
       MENU_ITEM_ADDON_START(0 + ENABLED(HAS_CHARACTER_LCD));
@@ -271,23 +271,23 @@ void menu_move() {
       }
     #elif EXTRUDERS == 3
       if (active_extruder < 2) {
-        MENU_ITEM_IF (active_extruder)
+        if (active_extruder)
           GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0"));
-        MENU_ITEM_ELSE
+        else
           GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1"));
       }
     #else
-      MENU_ITEM_IF (active_extruder)
+      if (active_extruder)
         GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0"));
-      MENU_ITEM_ELSE
+      else
         GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
-    MENU_ITEM_IF (active_extruder)
+    if (active_extruder)
       GCODES_ITEM_N(0, MSG_SELECT_E, PSTR("T0"));
-    MENU_ITEM_ELSE
+    else
       GCODES_ITEM_N(1, MSG_SELECT_E, PSTR("T1"));
 
   #endif
@@ -335,7 +335,7 @@ void menu_motion() {
   //
   // Move Axis
   //
-  MENU_ITEM_IF (TERN1(DELTA, all_axes_homed()))
+  if (TERN1(DELTA, all_axes_homed()))
     SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //
@@ -364,7 +364,7 @@ void menu_motion() {
 
   #elif ENABLED(LCD_BED_LEVELING)
 
-    MENU_ITEM_IF (!g29_in_progress)
+    if (!g29_in_progress)
       SUBMENU(MSG_BED_LEVELING, menu_bed_leveling);
 
   #elif HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
@@ -373,16 +373,14 @@ void menu_motion() {
       GCODES_ITEM(MSG_LEVEL_BED, PSTR("G28\nG29"));
     #endif
 
-    MENU_ITEM_IF (all_axes_homed() && leveling_is_valid()) {
+    if (all_axes_homed() && leveling_is_valid()) {
       bool show_state = planner.leveling_active;
       EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
     }
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      MENU_ITEM_IF(1) {
-        editable.decimal = planner.z_fade_height;
-        EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
-      }
+      editable.decimal = planner.z_fade_height;
+      EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
     #endif
 
   #endif

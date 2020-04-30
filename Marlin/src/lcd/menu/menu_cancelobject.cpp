@@ -62,7 +62,7 @@ void menu_cancelobject() {
   for (int8_t i = -1; i < cancelable.object_count; i++) {
     if (i == ao) continue;                                          // Active is drawn on -1 index
     const int8_t j = i < 0 ? ao : i;                                // Active or index item
-    MENU_ITEM_IF (!cancelable.is_canceled(j)) {                     // Not canceled already?
+    if (!cancelable.is_canceled(j)) {                               // Not canceled already?
       SUBMENU_N(j, MSG_CANCEL_OBJECT_N, lcd_cancel_object_confirm); // Offer the option.
       if (i < 0) SKIP_ITEM();                                       // Extra line after active
     }

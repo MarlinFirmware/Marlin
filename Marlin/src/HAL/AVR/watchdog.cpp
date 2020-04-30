@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __AVR__
 
 #include "../../inc/MarlinConfig.h"

@@ -30,6 +30,7 @@
 #define CPU_32_BIT
 
 #include "../shared/Marduino.h"
+#include "../shared/eeprom_if.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
@@ -129,14 +130,6 @@ void sei();                     // Enable interrupts
 
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
-
-//
-// EEPROM
-//
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 //
 // ADC
