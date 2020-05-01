@@ -2959,6 +2959,9 @@ void Temperature::tick() {
         , const bool click_to_cancel/*=false*/
       #endif
     ) {
+
+      TERN_(AUTOTEMP, planner.autotemp_enabled = false);
+
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         bool first_loop = true;
@@ -3060,6 +3063,8 @@ void Temperature::tick() {
         ui.reset_status();
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
       }
+      
+      TERN_(AUTOTEMP, planner.autotemp_enabled = true);
 
       return wait_for_heatup;
     }

@@ -791,7 +791,7 @@ void tool_change_prime() {
     const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
     // Store and stop fan
-    #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
     #endif
@@ -826,7 +826,7 @@ void tool_change_prime() {
     #endif
 
     // Cool down with fan
-    #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       gcode.dwell(toolchange_settings.fan_time * 1000);
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
@@ -851,7 +851,7 @@ void tool_change_prime() {
     sync_plan_position_e(); // Resume at the old E position
 
     // Restart Fan
-    #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
     #endif
   }
@@ -944,7 +944,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       destination = current_position;
 
       // Store and stop fan
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP && HAS_FAN) && (TOOLCHANGE_FS_FAN >= 0)
+      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && (TOOLCHANGE_FS_FAN >= 0)
         const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
         thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
       #endif
@@ -1120,7 +1120,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             // Cool down with fan
-            #if BOTH(TOOLCHANGE_FILAMENT_SWAP && HAS_FAN) && (TOOLCHANGE_FS_FAN >= 0)
+            #if HAS_FAN && (TOOLCHANGE_FS_FAN >= 0)
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
               gcode.dwell(toolchange_settings.fan_time * 1000);
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
@@ -1174,8 +1174,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             sync_plan_position_e(); // New extruder primed and set to 0
 
             // Restart Fan
-            #if BOTH(TOOLCHANGE_FILAMENT_SWAP && (TOOLCHANGE_FS_FAN >= 0) )
-              TERN(HAS_FAN, thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp);
+            #if HAS_FAN && (TOOLCHANGE_FS_FAN >= 0)
+
+              TERN_(HAS_FAN, thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp);
             #endif
 
           }
