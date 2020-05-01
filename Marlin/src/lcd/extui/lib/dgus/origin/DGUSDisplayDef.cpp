@@ -73,7 +73,7 @@ const uint16_t VPList_Status[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     VP_Fan0_Percentage,
   #endif
   VP_XPos, VP_YPos, VP_ZPos,
@@ -233,7 +233,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   // Fan Data
-  #if FAN_COUNT
+  #if HAS_FAN
     #define FAN_VPHELPER(N) \
       VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], DGUSScreenVariableHandler::DGUSLCD_PercentageToUint8, &DGUSScreenVariableHandler::DGUSLCD_SendPercentageToDisplay), \
       VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], &DGUSScreenVariableHandler::HandleFanControl, nullptr), \

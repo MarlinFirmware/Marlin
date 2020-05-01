@@ -100,11 +100,9 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if (enabled && !filament_ran_out && (printingIsActive()
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          || did_pause_print
-        #endif
-      )) {
+      if ( enabled && !filament_ran_out
+        && (printingIsActive() || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print))
+      ) {
         #ifdef FILAMENT_RUNOUT_DISTANCE_MM
           cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif
@@ -153,11 +151,7 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      return (poll_runout_pins()
-        #if DISABLED(FIL_RUNOUT_INVERTING)
-          ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
-        #endif
-      );
+      return poll_runout_pins() ^ uint8_t(TERN0(FIL_RUNOUT_INVERTING, _BV(NUM_RUNOUT_SENSORS) - 1));
     }
 
   #undef INIT_RUNOUT_PIN
@@ -217,26 +211,14 @@ class FilamentSensorBase {
     private:
       static inline bool poll_runout_state(const uint8_t extruder) {
         const uint8_t runout_states = poll_runout_states();
-
         #if NUM_RUNOUT_SENSORS == 1
           UNUSED(extruder);
+        #else
+          if ( !TERN0(DUAL_X_CARRIAGE, dxc_is_duplicating())
+            && !TERN0(MULTI_NOZZLE_DUPLICATION, extruder_duplication_enabled)
+          ) return TEST(runout_states, extruder); // A specific extruder ran out
         #endif
-
-        if (true
-          #if NUM_RUNOUT_SENSORS > 1
-            #if ENABLED(DUAL_X_CARRIAGE)
-              && (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_MIRRORED_MODE)
-            #elif ENABLED(MULTI_NOZZLE_DUPLICATION)
-              && extruder_duplication_enabled
-            #else
-              && false
-            #endif
-          #endif
-        ) return runout_states;               // Any extruder
-
-        #if NUM_RUNOUT_SENSORS > 1
-          return TEST(runout_states, extruder); // Specific extruder
-        #endif
+        return !!runout_states;                   // Any extruder ran out
       }
 
     public:
@@ -302,9 +284,7 @@ class FilamentSensorBase {
 
       static inline void block_completed(const block_t* const b) {
         if (b->steps.x || b->steps.y || b->steps.z
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            || did_pause_print // Allow pause purge move to re-trigger runout state
-          #endif
+          || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print) // Allow pause purge move to re-trigger runout state
         ) {
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
@@ -338,11 +318,7 @@ class FilamentSensorBase {
 typedef TFilamentMonitor<
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     RunoutResponseDelayed,
-    #if ENABLED(FILAMENT_MOTION_SENSOR)
-      FilamentSensorEncoder
-    #else
-      FilamentSensorSwitch
-    #endif
+    TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
   #else
     RunoutResponseDebounced, FilamentSensorSwitch
   #endif

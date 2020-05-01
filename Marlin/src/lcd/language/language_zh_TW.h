@@ -42,7 +42,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("正在中止...");   //"Aborting..."
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("記憶卡已插入");     //"Card inserted"
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("記憶卡被拔出");     //"Card removed"
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("記憶卡被釋放");   //"Media Released"
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("等待記憶卡");    //"Waiting for media"
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("記憶卡讀取錯誤"); //"Media read error"
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB裝置已移除");   //"USB device removed"
@@ -347,8 +346,8 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("清除長度");   //"Purge Length"
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("交換工具"); //"Tool Change"
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z軸提昇");    //"Z Raise"
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("最高速度");    //"Prime Speed"
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("收回速度");  //"Retract Speed"
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("最高速度");    //"Prime Speed"
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("收回速度");  //"Retract Speed"
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("噴嘴待機"); //"Nozzle Standby"
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("更換絲料");     //"Change filament"
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("更換絲料 *");

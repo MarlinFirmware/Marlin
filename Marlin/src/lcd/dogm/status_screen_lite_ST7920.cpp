@@ -431,7 +431,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
 
   // Draw the static icons in GDRAM
   draw_gdram_icon(0, 0, nozzle_icon);
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     draw_gdram_icon(0, 1, nozzle_icon);
     draw_gdram_icon(0, 2, bed_icon);
   #else
@@ -537,14 +537,9 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 static struct {
   bool E1_show_target  : 1;
   bool E2_show_target  : 1;
-  #if HAS_HEATED_BED
-    bool bed_show_target : 1;
-  #endif
+  TERN_(HAS_HEATED_BED, bool bed_show_target : 1);
 } display_state = {
-  true, true
-  #if HAS_HEATED_BED
-    , true
-  #endif
+  true, true, TERN_(HAS_HEATED_BED, true)
 };
 
 void ST7920_Lite_Status_Screen::draw_temps(uint8_t line, const int16_t temp, const int16_t target, bool showTarget, bool targetStateChange) {
@@ -584,7 +579,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
 #if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
-    draw_temps(HOTENDS > 1 ? 2 : 1, temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
+    draw_temps(TERN(HAS_MULTI_HOTEND, 2, 1), temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
     display_state.bed_show_target = show_target;
   }
 #endif
@@ -672,11 +667,7 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_known ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  if (true
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      && !printingIsActive()
-    #endif
-  ) {
+  if (TERN1(LCD_SHOW_E_TOTAL, !printingIsActive())) {
     write_byte(alt_label ? alt_label : 'X');
     write_str(dtostrf(pos.x, -4, 0, str), 4);
 
@@ -704,7 +695,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   const uint16_t   feedrate_perc     = feedrate_percentage;
   const uint16_t   fs                = thermalManager.scaledFanSpeed(0);
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
   #if HAS_HEATED_BED
@@ -712,13 +703,8 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #endif
   static uint16_t last_checksum = 0;
   const uint16_t checksum = blink ^ feedrate_perc ^ fs ^ extruder_1_target
-    #if HOTENDS > 1
-      ^ extruder_2_target
-    #endif
-    #if HAS_HEATED_BED
-      ^ bed_target
-    #endif
-  ;
+    ^ TERN0(HAS_MULTI_HOTEND, extruder_2_target)
+    ^ TERN0(HAS_HEATED_BED, bed_target);
   if (last_checksum == checksum) return false;
   last_checksum = checksum;
   return true;
@@ -731,7 +717,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const uint16_t   feedrate_perc     = feedrate_percentage;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
@@ -741,12 +727,8 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #endif
 
     draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
-    #if HOTENDS > 1
-      draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
-    #endif
-    #if HAS_HEATED_BED
-      draw_bed_temp(bed_temp, bed_target, forceUpdate);
-    #endif
+    TERN_(HAS_MULTI_HOTEND, draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate));
+    TERN_(HAS_HEATED_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
 
     uint16_t spd = thermalManager.fan_speed[0];
 
@@ -761,9 +743,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 
     // Update the fan and bed animations
     if (spd) draw_fan_icon(blink);
-    #if HAS_HEATED_BED
-      draw_heat_icon(bed_target > 0 && blink, bed_target > 0);
-    #endif
+    TERN_(HAS_HEATED_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
   }
 }
 
@@ -813,9 +793,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
    * If STATUS_EXPIRE_SECONDS is zero, only the status is shown.
    */
   if (forceUpdate || status_changed()) {
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      ui.status_scroll_offset = 0;
-    #endif
+    TERN_(STATUS_MESSAGE_SCROLLING, ui.status_scroll_offset = 0);
     #if STATUS_EXPIRE_SECONDS
       countdown = ui.status_message[0] ? STATUS_EXPIRE_SECONDS : 0;
     #endif
@@ -823,26 +801,20 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
     blink_changed(); // Clear changed flag
   }
   #if !STATUS_EXPIRE_SECONDS
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      else if (blink_changed())
-        draw_status_message();
-    #endif
+    else if (TERN0(STATUS_MESSAGE_SCROLLING, blink_changed()))
+      draw_status_message();
   #else
     else if (blink_changed()) {
       if (countdown > 1) {
         countdown--;
-        #if ENABLED(STATUS_MESSAGE_SCROLLING)
-          draw_status_message();
-        #endif
+        TERN_(STATUS_MESSAGE_SCROLLING, draw_status_message());
       }
       else if (countdown > 0) {
         if (position_changed()) {
           countdown--;
           forceUpdate = true;
         }
-        #if ENABLED(STATUS_MESSAGE_SCROLLING)
-          draw_status_message();
-        #endif
+        TERN_(STATUS_MESSAGE_SCROLLING, draw_status_message());
       }
     }
 

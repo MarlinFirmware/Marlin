@@ -68,7 +68,7 @@ typedef struct {
     #endif
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     int16_t target_temperature[HOTENDS];
   #endif
 
@@ -76,7 +76,7 @@ typedef struct {
     int16_t target_temperature_bed;
   #endif
 
-  #if FAN_COUNT
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 

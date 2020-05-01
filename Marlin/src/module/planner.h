@@ -61,7 +61,7 @@
                             manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
 #endif
 
-#if IS_KINEMATIC && DISABLED(CLASSIC_JERK)
+#if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
   #define HAS_DIST_MM_ARG 1
 #endif
 
@@ -137,9 +137,7 @@ typedef struct block_t {
     static constexpr uint8_t extruder = 0;
   #endif
 
-  #if ENABLED(MIXING_EXTRUDER)
-    MIXER_BLOCK_FIELD;                      // Normalized color for the mixing steppers
-  #endif
+  TERN_(MIXING_EXTRUDER, MIXER_BLOCK_FIELD); // Normalized color for the mixing steppers
 
   // Settings for the trapezoid generator
   uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
@@ -175,7 +173,7 @@ typedef struct block_t {
     cutter_power_t cutter_power;            // Power level for Spindle, Laser, etc.
   #endif
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
@@ -197,7 +195,9 @@ typedef struct block_t {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL)
+#if ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL)
+  #define HAS_POSITION_FLOAT 1
+#endif
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -302,23 +302,17 @@ class Planner {
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
     static float steps_to_mm[XYZE_N];           // Millimeters per step
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)
         static float max_e_jerk                 // Calculated from junction_deviation_mm
-          #if ENABLED(DISTINCT_E_FACTORS)
-            [EXTRUDERS]
-          #endif
-        ;
+          TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
       #endif
     #endif
 
     #if HAS_CLASSIC_JERK
-      #if HAS_LINEAR_E_JERK
-        static xyz_pos_t max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
-      #else
-        static xyze_pos_t max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
-      #endif
+      // (mm/s^2) M205 XYZ(E) - The largest speed change requiring no acceleration.
+      static TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) max_jerk;
     #endif
 
     #if HAS_LEVELING
@@ -356,6 +350,23 @@ class Planner {
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
     #endif
+    #ifdef XY_FREQUENCY_LIMIT
+      static int8_t xy_freq_limit_hz;         // Minimum XY frequency setting
+      static float xy_freq_min_speed_factor;  // Minimum speed factor setting
+      static int32_t xy_freq_min_interval_us; // Minimum segment time based on xy_freq_limit_hz
+      static inline void refresh_frequency_limit() {
+        //xy_freq_min_interval_us = xy_freq_limit_hz ?: LROUND(1000000.0f / xy_freq_limit_hz);
+        if (xy_freq_limit_hz)
+          xy_freq_min_interval_us = LROUND(1000000.0f / xy_freq_limit_hz);
+      }
+      static inline void set_min_speed_factor_u8(const uint8_t v255) {
+        xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
+      }
+      static inline void set_frequency_limit(const uint8_t hz) {
+        xy_freq_limit_hz = constrain(hz, 0, 100);
+        refresh_frequency_limit();
+      }
+    #endif
 
   private:
 
@@ -379,23 +390,12 @@ class Planner {
     #endif
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-      /**
-       * Counters to manage disabling inactive extruders
-       */
+       // Counters to manage disabling inactive extruders
       static uint8_t g_uc_extruder_last_move[EXTRUDERS];
-    #endif // DISABLE_INACTIVE_EXTRUDER
-
-    #ifdef XY_FREQUENCY_LIMIT
-      // Used for the frequency limit
-      #define MAX_FREQ_TIME_US (uint32_t)(1000000.0 / XY_FREQUENCY_LIMIT)
-      // Old direction bits. Used for speed calculations
-      static unsigned char old_direction_bits;
-      // Segment times (in µs). Used for speed calculations
-      static xy_ulong_t axis_segment_time_us[3];
     #endif
 
     #if HAS_SPI_LCD
-      volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
+      volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
   public:
@@ -421,12 +421,14 @@ class Planner {
 
     #if EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-        e_factor[e] = (flow_percentage[e] * 0.01f
-          #if DISABLED(NO_VOLUMETRICS)
-            * volumetric_multiplier[e]
-          #endif
-        );
+        e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
       }
+
+      static inline void set_flow(const uint8_t e, const int16_t flow) {
+        flow_percentage[e] = flow;
+        refresh_e_factor(e);
+      }
+
     #endif
 
     // Manage fans, paste pressure, etc.
@@ -547,44 +549,22 @@ class Planner {
     #if HAS_POSITION_MODIFIERS
       FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos
         #if HAS_LEVELING
-          , bool leveling =
-          #if PLANNER_LEVELING
-            true
-          #else
-            false
-          #endif
+          , bool leveling = ENABLED(PLANNER_LEVELING)
         #endif
       ) {
-        #if ENABLED(SKEW_CORRECTION)
-          skew(pos);
-        #endif
-        #if HAS_LEVELING
-          if (leveling) apply_leveling(pos);
-        #endif
-        #if ENABLED(FWRETRACT)
-          apply_retract(pos);
-        #endif
+        TERN_(SKEW_CORRECTION, skew(pos));
+        TERN_(HAS_LEVELING, if (leveling) apply_leveling(pos));
+        TERN_(FWRETRACT, apply_retract(pos));
       }
 
       FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos
         #if HAS_LEVELING
-          , bool leveling =
-          #if PLANNER_LEVELING
-            true
-          #else
-            false
-          #endif
+          , bool leveling = ENABLED(PLANNER_LEVELING)
         #endif
       ) {
-        #if ENABLED(FWRETRACT)
-          unapply_retract(pos);
-        #endif
-        #if HAS_LEVELING
-          if (leveling) unapply_leveling(pos);
-        #endif
-        #if ENABLED(SKEW_CORRECTION)
-          unskew(pos);
-        #endif
+        TERN_(FWRETRACT, unapply_retract(pos));
+        TERN_(HAS_LEVELING, if (leveling) unapply_leveling(pos));
+        TERN_(SKEW_CORRECTION, unskew(pos));
       }
     #endif // HAS_POSITION_MODIFIERS
 
@@ -844,6 +824,7 @@ class Planner {
       static bool autotemp_enabled;
       static void getHighESpeed();
       static void autotemp_M104_M109();
+      static void autotemp_update();
     #endif
 
     #if HAS_LINEAR_E_JERK
@@ -918,7 +899,7 @@ class Planner {
 
     static void recalculate();
 
-    #if DISABLED(CLASSIC_JERK)
+    #if HAS_JUNCTION_DEVIATION
 
       FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
         float magnitude_sq = 0;

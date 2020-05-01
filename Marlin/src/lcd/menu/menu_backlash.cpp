@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(BACKLASH_GCODE)
+#if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
 
 #include "menu.h"
 

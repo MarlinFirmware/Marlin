@@ -246,7 +246,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     sprintf_P(progress_str, PSTR("%-3d %%"),      getProgress_percent() );
 
     cmd.font(font_medium)
-       .tag(0).text(TIME_POS, time_str)
+       .tag(7).text(TIME_POS, time_str)
               .text(PROGRESS_POS, progress_str);
   }
 }
@@ -386,10 +386,19 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       break;
     case 5:  GOTO_SCREEN(TemperatureScreen); break;
     case 6:
-      if (!isPrinting()) {
+      if (isPrinting()) {
+        #if ENABLED(BABYSTEPPING)
+          GOTO_SCREEN(NudgeNozzleScreen);
+        #elif HAS_BED_PROBE
+          GOTO_SCREEN(ZOffsetScreen);
+        #else
+          return false;
+        #endif
+      } else {
         GOTO_SCREEN(MoveAxisScreen);
       }
       break;
+    case 7:  GOTO_SCREEN(FeedratePercentScreen); break;
     default:
       return true;
   }

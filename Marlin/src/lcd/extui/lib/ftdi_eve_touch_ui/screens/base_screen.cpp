@@ -78,9 +78,7 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  #if LCD_TIMEOUT_TO_STATUS
-    last_interaction = millis();
-  #endif
+  TERN_(LCD_TIMEOUT_TO_STATUS, last_interaction = millis());
 }
 
 #if LCD_TIMEOUT_TO_STATUS

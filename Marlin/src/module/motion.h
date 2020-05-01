@@ -44,13 +44,7 @@ FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
 FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
-  return !(
-    #if ENABLED(HOME_AFTER_DEACTIVATE)
-      all_axes_known()
-    #else
-      all_axes_homed()
-    #endif
-  );
+  return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
 }
 
 // Error margin to work around float imprecision
@@ -136,7 +130,7 @@ inline float home_bump_mm(const AxisEnum axis) {
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);
 #else
-  #define update_workspace_offset(x) NOOP
+  inline void update_workspace_offset(const AxisEnum) {}
 #endif
 
 #if HAS_HOTEND_OFFSET
@@ -158,6 +152,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 #else
   constexpr bool soft_endstops_enabled = false;
   //constexpr axis_limits_t soft_endstop = {
@@ -165,6 +160,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
   #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
 #endif
 
 void report_real_position();
