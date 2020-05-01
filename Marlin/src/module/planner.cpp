@@ -2313,7 +2313,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           const float t = junction_cos_theta < 0 ? -junction_cos_theta : junction_cos_theta;
 
-          const int16_t idx = __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+          const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
           float junction_theta = jd_lut_k[idx] * t + jd_lut_b[idx];
           if (junction_cos_theta < 0)

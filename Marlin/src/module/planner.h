@@ -312,15 +312,27 @@ class Planner {
       static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
       static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1;
       static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
-       -1.04719782f, -1.30754733f, -1.75197887f, -2.41694975f,
-       -3.37753963f, -4.74867725f, -6.69619560f, -9.45619202f,
-       -13.3634491f, -18.8919716f, -26.7124786f, -37.7737808f,
-       -53.4177551f, -75.5424652f,   0.0f };
+        -1.03155351f, -1.30754733f, -1.75197887f, -2.41694975f, -3.37753963f,
+        -4.74867725f,  -6.6961956f, -9.45619202f, -13.3634491f, -18.8919716f,
+        -26.7124786f, -37.7737808f, -53.4177551f, -75.5424652f,         0.0f};
       static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-        1.57079637f,  1.70879328f,  2.04211712f,  2.62396669f,
-        3.52451944f,  4.85280895f,  6.76989746f,  9.50833321f,
-        13.4003258f,  18.9180450f,  26.7309265f,  37.7868271f,
-        53.4269714f,  75.5489807f,   0.0f };
+        1.57079637f, 1.70879328f, 2.04211712f, 2.62396669f, 3.52451944f,
+        4.85280895f, 6.76989746f, 9.50833321f, 13.4003258f,  18.918045f,
+        26.7309265f, 37.7868271f, 53.4269714f, 75.5489807f,        0.0f};
+      /*  Generating LUT
+          float c = 1.0074696392; // Correction factor to center error around 0
+          for(int i = 0; i < jd_lut_count-1; ++i)
+          {
+              float x0 = (pow(2,i) - 1)/pow(2,i);
+              float y0 = acos(x0)*(i==0?1:c);
+              float x1 = 0.5*x0 + 0.5;
+              float y1 = acos(x1)*c;
+              jd_lut_k[i] = (y0-y1)/(x0-x1);
+              jd_lut_b[i] = (y1*x0 - y0*x1)/(x0-x1);
+          }
+          jd_lut_k[jd_lut_count-1] = 0;
+          jd_lut_b[jd_lut_count-1] = 0;
+      */
     #endif
 
     #if HAS_CLASSIC_JERK
