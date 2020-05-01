@@ -311,12 +311,12 @@ class Planner {
       static constexpr int16_t  jd_lut_count = 15;
       static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
       static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1;
-      static constexpr float junction_deviation_lut_k[jd_lut_count] PROGMEM = {
+      static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
        -1.04719782f, -1.30754733f, -1.75197887f, -2.41694975f,
        -3.37753963f, -4.74867725f, -6.69619560f, -9.45619202f,
        -13.3634491f, -18.8919716f, -26.7124786f, -37.7737808f,
        -53.4177551f, -75.5424652f,   0.0f };
-      static constexpr float junction_deviation_lut_b[jd_lut_count] PROGMEM = {
+      static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
         1.57079637f,  1.70879328f,  2.04211712f,  2.62396669f,
         3.52451944f,  4.85280895f,  6.76989746f,  9.50833321f,
         13.4003258f,  18.9180450f,  26.7309265f,  37.7868271f,
