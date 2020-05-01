@@ -312,15 +312,16 @@ class Planner {
       static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
       static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1;
       static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
-        -1.03155351f, -1.30754733f, -1.75197887f, -2.41694975f, -3.37753963f,
-        -4.74867725f,  -6.6961956f, -9.45619202f, -13.3634491f, -18.8919716f,
-        -26.7124786f, -37.7737808f, -53.4177551f, -75.5424652f,         0.0f};
+        -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
+        -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
+        -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,         0.0f};
       static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-        1.57079637f, 1.70879328f, 2.04211712f, 2.62396669f, 3.52451944f,
-        4.85280895f, 6.76989746f, 9.50833321f, 13.4003258f,  18.918045f,
-        26.7309265f, 37.7868271f, 53.4269714f, 75.5489807f,        0.0f};
-      /*  Generating LUT
-          float c = 1.0074696392; // Correction factor to center error around 0
+        1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
+        4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
+        26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,        0.0f};
+
+      /*  // Generating LUT
+          float c = 1.00751317f; // Correction factor to center error around 0
           for(int i = 0; i < jd_lut_count-1; ++i)
           {
               float x0 = (pow(2,i) - 1)/pow(2,i);
@@ -332,6 +333,20 @@ class Planner {
           }
           jd_lut_k[jd_lut_count-1] = 0;
           jd_lut_b[jd_lut_count-1] = 0;
+
+          // Computing correction factor (Correction factor should be c = 1.0f when computing this)
+          float min = 1.0f/0.0f;
+          float max = -min;
+          for(float t = 0; t <= 1; t += 0.0003)
+          {
+              float e = acos(t)/approx(t);
+              if( isfinite(e) )
+              {
+                  min = std::min(min, e);
+                  max = std::max(max, e);
+              }
+          }
+          fprintf(stderr, "%.9gf, ", (min+max)/2.0f);
       */
     #endif
 
