@@ -40,7 +40,7 @@ size_t PersistentStore::capacity()    { return EEPROM_SIZE; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start() {
-  TERN_(SPI_EEPROM, eeprom_init());
+  TERN_(I2C_EEPROM, eeprom_init());
   return true;
 }
 
