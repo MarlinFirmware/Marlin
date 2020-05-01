@@ -201,7 +201,7 @@ void GcodeSuite::G76() {
         report_temps(next_temp_report);
 
       const float measured_z = g76_probe(TSI_BED, target_bed, noz_pos_xyz);
-      if (isnan(measured_z) || target_bed > BED_MAXTEMP - 10) break;
+      if (isnan(measured_z) || target_bed > BED_MAX_TARGET) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());

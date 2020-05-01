@@ -80,7 +80,17 @@ private:
 
   static void filament_runout();
 
+  #if ENABLED(PRUSA_MMU2_S_MODE)
+    static bool mmu2s_triggered;
+    static void check_filament();
+    static bool can_load();
+    static bool load_to_gears();
+  #else
+    FORCE_INLINE static bool load_to_gears() { return true; }
+  #endif
+
   static bool enabled, ready, mmu_print_saved;
+
   static uint8_t cmd, cmd_arg, last_cmd, extruder;
   static int8_t state;
   static volatile int8_t finda;

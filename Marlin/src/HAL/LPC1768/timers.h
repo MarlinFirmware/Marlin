@@ -88,8 +88,8 @@ typedef uint32_t hal_timer_t;
 #define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(TEMP_TIMER_NUM)
 
 // Timer references by index
-#define STEP_TIMER _HAL_TIMER(STEP_TIMER_NUM)
-#define TEMP_TIMER _HAL_TIMER(TEMP_TIMER_NUM)
+#define STEP_TIMER_PTR _HAL_TIMER(STEP_TIMER_NUM)
+#define TEMP_TIMER_PTR _HAL_TIMER(TEMP_TIMER_NUM)
 
 // ------------------------
 // Public functions
@@ -99,23 +99,23 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0: STEP_TIMER->MR0 = compare; break; // Stepper Timer Match Register 0
-    case 1: TEMP_TIMER->MR0 = compare; break; //    Temp Timer Match Register 0
+    case 0: STEP_TIMER_PTR->MR0 = compare; break; // Stepper Timer Match Register 0
+    case 1: TEMP_TIMER_PTR->MR0 = compare; break; //    Temp Timer Match Register 0
   }
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return STEP_TIMER->MR0; // Stepper Timer Match Register 0
-    case 1: return TEMP_TIMER->MR0; //    Temp Timer Match Register 0
+    case 0: return STEP_TIMER_PTR->MR0; // Stepper Timer Match Register 0
+    case 1: return TEMP_TIMER_PTR->MR0; //    Temp Timer Match Register 0
   }
   return 0;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return STEP_TIMER->TC; // Stepper Timer Count
-    case 1: return TEMP_TIMER->TC; //    Temp Timer Count
+    case 0: return STEP_TIMER_PTR->TC; // Stepper Timer Count
+    case 1: return TEMP_TIMER_PTR->TC; //    Temp Timer Count
   }
   return 0;
 }
@@ -154,8 +154,8 @@ FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: SBI(STEP_TIMER->IR, SBIT_CNTEN); break;
-    case 1: SBI(TEMP_TIMER->IR, SBIT_CNTEN); break;
+    case 0: SBI(STEP_TIMER_PTR->IR, SBIT_CNTEN); break;
+    case 1: SBI(TEMP_TIMER_PTR->IR, SBIT_CNTEN); break;
   }
 }
 

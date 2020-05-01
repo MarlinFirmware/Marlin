@@ -224,10 +224,11 @@
  *    Save Settings       (Req: EEPROM_SETTINGS)
  */
 void menu_bed_leveling() {
+  const bool is_homed = all_axes_known(),
+             is_valid = leveling_is_valid();
+
   START_MENU();
   BACK_ITEM(MSG_MOTION);
-
-  const bool is_homed = all_axes_known();
 
   // Auto Home if not using manual probing
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -244,12 +245,11 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(MESH_EDIT_MENU)
-    if (leveling_is_valid())
-      SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
+    if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
   #endif
 
   // Homed and leveling is valid? Then leveling can be toggled.
-  if (is_homed && leveling_is_valid()) {
+  if (is_homed && is_valid) {
     bool show_state = planner.leveling_active;
     EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
   }

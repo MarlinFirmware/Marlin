@@ -117,16 +117,12 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #endif
 
 #ifndef TMC_BAUD_RATE
-  #if HAS_TMC_SW_SERIAL
-    // Reduce baud rate for boards not already overriding TMC_BAUD_RATE for software serial.
-    // Testing has shown that 115200 is not 100% reliable on AVR platforms, occasionally
-    // failing to read status properly. 32-bit platforms typically define an even lower
-    // TMC_BAUD_RATE, due to differences in how SoftwareSerial libraries work on different
-    // platforms.
-    #define TMC_BAUD_RATE 57600
-  #else
-    #define TMC_BAUD_RATE 115200
-  #endif
+  // Reduce baud rate for boards not already overriding TMC_BAUD_RATE for software serial.
+  // Testing has shown that 115200 is not 100% reliable on AVR platforms, occasionally
+  // failing to read status properly. 32-bit platforms typically define an even lower
+  // TMC_BAUD_RATE, due to differences in how SoftwareSerial libraries work on different
+  // platforms.
+  #define TMC_BAUD_RATE TERN(HAS_TMC_SW_SERIAL, 57600, 115200)
 #endif
 
 #if HAS_DRIVER(TMC2130)
@@ -158,11 +154,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ampl = 180;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -200,11 +192,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -489,11 +477,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
 
     st.GSTAT(0b111); // Clear
     delay(200);
@@ -535,11 +519,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
 
     st.GSTAT(0b111); // Clear
     delay(200);
@@ -597,11 +577,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ampl = 180;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -700,25 +676,7 @@ void restore_trinamic_drivers() {
 }
 
 void reset_trinamic_drivers() {
-  static constexpr bool stealthchop_by_axis[] = {
-    #if ENABLED(STEALTHCHOP_XY)
-      true
-    #else
-      false
-    #endif
-    ,
-    #if ENABLED(STEALTHCHOP_Z)
-      true
-    #else
-      false
-    #endif
-    ,
-    #if ENABLED(STEALTHCHOP_E)
-      true
-    #else
-      false
-    #endif
-  };
+  static constexpr bool stealthchop_by_axis[] = { ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_Z), ENABLED(STEALTHCHOP_E) };
 
   #if AXIS_IS_TMC(X)
     TMC_INIT(X, STEALTH_AXIS_XY);
@@ -771,36 +729,27 @@ void reset_trinamic_drivers() {
 
   #if USE_SENSORLESS
     #if X_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(X)
-        stepperX.homing_threshold(X_STALL_SENSITIVITY);
+      stepperX.homing_threshold(X_STALL_SENSITIVITY);
+      #if AXIS_HAS_STALLGUARD(X2)
+        stepperX2.homing_threshold(CAT(TERN(X2_SENSORLESS, X2, X), _STALL_SENSITIVITY));
       #endif
-      #if AXIS_HAS_STALLGUARD(X2) && !X2_SENSORLESS
-        stepperX2.homing_threshold(X_STALL_SENSITIVITY);
-      #endif
-    #endif
-    #if X2_SENSORLESS
-      stepperX2.homing_threshold(X2_STALL_SENSITIVITY);
     #endif
     #if Y_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(Y)
-        stepperY.homing_threshold(Y_STALL_SENSITIVITY);
-      #endif
+      stepperY.homing_threshold(Y_STALL_SENSITIVITY);
       #if AXIS_HAS_STALLGUARD(Y2)
-        stepperY2.homing_threshold(Y_STALL_SENSITIVITY);
+        stepperY2.homing_threshold(CAT(TERN(Y2_SENSORLESS, Y2, Y), _STALL_SENSITIVITY));
       #endif
     #endif
     #if Z_SENSORLESS
-      #if AXIS_HAS_STALLGUARD(Z)
-        stepperZ.homing_threshold(Z_STALL_SENSITIVITY);
-      #endif
+      stepperZ.homing_threshold(Z_STALL_SENSITIVITY);
       #if AXIS_HAS_STALLGUARD(Z2)
-        stepperZ2.homing_threshold(Z_STALL_SENSITIVITY);
+        stepperZ2.homing_threshold(CAT(TERN(Z2_SENSORLESS, Z2, Z), _STALL_SENSITIVITY));
       #endif
       #if AXIS_HAS_STALLGUARD(Z3)
-        stepperZ3.homing_threshold(Z_STALL_SENSITIVITY);
+        stepperZ3.homing_threshold(CAT(TERN(Z3_SENSORLESS, Z3, Z), _STALL_SENSITIVITY));
       #endif
       #if AXIS_HAS_STALLGUARD(Z4)
-        stepperZ4.homing_threshold(Z_STALL_SENSITIVITY);
+        stepperZ4.homing_threshold(CAT(TERN(Z4_SENSORLESS, Z4, Z), _STALL_SENSITIVITY));
       #endif
     #endif
   #endif

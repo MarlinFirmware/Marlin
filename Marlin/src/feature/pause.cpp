@@ -102,6 +102,8 @@ fil_change_settings_t fc_settings[EXTRUDERS];
       }
     }
   }
+#else
+  inline void filament_change_beep(const int8_t, const bool=false) {}
 #endif
 
 /**
@@ -148,9 +150,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
                    const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/
                    DXC_ARGS
 ) {
-  #if !HAS_LCD_MENU
-    UNUSED(show_lcd);
-  #endif
+  TERN(HAS_LCD_MENU,,UNUSED(show_lcd));
 
   if (!ensure_safe_temperature(mode)) {
     #if HAS_LCD_MENU
@@ -165,11 +165,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #endif
     SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_INSERT));
 
-    #if HAS_BUZZER
-      filament_change_beep(max_beep_count, true);
-    #else
-      UNUSED(max_beep_count);
-    #endif
+    filament_change_beep(max_beep_count, true);
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -184,7 +180,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #endif
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
     while (wait_for_user) {
-      TERN_(HAS_BUZZER, filament_change_beep(max_beep_count));
+      filament_change_beep(max_beep_count);
       idle_no_sleep();
     }
   }
@@ -285,9 +281,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
                        , const float &mix_multiplier/*=1.0*/
                      #endif
 ) {
-  #if !HAS_LCD_MENU
-    UNUSED(show_lcd);
-  #endif
+  TERN(HAS_LCD_MENU,,UNUSED(show_lcd));
 
   #if !BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
     constexpr float mix_multiplier = 1.0;
@@ -353,10 +347,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
 uint8_t did_pause_print = 0;
 
 bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
-
-  #if !HAS_LCD_MENU
-    UNUSED(show_lcd);
-  #endif
+  TERN(HAS_LCD_MENU,,UNUSED(show_lcd));
 
   if (did_pause_print) return false; // already paused
 
@@ -402,7 +393,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   // Wait for buffered blocks to complete
   planner.synchronize();
 
-  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && HAS_FAN
     thermalManager.set_fans_paused(true);
   #endif
 
@@ -457,11 +448,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
   show_continue_prompt(is_reload);
 
-  #if HAS_BUZZER
-    filament_change_beep(max_beep_count, true);
-  #else
-    UNUSED(max_beep_count);
-  #endif
+  filament_change_beep(max_beep_count, true);
 
   // Start the heater idle timers
   const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
@@ -481,7 +468,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_NOZZLE_PARKED)));
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
-    TERN_(HAS_BUZZER, filament_change_beep(max_beep_count));
+    filament_change_beep(max_beep_count);
 
     // If the nozzle has timed out...
     if (!nozzle_timed_out)
@@ -521,7 +508,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       wait_for_user = true;
       nozzle_timed_out = false;
 
-      TERN_(HAS_BUZZER, filament_change_beep(max_beep_count, true));
+      filament_change_beep(max_beep_count, true);
     }
     idle_no_sleep();
   }
@@ -621,7 +608,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     if (did_pause_print) { card.startFileprint(); --did_pause_print; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && FAN_COUNT > 0
+  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && HAS_FAN
     thermalManager.set_fans_paused(false);
   #endif
 

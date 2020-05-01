@@ -151,7 +151,7 @@ public:
     // Hook for live z adjust action
     static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     // Hook for fan control
     static void HandleFanControl(DGUS_VP_Variable &var, void *val_ptr);
   #endif
@@ -221,7 +221,7 @@ public:
     static void DGUSLCD_SendPrintAccTimeToDisplay(DGUS_VP_Variable &var);
     static void DGUSLCD_SendPrintsTotalToDisplay(DGUS_VP_Variable &var);
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     static void DGUSLCD_SendFanStatusToDisplay(DGUS_VP_Variable &var);
   #endif
   static void DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var);
