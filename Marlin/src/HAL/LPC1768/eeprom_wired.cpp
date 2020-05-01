@@ -30,6 +30,7 @@
  * with implementations supplied by the framework.
  */
 
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
 #ifndef EEPROM_SIZE
@@ -40,7 +41,7 @@ size_t PersistentStore::capacity()    { return EEPROM_SIZE; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start() {
-  TERN_(I2C_EEPROM, eeprom_init());
+  eeprom_init();
   return true;
 }
 

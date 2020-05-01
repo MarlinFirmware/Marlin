@@ -27,21 +27,18 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(USE_SHARED_EEPROM, I2C_EEPROM)
-
-#include "../HAL.h"
-#include <Wire.h>
+#if ENABLED(I2C_EEPROM)
 
 #include "eeprom_if.h"
+#include <Wire.h>
+
+void eeprom_init() { Wire.begin(); }
+
+#if ENABLED(USE_SHARED_EEPROM)
 
 #ifndef EEPROM_WRITE_DELAY
   #define EEPROM_WRITE_DELAY    5
 #endif
-
-// ------------------------
-// Private Variables
-// ------------------------
-
 #ifndef EEPROM_DEVICE_ADDRESS
   #define EEPROM_DEVICE_ADDRESS  0x50
 #endif
@@ -51,8 +48,6 @@ static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRE
 // ------------------------
 // Public functions
 // ------------------------
-
-void eeprom_init() { Wire.begin(); }
 
 void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   const unsigned eeprom_address = (unsigned)pos;
@@ -79,4 +74,5 @@ uint8_t eeprom_read_byte(uint8_t *pos) {
   return Wire.available() ? Wire.read() : 0xFF;
 }
 
-#endif // USE_SHARED_EEPROM && I2C_EEPROM
+#endif // USE_SHARED_EEPROM
+#endif // I2C_EEPROM
