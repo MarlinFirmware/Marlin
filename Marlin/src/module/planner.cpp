@@ -2314,11 +2314,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           const float t = junction_cos_theta < 0 ? -junction_cos_theta : junction_cos_theta;
 
-          const int idx = __builtin_clz( int( (1.0f-t) * junction_deviation_lut_tll) ) - junction_deviation_lut_tll0;
+          const int16_t idx = __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
-          float junction_theta = junction_deviation_lut_k[idx]*t + junction_deviation_lut_b[idx];
+          float junction_theta = junction_deviation_lut_k[idx] * t + junction_deviation_lut_b[idx];
 
-          if( junction_cos_theta < 0 )
+          if (junction_cos_theta < 0)
             junction_theta = RADIANS(180) - junction_theta;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
