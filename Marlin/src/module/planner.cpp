@@ -138,7 +138,7 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
     float Planner::max_e_jerk               // Calculated from junction_deviation_mm
       TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
   #endif
-  constexpr float Planner::junction_deviation_lut_k[], Planner::junction_deviation_lut_b[];
+  constexpr float Planner::jd_lut_k[], Planner::jd_lut_b[];
 #endif
 
 #if HAS_CLASSIC_JERK
@@ -2315,8 +2315,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           const int16_t idx = __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
-          float junction_theta = junction_deviation_lut_k[idx] * t + junction_deviation_lut_b[idx];
-
+          float junction_theta = jd_lut_k[idx] * t + jd_lut_b[idx];
           if (junction_cos_theta < 0)
             junction_theta = RADIANS(180) - junction_theta;
 
