@@ -53,14 +53,10 @@
   #define HAL_TIMER_RATE (F_CPU / 2)
   #define MCU_STEP_TIMER  9
   #define MCU_TEMP_TIMER 10
-#elif defined(STM32F4xx)
+#elif defined(STM32F4xx) || defined(STM32F7xx)
   #define HAL_TIMER_RATE (F_CPU / 2)
   #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
-#elif defined(STM32F7xx)
-  #define HAL_TIMER_RATE (F_CPU / 2)
-  #define MCU_STEP_TIMER 6            // The RIGHT timer!
-  #define MCU_TEMP_TIMER 14
 #endif
 
 #ifndef STEP_TIMER
