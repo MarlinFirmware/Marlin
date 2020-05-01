@@ -138,8 +138,7 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
     float Planner::max_e_jerk               // Calculated from junction_deviation_mm
       TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
   #endif
-  constexpr float Planner::junction_deviation_lut_k[];
-  constexpr float Planner::junction_deviation_lut_b[];
+  constexpr float Planner::junction_deviation_lut_k[], Planner::junction_deviation_lut_b[];
 #endif
 
 #if HAS_CLASSIC_JERK
