@@ -53,18 +53,17 @@ static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
   #endif
 };
 
-// Where to park nozzle to wait for probe cooldown
-static constexpr xyz_pos_t park_point = PTC_PARK_POS;
-
-// XY coordinates of nozzle for probing the bed
-static constexpr xy_pos_t measure_point    = PTC_PROBE_POS;     // Coordinates to probe
-                        //measure_point    = { 12.0f, 7.3f };   // Coordinates for the MK52 magnetic heatbed
-
 class ProbeTempComp {
   public:
 
     static const temp_calib_t cali_info[TSI_COUNT];
 
+    // Where to park nozzle to wait for probe cooldown
+    static constexpr xyz_pos_t park_point = PTC_PARK_POS;
+
+    // XY coordinates of nozzle for probing the bed
+    static constexpr xy_pos_t measure_point    = PTC_PROBE_POS;     // Coordinates to probe
+                            //measure_point    = { 12.0f, 7.3f };   // Coordinates for the MK52 magnetic heatbed
 
     static constexpr int  probe_calib_bed_temp = BED_MAX_TARGET,  // Bed temperature while calibrating probe
                           bed_calib_probe_temp = 30;                // Probe temperature while calibrating bed
