@@ -31,9 +31,6 @@
 
 #define NUM_HARDWARE_TIMERS 2
 
-#ifndef SWSERIAL_TIMER_IRQ_PRIO
-  #define SWSERIAL_TIMER_IRQ_PRIO 1
-#endif
 #ifndef STEP_TIMER_IRQ_PRIO
   #define STEP_TIMER_IRQ_PRIO 2
 #endif
@@ -43,10 +40,10 @@
 
 #if HAS_TMC_SW_SERIAL
   #include <SoftwareSerial.h>
+  #ifndef SWSERIAL_TIMER_IRQ_PRIO
+    #define SWSERIAL_TIMER_IRQ_PRIO 1
+  #endif
 #endif
-void SetSoftwareSerialTimerInterruptPriority() {
-  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
-}
 
 #ifdef STM32F0xx
   #define HAL_TIMER_RATE (F_CPU)      // Frequency of timer peripherals
@@ -180,6 +177,10 @@ TIM_TypeDef * HAL_timer_device(const uint8_t timer_num) {
     case TEMP_TIMER_NUM: return TEMP_TIMER_DEV;
   }
   return nullptr;
+}
+
+void SetSoftwareSerialTimerInterruptPriority() {
+  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
 }
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
