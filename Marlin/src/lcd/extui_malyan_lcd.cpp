@@ -492,7 +492,7 @@ namespace ExtUI {
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
 
-  #if BOTH(HAS_LEVELING, HAS_MESH)
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
   #endif
