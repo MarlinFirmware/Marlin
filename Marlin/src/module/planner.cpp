@@ -138,7 +138,6 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
     float Planner::max_e_jerk               // Calculated from junction_deviation_mm
       TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
   #endif
-  constexpr float Planner::jd_lut_k[], Planner::jd_lut_b[];
 #endif
 
 #if HAS_CLASSIC_JERK
@@ -2322,6 +2321,42 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
               // Fast acos approximation (max. error +-0.01 rads)
               // Based on LUT table and linear interpolation
+
+              /**
+               *  // Generate the JD Lookup Table
+               *  constexpr float c = 1.00751317f; // Correction factor to center error around 0
+               *  for (int i = 0; i < jd_lut_count - 1; ++i) {
+               *    const float x0 = (sq(i) - 1) / sq(i),
+               *                y0 = acos(x0) * (i ? c : 1),
+               *                x1 = 0.5 * x0 + 0.5,
+               *                y1 = acos(x1) * c;
+               *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
+               *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
+               *  }
+               *  jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
+               *
+               *  // Compute correction factor (Set c to 1.0f first!)
+               *  float min = INFINITY, max = -min;
+               *  for (float t = 0; t <= 1; t += 0.0003f) {
+               *    const float e = acos(t) / approx(t);
+               *    if (isfinite(e)) {
+               *      NOMORE(min, e);
+               *      NOLESS(max, e);
+               *    }
+               *  }
+               *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
+               */
+              static constexpr int16_t  jd_lut_count = 15;
+              static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
+              static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count
+              static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
+                -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
+                -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
+                -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
+              static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
+                1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
+                4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
+                26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
 
               const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
