@@ -106,7 +106,7 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  #if BOTH(HAS_LEVELING, HAS_MESH) 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
     }
