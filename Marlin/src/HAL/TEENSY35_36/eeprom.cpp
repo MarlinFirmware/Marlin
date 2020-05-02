@@ -26,6 +26,11 @@
 
 #if USE_WIRED_EEPROM
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with implementations supplied by the framework.
+ */
+
 #include "../shared/eeprom_api.h"
 #include <avr/eeprom.h>
 
