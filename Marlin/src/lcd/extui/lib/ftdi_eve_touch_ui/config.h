@@ -23,4 +23,4 @@
 
 #include "compat.h"
 
-// Configuration options have been moved to "Configuration_adv.h"
+// Configure this display with options in Configuration_adv.h
