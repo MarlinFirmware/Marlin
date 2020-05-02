@@ -129,9 +129,8 @@
   #define FILWIDTH_PIN                         5  // Analog Input on AUX2
 #endif
 
-// RAMPS 1.4 DIO 4 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                       4
+  #define FIL_RUNOUT_PIN                      71
 #endif
 
 #ifndef PS_ON_PIN

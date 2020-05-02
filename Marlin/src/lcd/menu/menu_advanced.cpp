@@ -147,12 +147,10 @@ void menu_cancelobject();
     #endif
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
-      MENU_ITEM_IF(1) {
-        editable.decimal = runout.runout_distance();
-        EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 30,
-          []{ runout.set_runout_distance(editable.decimal); }, true
-        );
-      }
+      editable.decimal = runout.runout_distance();
+      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 30,
+        []{ runout.set_runout_distance(editable.decimal); }, true
+      );
     #endif
 
     END_MENU();
@@ -417,10 +415,8 @@ void menu_cancelobject();
 
     #ifdef XY_FREQUENCY_LIMIT
       EDIT_ITEM(int8, MSG_XY_FREQUENCY_LIMIT, &planner.xy_freq_limit_hz, 0, 100, planner.refresh_frequency_limit, true);
-      MENU_ITEM_IF(1) {
-        editable.uint8 = uint8_t(LROUND(planner.xy_freq_min_speed_factor * 255 * 100)); // percent to u8
-        EDIT_ITEM(percent, MSG_XY_FREQUENCY_FEEDRATE, &editable.uint8, 3, 255, []{ planner.set_min_speed_factor_u8(editable.uint8); }, true);
-      }
+      editable.uint8 = uint8_t(LROUND(planner.xy_freq_min_speed_factor * 255 * 100)); // percent to u8
+      EDIT_ITEM(percent, MSG_XY_FREQUENCY_FEEDRATE, &editable.uint8, 3, 255, []{ planner.set_min_speed_factor_u8(editable.uint8); }, true);
     #endif
 
     END_MENU();
@@ -504,6 +500,10 @@ void menu_advanced_steps_per_mm() {
 void menu_advanced_settings() {
   const bool is_busy = printer_busy();
 
+  #if ENABLED(SD_FIRMWARE_UPDATE)
+    bool sd_update_state = settings.sd_update_status();
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_CONFIGURATION);
 
@@ -576,19 +576,16 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
-    MENU_ITEM_IF (1) {
-      bool sd_update_state = settings.sd_update_status();
-      EDIT_ITEM(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
-        //
-        // Toggle the SD Firmware Update state in EEPROM
-        //
-        const bool new_state = !settings.sd_update_status(),
-                   didset = settings.set_sd_update_status(new_state);
-        ui.completion_feedback(didset);
-        ui.return_to_status();
-        if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
-      });
-    }
+    EDIT_ITEM(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
+      //
+      // Toggle the SD Firmware Update state in EEPROM
+      //
+      const bool new_state = !settings.sd_update_status(),
+                 didset = settings.set_sd_update_status(new_state);
+      ui.completion_feedback(didset);
+      ui.return_to_status();
+      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
+    });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)

@@ -22,27 +22,21 @@
  */
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(EEPROM_SETTINGS)
-
 #include "../../inc/MarlinConfig.h"
+
+#if USE_WIRED_EEPROM
+
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with simple implementations supplied by Marlin.
+ */
+
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-#if !defined(E2END) && ENABLED(FLASH_EEPROM_EMULATION)
-  #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
-#endif
-
-extern void eeprom_flush();
-
-bool PersistentStore::access_start() { return true; }
-
-bool PersistentStore::access_finish() {
-  #if ENABLED(FLASH_EEPROM_EMULATION)
-    eeprom_flush();
-  #endif
-  return true;
-}
+size_t PersistentStore::capacity()    { return E2END + 1; }
+bool PersistentStore::access_start()  { return true; }
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -76,7 +70,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-size_t PersistentStore::capacity() { return E2END + 1; }
-
-#endif // EEPROM_SETTINGS
+#endif // USE_WIRED_EEPROM
 #endif // ARDUINO_ARCH_SAM

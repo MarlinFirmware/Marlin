@@ -491,7 +491,16 @@ namespace ExtUI {
   void onLoadSettings(const char*) {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
-  void onPidTuning(const result_t) {}
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLossResume() {}
+  #endif
+
+  #if HAS_PID_HEATING
+    void onPidTuning(const result_t rst) {}
+  #endif
 }
 
 #endif // MALYAN_LCD
