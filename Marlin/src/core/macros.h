@@ -193,6 +193,10 @@
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
 
+#define _ARGS(...)          __VA_ARGS__
+#define _STRIP_PARENS(X)    X
+#define STRIP_PARENS(X)     _STRIP_PARENS( _ARGS X )
+
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
 #define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
