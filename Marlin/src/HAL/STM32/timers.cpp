@@ -41,6 +41,13 @@
   #define TEMP_TIMER_IRQ_PRIO 14   // 14 = after hardware ISRs
 #endif
 
+#if HAS_TMC_SW_SERIAL
+  #include <SoftwareSerial.h>
+#endif
+void SetSoftwareSerialTimerInterruptPriority() {
+  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
+}
+
 #ifdef STM32F0xx
   #define HAL_TIMER_RATE (F_CPU)      // Frequency of timer peripherals
   #define MCU_STEP_TIMER 16
