@@ -2325,7 +2325,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
               const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
-              float junction_theta = t * jd_lut_k[idx] + jd_lut_b[idx];
+              float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
               if (neg > 0) junction_theta = RADIANS(180) - junction_theta;
 
             #else
