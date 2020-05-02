@@ -1174,11 +1174,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             sync_plan_position_e(); // New extruder primed and set to 0
 
             // Restart Fan
-            #if HAS_FAN && (TOOLCHANGE_FS_FAN >= 0)
-
-              TERN_(HAS_FAN, thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp);
+            #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
             #endif
-
           }
         #endif
 
