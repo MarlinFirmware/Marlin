@@ -314,39 +314,36 @@ class Planner {
       static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
         -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
         -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
-        -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,         0.0f};
+        -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
       static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
         1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
         4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
-        26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,        0.0f};
+        26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
 
-      /*  // Generating LUT
-          float c = 1.00751317f; // Correction factor to center error around 0
-          for(int i = 0; i < jd_lut_count-1; ++i)
-          {
-              float x0 = (pow(2,i) - 1)/pow(2,i);
-              float y0 = acos(x0)*(i==0?1:c);
-              float x1 = 0.5*x0 + 0.5;
-              float y1 = acos(x1)*c;
-              jd_lut_k[i] = (y0-y1)/(x0-x1);
-              jd_lut_b[i] = (y1*x0 - y0*x1)/(x0-x1);
-          }
-          jd_lut_k[jd_lut_count-1] = 0;
-          jd_lut_b[jd_lut_count-1] = 0;
+      /*
+        // Generating LUT
+        float c = 1.00751317f; // Correction factor to center error around 0
+        for (int i = 0; i < jd_lut_count - 1; ++i) {
+          float x0 = (pow(2, i) - 1) / pow(2, i);
+          float y0 = acos(x0) * (i == 0 ? 1 : c);
+          float x1 = 0.5 * x0 + 0.5;
+          float y1 = acos(x1) * c;
+          jd_lut_k[i] = (y0 - y1) / (x0 - x1);
+          jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
+        }
+        jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
 
-          // Computing correction factor (Correction factor should be c = 1.0f when computing this)
-          float min = 1.0f/0.0f;
-          float max = -min;
-          for(float t = 0; t <= 1; t += 0.0003)
-          {
-              float e = acos(t)/approx(t);
-              if( isfinite(e) )
-              {
-                  min = std::min(min, e);
-                  max = std::max(max, e);
-              }
+        // Computing correction factor (Correction factor should be c = 1.0f when computing this)
+        float min = 1.0f / 0.0f;
+        float max = -min;
+        for (float t = 0; t <= 1; t += 0.0003) {
+          float e = acos(t) / approx(t);
+          if (isfinite(e)) {
+            min = std::min(min, e);
+            max = std::max(max, e);
           }
-          fprintf(stderr, "%.9gf, ", (min+max)/2.0f);
+        }
+        fprintf(stderr, "%.9gf, ", (min+max)/2.0f);
       */
     #endif
 
