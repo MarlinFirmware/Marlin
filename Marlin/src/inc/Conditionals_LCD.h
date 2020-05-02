@@ -361,7 +361,7 @@
   #define HAS_DGUS_LCD 1
 #endif
 
-// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+// Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
@@ -408,6 +408,8 @@
  */
 
 #if EXTRUDERS == 0
+  #undef EXTRUDERS
+  #define EXTRUDERS 0
   #undef DISTINCT_E_FACTORS
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
@@ -470,6 +472,9 @@
 
 #if HOTENDS
   #define HAS_HOTEND 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
   #if HOTENDS > 1
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
@@ -678,6 +683,10 @@
 // This flag indicates some kind of jerk storage is needed
 #if ENABLED(CLASSIC_JERK) || IS_KINEMATIC
   #define HAS_CLASSIC_JERK 1
+#endif
+
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
 #endif
 
 // E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA

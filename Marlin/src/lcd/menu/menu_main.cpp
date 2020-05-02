@@ -84,15 +84,15 @@ void menu_configuration();
 extern const char M21_STR[];
 
 void menu_main() {
-  START_MENU();
-  BACK_ITEM(MSG_INFO_SCREEN);
-
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isMounted()
       , card_open = card_detected && card.isFileOpen()
     #endif
   ;
+
+  START_MENU();
+  BACK_ITEM(MSG_INFO_SCREEN);
 
   if (busy) {
     #if MACHINE_CAN_PAUSE
@@ -119,7 +119,7 @@ void menu_main() {
       // Autostart
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        if (!busy) ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
       #endif
 
       if (card_detected) {
@@ -203,35 +203,38 @@ void menu_main() {
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  #if HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+  #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
 
-    // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
+    if (!busy) {
 
-    //
-    // Autostart
-    //
-    #if ENABLED(MENU_ADDAUTOSTART)
-      if (!busy) ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
-    #endif
+      // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
 
-    if (card_detected) {
-      if (!card_open) {
-        MENU_ITEM(gcode,
-          #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_MEDIA, M21_STR
-          #else
-            MSG_RELEASE_MEDIA, PSTR("M22")
-          #endif
-        );
-        SUBMENU(MSG_MEDIA_MENU, menu_media);
-      }
-    }
-    else {
-      #if PIN_EXISTS(SD_DETECT)
-        ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-      #else
-        GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+      //
+      // Autostart
+      //
+      #if ENABLED(MENU_ADDAUTOSTART)
+        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
       #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          MENU_ITEM(gcode,
+            #if PIN_EXISTS(SD_DETECT)
+              MSG_CHANGE_MEDIA, M21_STR
+            #else
+              MSG_RELEASE_MEDIA, PSTR("M22")
+            #endif
+          );
+          SUBMENU(MSG_MEDIA_MENU, menu_media);
+        }
+      }
+      else {
+        #if PIN_EXISTS(SD_DETECT)
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+        #endif
+      }
     }
 
   #endif // HAS_ENCODER_WHEEL && SDSUPPORT
@@ -239,7 +242,7 @@ void menu_main() {
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {
       print_job_timer.resetServiceInterval(index);
-      TERN_(HAS_BUZZER, ui.completion_feedback());
+      ui.completion_feedback();
       ui.reset_status();
       ui.return_to_status();
     };

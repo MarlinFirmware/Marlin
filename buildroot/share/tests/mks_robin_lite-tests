@@ -6,12 +6,12 @@
 # exit on first failure
 set -e
 
-use_example_configs Mks/Robin
+restore_configs
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_LITE
-opt_set EXTRUDERS 1
-opt_set TEMP_SENSOR_1 0
-opt_disable FSMC_GRAPHICAL_TFT
-exec_test $1 $2 "Default Configuration"
+opt_set SERIAL_PORT -1
+opt_enable EEPROM_SETTINGS
+opt_enable SDSUPPORT
+exec_test $1 $2 "Default Configuration with Fallback SD EEPROM"
 
 # cleanup
 restore_configs

@@ -33,12 +33,6 @@
 #define BOARD_WEBSITE_URL "github.com/Ales2-k/Selena"
 
 //
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P1_23
