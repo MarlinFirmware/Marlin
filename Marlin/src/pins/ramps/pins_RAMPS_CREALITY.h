@@ -63,5 +63,5 @@
 
 #define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
 #ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING true                // Used by CR2020 Industrial series
+  #define SUICIDE_PIN_INVERTING             true
 #endif
