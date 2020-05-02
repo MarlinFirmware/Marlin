@@ -23,6 +23,11 @@
 
 #if USE_WIRED_EEPROM
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with simple implementations supplied by Marlin.
+ */
+
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 

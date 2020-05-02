@@ -33,80 +33,6 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
-#ifdef STM32F0xx
-
-  #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
-
-  #ifndef STEP_TIMER
-    #define STEP_TIMER 16
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 17
-  #endif
-
-#elif defined(STM32F1xx)
-
-  #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
-
-  #ifndef STEP_TIMER
-    #define STEP_TIMER 4
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 2
-  #endif
-
-#elif defined(STM32F401xC) || defined(STM32F401xE)
-
-  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
-
-  #ifndef STEP_TIMER
-    #define STEP_TIMER 9
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 10
-  #endif
-
-#elif defined(STM32F4xx)
-
-  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
-
-  #ifndef STEP_TIMER
-    #define STEP_TIMER 6  // STM32F401 has no TIM6, TIM7, or TIM8
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 14 // TIM7 is consumed by Software Serial if used.
-  #endif
-
-#elif defined(STM32F7xx)
-
-  #define HAL_TIMER_RATE (F_CPU / 2) // frequency of timer peripherals
-
-  #ifndef STEP_TIMER
-    #define STEP_TIMER 6  // the RIGHT timer!
-  #endif
-
-  #ifndef TEMP_TIMER
-    #define TEMP_TIMER 14
-  #endif
-
-#endif
-
-#ifndef SWSERIAL_TIMER_IRQ_PRIO
-  #define SWSERIAL_TIMER_IRQ_PRIO 1
-#endif
-
-#ifndef STEP_TIMER_IRQ_PRIO
-  #define STEP_TIMER_IRQ_PRIO 2
-#endif
-
-#ifndef TEMP_TIMER_IRQ_PRIO
-  #define TEMP_TIMER_IRQ_PRIO 14   // 14 = after hardware ISRs
-#endif
-
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
@@ -121,12 +47,6 @@
 #define PULSE_TIMER_RATE STEPPER_TIMER_RATE
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
-
-#define __TIMER_IRQ_NAME(X) TIM##X##_IRQn
-#define _TIMER_IRQ_NAME(X) __TIMER_IRQ_NAME(X)
-
-#define STEP_TIMER_IRQ_NAME _TIMER_IRQ_NAME(STEP_TIMER)
-#define TEMP_TIMER_IRQ_NAME _TIMER_IRQ_NAME(TEMP_TIMER)
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
@@ -154,6 +74,9 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
+
+// Exposed here to allow all timer priority information to reside in timers.cpp
+void SetSoftwareSerialTimerInterruptPriority();
 
 //TIM_TypeDef* HAL_timer_device(const uint8_t timer_num); no need to be public for now. not public = not used externally
 
