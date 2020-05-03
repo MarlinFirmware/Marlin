@@ -256,8 +256,9 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       destination = current_position;
 
       // Park Position
-      TERN_(POWER_LOSS_PARK_X_ONLY, current_position.x = POWER_LOSS_PARK_X);
-      TERN_(POWER_LOSS_PARK_Y_ONLY, current_position.y = POWER_LOSS_PARK_Y);
+      constexpr xy_pos_t parkpos = POWER_LOSS_PARK_POS;
+      TERN_(POWER_LOSS_PARK_X_ONLY, current_position.x = parkpos.x);
+      TERN_(POWER_LOSS_PARK_Y_ONLY, current_position.y = parkpos.y);
       current_position.z += POWER_LOSS_ZRAISE;
       do_blocking_move_to(current_position, POWER_LOSS_F);
 
