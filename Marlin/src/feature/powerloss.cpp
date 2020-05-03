@@ -236,7 +236,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
-      if (lock) return; // No re-entrance from idle() during raise_z()
+      if (lock) return; // No re-entrance during raise or park
       lock = true;
     #endif
 
