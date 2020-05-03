@@ -91,9 +91,7 @@
 //
 // LCD / Controller
 //
-
 #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-
   #undef BEEPER_PIN
   #define BEEPER_PIN                          35
 
@@ -115,5 +113,4 @@
   #define BTN_EN1                             29
   #define BTN_EN2                             25
   #define BTN_ENC                             16
-
 #endif
