@@ -225,59 +225,73 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 #if PIN_EXISTS(POWER_LOSS)
 
   void PrintJobRecovery::_outage() {
+    #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
+      // Timer
+      static millis_t power_loss_delay = 0;
+      const millis_t ms = millis();
+      if (!power_loss_delay) power_loss_delay = ms + BACKUP_POWER_SUPPLY_DELAY_BEFORE;
+      if (PENDING(ms, power_loss_delay)) return;
+      power_loss_delay = 0;
+    #endif
+
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
       if (lock) return; // No re-entrance from idle() during raise_z()
       lock = true;
     #endif
+
     #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
-      //Timer
-      millis_t power_loss_delay = 0 ;
-      if (power_loss_delay == 0) power_loss_delay = millis() + BACKUP_POWER_SUPPLY_DELAY_BEFORE ;
-      while (millis() < power_loss_delay) return ;
-      power_loss_delay = 0;
-
       planner.synchronize();
-      destination = current_position;
 
-      //Save
+      // Save
       if (IS_SD_PRINTING()) save(true);
 
-      //Park if pin still active or return before begins pause
-      if READ(POWER_LOSS_PIN) {
-        TERN_(POWER_LOSS_PARK_X_ONLY, current_position.x = POWER_LOSS_PARK_X);
-        TERN_(POWER_LOSS_PARK_Y_ONLY, current_position.y = POWER_LOSS_PARK_Y);
-        unscaled_e_move(-POWER_LOSS_RETRACT_L , POWER_LOSS_RETRACT_F);
-        do_blocking_move_to_z(current_position.z += POWER_LOSS_ZRAISE);
-        do_blocking_move_to_xy(current_position, POWER_LOSS_F);
-      }
-      else { lock = false; return ; }
+      // Return if the pin is no longer active
+      if (READ(POWER_LOSS_PIN) != POWER_LOSS_STATE) { lock = false; return; }
 
-      //Heaters and fans in economic consumption
+      // Retract
+      unscaled_e_move(-POWER_LOSS_RETRACT_L, POWER_LOSS_RETRACT_F);
+
+      // Remember the current position
+      destination = current_position;
+
+      // Park Position
+      TERN_(POWER_LOSS_PARK_X_ONLY, current_position.x = POWER_LOSS_PARK_X);
+      TERN_(POWER_LOSS_PARK_Y_ONLY, current_position.y = POWER_LOSS_PARK_Y);
+      current_position.z += POWER_LOSS_ZRAISE;
+      do_blocking_move_to(current_position, POWER_LOSS_F);
+
+      // Heaters and fans in low-power mode
       #if HAS_HEATED_BED
         const uint16_t bed_old_temp = thermalManager.temp_bed.target;
-        thermalManager.temp_bed.target = BACKUP_POWER_SUPPLY_BED_TEMP ;
+        thermalManager.temp_bed.target = BACKUP_POWER_SUPPLY_BED_TEMP;
       #endif
-      uint16_t *old_temp;
+
       #if EXTRUDERS
+        uint16_t old_temp[EXTRUDERS];
         HOTEND_LOOP() {
           old_temp[e] = thermalManager.temp_hotend[e].target;
           thermalManager.temp_hotend[e].target = 0;
         }
       #endif
+
       #if HAS_FAN
-      uint16_t *fans_temps;
-      LOOP_L_N(f, FAN_COUNT) {
-        fans_temps[f] = thermalManager.fan_speed[f];
-        thermalManager.fan_speed[f] = 0;
-      };
+        uint16_t fans_temps[FAN_COUNT];
+        LOOP_L_N(f, FAN_COUNT) {
+          fans_temps[f] = thermalManager.fan_speed[f];
+          thermalManager.fan_speed[f] = 0;
+        }
       #endif
 
-      //Wait
-      do gcode.dwell(1000); while ( READ(POWER_LOSS_PIN) == POWER_LOSS_STATE ); // Wait for power back
+      // Wait
+      do { gcode.dwell(1000); } while (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE); // Wait for power to return
 
-      //Restart heaters
-      TERN_(HAS_HEATED_BED, thermalManager.temp_bed.target = bed_old_temp; thermalManager.wait_for_bed_heating());
+      // Restart heaters
+      #if HAS_HEATED_BED
+        thermalManager.temp_bed.target = bed_old_temp;
+        thermalManager.wait_for_bed_heating();
+      #endif
+
       #if EXTRUDERS
         HOTEND_LOOP() {
           thermalManager.temp_hotend[e].target = old_temp[e];
@@ -285,9 +299,10 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
           thermalManager.wait_for_hotend(e, false);
         };
       #endif
+
       TERN_(AUTOTEMP, planner.autotemp_update());
 
-      //Prime
+      // Prime
       #if BOTH(TOOLCHANGE_FS_PRIME_FIRST_USED, POWER_LOSS_USE_TOOLCHANGE_SWAP_PRIME)
         unscaled_e_move(POWER_LOSS_RETRACT_L, POWER_LOSS_PURGE_F);
         tool_change_prime();
@@ -295,7 +310,8 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
         unscaled_e_move(POWER_LOSS_RETRACT_L + POWER_LOSS_PURGE_LEN, POWER_LOSS_PURGE_F);
         unscaled_e_move(-POWER_LOSS_TRAVEL_RETRACT_L , POWER_LOSS_RETRACT_F);
       #endif
-      do_blocking_move_to_xy_z(destination, destination.z, POWER_LOSS_F);
+
+      do_blocking_move_to(destination, POWER_LOSS_F);
       unscaled_e_move(POWER_LOSS_TRAVEL_RETRACT_L , POWER_LOSS_UNRETRACT_F);
 
       #if HAS_FAN
@@ -303,7 +319,6 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       #endif
 
       lock = false;
-      return ;
 
     #else
 
