@@ -1208,6 +1208,19 @@
    */
   //#define SDCARD_CONNECTION LCD
 
+  //#define SDCARD_READONLY   // Disable write support for SD cards (saves ~2192 PROGMEM bytes)
+  #if ENABLED(SDCARD_READONLY)
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      #error Read-only SD-card support is incompatible with power-loss recovery
+    #endif
+    #if ENABLED(BINARY_FILE_TRANSFER)
+      #error Read-only SD-card support is incompatible with binary file transfer
+    #endif
+    #if ENABLED(SDCARD_EEPROM_EMULATION)
+      #error Read-only SD-card support is incompatible with EEPROM emulation
+    #endif
+  #endif
+
 #endif // SDSUPPORT
 
 /**
