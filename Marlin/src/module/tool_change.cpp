@@ -790,10 +790,9 @@ void tool_change_prime() {
 
     const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
-    // Store and stop fan
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-      const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+      // Store and stop fan. Restored on any exit.
+      REMEMBER(1, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
     #endif
 
     // Z raise
@@ -849,11 +848,6 @@ void tool_change_prime() {
     planner.synchronize();
     current_position.e = destination.e;
     sync_plan_position_e(); // Resume at the old E position
-
-    // Restart Fan
-    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
-    #endif
   }
 }
 #endif
