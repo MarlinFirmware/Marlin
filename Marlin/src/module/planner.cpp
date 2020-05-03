@@ -2311,7 +2311,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                       t = neg * junction_cos_theta;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
-          if (t < -0.7071067812f) {
+          if (t > 0.7071067812f) {
 
             #if ENABLED(JD_USE_MATH_ACOS)
 
