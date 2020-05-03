@@ -792,7 +792,7 @@ void tool_change_prime() {
 
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       // Store and stop fan. Restored on any exit.
-      REMEMBER(1, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+      REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
     #endif
 
     // Z raise
@@ -937,10 +937,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool != old_tool) {
       destination = current_position;
 
-      // Store and stop fan
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && (TOOLCHANGE_FS_FAN >= 0)
-        const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
-        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
+        // Store and stop fan. Restored on any exit.
+        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
       #endif
 
       // Z raise before retraction
@@ -1114,7 +1113,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             // Cool down with fan
-            #if HAS_FAN && (TOOLCHANGE_FS_FAN >= 0)
+            #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
               gcode.dwell(toolchange_settings.fan_time * 1000);
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
@@ -1169,7 +1168,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
             // Restart Fan
             #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
+              RESTORE(fan);
             #endif
           }
         #endif
