@@ -489,9 +489,14 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        TERN_(X_SENSORLESS, case X: return stepperX.homing_threshold());
-        TERN_(Y_SENSORLESS, case Y: return stepperY.homing_threshold());
-        TERN_(Z_SENSORLESS, case Z: return stepperZ.homing_threshold());
+        TERN_(X_SENSORLESS,  case X:  return stepperX.homing_threshold());
+        TERN_(X2_SENSORLESS, case X2: return stepperX2.homing_threshold());
+        TERN_(Y_SENSORLESS,  case Y:  return stepperY.homing_threshold());
+        TERN_(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold());
+        TERN_(Z_SENSORLESS,  case Z:  return stepperZ.homing_threshold());
+        TERN_(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold());
+        TERN_(Z3_SENSORLESS, case Z3: return stepperZ3.homing_threshold());
+        TERN_(Z4_SENSORLESS, case Z4: return stepperZ4.homing_threshold());
         default: return 0;
       }
     }
@@ -500,13 +505,28 @@ namespace ExtUI {
       switch (axis) {
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
           #if X_SENSORLESS
-            case X: stepperX.homing_threshold(value); break;
+            case X:  stepperX.homing_threshold(value);  break;
+          #endif
+          #if X2_SENSORLESS
+            case X2: stepperX2.homing_threshold(value); break;
           #endif
           #if Y_SENSORLESS
             case Y: stepperY.homing_threshold(value); break;
           #endif
+          #if Y2_SENSORLESS
+            case Y2: stepperY2.homing_threshold(value); break;
+          #endif
           #if Z_SENSORLESS
             case Z: stepperZ.homing_threshold(value); break;
+          #endif
+          #if Z2_SENSORLESS
+            case Z2: stepperZ2.homing_threshold(value); break;
+          #endif
+          #if Z3_SENSORLESS
+            case Z3: stepperZ3.homing_threshold(value); break;
+          #endif
+          #if Z4_SENSORLESS
+            case Z4: stepperZ4.homing_threshold(value); break;
           #endif
         #else
           UNUSED(value);

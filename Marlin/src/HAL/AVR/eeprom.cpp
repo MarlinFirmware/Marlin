@@ -25,6 +25,11 @@
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with implementations supplied by the framework.
+ */
+
 #include "../shared/eeprom_api.h"
 
 size_t PersistentStore::capacity()    { return E2END + 1; }

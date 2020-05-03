@@ -104,6 +104,7 @@
 #endif
 
 #define PROGRESS_BAR_X 54
+#define PROGRESS_BAR_Y (EXTRAS_BASELINE + 2)
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
@@ -597,7 +598,7 @@ void MarlinUI::draw_status_screen() {
     //
 
     if (PAGE_CONTAINS(49, 52))
-      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
+      u8g.drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
 
     //
     // Progress bar solid part
@@ -638,7 +639,7 @@ void MarlinUI::draw_status_screen() {
 
         #if ENABLED(DOGM_SD_PERCENT)
           if (progress_string[0]) {
-            lcd_put_u8str(55, 48, progress_string); // Percent complete
+            lcd_put_u8str(55, EXTRAS_BASELINE, progress_string); // Percent complete
             lcd_put_wchar('%');
           }
         #endif
@@ -665,7 +666,7 @@ void MarlinUI::draw_status_screen() {
   // XYZ Coordinates
   //
 
-  #if ENABLED(XYZ_HOLLOW_FRAME)
+  #if EITHER(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
     #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 3
   #else
@@ -675,15 +676,17 @@ void MarlinUI::draw_status_screen() {
 
   if (PAGE_CONTAINS(XYZ_FRAME_TOP, XYZ_FRAME_TOP + XYZ_FRAME_HEIGHT - 1)) {
 
-    #if ENABLED(XYZ_HOLLOW_FRAME)
-      u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
-    #else
-      u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+    #if DISABLED(XYZ_NO_FRAME)
+      #if ENABLED(XYZ_HOLLOW_FRAME)
+        u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
+      #else
+        u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+      #endif
     #endif
 
     if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_ASCENT - 1), XYZ_BASELINE)) {
 
-      #if DISABLED(XYZ_HOLLOW_FRAME)
+      #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(0); // white on black
       #endif
 
@@ -722,7 +725,7 @@ void MarlinUI::draw_status_screen() {
 
       _draw_axis_value(Z_AXIS, zstring, blink);
 
-      #if DISABLED(XYZ_HOLLOW_FRAME)
+      #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
       #endif
     }
@@ -770,10 +773,11 @@ void MarlinUI::draw_status_screen() {
         lcd_put_wchar(':');
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
+        return;
       }
-      else
     #endif
-        draw_status_message(blink);
+
+    draw_status_message(blink);
   }
 }
 
