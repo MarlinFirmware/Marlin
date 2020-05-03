@@ -1111,7 +1111,7 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  #define POWER_LOSS_RECOVERY
+  //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     #define PLR_ENABLED_DEFAULT   false // Power Loss Recovery enabled by default. (Set with 'M413 Sn' & M500)
     //#define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
@@ -1121,6 +1121,9 @@
     //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
     //#define POWER_LOSS_PURGE_LEN   20 // (mm) Length of filament to purge on resume
     //#define POWER_LOSS_RETRACT_LEN 10 // (mm) Length of filament to retract on fail. Requires backup power.
+
+    // NOTE: Useful for "vase mode" printing. If set too high vases cannot be continued.
+    #define POWER_LOSS_MIN_Z_CHANGE 0.05 // (mm) Minimum Z change before saving power-loss data
 
     // Go to park, disable hotends, bed in economy temp, wait until UPS OFF or continue print
     #define BACKUP_POWER_SUPPLY_PARK_WAITING
@@ -1150,8 +1153,6 @@
       #define POWER_LOSS_PURGE_F            4.6   // (mm/s) Purge Feedrate
 
     #endif
-    // NOTE: Useful for "vase mode" printing. If set too high vases cannot be continued.
-    #define POWER_LOSS_MIN_Z_CHANGE 0.05 // (mm) Minimum Z change before saving power-loss data
   #endif
 
   /**
