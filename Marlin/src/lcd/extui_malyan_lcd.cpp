@@ -474,6 +474,29 @@ namespace ExtUI {
     write_to_lcd_P("}");
   }
 
+  #if HAS_PID_HEATING
+
+    void onPidTuning(const result_t rst) {
+      // Called for temperature PID tuning result
+      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      switch (rst) {
+        case PID_BAD_EXTRUDER_NUM:
+          write_to_lcd_P(PSTR(MSG_PID_BAD_EXTRUDER_NUM));
+          break;
+        case PID_TEMP_TOO_HIGH:
+          write_to_lcd_P(PSTR(MSG_PID_TEMP_TOO_HIGH));
+          break;
+        case PID_TUNING_TIMEOUT:
+          write_to_lcd_P(PSTR(MSG_PID_TIMEOUT));
+          break;
+        case PID_DONE:
+          write_to_lcd_P(PSTR(MSG_PID_AUTOTUNE_FINISHED));
+          break;
+      }
+    }
+
+  #endif
+
   void onPrintTimerStarted() { write_to_lcd_P(PSTR("{SYS:BUILD}")); }
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() { write_to_lcd_P(PSTR("{TQ:100}")); }
