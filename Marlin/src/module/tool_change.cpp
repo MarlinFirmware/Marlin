@@ -786,8 +786,9 @@ void tool_change_prime() {
   if (toolchange_settings.extra_prime > 0
     && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
   ) {
-
-    TERN(BACKUP_POWER_SUPPLY_WAIT, /*nothing*/, destination = current_position); // Fool tool_change_prime
+    // For BACKUP_POWER_SUPPLY_PARK_WAITING set 'destination' before calling
+    // so that the code below knows the return point and E value.
+    TERN(BACKUP_POWER_SUPPLY_PARK_WAITING, /*nothing*/, destination = current_position);
 
     const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
