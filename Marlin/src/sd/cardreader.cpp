@@ -446,8 +446,12 @@ void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
 }
 
 void CardReader::openLogFile(char * const path) {
+  #if ENABLED(SDCARD_READONLY)
+  flag.logging = false;
+  #else
   flag.logging = true;
   openFileWrite(path);
+  #endif
 }
 
 //
@@ -573,6 +577,9 @@ void CardReader::openFileWrite(char * const path) {
   const char * const fname = diveToFile(false, curDir, path);
   if (!fname) return;
 
+  #if ENABLED(SDCARD_READONLY)
+  openFailed(fname);
+  #else
   if (file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
     flag.saving = true;
     selectFileByName(fname);
@@ -582,6 +589,7 @@ void CardReader::openFileWrite(char * const path) {
   }
   else
     openFailed(fname);
+  #endif
 }
 
 //
@@ -596,6 +604,9 @@ void CardReader::removeFile(const char * const name) {
   const char * const fname = diveToFile(false, curDir, name);
   if (!fname) return;
 
+  #if ENABLED(SDCARD_READONLY)
+  SERIAL_ECHOLNPAIR("Deletion failed (read-only), File: ", fname, ".");
+  #else
   if (file.remove(curDir, fname)) {
     SERIAL_ECHOLNPAIR("File deleted:", fname);
     sdpos = 0;
@@ -603,6 +614,7 @@ void CardReader::removeFile(const char * const name) {
   }
   else
     SERIAL_ECHOLNPAIR("Deletion failed, File: ", fname, ".");
+  #endif
 }
 
 void CardReader::report_status() {

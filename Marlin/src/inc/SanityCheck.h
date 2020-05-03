@@ -2063,6 +2063,22 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * Make sure features that need to write to the SD card aren't selected if
+ * write support is disabled
+ */
+#if ENABLED(SDCARD_READONLY)
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #error Read-only SD-card support is incompatible with power-loss recovery
+  #endif
+  #if ENABLED(BINARY_FILE_TRANSFER)
+    #error Read-only SD-card support is incompatible with binary file transfer
+  #endif
+  #if ENABLED(SDCARD_EEPROM_EMULATION)
+    #error Read-only SD-card support is incompatible with EEPROM emulation
+  #endif
+#endif
+
+/**
  * Make sure only one display is enabled
  */
 #if 1 < 0 \

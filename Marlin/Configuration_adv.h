@@ -1235,6 +1235,8 @@
    */
   //#define SDCARD_CONNECTION LCD
 
+  // Disable write support for SD cards (saves ~2192 PROGMEM bytes)
+  //#define SDCARD_READONLY
 #endif // SDSUPPORT
 
 /**
