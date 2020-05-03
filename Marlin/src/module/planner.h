@@ -32,6 +32,17 @@
 
 #include "../MarlinCore.h"
 
+#if HAS_JUNCTION_DEVIATION
+  // Enable this option for perfect accuracy but maximum
+  // computation. Should be fine on ARM processors.
+  //#define JD_USE_MATH_ACOS
+
+  // Disable this option to save 120 bytes of PROGMEM,
+  // but incur increased computation and a reduction
+  // in accuracy.
+  #define JD_USE_LOOKUP_TABLE
+#endif
+
 #include "motion.h"
 #include "../gcode/queue.h"
 
@@ -827,9 +838,11 @@ class Planner {
       static void autotemp_update();
     #endif
 
+    #define JUNC_SQ(N,ST) (junction_deviation_mm * (N) * (ST) / (1.0f - (ST)))
+
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
-        #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
+        #define GET_MAX_E_JERK(N) SQRT(JUNC_SQ(N,SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
           LOOP_L_N(i, EXTRUDERS)
             max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
