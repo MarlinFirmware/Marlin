@@ -318,14 +318,16 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
         LOOP_L_N(f, FAN_COUNT) thermalManager.fan_speed[f] = fans_temps[f];
       #endif
 
-      lock = false;
-
     #else
 
       if (IS_SD_PRINTING()) save(true);
       TERN_(BACKUP_POWER_SUPPLY, raise_z());
       kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
 
+    #endif
+
+    #if ENABLED(BACKUP_POWER_SUPPLY)
+      lock = false;
     #endif
   }
 
