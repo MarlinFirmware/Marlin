@@ -1,6 +1,6 @@
 #
 # main.yml
-# Do builds to catch compile errors
+# Do test builds to catch compile errors
 #
 
 name: CI
