@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -50,6 +50,7 @@ struct vector_3 : xyz_float_t {
   vector_3(const xy_float_t   &in) { set(in.x, in.y); }
   vector_3(const xyz_float_t  &in) { set(in.x, in.y, in.z); }
   vector_3(const xyze_float_t &in) { set(in.x, in.y, in.z); }
+  vector_3() { reset(); }
 
   // Factory method
   static vector_3 cross(const vector_3 &a, const vector_3 &b);

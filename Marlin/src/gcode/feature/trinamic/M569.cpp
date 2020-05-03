@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -44,7 +44,10 @@ void tmc_set_stealthChop(TMC &st, const bool enable) {
 static void set_stealth_status(const bool enable, const int8_t target_extruder) {
   #define TMC_SET_STEALTH(Q) tmc_set_stealthChop(stepper##Q, enable)
 
-  #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z) || AXIS_HAS_STEALTHCHOP(Z2) || AXIS_HAS_STEALTHCHOP(Z3)
+  #if    AXIS_HAS_STEALTHCHOP(X)  || AXIS_HAS_STEALTHCHOP(X2) \
+      || AXIS_HAS_STEALTHCHOP(Y)  || AXIS_HAS_STEALTHCHOP(Y2) \
+      || AXIS_HAS_STEALTHCHOP(Z)  || AXIS_HAS_STEALTHCHOP(Z2) \
+      || AXIS_HAS_STEALTHCHOP(Z3) || AXIS_HAS_STEALTHCHOP(Z4)
     const uint8_t index = parser.byteval('I');
   #endif
 
@@ -76,6 +79,9 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
         #if AXIS_HAS_STEALTHCHOP(Z3)
           if (index == 2) TMC_SET_STEALTH(Z3);
         #endif
+        #if AXIS_HAS_STEALTHCHOP(Z4)
+          if (index == 3) TMC_SET_STEALTH(Z4);
+        #endif
         break;
       case E_AXIS: {
         if (target_extruder < 0) return;
@@ -97,6 +103,12 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
           #endif
           #if AXIS_HAS_STEALTHCHOP(E5)
             case 5: TMC_SET_STEALTH(E5); break;
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E6)
+            case 6: TMC_SET_STEALTH(E6); break;
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E7)
+            case 7: TMC_SET_STEALTH(E7); break;
           #endif
         }
       } break;
@@ -128,6 +140,9 @@ static void say_stealth_status() {
   #if AXIS_HAS_STEALTHCHOP(Z3)
     TMC_SAY_STEALTH_STATUS(Z3);
   #endif
+  #if AXIS_HAS_STEALTHCHOP(Z4)
+    TMC_SAY_STEALTH_STATUS(Z4);
+  #endif
   #if AXIS_HAS_STEALTHCHOP(E0)
     TMC_SAY_STEALTH_STATUS(E0);
   #endif
@@ -145,6 +160,12 @@ static void say_stealth_status() {
   #endif
   #if AXIS_HAS_STEALTHCHOP(E5)
     TMC_SAY_STEALTH_STATUS(E5);
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(E6)
+    TMC_SAY_STEALTH_STATUS(E6);
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(E7)
+    TMC_SAY_STEALTH_STATUS(E7);
   #endif
 }
 

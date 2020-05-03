@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -47,22 +47,16 @@
 
 #define DEBUG_MALYAN_LCD
 
-#include "extensible_ui/ui_api.h"
+#include "extui/ui_api.h"
 
 #include "ultralcd.h"
+#include "../sd/cardreader.h"
 #include "../module/temperature.h"
 #include "../module/stepper.h"
 #include "../module/motion.h"
 #include "../libs/duration_t.h"
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
-
-#if ENABLED(SDSUPPORT)
-  #include "../sd/cardreader.h"
-  #include "../sd/SdFatConfig.h"
-#else
-  #define LONG_FILENAME_LENGTH 0
-#endif
 
 #define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
 #include "../core/debug_out.h"
@@ -77,7 +71,7 @@
 #define MAX_CURLY_COMMAND (32 + LONG_FILENAME_LENGTH) * 2
 
 // Track incoming command bytes from the LCD
-int inbound_count;
+uint16_t inbound_count;
 
 // For sending print completion messages
 bool last_printing_status = false;
@@ -87,7 +81,7 @@ void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = _MIN(strlen_P(message), sizeof(encoded_message));
 
-  for (uint8_t i = 0; i < message_length; i++)
+  LOOP_L_N(i, message_length)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -97,7 +91,7 @@ void write_to_lcd(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   const uint8_t message_length = _MIN(strlen(message), sizeof(encoded_message));
 
-  for (uint8_t i = 0; i < message_length; i++)
+  LOOP_L_N(i, message_length)
     encoded_message[i] = message[i] | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -254,7 +248,7 @@ void process_lcd_p_command(const char* command) {
         ExtUI::stopPrint();
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
         break;
-    case 'H': queue.enqueue_now_P(PSTR("G28")); break; // Home all axes
+    case 'H': queue.enqueue_now_P(G28_STR); break; // Home all axes
     default: {
       #if ENABLED(SDSUPPORT)
         // Print file 000 - a three digit number indicating which
@@ -367,29 +361,38 @@ void process_lcd_command(const char* command) {
     DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
 }
 
+//
 // Parse LCD commands mixed with G-Code
-void parse_lcd_byte(byte b) {
-  static bool parsing_lcd_cmd = false;
+//
+void parse_lcd_byte(const byte b) {
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
-  if (!parsing_lcd_cmd) {
-    if (b == '{' || b == '\n' || b == '\r') {   // A line-ending or opening brace
-      parsing_lcd_cmd = b == '{';               // Brace opens an LCD command
-      if (inbound_count) {                      // Looks like a G-code is in the buffer
-        inbound_buffer[inbound_count] = '\0';   // Reset before processing
-        inbound_count = 0;
+  static uint8_t parsing = 0;                   // Parsing state
+  static bool prevcr = false;                   // Was the last c a CR?
+
+  const char c = b & 0x7F;
+
+  if (parsing) {
+    const bool is_lcd = parsing == 1;           // 1 for LCD
+    if ( ( is_lcd && c == '}')                  // Closing brace on LCD command
+      || (!is_lcd && c == '\n')                 // LF on a G-code command
+    ) {
+      inbound_buffer[inbound_count] = '\0';     // Reset before processing
+      parsing = 0;                              // Unflag and...
+      inbound_count = 0;                        // Reset buffer index
+      if (parsing == 1)
+        process_lcd_command(inbound_buffer);    // Handle the LCD command
+      else
         queue.enqueue_one_now(inbound_buffer);  // Handle the G-code command
-      }
     }
+    else if (inbound_count < MAX_CURLY_COMMAND - 2)
+      inbound_buffer[inbound_count++] = is_lcd ? c : b; // Buffer while space remains
   }
-  else if (b == '}') {                          // Closing brace on an LCD command
-    parsing_lcd_cmd = false;                    // Unflag and...
-    inbound_buffer[inbound_count] = '\0';       // reset before processing
-    inbound_count = 0;
-    process_lcd_command(inbound_buffer);        // Handle the LCD command
+  else {
+         if (c == '{')            parsing = 1;  // Brace opens an LCD command
+    else if (prevcr && c == '\n') parsing = 2;  // CRLF indicates G-code
+    prevcr = (c == '\r');                       // Remember if it was a CR
   }
-  else if (inbound_count < MAX_CURLY_COMMAND - 2)
-    inbound_buffer[inbound_count++] = b;        // Buffer only if space remains
 }
 
 /**
@@ -402,8 +405,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != SerialUSB || forceUpdate) {
-    last_usb_connected_status = SerialUSB;
+  if (last_usb_connected_status != MYSERIAL0 || forceUpdate) {
+    last_usb_connected_status = MYSERIAL0;
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
@@ -439,9 +442,8 @@ namespace ExtUI {
     update_usb_status(false);
 
     // now drain commands...
-    while (LCD_SERIAL.available()) {
-      parse_lcd_byte((byte)LCD_SERIAL.read() & 0x7F);
-    }
+    while (LCD_SERIAL.available())
+      parse_lcd_byte((byte)LCD_SERIAL.read());
 
     #if ENABLED(SDSUPPORT)
       // The way last printing status works is simple:
@@ -489,6 +491,19 @@ namespace ExtUI {
   void onLoadSettings(const char*) {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
+
+  #if HAS_MESH
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLossResume() {}
+  #endif
+
+  #if HAS_PID_HEATING
+    void onPidTuning(const result_t rst) {}
+  #endif
 }
 
 #endif // MALYAN_LCD

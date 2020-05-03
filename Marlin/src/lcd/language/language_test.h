@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * TEST
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -122,7 +122,7 @@ namespace Language_test {
   #if ENABLED(DISPLAYTEST)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("Display test");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Display test");
     PROGMEM Language_Str MSG_PREPARE                         = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_CONTROL                         = STRG_OKTAL_c;
   #endif
@@ -130,7 +130,7 @@ namespace Language_test {
   #if ENABLED(WEST)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -149,19 +149,12 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_0                        = STRG_OKTAL_8 " " LCD_STR_N0;
-    PROGMEM Language_Str MSG_NOZZLE_1                        = STRG_OKTAL_8 " " LCD_STR_N1;
-    PROGMEM Language_Str MSG_NOZZLE_2                        = STRG_OKTAL_8 " " LCD_STR_N2;
-    PROGMEM Language_Str MSG_NOZZLE_3                        = STRG_OKTAL_8 " " LCD_STR_N3;
-    PROGMEM Language_Str MSG_NOZZLE_4                        = STRG_OKTAL_8 " " LCD_STR_N4;
-    PROGMEM Language_Str MSG_NOZZLE_5                        = STRG_OKTAL_8 " " LCD_STR_N5;
+    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
     PROGMEM Language_Str MSG_FAN_SPEED                       = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_1                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_2                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_3                     = STRG_OKTAL_9;
+    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
@@ -174,7 +167,7 @@ namespace Language_test {
   #if ENABLED(CYRIL)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -193,18 +186,11 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_0                        = STRG_OKTAL_8 " " LCD_STR_N0;
-    PROGMEM Language_Str MSG_NOZZLE_1                        = STRG_OKTAL_8 " " LCD_STR_N1;
-    PROGMEM Language_Str MSG_NOZZLE_2                        = STRG_OKTAL_8 " " LCD_STR_N2;
-    PROGMEM Language_Str MSG_NOZZLE_3                        = STRG_OKTAL_8 " " LCD_STR_N3;
-    PROGMEM Language_Str MSG_NOZZLE_4                        = STRG_OKTAL_8 " " LCD_STR_N4;
-    PROGMEM Language_Str MSG_NOZZLE_5                        = STRG_OKTAL_8 " " LCD_STR_N5;
-    PROGMEM Language_Str MSG_FAN_SPEED_1                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_2                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_3                     = STRG_OKTAL_9;
+    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
+    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
@@ -217,7 +203,7 @@ namespace Language_test {
   #if ENABLED(KANA)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -236,18 +222,11 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_0                        = STRG_OKTAL_8 " " LCD_STR_N0;
-    PROGMEM Language_Str MSG_NOZZLE_1                        = STRG_OKTAL_8 " " LCD_STR_N1;
-    PROGMEM Language_Str MSG_NOZZLE_2                        = STRG_OKTAL_8 " " LCD_STR_N2;
-    PROGMEM Language_Str MSG_NOZZLE_3                        = STRG_OKTAL_8 " " LCD_STR_N3;
-    PROGMEM Language_Str MSG_NOZZLE_4                        = STRG_OKTAL_8 " " LCD_STR_N4;
-    PROGMEM Language_Str MSG_NOZZLE_5                        = STRG_OKTAL_8 " " LCD_STR_N5;
-    PROGMEM Language_Str MSG_FAN_SPEED_1                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_2                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_3                     = STRG_OKTAL_9;
+    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
+    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
     PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
     PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;

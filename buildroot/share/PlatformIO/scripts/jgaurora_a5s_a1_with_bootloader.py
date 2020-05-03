@@ -1,3 +1,4 @@
+import os
 Import("env")
 
 # Relocate firmware from 0x08000000 to 0x0800A000
@@ -5,12 +6,16 @@ env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
 #alternatively, for STSTM <=5.1.0 use line below
 #env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
 env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x0800A000"))
-env.Replace(LDSCRIPT_PATH="buildroot/share/PlatformIO/ldscripts/jgaurora_a5s_a1.ld")
+
+custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/jgaurora_a5s_a1.ld")
+for i, flag in enumerate(env["LINKFLAGS"]):
+    if "-Wl,-T" in flag:
+        env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
+    elif flag == "-T":
+        env["LINKFLAGS"][i + 1] = custom_ld_script
 
 #append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
 def addboot(source,target,env):
-	import os
-
 	firmware = open(target[0].path, "rb")
 	lengthfirmware = os.path.getsize(target[0].path)
 	bootloader_dir = "buildroot/share/PlatformIO/scripts/jgaurora_bootloader.bin"

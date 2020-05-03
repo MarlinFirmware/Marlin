@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -113,7 +113,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
             error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
         }
       #endif
-      // Making a correction reduces the residual error and modifies delta_mm
+      // Making a correction reduces the residual error and adds block steps
       if (error_correction) {
         block->steps[axis] += ABS(error_correction);
         residual_error[axis] -= error_correction;
@@ -123,7 +123,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 }
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  #if USES_Z_MIN_PROBE_ENDSTOP
+  #if HAS_CUSTOM_PROBE_PIN
     #define TEST_PROBE_PIN (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
   #else
     #define TEST_PROBE_PIN (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)

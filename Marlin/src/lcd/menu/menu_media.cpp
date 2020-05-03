@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(SDSUPPORT)
+#if BOTH(HAS_LCD_MENU, SDSUPPORT)
 
 #include "menu.h"
 #include "../../sd/cardreader.h"
@@ -34,7 +34,7 @@
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
-  screen_changed = true;
+  ui.screen_changed = true;
   ui.refresh();
 }
 
@@ -45,25 +45,11 @@ void lcd_sd_updir() {
 
   void MarlinUI::reselect_last_file() {
     if (sd_encoder_position == 0xFFFF) return;
-    //#if HAS_GRAPHICAL_LCD
-    //  // This is a hack to force a screen update.
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.synchronize();
-    //  safe_delay(50);
-    //  ui.synchronize();
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.drawing_screen = screen_changed = true;
-    //#endif
-
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
-
     defer_status_screen();
-
-    //#if HAS_GRAPHICAL_LCD
-    //  update();
-    //#endif
   }
+
 #endif
 
 inline void sdcard_start_selected_file() {
@@ -72,24 +58,11 @@ inline void sdcard_start_selected_file() {
   ui.reset_status();
 }
 
-#if ENABLED(SD_MENU_CONFIRM_START)
-
-  void menu_sd_confirm() {
-    char * const longest = card.longest_filename();
-    char buffer[strlen(longest) + 2];
-    buffer[0] = ' ';
-    strcpy(buffer + 1, longest);
-    do_select_screen(
-      GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-      sdcard_start_selected_file, ui.goto_previous_screen,
-      GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
-    );
-  }
-
-#endif
-
-class MenuItem_sdfile {
+class MenuItem_sdfile : public MenuItem_sdbase {
   public:
+    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
+      MenuItem_sdbase::draw(sel, row, pstr, theCard, false);
+    }
     static void action(PGM_P const pstr, CardReader &) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
@@ -98,7 +71,17 @@ class MenuItem_sdfile {
         sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
-        MenuItem_submenu::action(pstr, menu_sd_confirm);
+        MenuItem_submenu::action(pstr, []{
+          char * const longest = card.longest_filename();
+          char buffer[strlen(longest) + 2];
+          buffer[0] = ' ';
+          strcpy(buffer + 1, longest);
+          MenuItem_confirm::select_screen(
+            GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
+            sdcard_start_selected_file, ui.goto_previous_screen,
+            GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
+          );
+        });
       #else
         sdcard_start_selected_file();
         UNUSED(pstr);
@@ -106,16 +89,17 @@ class MenuItem_sdfile {
     }
 };
 
-class MenuItem_sdfolder {
+class MenuItem_sdfolder : public MenuItem_sdbase {
   public:
+    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
+      MenuItem_sdbase::draw(sel, row, pstr, theCard, true);
+    }
     static void action(PGM_P const, CardReader &theCard) {
       card.cd(theCard.filename);
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
-      screen_changed = true;
-      #if HAS_GRAPHICAL_LCD
-        ui.drawing_screen = false;
-      #endif
+      ui.screen_changed = true;
+      TERN_(HAS_GRAPHICAL_LCD, ui.drawing_screen = false);
       ui.refresh();
     }
 };
@@ -134,7 +118,7 @@ void menu_media() {
   BACK_ITEM(MSG_MAIN);
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
-      ACTION_ITEM(MSG_REFRESH, [](){ encoderTopLine = 0; card.mount(); });
+      ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())
@@ -142,22 +126,14 @@ void menu_media() {
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
-      const uint16_t nr =
-        #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-          fileCnt - 1 -
-        #endif
-      i;
-
-      card.getfilename_sorted(nr);
-
+      card.getfilename_sorted(SD_ORDER(i, fileCnt));
       if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else
         MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
     }
-    else {
+    else
       SKIP_ITEM();
-    }
   }
   END_MENU();
 }

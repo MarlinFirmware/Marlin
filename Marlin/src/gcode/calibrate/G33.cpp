@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,7 +35,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 
@@ -63,12 +63,7 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
-#if HOTENDS > 1
-  const uint8_t old_tool_index = active_extruder;
-  #define AC_CLEANUP() ac_cleanup(old_tool_index)
-#else
-  #define AC_CLEANUP() ac_cleanup()
-#endif
+TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index = active_extruder);
 
 float lcd_probe_pt(const xy_pos_t &xy);
 
@@ -79,9 +74,7 @@ void ac_home() {
 }
 
 void ac_setup(const bool reset_bed) {
-  #if HOTENDS > 1
-    tool_change(0, true);
-  #endif
+  TERN_(HAS_MULTI_HOTEND, tool_change(0, true));
 
   planner.synchronize();
   remember_feedrate_scaling_off();
@@ -91,21 +84,11 @@ void ac_setup(const bool reset_bed) {
   #endif
 }
 
-void ac_cleanup(
-  #if HOTENDS > 1
-    const uint8_t old_tool_index
-  #endif
-) {
-  #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
-    do_blocking_move_to_z(delta_clip_start_height);
-  #endif
-  #if HAS_BED_PROBE
-    STOW_PROBE();
-  #endif
+void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
+  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+  TERN_(HAS_BED_PROBE, probe.stow());
   restore_feedrate_and_scaling();
-  #if HOTENDS > 1
-    tool_change(old_tool_index, true);
-  #endif
+  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
 }
 
 void print_signed_float(PGM_P const prefix, const float &f) {
@@ -190,7 +173,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
+    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true, false);
   #else
     UNUSED(stow);
     return lcd_probe_pt(xy);
@@ -222,6 +205,8 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
 
   if (!_0p_calibration) {
 
+    const float dcr = delta_calibration_radius();
+
     if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
       const xy_pos_t center{0};
       z_pt[CEN] += calibration_probe(center, stow_after_each);
@@ -233,7 +218,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                   steps  = _7p_9_center ? _4P_STEP / 3.0f : _7p_6_center ? _7P_STEP : _4P_STEP;
       I_LOOP_CAL_PT(rad, start, steps) {
         const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                    r = delta_calibration_radius * 0.1;
+                    r = dcr * 0.1;
         const xy_pos_t vec = { cos(a), sin(a) };
         z_pt[CEN] += calibration_probe(vec * r, stow_after_each);
         if (isnan(z_pt[CEN])) return false;
@@ -257,7 +242,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         const int8_t offset = _7p_9_center ? 2 : 0;
         for (int8_t circle = 0; circle <= offset; circle++) {
           const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                      r = delta_calibration_radius * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
+                      r = dcr * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
                       interpol = FMOD(rad, 1);
           const xy_pos_t vec = { cos(a), sin(a) };
           const float z_temp = calibration_probe(vec * r, stow_after_each);
@@ -287,9 +272,10 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
 static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_at_pt_axis[NPP + 1]) {
   xyz_pos_t pos{0};
 
+  const float dcr = delta_calibration_radius();
   LOOP_CAL_ALL(rad) {
     const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
-                r = (rad == CEN ? 0.0f : delta_calibration_radius);
+                r = (rad == CEN ? 0.0f : dcr);
     pos.set(cos(a) * r, sin(a) * r, z_pt[rad]);
     inverse_kinematics(pos);
     mm_at_pt_axis[rad] = delta;
@@ -297,7 +283,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_
 }
 
 static void forward_kinematics_probe_points(abc_float_t mm_at_pt_axis[NPP + 1], float z_pt[NPP + 1]) {
-  const float r_quot = delta_calibration_radius / delta_radius;
+  const float r_quot = delta_calibration_radius() / delta_radius;
 
   #define ZPP(N,I,A) (((1.0f + r_quot * (N)) / 3.0f) * mm_at_pt_axis[I].A)
   #define Z00(I, A) ZPP( 0, I, A)
@@ -338,7 +324,7 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], abc_float_t d
 }
 
 static float auto_tune_h() {
-  const float r_quot = delta_calibration_radius / delta_radius;
+  const float r_quot = delta_calibration_radius() / delta_radius;
   return RECIPROCAL(r_quot / (2.0f / 3.0f));  // (2/3)/CR
 }
 
@@ -436,7 +422,6 @@ void GcodeSuite::G33() {
              _opposite_results    = (_4p_calibration && !towers_set) || probe_points >= 3,
              _endstop_results     = probe_points != 1 && probe_points != -1 && probe_points != 0,
              _angle_results       = probe_points >= 3 && towers_set;
-  static const char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
   int8_t iterations = 0;
   float test_precision,
         zero_std_dev = (verbose_level ? 999.0f : 0.0f), // 0.0 in dry-run mode : forced end
@@ -450,12 +435,13 @@ void GcodeSuite::G33() {
 
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
+  const float dcr = delta_calibration_radius();
+
   if (!_1p_calibration && !_0p_calibration) { // test if the outer radius is reachable
     LOOP_CAL_RAD(axis) {
-      const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
-                  r = delta_calibration_radius;
-      if (!position_is_reachable(cos(a) * r, sin(a) * r)) {
-        SERIAL_ECHOLNPGM("?(M665 B)ed radius implausible.");
+      const float a = RADIANS(210 + (360 / NPP) *  (axis - 1));
+      if (!position_is_reachable(cos(a) * dcr, sin(a) * dcr)) {
+        SERIAL_ECHOLNPGM("?Bed calibration radius implausible.");
         return;
       }
     }
@@ -485,7 +471,7 @@ void GcodeSuite::G33() {
     zero_std_dev_old = zero_std_dev;
     if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
-      return AC_CLEANUP();
+      return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
     }
     zero_std_dev = std_dev_points(z_at_pt, _0p_calibration, _1p_calibration, _4p_calibration, _4p_opposite_points);
 
@@ -522,12 +508,11 @@ void GcodeSuite::G33() {
       #define Z0(I) ZP(0, I)
 
       // calculate factors
-      const float cr_old = delta_calibration_radius;
-      if (_7p_9_center) delta_calibration_radius *= 0.9f;
+      if (_7p_9_center) calibration_radius_factor = 0.9f;
       h_factor = auto_tune_h();
       r_factor = auto_tune_r();
       a_factor = auto_tune_a();
-      delta_calibration_radius = cr_old;
+      calibration_radius_factor = 1.0f;
 
       switch (probe_points) {
         case 0:
@@ -622,8 +607,7 @@ void GcodeSuite::G33() {
           sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
         ui.set_status(mess);
         print_calibration_settings(_endstop_results, _angle_results);
-        serialprintPGM(save_message);
-        SERIAL_EOL();
+        SERIAL_ECHOLNPGM("Save with M500 and/or copy to Configuration.h");
       }
       else { // !end iterations
         char mess[15];
@@ -658,7 +642,7 @@ void GcodeSuite::G33() {
   }
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
-  AC_CLEANUP();
+  ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
 }
 
 #endif // DELTA_AUTO_CALIBRATION

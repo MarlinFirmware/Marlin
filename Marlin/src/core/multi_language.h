@@ -22,7 +22,7 @@
 
 typedef const char Language_Str[];
 
-#if defined(LCD_LANGUAGE_5)
+#ifdef LCD_LANGUAGE_5
   #define NUM_LANGUAGES 5
 #elif defined(LCD_LANGUAGE_4)
   #define NUM_LANGUAGES 4
@@ -65,7 +65,7 @@ typedef const char Language_Str[];
     lang == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
                 GET_LANG(LCD_LANGUAGE_5)::MSG \
     )
-  #define MAX_LANG_CHARSIZE max(GET_LANG(LCD_LANGUAGE)::CHARSIZE, \
+  #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE)::CHARSIZE, \
                                 GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
                                 GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
                                 GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
@@ -76,4 +76,8 @@ typedef const char Language_Str[];
 #endif
 #define GET_TEXT_F(MSG) (const __FlashStringHelper*)GET_TEXT(MSG)
 
-#define MSG_CONCAT(A,B) pgm_p_pair_t(GET_TEXT(A),GET_TEXT(B))
+#define GET_LANGUAGE_NAME(INDEX) GET_LANG(LCD_LANGUAGE_##INDEX)::LANGUAGE
+
+#define MSG_1_LINE(A)     A "\0"   "\0"
+#define MSG_2_LINE(A,B)   A "\0" B "\0"
+#define MSG_3_LINE(A,B,C) A "\0" B "\0" C

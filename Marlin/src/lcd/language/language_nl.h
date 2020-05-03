@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Dutch
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -46,13 +46,9 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hoofdmenu");
   PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motoren uit");
-  PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu"); //accepted English terms
+  PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu"); // accepted English terms
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Vooruitgang Test");
-  PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Auto home");
-  PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Home X");
-  PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
-  PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
-  PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Homing XYZ");
+
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klik voor begin");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Volgende Plaats");
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("Bed level kompl.");
@@ -60,36 +56,16 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("H offset toegep.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nulpunt instellen");
   PROGMEM Language_Str MSG_PREHEAT_1                       = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = PREHEAT_1_LABEL _UxGT(" voorverw. ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = PREHEAT_1_LABEL _UxGT(" voorverw. ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = PREHEAT_1_LABEL _UxGT(" voorverw. ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = PREHEAT_1_LABEL _UxGT(" voorverw. ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = PREHEAT_1_LABEL _UxGT(" voorverw. ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = PREHEAT_1_LABEL _UxGT(" voorverw. ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_H                     = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ~");
   PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = PREHEAT_1_LABEL _UxGT(" voorverw. aan");
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = PREHEAT_1_LABEL _UxGT(" voorverw. Bed");
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = PREHEAT_1_LABEL _UxGT(" verw. conf");
   PROGMEM Language_Str MSG_PREHEAT_2                       = PREHEAT_2_LABEL _UxGT(" voorverwarmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = PREHEAT_2_LABEL _UxGT(" voorverw. ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = PREHEAT_2_LABEL _UxGT(" voorverw. ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = PREHEAT_2_LABEL _UxGT(" voorverw. ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = PREHEAT_2_LABEL _UxGT(" voorverw. ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = PREHEAT_2_LABEL _UxGT(" voorverw. ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = PREHEAT_2_LABEL _UxGT(" voorverw. ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_H                     = PREHEAT_2_LABEL _UxGT(" voorverw. ~");
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = PREHEAT_2_LABEL _UxGT(" voorverw. Einde");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ~");
   PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = PREHEAT_2_LABEL _UxGT(" voorverw. aan");
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = PREHEAT_2_LABEL _UxGT(" voorverw. Bed");
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = PREHEAT_2_LABEL _UxGT(" verw. conf");
@@ -108,12 +84,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Verplaats Y");
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Verplaats Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
-  PROGMEM Language_Str MSG_MOVE_E0                         = _UxGT("Extruder ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_MOVE_E1                         = _UxGT("Extruder ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_MOVE_E2                         = _UxGT("Extruder ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_MOVE_E3                         = _UxGT("Extruder ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_MOVE_E4                         = _UxGT("Extruder ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_MOVE_E5                         = _UxGT("Extruder ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
   PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Verplaats %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Verplaats 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Verplaats 1mm");
@@ -121,24 +92,12 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Snelheid");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
-  PROGMEM Language_Str MSG_NOZZLE_0                        = _UxGT("Nozzle ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_NOZZLE_1                        = _UxGT("Nozzle ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_NOZZLE_2                        = _UxGT("Nozzle ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_NOZZLE_3                        = _UxGT("Nozzle ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_NOZZLE_4                        = _UxGT("Nozzle ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_NOZZLE_5                        = _UxGT("Nozzle ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan snelheid");
-  PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Fan snelheid 1");
-  PROGMEM Language_Str MSG_FAN_SPEED_2                     = _UxGT("Fan snelheid 2");
-  PROGMEM Language_Str MSG_FAN_SPEED_3                     = _UxGT("Fan snelheid 3");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan snelheid ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flow");
-  PROGMEM Language_Str MSG_FLOW_0                          = _UxGT("Flow ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_FLOW_1                          = _UxGT("Flow ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_FLOW_2                          = _UxGT("Flow ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_FLOW_3                          = _UxGT("Flow ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_FLOW_4                          = _UxGT("Flow ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_FLOW_5                          = _UxGT("Flow ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flow ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Control");
   PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER _UxGT(" Min");
   PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER _UxGT(" Max");
@@ -147,37 +106,22 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Aan");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Uit");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Selecteer");
-  PROGMEM Language_Str MSG_SELECT_E0                       = _UxGT("Selecteer ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_SELECT_E1                       = _UxGT("Selecteer ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_SELECT_E2                       = _UxGT("Selecteer ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_SELECT_E3                       = _UxGT("Selecteer ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_SELECT_E4                       = _UxGT("Selecteer ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_SELECT_E5                       = _UxGT("Selecteer ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Selecteer *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Versn");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatuur");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Beweging");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");        //accepted english dutch
-  PROGMEM Language_Str MSG_ADVANCE_K_E0                    = _UxGT("Advance K ") LCD_STR_E0; //accepted english dutch
-  PROGMEM Language_Str MSG_ADVANCE_K_E1                    = _UxGT("Advance K ") LCD_STR_E1; //accepted english dutch
-  PROGMEM Language_Str MSG_ADVANCE_K_E2                    = _UxGT("Advance K ") LCD_STR_E2; //accepted english dutch
-  PROGMEM Language_Str MSG_ADVANCE_K_E3                    = _UxGT("Advance K ") LCD_STR_E3; //accepted english dutch
-  PROGMEM Language_Str MSG_ADVANCE_K_E4                    = _UxGT("Advance K ") LCD_STR_E4; //accepted english dutch
-  PROGMEM Language_Str MSG_ADVANCE_K_E5                    = _UxGT("Advance K ") LCD_STR_E5; //accepted english dutch
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm3");
+  PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");        // accepted english dutch
+  PROGMEM Language_Str MSG_ADVANCE_K_E                     = _UxGT("Advance K *"); // accepted english dutch
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E0                = _UxGT("Fil. Dia. ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E1                = _UxGT("Fil. Dia. ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E2                = _UxGT("Fil. Dia. ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E3                = _UxGT("Fil. Dia. ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E4                = _UxGT("Fil. Dia. ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E5                = _UxGT("Fil. Dia. ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD contrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Geheugen opslaan");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Geheugen laden");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Noodstop reset");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Noodstop reset");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Ververs");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info scherm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info scherm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Voorbereiden");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Afstellen");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Print pauzeren");
@@ -191,7 +135,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("Geen beweging.");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("Afgebroken. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("Gestopt. ");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Retract mm");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("Retract mm");  // accepted English term in Dutch
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Ruil Retract mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Retract  F");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");
@@ -200,19 +144,14 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  F");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Verv. Filament");
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E0               = _UxGT("Verv. Filament ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E1               = _UxGT("Verv. Filament ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E2               = _UxGT("Verv. Filament ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E3               = _UxGT("Verv. Filament ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E4               = _UxGT("Verv. Filament ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E5               = _UxGT("Verv. Filament ") LCD_STR_E5;
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Init. SD kaart");
+  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Verv. Filament *");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD kaart");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Verv. SD Kaart");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z probe uit. bed");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch Zelf-Test");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reset BLTouch");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s Eerst");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z Offset");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z Offset");  // accepted English term in Dutch
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystap X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystap Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystap Z");
@@ -240,17 +179,9 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_DELTA_AUTO_CALIBRATE            = _UxGT("Auto Calibratie");
   PROGMEM Language_Str MSG_DELTA_HEIGHT_CALIBRATE          = _UxGT("Zet Delta Hoogte");
 
-  PROGMEM Language_Str MSG_INFO_STATS_MENU                 = _UxGT("Printer Stats");
-  PROGMEM Language_Str MSG_INFO_BOARD_MENU                 = _UxGT("Board Info"); //accepted English term in Dutch
-  PROGMEM Language_Str MSG_INFO_THERMISTOR_MENU            = _UxGT("Thermistors");
-  PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("Extruders");
-  PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Baud");
-  PROGMEM Language_Str MSG_INFO_MENU                       = _UxGT("Over Printer");
-  PROGMEM Language_Str MSG_INFO_PRINTER_MENU               = _UxGT("Printer Info");
-  PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocol");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Case licht");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Onjuiste printer");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Onjuiste printer");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Printed Aantal");
@@ -268,13 +199,13 @@ namespace Language_nl {
 
   PROGMEM Language_Str MSG_INFO_MIN_TEMP                   = _UxGT("Min Temp");
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Temp");
-  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");  //accepted English term in Dutch
+  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");  // accepted English term in Dutch
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Motorstroom");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");  //accepted English term in Dutch
+
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC Opslaan");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Hervat print");
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT(" Nozzle: "); //accepeted English term
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT(" Nozzle: "); // accepted English term
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display

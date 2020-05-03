@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,11 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#include "backtrace.h"
-
 #if defined(__arm__) || defined(__thumb__)
 
+#include "backtrace.h"
 #include "unwinder.h"
 #include "unwmemaccess.h"
 
@@ -36,7 +34,7 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
 
   (*p)++;
 
-  SERIAL_CHAR('#'); SERIAL_PRINT(*p,DEC); SERIAL_ECHOPGM(" : ");
+  SERIAL_CHAR('#'); SERIAL_PRINT(*p, DEC); SERIAL_ECHOPGM(" : ");
   SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, HEX);
   SERIAL_CHAR('+'); SERIAL_PRINT(bte->address - bte->function,DEC);
   SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address,HEX); SERIAL_CHAR('\n');

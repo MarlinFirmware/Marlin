@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
 #if ENABLED(MAX7219_GCODE)
 
 #include "../../gcode.h"
-#include "../../../feature/Max7219_Debug_LEDs.h"
+#include "../../../feature/max7219.h"
 
 /**
  * M7219: Control the Max7219 LED matrix
@@ -71,7 +71,7 @@ void GcodeSuite::M7219() {
   }
   else if (parser.seen('D')) {
     const uint8_t uline = parser.value_byte() & 0x7,
-                  line = uline + parser.byteval('U') << 3;
+                  line = uline + (parser.byteval('U') << 3);
     if (line < MAX7219_LINES) {
       max7219.led_line[line] = v;
       return max7219.refresh_line(line);
@@ -79,7 +79,7 @@ void GcodeSuite::M7219() {
   }
 
   if (parser.seen('P')) {
-    for (uint8_t r = 0; r < MAX7219_LINES; r++) {
+    LOOP_L_N(r, MAX7219_LINES) {
       SERIAL_ECHOPGM("led_line[");
       if (r < 10) SERIAL_CHAR(' ');
       SERIAL_ECHO(int(r));

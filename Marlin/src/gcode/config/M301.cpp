@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,6 +38,10 @@
  *
  *   C[float] Kc term
  *   L[int] LPQ length
+ *
+ * With PID_FAN_SCALING:
+ *
+ *   F[float] Kf term
  */
 void GcodeSuite::M301() {
 
@@ -56,22 +60,29 @@ void GcodeSuite::M301() {
       NOLESS(thermalManager.lpq_len, 0);
     #endif
 
+    #if ENABLED(PID_FAN_SCALING)
+      if (parser.seen('F')) PID_PARAM(Kf, e) = parser.value_float();
+    #endif
+
     thermalManager.updatePID();
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
-    #endif // PID_PARAMS_PER_HOTEND
+    #endif
     SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
                     " i:", unscalePID_i(PID_PARAM(Ki, e)),
                     " d:", unscalePID_d(PID_PARAM(Kd, e)));
     #if ENABLED(PID_EXTRUSION_SCALING)
-      //Kc does not have scaling applied above, or in resetting defaults
       SERIAL_ECHOPAIR(" c:", PID_PARAM(Kc, e));
     #endif
+    #if ENABLED(PID_FAN_SCALING)
+      SERIAL_ECHOPAIR(" f:", PID_PARAM(Kf, e));
+    #endif
+
     SERIAL_EOL();
   }
   else
-    SERIAL_ERROR_MSG(MSG_INVALID_EXTRUDER);
+    SERIAL_ERROR_MSG(STR_INVALID_EXTRUDER);
 }
 
 #endif // PIDTEMP

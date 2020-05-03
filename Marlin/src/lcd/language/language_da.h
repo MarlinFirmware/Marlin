@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Danish
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -50,36 +50,16 @@ namespace Language_da {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Forsk. er nu aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sæt origin");
   PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Forvarm ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H0                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_H1                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_H2                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_H3                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_H4                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_H5                    = _UxGT("Forvarm ") PREHEAT_1_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
   PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end")
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E0                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E1                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E2                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E3                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E4                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E5                = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
   PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
   PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
   PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
   PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Forvarm ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = _UxGT("Forvarm ") PREHEAT_2_LABEL " " LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_H1                    = _UxGT("Forvarm ") PREHEAT_2_LABEL " " LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_H2                    = _UxGT("Forvarm ") PREHEAT_2_LABEL " " LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_H3                    = _UxGT("Forvarm ") PREHEAT_2_LABEL " " LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_H4                    = _UxGT("Forvarm ") PREHEAT_2_LABEL " " LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_H5                    = _UxGT("Forvarm ") PREHEAT_2_LABEL " " LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Forvarm ") PREHEAT_2_LABEL " ~";
   PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end")
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E0                = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E1                = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E2                = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E3                = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E4                = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E5                = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ~");
   PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Alle");
   PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Bed");
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" conf");
@@ -100,18 +80,11 @@ namespace Language_da {
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Hastighed");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Plade Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Dyse");
-  PROGMEM Language_Str MSG_NOZZLE_0                        = _UxGT("Dyse ") LCD_STR_N0;
-  PROGMEM Language_Str MSG_NOZZLE_1                        = _UxGT("Dyse ") LCD_STR_N1;
-  PROGMEM Language_Str MSG_NOZZLE_2                        = _UxGT("Dyse ") LCD_STR_N2;
-  PROGMEM Language_Str MSG_NOZZLE_3                        = _UxGT("Dyse ") LCD_STR_N3;
-  PROGMEM Language_Str MSG_NOZZLE_4                        = _UxGT("Dyse ") LCD_STR_N4;
-  PROGMEM Language_Str MSG_NOZZLE_5                        = _UxGT("Dyse ") LCD_STR_N5;
+  PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Dyse ~");
 
   PROGMEM Language_Str MSG_BED                             = _UxGT("Plade");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Blæser hastighed");
-  PROGMEM Language_Str MSG_FAN_SPEED_1                     = _UxGT("Blæser hastighed 1");
-  PROGMEM Language_Str MSG_FAN_SPEED_2                     = _UxGT("Blæser hastighed 2");
-  PROGMEM Language_Str MSG_FAN_SPEED_3                     = _UxGT("Blæser hastighed 3");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Blæser hastighed ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrol");
   PROGMEM Language_Str MSG_MIN                             = _UxGT(" \002 Min");
   PROGMEM Language_Str MSG_MAX                             = _UxGT(" \002 Max");
@@ -120,31 +93,21 @@ namespace Language_da {
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Til");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Fra");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Vælg");
-  PROGMEM Language_Str MSG_SELECT_E0                       = _UxGT("Vælg ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_SELECT_E1                       = _UxGT("Vælg ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_SELECT_E2                       = _UxGT("Vælg ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_SELECT_E3                       = _UxGT("Vælg ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_SELECT_E4                       = _UxGT("Vælg ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_SELECT_E5                       = _UxGT("Vælg ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Vælg *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-retract");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-rejse");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatur");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Bevægelse");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E i mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E i mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E0                = _UxGT("Fil. Dia. ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E1                = _UxGT("Fil. Dia. ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E2                = _UxGT("Fil. Dia. ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E3                = _UxGT("Fil. Dia. ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E4                = _UxGT("Fil. Dia. ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E5                = _UxGT("Fil. Dia. ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gem i EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hent fra EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Gendan failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Gendan Defaults");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Genopfrisk");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info skærm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info skærm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Forbered");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause printet");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Forsæt printet");
@@ -166,12 +129,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Skift filament");
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E0               = _UxGT("Skift filament ") LCD_STR_E0;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E1               = _UxGT("Skift filament ") LCD_STR_E1;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E2               = _UxGT("Skift filament ") LCD_STR_E2;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E3               = _UxGT("Skift filament ") LCD_STR_E3;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E4               = _UxGT("Skift filament ") LCD_STR_E4;
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E5               = _UxGT("Skift filament ") LCD_STR_E5;
+  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Skift filament *");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Skift SD kort");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Probe udenfor plade");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch Selv-Test");
@@ -218,12 +176,16 @@ namespace Language_da {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Strømfors.");
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Driv Styrke");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driv %");
+
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Skriv");
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Forsæt print");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Forkert printer");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Forkert printer");
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Vent på start", "af filament", "skift"));

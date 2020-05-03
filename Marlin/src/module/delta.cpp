@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,7 +35,7 @@
 #include "planner.h"
 #include "endstops.h"
 #include "../lcd/ultralcd.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if HAS_BED_PROBE
   #include "probe.h"
@@ -54,8 +54,7 @@ float delta_height;
 abc_float_t delta_endstop_adj{0};
 float delta_radius,
       delta_diagonal_rod,
-      delta_segments_per_second,
-      delta_calibration_radius;
+      delta_segments_per_second;
 abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
@@ -84,6 +83,28 @@ void recalc_delta_settings() {
 }
 
 /**
+ * Get a safe radius for calibration
+ */
+
+#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
+
+  #if ENABLED(DELTA_AUTO_CALIBRATION)
+    float calibration_radius_factor = 1;
+  #endif
+
+  float delta_calibration_radius() {
+    return calibration_radius_factor * (
+      #if HAS_BED_PROBE
+        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), MIN_PROBE_EDGE))
+      #else
+        DELTA_PRINTABLE_RADIUS
+      #endif
+    );
+  }
+
+#endif
+
+/**
  * Delta Inverse Kinematics
  *
  * Calculate the tower positions for a given machine
@@ -100,7 +121,7 @@ void recalc_delta_settings() {
  */
 
 #define DELTA_DEBUG(VAR) do { \
-    SERIAL_ECHOLNPAIR("Cartesian X", VAR.x, " Y", VAR.y, " Z", VAR.z);   \
+    SERIAL_ECHOLNPAIR_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
     SERIAL_ECHOLNPAIR("Delta A", delta.a, " B", delta.b, " C", delta.c); \
   }while(0)
 
@@ -228,12 +249,8 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position.z = (delta_height + 10
-    #if HAS_BED_PROBE
-      - probe_offset.z
-    #endif
-  );
-  line_to_current_position(homing_feedrate(X_AXIS));
+  current_position.z = (delta_height + 10 - TERN0(HAS_BED_PROBE, probe.offset.z));
+  line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
@@ -258,6 +275,14 @@ void home_delta() {
   LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
 
   sync_plan_position();
+
+  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_POST_MM)
+    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
+    if (endstop_backoff.z) {
+      current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
+      line_to_current_position(homing_feedrate(Z_AXIS));
+    }
+  #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }

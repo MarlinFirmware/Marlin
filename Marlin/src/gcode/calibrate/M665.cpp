@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -37,7 +37,6 @@
    *    L = diagonal rod
    *    R = delta radius
    *    S = segments per second
-   *    B = delta calibration radius
    *    X = Alpha (Tower 1) angle trim
    *    Y = Beta (Tower 2) angle trim
    *    Z = Gamma (Tower 3) angle trim
@@ -47,7 +46,6 @@
     if (parser.seen('L')) delta_diagonal_rod        = parser.value_linear_units();
     if (parser.seen('R')) delta_radius              = parser.value_linear_units();
     if (parser.seen('S')) delta_segments_per_second = parser.value_float();
-    if (parser.seen('B')) delta_calibration_radius  = parser.value_float();
     if (parser.seen('X')) delta_tower_angle_trim.a  = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim.b  = parser.value_float();
     if (parser.seen('Z')) delta_tower_angle_trim.c  = parser.value_float();

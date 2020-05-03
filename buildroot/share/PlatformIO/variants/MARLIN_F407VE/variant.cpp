@@ -28,12 +28,13 @@
  *******************************************************************************
  */
 
-#include "variant.h"
+#include "pins_arduino.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#if defined(ARDUINO_BLACK_F407VE) || defined(ARDUINO_BLACK_F407VG)
 // Pin number
 // This array allows to wrap Arduino pin number(Dx or x)
 // to STM32 PinName (PX_n)
@@ -93,23 +94,98 @@ const PinName digitalPin[] = {
   PB_13,  PB_14,
   PB_4,
 };
+#endif // ARDUINO_BLACK_F407VE || ARDUINO_BLACK_F407VG
+
+#if defined(ARDUINO_BLACK_F407ZE) || defined(ARDUINO_BLACK_F407ZG)
+const PinName digitalPin[] = {
+  // Left Side
+  //Ext   //Int
+  //GND   //5V
+  //GND   //3V3
+  PB_12,  PB_13,
+  PB_14,  PB_15,
+  PD_8,   PD_9,
+  PD_10,  PD_11,
+  PD_12,  PD_13,
+  PD_14,  PD_15,
+  PG_2,   PG_3,
+  PG_4,   PG_5,
+  PG_6,   PG_7,
+  PG_8,   PC_6,
+  PC_7,   PC_8,
+  PC_9,   PA_8,
+  PA_9,   PA_10,
+  PA_11,  PA_12,   // PA_11: USB_DM, PA_12: USB_DP
+  PA_13,  PA_14,
+  PA_15,  PC_10,
+  PC_11,  PC_12,
+  PD_0,   PD_1,
+  PD_2,   PD_3,
+  PD_4,   PD_5,
+  PD_6,   PD_7,
+  PG_9,   PG_10,
+  PG_11,  PG_12,
+  PG_13,  PG_14,
+  PG_15,  PB_3,
+  PB_4,   PB_5,
+  PB_6,   PB_7,
+  PB_8,   PB_9,
+
+  // Right Side
+  //Int   //Ext
+  //3V3   //3V3
+  //BOOT1 //BOOT0
+  //GND   //GND
+  //VREF+ //GND
+  PB_10,  PB_11,
+  PE_14,  PE_15,
+  PE_12,  PE_13,
+  PE_10,  PE_11,
+  PE_8,   PE_9,
+  PG_1,   PE_7,
+  PF_15,  PG_0,
+  PF_13,  PF_14,
+  PF_11,  PF_12,
+  PB_2,   // PB1 PB2 Inverted to allow contiguous analog pins
+  PB_1,
+  PC_5,   PB_0,
+  PA_7,   PC_4,
+  PA_5,   PA_6,
+  PA_3,   PA_4,
+  PA_1,   PA_2,
+  PC_3,   PA_0,   // PA_0(WK_UP): BUT K_UP)
+  PC_1,   PC_2,
+  /*PF_10,*/PC_0,   // PF_10: Moved to allow contiguous analog pins
+  PF_8, /*PF_9,*/ // PF_9: Moved to allow contiguous analog pins
+  PF_6,   PF_7,
+  PF_10,  PF_9,   // PF_10: LED D2, PF_9: LED D1 (active low)
+  PF_4,   PF_5,
+  PF_2,   PF_3,
+  PF_0,   PF_1,
+  PE_6,   PC_13,
+  PE_4,   PE_5,   // PE_4: BUT K0, PE_5: BUT K1
+  PE_2,   PE_3,
+  PE_0,   PE_1,
+};
+#endif // ARDUINO_BLACK_F407ZE || ARDUINO_BLACK_F407ZG
 
 #ifdef __cplusplus
 }
 #endif
 
-// ------------------------
+// ----------------------------------------------------------------------------
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
- /**
+/**
   * @brief  System Clock Configuration
   * @param  None
   * @retval None
   */
-WEAK void SystemClock_Config() {
+WEAK void SystemClock_Config(void)
+{
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;

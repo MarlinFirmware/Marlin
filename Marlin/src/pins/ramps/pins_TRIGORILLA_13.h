@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,9 +28,12 @@
 #define BOARD_INFO_NAME "Anycubic RAMPS 1.3"
 
 #define IS_RAMPS_EFB
-#define RAMPS_D9_PIN         44
-#define FAN2_PIN              9
-#define ORIG_E0_AUTO_FAN_PIN  9
+#define RAMPS_D9_PIN                         44
+#define FAN2_PIN                              9
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     9
+#endif
 
 #include "pins_RAMPS_13.h"
 

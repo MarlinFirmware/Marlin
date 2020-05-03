@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,10 @@
  */
 #pragma once
 
+#if !defined(__has_include)
+  #define __has_include(...) 1
+#endif
+
 #define ABCE 4
 #define XYZE 4
 #define ABC  3
@@ -29,12 +33,23 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XMIN_ 100
-#define _YMIN_ 200
-#define _ZMIN_ 300
-#define _XMAX_ 101
-#define _YMAX_ 201
-#define _ZMAX_ 301
+#define _XMIN_   100
+#define _YMIN_   200
+#define _ZMIN_   300
+#define _XMAX_   101
+#define _YMAX_   201
+#define _ZMAX_   301
+#define _XDIAG_  102
+#define _YDIAG_  202
+#define _ZDIAG_  302
+#define _E0DIAG_ 400
+#define _E1DIAG_ 401
+#define _E2DIAG_ 402
+#define _E3DIAG_ 403
+#define _E4DIAG_ 404
+#define _E5DIAG_ 405
+#define _E6DIAG_ 406
+#define _E7DIAG_ 407
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
@@ -165,17 +180,26 @@
 
 // Macros to support option testing
 #define _CAT(a,V...) a##V
-#define SWITCH_ENABLED_false 0
-#define SWITCH_ENABLED_true  1
-#define SWITCH_ENABLED_0     0
-#define SWITCH_ENABLED_1     1
-#define SWITCH_ENABLED_0x0   0
-#define SWITCH_ENABLED_0x1   1
-#define SWITCH_ENABLED_      1
-#define _ENA_1(O)           _CAT(SWITCH_ENABLED_, O)
-#define _DIS_1(O)           !_ENA_1(O)
+#define CAT(a,V...) _CAT(a,V)
+
+#define _ISENA_     ~,1
+#define _ISENA_1    ~,1
+#define _ISENA_0x1  ~,1
+#define _ISENA_true ~,1
+#define _ISENA(V...)        IS_PROBE(V)
+
+#define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
+#define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)
@@ -184,12 +208,14 @@
 #define EITHER(V1,V2)       ANY(V1,V2)
 
 // Macros to support pins/buttons exist testing
-#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
-#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
+#define _PINEX_1            PIN_EXISTS
+#define PINS_EXIST(V...)    DO(PINEX,&&,V)
 #define ANY_PIN(V...)       DO(PINEX,||,V)
 
-#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
-#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define BUTTON_EXISTS(BN)   (defined(BTN_##BN) && BTN_##BN >= 0)
+#define _BTNEX_1            BUTTON_EXISTS
+#define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
@@ -229,31 +255,10 @@
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
-// Macros for adding
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
-#define INCREMENT_(n) INC_##n
-#define INCREMENT(n) INCREMENT_(n)
-
-// Macros for subtracting
-#define DEC_1 0
-#define DEC_2 1
-#define DEC_3 2
-#define DEC_4 3
-#define DEC_5 4
-#define DEC_6 5
-#define DEC_7 6
-#define DEC_8 7
-#define DEC_9 8
-#define DECREMENT_(n) DEC_##n
-#define DECREMENT(n) DECREMENT_(n)
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
 
 #define NOOP (void(0))
 
@@ -276,21 +281,16 @@
 //
 // Maths macros that can be overridden by HAL
 //
+#define ACOS(x)     acosf(x)
 #define ATAN2(y, x) atan2f(y, x)
 #define POW(x, y)   powf(x, y)
 #define SQRT(x)     sqrtf(x)
-#define RSQRT(x)    (1 / sqrtf(x))
+#define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#ifdef TARGET_LPC1768
-  #define I2C_ADDRESS(A) ((A) << 1)
-#else
-  #define I2C_ADDRESS(A) A
-#endif
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
@@ -346,3 +346,146 @@
   #define _MAX(V...)      _MAX_N(NUM_ARGS(V), V)
 
 #endif
+
+// Macros for adding
+#define INC_0 1
+#define INC_1 2
+#define INC_2 3
+#define INC_3 4
+#define INC_4 5
+#define INC_5 6
+#define INC_6 7
+#define INC_7 8
+#define INC_8 9
+#define INCREMENT_(n) INC_##n
+#define INCREMENT(n) INCREMENT_(n)
+
+#define ADD0(N)  N
+#define ADD1(N)  INCREMENT_(N)
+#define ADD2(N)  ADD1(ADD1(N))
+#define ADD3(N)  ADD1(ADD2(N))
+#define ADD4(N)  ADD2(ADD2(N))
+#define ADD5(N)  ADD2(ADD3(N))
+#define ADD6(N)  ADD3(ADD3(N))
+#define ADD7(N)  ADD3(ADD4(N))
+#define ADD8(N)  ADD4(ADD4(N))
+#define ADD9(N)  ADD4(ADD5(N))
+#define ADD10(N) ADD5(ADD5(N))
+
+// Macros for subtracting
+#define DEC_0 0
+#define DEC_1 0
+#define DEC_2 1
+#define DEC_3 2
+#define DEC_4 3
+#define DEC_5 4
+#define DEC_6 5
+#define DEC_7 6
+#define DEC_8 7
+#define DEC_9 8
+#define DECREMENT_(n) DEC_##n
+#define DECREMENT(n) DECREMENT_(n)
+
+#define SUB0(N)  N
+#define SUB1(N)  DECREMENT_(N)
+#define SUB2(N)  SUB1(SUB1(N))
+#define SUB3(N)  SUB1(SUB2(N))
+#define SUB4(N)  SUB2(SUB2(N))
+#define SUB5(N)  SUB2(SUB3(N))
+#define SUB6(N)  SUB3(SUB3(N))
+#define SUB7(N)  SUB3(SUB4(N))
+#define SUB8(N)  SUB4(SUB4(N))
+#define SUB9(N)  SUB4(SUB5(N))
+#define SUB10(N) SUB5(SUB5(N))
+
+//
+// Primitives supporting precompiler REPEAT
+//
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
+
+// Defer expansion
+#define EMPTY()
+#define DEFER(M)  M EMPTY()
+#define DEFER2(M) M EMPTY EMPTY()()
+#define DEFER3(M) M EMPTY EMPTY EMPTY()()()
+#define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
+
+// Force define expansion
+#define EVAL(V...)     EVAL16(V)
+#define EVAL1024(V...) EVAL512(EVAL512(V))
+#define EVAL512(V...)  EVAL256(EVAL256(V))
+#define EVAL256(V...)  EVAL128(EVAL128(V))
+#define EVAL128(V...)  EVAL64(EVAL64(V))
+#define EVAL64(V...)   EVAL32(EVAL32(V))
+#define EVAL32(V...)   EVAL16(EVAL16(V))
+#define EVAL16(V...)   EVAL8(EVAL8(V))
+#define EVAL8(V...)    EVAL4(EVAL4(V))
+#define EVAL4(V...)    EVAL2(EVAL2(V))
+#define EVAL2(V...)    EVAL1(EVAL1(V))
+#define EVAL1(V...)    V
+
+#define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
+#define PROBE() ~, 1                    // Second item will be 1 if this is passed
+#define _NOT_0 PROBE()
+#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
+#define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+
+#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
+#define _IF_ELSE(TF) _CAT(_IF_, TF)
+
+#define _IF_1(V...) V _IF_1_ELSE
+#define _IF_0(...)    _IF_0_ELSE
+
+#define _IF_1_ELSE(...)
+#define _IF_0_ELSE(V...) V
+
+#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
+#define _END_OF_ARGUMENTS_() 0
+
+//
+// REPEAT core macros. Recurse N times with ascending I.
+//
+
+// Call OP(I) N times with ascending counter.
+#define _REPEAT(_RPT_I,_RPT_N,_RPT_OP)                        \
+  _RPT_OP(_RPT_I)                                             \
+  IF_ELSE(SUB1(_RPT_N))                                       \
+    ( DEFER2(__REPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
+    ( /* Do nothing */ )
+#define __REPEAT() _REPEAT
+
+// Call OP(I, ...) N times with ascending counter.
+#define _REPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                              \
+  IF_ELSE(SUB1(_RPT_N))                                          \
+    ( DEFER2(__REPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __REPEAT2() _REPEAT2
+
+// Repeat a macro passing S...N-1.
+#define REPEAT_S(S,N,OP)        EVAL(_REPEAT(S,SUB##S(N),OP))
+#define REPEAT(N,OP)            REPEAT_S(0,N,OP)
+
+// Repeat a macro passing 0...N-1 plus additional arguments.
+#define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
+#define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)
+
+// Use RREPEAT macros with REPEAT macros for nesting
+#define _RREPEAT(_RPT_I,_RPT_N,_RPT_OP)                           \
+  _RPT_OP(_RPT_I)                                                 \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) )    \
+    ( /* Do nothing */ )
+#define __RREPEAT() _RREPEAT
+#define _RREPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                               \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __RREPEAT2() _RREPEAT2
+#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
+#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)

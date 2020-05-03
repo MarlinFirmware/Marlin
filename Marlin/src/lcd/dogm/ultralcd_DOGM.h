@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -82,7 +82,7 @@
 
   // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
 
-  #define SMART_RAMPS (MB(RAMPS_SMART_EFB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_SMART_EFF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_SMART_SF))
+  #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
   #if SMART_RAMPS || DOGLCD_SCK != SCK_PIN || DOGLCD_MOSI != MOSI_PIN
     #define FORCE_SOFT_SPI                                      // SW-SPI
@@ -147,7 +147,7 @@
 
   #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
 
-#elif ENABLED(MKS_MINI_12864)
+#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
   // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
   // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with
@@ -194,13 +194,6 @@
   #else
     #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                      // HW-SPI
   #endif
-#endif
-
-#ifndef LCD_PIXEL_WIDTH
-  #define LCD_PIXEL_WIDTH 128
-#endif
-#ifndef LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_HEIGHT 64
 #endif
 
 // LCD_FULL_PIXEL_WIDTH =

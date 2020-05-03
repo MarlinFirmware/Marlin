@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,6 +36,8 @@
   #define THERMISTOR_NAME "User Parameters"
 
 // Thermcouples
+#elif THERMISTOR_ID == -5
+  #define THERMISTOR_NAME "MAX31865"
 #elif THERMISTOR_ID == -4
   #define THERMISTOR_NAME "AD8495"
 #elif THERMISTOR_ID == -3
@@ -83,7 +85,9 @@
 #elif THERMISTOR_ID == 18
   #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
-  #define THERMISTOR_NAME "Pt100 UltiMB"
+  #define THERMISTOR_NAME "Pt100 UltiMB 5v"
+#elif THERMISTOR_ID == 21
+  #define THERMISTOR_NAME "Pt100 UltiMB 3.3v"
 #elif THERMISTOR_ID == 201
   #define THERMISTOR_NAME "Pt100 OverLord"
 #elif THERMISTOR_ID == 60

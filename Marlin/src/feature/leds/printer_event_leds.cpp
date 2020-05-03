@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -47,10 +47,10 @@ PrinterEventLEDs printerEventLEDs;
   inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
     leds.set_color(
       MakeLEDColor(r, g, b, 0, neo.brightness())
-        #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-          , true
-        #endif
-      );
+      #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+        , true
+      #endif
+    );
   }
 
 #endif

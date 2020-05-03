@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -79,20 +79,7 @@ void GcodeSuite::M164() {
     // Get mixing parameters from the GCode
     // The total "must" be 1.0 (but it will be normalized)
     // If no mix factors are given, the old mix is preserved
-    const char mixing_codes[] = { 'A', 'B'
-      #if MIXING_STEPPERS > 2
-        , 'C'
-        #if MIXING_STEPPERS > 3
-          , 'D'
-          #if MIXING_STEPPERS > 4
-            , 'H'
-            #if MIXING_STEPPERS > 5
-              , 'I'
-            #endif // MIXING_STEPPERS > 5
-          #endif // MIXING_STEPPERS > 4
-        #endif // MIXING_STEPPERS > 3
-      #endif // MIXING_STEPPERS > 2
-    };
+    const char mixing_codes[] = { LIST_N(MIXING_STEPPERS, 'A', 'B', 'C', 'D', 'H', 'I') };
     uint8_t mix_bits = 0;
     MIXER_STEPPER_LOOP(i) {
       if (parser.seenval(mixing_codes[i])) {

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,20 +25,20 @@
 
 void report_M92(const bool echo=true, const int8_t e=-1) {
   if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-  SERIAL_ECHOPAIR(" M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
-                  " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
-                  " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+  SERIAL_ECHOPAIR_P(PSTR(" M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
+                          SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
+                          SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
   #if DISABLED(DISTINCT_E_FACTORS)
-    SERIAL_ECHOPAIR(" E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+    SERIAL_ECHOPAIR_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
   SERIAL_EOL();
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+    LOOP_L_N(i, E_STEPPERS) {
       if (e >= 0 && i != e) continue;
       if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-      SERIAL_ECHOLNPAIR(" M92 T", (int)i,
-                        " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
+      SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), (int)i,
+                        SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
     }
   #endif
 
@@ -76,7 +76,7 @@ void GcodeSuite::M92() {
         const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS_N(target_extruder)));
         if (value < 20) {
           float factor = planner.settings.axis_steps_per_mm[E_AXIS_N(target_extruder)] / value; // increase e constants if M92 E14 is given for netfab.
-          #if HAS_CLASSIC_E_JERK
+          #if HAS_CLASSIC_JERK && HAS_CLASSIC_E_JERK
             planner.max_jerk.e *= factor;
           #endif
           planner.settings.max_feedrate_mm_s[E_AXIS_N(target_extruder)] *= factor;

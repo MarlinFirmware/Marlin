@@ -7,9 +7,7 @@ platform = env.PioPlatform()
 board = env.BoardConfig()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoststm32")
-CMSIS_DIR = os.path.join(FRAMEWORK_DIR, "CMSIS", "CMSIS")
 assert os.path.isdir(FRAMEWORK_DIR)
-assert os.path.isdir(CMSIS_DIR)
 assert os.path.isdir("buildroot/share/PlatformIO/variants")
 
 mcu_type = board.get("build.mcu")[:-2]

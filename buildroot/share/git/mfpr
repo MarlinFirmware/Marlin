@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# mfpr [1|2]
+# mfpr [1|2|3]
 #
 # Make a PR against bugfix-1.1.x or bugfix-2.0.x
 #
 
-[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` [1|2|3] [branch]" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -23,9 +23,7 @@ OLDBRANCH=${INFO[5]}
 # See if it's been pushed yet
 if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
 
-which xdg-open >/dev/null && TOOL=xdg-open
-which gnome-open >/dev/null && TOOL=gnome-open
-which open >/dev/null && TOOL=open
+OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
 URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
 
 if [ -z "$OPEN" ]; then
