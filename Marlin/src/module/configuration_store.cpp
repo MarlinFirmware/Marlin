@@ -89,6 +89,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(POWER_MONITOR)
+  #include "../feature/power_monitor.h"
+#endif
+
 #include "../feature/pause.h"
 
 #if ENABLED(BACKLASH_COMPENSATION)
@@ -295,6 +299,11 @@ typedef struct SettingsDataStruct {
   #if HAS_USER_THERMISTORS
     user_thermistor_t user_thermistor[USER_THERMISTORS]; // M305 P0 R4700 T100000 B3950
   #endif
+
+  //
+  // Power monitor
+  //
+  uint8_t power_monitor_flags;                          // M430 I V W
 
   //
   // HAS_LCD_CONTRAST
@@ -870,6 +879,19 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(thermalManager.user_thermistor);
     }
     #endif
+
+    //
+    // Power monitor
+    //
+    {
+      #if HAS_POWER_MONITOR
+        const uint8_t &power_monitor_flags = power_monitor.flags;
+      #else
+        constexpr uint8_t power_monitor_flags = 0x00;
+      #endif
+      _FIELD_TEST(power_monitor_flags);
+      EEPROM_WRITE(power_monitor_flags);
+    }
 
     //
     // LCD Contrast
@@ -1726,6 +1748,19 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Power monitor
+      //
+      {
+        #if HAS_POWER_MONITOR
+          uint8_t &power_monitor_flags = power_monitor.flags;
+        #else
+          uint8_t power_monitor_flags;
+        #endif
+        _FIELD_TEST(power_monitor_flags);
+        EEPROM_READ(power_monitor_flags);
+      }
+
+      //
       // LCD Contrast
       //
       {
@@ -2577,6 +2612,11 @@ void MarlinSettings::reset() {
   // User-Defined Thermistors
   //
   TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
+
+  //
+  // Power Monitor
+  //
+  TERN_(POWER_MONITOR, power_monitor.reset());
 
   //
   // LCD Contrast

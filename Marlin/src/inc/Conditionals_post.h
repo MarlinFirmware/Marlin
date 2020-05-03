@@ -30,6 +30,13 @@
   // Extras for CI testing
 #endif
 
+// ADC
+#ifdef BOARD_ADC_VREF
+  #define ADC_VREF BOARD_ADC_VREF
+#else
+  #define ADC_VREF HAL_ADC_VREF
+#endif
+
 // Linear advance uses Jerk since E is an isolated axis
 #if BOTH(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1

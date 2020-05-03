@@ -148,6 +148,14 @@ enum ADCSensorState : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     Prepare_FILWIDTH, Measure_FILWIDTH,
   #endif
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    Prepare_POWER_MONITOR_CURRENT,
+    Measure_POWER_MONITOR_CURRENT,
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    Prepare_POWER_MONITOR_VOLTAGE,
+    Measure_POWER_MONITOR_VOLTAGE,
+  #endif
   #if HAS_ADC_BUTTONS
     Prepare_ADC_KEY, Measure_ADC_KEY,
   #endif
