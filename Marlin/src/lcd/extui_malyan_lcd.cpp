@@ -481,16 +481,16 @@ namespace ExtUI {
       //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          write_to_lcd_P(PSTR(MSG_PID_BAD_EXTRUDER_NUM));
+          write_to_lcd_P(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
-          write_to_lcd_P(PSTR(MSG_PID_TEMP_TOO_HIGH));
+          write_to_lcd_P(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          write_to_lcd_P(PSTR(MSG_PID_TIMEOUT));
+          write_to_lcd_P(GET_TEXT(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          write_to_lcd_P(PSTR(MSG_PID_AUTOTUNE_FINISHED));
+          write_to_lcd_P(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
       }
     }
