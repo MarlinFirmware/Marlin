@@ -1292,7 +1292,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
-
   }
 
 #endif // TOOLCHANGE_MIGRATION_FEATURE
