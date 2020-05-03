@@ -52,6 +52,8 @@ jobs:
         - jgaurora_a5s_a1
         - STM32F103VE_longer
         - STM32F407VE_black
+        - STM32F401VE_STEVAL
+        - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
         - mks_robin
@@ -59,6 +61,9 @@ jobs:
         - FYSETC_S6
         - malyan_M300
         - mks_robin_lite
+        - FLY407ZG
+        - rumba32_f446ve
+        - rumba32_mks
 
         # Put lengthy tests last
 
@@ -71,8 +76,6 @@ jobs:
         #- STM32F7
 
         # Non-working environment tests
-
-        #- BIGTREE_BTT002
         #- at90usb1286_cdc
         #- at90usb1286_dfu
         #- STM32F103CB_malyan
