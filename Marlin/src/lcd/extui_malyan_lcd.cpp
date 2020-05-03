@@ -378,12 +378,12 @@ void parse_lcd_byte(const byte b) {
       || (!is_lcd && c == '\n')                 // LF on a G-code command
     ) {
       inbound_buffer[inbound_count] = '\0';     // Reset before processing
-      parsing = 0;                              // Unflag and...
       inbound_count = 0;                        // Reset buffer index
       if (parsing == 1)
         process_lcd_command(inbound_buffer);    // Handle the LCD command
       else
         queue.enqueue_one_now(inbound_buffer);  // Handle the G-code command
+      parsing = 0;                              // Unflag and...
     }
     else if (inbound_count < MAX_CURLY_COMMAND - 2)
       inbound_buffer[inbound_count++] = is_lcd ? c : b; // Buffer while space remains
