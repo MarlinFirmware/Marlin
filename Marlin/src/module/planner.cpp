@@ -2358,7 +2358,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                 4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
                 26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
 
-              const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(int16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+              const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
               float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
               if (neg < 0) junction_theta = RADIANS(180) - junction_theta;
