@@ -340,6 +340,15 @@
   #endif
 #endif
 
+/**
+ * Invert KILL_PIN switch+
+ * Default is when KILL_PIN is set to LOW, Marlin will turn off. Invert this behaviour here
+ */
+
+//#define KILL_SWITCH_INVERTING
+
+
+
 // @section temperature
 
 //===========================================================================

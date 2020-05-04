@@ -384,6 +384,12 @@ bool printingIsActive() {
   return !did_pause_print && (print_job_timer.isRunning() || IS_SD_PRINTING());
 }
 
+bool readKill() {
+    if (ENABLED(KILL_SWITCH_INVERTING))
+        return READ(KILL_PIN);
+    return !READ(KILL_PIN);
+}
+
 /**
  * Printing is paused according to SD or host indicators
  */
@@ -505,7 +511,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // -------------------------------------------------------------------------------
     static int killCount = 0;   // make the inactivity button a bit less responsive
     const int KILL_DELAY = 750;
-    if (!READ(KILL_PIN))
+    if (!readKill())
       killCount++;
     else if (killCount > 0)
       killCount--;
@@ -819,10 +825,10 @@ void minkill(const bool steppers_off/*=false*/) {
   #if HAS_KILL
 
     // Wait for kill to be released
-    while (!READ(KILL_PIN)) watchdog_refresh();
+    while (!readKill()) watchdog_refresh();
 
     // Wait for kill to be pressed
-    while (READ(KILL_PIN)) watchdog_refresh();
+    while (readKill()) watchdog_refresh();
 
     void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
