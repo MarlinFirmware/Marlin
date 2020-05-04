@@ -517,7 +517,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // -------------------------------------------------------------------------------
     static int killCount = 0;   // make the inactivity button a bit less responsive
     const int KILL_DELAY = 750;
-    if (!readKillPin())
+    if (readKillPin())
       killCount++;
     else if (killCount > 0)
       killCount--;
