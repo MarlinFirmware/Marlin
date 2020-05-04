@@ -185,7 +185,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       #if EXTRUDERS > 1
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
-        if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder];
+        if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
       #endif
     #endif
 
@@ -331,7 +331,7 @@ void PrintJobRecovery::resume() {
       }
     #else
       if (info.volumetric_enabled) {
-        dtostrf(info.filament_size, 1, 3, str_1);
+        dtostrf(info.filament_size[0], 1, 3, str_1);
         sprintf_P(cmd, PSTR("M200 D%s"), str_1);
         gcode.process_subcommands_now(cmd);
       }
