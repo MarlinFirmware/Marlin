@@ -1,7 +1,7 @@
 {
   "build": {
     "cpu": "cortex-m0",
-    "extra_flags": "-DSTM32F070xB",
+    "extra_flags": "-DNO_UNUSED -DSTM32F070xB",
     "f_cpu": "48000000L",
     "mcu": "stm32f070rbt6",
     "variant": "MALYANM200_F070CB",
