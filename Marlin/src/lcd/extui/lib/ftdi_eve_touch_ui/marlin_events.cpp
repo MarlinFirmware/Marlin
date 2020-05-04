@@ -153,16 +153,16 @@ namespace ExtUI {
       //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
-          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
           break;
       }
       GOTO_SCREEN(StatusScreen);
