@@ -2304,7 +2304,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec),
                     sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
 
-        vmax_junction_sqr = JUNC_SQ(junction_acceleration, sin_theta_d2);
+        vmax_junction_sqr = junction_acceleration * junction_deviation_mm * sin_theta_d2 / (1.0f - sin_theta_d2);
 
         if (block->millimeters < 1) {
           const float neg = junction_cos_theta < 0 ? -1 : 1,
@@ -2340,8 +2340,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                *  for (float t = 0; t <= 1; t += 0.0003f) {
                *    const float e = acos(t) / approx(t);
                *    if (isfinite(e)) {
-               *      NOMORE(min, e);
-               *      NOLESS(max, e);
+               *      if (e < min) min = e;
+               *      if (e > max) max = e;
                *    }
                *  }
                *  fprintf(stderr, "%.9gf, ", (min + max) / 2);

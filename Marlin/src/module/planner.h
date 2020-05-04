@@ -838,11 +838,9 @@ class Planner {
       static void autotemp_update();
     #endif
 
-    #define JUNC_SQ(N,ST) (junction_deviation_mm * (N) * (ST) / (1.0f - (ST)))
-
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
-        #define GET_MAX_E_JERK(N) SQRT(JUNC_SQ(N,SQRT(0.5)))
+        #define GET_MAX_E_JERK(N) SQRT(junction_deviation_mm * (N) * SQRT(0.5) / (1.0f - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
           LOOP_L_N(i, EXTRUDERS)
             max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
