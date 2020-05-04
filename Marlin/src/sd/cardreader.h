@@ -23,6 +23,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define IFSD(A,B) TERN(SDSUPPORT,A,B)
+
 #if ENABLED(SDSUPPORT)
 
 #if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
@@ -30,7 +32,6 @@
 #endif
 
 #define SD_ORDER(N,C) (TERN(SDCARD_RATHERRECENTFIRST, C - 1 - (N), N))
-#define IFSD(A,B) TERN(SDSUPPORT,A,B)
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size

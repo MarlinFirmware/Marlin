@@ -54,6 +54,7 @@
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../HAL/shared/Delay.h"
+#include "../../sd/cardreader.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
@@ -66,10 +67,6 @@
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../feature/e_parser.h"
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #include "../../sd/cardreader.h"
 #endif
 
 #if HAS_TRINAMIC_CONFIG
