@@ -97,6 +97,18 @@ void write_to_lcd(const char * const message) {
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
 
+// {E:<msg>} is for error states.
+void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr) {
+  write_to_lcd_P(PSTR("{E:"));
+  write_to_lcd_P(error);
+  if (component) {
+    write_to_lcd_P(PSTR(" "));
+    write_to_lcd_P(component);
+  }
+  write_to_lcd_P(PSTR("}"));
+}
+
+
 /**
  * Process an LCD 'C' command.
  * These are currently all temperature commands
@@ -465,13 +477,8 @@ namespace ExtUI {
     #endif
   }
 
-  // {E:<msg>} is for error states.
-  void onPrinterKilled(PGM_P error, PGM_P component) {
-    write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd_P(error);
-    write_to_lcd_P(PSTR(" "));
-    write_to_lcd_P(component);
-    write_to_lcd_P("}");
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {
+    set_lcd_error_P(error, component);
   }
 
   #if HAS_PID_HEATING
@@ -481,16 +488,16 @@ namespace ExtUI {
       //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          write_to_lcd_P(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+          set_lcd_error_P(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
-          write_to_lcd_P(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+          set_lcd_error_P(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          write_to_lcd_P(GET_TEXT(MSG_PID_TIMEOUT));
+          set_lcd_error_P(GET_TEXT(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          write_to_lcd_P(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+          set_lcd_error_P(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
       }
     }
@@ -522,10 +529,6 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {}
-  #endif
-
-  #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {}
   #endif
 }
 
