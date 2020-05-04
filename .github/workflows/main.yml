@@ -43,7 +43,8 @@ jobs:
         chmod +x buildroot/bin/*
         chmod +x buildroot/share/tests/*
         export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
-        run_tests . ${{ matrix.test-platform }}
+        run_tests ./ ${{ matrix.test-platform }}
+        mks_robin_lite-tests
 
     - name: upload
       uses: actions/upload-artifact@v2
