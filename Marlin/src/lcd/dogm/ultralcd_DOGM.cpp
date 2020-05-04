@@ -120,7 +120,8 @@ bool MarlinUI::detected() { return true; }
         #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
           (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame])
         #else
-          custom_start_bmp
+          custom_start_bmp;
+          UNUSED(frame)
         #endif
       ;
 
