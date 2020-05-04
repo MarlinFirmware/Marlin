@@ -1129,30 +1129,30 @@
     //#define BACKUP_POWER_SUPPLY
     #if ENABLED(BACKUP_POWER_SUPPLY)
       // Go to park, disable hotends, turn down bed temp, wait for UPS OFF or continue
-      //#define BACKUP_POWER_SUPPLY_PARK_WAITING
-      #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
-        #define BACKUP_POWER_SUPPLY_DELAY_BEFORE 30  // (ms) Delay before going to pause. Set according to UPS capacity and probability of repeated power-loss.
-        #define BACKUP_POWER_SUPPLY_BED_TEMP     50  // Reduced bed temperature during recovery.
+      //#define BACKUP_POWER_PARK_WAITING
+      #if ENABLED(BACKUP_POWER_PARK_WAITING)
+        #define BACKUP_POWER_DELAY_BEFORE    30 // (ms) Delay before going to pause. Set according to UPS capacity and probability of repeated power-loss.
+        #define BACKUP_POWER_BED_TEMP        50 // (°C) Reduced bed temperature during recovery
 
         //#define POWER_LOSS_USE_TOOLCHANGE_SWAP_PRIME // Use toolchange swap for priming and return
 
         // Retract
-        #define POWER_LOSS_RETRACT_L           10   // (mm) Length of filament to retract
-        #define POWER_LOSS_UNRETRACT_L         10   // (mm) Length of filament to recover
+        #define POWER_LOSS_RETRACT_L         10 // (mm) Length of filament to retract
+        #define POWER_LOSS_UNRETRACT_L       10 // (mm) Length of filament to recover
 
         // Park using POWER_LOSS_ZRAISE
         #define POWER_LOSS_PARK_X_ONLY
         #define POWER_LOSS_PARK_Y_ONLY
-        #define POWER_LOSS_PARK_POS    { 5, 5 }     // (mm) XY position to park the nozzle
+        #define POWER_LOSS_PARK_POS {  5,  5 }  // (mm) XY position to park the nozzle
 
         // Prime with POWER_LOSS_PURGE_LEN + travel back
-        #define POWER_LOSS_TRAVEL_RETRACT_L     3   // (mm) Length of filament to retract on back
+        #define POWER_LOSS_TRAVEL_RETRACT_L   3 // (mm) Length of filament to retract on back
 
         // Feedrates
-        #define POWER_LOSS_RETRACT_F           50   // (mm/s) Retract Feedrate
-        #define POWER_LOSS_UNRETRACT_F         25   // (mm/s) UnRetract Feedrate
-        #define POWER_LOSS_F                12000   // (mm/s) Move Feedrate
-        #define POWER_LOSS_PURGE_F            4.6   // (mm/s) Purge Feedrate
+        #define POWER_LOSS_RETRACT_F         50 // (mm/s) Retract Feedrate
+        #define POWER_LOSS_UNRETRACT_F       25 // (mm/s) UnRetract Feedrate
+        #define POWER_LOSS_F              12000 // (mm/s) Move Feedrate
+        #define POWER_LOSS_PURGE_F          4.6 // (mm/s) Purge Feedrate
       #endif
     #endif
 

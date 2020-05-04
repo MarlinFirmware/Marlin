@@ -225,11 +225,11 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 #if PIN_EXISTS(POWER_LOSS)
 
   void PrintJobRecovery::_outage() {
-    #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
+    #if ENABLED(BACKUP_POWER_PARK_WAITING)
       // Timer
       static millis_t power_loss_delay = 0;
       const millis_t ms = millis();
-      if (!power_loss_delay) power_loss_delay = ms + BACKUP_POWER_SUPPLY_DELAY_BEFORE;
+      if (!power_loss_delay) power_loss_delay = ms + BACKUP_POWER_DELAY_BEFORE;
       if (PENDING(ms, power_loss_delay)) return;
       power_loss_delay = 0;
     #endif
@@ -240,7 +240,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       lock = true;
     #endif
 
-    #if ENABLED(BACKUP_POWER_SUPPLY_PARK_WAITING)
+    #if ENABLED(BACKUP_POWER_PARK_WAITING)
       planner.synchronize();
 
       // Save
@@ -265,7 +265,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       // Heaters and fans in low-power mode
       #if HAS_HEATED_BED
         const uint16_t bed_old_temp = thermalManager.temp_bed.target;
-        thermalManager.temp_bed.target = BACKUP_POWER_SUPPLY_BED_TEMP;
+        thermalManager.temp_bed.target = BACKUP_POWER_BED_TEMP;
       #endif
 
       #if EXTRUDERS
