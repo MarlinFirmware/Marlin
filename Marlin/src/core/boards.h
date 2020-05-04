@@ -300,8 +300,8 @@
 #define BOARD_GTM32_MINI              4022  // STM32F103VET6 controller
 #define BOARD_GTM32_MINI_A30          4023  // STM32F103VET6 controller
 #define BOARD_GTM32_REV_B             4024  // STM32F103VET6 controller
-#define BOARD_MKS_ROBIN_E3D           4025  // MKS Robin E3D(STM32F103RCT6)
-#define BOARD_MKS_ROBIN_E3            4026  // MKS Robin E3(STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3D           4025  // MKS Robin E3D (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3            4026  // MKS Robin E3 (STM32F103RCT6)
 #define BOARD_MALYAN_M300             4027  // STM32F070-based delta
 
 //
