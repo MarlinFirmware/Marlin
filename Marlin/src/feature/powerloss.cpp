@@ -225,15 +225,6 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 #if PIN_EXISTS(POWER_LOSS)
 
   void PrintJobRecovery::_outage() {
-    #if ENABLED(BACKUP_POWER_PARK_WAITING)
-      // Timer
-      static millis_t power_loss_delay = 0;
-      const millis_t ms = millis();
-      if (!power_loss_delay) power_loss_delay = ms + BACKUP_POWER_DELAY_BEFORE;
-      if (PENDING(ms, power_loss_delay)) return;
-      power_loss_delay = 0;
-    #endif
-
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
       if (lock) return; // No re-entrance during raise or park

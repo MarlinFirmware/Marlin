@@ -159,8 +159,21 @@ class PrintJobRecovery {
 
   #if PIN_EXISTS(POWER_LOSS)
     static inline void outage() {
-      if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
-        _outage();
+      if (enabled) {
+        bool isout = (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE);
+        #if ENABLED(BACKUP_POWER_PARK_WAITING)
+          // Power must be out for a period of time before assuming outage
+          static millis_t outage_ms = 0;
+          if (isout) {
+            const millis_t ms = millis();
+            if (!outage_ms) outage_ms = ms + BACKUP_POWER_DELAY_BEFORE;
+            if (ELAPSED(ms, outage_ms)) outage_ms = 0; else isout = false;
+          }
+          else
+            outage_ms = 0;
+        #endif
+        if (isout) _outage();
+      }
     }
   #endif
 
