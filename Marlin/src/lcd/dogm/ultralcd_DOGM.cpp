@@ -123,7 +123,7 @@ bool MarlinUI::detected() { return true; }
           custom_start_bmp
         #endif
       ;
-      TERN_(CUSTOM_BOOTSCREEN_ANIMATED,,UNUSED(frame));
+      TERN(CUSTOM_BOOTSCREEN_ANIMATED,,UNUSED(frame));
 
       u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
