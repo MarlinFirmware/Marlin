@@ -50,8 +50,8 @@ jobs:
         export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
         run_tests . ${{ matrix.test-platform }}
 
-    - name: Push firmware to Releases
-      uses: ncipollo/release-action@v1
+    - name: upload
+      uses: actions/upload-artifact@v2
       with:
-        artifacts: ".pioenvs/mks_robin_lite/*.bin"
-        token: ${{ secrets.GITHUB_TOKEN }}
+          name: firmware
+          path: .pioenvs/mks_robin_lite/
