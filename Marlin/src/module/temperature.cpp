@@ -2959,6 +2959,11 @@ void Temperature::tick() {
         , const bool click_to_cancel/*=false*/
       #endif
     ) {
+
+      #if ENABLED(AUTOTEMP)
+        REMEMBER(1, planner.autotemp_enabled, false);
+      #endif
+
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         bool first_loop = true;

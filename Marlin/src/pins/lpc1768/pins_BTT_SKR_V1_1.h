@@ -26,7 +26,6 @@
 //
 // Limit Switches
 //
-
 #define X_MIN_PIN                          P1_29
 #define X_MAX_PIN                          P1_28
 #define Y_MIN_PIN                          P1_27
