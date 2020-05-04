@@ -49,3 +49,9 @@ jobs:
         chmod +x buildroot/share/tests/*
         export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
         run_tests . ${{ matrix.test-platform }}
+
+    - name: upload
+      uses: actions/upload-artifact@v2
+      with:
+          name: firmware
+          path: .pioenvs/mks_robin_lite/
