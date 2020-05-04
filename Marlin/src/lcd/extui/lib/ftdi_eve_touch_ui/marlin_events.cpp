@@ -150,19 +150,19 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          StatusScreen::setStatusMessage(STR_PID_BAD_EXTRUDER_NUM);
+          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
-          StatusScreen::setStatusMessage(STR_PID_TEMP_TOO_HIGH);
+          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          StatusScreen::setStatusMessage(STR_PID_TIMEOUT);
+          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          StatusScreen::setStatusMessage(STR_PID_AUTOTUNE_FINISHED);
+          StatusScreen::setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
       }
       GOTO_SCREEN(StatusScreen);
