@@ -112,7 +112,7 @@ extern millis_t max_inactive_time, stepper_inactive_time;
   #endif
 #endif
 
-bool readKill();
+bool readKillPin();
 
 bool pin_is_protected(const pin_t pin);
 void protected_pin_err();
