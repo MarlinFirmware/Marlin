@@ -120,10 +120,10 @@ bool MarlinUI::detected() { return true; }
         #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
           (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame])
         #else
-          custom_start_bmp;
-          UNUSED(frame)
+          custom_start_bmp
         #endif
       ;
+      TERN_(CUSTOM_BOOTSCREEN_ANIMATED,,UNUSED(frame));
 
       u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
