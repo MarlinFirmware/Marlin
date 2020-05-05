@@ -277,31 +277,32 @@
 
 #define BOARD_STM32F103RE             4000  // STM32F103RE Libmaple-based STM32F1 controller
 #define BOARD_MALYAN_M200             4001  // STM32C8T6  Libmaple-based STM32F1 controller
-#define BOARD_STM3R_MINI              4002  // STM32F103RE Libmaple-based STM32F1 controller
-#define BOARD_GTM32_PRO_VB            4003  // STM32F103VET6 controller
-#define BOARD_MORPHEUS                4004  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
-#define BOARD_CHITU3D                 4005  // Chitu3D (STM32F103RET6)
-#define BOARD_MKS_ROBIN               4006  // MKS Robin (STM32F103ZET6)
-#define BOARD_MKS_ROBIN_MINI          4007  // MKS Robin Mini (STM32F103VET6)
-#define BOARD_MKS_ROBIN_NANO          4008  // MKS Robin Nano (STM32F103VET6)
-#define BOARD_MKS_ROBIN_LITE          4009  // MKS Robin Lite/Lite2 (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_LITE3         4010  // MKS Robin Lite3 (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_PRO           4011  // MKS Robin Pro (STM32F103ZET6)
-#define BOARD_BTT_SKR_MINI_V1_1       4012  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_0    4013  // BigTreeTech SKR Mini E3 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_2    4014  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
-#define BOARD_BTT_SKR_E3_DIP          4015  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
-#define BOARD_JGAURORA_A5S_A1         4016  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4017  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4018  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4019  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4020  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_GTM32_MINI              4021  // STM32F103VET6 controller
-#define BOARD_GTM32_MINI_A30          4022  // STM32F103VET6 controller
-#define BOARD_GTM32_REV_B             4023  // STM32F103VET6 controller
-#define BOARD_MKS_ROBIN_E3D           4024  // MKS Robin E3D(STM32F103RCT6)
-#define BOARD_MKS_ROBIN_E3            4025  // MKS Robin E3(STM32F103RCT6)
-#define BOARD_MALYAN_M300             4026  // STM32F070-based delta
+#define BOARD_MALYAN_M200_V2          4002  // STM32F070RB  Libmaple-based STM32F0 controller
+#define BOARD_STM3R_MINI              4003  // STM32F103RE  Libmaple-based STM32F1 controller
+#define BOARD_GTM32_PRO_VB            4004  // STM32F103VET6 controller
+#define BOARD_MORPHEUS                4005  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
+#define BOARD_CHITU3D                 4006  // Chitu3D (STM32F103RET6)
+#define BOARD_MKS_ROBIN               4007  // MKS Robin (STM32F103ZET6)
+#define BOARD_MKS_ROBIN_MINI          4008  // MKS Robin Mini (STM32F103VET6)
+#define BOARD_MKS_ROBIN_NANO          4009  // MKS Robin Nano (STM32F103VET6)
+#define BOARD_MKS_ROBIN_LITE          4010  // MKS Robin Lite/Lite2 (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_LITE3         4011  // MKS Robin Lite3 (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_PRO           4012  // MKS Robin Pro (STM32F103ZET6)
+#define BOARD_BTT_SKR_MINI_V1_1       4013  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_0    4014  // BigTreeTech SKR Mini E3 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_2    4015  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
+#define BOARD_BTT_SKR_E3_DIP          4016  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
+#define BOARD_JGAURORA_A5S_A1         4017  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4018  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4019  // FYSETC Cheetah
+#define BOARD_FYSETC_CHEETAH_V12      4020  // FYSETC Cheetah V1.2
+#define BOARD_LONGER3D_LK             4021  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_GTM32_MINI              4022  // STM32F103VET6 controller
+#define BOARD_GTM32_MINI_A30          4023  // STM32F103VET6 controller
+#define BOARD_GTM32_REV_B             4024  // STM32F103VET6 controller
+#define BOARD_MKS_ROBIN_E3D           4025  // MKS Robin E3D (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3            4026  // MKS Robin E3 (STM32F103RCT6)
+#define BOARD_MALYAN_M300             4027  // STM32F070-based delta
 
 //
 // ARM Cortex-M4F

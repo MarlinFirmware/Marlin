@@ -245,7 +245,11 @@ millis_t max_inactive_time, // = 0
 
 void setup_killpin() {
   #if HAS_KILL
-    SET_INPUT_PULLUP(KILL_PIN);
+    #if KILL_PIN_STATE
+      SET_INPUT_PULLDOWN(KILL_PIN);
+    #else
+      SET_INPUT_PULLUP(KILL_PIN);
+    #endif
   #endif
 }
 
@@ -496,7 +500,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // -------------------------------------------------------------------------------
     static int killCount = 0;   // make the inactivity button a bit less responsive
     const int KILL_DELAY = 750;
-    if (!READ(KILL_PIN))
+    if (kill_state())
       killCount++;
     else if (killCount > 0)
       killCount--;
@@ -770,10 +774,10 @@ void minkill(const bool steppers_off/*=false*/) {
   #if HAS_KILL
 
     // Wait for kill to be released
-    while (!READ(KILL_PIN)) watchdog_refresh();
+    while (kill_state()) watchdog_refresh();
 
     // Wait for kill to be pressed
-    while (READ(KILL_PIN)) watchdog_refresh();
+    while (!kill_state()) watchdog_refresh();
 
     void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0

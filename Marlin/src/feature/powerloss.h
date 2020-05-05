@@ -61,11 +61,7 @@ typedef struct {
 
   #if DISABLED(NO_VOLUMETRICS)
     bool volumetric_enabled;
-    #if EXTRUDERS > 1
-      float filament_size[EXTRUDERS];
-    #else
-      float filament_size;
-    #endif
+    float filament_size[EXTRUDERS];
   #endif
 
   #if HAS_HOTEND

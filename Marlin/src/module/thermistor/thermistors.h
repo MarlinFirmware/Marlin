@@ -110,7 +110,7 @@
   #include "thermistor_21.h"
 #endif
 #if ANY_THERMISTOR_IS(22) // Thermistor in a Rostock 301 hot end, calibrated with a multimeter
-  #include "thermistor_22.h"  
+  #include "thermistor_22.h"
 #endif
 #if ANY_THERMISTOR_IS(23) // By AluOne #12622. Formerly 22 above. May need calibration/checking.
   #include "thermistor_23.h"
