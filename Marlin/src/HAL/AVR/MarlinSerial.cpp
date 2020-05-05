@@ -43,6 +43,10 @@
   #include "MarlinSerial.h"
   #include "../../MarlinCore.h"
 
+  #if ENABLED(DIRECT_STEPPING)
+    #include "../../feature/direct_stepping.h"
+  #endif
+
   template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_r MarlinSerial<Cfg>::rx_buffer = { 0, 0, { 0 } };
   template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_t MarlinSerial<Cfg>::tx_buffer = { 0 };
   template<typename Cfg> bool     MarlinSerial<Cfg>::_written = false;
@@ -131,6 +135,12 @@
 
     static EmergencyParser::State emergency_state; // = EP_RESET
 
+    #if ENABLED(DIRECT_STEPPING)
+      // Read the character from the USART early for the page manager
+      uint8_t c = R_UDR;
+      if (page_manager.maybe_store_rxd_char(c)) return;
+    #endif
+
     // Get the tail - Nothing can alter its value while this ISR is executing, but there's
     // a chance that this ISR interrupted the main process while it was updating the index.
     // The backup mechanism ensures the correct value is always returned.
@@ -147,8 +157,10 @@
     if (Cfg::RX_OVERRUNS && B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
     if (Cfg::RX_FRAMING_ERRORS && B_FE && !++rx_framing_errors) --rx_framing_errors;
 
-    // Read the character from the USART
-    uint8_t c = R_UDR;
+    #if DISABLED(DIRECT_STEPPING)
+      // Read the character from the USART
+      uint8_t c = R_UDR;
+    #endif
 
     if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 

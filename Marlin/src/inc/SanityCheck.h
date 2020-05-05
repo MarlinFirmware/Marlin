@@ -2923,3 +2923,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if SAVED_POSITIONS > 256
   #error "SAVED_POSITIONS must be an integer from 0 to 256."
 #endif
+
+/**
+ * Sanity checks for stepper chunk support
+ */
+#if ENABLED(DIRECT_STEPPING)
+  #if ENABLED(LIN_ADVANCE)
+    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+  #endif
+#endif

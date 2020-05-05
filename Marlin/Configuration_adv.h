@@ -1663,6 +1663,10 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
+// Support for G6 direct stepping to significantly reduce motion calculations.
+// G-code preparation reference: https://github.com/colinrgodsey/step-daemon
+//#define DIRECT_STEPPING
+
 /**
  * G38 Probe Target
  *
