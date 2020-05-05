@@ -89,6 +89,10 @@ private:
     FORCE_INLINE static bool load_to_gears() { return true; }
   #endif
 
+  #if ENABLED(MMU_EXTRUDER_SENSOR)
+    static void mmu_continue_loading();
+  #endif
+
   static bool enabled, ready, mmu_print_saved;
 
   static uint8_t cmd, cmd_arg, last_cmd, extruder;
