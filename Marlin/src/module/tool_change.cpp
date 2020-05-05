@@ -790,6 +790,11 @@ void tool_change_prime() {
 
     const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+      // Store and stop fan. Restored on any exit.
+      REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+    #endif
+
     // Z raise
     if (ok) {
       // Do a small lift to avoid the workpiece in the move back (below)
@@ -820,11 +825,10 @@ void tool_change_prime() {
     #endif
 
     // Cool down with fan
-    #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
-      const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       gcode.dwell(toolchange_settings.fan_time * 1000);
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
     #endif
 
     // Move back
@@ -932,6 +936,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     if (new_tool != old_tool) {
       destination = current_position;
+
+      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
+        // Store and stop fan. Restored on any exit.
+        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+      #endif
 
       // Z raise before retraction
       #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
@@ -1104,11 +1113,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             // Cool down with fan
-            #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
-              const int16_t fansp = thermalManager.fan_speed[TOOLCHANGE_FS_FAN];
+            #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
               gcode.dwell(toolchange_settings.fan_time * 1000);
-              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = fansp;
+              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
             #endif
           }
         #endif
@@ -1157,6 +1165,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
             current_position.e = 0;
             sync_plan_position_e(); // New extruder primed and set to 0
+
+            // Restart Fan
+            #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+              RESTORE(fan);
+            #endif
           }
         #endif
 
@@ -1256,6 +1269,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
       thermalManager.wait_for_hotend(active_extruder);
     #endif
+
+    // Migrate Linear Advance K factor to the new extruder
+    TERN_(LIN_ADVANCE, planner.extruder_advance_K[active_extruder] = planner.extruder_advance_K[migration_extruder]);
 
     // Perform the tool change
     tool_change(migration_extruder);

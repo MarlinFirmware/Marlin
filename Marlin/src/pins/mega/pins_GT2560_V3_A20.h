@@ -30,6 +30,8 @@
 #define LCD_PINS_D4                          21
 #define LCD_PINS_D7                           6
 
+#define SPEAKER  // The speaker can produce tones
+
 #if ENABLED(NEWPANEL)
   #define BTN_EN1                            16
   #define BTN_EN2                            17

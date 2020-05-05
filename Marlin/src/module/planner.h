@@ -32,6 +32,17 @@
 
 #include "../MarlinCore.h"
 
+#if HAS_JUNCTION_DEVIATION
+  // Enable this option for perfect accuracy but maximum
+  // computation. Should be fine on ARM processors.
+  //#define JD_USE_MATH_ACOS
+
+  // Disable this option to save 120 bytes of PROGMEM,
+  // but incur increased computation and a reduction
+  // in accuracy.
+  #define JD_USE_LOOKUP_TABLE
+#endif
+
 #include "motion.h"
 #include "../gcode/queue.h"
 
@@ -304,9 +315,8 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;       // (mm) M205 J
-      #if ENABLED(LIN_ADVANCE)
-        static float max_e_jerk                 // Calculated from junction_deviation_mm
-          TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
+      #if HAS_LINEAR_E_JERK
+        static float max_e_jerk[DISTINCT_E];    // Calculated from junction_deviation_mm
       #endif
     #endif
 
@@ -537,6 +547,9 @@ class Planner {
         unapply_leveling(raw);
         leveling_active = false;
       }
+    #else
+      FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
+      FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -547,23 +560,15 @@ class Planner {
     #endif
 
     #if HAS_POSITION_MODIFIERS
-      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos
-        #if HAS_LEVELING
-          , bool leveling = ENABLED(PLANNER_LEVELING)
-        #endif
-      ) {
+      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(SKEW_CORRECTION, skew(pos));
-        TERN_(HAS_LEVELING, if (leveling) apply_leveling(pos));
+        if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
       }
 
-      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos
-        #if HAS_LEVELING
-          , bool leveling = ENABLED(PLANNER_LEVELING)
-        #endif
-      ) {
+      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(FWRETRACT, unapply_retract(pos));
-        TERN_(HAS_LEVELING, if (leveling) unapply_leveling(pos));
+        if (leveling) unapply_leveling(pos);
         TERN_(SKEW_CORRECTION, unskew(pos));
       }
     #endif // HAS_POSITION_MODIFIERS
@@ -829,13 +834,9 @@ class Planner {
 
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
-        #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
-        #if ENABLED(DISTINCT_E_FACTORS)
-          LOOP_L_N(i, EXTRUDERS)
-            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
-        #else
-          max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
-        #endif
+        const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
+        LOOP_L_N(i, EXTRUDERS)
+          max_e_jerk[E_INDEX_N(i)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_INDEX_N(i)]);
       }
     #endif
 
