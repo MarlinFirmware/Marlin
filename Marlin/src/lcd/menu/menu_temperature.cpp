@@ -154,6 +154,11 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
 void menu_temperature() {
+  #if HAS_TEMP_HOTEND
+    bool has_heat = false;
+    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -168,8 +173,9 @@ void menu_temperature() {
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
-  #if ENABLED(SINGLENOZZLE)
-    EDIT_ITEM_FAST(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
+  #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+    LOOP_S_L_N(e, 1, EXTRUDERS)
+      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
   #endif
 
   //
@@ -205,10 +211,10 @@ void menu_temperature() {
       };
     #endif
 
-    #define SNFAN(N) (ENABLED(SINGLENOZZLE) && !HAS_FAN##N && EXTRUDERS > N)
+    #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
     #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
       auto singlenozzle_item = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
+        editable.uint8 = singlenozzle_fan_speed[f];
         EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
       };
     #endif
@@ -274,8 +280,6 @@ void menu_temperature() {
     //
     // Cooldown
     //
-    bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
     if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
 

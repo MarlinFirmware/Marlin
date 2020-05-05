@@ -80,9 +80,15 @@ void AboutScreen::onRedraw(draw_mode_t) {
     #endif
     , OPT_CENTER, font_xlarge
   );
-  draw_text_box(cmd, FW_VERS_POS, progmem_str(getFirmwareName_str()), OPT_CENTER, font_medium);
+  draw_text_box(cmd, FW_VERS_POS,
+  #ifdef TOUCH_UI_VERSION
+    F(TOUCH_UI_VERSION)
+  #else
+    progmem_str(getFirmwareName_str())
+  #endif
+  , OPT_CENTER, font_medium);
   draw_text_box(cmd, FW_INFO_POS, about_str, OPT_CENTER, font_medium);
-  draw_text_box(cmd.tag(3), INSET_POS(LICENSE_POS), GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
+  draw_text_box(cmd, INSET_POS(LICENSE_POS), GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
 
   cmd.font(font_medium)
      .colors(normal_btn)

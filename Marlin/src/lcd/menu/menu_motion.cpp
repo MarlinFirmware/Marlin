@@ -193,6 +193,11 @@ void _goto_manual_move(const float scale) {
 
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=-1) {
   _manual_move_func_ptr = func;
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    const bool too_cold = axis == E_AXIS && thermalManager.tooColdToExtrude(eindex >= 0 ? eindex : active_extruder);
+  #else
+    constexpr bool too_cold = false;
+  #endif
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
@@ -205,12 +210,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         break;
     }
   }
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    if (axis == E_AXIS && thermalManager.tooColdToExtrude(eindex >= 0 ? eindex : active_extruder))
-      BACK_ITEM(MSG_HOTEND_TOO_COLD);
-    else
-  #endif
-  {
+  if (too_cold)
+    BACK_ITEM(MSG_HOTEND_TOO_COLD);
+  else {
     BACK_ITEM(MSG_MOVE_AXIS);
     SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
@@ -218,11 +220,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
       extern const char NUL_STR[];
       SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
-      MENU_ITEM_ADDON_START(0
-        #if HAS_CHARACTER_LCD
-          + 1
-        #endif
-      );
+      MENU_ITEM_ADDON_START(0 + ENABLED(HAS_CHARACTER_LCD));
         char tmp[20], numstr[10];
         // Determine digits needed right of decimal
         const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
@@ -304,10 +302,8 @@ void menu_move() {
     #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
       // ...and the non-switching
-      #if E_MANUAL == 5
-        SUBMENU_MOVE_E(4);
-      #elif E_MANUAL == 3
-        SUBMENU_MOVE_E(2);
+      #if E_MANUAL == 7 || E_MANUAL == 5 || E_MANUAL == 3
+        SUBMENU_MOVE_E(E_MANUAL - 1);
       #endif
 
     #elif MULTI_MANUAL
@@ -339,10 +335,8 @@ void menu_motion() {
   //
   // Move Axis
   //
-  #if ENABLED(DELTA)
-    if (all_axes_homed())
-  #endif
-      SUBMENU(MSG_MOVE_AXIS, menu_move);
+  if (TERN1(DELTA, all_axes_homed()))
+    SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //
   // Auto Home
@@ -370,17 +364,20 @@ void menu_motion() {
 
   #elif ENABLED(LCD_BED_LEVELING)
 
-    if (!g29_in_progress) SUBMENU(MSG_BED_LEVELING, menu_bed_leveling);
+    if (!g29_in_progress)
+      SUBMENU(MSG_BED_LEVELING, menu_bed_leveling);
 
   #elif HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
 
     #if DISABLED(PROBE_MANUALLY)
       GCODES_ITEM(MSG_LEVEL_BED, PSTR("G28\nG29"));
     #endif
+
     if (all_axes_homed() && leveling_is_valid()) {
       bool show_state = planner.leveling_active;
       EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
     }
+
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       editable.decimal = planner.z_fade_height;
       EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });

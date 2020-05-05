@@ -23,6 +23,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define IFSD(A,B) TERN(SDSUPPORT,A,B)
+
 #if ENABLED(SDSUPPORT)
 
 #if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)

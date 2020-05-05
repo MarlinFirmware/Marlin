@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(__arm__) || defined(__thumb__)
 
 #include "backtrace.h"
