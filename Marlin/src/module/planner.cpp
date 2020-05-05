@@ -135,7 +135,7 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;         // (mm) M205 J
   #if HAS_LINEAR_E_JERK
-    float Planner::max_e_jerk[DISTINCT_E]       // Calculated from junction_deviation_mm
+    float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
 #endif
 
