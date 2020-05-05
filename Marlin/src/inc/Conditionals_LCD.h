@@ -408,7 +408,6 @@
 #if EXTRUDERS == 0
   #undef EXTRUDERS
   #define EXTRUDERS 0
-  #undef DISTINCT_E_FACTORS
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
@@ -513,12 +512,16 @@
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_E E_STEPPERS
   #define XYZE_N (XYZ + E_STEPPERS)
+  #define E_INDEX_N(E) (E)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
   #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
+  #define DISTINCT_E 1
   #define XYZE_N XYZE
+  #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
 #endif

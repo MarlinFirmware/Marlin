@@ -134,9 +134,8 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;         // (mm) M205 J
-  #if ENABLED(LIN_ADVANCE)
-    float Planner::max_e_jerk                   // Calculated from junction_deviation_mm
-      [TERN(DISTINCT_E_FACTORS, EXTRUDERS, 1)];
+  #if HAS_LINEAR_E_JERK
+    float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
 #endif
 
@@ -2139,7 +2138,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     #if ENABLED(LIN_ADVANCE)
 
-      #define MAX_E_JERK(N) TERN(HAS_JUNCTION_DEVIATION, max_e_jerk[E_AXIS_N(N)], max_jerk.e)
+      #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
        *
@@ -2179,24 +2178,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       }
     #endif
 
-    #if ENABLED(DISTINCT_E_FACTORS)
-      #define ACCEL_IDX extruder
-    #else
-      #define ACCEL_IDX 0
-    #endif
-
     // Limit acceleration per axis
     if (block->step_event_count <= cutoff_long) {
       LIMIT_ACCEL_LONG(A_AXIS, 0);
       LIMIT_ACCEL_LONG(B_AXIS, 0);
       LIMIT_ACCEL_LONG(C_AXIS, 0);
-      LIMIT_ACCEL_LONG(E_AXIS, ACCEL_IDX);
+      LIMIT_ACCEL_LONG(E_AXIS, E_INDEX_N(extruder));
     }
     else {
       LIMIT_ACCEL_FLOAT(A_AXIS, 0);
       LIMIT_ACCEL_FLOAT(B_AXIS, 0);
       LIMIT_ACCEL_FLOAT(C_AXIS, 0);
-      LIMIT_ACCEL_FLOAT(E_AXIS, ACCEL_IDX);
+      LIMIT_ACCEL_FLOAT(E_AXIS, E_INDEX_N(extruder));
     }
   }
   block->acceleration_steps_per_s2 = accel;
