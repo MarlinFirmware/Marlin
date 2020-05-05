@@ -315,9 +315,8 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;       // (mm) M205 J
-      #if ENABLED(LIN_ADVANCE)
-        static float max_e_jerk                 // Calculated from junction_deviation_mm
-          TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
+      #if HAS_LINEAR_E_JERK
+        static float max_e_jerk[DISTINCT_E];    // Calculated from junction_deviation_mm
       #endif
     #endif
 
@@ -838,17 +837,11 @@ class Planner {
       static void autotemp_update();
     #endif
 
-    #define JUNC_SQ(N,ST) (junction_deviation_mm * (N) * (ST) / (1.0f - (ST)))
-
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
-        #define GET_MAX_E_JERK(N) SQRT(JUNC_SQ(N,SQRT(0.5)))
-        #if ENABLED(DISTINCT_E_FACTORS)
-          LOOP_L_N(i, EXTRUDERS)
-            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
-        #else
-          max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
-        #endif
+        const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
+        LOOP_L_N(i, EXTRUDERS)
+          max_e_jerk[E_INDEX_N(i)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_INDEX_N(i)]);
       }
     #endif
 

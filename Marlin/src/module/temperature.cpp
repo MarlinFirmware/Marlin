@@ -3074,7 +3074,7 @@ void Temperature::tick() {
   #if HAS_HEATED_BED
 
     #ifndef MIN_COOLING_SLOPE_DEG_BED
-      #define MIN_COOLING_SLOPE_DEG_BED 1.50
+      #define MIN_COOLING_SLOPE_DEG_BED 1.00
     #endif
     #ifndef MIN_COOLING_SLOPE_TIME_BED
       #define MIN_COOLING_SLOPE_TIME_BED 60
