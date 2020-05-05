@@ -2926,6 +2926,9 @@
  * Include capabilities in M115 output
  */
 #define EXTENDED_CAPABILITIES_REPORT
+#if ENABLED(EXTENDED_CAPABILITIES_REPORT)
+  //#define M115_GEOMETRY_REPORT
+#endif
 
 /**
  * Expected Printer Check
