@@ -130,13 +130,13 @@ planner_settings_t Planner::settings;           // Initialized by settings.load(
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
 
-float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
+float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
-  float Planner::junction_deviation_mm;       // (mm) M205 J
+  float Planner::junction_deviation_mm;         // (mm) M205 J
   #if ENABLED(LIN_ADVANCE)
-    float Planner::max_e_jerk               // Calculated from junction_deviation_mm
-      TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
+    float Planner::max_e_jerk                   // Calculated from junction_deviation_mm
+      [TERN(DISTINCT_E_FACTORS, EXTRUDERS, 1)];
   #endif
 #endif
 
@@ -2139,15 +2139,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     #if ENABLED(LIN_ADVANCE)
 
-      #if HAS_JUNCTION_DEVIATION
-        #if ENABLED(DISTINCT_E_FACTORS)
-          #define MAX_E_JERK max_e_jerk[extruder]
-        #else
-          #define MAX_E_JERK max_e_jerk
-        #endif
-      #else
-        #define MAX_E_JERK max_jerk.e
-      #endif
+      #define MAX_E_JERK(N) TERN(HAS_JUNCTION_DEVIATION, max_e_jerk[E_AXIS_N(N)], max_jerk.e)
 
       /**
        *
@@ -2179,7 +2171,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (block->e_D_ratio > 3.0f)
           block->use_advance_lead = false;
         else {
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K[active_extruder] * block->e_D_ratio) * steps_per_mm;
+          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[active_extruder] * block->e_D_ratio) * steps_per_mm;
           if (TERN0(LA_DEBUG, accel > max_accel_steps_per_s2))
             SERIAL_ECHOLNPGM("Acceleration limited.");
           NOMORE(accel, max_accel_steps_per_s2);
