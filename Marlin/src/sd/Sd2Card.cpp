@@ -607,7 +607,7 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
     #if DISABLED(SD_CHECK_AND_RETRY)
       0xFFFF
     #elif defined(SPI_HAS_HW_CRC)
-      spiDevWriteCRC16(dev_num, (uint16_t*)src, 256);
+      spiDevWriteCRC16(dev_num, (uint16_t*)src, 256)
     #else
       CRC_CCITT(src, 512)
     #endif
