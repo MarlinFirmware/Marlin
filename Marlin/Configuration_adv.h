@@ -1387,7 +1387,7 @@
   //#define CR10_TFT_PINMAP     // Rudolph Riedel's CR10 pin mapping
   //#define S6_TFT_PINMAP       // FYSETC S6 pin mapping
   //#define CHEETAH_TFT_PINMAP  // FYSETC Cheetah pin mapping
-  //#define E3_EXP1_PINMAP      // E3 type boards (SKR E3/DIP, FYSETC Cheetah and Stock boards) EXP1 pin mapping
+  //#define E3_EXP1_PINMAP      // E3 type boards (SKR E3/DIP, and Stock boards) EXP1 pin mapping
   //#define GENERIC_EXP2_PINMAP // GENERIC EXP2 pin mapping
 
   //#define OTHER_PIN_LAYOUT  // Define pins manually below
