@@ -508,7 +508,7 @@ public:
     #endif
 
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      TERN(LCD_TIMEOUT_TO_STATUS, defer_return_to_status = defer, UNUSED(defer));
+      defer_return_to_status = defer;
     }
 
     static inline void goto_previous_screen_no_defer() {
@@ -612,11 +612,7 @@ private:
 
   #if HAS_SPI_LCD
     #if HAS_LCD_MENU
-      #if LCD_TIMEOUT_TO_STATUS
-        static bool defer_return_to_status;
-      #else
-        static constexpr bool defer_return_to_status = false;
-      #endif
+      static bool defer_return_to_status;
     #endif
     static void draw_status_screen();
   #endif

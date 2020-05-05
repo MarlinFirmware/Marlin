@@ -46,11 +46,9 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
     return false;
   }
 
-  #if LCD_TIMEOUT_TO_STATUS
-    if (EventLoop::get_pressed_tag() != 0) {
-      reset_menu_timeout();
-    }
-  #endif
+  if (EventLoop::get_pressed_tag() != 0) {
+    reset_menu_timeout();
+  }
 
   if (buttonIsPressed(tag)) {
     options = OPT_FLAT;
@@ -66,25 +64,19 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 }
 
 void BaseScreen::onIdle() {
-  #if LCD_TIMEOUT_TO_STATUS
-    if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
-      reset_menu_timeout();
-      #if ENABLED(TOUCH_UI_DEBUG)
-        SERIAL_ECHO_MSG("Returning to status due to menu timeout");
-      #endif
-      GOTO_SCREEN(StatusScreen);
-    }
-  #endif
+  if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
+    reset_menu_timeout();
+    #if ENABLED(TOUCH_UI_DEBUG)
+      SERIAL_ECHO_MSG("Returning to status due to menu timeout");
+    #endif
+    GOTO_SCREEN(StatusScreen);
+  }
 }
 
 void BaseScreen::reset_menu_timeout() {
-  #if LCD_TIMEOUT_TO_STATUS
     last_interaction = millis();
-  #endif
 }
 
-#if LCD_TIMEOUT_TO_STATUS
-  uint32_t BaseScreen::last_interaction;
-#endif
+uint32_t BaseScreen::last_interaction;
 
 #endif // TOUCH_UI_FTDI_EVE
