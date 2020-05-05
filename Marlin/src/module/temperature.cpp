@@ -2959,6 +2959,11 @@ void Temperature::tick() {
         , const bool click_to_cancel/*=false*/
       #endif
     ) {
+
+      #if ENABLED(AUTOTEMP)
+        REMEMBER(1, planner.autotemp_enabled, false);
+      #endif
+
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         bool first_loop = true;
@@ -3069,7 +3074,7 @@ void Temperature::tick() {
   #if HAS_HEATED_BED
 
     #ifndef MIN_COOLING_SLOPE_DEG_BED
-      #define MIN_COOLING_SLOPE_DEG_BED 1.50
+      #define MIN_COOLING_SLOPE_DEG_BED 1.00
     #endif
     #ifndef MIN_COOLING_SLOPE_TIME_BED
       #define MIN_COOLING_SLOPE_TIME_BED 60

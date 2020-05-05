@@ -1683,8 +1683,9 @@
       SERIAL_EOL();
 
       #if HAS_KILL
-        SERIAL_ECHOLNPAIR("Kill pin on :", int(KILL_PIN), "  state:", READ(KILL_PIN));
+        SERIAL_ECHOLNPAIR("Kill pin on :", int(KILL_PIN), "  state:", int(kill_state()));
       #endif
+
       SERIAL_EOL();
       serial_delay(50);
 

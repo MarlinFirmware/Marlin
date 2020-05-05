@@ -582,7 +582,7 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('H')) {
     g26_hotend_temp = parser.value_celsius();
-    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT))) {
+    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }

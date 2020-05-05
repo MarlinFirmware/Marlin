@@ -1514,6 +1514,8 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
       // retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
     }
+  #else
+    UNUSED(axis);
   #endif
 }
 

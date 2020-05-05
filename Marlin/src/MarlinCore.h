@@ -110,6 +110,13 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_INVERTING); }
 #endif
 
+#if HAS_KILL
+  #ifndef KILL_PIN_STATE
+    #define KILL_PIN_STATE LOW
+  #endif
+  inline bool kill_state() { return READ(KILL_PIN) == KILL_PIN_STATE; }
+#endif
+
 #if ENABLED(G29_RETRY_AND_RECOVER)
   void event_probe_recover();
   void event_probe_failure();
