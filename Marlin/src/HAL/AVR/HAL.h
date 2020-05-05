@@ -50,7 +50,8 @@
 // Defines
 // ------------------------
 
-//#define analogInputToDigitalPin(IO) IO
+// AVR PROGMEM extension for sprintf_P
+#define S_FMT "%S"
 
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START()  unsigned char _sreg = SREG; cli()
@@ -59,9 +60,6 @@
 #define ISRS_ENABLED() TEST(SREG, SREG_I)
 #define ENABLE_ISRS()  sei()
 #define DISABLE_ISRS() cli()
-
-// On AVR this is in math.h?
-//#define square(x) ((x)*(x))
 
 // ------------------------
 // Types

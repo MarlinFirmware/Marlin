@@ -31,6 +31,11 @@
   #define I2C_ADDRESS(A) (A)
 #endif
 
+// Needed for AVR sprintf_P PROGMEM extension
+#ifndef S_FMT
+  #define S_FMT "%s"
+#endif
+
 inline void watchdog_refresh() {
   TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 }
