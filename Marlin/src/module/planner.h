@@ -315,9 +315,8 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;       // (mm) M205 J
-      #if ENABLED(LIN_ADVANCE)
-        static float max_e_jerk                 // Calculated from junction_deviation_mm
-          [TERN(DISTINCT_E_FACTORS, EXTRUDERS, 1)];
+      #if HAS_LINEAR_E_JERK
+        static float max_e_jerk[DISTINCT_E];    // Calculated from junction_deviation_mm
       #endif
     #endif
 

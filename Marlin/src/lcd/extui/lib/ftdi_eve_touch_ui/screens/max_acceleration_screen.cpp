@@ -38,7 +38,7 @@ void MaxAccelerationScreen::onRedraw(draw_mode_t what) {
   w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AMAX_X),  getAxisMaxAcceleration_mm_s2(X) );
   w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AMAX_Y),  getAxisMaxAcceleration_mm_s2(Y) );
   w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AMAX_Z),  getAxisMaxAcceleration_mm_s2(Z) );
-  #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
+  #if DISTINCT_E == 1
     w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E), getAxisMaxAcceleration_mm_s2(E0) );
   #elif EXTRUDERS > 1
     w.heading(GET_TEXT_F(MSG_AMAX_E));
@@ -65,15 +65,15 @@ bool MaxAccelerationScreen::onTouchHeld(uint8_t tag) {
     case  7: UI_INCREMENT(AxisMaxAcceleration_mm_s2, Z ); break;
     case  8: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E0); break;
     case  9: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E0); break;
-    #if EXTRUDERS > 1 && ENABLED(DISTINCT_E_FACTORS)
+    #if DISTINCT_E > 1
     case 10: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E1); break;
     case 11: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E1); break;
     #endif
-    #if EXTRUDERS > 2 && ENABLED(DISTINCT_E_FACTORS)
+    #if DISTINCT_E > 2
     case 12: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E2); break;
     case 13: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E2); break;
     #endif
-    #if EXTRUDERS > 3 && ENABLED(DISTINCT_E_FACTORS)
+    #if DISTINCT_E > 3
     case 14: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E3); break;
     case 15: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E3); break;
     #endif
