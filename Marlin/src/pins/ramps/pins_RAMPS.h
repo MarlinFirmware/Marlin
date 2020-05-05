@@ -753,7 +753,8 @@
    *   EXP2-1 ----------- EXP1-2
    *  EXP1-10 ----------- EXP1-1
    *
-   *  NOTE: MISO pin whould make problems with if the MISO is 5V signal. just use a 1N4148 diode (cut the MISO wire and insert it between the two wires).
+   *  NOTE: The MISO pin should not get a 5V signal.
+   *        To fix, insert a 1N4148 diode in the MISO line.
    */
 
   #define BEEPER_PIN                          37
