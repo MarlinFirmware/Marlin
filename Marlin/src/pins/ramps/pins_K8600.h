@@ -44,6 +44,14 @@
 //
 #define FAN_PIN                                8
 
+//
+// Misc. Functions
+//
+#define CASE_LIGHT_PIN                         7
+
+//
+// Other RAMPS pins
+//
 #define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
 #include "pins_RAMPS.h"
 
@@ -84,8 +92,6 @@
 //
 #undef SDSS
 #define SDSS                                  25  // 53
-
-#define CASE_LIGHT_PIN                         7
 
 //
 // LCD / Controller
