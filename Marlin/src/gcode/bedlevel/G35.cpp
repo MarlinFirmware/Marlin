@@ -209,16 +209,16 @@
       #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G35)
         set_bed_leveling_enabled(leveling_was_active);
       #endif
-
-      // After this operation the z position needs correction
-      set_axis_is_not_at_home(Z_AXIS);
-
-      // Stow the probe, as the last call to probe_at_point(...) left
+      
+      // Stow the probe, as the last call to probe.probe_at_point(...) left
       // the probe deployed if it was successful.
       probe.stow();
 
+      // After this operation the z position needs correction
+      set_axis_not_trusted(Z_AXIS);
+
       // Home Z after the alignment procedure
-      process_subcommands_now_P(PSTR("G28 Z"));   
+      process_subcommands_now_P(PSTR("G28Z"));  
     }
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G35");
