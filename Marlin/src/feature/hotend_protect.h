@@ -21,4 +21,4 @@
  */
 #pragma once
 
-void fcp_update();
+void hotend_protection();

@@ -335,6 +335,18 @@
   #define EXTRUDER_RUNOUT_EXTRUDE 5   // (mm)
 #endif
 
+/**
+ * Hotend Protection
+ * Prevent filament in the nozzle from charring and causing a critical jam.
+ */
+//#define HOTEND_PROTECTION
+#if ENABLED(HOTEND_PROTECTION)
+  #define HP_TIMEOUT         0.2   // (minutes) Time without extruder movement to trigger protection
+  #define HP_MIN_TRIGGER   180     // (°C) Minimum temperature to enable hotend protection
+  #define HP_NOZZLE_TARGET   0     // (°C) Safe temperature for the nozzle after timeout
+  #define HP_BED_TARGET      0     // (°C) Safe temperature for the bed after timeout
+#endif
+
 // @section temperature
 
 // Calibration for AD595 / AD8495 sensor to adjust temperature measurements.

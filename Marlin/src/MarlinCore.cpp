@@ -155,8 +155,8 @@
   #include "feature/runout.h"
 #endif
 
-#if ENABLED(FCP_ENABLE)
-  #include "feature/FCP.h"
+#if ENABLED(HOTEND_PROTECTION)
+  #include "feature/hotend_protect.h"
 #endif
 
 #if ENABLED(TEMP_STAT_LEDS)
@@ -536,9 +536,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   TERN_(AUTO_POWER_CONTROL, powerManager.check());
 
-  #if ENABLED(FCP_ENABLE)
-    fcp_update();
-  #endif
+  TERN_(HOTEND_PROTECTION, hotend_protection());
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP

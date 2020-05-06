@@ -2268,17 +2268,3 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
-
-/**
- * Filament Carbonization Prevention
- * Prevent nozzle jam/clog as result from carbonized filament (which happens if the nozzle stay hot too long without extrusion)
- *
- * Its not a good idea to keep the timeout less than 15min, as this is a conservative bed heating time
-*/
-#define FCP_ENABLE
-#if ENABLED(FCP_ENABLE)
-  #define FCP_TIMEOUT 0.2 // MAX Time without extruder movement to trigger the protection (min)
-  #define FCP_MIN_TRIGGER 180 //MIN Temp to trigger FCP
-  #define FCP_NOZZLE_TARGET 0 // (ºC) Target for the nozzle E0 and E1
-  #define FCP_BED_TARGET 0 //  (ºC) Target for the bed
-#endif
