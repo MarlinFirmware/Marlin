@@ -23,6 +23,10 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(M115_GEOMETRY_REPORT)
+  #include "../../module/motion.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
@@ -116,6 +120,29 @@ void GcodeSuite::M115() {
 
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // Machine Geometry
+    #if ENABLED(M115_GEOMETRY_REPORT)
+      const xyz_pos_t dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+                      dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+      xyz_pos_t cmin = dmin, cmax = dmax;
+      apply_motion_limits(cmin);
+      apply_motion_limits(cmax);
+      const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
+                      wmin = cmin.asLogical(), wmax = cmax.asLogical();
+      SERIAL_ECHOLNPAIR(
+        "area:{"
+          "full:{"
+            "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
+            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "},"
+          "},"
+          "work:{"
+            "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
+            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "},"
+          "}"
+        "}"
+      );
+    #endif
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
