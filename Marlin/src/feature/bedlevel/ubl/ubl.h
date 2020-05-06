@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -298,9 +298,7 @@ class unified_bed_leveling {
     #endif
 
     static inline bool mesh_is_valid() {
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          if (isnan(z_values[x][y])) return false;
+      GRID_LOOP(x, y) if (isnan(z_values[x][y])) return false;
       return true;
     }
 

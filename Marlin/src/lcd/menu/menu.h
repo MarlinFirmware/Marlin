@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -29,10 +29,6 @@
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
-#if HOTENDS
-  constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
-#endif
-
 void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();
 
@@ -45,6 +41,20 @@ typedef void (*selectFunc_t)();
 
 #if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
+#endif
+
+#if HAS_BED_PROBE
+  #if Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+    #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
+  #else
+    #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
+  #endif
+#endif
+
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+  #define BABYSTEP_TO_STR(N) ftostr43sign(N)
+#elif ENABLED(BABYSTEPPING)
+  #define BABYSTEP_TO_STR(N) ftostr53sign(N)
 #endif
 
 ////////////////////////////////////////////
@@ -226,10 +236,10 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    static inline float scale(const float value)      { return value * NAME::scale;           }
-    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
+    static inline float scale(const float value)      { return NAME::scale(value);            }
+    static inline float unscale(const float value)    { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
+    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t * const data, ...) {
       MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(*(data)));
@@ -258,34 +268,37 @@ class TMenuEditItem : MenuEditItemBase {
 // Provide a set of Edit Item Types which encompass a primitive
 // type, a string function, and a scale factor for edit and display.
 // These items call the Edit Item draw method passing the prepared string.
-#define DEFINE_MENU_EDIT_ITEM_TYPE(TYPE, NAME, STRFUNC, SCALE) \
+#define __DOFIXfloat PROBE()
+#define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
+#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, V...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static constexpr float scale = SCALE; \
-    static inline const char* strfunc(const float value) { return STRFUNC((TYPE)value); } \
+    static inline float scale(const float value)   { return value * (SCALE) + (V+0); } \
+    static inline float unscale(const float value) { return value / (SCALE) + (V+0); } \
+    static inline const char* strfunc(const float value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
-//                         TYPE      NAME         STRFUNC       SCALE
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_5,    ui16tostr5,      0.01  );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52,     ftostr42_52,   100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5,      ftostr5rj,       1     );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5_25,   ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51,     ftostr51rj,     10     );   // 1234.5     right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float41sign, ftostr41sign,   10     );   // +123.4
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51sign, ftostr51sign,   10     );   // +1234.5
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
-DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5_25,    ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
+//                         NAME         TYPE      STRFUNC          SCALE         +ROUND
+DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, 0.5f);  // 100%   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1     );   // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1     );   // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int8        ,int8_t   ,i8tostr3rj      ,   1     );   // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint8       ,uint8_t  ,ui8tostr3rj     ,   1     );   // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_3    ,uint16_t ,ui16tostr3rj    ,   1     );   // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_4    ,uint16_t ,ui16tostr4rj    ,   0.1f  );   // 1234       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f );   // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float3      ,float    ,ftostr3         ,   1     );   // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float42_52  ,float    ,ftostr42_52     , 100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
+DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000     );   // -1.234, _1.234, +1.234
+DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
+DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10     );   // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
+DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
+DEFINE_MENU_EDIT_ITEM_TYPE(float52sign ,float    ,ftostr52sign    , 100     );   // +123.45
+DEFINE_MENU_EDIT_ITEM_TYPE(long5       ,uint32_t ,ftostr5rj       ,   0.01f );   // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 
 class MenuItem_bool : public MenuEditItemBase {
   public:
@@ -306,17 +319,43 @@ class MenuItem_bool : public MenuEditItemBase {
 ////////////////////////////////////////////
 
 /**
- * SCREEN_OR_MENU_LOOP generates init code for a screen or menu
+ * Marlin's native menu screens work by running a loop from the top visible line index
+ * to the bottom visible line index (according to how much the screen has been scrolled).
+ * This complete loop is done on every menu screen call.
+ *
+ * The menu system is highly dynamic, so it doesn't know ahead of any menu loop which
+ * items will be visible or hidden, so menu items don't have a fixed index number.
+ *
+ * During the loop, each menu item checks to see if its line is the current one. If it is,
+ * then it checks to see if a click has arrived so it can run its action. If the action
+ * doesn't redirect to another screen then the menu item calls its draw method.
+ *
+ * Menu item add-ons can do whatever they like.
+ *
+ * This mixture of drawing and processing inside a loop has the advantage that a single
+ * line can be used to represent a menu item, and that is the rationale for this design.
+ *
+ * One of the pitfalls of this method is that DOGM displays call the screen handler 2x,
+ * 4x, or 8x per screen update to draw just one segment of the screen. As a result, any
+ * menu item that exists in two screen segments is drawn and processed twice per screen
+ * update. With each item processed 5, 10, 20, or 40 times the logic has to be simple.
+ *
+ * To avoid repetition and side-effects, function calls for testing menu item conditions
+ * should be done before the menu loop (START_MENU / START_SCREEN).
+ */
+
+/**
+ * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
  *
  *   encoderTopLine is the top menu line to display
  *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
  *   _menuLineNr is the menu item to draw and process
  *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  */
-#define SCREEN_OR_MENU_LOOP(IS_MENU)                \
-  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU); \
-  int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-  bool _skipStatic = IS_MENU;                       \
+#define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
+  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
+  int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
+  bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);      \
   for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 
@@ -350,7 +389,7 @@ class MenuItem_bool : public MenuEditItemBase {
  *   MenuItem_<type>::action(arg3...)
  *
  * Examples:
- *   BACK_ITEM(MSG_WATCH)
+ *   BACK_ITEM(MSG_INFO_SCREEN)
  *     MenuItem_back::action(plabel, ...)
  *     MenuItem_back::draw(sel, row, plabel, ...)
  *
@@ -509,7 +548,7 @@ void menu_move();
 #endif
 
 // First Fan Speed title in "Tune" and "Control>Temperature" menus
-#if FAN_COUNT > 0 && HAS_FAN0
+#if HAS_FAN && HAS_FAN0
   #if FAN_COUNT > 1
     #define FAN_SPEED_1_SUFFIX " 1"
   #else
@@ -528,11 +567,6 @@ void _lcd_draw_homing();
 
 #if HAS_LINE_TO_Z
   void line_to_z(const float &z);
-#endif
-
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-  void lcd_enqueue_one_now(const char * const cmd);
-  void lcd_enqueue_one_now_P(PGM_P const cmd);
 #endif
 
 #if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)

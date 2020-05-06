@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Simplified Chinese
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_zh_CN {
@@ -136,8 +136,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("存储槽");     // "Memory Slot"
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("装载热床网格");     // "Load Bed Mesh"
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("保存热床网格");     // "Save Bed Mesh"
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 网格 %i 已装载");     // "Mesh %i loaded"
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 网格 %i 已保存");     // "Mesh %i saved"
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("网格 %i 已装载");     // "Mesh %i loaded"
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("网格 %i 已保存");     // "Mesh %i saved"
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("没有存储");     // "No storage"
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("错误: UBL保存");     // "Err: UBL Save"
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("错误: UBL还原");     // "Err: UBL Restore"
@@ -187,9 +187,9 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" 喷嘴 ~");     //"Nozzle" 噴嘴
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" 热床");     //"Bed"
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("风扇速率");     //"Fan speed"
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("风扇速率 =");     //"Fan speed"
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("风扇速率 ~");     //"Fan speed"
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("额外风扇速率");     // "Extra fan speed"
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("额外风扇速率 =");     // "Extra fan speed"
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("额外风扇速率 ~");     // "Extra fan speed"
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("挤出速率");     //"Flow"
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("挤出速率 ~");     //"Flow"
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("控制");     //"Control"
@@ -199,14 +199,6 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("自动控温");     //"Autotemp"
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("开");     //"On"
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("关");     //"Off"
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");     //"PID-P"
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");     //"PID-I"
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");     //"PID-D"
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");     //"PID-C"
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("选择");     //"Select"
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("选择 *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("加速度");     //"Accel" acceleration
@@ -248,10 +240,10 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD对比度");     //"LCD contrast"
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("保存设置");     //"Store memory"
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("装载设置");     //"Load memory"
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("恢复安全值");     //"Restore failsafe"
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("恢复安全值");     //"Restore Defaults"
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("初始化设置");     // "Initialize EEPROM"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("刷新");     //"Refresh"
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("信息屏");     //"Info screen"
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("准备");     //"Prepare"
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("调整");     //"Tune"
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("暂停打印");     //"Pause print"
@@ -282,7 +274,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("卸载丝料");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("卸载丝料 *");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("卸载全部");     // "Unload All"
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("初始化存储卡");     //"Init. SD card"
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("初始化存储卡");     //"Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("更换存储卡");     //"Change SD card"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探针在热床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因数");     // "Skew Factor"
@@ -339,7 +331,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("外壳灯");     // "Case light"
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("灯亮度");     // "Light BRIGHTNESS"
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("打印机不正确");     // "The printer is incorrect"
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("打印机不正确");     // "The printer is incorrect"
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("打印计数");     //"Print Count"
@@ -371,7 +363,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("清除更多");     // "Purge more"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("恢复打印");     //"Resume print"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  喷嘴: ");     // "  Nozzle: "
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("归原位失败");     // "Homing failed"
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("归原位失败");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探针探测失败");     // "Probing failed"
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太凉");     // "M600: Too cold"
 

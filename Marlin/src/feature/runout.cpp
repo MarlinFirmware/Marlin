@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,6 +39,10 @@ bool FilamentMonitorBase::enabled = true,
   bool FilamentMonitorBase::host_handling; // = false
 #endif
 
+#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../module/tool_change.h"
+#endif
+
 /**
  * Called by FilamentSensorSwitch::run when filament is detected.
  * Called by FilamentSensorEncoder::block_completed when motion is detected.
@@ -61,7 +65,7 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 //
 // Filament Runout event handler
 //
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 #include "../gcode/queue.h"
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -69,18 +73,19 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 void event_filament_runout() {
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
+  if (TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print)) return;  // Action already in progress. Purge triggered repeated runout.
+
+  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+    if (migration.in_progress) return;  // Action already in progress. Purge triggered repeated runout.
+    if (migration.automode) { extruder_migration(); return; }
   #endif
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onFilamentRunout(ExtUI::getActiveTool());
-  #endif
+  TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getActiveTool()));
 
   #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
     const char tool = '0'
@@ -92,11 +97,7 @@ void event_filament_runout() {
 
   //action:out_of_filament
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_reason = PROMPT_FILAMENT_RUNOUT;
-    host_action_prompt_end();
-    host_action_prompt_begin(PSTR("FilamentRunout T"), false);
-    SERIAL_CHAR(tool);
-    SERIAL_EOL();
+    host_action_prompt_begin(PROMPT_FILAMENT_RUNOUT, PSTR("FilamentRunout T"), tool);
     host_action_prompt_show();
   #endif
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -96,8 +96,8 @@ void apply_rotation_xyz(const matrix_3x3 &matrix, float &_x, float &_y, float &_
 
 // Reset to identity. No rotate or translate.
 void matrix_3x3::set_to_identity() {
-  for (uint8_t i = 0; i < 3; i++)
-    for (uint8_t j = 0; j < 3; j++)
+  LOOP_L_N(i, 3)
+    LOOP_L_N(j, 3)
       vectors[i][j] = float(i == j);
 }
 
@@ -134,8 +134,8 @@ matrix_3x3 matrix_3x3::create_look_at(const vector_3 &target) {
 // Get a transposed copy of the matrix
 matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
   matrix_3x3 new_matrix;
-  for (uint8_t i = 0; i < 3; i++)
-    for (uint8_t j = 0; j < 3; j++)
+  LOOP_L_N(i, 3)
+    LOOP_L_N(j, 3)
       new_matrix.vectors[i][j] = original.vectors[j][i];
   return new_matrix;
 }
@@ -145,8 +145,8 @@ void matrix_3x3::debug(PGM_P const title) {
     serialprintPGM(title);
     SERIAL_EOL();
   }
-  for (uint8_t i = 0; i < 3; i++) {
-    for (uint8_t j = 0; j < 3; j++) {
+  LOOP_L_N(i, 3) {
+    LOOP_L_N(j, 3) {
       if (vectors[i][j] >= 0.0) SERIAL_CHAR('+');
       SERIAL_ECHO_F(vectors[i][j], 6);
       SERIAL_CHAR(' ');
