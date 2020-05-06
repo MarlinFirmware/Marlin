@@ -50,6 +50,10 @@ const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
   #endif
 };
 
+constexpr xyz_pos_t ProbeTempComp::park_point;
+constexpr xy_pos_t ProbeTempComp::measure_point;
+constexpr int ProbeTempComp::probe_calib_bed_temp;
+
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
 

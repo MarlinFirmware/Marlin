@@ -83,7 +83,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   BACK_ITEM(MSG_BACK);
   ACTION_ITEM(MSG_PREHEAT_1, []{ _change_filament(ui.preheat_hotend_temp[0]); });
   ACTION_ITEM(MSG_PREHEAT_2, []{ _change_filament(ui.preheat_hotend_temp[1]); });
-  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_extruder].target, EXTRUDE_MINTEMP, heater_maxtemp[extruder] - 15, []{
+  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_extruder].target, EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT, []{
     _change_filament(thermalManager.temp_hotend[_change_filament_extruder].target);
   });
   END_MENU();
@@ -95,12 +95,23 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
  *
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-  void menu_change_filament() {
-    START_MENU();
-    BACK_ITEM(MSG_MAIN);
 
+  void menu_change_filament() {
     // Say "filament change" when no print is active
     editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
+
+    #if E_STEPPERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
+      bool too_cold = false;
+      for (uint8_t s = 0; !too_cold && s < E_STEPPERS; s++)
+        too_cold = thermalManager.targetTooColdToExtrude(s);
+    #endif
+
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      const bool is_busy = printer_busy();
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_MAIN);
 
     // Change filament
     #if E_STEPPERS == 1
@@ -125,7 +136,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     #endif
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (!printer_busy()) {
+      if (!is_busy) {
         // Load filament
         #if E_STEPPERS == 1
           PGM_P const msg_load = GET_TEXT(MSG_FILAMENTLOAD);
@@ -157,18 +168,10 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
             GCODES_ITEM_P(msg_unload, PSTR("M702"));
         #else
           #if ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
-          {
-            bool too_cold = false;
-            LOOP_L_N(s, E_STEPPERS) {
-              if (thermalManager.targetTooColdToExtrude(s)) {
-                too_cold = true; break;
-              }
-            }
-            if (!too_cold)
-              GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
-            else
+            if (too_cold)
               SUBMENU(MSG_FILAMENTUNLOAD_ALL, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, -1); });
-          }
+            else
+              GCODES_ITEM(MSG_FILAMENTUNLOAD_ALL, PSTR("M702"));
           #endif
           PGM_P const msg_unload = GET_TEXT(MSG_FILAMENTUNLOAD_E);
           LOOP_L_N(s, E_STEPPERS) {
@@ -194,12 +197,9 @@ static uint8_t hotend_status_extruder = 0;
 
 static PGM_P pause_header() {
   switch (pause_mode) {
-    case PAUSE_MODE_CHANGE_FILAMENT:
-      return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER);
-    case PAUSE_MODE_LOAD_FILAMENT:
-      return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER_LOAD);
-    case PAUSE_MODE_UNLOAD_FILAMENT:
-      return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER_UNLOAD);
+    case PAUSE_MODE_CHANGE_FILAMENT:  return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER);
+    case PAUSE_MODE_LOAD_FILAMENT:    return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER_LOAD);
+    case PAUSE_MODE_UNLOAD_FILAMENT:  return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER_UNLOAD);
     default: break;
   }
   return GET_TEXT(MSG_FILAMENT_CHANGE_HEADER_PAUSE);
@@ -227,11 +227,18 @@ void menu_pause_option() {
     STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
   #endif
   ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_PURGE, []{ pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; });
+
   #if HAS_FILAMENT_SENSOR
-    if (runout.filament_ran_out)
+    const bool still_out = runout.filament_ran_out;
+    if (still_out)
       EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+  #else
+    constexpr bool still_out = false;
   #endif
-      ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
+
+  if (!still_out)
+    ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
+
   END_MENU();
 }
 

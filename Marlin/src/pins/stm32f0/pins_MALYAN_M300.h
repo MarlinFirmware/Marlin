@@ -31,7 +31,9 @@
 //
 // EEPROM Emulation
 //
-#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 
 //
 // SD CARD SPI
@@ -41,8 +43,6 @@
 //
 // Timers
 //
-#undef STEP_TIMER
-#undef TEMP_TIMER
 #define STEP_TIMER 6
 #define TEMP_TIMER 7
 

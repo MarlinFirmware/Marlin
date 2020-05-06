@@ -20,12 +20,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/eeprom_api.h"
 
@@ -236,13 +235,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    const uint8_t c = (
-      #if ENABLED(FLASH_EEPROM_LEVELING)
-        ram_eeprom[pos]
-      #else
-        eeprom_buffered_read_byte(pos)
-      #endif
-    );
+    const uint8_t c = TERN(FLASH_EEPROM_LEVELING, ram_eeprom[pos], eeprom_buffered_read_byte(pos));
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
@@ -252,14 +245,8 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  return (
-    #if ENABLED(FLASH_EEPROM_LEVELING)
-      EEPROM_SIZE
-    #else
-      E2END + 1
-    #endif
-  );
+  return TERN(FLASH_EEPROM_LEVELING, EEPROM_SIZE, E2END + 1);
 }
 
-#endif // EEPROM_SETTINGS && FLASH_EEPROM_EMULATION
+#endif // FLASH_EEPROM_EMULATION
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

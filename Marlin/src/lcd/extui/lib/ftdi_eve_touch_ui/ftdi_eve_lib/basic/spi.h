@@ -28,7 +28,7 @@
 
 namespace FTDI {
 
-  #if defined(__AVR__) || defined(CLCD_USE_SOFT_SPI)
+  #if !defined(CLCD_SPI_BUS) || defined(CLCD_USE_SOFT_SPI)
     #define SPI_OBJ ::SPI
   #else
     extern SPIClass EVE_SPI;
@@ -55,7 +55,7 @@ namespace FTDI {
       #ifdef CLCD_USE_SOFT_SPI
         return _soft_spi_xfer(0x00);
       #else
-        SPI_OBJ.transfer(0x00);
+        return SPI_OBJ.transfer(0x00);
       #endif
     };
 

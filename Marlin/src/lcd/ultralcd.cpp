@@ -638,7 +638,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     float manual_move_offset = 0;
   #endif
 
-  #if E_MANUAL > 1
+  #if MULTI_MANUAL
     int8_t MarlinUI::manual_move_e_index = 0;
   #endif
 
@@ -1347,13 +1347,13 @@ void MarlinUI::update() {
     PGM_P printing = GET_TEXT(MSG_PRINTING);
     PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0
-      static const char service1[] PROGMEM = { "> " SERVICE_NAME_1 "!" };
+      static PGMSTR(service1, "> " SERVICE_NAME_1 "!");
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      static const char service2[] PROGMEM = { "> " SERVICE_NAME_2 "!" };
+      static PGMSTR(service2, "> " SERVICE_NAME_2 "!");
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      static const char service3[] PROGMEM = { "> " SERVICE_NAME_3 "!" };
+      static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
     PGM_P msg;
     if (printingIsPaused())

@@ -416,10 +416,10 @@ xyze_int8_t Stepper::count_direction{0};
 #endif
 
 #define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
-constexpr uint32_t NS_PER_PULSE_TIMER_TICK = 1000000000UL / (STEPPER_TIMER_RATE);
+#define NS_PER_PULSE_TIMER_TICK (1000000000UL / (STEPPER_TIMER_RATE))
 
 // Round up when converting from ns to timer ticks
-constexpr uint32_t NS_TO_PULSE_TIMER_TICKS(uint32_t NS) { return (NS + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK); }
+#define NS_TO_PULSE_TIMER_TICKS(NS) (((NS) + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK))
 
 #define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
 

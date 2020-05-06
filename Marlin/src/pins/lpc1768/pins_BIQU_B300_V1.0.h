@@ -39,14 +39,6 @@
 #endif
 
 //
-// EEPROM
-//
-#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  //#define SDCARD_EEPROM_EMULATION
-#endif
-
-//
 // Limit Switches
 //
 #define X_MIN_PIN                          P1_24  // 10k pullup to 3.3V, 1K series

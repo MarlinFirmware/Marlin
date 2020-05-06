@@ -262,7 +262,7 @@
   #error "LCD_PIN_RESET is now LCD_RESET_PIN. Please update your pins definitions."
 #elif defined(EXTRUDER_0_AUTO_FAN_PIN) || defined(EXTRUDER_1_AUTO_FAN_PIN) || defined(EXTRUDER_2_AUTO_FAN_PIN) || defined(EXTRUDER_3_AUTO_FAN_PIN)
   #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
-#elif defined(PID_FAN_SCALING) && FAN_COUNT <= 0
+#elif defined(PID_FAN_SCALING) && !HAS_FAN
   #error "PID_FAN_SCALING needs at least one fan enabled."
 #elif defined(min_software_endstops) || defined(max_software_endstops)
   #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
@@ -1417,9 +1417,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Homing
  */
-#if X_HOME_BUMP_MM < 0 || Y_HOME_BUMP_MM < 0 || Z_HOME_BUMP_MM < 0
-  #error "[XYZ]_HOME_BUMP_MM must be greater than or equal to 0."
-#endif
+constexpr float hbm[] = HOMING_BUMP_MM;
+static_assert(COUNT(hbm) == XYZ, "HOMING_BUMP_MM requires X, Y, and Z elements.");
+static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0.");
+static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0.");
+static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0.");
 
 #if ENABLED(CODEPENDENT_XY_HOMING)
   #if ENABLED(QUICK_HOME)
@@ -2052,8 +2054,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Make sure only one EEPROM type is enabled
  */
-#if ENABLED(EEPROM_SETTINGS) && 1 < ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
-  #error "Please select only one of SDCARD, FLASH, or SRAM_EEPROM_EMULATION."
+#if ENABLED(EEPROM_SETTINGS)
+  #if 1 < 0 \
+    + ENABLED(I2C_EEPROM) + ENABLED(SPI_EEPROM) + ENABLED(QSPI_EEPROM) \
+    + ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
+    #error "Please select only one method of EEPROM Persistent Storage."
+  #endif
 #endif
 
 /**

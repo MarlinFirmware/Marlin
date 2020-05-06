@@ -128,9 +128,9 @@ void _lcd_ubl_build_custom_mesh() {
 void _lcd_ubl_custom_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_BUILD_MESH_MENU);
-  EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP - 10));
+  EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
   #if HAS_HEATED_BED
-    EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, (BED_MAXTEMP - 10));
+    EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
   #endif
   ACTION_ITEM(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_build_custom_mesh);
   END_MENU();
@@ -376,9 +376,8 @@ void _lcd_ubl_storage_mesh() {
   int16_t a = settings.calc_num_meshes();
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
-  if (!WITHIN(ubl_storage_slot, 0, a - 1)) {
+  if (!WITHIN(ubl_storage_slot, 0, a - 1))
     STATIC_ITEM(MSG_UBL_NO_STORAGE);
-  }
   else {
     EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
     ACTION_ITEM(MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
@@ -437,16 +436,10 @@ void ubl_map_move_to_xy() {
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 
-void _lcd_hard_stop() {
-  const screenFunc_t old_screen = ui.currentScreen;
-  lcd_limbo();
-  planner.quick_stop();
-  ui.currentScreen = old_screen;
-  set_current_from_steppers_for_axis(ALL_AXES);
-  sync_plan_position();
-}
-
 void _lcd_ubl_output_map_lcd() {
+
+  if (planner.movesplanned()) return;
+
   static int16_t step_scaler = 0;
 
   if (ui.use_click()) return _lcd_ubl_map_lcd_edit_cmd();
@@ -458,11 +451,7 @@ void _lcd_ubl_output_map_lcd() {
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
 
-  #if IS_KINEMATIC
-    #define KEEP_LOOPING true   // Loop until a valid point is found
-  #else
-    #define KEEP_LOOPING false
-  #endif
+  #define KEEP_LOOPING ENABLED(IS_KINEMATIC) // Loop until a valid point is found
 
   do {
     // Encoder to the right (++)
@@ -495,10 +484,6 @@ void _lcd_ubl_output_map_lcd() {
 
   if (ui.should_draw()) {
     ui.ubl_plot(x_plot, y_plot);
-
-    if (planner.movesplanned()) // If the nozzle is already moving, cancel the move.
-      _lcd_hard_stop();
-
     ubl_map_move_to_xy();       // Move to new location
   }
 }
@@ -511,6 +496,7 @@ void _lcd_ubl_output_map_lcd_cmd() {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }
+  if (planner.movesplanned()) return;
   ui.goto_screen(_lcd_ubl_map_homing);
 }
 
