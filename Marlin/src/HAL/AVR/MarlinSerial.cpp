@@ -135,9 +135,15 @@
 
     static EmergencyParser::State emergency_state; // = EP_RESET
 
+    // This must read the R_UCSRA register before reading the received byte to detect error causes
+    if (Cfg::DROPPED_RX && B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
+    if (Cfg::RX_OVERRUNS && B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
+    if (Cfg::RX_FRAMING_ERRORS && B_FE && !++rx_framing_errors) --rx_framing_errors;
+
+    // Read the character from the USART
+    uint8_t c = R_UDR;
+
     #if ENABLED(DIRECT_STEPPING)
-      // Read the character from the USART early for the page manager
-      uint8_t c = R_UDR;
       if (page_manager.maybe_store_rxd_char(c)) return;
     #endif
 
@@ -151,16 +157,6 @@
 
     // Get the next element
     ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
-
-    // This must read the R_UCSRA register before reading the received byte to detect error causes
-    if (Cfg::DROPPED_RX && B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
-    if (Cfg::RX_OVERRUNS && B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
-    if (Cfg::RX_FRAMING_ERRORS && B_FE && !++rx_framing_errors) --rx_framing_errors;
-
-    #if DISABLED(DIRECT_STEPPING)
-      // Read the character from the USART
-      uint8_t c = R_UDR;
-    #endif
 
     if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 
