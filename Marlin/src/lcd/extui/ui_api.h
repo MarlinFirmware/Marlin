@@ -237,7 +237,7 @@ namespace ExtUI {
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
 
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm();
       void setFilamentRunoutDistance_mm(const float);
     #endif
