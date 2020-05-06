@@ -135,7 +135,7 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm,         // (mm) M205 J
         Planner::d_theta_decay = 1.0f,                // (1/mm) Fractional reduction of d_theta_indicator per mm traveled
-        Planner::d_theta_threshold = RADIANS(0.05f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
+        Planner::d_theta_threshold = RADIANS(0.15f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
   #if HAS_LINEAR_E_JERK
     float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
