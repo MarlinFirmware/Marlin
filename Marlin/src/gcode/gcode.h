@@ -451,17 +451,11 @@ private:
     static void M422();
   #endif
 
-<<<<<<< HEAD
   #if ENABLED(SCREWS_TILT_ADJUST)
     static void G35();
   #endif
 
-  #if ENABLED(G38_PROBE_TARGET)
-    static void G38(const int8_t subcode);
-  #endif
-=======
   TERN_(G38_PROBE_TARGET, static void G38(const int8_t subcode));
->>>>>>> upstream/bugfix-2.0.x
 
   TERN_(HAS_MESH, static void G42());
 
