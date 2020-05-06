@@ -56,7 +56,7 @@
   );
 
   /**
-   * G35: Read four bed corners to help adjust bed screws
+   * G35: Read bed corners to help adjust bed screws
    * 
    *   T<screw_thread>
    * 
