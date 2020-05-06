@@ -57,8 +57,7 @@ MMU2 mmu2;
 #if ENABLED(MMU_EXTRUDER_SENSOR)
   uint8_t mmu_idl_sens = 0;
   static bool mmu_loading_flag = false;
-#endif //MMU_IDLER_SENSOR_PIN
-
+#endif
 
 #define MMU_CMD_NONE 0
 #define MMU_CMD_T0   0x10
@@ -85,11 +84,7 @@ MMU2 mmu2;
 #define MMU_CMD_F3   0x73
 #define MMU_CMD_F4   0x74
 
-#if ENABLED(MMU2_MODE_12V)
-  #define MMU_REQUIRED_FW_BUILDNR 132
-#else
-  #define MMU_REQUIRED_FW_BUILDNR 126
-#endif
+#define MMU_REQUIRED_FW_BUILDNR TERN(MMU2_MODE_12V, 132, 126)
 
 #define MMU2_NO_TOOL 99
 #define MMU_BAUD    115200
@@ -254,9 +249,7 @@ void MMU2::mmu_loop() {
           int filament = cmd - MMU_CMD_T0;
           DEBUG_ECHOLNPAIR("MMU <= T", filament);
           tx_printf_P(PSTR("T%d\n"), filament);
-          #if ENABLED(MMU_EXTRUDER_SENSOR)
-            mmu_idl_sens = 1; //enable idler sensor
-          #endif //MMU_IDLER_SENSOR_PIN 
+          TERN_(MMU_EXTRUDER_SENSOR, mmu_idl_sens = 1); // enable idler sensor, if any
           state = 3; // wait for response
         }
         else if (WITHIN(cmd, MMU_CMD_L0, MMU_CMD_L4)) {
@@ -333,10 +326,10 @@ void MMU2::mmu_loop() {
 
     case 3:   // response to mmu commands
       #if ENABLED(MMU_EXTRUDER_SENSOR)
-        if (mmu_idl_sens){
-      	  if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1 && mmu_loading_flag){  
+        if (mmu_idl_sens) {
+          if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1 && mmu_loading_flag) {
             DEBUG_ECHOLNPGM("MMU <= 'A'\n");
-            tx_str_P(PSTR("A\n")); //send 'abort' request
+            tx_str_P(PSTR("A\n")); // send 'abort' request
             mmu_idl_sens = 0;
             DEBUG_ECHOLNPGM("MMU IDLER_SENSOR = 0 - ABORT\n");
           }
@@ -493,178 +486,189 @@ static bool mmu2_not_responding() {
     return success;
   }
 
-/**
- * Handle tool change
- */
-void MMU2::tool_change(uint8_t index) {
+  /**
+   * Handle tool change
+   */
+  void MMU2::tool_change(uint8_t index) {
 
-  if (!enabled) return;
+    if (!enabled) return;
 
-  set_runout_valid(false);
+    set_runout_valid(false);
 
-  if (index != extruder) {
+    if (index != extruder) {
 
-    DISABLE_AXIS_E0();
-    ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+      DISABLE_AXIS_E0();
+      ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
-    command(MMU_CMD_T0 + index);
-    manage_response(true, true);
+      command(MMU_CMD_T0 + index);
+      manage_response(true, true);
 
-    if (load_to_gears()) {
-      extruder = index; // filament change is finished
+      if (load_to_gears()) {
+        extruder = index; // filament change is finished
+        active_extruder = 0;
+        ENABLE_AXIS_E0();
+        SERIAL_ECHO_START();
+        SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
+      }
+      ui.reset_status();
+    }
+
+    set_runout_valid(true);
+  }
+
+  /**
+   * Handle special T?/Tx/Tc commands
+   *
+   * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
+   * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
+   * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
+   */
+  void MMU2::tool_change(const char* special) {
+
+    if (!enabled) return;
+
+    #if ENABLED(MMU2_MENUS)
+
+      set_runout_valid(false);
+
+      switch (*special) {
+        case '?': {
+          uint8_t index = mmu2_choose_filament();
+          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+          load_filament_to_nozzle(index);
+        } break;
+
+        case 'x': {
+          planner.synchronize();
+          uint8_t index = mmu2_choose_filament();
+          DISABLE_AXIS_E0();
+          command(MMU_CMD_T0 + index);
+          manage_response(true, true);
+
+          if (load_to_gears()) {
+            mmu_loop();
+            ENABLE_AXIS_E0();
+            extruder = index;
+            active_extruder = 0;
+          }
+        } break;
+
+        case 'c': {
+          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+          execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
+        } break;
+      }
+
+      set_runout_valid(true);
+
+    #endif // MMU2_MENUS
+  }
+
+#elif ENABLED(MMU_EXTRUDER_SENSOR)
+
+  /**
+   * Handle tool change
+   */
+  void MMU2::tool_change(uint8_t index) {
+    SERIAL_ECHOLNPGM("void handle tool change\n");
+    if (!enabled) return;
+
+    set_runout_valid(false);
+
+    if (index != extruder) {
+      DISABLE_AXIS_E0();
+      if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1){
+        DEBUG_ECHOLNPGM("Unloading\n");
+        mmu_loading_flag = false;
+        command(MMU_CMD_U0);
+        manage_response(true, true);
+      }
+      ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+      mmu_loading_flag = true;
+      command(MMU_CMD_T0 + index);
+      manage_response(true, true);
+      mmu_continue_loading();
+      command(MMU_CMD_C0);
+      extruder = index;
       active_extruder = 0;
+
       ENABLE_AXIS_E0();
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
+
+      ui.reset_status();
     }
-    ui.reset_status();
+
+    set_runout_valid(true);
   }
 
-  set_runout_valid(true);
-}
+  /**
+   * Handle special T?/Tx/Tc commands
+   *
+   * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
+   * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
+   * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
+   */
+  void MMU2::tool_change(const char* special) {
+    SERIAL_ECHOLNPGM("Void tool change\n");
+    if (!enabled) return;
 
-/**
- *
- * Handle special T?/Tx/Tc commands
- *
- * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
- * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
- * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
- *
- */
-void MMU2::tool_change(const char* special) {
+    #if ENABLED(MMU2_MENUS)
 
-  if (!enabled) return;
+      set_runout_valid(false);
 
-  #if ENABLED(MMU2_MENUS)
+      switch (*special) {
+        case '?': {
+          SERIAL_ECHOLNPGM("case ?\n");
+          uint8_t index = mmu2_choose_filament();
+          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+          load_filament_to_nozzle(index);
+        } break;
 
-    set_runout_valid(false);
-
-    switch (*special) {
-      case '?': {
-        uint8_t index = mmu2_choose_filament();
-        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-        load_filament_to_nozzle(index);
-      } break;
-
-      case 'x': {
-        planner.synchronize();
-        uint8_t index = mmu2_choose_filament();
-        DISABLE_AXIS_E0();
-        command(MMU_CMD_T0 + index);
-        manage_response(true, true);
-
-        if (load_to_gears()) {
+        case 'x': {
+          SERIAL_ECHOLNPGM("case x\n");
+          planner.synchronize();
+          uint8_t index = mmu2_choose_filament();
+          DISABLE_AXIS_E0();
+          command(MMU_CMD_T0 + index);
+          manage_response(true, true);
+          mmu_continue_loading();
+          command(MMU_CMD_C0);
           mmu_loop();
+
           ENABLE_AXIS_E0();
           extruder = index;
           active_extruder = 0;
-        }
-      } break;
+        } break;
 
-      case 'c': {
-        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-        execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
-      } break;
-    }
+        case 'c': {
+          SERIAL_ECHOLNPGM("case c\n");
+          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+          execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
+        } break;
+      }
 
-    set_runout_valid(true);
+      set_runout_valid(true);
 
-  #endif
-}
-
-#endif //ENABLED(PRUSA_MMU2_S_MODE)
-
-#if ENABLED(MMU_EXTRUDER_SENSOR)
-/**
- * Handle tool change
- */
-void MMU2::tool_change(uint8_t index) {
-  SERIAL_ECHOLNPGM("void handle tool change\n");
-  if (!enabled) return;
-
-  set_runout_valid(false);
-
-  if (index != extruder) {
-    DISABLE_AXIS_E0();
-    if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1){
-      DEBUG_ECHOLNPGM("Unloading\n");
-      mmu_loading_flag = false;
-      command(MMU_CMD_U0);
-      manage_response(true, true);
-    }
-    ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
-    mmu_loading_flag = true;
-    command(MMU_CMD_T0 + index);
-    manage_response(true, true);
-    mmu_continue_loading();
-    command(MMU_CMD_C0); 
-    extruder = index; 
-    active_extruder = 0;
-
-    ENABLE_AXIS_E0();
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
-
-    ui.reset_status();
+    #endif // MMU2_MENUS
   }
 
-  set_runout_valid(true);
-}
-
-/**
- *
- * Handle special T?/Tx/Tc commands
- *
- * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
- * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
- * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
- *
- */
-void MMU2::tool_change(const char* special) {
-  SERIAL_ECHOLNPGM("Void tool change\n");
-  if (!enabled) return;
-
-  #if ENABLED(MMU2_MENUS)
-
-    set_runout_valid(false);
-
-    switch (*special) {
-      case '?': {
-        SERIAL_ECHOLNPGM("case ?\n");
-        uint8_t index = mmu2_choose_filament();
-        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-        load_filament_to_nozzle(index);
-      } break;
-
-      case 'x': {
-        SERIAL_ECHOLNPGM("case x\n");
-        planner.synchronize();
-        uint8_t index = mmu2_choose_filament();
-        DISABLE_AXIS_E0();
-        command(MMU_CMD_T0 + index);
-        manage_response(true, true);
-        mmu_continue_loading();
-        command(MMU_CMD_C0); 
-        mmu_loop();
-
-        ENABLE_AXIS_E0();
-        extruder = index;
-        active_extruder = 0;
-      } break;
-
-      case 'c': {
-        SERIAL_ECHOLNPGM("case c\n");
-        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-        execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
-      } break;
+  void MMU2::mmu_continue_loading() {
+    SERIAL_ECHOLNPGM("Void continue loading\n");
+    for (uint8_t i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
+      DEBUG_ECHOLNPAIR("Additional load attempt #", i);
+      if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1) break;
+      command(MMU_CMD_C0);
+      manage_response(true, true);
     }
+    if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 0) {
+      DEBUG_ECHOLNPGM("Filament has not reached sensor, runout");
+      filament_runout();
+    }
+    mmu_idl_sens = 0;
+  }
 
-    set_runout_valid(true);
-
-  #endif
-}
-#endif
+#endif // MMU_EXTRUDER_SENSOR
 
 /**
  * Set next command
@@ -807,23 +811,6 @@ void MMU2::filament_runout() {
   }
 #endif
 
-#if ENABLED(MMU_EXTRUDER_SENSOR)
-void MMU2::mmu_continue_loading(){
-  SERIAL_ECHOLNPGM("Void continu loading\n");
-    for (int i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
-      DEBUG_ECHOLNPAIR("Additional load attempt nr.", i);
-      if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1) break;
-      command(MMU_CMD_C0);
-      manage_response(true, true);
-      }
-      if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 0){
-        DEBUG_ECHOLNPGM("Filament has not reached sensor, runout");
-        filament_runout();
-      }
-    mmu_idl_sens = 0;
-}
-#endif
-
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   // Load filament into MMU2
@@ -864,7 +851,6 @@ void MMU2::mmu_continue_loading(){
   }
 
   /**
-   *
    * Load filament to nozzle of multimaterial printer
    *
    * This function is used only only after T? (user select filament) and M600 (change filament).
@@ -923,9 +909,7 @@ void MMU2::mmu_continue_loading(){
   }
 
   /**
-   *
-   * unload from hotend and retract to MMU
-   *
+   * Unload from hotend and retract to MMU
    */
   bool MMU2::unload() {
 
