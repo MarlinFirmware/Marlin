@@ -121,7 +121,7 @@ MarlinUI ui;
   #endif
 #endif
 
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
   bool MarlinUI::defer_return_to_status;
 #endif
 
@@ -732,7 +732,7 @@ void MarlinUI::update() {
   static uint16_t max_display_update_time = 0;
   millis_t ms = millis();
 
-  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
     static millis_t return_to_status_ms = 0;
     #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
   #else
@@ -967,7 +967,7 @@ void MarlinUI::update() {
         NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
         RESET_STATUS_TIMEOUT();
