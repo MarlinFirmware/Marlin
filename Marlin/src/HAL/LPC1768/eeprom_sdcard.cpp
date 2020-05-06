@@ -26,7 +26,7 @@
 
 #if ENABLED(SDCARD_EEPROM_EMULATION)
 
-#include "eeprom_api.h"
+#include "../shared/eeprom_api.h"
 
 #include <chanfs/diskio.h>
 #include <chanfs/ff.h>
@@ -37,6 +37,8 @@ extern uint32_t MSC_Release_Lock();
 FATFS fat_fs;
 FIL eeprom_file;
 bool eeprom_file_open = false;
+
+size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
@@ -167,8 +169,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   pos += size;
   return bytes_read != size;  // return true for any error
 }
-
-size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 #endif // SDCARD_EEPROM_EMULATION
 #endif // TARGET_LPC1768

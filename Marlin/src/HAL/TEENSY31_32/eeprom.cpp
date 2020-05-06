@@ -1,10 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_SAM
-
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(EEPROM_SETTINGS)
+#ifdef __MK20DX256__
 
 #include "../../inc/MarlinConfig.h"
+
+#if USE_WIRED_EEPROM
+
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with implementations supplied by the framework.
+ */
+
 #include "../shared/eeprom_api.h"
 
-#if !defined(E2END) && ENABLED(FLASH_EEPROM_EMULATION)
-  #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)
-#endif
-
-extern void eeprom_flush();
-
 bool PersistentStore::access_start() { return true; }
-
-bool PersistentStore::access_finish() {
-  #if ENABLED(FLASH_EEPROM_EMULATION)
-    eeprom_flush();
-  #endif
-  return true;
-}
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -52,7 +40,6 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
-      delay(2);
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
@@ -76,7 +63,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-size_t PersistentStore::capacity() { return E2END + 1; }
-
-#endif // EEPROM_SETTINGS
-#endif // ARDUINO_ARCH_SAM
+#endif // USE_WIRED_EEPROM
+#endif // __MK20DX256__

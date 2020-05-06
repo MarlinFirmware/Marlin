@@ -39,9 +39,10 @@ void GcodeSuite::M122() {
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      const bool sflag = parser.seen('S'), s0 = sflag && !parser.value_bool();
-      if (sflag) tmc_set_report_interval(s0 ? 0 : MONITOR_DRIVER_STATUS_INTERVAL_MS);
-      if (!s0 && parser.seenval('P')) tmc_set_report_interval(_MIN(parser.value_ushort(), MONITOR_DRIVER_STATUS_INTERVAL_MS));
+      uint16_t interval = MONITOR_DRIVER_STATUS_INTERVAL_MS;
+      if (parser.seen('S') && !parser.value_bool()) interval = 0;
+      if (parser.seenval('P')) NOMORE(interval, parser.value_ushort());
+      tmc_set_report_interval(interval);
     #endif
 
     if (parser.seen('V'))

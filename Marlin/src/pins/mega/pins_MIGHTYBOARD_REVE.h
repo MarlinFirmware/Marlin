@@ -159,7 +159,7 @@
 #define HBP_PIN                               45  // L4
 #define EXTRA_FET_PIN                         44  // L5
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #if TEMP_SENSOR_BED
     #define IS_EEB
   #else
@@ -203,6 +203,7 @@
 #define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
+#define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
 
 //
 // LCD / Controller

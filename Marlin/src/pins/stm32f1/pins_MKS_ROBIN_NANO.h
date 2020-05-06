@@ -41,8 +41,10 @@
 //
 // EEPROM
 //
-//#define FLASH_EEPROM_EMULATION
-#define SDCARD_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  //#define FLASH_EEPROM_EMULATION
+  #define SDCARD_EEPROM_EMULATION
+#endif
 
 //
 // Limit Switches

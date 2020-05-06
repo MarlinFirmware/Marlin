@@ -247,6 +247,7 @@
 
   #ifndef SDIO_SUPPORT
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
+    #undef SDSS
     #define SDSS                     SDIO_D3_PIN
     #define SCK_PIN                  SDIO_CK_PIN
     #define MISO_PIN                 SDIO_D0_PIN

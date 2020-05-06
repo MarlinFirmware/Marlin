@@ -72,9 +72,7 @@ void GcodeSuite::M303() {
   const heater_ind_t e = (heater_ind_t)parser.intval('E');
   if (!WITHIN(e, SI, EI)) {
     SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
     return;
   }
 
