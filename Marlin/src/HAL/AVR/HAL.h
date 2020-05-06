@@ -53,6 +53,9 @@
 // AVR PROGMEM extension for sprintf_P
 #define S_FMT "%S"
 
+// AVR PROGMEM extension for string define
+#define PGMSTR(NAM,STR) const char NAM[] PROGMEM = STR
+
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START()  unsigned char _sreg = SREG; cli()
   #define CRITICAL_SECTION_END()    SREG = _sreg

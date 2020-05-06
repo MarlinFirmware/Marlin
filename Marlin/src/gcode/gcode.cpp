@@ -663,6 +663,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 305: M305(); break;                                  // M305: Set user thermistor parameters
       #endif
 
+      #if ENABLED(REPETIER_GCODE_M360)
+        case 360: M360(); break;                                  // M360: Firmware settings
+      #endif
+
       #if ENABLED(MORGAN_SCARA)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
