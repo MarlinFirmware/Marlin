@@ -121,7 +121,7 @@ MarlinUI ui;
   #endif
 #endif
 
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
   bool MarlinUI::defer_return_to_status;
 #endif
 
@@ -732,7 +732,7 @@ void MarlinUI::update() {
   static uint16_t max_display_update_time = 0;
   millis_t ms = millis();
 
-  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
     static millis_t return_to_status_ms = 0;
     #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
   #else
@@ -967,7 +967,7 @@ void MarlinUI::update() {
         NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
         RESET_STATUS_TIMEOUT();
@@ -1347,13 +1347,13 @@ void MarlinUI::update() {
     PGM_P printing = GET_TEXT(MSG_PRINTING);
     PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0
-      static const char service1[] PROGMEM = { "> " SERVICE_NAME_1 "!" };
+      static PGMSTR(service1, "> " SERVICE_NAME_1 "!");
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      static const char service2[] PROGMEM = { "> " SERVICE_NAME_2 "!" };
+      static PGMSTR(service2, "> " SERVICE_NAME_2 "!");
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      static const char service3[] PROGMEM = { "> " SERVICE_NAME_3 "!" };
+      static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
     PGM_P msg;
     if (printingIsPaused())

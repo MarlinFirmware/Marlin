@@ -25,8 +25,8 @@
 
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
-static const char errormagic[] PROGMEM = "Error:";
-static const char echomagic[]  PROGMEM = "echo:";
+static PGMSTR(errormagic, "Error:");
+static PGMSTR(echomagic, "echo:");
 
 #if NUM_SERIAL > 1
   int8_t serial_port_index = 0;

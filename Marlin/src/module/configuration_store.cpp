@@ -3211,6 +3211,7 @@ void MarlinSettings::reset() {
         #if AXIS_IS_TMC(Z)
           SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.getMilliamps());
         #endif
+        SERIAL_EOL();
       #endif
 
       #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
@@ -3225,6 +3226,7 @@ void MarlinSettings::reset() {
         #if AXIS_IS_TMC(Z2)
           SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.getMilliamps());
         #endif
+        SERIAL_EOL();
       #endif
 
       #if AXIS_IS_TMC(Z3)
@@ -3278,34 +3280,30 @@ void MarlinSettings::reset() {
         CONFIG_ECHO_HEADING("Hybrid Threshold:");
         #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
           say_M913(forReplay);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X)
-          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX.get_pwm_thrs());
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY.get_pwm_thrs());
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.get_pwm_thrs());
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
+          #if AXIS_HAS_STEALTHCHOP(X)
+            SERIAL_ECHOPAIR_P(SP_X_STR, stepperX.get_pwm_thrs());
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Y)
+            SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY.get_pwm_thrs());
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z)
+            SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ.get_pwm_thrs());
+          #endif
           SERIAL_EOL();
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
           say_M913(forReplay);
           SERIAL_ECHOPGM(" I1");
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2)
-          SERIAL_ECHOPAIR_P(SP_X_STR, stepperX2.get_pwm_thrs());
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y2)
-          SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY2.get_pwm_thrs());
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z2)
-          SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.get_pwm_thrs());
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
+          #if AXIS_HAS_STEALTHCHOP(X2)
+            SERIAL_ECHOPAIR_P(SP_X_STR, stepperX2.get_pwm_thrs());
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Y2)
+            SERIAL_ECHOPAIR_P(SP_Y_STR, stepperY2.get_pwm_thrs());
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z2)
+            SERIAL_ECHOPAIR_P(SP_Z_STR, stepperZ2.get_pwm_thrs());
+          #endif
           SERIAL_EOL();
         #endif
 
