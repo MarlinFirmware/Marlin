@@ -44,13 +44,7 @@ FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
 FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
-  return !(
-    #if ENABLED(HOME_AFTER_DEACTIVATE)
-      all_axes_known()
-    #else
-      all_axes_homed()
-    #endif
-  );
+  return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
 }
 
 // Error margin to work around float imprecision
@@ -114,24 +108,29 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
+inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
+inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
-  extern const XYZval<T> NAME##_P; \
-  FORCE_INLINE T NAME(AxisEnum axis) { return pgm_read_any(&NAME##_P[axis]); }
-
+  inline T NAME(const AxisEnum axis) { \
+    static const XYZval<T> NAME##_P PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    return pgm_read_any(&NAME##_P[axis]); \
+  }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_DEFS(signed char, home_dir, HOME_DIR);
+
+inline float home_bump_mm(const AxisEnum axis) {
+  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
+  return pgm_read_any(&home_bump_mm_P[axis]);
+}
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);
 #else
-  #define update_workspace_offset(x) NOOP
+  inline void update_workspace_offset(const AxisEnum) {}
 #endif
 
 #if HAS_HOTEND_OFFSET
@@ -153,6 +152,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 #else
   constexpr bool soft_endstops_enabled = false;
   //constexpr axis_limits_t soft_endstop = {
@@ -160,6 +160,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
   #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
 #endif
 
 void report_real_position();

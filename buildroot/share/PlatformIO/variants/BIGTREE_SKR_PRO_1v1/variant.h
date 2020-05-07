@@ -245,8 +245,13 @@ extern "C" {
 #define PIN_SPI_SS              PB12
 
 // I2C Definitions
-#define PIN_WIRE_SDA            PB7
-#define PIN_WIRE_SCL            PB6
+#if STM32F4X_PIN_NUM >= 176
+  #define PIN_WIRE_SDA          PH5
+  #define PIN_WIRE_SCL          PH4
+#else
+  #define PIN_WIRE_SDA          PB7
+  #define PIN_WIRE_SCL          PB6
+#endif
 
 // Timer Definitions
 //Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c

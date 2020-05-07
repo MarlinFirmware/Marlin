@@ -25,9 +25,15 @@
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with implementations supplied by the framework.
+ */
+
 #include "../shared/eeprom_api.h"
 
-bool PersistentStore::access_start() { return true; }
+size_t PersistentStore::capacity()    { return E2END + 1; }
+bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -60,8 +66,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   } while (--size);
   return false;  // always assume success for AVR's
 }
-
-size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 #endif // __AVR__

@@ -40,7 +40,7 @@
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "eeprom_api.h"
+#include "../shared/eeprom_api.h"
 
 extern "C" {
   #include <lpc17xx_iap.h>
@@ -57,6 +57,8 @@ extern "C" {
 static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 static int current_slot = 0;
+
+size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
   uint32_t first_nblank_loc, first_nblank_val;
@@ -121,8 +123,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   pos += size;
   return false;  // return true for any error
 }
-
-size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // FLASH_EEPROM_EMULATION
 #endif // TARGET_LPC1768

@@ -262,7 +262,7 @@
   #error "LCD_PIN_RESET is now LCD_RESET_PIN. Please update your pins definitions."
 #elif defined(EXTRUDER_0_AUTO_FAN_PIN) || defined(EXTRUDER_1_AUTO_FAN_PIN) || defined(EXTRUDER_2_AUTO_FAN_PIN) || defined(EXTRUDER_3_AUTO_FAN_PIN)
   #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
-#elif defined(PID_FAN_SCALING) && FAN_COUNT <= 0
+#elif defined(PID_FAN_SCALING) && !HAS_FAN
   #error "PID_FAN_SCALING needs at least one fan enabled."
 #elif defined(min_software_endstops) || defined(max_software_endstops)
   #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
@@ -355,7 +355,7 @@
   #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values. Please update your Configuration.h."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
-#elif DISABLED(CLASSIC_JERK) && defined(JUNCTION_DEVIATION_FACTOR)
+#elif HAS_JUNCTION_DEVIATION && defined(JUNCTION_DEVIATION_FACTOR)
   #error "JUNCTION_DEVIATION_FACTOR is now JUNCTION_DEVIATION_MM. Please update your configuration."
 #elif defined(JUNCTION_ACCELERATION_FACTOR)
   #error "JUNCTION_ACCELERATION_FACTOR is obsolete. Delete it from Configuration_adv.h."
@@ -493,6 +493,12 @@
   #error "ORIG_Ex_AUTO_FAN_PIN is now just Ex_AUTO_FAN_PIN. Make sure your pins are up to date."
 #elif defined(ORIG_CHAMBER_AUTO_FAN_PIN)
   #error "ORIG_CHAMBER_AUTO_FAN_PIN is now just CHAMBER_AUTO_FAN_PIN. Make sure your pins are up to date."
+#elif defined(HOMING_BACKOFF_MM)
+  #error "HOMING_BACKOFF_MM is now HOMING_BACKOFF_POST_MM. Please update Configuration_adv.h."
+#elif defined(X_HOME_BUMP_MM) || defined(Y_HOME_BUMP_MM) || defined(Z_HOME_BUMP_MM)
+  #error "[XYZ]_HOME_BUMP_MM is now HOMING_BUMP_MM. Please update Configuration_adv.h."
+#elif defined(DIGIPOT_I2C)
+  #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #endif
 
 /**
@@ -656,7 +662,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif PROGRESS_MSG_EXPIRE < 0
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
-#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && !HAS_GRAPHICAL_LCD && DISABLED(EXTENSIBLE_UI)
+#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_GRAPHICAL_LCD, EXTENSIBLE_UI)
   #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Graphical LCD, or EXTENSIBLE_UI."
 #endif
 
@@ -667,7 +673,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !(HAS_GRAPHICAL_LCD || ENABLED(TOUCH_UI_FTDI_EVE))
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_GRAPHICAL_LCD, TOUCH_UI_FTDI_EVE)
   #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
   #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
@@ -800,6 +806,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(NOZZLE_PARK_FEATURE)
   constexpr float npp[] = NOZZLE_PARK_POINT;
   static_assert(COUNT(npp) == XYZ, "NOZZLE_PARK_POINT requires X, Y, and Z values.");
+  constexpr xyz_pos_t npp_xyz = NOZZLE_PARK_POINT;
+  static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
+  static_assert(WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+  static_assert(WITHIN(npp_xyz.z, Z_MIN_POS, Z_MAX_POS), "NOZZLE_PARK_POINT.Z is out of bounds (Z_MIN_POS, Z_MAX_POS).");
 #endif
 
 /**
@@ -823,14 +833,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #ifndef TOOLCHANGE_FIL_SWAP_LENGTH
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_LENGTH. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_RETRACT_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_RETRACT_SPEED. Please update your Configuration."
-    #elif !defined(TOOLCHANGE_FIL_SWAP_PRIME_SPEED)
-      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FIL_SWAP_PRIME_SPEED. Please update your Configuration."
+    #ifndef TOOLCHANGE_FS_LENGTH
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_LENGTH. Please update your Configuration_adv.h."
+    #elif !defined(TOOLCHANGE_FS_RETRACT_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_RETRACT_SPEED. Please update your Configuration_adv.h."
+    #elif !defined(TOOLCHANGE_FS_PRIME_SPEED)
+      #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_PRIME_SPEED. Please update your Configuration_adv.h."
     #endif
   #endif
+
   #if ENABLED(TOOLCHANGE_PARK)
     #ifndef TOOLCHANGE_PARK_XY
       #error "TOOLCHANGE_PARK requires TOOLCHANGE_PARK_XY. Please update your Configuration."
@@ -954,6 +965,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     WITHIN(LIN_ADVANCE_K, 0, 10),
     "LIN_ADVANCE_K must be a value from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
   );
+  #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
+    #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
+  #endif
 #endif
 
 /**
@@ -1123,7 +1137,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Junction deviation is incompatible with kinematic systems.
  */
-#if DISABLED(CLASSIC_JERK) && IS_KINEMATIC
+#if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
   #error "CLASSIC_JERK is required for DELTA and SCARA."
 #endif
 
@@ -1377,7 +1391,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "G26_MESH_VALIDATION requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
 #endif
 
-#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !(ENABLED(AUTO_BED_LEVELING_UBL) && HAS_GRAPHICAL_LCD)
+#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !BOTH(AUTO_BED_LEVELING_UBL, HAS_GRAPHICAL_LCD)
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
@@ -1403,9 +1417,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Homing
  */
-#if X_HOME_BUMP_MM < 0 || Y_HOME_BUMP_MM < 0 || Z_HOME_BUMP_MM < 0
-  #error "[XYZ]_HOME_BUMP_MM must be greater than or equal to 0."
-#endif
+constexpr float hbm[] = HOMING_BUMP_MM;
+static_assert(COUNT(hbm) == XYZ, "HOMING_BUMP_MM requires X, Y, and Z elements.");
+static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0.");
+static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0.");
+static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0.");
 
 #if ENABLED(CODEPENDENT_XY_HOMING)
   #if ENABLED(QUICK_HOME)
@@ -1583,11 +1599,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 // Pins are required for heaters
 #if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
+#elif HOTENDS && !HAS_TEMP_HOTEND
+  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #if ENABLED(HEATER_1_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS2)
     #error "MAX6675_SS2_PIN (required for TEMP_SENSOR_1) not defined for this board."
   #elif TEMP_SENSOR_1 == 0
@@ -1811,8 +1829,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Endstop Tests
  */
 
-#define _PLUG_UNUSED_TEST(AXIS,PLUG) (DISABLED(USE_##PLUG##MIN_PLUG, USE_##PLUG##MAX_PLUG) && !(ENABLED(AXIS##_DUAL_ENDSTOPS) && WITHIN(AXIS##2_USE_ENDSTOP, _##PLUG##MAX_, _##PLUG##MIN_)))
-#define _AXIS_PLUG_UNUSED_TEST(AXIS) (_PLUG_UNUSED_TEST(AXIS,X) && _PLUG_UNUSED_TEST(AXIS,Y) && _PLUG_UNUSED_TEST(AXIS,Z))
+#define _PLUG_UNUSED_TEST(A,P) (DISABLED(USE_##P##MIN_PLUG, USE_##P##MAX_PLUG) \
+  && !(ENABLED(A##_DUAL_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) \
+  && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
+#define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
 // At least 3 endstop plugs must be used
 #if _AXIS_PLUG_UNUSED_TEST(X)
@@ -1837,8 +1857,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Enable USE_YMAX_PLUG when homing Y to MAX."
   #endif
 #endif
-#if Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
+
+// Z homing direction and plug usage flags
+#if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
   #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+#elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
   #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
 #endif
@@ -2030,8 +2054,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Make sure only one EEPROM type is enabled
  */
-#if ENABLED(EEPROM_SETTINGS) && 1 < ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
-  #error "Please select only one of SDCARD, FLASH, or SRAM_EEPROM_EMULATION."
+#if ENABLED(EEPROM_SETTINGS)
+  #if 1 < 0 \
+    + ENABLED(I2C_EEPROM) + ENABLED(SPI_EEPROM) + ENABLED(QSPI_EEPROM) \
+    + ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
+    #error "Please select only one method of EEPROM Persistent Storage."
+  #endif
 #endif
 
 /**
@@ -2102,6 +2130,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #undef IS_RRW_KEYPAD
 #undef IS_EXTUI
 #undef IS_ULTIPANEL
+
+#if 1 < ENABLED(LCD_SCREEN_ROT_0) + ENABLED(LCD_SCREEN_ROT_90) + ENABLED(LCD_SCREEN_ROT_180) + ENABLED(LCD_SCREEN_ROT_270)
+  #error "Please enable only one LCD_SCREEN_ROT_* option: 0, 90, 180, or 270."
+#endif
 
 /**
  * FYSETC Mini 12864 RGB backlighting required
@@ -2433,10 +2465,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Digipot requirement
  */
-#if ENABLED(DIGIPOT_MCP4018)
-  #if !defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) \
-    || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1)
-      #error "DIGIPOT_MCP4018 requires DIGIPOTS_I2C_SDA_* pins to be defined."
+#if HAS_I2C_DIGIPOT
+  #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+    #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
+  #elif !MB(MKS_SBASE) \
+    && (!defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1))
+      #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif
 #endif
 
@@ -2712,6 +2746,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PRUSA_MMU2 requires NOZZLE_PARK_FEATURE."
   #elif EXTRUDERS != 5
     #error "PRUSA_MMU2 requires EXTRUDERS = 5."
+  #elif ENABLED(PRUSA_MMU2_S_MODE) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2_S_MODE requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2.");
   #endif
@@ -2757,8 +2793,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if HAS_CUTTER
   #ifndef CUTTER_POWER_DISPLAY
     #error "CUTTER_POWER_DISPLAY is required with a spindle or laser. Please update your Configuration_adv.h."
-  #elif !CUTTER_DISPLAY_IS(PWM) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
-    #error "CUTTER_POWER_DISPLAY must be PWM, PERCENT, or RPM. Please update your Configuration_adv.h."
+  #elif !CUTTER_DISPLAY_IS(PWM255) && !CUTTER_DISPLAY_IS(PERCENT) && !CUTTER_DISPLAY_IS(RPM)
+    #error "CUTTER_POWER_DISPLAY must be PWM255, PERCENT, or RPM. Please update your Configuration_adv.h."
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)

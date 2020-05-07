@@ -64,8 +64,8 @@ void host_action(const char * const pstr, const bool eol) {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
-  const char CONTINUE_STR[] PROGMEM = "Continue",
-             DISMISS_STR[] PROGMEM = "Dismiss";
+  PGMSTR(CONTINUE_STR, "Continue");
+  PGMSTR(DISMISS_STR, "Dismiss");
 
   #if HAS_RESUME_CONTINUE
     extern bool wait_for_user;
@@ -108,11 +108,7 @@ void host_action(const char * const pstr, const bool eol) {
   }
 
   void filament_load_host_prompt() {
-    const bool disable_to_continue = (false
-      #if HAS_FILAMENT_SENSOR
-        || runout.filament_ran_out
-      #endif
-    );
+    const bool disable_to_continue = TERN0(HAS_FILAMENT_SENSOR, runout.filament_ran_out);
     host_prompt_do(PROMPT_FILAMENT_RUNOUT, PSTR("Paused"), PSTR("PurgeMore"),
       disable_to_continue ? PSTR("DisableRunout") : CONTINUE_STR
     );
@@ -127,7 +123,7 @@ void host_action(const char * const pstr, const bool eol) {
   //
   void host_response_handler(const uint8_t response) {
     #ifdef DEBUG_HOST_ACTIONS
-      static const char m876_prefix[] PROGMEM = "M876 Handle Re";
+      static PGMSTR(m876_prefix, "M876 Handle Re");
       serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("ason: ", host_prompt_reason);
       serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("sponse: ", response);
     #endif
@@ -140,14 +136,14 @@ void host_action(const char * const pstr, const bool eol) {
         switch (response) {
 
           case 0: // "Purge More" button
-            #if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+            #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
             filament_load_host_prompt();                          // Initiate another host prompt. (NOTE: The loop in load_filament may also do this!)
             break;
 
           case 1: // "Continue" / "Disable Runout" button
-            #if HAS_LCD_MENU && ENABLED(ADVANCED_PAUSE_FEATURE)
+            #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
             #endif
             #if HAS_FILAMENT_SENSOR
@@ -160,9 +156,7 @@ void host_action(const char * const pstr, const bool eol) {
         }
         break;
       case PROMPT_USER_CONTINUE:
-        #if HAS_RESUME_CONTINUE
-          wait_for_user = false;
-        #endif
+        TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
         msg = PSTR("FILAMENT_RUNOUT_CONTINUE");
         break;
       case PROMPT_PAUSE_RESUME:

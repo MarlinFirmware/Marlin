@@ -1,6 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
+ *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,23 +20,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef __MK20DX256__
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EEPROM_SETTINGS)
+#if USE_WIRED_EEPROM
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with simple implementations supplied by Marlin.
+ */
+
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-bool PersistentStore::access_start() { return true; }
+size_t PersistentStore::capacity()    { return E2END + 1; }
 bool PersistentStore::access_finish() { return true; }
+
+bool PersistentStore::access_start()  {
+  eeprom_init();
+  return true;
+}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
+
     // EEPROM has only ~100,000 write cycles,
     // so only write bytes that have changed!
+    uint8_t * const p = (uint8_t * const)pos;
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
       if (eeprom_read_byte(p) != v) {
@@ -40,16 +56,19 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
         return true;
       }
     }
+
     crc16(crc, &v, 1);
     pos++;
     value++;
   };
+
   return false;
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    uint8_t c = eeprom_read_byte((uint8_t*)pos);
+    // Read from either external EEPROM, program flash or Backup SRAM
+    const uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
@@ -58,5 +77,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-#endif // EEPROM_SETTINGS
-#endif // __MK20DX256__
+#endif // USE_WIRED_EEPROM
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

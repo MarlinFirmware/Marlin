@@ -35,11 +35,13 @@
 
 #define DISABLE_JTAG
 
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     (0x800U) // 2KB
-#define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-#undef E2END
-#define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #undef E2END
+  #define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#endif
 
 //
 // Servos
@@ -105,15 +107,35 @@
 //
 // LCD Pins
 //
+/**
+ *                 _____
+ *             5V | 1 2 | GND
+ *    (MOSI) PB15 | 3 4 | PB12 (LCD_EN)
+ *     (SCK) PB13 | 5 6   PC11 (BTN_EN1)
+ *  (LCD_RS) PB14 | 7 8 | PC10 (BTN_EN2)
+ * (BTN_ENC) PC12 | 9 10| PC9  (BEEPER)
+ *                 -----
+ *                 EXP1
+ */
+
+#define EXPA1_03_PIN                        PB15
+#define EXPA1_04_PIN                        PB12
+#define EXPA1_05_PIN                        PB13
+#define EXPA1_06_PIN                        PC11
+#define EXPA1_07_PIN                        PB14
+#define EXPA1_08_PIN                        PC10
+#define EXPA1_09_PIN                        PC12
+#define EXPA1_10_PIN                        PC9
+
 #if HAS_SPI_LCD
 
-  #define BEEPER_PIN                        PC9
+  #define BEEPER_PIN                EXPA1_10_PIN
 
   #if HAS_GRAPHICAL_LCD
-    #define DOGLCD_A0                       PB14
-    #define DOGLCD_CS                       PB12
-    #define DOGLCD_SCK                      PB13
-    #define DOGLCD_MOSI                     PB15
+    #define DOGLCD_A0               EXPA1_07_PIN
+    #define DOGLCD_CS               EXPA1_04_PIN
+    #define DOGLCD_SCK              EXPA1_05_PIN
+    #define DOGLCD_MOSI             EXPA1_03_PIN
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
@@ -123,9 +145,9 @@
     #endif
   #endif
 
-  #define LCD_PINS_RS                       PB12  // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4                       PB13  // SCLK
-  #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
+  #define LCD_PINS_RS               EXPA1_04_PIN  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4               EXPA1_05_PIN  // SCLK
+  #define LCD_PINS_ENABLE           EXPA1_03_PIN  // DATA MOSI
 
   // not connected to a pin
   #define SD_DETECT_PIN                     PC3
@@ -143,9 +165,25 @@
   //#define LCD_CONTRAST_INIT 190
 
   #if ENABLED(NEWPANEL)
-    #define BTN_EN1                         PC11
-    #define BTN_EN2                         PC10
-    #define BTN_ENC                         PC12
+    #define BTN_EN1                 EXPA1_06_PIN
+    #define BTN_EN2                 EXPA1_08_PIN
+    #define BTN_ENC                 EXPA1_09_PIN
   #endif
 
+#endif
+
+#if ENABLED(TOUCH_UI_FTDI_EVE)
+  #define BEEPER_PIN                EXPA1_10_PIN
+
+  #define BTN_EN1                   EXPA1_06_PIN
+
+  #define LCD_PINS_RS               EXPA1_04_PIN
+
+  #define CLCD_SPI_BUS 2
+  //#define CLCD_USE_SOFT_SPI
+  #if ENABLED(CLCD_USE_SOFT_SPI)
+    #define LCD_PINS_ENABLE         EXPA1_03_PIN
+    #define LCD_PINS_SCK            EXPA1_07_PIN
+    #define LCD_PINS_D4             EXPA1_05_PIN
+  #endif
 #endif

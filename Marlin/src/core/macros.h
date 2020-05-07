@@ -76,13 +76,6 @@
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
-// Macros to make sprintf_P read from PROGMEM (AVR extension)
-#ifdef __AVR__
-  #define S_FMT "%S"
-#else
-  #define S_FMT "%s"
-#endif
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -291,12 +284,6 @@
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#ifdef TARGET_LPC1768
-  #define I2C_ADDRESS(A) ((A) << 1)
-#else
-  #define I2C_ADDRESS(A) A
-#endif
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
