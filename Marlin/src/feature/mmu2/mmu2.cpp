@@ -570,7 +570,6 @@ static bool mmu2_not_responding() {
    * Handle tool change
    */
   void MMU2::tool_change(uint8_t index) {
-    SERIAL_ECHOLNPGM("void handle tool change\n");
     if (!enabled) return;
 
     set_runout_valid(false);
@@ -610,7 +609,6 @@ static bool mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char* special) {
-    SERIAL_ECHOLNPGM("Void tool change\n");
     if (!enabled) return;
 
     #if ENABLED(MMU2_MENUS)
@@ -654,7 +652,6 @@ static bool mmu2_not_responding() {
   }
 
   void MMU2::mmu_continue_loading() {
-    SERIAL_ECHOLNPGM("Void continue loading\n");
     for (uint8_t i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
       DEBUG_ECHOLNPAIR("Additional load attempt #", i);
       if ((READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING)) == 1) break;
