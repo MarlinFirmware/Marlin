@@ -734,10 +734,10 @@ void DGUSScreenVariableHandler::HandleSettings(DGUS_VP_Variable &var, void *val_
     default: break;
     case 1:
       TERN_(PRINTCOUNTER, print_job_timer.initStats());
-      queue.enqueue_now_P(PSTR("M502\nM500"));
+      queue.inject_P(PSTR("M502\nM500"));
       break;
-    case 2: queue.enqueue_now_P(PSTR("M501")); break;
-    case 3: queue.enqueue_now_P(PSTR("M500")); break;
+    case 2: queue.inject_P(PSTR("M501")); break;
+    case 3: queue.inject_P(PSTR("M500")); break;
   }
 }
 
@@ -851,14 +851,16 @@ void DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable 
   }
 #endif
 
-void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
+#if HAS_BED_PROBE
+  void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
 
-  const float offset = float(int16_t(swap16(*(uint16_t*)val_ptr))) / 100.0f;
-  ExtUI::setZOffset_mm(offset);
-  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-  return;
-}
+    const float offset = float(int16_t(swap16(*(uint16_t*)val_ptr))) / 100.0f;
+    ExtUI::setZOffset_mm(offset);
+    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+    return;
+  }
+#endif
 
 #if ENABLED(BABYSTEPPING)
   void DGUSScreenVariableHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
