@@ -407,6 +407,11 @@ class Planner {
        * Indicator of current angular change per mm traveled (rads/mm)
        */
       static float d_theta_indicator;
+	  
+	  /**
+       * Counter of consecutive segments below d_theta_threshold
+       */
+	  static uint8_t below_thresh_cnt;
     #endif
 
     /**

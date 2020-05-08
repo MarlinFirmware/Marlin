@@ -134,8 +134,8 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm,         // (mm) M205 J
-        Planner::d_theta_decay = 1.0f,                // (1/mm) Fractional reduction of d_theta_indicator per mm traveled
-        Planner::d_theta_threshold = RADIANS(0.15f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
+        Planner::d_theta_decay = 1.0f,                 // (1/mm) Fractional reduction of d_theta_indicator per mm traveled
+        Planner::d_theta_threshold = RADIANS(150.0f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
   #if HAS_LINEAR_E_JERK
     float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
@@ -197,9 +197,10 @@ xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed_sqr;
 
 #if HAS_JUNCTION_DEVIATION
-float Planner::previous_junction_theta,
-      Planner::previous_limit_sqr,
-      Planner::d_theta_indicator;
+  float Planner::previous_junction_theta,
+        Planner::previous_limit_sqr,
+        Planner::d_theta_indicator;
+  uint8_t Planner::below_thresh_cnt;
 #endif
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
@@ -244,6 +245,7 @@ void Planner::init() {
     previous_limit_sqr = 0.0f;
     previous_junction_theta = 0.0f;
     d_theta_indicator = 0.0f;
+	below_thresh_cnt = 0;
   #endif
   TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
   clear_block_buffer();
@@ -1561,6 +1563,11 @@ void Planner::quick_stop() {
 
   // And stop the stepper ISR
   stepper.quick_stop();
+
+  #if HAS_JUNCTION_DEVIATION
+    // Reset counter, so we don't assume incorrect state of d_theta_threshold
+    below_thresh_cnt = 0;
+  #endif
 }
 
 void Planner::endstop_triggered(const AxisEnum axis) {
@@ -1575,6 +1582,11 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 void Planner::finish_and_disable() {
   while (has_blocks_queued() || cleaning_buffer_counter) idle();
   disable_all_steppers();
+
+  #if HAS_JUNCTION_DEVIATION
+    // Reset counter, so we don't assume incorrect state of d_theta_threshold
+    below_thresh_cnt = 0;
+  #endif
 }
 
 /**
@@ -2222,9 +2234,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
   #endif
 
-  float vmax_junction_sqr, // Initial limit on the segment entry velocity (mm/s)^2
-        limit_sqr,         // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
-        junction_theta;
+  float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
   #if HAS_JUNCTION_DEVIATION
     /**
@@ -2282,6 +2292,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       normalize_junction_vector(unit_vec);
     #endif
 
+    float limit_sqr = 0.0f,       // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
+          junction_theta = 0.0f;  // Junction angle (rads)
+
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed_sqr)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
@@ -2298,13 +2311,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         limit_sqr = vmax_junction_sqr;
 
         // Update junction_theta to make sure, that previous_junction_theta is consistent
-        junction_theta = 0.0f;
+        const float junction_theta = 0.0f;
 
         // Estimate, how much the junction angle is changing per mm traveled
         const float d_theta = -previous_junction_theta;
         d_theta_indicator = d_theta_indicator * _MAX(0.0f, 1.0f - d_theta_decay * block->millimeters) + ABS(d_theta) * inverse_millimeters;
 
-        // Do not go limit_sqr = _MAX(limit_sqr, previous_limit_sqr) here. This is a 0° junction and we really don't want to "keep the speed" through this.
+        // Do not go limit_sqr = previous_limit_sqr; here. This is a 0° junction and we really don't want to "keep the speed" through this.
       }
       else {
         NOLESS(junction_cos_theta, -0.999999f); // Check for numerical round-off to avoid divide by zero.
@@ -2368,7 +2381,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
-          junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
+          float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
           if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
 
         #else
@@ -2387,14 +2400,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                             + t * (-131.1123477f
                             + t * ( 262.8130562f
                             + t * (-242.7199627f
-                            + t * ( 84.31466202f ) )))));
-          junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
-
-          // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
+                            + t * ( 84.31466202f ) ))))),
+                      junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+                      // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
 
         #endif
-
-        limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
 
         // Estimate, how much the junction angle is changing per mm traveled
         // NOTE: To keep the math involved simple & fast(-ish), changes in d_theta_indicator are not fully independent of the block length.
@@ -2402,9 +2412,27 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         const float d_theta = junction_theta - previous_junction_theta;
         d_theta_indicator = d_theta_indicator * _MAX(0.0f, 1.0f - d_theta_decay * block->millimeters) + ABS(d_theta) * inverse_millimeters;
 
-        // In case theta is changing slower than our threshold, we just keep the higher speed and "coast".
-        if (d_theta_indicator < d_theta_threshold) {
-          limit_sqr = _MAX(limit_sqr, previous_limit_sqr);
+        if (d_theta_indicator <= d_theta_threshold) {
+          // Theta is changing slower than our threshold.
+          if (below_thresh_cnt < 3) {
+            // First two segments after getting below the threshold. Previous segment might have been sharp turn, so don't use previous_limit_sqr, as it might be very low.
+            limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
+          }
+          else {
+            // More than one segment into our below-threshold-phase. Use previous_limit_sqr to keep "coasting".
+            limit_sqr = previous_limit_sqr;
+          }
+		  
+		  // Dirty: Increment, but prevent integer overflow. We don't care about below_thresh_cnt, once it's past our threshold (3). But we can't let it flip to zero.
+          if (below_thresh_cnt < 255) {
+            below_thresh_cnt++;
+          }
+        }
+        else {
+          // Theta is changing faster than we'd like. Be sure to update limit_sqr.
+          limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
+		  
+          below_thresh_cnt = 0;
         }
 
         // If the angle is greater than 135 degrees (octagon) and the element is small, pick the lower speed limit.
