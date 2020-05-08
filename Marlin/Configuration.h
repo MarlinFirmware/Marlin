@@ -2077,8 +2077,8 @@
 
 //
 // DGUS Touch Display with DWIN OS. (Choose one.)
-// ORIGIN : https://www.aliexpress.com/item/32993409517.html?spm=2114.12010615.8148356.8.37487410UdXQaD
-// FYSETC : https://www.aliexpress.com/item/32961471929.html?spm=2114.12010615.8148356.22.7440212aXz2kVQ
+// ORIGIN : https://www.aliexpress.com/item/32993409517.html
+// FYSETC : https://www.aliexpress.com/item/32961471929.html
 //
 //#define DGUS_LCD_UI_ORIGIN
 //#define DGUS_LCD_UI_FYSETC
