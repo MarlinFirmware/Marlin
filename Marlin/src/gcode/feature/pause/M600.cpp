@@ -153,7 +153,7 @@ void GcodeSuite::M600() {
       resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
     #else
       wait_for_confirmation(true, beep_count DXC_PASS);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS, parser.seenval('N') ? parser.intval('N') : 0);
     #endif
   }
 
