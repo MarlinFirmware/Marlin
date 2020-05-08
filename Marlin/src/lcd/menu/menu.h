@@ -589,11 +589,6 @@ void _lcd_draw_homing();
   #endif
 #endif
 
-#if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings();
-  void lcd_load_settings();
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
   void menu_job_recovery();
 #endif
