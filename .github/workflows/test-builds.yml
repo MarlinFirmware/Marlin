@@ -59,6 +59,7 @@ jobs:
         - FYSETC_S6
         - malyan_M300
         - mks_robin_lite
+        - mks_robin_pro
 
         # Put lengthy tests last
 

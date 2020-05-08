@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build tests for MKS Robin Pro
+#
+
+# exit on first failure
+set -e
+
+use_example_configs Mks/Robin_Pro
+opt_set SDCARD_CONNECTION LCD
+opt_set X_DRIVER_TYPE TMC2209
+opt_set Y_DRIVER_TYPE TMC2130
+exec_test $1 $2 "MKS Robin Pro with TMC Drivers "
+
+# cleanup
+restore_configs
