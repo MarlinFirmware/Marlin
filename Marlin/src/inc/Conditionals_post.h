@@ -1549,6 +1549,9 @@
   #define HAS_E_STEPPER_ENABLE 1
 #endif
 
+#if ANY_AXIS_HAS(HW_SERIAL)
+  #define HAS_TMC_HW_SERIAL 1
+#endif
 #if ANY_AXIS_HAS(SW_SERIAL)
   #define HAS_TMC_SW_SERIAL 1
 #endif
