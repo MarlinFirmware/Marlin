@@ -40,9 +40,9 @@
     BACK_ITEM(MSG_MAIN);
 
     #if ENABLED(SPINDLE_LASER_PWM)
-      EDIT_ITEM_FAST( CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.setPower
-                    , cutter.interpret_power(SPEED_POWER_MIN), cutter.interpret_power(SPEED_POWER_MAX)
-                    , []{ if (cutter.isOn) cutter.power = cutter.setPower; }
+      EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.displayPower
+        , cutter.dpower_min(), cutter.dpower_max()
+        , []{ if (cutter.isOn) cutter.power = cutter.displayPower; }
       );
     #endif
 

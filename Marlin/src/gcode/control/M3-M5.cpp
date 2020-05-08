@@ -28,28 +28,18 @@
 #include "../../feature/spindle_laser.h"
 #include "../../module/stepper.h"
 
-inline cutter_power_t get_s_power() {
-  return cutter_power_t(
-    parser.intval('S', cutter.interpret_power(SPEED_POWER_STARTUP))
-  );
-}
-
 /**
  * Laser:
- *
  *  M3 - Laser ON/Power (Ramped power)
  *  M4 - Laser ON/Power (Continuous power)
  *
- *    S<power> - Set power. S0 will turn the laser off.
- *    O<ocr>   - Set power and OCR
- *
  * Spindle:
- *
  *  M3 - Spindle ON (Clockwise)
  *  M4 - Spindle ON (Counter-clockwise)
  *
- *    S<power> - Set power. S0 will turn the spindle off.
- *    O<ocr>   - Set power and OCR
+ * Parameters:
+ *  S<power> - Set power. S0 will turn the spindle/laser off.
+ *  O<ocr>   - Set power and OCR (oscillator count register)
  *
  *  If no PWM pin is defined then M3/M4 just turns it on.
  *
@@ -77,11 +67,16 @@ inline cutter_power_t get_s_power() {
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
 
+  auto get_s_power = []{
+    return cutter_power_t(
+      parser.intval('S', cutter.upower_to_dpower(SPEED_POWER_STARTUP))
+    );
+  };
+
   #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode
       cutter.inline_direction(is_M4); // Should always be unused
-
       #if ENABLED(SPINDLE_LASER_PWM)
         if (parser.seen('O'))
           cutter.inline_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
@@ -97,7 +92,6 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
-
   cutter.set_direction(is_M4);
 
   #if ENABLED(SPINDLE_LASER_PWM)
@@ -116,7 +110,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
 void GcodeSuite::M5() {
   #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
-      cutter.inline_enabled(false); // Laser power in inline mode
+      cutter.set_inline_enabled(false); // Laser power in inline mode
       return;
     }
     // Non-inline, standard case

@@ -223,10 +223,10 @@ typedef struct block_t {
     uint8_t status;
     /**
      * Laser power: 0 or 255 in case of PWM-less laser,
-     * or the OCR value;
+     * or the OCR (oscillator count register) value;
      *
-     * Using OCR instead of raw power,
-     * as it avoids floating points during move loop
+     * Using OCR instead of raw power, because it avoids
+     * floating point operations during the move loop.
      */
     uint8_t power;
   } settings_laser_t;

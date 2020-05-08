@@ -1873,8 +1873,10 @@ uint32_t Stepper::block_phase_isr() {
         if (!(current_block = planner.get_current_block()))
           return interval; // No more queued movements!
       }
-      #if DISABLED(LASER_POWER_INLINE)
-        TERN_(HAS_CUTTER, cutter.apply_power(current_block->cutter_power));
+
+      // For non-inline cutter, grossly apply power
+      #if HAS_CUTTER && DISABLED(LASER_POWER_INLINE)
+        cutter.apply_power(current_block->cutter_power);
       #endif
 
       TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = current_block->sdpos);
