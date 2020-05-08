@@ -84,26 +84,30 @@ fil_change_settings_t fc_settings[EXTRUDERS];
 #endif
 
 #if HAS_BUZZER
-  static void filament_change_beep(const int8_t max_beep_count, const bool init=false) {
+  static void impatient_beep(const int8_t max_beep_count, const bool restart=false) {
 
     if (TERN0(HAS_LCD_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
 
     static millis_t next_buzz = 0;
     static int8_t runout_beep = 0;
 
-    if (init) next_buzz = runout_beep = 0;
+    if (restart) next_buzz = runout_beep = 0;
+
+    const bool always = max_beep_count < 0;
 
     const millis_t ms = millis();
     if (ELAPSED(ms, next_buzz)) {
-      if (max_beep_count < 0 || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
-        next_buzz = ms + ((max_beep_count < 0 || runout_beep < max_beep_count) ? 1000 : 500);
+      if (always || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
+        next_buzz = ms + ((always || runout_beep < max_beep_count) ? 1000 : 500);
         BUZZ(50, 880 - (runout_beep & 1) * 220);
         runout_beep++;
       }
     }
   }
+  inline void first_impatient_beep(const int8_t max_beep_count) { impatient_beep(max_beep_count, true); }
 #else
-  inline void filament_change_beep(const int8_t, const bool=false) {}
+  inline void impatient_beep(const int8_t, const bool=false) {}
+  inline void first_impatient_beep(const int8_t) {}
 #endif
 
 /**
@@ -165,7 +169,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #endif
     SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_INSERT));
 
-    filament_change_beep(max_beep_count, true);
+    first_impatient_beep(max_beep_count);
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -180,7 +184,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #endif
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
     while (wait_for_user) {
-      filament_change_beep(max_beep_count);
+      impatient_beep(max_beep_count);
       idle_no_sleep();
     }
   }
@@ -448,7 +452,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
   show_continue_prompt(is_reload);
 
-  filament_change_beep(max_beep_count, true);
+  first_impatient_beep(max_beep_count);
 
   // Start the heater idle timers
   const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
@@ -468,7 +472,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_NOZZLE_PARKED)));
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
-    filament_change_beep(max_beep_count);
+    impatient_beep(max_beep_count);
 
     // If the nozzle has timed out...
     if (!nozzle_timed_out)
@@ -508,7 +512,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       wait_for_user = true;
       nozzle_timed_out = false;
 
-      filament_change_beep(max_beep_count, true);
+      first_impatient_beep(max_beep_count);
     }
     idle_no_sleep();
   }
