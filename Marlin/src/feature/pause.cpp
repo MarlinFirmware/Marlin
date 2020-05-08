@@ -539,7 +539,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
-void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/ DXC_ARGS, int16_t targetTemp/*=0*/) {
+void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/, int16_t targetTemp/*=0*/ DXC_ARGS) {
   /*
   SERIAL_ECHOLNPAIR(
     "start of resume_print()\ndual_x_carriage_mode:", dual_x_carriage_mode,
