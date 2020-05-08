@@ -318,7 +318,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
   enum TMCAxis : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7, TOTAL };
 
   void tmc_serial_begin() {
-    #if ANY_AXIS_HAS(HW_SERIAL)
+    #if HAS_TMC_HW_SERIAL
       struct {
         const void *ptr[TMCAxis::TOTAL];
         bool began(const TMCAxis a, const void * const p) {
