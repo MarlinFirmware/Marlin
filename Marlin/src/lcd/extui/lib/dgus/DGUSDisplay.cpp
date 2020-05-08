@@ -56,7 +56,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
     if (!strend) x = *myvalues++;
     if ((isstr && !x) || strend) {
       strend = true;
-      x = '\0';
+      x = ' ';
     }
     DGUS_SERIAL.write(x);
   }
@@ -71,7 +71,7 @@ void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t val
     if (!strend) x = pgm_read_byte(myvalues++);
     if ((isstr && !x) || strend) {
       strend = true;
-      x = '\0';
+      x = ' ';
     }
     DGUS_SERIAL.write(x);
   }
