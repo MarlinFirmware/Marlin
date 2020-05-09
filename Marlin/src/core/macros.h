@@ -76,13 +76,6 @@
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
-// Macros to make sprintf_P read from PROGMEM (AVR extension)
-#ifdef __AVR__
-  #define S_FMT "%S"
-#else
-  #define S_FMT "%s"
-#endif
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)

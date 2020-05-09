@@ -98,7 +98,10 @@
 #define SDSS                                  53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
-#define CASE_LIGHT_PIN                         2
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       2
+#endif
 
 //
 // LCD / Controller

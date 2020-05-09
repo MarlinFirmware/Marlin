@@ -64,8 +64,8 @@ void host_action(const char * const pstr, const bool eol) {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
-  const char CONTINUE_STR[] PROGMEM = "Continue",
-             DISMISS_STR[] PROGMEM = "Dismiss";
+  PGMSTR(CONTINUE_STR, "Continue");
+  PGMSTR(DISMISS_STR, "Dismiss");
 
   #if HAS_RESUME_CONTINUE
     extern bool wait_for_user;
@@ -123,7 +123,7 @@ void host_action(const char * const pstr, const bool eol) {
   //
   void host_response_handler(const uint8_t response) {
     #ifdef DEBUG_HOST_ACTIONS
-      static const char m876_prefix[] PROGMEM = "M876 Handle Re";
+      static PGMSTR(m876_prefix, "M876 Handle Re");
       serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("ason: ", host_prompt_reason);
       serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("sponse: ", response);
     #endif
