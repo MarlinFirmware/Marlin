@@ -1583,9 +1583,9 @@ void Stepper::pulse_phase_isr() {
           page_step_state.sd[_AXIS(AXIS)] = VALUE; \
           page_step_state.bd[_AXIS(AXIS)] += VALUE;
 
-        #define PAGE_PULSE_PREP(AXIS, OFFSET) \
+        #define PAGE_PULSE_PREP(AXIS) \
           step_needed[_AXIS(AXIS)] = \
-            segment_table[page_step_state.sd[_AXIS(AXIS)]][(page_step_state.segment_steps + OFFSET) & 0x7]
+            segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7]
 
         switch (page_step_state.segment_steps) {
         case 8:
@@ -1611,10 +1611,10 @@ void Stepper::pulse_phase_isr() {
           break;
         }
 
-        PAGE_PULSE_PREP(X, 0),
-        PAGE_PULSE_PREP(Y, 1),
-        PAGE_PULSE_PREP(Z, 2),
-        PAGE_PULSE_PREP(E, 3);
+        PAGE_PULSE_PREP(X),
+        PAGE_PULSE_PREP(Y),
+        PAGE_PULSE_PREP(Z),
+        PAGE_PULSE_PREP(E);
 
         page_step_state.segment_steps++;
       #elif STEPPER_PAGE_FORMAT == SP_4x2_256
@@ -1622,9 +1622,9 @@ void Stepper::pulse_phase_isr() {
           page_step_state.sd[_AXIS(AXIS)] = VALUE; \
           page_step_state.bd[_AXIS(AXIS)] += VALUE;
 
-        #define PAGE_PULSE_PREP(AXIS, OFFSET) \
+        #define PAGE_PULSE_PREP(AXIS) \
           step_needed[_AXIS(AXIS)] = \
-            segment_table[page_step_state.sd[_AXIS(AXIS)]][(page_step_state.segment_steps + OFFSET) & 0x3]
+            segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3]
 
         switch (page_step_state.segment_steps) {
         case 4:
@@ -1643,10 +1643,10 @@ void Stepper::pulse_phase_isr() {
           break;
         }
 
-        PAGE_PULSE_PREP(X, 0),
-        PAGE_PULSE_PREP(Y, 1),
-        PAGE_PULSE_PREP(Z, 2),
-        PAGE_PULSE_PREP(E, 3);
+        PAGE_PULSE_PREP(X),
+        PAGE_PULSE_PREP(Y),
+        PAGE_PULSE_PREP(Z),
+        PAGE_PULSE_PREP(E);
 
         page_step_state.segment_steps++;
       #elif STEPPER_PAGE_FORMAT == SP_4x1_512
