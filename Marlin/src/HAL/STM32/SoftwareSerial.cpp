@@ -100,7 +100,6 @@
 //
 HardwareTimer SoftwareSerial::timer(TIMER_SERIAL);
 const IRQn_Type SoftwareSerial::timer_interrupt_number = static_cast<IRQn_Type>(getTimerUpIrq(TIMER_SERIAL));
-uint32_t SoftwareSerial::timer_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), TIM_IRQ_PRIO, TIM_IRQ_SUBPRIO);
 SoftwareSerial *SoftwareSerial::active_listener = nullptr;
 SoftwareSerial *volatile SoftwareSerial::active_out = nullptr;
 SoftwareSerial *volatile SoftwareSerial::active_in = nullptr;
@@ -113,7 +112,13 @@ int32_t SoftwareSerial::rx_bit_cnt = -1; // rx_bit_cnt = -1 :  waiting for start
 uint32_t SoftwareSerial::cur_speed = 0;
 
 void SoftwareSerial::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority) {
-  timer_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), preemptPriority, subPriority);
+  timer.setInterruptPriority(preemptPriority, subPriority);
+
+  // Arduino_Core_STM32 1.8 does not apply the interrupt priority until the
+  // timer is completely re-initialized, which may not even be possible
+  // through the HardwareTimer interface. Work around this until it is
+  // fixed by setting directly to the STM32 HAL.
+  NVIC_SetPriority(timer_interrupt_number, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), preemptPriority, subPriority));
 }
 
 //
@@ -137,12 +142,15 @@ void SoftwareSerial::setSpeed(uint32_t speed) {
           pre *= 2;
         }
       } while (cmp_value >= UINT16_MAX);
+      // Arduino_Core_STM32 1.8 requires setMode to be called on a channel to start the timer.
+      // This is fixed in the following PR, which has not yet been released.
+      // https://github.com/stm32duino/Arduino_Core_STM32/pull/849
+      timer.setMode(1, TIMER_OUTPUT_COMPARE, NC);
       timer.setPrescaleFactor(pre);
       timer.setOverflow(cmp_value);
       timer.setCount(0);
       timer.attachInterrupt(&handleInterrupt);
       timer.resume();
-      NVIC_SetPriority(timer_interrupt_number, timer_interrupt_priority);
     }
     else
       timer.detachInterrupt();

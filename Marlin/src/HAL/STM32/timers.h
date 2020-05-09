@@ -78,8 +78,6 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 // Exposed here to allow all timer priority information to reside in timers.cpp
 void SetSoftwareSerialTimerInterruptPriority();
 
-//TIM_TypeDef* HAL_timer_device(const uint8_t timer_num); no need to be public for now. not public = not used externally
-
 // FORCE_INLINE because these are used in performance-critical situations
 FORCE_INLINE bool HAL_timer_initialized(const uint8_t timer_num) {
   return timer_instance[timer_num] != NULL;

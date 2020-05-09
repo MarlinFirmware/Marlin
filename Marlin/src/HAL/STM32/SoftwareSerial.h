@@ -64,7 +64,6 @@ class SoftwareSerial : public Stream {
     // static data
     static HardwareTimer timer;
     static const IRQn_Type timer_interrupt_number;
-    static uint32_t timer_interrupt_priority;
     static SoftwareSerial *active_listener;
     static SoftwareSerial *volatile active_out;
     static SoftwareSerial *volatile active_in;
