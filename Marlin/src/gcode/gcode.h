@@ -691,6 +691,8 @@ private:
 
   TERN_(HAS_CASE_LIGHT, static void M355());
 
+  TERN_(REPETIER_GCODE_M360, static void M360());
+
   #if ENABLED(MORGAN_SCARA)
     static bool M360();
     static bool M361();

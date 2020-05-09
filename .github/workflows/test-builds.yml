@@ -65,6 +65,7 @@ jobs:
         - FLYF407ZG
         - rumba32_f446ve
         - rumba32_mks
+        - mks_robin_pro
 
         # Put lengthy tests last
 
