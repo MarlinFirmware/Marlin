@@ -2338,9 +2338,13 @@
   #undef MESH_MAX_Y
 #endif
 
-#if defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y)
+#define _POINT_COUNT (defined(PROBE_PT_1_X) + defined(PROBE_PT_2_X) + defined(PROBE_PT_3_X) + defined(PROBE_PT_1_Y) + defined(PROBE_PT_2_Y) + defined(PROBE_PT_3_Y))
+#if _POINT_COUNT == 6
   #define HAS_FIXED_3POINT 1
+#elif _POINT_COUNT > 0
+  #error "For 3-Point Leveling all XY points must be defined (or none for the defaults)."
 #endif
+#undef _POINT_COUNT
 
 /**
  * Buzzer/Speaker
