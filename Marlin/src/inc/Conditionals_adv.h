@@ -259,11 +259,10 @@
 #endif
 
 /**
- * Driver Timings
+ * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.
  *       Preserve this ordering when adding new drivers.
  */
-
 #ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
@@ -278,7 +277,7 @@
   #elif HAS_DRIVER(A4988)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 200
   #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 60
   #else
     #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
   #endif
