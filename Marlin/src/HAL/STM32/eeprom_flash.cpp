@@ -27,7 +27,15 @@
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/eeprom_api.h"
-#include "Servo.h"
+
+#if HAS_SERVOS
+  #include "Servo.h"
+  #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+  #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
+#else  
+  #define PAUSE_SERVO_OUTPUT()
+  #define RESUME_SERVO_OUTPUT()
+#endif
 
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
@@ -159,11 +167,11 @@ bool PersistentStore::access_finish() {
         current_slot = EEPROM_SLOTS - 1;
         UNLOCK_FLASH();
 
-        libServo::pause_all_servos();
+        PAUSE_SERVO_OUTPUT();
         DISABLE_ISRS();
         status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
         ENABLE_ISRS();
-        libServo::resume_all_servos();
+        RESUME_SERVO_OUTPUT();
         if (status != HAL_OK) {
           DEBUG_ECHOLNPAIR("HAL_FLASHEx_Erase=", status);
           DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
@@ -214,11 +222,11 @@ bool PersistentStore::access_finish() {
       // Interrupts during this time can have unpredictable results, such as killing Servo
       // output. Servo output still glitches with interrupts disabled, but recovers after the
       // erase.
-      libServo::pause_all_servos();
+      PAUSE_SERVO_OUTPUT();
       DISABLE_ISRS();
       eeprom_buffer_flush();
       ENABLE_ISRS();
-      libServo::resume_all_servos();
+      RESUME_SERVO_OUTPUT();
 
       eeprom_data_written = false;
     #endif
