@@ -27,6 +27,7 @@
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/eeprom_api.h"
+#include "Servo.h"
 
 
 // Only STM32F4 can support wear leveling at this time
@@ -164,7 +165,11 @@ bool PersistentStore::access_finish() {
         current_slot = EEPROM_SLOTS - 1;
         UNLOCK_FLASH();
 
+        libServo::pause_all_servos();
+        DISABLE_ISRS();
         status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
+        ENABLE_ISRS();
+        libServo::resume_all_servos();
         if (status != HAL_OK) {
           DEBUG_ECHOLNPAIR("HAL_FLASHEx_Erase=", status);
           DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
@@ -209,7 +214,18 @@ bool PersistentStore::access_finish() {
       return success;
 
     #else
+      // The following was written for the STM32F4 but may work with other MCUs as well.
+      // Most STM32F4 flash does not allow reading from flash during erase operations.
+      // This takes about a second on a STM32F407 with a 128kB sector used as EEPROM.
+      // Interrupts during this time can have unpredictable results, such as killing Servo
+      // output. Servo output still glitches with interrupts disabled, but recovers after the
+      // erase.
+      libServo::pause_all_servos();
+      DISABLE_ISRS();
       eeprom_buffer_flush();
+      ENABLE_ISRS();
+      libServo::resume_all_servos();
+
       eeprom_data_written = false;
     #endif
   }
