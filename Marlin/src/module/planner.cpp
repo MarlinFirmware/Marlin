@@ -2486,11 +2486,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     previous_safe_speed = safe_speed;
 
-    #if HAS_JUNCTION_DEVIATION
-      vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
-    #else
-      vmax_junction_sqr = sq(vmax_junction);
-    #endif
+    vmax_junction_sqr = sq(vmax_junction);
 
   #endif // Classic Jerk Limiting
 
