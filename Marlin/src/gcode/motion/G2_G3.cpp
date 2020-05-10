@@ -112,8 +112,13 @@ void plan_arc(
   #else
     constexpr float seg_length = MM_PER_ARC_SEGMENT;
   #endif
+
+  // Length divided by segment size gives segment count
   uint16_t segments = FLOOR(mm_of_travel / seg_length);
-  NOLESS(segments, min_segments);
+  if (segments < min_segments) {
+    segments = min_segments;                      // No fewer than the minimum
+    seg_length = mm_of_travel / segments;         // A new segment length
+  }
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
