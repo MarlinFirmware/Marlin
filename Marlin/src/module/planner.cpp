@@ -243,7 +243,7 @@ void Planner::init() {
   previous_nominal_speed_sqr = 0;
   #if HAS_JUNCTION_DEVIATION
     previous_limit_sqr = 0.0f;
-    previous_junction_theta = 0.0f;
+    previous_junction_theta = 0.0f; // junction_theta is defined as (RADIANS(180)-theta) to save a substract. We define previous_junction_theta of first block with theta = RADIANS(180).
     d_theta_indicator = 0.0f;
 	below_thresh_cnt = 0;
   #endif
@@ -2311,10 +2311,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         limit_sqr = vmax_junction_sqr;
 
         // Update junction_theta to make sure, that previous_junction_theta is consistent
-        const float junction_theta = 0.0f;
+        junction_theta = RADIANS(180); // junction_theta is defined as (RADIANS(180)-theta) to save a substract
 
         // Estimate, how much the junction angle is changing per mm traveled
-        const float d_theta = -previous_junction_theta;
+        const float d_theta = junction_theta - previous_junction_theta;
         d_theta_indicator = d_theta_indicator * _MAX(0.0f, 1.0f - d_theta_decay * block->millimeters) + ABS(d_theta) * inverse_millimeters;
 
         // Do not go limit_sqr = previous_limit_sqr; here. This is a 0° junction and we really don't want to "keep the speed" through this.
@@ -2381,7 +2381,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
-          float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
+          junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
           if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
 
         #else
@@ -2400,9 +2400,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                             + t * (-131.1123477f
                             + t * ( 262.8130562f
                             + t * (-242.7199627f
-                            + t * ( 84.31466202f ) ))))),
-                      junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
-                      // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
+                            + t * ( 84.31466202f ) )))));
+          junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+          // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
 
         #endif
 
