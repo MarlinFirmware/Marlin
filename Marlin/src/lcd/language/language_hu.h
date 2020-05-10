@@ -35,7 +35,7 @@
 namespace Language_hu {
   using namespace Language_en; // A fordítás az örökölt Amerikai Angol (English) karakterláncokat használja.
 
-namespace Language_hu {
+
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar");
 
