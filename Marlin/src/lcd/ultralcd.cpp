@@ -1303,7 +1303,7 @@ void MarlinUI::update() {
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify(message));
+    TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(message));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1450,10 +1450,10 @@ void MarlinUI::update() {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
   }
   void MarlinUI::set_status_P(PGM_P message, const int8_t) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
 
 #endif // !HAS_DISPLAY
