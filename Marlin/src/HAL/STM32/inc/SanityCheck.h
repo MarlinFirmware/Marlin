@@ -48,3 +48,7 @@
   #warning "FLASH_EEPROM_EMULATION may cause long delays when writing and should not be used while printing."
   #error "Disable PRINTCOUNTER or choose another EEPROM emulation."
 #endif
+
+#if !defined(STM32F4xx) && ENABLED(FLASH_EEPROM_LEVELING)
+  #error "FLASH_EEPROM_LEVELING is currently only supported on STM32F4 hardware."
+#endif

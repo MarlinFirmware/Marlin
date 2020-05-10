@@ -29,12 +29,6 @@
 #include "../shared/eeprom_api.h"
 #include "Servo.h"
 
-
-// Only STM32F4 can support wear leveling at this time
-#ifndef STM32F4xx
-  #undef FLASH_EEPROM_LEVELING
-#endif
-
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
  * even have multiple "banks" of flash.
