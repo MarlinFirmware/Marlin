@@ -544,14 +544,40 @@ public:
 
   #endif
 
-  #define LCD_HAS_WAIT_FOR_MOVE EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+  //
+  // EEPROM: Reset / Init / Load / Store
+  //
+  #if HAS_LCD_MENU
+    static void reset_settings();
+  #endif
 
-  #if LCD_HAS_WAIT_FOR_MOVE
+  #if ENABLED(EEPROM_SETTINGS)
+    #if HAS_LCD_MENU
+      static void init_eeprom();
+      static void load_settings();
+      static void store_settings();
+    #endif
+    #if DISABLED(EEPROM_AUTO_INIT)
+      static void eeprom_alert(const uint8_t msgid);
+      static inline void eeprom_alert_crc()     { eeprom_alert(0); }
+      static inline void eeprom_alert_index()   { eeprom_alert(1); }
+      static inline void eeprom_alert_version() { eeprom_alert(2); }
+    #endif
+  #endif
+
+  //
+  // Special handling if a move is underway
+  //
+  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+    #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
     static constexpr bool wait_for_move = false;
   #endif
 
+  //
+  // Block interaction while under external control
+  //
   #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
@@ -615,12 +641,10 @@ private:
   #endif
 
   #if HAS_SPI_LCD
-    #if HAS_LCD_MENU
-      #if LCD_TIMEOUT_TO_STATUS > 0
-        static bool defer_return_to_status;
-      #else
-        static constexpr bool defer_return_to_status = false;
-      #endif
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+      static bool defer_return_to_status;
+    #else
+      static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
   #endif
