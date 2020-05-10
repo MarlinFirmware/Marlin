@@ -64,21 +64,6 @@ public:
   // Convert a given speed/power from the native unit
   // to the display/edit unit: PWM, Percent, or RPM (rel/abs).
   static constexpr
-  cutter_displayPower_t upower_to_dpower(const float upwr) {
-    return (
-      #if CUTTER_DISPLAY_IS(RPM)              // RPM is also the native unit
-        upwr
-      #elif CUTTER_DISPLAY_IS(PERCENT)        // Anything to percent
-        100 * upwr / (SPEED_POWER_MAX)
-      #elif ENABLED(CUTTER_POWER_RELATIVE)    // Anything to PWM / OCR
-        map(upwr, SPEED_POWER_MIN, SPEED_POWER_MAX, 0, 255) // Scale allowed range to PWM
-      #else
-        255 * upwr / (SPEED_POWER_MAX)        // Scale direct to PWM <= 255
-      #endif
-    );
-  }
-
-  static constexpr
   cutter_power_t dpower_to_upower(const float dpwr) {
     return (
       #if CUTTER_DISPLAY_IS(RPM)              // RPM is also the native unit
@@ -93,17 +78,34 @@ public:
     );
   }
 
+  // Convert a given display/edit value to native unit,
+  // which can also be PWM, Percent, or RPM (rel/abs).
+  static constexpr
+  cutter_displayPower_t upower_to_dpower(const float upwr) {
+    return (
+      #if CUTTER_DISPLAY_IS(RPM)              // RPM is also the native unit
+        upwr
+      #elif CUTTER_DISPLAY_IS(PERCENT)        // Anything to percent
+        100 * upwr / (SPEED_POWER_MAX)
+      #elif ENABLED(CUTTER_POWER_RELATIVE)    // Anything to PWM / OCR
+        map(upwr, SPEED_POWER_MIN, SPEED_POWER_MAX, 0, 255) // Scale allowed range to PWM
+      #else
+        255 * upwr / (SPEED_POWER_MAX)        // Scale direct to PWM <= 255
+      #endif
+    );
+  }
+
   static constexpr cutter_displayPower_t dpower_min() { return upower_to_dpower(SPEED_POWER_MIN); }
   static constexpr cutter_displayPower_t dpower_max() { return upower_to_dpower(SPEED_POWER_MAX); }
 
-  static bool isOn;                             // State to determine when to apply power to OCR
+  static bool isOn;                           // State to determine when to apply power to OCR
   static cutter_power_t power;
 
   #if ENABLED(MARLIN_DEV_MODE)
-    static cutter_frequency_t frequency;        // Set PWM frequency; range: 2K-50K
+    static cutter_frequency_t frequency;      // Set PWM frequency; range: 2K-50K
   #endif
 
-  static cutter_displayPower_t displayPower;    // Power as displayed in PWM, Percentage or RPM
+  static cutter_displayPower_t displayPower;  // Power as displayed in PWM, Percentage or RPM
 
   static void init();
 
@@ -200,7 +202,7 @@ public:
       #endif
     }
 
-    static inline void inline_direction(const bool reverse) { UNUSED(reverse); } // TODO is this ever going to be needed
+    static inline void inline_direction(const bool) { /* never */ }
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void inline_ocr_power(const uint8_t ocrpwr) {
