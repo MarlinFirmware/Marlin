@@ -402,7 +402,11 @@ bool MarlinUI::update_selection() {
   return selection;
 }
 
-void MenuItem_confirm::select_screen(PGM_P const yes, PGM_P const no, selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
+void MenuItem_confirm::select_screen(
+  PGM_P const yes, PGM_P const no,
+  selectFunc_t yesFunc, selectFunc_t noFunc,
+  PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/
+) {
   const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);

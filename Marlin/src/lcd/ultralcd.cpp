@@ -1540,7 +1540,7 @@ void MarlinUI::update() {
       #if HAS_LCD_MENU
         editable.uint8 = msgid;
         goto_screen([]{
-          PGM_P const restore_msg = GET_TEXT(MSG_RESTORE_DEFAULTS);
+          PGM_P const restore_msg = GET_TEXT(MSG_INIT_EEPROM);
           char msg[utf8_strlen_P(restore_msg) + 1];
           strcpy_P(msg, restore_msg);
           MenuItem_confirm::select_screen(
