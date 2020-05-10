@@ -2256,7 +2256,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         { steps_dist_mm.x, steps_dist_mm.y, steps_dist_mm.z, steps_dist_mm.e }
       #endif
     ;
-    unit_vec *= inverse_millimeters;
 
     #if IS_CORE && HAS_JUNCTION_DEVIATION
       /**
@@ -2265,6 +2264,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
        * => normalize the complete junction vector
        */
       normalize_junction_vector(unit_vec);
+    #else
+      if (esteps) {
+        // inverse_millimeters does not include extruder steps -> NORM(unit_vec) != inverse_millimeters
+        normalize_junction_vector(unit_vec);
+      }
+      else {
+        unit_vec *= inverse_millimeters;
+      }
     #endif
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
