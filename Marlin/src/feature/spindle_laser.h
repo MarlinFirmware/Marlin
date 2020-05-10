@@ -157,6 +157,7 @@ public:
   static inline void disable() { isOn = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
+
     static inline void enable_with_dir(const bool reverse) {
       isOn = true;
       const cutter_power_t upwr = dpower_to_upower(displayPower);
@@ -169,6 +170,11 @@ public:
     }
     FORCE_INLINE static void enable_forward() { enable_with_dir(false); }
     FORCE_INLINE static void enable_reverse() { enable_with_dir(true); }
+
+    #if ENABLED(SPINDLE_LASER_PWM)
+      static inline update_from_dpower() { if (isOn) power = dpower_to_upower(displayPower); }
+    #endif
+
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)
