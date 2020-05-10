@@ -139,6 +139,11 @@ bool PersistentStore::access_start() {
 bool PersistentStore::access_finish() {
 
   if (eeprom_data_written) {
+    #ifdef STM32F4xx
+      // MCU may come up with flash error bits which prevent some flash operations.
+      // Clear flags prior to flash operations to prevent errors.
+      __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+    #endif    
 
     #if ENABLED(FLASH_EEPROM_LEVELING)
 
