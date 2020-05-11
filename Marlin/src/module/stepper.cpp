@@ -1572,106 +1572,116 @@ void Stepper::pulse_phase_isr() {
       } \
     }while(0)
 
+    // Direct Stepping page?
+    const bool is_page = IS_PAGE(current_block);
+
     #if ENABLED(DIRECT_STEPPING)
 
-    if (IS_PAGE(current_block)) {
-      #if STEPPER_PAGE_FORMAT == SP_4x4D_128
-        #define PAGE_SEGMENT_UPDATE(AXIS, VALUE, MID) \
-          if ((VALUE) == MID) {} \
-          else if ((VALUE) < MID) SBI(dm, _AXIS(AXIS)); \
-          else CBI(dm, _AXIS(AXIS)); \
-          page_step_state.sd[_AXIS(AXIS)] = VALUE; \
-          page_step_state.bd[_AXIS(AXIS)] += VALUE;
+      if (is_page) {
 
-        #define PAGE_PULSE_PREP(AXIS) \
-          step_needed[_AXIS(AXIS)] = \
-            segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7]
+        #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
-        switch (page_step_state.segment_steps) {
-        case 8:
-          page_step_state.segment_idx += 2;
-          page_step_state.segment_steps = 0;
-        case 0: {
-          const uint8_t low = page_step_state.page[page_step_state.segment_idx];
-          const uint8_t high = page_step_state.page[page_step_state.segment_idx + 1];
-          uint8_t dm = last_direction_bits;
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE, MID) do{ \
+                 if ((VALUE) == MID) {}                     \
+            else if ((VALUE) <  MID) SBI(dm, _AXIS(AXIS));  \
+            else                     CBI(dm, _AXIS(AXIS));  \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE;        \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;       \
+          }while(0)
 
-          PAGE_SEGMENT_UPDATE(X, low >> 4, 7);
-          PAGE_SEGMENT_UPDATE(Y, low & 0xF, 7);
-          PAGE_SEGMENT_UPDATE(Z, high >> 4, 7);
-          PAGE_SEGMENT_UPDATE(E, high & 0xF, 7);
+          #define PAGE_PULSE_PREP(AXIS) do{ \
+            step_needed[_AXIS(AXIS)] =      \
+              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7]); \
+          }while(0)
 
-          if (dm != last_direction_bits) {
-            last_direction_bits = dm;
-            set_directions();
+          switch (page_step_state.segment_steps) {
+            case 8:
+              page_step_state.segment_idx += 2;
+              page_step_state.segment_steps = 0;
+              // fallthru
+            case 0: {
+              const uint8_t low = page_step_state.page[page_step_state.segment_idx],
+                           high = page_step_state.page[page_step_state.segment_idx + 1];
+              uint8_t dm = last_direction_bits;
+
+              PAGE_SEGMENT_UPDATE(X, low >> 4, 7);
+              PAGE_SEGMENT_UPDATE(Y, low & 0xF, 7);
+              PAGE_SEGMENT_UPDATE(Z, high >> 4, 7);
+              PAGE_SEGMENT_UPDATE(E, high & 0xF, 7);
+
+              if (dm != last_direction_bits) {
+                last_direction_bits = dm;
+                set_directions();
+              }
+            } break;
+
+            default: break;
           }
-          break;
-        }
-        default:
-          break;
-        }
 
-        PAGE_PULSE_PREP(X),
-        PAGE_PULSE_PREP(Y),
-        PAGE_PULSE_PREP(Z),
-        PAGE_PULSE_PREP(E);
+          PAGE_PULSE_PREP(X),
+          PAGE_PULSE_PREP(Y),
+          PAGE_PULSE_PREP(Z),
+          PAGE_PULSE_PREP(E);
 
-        page_step_state.segment_steps++;
-      #elif STEPPER_PAGE_FORMAT == SP_4x2_256
-        #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) \
-          page_step_state.sd[_AXIS(AXIS)] = VALUE; \
-          page_step_state.bd[_AXIS(AXIS)] += VALUE;
+          page_step_state.segment_steps++;
 
-        #define PAGE_PULSE_PREP(AXIS) \
-          step_needed[_AXIS(AXIS)] = \
-            segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3]
+        #elif STEPPER_PAGE_FORMAT == SP_4x2_256
 
-        switch (page_step_state.segment_steps) {
-        case 4:
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE; \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;
+
+          #define PAGE_PULSE_PREP(AXIS) do{ \
+            step_needed[_AXIS(AXIS)] =      \
+              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3]); \
+          }while(0)
+
+          switch (page_step_state.segment_steps) {
+            case 4:
+              page_step_state.segment_idx++;
+              page_step_state.segment_steps = 0;
+              // fallthru
+            case 0: {
+              const uint8_t b = page_step_state.page[page_step_state.segment_idx];
+              PAGE_SEGMENT_UPDATE(X, (b >> 6) & 0x3);
+              PAGE_SEGMENT_UPDATE(Y, (b >> 4) & 0x3);
+              PAGE_SEGMENT_UPDATE(Z, (b >> 2) & 0x3);
+              PAGE_SEGMENT_UPDATE(E, (b >> 0) & 0x3);
+            } break;
+            default: break;
+          }
+
+          PAGE_PULSE_PREP(X),
+          PAGE_PULSE_PREP(Y),
+          PAGE_PULSE_PREP(Z),
+          PAGE_PULSE_PREP(E);
+
+          page_step_state.segment_steps++;
+        #elif STEPPER_PAGE_FORMAT == SP_4x1_512
+          #define PAGE_PULSE_PREP(AXIS, BITS) do{             \
+            step_needed[_AXIS(AXIS)] = (steps >> BITS) & 0x1; \
+            if (step_needed[_AXIS(AXIS)])                     \
+              page_step_state.bd[_AXIS(AXIS)]++;              \
+          }while(0)
+
+          uint8_t steps = page_step_state.page[page_step_state.segment_idx >> 1];
+
+          if (page_step_state.segment_idx & 0x1) steps >>= 4;
+
+          PAGE_PULSE_PREP(X, 3);
+          PAGE_PULSE_PREP(Y, 2);
+          PAGE_PULSE_PREP(Z, 1);
+          PAGE_PULSE_PREP(E, 0);
+
           page_step_state.segment_idx++;
-          page_step_state.segment_steps = 0;
-        case 0: {
-          const uint8_t b = page_step_state.page[page_step_state.segment_idx];
+        #else
+          #error "Unknown direct-stepping page format"
+        #endif
+      }
 
-          PAGE_SEGMENT_UPDATE(X, (b >> 6) & 0x3);
-          PAGE_SEGMENT_UPDATE(Y, (b >> 4) & 0x3);
-          PAGE_SEGMENT_UPDATE(Z, (b >> 2) & 0x3);
-          PAGE_SEGMENT_UPDATE(E, (b >> 0) & 0x3);
-          break;
-        }
-        default:
-          break;
-        }
-
-        PAGE_PULSE_PREP(X),
-        PAGE_PULSE_PREP(Y),
-        PAGE_PULSE_PREP(Z),
-        PAGE_PULSE_PREP(E);
-
-        page_step_state.segment_steps++;
-      #elif STEPPER_PAGE_FORMAT == SP_4x1_512
-        #define PAGE_PULSE_PREP(AXIS, BITS) \
-          step_needed[_AXIS(AXIS)] = (steps >> BITS) & 0x1; \
-          if (step_needed[_AXIS(AXIS)]) { \
-            page_step_state.bd[_AXIS(AXIS)]++; \
-          }
-
-        uint8_t steps = page_step_state.page[page_step_state.segment_idx >> 1];
-
-        if (page_step_state.segment_idx & 0x1) steps >>= 4;
-
-        PAGE_PULSE_PREP(X, 3);
-        PAGE_PULSE_PREP(Y, 2);
-        PAGE_PULSE_PREP(Z, 1);
-        PAGE_PULSE_PREP(E, 0);
-
-        page_step_state.segment_idx++;
-      #else
-        #error "Unknown direct-stepping page format"
-      #endif
-    } else // otherwise continue to normal block stepping
     #endif // DIRECT_STEPPING
-    {
+
+    if (!is_page) {
       // Determine if pulses are needed
       #if HAS_X_STEP
         PULSE_PREP(X);

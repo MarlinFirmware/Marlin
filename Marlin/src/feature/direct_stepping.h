@@ -133,5 +133,5 @@ typedef typename DirectStepping::Config::page_idx_t page_idx_t;
 // TODO: use config
 typedef DirectStepping::page_step_state_t page_step_state_t;
 
-extern /*const */uint8_t segment_table[DirectStepping::Config::NUM_SEGMENTS][DirectStepping::Config::SEGMENT_STEPS];
+extern const uint8_t segment_table[DirectStepping::Config::NUM_SEGMENTS][DirectStepping::Config::SEGMENT_STEPS];
 extern DirectStepping::PageManager page_manager;

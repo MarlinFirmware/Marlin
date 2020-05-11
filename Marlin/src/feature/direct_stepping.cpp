@@ -202,9 +202,10 @@ namespace DirectStepping {
 
 DirectStepping::PageManager page_manager;
 
-//TODO: how to get this into progmem?
-#if STEPPER_PAGE_FORMAT == SP_4x4D_128
-  uint8_t segment_table[16][8] = {
+const uint8_t segment_table[DirectStepping::Config::NUM_SEGMENTS][DirectStepping::Config::SEGMENT_STEPS] PROGMEM = {
+
+  #if STEPPER_PAGE_FORMAT == SP_4x4D_128
+
     { 1, 1, 1, 1, 1, 1, 1, 0 }, //  0 = -7
     { 1, 1, 1, 0, 1, 1, 1, 0 }, //  1 = -6
     { 0, 1, 1, 0, 1, 0, 1, 1 }, //  2 = -5
@@ -221,17 +222,20 @@ DirectStepping::PageManager page_manager;
     { 1, 1, 1, 0, 1, 1, 1, 0 }, // 13 =  6
     { 1, 1, 1, 1, 1, 1, 1, 0 }, // 14 =  7
     { 0 }
-  };
-#elif STEPPER_PAGE_FORMAT == SP_4x2_256
-  uint8_t segment_table[4][4] = {
+
+  #elif STEPPER_PAGE_FORMAT == SP_4x2_256
+
     { 0, 0, 0, 0 }, // 0
     { 0, 1, 0, 0 }, // 1
     { 1, 0, 1, 0 }, // 2
     { 1, 1, 1, 0 }, // 3
-  };
-#elif STEPPER_PAGE_FORMAT == SP_4x1_512
-  // Uncompressed format, table not used
-  uint8_t segment_table[2][1] = {0};
-#endif
+
+  #elif STEPPER_PAGE_FORMAT == SP_4x1_512
+
+    {0} // Uncompressed format, table not used
+
+  #endif
+
+};
 
 #endif // DIRECT_STEPPING
