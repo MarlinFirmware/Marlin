@@ -27,18 +27,20 @@
 
 #include "../MarlinCore.h"
 
-#define CHECK_PAGE(I, R) \
-  if (I >= sizeof(page_states) / sizeof(page_states[0])) { \
-    fatal_error = true; \
-    return R; \
-  }
+#define CHECK_PAGE(I, R) do{                                \
+  if (I >= sizeof(page_states) / sizeof(page_states[0])) {  \
+    fatal_error = true;                                     \
+    return R;                                               \
+  }                                                         \
+}while(0)
 
-#define CHECK_PAGE_STATE(I, R, S) \
-  CHECK_PAGE(I, R); \
-  if (page_states[I] != S) { \
-    fatal_error = true; \
-    return R; \
-  }
+#define CHECK_PAGE_STATE(I, R, S) do { \
+  CHECK_PAGE(I, R);                    \
+  if (page_states[I] != S) {           \
+    fatal_error = true;                \
+    return R;                          \
+  }                                    \
+}while(0)
 
 namespace DirectStepping {
 
