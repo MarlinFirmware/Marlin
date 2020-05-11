@@ -43,7 +43,7 @@
       // Change the cutter's "current power" value without turning the cutter on or off
       // Power is displayed in units and range according to config
       EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.displayPower,
-        cutter.dpower_min(), cutter.dpower_max(), cutter.update_from_dpower()
+        cutter.dpower_min(), cutter.dpower_max(), cutter.update_from_dpower
       );
     #endif
 
@@ -58,7 +58,7 @@
 
     #if ENABLED(MARLIN_DEV_MODE)
       #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
-        EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000,[]{ cutter.refresh_frequency(); });
+        EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000, cutter.refresh_frequency);
       #endif
     #endif
     END_MENU();

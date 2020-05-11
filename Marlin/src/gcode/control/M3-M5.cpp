@@ -81,7 +81,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
         if (parser.seen('O'))
           cutter.inline_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
         else
-          cutter.inline_power(get_s_power());
+          cutter.inline_power(dpower_to_upower(get_s_power()));
       #else
         cutter.inline_enabled(true);
       #endif

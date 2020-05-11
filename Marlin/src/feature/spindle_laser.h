@@ -37,6 +37,9 @@
 #ifndef SPEED_POWER_INTERCEPT
   #define SPEED_POWER_INTERCEPT 0
 #endif
+#define SPEED_POWER_FLOOR TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0)
+
+#define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
 class SpindleLaser {
 public:
@@ -50,15 +53,7 @@ public:
   static constexpr float max_ocr() { return pct_to_ocr(max_pct); }  // Maximum allowed
 
   static constexpr float upower_to_percent(const float upwr) {
-    return (
-      #if CUTTER_DISPLAY_IS(PERCENT)
-        upwr
-      #elif ENABLED(CUTTER_POWER_RELATIVE) // RPM / PWM below here
-        100 * (upwr - (SPEED_POWER_MIN)) / ((SPEED_POWER_MAX) - (SPEED_POWER_MIN))
-      #else
-        100 * upwr / (SPEED_POWER_MAX)
-      #endif
-    );
+    return _MAP(upwr, SPEED_POWER_FLOOR, SPEED_POWER_MAX, 0, 100);
   }
 
   // Convert a given speed/power from the native unit
@@ -69,11 +64,9 @@ public:
       #if CUTTER_DISPLAY_IS(RPM)              // RPM is also the native unit
         dpwr
       #elif CUTTER_DISPLAY_IS(PERCENT)        // Percent to anything
-        dpwr * (SPEED_POWER_MAX) / 100
-      #elif ENABLED(CUTTER_POWER_RELATIVE)    // PWM / OCR to anything
-        map(dpwr, 0, 255, SPEED_POWER_MIN, SPEED_POWER_MAX) // Scale to allowed range
-      #else
-        dpwr * (SPEED_POWER_MAX) / 255        // Scaled PWM <= 255
+        _MAP(dpwr, 0, 100, 0, SPEED_POWER_MAX)
+      #else                                   // PWM / OCR to allowed range
+        _MAP(dpwr, 0, 255, SPEED_POWER_FLOOR, SPEED_POWER_MAX)
       #endif
     );
   }
@@ -86,11 +79,9 @@ public:
       #if CUTTER_DISPLAY_IS(RPM)              // RPM is also the native unit
         upwr
       #elif CUTTER_DISPLAY_IS(PERCENT)        // Anything to percent
-        100 * upwr / (SPEED_POWER_MAX)
-      #elif ENABLED(CUTTER_POWER_RELATIVE)    // Anything to PWM / OCR
-        map(upwr, SPEED_POWER_MIN, SPEED_POWER_MAX, 0, 255) // Scale allowed range to PWM
-      #else
-        255 * upwr / (SPEED_POWER_MAX)        // Scale direct to PWM <= 255
+        _MAP(dpwr, 0, SPEED_POWER_MAX, 0, 100)
+      #else                                   // Allowed range to PWM / OCR
+        _MAP(upwr, SPEED_POWER_MIN, SPEED_POWER_MAX, 0, 255)
       #endif
     );
   }
@@ -172,7 +163,7 @@ public:
     FORCE_INLINE static void enable_reverse() { enable_with_dir(true); }
 
     #if ENABLED(SPINDLE_LASER_PWM)
-      static inline update_from_dpower() { if (isOn) power = dpower_to_upower(displayPower); }
+      static inline void update_from_dpower() { if (isOn) power = dpower_to_upower(displayPower); }
     #endif
 
   #endif
@@ -193,7 +184,7 @@ public:
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
       if (enable)
-        inline_power(unit_power_to_ocr(SPEED_POWER_STARTUP));
+        inline_power(SPEED_POWER_STARTUP);
       else
         TERN(SPINDLE_LASER_PWM, inline_ocr_power, inline_power)(0);
     }
