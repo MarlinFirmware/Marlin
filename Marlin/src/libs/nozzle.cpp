@@ -196,6 +196,13 @@ Nozzle nozzle;
   void Nozzle::park(const uint8_t z_action, const xyz_pos_t &park/*=NOZZLE_PARK_POINT*/) {
     constexpr feedRate_t fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
+    //Apply Z_RAISE_MIN when close to Z_MAX
+    #ifdef NOZZLE_PARK_Z_RAISE_MIN
+      if ((current_position.z + park.z) > Z_MAX_POS )
+        if (z_action == 2 ) z_action = 0 ; //Unselect Park Z raising
+    #endif
+
+
     switch (z_action) {
       case 1: // Go to Z-park height
         do_blocking_move_to_z(park.z, fr_z);
@@ -206,12 +213,12 @@ Nozzle nozzle;
         break;
 
       default: {
-        // Apply a minimum raise, overriding G27 Z
-        const float min_raised_z =_MIN(Z_MAX_POS, current_position.z
+        // Apply a minimum raise, on G27
+        const float min_raised_z = NOMORE(current_position.z
           #ifdef NOZZLE_PARK_Z_RAISE_MIN
-            + NOZZLE_PARK_Z_RAISE_MIN
+            += NOZZLE_PARK_Z_RAISE_MIN
           #endif
-        );
+          , Z_MAX_POS);
         do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
       } break;
     }
