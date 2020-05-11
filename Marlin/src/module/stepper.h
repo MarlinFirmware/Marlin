@@ -438,7 +438,7 @@ class Stepper {
       #endif
       current_block = nullptr;
       axis_did_move = 0;
-      planner.discard_current_block();
+      planner.release_current_block();
     }
 
     // Quickly stop all steppers

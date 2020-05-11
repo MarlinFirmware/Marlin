@@ -98,8 +98,8 @@ enum BlockFlagBit : char {
   // Sync the stepper counts from the block
   BLOCK_BIT_SYNC_POSITION
 
+  // Direct stepping page
   #if ENABLED(DIRECT_STEPPING)
-    // The block is a direct stepping page
     , BLOCK_BIT_IS_PAGE
   #endif
 };
@@ -110,7 +110,7 @@ enum BlockFlag : char {
   , BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
   , BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
   #if ENABLED(DIRECT_STEPPING)
-    , BLOCK_FLAG_IS_PAGE          = _BV(BLOCK_BIT_IS_PAGE)
+    , BLOCK_FLAG_IS_PAGE            = _BV(BLOCK_BIT_IS_PAGE)
   #endif
 };
 
@@ -839,10 +839,10 @@ class Planner {
     static block_t* get_current_block();
 
     /**
-     * "Discard" the block and "release" the memory.
+     * "Release" the current block so its slot can be reused.
      * Called when the current block is no longer needed.
      */
-    FORCE_INLINE static void discard_current_block() {
+    FORCE_INLINE static void release_current_block() {
       if (has_blocks_queued())
         block_buffer_tail = next_block_index(block_buffer_tail);
     }

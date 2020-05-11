@@ -915,7 +915,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
       streaming operating conditions. Use for planning optimizations by avoiding recomputing parts of the
       planner buffer that don't change with the addition of a new block, as describe above. In addition,
       this block can never be less than block_buffer_tail and will always be pushed forward and maintain
-      this requirement when encountered by the Planner::discard_current_block() routine during a cycle.
+      this requirement when encountered by the Planner::release_current_block() routine during a cycle.
 
   NOTE: Since the planner only computes on what's in the planner buffer, some motions with lots of short
   line segments, like G2/3 arcs or complex curves, may seem to move slow. This is because there simply isn't
@@ -2759,10 +2759,10 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     // Will be set to last direction later if directional format.
     block->direction_bits = 0;
 
-    if (!DirectStepping::Config::DIRECTIONAL) {
-      #define PAGE_UPDATE_DIR(AXIS) \
-        if (!last_page_dir[_AXIS(AXIS)]) SBI(block->direction_bits, _AXIS(AXIS));
+    #define PAGE_UPDATE_DIR(AXIS) \
+      if (!last_page_dir[_AXIS(AXIS)]) SBI(block->direction_bits, _AXIS(AXIS));
 
+    if (!DirectStepping::Config::DIRECTIONAL) {
       PAGE_UPDATE_DIR(X);
       PAGE_UPDATE_DIR(Y);
       PAGE_UPDATE_DIR(Z);
