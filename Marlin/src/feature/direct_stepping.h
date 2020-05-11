@@ -53,32 +53,32 @@ namespace DirectStepping {
 
     typedef typename Cfg::page_idx_t page_idx_t;
 
-    bool maybe_store_rxd_char(uint8_t c);
-    void write_responses();
+    static bool maybe_store_rxd_char(uint8_t c);
+    static void write_responses();
 
     // common methods for page managers
-    void init();
-    uint8_t *get_page(const page_idx_t page_idx);
-    void free_page(const page_idx_t page_idx);
+    static void init();
+    static uint8_t *get_page(const page_idx_t page_idx);
+    static void free_page(const page_idx_t page_idx);
 
   protected:
 
     typedef typename Cfg::write_byte_idx_t write_byte_idx_t;
 
-    State state;
-    volatile bool fatal_error;
+    static State state;
+    static volatile bool fatal_error;
 
-    volatile PageState page_states[Cfg::NUM_PAGES];
-    volatile bool page_states_dirty;
-    millis_t next_response;
+    static volatile PageState page_states[Cfg::NUM_PAGES];
+    static volatile bool page_states_dirty;
+    static millis_t next_response;
 
-    uint8_t pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
-    uint8_t checksum;
-    write_byte_idx_t write_byte_idx;
-    page_idx_t write_page_idx;
-    write_byte_idx_t write_page_size;
+    static uint8_t pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
+    static uint8_t checksum;
+    static write_byte_idx_t write_byte_idx;
+    static page_idx_t write_page_idx;
+    static write_byte_idx_t write_page_size;
 
-    void set_page_state(const page_idx_t page_idx, const PageState page_state);
+    static void set_page_state(const page_idx_t page_idx, const PageState page_state);
   };
 
   template<bool b, typename T, typename F> struct TypeSelector { typedef T type;} ;

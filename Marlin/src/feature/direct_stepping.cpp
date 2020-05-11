@@ -44,6 +44,34 @@
 
 namespace DirectStepping {
 
+  template<typename Cfg>
+  State SerialPageManager<Cfg>::state;
+
+  template<typename Cfg>
+  volatile bool SerialPageManager<Cfg>::fatal_error;
+
+  template<typename Cfg>
+  volatile PageState SerialPageManager<Cfg>::page_states[Cfg::NUM_PAGES];
+
+  template<typename Cfg>
+  volatile bool SerialPageManager<Cfg>::page_states_dirty;
+
+  template<typename Cfg>
+  millis_t SerialPageManager<Cfg>::next_response;
+
+  template<typename Cfg>
+  uint8_t SerialPageManager<Cfg>::pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE],
+          SerialPageManager<Cfg>::checksum;
+
+  template<typename Cfg>
+  write_byte_idx_t SerialPageManager<Cfg>::write_byte_idx;
+
+  template<typename Cfg>
+  page_idx_t SerialPageManager<Cfg>::write_page_idx;
+
+  template<typename Cfg>
+  write_byte_idx_t SerialPageManager<Cfg>::write_page_size;
+
   template <typename Cfg>
   void SerialPageManager<Cfg>::init() {
     for (int i = 0 ; i < Cfg::NUM_PAGES ; i++)

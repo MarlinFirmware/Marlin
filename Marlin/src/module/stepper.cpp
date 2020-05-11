@@ -1657,7 +1657,9 @@ void Stepper::pulse_phase_isr() {
           PAGE_PULSE_PREP(E);
 
           page_step_state.segment_steps++;
+
         #elif STEPPER_PAGE_FORMAT == SP_4x1_512
+
           #define PAGE_PULSE_PREP(AXIS, BITS) do{             \
             step_needed[_AXIS(AXIS)] = (steps >> BITS) & 0x1; \
             if (step_needed[_AXIS(AXIS)])                     \
@@ -1674,8 +1676,9 @@ void Stepper::pulse_phase_isr() {
           PAGE_PULSE_PREP(E, 0);
 
           page_step_state.segment_idx++;
+
         #else
-          #error "Unknown direct-stepping page format"
+          #error "Unknown direct stepping page format!"
         #endif
       }
 
@@ -1796,8 +1799,6 @@ uint32_t Stepper::block_phase_isr() {
         #elif STEPPER_PAGE_FORMAT == SP_4x1_512 || STEPPER_PAGE_FORMAT == SP_4x2_256
           #define PAGE_SEGMENT_UPDATE_POS(AXIS) \
             count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] * count_direction[_AXIS(AXIS)];
-        #else
-          #error "Unknown page format"
         #endif
 
         if (IS_PAGE(current_block)) {
