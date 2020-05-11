@@ -2257,20 +2257,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #endif
     ;
 
-    #if IS_CORE && HAS_JUNCTION_DEVIATION
+    #if IS_CORE
       /**
        * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
        * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
        * => normalize the complete junction vector
        */
       normalize_junction_vector(unit_vec);
-    #elif HAS_JUNCTION_DEVIATION
+    #else
       if (esteps)
         normalize_junction_vector(unit_vec); // Normalize with XYZE components
       else
-        unit_vec *= inverse_millimeters;     // Normalize with 1 / length
-    #else
-      unit_vec *= inverse_millimeters;       // Normalize with 1 / length
+        unit_vec *= inverse_millimeters;     // Normalize with 1 / sqrt(x^2 + y^2 + z^2)
     #endif
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
