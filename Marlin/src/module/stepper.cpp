@@ -1651,9 +1651,9 @@ void Stepper::pulse_phase_isr() {
             default: break;
           }
 
-          PAGE_PULSE_PREP(X),
-          PAGE_PULSE_PREP(Y),
-          PAGE_PULSE_PREP(Z),
+          PAGE_PULSE_PREP(X);
+          PAGE_PULSE_PREP(Y);
+          PAGE_PULSE_PREP(Z);
           PAGE_PULSE_PREP(E);
 
           page_step_state.segment_steps++;

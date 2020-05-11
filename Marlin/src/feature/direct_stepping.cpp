@@ -60,17 +60,19 @@ namespace DirectStepping {
   millis_t SerialPageManager<Cfg>::next_response;
 
   template<typename Cfg>
-  uint8_t SerialPageManager<Cfg>::pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE],
-          SerialPageManager<Cfg>::checksum;
+  uint8_t SerialPageManager<Cfg>::pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
+          
+  template<typename Cfg>
+  uint8_t SerialPageManager<Cfg>::checksum;
 
   template<typename Cfg>
-  write_byte_idx_t SerialPageManager<Cfg>::write_byte_idx;
+  typename Cfg::write_byte_idx_t SerialPageManager<Cfg>::write_byte_idx;
 
   template<typename Cfg>
-  page_idx_t SerialPageManager<Cfg>::write_page_idx;
+  typename Cfg::page_idx_t SerialPageManager<Cfg>::write_page_idx;
 
   template<typename Cfg>
-  write_byte_idx_t SerialPageManager<Cfg>::write_page_size;
+  typename Cfg::write_byte_idx_t SerialPageManager<Cfg>::write_page_size;
 
   template <typename Cfg>
   void SerialPageManager<Cfg>::init() {
