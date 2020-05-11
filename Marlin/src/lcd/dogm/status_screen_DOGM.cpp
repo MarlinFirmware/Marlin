@@ -104,7 +104,7 @@
 #endif
 
 #define PROGRESS_BAR_X 54
-#define PROGRESS_BAR_Y (EXTRAS_BASELINE + 2)
+#define PROGRESS_BAR_Y (EXTRAS_BASELINE + 1)
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
