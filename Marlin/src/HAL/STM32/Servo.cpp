@@ -61,8 +61,7 @@ void libServo::move(const int value) {
   }
 }
 
-void libServo::pause()
-{
+void libServo::pause() {
   was_attached_before_pause = stm32_servo.attached();
   if (was_attached_before_pause) {
     value_before_pause = stm32_servo.read();
@@ -70,25 +69,22 @@ void libServo::pause()
   }
 }
 
-void libServo::resume()
-{
+void libServo::resume() {
   if (was_attached_before_pause) {
     attach();
     move(value_before_pause);
   }
 }
 
-void libServo::pause_all_servos()
-{
+void libServo::pause_all_servos() {
   for (auto& servo : servos)
     if (servo) servo->pause();
 }
 
-void libServo::resume_all_servos()
-{
+void libServo::resume_all_servos() {
   for (auto& servo : servos)
     if (servo) servo->resume();
 }
-#endif // HAS_SERVOS
 
+#endif // HAS_SERVOS
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
