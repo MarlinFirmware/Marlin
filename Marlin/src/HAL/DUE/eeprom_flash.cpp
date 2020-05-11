@@ -1,9 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
+ * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifdef ARDUINO_ARCH_SAM
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+
+#ifndef E2END
+  #define E2END 0xFFF // Default to Flash emulated EEPROM size (eeprom_emul.cpp)
+#endif
 
 /* EEPROM emulation over flash with reduced wear
  *
@@ -50,14 +60,7 @@
  *
  */
 
-#ifdef ARDUINO_ARCH_SAM
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(FLASH_EEPROM_EMULATION)
-
-#include "../shared/Marduino.h"
-#include "../shared/eeprom_api.h"
+//#define EE_EMU_DEBUG
 
 #define EEPROMSize     4096
 #define PagesPerGroup   128
@@ -134,15 +137,18 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
                curPage = 0,         // Current FLASH page inside the group
                curGroup = 0xFF;     // Current FLASH group
 
-//#define EE_EMU_DEBUG
-#ifdef EE_EMU_DEBUG
-  static void ee_Dump(int page,const void* data) {
+#define DEBUG_OUT ENABLED(EE_EMU_DEBUG)
+#include "../../core/debug_out.h"
+
+static void ee_Dump(const int page, const void* data) {
+
+  #ifdef EE_EMU_DEBUG
 
     const uint8_t* c = (const uint8_t*) data;
     char buffer[80];
 
     sprintf_P(buffer, PSTR("Page: %d (0x%04x)\n"), page, page);
-    SERIAL_ECHO(buffer);
+    DEBUG_ECHO(buffer);
 
     char* p = &buffer[0];
     for (int i = 0; i< PageSize; ++i) {
@@ -152,12 +158,16 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
       if ((i & 0xF) == 0xF) {
         *p++ = '\n';
         *p = 0;
-        SERIAL_ECHO(buffer);
+        DEBUG_ECHO(buffer);
         p = &buffer[0];
       }
     }
-  }
-#endif
+
+  #else
+    UNUSED(page);
+    UNUSED(data);
+  #endif
+}
 
 /* Flash Writing Protection Key */
 #define FWP_KEY    0x5Au
@@ -170,17 +180,16 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
   #define EEFC_ERROR_FLAGS  (EEFC_FSR_FLOCKE | EEFC_FSR_FCMDE)
 #endif
 
-
 /**
  * Writes the contents of the specified page (no previous erase)
  * @param page    (page #)
  * @param data    (pointer to the data buffer)
  */
 __attribute__ ((long_call, section (".ramfunc")))
-static bool ee_PageWrite(uint16_t page,const void* data) {
+static bool ee_PageWrite(uint16_t page, const void* data) {
 
   uint16_t i;
-  uint32_t addrflash = ((uint32_t)getFlashStorage(page));
+  uint32_t addrflash = uint32_t(getFlashStorage(page));
 
   // Read the flash contents
   uint32_t pageContents[PageSize>>2];
@@ -195,13 +204,11 @@ static bool ee_PageWrite(uint16_t page,const void* data) {
   for (i = 0; i <PageSize >> 2; i++)
     pageContents[i] = (((uint32_t*)data)[i]) | (~(pageContents[i] ^ ((uint32_t*)data)[i]));
 
-  #ifdef EE_EMU_DEBUG
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM PageWrite   ", page);
-    SERIAL_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
-    SERIAL_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
-    SERIAL_FLUSH();
-  #endif
+  DEBUG_ECHO_START();
+  DEBUG_ECHOLNPAIR("EEPROM PageWrite   ", page);
+  DEBUG_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
+  DEBUG_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
+  DEBUG_FLUSH();
 
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
   Efc *efc;
@@ -243,10 +250,8 @@ static bool ee_PageWrite(uint16_t page,const void* data) {
     // Reenable interrupts
     __enable_irq();
 
-    #ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("EEPROM Unlock failure for page ", page);
-    #endif
+    DEBUG_ECHO_START();
+    DEBUG_ECHOLNPAIR("EEPROM Unlock failure for page ", page);
     return false;
   }
 
@@ -270,10 +275,9 @@ static bool ee_PageWrite(uint16_t page,const void* data) {
     // Reenable interrupts
     __enable_irq();
 
-    #ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("EEPROM Write failure for page ", page);
-    #endif
+    DEBUG_ECHO_START();
+    DEBUG_ECHOLNPAIR("EEPROM Write failure for page ", page);
+
     return false;
   }
 
@@ -287,11 +291,11 @@ static bool ee_PageWrite(uint16_t page,const void* data) {
   if (memcmp(getFlashStorage(page),data,PageSize)) {
 
     #ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("EEPROM Verify Write failure for page ", page);
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("EEPROM Verify Write failure for page ", page);
 
-      ee_Dump( page,(uint32_t *) addrflash);
-      ee_Dump(-page,data);
+      ee_Dump( page, (uint32_t *)addrflash);
+      ee_Dump(-page, data);
 
       // Calculate count of changed bits
       uint32_t* p1 = (uint32_t*)addrflash;
@@ -307,7 +311,7 @@ static bool ee_PageWrite(uint16_t page,const void* data) {
           }
         }
       }
-      SERIAL_ECHOLNPAIR("--> Differing bits: ", count);
+      DEBUG_ECHOLNPAIR("--> Differing bits: ", count);
     #endif
 
     return false;
@@ -324,15 +328,13 @@ __attribute__ ((long_call, section (".ramfunc")))
 static bool ee_PageErase(uint16_t page) {
 
   uint16_t i;
-  uint32_t addrflash = ((uint32_t)getFlashStorage(page));
+  uint32_t addrflash = uint32_t(getFlashStorage(page));
 
-  #ifdef EE_EMU_DEBUG
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM PageErase  ", page);
-    SERIAL_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
-    SERIAL_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
-    SERIAL_FLUSH();
-  #endif
+  DEBUG_ECHO_START();
+  DEBUG_ECHOLNPAIR("EEPROM PageErase  ", page);
+  DEBUG_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
+  DEBUG_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
+  DEBUG_FLUSH();
 
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
   Efc *efc;
@@ -373,10 +375,9 @@ static bool ee_PageErase(uint16_t page) {
     // Reenable interrupts
     __enable_irq();
 
-    #ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
-    #endif
+    DEBUG_ECHO_START();
+    DEBUG_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
+
     return false;
   }
 
@@ -398,10 +399,9 @@ static bool ee_PageErase(uint16_t page) {
     // Reenable interrupts
     __enable_irq();
 
-    #ifdef EE_EMU_DEBUG
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("EEPROM Erase failure for page ",page);
-    #endif
+    DEBUG_ECHO_START();
+    DEBUG_ECHOLNPAIR("EEPROM Erase failure for page ",page);
+
     return false;
   }
 
@@ -415,20 +415,17 @@ static bool ee_PageErase(uint16_t page) {
   uint32_t * aligned_src = (uint32_t *) addrflash;
   for (i = 0; i < PageSize >> 2; i++) {
     if (*aligned_src++ != 0xFFFFFFFF) {
-
-      #ifdef EE_EMU_DEBUG
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR("EEPROM Verify Erase failure for page ",page);
-
-        ee_Dump( page,(uint32_t *) addrflash);
-      #endif
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("EEPROM Verify Erase failure for page ",page);
+      ee_Dump(page, (uint32_t *)addrflash);
       return false;
     }
   }
 
   return true;
 }
-static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false) {
+
+static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer=false) {
 
   uint32_t baddr;
   uint32_t blen;
@@ -511,7 +508,7 @@ static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer = false) {
   return 0xFF;
 }
 
-static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false) {
+static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer=false) {
   uint32_t baddr,
            blen,
            nextAddr = 0xFFFF,
@@ -603,7 +600,7 @@ static bool ee_IsPageClean(int page) {
   return true;
 }
 
-static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData = 0xFF) {
+static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData=0xFF) {
 
   // Check if RAM buffer has something to be written
   bool isEmpty = true;
@@ -929,11 +926,9 @@ static void ee_Init() {
   // If all groups seem to be used, default to first group
   if (curGroup >= GroupCount) curGroup = 0;
 
-  #ifdef EE_EMU_DEBUG
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Current Group: ",curGroup);
-    SERIAL_FLUSH();
-  #endif
+  DEBUG_ECHO_START();
+  DEBUG_ECHOLNPAIR("EEPROM Current Group: ",curGroup);
+  DEBUG_FLUSH();
 
   // Now, validate that all the other group pages are empty
   for (int grp = 0; grp < GroupCount; grp++) {
@@ -941,11 +936,9 @@ static void ee_Init() {
 
     for (int page = 0; page < PagesPerGroup; page++) {
       if (!ee_IsPageClean(grp * PagesPerGroup + page)) {
-        #ifdef EE_EMU_DEBUG
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPAIR("EEPROM Page ", page, " not clean on group ", grp);
-          SERIAL_FLUSH();
-        #endif
+        DEBUG_ECHO_START();
+        DEBUG_ECHOLNPAIR("EEPROM Page ", page, " not clean on group ", grp);
+        DEBUG_FLUSH();
         ee_PageErase(grp * PagesPerGroup + page);
       }
     }
@@ -955,66 +948,66 @@ static void ee_Init() {
   // and also validate that all the other ones are clean
   for (curPage = 0; curPage < PagesPerGroup; curPage++) {
     if (ee_IsPageClean(curGroup * PagesPerGroup + curPage)) {
-      #ifdef EE_EMU_DEBUG
-        ee_Dump(curGroup * PagesPerGroup + curPage, getFlashStorage(curGroup * PagesPerGroup + curPage));
-      #endif
+      ee_Dump(curGroup * PagesPerGroup + curPage, getFlashStorage(curGroup * PagesPerGroup + curPage));
       break;
     }
   }
 
-  #ifdef EE_EMU_DEBUG
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM Active page: ", curPage);
-    SERIAL_FLUSH();
-  #endif
+  DEBUG_ECHO_START();
+  DEBUG_ECHOLNPAIR("EEPROM Active page: ", curPage);
+  DEBUG_FLUSH();
 
   // Make sure the pages following the first clean one are also clean
   for (int page = curPage + 1; page < PagesPerGroup; page++) {
     if (!ee_IsPageClean(curGroup * PagesPerGroup + page)) {
-      #ifdef EE_EMU_DEBUG
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR("EEPROM Page ", page, " not clean on active group ", curGroup);
-        SERIAL_FLUSH();
-        ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
-      #endif
+      DEBUG_ECHO_START();
+      DEBUG_ECHOLNPAIR("EEPROM Page ", page, " not clean on active group ", curGroup);
+      DEBUG_FLUSH();
+      ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
       ee_PageErase(curGroup * PagesPerGroup + page);
     }
   }
 }
 
-uint8_t eeprom_read_byte(uint8_t* addr) {
-  ee_Init();
-  return ee_Read((uint32_t)addr);
+/* PersistentStore -----------------------------------------------------------*/
+
+#include "../shared/eeprom_api.h"
+
+size_t PersistentStore::capacity()    { return E2END + 1; }
+bool PersistentStore::access_start()  { ee_Init();  return true; }
+bool PersistentStore::access_finish() { ee_Flush(); return true; }
+
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+  while (size--) {
+    uint8_t * const p = (uint8_t * const)pos;
+    uint8_t v = *value;
+    // EEPROM has only ~100,000 write cycles,
+    // so only write bytes that have changed!
+    if (v != ee_Read(uint32_t(p))) {
+      ee_Write(uint32_t(p), v);
+      delay(2);
+      if (ee_Read(uint32_t(p)) != v) {
+        SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
+        return true;
+      }
+    }
+    crc16(crc, &v, 1);
+    pos++;
+    value++;
+  };
+  return false;
 }
 
-void eeprom_write_byte(uint8_t* addr, uint8_t value) {
-  ee_Init();
-  ee_Write((uint32_t)addr, value);
-}
-
-void eeprom_update_block(const void* __src, void* __dst, size_t __n) {
-  uint8_t* dst = (uint8_t*)__dst;
-  const uint8_t* src = (const uint8_t*)__src;
-  while (__n--) {
-    eeprom_write_byte(dst, *src);
-    ++dst;
-    ++src;
-  }
-}
-
-void eeprom_read_block(void* __dst, const void* __src, size_t __n) {
-  uint8_t* dst = (uint8_t*)__dst;
-  uint8_t* src = (uint8_t*)__src;
-  while (__n--) {
-    *dst = eeprom_read_byte(src);
-    ++dst;
-    ++src;
-  }
-}
-
-void eeprom_flush() {
-  ee_Flush();
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+  do {
+    uint8_t c = ee_Read(uint32_t(pos));
+    if (writing) *value = c;
+    crc16(crc, &c, 1);
+    pos++;
+    value++;
+  } while (--size);
+  return false;
 }
 
 #endif // FLASH_EEPROM_EMULATION
-#endif // ARDUINO_ARCH_AVR
+#endif // ARDUINO_ARCH_SAM

@@ -95,6 +95,7 @@ MarlinUI ui;
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"
+#include "../module/configuration_store.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
@@ -121,7 +122,7 @@ MarlinUI ui;
   #endif
 #endif
 
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
   bool MarlinUI::defer_return_to_status;
 #endif
 
@@ -638,7 +639,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     float manual_move_offset = 0;
   #endif
 
-  #if E_MANUAL > 1
+  #if MULTI_MANUAL
     int8_t MarlinUI::manual_move_e_index = 0;
   #endif
 
@@ -732,7 +733,7 @@ void MarlinUI::update() {
   static uint16_t max_display_update_time = 0;
   millis_t ms = millis();
 
-  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
     static millis_t return_to_status_ms = 0;
     #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
   #else
@@ -879,11 +880,7 @@ void MarlinUI::update() {
     // This runs every ~100ms when idling often enough.
     // Instead of tracking changes just redraw the Status Screen once per second.
     if (on_status_screen() && !lcd_status_update_delay--) {
-      lcd_status_update_delay = 9
-        #if HAS_GRAPHICAL_LCD
-          + 3
-        #endif
-      ;
+      lcd_status_update_delay = TERN(HAS_GRAPHICAL_LCD, 12, 9);
       max_display_update_time--;
       refresh(LCDVIEW_REDRAW_NOW);
     }
@@ -967,7 +964,7 @@ void MarlinUI::update() {
         NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
         RESET_STATUS_TIMEOUT();
@@ -1167,11 +1164,7 @@ void MarlinUI::update() {
           WRITE(SHIFT_CLK, HIGH);
           WRITE(SHIFT_CLK, LOW);
         }
-        #if ENABLED(REPRAPWORLD_KEYPAD)
-          keypad_buttons = ~val;
-        #else
-          buttons = ~val;
-        #endif
+        TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
       #endif
 
     } // next_button_update_ms
@@ -1238,7 +1231,7 @@ void MarlinUI::update() {
 
   void MarlinUI::finish_status(const bool persist) {
 
-    #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
+    #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE) > 0)
       UNUSED(persist);
     #endif
 
@@ -1310,7 +1303,7 @@ void MarlinUI::update() {
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify(message));
+    TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(message));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1347,13 +1340,13 @@ void MarlinUI::update() {
     PGM_P printing = GET_TEXT(MSG_PRINTING);
     PGM_P welcome  = GET_TEXT(WELCOME_MSG);
     #if SERVICE_INTERVAL_1 > 0
-      static const char service1[] PROGMEM = { "> " SERVICE_NAME_1 "!" };
+      static PGMSTR(service1, "> " SERVICE_NAME_1 "!");
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      static const char service2[] PROGMEM = { "> " SERVICE_NAME_2 "!" };
+      static PGMSTR(service2, "> " SERVICE_NAME_2 "!");
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      static const char service3[] PROGMEM = { "> " SERVICE_NAME_3 "!" };
+      static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
     PGM_P msg;
     if (printingIsPaused())
@@ -1438,18 +1431,10 @@ void MarlinUI::update() {
   #if HAS_PRINT_PROGRESS
 
     MarlinUI::progress_t MarlinUI::_get_progress() {
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        const progress_t p = progress_override & PROGRESS_MASK;
-      #else
-        constexpr progress_t p = 0;
-      #endif
-      return (p
+      return (
+        TERN0(LCD_SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
         #if ENABLED(SDSUPPORT)
-          #if HAS_PRINT_PROGRESS_PERMYRIAD
-            ?: card.permyriadDone()
-          #else
-            ?: card.percentDone()
-          #endif
+          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
         #endif
       );
     }
@@ -1461,29 +1446,14 @@ void MarlinUI::update() {
   //
   // Send the status line as a host notification
   //
-
   void MarlinUI::set_status(const char * const message, const bool) {
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_action_notify(message);
-    #else
-      UNUSED(message);
-    #endif
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
   }
-
   void MarlinUI::set_status_P(PGM_P message, const int8_t) {
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_action_notify(message);
-    #else
-      UNUSED(message);
-    #endif
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
-
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      host_action_notify(message);
-    #else
-      UNUSED(message);
-    #endif
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
 
 #endif // !HAS_DISPLAY
@@ -1507,7 +1477,9 @@ void MarlinUI::update() {
         TERN_(EXTENSIBLE_UI, ExtUI::onMediaRemoved()); // ExtUI response
         #if PIN_EXISTS(SD_DETECT)
           set_status_P(GET_TEXT(MSG_MEDIA_REMOVED));
-          TERN_(HAS_LCD_MENU, return_to_status());
+          #if HAS_LCD_MENU
+            if (!defer_return_to_status) return_to_status();
+          #endif
         #endif
       }
     }
@@ -1530,3 +1502,56 @@ void MarlinUI::update() {
   }
 
 #endif // SDSUPPORT
+
+#if HAS_LCD_MENU
+  void MarlinUI::reset_settings() { settings.reset(); completion_feedback(); }
+#endif
+
+#if ENABLED(EEPROM_SETTINGS)
+
+  #if HAS_LCD_MENU
+    void MarlinUI::init_eeprom() {
+      const bool good = settings.init_eeprom();
+      completion_feedback(good);
+      return_to_status();
+    }
+    void MarlinUI::load_settings() {
+      const bool good = settings.load();
+      completion_feedback(good);
+    }
+    void MarlinUI::store_settings() {
+      const bool good = settings.save();
+      completion_feedback(good);
+    }
+  #endif
+
+  #if DISABLED(EEPROM_AUTO_INIT)
+
+    static inline PGM_P eeprom_err(const uint8_t msgid) {
+      switch (msgid) {
+        default:
+        case 0: return GET_TEXT(MSG_ERR_EEPROM_CRC);
+        case 1: return GET_TEXT(MSG_ERR_EEPROM_INDEX);
+        case 2: return GET_TEXT(MSG_ERR_EEPROM_VERSION);
+      }
+    }
+
+    void MarlinUI::eeprom_alert(const uint8_t msgid) {
+      #if HAS_LCD_MENU
+        editable.uint8 = msgid;
+        goto_screen([]{
+          PGM_P const restore_msg = GET_TEXT(MSG_INIT_EEPROM);
+          char msg[utf8_strlen_P(restore_msg) + 1];
+          strcpy_P(msg, restore_msg);
+          MenuItem_confirm::select_screen(
+            GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_IGNORE),
+            init_eeprom, return_to_status,
+            eeprom_err(editable.uint8), msg, PSTR("?")
+          );
+        });
+      #else
+        set_status_P(eeprom_err(msgid));
+      #endif
+    }
+  #endif
+#endif

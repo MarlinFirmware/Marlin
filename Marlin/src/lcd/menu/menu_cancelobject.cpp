@@ -53,17 +53,19 @@ static void lcd_cancel_object_confirm() {
 }
 
 void menu_cancelobject() {
+  const int8_t ao = cancelable.active_object;
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
   // Draw cancelable items in a loop
-  int8_t a = cancelable.active_object;
   for (int8_t i = -1; i < cancelable.object_count; i++) {
-    if (i == a) continue;
-    int8_t j = i < 0 ? a : i;
-    if (!cancelable.is_canceled(j))
-      SUBMENU_N(j, MSG_CANCEL_OBJECT_N, lcd_cancel_object_confirm);
-    if (i < 0) SKIP_ITEM();
+    if (i == ao) continue;                                          // Active is drawn on -1 index
+    const int8_t j = i < 0 ? ao : i;                                // Active or index item
+    if (!cancelable.is_canceled(j)) {                               // Not canceled already?
+      SUBMENU_N(j, MSG_CANCEL_OBJECT_N, lcd_cancel_object_confirm); // Offer the option.
+      if (i < 0) SKIP_ITEM();                                       // Extra line after active
+    }
   }
 
   END_MENU();

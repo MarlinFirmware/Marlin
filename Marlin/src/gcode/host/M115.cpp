@@ -23,6 +23,10 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(M115_GEOMETRY_REPORT)
+  #include "../../module/motion.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
@@ -96,8 +100,14 @@ void GcodeSuite::M115() {
     // PROMPT SUPPORT (M876)
     cap_line(PSTR("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
 
+    // SDCARD (M20, M23, M24, etc.)
+    cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
+
+    // LONG_FILENAME_HOST_SUPPORT (M33)
+    cap_line(PSTR("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
@@ -105,8 +115,34 @@ void GcodeSuite::M115() {
     // MOTION_MODES (M80-M89)
     cap_line(PSTR("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
 
+    // BABYSTEPPING (M290)
+    cap_line(PSTR("BABYSTEPPING"), ENABLED(BABYSTEPPING));
+
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // Machine Geometry
+    #if ENABLED(M115_GEOMETRY_REPORT)
+      const xyz_pos_t dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+                      dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+      xyz_pos_t cmin = dmin, cmax = dmax;
+      apply_motion_limits(cmin);
+      apply_motion_limits(cmax);
+      const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
+                      wmin = cmin.asLogical(), wmax = cmax.asLogical();
+      SERIAL_ECHOLNPAIR(
+        "area:{"
+          "full:{"
+            "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
+            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
+          "},"
+          "work:{"
+            "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
+            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
+          "}"
+        "}"
+      );
+    #endif
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

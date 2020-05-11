@@ -19,12 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "../../inc/MarlinConfig.h"
 
-#if USE_WIRED_EEPROM
+#if ENABLED(EEPROM_SETTINGS)
 
 #include "../shared/eeprom_api.h"
 #include <EEPROM.h>
@@ -59,5 +58,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
-#endif // USE_WIRED_EEPROM
+#endif // EEPROM_SETTINGS
 #endif // ARDUINO_ARCH_ESP32

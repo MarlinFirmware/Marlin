@@ -262,6 +262,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Accélération");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Acc.rétraction");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("Acc.course");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Fréquence max");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Vitesse min");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Pas/mm");
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" pas/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" pas/mm");

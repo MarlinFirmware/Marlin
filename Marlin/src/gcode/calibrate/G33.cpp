@@ -448,7 +448,7 @@ void GcodeSuite::G33() {
   }
 
   // Report settings
-  PGM_P checkingac = PSTR("Checking... AC");
+  PGM_P const checkingac = PSTR("Checking... AC");
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
@@ -624,7 +624,7 @@ void GcodeSuite::G33() {
       }
     }
     else { // dry run
-      PGM_P enddryrun = PSTR("End DRY-RUN");
+      PGM_P const enddryrun = PSTR("End DRY-RUN");
       serialprintPGM(enddryrun);
       SERIAL_ECHO_SP(35);
       SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);

@@ -74,7 +74,7 @@ bool Power::is_power_needed() {
   HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0) return true;
   if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0)) return true;
 
-  #if HOTENDS && AUTO_POWER_E_TEMP
+  #if HAS_HOTEND && AUTO_POWER_E_TEMP
     HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
   #endif
 

@@ -9,8 +9,11 @@ set -e
 #
 # Build with the default configurations
 #
+restore_configs
 use_example_configs ArmEd
-exec_test $1 $2 "ArmEd Example Configuration"
+opt_set X_DRIVER_TYPE TMC2130
+opt_set Y_DRIVER_TYPE TMC2208
+exec_test $1 $2 "ArmEd Example Configuration with mixed TMC Drivers"
 
 # clean up
 restore_configs

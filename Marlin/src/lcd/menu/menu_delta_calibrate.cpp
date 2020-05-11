@@ -118,14 +118,16 @@ void lcd_delta_settings() {
 }
 
 void menu_delta_calibrate() {
+  const bool all_homed = all_axes_homed();
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
     #if ENABLED(EEPROM_SETTINGS)
-      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
-      ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
+      ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
     #endif
   #endif
 
@@ -133,7 +135,7 @@ void menu_delta_calibrate() {
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
     SUBMENU(MSG_AUTO_HOME, _lcd_delta_calibrate_home);
-    if (all_axes_homed()) {
+    if (all_homed) {
       SUBMENU(MSG_DELTA_CALIBRATE_X, _goto_tower_x);
       SUBMENU(MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
       SUBMENU(MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
