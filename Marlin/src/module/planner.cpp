@@ -2264,14 +2264,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
        * => normalize the complete junction vector
        */
       normalize_junction_vector(unit_vec);
+    #elif HAS_JUNCTION_DEVIATION
+      if (esteps)
+        normalize_junction_vector(unit_vec); // Normalize with XYZE components
+      else
+        unit_vec *= inverse_millimeters;     // Normalize with 1 / length
     #else
-      if (esteps) {
-        // inverse_millimeters does not include extruder steps -> NORM(unit_vec) != inverse_millimeters
-        normalize_junction_vector(unit_vec);
-      }
-      else {
-        unit_vec *= inverse_millimeters;
-      }
+      unit_vec *= inverse_millimeters;       // Normalize with 1 / length
     #endif
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
