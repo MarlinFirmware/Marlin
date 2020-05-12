@@ -66,6 +66,13 @@
   #include "../feature/spindle_laser_types.h"
 #endif
 
+#if ENABLED(DIRECT_STEPPING)
+  #include "../feature/direct_stepping.h"
+  #define IS_PAGE(B) TEST(B->flag, BLOCK_BIT_IS_PAGE)
+#else
+  #define IS_PAGE(B) false
+#endif
+
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
@@ -90,13 +97,21 @@ enum BlockFlagBit : char {
 
   // Sync the stepper counts from the block
   BLOCK_BIT_SYNC_POSITION
+
+  // Direct stepping page
+  #if ENABLED(DIRECT_STEPPING)
+    , BLOCK_BIT_IS_PAGE
+  #endif
 };
 
 enum BlockFlag : char {
-  BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
-  BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
-  BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
-  BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
+    BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE)
+  , BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH)
+  , BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
+  , BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
+  #if ENABLED(DIRECT_STEPPING)
+    , BLOCK_FLAG_IS_PAGE            = _BV(BLOCK_BIT_IS_PAGE)
+  #endif
 };
 
 #if ENABLED(LASER_POWER_INLINE)
@@ -179,6 +194,10 @@ typedef struct block_t {
            initial_rate,                    // The jerk-adjusted step rate at start of block
            final_rate,                      // The minimal rate at exit
            acceleration_steps_per_s2;       // acceleration steps/sec^2
+
+  #if ENABLED(DIRECT_STEPPING)
+    page_idx_t page_idx;                    // Page index used for direct stepping
+  #endif
 
   #if HAS_CUTTER
     cutter_power_t cutter_power;            // Power level for Spindle, Laser, etc.
@@ -294,6 +313,11 @@ class Planner {
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
+    #endif
+
+    #if ENABLED(DIRECT_STEPPING)
+      static uint32_t last_page_step_rate;          // Last page step rate given
+      static xyze_bool_t last_page_dir;             // Last page direction given
     #endif
 
     #if EXTRUDERS
@@ -726,6 +750,10 @@ class Planner {
       );
     }
 
+    #if ENABLED(DIRECT_STEPPING)
+      static void buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps);
+    #endif
+
     /**
      * Set the planner.position and individual stepper positions.
      * Used by G92, G28, G29, and other procedures.
@@ -811,10 +839,10 @@ class Planner {
     static block_t* get_current_block();
 
     /**
-     * "Discard" the block and "release" the memory.
+     * "Release" the current block so its slot can be reused.
      * Called when the current block is no longer needed.
      */
-    FORCE_INLINE static void discard_current_block() {
+    FORCE_INLINE static void release_current_block() {
       if (has_blocks_queued())
         block_buffer_tail = next_block_index(block_buffer_tail);
     }

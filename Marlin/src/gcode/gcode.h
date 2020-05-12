@@ -402,6 +402,8 @@ private:
 
   TERN_(BEZIER_CURVE_SUPPORT, static void G5());
 
+  TERN_(DIRECT_STEPPING, static void G6());
+
   #if ENABLED(FWRETRACT)
     static void G10();
     static void G11();
