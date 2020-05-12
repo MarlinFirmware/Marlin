@@ -1285,8 +1285,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Probes need Z_AFTER_PROBING >= 0."
   #endif
 
-  #if MULTIPLE_PROBING || EXTRA_PROBING
-    #if !MULTIPLE_PROBING
+  #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
+    #if MULTIPLE_PROBING == 0
       #error "EXTRA_PROBING requires MULTIPLE_PROBING."
     #elif MULTIPLE_PROBING < 2
       #error "MULTIPLE_PROBING must be 2 or more."
@@ -2922,4 +2922,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 // G60/G61 Position Save
 #if SAVED_POSITIONS > 256
   #error "SAVED_POSITIONS must be an integer from 0 to 256."
+#endif
+
+/**
+ * Sanity checks for stepper chunk support
+ */
+#if ENABLED(DIRECT_STEPPING)
+  #if ENABLED(LIN_ADVANCE)
+    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+  #endif
 #endif
