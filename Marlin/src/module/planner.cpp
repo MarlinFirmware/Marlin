@@ -128,6 +128,10 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
+#if ENABLED(LASER_POWER_INLINE)
+  laser_state_t Planner::laser;              // Current state for blocks
+#endif
+
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
 
 float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
@@ -1799,8 +1803,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Update block laser power
   #if ENABLED(LASER_POWER_INLINE)
-    block->laser.status = settings.laser.status;
-    block->laser.power = settings.laser.power;
+    block->laser.status = laser.status;
+    block->laser.power = laser.power;
   #endif
 
   // Number of steps for each axis

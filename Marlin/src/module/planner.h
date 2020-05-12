@@ -248,7 +248,7 @@ typedef struct block_t {
      * as it avoids floating points during move loop
      */
     uint8_t power;
-  } settings_laser_t;
+  } laser_state_t;
 #endif
 
 typedef struct {
@@ -261,9 +261,6 @@ typedef struct {
             travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
  feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
-  #if ENABLED(LASER_POWER_INLINE)
-    settings_laser_t laser;
-  #endif
 } planner_settings_t;
 
 #if DISABLED(SKEW_CORRECTION)
@@ -333,6 +330,10 @@ class Planner {
     #endif
 
     static planner_settings_t settings;
+
+    #if ENABLED(LASER_POWER_INLINE)
+      static laser_state_t laser;
+    #endif
 
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
     static float steps_to_mm[XYZE_N];           // Millimeters per step
