@@ -46,7 +46,7 @@ public:
   static constexpr float
     min_pct = 100.0f * TERN(CUTTER_POWER_RELATIVE, 0, (SPEED_POWER_MIN)) / (SPEED_POWER_MAX),
     max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
-  static constexpr float pct_to_ocr(float pct) {
+  static constexpr float pct_to_ocr(const float pct) {
     return (pct - (SPEED_POWER_INTERCEPT)) * RECIPROCAL(SPEED_POWER_SLOPE);
   }
   static constexpr float min_ocr() { return pct_to_ocr(min_pct); }  // Minimum allowed
@@ -101,32 +101,32 @@ public:
   static void init();
 
   // Modifying this function should update everywhere
-  static inline bool enabled(const cutter_power_t pwr) { return pwr > 0; }
+  static inline bool enabled(const cutter_power_t upwr) { return upwr > 0; }
   static inline bool enabled() { return enabled(power); }
   #if ENABLED(MARLIN_DEV_MODE)
     static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
   #endif
-  static void apply_power(const cutter_power_t inpow);
+  static void apply_power(const cutter_power_t upwr);
 
   FORCE_INLINE static void refresh() { apply_power(power); }
-  FORCE_INLINE static void set_power(const cutter_power_t pwr) { power = pwr; refresh(); }
+  FORCE_INLINE static void set_power(const cutter_power_t upwr) { power = upwr; refresh(); }
 
   static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: SPEED_POWER_STARTUP) : 0); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
 
     static void set_ocr(const uint8_t ocr);
-    static inline void set_ocr_power(const uint8_t pwr) { power = pwr; set_ocr(pwr); }
+    static inline void set_ocr_power(const uint8_t ocr) { power = ocr; set_ocr(ocr); }
 
     // Used to update output for power->OCR translation
     static inline constexpr
-    uint8_t unit_power_to_ocr(const float &pwr) {
+    uint8_t upower_to_ocr(const float &upwr) {
       #if CUTTER_DISPLAY_IS(PWM255)
-        return pwr;
+        return upwr;
       #else
-        return (upower_to_percent(pwr) < min_pct) ? min_ocr()  // Use minimum if set below
-             : (upower_to_percent(pwr) > max_pct) ? max_ocr()  // Use maximum if set above
-             : pct_to_ocr(upower_to_percent(pwr)); // Calculate OCR value
+        return (upower_to_percent(upwr) < min_pct) ? min_ocr()  // Use minimum if set below
+             : (upower_to_percent(upwr) > max_pct) ? max_ocr()  // Use maximum if set above
+             : pct_to_ocr(upower_to_percent(upwr)); // Calculate OCR value
       #endif
     }
 
@@ -192,7 +192,7 @@ public:
     // Set the power for subsequent movement blocks
     static void inline_power(const cutter_power_t upwr) {
       #if ENABLED(SPINDLE_LASER_PWM)
-        inline_ocr_power(unit_power_to_ocr(upwr));
+        inline_ocr_power(upower_to_ocr(upwr));
       #else
         planner.laser.status = enabled(upwr) ? 0x03 : 0x01;
         planner.laser.power = upwr;

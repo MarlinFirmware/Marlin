@@ -82,7 +82,7 @@ void SpindleLaser::apply_power(const cutter_power_t upwr) {
   power = upwr;
   #if ENABLED(SPINDLE_LASER_PWM)
     if (enabled())
-      set_ocr(unit_power_to_ocr(upwr));
+      set_ocr(upower_to_ocr(upwr));
     else {
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);         // Turn spindle off
       analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Only write low byte
