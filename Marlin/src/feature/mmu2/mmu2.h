@@ -44,24 +44,24 @@ public:
   static void init();
   static void reset();
   static void mmu_loop();
-  static void tool_change(uint8_t index);
+  static void tool_change(const uint8_t index);
   static void tool_change(const char* special);
   static uint8_t get_current_tool();
-  static void set_filament_type(uint8_t index, uint8_t type);
+  static void set_filament_type(const uint8_t index, const uint8_t type);
 
   #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
     static bool unload();
     static void load_filament(uint8_t);
     static void load_all();
-    static bool load_filament_to_nozzle(uint8_t index);
-    static bool eject_filament(uint8_t index, bool recover);
+    static bool load_filament_to_nozzle(const uint8_t index);
+    static bool eject_filament(const uint8_t index, const bool recover);
   #endif
 
 private:
   static bool rx_str_P(const char* str);
   static void tx_str_P(const char* str);
-  static void tx_printf_P(const char* format, int argument);
-  static void tx_printf_P(const char* format, int argument1, int argument2);
+  static void tx_printf_P(const char* format, const int argument);
+  static void tx_printf_P(const char* format, const int argument1, const int argument2);
   static void clear_rx_buffer();
 
   static bool rx_ok();
@@ -100,7 +100,7 @@ private:
   static volatile int8_t finda;
   static volatile bool finda_runout_valid;
   static int16_t version, buildnr;
-  static millis_t last_request, next_P0_request;
+  static millis_t prev_request, prev_P0_request;
   static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 
   static inline void set_runout_valid(const bool valid) {
