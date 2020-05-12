@@ -253,7 +253,7 @@
 
 #define NOOP (void(0))
 
-#define CEILING(x,y) ({__typeof__(y) _y = (y); ((x) + (_y) - 1) / (_y);})
+#define CEILING(x,y) (((x) + (y) - 1) / (y))
 
 #undef ABS
 #ifdef __cplusplus
