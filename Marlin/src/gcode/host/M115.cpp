@@ -134,11 +134,11 @@ void GcodeSuite::M115() {
         "area:{"
           "full:{"
             "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
-            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "},"
+            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
           "},"
           "work:{"
             "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
-            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "},"
+            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
           "}"
         "}"
       );

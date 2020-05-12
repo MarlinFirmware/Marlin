@@ -37,7 +37,7 @@
   #include "runout.h"
 #endif
 
-void host_action(const char * const pstr, const bool eol) {
+void host_action(PGM_P const pstr, const bool eol) {
   SERIAL_ECHOPGM("//action:");
   serialprintPGM(pstr);
   if (eol) SERIAL_EOL();
@@ -75,32 +75,38 @@ void host_action(const char * const pstr, const bool eol) {
 
   void host_action_notify(const char * const message) {
     host_action(PSTR("notification "), false);
+    SERIAL_ECHO(message);
+    SERIAL_EOL();
+  }
+
+  void host_action_notify_P(PGM_P const message) {
+    host_action(PSTR("notification "), false);
     serialprintPGM(message);
     SERIAL_EOL();
   }
 
-  void host_action_prompt(const char * const ptype, const bool eol=true) {
+  void host_action_prompt(PGM_P const ptype, const bool eol=true) {
     host_action(PSTR("prompt_"), false);
     serialprintPGM(ptype);
     if (eol) SERIAL_EOL();
   }
 
-  void host_action_prompt_plus(const char * const ptype, const char * const pstr, const char extra_char='\0') {
+  void host_action_prompt_plus(PGM_P const ptype, PGM_P const pstr, const char extra_char='\0') {
     host_action_prompt(ptype, false);
     SERIAL_CHAR(' ');
     serialprintPGM(pstr);
     if (extra_char != '\0') SERIAL_CHAR(extra_char);
     SERIAL_EOL();
   }
-  void host_action_prompt_begin(const PromptReason reason, const char * const pstr, const char extra_char/*='\0'*/) {
+  void host_action_prompt_begin(const PromptReason reason, PGM_P const pstr, const char extra_char/*='\0'*/) {
     host_action_prompt_end();
     host_prompt_reason = reason;
     host_action_prompt_plus(PSTR("begin"), pstr, extra_char);
   }
-  void host_action_prompt_button(const char * const pstr) { host_action_prompt_plus(PSTR("button"), pstr); }
+  void host_action_prompt_button(PGM_P const pstr) { host_action_prompt_plus(PSTR("button"), pstr); }
   void host_action_prompt_end() { host_action_prompt(PSTR("end")); }
   void host_action_prompt_show() { host_action_prompt(PSTR("show")); }
-  void host_prompt_do(const PromptReason reason, const char * const pstr, const char * const btn1/*=nullptr*/, const char * const btn2/*=nullptr*/) {
+  void host_prompt_do(const PromptReason reason, PGM_P const pstr, PGM_P const btn1/*=nullptr*/, PGM_P const btn2/*=nullptr*/) {
     host_action_prompt_begin(reason, pstr);
     if (btn1) host_action_prompt_button(btn1);
     if (btn2) host_action_prompt_button(btn2);
@@ -127,7 +133,7 @@ void host_action(const char * const pstr, const bool eol) {
       serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("ason: ", host_prompt_reason);
       serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("sponse: ", response);
     #endif
-    const char *msg = PSTR("UNKNOWN STATE");
+    PGM_P msg = PSTR("UNKNOWN STATE");
     const PromptReason hpr = host_prompt_reason;
     host_prompt_reason = PROMPT_NOT_DEFINED;  // Reset now ahead of logic
     switch (hpr) {
