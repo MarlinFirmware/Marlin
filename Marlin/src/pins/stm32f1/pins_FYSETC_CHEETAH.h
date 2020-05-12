@@ -47,38 +47,38 @@
 //
 // Servos
 //
-#define SERVO0_PIN         PA0
+#define SERVO0_PIN                          PA0
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN         PA1
-#define Y_STOP_PIN         PB4
-#define Z_STOP_PIN         PA15
+#define X_STOP_PIN                          PA1
+#define Y_STOP_PIN                          PB4
+#define Z_STOP_PIN                          PA15
 
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN     PB5
+#define FIL_RUNOUT_PIN                      PB5
 
 //
 // Steppers
 //
-#define X_STEP_PIN         PB8
-#define X_DIR_PIN          PB9
-#define X_ENABLE_PIN       PA8
+#define X_STEP_PIN                          PB8
+#define X_DIR_PIN                           PB9
+#define X_ENABLE_PIN                        PA8
 
-#define Y_STEP_PIN         PB2
-#define Y_DIR_PIN          PB3
-#define Y_ENABLE_PIN       PB1
+#define Y_STEP_PIN                          PB2
+#define Y_DIR_PIN                           PB3
+#define Y_ENABLE_PIN                        PB1
 
-#define Z_STEP_PIN         PC0
-#define Z_DIR_PIN          PC1
-#define Z_ENABLE_PIN       PC2
+#define Z_STEP_PIN                          PC0
+#define Z_DIR_PIN                           PC1
+#define Z_ENABLE_PIN                        PC2
 
-#define E0_STEP_PIN        PC15
-#define E0_DIR_PIN         PC14
-#define E0_ENABLE_PIN      PC13
+#define E0_STEP_PIN                         PC15
+#define E0_DIR_PIN                          PC14
+#define E0_ENABLE_PIN                       PC13
 
 #define X_HARDWARE_SERIAL  MSerial2
 #define Y_HARDWARE_SERIAL  MSerial2
@@ -88,34 +88,33 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PC6
-#define HEATER_BED_PIN     PC7
+#define HEATER_0_PIN                        PC6
+#define HEATER_BED_PIN                      PC7
 #ifndef FAN_PIN
-  #define FAN_PIN          PC8
+  #define FAN_PIN                           PC8
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN       PC5   // Analog Input
-#define TEMP_0_PIN         PC4   // Analog Input
+#define TEMP_BED_PIN                        PC5   // Analog Input
+#define TEMP_0_PIN                          PC4   // Analog Input
 
 //
 // Misc. Functions
 //
-#define SDSS               PA4
-#define SD_DETECT_PIN      PC3
+#define SDSS                                PA4
+#define SD_DETECT_PIN                       PC3
 
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN    PB0
+  #define RGB_LED_R_PIN                     PB0
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN    PB7
+  #define RGB_LED_G_PIN                     PB7
 #endif
 #ifndef RGB_LED_B_PIN
-  #define RGB_LED_B_PIN    PB6
+  #define RGB_LED_B_PIN                     PB6
 #endif
-
 
 /*
 * EXP1 pinout for the LCD according to Fysetcs schematic for the Cheetah board
@@ -133,13 +132,13 @@
 */
 
 #if HAS_SPI_LCD
-  #define BEEPER_PIN        PC9
+  #define BEEPER_PIN                        PC9
 
   #if HAS_GRAPHICAL_LCD
-    #define DOGLCD_A0       PB14
-    #define DOGLCD_CS       PB12
-    #define DOGLCD_SCK      PB13
-    #define DOGLCD_MOSI     PB15
+    #define DOGLCD_A0                       PB14
+    #define DOGLCD_CS                       PB12
+    #define DOGLCD_SCK                      PB13
+    #define DOGLCD_MOSI                     PB15
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
@@ -149,30 +148,30 @@
     #endif
   #endif
 
-  #define LCD_PINS_RS       PB12 // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4       PB13 // SCLK
-  #define LCD_PINS_ENABLE   PB15 // DATA MOSI
+  #define LCD_PINS_RS                       PB12  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4                       PB13  // SCLK
+  #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
 
   //#define LCD_CONTRAST_INIT 190
 
   #if ENABLED(NEWPANEL)
-    #define BTN_EN1         PC10
-    #define BTN_EN2         PC11
-    #define BTN_ENC         PC12
+    #define BTN_EN1                         PC10
+    #define BTN_EN2                         PC11
+    #define BTN_ENC                         PC12
   #endif
 #endif
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
-  #define BEEPER_PIN        PC9
-  #define CLCD_MOD_RESET    PC11
-  #define CLCD_SPI_CS       PB12
+  #define BEEPER_PIN                        PC9
+  #define CLCD_MOD_RESET                    PC11
+  #define CLCD_SPI_CS                       PB12
 
-  //#define CLCD_USE_SOFT_SPI // the Cheetah can use hardware-SPI so we do not really need this
+  //#define CLCD_USE_SOFT_SPI                     // the Cheetah can use hardware-SPI so we do not really need this
 
   #if ENABLED(CLCD_USE_SOFT_SPI)
-    #define CLCD_SOFT_SPI_MOSI PB15
-    #define CLCD_SOFT_SPI_MISO PB14
-    #define CLCD_SOFT_SPI_SCLK PB13
+    #define CLCD_SOFT_SPI_MOSI              PB15
+    #define CLCD_SOFT_SPI_MISO              PB14
+    #define CLCD_SOFT_SPI_SCLK              PB13
   #else
     #define CLCD_SPI_BUS 2
   #endif
