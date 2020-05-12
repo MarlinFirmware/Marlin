@@ -111,7 +111,7 @@
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
-#define IS_POWER_OF_2(x) ({__typeof__(x) _x = (x); (_x) && !((_x) & ((_x) - 1));})
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
 #ifdef __cplusplus
