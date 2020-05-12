@@ -102,7 +102,7 @@
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
 
-#define cu(x)      ((x)*(x)*(x))
+#define cu(x)      ({__typeof__(x) _x = (x); (_x)*(_x)*(_x);})
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
@@ -110,8 +110,8 @@
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
-#define SIGN(a) ((a>0)-(a<0))
-#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
+#define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
+#define IS_POWER_OF_2(x) ({__typeof__(x) _x = (x); (_x) && !((_x) & ((_x) - 1));})
 
 // Macros to constrain values
 #ifdef __cplusplus
@@ -130,8 +130,6 @@
 
 #else
 
-  // Using GCC extensions, but Travis GCC version does not like it and gives
-  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
   #define NOLESS(v, n) \
     do{ \
       __typeof__(n) _n = (n); \
@@ -255,7 +253,7 @@
 
 #define NOOP (void(0))
 
-#define CEILING(x,y) (((x) + (y) - 1) / (y))
+#define CEILING(x,y) ({__typeof__(y) _y = (y); ((x) + (_y) - 1) / (_y);})
 
 #undef ABS
 #ifdef __cplusplus
@@ -269,7 +267,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
-#define FIXFLOAT(f) (f + (f < 0 ? -0.00005f : 0.00005f))
+#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.00005f : 0.00005f);})
 
 //
 // Maths macros that can be overridden by HAL
