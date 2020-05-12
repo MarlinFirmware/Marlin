@@ -480,3 +480,14 @@
 #define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
 #define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
+
+// See https://github.com/swansontec/map-macro
+#define MAP_OUT
+#define MAP_END(...)
+#define MAP_GET_END() 0, MAP_END
+#define MAP_NEXT0(test, next, ...) next MAP_OUT
+#define MAP_NEXT1(test, next) MAP_NEXT0 (test, next, 0)
+#define MAP_NEXT(test, next)  MAP_NEXT1 (MAP_GET_END test, next)
+#define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
+#define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
+#define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))
