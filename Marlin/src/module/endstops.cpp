@@ -674,14 +674,6 @@ void Endstops::update() {
     } \
   }while(0)
 
-  // Trigger based on a second CORE endstop
-  #define PROCESS_CORE_ENDSTOP(ES, MM1, HS, MM2) do { \
-    if (TEST_ENDSTOP(_ENDSTOP(ES, MM1))) { \
-      _ENDSTOP_HIT(HS, MM2); \
-      planner.endstop_triggered(_AXIS(HS)); \
-    } \
-  }while(0)
-
   // Call the endstop triggered routine for dual endstops
   #define PROCESS_DUAL_ENDSTOP(A, MINMAX) do { \
     const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1); \
@@ -756,21 +748,11 @@ void Endstops::update() {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
         PROCESS_ENDSTOP_X(MIN);
-        #if ALL(HAS_Y_STOP, CORE_IS_XY, X_SPI_SENSORLESS, Y_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(Y, TERN(HAS_Y_MIN,MIN,MAX), X, MIN);
-        #elif ALL(HAS_Z_STOP, CORE_IS_XZ, X_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(Z, TERN(HAS_Z_MIN,MIN,MAX), X, MIN);
-        #endif
       #endif
     }
     else { // +direction
       #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_DIR > 0)
         PROCESS_ENDSTOP_X(MAX);
-        #if ALL(HAS_Y_STOP, CORE_IS_XY, X_SPI_SENSORLESS, Y_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(Y, TERN(HAS_Y_MIN,MIN,MAX), X, MAX);
-        #elif ALL(HAS_Z_STOP, CORE_IS_XZ, X_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(Z, TERN(HAS_Z_MIN,MIN,MAX), X, MAX);
-        #endif
       #endif
     }
   }
@@ -779,40 +761,22 @@ void Endstops::update() {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN || (Y_SPI_SENSORLESS && Y_HOME_DIR < 0)
         PROCESS_ENDSTOP_Y(MIN);
-        #if ALL(HAS_X_STOP, CORE_IS_XY, X_SPI_SENSORLESS, Y_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(X, TERN(HAS_X_MIN,MIN,MAX), Y, MIN);
-        #elif ALL(HAS_Z_STOP, CORE_IS_YZ, Y_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(Z, TERN(HAS_Z_MIN,MIN,MAX), Y, MIN);
-        #endif
       #endif
     }
     else { // +direction
       #if HAS_Y_MAX || (Y_SPI_SENSORLESS && Y_HOME_DIR > 0)
         PROCESS_ENDSTOP_Y(MAX);
-        #if ALL(HAS_X_STOP, CORE_IS_XY, X_SPI_SENSORLESS, Y_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(X, TERN(HAS_X_MIN,MIN,MAX), Y, MAX);
-        #elif ALL(HAS_Z_STOP, CORE_IS_YZ, Y_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-          PROCESS_CORE_ENDSTOP(Z, TERN(HAS_Z_MIN,MIN,MAX), Y, MAX);
-        #endif
       #endif
     }
   }
 
   if (stepper.axis_is_moving(Z_AXIS)) {
-    bool cond_z = false;
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
 
       #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_DIR < 0)
         if ( TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, z_probe_enabled)
           && TERN1(HAS_CUSTOM_PROBE_PIN, !z_probe_enabled)
-        ) {
-          PROCESS_ENDSTOP_Z(MIN);
-          #if ALL(HAS_X_STOP, CORE_IS_XZ, X_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-            PROCESS_CORE_ENDSTOP(X, TERN(HAS_X_MIN,MIN,MAX), Z, MIN);
-          #elif ALL(HAS_Y_STOP, CORE_IS_YZ, Y_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-            PROCESS_CORE_ENDSTOP(Y, TERN(HAS_Y_MIN,MIN,MAX), Z, MIN);
-          #endif
-        }
+        ) PROCESS_ENDSTOP_Z(MIN);
       #endif
 
       // When closing the gap check the enabled probe
@@ -826,11 +790,6 @@ void Endstops::update() {
           PROCESS_ENDSTOP_Z(MAX);
         #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN  // No probe or probe is Z_MIN || Probe is not Z_MAX
           PROCESS_ENDSTOP(Z, MAX);
-          #if ALL(HAS_X_STOP, CORE_IS_XZ, X_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-            PROCESS_CORE_ENDSTOP(X, TERN(HAS_X_MIN,MIN,MAX), Z, MAX);
-          #elif ALL(HAS_Y_STOP, CORE_IS_YZ, Y_SPI_SENSORLESS, Z_SPI_SENSORLESS)
-            PROCESS_CORE_ENDSTOP(Y, TERN(HAS_Y_MIN,MIN,MAX), Z, MAX);
-          #endif
         #endif
       #endif
     }
@@ -846,19 +805,37 @@ void Endstops::update() {
   bool Endstops::tmc_spi_homing_check() {
     bool hit = false;
     #if X_SPI_SENSORLESS
-      if (tmc_spi_homing.x && stepperX.test_stall_status()) {
+      if (tmc_spi_homing.x && (stepperX.test_stall_status()
+        #if CORE_IS_XY && Y_SPI_SENSORLESS
+          || stepperY.test_stall_status()
+        #elif CORE_IS_XZ && Z_SPI_SENSORLESS
+          || stepperZ.test_stall_status()
+        #endif
+      )) {
         SBI(live_state, X_STOP);
         hit = true;
       }
     #endif
     #if Y_SPI_SENSORLESS
-      if (tmc_spi_homing.y && stepperY.test_stall_status()) {
+      if (tmc_spi_homing.y && (stepperY.test_stall_status()
+        #if CORE_IS_XY && X_SPI_SENSORLESS
+          || stepperX.test_stall_status()
+        #elif CORE_IS_YZ && Z_SPI_SENSORLESS
+          || stepperZ.test_stall_status()
+        #endif
+      )) {
         SBI(live_state, Y_STOP);
         hit = true;
       }
     #endif
     #if Z_SPI_SENSORLESS
-      if (tmc_spi_homing.z && stepperZ.test_stall_status()) {
+      if (tmc_spi_homing.z && (stepperZ.test_stall_status()
+        #if CORE_IS_XZ && X_SPI_SENSORLESS
+          || stepperX.test_stall_status()
+        #elif CORE_IS_YZ && Y_SPI_SENSORLESS
+          || stepperY.test_stall_status()
+        #endif
+      )) {
         SBI(live_state, Z_STOP);
         hit = true;
       }
