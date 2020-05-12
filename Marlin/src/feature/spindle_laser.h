@@ -79,7 +79,7 @@ public:
       #if CUTTER_DISPLAY_IS(RPM)              // RPM is also the native unit
         upwr
       #elif CUTTER_DISPLAY_IS(PERCENT)        // Anything to percent
-        _MAP(dpwr, 0, SPEED_POWER_MAX, 0, 100)
+        _MAP(upwr, 0, SPEED_POWER_MAX, 0, 100)
       #else                                   // Allowed range to PWM / OCR
         _MAP(upwr, SPEED_POWER_MIN, SPEED_POWER_MAX, 0, 255)
       #endif
