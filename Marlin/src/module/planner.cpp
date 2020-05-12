@@ -2497,9 +2497,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     previous_safe_speed = safe_speed;
 
     #if HAS_JUNCTION_DEVIATION
-      vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
+      NOMORE(vmax_junction_sqr, sq(vmax_junction));   // Throttle down to max speed
     #else
-      vmax_junction_sqr = sq(vmax_junction);
+      vmax_junction_sqr = sq(vmax_junction);          // Go up or down to the new speed
     #endif
 
   #endif // Classic Jerk Limiting
