@@ -424,7 +424,7 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN -1
+#define E0_AUTO_FAN_PIN P2_04
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
@@ -608,7 +608,7 @@
 
 //#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
 
-//#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
+#define QUICK_HOME                            // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
 //#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
 
@@ -658,7 +658,7 @@
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  //#define BLTOUCH_SET_5V_MODE
+  #define BLTOUCH_SET_5V_MODE
 
   /**
    * Safety: Activate if connecting a probe with an unknown voltage mode.
@@ -692,7 +692,7 @@
   // Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
   // If not defined, probe limits will be used.
   // Override with 'M422 S<index> X<pos> Y<pos>'
-  //#define Z_STEPPER_ALIGN_XY { {  10, 190 }, { 100,  10 }, { 190, 190 } }
+  //#define Z_STEPPER_ALIGN_XY { {  10, 290 }, { 150,  10 }, { 290, 290 } }
 
   /**
    * Orientation for the automatically-calculated probe positions.
@@ -732,9 +732,8 @@
     #define Z_STEPPER_ALIGN_AMP 1.0       // Use a value > 1.0 NOTE: This may cause instability!
   #endif
 
-  // On a 300mm bed a 5% grade would give a misalignment of ~1.5cm
   #define G34_MAX_GRADE              5    // (%) Maximum incline that G34 will handle
-  #define Z_STEPPER_ALIGN_ITERATIONS 5    // Number of iterations to apply during alignment
+  #define Z_STEPPER_ALIGN_ITERATIONS 3    // Number of iterations to apply during alignment
   #define Z_STEPPER_ALIGN_ACC        0.02 // Stop iterating early if the accuracy is better than this
   #define RESTORE_LEVELING_AFTER_G34      // Restore leveling after G34 is done?
   // After G34, re-home Z (G28 Z) or just calculate it from the last probe heights?
@@ -761,7 +760,7 @@
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
-#define DISABLE_INACTIVE_Z true  // Set to false if the nozzle will fall down on your printed part when print has finished.
+#define DISABLE_INACTIVE_Z false  // Set to false if the nozzle will fall down on your printed part when print has finished.
 #define DISABLE_INACTIVE_E true
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -962,7 +961,7 @@
 // @section lcd
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // Feedrates for manual moves along X, Y, Z, E from panel
   #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
   #if ENABLED(ULTIPANEL)
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
@@ -987,7 +986,7 @@
 #if HAS_LCD_MENU
 
   // Include a page of printer information in the LCD Main Menu
-  //#define LCD_INFO_MENU
+  #define LCD_INFO_MENU
   #if ENABLED(LCD_INFO_MENU)
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
@@ -1015,7 +1014,7 @@
 #endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view
-//#define STATUS_MESSAGE_SCROLLING
+#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -1144,7 +1143,7 @@
   //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
-  //#define SCROLL_LONG_FILENAMES
+  #define SCROLL_LONG_FILENAMES
 
   // Leave the heaters on after Stop Print (not recommended!)
   //#define SD_ABORT_NO_COOLDOWN
@@ -1381,6 +1380,7 @@
   //#define AO_EXP2_PINMAP      // AlephObjects CLCD UI EXP2 mapping
   //#define CR10_TFT_PINMAP     // Rudolph Riedel's CR10 pin mapping
   //#define S6_TFT_PINMAP       // FYSETC S6 pin mapping
+  //#define CHEETAH_TFT_PINMAP  // FYSETC Cheetah pin mapping
   //#define E3_EXP1_PINMAP      // E3 type boards (SKR E3/DIP, and Stock boards) EXP1 pin mapping
   //#define GENERIC_EXP2_PINMAP // GENERIC EXP2 pin mapping
 
@@ -1494,7 +1494,7 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
   //#define BABYSTEP_WITHOUT_HOMING
@@ -1503,7 +1503,7 @@
   #define BABYSTEP_MULTIPLICATOR_Z  1       // Babysteps are very small. Increase for faster motion.
   #define BABYSTEP_MULTIPLICATOR_XY 1
 
-  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
@@ -1740,7 +1740,7 @@
 //================================= Buffers =================================
 //===========================================================================
 
-// @section motion
+// @section hidden
 
 // The number of lineear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
@@ -1792,10 +1792,14 @@
   //#define SERIAL_STATS_DROPPED_RX
 #endif
 
-// Enable an emergency-command parser to intercept certain commands as they
-// enter the serial receive buffer, so they cannot be blocked.
-// Currently handles M108, M112, M410
-// Does not work on boards using AT90USB (USBCON), ESP32, STM32F1/4/7, or Teensy 3.5/3.6 processors!
+/**
+ * Emergency Command Parser
+ *
+ * Add a low-level parser to intercept certain commands as they
+ * enter the serial receive buffer, so they cannot be blocked.
+ * Currently handles M108, M112, M410, M876
+ * NOTE: Not yet implemented for all platforms.
+ */
 //#define EMERGENCY_PARSER
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
@@ -1863,7 +1867,7 @@
  */
 #if EXTRUDERS > 1
   // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE                 2 // (mm)
+  #define TOOLCHANGE_ZRAISE     2  // (mm)
   //#define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Apply raise before swap retraction (if enabled)
   //#define TOOLCHANGE_NO_RETURN              // Never return to previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
@@ -1937,7 +1941,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -2114,7 +2118,7 @@
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #if AXIS_IS_TMC(X)
-    #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_CURRENT       760        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16    // 0..256
     #define X_RSENSE          0.11
@@ -2130,7 +2134,7 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT       800
+    #define Y_CURRENT       760
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
@@ -2146,7 +2150,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT       800
+    #define Z_CURRENT       750
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
@@ -2178,7 +2182,7 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT      800
+    #define E0_CURRENT      900
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
@@ -2323,7 +2327,7 @@
    * Define you own with
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
-  #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
+  #define CHOPPER_TIMING CHOPPER_DEFAULT_24V
 
   /**
    * Monitor Trinamic drivers
@@ -2336,7 +2340,7 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  //#define MONITOR_DRIVER_STATUS
+  #define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -2431,7 +2435,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  //#define TMC_DEBUG
+  #define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
