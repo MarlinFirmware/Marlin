@@ -261,6 +261,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 5: G5(); break;                                      // G5: Cubic B_spline
       #endif
 
+      #if ENABLED(DIRECT_STEPPING)
+        case 6: G6(); break;                                      // G6: Direct Stepper Move
+      #endif
+
       #if ENABLED(FWRETRACT)
         case 10: G10(); break;                                    // G10: Retract / Swap Retract
         case 11: G11(); break;                                    // G11: Recover / Swap Recover

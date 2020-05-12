@@ -21,7 +21,8 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+#include "../HAL/shared/Marduino.h"
 
 void host_action(PGM_P const pstr, const bool eol=true);
 

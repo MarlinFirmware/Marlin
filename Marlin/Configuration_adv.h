@@ -790,7 +790,7 @@
 //#define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
 
 // Minimum time that a segment needs to take if the buffer is emptied
-#define DEFAULT_MINSEGMENTTIME        20000   // (ms)
+#define DEFAULT_MINSEGMENTTIME        20000   // (µs)
 
 // Slow down the machine if the look ahead buffer is (by default) half full.
 // Increase the slowdown divisor for larger buffer sizes.
@@ -1413,7 +1413,6 @@
   //#define AO_EXP2_PINMAP      // AlephObjects CLCD UI EXP2 mapping
   //#define CR10_TFT_PINMAP     // Rudolph Riedel's CR10 pin mapping
   //#define S6_TFT_PINMAP       // FYSETC S6 pin mapping
-  //#define CHEETAH_TFT_PINMAP  // FYSETC Cheetah pin mapping
   //#define E3_EXP1_PINMAP      // E3 type boards (SKR E3/DIP, and Stock boards) EXP1 pin mapping
   //#define GENERIC_EXP2_PINMAP // GENERIC EXP2 pin mapping
 
@@ -1710,6 +1709,16 @@
 #define BEZIER_CURVE_SUPPORT                              //8bit cant handle.
 #endif
 /**
+ * Direct Stepping
+ *
+ * Comparable to the method used by Klipper, G6 direct stepping significantly
+ * reduces motion calculations, increases top printing speeds, and results in
+ * less step aliasing by calculating all motions in advance.
+ * Preparing your G-code: https://github.com/colinrgodsey/step-daemon
+ */
+//#define DIRECT_STEPPING
+
+/**
  * G38 Probe Target
  *
  * This option adds G38.2 and G38.3 (probe towards target)
@@ -1777,7 +1786,7 @@
 //================================= Buffers =================================
 //===========================================================================
 
-// @section hidden
+// @section motion
 
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
