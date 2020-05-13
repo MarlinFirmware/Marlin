@@ -323,6 +323,18 @@
   #endif
 #endif
 
+#if ENABLED(DIRECT_STEPPING)
+  #ifndef STEPPER_PAGES
+    #define STEPPER_PAGES 16
+  #endif
+  #ifndef STEPPER_PAGE_FORMAT
+    #define STEPPER_PAGE_FORMAT SP_4x2_256
+  #endif
+  #ifndef PAGE_MANAGER
+    #define PAGE_MANAGER SerialPageManager
+  #endif
+#endif
+
 //
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
