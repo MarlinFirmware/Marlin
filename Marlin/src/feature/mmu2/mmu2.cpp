@@ -783,12 +783,12 @@ void MMU2::filament_runout() {
 #if ENABLED(PRUSA_MMU2_S_MODE)
 
   void MMU2::check_filament() {
-    const bool runout = FILAMENT_PRESENT();
-    if (runout && !mmu2s_triggered) {
+    const bool present = FILAMENT_PRESENT();
+    if (present && !mmu2s_triggered) {
       DEBUG_ECHOLNPGM("MMU <= 'A'");
       tx_str_P(PSTR("A\n"));
     }
-    mmu2s_triggered = runout;
+    mmu2s_triggered = present;
   }
 
   bool MMU2::can_load() {
