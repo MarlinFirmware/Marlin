@@ -452,11 +452,7 @@ class Stepper {
 
     // The extruder associated to the last movement
     FORCE_INLINE static uint8_t movement_extruder() {
-      return (0
-        #if EXTRUDERS > 1 && DISABLED(MIXING_EXTRUDER)
-          + last_moved_extruder
-        #endif
-      );
+      return (EXTRUDERS > 1 && DISABLED(MIXING_EXTRUDER)) ? last_moved_extruder : 0;
     }
 
     // Handle a triggered endstop
