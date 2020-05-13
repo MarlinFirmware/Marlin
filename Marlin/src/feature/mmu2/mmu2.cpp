@@ -622,14 +622,14 @@ static bool mmu2_not_responding() {
 
       switch (*special) {
         case '?': {
-          SERIAL_ECHOLNPGM("case ?\n");
+          DEBUG_ECHOLNPGM("case ?\n");
           uint8_t index = mmu2_choose_filament();
           while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
           load_filament_to_nozzle(index);
         } break;
 
         case 'x': {
-          SERIAL_ECHOLNPGM("case x\n");
+          DEBUG_ECHOLNPGM("case x\n");
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
           DISABLE_AXIS_E0();
@@ -645,7 +645,7 @@ static bool mmu2_not_responding() {
         } break;
 
         case 'c': {
-          SERIAL_ECHOLNPGM("case c\n");
+          DEBUG_ECHOLNPGM("case c\n");
           while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
           execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
         } break;
