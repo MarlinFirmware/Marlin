@@ -97,7 +97,7 @@ void GcodeSuite::M600() {
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
-    // Don't allow filament change without homing first
+    // If needed, home before parking for filament change
     if (!all_axes_known()) home_all_axes();
   #endif
 
