@@ -184,13 +184,13 @@ extern uint8_t marlin_debug_flags;
 #define _SELP_21(a,b,V...) do{ _SEP_2(a,b); _SELP_19(V); }while(0)
 #define _SELP_22(a,b,V...) do{ _SEP_2(a,b); _SELP_20(V); }while(0)
 #define _SELP_23(a,b,V...) do{ _SEP_2(a,b); _SELP_21(V); }while(0)
-#define _SELP_24(a,b,V...) do{ _SEP_2(a,b); _SELP_22(V); }while(0) // Eat two args, pass the rest up
-#define _SELP_25(a,b,V...) do{ _SEP_2(a,b); _SELP_23(V); }while(1) // Eat two args, pass the rest up
-#define _SELP_26(a,b,V...) do{ _SEP_2(a,b); _SELP_24(V); }while(2) // Eat two args, pass the rest up
-#define _SELP_27(a,b,V...) do{ _SEP_2(a,b); _SELP_25(V); }while(3) // Eat two args, pass the rest up
-#define _SELP_28(a,b,V...) do{ _SEP_2(a,b); _SELP_26(V); }while(4) // Eat two args, pass the rest up
-#define _SELP_29(a,b,V...) do{ _SEP_2(a,b); _SELP_27(V); }while(5) // Eat two args, pass the rest up
-#define _SELP_30(a,b,V...) do{ _SEP_2(a,b); _SELP_28(V); }while(6) // Eat two args, pass the rest up
+#define _SELP_24(a,b,V...) do{ _SEP_2(a,b); _SELP_22(V); }while(0)
+#define _SELP_25(a,b,V...) do{ _SEP_2(a,b); _SELP_23(V); }while(0)
+#define _SELP_26(a,b,V...) do{ _SEP_2(a,b); _SELP_24(V); }while(0)
+#define _SELP_27(a,b,V...) do{ _SEP_2(a,b); _SELP_25(V); }while(0)
+#define _SELP_28(a,b,V...) do{ _SEP_2(a,b); _SELP_26(V); }while(0)
+#define _SELP_29(a,b,V...) do{ _SEP_2(a,b); _SELP_27(V); }while(0)
+#define _SELP_30(a,b,V...) do{ _SEP_2(a,b); _SELP_28(V); }while(0) // Eat two args, pass the rest up
 
 #define SERIAL_ECHOLNPAIR(V...) _SELP_N(NUM_ARGS(V),V)
 
@@ -220,13 +220,13 @@ extern uint8_t marlin_debug_flags;
 #define _SELP_21_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_19_P(V); }while(0)
 #define _SELP_22_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_20_P(V); }while(0)
 #define _SELP_23_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_21_P(V); }while(0)
-#define _SELP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_22_P(V); }while(0) // Eat two args, pass the rest up
-#define _SELP_25_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_23_P(V); }while(1) // Eat two args, pass the rest up
-#define _SELP_26_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_24_P(V); }while(2) // Eat two args, pass the rest up
-#define _SELP_27_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_25_P(V); }while(3) // Eat two args, pass the rest up
-#define _SELP_28_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_26_P(V); }while(4) // Eat two args, pass the rest up
-#define _SELP_29_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_27_P(V); }while(5) // Eat two args, pass the rest up
-#define _SELP_30_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_28_P(V); }while(6) // Eat two args, pass the rest up
+#define _SELP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_22_P(V); }while(0)
+#define _SELP_25_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_23_P(V); }while(0)
+#define _SELP_26_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_24_P(V); }while(0)
+#define _SELP_27_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_25_P(V); }while(0)
+#define _SELP_28_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_26_P(V); }while(0)
+#define _SELP_29_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_27_P(V); }while(0)
+#define _SELP_30_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_28_P(V); }while(0) // Eat two args, pass the rest up
 
 #define SERIAL_ECHOLNPAIR_P(V...) _SELP_N_P(NUM_ARGS(V),V)
 

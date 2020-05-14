@@ -279,8 +279,8 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
-    ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+    ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
+    ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
   #endif
   END_MENU();
 }
