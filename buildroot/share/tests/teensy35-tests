@@ -90,6 +90,13 @@ exec_test $1 $2 "Mixing Extruder"
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable COREXY
+opt_set X_DRIVER_TYPE TMC5160
+opt_set Y_DRIVER_TYPE TMC5160
+opt_set X_MIN_ENDSTOP_INVERTING true
+opt_set Y_MIN_ENDSTOP_INVERTING true
+opt_add X_CS_PIN 46
+opt_add Y_CS_PIN 47
+opt_enable USE_ZMIN_PLUG MONITOR_DRIVER_STATUS SENSORLESS_HOMING
 exec_test $1 $2 "Teensy 3.5/3.6 COREXY"
 
 #
