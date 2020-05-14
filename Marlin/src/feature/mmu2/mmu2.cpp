@@ -670,6 +670,84 @@ static bool mmu2_not_responding() {
     mmu_idl_sens = 0;
   }
 
+#elif DISABLED(MMU_EXTRUDER_SENSOR) && DISABLED(PRUSA_MMU2_S_MODE)
+
+/**
+ * Handle tool change
+ */
+void MMU2::tool_change(const uint8_t index) {
+  if (!enabled) return;
+
+  set_runout_valid(false);
+
+  if (index != extruder) {
+    DISABLE_AXIS_E0();
+    ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+    command(MMU_CMD_T0 + index);
+    manage_response(true, true);
+    command(MMU_CMD_C0);
+    extruder = index; //filament change is finished
+    active_extruder = 0;
+    ENABLE_AXIS_E0();
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
+    ui.reset_status();
+  }
+
+  set_runout_valid(true);
+}
+
+/**
+ *
+ * Handle special T?/Tx/Tc commands
+ *
+ * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
+ * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
+ * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
+ *
+ */
+void MMU2::tool_change(const char* special) {
+  if (!enabled) return;
+
+  #if ENABLED(MMU2_MENUS)
+
+    set_runout_valid(false);
+
+    switch (*special) {
+      case '?': {
+        DEBUG_ECHOLNPGM("case ?\n");
+        uint8_t index = mmu2_choose_filament();
+        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+        load_filament_to_nozzle(index);
+      } break;
+
+      case 'x': {
+        DEBUG_ECHOLNPGM("case x\n");
+        planner.synchronize();
+        uint8_t index = mmu2_choose_filament();
+        DISABLE_AXIS_E0();
+        command(MMU_CMD_T0 + index);
+        manage_response(true, true);
+        command(MMU_CMD_C0);
+        mmu_loop();
+
+        ENABLE_AXIS_E0();
+        extruder = index;
+        active_extruder = 0;
+      } break;
+
+      case 'c': {
+        DEBUG_ECHOLNPGM("case c\n");
+        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+        execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
+      } break;
+    }
+
+    set_runout_valid(true);
+
+  #endif
+  }
+
 #endif // MMU_EXTRUDER_SENSOR
 
 /**
