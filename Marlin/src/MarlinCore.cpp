@@ -204,7 +204,7 @@ PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMST
 PGMSTR(A_LBL,     "A:"); PGMSTR(C_LBL,     "C:");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
-PGMSTR(SP_A_LBL,  "A:"); PGMSTR(SP_C_LBL,  "C:");
+PGMSTR(SP_A_LBL, " A:"); PGMSTR(SP_C_LBL, " C:");
 
 MarlinState marlin_state = MF_INITIALIZING;
 

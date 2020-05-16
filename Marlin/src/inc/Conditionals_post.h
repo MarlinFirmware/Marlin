@@ -1237,15 +1237,12 @@
   #if ENABLED(USE_ZMIN_PLUG)
     #define ENDSTOPPULLUP_ZMIN
   #endif
-
   #if ENABLED(USE_EMIN_PLUG)
     #define ENDSTOPPULLUP_EMIN
   #endif
-
   #if ENABLED(USE_EMAX_PLUG)
     #define ENDSTOPPULLUP_EMAX
   #endif
-
   #if ENABLED(USE_ZM167_PLUG)
     #define ENDSTOPPULLUP_ZM167
   #endif
