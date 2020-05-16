@@ -45,7 +45,12 @@ extern int home5x;
 #if ENABLED (CNC_5X)
   #define E_MIN_PIN                         PE15
 #else
-  #define X_MAX_PIN                         PE15  
+  #define X_MIN_PIN                         PB10  // X-
+  #if ENABLED(CNC_5X)
+    #define E_MIN_PIN                       PE15  // E0
+  #else
+    #define X_MAX_PIN                       PE15
+  #endif
 #endif
 #define Y_MIN_PIN                           PE12
 #if ENABLED (CNC_5X)
@@ -92,9 +97,9 @@ extern int home5x;
 
 #define E0_STEP_PIN                         PE14
 #if ENABLED(CNC_5X)
-  #define E0_DIR_PIN                      PD14  //Heater1 PIN for Workaround
-  #define EA_DIR_PIN                      PA0   //PIN for direct direction change on M168
-#else 
+  #define E0_DIR_PIN                        PD14  // Heater1 PIN for Workaround
+  #define EA_DIR_PIN                        PA0   // PIN for direct direction change on M168
+#else
   #define E0_DIR_PIN                        PA0
 #endif
 #define E0_ENABLE_PIN                       PC3
@@ -104,8 +109,8 @@ extern int home5x;
 
 #define E1_STEP_PIN                         PD15
 #if ENABLED(CNC_5X)
-  #define E1_DIR_PIN                        PB0 //Heater2 PIN for Workaround
-  #define EB_DIR_PIN                        PE7 //PIN for direct direction change on M168
+  #define E1_DIR_PIN                        PB0   // Heater2 PIN for Workaround
+  #define EB_DIR_PIN                        PE7   // PIN for direct direction change on M168
 #else
   #define E1_DIR_PIN                        PE7
 #endif
@@ -193,8 +198,8 @@ extern int home5x;
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #if DISABLED(CNC_5X)
-#define HEATER_1_PIN                        PD14 // Heater1
-#define HEATER_2_PIN                        PB0  // Heater2
+#define HEATER_1_PIN                        PD14  // Heater1
+#define HEATER_2_PIN                        PB0   // Heater2
 #endif
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #define FAN_PIN                             PC8   // Fan0
@@ -245,18 +250,17 @@ extern int home5x;
   #ifdef E2END
      #undef E2END
   #endif
-  #define E2END 0x7FFF // EEPROM end address AT24C256 (32kB)
+  #define E2END 0x7FFF                            // EEPROM end address AT24C256 (32kB)
 #endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
   #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-    #define SPINDLE_LASER_ENA_PIN           TEMP_2_PIN    // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN           SERVO0_PIN   // Hardware PWM
-    #define SPINDLE_DIR_PIN                 PA2   
+    #define SPINDLE_LASER_ENA_PIN     TEMP_2_PIN  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN     SERVO0_PIN  // Hardware PWM
+    #define SPINDLE_DIR_PIN                 PA2
   #endif
-
 
 //
 // LCDs and Controllers
@@ -329,3 +333,23 @@ extern int home5x;
   #endif
 
 #endif // HAS_SPI_LCD
+
+//
+// WIFI
+//
+
+/**
+ *          _____
+ *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
+ *  Enable | 3 4 | GPIO2    Reset  PG0   // active low, probably OK to leave floating
+ *   Reset | 5 6 | GPIO0    GPIO2  PF15  // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *           ￣￣
+ *            W1
+ */
+#define ESP_WIFI_MODULE_COM 6                     // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+#define ESP_WIFI_MODULE_RESET_PIN           PG0
+#define ESP_WIFI_MODULE_ENABLE_PIN          PG1
+#define ESP_WIFI_MODULE_GPIO0_PIN           PF14
+#define ESP_WIFI_MODULE_GPIO2_PIN           PF15

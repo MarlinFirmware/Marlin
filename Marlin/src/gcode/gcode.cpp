@@ -409,9 +409,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(DRILLING_CANNED_CYCLES)
-        case 81: G81(); break;
-        case 82: G82(); break;  
-        case 83: G83(); break; 
+        case 81: G81(); break;                                    // G81: Peck Drill Canned Cycle
+        case 82: G82(); break;                                    // G82: Peck Drill Canned Cycle
+        case 83: G83(); break;                                    // G83: Peck Drill Canned Cycle
       #endif
 
       case 90: set_relative_mode(false); break;                   // G90: Absolute Mode
@@ -637,8 +637,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 166: M166(); break;                                // M166: Set Gradient Mix
         #endif
         #if ENABLED(CNC_5X)
-            case 167: M167(); break;
-            case 168: M168(); break;                                
+          case 167: M167(); break;                                // M167:
+          case 168: M168(); break;                                // M168: 5 Axis Simple Convertion (Non Modal)
         #endif
       #endif
 
