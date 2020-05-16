@@ -48,6 +48,9 @@ extern "C" volatile uint32_t _millis;
 #include <pinmapping.h>
 #include <CDCSerial.h>
 
+// i2c uses 8-bit shifted address
+#define I2C_ADDRESS(A) ((A) << 1)
+
 //
 // Default graphical display delays
 //
@@ -196,6 +199,8 @@ void HAL_idletask();
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 
 /**
  * set_pwm_frequency

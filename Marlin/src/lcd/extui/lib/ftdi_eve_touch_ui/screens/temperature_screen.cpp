@@ -35,7 +35,7 @@ void TemperatureScreen::onRedraw(draw_mode_t what) {
   #if TOUCH_UI_LCD_TEMP_SCALING == 10
     w.precision(1)
   #else
-    w.precision(0)
+    w.precision(0, getTargetTemp_celsius(E0) == 0 ? DEFAULT_HIGHEST : DEFAULT_MIDRANGE)
   #endif
    .color(temp).units(GET_TEXT_F(MSG_UNITS_C));
   w.heading(GET_TEXT_F(MSG_TEMPERATURE));
@@ -60,7 +60,7 @@ void TemperatureScreen::onRedraw(draw_mode_t what) {
   #if HAS_HEATED_CHAMBER
     w.adjuster(    22, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER));
   #endif
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     w.color(fan_speed).units(GET_TEXT_F(MSG_UNITS_PERCENT));
     w.adjuster(    10, GET_TEXT_F(MSG_FAN_SPEED), getTargetFan_percent(FAN0));
   #endif
@@ -78,7 +78,7 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
       case  2: UI_DECREMENT(TargetTemp_celsius, E0); break;
       case  3: UI_INCREMENT(TargetTemp_celsius, E0); break;
     #endif
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       case  4: UI_DECREMENT(TargetTemp_celsius, E1); break;
       case  5: UI_INCREMENT(TargetTemp_celsius, E1); break;
     #endif
@@ -90,20 +90,16 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
       case  8: UI_DECREMENT(TargetTemp_celsius, E3); break;
       case  9: UI_INCREMENT(TargetTemp_celsius, E3); break;
     #endif
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       case 10: UI_DECREMENT(TargetFan_percent, FAN0); break;
       case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
     #endif
     case 30:
       #define _HOTEND_OFF(N) setTargetTemp_celsius(0,E##N);
       REPEAT(HOTENDS, _HOTEND_OFF);
-      #if HAS_HEATED_BED
-        setTargetTemp_celsius(0,BED);
-      #endif
-      #if HAS_HEATED_CHAMBER
-        setTargetTemp_celsius(0,CHAMBER);
-      #endif
-      #if FAN_COUNT > 0
+      TERN_(HAS_HEATED_BED, setTargetTemp_celsius(0,BED));
+      TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0,CHAMBER));
+      #if HAS_FAN
         setTargetFan_percent(0,FAN0);
       #endif
       break;

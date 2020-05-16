@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(LEVEL_BED_CORNERS)
+#if BOTH(HAS_LCD_MENU, LEVEL_BED_CORNERS)
 
 #include "menu.h"
 #include "../../module/motion.h"
@@ -70,11 +70,7 @@ static inline void _lcd_goto_next_corner() {
   }
   line_to_current_position(manual_feedrate_mm_s.x);
   line_to_z(LEVEL_CORNERS_HEIGHT);
-  if (++bed_corner > (3
-    #if ENABLED(LEVEL_CENTER_TOO)
-      + 1
-    #endif
-  )) bed_corner = 0;
+  if (++bed_corner > 3 + ENABLED(LEVEL_CENTER_TOO)) bed_corner = 0;
 }
 
 static inline void _lcd_level_bed_corners_homing() {
@@ -83,21 +79,14 @@ static inline void _lcd_level_bed_corners_homing() {
     bed_corner = 0;
     ui.goto_screen([]{
       MenuItem_confirm::select_screen(
-        GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE),
-        _lcd_goto_next_corner,
-        []{
-          #if HAS_LEVELING
-            set_bed_leveling_enabled(leveling_was_active);
-          #endif
-          ui.goto_previous_screen_no_defer();
-        },
-        GET_TEXT(
-          #if ENABLED(LEVEL_CENTER_TOO)
-            MSG_LEVEL_BED_NEXT_POINT
-          #else
-            MSG_NEXT_CORNER
-          #endif
-        ), (PGM_P)nullptr, PSTR("?")
+          GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE)
+        , _lcd_goto_next_corner
+        , []{
+            TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+            ui.goto_previous_screen_no_defer();
+          }
+        , GET_TEXT(TERN(LEVEL_CENTER_TOO, MSG_LEVEL_BED_NEXT_POINT, MSG_NEXT_CORNER))
+        , (const char*)nullptr, PSTR("?")
       );
     });
     ui.set_selection(true);

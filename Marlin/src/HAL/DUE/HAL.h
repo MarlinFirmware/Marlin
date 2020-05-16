@@ -30,6 +30,7 @@
 #define CPU_32_BIT
 
 #include "../shared/Marduino.h"
+#include "../shared/eeprom_if.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
@@ -39,7 +40,7 @@
 #include <stdint.h>
 
 // Define MYSERIAL0/1 before MarlinSerial includes!
-#if SERIAL_PORT == -1
+#if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
   #define MYSERIAL0 customizedSerial1
 #elif SERIAL_PORT == 0
   #define MYSERIAL0 Serial
@@ -56,7 +57,7 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
+  #elif SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
     #define MYSERIAL1 customizedSerial2
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
@@ -129,14 +130,6 @@ void sei();                     // Enable interrupts
 
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
-
-//
-// EEPROM
-//
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 //
 // ADC

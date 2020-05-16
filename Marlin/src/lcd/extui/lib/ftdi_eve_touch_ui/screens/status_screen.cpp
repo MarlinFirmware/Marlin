@@ -33,9 +33,9 @@ using namespace FTDI;
 using namespace Theme;
 
 #ifdef TOUCH_UI_PORTRAIT
-  #define GRID_ROWS 8
+    #define GRID_ROWS 8
 #else
-  #define GRID_ROWS 8
+    #define GRID_ROWS 8
 #endif
 
 void StatusScreen::draw_axis_position(draw_mode_t what) {
@@ -43,41 +43,41 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
   #define GRID_COLS 3
 
+  #ifdef TOUCH_UI_PORTRAIT
+    #define X_LBL_POS  BTN_POS(1,5), BTN_SIZE(1,1)
+    #define Y_LBL_POS  BTN_POS(1,6), BTN_SIZE(1,1)
+    #define Z_LBL_POS  BTN_POS(1,7), BTN_SIZE(1,1)
+    #define X_VAL_POS  BTN_POS(2,5), BTN_SIZE(2,1)
+    #define Y_VAL_POS  BTN_POS(2,6), BTN_SIZE(2,1)
+    #define Z_VAL_POS  BTN_POS(2,7), BTN_SIZE(2,1)
+  #else
+    #define X_LBL_POS  BTN_POS(1,5), BTN_SIZE(1,1)
+    #define Y_LBL_POS  BTN_POS(2,5), BTN_SIZE(1,1)
+    #define Z_LBL_POS  BTN_POS(3,5), BTN_SIZE(1,1)
+    #define X_VAL_POS  BTN_POS(1,6), BTN_SIZE(1,1)
+    #define Y_VAL_POS  BTN_POS(2,6), BTN_SIZE(1,1)
+    #define Z_VAL_POS  BTN_POS(3,6), BTN_SIZE(1,1)
+  #endif
+
+  #define _UNION_POS(x1,y1,w1,h1,x2,y2,w2,h2) x1,y1,max(x1+w1,x2+w2)-x1,max(y1+h1,y2+h2)-y1
+  #define UNION_POS(p1, p2) _UNION_POS(p1, p2)
+
   if (what & BACKGROUND) {
     cmd.tag(6)
-    #ifdef TOUCH_UI_PORTRAIT
-      .fgcolor(Theme::axis_label)
-        .font(Theme::font_large)
-                         .button( BTN_POS(1,5), BTN_SIZE(2,1), F(""), OPT_FLAT)
-                         .button( BTN_POS(1,6), BTN_SIZE(2,1), F(""), OPT_FLAT)
-                         .button( BTN_POS(1,7), BTN_SIZE(2,1), F(""), OPT_FLAT)
-
-        .font(Theme::font_small)
-                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_X))
-                         .text  ( BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Y))
-                         .text  ( BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Z))
-
-        .font(Theme::font_medium)
-        .fgcolor(Theme::x_axis) .button( BTN_POS(2,5), BTN_SIZE(2,1), F(""), OPT_FLAT)
-        .fgcolor(Theme::y_axis) .button( BTN_POS(2,6), BTN_SIZE(2,1), F(""), OPT_FLAT)
-        .fgcolor(Theme::z_axis) .button( BTN_POS(2,7), BTN_SIZE(2,1), F(""), OPT_FLAT);
-    #else
-      .fgcolor(Theme::axis_label)
-        .font(Theme::font_large)
-                         .button( BTN_POS(1,5), BTN_SIZE(1,2), F(""),  OPT_FLAT)
-                         .button( BTN_POS(2,5), BTN_SIZE(1,2), F(""),  OPT_FLAT)
-                         .button( BTN_POS(3,5), BTN_SIZE(1,2), F(""),  OPT_FLAT)
-
-        .font(Theme::font_small)
-                         .text  ( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_X))
-                         .text  ( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Y))
-                         .text  ( BTN_POS(3,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_AXIS_Z))
-                         .font(Theme::font_medium)
-
-        .fgcolor(Theme::x_axis) .button( BTN_POS(1,6), BTN_SIZE(1,1), F(""), OPT_FLAT)
-        .fgcolor(Theme::y_axis) .button( BTN_POS(2,6), BTN_SIZE(1,1), F(""), OPT_FLAT)
-        .fgcolor(Theme::z_axis) .button( BTN_POS(3,6), BTN_SIZE(1,1), F(""), OPT_FLAT);
-    #endif
+       .fgcolor(Theme::axis_label)
+       .font(Theme::font_large)
+                               .button( UNION_POS(X_LBL_POS, X_VAL_POS), F(""), OPT_FLAT)
+                               .button( UNION_POS(Y_LBL_POS, Y_VAL_POS), F(""), OPT_FLAT)
+                               .button( UNION_POS(Z_LBL_POS, Z_VAL_POS), F(""), OPT_FLAT)
+       .font(Theme::font_medium)
+       .fgcolor(Theme::x_axis) .button( X_VAL_POS, F(""), OPT_FLAT)
+       .fgcolor(Theme::y_axis) .button( Y_VAL_POS, F(""), OPT_FLAT)
+       .fgcolor(Theme::z_axis) .button( Z_VAL_POS, F(""), OPT_FLAT)
+       .font(Theme::font_small)
+                               .text  ( X_LBL_POS, GET_TEXT_F(MSG_AXIS_X))
+                               .text  ( Y_LBL_POS, GET_TEXT_F(MSG_AXIS_Y))
+                               .text  ( Z_LBL_POS, GET_TEXT_F(MSG_AXIS_Z))
+       .colors(normal_btn);
   }
 
   if (what & FOREGROUND) {
@@ -101,16 +101,11 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     else
       strcpy_P(z_str, PSTR("?"));
 
-    cmd.tag(6).font(Theme::font_medium)
-    #ifdef TOUCH_UI_PORTRAIT
-         .text  ( BTN_POS(2,5), BTN_SIZE(2,1), x_str)
-         .text  ( BTN_POS(2,6), BTN_SIZE(2,1), y_str)
-         .text  ( BTN_POS(2,7), BTN_SIZE(2,1), z_str);
-    #else
-         .text  ( BTN_POS(1,6), BTN_SIZE(1,1), x_str)
-         .text  ( BTN_POS(2,6), BTN_SIZE(1,1), y_str)
-         .text  ( BTN_POS(3,6), BTN_SIZE(1,1), z_str);
-    #endif
+    cmd.tag(6)
+       .font(Theme::font_medium)
+       .text  ( X_VAL_POS, x_str)
+       .text  ( Y_VAL_POS, y_str)
+       .text  ( Z_VAL_POS, z_str);
   }
 
   #undef GRID_COLS
@@ -125,49 +120,49 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 void StatusScreen::draw_temperature(draw_mode_t what) {
   using namespace Theme;
 
+  #define TEMP_RECT_1 BTN_POS(1,1), BTN_SIZE(4,2)
+  #define TEMP_RECT_2 BTN_POS(1,1), BTN_SIZE(8,1)
+  #define NOZ_1_POS   BTN_POS(1,1), BTN_SIZE(4,1)
+  #define NOZ_2_POS   BTN_POS(5,1), BTN_SIZE(4,1)
+  #define BED_POS     BTN_POS(1,2), BTN_SIZE(4,1)
+  #define FAN_POS     BTN_POS(5,2), BTN_SIZE(4,1)
+
+  #define _ICON_POS(x,y,w,h) x, y, w/4, h
+  #define _TEXT_POS(x,y,w,h) x + w/4, y, w - w/4, h
+  #define ICON_POS(pos) _ICON_POS(pos)
+  #define TEXT_POS(pos) _TEXT_POS(pos)
+
   CommandProcessor cmd;
 
   if (what & BACKGROUND) {
     cmd.font(Theme::font_small)
-    #ifdef TOUCH_UI_PORTRAIT
        .tag(5)
-       .fgcolor(temp)      .button( BTN_POS(1,1), BTN_SIZE(4,2), F(""), OPT_FLAT)
-                                  .button( BTN_POS(1,1), BTN_SIZE(8,1), F(""), OPT_FLAT)
-       .fgcolor(fan_speed) .button( BTN_POS(5,2), BTN_SIZE(4,1), F(""), OPT_FLAT)
-       .tag(0)
-       .fgcolor(progress)  .button( BTN_POS(1,3), BTN_SIZE(4,1), F(""), OPT_FLAT)
-                                  .button( BTN_POS(5,3), BTN_SIZE(4,1), F(""), OPT_FLAT);
-    #else
-       .tag(5)
-       .fgcolor(temp)      .button( BTN_POS(1,1), BTN_SIZE(4,2), F(""), OPT_FLAT)
-                                  .button( BTN_POS(1,1), BTN_SIZE(8,1), F(""), OPT_FLAT)
-       .fgcolor(fan_speed) .button( BTN_POS(5,2), BTN_SIZE(4,1), F(""), OPT_FLAT)
-       .tag(0)
-       .fgcolor(progress)  .button( BTN_POS(9,1), BTN_SIZE(4,1), F(""), OPT_FLAT)
-                                  .button( BTN_POS(9,2), BTN_SIZE(4,1), F(""), OPT_FLAT);
-    #endif
+       .fgcolor(temp)     .button( TEMP_RECT_1, F(""), OPT_FLAT)
+                          .button( TEMP_RECT_2, F(""), OPT_FLAT)
+       .fgcolor(fan_speed).button( FAN_POS,     F(""), OPT_FLAT)
+       .tag(0);
 
     // Draw Extruder Bitmap on Extruder Temperature Button
 
     cmd.tag(5)
-       .cmd(BITMAP_SOURCE(Extruder_Icon_Info))
-       .cmd(BITMAP_LAYOUT(Extruder_Icon_Info))
-       .cmd(BITMAP_SIZE  (Extruder_Icon_Info))
-       .icon (BTN_POS(1,1), BTN_SIZE(1,1),  Extruder_Icon_Info, icon_scale)
-       .icon (BTN_POS(5,1), BTN_SIZE(1,1),  Extruder_Icon_Info, icon_scale);
+       .cmd (BITMAP_SOURCE(Extruder_Icon_Info))
+       .cmd (BITMAP_LAYOUT(Extruder_Icon_Info))
+       .cmd (BITMAP_SIZE  (Extruder_Icon_Info))
+       .icon(ICON_POS(NOZ_1_POS), Extruder_Icon_Info, icon_scale)
+       .icon(ICON_POS(NOZ_2_POS), Extruder_Icon_Info, icon_scale);
 
     // Draw Bed Heat Bitmap on Bed Heat Button
-    cmd.cmd(BITMAP_SOURCE(Bed_Heat_Icon_Info))
-       .cmd(BITMAP_LAYOUT(Bed_Heat_Icon_Info))
-       .cmd(BITMAP_SIZE  (Bed_Heat_Icon_Info))
-       .icon (BTN_POS(1,2), BTN_SIZE(1,1), Bed_Heat_Icon_Info, icon_scale);
+    cmd.cmd (BITMAP_SOURCE(Bed_Heat_Icon_Info))
+       .cmd (BITMAP_LAYOUT(Bed_Heat_Icon_Info))
+       .cmd (BITMAP_SIZE  (Bed_Heat_Icon_Info))
+       .icon(ICON_POS(BED_POS), Bed_Heat_Icon_Info, icon_scale);
 
     // Draw Fan Percent Bitmap on Bed Heat Button
 
-    cmd.cmd(BITMAP_SOURCE(Fan_Icon_Info))
-       .cmd(BITMAP_LAYOUT(Fan_Icon_Info))
-       .cmd(BITMAP_SIZE  (Fan_Icon_Info))
-       .icon  (BTN_POS(5,2), BTN_SIZE(1,1), Fan_Icon_Info, icon_scale);
+    cmd.cmd (BITMAP_SOURCE(Fan_Icon_Info))
+       .cmd (BITMAP_LAYOUT(Fan_Icon_Info))
+       .cmd (BITMAP_SIZE  (Fan_Icon_Info))
+       .icon(ICON_POS(FAN_POS), Fan_Icon_Info, icon_scale);
 
     #ifdef TOUCH_UI_USE_UTF8
       load_utf8_bitmaps(cmd); // Restore font bitmap handles
@@ -212,10 +207,10 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
     cmd.tag(5)
        .font(font_medium)
-       .text(BTN_POS(2,1), BTN_SIZE(3,1), e0_str)
-       .text(BTN_POS(6,1), BTN_SIZE(3,1), e1_str)
-       .text(BTN_POS(2,2), BTN_SIZE(3,1), bed_str)
-       .text(BTN_POS(6,2), BTN_SIZE(3,1), fan_str);
+       .text(TEXT_POS(NOZ_1_POS), e0_str)
+       .text(TEXT_POS(NOZ_2_POS), e1_str)
+       .text(TEXT_POS(BED_POS), bed_str)
+       .text(TEXT_POS(FAN_POS), fan_str);
   }
 }
 
@@ -225,15 +220,18 @@ void StatusScreen::draw_progress(draw_mode_t what) {
 
   CommandProcessor cmd;
 
+  #if ENABLED(TOUCH_UI_PORTRAIT)
+    #define TIME_POS     BTN_POS(1,3), BTN_SIZE(4,1)
+    #define PROGRESS_POS BTN_POS(5,3), BTN_SIZE(4,1)
+  #else
+    #define TIME_POS     BTN_POS(9,1), BTN_SIZE(4,1)
+    #define PROGRESS_POS BTN_POS(9,2), BTN_SIZE(4,1)
+  #endif
+
   if (what & BACKGROUND) {
     cmd.tag(0).font(font_medium)
-    #ifdef TOUCH_UI_PORTRAIT
-       .fgcolor(progress) .button(BTN_POS(1,3), BTN_SIZE(4,1), F(""), OPT_FLAT)
-                                 .button(BTN_POS(5,3), BTN_SIZE(4,1), F(""), OPT_FLAT);
-    #else
-       .fgcolor(progress) .button(BTN_POS(9,1), BTN_SIZE(4,1), F(""), OPT_FLAT)
-                                 .button(BTN_POS(9,2), BTN_SIZE(4,1), F(""), OPT_FLAT);
-    #endif
+       .fgcolor(progress).button(TIME_POS,     F(""), OPT_FLAT)
+                         .button(PROGRESS_POS, F(""), OPT_FLAT);
   }
 
   if (what & FOREGROUND) {
@@ -248,13 +246,8 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     sprintf_P(progress_str, PSTR("%-3d %%"),      getProgress_percent() );
 
     cmd.font(font_medium)
-    #ifdef TOUCH_UI_PORTRAIT
-       .tag(0).text(BTN_POS(1,3), BTN_SIZE(4,1), time_str)
-              .text(BTN_POS(5,3), BTN_SIZE(4,1), progress_str);
-    #else
-       .tag(0).text(BTN_POS(9,1), BTN_SIZE(4,1), time_str)
-              .text(BTN_POS(9,2), BTN_SIZE(4,1), progress_str);
-    #endif
+       .tag(7).text(TIME_POS, time_str)
+              .text(PROGRESS_POS, progress_str);
   }
 }
 
@@ -266,49 +259,44 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
   if (what & FOREGROUND) {
     using namespace ExtUI;
 
+  #if ENABLED(TOUCH_UI_PORTRAIT)
+    #define MEDIA_BTN_POS  BTN_POS(1,8), BTN_SIZE(2,1)
+    #define MENU_BTN_POS   BTN_POS(3,8), BTN_SIZE(2,1)
+  #else
+    #define MEDIA_BTN_POS  BTN_POS(1,7), BTN_SIZE(2,2)
+    #define MENU_BTN_POS   BTN_POS(3,7), BTN_SIZE(2,2)
+  #endif
+
     const bool has_media = isMediaInserted() && !isPrintingFromMedia();
 
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-       .enabled(has_media)
        .colors(has_media ? action_btn : normal_btn)
-       .tag(3).button(
-          #ifdef TOUCH_UI_PORTRAIT
-            BTN_POS(1,8), BTN_SIZE(2,1),
-          #else
-            BTN_POS(1,7), BTN_SIZE(2,2),
-          #endif
-          isPrintingFromMedia() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA)
-        ).colors(!has_media ? action_btn : normal_btn)
-      #ifdef TOUCH_UI_PORTRAIT
-       .tag(4).button( BTN_POS(3,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_MENU));
-      #else
-       .tag(4).button( BTN_POS(3,7), BTN_SIZE(2,2), GET_TEXT_F(MSG_BUTTON_MENU));
-    #endif
+       .enabled(has_media)
+       .tag(3).button(MEDIA_BTN_POS, isPrintingFromMedia() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA))
+       .colors(!has_media ? action_btn : normal_btn)
+       .tag(4).button( MENU_BTN_POS, GET_TEXT_F(MSG_BUTTON_MENU));
   }
   #undef  GRID_COLS
 }
 
 void StatusScreen::draw_status_message(draw_mode_t what, const char* message) {
   #define GRID_COLS 1
+
+  #if ENABLED(TOUCH_UI_PORTRAIT)
+    #define STATUS_POS  BTN_POS(1,4), BTN_SIZE(1,1)
+  #else
+    #define STATUS_POS  BTN_POS(1,3), BTN_SIZE(1,2)
+  #endif
+
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.fgcolor(Theme::status_msg)
        .tag(0)
-    #ifdef TOUCH_UI_PORTRAIT
-       .button( BTN_POS(1,4), BTN_SIZE(1,1), F(""), OPT_FLAT);
-    #else
-       .button( BTN_POS(1,3), BTN_SIZE(1,2), F(""), OPT_FLAT);
-    #endif
+       .button( STATUS_POS, F(""), OPT_FLAT);
 
-    draw_text_box(cmd,
-    #ifdef TOUCH_UI_PORTRAIT
-      BTN_POS(1,4), BTN_SIZE(1,1),
-    #else
-      BTN_POS(1,3), BTN_SIZE(1,2),
-    #endif
-      message, OPT_CENTER, font_large);
+    draw_text_box(cmd, STATUS_POS, message, OPT_CENTER, font_large);
   }
   #undef  GRID_COLS
 }
@@ -326,10 +314,10 @@ void StatusScreen::setStatusMessage(const char* message) {
      .cmd(CLEAR(true,true,true));
 
   draw_temperature(BACKGROUND);
-  draw_progress(BACKGROUND);
-  draw_axis_position(BACKGROUND);
   draw_status_message(BACKGROUND, message);
   draw_interaction_buttons(BACKGROUND);
+  draw_progress(BACKGROUND);
+  draw_axis_position(BACKGROUND);
 
   storeBackground();
 
@@ -372,6 +360,7 @@ void StatusScreen::onRedraw(draw_mode_t what) {
 }
 
 void StatusScreen::onEntry() {
+  BaseScreen::onEntry();
   onRefresh();
 }
 
@@ -397,10 +386,19 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       break;
     case 5:  GOTO_SCREEN(TemperatureScreen); break;
     case 6:
-      if (!isPrinting()) {
+      if (isPrinting()) {
+        #if ENABLED(BABYSTEPPING)
+          GOTO_SCREEN(NudgeNozzleScreen);
+        #elif HAS_BED_PROBE
+          GOTO_SCREEN(ZOffsetScreen);
+        #else
+          return false;
+        #endif
+      } else {
         GOTO_SCREEN(MoveAxisScreen);
       }
       break;
+    case 7:  GOTO_SCREEN(FeedratePercentScreen); break;
     default:
       return true;
   }

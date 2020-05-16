@@ -50,7 +50,11 @@
 // Defines
 // ------------------------
 
-//#define analogInputToDigitalPin(IO) IO
+// AVR PROGMEM extension for sprintf_P
+#define S_FMT "%S"
+
+// AVR PROGMEM extension for string define
+#define PGMSTR(NAM,STR) const char NAM[] PROGMEM = STR
 
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START()  unsigned char _sreg = SREG; cli()
@@ -59,9 +63,6 @@
 #define ISRS_ENABLED() TEST(SREG, SREG_I)
 #define ENABLE_ISRS()  sei()
 #define DISABLE_ISRS() cli()
-
-// On AVR this is in math.h?
-//#define square(x) ((x)*(x))
 
 // ------------------------
 // Types
@@ -394,6 +395,8 @@ inline void HAL_adc_init() {
 
 // AVR compatibility
 #define strtof strtod
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 
 /**
  *  set_pwm_frequency

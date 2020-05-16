@@ -44,13 +44,7 @@ FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
 FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
-  return !(
-    #if ENABLED(HOME_AFTER_DEACTIVATE)
-      all_axes_known()
-    #else
-      all_axes_homed()
-    #endif
-  );
+  return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
 }
 
 // Error margin to work around float imprecision
@@ -114,8 +108,8 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
+inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
+inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZE_DEFS(T, NAME, OPT) \
   extern const XYZEval<T> NAME##_P; \
@@ -128,10 +122,15 @@ XYZE_DEFS(float, max_length,     MAX_LENGTH);
 XYZE_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZE_DEFS(signed char, home_dir, HOME_DIR);
 
+inline float home_bump_mm(const AxisEnum axis) {
+  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
+  return pgm_read_any(&home_bump_mm_P[axis]);
+}
+
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);
 #else
-  #define update_workspace_offset(x) NOOP
+  inline void update_workspace_offset(const AxisEnum) {}
 #endif
 
 #if HAS_HOTEND_OFFSET
@@ -153,6 +152,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 #else
   constexpr bool soft_endstops_enabled = false;
   //constexpr axis_limits_t soft_endstop = {
@@ -160,6 +160,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
   #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
 #endif
 
 void report_real_position();
@@ -183,6 +184,10 @@ void sync_plan_position_e();
  * (or from wherever it has been told it is located).
  */
 void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
+
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+#endif
 
 void prepare_line_to_destination();
 

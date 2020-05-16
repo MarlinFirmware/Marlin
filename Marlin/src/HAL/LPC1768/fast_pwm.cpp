@@ -19,12 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_PWM
+#if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
 
 #include <pwm.h>
 

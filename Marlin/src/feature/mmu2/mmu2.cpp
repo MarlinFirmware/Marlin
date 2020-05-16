@@ -91,6 +91,9 @@ MMU2 mmu2;
 #define mmuSerial   MMU2_SERIAL
 
 bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
+#if ENABLED(PRUSA_MMU2_S_MODE)
+  bool MMU2::mmu2s_triggered;
+#endif
 uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
 volatile int8_t MMU2::finda = 1;
@@ -99,15 +102,21 @@ int16_t MMU2::version = -1, MMU2::buildnr = -1;
 millis_t MMU2::last_request, MMU2::next_P0_request;
 char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   struct E_Step {
     float extrude;        //!< extrude distance in mm
     feedRate_t feedRate;  //!< feed rate in mm/s
   };
 
-  static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
-  static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE };
+  static constexpr E_Step
+      ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE }
+    , load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE }
+    #if ENABLED(PRUSA_MMU2_S_MODE)
+      , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
+      , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
+    #endif
+  ;
 
 #endif // MMU2_MENUS
 
@@ -228,6 +237,7 @@ void MMU2::mmu_loop() {
 
         enabled = true;
         state = 1;
+        TERN_(PRUSA_MMU2_S_MODE, mmu2s_triggered = false);
       }
       break;
 
@@ -291,6 +301,8 @@ void MMU2::mmu_loop() {
         tx_str_P(PSTR("P0\n"));
         state = 2; // wait for response
       }
+
+      TERN_(PRUSA_MMU2_S_MODE, check_filament());
       break;
 
     case 2:   // response to command P0
@@ -309,6 +321,7 @@ void MMU2::mmu_loop() {
       else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
+      TERN_(PRUSA_MMU2_S_MODE, check_filament());
       break;
 
     case 3:   // response to mmu commands
@@ -327,6 +340,7 @@ void MMU2::mmu_loop() {
         }
         state = 1;
       }
+      TERN_(PRUSA_MMU2_S_MODE, check_filament());
       break;
   }
 }
@@ -433,9 +447,36 @@ bool MMU2::rx_ok() {
 void MMU2::check_version() {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
     SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
-    kill(GET_TEXT(MSG_MMU2_WRONG_FIRMWARE));
+    kill(GET_TEXT(MSG_KILL_MMU2_FIRMWARE));
   }
 }
+
+static bool mmu2_not_responding() {
+  LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
+  BUZZ(100, 659);
+  BUZZ(200, 698);
+  BUZZ(100, 659);
+  BUZZ(300, 440);
+  BUZZ(100, 659);
+}
+
+#if ENABLED(PRUSA_MMU2_S_MODE)
+
+  bool MMU2::load_to_gears() {
+    command(MMU_CMD_C0);
+    manage_response(true, true);
+    LOOP_L_N(i, MMU2_C0_RETRY) {  // Keep loading until filament reaches gears
+      if (mmu2s_triggered) break;
+      command(MMU_CMD_C0);
+      manage_response(true, true);
+      check_filament();
+    }
+    const bool success = mmu2s_triggered && can_load();
+    if (!success) mmu2_not_responding();
+    return success;
+  }
+
+#endif
 
 /**
  * Handle tool change
@@ -452,18 +493,15 @@ void MMU2::tool_change(uint8_t index) {
     ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
     command(MMU_CMD_T0 + index);
-
     manage_response(true, true);
 
-    command(MMU_CMD_C0);
-    extruder = index; //filament change is finished
-    active_extruder = 0;
-
-    ENABLE_AXIS_E0();
-
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
-
+    if (load_to_gears()) {
+      extruder = index; // filament change is finished
+      active_extruder = 0;
+      ENABLE_AXIS_E0();
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(extruder));
+    }
     ui.reset_status();
   }
 
@@ -500,12 +538,13 @@ void MMU2::tool_change(const char* special) {
         DISABLE_AXIS_E0();
         command(MMU_CMD_T0 + index);
         manage_response(true, true);
-        command(MMU_CMD_C0);
-        mmu_loop();
 
-        ENABLE_AXIS_E0();
-        extruder = index;
-        active_extruder = 0;
+        if (load_to_gears()) {
+          mmu_loop();
+          ENABLE_AXIS_E0();
+          extruder = index;
+          active_extruder = 0;
+        }
       } break;
 
       case 'c': {
@@ -575,16 +614,11 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         resume_position = current_position;
 
         if (move_axes && all_axes_homed())
-          nozzle.park(2, park_point /*= NOZZLE_PARK_POINT*/);
+          nozzle.park(0, park_point /*= NOZZLE_PARK_POINT*/);
 
         if (turn_off_nozzle) thermalManager.setTargetHotend(0, active_extruder);
 
-        LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
-        BUZZ(100, 659);
-        BUZZ(200, 698);
-        BUZZ(100, 659);
-        BUZZ(300, 440);
-        BUZZ(100, 659);
+        mmu2_not_responding();
       }
     }
     else if (mmu_print_saved) {
@@ -632,7 +666,40 @@ void MMU2::filament_runout() {
   planner.synchronize();
 }
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if ENABLED(PRUSA_MMU2_S_MODE)
+  void MMU2::check_filament() {
+    const bool runout = READ(FIL_RUNOUT_PIN) ^ (FIL_RUNOUT_INVERTING);
+    if (runout && !mmu2s_triggered) {
+      DEBUG_ECHOLNPGM("MMU <= 'A'");
+      tx_str_P(PSTR("A\n"));
+    }
+    mmu2s_triggered = runout;
+  }
+
+  bool MMU2::can_load() {
+    execute_extruder_sequence((const E_Step *)can_load_sequence, COUNT(can_load_sequence));
+
+    int filament_detected_count = 0;
+    const int steps = MMU2_CAN_LOAD_RETRACT / MMU2_CAN_LOAD_INCREMENT;
+    DEBUG_ECHOLNPGM("MMU can_load:");
+    LOOP_L_N(i, steps) {
+      execute_extruder_sequence((const E_Step *)can_load_increment_sequence, COUNT(can_load_increment_sequence));
+      check_filament(); // Don't trust the idle function
+      DEBUG_CHAR(mmu2s_triggered ? 'O' : 'o');
+      if (mmu2s_triggered) ++filament_detected_count;
+    }
+
+    if (filament_detected_count <= steps - (MMU2_CAN_LOAD_DEVIATION / MMU2_CAN_LOAD_INCREMENT)) {
+      DEBUG_ECHOLNPGM(" failed.");
+      return false;
+    }
+
+    DEBUG_ECHOLNPGM(" succeeded.");
+    return true;
+  }
+#endif
+
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   // Load filament into MMU2
   void MMU2::load_filament(uint8_t index) {
@@ -656,20 +723,19 @@ void MMU2::filament_runout() {
       LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
       return false;
     }
-    else {
-      command(MMU_CMD_T0 + index);
-      manage_response(true, true);
-      command(MMU_CMD_C0);
-      mmu_loop();
 
+    command(MMU_CMD_T0 + index);
+    manage_response(true, true);
+
+    const bool success = load_to_gears();
+    if (success) {
+      mmu_loop();
       extruder = index;
       active_extruder = 0;
-
       load_to_nozzle();
-
       BUZZ(200, 404);
-      return true;
     }
+    return success;
   }
 
   /**
@@ -707,14 +773,9 @@ void MMU2::filament_runout() {
     if (recover)  {
       LCD_MESSAGEPGM(MSG_MMU2_EJECT_RECOVER);
       BUZZ(200, 404);
-      wait_for_user = true;
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover"));
-      #endif
-      while (wait_for_user) idle();
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover")));
+      wait_for_user_response();
       BUZZ(200, 404);
       BUZZ(200, 404);
 

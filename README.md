@@ -7,7 +7,7 @@
 
 <img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
-Additional documentation can be found at the [Marlin Home Page](http://marlinfw.org/).
+Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
 ## Marlin 2.0 Bugfix Branch
@@ -22,7 +22,7 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
 
 ## Building Marlin 2.0
 
-To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](http://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](http://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
+To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](https://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](https://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
 
 ## Hardware Abstraction Layer (HAL)
 
@@ -69,6 +69,12 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
   boards|processor|speed|flash|sram|logic|fpu
   ----|---------|-----|-----|----|-----|---
   [Arduino STM32](https://github.com/rogerclarkmelbourne/Arduino_STM32)|[STM32F1](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html) ARM-Cortex M3|72MHz|256-512k|48-64k|3.3V|no
+  [Geeetech3D GTM32](https://github.com/Geeetech3D/Diagram/blob/master/Rostock301/Hardware_GTM32_PRO_VB.pdf)|[STM32F1](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html) ARM-Cortex M3|72MHz|256-512k|48-64k|3.3V|no
+
+  #### STM32F4
+
+  boards|processor|speed|flash|sram|logic|fpu
+  ----|---------|-----|-----|----|-----|---
   [STEVAL-3DP001V1](http://www.st.com/en/evaluation-tools/steval-3dp001v1.html)|[STM32F401VE Arm-Cortex M4](http://www.st.com/en/microcontrollers/stm32f401ve.html)|84MHz|512k|64+32k|3.3-5V|yes
 
   #### Teensy++ 2.0
@@ -95,7 +101,7 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
 Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.0.x)) branch.
 
 - This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.0.x life-cycle.
-- Follow the [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
+- Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
 - Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues).
 
 ### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)

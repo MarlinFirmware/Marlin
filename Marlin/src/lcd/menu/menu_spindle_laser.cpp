@@ -34,20 +34,32 @@
 
   void menu_spindle_laser() {
 
+    const bool can_disable = cutter.enabled() && cutter.isOn;
+
     START_MENU();
     BACK_ITEM(MSG_MAIN);
-    if (cutter.enabled()) {
-      #if ENABLED(SPINDLE_LASER_PWM)
-        EDIT_ITEM(CUTTER_MENU_TYPE, MSG_CUTTER(POWER), &cutter.power, SPEED_POWER_MIN, SPEED_POWER_MAX);
-      #endif
+
+    #if ENABLED(SPINDLE_LASER_PWM)
+      EDIT_ITEM_FAST( CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.setPower
+                    , cutter.interpret_power(SPEED_POWER_MIN), cutter.interpret_power(SPEED_POWER_MAX)
+                    , []{ if (cutter.isOn) cutter.power = cutter.setPower; }
+      );
+    #endif
+
+    if (can_disable)
       ACTION_ITEM(MSG_CUTTER(OFF), cutter.disable);
-    }
     else {
       ACTION_ITEM(MSG_CUTTER(ON), cutter.enable_forward);
       #if ENABLED(SPINDLE_CHANGE_DIR)
         ACTION_ITEM(MSG_SPINDLE_REVERSE, cutter.enable_reverse);
       #endif
     }
+
+    #if ENABLED(MARLIN_DEV_MODE)
+      #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+        EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000,[]{ cutter.refresh_frequency();});
+      #endif
+    #endif
     END_MENU();
   }
 

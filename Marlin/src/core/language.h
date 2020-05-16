@@ -39,7 +39,7 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRA_LCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
-// See also http://marlinfw.org/docs/development/lcd_language.html
+// See also https://marlinfw.org/docs/development/lcd_language.html
 
 // Languages
 // an         Aragonese
@@ -57,6 +57,7 @@
 // fr         French
 // gl         Galician
 // hr         Croatian
+// hu         Hungarian
 // it         Italian
 // jp_kana    Japanese
 // ko_KR      Korean (South Korea)
@@ -80,11 +81,9 @@
 #ifdef CUSTOM_MACHINE_NAME
   #undef  MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
-#else
-  #ifdef DEFAULT_MACHINE_NAME
-    #undef  MACHINE_NAME
-    #define MACHINE_NAME DEFAULT_MACHINE_NAME
-  #endif
+#elif defined(DEFAULT_MACHINE_NAME)
+  #undef  MACHINE_NAME
+  #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
 
 #ifndef MACHINE_UUID
@@ -126,7 +125,7 @@
 #define STR_INVALID_E_STEPPER               "Invalid E stepper"
 #define STR_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
 #define STR_INVALID_SOLENOID                "Invalid solenoid"
-#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
+#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
 #define STR_COUNT_X                         " Count X:"
 #define STR_COUNT_A                         " Count A:"
 #define STR_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
@@ -188,7 +187,7 @@
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
 
 #define STR_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
-#define STR_SD_INIT_FAIL                    "SD init fail"
+#define STR_SD_INIT_FAIL                    "No SD card"
 #define STR_SD_VOL_INIT_FAIL                "volume.init failed"
 #define STR_SD_OPENROOT_FAIL                "openRoot failed"
 #define STR_SD_CARD_OK                      "SD card ok"
@@ -224,12 +223,10 @@
 #define STR_KILL_BUTTON                     "!! KILL caused by KILL button/pin"
 
 // temperature.cpp strings
-#define STR_PID_AUTOTUNE_PREFIX             "PID Autotune"
-#define STR_PID_AUTOTUNE_START              STR_PID_AUTOTUNE_PREFIX " start"
-#define STR_PID_AUTOTUNE_FAILED             STR_PID_AUTOTUNE_PREFIX " failed!"
-#define STR_PID_BAD_EXTRUDER_NUM            STR_PID_AUTOTUNE_FAILED " Bad extruder number"
-#define STR_PID_TEMP_TOO_HIGH               STR_PID_AUTOTUNE_FAILED " Temperature too high"
-#define STR_PID_TIMEOUT                     STR_PID_AUTOTUNE_FAILED " timeout"
+#define STR_PID_AUTOTUNE_START              "PID Autotune start"
+#define STR_PID_BAD_EXTRUDER_NUM            "PID Autotune failed! Bad extruder number"
+#define STR_PID_TEMP_TOO_HIGH               "PID Autotune failed! Temperature too high"
+#define STR_PID_TIMEOUT                     "PID Autotune failed! timeout"
 #define STR_BIAS                            " bias: "
 #define STR_D_COLON                         " d: "
 #define STR_T_MIN                           " min: "
@@ -240,7 +237,7 @@
 #define STR_KP                              " Kp: "
 #define STR_KI                              " Ki: "
 #define STR_KD                              " Kd: "
-#define STR_PID_AUTOTUNE_FINISHED           STR_PID_AUTOTUNE_PREFIX " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
+#define STR_PID_AUTOTUNE_FINISHED           "PID Autotune finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define STR_PID_DEBUG                       " PID_DEBUG "
 #define STR_PID_DEBUG_INPUT                 ": Input "
 #define STR_PID_DEBUG_OUTPUT                " Output "

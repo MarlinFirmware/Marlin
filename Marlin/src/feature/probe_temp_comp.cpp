@@ -29,11 +29,11 @@
 
 ProbeTempComp temp_comp;
 
-int16_t ProbeTempComp::z_offsets_probe[ProbeTempComp::cali_info_init[TSI_PROBE].measurements],  // = {0}
-        ProbeTempComp::z_offsets_bed[ProbeTempComp::cali_info_init[TSI_BED].measurements];      // = {0}
+int16_t ProbeTempComp::z_offsets_probe[cali_info_init[TSI_PROBE].measurements],  // = {0}
+        ProbeTempComp::z_offsets_bed[cali_info_init[TSI_BED].measurements];      // = {0}
 
 #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-  int16_t ProbeTempComp::z_offsets_ext[ProbeTempComp::cali_info_init[TSI_EXT].measurements];    // = {0}
+  int16_t ProbeTempComp::z_offsets_ext[cali_info_init[TSI_EXT].measurements];    // = {0}
 #endif
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
@@ -44,11 +44,15 @@ int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
 };
 
 const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
-  ProbeTempComp::cali_info_init[TSI_PROBE], ProbeTempComp::cali_info_init[TSI_BED]
+  cali_info_init[TSI_PROBE], cali_info_init[TSI_BED]
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    , ProbeTempComp::cali_info_init[TSI_EXT]
+    , cali_info_init[TSI_EXT]
   #endif
 };
+
+constexpr xyz_pos_t ProbeTempComp::park_point;
+constexpr xy_pos_t ProbeTempComp::measure_point;
+constexpr int ProbeTempComp::probe_calib_bed_temp;
 
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0

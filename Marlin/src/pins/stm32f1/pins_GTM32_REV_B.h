@@ -52,8 +52,10 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
-#define FLASH_EEPROM_EMULATION
-#define E2END 0xFFF                               // 4KB
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define E2END 0xFFF                             // 4KB
+#endif
 
 //
 // Limit Switches
@@ -112,7 +114,10 @@
 //#define FAN_PIN                           PB9   // EXT0 port
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
-#define ORIG_E0_AUTO_FAN_PIN                PB9   // EXT0 port, used as main extruder fan
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PB9   // EXT0 port, used as main extruder fan
+#endif
 
 //
 // Temperature Sensors

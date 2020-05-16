@@ -312,7 +312,7 @@ const char* ftostr52sign(const float &f) {
 
 // Convert signed float to string with +12.345 format
 const char* ftostr53sign(const float &f) {
-  long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
+  long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
   conv[0] = MINUSOR(i, '+');
   conv[1] = DIGIMOD(i, 10000);
   conv[2] = DIGIMOD(i, 1000);

@@ -32,10 +32,6 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
-#if DISABLED(SDCARD_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-#endif
-
 //
 // Steppers
 //

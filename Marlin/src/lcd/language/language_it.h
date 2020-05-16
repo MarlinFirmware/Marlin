@@ -25,7 +25,7 @@
  * Italian
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -45,11 +45,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Annullando...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media inserito");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media rimosso");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Media rilasciato");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Aspettando media");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Err.leggendo media");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Dispos.USB rimosso");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("Avvio USB fallito");
+  PROGMEM Language_Str MSG_KILL_SUBCALL_OVERFLOW           = _UxGT("Overflow subchiamate");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Finecor."); // Max 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Finecorsa Soft");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu principale");
@@ -88,6 +88,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" conf");
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Prerisc.personal.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Raffredda");
+  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenza");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Controllo laser");
   PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser Off");
   PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser On");
@@ -187,8 +188,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Slot di memoria");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Carica Mesh Piatto");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Salva Mesh Piatto");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 Mesh %i caricata");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 Mesh %i salvata");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Mesh %i caricata");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Mesh %i salvata");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Nessuna memoria");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Err: Salvataggio UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Err: Ripristino UBL");
@@ -238,6 +239,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Piatto Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Ugello");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ugello ~");
+  PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Ugello parcheggiato");
+  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Ugello in pausa");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Piatto");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Camera");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventola");     // Max 15 characters
@@ -245,6 +248,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Ventola mem. ~");   // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Extra vel.vent.");  // Max 15 characters
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Extra v.vent. ~");  // Max 15 characters
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Controller vent.");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Vel. inattivo");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Modo autom.");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Vel. attivo");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Tempo inattivo");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flusso");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flusso ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controllo");
@@ -254,8 +262,12 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Autotemp");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("On");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("Calibrazione PID");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("Calibraz. PID *");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("Calibr.PID eseguita");
+  PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Calibrazione fallita. Estrusore errato.");
+  PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Calibrazione fallita. Temperatura troppo alta.");
+  PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Calibrazione fallita! Tempo scaduto.");
   PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
   PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
   PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
@@ -291,6 +303,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Amax *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-Ritrazione");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-Spostamento");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Frequenza max");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Feed min");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Passi/mm");
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("passi/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("passi/mm");
@@ -312,6 +326,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carica impostazioni");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Ripristina imp.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Inizializza EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: CRC EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: Indice EEPROM");
+  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: Versione EEPROM");
+  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Impostazioni mem.");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Aggiorna media");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Resetta stampante");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Aggiorna");
@@ -328,6 +346,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Fatto");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Indietro");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procedi");
+  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Messa in pausa...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa stampa");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arresta stampa");
@@ -341,7 +360,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("Premi tasto..");
   PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("Stampa sospesa");
   PROGMEM Language_Str MSG_PRINTING                        = _UxGT("Stampa...");
-  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Stampa annullata");
+  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("Stampa Annullata");
+  PROGMEM Language_Str MSG_PRINT_DONE                      = _UxGT("Stampa Eseguita");
   PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("Nessun Movimento");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("UCCISO. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("ARRESTATO. ");
@@ -354,19 +374,29 @@ namespace Language_it {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRitrai");
-  PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Dist. ritrazione");
+  PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Lunghezza scambio");
+  PROGMEM Language_Str MSG_FILAMENT_SWAP_EXTRA             = _UxGT("Extra scambio");
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Lunghezza spurgo");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Cambio utensile");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Risalita Z");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Velocità innesco");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Velocità retrazione");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Standby ugello");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Velocità innesco");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Velocità retrazione");
+  PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Parcheggia testa");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("Recover Speed");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED          = _UxGT("Velocità ventola");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("Tempo ventola");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("Auto ON");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("Auto OFF");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("Migrazione utensile");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("Auto-migrazione");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Ultimo estrusore");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migra a *");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambia filamento");
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambia filamento *");
+  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambia filam. *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Carica filamento");
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Carica filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Rimuovi filamento");
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filamento *");
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Rimuovi filam. *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Rimuovi tutto");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Collega media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambia media");
@@ -490,13 +520,13 @@ namespace Language_it {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Ugello: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sens.filo termin.");  // Max 17 characters
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm filo term.");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Home fallito");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Home fallito");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondaggio fallito");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600:Troppo freddo");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SCELTA FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_MMU2_WRONG_FIRMWARE             = _UxGT("Agg.firmware MMU!");
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Agg.firmware MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU chiede attenz.");
   PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Ripresa...");
@@ -540,14 +570,14 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Stampante errata");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Stampante errata");
 
   //
   // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe
   //                                                  ...o fino a 2 linee su un display a 3 righe.
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_3_LINE("Premi per", "riprendere", "la stampa"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Parcheggiando..."));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parcheggiando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Attendere avvio", "del cambio", "di filamento"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Inserisci il", "filamento e premi", "per continuare"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Premi per", "riscaldare ugello"));
@@ -573,7 +603,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("Drivers TMC");
   PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Driver in uso");
   PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("Soglia modo ibrido");
-  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Azzer. sensorless");
+  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Azzer. senza sens.");
   PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Modo stepping");
   PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("StealthChop abil.");
 
@@ -585,5 +615,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BACKLASH_B                      = LCD_STR_B;
   PROGMEM Language_Str MSG_BACKLASH_C                      = LCD_STR_C;
   PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Correzione");
-  PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Smoothing");
+  PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Appianamento");
+
+  PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Livello asse X");
+  PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Auto Calibra");
+  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Timeout riscaldatore");
+  PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Riscalda");
+  PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Riscaldando...");
 }

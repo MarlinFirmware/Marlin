@@ -29,11 +29,11 @@
 
 void M710_report(const bool forReplay) {
   if (!forReplay) { SERIAL_ECHOLNPGM("; Controller Fan"); SERIAL_ECHO_START(); }
-  SERIAL_ECHOLNPAIR("M710 "
-    "S", int(controllerFan.settings.active_speed),
-    "I", int(controllerFan.settings.idle_speed),
-    "A", int(controllerFan.settings.auto_mode),
-    "D", controllerFan.settings.duration,
+  SERIAL_ECHOLNPAIR("  M710"
+    " S", int(controllerFan.settings.active_speed),
+    " I", int(controllerFan.settings.idle_speed),
+    " A", int(controllerFan.settings.auto_mode),
+    " D", controllerFan.settings.duration,
     " ; (", (int(controllerFan.settings.active_speed) * 100) / 255, "%"
     " ", (int(controllerFan.settings.idle_speed) * 100) / 255, "%)"
   );

@@ -65,7 +65,7 @@
 
 /**
  * Include all needed font files
- * (See http://marlinfw.org/docs/development/fonts.html)
+ * (See https://marlinfw.org/docs/development/fonts.html)
  */
 #include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
@@ -123,6 +123,7 @@ bool MarlinUI::detected() { return true; }
           custom_start_bmp
         #endif
       ;
+      TERN(CUSTOM_BOOTSCREEN_ANIMATED,,UNUSED(frame));
 
       u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
@@ -227,9 +228,7 @@ bool MarlinUI::detected() { return true; }
   }
 
   void MarlinUI::show_bootscreen() {
-    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-      show_custom_bootscreen();
-    #endif
+    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
     show_marlin_bootscreen();
   }
 
@@ -244,13 +243,7 @@ void MarlinUI::init_lcd() {
   #if DISABLED(MKS_LCD12864B)
 
     #if PIN_EXISTS(LCD_BACKLIGHT)
-      OUT_WRITE(LCD_BACKLIGHT_PIN, (
-        #if ENABLED(DELAYED_BACKLIGHT_INIT)
-          LOW  // Illuminate after reset
-        #else
-          HIGH // Illuminate right away
-        #endif
-      ));
+      OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
     #endif
 
     #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
@@ -273,17 +266,11 @@ void MarlinUI::init_lcd() {
       WRITE(LCD_BACKLIGHT_PIN, HIGH);
     #endif
 
-    #if HAS_LCD_CONTRAST
-      refresh_contrast();
-    #endif
+    TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
-    #if ENABLED(LCD_SCREEN_ROT_90)
-      u8g.setRot90();
-    #elif ENABLED(LCD_SCREEN_ROT_180)
-      u8g.setRot180();
-    #elif ENABLED(LCD_SCREEN_ROT_270)
-      u8g.setRot270();
-    #endif
+    TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
+    TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
+    TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
 
   #endif // !MKS_LCD12864B
 
@@ -292,9 +279,7 @@ void MarlinUI::init_lcd() {
 
 // The kill screen is displayed for unrecoverable conditions
 void MarlinUI::draw_kill_screen() {
-  #if ENABLED(LIGHTWEIGHT_UI)
-    ST7920_Lite_Status_Screen::clear_text_buffer();
-  #endif
+  TERN_(LIGHTWEIGHT_UI, ST7920_Lite_Status_Screen::clear_text_buffer());
   const u8g_uint_t h4 = u8g.getHeight() / 4;
   u8g.firstPage();
   do {

@@ -49,14 +49,13 @@
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
     SERIAL_ECHO_MSG("  G29 I99");
-    LOOP_L_N(x, GRID_MAX_POINTS_X)
-      for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
-        if (!isnan(z_values[x][y])) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
-          SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
-          serial_delay(75); // Prevent Printrun from exploding
-        }
+    GRID_LOOP(x, y)
+      if (!isnan(z_values[x][y])) {
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
+        SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
+        serial_delay(75); // Prevent Printrun from exploding
+      }
   }
 
   void unified_bed_leveling::report_state() {
@@ -114,9 +113,7 @@
   void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
     GRID_LOOP(x, y) {
       z_values[x][y] = value;
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onMeshUpdate(x, y, value);
-      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
     }
   }
 

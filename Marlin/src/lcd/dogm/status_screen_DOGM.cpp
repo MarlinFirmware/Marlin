@@ -56,7 +56,7 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if DUAL_MIXING_EXTRUDER
+#if HAS_DUAL_MIXING
   #include "../../feature/mixing.h"
 #endif
 
@@ -104,6 +104,7 @@
 #endif
 
 #define PROGRESS_BAR_X 54
+#define PROGRESS_BAR_Y (EXTRAS_BASELINE + 2)
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
@@ -142,7 +143,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
     #elif ANIM_HOTEND && DISABLED(STATUS_HOTEND_INVERTED) && ENABLED(STATUS_HOTEND_NUMBERLESS)
       #define OFF_BMP(N) status_hotend_a_bmp
       #define ON_BMP(N)  status_hotend_b_bmp
-    #elif ANIM_HOTEND && ENABLED(STATUS_HOTEND_INVERTED)
+    #elif BOTH(ANIM_HOTEND, STATUS_HOTEND_INVERTED)
       #define OFF_BMP(N) status_hotend##N##_b_bmp
       #define ON_BMP(N)  status_hotend##N##_a_bmp
     #else
@@ -305,12 +306,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
-  const AxisEnum a = (
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      axis == E_AXIS ? X_AXIS :
-    #endif
-    axis
-  );
+  const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
   const uint8_t offs = (XYZ_SPACING) * a;
   lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
   lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
@@ -332,11 +328,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  static char xstring[5
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      + 7
-    #endif
-  ], ystring[5], zstring[8];
+  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif
@@ -365,11 +357,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif
 
-  const bool showxy = (true
-    #if ENABLED(LCD_SHOW_E_TOTAL)
-      && !printingIsActive()
-    #endif
-  );
+  const bool showxy = TERN1(LCD_SHOW_E_TOTAL, !printingIsActive());
 
   // At the first page, generate new display values
   if (first_page) {
@@ -378,15 +366,11 @@ void MarlinUI::draw_status_screen() {
       #if ANIM_HOTEND
         HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, HEATBIT_HOTEND + e);
       #endif
-      #if ANIM_BED
-        if (thermalManager.isHeatingBed()) SBI(new_bits, HEATBIT_BED);
-      #endif
+      if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, HEATBIT_BED);
       #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber()) SBI(new_bits, HEATBIT_CHAMBER);
       #endif
-      #if ANIM_CUTTER
-        if (cutter.enabled()) SBI(new_bits, HEATBIT_CUTTER);
-      #endif
+      if (TERN0(ANIM_CUTTER, cutter.enabled())) SBI(new_bits, HEATBIT_CUTTER);
       heat_bits = new_bits;
     #endif
 
@@ -411,13 +395,7 @@ void MarlinUI::draw_status_screen() {
 
     // Progress / elapsed / estimation updates and string formatting to avoid float math on each LCD draw
     #if HAS_PRINT_PROGRESS
-      const progress_t progress =
-        #if HAS_PRINT_PROGRESS_PERMYRIAD
-          get_progress_permyriad()
-        #else
-          get_progress_percent()
-        #endif
-      ;
+      const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
       duration_t elapsed = print_job_timer.duration();
       const uint8_t p = progress & 0xFF, ev = elapsed.value & 0xFF;
       if (p != lastProgress) {
@@ -433,15 +411,9 @@ void MarlinUI::draw_status_screen() {
               estimation_x_pos = _SD_INFO_X(0);
             #endif
           }
-          else {
-            strcpy(progress_string, (
-              #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
-                permyriadtostr4(progress)
-              #else
-                ui8tostr3rj(progress / (PROGRESS_SCALE))
-              #endif
-            ));
-          }
+          else
+            strcpy(progress_string, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
+
           #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
             progress_x_pos = _SD_INFO_X(strlen(progress_string) + 1);
           #endif
@@ -570,20 +542,20 @@ void MarlinUI::draw_status_screen() {
     // Laser / Spindle
     #if DO_DRAW_CUTTER
       if (cutter.power && PAGE_CONTAINS(STATUS_CUTTER_TEXT_Y - INFO_FONT_ASCENT, STATUS_CUTTER_TEXT_Y - 1)) {
-        lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, i16tostr3rj(cutter.powerPercent(cutter.power)));
-        lcd_put_wchar('%');
+        lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, i16tostr3rj(cutter.power));
+        #if CUTTER_DISPLAY_IS(PERCENT)
+          lcd_put_wchar('%');
+        #elif CUTTER_DISPLAY_IS(RPM)
+          lcd_put_wchar('K');
+        #endif
       }
     #endif
 
     // Heated Bed
-    #if DO_DRAW_BED
-      _draw_bed_status(blink);
-    #endif
+    TERN_(DO_DRAW_BED, _draw_bed_status(blink));
 
     // Heated Chamber
-    #if DO_DRAW_CHAMBER
-      _draw_chamber_status();
-    #endif
+    TERN_(DO_DRAW_CHAMBER, _draw_chamber_status());
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
@@ -625,15 +597,15 @@ void MarlinUI::draw_status_screen() {
     // Progress bar frame
     //
 
-    if (PAGE_CONTAINS(49, 52))
-      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
+    if (PAGE_CONTAINS(PROGRESS_BAR_Y, PROGRESS_BAR_Y + 3))
+      u8g.drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
 
     //
     // Progress bar solid part
     //
 
-    if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
-      u8g.drawBox(PROGRESS_BAR_X + 1, 50, progress_bar_solid_width, 2);
+    if (PAGE_CONTAINS(PROGRESS_BAR_Y + 1, PROGRESS_BAR_Y + 2))
+      u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
@@ -667,7 +639,7 @@ void MarlinUI::draw_status_screen() {
 
         #if ENABLED(DOGM_SD_PERCENT)
           if (progress_string[0]) {
-            lcd_put_u8str(55, 48, progress_string); // Percent complete
+            lcd_put_u8str(55, EXTRAS_BASELINE, progress_string); // Percent complete
             lcd_put_wchar('%');
           }
         #endif
@@ -694,7 +666,7 @@ void MarlinUI::draw_status_screen() {
   // XYZ Coordinates
   //
 
-  #if ENABLED(XYZ_HOLLOW_FRAME)
+  #if EITHER(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
     #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 3
   #else
@@ -704,36 +676,38 @@ void MarlinUI::draw_status_screen() {
 
   if (PAGE_CONTAINS(XYZ_FRAME_TOP, XYZ_FRAME_TOP + XYZ_FRAME_HEIGHT - 1)) {
 
-    #if ENABLED(XYZ_HOLLOW_FRAME)
-      u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
-    #else
-      u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+    #if DISABLED(XYZ_NO_FRAME)
+      #if ENABLED(XYZ_HOLLOW_FRAME)
+        u8g.drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
+      #else
+        u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+      #endif
     #endif
 
     if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_ASCENT - 1), XYZ_BASELINE)) {
 
-      #if DISABLED(XYZ_HOLLOW_FRAME)
+      #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(0); // white on black
       #endif
 
-      #if DUAL_MIXING_EXTRUDER
+      #if HAS_DUAL_MIXING
 
         // Two-component mix / gradient instead of XY
 
         char mixer_messages[12];
-        const char *mix_label;
+        PGM_P mix_label;
         #if ENABLED(GRADIENT_MIX)
           if (mixer.gradient.enabled) {
             mixer.update_mix_from_gradient();
-            mix_label = "Gr";
+            mix_label = PSTR("Gr");
           }
           else
         #endif
           {
             mixer.update_mix_from_vtool();
-            mix_label = "Mx";
+            mix_label = PSTR("Mx");
           }
-        sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+        sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
         lcd_put_u8str(X_LABEL_POS, XYZ_BASELINE, mixer_messages);
 
       #else
@@ -751,7 +725,7 @@ void MarlinUI::draw_status_screen() {
 
       _draw_axis_value(Z_AXIS, zstring, blink);
 
-      #if DISABLED(XYZ_HOLLOW_FRAME)
+      #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
       #endif
     }
@@ -799,10 +773,11 @@ void MarlinUI::draw_status_screen() {
         lcd_put_wchar(':');
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
+        return;
       }
-      else
     #endif
-        draw_status_message(blink);
+
+    draw_status_message(blink);
   }
 }
 

@@ -38,11 +38,14 @@
 //
 // Flash EEPROM Emulation
 //
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     uint16(0x800) // 2KB
-#define EEPROM_START_ADDRESS uint32(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE)
-#undef E2END
-#define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #undef E2END
+  #define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#endif
+
 //
 // Limit Switches
 //

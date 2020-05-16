@@ -70,13 +70,15 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PRINT_FINISHED           = u8"Print finished";
   PROGMEM Language_Str MSG_PRINT_ERROR              = u8"Print error";
   PROGMEM Language_Str MSG_ABOUT_TOUCH_PANEL_1      = u8"Color Touch Panel";
-  PROGMEM Language_Str MSG_ABOUT_TOUCH_PANEL_2      = u8"Portions " COPYRIGHT_SIGN " 2019 Aleph Objects, Inc.\n"
-                                                        "Portions " COPYRIGHT_SIGN " 2019 Cocoa Press";
-  PROGMEM Language_Str MSG_FIRMWARE_FOR_TOOLHEAD    = u8"Firmware for toolhead:\n%s\n\n";
+  PROGMEM Language_Str MSG_ABOUT_TOUCH_PANEL_2      = WEBSITE_URL;
+  PROGMEM Language_Str MSG_LICENSE                  = u8"This program is free software: you can redistribute it and/or modify it under the terms of "
+                                                        "the GNU General Public License as published by the Free Software Foundation, either version 3 "
+                                                        "of the License, or (at your option) any later version.\n\nTo view a copy of the GNU General "
+                                                        "Public License, go to the following location: http://www.gnu.org/licenses.";
   PROGMEM Language_Str MSG_RUNOUT_1                 = u8"Runout 1";
   PROGMEM Language_Str MSG_RUNOUT_2                 = u8"Runout 2";
   PROGMEM Language_Str MSG_DISPLAY_MENU             = u8"Display";
-  PROGMEM Language_Str MSG_INTERFACE_SETTINGS       = u8"Interface Settings";
+  PROGMEM Language_Str MSG_INTERFACE                = u8"Interface";
   PROGMEM Language_Str MSG_MEASURE_AUTOMATICALLY    = u8"Measure automatically";
   PROGMEM Language_Str MSG_H_OFFSET                 = u8"H Offset";
   PROGMEM Language_Str MSG_V_OFFSET                 = u8"V Offset";
@@ -129,7 +131,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SOUND_VOLUME             = u8"Sound volume";
   PROGMEM Language_Str MSG_SCREEN_LOCK              = u8"Screen lock";
   PROGMEM Language_Str MSG_BOOT_SCREEN              = u8"Boot screen";
-  PROGMEM Language_Str MSG_INTERFACE_SOUNDS         = u8"Interface Sounds";
+  PROGMEM Language_Str MSG_SOUNDS                   = u8"Sounds";
   PROGMEM Language_Str MSG_CLICK_SOUNDS             = u8"Click sounds";
   PROGMEM Language_Str MSG_EEPROM_RESTORED          = u8"Settings restored from backup";
   PROGMEM Language_Str MSG_EEPROM_RESET             = u8"Settings restored to default";
@@ -144,12 +146,14 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_START  = u8"Release to begin screen calibration";
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_PROMPT = u8"Touch the dots to calibrate";
+  PROGMEM Language_Str MSG_AUTOLEVEL_X_AXIS         = u8"Level X Axis";
+  PROGMEM Language_Str MSG_BED_MAPPING_DONE         = u8"Bed mapping finished";
+  PROGMEM Language_Str MSG_RESET_BLTOUCH            = u8"Reset BLTouch";
 
   #ifdef TOUCH_UI_LULZBOT_BIO
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";
     PROGMEM Language_Str MSG_RAISE_PLUNGER          = u8"Raise Plunger";
     PROGMEM Language_Str MSG_RELEASE_XY_AXIS        = u8"Release X and Y Axis";
-    PROGMEM Language_Str MSG_AUTOLEVEL_X_AXIS       = u8"Auto-level X Axis";
     PROGMEM Language_Str MSG_BED_TEMPERATURE        = u8"Bed Temperature";
     PROGMEM Language_Str MSG_HOME_XYZ_WARNING       = u8"About to move to home position. Ensure the top and the bed of the printer are clear.\n\nContinue?";
     PROGMEM Language_Str MSG_HOME_E_WARNING         = u8"About to re-home plunger and auto-level. Remove syringe prior to proceeding.\n\nContinue?";
