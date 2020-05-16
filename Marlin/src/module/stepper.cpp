@@ -2239,11 +2239,11 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(LASER_POWER_INLINE_CONTINUOUS)
       else { // No new block found; so apply inline laser parameters
         // This should mean ending file with 'M5 I' will stop the laser; thus the inline flag isn't needed
-        const uint8_t stat = planner.settings.laser.status;
+        const uint8_t stat = planner.laser.status;
         if (TEST(stat, 0)) {             // Planner controls the laser
           #if ENABLED(SPINDLE_LASER_PWM)
             if (TEST(stat, 1))           // Laser is on
-              cutter.set_ocr_power(planner.settings.laser.power);
+              cutter.set_ocr_power(planner.laser.power);
             else
               cutter.set_power(0);
           #else
@@ -3420,95 +3420,76 @@ void Stepper::report_positions() {
   }
 
   void Stepper::microstep_readings() {
-    SERIAL_ECHOLNPGM("MS1|MS2|MS3 Pins");
+    #define PIN_CHAR(P) SERIAL_CHAR('0' + READ(P##_PIN))
+    #define MS_LINE(A)  do{ SERIAL_ECHOPGM(" " STRINGIFY(A) ":"); PIN_CHAR(A##_MS1); PIN_CHAR(A##_MS2); }while(0)
+    SERIAL_ECHOPGM("MS1|2|3 Pins");
     #if HAS_X_MS_PINS
-      SERIAL_ECHOPGM("X: ");
-      SERIAL_CHAR('0' + READ(X_MS1_PIN), '0' + READ(X_MS2_PIN)
-        #if PIN_EXISTS(X_MS3)
-          , '0' + READ(X_MS3_PIN)
-        #endif
-      );
+      MS_LINE(X);
+      #if PIN_EXISTS(X_MS3)
+        PIN_CHAR(X_MS3);
+      #endif
     #endif
     #if HAS_Y_MS_PINS
-      SERIAL_ECHOPGM("Y: ");
-      SERIAL_CHAR('0' + READ(Y_MS1_PIN), '0' + READ(Y_MS2_PIN)
-        #if PIN_EXISTS(Y_MS3)
-          , '0' + READ(Y_MS3_PIN)
-        #endif
-      );
+      MS_LINE(Y);
+      #if PIN_EXISTS(Y_MS3)
+        PIN_CHAR(Y_MS3);
+      #endif
     #endif
     #if HAS_Z_MS_PINS
-      SERIAL_ECHOPGM("Z: ");
-      SERIAL_CHAR('0' + READ(Z_MS1_PIN), '0' + READ(Z_MS2_PIN)
-        #if PIN_EXISTS(Z_MS3)
-          , '0' + READ(Z_MS3_PIN)
-        #endif
-      );
+      MS_LINE(Z);
+      #if PIN_EXISTS(Z_MS3)
+        PIN_CHAR(Z_MS3);
+      #endif
     #endif
     #if HAS_E0_MS_PINS
-      SERIAL_ECHOPGM("E0: ");
-      SERIAL_CHAR('0' + READ(E0_MS1_PIN), '0' + READ(E0_MS2_PIN)
-        #if PIN_EXISTS(E0_MS3)
-          , '0' + READ(E0_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E0);
+      #if PIN_EXISTS(E0_MS3)
+        PIN_CHAR(E0_MS3);
+      #endif
     #endif
     #if HAS_E1_MS_PINS
-      SERIAL_ECHOPGM("E1: ");
-      SERIAL_CHAR('0' + READ(E1_MS1_PIN), '0' + READ(E1_MS2_PIN)
-        #if PIN_EXISTS(E1_MS3)
-          , '0' + READ(E1_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E1);
+      #if PIN_EXISTS(E1_MS3)
+        PIN_CHAR(E1_MS3);
+      #endif
     #endif
     #if HAS_E2_MS_PINS
-      SERIAL_ECHOPGM("E2: ");
-      SERIAL_CHAR('0' + READ(E2_MS1_PIN), '0' + READ(E2_MS2_PIN)
-        #if PIN_EXISTS(E2_MS3)
-          , '0' + READ(E2_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E2);
+      #if PIN_EXISTS(E2_MS3)
+        PIN_CHAR(E2_MS3);
+      #endif
     #endif
     #if HAS_E3_MS_PINS
-      SERIAL_ECHOPGM("E3: ");
-      SERIAL_CHAR('0' + READ(E3_MS1_PIN), '0' + READ(E3_MS2_PIN)
-        #if PIN_EXISTS(E3_MS3)
-          , '0' + READ(E3_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E3);
+      #if PIN_EXISTS(E3_MS3)
+        PIN_CHAR(E3_MS3);
+      #endif
     #endif
     #if HAS_E4_MS_PINS
-      SERIAL_ECHOPGM("E4: ");
-      SERIAL_CHAR('0' + READ(E4_MS1_PIN), '0' + READ(E4_MS2_PIN)
-        #if PIN_EXISTS(E4_MS3)
-          , '0' + READ(E4_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E4);
+      #if PIN_EXISTS(E4_MS3)
+        PIN_CHAR(E4_MS3);
+      #endif
     #endif
     #if HAS_E5_MS_PINS
-      SERIAL_ECHOPGM("E5: ");
-      SERIAL_CHAR('0' + READ(E5_MS1_PIN), '0' + READ(E5_MS2_PIN)
-        #if PIN_EXISTS(E5_MS3)
-          , '0' + READ(E5_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E5);
+      #if PIN_EXISTS(E5_MS3)
+        PIN_CHAR(E5_MS3);
+      #endif
     #endif
     #if HAS_E6_MS_PINS
-      SERIAL_ECHOPGM("E6: ");
-      SERIAL_CHAR('0' + READ(E6_MS1_PIN), '0' + READ(E6_MS2_PIN)
-        #if PIN_EXISTS(E6_MS3)
-          , '0' + READ(E6_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E6);
+      #if PIN_EXISTS(E6_MS3)
+        PIN_CHAR(E6_MS3);
+      #endif
     #endif
     #if HAS_E7_MS_PINS
-      SERIAL_ECHOPGM("E7: ");
-      SERIAL_CHAR('0' + READ(E7_MS1_PIN), '0' + READ(E7_MS2_PIN)
-        #if PIN_EXISTS(E7_MS3)
-          , '0' + READ(E7_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E7);
+      #if PIN_EXISTS(E7_MS3)
+        PIN_CHAR(E7_MS3);
+      #endif
     #endif
+    SERIAL_EOL();
   }
 
 #endif // HAS_MICROSTEPS
