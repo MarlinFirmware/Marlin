@@ -41,12 +41,24 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PB10
-#define X_MAX_PIN                           PE15
-#define Y_MIN_PIN                           PE12
-#define Y_MAX_PIN                           PE10
-#define Z_MIN_PIN                           PG8
-#define Z_MAX_PIN                           PG5
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN                           PB10
+#endif
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN                           PE15
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN                           PE12
+#endif
+#ifndef Y_MAX_PIN
+  #define Y_MAX_PIN                           PE10
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                           PG8
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN                           PG5
+#endif
 
 //
 // Z Probe must be this pins
