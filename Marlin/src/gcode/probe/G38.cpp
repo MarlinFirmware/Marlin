@@ -32,7 +32,7 @@
 #include "../../module/probe.h"
 
 inline void G38_single_probe(const uint8_t move_value) {
-  endstops.enable(true);\
+  endstops.enable(true);
   G38_move = move_value;
   prepare_line_to_destination();
   planner.synchronize();
