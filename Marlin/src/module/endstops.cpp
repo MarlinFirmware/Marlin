@@ -408,7 +408,7 @@ void Endstops::event_handler() {
     #define _ENDSTOP_HIT_ECHO(A,C) do{ \
       SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); \
       _SET_STOP_CHAR(A,C); }while(0)
-    
+
     #define _ENDSTOP_HIT_TEST(A,C) \
       if (TEST(hit_state, A ##_MIN) || TEST(hit_state, A ##_MAX)) \
         _ENDSTOP_HIT_ECHO(A,C)
@@ -423,22 +423,17 @@ void Endstops::event_handler() {
     ENDSTOP_HIT_TEST_X();
     ENDSTOP_HIT_TEST_Y();
     ENDSTOP_HIT_TEST_Z();
-    
+
     #if ENABLED(CNC_5X)
-
-    ENDSTOP_HIT_TEST_E();
-
+      ENDSTOP_HIT_TEST_E();
     #endif
-
 
     #if HAS_CUSTOM_PROBE_PIN
       #define P_AXIS Z_AXIS
       if (TEST(hit_state, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
-    
       #if ENABLED(CNC_5X)
-        if (TEST(hit_state, Z_MIN_M167)) _ENDSTOP_HIT_ECHO(P, 'P');  
+        if (TEST(hit_state, Z_MIN_M167)) _ENDSTOP_HIT_ECHO(P, 'P');
       #endif
-      
     #endif
 
     SERIAL_EOL();
@@ -529,12 +524,12 @@ void _O2 Endstops::report_states() {
   #if HAS_Z_MIN_M167_PIN
     ES_REPORT(Z_MIN_M167);
   #endif
-  
+
   #if HAS_CUSTOM_PROBE_PIN
     print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(STR_Z_PROBE));
 
     #if HAS_Z_MIN_M167_PIN
-  
+
     print_es_state(READ(Z_MIN_M167_PIN) != Z_MIN_M167_ENDSTOP_INVERTING, PSTR(STR_Z_MIN_M167));
     #endif
 
@@ -1127,7 +1122,7 @@ void Endstops::update() {
       #if HAS_E_MAX
         ES_REPORT_CHANGE(E_MAX);
       #endif
-      
+
       SERIAL_ECHOLNPGM("\n");
       analogWrite(pin_t(LED_PIN), local_LED_status);
       local_LED_status ^= 255;

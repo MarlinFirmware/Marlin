@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 enum EndstopEnum : char {
-  X_MIN,  Y_MIN,  Z_MIN, Z_MIN_PROBE,
+  X_MIN,  Y_MIN,  Z_MIN,  Z_MIN_PROBE,
   X_MAX,  Y_MAX,  Z_MAX,
   X2_MIN, X2_MAX,
   Y2_MIN, Y2_MAX,
