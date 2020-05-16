@@ -33,7 +33,7 @@
  * vendor name, download location, GitHub account, etc.
  */
 #ifndef DETAILED_BUILD_VERSION
-  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " (GitHub)"
+  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION
 #endif
 
 /**
@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2020-05-05"
+  #define STRING_DISTRIBUTION_DATE "2020-05-16"
 #endif
 
 /**

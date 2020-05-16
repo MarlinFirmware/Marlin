@@ -27,31 +27,13 @@
  * without adding new pin definitions to the board.
  */
 
-#ifdef CHEETAH_TFT_PINMAP
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
-
-    #define CLCD_SPI_BUS    2
-
-    #define CLCD_MOD_RESET  PC9
-    #define CLCD_SPI_CS     PB12
-
-    //#define CLCD_USE_SOFT_SPI
-    #if ENABLED(CLCD_USE_SOFT_SPI)
-      #define CLCD_SOFT_SPI_MOSI PB15
-      #define CLCD_SOFT_SPI_MISO PB14
-      #define CLCD_SOFT_SPI_SCLK PB13
-    #endif
-#endif
-
 #ifdef S6_TFT_PINMAP
   #ifndef __MARLIN_FIRMWARE__
     #error "This pin mapping requires Marlin."
   #endif
 
-  #define CLCD_SPI_CS         PC7
-  #define CLCD_MOD_RESET      PC6
+  #define CLCD_SPI_CS                    PC7
+  #define CLCD_MOD_RESET                 PC6
 #endif
 
 #ifdef CR10_TFT_PINMAP
@@ -60,13 +42,13 @@
   #endif
 
   #define CLCD_USE_SOFT_SPI
-  #define CLCD_SOFT_SPI_SCLK  LCD_PINS_D4      // PORTA1               Pin 6
-  #define CLCD_SOFT_SPI_MOSI  LCD_PINS_ENABLE  // PORTC1               Pin 8
-  #define CLCD_SPI_CS         LCD_PINS_RS      // PORTA3               Pin 7
-  #define CLCD_SOFT_SPI_MISO  16               // PORTC0   BTN_ENC     Pin 2
-  #define CLCD_MOD_RESET      11               // PORTD3   BTN_EN1     Pin 3
-  #define CLCD_AUX_0          10               // PORTD2   BTN_EN2     Pin 5
-  #define CLCD_AUX_1          BEEPER_PIN       // PORTA4               Pin 1
+  #define CLCD_SOFT_SPI_SCLK             LCD_PINS_D4      // PORTA1               Pin 6
+  #define CLCD_SOFT_SPI_MOSI             LCD_PINS_ENABLE  // PORTC1               Pin 8
+  #define CLCD_SPI_CS                    LCD_PINS_RS      // PORTA3               Pin 7
+  #define CLCD_SOFT_SPI_MISO             16               // PORTC0   BTN_ENC     Pin 2
+  #define CLCD_MOD_RESET                 11               // PORTD3   BTN_EN1     Pin 3
+  #define CLCD_AUX_0                     10               // PORTD2   BTN_EN2     Pin 5
+  #define CLCD_AUX_1                     BEEPER_PIN       // PORTA4               Pin 1
 #endif
 
 /**
@@ -171,13 +153,4 @@
   #if MB(EINSY_RAMBO, EINSY_RETRO) && DISABLED(SDSUPPORT)
     #define CLCD_SPI_EXTRA_CS            SDSS
   #endif
-#endif
-
-#if EITHER(E3_EXP1_PINMAP, GENERIC_EXP2_PINMAP)
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
-
-  #define CLCD_MOD_RESET                 BTN_EN1
-  #define CLCD_SPI_CS                    LCD_PINS_RS
 #endif

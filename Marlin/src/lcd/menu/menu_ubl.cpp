@@ -438,8 +438,6 @@ void sync_plan_position();
 
 void _lcd_ubl_output_map_lcd() {
 
-  if (planner.movesplanned()) return;
-
   static int16_t step_scaler = 0;
 
   if (ui.use_click()) return _lcd_ubl_map_lcd_edit_cmd();
@@ -484,7 +482,8 @@ void _lcd_ubl_output_map_lcd() {
 
   if (ui.should_draw()) {
     ui.ubl_plot(x_plot, y_plot);
-    ubl_map_move_to_xy();       // Move to new location
+    if (!planner.movesplanned())
+      ubl_map_move_to_xy();       // Move to new location
   }
 }
 

@@ -597,15 +597,15 @@ void MarlinUI::draw_status_screen() {
     // Progress bar frame
     //
 
-    if (PAGE_CONTAINS(49, 52))
+    if (PAGE_CONTAINS(PROGRESS_BAR_Y, PROGRESS_BAR_Y + 3))
       u8g.drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
 
     //
     // Progress bar solid part
     //
 
-    if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
-      u8g.drawBox(PROGRESS_BAR_X + 1, 50, progress_bar_solid_width, 2);
+    if (PAGE_CONTAINS(PROGRESS_BAR_Y + 1, PROGRESS_BAR_Y + 2))
+      u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
@@ -695,19 +695,19 @@ void MarlinUI::draw_status_screen() {
         // Two-component mix / gradient instead of XY
 
         char mixer_messages[12];
-        const char *mix_label;
+        PGM_P mix_label;
         #if ENABLED(GRADIENT_MIX)
           if (mixer.gradient.enabled) {
             mixer.update_mix_from_gradient();
-            mix_label = "Gr";
+            mix_label = PSTR("Gr");
           }
           else
         #endif
           {
             mixer.update_mix_from_vtool();
-            mix_label = "Mx";
+            mix_label = PSTR("Mx");
           }
-        sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+        sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
         lcd_put_u8str(X_LABEL_POS, XYZ_BASELINE, mixer_messages);
 
       #else

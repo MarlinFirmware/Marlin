@@ -35,6 +35,12 @@
   #define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #endif
 
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#endif
+
 //
 // Servos
 //
@@ -340,13 +346,15 @@
 /**
  *          _____
  *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
- *  Enable | 3 4 | GPIO2    Reset  PG0   // Leave as unused (OK to leave floating)
- *   Reset | 5 6 | GPIO0    GPIO2  PF15  // Leave as unused (best to leave floating)
- *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (best to leave floating)
+ *  Enable | 3 4 | GPIO2    Reset  PG0   // active low, probably OK to leave floating
+ *   Reset | 5 6 | GPIO0    GPIO2  PF15  // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
  *           ￣￣
  *            W1
  */
-#define ESP_WIFI_MODULE_COM 6                     // Must also set SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           -1
+#define ESP_WIFI_MODULE_COM 6                         // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_BAUDRATE            BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+#define ESP_WIFI_MODULE_RESET_PIN           PG0
 #define ESP_WIFI_MODULE_ENABLE_PIN          PG1
+#define ESP_WIFI_MODULE_GPIO0_PIN           PF14
+#define ESP_WIFI_MODULE_GPIO2_PIN           PF15

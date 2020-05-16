@@ -328,9 +328,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Load Settings");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restore Defaults");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialize EEPROM");
-  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("Err: EEPROM CRC");
-  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("Err: EEPROM Index");
-  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("Err: EEPROM Version");
+  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("EEPROM CRC Error");
+  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("EEPROM Index Error");
+  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("EEPROM Version Error");
   PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Settings Stored");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Media Update");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Reset Printer");
@@ -344,6 +344,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("Stop");
   PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("Print");
   PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BUTTON_IGNORE                   = _UxGT("Ignore");
   PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Cancel");
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Done");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Back");
@@ -575,6 +576,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
+
+  PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Bad page index");
+  PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Bad page speed");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display

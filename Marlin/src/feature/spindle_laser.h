@@ -137,7 +137,7 @@ public:
 
   #if ENABLED(LASER_POWER_INLINE)
     // Force disengage planner power control
-    static inline void inline_disable() { planner.settings.laser.status = 0; planner.settings.laser.power = 0; isOn = false;}
+    static inline void inline_disable() { planner.laser.status = 0; planner.laser.power = 0; isOn = false;}
 
     // Inline modes of all other functions; all enable planner inline power control
     static inline void inline_enabled(const bool enable) { enable ? inline_power(SPEED_POWER_STARTUP) : inline_ocr_power(0); }
@@ -146,8 +146,8 @@ public:
       #if ENABLED(SPINDLE_LASER_PWM)
         inline_ocr_power(translate_power(pwr));
       #else
-        planner.settings.laser.status = enabled(pwr) ? 0x03 : 0x01;
-        planner.settings.laser.power = pwr;
+        planner.laser.status = enabled(pwr) ? 0x03 : 0x01;
+        planner.laser.power = pwr;
       #endif
     }
 
@@ -155,8 +155,8 @@ public:
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void inline_ocr_power(const uint8_t pwr) {
-        planner.settings.laser.status = pwr ? 0x03 : 0x01;
-        planner.settings.laser.power = pwr;
+        planner.laser.status = pwr ? 0x03 : 0x01;
+        planner.laser.power = pwr;
       }
     #endif
   #endif

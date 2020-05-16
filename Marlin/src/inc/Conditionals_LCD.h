@@ -408,7 +408,6 @@
 #if EXTRUDERS == 0
   #undef EXTRUDERS
   #define EXTRUDERS 0
-  #undef DISTINCT_E_FACTORS
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
@@ -513,12 +512,16 @@
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_E E_STEPPERS
   #define XYZE_N (XYZ + E_STEPPERS)
+  #define E_INDEX_N(E) (E)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
   #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
+  #define DISTINCT_E 1
   #define XYZE_N XYZE
+  #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
 #endif
@@ -567,7 +570,7 @@
 #if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
   #define HAS_Z_SERVO_PROBE 1
 #endif
-#if HAS_Z_SERVO_PROBE || EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+#if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
   #define HAS_SERVO_ANGLES 1
 #endif
 #if !HAS_SERVO_ANGLES
@@ -581,7 +584,7 @@
   #define HAS_BED_PROBE 1
 #endif
 
-#if HAS_BED_PROBE || EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
 
@@ -602,7 +605,7 @@
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
-    #if EXTRA_PROBING
+    #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
     #else
       #define TOTAL_PROBING MULTIPLE_PROBING
@@ -679,7 +682,7 @@
 #endif
 
 // This flag indicates some kind of jerk storage is needed
-#if ENABLED(CLASSIC_JERK) || IS_KINEMATIC
+#if EITHER(CLASSIC_JERK, IS_KINEMATIC)
   #define HAS_CLASSIC_JERK 1
 #endif
 
