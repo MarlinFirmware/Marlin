@@ -36,6 +36,11 @@
   #define S_FMT "%s"
 #endif
 
+// String helper
+#ifndef PGMSTR
+  #define PGMSTR(NAM,STR) constexpr char NAM[] = STR
+#endif
+
 inline void watchdog_refresh() {
   TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 }

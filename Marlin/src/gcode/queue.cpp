@@ -216,13 +216,12 @@ bool GCodeQueue::process_injected_command() {
     gcode.process_parsed_command();
   }
 
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wrestrict"
-
   // Copy the next command into place
-  strcpy(injected_commands, &injected_commands[i + (c != '\0')]);
-
-  #pragma GCC diagnostic pop
+  for (
+    uint8_t d = 0, s = i + !!c;                     // dst, src
+    (injected_commands[d] = injected_commands[s]);  // copy, exit if 0
+    d++, s++                                        // next dst, src
+  );
 
   return true;
 }
