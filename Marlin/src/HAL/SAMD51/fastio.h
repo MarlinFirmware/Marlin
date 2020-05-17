@@ -100,9 +100,9 @@
                                   PORT->Group[port].DIRCLR.reg = MASK(pin);                           \
                                 }while(0)
 // Set pin as PWM (push pull)
-#define SET_PWM(IO)             SET_OUTPUT(IO)
+#define SET_PWM                 SET_OUTPUT
 // Set pin as PWM (open drain)
-#define SET_PWM_OD(IO)          SET_OUTPUT_OD(IO)
+#define SET_PWM_OD              SET_OUTPUT_OD
 
 // check if pin is an output
 #define IS_OUTPUT(IO)            ((PORT->Group[(EPortType)GET_SAMD_PORT(IO)].DIR.reg & MASK(GET_SAMD_PIN(IO))) \

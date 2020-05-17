@@ -411,7 +411,7 @@ volatile bool Temperature::raw_temps_ready = false;
     if (target > GHV(BED_MAXTEMP - 10, temp_range[heater].maxtemp - 15)) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
+        ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
       #endif
       return;
     }
@@ -527,7 +527,7 @@ volatile bool Temperature::raw_temps_ready = false;
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
+          ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH);
         #endif
         break;
       }
@@ -572,7 +572,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
+          ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT);
         #endif
         SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -623,7 +623,7 @@ volatile bool Temperature::raw_temps_ready = false;
           printerEventLEDs.onPidTuningDone(color);
         #endif
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
+          ExtUI::onPidTuning(ExtUI::result_t::PID_DONE);
         #endif
 
         goto EXIT_M303;
@@ -637,7 +637,7 @@ volatile bool Temperature::raw_temps_ready = false;
       printerEventLEDs.onPidTuningDone(color);
     #endif
     #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::OnPidTuning(ExtUI::result_t::PID_DONE);
+      ExtUI::onPidTuning(ExtUI::result_t::PID_DONE);
     #endif
 
     EXIT_M303:
@@ -830,6 +830,9 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 }
 
 #if HOTENDS
+  #if ENABLED(PID_DEBUG)
+    extern bool PID_Debug_Flag;
+  #endif
 
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
@@ -911,24 +914,15 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       #endif // PID_OPENLOOP
 
       #if ENABLED(PID_DEBUG)
-        if (ee == active_extruder) {
+        if (ee == active_extruder && PID_Debug_Flag) {
           SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR(
-            STR_PID_DEBUG, ee,
-            STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius,
-            STR_PID_DEBUG_OUTPUT, pid_output
-          );
+          SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)
-          {
-            SERIAL_ECHOPAIR(
-              STR_PID_DEBUG_PTERM, work_pid[ee].Kp,
-              STR_PID_DEBUG_ITERM, work_pid[ee].Ki,
-              STR_PID_DEBUG_DTERM, work_pid[ee].Kd
+            SERIAL_ECHOPAIR( STR_PID_DEBUG_PTERM, work_pid[ee].Kp, STR_PID_DEBUG_ITERM, work_pid[ee].Ki, STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif
             );
-          }
           #endif
           SERIAL_EOL();
         }

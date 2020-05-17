@@ -35,11 +35,12 @@
 #include "Conditionals_post.h"
 #include HAL_PATH(../HAL, inc/Conditionals_post.h)
 
+#include "../core/types.h"  // Ahead of sanity-checks
+
 #include "SanityCheck.h"
 #include HAL_PATH(../HAL, inc/SanityCheck.h)
 
 // Include all core headers
-#include "../core/types.h"
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"

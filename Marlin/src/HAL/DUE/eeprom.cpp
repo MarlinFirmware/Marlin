@@ -27,7 +27,7 @@
 #if ENABLED(EEPROM_SETTINGS)
 
 #include "../../inc/MarlinConfig.h"
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
 
 #if !defined(E2END) && ENABLED(FLASH_EEPROM_EMULATION)
   #define E2END 0xFFF // Default to Flash emulated EEPROM size (EepromEmulation_Due.cpp)

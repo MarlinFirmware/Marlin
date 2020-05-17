@@ -49,7 +49,6 @@
 // public:
 
 card_flags_t CardReader::flag;
-uint8_t CardReader::sdprinting_done_state;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 int8_t CardReader::autostart_index;
 
@@ -1089,7 +1088,7 @@ void CardReader::fileHasFinished() {
       presort();
     #endif
 
-    sdprinting_done_state = 1;
+    marlin_state = MF_SD_COMPLETE;
   }
 }
 
