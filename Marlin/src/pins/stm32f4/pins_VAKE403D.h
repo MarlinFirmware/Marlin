@@ -28,7 +28,7 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
-#define BOARD_NAME           "STM32F4 VAkE"
+#define BOARD_INFO_NAME      "STM32F4 VAkE"
 
 //#define I2C_EEPROM
 
