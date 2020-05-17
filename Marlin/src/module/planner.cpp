@@ -135,7 +135,7 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm,         // (mm) M205 J
         Planner::d_theta_decay = 1.0f,                 // (1/mm) Fractional reduction of d_theta_indicator per mm traveled
-        Planner::d_theta_threshold = RADIANS(150.0f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
+        Planner::d_theta_threshold = RADIANS(100.0f);  // (rads/mm) Threshold for d_theta_indicator, resulting in recalculation of limit_sqr
   #if HAS_LINEAR_E_JERK
     float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
@@ -2292,11 +2292,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       normalize_junction_vector(unit_vec);
     #endif
 
-    float limit_sqr = 0.0f,       // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
-          junction_theta = 0.0f;  // Junction angle (rads)
-
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed_sqr)) {
+      float limit_sqr = 0.0f,       // Secondary limit on the segment entry velocity for small segments and junction angles > 135° (mm/s)^2
+            junction_theta = 0.0f;  // Junction angle (rads)
+
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
       float junction_cos_theta = (-prev_unit_vec.x * unit_vec.x) + (-prev_unit_vec.y * unit_vec.y)
@@ -2424,7 +2424,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           }
 		  
 		  // Dirty: Increment, but prevent integer overflow. We don't care about below_thresh_cnt, once it's past our threshold (3). But we can't let it flip to zero.
-          if (below_thresh_cnt < 255) {
+          if (below_thresh_cnt < 3) {
             below_thresh_cnt++;
           }
         }
@@ -2443,13 +2443,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       // Get the lowest speed
       vmax_junction_sqr = _MIN(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
+
+	  // Update previous_* variables, if changed
+      previous_limit_sqr = limit_sqr;
+      previous_junction_theta = junction_theta;
     }
     else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
       vmax_junction_sqr = 0;
 
     prev_unit_vec = unit_vec;
-    previous_limit_sqr = limit_sqr;
-    previous_junction_theta = junction_theta;
 
   #endif
 
