@@ -162,7 +162,7 @@
 #define STR_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define STR_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
 #define STR_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
-#define STR_ERR_MESH_XY                     "Mesh point cannot be resolved"
+#define STR_ERR_MESH_XY                     "Mesh point out of range"
 #define STR_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define STR_ERR_PROTECTED_PIN               "Protected Pin"
 #define STR_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
