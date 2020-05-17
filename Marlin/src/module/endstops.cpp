@@ -742,7 +742,8 @@ void Endstops::update() {
     }
   #endif
 
-  // Now, we must signal, after validation, if an endstop limit is pressed or not
+  // Signal, after validation, if an endstop limit is pressed or not
+
   if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_DIR < 0)
@@ -804,19 +805,37 @@ void Endstops::update() {
   bool Endstops::tmc_spi_homing_check() {
     bool hit = false;
     #if X_SPI_SENSORLESS
-      if (tmc_spi_homing.x && stepperX.test_stall_status()) {
+      if (tmc_spi_homing.x && (stepperX.test_stall_status()
+        #if CORE_IS_XY && Y_SPI_SENSORLESS
+          || stepperY.test_stall_status()
+        #elif CORE_IS_XZ && Z_SPI_SENSORLESS
+          || stepperZ.test_stall_status()
+        #endif
+      )) {
         SBI(live_state, X_STOP);
         hit = true;
       }
     #endif
     #if Y_SPI_SENSORLESS
-      if (tmc_spi_homing.y && stepperY.test_stall_status()) {
+      if (tmc_spi_homing.y && (stepperY.test_stall_status()
+        #if CORE_IS_XY && X_SPI_SENSORLESS
+          || stepperX.test_stall_status()
+        #elif CORE_IS_YZ && Z_SPI_SENSORLESS
+          || stepperZ.test_stall_status()
+        #endif
+      )) {
         SBI(live_state, Y_STOP);
         hit = true;
       }
     #endif
     #if Z_SPI_SENSORLESS
-      if (tmc_spi_homing.z && stepperZ.test_stall_status()) {
+      if (tmc_spi_homing.z && (stepperZ.test_stall_status()
+        #if CORE_IS_XZ && X_SPI_SENSORLESS
+          || stepperX.test_stall_status()
+        #elif CORE_IS_YZ && Y_SPI_SENSORLESS
+          || stepperY.test_stall_status()
+        #endif
+      )) {
         SBI(live_state, Z_STOP);
         hit = true;
       }

@@ -230,6 +230,10 @@ uint32_t Stepper::advance_divisor = 0,
   uint32_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
 #endif
 
+#if ENABLED(DIRECT_STEPPING)
+  page_step_state_t Stepper::page_step_state;
+#endif
+
 int32_t Stepper::ticks_nominal = -1;
 #if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
@@ -1520,11 +1524,7 @@ void Stepper::pulse_phase_isr() {
   // If we must abort the current block, do so!
   if (abort_current_block) {
     abort_current_block = false;
-    if (current_block) {
-      axis_did_move = 0;
-      current_block = nullptr;
-      planner.discard_current_block();
-    }
+    if (current_block) discard_current_block();
   }
 
   // If there is no current block, do nothing
@@ -1558,46 +1558,160 @@ void Stepper::pulse_phase_isr() {
       } \
     }while(0)
 
-    // Start an active pulse, if Bresenham says so, and update position
+    // Start an active pulse if needed
     #define PULSE_START(AXIS) do{ \
       if (step_needed[_AXIS(AXIS)]) { \
         _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
 
-    // Stop an active pulse, if any, and adjust error term
+    // Stop an active pulse if needed
     #define PULSE_STOP(AXIS) do { \
       if (step_needed[_AXIS(AXIS)]) { \
         _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
 
-    // Determine if pulses are needed
-    #if HAS_X_STEP
-      PULSE_PREP(X);
-    #endif
-    #if HAS_Y_STEP
-      PULSE_PREP(Y);
-    #endif
-    #if HAS_Z_STEP
-      PULSE_PREP(Z);
-    #endif
+    // Direct Stepping page?
+    const bool is_page = IS_PAGE(current_block);
 
-    #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
-      delta_error.e += advance_dividend.e;
-      if (delta_error.e >= 0) {
-        count_position.e += count_direction.e;
-        #if ENABLED(LIN_ADVANCE)
-          delta_error.e -= advance_divisor;
-          // Don't step E here - But remember the number of steps to perform
-          motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
+    #if ENABLED(DIRECT_STEPPING)
+
+      if (is_page) {
+
+        #if STEPPER_PAGE_FORMAT == SP_4x4D_128
+
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE, MID) do{ \
+                 if ((VALUE) == MID) {}                     \
+            else if ((VALUE) <  MID) SBI(dm, _AXIS(AXIS));  \
+            else                     CBI(dm, _AXIS(AXIS));  \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE;        \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;       \
+          }while(0)
+
+          #define PAGE_PULSE_PREP(AXIS) do{ \
+            step_needed[_AXIS(AXIS)] =      \
+              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7]); \
+          }while(0)
+
+          switch (page_step_state.segment_steps) {
+            case 8:
+              page_step_state.segment_idx += 2;
+              page_step_state.segment_steps = 0;
+              // fallthru
+            case 0: {
+              const uint8_t low = page_step_state.page[page_step_state.segment_idx],
+                           high = page_step_state.page[page_step_state.segment_idx + 1];
+              uint8_t dm = last_direction_bits;
+
+              PAGE_SEGMENT_UPDATE(X, low >> 4, 7);
+              PAGE_SEGMENT_UPDATE(Y, low & 0xF, 7);
+              PAGE_SEGMENT_UPDATE(Z, high >> 4, 7);
+              PAGE_SEGMENT_UPDATE(E, high & 0xF, 7);
+
+              if (dm != last_direction_bits) {
+                last_direction_bits = dm;
+                set_directions();
+              }
+            } break;
+
+            default: break;
+          }
+
+          PAGE_PULSE_PREP(X),
+          PAGE_PULSE_PREP(Y),
+          PAGE_PULSE_PREP(Z),
+          PAGE_PULSE_PREP(E);
+
+          page_step_state.segment_steps++;
+
+        #elif STEPPER_PAGE_FORMAT == SP_4x2_256
+
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE; \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;
+
+          #define PAGE_PULSE_PREP(AXIS) do{ \
+            step_needed[_AXIS(AXIS)] =      \
+              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3]); \
+          }while(0)
+
+          switch (page_step_state.segment_steps) {
+            case 4:
+              page_step_state.segment_idx++;
+              page_step_state.segment_steps = 0;
+              // fallthru
+            case 0: {
+              const uint8_t b = page_step_state.page[page_step_state.segment_idx];
+              PAGE_SEGMENT_UPDATE(X, (b >> 6) & 0x3);
+              PAGE_SEGMENT_UPDATE(Y, (b >> 4) & 0x3);
+              PAGE_SEGMENT_UPDATE(Z, (b >> 2) & 0x3);
+              PAGE_SEGMENT_UPDATE(E, (b >> 0) & 0x3);
+            } break;
+            default: break;
+          }
+
+          PAGE_PULSE_PREP(X);
+          PAGE_PULSE_PREP(Y);
+          PAGE_PULSE_PREP(Z);
+          PAGE_PULSE_PREP(E);
+
+          page_step_state.segment_steps++;
+
+        #elif STEPPER_PAGE_FORMAT == SP_4x1_512
+
+          #define PAGE_PULSE_PREP(AXIS, BITS) do{             \
+            step_needed[_AXIS(AXIS)] = (steps >> BITS) & 0x1; \
+            if (step_needed[_AXIS(AXIS)])                     \
+              page_step_state.bd[_AXIS(AXIS)]++;              \
+          }while(0)
+
+          uint8_t steps = page_step_state.page[page_step_state.segment_idx >> 1];
+
+          if (page_step_state.segment_idx & 0x1) steps >>= 4;
+
+          PAGE_PULSE_PREP(X, 3);
+          PAGE_PULSE_PREP(Y, 2);
+          PAGE_PULSE_PREP(Z, 1);
+          PAGE_PULSE_PREP(E, 0);
+
+          page_step_state.segment_idx++;
+
         #else
-          step_needed.e = true;
+          #error "Unknown direct stepping page format!"
         #endif
       }
-    #elif HAS_E0_STEP
-      PULSE_PREP(E);
-    #endif
+
+    #endif // DIRECT_STEPPING
+
+    if (!is_page) {
+      // Determine if pulses are needed
+      #if HAS_X_STEP
+        PULSE_PREP(X);
+      #endif
+      #if HAS_Y_STEP
+        PULSE_PREP(Y);
+      #endif
+      #if HAS_Z_STEP
+        PULSE_PREP(Z);
+      #endif
+
+      #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
+        delta_error.e += advance_dividend.e;
+        if (delta_error.e >= 0) {
+          count_position.e += count_direction.e;
+          #if ENABLED(LIN_ADVANCE)
+            delta_error.e -= advance_divisor;
+            // Don't step E here - But remember the number of steps to perform
+            motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
+          #else
+            step_needed.e = true;
+          #endif
+        }
+      #elif HAS_E0_STEP
+        PULSE_PREP(E);
+      #endif
+    }
 
     #if ISR_MULTI_STEPS
       if (firstStep)
@@ -1676,14 +1790,28 @@ uint32_t Stepper::block_phase_isr() {
   // If there is a current block
   if (current_block) {
 
-    // If current block is finished, reset pointer
+    // If current block is finished, reset pointer and finalize state
     if (step_events_completed >= step_event_count) {
+      #if ENABLED(DIRECT_STEPPING)
+        #if STEPPER_PAGE_FORMAT == SP_4x4D_128
+          #define PAGE_SEGMENT_UPDATE_POS(AXIS) \
+            count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] - 128 * 7;
+        #elif STEPPER_PAGE_FORMAT == SP_4x1_512 || STEPPER_PAGE_FORMAT == SP_4x2_256
+          #define PAGE_SEGMENT_UPDATE_POS(AXIS) \
+            count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] * count_direction[_AXIS(AXIS)];
+        #endif
+
+        if (IS_PAGE(current_block)) {
+          PAGE_SEGMENT_UPDATE_POS(X);
+          PAGE_SEGMENT_UPDATE_POS(Y);
+          PAGE_SEGMENT_UPDATE_POS(Z);
+          PAGE_SEGMENT_UPDATE_POS(E);
+        }
+      #endif
       #ifdef FILAMENT_RUNOUT_DISTANCE_MM
         runout.block_completed(current_block);
       #endif
-      axis_did_move = 0;
-      current_block = nullptr;
-      planner.discard_current_block();
+      discard_current_block();
     }
     else {
       // Step events not completed yet...
@@ -1867,7 +1995,7 @@ uint32_t Stepper::block_phase_isr() {
       // Sync block? Sync the stepper counts and return
       while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
         _set_position(current_block->position);
-        planner.discard_current_block();
+        discard_current_block();
 
         // Try to get a new block
         if (!(current_block = planner.get_current_block()))
@@ -1877,6 +2005,23 @@ uint32_t Stepper::block_phase_isr() {
       TERN_(HAS_CUTTER, cutter.apply_power(current_block->cutter_power));
 
       TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = current_block->sdpos);
+
+      #if ENABLED(DIRECT_STEPPING)
+        if (IS_PAGE(current_block)) {
+          page_step_state.segment_steps = 0;
+          page_step_state.segment_idx = 0;
+          page_step_state.page = page_manager.get_page(current_block->page_idx);
+          page_step_state.bd.reset();
+
+          if (DirectStepping::Config::DIRECTIONAL)
+            current_block->direction_bits = last_direction_bits;
+
+          if (!page_step_state.page) {
+            discard_current_block();
+            return interval;
+          }
+        }
+      #endif
 
       // Flag all moving axes for proper endstop handling
 
@@ -2094,11 +2239,11 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(LASER_POWER_INLINE_CONTINUOUS)
       else { // No new block found; so apply inline laser parameters
         // This should mean ending file with 'M5 I' will stop the laser; thus the inline flag isn't needed
-        const uint8_t stat = planner.settings.laser.status;
+        const uint8_t stat = planner.laser.status;
         if (TEST(stat, 0)) {             // Planner controls the laser
           #if ENABLED(SPINDLE_LASER_PWM)
             if (TEST(stat, 1))           // Laser is on
-              cutter.set_ocr_power(planner.settings.laser.power);
+              cutter.set_ocr_power(planner.laser.power);
             else
               cutter.set_power(0);
           #else
@@ -3275,95 +3420,76 @@ void Stepper::report_positions() {
   }
 
   void Stepper::microstep_readings() {
-    SERIAL_ECHOLNPGM("MS1|MS2|MS3 Pins");
+    #define PIN_CHAR(P) SERIAL_CHAR('0' + READ(P##_PIN))
+    #define MS_LINE(A)  do{ SERIAL_ECHOPGM(" " STRINGIFY(A) ":"); PIN_CHAR(A##_MS1); PIN_CHAR(A##_MS2); }while(0)
+    SERIAL_ECHOPGM("MS1|2|3 Pins");
     #if HAS_X_MS_PINS
-      SERIAL_ECHOPGM("X: ");
-      SERIAL_CHAR('0' + READ(X_MS1_PIN), '0' + READ(X_MS2_PIN)
-        #if PIN_EXISTS(X_MS3)
-          , '0' + READ(X_MS3_PIN)
-        #endif
-      );
+      MS_LINE(X);
+      #if PIN_EXISTS(X_MS3)
+        PIN_CHAR(X_MS3);
+      #endif
     #endif
     #if HAS_Y_MS_PINS
-      SERIAL_ECHOPGM("Y: ");
-      SERIAL_CHAR('0' + READ(Y_MS1_PIN), '0' + READ(Y_MS2_PIN)
-        #if PIN_EXISTS(Y_MS3)
-          , '0' + READ(Y_MS3_PIN)
-        #endif
-      );
+      MS_LINE(Y);
+      #if PIN_EXISTS(Y_MS3)
+        PIN_CHAR(Y_MS3);
+      #endif
     #endif
     #if HAS_Z_MS_PINS
-      SERIAL_ECHOPGM("Z: ");
-      SERIAL_CHAR('0' + READ(Z_MS1_PIN), '0' + READ(Z_MS2_PIN)
-        #if PIN_EXISTS(Z_MS3)
-          , '0' + READ(Z_MS3_PIN)
-        #endif
-      );
+      MS_LINE(Z);
+      #if PIN_EXISTS(Z_MS3)
+        PIN_CHAR(Z_MS3);
+      #endif
     #endif
     #if HAS_E0_MS_PINS
-      SERIAL_ECHOPGM("E0: ");
-      SERIAL_CHAR('0' + READ(E0_MS1_PIN), '0' + READ(E0_MS2_PIN)
-        #if PIN_EXISTS(E0_MS3)
-          , '0' + READ(E0_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E0);
+      #if PIN_EXISTS(E0_MS3)
+        PIN_CHAR(E0_MS3);
+      #endif
     #endif
     #if HAS_E1_MS_PINS
-      SERIAL_ECHOPGM("E1: ");
-      SERIAL_CHAR('0' + READ(E1_MS1_PIN), '0' + READ(E1_MS2_PIN)
-        #if PIN_EXISTS(E1_MS3)
-          , '0' + READ(E1_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E1);
+      #if PIN_EXISTS(E1_MS3)
+        PIN_CHAR(E1_MS3);
+      #endif
     #endif
     #if HAS_E2_MS_PINS
-      SERIAL_ECHOPGM("E2: ");
-      SERIAL_CHAR('0' + READ(E2_MS1_PIN), '0' + READ(E2_MS2_PIN)
-        #if PIN_EXISTS(E2_MS3)
-          , '0' + READ(E2_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E2);
+      #if PIN_EXISTS(E2_MS3)
+        PIN_CHAR(E2_MS3);
+      #endif
     #endif
     #if HAS_E3_MS_PINS
-      SERIAL_ECHOPGM("E3: ");
-      SERIAL_CHAR('0' + READ(E3_MS1_PIN), '0' + READ(E3_MS2_PIN)
-        #if PIN_EXISTS(E3_MS3)
-          , '0' + READ(E3_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E3);
+      #if PIN_EXISTS(E3_MS3)
+        PIN_CHAR(E3_MS3);
+      #endif
     #endif
     #if HAS_E4_MS_PINS
-      SERIAL_ECHOPGM("E4: ");
-      SERIAL_CHAR('0' + READ(E4_MS1_PIN), '0' + READ(E4_MS2_PIN)
-        #if PIN_EXISTS(E4_MS3)
-          , '0' + READ(E4_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E4);
+      #if PIN_EXISTS(E4_MS3)
+        PIN_CHAR(E4_MS3);
+      #endif
     #endif
     #if HAS_E5_MS_PINS
-      SERIAL_ECHOPGM("E5: ");
-      SERIAL_CHAR('0' + READ(E5_MS1_PIN), '0' + READ(E5_MS2_PIN)
-        #if PIN_EXISTS(E5_MS3)
-          , '0' + READ(E5_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E5);
+      #if PIN_EXISTS(E5_MS3)
+        PIN_CHAR(E5_MS3);
+      #endif
     #endif
     #if HAS_E6_MS_PINS
-      SERIAL_ECHOPGM("E6: ");
-      SERIAL_CHAR('0' + READ(E6_MS1_PIN), '0' + READ(E6_MS2_PIN)
-        #if PIN_EXISTS(E6_MS3)
-          , '0' + READ(E6_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E6);
+      #if PIN_EXISTS(E6_MS3)
+        PIN_CHAR(E6_MS3);
+      #endif
     #endif
     #if HAS_E7_MS_PINS
-      SERIAL_ECHOPGM("E7: ");
-      SERIAL_CHAR('0' + READ(E7_MS1_PIN), '0' + READ(E7_MS2_PIN)
-        #if PIN_EXISTS(E7_MS3)
-          , '0' + READ(E7_MS3_PIN)
-        #endif
-      );
+      MS_LINE(E7);
+      #if PIN_EXISTS(E7_MS3)
+        PIN_CHAR(E7_MS3);
+      #endif
     #endif
+    SERIAL_EOL();
   }
 
 #endif // HAS_MICROSTEPS

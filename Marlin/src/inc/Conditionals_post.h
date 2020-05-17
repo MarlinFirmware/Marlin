@@ -1549,6 +1549,9 @@
   #define HAS_E_STEPPER_ENABLE 1
 #endif
 
+#if ANY_AXIS_HAS(HW_SERIAL)
+  #define HAS_TMC_HW_SERIAL 1
+#endif
 #if ANY_AXIS_HAS(SW_SERIAL)
   #define HAS_TMC_SW_SERIAL 1
 #endif
@@ -1583,6 +1586,15 @@
 #endif
 #if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
+#endif
+#if _HAS_STOP(X,STOP)
+  #define HAS_X_STOP 1
+#endif
+#if _HAS_STOP(Y,STOP)
+  #define HAS_Y_STOP 1
+#endif
+#if _HAS_STOP(Z,STOP)
+  #define HAS_Z_STOP 1
 #endif
 #if PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
@@ -1781,7 +1793,7 @@
   #define HAS_AUTO_CHAMBER_FAN 1
 #endif
 
-#if HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3 || HAS_AUTO_FAN_4 || HAS_AUTO_FAN_5 || HAS_AUTO_FAN_6 || HAS_AUTO_FAN_7 || HAS_AUTO_CHAMBER_FAN
+#if ANY(HAS_AUTO_FAN_0, HAS_AUTO_FAN_1, HAS_AUTO_FAN_2, HAS_AUTO_FAN_3, HAS_AUTO_FAN_4, HAS_AUTO_FAN_5, HAS_AUTO_FAN_6, HAS_AUTO_FAN_7, HAS_AUTO_CHAMBER_FAN)
   #define HAS_AUTO_FAN 1
 #endif
 #define _FANOVERLAP(A,B) (A##_AUTO_FAN_PIN == E##B##_AUTO_FAN_PIN)
@@ -1889,13 +1901,13 @@
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
-#if HAS_Z_MS_PINS || HAS_Z2_MS_PINS || HAS_Z3_MS_PINS || HAS_Z4_MS_PINS
+#if ANY(HAS_Z_MS_PINS, HAS_Z2_MS_PINS, HAS_Z3_MS_PINS, HAS_Z4_MS_PINS)
   #define HAS_SOME_Z_MS_PINS 1
 #endif
-#if HAS_E0_MS_PINS || HAS_E1_MS_PINS || HAS_E2_MS_PINS || HAS_E3_MS_PINS || HAS_E4_MS_PINS || HAS_E5_MS_PINS || HAS_E6_MS_PINS || HAS_E7_MS_PINS
+#if ANY(HAS_E0_MS_PINS, HAS_E1_MS_PINS, HAS_E2_MS_PINS, HAS_E3_MS_PINS, HAS_E4_MS_PINS, HAS_E5_MS_PINS, HAS_E6_MS_PINS, HAS_E7_MS_PINS)
   #define HAS_SOME_E_MS_PINS 1
 #endif
-#if HAS_X_MS_PINS || HAS_X2_MS_PINS || HAS_Y_MS_PINS || HAS_Y2_MS_PINS || HAS_SOME_Z_MICROSTEPS || HAS_SOME_E_MS_PINS
+#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_SOME_E_MS_PINS)
   #define HAS_MICROSTEPS 1
 #endif
 
@@ -2335,9 +2347,13 @@
   #undef MESH_MAX_Y
 #endif
 
-#if defined(PROBE_PT_1_X) && defined(PROBE_PT_2_X) && defined(PROBE_PT_3_X) && defined(PROBE_PT_1_Y) && defined(PROBE_PT_2_Y) && defined(PROBE_PT_3_Y)
+#define _POINT_COUNT (defined(PROBE_PT_1_X) + defined(PROBE_PT_2_X) + defined(PROBE_PT_3_X) + defined(PROBE_PT_1_Y) + defined(PROBE_PT_2_Y) + defined(PROBE_PT_3_Y))
+#if _POINT_COUNT == 6
   #define HAS_FIXED_3POINT 1
+#elif _POINT_COUNT > 0
+  #error "For 3-Point Leveling all XY points must be defined (or none for the defaults)."
 #endif
+#undef _POINT_COUNT
 
 /**
  * Buzzer/Speaker
