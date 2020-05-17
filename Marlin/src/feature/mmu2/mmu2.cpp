@@ -160,7 +160,7 @@ uint8_t MMU2::get_current_tool() {
   return extruder == MMU2_NO_TOOL ? -1 : extruder;
 }
 
-#if ENABLED(MMU_EXTRUDER_SENSOR)
+#if EITHER(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR)
   #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING)
 #endif
 
