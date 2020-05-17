@@ -381,8 +381,9 @@ volatile bool Temperature::raw_temps_ready = false;
       #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
       #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
     #endif
+    #define WATCH_PID (WATCH_BED && ENABLED(PIDTEMPBED)) || (WATCH_HOTENDS && ENABLED(PIDTEMP))
 
-    #if WATCH_BED || WATCH_HOTENDS
+    #if WATCH_PID
       #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
       #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
         #define GTV(B,H) (isbed ? (B) : (H))
@@ -528,7 +529,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_temp_ms = ms + 2000UL;
 
         // Make sure heating is actually working
-        #if WATCH_BED || WATCH_HOTENDS
+        #if WATCH_PID
           if (BOTH(WATCH_BED, WATCH_HOTENDS) || isbed == DISABLED(WATCH_HOTENDS)) {
             if (!heated) {                                            // If not yet reached target...
               if (current_temp > next_watch_temp) {                   // Over the watch temp?
