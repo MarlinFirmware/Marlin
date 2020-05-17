@@ -179,7 +179,7 @@
     report_xyze(from_steppers);
 
     const xyze_float_t diff = from_steppers - leveled;
-    SERIAL_ECHOPGM("Diff: ");
+    SERIAL_ECHOPGM("Diff:   ");
     report_xyze(diff);
   }
 
