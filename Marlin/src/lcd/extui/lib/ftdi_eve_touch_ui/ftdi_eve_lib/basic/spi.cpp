@@ -38,6 +38,11 @@ namespace FTDI {
     SET_OUTPUT(CLCD_SPI_CS);
     WRITE(CLCD_SPI_CS, 1);
 
+    #ifdef CLCD_SPI_EXTRA_CS
+      SET_OUTPUT(CLCD_SPI_EXTRA_CS);
+      WRITE(CLCD_SPI_EXTRA_CS, 1);
+    #endif
+
     #ifdef SPI_FLASH_SS
       SET_OUTPUT(SPI_FLASH_SS);
       WRITE(SPI_FLASH_SS, 1);
@@ -111,12 +116,18 @@ namespace FTDI {
       ::SPI.beginTransaction(spi_settings);
     #endif
     WRITE(CLCD_SPI_CS, 0);
+    #ifdef CLCD_SPI_EXTRA_CS
+      WRITE(CLCD_SPI_EXTRA_CS, 0);
+    #endif
     delayMicroseconds(1);
   }
 
   // CLCD SPI - Chip Deselect
   void SPI::spi_ftdi_deselect() {
     WRITE(CLCD_SPI_CS, 1);
+    #ifdef CLCD_SPI_EXTRA_CS
+      WRITE(CLCD_SPI_EXTRA_CS, 1);
+    #endif
     #ifndef CLCD_USE_SOFT_SPI
       ::SPI.endTransaction();
     #endif

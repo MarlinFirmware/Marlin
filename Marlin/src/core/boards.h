@@ -144,6 +144,7 @@
 #define BOARD_LEAPFROG_XEED2015       1321  // Leapfrog Xeed 2015
 #define BOARD_PICA_REVB               1322  // PICA Shield (original version)
 #define BOARD_PICA                    1323  // PICA Shield (rev C or later)
+#define BOARD_INTAMSYS40              1324  // Intamsys 4.0 (Funmat HT)
 
 //
 // ATmega1281, ATmega2561

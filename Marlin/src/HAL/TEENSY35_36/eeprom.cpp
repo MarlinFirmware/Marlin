@@ -21,13 +21,14 @@
  *
  */
 
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
-#include "../shared/persistent_store_api.h"
+#include "../shared/eeprom_api.h"
+#include <avr/eeprom.h>
 
 bool PersistentStore::access_start() { return true; }
 bool PersistentStore::access_finish() { return true; }
@@ -66,4 +67,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS
-#endif // STM32GENERIC && (STM32F4 || STM32F7)
+#endif // __MK64FX512__ || __MK66FX1M0__

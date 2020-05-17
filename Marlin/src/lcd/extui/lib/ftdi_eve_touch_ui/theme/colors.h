@@ -24,121 +24,149 @@
 #pragma once
 
 namespace Theme {
-  #ifdef TOUCH_UI_LULZBOT_BIO
-    // The Lulzbot Bio uses the color PANTONE 2175C on the case silkscreen.
-    // This translates to HSL(208°, 100%, 39%) as an accent color on the GUI.
+  #if ENABLED(TOUCH_UI_COCOA_THEME)
+    constexpr int      accent_hue           = 23;
 
-    constexpr int   accent_hue          = 208;
-    constexpr float accent_sat          = 0.5;
-
-    constexpr uint32_t logo_bg_rgb      = 0xffffff;
-    constexpr uint32_t logo_fill_rgb    = 0xffffff;
-    constexpr uint32_t logo_stroke_rgb  = hsl_to_rgb(accent_hue, 1.0, 0.39);
+    // Browns and Oranges
+    constexpr uint32_t accent_color_1       = hsl_to_rgb(12.8,0.597,0.263); // Darkest
+    constexpr uint32_t accent_color_2       = hsl_to_rgb(12.8,0.597,0.263);
+    constexpr uint32_t accent_color_3       = hsl_to_rgb( 9.6,0.664,0.443);
+    constexpr uint32_t accent_color_4       = hsl_to_rgb(16.3,0.873,0.537);
+    constexpr uint32_t accent_color_5       = hsl_to_rgb(23.0,0.889,0.539);
+    constexpr uint32_t accent_color_6       = hsl_to_rgb(23.0,0.889,0.539); // Lightest
   #else
-    // The Lulzbot logo uses the color PANTONE 382c.
-    // This translates to HSL(68°, 68%, 52%) as an accent color on the GUI.
+    // Use linear accent colors
 
-    constexpr int   accent_hue          = 68;
-    constexpr float accent_sat          = 0.68;
+    #if ANY(TOUCH_UI_ROYAL_THEME, TOUCH_UI_FROZEN_THEME)
+        // Dark blue accent colors
+        constexpr int      accent_hue       = 216;
+        constexpr float    accent_sat       = 0.7;
+    #else
+        // Green accent colors
+        constexpr int      accent_hue       = 68;
+        constexpr float    accent_sat       = 0.68;
+    #endif
 
-    constexpr uint32_t logo_bg_rgb      = hsl_to_rgb(accent_hue, 0.77, 0.64);
-    constexpr uint32_t logo_fill_rgb    = hsl_to_rgb(accent_hue, 0.68, 0.52); // Lulzbot Green
-    constexpr uint32_t logo_stroke_rgb  = 0x000000;
-  #endif
-
-  // Shades of accent color
-
-  #ifdef TOUCH_UI_COCOA_PRESS
-    constexpr uint32_t accent_color_1   = hsl_to_rgb(12.8,0.597,0.263); // Darkest
-    constexpr uint32_t accent_color_2   = hsl_to_rgb(12.8,0.597,0.263);
-    constexpr uint32_t accent_color_3   = hsl_to_rgb( 9.6,0.664,0.443);
-    constexpr uint32_t accent_color_4   = hsl_to_rgb(16.3,0.873,0.537);
-    constexpr uint32_t accent_color_5   = hsl_to_rgb(23.0,0.889,0.539);
-    constexpr uint32_t accent_color_6   = hsl_to_rgb(23.0,0.889,0.539); // Lightest
-  #else
-    constexpr uint32_t accent_color_1   = hsl_to_rgb(accent_hue, accent_sat, 0.26); // Darkest
-    constexpr uint32_t accent_color_2   = hsl_to_rgb(accent_hue, accent_sat, 0.39);
-    constexpr uint32_t accent_color_3   = hsl_to_rgb(accent_hue, accent_sat, 0.52);
-    constexpr uint32_t accent_color_4   = hsl_to_rgb(accent_hue, accent_sat, 0.65);
-    constexpr uint32_t accent_color_5   = hsl_to_rgb(accent_hue, accent_sat, 0.78);
-    constexpr uint32_t accent_color_6   = hsl_to_rgb(accent_hue, accent_sat, 0.91); // Lightest
+    // Shades of accent color
+    constexpr uint32_t accent_color_0       = hsl_to_rgb(accent_hue, accent_sat, 0.15); // Darkest
+    constexpr uint32_t accent_color_1       = hsl_to_rgb(accent_hue, accent_sat, 0.26);
+    constexpr uint32_t accent_color_2       = hsl_to_rgb(accent_hue, accent_sat, 0.39);
+    constexpr uint32_t accent_color_3       = hsl_to_rgb(accent_hue, accent_sat, 0.52);
+    constexpr uint32_t accent_color_4       = hsl_to_rgb(accent_hue, accent_sat, 0.65);
+    constexpr uint32_t accent_color_5       = hsl_to_rgb(accent_hue, accent_sat, 0.78);
+    constexpr uint32_t accent_color_6       = hsl_to_rgb(accent_hue, accent_sat, 0.91); // Lightest
   #endif
 
   // Shades of gray
 
-  constexpr float gray_sat = 0.14;
+  constexpr float    gray_sat               = 0.14;
+  constexpr uint32_t gray_color_0           = hsl_to_rgb(accent_hue, gray_sat, 0.15); // Darkest
+  constexpr uint32_t gray_color_1           = hsl_to_rgb(accent_hue, gray_sat, 0.26);
+  constexpr uint32_t gray_color_2           = hsl_to_rgb(accent_hue, gray_sat, 0.39);
+  constexpr uint32_t gray_color_3           = hsl_to_rgb(accent_hue, gray_sat, 0.52);
+  constexpr uint32_t gray_color_4           = hsl_to_rgb(accent_hue, gray_sat, 0.65);
+  constexpr uint32_t gray_color_5           = hsl_to_rgb(accent_hue, gray_sat, 0.78);
+  constexpr uint32_t gray_color_6           = hsl_to_rgb(accent_hue, gray_sat, 0.91); // Lightest
 
-  constexpr uint32_t gray_color_1       = hsl_to_rgb(accent_hue, gray_sat, 0.26); // Darkest
-  constexpr uint32_t gray_color_2       = hsl_to_rgb(accent_hue, gray_sat, 0.39);
-  constexpr uint32_t gray_color_3       = hsl_to_rgb(accent_hue, gray_sat, 0.52);
-  constexpr uint32_t gray_color_4       = hsl_to_rgb(accent_hue, gray_sat, 0.65);
-  constexpr uint32_t gray_color_5       = hsl_to_rgb(accent_hue, gray_sat, 0.78);
-  constexpr uint32_t gray_color_6       = hsl_to_rgb(accent_hue, gray_sat, 0.91); // Lightest
+  #if ENABLED(TOUCH_UI_ROYAL_THEME)
+    constexpr uint32_t theme_darkest        = accent_color_1;
+    constexpr uint32_t theme_dark           = accent_color_4;
 
-  #if NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
-    // Lulzbot TAZ Pro
-    constexpr uint32_t theme_darkest    = gray_color_1;
-    constexpr uint32_t theme_dark       = gray_color_2;
+    constexpr uint32_t bg_color             = gray_color_0;
+    constexpr uint32_t axis_label           = gray_color_1;
 
-    constexpr uint32_t bg_color         = theme_darkest;
-    constexpr uint32_t bg_text_disabled = theme_dark;
-    constexpr uint32_t bg_text_enabled  = 0xFFFFFF;
-    constexpr uint32_t bg_normal        = theme_darkest;
+    constexpr uint32_t bg_text_enabled      = accent_color_6;
+    constexpr uint32_t bg_text_disabled     = gray_color_0;
+    constexpr uint32_t bg_normal            = accent_color_4;
+    constexpr uint32_t fg_disabled          = gray_color_0;
+    constexpr uint32_t fg_normal            = accent_color_0;
+    constexpr uint32_t fg_action            = accent_color_1;
 
-    constexpr uint32_t fg_normal        = theme_dark;
-    constexpr uint32_t fg_action        = accent_color_2;
-    constexpr uint32_t fg_disabled      = theme_darkest;
+    constexpr uint32_t logo_bg_rgb          = accent_color_1;
+    constexpr uint32_t logo_fill_rgb        = accent_color_0;
+    constexpr uint32_t logo_stroke_rgb      = accent_color_4;
+  #elif ANY(TOUCH_UI_COCOA_THEME, TOUCH_UI_FROZEN_THEME)
+    constexpr uint32_t theme_darkest        = accent_color_1;
+    constexpr uint32_t theme_dark           = accent_color_4;
+
+    constexpr uint32_t bg_color             = 0xFFFFFF;
+    constexpr uint32_t axis_label           = gray_color_5;
+
+    constexpr uint32_t bg_text_enabled      = accent_color_1;
+    constexpr uint32_t bg_text_disabled     = gray_color_1;
+    constexpr uint32_t bg_normal            = accent_color_4;
+    constexpr uint32_t fg_disabled          = gray_color_6;
+    constexpr uint32_t fg_normal            = accent_color_1;
+    constexpr uint32_t fg_action            = accent_color_4;
+
+    constexpr uint32_t logo_bg_rgb          = accent_color_5;
+    constexpr uint32_t logo_fill_rgb        = accent_color_6;
+    constexpr uint32_t logo_stroke_rgb      = accent_color_2;
   #else
-    // Lulzbot Bio
-    constexpr uint32_t theme_darkest    = accent_color_1;
-    constexpr uint32_t theme_dark       = accent_color_4;
+    constexpr uint32_t theme_darkest        = gray_color_1;
+    constexpr uint32_t theme_dark           = gray_color_2;
 
-    constexpr uint32_t bg_color         = 0xFFFFFF;
-    constexpr uint32_t bg_text_disabled = gray_color_1;
-    constexpr uint32_t bg_text_enabled  = accent_color_1;
-    constexpr uint32_t bg_normal        = accent_color_4;
+    constexpr uint32_t bg_color             = gray_color_1;
+    constexpr uint32_t axis_label           = gray_color_2;
 
-    constexpr uint32_t fg_normal        = accent_color_1;
-    constexpr uint32_t fg_action        = accent_color_4;
-    constexpr uint32_t fg_disabled      = gray_color_6;
+    constexpr uint32_t bg_text_enabled      = 0xFFFFFF;
+    constexpr uint32_t bg_text_disabled     = gray_color_2;
+    constexpr uint32_t bg_normal            = gray_color_1;
+    constexpr uint32_t fg_disabled          = gray_color_1;
+    constexpr uint32_t fg_normal            = gray_color_2;
+    constexpr uint32_t fg_action            = accent_color_2;
 
-    constexpr uint32_t shadow_rgb       = gray_color_6;
-    constexpr uint32_t stroke_rgb       = accent_color_1;
-    constexpr uint32_t fill_rgb         = accent_color_3;
-    constexpr uint32_t syringe_rgb      = accent_color_5;
+    constexpr uint32_t logo_bg_rgb          = accent_color_4;
+    constexpr uint32_t logo_fill_rgb        = accent_color_3;
+    constexpr uint32_t logo_stroke_rgb      = 0x000000;
   #endif
 
-  constexpr uint32_t x_axis             = 0xFF0000;
-  constexpr uint32_t y_axis             = 0x00BB00;
-  constexpr uint32_t z_axis             = 0x0000BF;
-  constexpr uint32_t e_axis             = gray_color_2;
-  constexpr uint32_t feedrate           = gray_color_2;
-  constexpr uint32_t other              = gray_color_2;
+  constexpr uint32_t shadow_rgb             = gray_color_6;
+  constexpr uint32_t stroke_rgb             = accent_color_1;
+  constexpr uint32_t fill_rgb               = accent_color_3;
+  constexpr uint32_t syringe_rgb            = accent_color_5;
+
+  #if ENABLED(TOUCH_UI_ROYAL_THEME)
+    constexpr uint32_t x_axis               = hsl_to_rgb(0,   1.00, 0.26);
+    constexpr uint32_t y_axis               = hsl_to_rgb(120, 1.00, 0.13);
+    constexpr uint32_t z_axis               = hsl_to_rgb(240, 1.00, 0.10); 
+  #else
+    constexpr uint32_t x_axis               = hsl_to_rgb(0,   1.00, 0.5);
+    constexpr uint32_t y_axis               = hsl_to_rgb(120, 1.00, 0.37);
+    constexpr uint32_t z_axis               = hsl_to_rgb(240, 1.00, 0.37);
+  #endif
+  constexpr uint32_t e_axis                 = axis_label;
+  constexpr uint32_t feedrate               = axis_label;
+  constexpr uint32_t other                  = axis_label;
 
   // Status screen
-  constexpr uint32_t progress           = gray_color_2;
-  constexpr uint32_t status_msg         = gray_color_2;
-  constexpr uint32_t fan_speed          = 0x377198;
-  constexpr uint32_t temp               = 0x892c78;
-  constexpr uint32_t axis_label         = gray_color_2;
+  constexpr uint32_t progress               = axis_label;
+  constexpr uint32_t status_msg             = axis_label;
+  #if ENABLED(TOUCH_UI_ROYAL_THEME)
+    constexpr uint32_t fan_speed            = hsl_to_rgb(240, 0.5, 0.13);
+    constexpr uint32_t temp                 = hsl_to_rgb(343, 1.0, 0.23);
+  #else
+    constexpr uint32_t fan_speed            = hsl_to_rgb(204, 0.47, 0.41);
+    constexpr uint32_t temp                 = hsl_to_rgb(311, 0.51, 0.35);
+  #endif
 
-  constexpr uint32_t disabled_icon      = gray_color_1;
+  constexpr uint32_t disabled_icon          = gray_color_1;
 
   // Calibration Registers Screen
-  constexpr uint32_t transformA         = 0x3010D0;
-  constexpr uint32_t transformB         = 0x4010D0;
-  constexpr uint32_t transformC         = 0x5010D0;
-  constexpr uint32_t transformD         = 0x6010D0;
-  constexpr uint32_t transformE         = 0x7010D0;
-  constexpr uint32_t transformF         = 0x8010D0;
-  constexpr uint32_t transformVal       = 0x104010;
+  constexpr uint32_t transformA             = 0x3010D0;
+  constexpr uint32_t transformB             = 0x4010D0;
+  constexpr uint32_t transformC             = 0x5010D0;
+  constexpr uint32_t transformD             = 0x6010D0;
+  constexpr uint32_t transformE             = 0x7010D0;
+  constexpr uint32_t transformF             = 0x8010D0;
+  constexpr uint32_t transformVal           = 0x104010;
 
-  constexpr btn_colors disabled_btn     = {.bg = bg_color,      .grad = fg_disabled, .fg = fg_disabled,  .rgb = fg_disabled };
-  constexpr btn_colors normal_btn       = {.bg = fg_action,     .grad = 0xFFFFFF,    .fg = fg_normal,    .rgb = 0xFFFFFF };
-  constexpr btn_colors action_btn       = {.bg = bg_color,      .grad = 0xFFFFFF,    .fg = fg_action,    .rgb = 0xFFFFFF };
-  constexpr btn_colors red_btn          = {.bg = 0xFF5555,      .grad = 0xFFFFFF,    .fg = 0xFF0000,     .rgb = 0xFFFFFF };
-  constexpr btn_colors ui_slider        = {.bg = theme_darkest, .grad = 0xFFFFFF,    .fg = theme_dark,   .rgb = accent_color_3 };
-  constexpr btn_colors ui_toggle        = {.bg = theme_darkest, .grad = 0xFFFFFF,    .fg = theme_dark,   .rgb = 0xFFFFFF };
+  constexpr btn_colors disabled_btn         = {.bg = bg_color,      .grad = fg_disabled, .fg = fg_disabled,  .rgb = fg_disabled };
+  constexpr btn_colors normal_btn           = {.bg = fg_action,     .grad = 0xFFFFFF,    .fg = fg_normal,    .rgb = 0xFFFFFF };
+  constexpr btn_colors action_btn           = {.bg = bg_color,      .grad = 0xFFFFFF,    .fg = fg_action,    .rgb = 0xFFFFFF };
+  constexpr btn_colors red_btn              = {.bg = 0xFF5555,      .grad = 0xFFFFFF,    .fg = 0xFF0000,     .rgb = 0xFFFFFF };
+  constexpr btn_colors ui_slider            = {.bg = theme_darkest, .grad = 0xFFFFFF,    .fg = theme_dark,   .rgb = accent_color_3 };
+  constexpr btn_colors ui_toggle            = {.bg = theme_darkest, .grad = 0xFFFFFF,    .fg = theme_dark,   .rgb = 0xFFFFFF };
 
   // Temperature color scale
 

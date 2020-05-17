@@ -134,15 +134,6 @@ static bool ensure_safe_temperature(const PauseMode mode=PAUSE_MODE_SAME) {
   return thermalManager.wait_for_hotend(active_extruder);
 }
 
-void do_pause_e_move(const float &length, const feedRate_t &fr_mm_s) {
-  #if HAS_FILAMENT_SENSOR
-    runout.reset();
-  #endif
-  current_position.e += length / planner.e_factor[active_extruder];
-  line_to_current_position(fr_mm_s);
-  planner.synchronize();
-}
-
 /**
  * Load filament into the hotend
  *
@@ -184,7 +175,6 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #endif
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;    // LCD click or M108 will clear this
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
@@ -218,7 +208,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #endif
 
   // Slow Load filament
-  if (slow_load_length) do_pause_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
+  if (slow_load_length) unscaled_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
 
   // Fast Load Filament
   if (fast_load_length) {
@@ -227,7 +217,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       planner.settings.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
     #endif
 
-    do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
+    unscaled_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
 
     #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
       planner.settings.retract_acceleration = saved_acceleration;
@@ -246,15 +236,15 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       if (show_lcd) lcd_pause_show_message(PAUSE_MESSAGE_PURGE);
     #endif
 
-    wait_for_user = true;
     #if ENABLED(HOST_PROMPT_SUPPORT)
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Filament Purging..."), CONTINUE_STR);
     #endif
     #if ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired_P(PSTR("Filament Purging..."));
     #endif
+    wait_for_user = true; // A click or M108 breaks the purge_length loop
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
-      do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
+      unscaled_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
     wait_for_user = false;
 
   #else
@@ -267,7 +257,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
         #endif
 
         // Extrude filament to get into hotend
-        do_pause_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
+        unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -332,13 +322,13 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   #endif
 
   // Retract filament
-  do_pause_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
+  unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
 
   // Wait for filament to cool
   safe_delay(FILAMENT_UNLOAD_PURGE_DELAY);
 
   // Quickly purge
-  do_pause_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
+  unscaled_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
                   (FILAMENT_UNLOAD_PURGE_FEEDRATE) * mix_multiplier);
 
   // Unload filament
@@ -347,7 +337,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
   #endif
 
-  do_pause_e_move(unload_length * mix_multiplier, (FILAMENT_CHANGE_UNLOAD_FEEDRATE) * mix_multiplier);
+  unscaled_e_move(unload_length * mix_multiplier, (FILAMENT_CHANGE_UNLOAD_FEEDRATE) * mix_multiplier);
 
   #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
     planner.settings.retract_acceleration = saved_acceleration;
@@ -437,7 +427,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
 
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
-    do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+    unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
   if (!axes_need_homing())
@@ -508,13 +498,13 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
   // Wait for filament insert by user and press button
   KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;    // LCD click or M108 will clear this
   #if ENABLED(HOST_PROMPT_SUPPORT)
     host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Nozzle Parked"), CONTINUE_STR);
   #endif
   #if ENABLED(EXTENSIBLE_UI)
     ExtUI::onUserConfirmRequired_P(PSTR("Nozzle Parked"));
   #endif
+  wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
     #if HAS_BUZZER
       filament_change_beep(max_beep_count);
@@ -540,8 +530,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         ExtUI::onUserConfirmRequired_P(PSTR("HeaterTimeout"));
       #endif
 
-      // Wait for LCD click or M108
-      while (wait_for_user) idle_no_sleep();
+      wait_for_user_response(0, true); // Wait for LCD click or M108
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
         host_prompt_do(PROMPT_INFO, PSTR("Reheating"));
@@ -633,11 +622,11 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #if ENABLED(FWRETRACT)
     // If retracted before goto pause
     if (fwretract.retracted[active_extruder])
-      do_pause_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+      unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
   // If resume_position is negative
-  if (resume_position.e < 0) do_pause_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+  if (resume_position.e < 0) unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
@@ -646,7 +635,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   #if ADVANCED_PAUSE_RESUME_PRIME != 0
-    do_pause_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
+    unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
   #endif
 
   // Now all extrusion positions are resumed and ready to be confirmed
