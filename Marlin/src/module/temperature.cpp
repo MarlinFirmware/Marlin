@@ -215,7 +215,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     if (target >= FAN_COUNT) return;
 
     PORT_REDIRECT(SERIAL_BOTH);
-    SERIAL_ECHOLNPAIR("M106 F", target, ":", fan_speed[target]);
+    SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
     PORT_RESTORE();
   }
 
