@@ -159,7 +159,7 @@
   #include "feature/runout.h"
 #endif
 
-#if ENABLED(HOTEND_PROTECTION)
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
   #include "feature/hotend_protect.h"
 #endif
 
@@ -531,7 +531,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   TERN_(AUTO_POWER_CONTROL, powerManager.check());
 
-  TERN_(HOTEND_PROTECTION, hotend_protection());
+  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP

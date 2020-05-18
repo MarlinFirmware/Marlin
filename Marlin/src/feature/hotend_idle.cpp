@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,36 +21,37 @@
  */
 
 /**
- * Hotend Protection
+ * Hotend Idle Timeout
  * Prevent filament in the nozzle from charring and causing a critical jam.
  */
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(HOTEND_PROTECTION)
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
 
-#include "hotend_protect.h"
+#include "hotend_idle.h"
 #include "../gcode/gcode.h"
 
 #include "../module/temperature.h"
 #include "../module/motion.h"
 #include "../lcd/ultralcd.h"
 
-constexpr millis_t hp_interval = MIN_TO_MS(HP_TIMEOUT);
-static millis_t next_protect_ms = 0;
+extern HotendIdleProtection hotend_idle;
 
-inline void check_hotends(const millis_t &ms) {
-  bool prot = false;
+millis_t HotendIdleProtection::next_protect_ms = 0;
+
+void HotendIdleProtection::check_hotends(const millis_t &ms) {
+  bool do_prot = false;
   HOTEND_LOOP() {
-    if (thermalManager.degHotendNear(e, HP_MIN_TRIGGER)) {
-      prot = true; break;
+    if (thermalManager.degHotendNear(e, HOTEND_IDLE_MIN_TRIGGER)) {
+      do_prot = true; break;
     }
   }
-  if (bool(next_protect_ms) != prot)
-    next_protect_ms = prot ? ms + hp_interval : 0;
+  if (bool(next_protect_ms) != do_prot)
+    next_protect_ms = do_prot ? ms + hp_interval : 0;
 }
 
-inline void check_e_motion(const millis_t &ms) {
+void HotendIdleProtection::check_e_motion(const millis_t &ms) {
   static float old_e_position = 0;
   if (old_e_position != current_position.e) {
     old_e_position = current_position.e;          // Track filament motion
@@ -59,22 +60,7 @@ inline void check_e_motion(const millis_t &ms) {
   }
 }
 
-// Lower (but don't raise) hotend / bed temperatures
-inline void apply_hotend_protection() {
-  next_protect_ms = 0;
-  SERIAL_ECHOLNPGM("Hotend Protection");
-  LCD_MESSAGEPGM(MSG_HOTEND_PROTECTION);
-  HOTEND_LOOP() {
-    if ((HP_NOZZLE_TARGET) < thermalManager.degTargetHotend(e))
-      thermalManager.setTargetHotend(HP_NOZZLE_TARGET, e);
-  }
-  #if HAS_HEATED_BED
-    if ((HP_BED_TARGET) < thermalManager.degTargetBed())
-      thermalManager.setTargetBed(HP_BED_TARGET);
-  #endif
-}
-
-void hotend_protection() {
+void HotendIdleProtection::check() {
   const millis_t ms = millis();                   // Shared millis
 
   check_hotends(ms);                              // Any hotends need protection?
@@ -82,7 +68,22 @@ void hotend_protection() {
 
   // Hot and not moving for too long...
   if (next_protect_ms && ELAPSED(ms, next_protect_ms))
-    apply_hotend_protection();
+    timed_out();
 }
 
-#endif // HOTEND_PROTECTION
+// Lower (but don't raise) hotend / bed temperatures
+void HotendIdleProtection::timed_out() {
+  next_protect_ms = 0;
+  SERIAL_ECHOLNPGM("Hotend Idle Timeout");
+  LCD_MESSAGEPGM(MSG_HOTEND_IDLE_TIMEOUT);
+  HOTEND_LOOP() {
+    if ((HOTEND_IDLE_NOZZLE_TARGET) < thermalManager.degTargetHotend(e))
+      thermalManager.setTargetHotend(HOTEND_IDLE_NOZZLE_TARGET, e);
+  }
+  #if HAS_HEATED_BED
+    if ((HOTEND_IDLE_BED_TARGET) < thermalManager.degTargetBed())
+      thermalManager.setTargetBed(HOTEND_IDLE_BED_TARGET);
+  #endif
+}
+
+#endif // HOTEND_IDLE_TIMEOUT

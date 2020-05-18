@@ -331,15 +331,15 @@
 #endif
 
 /**
- * Hotend Protection
+ * Hotend Idle Timeout
  * Prevent filament in the nozzle from charring and causing a critical jam.
  */
-//#define HOTEND_PROTECTION
-#if ENABLED(HOTEND_PROTECTION)
-  #define HP_TIMEOUT         0.2   // (minutes) Time without extruder movement to trigger protection
-  #define HP_MIN_TRIGGER   180     // (°C) Minimum temperature to enable hotend protection
-  #define HP_NOZZLE_TARGET   0     // (°C) Safe temperature for the nozzle after timeout
-  #define HP_BED_TARGET      0     // (°C) Safe temperature for the bed after timeout
+//#define HOTEND_IDLE_TIMEOUT
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #define HOTEND_IDLE_DURATION_SEC    5     // (minutes) Time without extruder movement to trigger protection
+  #define HOTEND_IDLE_MIN_TRIGGER   180     // (°C) Minimum temperature to enable hotend protection
+  #define HOTEND_IDLE_NOZZLE_TARGET   0     // (°C) Safe temperature for the nozzle after timeout
+  #define HOTEND_IDLE_BED_TARGET      0     // (°C) Safe temperature for the bed after timeout
 #endif
 
 // @section temperature
@@ -3320,7 +3320,7 @@
    */
 
   //#define MMU_EXTRUDER_SENSOR
-  #if ENABLED(MMU_EXTRUDER_SENSOR) 
+  #if ENABLED(MMU_EXTRUDER_SENSOR)
     #define MMU_LOADING_ATTEMPTS_NR 5 //max. number of attempts to load filament if first load fail
   #endif
 

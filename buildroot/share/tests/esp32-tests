@@ -31,8 +31,8 @@ opt_set X_HARDWARE_SERIAL Serial1
 opt_set Y_HARDWARE_SERIAL Serial1
 opt_set Z_HARDWARE_SERIAL Serial1
 opt_set E0_HARDWARE_SERIAL Serial1
-opt_enable HOTEND_PROTECTION
-exec_test $1 $2 "ESP32, TMC HW Serial, Hotend Protection"
+opt_enable HOTEND_IDLE_TIMEOUT
+exec_test $1 $2 "ESP32, TMC HW Serial, Hotend Idle"
 
 # cleanup
 restore_configs
