@@ -2305,8 +2305,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         vmax_junction_sqr = junction_acceleration * junction_deviation_mm * sin_theta_d2 / (1.0f - sin_theta_d2);
 
-        // For small moves with >135° junction (octagon) find speed for approximate arc
-        if (block->millimeters < 1 && junction_cos_theta < -0.7071067812f) {
+        // For moves with >135° junction angle (octagon), find the speed for an equivalent circle segment
+        if (junction_cos_theta < -0.7071067812f) {
 
           #if ENABLED(JD_USE_MATH_ACOS)
 
@@ -2384,7 +2384,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           #endif
 
-          const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
+          const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta; // Using sin() small angle approximation
           NOMORE(vmax_junction_sqr, limit_sqr);
         }
       }
