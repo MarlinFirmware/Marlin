@@ -160,7 +160,7 @@
 #endif
 
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
-  #include "feature/hotend_protect.h"
+  #include "feature/hotend_idle.h"
 #endif
 
 #if ENABLED(TEMP_STAT_LEDS)
