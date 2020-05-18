@@ -419,7 +419,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      if (TERN_(PROBE_MANUALLY, !no_action)
+      if (TERN1(PROBE_MANUALLY, !no_action)
         && (gridSpacing != bilinear_grid_spacing || probe_position_lf != bilinear_start)
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
