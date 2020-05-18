@@ -381,15 +381,15 @@ volatile bool Temperature::raw_temps_ready = false;
       #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
       #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
     #endif
+    #define WATCH_PID BOTH(WATCH_BED, PIDTEMPBED) || BOTH(WATCH_HOTENDS, PIDTEMP)
 
-    #if WATCH_BED || WATCH_HOTENDS
-      #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
-      #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
+    #if WATCH_PID
+      #if ALL(THERMAL_PROTECTION_HOTENDS, PIDTEMP, THERMAL_PROTECTION_BED, PIDTEMPBED)
         #define GTV(B,H) (isbed ? (B) : (H))
-      #elif HAS_TP_BED
-        #define GTV(B,H) (B)
-      #else
+      #elif BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
         #define GTV(B,H) (H)
+      #else
+        #define GTV(B,H) (B)
       #endif
       const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
@@ -528,7 +528,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_temp_ms = ms + 2000UL;
 
         // Make sure heating is actually working
-        #if WATCH_BED || WATCH_HOTENDS
+        #if WATCH_PID
           if (BOTH(WATCH_BED, WATCH_HOTENDS) || isbed == DISABLED(WATCH_HOTENDS)) {
             if (!heated) {                                            // If not yet reached target...
               if (current_temp > next_watch_temp) {                   // Over the watch temp?
