@@ -130,7 +130,7 @@
 #endif
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      71
+  #define FIL_RUNOUT_PIN                      70
 #endif
 
 #ifndef PS_ON_PIN
