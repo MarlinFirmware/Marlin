@@ -2060,8 +2060,8 @@ void Temperature::disable_all_heaters() {
 
 #if HAS_MAX6675
 
-  #ifndef THERMOCOUPLE_MAX_BAD_READINGS
-    #define THERMOCOUPLE_MAX_BAD_READINGS 15
+  #ifndef THERMOCOUPLE_MAX_ERRORS
+    #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
 
   int Temperature::read_max6675(
@@ -2074,8 +2074,9 @@ void Temperature::disable_all_heaters() {
     #else
       // Needed to return the correct temp when this is called too soon
       static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
-      static uint8_t max6675_errors[COUNT_6675] = { 0 };
     #endif
+    
+    static uint8_t max6675_errors[COUNT_6675] = { 0 };
 
     #define MAX6675_HEAT_INTERVAL 250UL
 
@@ -2150,7 +2151,7 @@ void Temperature::disable_all_heaters() {
 
     if (max6675_temp & MAX6675_ERROR_MASK) {
       max6675_errors[hindex] += 1;
-      if (max6675_errors[hindex] > THERMOCOUPLE_MAX_BAD_READINGS) {
+      if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Temp measurement error! ");
         #if MAX6675_ERROR_MASK == 7
