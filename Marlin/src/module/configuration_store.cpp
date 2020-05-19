@@ -2819,16 +2819,21 @@ void MarlinSettings::reset() {
           CONFIG_ECHO_START();
           SERIAL_ECHOLNPAIR("  M200 L", LINEAR_UNIT(planner.volumetric_extruder_limit[0]));
         #endif
-      #elif EXTRUDERS
+      #elif EXTRUDERS > 1
         LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
           SERIAL_ECHOPGM("  M200");
           if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
           SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
-          #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-            SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(planner.volumetric_extruder_limit[i]));
-          #endif
         }
+        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+          LOOP_L_N(i, EXTRUDERS) {
+            CONFIG_ECHO_START();
+            SERIAL_ECHOPGM("  M200");
+            if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
+            SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(planner.volumetric_extruder_limit[i]));
+          }
+        #endif
       #endif
 
       if (!parser.volumetric_enabled)
