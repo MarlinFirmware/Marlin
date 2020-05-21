@@ -92,15 +92,26 @@
 //
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
-#define FAN_PIN                             PA8   // "FAN0"
+
+#ifdef SKR_MINI_E3_V2
+  #define FAN_PIN                           PC6
+#else
+  #define FAN_PIN                           PA8   // "FAN0"
+#endif
 
 //
 // USB connect control
 //
-#define USB_CONNECT_PIN                     PC13
+#ifdef SKR_MINI_E3_V2
+  #define USB_CONNECT_PIN                   PA14
+#else
+  #define USB_CONNECT_PIN                   PC13
+#endif
+
+
 #define USB_CONNECT_INVERTING false
 
-/**
+/** SKR Mini E3 V1.0, V1.2
  *                 _____
  *             5V | 1 2 | GND
  *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
@@ -111,18 +122,39 @@
  *                 EXP1
  */
 
+/** SKR Mini E3 V2.0
+ *                 _____
+ *             5V | 1 2 | GND
+ *  (LCD_EN) PB15 | 3 4 | PB8  (LCD_RS)
+ *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
+ *          RESET | 7 8 | PA9  (BTN_EN1)
+ * (BTN_ENC) PA15 | 9 10| PB5  (BEEPER)
+ *                 -----
+ *                 EXP1
+ */
 #if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN                      PB5
 
-    #define BTN_ENC                         PB6
+    #ifdef SKR_MINI_E3_V2
+      #define BTN_ENC                       PA15
+    #else
+      #define BTN_ENC                       PB6
+    #endif
+
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PB7
+
+    #ifdef SKR_MINI_E3_V2
+      #define LCD_PINS_ENABLE               PB15
+    #else
+      #define LCD_PINS_ENABLE               PB7
+    #endif
+
     #define LCD_PINS_D4                     PB9
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -130,7 +162,13 @@
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
 
     #define LCD_PINS_RS                     PB9
-    #define LCD_PINS_ENABLE                 PB6
+
+    #ifdef SKR_MINI_E3_V2
+      #define LCD_PINS_ENABLE               PA15
+    #else
+      #define LCD_PINS_ENABLE               PB6
+    #endif
+
     #define LCD_PINS_D4                     PB8
     #define LCD_PINS_D5                     PA10
     #define LCD_PINS_D6                     PA9
@@ -150,14 +188,25 @@
      *                    EXP1
      */
 
-    #define BTN_ENC                         PB6
+    #ifdef SKR_MINI_E3_V2
+      #define BTN_ENC                       PA15
+    #else
+      #define BTN_ENC                       PB6
+    #endif
+
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define DOGLCD_CS                       PB8
     #define DOGLCD_A0                       PB9
     #define DOGLCD_SCK                      PB5
-    #define DOGLCD_MOSI                     PB7
+
+    #ifdef SKR_MINI_E3_V2
+      #define DOGLCD_MOSI                   PB15
+    #else
+      #define DOGLCD_MOSI                   PB7
+    #endif
+
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
 
@@ -202,7 +251,11 @@
 
   #define CLCD_SPI_BUS 1                          // SPI1 connector
 
-  #define BEEPER_PIN                        PB6
+  #ifdef SKR_MINI_E3_V2
+    #define BEEPER_PIN                      PA15
+  #else
+    #define BEEPER_PIN                      PB6
+  #endif
 
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8
