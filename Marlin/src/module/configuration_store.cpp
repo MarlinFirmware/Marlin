@@ -2823,14 +2823,14 @@ void MarlinSettings::reset() {
         LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
           SERIAL_ECHOPGM("  M200");
-          if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
+          SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
           SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
         }
         #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
           LOOP_L_N(i, EXTRUDERS) {
             CONFIG_ECHO_START();
             SERIAL_ECHOPGM("  M200");
-            if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
+            SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
             SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(planner.volumetric_extruder_limit[i]));
           }
         #endif
