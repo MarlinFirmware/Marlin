@@ -35,19 +35,19 @@ using namespace ExtUI;
   #define GRID_ROWS 10
 
   #define MESH_POS    BTN_POS(1, 2), BTN_SIZE(2,5)
+  #define MESSAGE_POS BTN_POS(1, 7), BTN_SIZE(2,1)
   #define Z_LABEL_POS BTN_POS(1, 8), BTN_SIZE(1,1)
   #define Z_VALUE_POS BTN_POS(2, 8), BTN_SIZE(1,1)
-  #define WAIT_POS    BTN_POS(1, 8), BTN_SIZE(2,1)
-  #define BACK_POS    BTN_POS(1,10), BTN_SIZE(2,1)
+  #define OKAY_POS    BTN_POS(1,10), BTN_SIZE(2,1)
 #else
   #define GRID_COLS 5
   #define GRID_ROWS 5
 
-  #define MESH_POS       BTN_POS(1,1), BTN_SIZE(3,5)
-  #define Z_LABEL_POS    BTN_POS(4,2), BTN_SIZE(2,1)
-  #define Z_VALUE_POS    BTN_POS(4,3), BTN_SIZE(2,1)
-  #define WAIT_POS       BTN_POS(4,2), BTN_SIZE(2,2)
-  #define BACK_POS       BTN_POS(4,5), BTN_SIZE(2,1)
+  #define MESH_POS    BTN_POS(1,1), BTN_SIZE(3,5)
+  #define MESSAGE_POS BTN_POS(4,1), BTN_SIZE(2,1)
+  #define Z_LABEL_POS BTN_POS(4,2), BTN_SIZE(2,1)
+  #define Z_VALUE_POS BTN_POS(4,3), BTN_SIZE(2,1)
+  #define OKAY_POS    BTN_POS(4,5), BTN_SIZE(2,1)
 #endif
 
 void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max) {
@@ -238,7 +238,7 @@ void BedMeshScreen::drawHighlightedPointValue() {
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .text(Z_VALUE_POS, str)
      .colors(action_btn)
-     .tag(1).button( BACK_POS, GET_TEXT_F(MSG_BACK))
+     .tag(1).button( OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 }
 
@@ -261,7 +261,12 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
     constexpr float autoscale_max_amplitude = 0.03;
     const bool levelingFinished = screen_data.BedMeshScreen.count >= GRID_MAX_POINTS;
     const float levelingProgress = sq(float(screen_data.BedMeshScreen.count) / GRID_MAX_POINTS);
-    if (levelingFinished) drawHighlightedPointValue();
+    if (levelingFinished) {
+      drawHighlightedPointValue();
+      CommandProcessor cmd;
+      cmd.font(Theme::font_medium)
+         .text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_DONE));
+    }
 
     BedMeshScreen::drawMesh(INSET_POS(MESH_POS), ExtUI::getMeshArray(),
       USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (levelingFinished ? USE_COLORS : 0),

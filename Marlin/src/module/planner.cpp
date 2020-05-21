@@ -113,7 +113,7 @@
 
 Planner planner;
 
-  // public:
+// public:
 
 /**
  * A ring buffer of moves described in steps
@@ -128,26 +128,23 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
+#if ENABLED(LASER_POWER_INLINE)
+  laser_state_t Planner::laser;              // Current state for blocks
+#endif
+
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
 
-float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
+float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
-  float Planner::junction_deviation_mm;       // (mm) M205 J
-  #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(DISTINCT_E_FACTORS)
-      float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
-    #else
-      float Planner::max_e_jerk;
-    #endif
+  float Planner::junction_deviation_mm;         // (mm) M205 J
+  #if HAS_LINEAR_E_JERK
+    float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
   #endif
 #endif
+
 #if HAS_CLASSIC_JERK
-  #if HAS_LINEAR_E_JERK
-    xyz_pos_t Planner::max_jerk;              // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
-  #else
-    xyze_pos_t Planner::max_jerk;             // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
-  #endif
+  TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) Planner::max_jerk;
 #endif
 
 #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
@@ -156,6 +153,11 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
+#endif
+
+#if ENABLED(DIRECT_STEPPING)
+  uint32_t Planner::last_page_step_rate = 0;
+  xyze_bool_t Planner::last_page_dir{0};
 #endif
 
 #if EXTRUDERS
@@ -211,10 +213,9 @@ float Planner::previous_nominal_speed_sqr;
 #endif
 
 #ifdef XY_FREQUENCY_LIMIT
-  // Old direction bits. Used for speed calculations
-  unsigned char Planner::old_direction_bits = 0;
-  // Segment times (in µs). Used for speed calculations
-  xy_ulong_t Planner::axis_segment_time_us[3] = { { MAX_FREQ_TIME_US + 1, MAX_FREQ_TIME_US + 1 } };
+  int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
+  float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
+  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0 / (XY_FREQUENCY_LIMIT));
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -248,6 +249,10 @@ void Planner::init() {
   TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
   clear_block_buffer();
   delay_before_delivering = 0;
+  #if ENABLED(DIRECT_STEPPING)
+    last_page_step_rate = 0;
+    last_page_dir.reset();
+  #endif
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -919,7 +924,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
       streaming operating conditions. Use for planning optimizations by avoiding recomputing parts of the
       planner buffer that don't change with the addition of a new block, as describe above. In addition,
       this block can never be less than block_buffer_tail and will always be pushed forward and maintain
-      this requirement when encountered by the Planner::discard_current_block() routine during a cycle.
+      this requirement when encountered by the Planner::release_current_block() routine during a cycle.
 
   NOTE: Since the planner only computes on what's in the planner buffer, some motions with lots of short
   line segments, like G2/3 arcs or complex curves, may seem to move slow. This is because there simply isn't
@@ -1007,8 +1012,8 @@ void Planner::reverse_pass() {
     // Perform the reverse pass
     block_t *current = &block_buffer[block_index];
 
-    // Only consider non sync blocks
-    if (!TEST(current->flag, BLOCK_BIT_SYNC_POSITION)) {
+    // Only consider non sync and page blocks
+    if (!TEST(current->flag, BLOCK_BIT_SYNC_POSITION) && !IS_PAGE(current)) {
       reverse_pass_kernel(current, next);
       next = current;
     }
@@ -1102,8 +1107,8 @@ void Planner::forward_pass() {
     // Perform the forward pass
     block = &block_buffer[block_index];
 
-    // Skip SYNC blocks
-    if (!TEST(block->flag, BLOCK_BIT_SYNC_POSITION)) {
+    // Skip SYNC and page blocks
+    if (!TEST(block->flag, BLOCK_BIT_SYNC_POSITION) && !IS_PAGE(block)) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
       // the previous block became BUSY, so assume the current block's
@@ -1152,8 +1157,8 @@ void Planner::recalculate_trapezoids() {
 
     next = &block_buffer[block_index];
 
-    // Skip sync blocks
-    if (!TEST(next->flag, BLOCK_BIT_SYNC_POSITION)) {
+    // Skip sync and page blocks
+    if (!TEST(next->flag, BLOCK_BIT_SYNC_POSITION) && !IS_PAGE(next)) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
       if (block) {
@@ -1275,7 +1280,7 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint8_t tail_fan_speed[FAN_COUNT];
   #endif
 
@@ -1290,11 +1295,11 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if FAN_COUNT > 0 || ENABLED(BARICUDA)
+    #if HAS_FAN || ENABLED(BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
     #endif
@@ -1315,7 +1320,7 @@ void Planner::check_axes_activity() {
 
     TERN_(HAS_CUTTER, cutter.refresh());
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i)
         tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
     #endif
@@ -1337,7 +1342,7 @@ void Planner::check_axes_activity() {
   //
   // Update Fan speeds
   //
-  #if FAN_COUNT > 0
+  #if HAS_FAN
 
     #if FAN_KICKSTART_TIME > 0
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
@@ -1377,7 +1382,7 @@ void Planner::check_axes_activity() {
     TERN_(HAS_FAN5, FAN_SET(5));
     TERN_(HAS_FAN6, FAN_SET(6));
     TERN_(HAS_FAN7, FAN_SET(7));
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   TERN_(AUTOTEMP, getHighESpeed());
 
@@ -1822,8 +1827,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Update block laser power
   #if ENABLED(LASER_POWER_INLINE)
-    block->laser.status = settings.laser.status;
-    block->laser.power = settings.laser.power;
+    block->laser.status = laser.status;
+    block->laser.power = laser.power;
   #endif
 
   // Number of steps for each axis
@@ -1936,7 +1941,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
@@ -2036,7 +2041,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if EITHER(SLOWDOWN, ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
-    uint32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
+    int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
 
   #if ENABLED(SLOWDOWN)
@@ -2044,9 +2049,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #define SLOWDOWN_DIVISOR 2
     #endif
     if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / (SLOWDOWN_DIVISOR) - 1)) {
-      if (segment_time_us < settings.min_segment_time_us) {
-        // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        const uint32_t nst = segment_time_us + LROUND(2 * (settings.min_segment_time_us - segment_time_us) / moves_queued);
+      const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
+      if (time_diff > 0) {
+        // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
+        const int32_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
         inverse_secs = 1000000.0f / nst;
         #if defined(XY_FREQUENCY_LIMIT) || HAS_SPI_LCD
           segment_time_us = nst;
@@ -2125,42 +2131,36 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
   #endif
 
-  // Max segment time in µs.
   #ifdef XY_FREQUENCY_LIMIT
 
-    // Check and limit the xy direction change frequency
-    const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
-    old_direction_bits = block->direction_bits;
-    segment_time_us = LROUND((float)segment_time_us / speed_factor);
+    static uint8_t old_direction_bits; // = 0
 
-    uint32_t xs0 = axis_segment_time_us[0].x,
-             xs1 = axis_segment_time_us[1].x,
-             xs2 = axis_segment_time_us[2].x,
-             ys0 = axis_segment_time_us[0].y,
-             ys1 = axis_segment_time_us[1].y,
-             ys2 = axis_segment_time_us[2].y;
+    if (xy_freq_limit_hz) {
+      // Check and limit the xy direction change frequency
+      const uint8_t direction_change = block->direction_bits ^ old_direction_bits;
+      old_direction_bits = block->direction_bits;
+      segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
-    if (TEST(direction_change, X_AXIS)) {
-      xs2 = axis_segment_time_us[2].x = xs1;
-      xs1 = axis_segment_time_us[1].x = xs0;
-      xs0 = 0;
+      static int32_t xs0, xs1, xs2, ys0, ys1, ys2;
+      if (segment_time_us > xy_freq_min_interval_us)
+        xs2 = xs1 = ys2 = ys1 = xy_freq_min_interval_us;
+      else {
+        xs2 = xs1; xs1 = xs0;
+        ys2 = ys1; ys1 = ys0;
+      }
+      xs0 = TEST(direction_change, X_AXIS) ? segment_time_us : xy_freq_min_interval_us;
+      ys0 = TEST(direction_change, Y_AXIS) ? segment_time_us : xy_freq_min_interval_us;
+
+      if (segment_time_us < xy_freq_min_interval_us) {
+        const int32_t least_xy_segment_time = _MIN(_MAX(xs0, xs1, xs2), _MAX(ys0, ys1, ys2));
+        if (least_xy_segment_time < xy_freq_min_interval_us) {
+          float freq_xy_feedrate = (speed_factor * least_xy_segment_time) / xy_freq_min_interval_us;
+          NOLESS(freq_xy_feedrate, xy_freq_min_speed_factor);
+          NOMORE(speed_factor, freq_xy_feedrate);
+        }
+      }
     }
-    xs0 = axis_segment_time_us[0].x = xs0 + segment_time_us;
 
-    if (TEST(direction_change, Y_AXIS)) {
-      ys2 = axis_segment_time_us[2].y = axis_segment_time_us[1].y;
-      ys1 = axis_segment_time_us[1].y = axis_segment_time_us[0].y;
-      ys0 = 0;
-    }
-    ys0 = axis_segment_time_us[0].y = ys0 + segment_time_us;
-
-    const uint32_t max_x_segment_time = _MAX(xs0, xs1, xs2),
-                   max_y_segment_time = _MAX(ys0, ys1, ys2),
-                   min_xy_segment_time = _MIN(max_x_segment_time, max_y_segment_time);
-    if (min_xy_segment_time < MAX_FREQ_TIME_US) {
-      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
-      NOMORE(speed_factor, low_sf);
-    }
   #endif // XY_FREQUENCY_LIMIT
 
   // Correct the speed
@@ -2198,15 +2198,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     #if ENABLED(LIN_ADVANCE)
 
-      #if HAS_JUNCTION_DEVIATION
-        #if ENABLED(DISTINCT_E_FACTORS)
-          #define MAX_E_JERK max_e_jerk[extruder]
-        #else
-          #define MAX_E_JERK max_e_jerk
-        #endif
-      #else
-        #define MAX_E_JERK max_jerk.e
-      #endif
+      #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
        *
@@ -2238,7 +2230,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (block->e_D_ratio > 3.0f)
           block->use_advance_lead = false;
         else {
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K[active_extruder] * block->e_D_ratio) * steps_per_mm;
+          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[active_extruder] * block->e_D_ratio) * steps_per_mm;
           if (TERN0(LA_DEBUG, accel > max_accel_steps_per_s2))
             SERIAL_ECHOLNPGM("Acceleration limited.");
           NOMORE(accel, max_accel_steps_per_s2);
@@ -2246,24 +2238,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       }
     #endif
 
-    #if ENABLED(DISTINCT_E_FACTORS)
-      #define ACCEL_IDX extruder
-    #else
-      #define ACCEL_IDX 0
-    #endif
-
     // Limit acceleration per axis
     if (block->step_event_count <= cutoff_long) {
       LIMIT_ACCEL_LONG(A_AXIS, 0);
       LIMIT_ACCEL_LONG(B_AXIS, 0);
       LIMIT_ACCEL_LONG(C_AXIS, 0);
-      LIMIT_ACCEL_LONG(E_AXIS, ACCEL_IDX);
+      LIMIT_ACCEL_LONG(E_AXIS, E_INDEX_N(extruder));
     }
     else {
       LIMIT_ACCEL_FLOAT(A_AXIS, 0);
       LIMIT_ACCEL_FLOAT(B_AXIS, 0);
       LIMIT_ACCEL_FLOAT(C_AXIS, 0);
-      LIMIT_ACCEL_FLOAT(E_AXIS, ACCEL_IDX);
+      LIMIT_ACCEL_FLOAT(E_AXIS, E_INDEX_N(extruder));
     }
   }
   block->acceleration_steps_per_s2 = accel;
@@ -2330,16 +2316,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         { steps_dist_mm.x, steps_dist_mm.y, steps_dist_mm.z, steps_dist_mm.e }
       #endif
     ;
-    unit_vec *= inverse_millimeters;
 
-    #if IS_CORE && HAS_JUNCTION_DEVIATION
-      /**
-       * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
-       * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
-       * => normalize the complete junction vector
-       */
-      normalize_junction_vector(unit_vec);
-    #endif
+    /**
+     * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
+     * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
+     * => normalize the complete junction vector.
+     * Elsewise, when needed JD factors in the E component
+     */
+    if (ENABLED(IS_CORE) || esteps > 0)
+      normalize_junction_vector(unit_vec);  // Normalize with XYZE components
+    else
+      unit_vec *= inverse_millimeters;      // Use pre-calculated (1 / SQRT(x^2 + y^2 + z^2))
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed_sqr)) {
@@ -2363,30 +2350,89 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec),
                     sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
 
-        vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0f - sin_theta_d2);
+        vmax_junction_sqr = junction_acceleration * junction_deviation_mm * sin_theta_d2 / (1.0f - sin_theta_d2);
 
-        if (block->millimeters < 1) {
-          // Fast acos approximation (max. error +-0.033 rads)
-          // Based on MinMax polynomial published by W. Randolph Franklin, see
-          // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
-          // (acos(x) = pi / 2 - asin(x))
+        // For small moves with >135° junction (octagon) find speed for approximate arc
+        if (block->millimeters < 1 && junction_cos_theta < -0.7071067812f) {
 
-          const float neg = junction_cos_theta < 0 ? -1 : 1,
-                      t = neg * junction_cos_theta,
-                      asinx =       0.032843707f
-                            + t * (-1.451838349f
-                            + t * ( 29.66153956f
-                            + t * (-131.1123477f
-                            + t * ( 262.8130562f
-                            + t * (-242.7199627f + t * 84.31466202f) )))),
-                      junction_theta = RADIANS(90) - neg * asinx;
+          #if ENABLED(JD_USE_MATH_ACOS)
 
-          // If angle is greater than 135 degrees (octagon), find speed for approximate arc
-          if (junction_theta > RADIANS(135)) {
-            // NOTE: MinMax acos approximation and thereby also junction_theta top out at pi-0.033, which avoids division by 0
-            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
-            NOMORE(vmax_junction_sqr, limit_sqr);
-          }
+            #error "TODO: Inline maths with the MCU / FPU."
+
+          #elif ENABLED(JD_USE_LOOKUP_TABLE)
+
+            // Fast acos approximation (max. error +-0.01 rads)
+            // Based on LUT table and linear interpolation
+
+            /**
+             *  // Generate the JD Lookup Table
+             *  constexpr float c = 1.00751317f; // Correction factor to center error around 0
+             *  for (int i = 0; i < jd_lut_count - 1; ++i) {
+             *    const float x0 = (sq(i) - 1) / sq(i),
+             *                y0 = acos(x0) * (i ? c : 1),
+             *                x1 = 0.5 * x0 + 0.5,
+             *                y1 = acos(x1) * c;
+             *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
+             *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
+             *  }
+             *  jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
+             *
+             *  // Compute correction factor (Set c to 1.0f first!)
+             *  float min = INFINITY, max = -min;
+             *  for (float t = 0; t <= 1; t += 0.0003f) {
+             *    const float e = acos(t) / approx(t);
+             *    if (isfinite(e)) {
+             *      if (e < min) min = e;
+             *      if (e > max) max = e;
+             *    }
+             *  }
+             *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
+             */
+            static constexpr int16_t  jd_lut_count = 15;
+            static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
+            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count
+            static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
+              -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
+              -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
+              -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
+            static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
+              1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
+              4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
+              26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
+
+            const float neg = junction_cos_theta < 0 ? -1 : 1,
+                        t = neg * junction_cos_theta;
+
+            const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+
+            float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
+            if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
+
+          #else
+
+            // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
+            // Based on MinMax polynomial published by W. Randolph Franklin, see
+            // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
+            //  acos( t) = pi / 2 - asin(x)
+            //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
+
+            const float neg = junction_cos_theta < 0 ? -1 : 1,
+                        t = neg * junction_cos_theta,
+                        asinx =       0.032843707f
+                              + t * (-1.451838349f
+                              + t * ( 29.66153956f
+                              + t * (-131.1123477f
+                              + t * ( 262.8130562f
+                              + t * (-242.7199627f
+                              + t * ( 84.31466202f ) ))))),
+                        junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+
+            // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
+
+          #endif
+
+          const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
+          NOMORE(vmax_junction_sqr, limit_sqr);
         }
       }
 
@@ -2422,19 +2468,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     // Start with a safe speed (from which the machine may halt to stop immediately).
     float safe_speed = nominal_speed;
 
-    #ifdef TRAVEL_EXTRA_XYJERK
-      const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
-    #else
-      constexpr float extra_xyjerk = 0;
+    #ifndef TRAVEL_EXTRA_XYJERK
+      #define TRAVEL_EXTRA_XYJERK 0
     #endif
+    const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
 
     uint8_t limited = 0;
-    #if HAS_LINEAR_E_JERK
-      LOOP_XYZ(i)
-    #else
-      LOOP_XYZE(i)
-    #endif
-    {
+    TERN(HAS_LINEAR_E_JERK, LOOP_XYZ, LOOP_XYZE)(i) {
       const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
                   maxj = (max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f)); // mj : The max jerk setting for this axis
       if (jerk > maxj) {                          // cs > mj : New current speed too fast?
@@ -2508,9 +2548,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     previous_safe_speed = safe_speed;
 
     #if HAS_JUNCTION_DEVIATION
-      vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(vmax_junction));
+      NOMORE(vmax_junction_sqr, sq(vmax_junction));   // Throttle down to max speed
     #else
-      vmax_junction_sqr = sq(vmax_junction);
+      vmax_junction_sqr = sq(vmax_junction);          // Go up or down to the new speed
     #endif
 
   #endif // Classic Jerk Limiting
@@ -2737,6 +2777,69 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
   #endif
 } // buffer_line()
 
+#if ENABLED(DIRECT_STEPPING)
+
+  void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
+    if (!last_page_step_rate) {
+      kill(GET_TEXT(MSG_BAD_PAGE_SPEED));
+      return;
+    }
+
+    uint8_t next_buffer_head;
+    block_t * const block = get_next_free_block(next_buffer_head);
+
+    block->flag = BLOCK_FLAG_IS_PAGE;
+
+    #if FAN_COUNT > 0
+      FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
+    #endif
+
+    #if EXTRUDERS > 1
+      block->extruder = extruder;
+    #endif
+
+    block->page_idx = page_idx;
+
+    block->step_event_count = num_steps;
+    block->initial_rate =
+      block->final_rate =
+      block->nominal_rate = last_page_step_rate; // steps/s
+
+    block->accelerate_until = 0;
+    block->decelerate_after = block->step_event_count;
+
+    // Will be set to last direction later if directional format.
+    block->direction_bits = 0;
+
+    #define PAGE_UPDATE_DIR(AXIS) \
+      if (!last_page_dir[_AXIS(AXIS)]) SBI(block->direction_bits, _AXIS(AXIS));
+
+    if (!DirectStepping::Config::DIRECTIONAL) {
+      PAGE_UPDATE_DIR(X);
+      PAGE_UPDATE_DIR(Y);
+      PAGE_UPDATE_DIR(Z);
+      PAGE_UPDATE_DIR(E);
+    }
+
+    // If this is the first added movement, reload the delay, otherwise, cancel it.
+    if (block_buffer_head == block_buffer_tail) {
+      // If it was the first queued block, restart the 1st block delivery delay, to
+      // give the planner an opportunity to queue more movements and plan them
+      // As there are no queued movements, the Stepper ISR will not touch this
+      // variable, so there is no risk setting this here (but it MUST be done
+      // before the following line!!)
+      delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+    }
+
+    // Move buffer head
+    block_buffer_head = next_buffer_head;
+
+    enable_all_steppers();
+    stepper.wake_up();
+  }
+
+#endif // DIRECT_STEPPING
+
 /**
  * Directly set the planner ABC position (and stepper positions)
  * converting mm (or angles for SCARA) into steps.
@@ -2763,11 +2866,7 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
 void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
   xyze_pos_t machine = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
-    apply_modifiers(machine
-      #if HAS_LEVELING
-        , true
-      #endif
-    );
+    apply_modifiers(machine, true);
   #endif
   #if IS_KINEMATIC
     position_cart.set(rx, ry, rz, e);
@@ -2890,7 +2989,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const bool was_enabled = stepper.suspend();
     #endif
 
-    millis_t bbru = block_buffer_runtime_us;
+    uint32_t bbru = block_buffer_runtime_us;
 
     #ifdef __AVR__
       // Reenable Stepper ISR
@@ -2902,7 +3001,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
     // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
     bbru >>= 10;
     // limit to about a minute.
-    NOMORE(bbru, 0xFFFFul);
+    NOMORE(bbru, 0x0000FFFFUL);
     return bbru;
   }
 
@@ -2924,6 +3023,16 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 #endif
 
 #if ENABLED(AUTOTEMP)
+
+void Planner::autotemp_update() {
+  #if ENABLED(AUTOTEMP_PROPORTIONAL)
+    const int16_t target = thermalManager.degTargetHotend(active_extruder);
+    autotemp_min = target + AUTOTEMP_MIN_P;
+    autotemp_max = target + AUTOTEMP_MAX_P;
+  #endif
+  autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+  autotemp_enabled = autotemp_factor != 0;
+}
 
   void Planner::autotemp_M104_M109() {
 

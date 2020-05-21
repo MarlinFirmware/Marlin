@@ -402,6 +402,8 @@ private:
 
   TERN_(BEZIER_CURVE_SUPPORT, static void G5());
 
+  TERN_(DIRECT_STEPPING, static void G6());
+
   #if ENABLED(FWRETRACT)
     static void G10();
     static void G11();
@@ -554,7 +556,7 @@ private:
 
   static void M105();
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     static void M106();
     static void M107();
   #endif
@@ -602,7 +604,7 @@ private:
     static void M191();
   #endif
 
-  #if HOTENDS && HAS_LCD_MENU
+  #if HAS_HOTEND && HAS_LCD_MENU
     static void M145();
   #endif
 
@@ -690,6 +692,8 @@ private:
   #endif
 
   TERN_(HAS_CASE_LIGHT, static void M355());
+
+  TERN_(REPETIER_GCODE_M360, static void M360());
 
   #if ENABLED(MORGAN_SCARA)
     static bool M360();

@@ -29,8 +29,8 @@
  * Applies to PICA, PICA_REVB
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "PICA"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "PICA"
 #endif
 
 /*

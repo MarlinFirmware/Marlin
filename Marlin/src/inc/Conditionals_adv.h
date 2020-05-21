@@ -259,11 +259,10 @@
 #endif
 
 /**
- * Driver Timings
+ * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.
  *       Preserve this ordering when adding new drivers.
  */
-
 #ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
@@ -278,7 +277,7 @@
   #elif HAS_DRIVER(A4988)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 200
   #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 60
   #else
     #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
   #endif
@@ -324,6 +323,18 @@
   #endif
 #endif
 
+#if ENABLED(DIRECT_STEPPING)
+  #ifndef STEPPER_PAGES
+    #define STEPPER_PAGES 16
+  #endif
+  #ifndef STEPPER_PAGE_FORMAT
+    #define STEPPER_PAGE_FORMAT SP_4x2_256
+  #endif
+  #ifndef PAGE_MANAGER
+    #define PAGE_MANAGER SerialPageManager
+  #endif
+#endif
+
 //
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
@@ -336,4 +347,9 @@
   #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
 #else
   #define SD_CONNECTION_IS(...) 0
+#endif
+
+// Flag if an EEPROM type is pre-selected
+#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
+  #define NO_EEPROM_SELECTED 1
 #endif
