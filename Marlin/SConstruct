@@ -7,7 +7,7 @@ if int(debug):
 else:
   debug_flags = '-O2'
 
-source_files = ['module/planner.cpp', 'module/calc.cpp', 'feature/fwretract.cpp']
+source_files = ['gcode/motion/G2_G3.cpp', 'module/planner.cpp', 'module/calc.cpp', 'feature/fwretract.cpp']
 out_dir = 'out'
 
 def add_program(env, target):

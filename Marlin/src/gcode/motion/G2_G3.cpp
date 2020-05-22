@@ -24,10 +24,11 @@
 
 #if ENABLED(ARC_SUPPORT)
 
-#include "../gcode.h"
-#include "../../module/motion.h"
+//#include "../gcode.h"
+//#include "../../module/motion.h"
+#include "../../module/hax.h"
 #include "../../module/planner.h"
-#include "../../module/temperature.h"
+//#include "../../module/temperature.h"
 
 #if ENABLED(DELTA)
   #include "../../module/delta.h"
@@ -52,7 +53,8 @@
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
   const ab_float_t &offset, // Center of rotation relative to current_position
-  const uint8_t clockwise   // Clockwise?
+  const uint8_t clockwise,   // Clockwise?
+  const ExtraData& extra_data
 ) {
   #if ENABLED(CNC_WORKSPACE_PLANES)
     AxisEnum p_axis, q_axis, l_axis;
@@ -152,7 +154,7 @@ void plan_arc(
     const float inv_duration = scaled_fr_mm_s / MM_PER_ARC_SEGMENT;
   #endif
 
-  millis_t next_idle_ms = millis() + 200UL;
+  // millis_t next_idle_ms = millis() + 200UL;
 
   #if N_ARC_CORRECTION > 1
     int8_t arc_recalc_count = N_ARC_CORRECTION;
@@ -160,10 +162,10 @@ void plan_arc(
 
   for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
-    thermalManager.manage_heater();
-    if (ELAPSED(millis(), next_idle_ms)) {
-      next_idle_ms = millis() + 200UL;
-      idle();
+    //thermalManager.manage_heater();
+    if (true /* ELAPSED(millis(), next_idle_ms)*/) {
+      //next_idle_ms = millis() + 200UL;
+      idle2();
     }
 
     #if N_ARC_CORRECTION > 1
@@ -210,6 +212,7 @@ void plan_arc(
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
+        , extra_data
     ))
       break;
   }
@@ -230,6 +233,7 @@ void plan_arc(
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
+      , extra_data
   );
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -265,23 +269,23 @@ void plan_arc(
  *    G2 I10           ; CW circle centered at X+10
  *    G3 X20 Y12 R14   ; CCW circle with r=14 ending at X20 Y12
  */
-void GcodeSuite::G2_G3(const bool clockwise) {
-  if (MOTION_CONDITIONS) {
+void G2_G3(const bool clockwise, const ExtraData& extra_data) {
+  if (true /*MOTION_CONDITIONS*/) {
 
     #if ENABLED(SF_ARC_FIX)
       const bool relative_mode_backup = relative_mode;
       relative_mode = true;
     #endif
 
-    get_destination_from_command();
+    get_coordinates();
 
     #if ENABLED(SF_ARC_FIX)
       relative_mode = relative_mode_backup;
     #endif
 
     ab_float_t arc_offset = { 0, 0 };
-    if (parser.seenval('R')) {
-      const float r = parser.value_linear_units();
+    if (code_seen('R')) {
+      const float r = code_value();
       if (r) {
         const xy_pos_t p1 = current_position, p2 = destination;
         if (p1 != p2) {
@@ -307,8 +311,8 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       #else
         constexpr char achar = 'I', bchar = 'J';
       #endif
-      if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
-      if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
+      if (code_seen(achar)) arc_offset.a = code_value();
+      if (code_seen(bchar)) arc_offset.b = code_value();
     }
 
     if (arc_offset) {
@@ -316,19 +320,20 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       #if ENABLED(ARC_P_CIRCLES)
         // P indicates number of circles to do
         int8_t circles_to_do = parser.byteval('P');
-        if (!WITHIN(circles_to_do, 0, 100))
-          SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
-
+        if (!WITHIN(circles_to_do, 0, 100)) {
+          //SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+        }
         while (circles_to_do--)
-          plan_arc(current_position, arc_offset, clockwise);
+        plan_arc(current_position, arc_offset, clockwise, extra_data);
       #endif
 
       // Send the arc to the planner
-      plan_arc(destination, arc_offset, clockwise);
+      plan_arc(destination, arc_offset, clockwise, extra_data);
       reset_stepper_timeout();
     }
-    else
-      SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+    else {
+      //SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+    }
   }
 }
 

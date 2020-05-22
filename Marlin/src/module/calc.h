@@ -4,6 +4,9 @@
 #include "../../Configuration.h"
 
 //extern float homing_feedrate[];
+void get_coordinates();
+bool code_seen(char code);
+double code_value();
 extern bool axis_relative_modes[];
 extern int feedmultiply;
 extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders

@@ -15,6 +15,7 @@ void manage_inactivity2();
 //From motion.h
 extern xyze_pos_t current_position;
 #define SYNC_PLAN_POSITION_KINEMATIC()
+#define apply_motion_limits(raw) do {} while(0)
 
 //From "../HAL/HAL_LPC1768/include/Arduino.h"
 // Program Memory
@@ -130,6 +131,10 @@ typedef struct ExtraData {
   double filepos; // file position in percentage.
   double extruder_position; // Extruded so far.
 } ExtraData;
+
+//From gcode.h
+#define reset_stepper_timeout() do {} while(0)
+void G2_G3(const bool clockwise, const ExtraData& extra_data);
 
 #define DRYRUN 1
 #define DEBUGGING(F) false

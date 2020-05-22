@@ -375,7 +375,7 @@ private:
   );
 
   #if ENABLED(ARC_SUPPORT)
-    static void G2_G3(const bool clockwise);
+  static void G2_G3(const bool clockwise, const ExtraData& extra_data);
   #endif
 
   static void G4();

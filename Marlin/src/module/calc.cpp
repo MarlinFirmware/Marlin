@@ -274,6 +274,9 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         return;
       } else fprintf(stderr, "STOPPED!!");
       //break;
+    case 2:
+    case 3:
+      G2_G3(code_value() == 2, extra_data);
     case 4: // G4 dwell
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
