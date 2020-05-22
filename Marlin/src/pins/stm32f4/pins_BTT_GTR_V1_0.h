@@ -33,8 +33,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#undef E2END
-#define E2END 0x1FFF // EEPROM end address 24C64 (64Kb = 8KB)
+#define MARLIN_EEPROM_SIZE 0x2000                 // 8KB (24C64 ... 64Kb = 8KB)
 
 #define TP                                        // Enable to define servo and probe pins
 

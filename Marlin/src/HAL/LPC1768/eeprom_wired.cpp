@@ -33,17 +33,13 @@
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-#ifndef EEPROM_SIZE
-  #define EEPROM_SIZE           0x8000 // 32kB‬
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE           0x8000 // 32KB‬
 #endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 
-size_t PersistentStore::capacity()    { return EEPROM_SIZE; }
+bool PersistentStore::access_start()  { eeprom_init(); return true; }
 bool PersistentStore::access_finish() { return true; }
-
-bool PersistentStore::access_start() {
-  eeprom_init();
-  return true;
-}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
