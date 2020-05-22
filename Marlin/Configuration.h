@@ -2132,6 +2132,11 @@
   #define XPT2046_Y_OFFSET        257
 #endif
 
+//If TFT_LITTLE_VGL_UI is enabled, there is no need to turn on FSMC_GRAPHICAL_TFT.
+//#define TFT_LITTLE_VGL_UI
+//Robin_nano_v2.0 motherboard touch screen is spi interface, you need to enable this item.
+//#define SPI_GRAPHICAL_TFT	
+
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626

@@ -243,6 +243,12 @@
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
+#if ENABLED(SPI_GRAPHICAL_TFT)
+//#define DOGLCD
+//#define IS_ULTIPANEL
+#define DELAYED_BACKLIGHT_INIT
+#endif
+
 /**
  * I2C Panels
  */

@@ -59,6 +59,13 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#if ENABLED(TFT_LITTLE_VGL_UI)
+#include "lvgl.h"
+#include "lcd/extui/lib/mks_ui/inc/tft_lvgl_configuration.h"
+#include "lcd/extui/lib/mks_ui/inc/draw_ui.h"
+#endif
+
+
 #if ENABLED(DIRECT_STEPPING)
   #include "feature/direct_stepping.h"
 #endif
@@ -726,6 +733,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
+    #if ENABLED(TFT_LITTLE_VGL_UI)
+	LV_TASK_HANDLER();
+  #endif
 }
 
 /**
@@ -1141,6 +1152,10 @@ void setup() {
     SETUP_RUN(page_manager.init());
   #endif
 
+  #if ENABLED(TFT_LITTLE_VGL_UI)
+  tft_lvgl_init();
+  #endif
+
   marlin_state = MF_RUNNING;
 
   SETUP_LOG("setup() completed.");
@@ -1172,6 +1187,10 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
+
+   #if ENABLED(TFT_LITTLE_VGL_UI)
+   printer_state_polling(); 
+   #endif
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }
