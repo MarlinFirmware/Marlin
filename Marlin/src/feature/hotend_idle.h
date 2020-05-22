@@ -21,32 +21,17 @@
  */
 #pragma once
 
-/**
- * RAMPS-FD v2
- *
- * EEPROM supported
- * Use 1k thermistor tables
- */
+#include "../core/millis_t.h"
 
-#define BOARD_INFO_NAME "RAMPS-FD v2"
+class HotendIdleProtection {
+public:
+  static void check();
+private:
+  static constexpr millis_t hp_interval = SEC_TO_MS(HOTEND_IDLE_TIMEOUT_SEC);
+  static millis_t next_protect_ms;
+  static void check_hotends(const millis_t &ms);
+  static void check_e_motion(const millis_t &ms);
+  static void timed_out();
+};
 
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN        69 // moved from A13 to A15 on v2.2, if not earlier
-#endif
-
-#include "pins_RAMPS_FD_V1.h"
-
-#undef INVERTED_HEATER_PINS
-#undef INVERTED_BED_PINS
-#undef INVERTED_FAN_PINS
-
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x10000 // 64K in a 24C512
-
-#ifndef PS_ON_PIN
-  #define PS_ON_PIN        12
-#endif
-
-#ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN      5   // Analog Input on AUX2
-#endif
+extern HotendIdleProtection hotend_idle;

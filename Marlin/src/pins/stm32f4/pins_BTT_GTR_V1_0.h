@@ -31,18 +31,9 @@
 
 #define BOARD_INFO_NAME "BIGTREE GTR 1.0"
 
-// Use one of these or SDCard-based Emulation will be used
-#if NO_EEPROM_SELECTED
-  //#define I2C_EEPROM
-  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
-  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
-#endif
-
-#if ENABLED(FLASH_EEPROM_EMULATION)
-  // Decrease delays and flash wear by spreading writes across the
-  // 128 kB sector allocated for EEPROM emulation.
-  #define FLASH_EEPROM_LEVELING
-#endif
+// Onboard I2C EEPROM
+#define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE 0x2000                 // 8KB (24C64 ... 64Kb = 8KB)
 
 #define TP                                        // Enable to define servo and probe pins
 

@@ -612,6 +612,10 @@ class Temperature {
         return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
+        return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
     #endif // HOTENDS
 
     #if HAS_HEATED_BED
@@ -649,6 +653,10 @@ class Temperature {
       );
 
       static void wait_for_bed_heating();
+
+      FORCE_INLINE static bool degBedNear(const float &temp) {
+        return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
+      }
 
     #endif // HAS_HEATED_BED
 
