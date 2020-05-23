@@ -1875,7 +1875,7 @@ uint32_t Stepper::block_phase_isr() {
       }
 
       // For non-inline cutter, grossly apply power
-      #if HAS_CUTTER && DISABLED(LASER_POWER_INLINE)
+      #if HAS_CUTTER && DISABLED(LASER_POWER_INLINE) && ENABLED(LASER_FEATURE)
         cutter.apply_power(current_block->cutter_power);
       #endif
 

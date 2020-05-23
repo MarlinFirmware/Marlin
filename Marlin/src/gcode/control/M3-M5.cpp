@@ -38,7 +38,7 @@
  *  M4 - Spindle ON (Counter-clockwise)
  *
  * Parameters:
- *  S<power> - Set power. S0 will turn the spindle/laser off.
+ *  S<power> - Set power. S0 will turn the spindle/laser off, except in relative mode.
  *  O<ocr>   - Set power and OCR (oscillator count register)
  *
  *  If no PWM pin is defined then M3/M4 just turns it on.
@@ -66,24 +66,28 @@
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
-
-  auto get_s_power = []{
-    return cutter_power_t(
-      parser.intval('S', cutter.upower_to_dpower(SPEED_POWER_STARTUP))
-    );
+  auto get_s_power = [] {
+    if (parser.seen('S'))
+      cutter.unitPower = cutter.power_to_range(cutter_power_t(round(parser.value_float())));
+    else
+      cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
+    return cutter.unitPower;
   };
 
-  #if ENABLED(LASER_POWER_INLINE)
+#if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode
       cutter.inline_direction(is_M4); // Should always be unused
       #if ENABLED(SPINDLE_LASER_PWM)
-        if (parser.seen('O'))
-          cutter.inline_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
-        else
-          cutter.inline_power(dpower_to_upower(get_s_power()));
+        if (parser.seen('O')){
+          cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
+          cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+          }
+        else {
+          cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
+        }
       #else
-        cutter.inline_enabled(true);
+      cutter.inline_enabled(true);
       #endif
       return;
     }
@@ -95,13 +99,17 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   cutter.set_direction(is_M4);
 
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (parser.seenval('O'))
-      cutter.set_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
-    else
-      cutter.set_power(get_s_power());
+    if (parser.seenval('O')){
+      cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
+      cutter.set_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+    }
+    else {
+      cutter.set_power(cutter.upower_to_ocr(get_s_power()));
+    }
   #else
     cutter.set_enabled(true);
   #endif
+    cutter.menuPower = cutter.unitPower;
 }
 
 /**
@@ -112,12 +120,12 @@ void GcodeSuite::M5() {
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       cutter.set_inline_enabled(false); // Laser power in inline mode
       return;
-    }
-    // Non-inline, standard case
+    }    // Non-inline, standard case
     cutter.inline_disable(); // Prevent future blocks re-setting the power
   #endif
   planner.synchronize();
   cutter.set_enabled(false);
+  cutter.menuPower = cutter.unitPower;
 }
 
 #endif // HAS_CUTTER

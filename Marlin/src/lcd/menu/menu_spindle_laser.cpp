@@ -41,10 +41,9 @@
 
     #if ENABLED(SPINDLE_LASER_PWM)
       // Change the cutter's "current power" value without turning the cutter on or off
-      // Power is displayed in units and range according to config
-      EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.displayPower,
-        cutter.dpower_min(), cutter.dpower_max(), cutter.update_from_dpower
-      );
+      // Power is displayed and set in units and range according to CUTTER_POWER_UNIT
+      EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.menuPower,
+        cutter.mpower_min(), cutter.mpower_max(), cutter.update_from_mpower);
     #endif
 
     if (is_enabled)
