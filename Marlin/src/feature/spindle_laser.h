@@ -217,8 +217,7 @@ public:
      */
 
     // Force disengage planner power control
-    static inline void inline_disable()
-    {
+    static inline void inline_disable()	{
       isOn = false;
       unitPower = 0;
       planner.laser.status = 0;
@@ -238,15 +237,15 @@ public:
       #if ENABLED(SPINDLE_LASER_PWM)
           isOn = true;
         #if ENABLED(SPEED_POWER_RELATIVE) && !CUTTER_UNIT_IS(RPM) // relative mode does not turn laser off at 0, except for RPM
-          planner.settings.laser.status = 0x03;
-          planner.settings.laser.power = upower_to_ocr(upwr);
+          planner.laser.status = 0x03;
+          planner.laser.power = upower_to_ocr(upwr);
         #else
           if (upwr > 0)
             inline_ocr_power(upower_to_ocr(upwr));
         #endif
       #else
         planner.laser.status = enabled(upwr) ? 0x03 : 0x01;
-        planner.laser.power = upwr;
+        planner.laser.power  = upwr;
         isOn = enabled(upwr);
       #endif
     }
@@ -257,6 +256,7 @@ public:
       static inline void inline_ocr_power(const uint8_t ocrpwr) {
         planner.laser.status = ocrpwr ? 0x03 : 0x01;
         planner.laser.power  = ocrpwr;
+
       }
     #endif
   #endif  // LASER_POWER_INLINE
