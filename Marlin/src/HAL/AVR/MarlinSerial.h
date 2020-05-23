@@ -299,8 +299,8 @@
   template <uint8_t serial>
   struct MarlinInternalSerialCfg {
     static constexpr int PORT               = serial;
-    static constexpr unsigned int RX_SIZE   = 128;
-    static constexpr unsigned int TX_SIZE   = 48;
+    static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
+    static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
     static constexpr bool XONOFF            = false;
     static constexpr bool EMERGENCYPARSER   = false;
     static constexpr bool DROPPED_RX        = false;

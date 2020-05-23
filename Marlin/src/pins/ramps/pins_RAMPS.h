@@ -759,11 +759,8 @@
 
   #define BEEPER_PIN                          37
 
-  #define BTN_EN1                             31
-  #define LCD_PINS_RS                         33
-
   #define SD_DETECT_PIN                       49
 
-  #define KILL_PIN                            -1
-
+  #define CLCD_MOD_RESET                      31
+  #define CLCD_SPI_CS                         33
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050

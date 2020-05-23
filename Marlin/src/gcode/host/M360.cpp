@@ -93,7 +93,7 @@ void GcodeSuite::M360() {
   config_line(PSTR("SupportG10G11"), ENABLED(FWRETRACT));
   #if ENABLED(FWRETRACT)
     PGMSTR(RET_STR, "Retraction");
-    PGMSTR(UNRET_STR, "RetractionUndo"),
+    PGMSTR(UNRET_STR, "RetractionUndo");
     PGMSTR(SPEED_STR, "Speed");
     // M10 Retract with swap (long) moves
     config_line(PSTR("Length"), fwretract.settings.retract_length, RET_STR);

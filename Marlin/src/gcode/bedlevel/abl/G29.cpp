@@ -78,11 +78,7 @@
   #endif
 #endif
 
-#if ENABLED(G29_RETRY_AND_RECOVER)
-  #define G29_RETURN(b) return b;
-#else
-  #define G29_RETURN(b) return;
-#endif
+#define G29_RETURN(b) return TERN_(G29_RETRY_AND_RECOVER, b)
 
 /**
  * G29: Detailed Z probe, probes the bed at 3 or more points.
@@ -164,11 +160,7 @@
  */
 G29_TYPE GcodeSuite::G29() {
 
-  #if EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY)
-    const bool seenQ = parser.seen('Q');
-  #else
-    constexpr bool seenQ = false;
-  #endif
+  const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen('Q');
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -179,25 +171,12 @@ G29_TYPE GcodeSuite::G29() {
       log_machine_info();
     }
     marlin_debug_flags = old_debug_flags;
-    #if DISABLED(PROBE_MANUALLY)
-      if (seenQ) G29_RETURN(false);
-    #endif
+    if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
-  #if ENABLED(PROBE_MANUALLY)
-    const bool seenA = parser.seen('A');
-  #else
-    constexpr bool seenA = false;
-  #endif
-
-  const bool  no_action = seenA || seenQ,
-              faux =
-                #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
-                  parser.boolval('C')
-                #else
-                  no_action
-                #endif
-              ;
+  const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
+         no_action = seenA || seenQ,
+              faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
 
   // Don't allow auto-leveling without homing first
   if (axis_unhomed_error()) G29_RETURN(false);
@@ -208,11 +187,7 @@ G29_TYPE GcodeSuite::G29() {
   }
 
   // Define local vars 'static' for manual probing, 'auto' otherwise
-  #if ENABLED(PROBE_MANUALLY)
-    #define ABL_VAR static
-  #else
-    #define ABL_VAR
-  #endif
+  #define ABL_VAR TERN_(PROBE_MANUALLY, static)
 
   ABL_VAR int verbose_level;
   ABL_VAR xy_pos_t probePos;
@@ -346,11 +321,7 @@ G29_TYPE GcodeSuite::G29() {
       G29_RETURN(false);
     }
 
-    dryrun = parser.boolval('D')
-      #if ENABLED(PROBE_MANUALLY)
-        || no_action
-      #endif
-    ;
+    dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -430,26 +401,27 @@ G29_TYPE GcodeSuite::G29() {
 
     planner.synchronize();
 
+    if (!faux) remember_feedrate_scaling_off();
+
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
     if (!no_action) set_bed_leveling_enabled(false);
 
+    // Deploy certain probes before starting probing
     #if HAS_BED_PROBE
-      // Deploy the probe. Probe will raise if needed.
-      if (probe.deploy()) {
+      if (ENABLED(BLTOUCH))
+        do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+      else if (probe.deploy()) {
         set_bed_leveling_enabled(abl_should_enable);
         G29_RETURN(false);
       }
     #endif
 
-    if (!faux) remember_feedrate_scaling_off();
-
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      #if ENABLED(PROBE_MANUALLY)
-        if (!no_action)
-      #endif
-      if (gridSpacing != bilinear_grid_spacing || probe_position_lf != bilinear_start) {
+      if (TERN1(PROBE_MANUALLY, !no_action)
+        && (gridSpacing != bilinear_grid_spacing || probe_position_lf != bilinear_start)
+      ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
 
@@ -560,8 +532,7 @@ G29_TYPE GcodeSuite::G29() {
         PR_INNER_VAR = abl_probe_index - (PR_OUTER_VAR * PR_INNER_END);
 
         // Probe in reverse order for every other row/column
-        bool zig = (PR_OUTER_VAR & 1); // != ((PR_OUTER_END) & 1);
-
+        const bool zig = (PR_OUTER_VAR & 1); // != ((PR_OUTER_END) & 1);
         if (zig) PR_INNER_VAR = (PR_INNER_END - 1) - PR_INNER_VAR;
 
         probePos = probe_position_lf + gridSpacing * meshCount.asFloat();
@@ -576,19 +547,14 @@ G29_TYPE GcodeSuite::G29() {
       // Is there a next point to move to?
       if (abl_probe_index < abl_points) {
         _manual_goto_xy(probePos); // Can be used here too!
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Disable software endstops to allow manual adjustment
-          // If G29 is not completed, they will not be re-enabled
-          soft_endstops_enabled = false;
-        #endif
+        // Disable software endstops to allow manual adjustment
+        // If G29 is not completed, they will not be re-enabled
+        TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = false);
         G29_RETURN(false);
       }
       else {
-
         // Leveling done! Fall through to G29 finishing code below
-
         SERIAL_ECHOLNPGM("Grid probing done.");
-
         // Re-enable software endstops, if needed
         TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = saved_soft_endstops_state);
       }
@@ -599,11 +565,9 @@ G29_TYPE GcodeSuite::G29() {
       if (abl_probe_index < abl_points) {
         probePos = points[abl_probe_index];
         _manual_goto_xy(probePos);
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Disable software endstops to allow manual adjustment
-          // If G29 is not completed, they will not be re-enabled
-          soft_endstops_enabled = false;
-        #endif
+        // Disable software endstops to allow manual adjustment
+        // If G29 is not completed, they will not be re-enabled
+        TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = false);
         G29_RETURN(false);
       }
       else {
@@ -670,10 +634,8 @@ G29_TYPE GcodeSuite::G29() {
 
           TERN_(AUTO_BED_LEVELING_LINEAR, indexIntoAB[meshCount.x][meshCount.y] = ++abl_probe_index); // 0...
 
-          #if IS_KINEMATIC
-            // Avoid probing outside the round or hexagonal area
-            if (!probe.can_reach(probePos)) continue;
-          #endif
+          // Avoid probing outside the round or hexagonal area
+          if (TERN0(IS_KINEMATIC, !probe.can_reach(probePos))) continue;
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", int(GRID_MAX_POINTS), ".");
           TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(GRID_MAX_POINTS)));
@@ -898,11 +860,7 @@ G29_TYPE GcodeSuite::G29() {
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          const float fade_scaling_factor = planner.fade_scaling_factor_for_z(current_position.z);
-        #else
-          constexpr float fade_scaling_factor = 1.0f;
-        #endif
+        const float fade_scaling_factor = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.fade_scaling_factor_for_z(current_position.z), 1);
         current_position.z -= fade_scaling_factor * bilinear_z_offset(current_position);
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(" corrected Z:", current_position.z);

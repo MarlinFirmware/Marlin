@@ -59,6 +59,10 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#if ENABLED(DIRECT_STEPPING)
+  #include "feature/direct_stepping.h"
+#endif
+
 #if ENABLED(TOUCH_BUTTONS)
   #include "feature/touch/xpt2046.h"
 #endif
@@ -153,6 +157,10 @@
 
 #if HAS_FILAMENT_SENSOR
   #include "feature/runout.h"
+#endif
+
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "feature/hotend_idle.h"
 #endif
 
 #if ENABLED(TEMP_STAT_LEDS)
@@ -523,6 +531,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   TERN_(AUTO_POWER_CONTROL, powerManager.check());
 
+  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
+
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
@@ -713,6 +723,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
+
+  // Direct Stepping
+  TERN_(DIRECT_STEPPING, page_manager.write_responses());
 }
 
 /**
@@ -1122,6 +1135,10 @@ void setup() {
 
   #if ENABLED(MAX7219_DEBUG)
     SETUP_RUN(max7219.init());
+  #endif
+
+  #if ENABLED(DIRECT_STEPPING)
+    SETUP_RUN(page_manager.init());
   #endif
 
   marlin_state = MF_RUNNING;

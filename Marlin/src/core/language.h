@@ -125,7 +125,7 @@
 #define STR_INVALID_E_STEPPER               "Invalid E stepper"
 #define STR_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
 #define STR_INVALID_SOLENOID                "Invalid solenoid"
-#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
+#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
 #define STR_COUNT_X                         " Count X:"
 #define STR_COUNT_A                         " Count A:"
 #define STR_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
@@ -162,7 +162,7 @@
 #define STR_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define STR_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
 #define STR_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
-#define STR_ERR_MESH_XY                     "Mesh point cannot be resolved"
+#define STR_ERR_MESH_XY                     "Mesh point out of range"
 #define STR_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define STR_ERR_PROTECTED_PIN               "Protected Pin"
 #define STR_ERR_M420_FAILED                 "Failed to enable Bed Leveling"

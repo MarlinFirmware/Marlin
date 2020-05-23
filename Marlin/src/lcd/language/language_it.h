@@ -342,6 +342,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("Stop");
   PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("Stampa");
   PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Resetta");
+  PROGMEM Language_Str MSG_BUTTON_IGNORE                   = _UxGT("Ignora");
   PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Annulla");
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Fatto");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Indietro");
@@ -485,8 +486,12 @@ namespace Language_it {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocollo");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Controllo fuga: OFF");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Controllo fuga: ON");
+  PROGMEM Language_Str MSG_HOTEND_IDLE_TIMEOUT             = _UxGT("Timeout inatt.ugello");
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luci Case");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Luminosità Luci");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("STAMPANTE ERRATA");
+
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Contat. stampa");
     PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Completati");
@@ -570,7 +575,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Stampante errata");
+  PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Indice pag. errato");
+  PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Vel. pag. errata");
 
   //
   // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe

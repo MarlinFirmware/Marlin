@@ -103,17 +103,22 @@ void plan_arc(
 
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
-  #ifdef ARC_SEGMENTS_PER_R
-    float seg_length = MM_PER_ARC_SEGMENT * radius;
-    LIMIT(seg_length, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R);
-  #elif ARC_SEGMENTS_PER_SEC
-    float seg_length = scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC);
-    NOLESS(seg_length, MM_PER_ARC_SEGMENT);
-  #else
-    constexpr float seg_length = MM_PER_ARC_SEGMENT;
-  #endif
+  // Start with a nominal segment length
+  float seg_length = (
+    #ifdef ARC_SEGMENTS_PER_R
+      constrain(MM_PER_ARC_SEGMENT * radius, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R)
+    #elif ARC_SEGMENTS_PER_SEC
+      _MAX(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MM_PER_ARC_SEGMENT)
+    #else
+      MM_PER_ARC_SEGMENT
+    #endif
+  );
+  // Divide total travel by nominal segment length
   uint16_t segments = FLOOR(mm_of_travel / seg_length);
-  NOLESS(segments, min_segments);
+  if (segments < min_segments) {            // Too few segments?
+    segments = min_segments;                // More segments
+    seg_length = mm_of_travel / segments;   // but also shorter
+  }
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
