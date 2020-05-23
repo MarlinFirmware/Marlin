@@ -49,7 +49,9 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
-#define E2END 0xFFF                               // 4KB
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+#endif
 
 #define IS_RAMPS_EFB
 

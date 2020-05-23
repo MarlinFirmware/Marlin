@@ -35,10 +35,7 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 //#define I2C_EEPROM
-#ifdef E2END
-  #undef E2END
-#endif
-#define E2END 0xFFF                               // 4KB
+#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
 
 //
 // Limit Switches
