@@ -619,6 +619,10 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
 
 void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
+  #ifdef DISABLE_BUZZER_CLICK
+    return;
+  #endif
+  
   #if HAS_LCD_MENU
     refresh();
   #endif
