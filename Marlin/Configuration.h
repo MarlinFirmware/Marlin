@@ -1745,6 +1745,10 @@
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
 //#define SPEAKER
+//
+// Disable buzzer encoder click feedback
+//
+#define DISABLE_BUZZER_CLICK
 
 //
 // The duration and frequency for the UI feedback sound.
