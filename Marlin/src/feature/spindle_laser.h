@@ -256,7 +256,6 @@ public:
       static inline void inline_ocr_power(const uint8_t ocrpwr) {
         planner.laser.status = ocrpwr ? 0x03 : 0x01;
         planner.laser.power  = ocrpwr;
-
       }
     #endif
   #endif  // LASER_POWER_INLINE
