@@ -244,8 +244,8 @@ xyze_long_t Stepper::count_position{0};
 xyze_int8_t Stepper::count_direction{0};
 
 #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-  Stepper::stepper_laser_t Stepper::laser = {
-    .trap_en = false,
+  Stepper::stepper_laser_t Stepper::laser_trap = {
+    .enabled = false,
     .cur_power = 0,
     .cruise_set = false,
     #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
@@ -1845,28 +1845,28 @@ uint32_t Stepper::block_phase_isr() {
 
         // Update laser - Accelerating
         #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-          if (laser.trap_en) {
+          if (laser_trap.enabled) {
             #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
               if (current_block->laser.entry_per) {
-                laser.acc_step_count -= step_events_completed - laser.last_step_count;
-                laser.last_step_count = step_events_completed;
+                laser_trap.acc_step_count -= step_events_completed - laser_trap.last_step_count;
+                laser_trap.last_step_count = step_events_completed;
 
                 // Should be faster than a divide, since this should trip just once
-                if (laser.acc_step_count < 0) {
-                  while (laser.acc_step_count < 0) {
-                    laser.acc_step_count += current_block->laser.entry_per;
-                    if (laser.cur_power < current_block->laser.power) laser.cur_power++;
+                if (laser_trap.acc_step_count < 0) {
+                  while (laser_trap.acc_step_count < 0) {
+                    laser_trap.acc_step_count += current_block->laser.entry_per;
+                    if (laser_trap.cur_power < current_block->laser.power) laser_trap.cur_power++;
                   }
-                  cutter.set_ocr_power(laser.cur_power);
+                  cutter.set_ocr_power(laser_trap.cur_power);
                 }
               }
             #else
-              if (laser.till_update)
-                laser.till_update--;
+              if (laser_trap.till_update)
+                laser_trap.till_update--;
               else {
-                laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
-                laser.cur_power = (current_block->laser.power * acc_step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser.cur_power); // Cycle efficiency is irrelevant it the last line was many cycles
+                laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
+                laser_trap.cur_power = (current_block->laser.power * acc_step_rate) / current_block->nominal_rate;
+                cutter.set_ocr_power(laser_trap.cur_power); // Cycle efficiency is irrelevant it the last line was many cycles
               }
             #endif
           }
@@ -1922,28 +1922,28 @@ uint32_t Stepper::block_phase_isr() {
 
         // Update laser - Decelerating
         #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-          if (laser.trap_en) {
+          if (laser_trap.enabled) {
             #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
               if (current_block->laser.exit_per) {
-                laser.acc_step_count -= step_events_completed - laser.last_step_count;
-                laser.last_step_count = step_events_completed;
+                laser_trap.acc_step_count -= step_events_completed - laser_trap.last_step_count;
+                laser_trap.last_step_count = step_events_completed;
 
                 // Should be faster than a divide, since this should trip just once
-                if (laser.acc_step_count < 0) {
-                  while (laser.acc_step_count < 0) {
-                    laser.acc_step_count += current_block->laser.exit_per;
-                    if (laser.cur_power > current_block->laser.power_exit) laser.cur_power--;
+                if (laser_trap.acc_step_count < 0) {
+                  while (laser_trap.acc_step_count < 0) {
+                    laser_trap.acc_step_count += current_block->laser.exit_per;
+                    if (laser_trap.cur_power > current_block->laser.power_exit) laser_trap.cur_power--;
                   }
-                  cutter.set_ocr_power(laser.cur_power);
+                  cutter.set_ocr_power(laser_trap.cur_power);
                 }
               }
             #else
-              if (laser.till_update)
-                laser.till_update--;
+              if (laser_trap.till_update)
+                laser_trap.till_update--;
               else {
-                laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
-                laser.cur_power = (current_block->laser.power * step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
+                laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
+                laser_trap.cur_power = (current_block->laser.power * step_rate) / current_block->nominal_rate;
+                cutter.set_ocr_power(laser_trap.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
               }
             #endif
           }
@@ -1968,16 +1968,16 @@ uint32_t Stepper::block_phase_isr() {
 
         // Update laser - Cruising
         #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-          if (laser.trap_en) {
-            if (!laser.cruise_set) {
-              laser.cur_power = current_block->laser.power;
-              cutter.set_ocr_power(laser.cur_power);
-              laser.cruise_set = true;
+          if (laser_trap.enabled) {
+            if (!laser_trap.cruise_set) {
+              laser_trap.cur_power = current_block->laser.power;
+              cutter.set_ocr_power(laser_trap.cur_power);
+              laser_trap.cruise_set = true;
             }
             #if ENABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-              laser.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
+              laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
             #else
-              laser.last_step_count = step_events_completed;
+              laser_trap.last_step_count = step_events_completed;
             #endif
           }
         #endif
@@ -2177,19 +2177,19 @@ uint32_t Stepper::block_phase_isr() {
       #if ENABLED(LASER_POWER_INLINE)
         const uint8_t stat = current_block->laser.status;
         #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-          laser.trap_en = (stat & 0x03) == 0x03;
-          laser.cur_power = current_block->laser.power_entry; // RESET STATE
-          laser.cruise_set = false;
+          laser_trap.enabled = (stat & 0x03) == 0x03;
+          laser_trap.cur_power = current_block->laser.power_entry; // RESET STATE
+          laser_trap.cruise_set = false;
           #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-            laser.last_step_count = 0;
-            laser.acc_step_count = current_block->laser.entry_per / 2;
+            laser_trap.last_step_count = 0;
+            laser_trap.acc_step_count = current_block->laser.entry_per / 2;
           #else
-            laser.till_update = 0;
+            laser_trap.till_update = 0;
           #endif
           // Always have PWM in this case
           if (TEST(stat, 0)) {                        // Planner controls the laser
             if (TEST(stat, 1))                        // Laser is on
-              cutter.set_ocr_power(laser.cur_power);
+              cutter.set_ocr_power(laser_trap.cur_power);
             else
               cutter.set_ocr_power(0);
           }
@@ -2242,11 +2242,11 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(LASER_POWER_INLINE_CONTINUOUS)
       else { // No new block found; so apply inline laser parameters
         // This should mean ending file with 'M5 I' will stop the laser; thus the inline flag isn't needed
-        const uint8_t stat = planner.laser.status;
+        const uint8_t stat = planner.laser_inline.status;
         if (TEST(stat, 0)) {             // Planner controls the laser
           #if ENABLED(SPINDLE_LASER_PWM)
             if (TEST(stat, 1))           // Laser is on
-              cutter.set_ocr_power(planner.laser.power);
+              cutter.set_ocr_power(planner.laser_inline.power);
             else
               cutter.set_ocr_power(0);
           #else

@@ -332,7 +332,7 @@ class Planner {
     static planner_settings_t settings;
 
     #if ENABLED(LASER_POWER_INLINE)
-      static laser_state_t laser;
+      static laser_state_t laser_inline;
     #endif
 
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
