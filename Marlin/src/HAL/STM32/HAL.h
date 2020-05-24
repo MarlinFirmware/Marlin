@@ -48,17 +48,17 @@
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 MSerial3
 #elif SERIAL_PORT == 4
-  #define MYSERIAL0 Serial4
+  #define MYSERIAL0 MSerial4
 #elif SERIAL_PORT == 5
-  #define MYSERIAL0 Serial5
+  #define MYSERIAL0 MSerial5
 #elif SERIAL_PORT == 6
-  #define MYSERIAL0 Serial6
+  #define MYSERIAL0 MSerial6
 #else
   #error "SERIAL_PORT must be from -1 to 6. Please update your configuration."
 #endif
