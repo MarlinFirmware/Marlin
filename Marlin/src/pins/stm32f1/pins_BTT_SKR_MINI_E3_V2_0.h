@@ -31,8 +31,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#undef E2END
-#define E2END       (0xFFF) // 4KB
+#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
 
 #define NEOPIXEL_PIN                       PA8   // LED driving pin
 
