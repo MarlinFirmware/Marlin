@@ -695,7 +695,8 @@
 
 #define X_DRIVER_TYPE  TMC2130
 #define Y_DRIVER_TYPE  TMC2130
-#define Z_DRIVER_TYPE  TMC2130
+//#define Z_DRIVER_TYPE  TMC2130
+#define Z_DRIVER_TYPE  A4988
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
@@ -753,14 +754,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160.48, 160.64, 800, 95 } //E12{ 80, 80, 400, 95 }   //{ 80, 80, 4000, 500 } //E16 { 100, 100, 400, 100 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160.48, 160.64, 400, 95 }//Z A4988 //full 2130 {160.48, 160.64, 800, 95 } //E12{ 80, 80, 400, 95 }   //{ 80, 80, 4000, 500 } //E16 { 100, 100, 400, 100 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 50 } //E12 { 400, 400, 5, 25 } //{ 300, 300, 5, 25 }  //E16   { 300, 300, 50, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 50 } //Z A4988 //full 2130 { 300, 300, 10, 50 } //E12 { 400, 400, 5, 25 } //{ 300, 300, 5, 25 }  //E16   { 300, 300, 50, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -773,7 +774,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION       { 2000, 2000, 200, 2000 }//E12{ 9000, 5000, 50, 10000 }   //E16 { 2000, 2000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION       { 2000, 2000, 50, 2000 } //Z A4988 //full 2130 { 2000, 2000, 200, 2000 }//E12{ 9000, 5000, 50, 10000 }   //E16 { 2000, 2000, 100, 10000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -969,10 +970,10 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -35, 8, -3.1}
+#define NOZZLE_TO_PROBE_OFFSET { -35, 8, -3.65}
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define MIN_PROBE_EDGE 70 //85 //45 //10
+#define MIN_PROBE_EDGE 100 //70 //85 //45 //10
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000   //E16 6000
@@ -1070,7 +1071,8 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+//#define INVERT_Z_DIR true //tmc2130
+#define INVERT_Z_DIR false //a4988
 
 // @section extruder
 
