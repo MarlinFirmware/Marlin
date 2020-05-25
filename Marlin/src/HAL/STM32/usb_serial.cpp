@@ -52,4 +52,4 @@ void USB_Hook_init() {
 }
 
 #endif // EMERGENCY_PARSER
-#endif // STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
