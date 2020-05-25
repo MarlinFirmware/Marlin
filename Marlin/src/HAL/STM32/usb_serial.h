@@ -1,0 +1,5 @@
+#if ENABLED(EMERGENCY_PARSER)
+
+void USB_Hook_init();
+
+#endif // EMERGENCY_PARSER
