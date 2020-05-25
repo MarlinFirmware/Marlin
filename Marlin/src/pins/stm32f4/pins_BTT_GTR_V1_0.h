@@ -320,13 +320,13 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define LCD_PINS_RS                     PA8
+    #define LCD_PINS_RS                     PG6
 
-    #define BTN_EN1                         PD10
-    #define BTN_EN2                         PH10
+    #define BTN_EN1                         PC10
+    #define BTN_EN2                         PG8
 
-    #define LCD_PINS_ENABLE                 PG7
-    #define LCD_PINS_D4                     PG8
+    #define LCD_PINS_ENABLE                 PG5
+    #define LCD_PINS_D4                     PG7
 
     //#undef ST7920_DELAY_1
     //#undef ST7920_DELAY_2
