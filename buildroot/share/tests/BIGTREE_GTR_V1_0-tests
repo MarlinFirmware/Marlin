@@ -23,6 +23,7 @@ opt_set E1_AUTO_FAN_PIN PC11
 opt_set E2_AUTO_FAN_PIN PC12
 opt_set X_DRIVER_TYPE TMC2208
 opt_set Y_DRIVER_TYPE TMC2130
+opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 exec_test $1 $2 "BigTreeTech GTR 8 Extruders with Auto-Fan and Mixed TMC Drivers"
 
 restore_configs
