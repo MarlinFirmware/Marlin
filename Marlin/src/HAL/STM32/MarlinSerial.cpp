@@ -53,6 +53,7 @@ void MarlinSerial::begin(unsigned long baud, uint8_t config) {
 #endif
 }
 
+// This function is Copyright (c) 2006 Nicholas Zambetti.
 void MarlinSerial::_rx_complete_irq(serial_t *obj)
 {
   // No Parity error, read byte and store it in the buffer if there is room
