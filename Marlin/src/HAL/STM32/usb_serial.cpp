@@ -19,9 +19,10 @@
 
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
+#include "../../inc/MarlinConfigPre.h"
+
 #if ENABLED(EMERGENCY_PARSER)
 
-#include "../../inc/MarlinConfigPre.h"
 #include "usb_serial.h"
 #include "../../feature/e_parser.h"
 
@@ -51,5 +52,4 @@ void USB_Hook_init() {
 }
 
 #endif // EMERGENCY_PARSER
-
 #endif // STM32
