@@ -98,8 +98,8 @@
   #define Z_HARDWARE_SERIAL  Serial1
   #define E0_HARDWARE_SERIAL Serial1
   #define TMC_SERIAL_MULTIPLEXER
-  #define SERIAL_MUL_PIN1 PB13
-  #define SERIAL_MUL_PIN2 PB12
+  #define SERIAL_MUL_PIN1                   PB13
+  #define SERIAL_MUL_PIN2                   PB12
 
 #endif
 
@@ -107,9 +107,9 @@
 // Stepper current PWM
 //
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500             // origin:2000
+  #define MOTOR_CURRENT_PWM_RANGE 1500            // origin:2000
 #endif
-#define DEFAULT_PWM_MOTOR_CURRENT  {500, 500, 400} // origin: {1300,1300,1250}
+#define DEFAULT_PWM_MOTOR_CURRENT { 500, 500, 400 } // origin: {1300,1300,1250}
 
 //
 // Heaters / Fans
