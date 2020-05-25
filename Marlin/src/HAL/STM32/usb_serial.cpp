@@ -21,7 +21,7 @@
  */
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EMERGENCY_PARSER)
+#if ENABLED(EMERGENCY_PARSER) && ENABLED(DTR_TOGGLING_SEQ)
 
 #include "../../feature/e_parser.h"
 EmergencyParser::State emergency_state = EmergencyParser::State::EP_RESET;
