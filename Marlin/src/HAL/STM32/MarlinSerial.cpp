@@ -29,7 +29,9 @@
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
     HardwareSerial::begin(baud, config);
     // replace the IRQ callback with the one we have defined
+#if ENABLED(EMERGENCY_PARSER)
     uart_attach_rx_callback(&_serial, _rx_callback);
+#endif
 }
 
 void MarlinSerial::_rx_complete_irq(serial_t *obj)
@@ -50,7 +52,8 @@ void MarlinSerial::_rx_complete_irq(serial_t *obj)
       obj->rx_head = i;
     }
 
+#if ENABLED(EMERGENCY_PARSER)
     emergency_parser.update(emergency_state, c);
+#endif
   }
 }
-
