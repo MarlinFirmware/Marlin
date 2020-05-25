@@ -106,3 +106,8 @@ inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {
   Clock::delayCycles(x);
 }
+
+// Add strcmp_P if missing
+#ifndef strcmp_P
+  #define strcmp_P(a, b) strcmp((a), (b))
+#endif
