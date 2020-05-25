@@ -204,6 +204,16 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     if (target >= FAN_COUNT) return;
 
     fan_speed[target] = speed;
+    report_fan_speed(target);
+  }
+
+  /**
+   * Report print fan speed for a target extruder
+   */
+  void Temperature::report_fan_speed(const uint8_t target) {
+    if (target >= FAN_COUNT) return;
+    PORT_REDIRECT(SERIAL_BOTH);
+    SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
   }
 
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
