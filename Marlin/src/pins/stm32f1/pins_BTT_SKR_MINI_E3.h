@@ -35,8 +35,7 @@
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #undef E2END
-  #define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
 
 //
@@ -112,39 +111,30 @@
  *                 EXP1
  */
 
-#define EXPA1_03_PIN                        PB7
-#define EXPA1_04_PIN                        PB8
-#define EXPA1_05_PIN                        PB9
-#define EXPA1_06_PIN                        PA10
-#define EXPA1_07_PIN                        -1
-#define EXPA1_08_PIN                        PA9
-#define EXPA1_09_PIN                        PB6
-#define EXPA1_10_PIN                        PB5
-
 #if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define BEEPER_PIN              EXPA1_10_PIN
+    #define BEEPER_PIN                      PB5
 
-    #define BTN_ENC                 EXPA1_09_PIN
-    #define BTN_EN1                 EXPA1_08_PIN
-    #define BTN_EN2                 EXPA1_06_PIN
+    #define BTN_ENC                         PB6
+    #define BTN_EN1                         PA9
+    #define BTN_EN2                         PA10
 
-    #define LCD_PINS_RS             EXPA1_04_PIN
-    #define LCD_PINS_ENABLE         EXPA1_03_PIN
-    #define LCD_PINS_D4             EXPA1_05_PIN
+    #define LCD_PINS_RS                     PB8
+    #define LCD_PINS_ENABLE                 PB7
+    #define LCD_PINS_D4                     PB9
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
 
-    #define LCD_PINS_RS             EXPA1_05_PIN
-    #define LCD_PINS_ENABLE         EXPA1_09_PIN
-    #define LCD_PINS_D4             EXPA1_04_PIN
-    #define LCD_PINS_D5             EXPA1_06_PIN
-    #define LCD_PINS_D6             EXPA1_08_PIN
-    #define LCD_PINS_D7             EXPA1_10_PIN
+    #define LCD_PINS_RS                     PB9
+    #define LCD_PINS_ENABLE                 PB6
+    #define LCD_PINS_D4                     PB8
+    #define LCD_PINS_D5                     PA10
+    #define LCD_PINS_D6                     PA9
+    #define LCD_PINS_D7                     PB5
     #define ADC_KEYPAD_PIN                  PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
@@ -160,14 +150,14 @@
      *                    EXP1
      */
 
-    #define BTN_ENC                 EXPA1_09_PIN
-    #define BTN_EN1                 EXPA1_08_PIN
-    #define BTN_EN2                 EXPA1_06_PIN
+    #define BTN_ENC                         PB6
+    #define BTN_EN1                         PA9
+    #define BTN_EN2                         PA10
 
-    #define DOGLCD_CS               EXPA1_04_PIN
-    #define DOGLCD_A0               EXPA1_05_PIN
-    #define DOGLCD_SCK              EXPA1_10_PIN
-    #define DOGLCD_MOSI             EXPA1_03_PIN
+    #define DOGLCD_CS                       PB8
+    #define DOGLCD_A0                       PB9
+    #define DOGLCD_SCK                      PB5
+    #define DOGLCD_MOSI                     PB7
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
 
@@ -212,12 +202,10 @@
 
   #define CLCD_SPI_BUS 1                          // SPI1 connector
 
-  #define BEEPER_PIN                EXPA1_09_PIN
+  #define BEEPER_PIN                        PB6
 
-  #define BTN_EN1                   EXPA1_08_PIN
-  #define LCD_PINS_RS               EXPA1_04_PIN
-  #define LCD_PINS_ENABLE           EXPA1_03_PIN
-  #define LCD_PINS_D4               EXPA1_05_PIN
+  #define CLCD_MOD_RESET                    PA9
+  #define CLCD_SPI_CS                       PB8
 
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
@@ -234,8 +222,8 @@
 #endif
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) && SD_CONNECTION_IS(LCD)
-  #define SD_DETECT_PIN             EXPA1_10_PIN
-  #define SS_PIN                    EXPA1_06_PIN
+  #define SD_DETECT_PIN                     PB5
+  #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif

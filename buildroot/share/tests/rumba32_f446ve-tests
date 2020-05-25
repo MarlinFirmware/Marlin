@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Build tests for rumba32_f446ve
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_RUMBA32_AUS3D
+opt_set SERIAL_PORT -1
+opt_disable PIDTEMP
+opt_enable PIDTEMPBED
+opt_set TEMP_SENSOR_BED 1
+opt_disable THERMAL_PROTECTION_BED
+opt_set X_DRIVER_TYPE TMC2130
+exec_test $1 $2 "rumba32_f446ve with TMC2130, PID Bed, and bed thermal protection disabled"
+
+# cleanup
+restore_configs

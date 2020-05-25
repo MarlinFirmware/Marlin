@@ -483,6 +483,7 @@ class Temperature {
       #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
 
       static void set_fan_speed(const uint8_t target, const uint16_t speed);
+      static void report_fan_speed(const uint8_t target);
 
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         static bool fans_paused;
@@ -612,6 +613,10 @@ class Temperature {
         return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
+        return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
     #endif // HOTENDS
 
     #if HAS_HEATED_BED
@@ -649,6 +654,10 @@ class Temperature {
       );
 
       static void wait_for_bed_heating();
+
+      FORCE_INLINE static bool degBedNear(const float &temp) {
+        return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
+      }
 
     #endif // HAS_HEATED_BED
 

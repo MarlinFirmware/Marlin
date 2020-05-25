@@ -26,10 +26,6 @@
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
-#ifndef E2END
-  #define E2END 0xFFF // Default to Flash emulated EEPROM size (eeprom_emul.cpp)
-#endif
-
 /* EEPROM emulation over flash with reduced wear
  *
  * We will use 2 contiguous groups of pages as main and alternate.
@@ -973,7 +969,10 @@ static void ee_Init() {
 
 #include "../shared/eeprom_api.h"
 
-size_t PersistentStore::capacity()    { return E2END + 1; }
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
+#endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 bool PersistentStore::access_start()  { ee_Init();  return true; }
 bool PersistentStore::access_finish() { ee_Flush(); return true; }
 

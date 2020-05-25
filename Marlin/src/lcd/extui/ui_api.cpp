@@ -893,7 +893,7 @@ namespace ExtUI {
   bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
-    static const char firmware_name[] PROGMEM = "Marlin " SHORT_BUILD_VERSION;
+    static PGMSTR(firmware_name, "Marlin " SHORT_BUILD_VERSION);
     return firmware_name;
   }
 
@@ -1000,7 +1000,7 @@ namespace ExtUI {
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(SD_ORDER(pos, count()));
+      card.getfilename_sorted(pos);
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);

@@ -86,7 +86,7 @@ static inline void _lcd_level_bed_corners_homing() {
             ui.goto_previous_screen_no_defer();
           }
         , GET_TEXT(TERN(LEVEL_CENTER_TOO, MSG_LEVEL_BED_NEXT_POINT, MSG_NEXT_CORNER))
-        , (PGM_P)nullptr, PSTR("?")
+        , (const char*)nullptr, PSTR("?")
       );
     });
     ui.set_selection(true);

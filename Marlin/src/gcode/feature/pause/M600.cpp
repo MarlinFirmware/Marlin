@@ -56,6 +56,7 @@
  *  L[distance] - Extrude distance for insertion (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
  *  T[toolhead] - Select extruder for filament change
+ *  R[temp]     - Resume temperature (in current units)
  *
  *  Default values are used for omitted arguments.
  */
@@ -96,7 +97,7 @@ void GcodeSuite::M600() {
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
-    // Don't allow filament change without homing first
+    // If needed, home before parking for filament change
     if (!all_axes_known()) home_all_axes();
   #endif
 
@@ -153,7 +154,8 @@ void GcodeSuite::M600() {
       resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
     #else
       wait_for_confirmation(true, beep_count DXC_PASS);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH,
+                   beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
     #endif
   }
 
