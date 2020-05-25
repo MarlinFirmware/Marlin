@@ -14,7 +14,7 @@
 # Detailed instructions for using the makefile:
 #
 #  1. Modify the line containing "ARDUINO_INSTALL_DIR" to point to the directory that
-#     contains the Arduino installation (for example, under Mac OS X, this
+#     contains the Arduino installation (for example, under macOS, this
 #     might be /Applications/Arduino.app/Contents/Resources/Java).
 #
 #  2. Modify the line containing "UPLOAD_PORT" to refer to the filename

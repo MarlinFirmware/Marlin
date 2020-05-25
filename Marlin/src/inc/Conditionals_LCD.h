@@ -414,6 +414,7 @@
   #undef MIXING_EXTRUDER
   #undef MK2_MULTIPLEXER
   #undef PRUSA_MMU2
+  #undef HOTEND_IDLE_TIMEOUT
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS

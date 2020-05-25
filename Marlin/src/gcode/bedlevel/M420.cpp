@@ -84,11 +84,11 @@ void GcodeSuite::M420() {
     }
   #endif
 
+  xyz_pos_t oldpos = current_position;
+
   // If disabling leveling do it right away
   // (Don't disable for just M420 or M420 V)
   if (seen_S && !to_enable) set_bed_leveling_enabled(false);
-
-  xyz_pos_t oldpos = current_position;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
