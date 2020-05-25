@@ -23,7 +23,7 @@
 #include "MarlinSerial.h"
 
 #if ENABLED(EMERGENCY_PARSER)
-    #include "../../feature/e_parser.h"
+  #include "../../feature/e_parser.h"
 #endif
 
 #define DECLARE_SERIAL_PORT(ser_num) \
@@ -33,29 +33,28 @@
 
 #define DECLARE_SERIAL_PORT_EXP(ser_num) DECLARE_SERIAL_PORT(ser_num)
 
-#if (defined(SERIAL_PORT) && SERIAL_PORT >= 0)
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
   DECLARE_SERIAL_PORT_EXP(SERIAL_PORT)
 #endif
 
-#if (defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0) 
+#if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
   DECLARE_SERIAL_PORT_EXP(SERIAL_PORT_2)
 #endif
 
-#if (defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT >= 0) 
+#if defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT >= 0
   DECLARE_SERIAL_PORT_EXP(DGUS_SERIAL_PORT)
 #endif
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
-    HardwareSerial::begin(baud, config);
-    // replace the IRQ callback with the one we have defined
-#if ENABLED(EMERGENCY_PARSER)
+  HardwareSerial::begin(baud, config);
+  // replace the IRQ callback with the one we have defined
+  #if ENABLED(EMERGENCY_PARSER)
     _serial.rx_callback = _rx_callback;
-#endif
+  #endif
 }
 
 // This function is Copyright (c) 2006 Nicholas Zambetti.
-void MarlinSerial::_rx_complete_irq(serial_t *obj)
-{
+void MarlinSerial::_rx_complete_irq(serial_t *obj) {
   // No Parity error, read byte and store it in the buffer if there is room
   unsigned char c;
 
@@ -72,10 +71,10 @@ void MarlinSerial::_rx_complete_irq(serial_t *obj)
       obj->rx_head = i;
     }
 
-#if ENABLED(EMERGENCY_PARSER)
-    emergency_parser.update(emergency_state, c);
-#endif
+    #if ENABLED(EMERGENCY_PARSER)
+      emergency_parser.update(emergency_state, c);
+    #endif
   }
 }
 
-#endif // STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
