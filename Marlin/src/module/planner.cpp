@@ -2456,10 +2456,16 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
       CACHED_SQRT(previous_nominal_speed, previous_nominal_speed_sqr);
 
-      vmax_junction = _MIN(nominal_speed, previous_nominal_speed);
+      if (nominal_speed < previous_nominal_speed) {
+        vmax_junction = nominal_speed;
+        const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
+      }
+      else {
+        vmax_junction = previous_nominal_speed;
+        const float smaller_speed_factor = 1.0f;  // previous_nominal_speed/previous_nominal_speed = 1.0
+      }
 
       // Now limit the jerk in all axes.
-      const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
       #if HAS_LINEAR_E_JERK
         LOOP_XYZ(axis)
       #else
