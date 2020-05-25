@@ -179,9 +179,8 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(LASER_MOVE_POWER)
     // Set the laser power in the planner to configure this move
-    if (parser.seen('S')){
+    if (parser.seen('S'))
       cutter.inline_power(cutter.power_to_range(cutter_power_t(round(parser.value_float()))));
-      }
     else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
       cutter.set_inline_enabled(false);
   #endif
