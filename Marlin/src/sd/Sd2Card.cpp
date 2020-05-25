@@ -40,7 +40,7 @@
 
 #include "../MarlinCore.h"
 
-#if ENABLED(SD_CHECK_AND_RETRY)
+#if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
   static bool crcSupported = true;
 
   #ifdef FAST_CRC
@@ -97,7 +97,7 @@ uint8_t Sd2Card::cardCommand(const uint8_t cmd, const uint32_t arg) {
 
   uint8_t *pa = (uint8_t *)(&arg);
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
+  #if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
 
     // Form message
     uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
@@ -258,7 +258,7 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
     }
   }
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
+  #if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
     crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
   #endif
 
@@ -324,7 +324,7 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
 bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
+  #if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
     uint8_t retryCnt = 3;
     for (;;) {
       if (cardCommand(CMD17, blockNumber))
@@ -362,7 +362,7 @@ bool Sd2Card::readData(uint8_t* dst) {
   return readData(dst, 512);
 }
 
-#if ENABLED(SD_CHECK_AND_RETRY)
+#if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
   #ifdef FAST_CRC
   static const uint16_t crctab16[] PROGMEM = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
@@ -439,7 +439,7 @@ bool Sd2Card::readData(uint8_t* dst, const uint16_t count) {
     spiRead(dst, count);                      // Transfer data
 
     const uint16_t recvCrc = (spiRec() << 8) | spiRec();
-    #if ENABLED(SD_CHECK_AND_RETRY)
+    #if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
       success = !crcSupported || recvCrc == CRC_CCITT(dst, count);
       if (!success) error(SD_CARD_ERROR_READ_CRC);
     #else
@@ -576,7 +576,7 @@ bool Sd2Card::writeData(const uint8_t* src) {
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
 
   uint16_t crc =
-    #if ENABLED(SD_CHECK_AND_RETRY)
+    #if ENABLED(SD_CHECK_AND_RETRY) && !ENABLED(USE_USB_COMPOSITE)
       CRC_CCITT(src, 512)
     #else
       0xFFFF
