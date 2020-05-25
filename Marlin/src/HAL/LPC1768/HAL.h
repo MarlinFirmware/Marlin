@@ -223,6 +223,6 @@ void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
 
 // Add strcmp_P if missing
-#ifndef strcmp_P 
+#ifndef strcmp_P
   #define strcmp_P(a, b) strcmp((a), (b))
-#endif 
+#endif
