@@ -304,7 +304,7 @@
 
     #else                                         // !FYSETC_MINI_12864
 
-      #if ENABLED(MKS_MINI_12864)
+      #if EITHER(MKS_MINI_12864, MKS_LCD12864)
 
         #define DOGLCD_CS           EXPA1_05_PIN
         #define DOGLCD_A0           EXPA1_04_PIN

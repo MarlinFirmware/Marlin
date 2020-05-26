@@ -76,7 +76,7 @@
   #define LCD_PINS_ENABLE                  P0_18
   #define LCD_PINS_D4                      P0_15
 
-  #if ENABLED(MKS_MINI_12864)
+  #if EITHER(MKS_MINI_12864, MKS_LCD12864)
     #define DOGLCD_CS                      P2_06
     #define DOGLCD_A0                      P0_16
   #endif
@@ -89,7 +89,7 @@
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 #ifndef SDCARD_CONNECTION
-  #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #if ANY(MKS_MINI_12864, MKS_LCD12864, ENDER2_STOCKDISPLAY)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD

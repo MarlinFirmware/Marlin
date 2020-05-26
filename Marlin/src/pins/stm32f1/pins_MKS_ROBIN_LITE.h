@@ -91,7 +91,7 @@
 
   #define LCD_PINS_ENABLE                   PC2
 
-  #if ENABLED(MKS_MINI_12864)
+  #if EITHER(MKS_MINI_12864, MKS_LCD12864)
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
