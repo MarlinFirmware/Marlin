@@ -642,7 +642,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t ofla
   }
   else {
     // don't create unless O_CREAT and O_WRITE
-    if (oflag & (O_CREAT | O_WRITE) != (O_CREAT | O_WRITE)) return false;
+    if ((oflag & (O_CREAT | O_WRITE)) != (O_CREAT | O_WRITE)) return false;
     if (emptyFound) {
       index = dirIndex_;
       p = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
