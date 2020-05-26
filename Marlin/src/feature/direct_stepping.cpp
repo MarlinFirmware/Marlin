@@ -61,7 +61,7 @@ namespace DirectStepping {
 
   template<typename Cfg>
   uint8_t SerialPageManager<Cfg>::pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
-          
+
   template<typename Cfg>
   uint8_t SerialPageManager<Cfg>::checksum;
 

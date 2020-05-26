@@ -52,10 +52,14 @@ uint8_t ee_read_byte(uint8_t *pos) {
   return uint8_t(data);
 }
 
-size_t PersistentStore::capacity()    { return E2END + 1; }
+#ifndef MARLIN_EEPROM_SIZE
+  #error "MARLIN_EEPROM_SIZE is required for Flash-based EEPROM."
+#endif
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+
 bool PersistentStore::access_finish() { return true; }
 
-bool PersistentStore::access_start()  {
+bool PersistentStore::access_start() {
   static bool ee_initialized = false;
   if (!ee_initialized) {
     HAL_FLASH_Unlock();
