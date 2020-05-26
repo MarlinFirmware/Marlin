@@ -47,6 +47,12 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN                           3
+#define SERVO1_PIN                           4
+#define SERVO2_PIN                           5
+//
 // Limit Switches
 //
 #define X_MIN_PIN                             14
@@ -74,6 +80,10 @@
 #define E0_STEP_PIN                           67
 #define E0_DIR_PIN                            24
 #define E0_ENABLE_PIN                         26
+
+#define E1_STEP_PIN                           68
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         27
 
 //
 // Temperature Sensors
