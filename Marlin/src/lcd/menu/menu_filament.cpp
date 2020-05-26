@@ -36,6 +36,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if UNBED_AUTO_COUNTDOWN > 0
+  #include "../../feature/pause.h"
+#endif
+
 //
 // Change Filament > Change/Unload/Load Filament
 //
@@ -221,6 +225,23 @@ static PGM_P pause_header() {
   ++_thisItemNr; \
 }while(0)
 
+#if UNBED_AUTO_COUNTDOWN > 0
+  #define UNBED_TIME_STATUS_ITEM() do { \
+    if (_menuLineNr == _thisItemNr) { \
+      if (ui.should_draw()) { \
+        MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_UNBED_AUTO_TIME_OUT), SS_INVERT); \
+        ui.draw_unbed_timeout_status(_lcdLineNr); \
+      } \
+      if (_skipStatic && encoderLine <= _thisItemNr) { \
+        ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+        ++encoderLine; \
+      } \
+      ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); \
+    } \
+    ++_thisItemNr; \
+  }while(0)
+#endif
+
 void menu_pause_option() {
   START_MENU();
   #if LCD_HEIGHT > 2
@@ -253,7 +274,6 @@ void _lcd_pause_message(PGM_P const msg) {
   PGM_P const msg3 = msg2 + strlen_P(msg2) + 1;
   const bool has2 = msg2[0], has3 = msg3[0],
              skip1 = !has2 && (LCD_HEIGHT) >= 5;
-
   START_SCREEN();
   STATIC_ITEM_P(pause_header(), SS_CENTER|SS_INVERT);           // 1: Header
   if (skip1) SKIP_ITEM();                                       // Move a single-line message down
@@ -261,7 +281,12 @@ void _lcd_pause_message(PGM_P const msg) {
   if (has2) STATIC_ITEM_P(msg2);                                // 3: Message Line 2
   if (has3 && (LCD_HEIGHT) >= 5) STATIC_ITEM_P(msg3);           // 4: Message Line 3 (if LCD has 5 lines)
   if (skip1 + 1 + has2 + has3 < (LCD_HEIGHT) - 2) SKIP_ITEM();  // Push Hotend Status down, if needed
-  HOTEND_STATUS_ITEM();                                         // 5: Hotend Status
+  #if UNBED_AUTO_COUNTDOWN > 0
+    if (unbed_timeout) UNBED_TIME_STATUS_ITEM();                  // 5: Hotend Status/Unbed countdown
+    else HOTEND_STATUS_ITEM();
+  #else
+    HOTEND_STATUS_ITEM();
+  #endif
   END_SCREEN();
 }
 
@@ -274,6 +299,7 @@ void lcd_pause_insert_message()   { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHA
 void lcd_pause_load_message()     { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD));    }
 void lcd_pause_waiting_message()  { _lcd_pause_message(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING));  }
 void lcd_pause_resume_message()   { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));  }
+void lcd_pause_timed_message()    { _lcd_pause_message(GET_TEXT(MSG_ADVANCED_TIMED_WAITING));  }
 
 void lcd_pause_purge_message() {
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -289,6 +315,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
     case PAUSE_MESSAGE_CHANGING: return lcd_pause_changing_message;
     case PAUSE_MESSAGE_UNLOAD:   return lcd_pause_unload_message;
     case PAUSE_MESSAGE_WAITING:  return lcd_pause_waiting_message;
+    case PAUSE_MESSAGE_TIMED  :  return lcd_pause_timed_message;
     case PAUSE_MESSAGE_INSERT:   return lcd_pause_insert_message;
     case PAUSE_MESSAGE_LOAD:     return lcd_pause_load_message;
     case PAUSE_MESSAGE_PURGE:    return lcd_pause_purge_message;

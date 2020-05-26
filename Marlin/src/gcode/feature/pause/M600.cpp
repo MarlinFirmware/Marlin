@@ -48,6 +48,12 @@
 /**
  * M600: Pause for filament change
  *
+ *  A           - Enable UNBED_AUTO
+ *  D           - Disable UNBED_AUTO
+ *  C           - Clear Z highest clearance
+ *  B[0/1]      - Enable/disable UNBED_ALERT
+ *  U           - Unbed
+ *
  *  E[distance] - Retract the filament this far
  *  Z[distance] - Move the Z axis by this distance
  *  X[position] - Move to this X position, with Y
@@ -61,6 +67,14 @@
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M600() {
+
+  #if UNBED_AUTO_COUNTDOWN > 0
+    if (parser.seen('A')) { unbed_auto = true; return;}
+    if (parser.seen('D')) { unbed_auto = false; return;}
+    if (parser.seen('C')) { unbed_min_z_height = 0; return;}
+    if (parser.seen('U')) { unbed(); return;}
+    if (parser.seenval('B')) {unbed_alert = parser.linearval('B'); return;}
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t target_e_stepper = get_target_e_stepper_from_command();

@@ -29,6 +29,10 @@
   #include "../../feature/fwretract.h"
 #endif
 
+#if UNBED_AUTO_COUNTDOWN > 0
+  #include "../../feature/pause.h"
+#endif
+
 #include "../../sd/cardreader.h"
 
 #if ENABLED(NANODLP_Z_SYNC)
@@ -70,6 +74,22 @@ void GcodeSuite::G0_G1(
     #endif
 
     get_destination_from_command();                 // Get X Y Z E F (and set cutter power)
+
+    #if UNBED_AUTO_COUNTDOWN > 0
+      //Detection of the last object layer
+        static float current_object_height;
+        if ( current_position.z > current_object_height )
+          if ( (destination.x != current_position.x) || (destination.y != current_position.y)  ) // At least one axis move to confirm printing
+            if ( destination.e > current_position.e ) {
+              current_object_height = current_position.z; // If extrusion
+              //Store higher printed layer
+              if(current_object_height > unbed_min_z_height) unbed_min_z_height = current_object_height;
+            }
+        if(destination.z < current_object_height) {
+          if (unbed_auto) unbed();
+          current_object_height = 0;
+        }
+    #endif
 
     #ifdef G0_FEEDRATE
       if (fast_move) {

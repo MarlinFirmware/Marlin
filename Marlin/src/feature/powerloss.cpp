@@ -227,7 +227,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
   void PrintJobRecovery::_outage() {
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
-      if (lock) return; // No re-entrance during raise or park
+      if (lock) return; // No re-entrance from idle() during raise_z()
       lock = true;
     #endif
 
@@ -275,8 +275,21 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
         }
       #endif
 
+      #if ENABLED(THERMAL_PROTECTION_BED)
+        const millis_t wtp_add = (WATCH_BED_TEMP_PERIOD * 1000) - 5000;
+        millis_t wtp = millis() + wtp_add; // -5 seconds for more security
+        thermalManager.reset_bed_idle_timer();
+      #endif
       // Wait
-      do { gcode.dwell(1000); } while (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE); // Wait for power to return
+      do {
+         gcode.dwell(1000);
+         #if ENABLED(THERMAL_PROTECTION_BED)
+           if ( millis() > wtp)  ) {
+            thermalManager.reset_bed_idle_timer();
+            wtp = millis() + wtp_add;
+           }
+         #endif
+      } while (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE); // Wait for power to return
 
       // Restart heaters
       #if HAS_HEATED_BED
@@ -297,7 +310,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       // Prime
       #if BOTH(TOOLCHANGE_FS_PRIME_FIRST_USED, POWER_LOSS_USE_TOOLCHANGE_SWAP_PRIME)
         unscaled_e_move(POWER_LOSS_RETRACT_L, POWER_LOSS_PURGE_F);
-        tool_change_prime();
+        tool_change_prime(const bool keep_destination = true);
       #else
         unscaled_e_move(POWER_LOSS_RETRACT_L + POWER_LOSS_PURGE_LEN, POWER_LOSS_PURGE_F);
         unscaled_e_move(-POWER_LOSS_TRAVEL_RETRACT_L , POWER_LOSS_RETRACT_F);

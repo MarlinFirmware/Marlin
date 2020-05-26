@@ -306,6 +306,10 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause impression");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Reprendre impr.");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arrêter impr.");
+  PROGMEM Language_Str MSG_UNBED_AUTO                      = _UxGT("Enlèvement auto");
+  PROGMEM Language_Str MSG_UNBED_CLEAR                     = _UxGT("RaZ hauteur");
+  PROGMEM Language_Str MSG_UNBED_AUTO_TIME_OUT             = _UxGT("Reste");
+  PROGMEM Language_Str MSG_UNBED_ALERT                     = _UxGT("Alerte");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Impression objet");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Annuler objet");
   PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Annuler objet =");
@@ -523,6 +527,7 @@ namespace Language_fr {
   #if LCD_HEIGHT >= 4
     // Up to 3 lines allowed
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Presser bouton", "pour reprendre"));
+    PROGMEM Language_Str MSG_ADVANCED_TIMED_WAITING        = _UxGT(MSG_3_LINE("Clic court/long", "pour augmenter","ou continuer"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_2_LINE("Attente filament", "pour démarrer"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Insérer filament", "et app. bouton", "pour continuer..."));
@@ -536,6 +541,7 @@ namespace Language_fr {
   #else // LCD_HEIGHT < 4
     // Up to 2 lines allowed
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Clic pour continuer"));
+    PROGMEM Language_Str MSG_ADVANCED_TIMED_WAITING        = _UxGT(MSG_1_LINE("+Temps/Retour"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Patience..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Insérer fil."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Chauffer ?"));

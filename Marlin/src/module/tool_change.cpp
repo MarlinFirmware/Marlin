@@ -782,13 +782,12 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
  */
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
-void tool_change_prime() {
+void tool_change_prime(const bool keep_destination) {
   if (toolchange_settings.extra_prime > 0
     && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
   ) {
-    // For BACKUP_POWER_PARK_WAITING set 'destination' before calling
-    // so that the code below knows the return point and E value.
-    TERN(BACKUP_POWER_PARK_WAITING, /*nothing*/, destination = current_position);
+
+    if(!keep_destination)  destination = current_position;
 
     const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
@@ -850,6 +849,11 @@ void tool_change_prime() {
     planner.synchronize();
     current_position.e = destination.e;
     sync_plan_position_e(); // Resume at the old E position
+
+    // Restart Fan
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+      RESTORE(fan);
+    #endif
   }
 }
 #endif
@@ -1294,6 +1298,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
+
   }
 
 #endif // TOOLCHANGE_MIGRATION_FEATURE

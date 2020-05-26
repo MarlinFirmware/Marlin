@@ -110,6 +110,89 @@ fil_change_settings_t fc_settings[EXTRUDERS];
   inline void first_impatient_beep(const int8_t) {}
 #endif
 
+#if UNBED_AUTO_COUNTDOWN > 0
+  float unbed_min_z_height = 0;
+  bool unbed_auto = false,
+      unbed_alert = ENABLED(UNBED_AUTO_ALERT);
+  millis_t unbed_timeout;
+  void clear_unbed_min_z_height() {unbed_min_z_height = 0;};
+
+  void unbed(){
+    xyz_pos_t park_point = NOZZLE_PARK_POINT;
+    const bool sd_printing = TERN0(SDSUPPORT, IS_SD_PRINTING());
+    millis_t diff_clic,
+             clic = 0,
+             unbed_alert_period = 0,
+             start;
+    TERN_(THERMAL_PROTECTION_BED, millis_t bed_period = WATCH_BED_TEMP_PERIOD - 2000);
+    constexpr millis_t add = SEC_TO_MS(UNBED_AUTO_COUNTDOWN);
+    bool one_on_two = 0, buzz_ok = 1 ;
+
+    #ifdef UNBED_AUTO_Z_ADD
+      park_point.z = unbed_min_z_height - current_position.z + UNBED_AUTO_Z_ADD;
+    #else
+      park_point.z += (unbed_min_z_height - current_position.z);
+    #endif
+    LIMIT(park_point.z, current_position.z, Z_MAX_POS);
+    #ifdef UNBED_AUTO_X
+      park_point.x = UNBED_AUTO_X;
+    #endif
+    #ifdef UNBED_AUTO_Y
+      park_point.y = UNBED_AUTO_Y;
+    #endif
+
+    if (pause_print(PAUSE_PARK_RETRACT_LENGTH, park_point, 0, true)) {
+      TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+      TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_TIMED, PAUSE_MODE_PAUSE_PRINT));
+
+      if (!sd_printing) {
+        clic = millis();
+        unbed_timeout = clic + add;
+        wait_for_user = true;
+        start = millis();
+        while (unbed_timeout > (millis()))  {
+          // diff_clic have double usage, for diff, or for storing old clic
+          if(!wait_for_user) { //Click/M108 detected
+            diff_clic = clic ;// Used to temporary store the old clic value too
+            if(one_on_two) diff_clic = (clic = millis()) - diff_clic ; //3 clics diff test for no unwanted skipping
+            one_on_two++;
+            unbed_timeout += add;
+            if (diff_clic < UNBED_AUTO_LONG_PRESS_INTERVAL) unbed_timeout = 0;
+            wait_for_user = true;
+          }
+          #if ENABLED(THERMAL_PROTECTION_BED)
+            if( !(bed_period--) ) {
+               thermalManager.reset_bed_idle_timer();
+               bed_period = WATCH_BED_TEMP_PERIOD - 2000;
+            }
+          #endif
+          idle_no_sleep();
+          //Beep when close to the end
+          #if HAS_BUZZER
+            if (unbed_alert && ( (millis() > (unbed_timeout - 10000)) || ( millis() < (start + 10000)))) {
+              if(unbed_alert_period++ > 2000){
+                unbed_alert_period = 0;
+                BUZZ(200, 5000);
+              }
+            }
+            else
+              if( buzz_ok )
+                if ((millis() > (unbed_timeout - 5000)) && (millis() < (unbed_timeout - 4900)) )  {
+                  buzz_ok = false;
+                  BUZZ(200, 5000);
+                }
+          #endif
+        }//while
+      }
+      unbed_timeout = 0;
+      TERN_(HAS_LCD_MENU, ui.return_to_status());
+      TERN_(THERMAL_PROTECTION_BED, thermalManager.reset_bed_idle_timer());
+      TERN_(THERMAL_PROTECTION_BED, thermalManager.wait_for_bed_heating());
+      resume_print(0, 0, -PAUSE_PARK_RETRACT_LENGTH, 0);
+    }
+  } //unbed()
+#endif
+
 /**
  * Ensure a safe temperature for extrusion
  *

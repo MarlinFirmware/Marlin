@@ -411,6 +411,7 @@ public:
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
+        static void draw_unbed_timeout_status(const uint8_t row);
       #endif
 
       static void status_screen();

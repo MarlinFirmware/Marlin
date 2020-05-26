@@ -352,6 +352,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pausing...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause Print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resume Print");
+  PROGMEM Language_Str MSG_UNBED_AUTO                      = _UxGT("Unbed auto");
+  PROGMEM Language_Str MSG_UNBED_CLEAR                     = _UxGT("Clear Z raise");
+  PROGMEM Language_Str MSG_UNBED_AUTO_TIME_OUT             = _UxGT("Countdown");
+  PROGMEM Language_Str MSG_UNBED_ALERT                     = _UxGT("Alert");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop Print");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Printing Object");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancel Object");
@@ -587,6 +591,7 @@ namespace Language_en {
   //
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Press Button", "to resume print"));
+    PROGMEM Language_Str MSG_ADVANCED_TIMED_WAITING        = _UxGT(MSG_3_LINE("Short/Long clic", "to add time","or continue"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Wait for", "filament change", "to start"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Insert filament", "and press button", "to continue"));
@@ -599,6 +604,7 @@ namespace Language_en {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Wait for print", "to resume..."));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Click to continue"));
+    PROGMEM Language_Str MSG_ADVANCED_TIMED_WAITING        = _UxGT(MSG_1_LINE("Add/Skip"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Please wait..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Insert and Click"));
