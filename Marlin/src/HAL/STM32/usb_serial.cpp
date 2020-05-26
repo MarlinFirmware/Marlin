@@ -31,7 +31,7 @@ EmergencyParser::State emergency_state = EmergencyParser::State::EP_RESET;
 int8_t (*USBD_CDC_Receive_original) (uint8_t *Buf, uint32_t *Len) = nullptr;
 
 static int8_t USBD_CDC_Receive_hook(uint8_t *Buf, uint32_t *Len) {
-  for(uint32_t i = 0; i < *Len; i++) 
+  for (uint32_t i = 0; i < *Len; i++)
     emergency_parser.update(emergency_state, Buf[i]);
   return USBD_CDC_Receive_original(Buf, Len);
 }
