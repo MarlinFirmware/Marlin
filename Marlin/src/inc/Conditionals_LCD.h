@@ -373,7 +373,9 @@
     #if ENABLED(DOGLCD)
       #define HAS_GRAPHICAL_LCD 1
     #else
-      #define HAS_CHARACTER_LCD 1
+      #if DISABLED(HAS_GRAPHICAL_TFT)
+        #define HAS_CHARACTER_LCD 1
+      #endif
     #endif
   #endif
 #endif

@@ -610,6 +610,12 @@
   #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
 
 //
+// Custom board
+//
+#elif MB(CUSTOM)
+#include "pins_custom.h"
+
+//
 // Linux Native Debug board
 //
 

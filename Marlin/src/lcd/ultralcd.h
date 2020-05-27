@@ -443,6 +443,9 @@ public:
   #endif
 
   #if HAS_LCD_MENU
+    #if LCD_TIMEOUT_TO_STATUS
+      static millis_t return_to_status_ms;
+    #endif  
 
     #if ENABLED(TOUCH_BUTTONS)
       static uint8_t touch_buttons;
@@ -647,6 +650,10 @@ private:
       static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
+
+    #if HAS_GRAPHICAL_TFT
+      static void idle();
+    #endif
   #endif
 };
 

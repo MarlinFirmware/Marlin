@@ -727,6 +727,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 millis_t next_lcd_update_ms;
+#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+  millis_t MarlinUI::return_to_status_ms = 0;
+#endif
 
 void MarlinUI::update() {
 
@@ -734,7 +737,6 @@ void MarlinUI::update() {
   millis_t ms = millis();
 
   #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
-    static millis_t return_to_status_ms = 0;
     #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
   #else
     #define RESET_STATUS_TIMEOUT() NOOP
@@ -985,6 +987,10 @@ void MarlinUI::update() {
     } // switch
 
   } // ELAPSED(ms, next_lcd_update_ms)
+
+  #if HAS_GRAPHICAL_TFT
+    idle();
+  #endif
 }
 
 #if HAS_ADC_BUTTONS
