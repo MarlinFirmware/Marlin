@@ -378,7 +378,7 @@ void CardReader::mount() {
 /**
  * Handle SD card events
  */
-#if MB(FYSETC_CHEETAH)
+#if MB(FYSETC_CHEETAH, FYSETC_AIO_II)
   #include "../module/stepper.h"
 #endif
 
