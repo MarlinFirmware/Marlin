@@ -726,12 +726,14 @@ bool SdBaseFile::open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag) {
 
 // open a cached directory entry. Assumes vol_ is initialized
 bool SdBaseFile::openCachedEntry(uint8_t dirIndex, uint8_t oflag) {
+  dir_t* p;
+
   #if ENABLED(SDCARD_READONLY)
     if (oflag & (O_WRITE | O_CREAT | O_TRUNC)) goto FAIL;
   #endif
 
   // location of entry in cache
-  dir_t* p = &vol_->cache()->dir[dirIndex];
+  p = &vol_->cache()->dir[dirIndex];
 
   // write or truncate is an error for a directory or read-only file
   if (p->attributes & (DIR_ATT_READ_ONLY | DIR_ATT_DIRECTORY)) {
