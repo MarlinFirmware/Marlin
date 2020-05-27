@@ -398,6 +398,12 @@ public:
         static millis_t next_filament_display;
       #endif
 
+      FORCE_INLINE static void chirp() {
+        #if HAS_CHIRP
+          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+        #endif
+      }
+
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
@@ -522,12 +528,6 @@ public:
 
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       static void reselect_last_file();
-    #endif
-
-    #if ENABLED(G26_MESH_VALIDATION)
-      FORCE_INLINE static void chirp() {
-        TERN_(HAS_BUZZER, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
-      }
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
