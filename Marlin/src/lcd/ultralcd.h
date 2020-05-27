@@ -267,6 +267,10 @@ public:
     static void buzz(const long duration, const uint16_t freq);
   #endif
 
+  FORCE_INLINE static void chirp() {
+    TERN_(HAS_CHIRP, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+  }
+
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     static void update_indicators();
   #endif
@@ -397,12 +401,6 @@ public:
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         static millis_t next_filament_display;
       #endif
-
-      FORCE_INLINE static void chirp() {
-        #if HAS_CHIRP
-          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-        #endif
-      }
 
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
