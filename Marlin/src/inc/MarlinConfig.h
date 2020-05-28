@@ -30,10 +30,8 @@
 #include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
-#include HAL_PATH(../HAL, spi_pins.h)
-
-// Allow pins to override timers
 #include HAL_PATH(../HAL, timers.h)
+#include HAL_PATH(../HAL, spi_pins.h)
 
 #include "Conditionals_post.h"
 #include HAL_PATH(../HAL, inc/Conditionals_post.h)
