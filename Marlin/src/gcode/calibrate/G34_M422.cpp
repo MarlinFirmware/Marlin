@@ -366,7 +366,11 @@ void GcodeSuite::G34() {
       // After this operation the z position needs correction
       set_axis_not_trusted(Z_AXIS);
       // Home Z after the alignment procedure
-      process_subcommands_now_P(PSTR("G28Z"));
+      #if ENABLED(Z_SAFE_HOMING)
+        process_subcommands_now_P(PSTR("G28"));
+      #else
+        process_subcommands_now_P(PSTR("G28Z"));
+      #endif
     #else
       // Use the probed height from the last iteration to determine the Z height.
       // z_measured_min is used, because all steppers are aligned to z_measured_min.
