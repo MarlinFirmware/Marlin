@@ -1231,6 +1231,12 @@
 //#define RESTORE_LEVELING_AFTER_G28
 
 /**
+ * Normally rebooting disables mesh leveling. Enable this option to
+ * allow M500 (store EEPROM) to save the prior leveling state for reboot.
+ */
+//#define RESTORE_MESH_LEVELING_AFTER_BOOT
+
+/**
  * Enable detailed logging of G28, G29, M48, etc.
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!

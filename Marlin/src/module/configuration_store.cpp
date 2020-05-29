@@ -188,6 +188,7 @@ typedef struct SettingsDataStruct {
   //
   // MESH_BED_LEVELING
   //
+  bool mbl_active;
   float mbl_z_offset;                                   // mbl.z_offset
   uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
   float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // mbl.z_values
@@ -620,6 +621,18 @@ void MarlinSettings::postprocess() {
     {
       const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, 10.0f);
       EEPROM_WRITE(zfh);
+    }
+
+    //
+    // RESTORE_MESH_LEVELING_AFTER_BOOT
+    //
+    {
+    #if ENABLED(RESTORE_MESH_LEVELING_AFTER_BOOT)
+      const bool mbl_active = planner.leveling_active;
+    #else
+      const bool mbl_active = false;
+    #endif
+    EEPROM_WRITE(mbl_active);
     }
 
     //
@@ -1469,6 +1482,12 @@ void MarlinSettings::postprocess() {
       // Global Leveling
       //
       EEPROM_READ(TERN(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height, dummyf));
+
+      //
+      // RESTORE_MESH_LEVELING_AFTER_BOOT
+      //
+      const bool &mbl_active = planner.leveling_active;
+      EEPROM_READ(mbl_active);
 
       //
       // Mesh (Manual) Bed Leveling
