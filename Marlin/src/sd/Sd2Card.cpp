@@ -575,7 +575,7 @@ bool Sd2Card::writeData(const uint8_t* src) {
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
 
-  uint16_t crc =
+  const uint16_t crc =
     #if ENABLED(SD_CHECK_AND_RETRY)
       CRC_CCITT(src, 512)
     #else
