@@ -216,13 +216,12 @@ bool GCodeQueue::process_injected_command() {
     gcode.process_parsed_command();
   }
 
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wrestrict"
-
   // Copy the next command into place
-  strcpy(injected_commands, &injected_commands[i + (c != '\0')]);
-
-  #pragma GCC diagnostic pop
+  for (
+    uint8_t d = 0, s = i + !!c;                     // dst, src
+    (injected_commands[d] = injected_commands[s]);  // copy, exit if 0
+    d++, s++                                        // next dst, src
+  );
 
   return true;
 }
@@ -524,12 +523,12 @@ void GCodeQueue::get_serial_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          if (strcmp(command, "M108") == 0) {
+          if (strcmp_P(command, PSTR("M108")) == 0) {
             wait_for_heatup = false;
             TERN_(HAS_LCD_MENU, wait_for_user = false);
           }
-          if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
-          if (strcmp(command, "M410") == 0) quickstop_stepper();
+          if (strcmp_P(command, PSTR("M112")) == 0) kill(M112_KILL_STR, nullptr, true);
+          if (strcmp_P(command, PSTR("M410")) == 0) quickstop_stepper();
         #endif
 
         #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0

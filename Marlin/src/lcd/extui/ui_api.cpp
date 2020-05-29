@@ -54,6 +54,7 @@
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../HAL/shared/Delay.h"
+#include "../../sd/cardreader.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
@@ -66,10 +67,6 @@
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../feature/e_parser.h"
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #include "../../sd/cardreader.h"
 #endif
 
 #if HAS_TRINAMIC_CONFIG
@@ -333,8 +330,8 @@ namespace ExtUI {
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
-      if (axis != Z_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+      if (axis != Z) {
+        max = SQRT(sq(float(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
         min = -max;
       }
     #endif
@@ -896,7 +893,7 @@ namespace ExtUI {
   bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
-    static const char firmware_name[] PROGMEM = "Marlin " SHORT_BUILD_VERSION;
+    static PGMSTR(firmware_name, "Marlin " SHORT_BUILD_VERSION);
     return firmware_name;
   }
 
@@ -1003,7 +1000,7 @@ namespace ExtUI {
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(SD_ORDER(pos, count()));
+      card.getfilename_sorted(pos);
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);

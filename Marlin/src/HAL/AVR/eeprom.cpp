@@ -32,7 +32,10 @@
 
 #include "../shared/eeprom_api.h"
 
-size_t PersistentStore::capacity()    { return E2END + 1; }
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
+#endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
 

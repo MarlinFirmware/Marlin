@@ -98,6 +98,8 @@
   #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
 #elif MB(K8400)
   #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+#elif MB(K8600)
+  #include "ramps/pins_K8600.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8800)
   #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
 #elif MB(BAM_DICE)
@@ -469,6 +471,8 @@
 //
 // STM32 ARM Cortex-M0
 //
+#elif MB(MALYAN_M200_V2)
+  #include "stm32f0/pins_MALYAN_M200_V2.h"      // STM32F0                                env:STM32F070RB_malyan
 #elif MB(MALYAN_M300)
   #include "stm32f0/pins_MALYAN_M300.h"         // STM32F070                              env:malyan_M300
 

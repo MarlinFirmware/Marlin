@@ -97,6 +97,18 @@ void write_to_lcd(const char * const message) {
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
 
+// {E:<msg>} is for error states.
+void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr) {
+  write_to_lcd_P(PSTR("{E:"));
+  write_to_lcd_P(error);
+  if (component) {
+    write_to_lcd_P(PSTR(" "));
+    write_to_lcd_P(component);
+  }
+  write_to_lcd_P(PSTR("}"));
+}
+
+
 /**
  * Process an LCD 'C' command.
  * These are currently all temperature commands
@@ -194,18 +206,19 @@ void process_lcd_eb_command(const char* command) {
  * {J:E}{J:X+200}{J:E}
  * X, Y, Z, A (extruder)
  */
-void process_lcd_j_command(const char* command) {
-  auto move_axis = [command](const auto axis) {
-    const float dist = atof(command + 1) / 10.0;
-    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
-  };
+template<typename T>
+void j_move_axis(const char* command, const T axis) {
+  const float dist = atof(command + 1) / 10.0;
+  ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
+};
 
+void process_lcd_j_command(const char* command) {
   switch (command[0]) {
     case 'E': break;
-    case 'A': move_axis(ExtUI::extruder_t::E0); break;
-    case 'Y': move_axis(ExtUI::axis_t::Y); break;
-    case 'Z': move_axis(ExtUI::axis_t::Z); break;
-    case 'X': move_axis(ExtUI::axis_t::X); break;
+    case 'A': j_move_axis<ExtUI::extruder_t>(command, ExtUI::extruder_t::E0); break;
+    case 'Y': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Y); break;
+    case 'Z': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Z); break;
+    case 'X': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::X); break;
     default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
   }
 }
@@ -378,12 +391,12 @@ void parse_lcd_byte(const byte b) {
       || (!is_lcd && c == '\n')                 // LF on a G-code command
     ) {
       inbound_buffer[inbound_count] = '\0';     // Reset before processing
-      parsing = 0;                              // Unflag and...
       inbound_count = 0;                        // Reset buffer index
       if (parsing == 1)
         process_lcd_command(inbound_buffer);    // Handle the LCD command
       else
         queue.enqueue_one_now(inbound_buffer);  // Handle the G-code command
+      parsing = 0;                              // Unflag and...
     }
     else if (inbound_count < MAX_CURLY_COMMAND - 2)
       inbound_buffer[inbound_count++] = is_lcd ? c : b; // Buffer while space remains
@@ -465,14 +478,32 @@ namespace ExtUI {
     #endif
   }
 
-  // {E:<msg>} is for error states.
-  void onPrinterKilled(PGM_P error, PGM_P component) {
-    write_to_lcd_P(PSTR("{E:"));
-    write_to_lcd_P(error);
-    write_to_lcd_P(PSTR(" "));
-    write_to_lcd_P(component);
-    write_to_lcd_P("}");
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {
+    set_lcd_error_P(error, component);
   }
+
+  #if HAS_PID_HEATING
+
+    void onPidTuning(const result_t rst) {
+      // Called for temperature PID tuning result
+      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      switch (rst) {
+        case PID_BAD_EXTRUDER_NUM:
+          set_lcd_error_P(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+          break;
+        case PID_TEMP_TOO_HIGH:
+          set_lcd_error_P(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+          break;
+        case PID_TUNING_TIMEOUT:
+          set_lcd_error_P(GET_TEXT(MSG_PID_TIMEOUT));
+          break;
+        case PID_DONE:
+          set_lcd_error_P(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+          break;
+      }
+    }
+
+  #endif
 
   void onPrintTimerStarted() { write_to_lcd_P(PSTR("{SYS:BUILD}")); }
   void onPrintTimerPaused() {}
@@ -499,10 +530,6 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {}
-  #endif
-
-  #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {}
   #endif
 }
 

@@ -378,7 +378,7 @@ void CardReader::mount() {
 /**
  * Handle SD card events
  */
-#if MB(FYSETC_CHEETAH)
+#if MB(FYSETC_CHEETAH, FYSETC_AIO_II)
   #include "../module/stepper.h"
 #endif
 
@@ -393,7 +393,7 @@ void CardReader::manage_media() {
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
       mount();                        // Try to mount the media
-      #if MB(FYSETC_CHEETAH)
+      #if MB(FYSETC_CHEETAH, FYSETC_AIO_II)
         reset_stepper_drivers();      // Workaround for Cheetah bug
       #endif
       if (!isMounted()) stat = 0;     // Not mounted?

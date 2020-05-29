@@ -38,7 +38,10 @@ FATFS fat_fs;
 FIL eeprom_file;
 bool eeprom_file_open = false;
 
-size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE size_t(0x1000) // 4KiB of Emulated EEPROM
+#endif
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;

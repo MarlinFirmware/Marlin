@@ -25,7 +25,8 @@ opt_set E1_AUTO_FAN_PIN PC11
 opt_set E2_AUTO_FAN_PIN PC12
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2130
-exec_test $1 $2 "BigTreeTech SKR Pro 3 Extruders with Auto-Fan and mixed TMC drivers"
+opt_enable BLTOUCH EEPROM_SETTINGS AUTO_BED_LEVELING_3POINT Z_SAFE_HOMING
+exec_test $1 $2 "BigTreeTech SKR Pro 3 Extruders, Auto-Fan, BLTOUCH, mixed TMC drivers"
 
 # clean up
 restore_configs

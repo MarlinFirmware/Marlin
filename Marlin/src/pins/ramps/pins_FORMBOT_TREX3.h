@@ -134,10 +134,14 @@
 //
 // Misc. Functions
 //
-#define CASE_LIGHT_PIN                         5
 #define SDSS                                  53
+
 #ifndef LED_PIN
   #define LED_PIN                             13
+#endif
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       5
 #endif
 
 #define SPINDLE_LASER_PWM_PIN                 -1  // Hardware PWM
