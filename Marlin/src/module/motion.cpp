@@ -1549,7 +1549,11 @@ void homeaxis(const AxisEnum axis) {
     #if Z_SPI_SENSORLESS
       #define CAN_HOME_Z true
     #else
-      #define CAN_HOME_Z _CAN_HOME(Z)
+      #define CAN_HOME_Z_WITH_ENDSTOP _CAN_HOME(Z)
+      #define CAN_HOME_Z_WITH_PROBE \
+        ((axis == Z_AXIS) && ENABLED(USE_PROBE_FOR_Z_HOMING) && Z_HOME_DIR < 0 && Z_MIN_PROBE_PIN > -1)
+
+      #define CAN_HOME_Z (CAN_HOME_Z_WITH_ENDSTOP || CAN_HOME_Z_WITH_PROBE)
     #endif
     if (!CAN_HOME_X && !CAN_HOME_Y && !CAN_HOME_Z) return;
   #endif
