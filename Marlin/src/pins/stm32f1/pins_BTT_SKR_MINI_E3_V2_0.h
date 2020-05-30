@@ -22,16 +22,19 @@
 #pragma once
 
 #define SKR_MINI_E3_V2
+
+// Onboard I2C EEPROM
+#undef FLASH_EEPROM_EMULATION //temporary EEPROM include hack
+#undef NO_EEPROM_SELECTED     //temporary EEPROM include hack
+#define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+
 #include "pins_BTT_SKR_MINI_E3.h"
 
 #define BOARD_INFO_NAME "BIGTREE SKR Mini E3 V2.0"
 
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
-
-// Onboard I2C EEPROM
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
 
 #define NEOPIXEL_PIN                       PA8   // LED driving pin
 
