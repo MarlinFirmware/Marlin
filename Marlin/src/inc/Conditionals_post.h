@@ -1587,6 +1587,15 @@
 #if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
+#if _HAS_STOP(X,STOP)
+  #define HAS_X_STOP 1
+#endif
+#if _HAS_STOP(Y,STOP)
+  #define HAS_Y_STOP 1
+#endif
+#if _HAS_STOP(Z,STOP)
+  #define HAS_Z_STOP 1
+#endif
 #if PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
 #endif
@@ -1873,6 +1882,9 @@
 #endif
 #if PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define HAS_BUZZER 1
+  #if LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
+    #define HAS_CHIRP 1
+  #endif
 #endif
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define USE_BEEPER 1

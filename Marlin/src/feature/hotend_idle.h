@@ -21,30 +21,17 @@
  */
 #pragma once
 
-//
-// FYSETC F6 v1.4 pin assignments
-//
+#include "../core/millis_t.h"
 
-#define BOARD_INFO_NAME "FYSETC F6 1.4"
+class HotendIdleProtection {
+public:
+  static void check();
+private:
+  static constexpr millis_t hp_interval = SEC_TO_MS(HOTEND_IDLE_TIMEOUT_SEC);
+  static millis_t next_protect_ms;
+  static void check_hotends(const millis_t &ms);
+  static void check_e_motion(const millis_t &ms);
+  static void timed_out();
+};
 
-#define Z_MAX_PIN                              2
-
-#if HAS_TMC_UART
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   */
-  #define X_SERIAL_RX_PIN                     72
-  #define X_SERIAL_TX_PIN                     71
-  #define Y_SERIAL_RX_PIN                     73
-  #define Y_SERIAL_TX_PIN                     78
-  #define Z_SERIAL_RX_PIN                     75
-  #define Z_SERIAL_TX_PIN                     79
-  #define E0_SERIAL_RX_PIN                    77
-  #define E0_SERIAL_TX_PIN                    81
-  #define E1_SERIAL_RX_PIN                    76
-  #define E1_SERIAL_TX_PIN                    80
-  #define E2_SERIAL_RX_PIN                    62
-  #define E2_SERIAL_TX_PIN                    82
-#endif
-
-#include "pins_FYSETC_F6_13.h"
+extern HotendIdleProtection hotend_idle;
