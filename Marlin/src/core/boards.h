@@ -105,7 +105,7 @@
 #define BOARD_MKS_GEN_L_V2            1149  // MKS GEN L V2
 #define BOARD_COPYMASTER_3D           1150  // Copymaster 3D
 #define BOARD_ORTUR_4                 1151  // Ortur 4
-#define BOARD_TENLOG_D3_HERO          1152  // Tenlog D3 Hero IDEX printer
+#define BOARD_TENLOG_D3_HERO          1160  // Tenlog D3 Hero IDEX printer
 
 //
 // RAMBo and derivatives
