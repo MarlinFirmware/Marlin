@@ -585,6 +585,8 @@
   #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI
 #elif MB(FLSUN_HISPEED)
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeed
+#elif MB(BEAST)
+  #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103RE
 
 //
 // ARM Cortex-M4F
@@ -599,8 +601,6 @@
 // STM32 ARM Cortex-M4F
 //
 
-#elif MB(BEAST)
-  #include "stm32f4/pins_BEAST.h"               // STM32F4                                env:STM32F4
 #elif MB(GENERIC_STM32F4)
   #include "stm32f4/pins_GENERIC_STM32F4.h"     // STM32F4                                env:STM32F4
 #elif MB(ARMED)
@@ -645,9 +645,9 @@
 //
 
 #elif MB(THE_BORG)
-  #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
+  #include "stm32f7/pins_THE_BORG.h"            // STM32F7
 #elif MB(REMRAM_V1)
-  #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
+  #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:REMRAM_V1
 #elif MB(NUCLEO_F767ZI)
   #include "stm32f7/pins_NUCLEO_F767ZI.h"       // STM32F7                                env:NUCLEO_F767ZI
 #elif MB(TEENSY41)

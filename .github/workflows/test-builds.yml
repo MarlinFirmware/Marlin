@@ -94,7 +94,7 @@ jobs:
         # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
 
         #- STM32F4
-        #- STM32F7
+        #- REMRAM_V1
 
         # Non-working environment tests
         #- at90usb1286_cdc
