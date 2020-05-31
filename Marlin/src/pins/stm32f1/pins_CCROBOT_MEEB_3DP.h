@@ -71,24 +71,26 @@
 #define X_ENABLE_PIN                        PB4
 #define X_STEP_PIN                          PC12
 #define X_DIR_PIN                           PC11
-#define X_SERIAL_TX_PIN                     PB3
-#define X_SERIAL_RX_PIN                     PD2
 
 #define Y_ENABLE_PIN                        PC10
 #define Y_STEP_PIN                          PB14
 #define Y_DIR_PIN                           PB13
-#define Y_SERIAL_TX_PIN                     PA15
-#define Y_SERIAL_RX_PIN                     PC6
 
 #define Z_ENABLE_PIN                        PB12
 #define Z_STEP_PIN                          PB2
 #define Z_DIR_PIN                           PB1
-#define Z_SERIAL_TX_PIN                     PB11
-#define Z_SERIAL_RX_PIN                     PB10
 
 #define E0_ENABLE_PIN                       PB0
 #define E0_STEP_PIN                         PA6
 #define E0_DIR_PIN                          PA5
+
+// Stepper drivers Serial UART
+#define X_SERIAL_TX_PIN                     PB3
+#define X_SERIAL_RX_PIN                     PD2
+#define Y_SERIAL_TX_PIN                     PA15
+#define Y_SERIAL_RX_PIN                     PC6
+#define Z_SERIAL_TX_PIN                     PB11
+#define Z_SERIAL_RX_PIN                     PB10
 #define E0_SERIAL_TX_PIN                    PC5
 #define E0_SERIAL_RX_PIN                    PC4
 
