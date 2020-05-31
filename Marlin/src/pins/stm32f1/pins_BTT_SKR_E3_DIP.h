@@ -231,7 +231,7 @@
 
   #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_E3_DIP.h' for details. Comment out this line to continue."
 
-  /** FYSECT TFT TFT81050 display pinout
+  /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                     Display
    *               _____                                      _____
