@@ -27,6 +27,7 @@
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+  #undef NO_EEPROM_SELECTED
 #endif
 
 #include "pins_BTT_SKR_MINI_E3.h"
