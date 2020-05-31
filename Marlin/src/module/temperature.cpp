@@ -900,11 +900,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
     #else // No PID enabled
 
-      #if HEATER_IDLE_HANDLER
-        const bool is_idling = hotend_idle[ee].timed_out;
-      #else
-        constexpr bool is_idling = false;
-      #endif
+      const bool is_idling = TERN0(HEATER_IDLE_HANDLER, hotend_idle[ee].timed_out);
       const float pid_output = (!is_idling && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
 
     #endif
