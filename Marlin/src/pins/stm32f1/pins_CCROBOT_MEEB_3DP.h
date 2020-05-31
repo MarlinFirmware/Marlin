@@ -38,8 +38,20 @@
 //
 #define DISABLE_JTAG
 
-// There are 1 neopixel on board and a connector for other neopixels.
-#define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
+//
+// EEPROM
+//
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE 0xFFF                // EEPROM end address (4kB)
+#endif
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA1
 
 //
 // Limit Switches
@@ -99,15 +111,18 @@
 #define FAN1_PIN                            PA8   // FAN  (fan0 on board) e0 cool fan
 #define FAN2_PIN                            PB9   // FAN  (fan1 on board) controller cool fan
 
+// One neopixel onboard and a connector for other neopixels
+#define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
+
 /**
- *              1 _____ 2   
- *           PB5 | · · | PB6
- *           PA2 | · · | RESET
- *           PA3 | · · | PB8
- *           PB7 | · · | PA4
- *           GND | · · | VCC5
- *              9 ----- 10   
- *               LCD EXP 
+ *     1 _____ 2
+ *  PB5 | · · | PB6
+ *  PA2 | · · | RESET
+ *  PA3 | · · | PB8
+ *  PB7 | · · | PA4
+ *  GND | · · | VCC5
+ *     9 ----- 10
+ *      LCD EXP
  */
 
 //
@@ -118,7 +133,7 @@
   #define BTN_EN1                           PA2
   #define BTN_EN2                           PA3
   #define BTN_ENC                           PB6
-  
+
   #define LCD_PINS_RS                       PB7   // CS -- SOFT SPI for ENDER3 LCD
   #define LCD_PINS_D4                       PB8   // SCLK
   #define LCD_PINS_ENABLE                   PA4   // DATA MOSI
@@ -126,34 +141,19 @@
 
 // Alter timing for graphical display
 #if HAS_GRAPHICAL_LCD
-  // #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif
-//
-// Servos
-//
-#define SERVO0_PIN                          PA1
 
 //
 // Camera
 //
 #define CHDK_PIN                            PB15
 
-//
-// EEPROM
-//
+#if 0
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
-  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #undef E2END
-  #define E2END 0xFFF                             // EEPROM end address (4kB)
-#endif
-
-/* //
+//
 // SD-NAND
 //
 #if SD_CONNECTION_IS(ONBOARD)
@@ -166,4 +166,6 @@
 #endif
 
 #define ON_BOARD_SPI_DEVICE 1                     // SPI1
-#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for SD-NAND */
+#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for SD-NAND
+
+#endif
