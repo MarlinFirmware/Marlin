@@ -24,10 +24,10 @@
 #define SKR_MINI_E3_V2
 
 // Onboard I2C EEPROM
-#undef FLASH_EEPROM_EMULATION //temporary EEPROM include hack
-#undef NO_EEPROM_SELECTED     //temporary EEPROM include hack
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+#endif
 
 #include "pins_BTT_SKR_MINI_E3.h"
 
