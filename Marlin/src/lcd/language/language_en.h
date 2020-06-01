@@ -115,7 +115,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Value");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Custom Commands");
+  PROGMEM Language_Str MSG_CUSTOM_MENUS_MAIN               = _UxGT("Custom Commands");
+  PROGMEM Language_Str MSG_CUSTOM_MENUS_CONFIGURATION      = _UxGT("Custom Commands"); 
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviation");
