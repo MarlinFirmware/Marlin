@@ -27,9 +27,8 @@
  * M110: Set Current Line Number
  */
 void GcodeSuite::M110() {
-  #if NUM_SERIAL > 1
-    if (parser.seenval('N')) queue.last_N[queue.port[queue.index_r]] = parser.value_long();
-  #else
-    if (parser.seenval('N')) queue.last_N[0] = parser.value_long();
-  #endif
+
+  if (parser.seenval('N'))
+    queue.last_N[queue.command_port()] = parser.value_long();
+
 }
