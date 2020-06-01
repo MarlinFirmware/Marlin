@@ -95,10 +95,10 @@ opt_add M100_FREE_MEMORY_DUMPER
 opt_add M100_FREE_MEMORY_CORRUPTOR
 opt_set PWM_MOTOR_CURRENT "{ 1300, 1300, 1250 }"
 opt_set I2C_SLAVE_ADDRESS 63
-exec_test $1 $2 "MEGACONTROLLER | Ultimaker LCD | M100 | PWM_MOTOR_CURRENT | PRINTCOUNTER | Advanced Pause ..."
+exec_test $1 $2 "MEGACONTROLLER | Minipanel | M100 | PWM_MOTOR_CURRENT | PRINTCOUNTER | Advanced Pause ..."
 
 #
-# Mixing Extruder with 5 steppers, Cyrillic
+# Mixing Extruder with 5 steppers, Greek
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
@@ -106,7 +106,7 @@ opt_set LCD_LANGUAGE el_gr
 opt_enable MIXING_EXTRUDER GRADIENT_MIX GRADIENT_VTOOL CR10_STOCKDISPLAY
 opt_set MIXING_STEPPERS 5
 opt_set LCD_LANGUAGE ru
-exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Cyrillic"
+exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Greek"
 
 #
 # Test SPEAKER with BOARD_BQ_ZUM_MEGA_3D and BQ_LCD_SMART_CONTROLLER
