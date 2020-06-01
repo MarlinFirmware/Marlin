@@ -323,13 +323,25 @@ void menu_configuration() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
+  #if ENABLED(CUSTOM_MENUS_CONFIGURATION)
+    void custom_menus_configuration();
+  #endif
+  
   //
   // Debug Menu when certain options are enabled
   //
   #if HAS_DEBUG_MENU
     SUBMENU(MSG_DEBUG_MENU, menu_debug);
   #endif
-
+  
+  #if ENABLED(CUSTOM_MENUS_CONFIGURATION)
+    #ifdef CUSTOM_MENUS_CONFIGURATION_TITLE
+      SUBMENU_P(PSTR(CUSTOM_MENUS_CONFIGURATION_TITLE), custom_menus_configuration);
+    #else
+      SUBMENU(MSG_CUSTOM_MENUS_CONFIGURATION, custom_menus_configuration);
+    #endif
+  #endif
+  
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
