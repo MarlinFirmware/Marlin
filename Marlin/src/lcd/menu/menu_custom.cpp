@@ -61,6 +61,7 @@ void _lcd_custom_menus_configuration_gcode(PGM_P const cmd) {
   #if ENABLED(CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN)
     ui.return_to_status();
   #endif
+}
 
 void custom_menus_main() {
   START_MENU();
