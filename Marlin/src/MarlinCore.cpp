@@ -1152,7 +1152,7 @@ void setup() {
   #endif
 
   #if ENABLED(TFT_LITTLE_VGL_UI)
-    tft_lvgl_init();
+    SETUP_RUN(tft_lvgl_init());
   #endif
 
   marlin_state = MF_RUNNING;
@@ -1187,9 +1187,7 @@ void loop() {
 
     endstops.event_handler();
 
-    #if ENABLED(TFT_LITTLE_VGL_UI)
-      printer_state_polling();
-    #endif
+    TERN_(TFT_LITTLE_VGL_UI, printer_state_polling());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }
