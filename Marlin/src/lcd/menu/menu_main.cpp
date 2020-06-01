@@ -55,8 +55,8 @@ void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
-#if ENABLED(CUSTOM_USER_MENUS)
-  void menu_user();
+#if ENABLED(CUSTOM_MENUS_MAIN)
+  void custom_menus_main();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -166,11 +166,11 @@ void menu_main() {
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
-  #if ENABLED(CUSTOM_USER_MENUS)
-    #ifdef CUSTOM_USER_MENU_TITLE
-      SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+  #if ENABLED(CUSTOM_MENUS_MAIN)
+    #ifdef CUSTOM_MENUS_MAIN_TITLE
+      SUBMENU_P(PSTR(CUSTOM_MENUS_MAIN_TITLE), custom_menus_main);
     #else
-      SUBMENU(MSG_USER_MENU, menu_user);
+      SUBMENU(MSG_CUSTOM_MENUS_MAIN, custom_menus_main);
     #endif
   #endif
 
