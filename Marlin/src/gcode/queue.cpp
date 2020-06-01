@@ -277,7 +277,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  */
 void GCodeQueue::ok_to_send() {
   #if NUM_SERIAL > 1
-    const int16_t pn = port[index_r];
+    const int16_t pn = command_port();
     if (pn < 0) return;
     PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
