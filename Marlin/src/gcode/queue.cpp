@@ -302,20 +302,15 @@ void GCodeQueue::ok_to_send() {
  * indicate that a command needs to be re-sent.
  */
 void GCodeQueue::flush_and_request_resend() {
+  const int16_t pn = command_port();
   #if NUM_SERIAL > 1
-    const int16_t pn = port[index_r];
     if (pn < 0) return;
     PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
   
-  #if NUM_SERIAL > 1
-    SERIAL_ECHOLN(last_N[port[index_r]] + 1);
-  #else
-    SERIAL_ECHOLN(last_N[0] + 1);
-  #endif
-  
+  SERIAL_ECHOLN(last_N[pn] + 1);  
   ok_to_send();
 }
 
@@ -481,7 +476,7 @@ void GCodeQueue::get_serial_commands() {
             if (n2pos) npos = n2pos;
           }
 
-          long gcode_N = strtol(npos + 1, nullptr, 10);
+          const long gcode_N = strtol(npos + 1, nullptr, 10);
 
           if (gcode_N != last_N[i] + 1 && !M110)
             return gcode_line_error(PSTR(STR_ERR_LINE_NO), i);
