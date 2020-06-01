@@ -3059,29 +3059,54 @@
 #endif
 
 /**
- * User-defined menu items that execute custom GCode
+ * Custom Main and Configuration Menu items that execute user-defined G-Code
  */
-//#define CUSTOM_USER_MENUS
-#if ENABLED(CUSTOM_USER_MENUS)
-  //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
-  #define USER_SCRIPT_DONE "M117 User Script Done"
-  #define USER_SCRIPT_AUDIBLE_FEEDBACK
-  //#define USER_SCRIPT_RETURN  // Return to status screen after a script
+// Custom Menus, Main Menu 
+//#define CUSTOM_MENUS_MAIN
+#if ENABLED(CUSTOM_MENUS_MAIN)
+  //#define CUSTOM_MENUS_MAIN_TITLE "Custom Commands"
+  #define CUSTOM_MENUS_MAIN_SCRIPT_DONE "M117 User Script Done"
+  #define CUSTOM_MENUS_MAIN_SCRIPT_AUDIBLE_FEEDBACK
+  //#define CUSTOM_MENUS_MAIN_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1 "Home & UBL Info"
-  #define USER_GCODE_1 "G28\nG29 W"
+  #define CUSTOM_MENU_MAIN_DESC_1 "Home & UBL Info"
+  #define CUSTOM_MENU_MAIN_GCODE_1 "G28\nG29 W"
 
-  #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
-  #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+  #define CUSTOM_MENU_MAIN_DESC_2 "Preheat for " PREHEAT_1_LABEL
+  #define CUSTOM_MENU_MAIN_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
 
-  #define USER_DESC_3 "Preheat for " PREHEAT_2_LABEL
-  #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+  //#define CUSTOM_MENU_MAIN_DESC_3 "Preheat for " PREHEAT_2_LABEL
+  //#define CUSTOM_MENU_MAIN_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
 
-  #define USER_DESC_4 "Heat Bed/Home/Level"
-  #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
+  //#define CUSTOM_MENU_MAIN_DESC_4 "Heat Bed/Home/Level"
+  //#define CUSTOM_MENU_MAIN_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
 
-  #define USER_DESC_5 "Home & Info"
-  #define USER_GCODE_5 "G28\nM503"
+  //#define CUSTOM_MENU_MAIN_DESC_5 "Home & Info"
+  //#define CUSTOM_MENU_MAIN_GCODE_5 "G28\nM503"
+#endif
+
+// Custom Menus, Configuration Menu
+//#define CUSTOM_MENUS_CONFIGURATION
+#if ENABLED(CUSTOM_MENUS_CONFIGURATION)
+  //#define CUSTOM_MENUS_CONFIGURATION_TITLE "Custom Commands"
+  #define CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE "M117 Wireless Script Done"
+  #define CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK
+  //#define CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN  // Return to status screen after a script
+
+  #define CUSTOM_MENU_CONFIGURATION_DESC_1 "Wifi ON"
+  #define CUSTOM_MENU_CONFIGURATION_GCODE_1 "M118 [ESP110] WIFI-STA pwd=12345678"
+
+  #define CUSTOM_MENU_CONFIGURATION_DESC_2 "Bluetooth ON"
+  #define CUSTOM_MENU_CONFIGURATION_GCODE_2 "M118 [ESP110] BT pwd=12345678"
+
+  //#define CUSTOM_MENU_CONFIGURATION_DESC_3 "Radio OFF"
+  //#define CUSTOM_MENU_CONFIGURATION_GCODE_3 "M118 [ESP110] OFF pwd=12345678"
+
+  //#define CUSTOM_MENU_CONFIGURATION_DESC_4 "Wifi ????"
+  //#define CUSTOM_MENU_CONFIGURATION_GCODE_4 "M118 ????"
+  
+  //#define CUSTOM_MENU_CONFIGURATION_DESC_5 "Wifi ????"
+  //#define CUSTOM_MENU_CONFIGURATION_GCODE_5 "M118 ????"
 #endif
 
 /**
