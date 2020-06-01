@@ -52,7 +52,7 @@ GCodeQueue queue;
  * sending commands to Marlin, and lines will be checked for sequentiality.
  * M110 N<int> sets the current line number.
  */
-long gcode_N, GCodeQueue::last_N;
+long GCodeQueue::last_N[NUM_SERIAL];
 
 /**
  * GCode Command Queue
@@ -309,7 +309,13 @@ void GCodeQueue::flush_and_request_resend() {
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
-  SERIAL_ECHOLN(last_N + 1);
+  
+  #if NUM_SERIAL > 1
+    SERIAL_ECHOLN(last_N[port[index_r]] + 1);
+  #else
+    SERIAL_ECHOLN(last_N[0] + 1);
+  #endif
+  
   ok_to_send();
 }
 
@@ -336,7 +342,7 @@ void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
   PORT_REDIRECT(pn);                      // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
-  SERIAL_ECHOLN(last_N);
+  SERIAL_ECHOLN(last_N[pn]);
   while (read_serial(pn) != -1);          // Clear out the RX buffer
   flush_and_request_resend();
   serial_count[pn] = 0;
@@ -475,9 +481,9 @@ void GCodeQueue::get_serial_commands() {
             if (n2pos) npos = n2pos;
           }
 
-          gcode_N = strtol(npos + 1, nullptr, 10);
+          long gcode_N = strtol(npos + 1, nullptr, 10);
 
-          if (gcode_N != last_N + 1 && !M110)
+          if (gcode_N != last_N[i] + 1 && !M110)
             return gcode_line_error(PSTR(STR_ERR_LINE_NO), i);
 
           char *apos = strrchr(command, '*');
@@ -490,7 +496,7 @@ void GCodeQueue::get_serial_commands() {
           else
             return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
 
-          last_N = gcode_N;
+          last_N[i] = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
           // Pronterface "M29" and "M29 " has no line number
