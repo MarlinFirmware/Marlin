@@ -21,113 +21,211 @@
  */
 
 //
-// Custom User Menu
+// Custom Menus
 //
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(CUSTOM_USER_MENUS)
+#if HAS_LCD_MENU && ( ENABLED(CUSTOM_MENUS_MAIN) || ENABLED(CUSTOM_MENUS_CONFIGURATION) )
 
 #include "menu.h"
 #include "../../gcode/queue.h"
 
-#ifdef USER_SCRIPT_DONE
-  #define _DONE_SCRIPT "\n" USER_SCRIPT_DONE
+#ifdef CUSTOM_MENU_MAIN_SCRIPT_DONE
+  #define _DONE_SCRIPT "\n" CUSTOM_MENU_MAIN_SCRIPT_DONE
 #else
   #define _DONE_SCRIPT ""
 #endif
 
-void _lcd_user_gcode(PGM_P const cmd) {
+#ifdef CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE
+  #define _DONE_SCRIPT "\n" CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE
+#else
+  #define _DONE_SCRIPT ""
+#endif
+
+void _lcd_custom_menu_main_gcode(PGM_P const cmd) {
   queue.inject_P(cmd);
-  #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
+  #if ENABLED(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
     ui.completion_feedback();
   #endif
-  #if ENABLED(USER_SCRIPT_RETURN)
+  #if ENABLED(CUSTOM_MENU_MAIN_SCRIPT_RETURN)
     ui.return_to_status();
   #endif
 }
 
-void menu_user() {
+void _lcd_custom_menus_configuration_gcode(PGM_P const cmd) {
+  queue.inject_P(cmd);
+  #if ENABLED(CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
+    ui.completion_feedback();
+  #endif
+  #if ENABLED(CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN)
+    ui.return_to_status();
+  #endif
+
+void custom_menus_main() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
-  #define HAS_USER_ITEM(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
-  #define USER_ITEM(N) ACTION_ITEM_P(PSTR(USER_DESC_##N), []{ _lcd_user_gcode(PSTR(USER_GCODE_##N _DONE_SCRIPT)); });
-  #if HAS_USER_ITEM(1)
-    USER_ITEM(1);
+  #define HAS_CUSTOM_MENU_ITEM(N) (defined(CUSTOM_MENU_MAIN_DESC_##N) && defined(CUSTOM_MENU_MAIN_GCODE_##N))
+  #define CUSTOM_MENU_ITEM(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_MAIN_DESC_##N), []{ _lcd_custom_menu_main_gcode(PSTR(CUSTOM_MENU_MAIN_GCODE_##N _DONE_SCRIPT)); });
+  #if HAS_CUSTOM_MENU_ITEM(1)
+    CUSTOM_MENU_ITEM(1);
   #endif
-  #if HAS_USER_ITEM(2)
-    USER_ITEM(2);
+  #if HAS_CUSTOM_MENU_ITEM(2)
+    CUSTOM_MENU_ITEM(2);
   #endif
-  #if HAS_USER_ITEM(3)
-    USER_ITEM(3);
+  #if HAS_CUSTOM_MENU_ITEM(3)
+    CUSTOM_MENU_ITEM(3);
   #endif
-  #if HAS_USER_ITEM(4)
-    USER_ITEM(4);
+  #if HAS_CUSTOM_MENU_ITEM(4)
+    CUSTOM_MENU_ITEM(4);
   #endif
-  #if HAS_USER_ITEM(5)
-    USER_ITEM(5);
+  #if HAS_CUSTOM_MENU_ITEM(5)
+    CUSTOM_MENU_ITEM(5);
   #endif
-  #if HAS_USER_ITEM(6)
-    USER_ITEM(6);
+  #if HAS_CUSTOM_MENU_ITEM(6)
+    CUSTOM_MENU_ITEM(6);
   #endif
-  #if HAS_USER_ITEM(7)
-    USER_ITEM(7);
+  #if HAS_CUSTOM_MENU_ITEM(7)
+    CUSTOM_MENU_ITEM(7);
   #endif
-  #if HAS_USER_ITEM(8)
-    USER_ITEM(8);
+  #if HAS_CUSTOM_MENU_ITEM(8)
+    CUSTOM_MENU_ITEM(8);
   #endif
-  #if HAS_USER_ITEM(9)
-    USER_ITEM(9);
+  #if HAS_CUSTOM_MENU_ITEM(9)
+    CUSTOM_MENU_ITEM(9);
   #endif
-  #if HAS_USER_ITEM(10)
-    USER_ITEM(10);
+  #if HAS_CUSTOM_MENU_ITEM(10)
+    CUSTOM_MENU_ITEM(10);
   #endif
-  #if HAS_USER_ITEM(11)
-    USER_ITEM(11);
+  #if HAS_CUSTOM_MENU_ITEM(11)
+    CUSTOM_MENU_ITEM(11);
   #endif
-  #if HAS_USER_ITEM(12)
-    USER_ITEM(12);
+  #if HAS_CUSTOM_MENU_ITEM(12)
+    CUSTOM_MENU_ITEM(12);
   #endif
-  #if HAS_USER_ITEM(13)
-    USER_ITEM(13);
+  #if HAS_CUSTOM_MENU_ITEM(13)
+    CUSTOM_MENU_ITEM(13);
   #endif
-  #if HAS_USER_ITEM(14)
-    USER_ITEM(14);
+  #if HAS_CUSTOM_MENU_ITEM(14)
+    CUSTOM_MENU_ITEM(14);
   #endif
-  #if HAS_USER_ITEM(15)
-    USER_ITEM(15);
+  #if HAS_CUSTOM_MENU_ITEM(15)
+    CUSTOM_MENU_ITEM(15);
   #endif
-  #if HAS_USER_ITEM(16)
-    USER_ITEM(16);
+  #if HAS_CUSTOM_MENU_ITEM(16)
+    CUSTOM_MENU_ITEM(16);
   #endif
-  #if HAS_USER_ITEM(17)
-    USER_ITEM(17);
+  #if HAS_CUSTOM_MENU_ITEM(17)
+    CUSTOM_MENU_ITEM(17);
   #endif
-  #if HAS_USER_ITEM(18)
-    USER_ITEM(18);
+  #if HAS_CUSTOM_MENU_ITEM(18)
+    CUSTOM_MENU_ITEM(18);
   #endif
-  #if HAS_USER_ITEM(19)
-    USER_ITEM(19);
+  #if HAS_CUSTOM_MENU_ITEM(19)
+    CUSTOM_MENU_ITEM(19);
   #endif
-  #if HAS_USER_ITEM(20)
-    USER_ITEM(20);
+  #if HAS_CUSTOM_MENU_ITEM(20)
+    CUSTOM_MENU_ITEM(20);
   #endif
-  #if HAS_USER_ITEM(21)
-    USER_ITEM(21);
+  #if HAS_CUSTOM_MENU_ITEM(21)
+    CUSTOM_MENU_ITEM(21);
   #endif
-  #if HAS_USER_ITEM(22)
-    USER_ITEM(22);
+  #if HAS_CUSTOM_MENU_ITEM(22)
+    CUSTOM_MENU_ITEM(22);
   #endif
-  #if HAS_USER_ITEM(23)
-    USER_ITEM(23);
+  #if HAS_CUSTOM_MENU_ITEM(23)
+    CUSTOM_MENU_ITEM(23);
   #endif
-  #if HAS_USER_ITEM(24)
-    USER_ITEM(24);
+  #if HAS_CUSTOM_MENU_ITEM(24)
+    CUSTOM_MENU_ITEM(24);
   #endif
-  #if HAS_USER_ITEM(25)
-    USER_ITEM(25);
+  #if HAS_CUSTOM_MENU_ITEM(25)
+    CUSTOM_MENU_ITEM(25);
   #endif
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && CUSTOM_USER_MENUS
+void custom_menus_configuration() {
+  START_MENU();
+  BACK_ITEM(MSG_MAIN);
+  #define HAS_CUSTOM_MENU_ITEM(N) (defined(CUSTOM_MENU_CONFIGURATION_DESC_##N) && defined(CUSTOM_MENU_CONFIGURATION_GCODE_##N))
+  #define CUSTOM_MENU_ITEM(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_CONFIGURATION_DESC_##N), []{ _lcd_custom_menus_configuration_gcode(PSTR(CUSTOM_MENU_CONFIGURATION_GCODE_##N _DONE_SCRIPT)); });
+  #if HAS_CUSTOM_MENU_ITEM(1)
+    CUSTOM_MENU_ITEM(1);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(2)
+    CUSTOM_MENU_ITEM(2);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(3)
+    CUSTOM_MENU_ITEM(3);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(4)
+    CUSTOM_MENU_ITEM(4);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(5)
+    CUSTOM_MENU_ITEM(5);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(6)
+    CUSTOM_MENU_ITEM(6);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(7)
+    CUSTOM_MENU_ITEM(7);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(8)
+    CUSTOM_MENU_ITEM(8);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(9)
+    CUSTOM_MENU_ITEM(9);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(10)
+    CUSTOM_MENU_ITEM(10);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(11)
+    CUSTOM_MENU_ITEM(11);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(12)
+    CUSTOM_MENU_ITEM(12);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(13)
+    CUSTOM_MENU_ITEM(13);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(14)
+    CUSTOM_MENU_ITEM(14);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(15)
+    CUSTOM_MENU_ITEM(15);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(16)
+    CUSTOM_MENU_ITEM(16);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(17)
+    CUSTOM_MENU_ITEM(17);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(18)
+    CUSTOM_MENU_ITEM(18);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(19)
+    CUSTOM_MENU_ITEM(19);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(20)
+    CUSTOM_MENU_ITEM(20);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(21)
+    CUSTOM_MENU_ITEM(21);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(22)
+    CUSTOM_MENU_ITEM(22);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(23)
+    CUSTOM_MENU_ITEM(23);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(24)
+    CUSTOM_MENU_ITEM(24);
+  #endif
+  #if HAS_CUSTOM_MENU_ITEM(25)
+    CUSTOM_MENU_ITEM(25);
+  #endif
+  END_MENU();
+}
+
+#endif // HAS_LCD_MENU && (  CUSTOM_MENUS_MAIN || CUSTOM_MENUS_CONFIGURATION )
