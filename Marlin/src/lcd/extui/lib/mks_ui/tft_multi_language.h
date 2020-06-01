@@ -21,7 +21,6 @@
  */
 #pragma once
 
-//#include "../MarlinCore.h"
 #include "inc/tft_Language_en.h"
 #include "inc/tft_Language_s_cn.h"
 #include "inc/tft_Language_t_cn.h"

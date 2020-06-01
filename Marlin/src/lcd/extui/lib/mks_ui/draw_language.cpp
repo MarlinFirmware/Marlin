@@ -19,15 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
+
+#include "../../../../MarlinCore.h"
 #include "lv_conf.h"
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-//#include "../MarlinCore.h"
 #include "draw_ui.h"
 #include <string.h>
 
@@ -57,14 +58,14 @@ static lv_obj_t *buttonES,*buttonFR,*buttonIT,*buttonBack;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event)
 {
-	switch(obj->mks_obj_id)
+	switch (obj->mks_obj_id)
 	{
 	case ID_CN:
-	    if(event == LV_EVENT_CLICKED) {
+	    if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 			disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonCN, event_handler,ID_CN,"bmp_Simple_cn_sel.bin",0);
 			gCfgItems.language = LANG_SIMPLE_CHINESE;
@@ -73,11 +74,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_T_CN:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 	        disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonT_CN, event_handler,ID_T_CN,"bmp_Tradition_cn_sel.bin",0);
 			gCfgItems.language = LANG_COMPLEX_CHINESE;
@@ -86,11 +87,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_EN:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 	        disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonEN, event_handler,ID_EN,"bmp_English_sel.bin",0);
 			gCfgItems.language = LANG_ENGLISH;
@@ -99,11 +100,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_RU:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 	        disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonRU, event_handler,ID_RU,"bmp_Russian_sel.bin",0);
 			gCfgItems.language = LANG_RUSSIAN;
@@ -112,11 +113,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_ES:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 	        disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonES, event_handler,ID_ES,"bmp_Spanish_sel.bin",0);
 			gCfgItems.language = LANG_SPANISH;
@@ -125,11 +126,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_FR:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 	        disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonFR, event_handler,ID_FR,"bmp_French_sel.bin",0);
 			gCfgItems.language = LANG_FRENCH;
@@ -138,11 +139,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_IT:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 	        disp_language(gCfgItems.language,UNSELECTED);
 	        lv_obj_set_event_cb_mks(buttonIT, event_handler,ID_FR,"bmp_Italy_sel.bin",0);
 			gCfgItems.language = LANG_ITALY;
@@ -151,10 +152,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_L_RETURN:
-	    if(event == LV_EVENT_CLICKED) {
+	    if (event == LV_EVENT_CLICKED) {
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 
 			buttonCN = NULL;
 			buttonT_CN = NULL;
@@ -181,7 +182,7 @@ static void disp_language(uint8_t language,uint8_t state)
 
 	public_buf_l[0] = '\0';
 
-	switch(language){
+	switch (language){
 
 		case LANG_SIMPLE_CHINESE:
 			id = ID_CN;
@@ -226,18 +227,18 @@ static void disp_language(uint8_t language,uint8_t state)
 			break;
 	}
 
-	if(state == SELECTED) strcat(public_buf_l,"_sel.bin");
+	if (state == SELECTED) strcat(public_buf_l,"_sel.bin");
 	else strcat(public_buf_l,".bin");
 
 	lv_obj_set_event_cb_mks(obj, event_handler,id,public_buf_l,0);
 
-	if(state == UNSELECTED)lv_obj_refresh_ext_draw_pad(obj);
+	if (state == UNSELECTED)lv_obj_refresh_ext_draw_pad(obj);
 }
 
 void lv_draw_language(void)
 {
 
-	if(disp_state_stack._disp_state[disp_state_stack._disp_index] != LANGUAGE_UI)
+	if (disp_state_stack._disp_state[disp_state_stack._disp_index] != LANGUAGE_UI)
 	{
 		disp_state_stack._disp_index++;
 		disp_state_stack._disp_state[disp_state_stack._disp_index] = LANGUAGE_UI;
@@ -353,7 +354,7 @@ void lv_draw_language(void)
 
 	disp_language(gCfgItems.language,SELECTED);
 
-	if(gCfgItems.multiple_language !=0)
+	if (gCfgItems.multiple_language !=0)
 	{
 	    lv_label_set_text(label_CN, language_menu.chinese_s);
 		lv_obj_align(label_CN, buttonCN, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);

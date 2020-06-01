@@ -19,9 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
+
+#include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
 #include "draw_tool.h"
 #include "lv_conf.h"
@@ -49,13 +51,13 @@ uint8_t curent_disp_ui = 0;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event)
 {
-	switch(obj->mks_obj_id)
+	switch (obj->mks_obj_id)
 	{
 	case ID_TOOL:
-	    	if(event == LV_EVENT_CLICKED) {
+	    	if (event == LV_EVENT_CLICKED) {
 
 	       }
-	       else if(event == LV_EVENT_RELEASED) {
+	       else if (event == LV_EVENT_RELEASED) {
 	        	#if ENABLED(MKS_TEST)
 			curent_disp_ui = 2;
 			#endif
@@ -64,19 +66,19 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	       }
 		break;
 	case ID_SET:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 	       }
-	       else if(event == LV_EVENT_RELEASED) {
+	       else if (event == LV_EVENT_RELEASED) {
 			lv_obj_del(scr);
 	        	lv_draw_set();
 	       }
 		break;
 	case ID_PRINT:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 	       }
-	       else if(event == LV_EVENT_RELEASED) {
+	       else if (event == LV_EVENT_RELEASED) {
 			lv_obj_del(scr);
 	        	lv_draw_print_file();
 	       }
@@ -309,7 +311,7 @@ void lv_draw_ready_print(void)
     lv_obj_t * label_print = lv_label_create(buttonPrint, NULL);
 	lv_obj_t * label_set = lv_label_create(buttonSet, NULL);
 	lv_obj_t * label_tool = lv_label_create(buttonTool, NULL);
-	if(gCfgItems.multiple_language !=0)
+	if (gCfgItems.multiple_language !=0)
 	{
 
 		lv_label_set_text(label_print, main_menu.print);

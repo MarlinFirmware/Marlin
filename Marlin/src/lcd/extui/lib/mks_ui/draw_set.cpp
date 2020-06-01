@@ -19,9 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
+
+#include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
 #include "draw_set.h"
 #include "lv_conf.h"
@@ -44,31 +46,31 @@ static lv_obj_t * scr;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event)
 {
-	switch(obj->mks_obj_id)
+	switch (obj->mks_obj_id)
 	{
 	case ID_S_WIFI:
-	    if(event == LV_EVENT_CLICKED) {
+	    if (event == LV_EVENT_CLICKED) {
 
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 
 	    }
 		break;
 	case ID_S_FAN:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 			lv_obj_del(scr);
 	        	lv_draw_fan();
 	    }
 		break;
 	case ID_S_ABOUT:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 			lv_obj_del(scr);
 	        	lv_draw_about();
 	    }
@@ -77,10 +79,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 
 		break;
 	case ID_S_MOTOR_OFF:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 			#if HAS_SUICIDE
 			suicide();
 			#else
@@ -89,19 +91,19 @@ static void event_handler(lv_obj_t * obj, lv_event_t event)
 	    }
 		break;
 	case ID_S_LANGUAGE:
-		if(event == LV_EVENT_CLICKED) {
+		if (event == LV_EVENT_CLICKED) {
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 			lv_obj_del(scr);
 	        	lv_draw_language();
 	    }
 		break;
 	case ID_S_RETURN:
-	    if(event == LV_EVENT_CLICKED) {
+	    if (event == LV_EVENT_CLICKED) {
 
 	    }
-	    else if(event == LV_EVENT_RELEASED) {
+	    else if (event == LV_EVENT_RELEASED) {
 			lv_obj_del(scr);
 	        	lv_draw_ready_print();
 	    }
@@ -116,7 +118,7 @@ void lv_draw_set(void)
 	lv_obj_t *buttonFan,*buttonAbout;
 	lv_obj_t *buMotorOff,*buttonLanguage,*buttonBack;
 
-	if(disp_state_stack._disp_state[disp_state_stack._disp_index] != SET_UI)
+	if (disp_state_stack._disp_state[disp_state_stack._disp_index] != SET_UI)
 	{
 		disp_state_stack._disp_index++;
 		disp_state_stack._disp_state[disp_state_stack._disp_index] = SET_UI;
@@ -232,7 +234,7 @@ void lv_draw_set(void)
 	lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
 
 
-	if(gCfgItems.multiple_language !=0)
+	if (gCfgItems.multiple_language !=0)
 	{
 	       //lv_label_set_text(labelWifi, set_menu.wifi);
 		//lv_obj_align(labelWifi, buttonWifi, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);

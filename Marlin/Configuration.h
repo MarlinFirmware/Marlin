@@ -2114,9 +2114,19 @@
 //
 //#define FSMC_GRAPHICAL_TFT
 
+//
+//  TFT Little VGL UI
+//
+//#define TFT_LITTLE_VGL_UI
+
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
+
+//
+// Robin nano v2.0 SPI touch screen
+//
+//#define SPI_GRAPHICAL_TFT
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
@@ -2131,11 +2141,6 @@
   #define XPT2046_X_OFFSET       -43
   #define XPT2046_Y_OFFSET        257
 #endif
-
-//If TFT_LITTLE_VGL_UI is enabled, there is no need to turn on FSMC_GRAPHICAL_TFT.
-//#define TFT_LITTLE_VGL_UI
-//Robin_nano_v2.0 motherboard touch screen is spi interface, you need to enable this item.
-//#define SPI_GRAPHICAL_TFT	
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1

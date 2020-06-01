@@ -23,11 +23,13 @@
 /**
  * @file lcd_lvgl_configuration.c
  * @date    2020-02-21
- * */
+ */
 
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
+
+#include "../../../../MarlinCore.h"
 
 #include "tft_lvgl_configuration.h"
 #include "lvgl.h"
@@ -234,17 +236,17 @@ void ili9320_SetWindows(uint16_t StartX,uint16_t StartY,uint16_t width,uint16_t 
     LCD_WriteReg(0x0052, StartY);
     LCD_WriteReg(0x0051, xEnd);
     LCD_WriteReg(0x0053, yEnd);*/
-    LCD_WriteReg(0x0050,StartY);        //Specify the start/end positions of the window address in the horizontal direction by an address unit
-    LCD_WriteReg(0x0051,yEnd);        //Specify the start positions of the window address in the vertical direction by an address unit
-    LCD_WriteReg(0x0052,320 - xEnd);
-    LCD_WriteReg(0x0053,320 - StartX - 1);        //Specify the end positions of the window address in the vertical direction by an address unit
+    LCD_WriteReg(0x0050, StartY);        //Specify the start/end positions of the window address in the horizontal direction by an address unit
+    LCD_WriteReg(0x0051, yEnd);        //Specify the start positions of the window address in the vertical direction by an address unit
+    LCD_WriteReg(0x0052, 320 - xEnd);
+    LCD_WriteReg(0x0053, 320 - StartX - 1);        //Specify the end positions of the window address in the vertical direction by an address unit
 
   }
   else {
-    s_h = (StartX >> 8) & 0xff;
-    s_l = StartX & 0xff;
-    e_h = ((StartX + width - 1) >> 8) & 0xff;
-    e_l = (StartX + width - 1) & 0xff;
+    s_h = (StartX >> 8) & 0xFF;
+    s_l = StartX & 0xFF;
+    e_h = ((StartX + width - 1) >> 8) & 0xFF;
+    e_l = (StartX + width - 1) & 0xFF;
 
     LCD_IO_WriteReg(0x2A);
     LCD_IO_WriteData(s_h);
@@ -252,10 +254,10 @@ void ili9320_SetWindows(uint16_t StartX,uint16_t StartY,uint16_t width,uint16_t 
     LCD_IO_WriteData(e_h);
     LCD_IO_WriteData(e_l);
 
-    s_h = (StartY >> 8) & 0xff;
-    s_l = StartY & 0xff;
-    e_h = ((StartY + heigh - 1) >> 8) & 0xff;
-    e_l = (StartY + heigh - 1) & 0xff;
+    s_h = (StartY >> 8) & 0xFF;
+    s_l = StartY & 0xFF;
+    e_h = ((StartY + heigh - 1) >> 8) & 0xFF;
+    e_l = (StartY + heigh - 1) & 0xFF;
 
     LCD_IO_WriteReg(0x2B);
     LCD_IO_WriteData(s_h);
@@ -265,20 +267,19 @@ void ili9320_SetWindows(uint16_t StartX,uint16_t StartY,uint16_t width,uint16_t 
   }
 }
 
-void LCD_Clear(uint16_t  Color) {
-  uint32_t index=0;
+void LCD_Clear(uint16_t Color) {
+  uint32_t index = 0;
   unsigned int count;
 
-  if (DeviceCode ==0x9488) {
-    tft_set_cursor(0,0);
-    ili9320_SetWindows(0,0,480,320);
+  if (DeviceCode == 0x9488) {
+    tft_set_cursor(0, 0);
+    ili9320_SetWindows(0, 0, 480, 320);
     LCD_WriteRAM_Prepare();
     //index = (160*480);
     for (index = 0; index < 320*480; index++)
       LCD_IO_WriteData(Color);
     //LCD_IO_WriteMultiple(Color, (480*320));
-    //while(index --)
-    //LCD_IO_WriteData(Color);
+    //while(index --) LCD_IO_WriteData(Color);
   }
   else if (DeviceCode == 0x5761) {
     LCD_IO_WriteReg(0x002a);
@@ -297,9 +298,9 @@ void LCD_Clear(uint16_t  Color) {
       LCD_IO_WriteData(Color);
   }
   else {
-    tft_set_cursor(0,0);
+    tft_set_cursor(0, 0);
     LCD_WriteRAM_Prepare(); /* Prepare to write GRAM */
-    for (index=0;index<76800;index++)
+    for (index = 0; index < 76800; index++)
       LCD_IO_WriteData(Color);
   }
 }
@@ -317,11 +318,11 @@ extern uint16_t ILI9488_ReadRAM();
     _delay_ms(5);
 
     LCD_IO_WriteReg(0x00D3);
-    DeviceCode=ILI9488_ReadRAM(); //dummy read
-    DeviceCode=ILI9488_ReadRAM();
-    DeviceCode=ILI9488_ReadRAM();
-    DeviceCode<<=8;
-    DeviceCode|=ILI9488_ReadRAM();
+    DeviceCode = ILI9488_ReadRAM(); //dummy read
+    DeviceCode = ILI9488_ReadRAM();
+    DeviceCode = ILI9488_ReadRAM();
+    DeviceCode <<= 8;
+    DeviceCode |= ILI9488_ReadRAM();
 
     if (DeviceCode == 0x9488) {
       LCD_IO_WriteReg(0x00E0);
@@ -420,7 +421,6 @@ extern uint16_t ILI9488_ReadRAM();
 
       OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
     }
-
   }
 
 #endif
@@ -434,6 +434,7 @@ void tft_lvgl_init() {
     UpdatePic();
     UpdateFont();
   #endif
+
   gCfgItems_init();
   ui_cfg_init();
   disp_language_init();
@@ -471,9 +472,7 @@ void tft_lvgl_init() {
   filament_pin_setup();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    if ( recovery.info.valid_head != 0
-      && recovery.info.valid_head == recovery.info.valid_foot
-    ) {
+    if (recovery.valid()) {
       if (gCfgItems.from_flash_pic == 1)
         flash_preview_begin = 1;
       else
@@ -481,11 +480,11 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-      memset(public_buf_m,0,sizeof(public_buf_m));
-      strncpy(public_buf_m,recovery.info.sd_filename,sizeof(public_buf_m));
+      memset(public_buf_m, 0, sizeof(public_buf_m));
+      strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
 
-      strncpy(list_file.long_name[sel_id],card.longFilename,sizeof(list_file.long_name[sel_id]));
+      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
 
       lv_draw_printing();
     }
@@ -498,20 +497,18 @@ void tft_lvgl_init() {
   #endif
 }
 
-
 #if 0
-void LCD_WriteRAM(uint16_t RGB_Code) {
-  #if 0
-    ClrCs
-    /* Write 16-bit GRAM Reg */
-    LCD->LCD_RAM = RGB_Code;
-    SetCs
-    #else
-    LCD_IO_WriteData(RGB_Code);
-  #endif
-}
+  void LCD_WriteRAM(uint16_t RGB_Code) {
+    #if 0
+      ClrCs
+      /* Write 16-bit GRAM Reg */
+      LCD->LCD_RAM = RGB_Code;
+      SetCs
+      #else
+      LCD_IO_WriteData(RGB_Code);
+    #endif
+  }
 #endif
-
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
   #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -684,7 +681,7 @@ int SPI2_ReadWrite2Bytes(void) {
 
 uint16_t    x_addata[times],y_addata[times];
 void XPT2046_Rd_Addata(uint16_t *X_Addata,uint16_t *Y_Addata) {
-  uint16_t    i, j, k;
+  uint16_t i, j, k;
   //int result;
   //#if ENABLED(TOUCH_BUTTONS)
 
@@ -703,8 +700,7 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata,uint16_t *Y_Addata) {
       SPI_TFT.spi_read_write_byte(CHY);
       x_addata[i] = SPI2_ReadWrite2Bytes();
       WRITE(TOUCH_CS_PIN, HIGH);
-    #else
-      //#if ENABLED(TOUCH_BUTTONS)
+    #else // #if ENABLED(TOUCH_BUTTONS)
       OUT_WRITE(TOUCH_CS_PIN, LOW);
       W25QXX.spi_flash_read_write_byte(CHX);
       y_addata[i] = SPI2_ReadWrite2Bytes();
@@ -714,13 +710,12 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata,uint16_t *Y_Addata) {
       W25QXX.spi_flash_read_write_byte(CHY);
       x_addata[i] = SPI2_ReadWrite2Bytes();
       WRITE(TOUCH_CS_PIN, HIGH);
-      //#endif
     #endif
 
   }
   //#endif
   //result = x_addata[0];
-  for (i=0;i<times;i++) {
+  for (i = 0; i < times; i++) {
     for (j = i + 1; j < times; j++) {
       if (x_addata[j] > x_addata[i]) {
         k = x_addata[j];
@@ -746,7 +741,6 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata,uint16_t *Y_Addata) {
       }
     }
   }
-
 
   if (y_addata[times / 2 - 1] - y_addata[times / 2] > 50) {
     *X_Addata = *Y_Addata = 0;
