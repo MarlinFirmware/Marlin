@@ -57,6 +57,13 @@ public:
    */
   #if NUM_SERIAL > 1
     static int16_t port[BUFSIZE];
+    static int16_t command_port() {
+      return (0
+        #if NUM_SERIAL > 1
+          + port[index_r]
+        #endif
+      );
+    }
   #endif
 
   GCodeQueue();
