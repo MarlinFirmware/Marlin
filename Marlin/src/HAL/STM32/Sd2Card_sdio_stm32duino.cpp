@@ -41,8 +41,7 @@
   }
 
   bool SDIO_Init() {
-    if (hsd.State == HAL_SD_STATE_READY) return 1;  // return passing status
-    return 0;                                       // return failing status
+    return hsd.State == HAL_SD_STATE_READY;  // return pass/fail status
   }
 
   bool SDIO_ReadBlock(uint32_t block, uint8_t *src) {
@@ -58,7 +57,6 @@
 #else // !USBD_USE_CDC_COMPOSITE
 
   // use local drivers
-
   #if defined(STM32F103xE) || defined(STM32F103xG)
     #include <stm32f1xx_hal_rcc_ex.h>
     #include <stm32f1xx_hal_sd.h>
@@ -81,7 +79,6 @@
   #ifndef TRANSFER_CLOCK_DIV
     #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
   #endif
-
 
   #ifndef USBD_OK
     #define USBD_OK 0
@@ -169,9 +166,7 @@
 
     uint8_t retry_Cnt = retryCnt;
     for (;;) {
-      #if ENABLED(USE_WATCHDOG)
-        HAL_watchdog_refresh();
-      #endif
+      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
       status = (bool) HAL_SD_Init(&hsd);
       if (!status) break;
       if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
@@ -182,9 +177,7 @@
     #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3) // go to 4 bit wide mode if pins are defined
       retry_Cnt = retryCnt;
       for (;;) {
-        #if ENABLED(USE_WATCHDOG)
-          HAL_watchdog_refresh();
-        #endif
+        TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
         if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
         if (!--retry_Cnt) break;
       }
@@ -193,9 +186,7 @@
         SD_LowLevel_Init();
         retry_Cnt = retryCnt;
         for (;;) {
-          #if ENABLED(USE_WATCHDOG)
-            HAL_watchdog_refresh();
-          #endif
+          TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
           status = (bool) HAL_SD_Init(&hsd);
           if (!status) break;
           if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
@@ -205,7 +196,7 @@
 
     return true;
   }
-/*
+  /*
   void init_SDIO_pins(void) {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -235,7 +226,7 @@
     GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
   }
-*/
+  */
   //bool SDIO_init() { return (bool) (SD_SDIO_Init() ? 1 : 0);}
   //bool SDIO_Init_C() { return (bool) (SD_SDIO_Init() ? 1 : 0);}
 
@@ -245,9 +236,7 @@
 
     bool status;
     for (;;) {
-      #if ENABLED(USE_WATCHDOG)
-        HAL_watchdog_refresh();
-      #endif
+      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
       status = (bool) HAL_SD_ReadBlocks(&hsd, (uint8_t*)dst, block, 1, 1000);  // read one 512 byte block with 500mS timeout
       status |= (bool) HAL_SD_GetCardState(&hsd);     // make sure all is OK
       if (!status) break;       // return passing status
@@ -293,7 +282,6 @@
   bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
     hsd.Instance = SDIO;
     uint8_t retryCnt = SD_RETRY_COUNT;
-
     bool status;
     for (;;) {
       status = (bool) HAL_SD_WriteBlocks(&hsd, (uint8_t*)src, block, 1, 500);  // write one 512 byte block with 500mS timeout
