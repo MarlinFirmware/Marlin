@@ -2695,7 +2695,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
   #ifdef CUSTOM_MENU_MAIN_GCODE_20
     constexpr char chr20 = CUSTOM_MENU_MAIN_GCODE_20[strlen(CUSTOM_MENU_MAIN_GCODE_20) - 1];
-    static_assert(chr20 != '\n' && _chr20 != '\r', "CUSTOM_MENU_MAIN_GCODE_20 cannot have a newline at the end. Please remove it.");
+    static_assert(chr20 != '\n' && chr20 != '\r', "CUSTOM_MENU_MAIN_GCODE_20 cannot have a newline at the end. Please remove it.");
   #endif
   #ifdef CUSTOM_MENU_MAIN_GCODE_21
     constexpr char chr21 = CUSTOM_MENU_MAIN_GCODE_21[strlen(CUSTOM_MENU_MAIN_GCODE_21) - 1];
