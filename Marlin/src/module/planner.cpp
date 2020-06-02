@@ -2341,7 +2341,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
              *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
              */
             static constexpr int16_t  jd_lut_count = 16;
-            static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count - 1;
+            static constexpr uint16_t jd_lut_tll   = _BV(jd_lut_count) - 1;
             static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count + 1
             static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
               -1.03145837f, -1.30760646f, -1.75205851f, -2.41705704f,
