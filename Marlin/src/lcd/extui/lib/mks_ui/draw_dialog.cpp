@@ -23,14 +23,14 @@
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
 
-#include "../../../../MarlinCore.h"
-
 #include "lv_conf.h"
+#include "draw_ui.h"
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "draw_ui.h"
+
+#include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/temperature.h"
@@ -39,6 +39,7 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
+
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../../../feature/pause.h"
 #endif
@@ -198,7 +199,6 @@ void lv_draw_dialog(uint8_t type) {
   style_btn_rel.text.color = lv_color_hex3(0xDEF);
   style_btn_rel.text.font  = &gb2312_puhui32;
 
-
   static lv_style_t style_btn_pr;                         /*A variable to store the pressed style*/
   lv_style_copy(&style_btn_pr, &style_btn_rel);           /*Initialize from the released style*/
   style_btn_pr.body.border.color = lv_color_hex3(0x46B);
@@ -211,7 +211,6 @@ void lv_draw_dialog(uint8_t type) {
   lv_obj_t * labelDialog = lv_label_create(scr, NULL);
   lv_obj_set_style(labelDialog, &tft_style_lable_rel);
 
-
   if (DialogType == DIALOG_TYPE_FINISH_PRINT || DialogType == DIALOG_PAUSE_MESSAGE_RESUME) {
     lv_obj_t * btnOk = lv_btn_create(scr, NULL);     /*Add a button the current screen*/
     lv_obj_set_pos(btnOk, BTN_OK_X+90, BTN_OK_Y);                            /*Set its position*/
@@ -221,7 +220,6 @@ void lv_draw_dialog(uint8_t type) {
     lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);      /*Set the button's pressed style*/
     lv_obj_t * labelOk = lv_label_create(btnOk, NULL);          /*Add a label to the button*/
     lv_label_set_text(labelOk, print_file_dialog_menu.confirm);  /*Set the labels text*/
-
   }
   else if (DialogType == DIALOG_PAUSE_MESSAGE_WAITING
     ||DialogType == DIALOG_PAUSE_MESSAGE_INSERT
@@ -332,7 +330,6 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, pause_msg_menu.option);
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
   }
-
 }
 
 void lv_clear_dialog() {
