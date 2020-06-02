@@ -21,12 +21,6 @@
  */
 #pragma once
 
-#if HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
-
-extern const PinMap PinMap_FSMC[];
-extern const PinMap PinMap_FSMC_CS[];
-extern const PinMap PinMap_FSMC_RS[];
-
 #if defined(STM32F1xx)
   #include "stm32f1xx_hal.h"
 //#elif defined(STM32F4xx)
@@ -72,4 +66,79 @@ class TFT_FSMC {
     static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
 };
 
-#endif // HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
+
+#if defined(STM32F1xx)
+  #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
+#elif defined(STM32F4xx)
+  #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
+#else
+  #error No configuration for this MCU
+#endif
+
+const PinMap PinMap_FSMC[] = {
+  {PD_14,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D00
+  {PD_15,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D01
+  {PD_0,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D02
+  {PD_1,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D03
+  {PE_7,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D04
+  {PE_8,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D05
+  {PE_9,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D06
+  {PE_10,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D07
+  {PE_11,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D08
+  {PE_12,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D09
+  {PE_13,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D10
+  {PE_14,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D11
+  {PE_15,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D12
+  {PD_8,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D13
+  {PD_9,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D14
+  {PD_10,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D15
+  {PD_4,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NOE
+  {PD_5,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NWE
+  {NC,    NP,    0}
+};
+
+const PinMap PinMap_FSMC_CS[] = {
+  {PD_7,  (void *)FSMC_NORSRAM_BANK1, FSMC_PIN_DATA}, // FSMC_NE1
+  #if defined(PF0)
+    {PG_9,  (void *)FSMC_NORSRAM_BANK2, FSMC_PIN_DATA}, // FSMC_NE2
+    {PG_10, (void *)FSMC_NORSRAM_BANK3, FSMC_PIN_DATA}, // FSMC_NE3
+    {PG_12, (void *)FSMC_NORSRAM_BANK4, FSMC_PIN_DATA}, // FSMC_NE4
+  #endif
+  {NC,    NP,    0}
+};
+
+#define FSMC_RS(A)  (void *)((2 << A) - 2)
+
+const PinMap PinMap_FSMC_RS[] = {
+  #if defined(PF0)
+    {PF_0,  FSMC_RS( 0), FSMC_PIN_DATA}, // FSMC_A0
+    {PF_1,  FSMC_RS( 1), FSMC_PIN_DATA}, // FSMC_A1
+    {PF_2,  FSMC_RS( 2), FSMC_PIN_DATA}, // FSMC_A2
+    {PF_3,  FSMC_RS( 3), FSMC_PIN_DATA}, // FSMC_A3
+    {PF_4,  FSMC_RS( 4), FSMC_PIN_DATA}, // FSMC_A4
+    {PF_5,  FSMC_RS( 5), FSMC_PIN_DATA}, // FSMC_A5
+    {PF_12, FSMC_RS( 6), FSMC_PIN_DATA}, // FSMC_A6
+    {PF_13, FSMC_RS( 7), FSMC_PIN_DATA}, // FSMC_A7
+    {PF_14, FSMC_RS( 8), FSMC_PIN_DATA}, // FSMC_A8
+    {PF_15, FSMC_RS( 9), FSMC_PIN_DATA}, // FSMC_A9
+    {PG_0,  FSMC_RS(10), FSMC_PIN_DATA}, // FSMC_A10
+    {PG_1,  FSMC_RS(11), FSMC_PIN_DATA}, // FSMC_A11
+    {PG_2,  FSMC_RS(12), FSMC_PIN_DATA}, // FSMC_A12
+    {PG_3,  FSMC_RS(13), FSMC_PIN_DATA}, // FSMC_A13
+    {PG_4,  FSMC_RS(14), FSMC_PIN_DATA}, // FSMC_A14
+    {PG_5,  FSMC_RS(15), FSMC_PIN_DATA}, // FSMC_A15
+  #endif
+  {PD_11, FSMC_RS(16), FSMC_PIN_DATA}, // FSMC_A16
+  {PD_12, FSMC_RS(17), FSMC_PIN_DATA}, // FSMC_A17
+  {PD_13, FSMC_RS(18), FSMC_PIN_DATA}, // FSMC_A18
+  {PE_3,  FSMC_RS(19), FSMC_PIN_DATA}, // FSMC_A19
+  {PE_4,  FSMC_RS(20), FSMC_PIN_DATA}, // FSMC_A20
+  {PE_5,  FSMC_RS(21), FSMC_PIN_DATA}, // FSMC_A21
+  {PE_6,  FSMC_RS(22), FSMC_PIN_DATA}, // FSMC_A22
+  {PE_2,  FSMC_RS(23), FSMC_PIN_DATA}, // FSMC_A23
+  #if defined(PF0)
+    {PG_13, FSMC_RS(24), FSMC_PIN_DATA}, // FSMC_A24
+    {PG_14, FSMC_RS(25), FSMC_PIN_DATA}, // FSMC_A25
+  #endif
+  {NC,    NP,    0}
+};

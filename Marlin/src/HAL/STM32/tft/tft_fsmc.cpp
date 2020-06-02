@@ -45,10 +45,12 @@ void TFT_FSMC::Init() {
 
   FSMC_NORSRAM_TimingTypeDef Timing;
 
+  uint32_t NSBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
+
   SRAMx.Instance = FSMC_NORSRAM_DEVICE;
   SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
   /* SRAMx.Init */
-  SRAMx.Init.NSBank = FSMC_NORSRAM_BANK4;
+  SRAMx.Init.NSBank = NSBank;
   SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
   SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
   SRAMx.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
@@ -77,7 +79,13 @@ void TFT_FSMC::Init() {
   pinmap_pinout(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
   pinmap_pinout(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
 
-  controllerAddress  = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
+  switch (NSBank) {
+    case FSMC_NORSRAM_BANK1: controllerAddress = FSMC_BANK1_1 ; break;
+    case FSMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2 ; break;
+    case FSMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3 ; break;
+    case FSMC_NORSRAM_BANK4: controllerAddress = FSMC_BANK1_4 ; break;
+  }
+
   controllerAddress |= (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
 
 /*

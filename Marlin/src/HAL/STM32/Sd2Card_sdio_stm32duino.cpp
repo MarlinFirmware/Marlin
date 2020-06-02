@@ -76,6 +76,21 @@
 
   SD_HandleTypeDef hsd;  // create SDIO structure
 
+  /*
+    SDIO_INIT_CLK_DIV is 118
+    SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
+    SDIO init clock frequency should not exceed 400KHz = 48MHz / (118 + 2)
+
+    Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
+    Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz
+    This might be too fast for stable SDIO operations
+
+    MKS Robin board seems to have stable SDIO with BusWide 1bit and ClockDiv 8 i.e. 4.8MHz SDIO clock frequency
+    Additional testing is required as there are clearly some 4bit initialization problems
+
+    Add -DTRANSFER_CLOCK_DIV=8 to build parameters to improve SDIO stability
+*/
+
   #ifndef TRANSFER_CLOCK_DIV
     #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
   #endif
@@ -162,6 +177,15 @@
     bool status;
     hsd.Instance = SDIO;
     hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
+/*
+    hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
+    hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
+    hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
+    hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
+    hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
+    hsd.Init.ClockDiv = 8;
+*/
+
     SD_LowLevel_Init();
 
     uint8_t retry_Cnt = retryCnt;

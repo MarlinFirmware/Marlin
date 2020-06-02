@@ -21,5 +21,8 @@
  */
 #pragma once
 
-#include "tft/tft_spi.h"
-#include "tft/tft_fsmc.h"
+#if ENABLED(HAS_SPI_TFT)
+  #include "tft/tft_spi.h"
+#elif ENABLED(HAS_FSMC_TFT)
+  #include "tft/tft_fsmc.h"
+#endif
