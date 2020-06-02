@@ -2770,7 +2770,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
   #ifdef CUSTOM_MENU_CONFIGURATION_GCODE_13
     constexpr char _chr13 = CUSTOM_MENU_CONFIGURATION_GCODE_13[strlen(CUSTOM_MENU_CONFIGURATION_GCODE_13) - 1];
-    static_assert(_chr_13 != '\n' && _chr13 != '\r', "CUSTOM_MENU_CONFIGURATION_GCODE_13 cannot have a newline at the end. Please remove it.");
+    static_assert(_chr13 != '\n' && _chr13 != '\r', "CUSTOM_MENU_CONFIGURATION_GCODE_13 cannot have a newline at the end. Please remove it.");
   #endif
   #ifdef CUSTOM_MENU_CONFIGURATION_GCODE_14
     constexpr char _chr14 = CUSTOM_MENU_CONFIGURATION_GCODE_14[strlen(CUSTOM_MENU_CONFIGURATION_GCODE_14) - 1];
