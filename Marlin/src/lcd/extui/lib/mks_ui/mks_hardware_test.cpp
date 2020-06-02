@@ -23,17 +23,16 @@
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
 
-#include "../../../../MarlinCore.h"
-
 #include "tft_lvgl_configuration.h"
 #include "lvgl.h"
-#include "../../../../feature/touch/xpt2046.h"
 #include "draw_ready_print.h"
 #include "W25Qxx.h"
 #include "pic_manager.h"
-
 #include "mks_hardware_test.h"
+
+#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
+#include "../../../../feature/touch/xpt2046.h"
 
 #if ENABLED(MKS_TEST)
 
@@ -120,7 +119,7 @@
     test_gpio_readlevel_L();
     test_gpio_readlevel_H();
     test_gpio_readlevel_L();
-    if ((pw_det_sta == 1)&&(mt_det_sta == 1)&&(mt_det2_sta == 1)&&(mt_det3_sta == 1)) {
+    if ((pw_det_sta == 1) && (mt_det_sta == 1) && (mt_det2_sta == 1) && (mt_det3_sta == 1)) {
       if (curent_disp_ui == 1) disp_det_ok();
     }
     else {
@@ -217,7 +216,7 @@ static const uint16_t ASCII_Table_16x24[] PROGMEM = {
   0x0000, 0x01E0, 0x03F0, 0x0738, 0x0618, 0x0618, 0x0330, 0x01F0,
   0x00F0, 0x00F8, 0x319C, 0x330E, 0x1E06, 0x1C06, 0x1C06, 0x3F06,
   0x73FC, 0x21F0, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-  // '''
+  // "'"
   0x0000, 0x0000, 0x000C, 0x000C, 0x000C, 0x000C, 0x000C, 0x000C,
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
