@@ -305,6 +305,7 @@
 #define BOARD_MKS_ROBIN_E3D           4026  // MKS Robin E3D (STM32F103RCT6)
 #define BOARD_MKS_ROBIN_E3            4027  // MKS Robin E3 (STM32F103RCT6)
 #define BOARD_MALYAN_M300             4028  // STM32F070-based delta
+#define BOARD_CCROBOT_MEEB_3DP        4029  // ccrobot-online.com MEEB_3DP (STM32F103RC)
 
 //
 // ARM Cortex-M4F

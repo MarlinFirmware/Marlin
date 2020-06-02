@@ -772,7 +772,7 @@ void MarlinUI::update() {
             if (!wait_for_unclick) {
               next_button_update_ms += 250;               // Longer delay on first press
               wait_for_unclick = true;                    // Avoid Back/Select click while repeating
-              TERN_(HAS_BUZZER, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+              chirp();
             }
           }
         }

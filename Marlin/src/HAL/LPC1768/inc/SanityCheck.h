@@ -254,8 +254,6 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
   #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
-#endif
-
-#if ENABLED(SERIAL_STATS_DROPPED_RX)
+#elif ENABLED(SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
-#endif  
+#endif
