@@ -295,13 +295,13 @@
 #elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
   #error "UBL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(LEFT_PROBE_BED_POSITION)
-  #error "LEFT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_LEFT. Please update your configuration."
+  #error "LEFT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_LEFT instead."
 #elif defined(RIGHT_PROBE_BED_POSITION)
-  #error "RIGHT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_RIGHT. Please update your configuration."
+  #error "RIGHT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_RIGHT instead."
 #elif defined(FRONT_PROBE_BED_POSITION)
-  #error "FRONT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_FRONT. Please update your configuration."
+  #error "FRONT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_FRONT instead."
 #elif defined(BACK_PROBE_BED_POSITION)
-  #error "BACK_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_BACK. Please update your configuration."
+  #error "BACK_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_BACK instead."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
@@ -2059,6 +2059,20 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     + ENABLED(I2C_EEPROM) + ENABLED(SPI_EEPROM) + ENABLED(QSPI_EEPROM) \
     + ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
     #error "Please select only one method of EEPROM Persistent Storage."
+  #endif
+#endif
+
+/**
+ * Make sure features that need to write to the SD card are
+ * disabled unless write support is enabled.
+ */
+#if ENABLED(SDCARD_READONLY)
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #error "POWER_LOSS_RECOVERY is incompatible with SDCARD_READONLY."
+  #elif ENABLED(BINARY_FILE_TRANSFER)
+    #error "BINARY_FILE_TRANSFER is incompatible with SDCARD_READONLY."
+  #elif ENABLED(SDCARD_EEPROM_EMULATION)
+    #error "SDCARD_EEPROM_EMULATION is incompatible with SDCARD_READONLY."
   #endif
 #endif
 
