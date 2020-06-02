@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
@@ -39,8 +38,8 @@ typedef struct __attribute__((__packed__)) {
    int8_t BBXOffsetX;
    int8_t BBXOffsetY;
   uint8_t CapitalAHeight;
-  uint16_t Encoding65Pos;
-  uint16_t Encoding97Pos;
+ uint16_t Encoding65Pos;
+ uint16_t Encoding97Pos;
   uint8_t FontStartEncoding;
   uint8_t FontEndEncoding;
    int8_t LowerGDescent;

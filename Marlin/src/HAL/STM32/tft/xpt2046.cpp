@@ -35,7 +35,7 @@ void XPT2046::Init() {
   OUT_WRITE(TOUCH_CS_PIN, HIGH);
 
   #if PIN_EXISTS(TOUCH_INT)
-  // Optional Pendrive interrupt pin
+    // Optional Pendrive interrupt pin
     SET_INPUT(TOUCH_INT_PIN);
   #endif
 
@@ -69,7 +69,7 @@ void XPT2046::Init() {
         //__HAL_RCC_DMA1_CLK_ENABLE();
         SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_16;
         DMAtx.Instance = DMA1_Channel3;
-//        SERIAL_ECHO_MSG(" Touch Screen on SPI1");
+        //SERIAL_ECHO_MSG(" Touch Screen on SPI1");
       }
     #endif
     #if defined(SPI2_BASE)
@@ -77,8 +77,7 @@ void XPT2046::Init() {
         __HAL_RCC_SPI2_CLK_ENABLE();
         //__HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Channel5;
-//        SERIAL_ECHO_MSG(" Touch Screen on SPI2");
-
+        //SERIAL_ECHO_MSG(" Touch Screen on SPI2");
       }
     #endif
     #if defined(SPI3_BASE)
@@ -86,15 +85,16 @@ void XPT2046::Init() {
         __HAL_RCC_SPI3_CLK_ENABLE();
         //__HAL_RCC_DMA2_CLK_ENABLE();
         DMAtx.Instance = DMA2_Channel2;
-//        SERIAL_ECHO_MSG(" Touch Screen on SPI3");
+        //SERIAL_ECHO_MSG(" Touch Screen on SPI3");
       }
     #endif
-  } else {
+  }
+  else {
     SPIx.Instance = NULL;
     SET_INPUT(TOUCH_MISO_PIN);
     SET_OUTPUT(TOUCH_MOSI_PIN);
     SET_OUTPUT(TOUCH_SCK_PIN);
-//    SERIAL_ECHO_MSG(" Touch Screen on Software SPI");
+    //SERIAL_ECHO_MSG(" Touch Screen on Software SPI");
   }
 
   getRawData(XPT2046_Z1);
@@ -152,7 +152,7 @@ uint16_t XPT2046::HardwareIO(uint16_t data) {
   __HAL_SPI_DISABLE(&SPIx);
 
   return SPIx.Instance->DR;
-  }
+}
 
 uint16_t XPT2046::SoftwareIO(uint16_t data) {
   uint16_t result = 0;

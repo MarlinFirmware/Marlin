@@ -1,25 +1,24 @@
-
 /**
-* Marlin 3D Printer Firmware
-* Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-*
-* Based on Sprinter and grbl.
-* Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -122,40 +121,39 @@ uint32_t TFT_SPI::GetID() {
   #if !PIN_EXISTS(TFT_MISO)
     return 0;
   #else
+    uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
+    uint32_t i, Data = 0;
 
-  uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
-  uint32_t i, Data = 0;
+    SPIx.Init.BaudRatePrescaler = SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4;
+    DataTransferBegin(DATASIZE_8BIT);
+    WriteReg(0x04);
 
-  SPIx.Init.BaudRatePrescaler = SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4;
-  DataTransferBegin(DATASIZE_8BIT);
-  WriteReg(0x04);
+    if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_RX(&SPIx);
+    __HAL_SPI_ENABLE(&SPIx);
 
-  if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_RX(&SPIx);
-  __HAL_SPI_ENABLE(&SPIx);
+    /*
+     * Code below was not tested for hspi->Init.Direction == SPI_DIRECTION_2LINES
+     * See HAL_SPI_TransmitReceive() for implementation for separate MOSI / MISO lines
+     */
 
-  /*
-   * Code below was not tested for hspi->Init.Direction == SPI_DIRECTION_2LINES
-   * See HAL_SPI_TransmitReceive() for implementation for separate MOSI / MISO lines
-   */
+    for (i = 0; i < 4; i++) {
+      #if TFT_MISO_PIN != TFT_MOSI_PIN
+        //if (hspi->Init.Direction == SPI_DIRECTION_2LINES) {
+          while((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
+          SPIx.Instance->DR = 0;
+        //}
+      #endif
+      while ((SPIx.Instance->SR & SPI_FLAG_RXNE) != SPI_FLAG_RXNE) {}
+      Data = (Data << 8) | SPIx.Instance->DR;
+    }
 
-  for (i = 0; i < 4; i++) {
-    #if TFT_MISO_PIN != TFT_MOSI_PIN
-    //if (hspi->Init.Direction == SPI_DIRECTION_2LINES) {
-      while((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
-      SPIx.Instance->DR = 0;
-    // }
-    #endif
-    while((SPIx.Instance->SR & SPI_FLAG_RXNE) != SPI_FLAG_RXNE) {}
-    Data = (Data << 8) | SPIx.Instance->DR;
-  }
+    __HAL_SPI_DISABLE(&SPIx);
+    DataTransferEnd();
 
-  __HAL_SPI_DISABLE(&SPIx);
-  DataTransferEnd();
+    SPIx.Init.BaudRatePrescaler   = BaudRatePrescaler;
 
-  SPIx.Init.BaudRatePrescaler   = BaudRatePrescaler;
-
-  return Data >> 7;
-#endif
+    return Data >> 7;
+  #endif
 }
 
 bool TFT_SPI::isBusy() {
@@ -205,7 +203,6 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   __HAL_SPI_ENABLE(&SPIx);
 
   SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   /* Enable Tx DMA Request */
-
 }
 
 #endif // HAS_GRAPHICAL_TFT && HAS_SPI_TFT

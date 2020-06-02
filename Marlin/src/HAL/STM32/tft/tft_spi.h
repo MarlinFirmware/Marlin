@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,15 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
-#if HAS_GRAPHICAL_TFT && HAS_SPI_TFT
-
-#if defined(STM32F1xx)
-#include "stm32f1xx_hal.h"
+#ifdef STM32F1xx
+  #include "stm32f1xx_hal.h"
 //#elif defined(STM32F4xx)
-//#include "stm32f4xx_hal.h"
+  //#include "stm32f4xx_hal.h"
 #endif
 
 #define DATASIZE_8BIT    SPI_DATASIZE_8BIT
@@ -35,28 +32,26 @@
 #define TFT_IO TFT_SPI
 
 class TFT_SPI {
-  private:
-    static SPI_HandleTypeDef SPIx;
-    static DMA_HandleTypeDef DMAtx;
+private:
+  static SPI_HandleTypeDef SPIx;
+  static DMA_HandleTypeDef DMAtx;
 
-    static void Transmit(uint16_t Data);
-    static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+  static void Transmit(uint16_t Data);
+  static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
 
-  public:
-    static void Init();
-    static uint32_t GetID();
-    static bool isBusy();
-    static void Abort();
+public:
+  static void Init();
+  static uint32_t GetID();
+  static bool isBusy();
+  static void Abort();
 
-    static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
-    static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); };
-    static void DataTransferAbort();
+  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
+  static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); };
+  static void DataTransferAbort();
 
-    static void WriteData(uint16_t Data) { Transmit(Data); }
-    static void WriteReg(uint16_t Reg) { WRITE(TFT_A0_PIN, LOW); Transmit(Reg); WRITE(TFT_A0_PIN, HIGH); }
+  static void WriteData(uint16_t Data) { Transmit(Data); }
+  static void WriteReg(uint16_t Reg) { WRITE(TFT_A0_PIN, LOW); Transmit(Reg); WRITE(TFT_A0_PIN, HIGH); }
 
-    static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
-    static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
-  };
-
-#endif // HAS_GRAPHICAL_TFT && HAS_SPI_TFT
+  static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
+  static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+};

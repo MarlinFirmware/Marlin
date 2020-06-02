@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #if HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
@@ -29,9 +28,9 @@ extern const PinMap PinMap_FSMC_CS[];
 extern const PinMap PinMap_FSMC_RS[];
 
 #if defined(STM32F1xx)
-#include "stm32f1xx_hal.h"
+  #include "stm32f1xx_hal.h"
 //#elif defined(STM32F4xx)
-//#include "stm32f4xx_hal.h"
+  //#include "stm32f4xx_hal.h"
 #endif
 
 #ifndef LCD_READ_ID
@@ -71,6 +70,6 @@ class TFT_FSMC {
 
     static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
-  };
+};
 
 #endif // HAS_GRAPHICAL_TFT && HAS_FSMC_TFT

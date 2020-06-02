@@ -18,32 +18,26 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
-
-#if ENABLED(TOUCH_SCREEN)
-
 #include "../../../inc/MarlinConfig.h"
 
-#if defined(STM32F1xx)
-#include "stm32f1xx_hal.h"
+#ifdef STM32F1xx
+  #include "stm32f1xx_hal.h"
 //#elif defined(STM32F4xx)
-//#include "stm32f4xx_hal.h"
+  //#include "stm32f4xx_hal.h"
 #endif
 
 // Not using regular SPI interface by default to avoid SPI mode conflicts with other SPI devices
 
 #ifndef TOUCH_MISO_PIN
-  #error TOUCH_MISO_PIN is not defined
+  #error "TOUCH_MISO_PIN is not defined."
+#elif !defined(TOUCH_MOSI_PIN)
+  #error "TOUCH_MOSI_PIN is not defined."
+#elif !defined(TOUCH_SCK_PIN)
+  #error "TOUCH_SCK_PIN is not defined."
+#elif !defined(TOUCH_CS_PIN)
+  #error "TOUCH_CS_PIN is not defined."
 #endif
-#ifndef TOUCH_MOSI_PIN
-  #error TOUCH_MOSI_PIN is not defined
-#endif
-#ifndef TOUCH_SCK_PIN
-  #error TOUCH_SCK_PIN is not defined
-#endif
-#ifndef TOUCH_CS_PIN
-  #error TOUCH_CS_PIN is not defined
-#endif
+
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
 #endif
@@ -65,27 +59,25 @@ enum XPTCoordinate : uint8_t {
 #define XPT2046_Y_OFFSET           256
 
 #ifndef XPT2046_Z1_THRESHOLD
-#define XPT2046_Z1_THRESHOLD 10
+  #define XPT2046_Z1_THRESHOLD 10
 #endif
 
 class XPT2046 {
-  private:
-    static SPI_HandleTypeDef SPIx;
-    static DMA_HandleTypeDef DMAtx;
+private:
+  static SPI_HandleTypeDef SPIx;
+  static DMA_HandleTypeDef DMAtx;
 
-    static bool isBusy() { return SPIx.Instance ? DMAtx.Instance->CCR & DMA_CCR_EN : false; }
-    static uint16_t getRawData(const XPTCoordinate coordinate);
-    static bool isTouched();
+  static bool isBusy() { return SPIx.Instance ? DMAtx.Instance->CCR & DMA_CCR_EN : false; }
+  static uint16_t getRawData(const XPTCoordinate coordinate);
+  static bool isTouched();
 
-    static inline void DataTransferBegin() { if (SPIx.Instance) { HAL_SPI_Init(&SPIx); } WRITE(TOUCH_CS_PIN, LOW); };
-    static inline void DataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
-    static uint16_t HardwareIO(uint16_t data);
-    static uint16_t SoftwareIO(uint16_t data);
-    static uint16_t IO(uint16_t data = 0) { return SPIx.Instance ? HardwareIO(data) : SoftwareIO(data); }
+  static inline void DataTransferBegin() { if (SPIx.Instance) { HAL_SPI_Init(&SPIx); } WRITE(TOUCH_CS_PIN, LOW); };
+  static inline void DataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
+  static uint16_t HardwareIO(uint16_t data);
+  static uint16_t SoftwareIO(uint16_t data);
+  static uint16_t IO(uint16_t data = 0) { return SPIx.Instance ? HardwareIO(data) : SoftwareIO(data); }
 
-  public:
-    static void Init();
-    static bool getPoint(int16_t *x, int16_t *y);
+public:
+  static void Init();
+  static bool getPoint(int16_t *x, int16_t *y);
 };
-
-#endif // TOUCH_SCREEN
