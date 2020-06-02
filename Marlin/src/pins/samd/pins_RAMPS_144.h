@@ -46,7 +46,7 @@
 //
 //#define QSPI_EEPROM                             // Use AGCM4 onboard QSPI EEPROM (Uses 4K of RAM)
 #define I2C_EEPROM                                // EEPROM on I2C-0
-#define E2END 0x7FFF                              // 32K (24lc256)
+#define MARLIN_EEPROM_SIZE 0x8000                 // 32K (24lc256)
 
 //
 // Limit Switches
@@ -130,7 +130,7 @@
 #endif
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      71
+  #define FIL_RUNOUT_PIN                      70
 #endif
 
 #ifndef PS_ON_PIN

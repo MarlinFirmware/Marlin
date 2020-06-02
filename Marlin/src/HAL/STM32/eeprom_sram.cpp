@@ -29,7 +29,11 @@
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-size_t PersistentStore::capacity()    { return 4096; } // 4K of SRAM
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
+#endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
+
 bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
 

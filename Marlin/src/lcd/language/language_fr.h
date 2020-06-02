@@ -476,15 +476,16 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Echec sonde");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Trop froid");
 
+  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("MAJ firmware MMU!!");
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOISIR FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU ne répond plus");
-  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Continuer impr.");
-  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Reprise...");
-  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Charger filament");
-  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Charger tous");
+  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Continuer Imp. MMU");
+  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Reprise MMU...");
+  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Charge dans MMU");
+  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Charger tous dans MMU");
   PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("Charger dans buse");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Ejecter filament");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Ejecter fil. du MMU");
   PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Ejecter fil. ~");
   PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("Retrait filament");
   PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Chargem. fil. %i...");

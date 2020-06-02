@@ -612,15 +612,12 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     UNUSED(clear_buttons);
   #endif
 
-  #if HAS_BUZZER
-    // Buzz and wait. Is the delay needed for buttons to settle?
-    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-    #if HAS_LCD_MENU
-      #if USE_BEEPER
-        for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
-      #else
-        delay(10);
-      #endif
+  #if HAS_CHIRP
+    chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
+    #if BOTH(HAS_LCD_MENU, USE_BEEPER)
+      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #elif HAS_LCD_MENU
+      delay(10);
     #endif
   #endif
 }
@@ -775,7 +772,7 @@ void MarlinUI::update() {
             if (!wait_for_unclick) {
               next_button_update_ms += 250;               // Longer delay on first press
               wait_for_unclick = true;                    // Avoid Back/Select click while repeating
-              TERN_(HAS_BUZZER, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+              chirp();
             }
           }
         }
@@ -881,7 +878,7 @@ void MarlinUI::update() {
     // Instead of tracking changes just redraw the Status Screen once per second.
     if (on_status_screen() && !lcd_status_update_delay--) {
       lcd_status_update_delay = TERN(HAS_GRAPHICAL_LCD, 12, 9);
-      max_display_update_time--;
+      if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
       refresh(LCDVIEW_REDRAW_NOW);
     }
 

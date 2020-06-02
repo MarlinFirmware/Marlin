@@ -295,13 +295,13 @@
 #elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
   #error "UBL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(LEFT_PROBE_BED_POSITION)
-  #error "LEFT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_LEFT. Please update your configuration."
+  #error "LEFT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_LEFT instead."
 #elif defined(RIGHT_PROBE_BED_POSITION)
-  #error "RIGHT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_RIGHT. Please update your configuration."
+  #error "RIGHT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_RIGHT instead."
 #elif defined(FRONT_PROBE_BED_POSITION)
-  #error "FRONT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_FRONT. Please update your configuration."
+  #error "FRONT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_FRONT instead."
 #elif defined(BACK_PROBE_BED_POSITION)
-  #error "BACK_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_BACK. Please update your configuration."
+  #error "BACK_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_BACK instead."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
@@ -2063,6 +2063,20 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * Make sure features that need to write to the SD card are
+ * disabled unless write support is enabled.
+ */
+#if ENABLED(SDCARD_READONLY)
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #error "POWER_LOSS_RECOVERY is incompatible with SDCARD_READONLY."
+  #elif ENABLED(BINARY_FILE_TRANSFER)
+    #error "BINARY_FILE_TRANSFER is incompatible with SDCARD_READONLY."
+  #elif ENABLED(SDCARD_EEPROM_EMULATION)
+    #error "SDCARD_EEPROM_EMULATION is incompatible with SDCARD_READONLY."
+  #endif
+#endif
+
+/**
  * Make sure only one display is enabled
  */
 #if 1 < 0 \
@@ -2742,12 +2756,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Prusa MMU2 requirements
  */
 #if ENABLED(PRUSA_MMU2)
-  #if DISABLED(NOZZLE_PARK_FEATURE)
-    #error "PRUSA_MMU2 requires NOZZLE_PARK_FEATURE."
-  #elif EXTRUDERS != 5
+  #if EXTRUDERS != 5
     #error "PRUSA_MMU2 requires EXTRUDERS = 5."
-  #elif ENABLED(PRUSA_MMU2_S_MODE) && DISABLED(FILAMENT_RUNOUT_SENSOR)
-    #error "PRUSA_MMU2_S_MODE requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif DISABLED(NOZZLE_PARK_FEATURE)
+    #error "PRUSA_MMU2 requires NOZZLE_PARK_FEATURE. Enable it to continue."
+  #elif EITHER(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2_S_MODE or MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif BOTH(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR)
+    #error "Enable only one of PRUSA_MMU2_S_MODE or MMU_EXTRUDER_SENSOR."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2.");
   #endif

@@ -179,8 +179,11 @@ void Sd2Card::chipSelect() {
  * \return true for success, false for failure.
  */
 bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   csd_t csd;
   if (!readCSD(&csd)) goto FAIL;
+
   // check for single block erase
   if (!csd.v1.erase_blk_en) {
     // erase size mask
@@ -535,9 +538,10 @@ bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
-  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
+  if (ENABLED(SDCARD_READONLY)) return false;
 
   bool success = false;
+  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
   if (!cardCommand(CMD24, blockNumber)) {
     if (writeData(DATA_START_BLOCK, src)) {
       if (waitNotBusy(SD_WRITE_TIMEOUT)) {              // Wait for flashing to complete
@@ -561,6 +565,8 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeData(const uint8_t* src) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = true;
   chipSelect();
   // Wait for previous write to finish
@@ -574,14 +580,9 @@ bool Sd2Card::writeData(const uint8_t* src) {
 
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
+  if (ENABLED(SDCARD_READONLY)) return false;
 
-  uint16_t crc =
-    #if ENABLED(SD_CHECK_AND_RETRY)
-      CRC_CCITT(src, 512)
-    #else
-      0xFFFF
-    #endif
-  ;
+  const uint16_t crc = TERN(SD_CHECK_AND_RETRY, CRC_CCITT(src, 512), 0xFFFF);
   spiSendBlock(token, src);
   spiSend(crc >> 8);
   spiSend(crc & 0xFF);
@@ -607,6 +608,8 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeStart(uint32_t blockNumber, const uint32_t eraseCount) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = false;
   if (!cardAcmd(ACMD23, eraseCount)) {                    // Send pre-erase count
     if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
@@ -626,6 +629,8 @@ bool Sd2Card::writeStart(uint32_t blockNumber, const uint32_t eraseCount) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeStop() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = false;
   chipSelect();
   if (waitNotBusy(SD_WRITE_TIMEOUT)) {

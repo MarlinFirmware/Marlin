@@ -28,10 +28,6 @@
 //  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 //#endif
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for STM32. Disable EMERGENCY_PARSER to continue."
-#endif
-
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
@@ -51,4 +47,10 @@
 
 #if !defined(STM32F4xx) && ENABLED(FLASH_EEPROM_LEVELING)
   #error "FLASH_EEPROM_LEVELING is currently only supported on STM32F4 hardware."
+#endif
+
+#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+#elif ENABLED(SERIAL_STATS_DROPPED_RX)
+  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
 #endif

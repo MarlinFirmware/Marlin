@@ -41,7 +41,6 @@ extern "C" volatile uint32_t _millis;
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "timers.h"
 #include "MarlinSerial.h"
 
 #include <adc.h>
@@ -49,7 +48,7 @@ extern "C" volatile uint32_t _millis;
 #include <CDCSerial.h>
 
 // i2c uses 8-bit shifted address
-#define I2C_ADDRESS(A) ((A) << 1)
+#define I2C_ADDRESS(A) uint8_t((A) << 1)
 
 //
 // Default graphical display delays
@@ -221,3 +220,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, 
 // Reset source
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
+
+// Add strcmp_P if missing
+#ifndef strcmp_P
+  #define strcmp_P(a, b) strcmp((a), (b))
+#endif

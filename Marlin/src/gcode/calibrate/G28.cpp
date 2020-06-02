@@ -369,11 +369,8 @@ void GcodeSuite::G28() {
 
       if (doZ) {
         TERN_(BLTOUCH, bltouch.init());
-        #if ENABLED(Z_SAFE_HOMING)
-          home_z_safely();
-        #else
-          homeaxis(Z_AXIS);
-        #endif
+
+        TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
 
         #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
           #if Z_AFTER_HOMING > Z_AFTER_PROBING

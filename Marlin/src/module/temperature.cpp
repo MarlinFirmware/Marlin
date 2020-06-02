@@ -204,6 +204,16 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     if (target >= FAN_COUNT) return;
 
     fan_speed[target] = speed;
+    report_fan_speed(target);
+  }
+
+  /**
+   * Report print fan speed for a target extruder
+   */
+  void Temperature::report_fan_speed(const uint8_t target) {
+    if (target >= FAN_COUNT) return;
+    PORT_REDIRECT(SERIAL_BOTH);
+    SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
   }
 
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
@@ -381,15 +391,15 @@ volatile bool Temperature::raw_temps_ready = false;
       #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
       #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
     #endif
+    #define WATCH_PID BOTH(WATCH_BED, PIDTEMPBED) || BOTH(WATCH_HOTENDS, PIDTEMP)
 
-    #if WATCH_BED || WATCH_HOTENDS
-      #define HAS_TP_BED BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
-      #if HAS_TP_BED && BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
+    #if WATCH_PID
+      #if ALL(THERMAL_PROTECTION_HOTENDS, PIDTEMP, THERMAL_PROTECTION_BED, PIDTEMPBED)
         #define GTV(B,H) (isbed ? (B) : (H))
-      #elif HAS_TP_BED
-        #define GTV(B,H) (B)
-      #else
+      #elif BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
         #define GTV(B,H) (H)
+      #else
+        #define GTV(B,H) (B)
       #endif
       const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
@@ -528,7 +538,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_temp_ms = ms + 2000UL;
 
         // Make sure heating is actually working
-        #if WATCH_BED || WATCH_HOTENDS
+        #if WATCH_PID
           if (BOTH(WATCH_BED, WATCH_HOTENDS) || isbed == DISABLED(WATCH_HOTENDS)) {
             if (!heated) {                                            // If not yet reached target...
               if (current_temp > next_watch_temp) {                   // Over the watch temp?
@@ -890,11 +900,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
     #else // No PID enabled
 
-      #if HEATER_IDLE_HANDLER
-        const bool is_idling = hotend_idle[ee].timed_out;
-      #else
-        constexpr bool is_idling = false;
-      #endif
+      const bool is_idling = TERN0(HEATER_IDLE_HANDLER, hotend_idle[ee].timed_out);
       const float pid_output = (!is_idling && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
 
     #endif
@@ -2060,6 +2066,10 @@ void Temperature::disable_all_heaters() {
 
 #if HAS_MAX6675
 
+  #ifndef THERMOCOUPLE_MAX_ERRORS
+    #define THERMOCOUPLE_MAX_ERRORS 15
+  #endif
+
   int Temperature::read_max6675(
     #if COUNT_6675 > 1
       const uint8_t hindex
@@ -2071,6 +2081,8 @@ void Temperature::disable_all_heaters() {
       // Needed to return the correct temp when this is called too soon
       static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
     #endif
+
+    static uint8_t max6675_errors[COUNT_6675] = { 0 };
 
     #define MAX6675_HEAT_INTERVAL 250UL
 
@@ -2144,33 +2156,41 @@ void Temperature::disable_all_heaters() {
     WRITE_MAX6675(HIGH); // disable TT_MAX6675
 
     if (max6675_temp & MAX6675_ERROR_MASK) {
-      SERIAL_ERROR_START();
-      SERIAL_ECHOPGM("Temp measurement error! ");
-      #if MAX6675_ERROR_MASK == 7
-        SERIAL_ECHOPGM("MAX31855 ");
-        if (max6675_temp & 1)
-          SERIAL_ECHOLNPGM("Open Circuit");
-        else if (max6675_temp & 2)
-          SERIAL_ECHOLNPGM("Short to GND");
-        else if (max6675_temp & 4)
-          SERIAL_ECHOLNPGM("Short to VCC");
-      #else
-        SERIAL_ECHOLNPGM("MAX6675");
-      #endif
-
-      // Thermocouple open
-      max6675_temp = 4 * (
-        #if COUNT_6675 > 1
-          hindex ? HEATER_1_MAX6675_TMAX : HEATER_0_MAX6675_TMAX
-        #elif ENABLED(HEATER_1_USES_MAX6675)
-          HEATER_1_MAX6675_TMAX
+      max6675_errors[hindex] += 1;
+      if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
+        SERIAL_ERROR_START();
+        SERIAL_ECHOPGM("Temp measurement error! ");
+        #if MAX6675_ERROR_MASK == 7
+          SERIAL_ECHOPGM("MAX31855 ");
+          if (max6675_temp & 1)
+            SERIAL_ECHOLNPGM("Open Circuit");
+          else if (max6675_temp & 2)
+            SERIAL_ECHOLNPGM("Short to GND");
+          else if (max6675_temp & 4)
+            SERIAL_ECHOLNPGM("Short to VCC");
         #else
-          HEATER_0_MAX6675_TMAX
+          SERIAL_ECHOLNPGM("MAX6675");
         #endif
-      );
+
+        // Thermocouple open
+        max6675_temp = 4 * (
+          #if COUNT_6675 > 1
+            hindex ? HEATER_1_MAX6675_TMAX : HEATER_0_MAX6675_TMAX
+          #elif ENABLED(HEATER_1_USES_MAX6675)
+            HEATER_1_MAX6675_TMAX
+          #else
+            HEATER_0_MAX6675_TMAX
+          #endif
+        );
+      }
+      else {
+        max6675_temp >>= MAX6675_DISCARD_BITS;
+      }
     }
-    else
+    else {
       max6675_temp >>= MAX6675_DISCARD_BITS;
+      max6675_errors[hindex] = 0;
+    }
 
     #if ENABLED(MAX6675_IS_MAX31855)
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature

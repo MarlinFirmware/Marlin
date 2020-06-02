@@ -1000,7 +1000,7 @@ namespace ExtUI {
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(SD_ORDER(pos, count()));
+      card.getfilename_sorted(pos);
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);

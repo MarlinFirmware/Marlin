@@ -378,7 +378,7 @@ void CardReader::mount() {
 /**
  * Handle SD card events
  */
-#if MB(FYSETC_CHEETAH)
+#if MB(FYSETC_CHEETAH, FYSETC_AIO_II)
   #include "../module/stepper.h"
 #endif
 
@@ -393,7 +393,7 @@ void CardReader::manage_media() {
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
       mount();                        // Try to mount the media
-      #if MB(FYSETC_CHEETAH)
+      #if MB(FYSETC_CHEETAH, FYSETC_AIO_II)
         reset_stepper_drivers();      // Workaround for Cheetah bug
       #endif
       if (!isMounted()) stat = 0;     // Not mounted?
@@ -446,8 +446,8 @@ void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
 }
 
 void CardReader::openLogFile(char * const path) {
-  flag.logging = true;
-  openFileWrite(path);
+  flag.logging = DISABLED(SDCARD_READONLY);
+  TERN(SDCARD_READONLY,,openFileWrite(path));
 }
 
 //
@@ -573,15 +573,19 @@ void CardReader::openFileWrite(char * const path) {
   const char * const fname = diveToFile(false, curDir, path);
   if (!fname) return;
 
-  if (file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
-    flag.saving = true;
-    selectFileByName(fname);
-    TERN_(EMERGENCY_PARSER, emergency_parser.disable());
-    echo_write_to_file(fname);
-    ui.set_status(fname);
-  }
-  else
+  #if ENABLED(SDCARD_READONLY)
     openFailed(fname);
+  #else
+    if (file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
+      flag.saving = true;
+      selectFileByName(fname);
+      TERN_(EMERGENCY_PARSER, emergency_parser.disable());
+      echo_write_to_file(fname);
+      ui.set_status(fname);
+    }
+    else
+      openFailed(fname);
+  #endif
 }
 
 //
@@ -596,13 +600,17 @@ void CardReader::removeFile(const char * const name) {
   const char * const fname = diveToFile(false, curDir, name);
   if (!fname) return;
 
-  if (file.remove(curDir, fname)) {
-    SERIAL_ECHOLNPAIR("File deleted:", fname);
-    sdpos = 0;
-    TERN_(SDCARD_SORT_ALPHA, presort());
-  }
-  else
-    SERIAL_ECHOLNPAIR("Deletion failed, File: ", fname, ".");
+  #if ENABLED(SDCARD_READONLY)
+    SERIAL_ECHOLNPAIR("Deletion failed (read-only), File: ", fname, ".");
+  #else
+    if (file.remove(curDir, fname)) {
+      SERIAL_ECHOLNPAIR("File deleted:", fname);
+      sdpos = 0;
+      TERN_(SDCARD_SORT_ALPHA, presort());
+    }
+    else
+      SERIAL_ECHOLNPAIR("Deletion failed, File: ", fname, ".");
+  #endif
 }
 
 void CardReader::report_status() {

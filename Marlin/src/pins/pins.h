@@ -98,6 +98,8 @@
   #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
 #elif MB(K8400)
   #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+#elif MB(K8600)
+  #include "ramps/pins_K8600.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8800)
   #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
 #elif MB(BAM_DICE)
@@ -510,6 +512,8 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_E3_V2_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_E3_DIP)
   #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(JGAURORA_A5S_A1)
@@ -530,6 +534,8 @@
   #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3)
   #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+#elif MB(CCROBOT_MEEB_3DP)
+  #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
 
 //
 // ARM Cortex-M4F
