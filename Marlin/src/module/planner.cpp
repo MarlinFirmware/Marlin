@@ -2357,7 +2357,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             const float neg = junction_cos_theta < 0 ? -1 : 1,
                         t = neg * junction_cos_theta;
 
-            const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+            const int16_t idx = (t < 0.00000003f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
             float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
             if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
