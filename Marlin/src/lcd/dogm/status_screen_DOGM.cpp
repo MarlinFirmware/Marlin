@@ -543,7 +543,7 @@ void MarlinUI::draw_status_screen() {
     #if DO_DRAW_CUTTER
       if (cutter.power && PAGE_CONTAINS(STATUS_CUTTER_TEXT_Y - INFO_FONT_ASCENT, STATUS_CUTTER_TEXT_Y - 1)) {
         #if CUTTER_DISPLAY_IS(PERCENT)
-          lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr3rj(cutter.power));  //should i16tostr3rj be ui16tostr3rj to match the RPM case?
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr3rj(cutter.power));
           lcd_put_wchar('%');
         #elif CUTTER_DISPLAY_IS(RPM)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr5rj(cutter.power));
