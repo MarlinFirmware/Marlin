@@ -61,21 +61,10 @@
 // Alter timing for graphical display
 #if HAS_GRAPHICAL_LCD
 
-  // Delays are pre-defined in pins_SANGUINOLOLU_11.h with different values. Avoid compiler warnings.
-  #ifdef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_1
-  #endif
   #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-
-  #ifdef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_2
-  #endif
   #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-
-  #ifdef BOARD_ST7920_DELAY_3
-    #undef BOARD_ST7920_DELAY_3
-  #endif
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+
 #endif
 
 #if ENABLED(MINIPANEL)

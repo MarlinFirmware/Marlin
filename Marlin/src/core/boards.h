@@ -169,6 +169,7 @@
 #define BOARD_STB_11                  1507  // STB V1.1
 #define BOARD_AZTEEG_X1               1508  // Azteeg X1
 #define BOARD_ANET_10                 1509  // Anet 1.0 (Melzi clone)
+#define BOARD_MELZI_V2                1510  // MELZI V2
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -365,4 +366,4 @@
 #define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
 #define MB(V...)  DO(MB,||,V)
 
-#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY)
+#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY, MELZI_V2)
