@@ -1355,7 +1355,7 @@
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #if ENABLED (AUTO_BED_LEVELING_BILINEAR)
-  #define MIN_PROBE_EDGE 10 //suggested only using mesh inset or Min probe edge to adjust probe area
+  #define PROBING_MARGIN 10 //suggested only using mesh inset or Min probe edge to adjust probe area
 #endif
 
 // X and Y axis travel speed (mm/m) between probes
