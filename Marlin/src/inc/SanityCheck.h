@@ -295,13 +295,13 @@
 #elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
   #error "UBL_PROBE_PT_[123]_[XY] is no longer required. Please remove it from Configuration.h."
 #elif defined(LEFT_PROBE_BED_POSITION)
-  #error "LEFT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_LEFT. Please update your configuration."
+  #error "LEFT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_LEFT instead."
 #elif defined(RIGHT_PROBE_BED_POSITION)
-  #error "RIGHT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_RIGHT. Please update your configuration."
+  #error "RIGHT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_RIGHT instead."
 #elif defined(FRONT_PROBE_BED_POSITION)
-  #error "FRONT_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_FRONT. Please update your configuration."
+  #error "FRONT_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_FRONT instead."
 #elif defined(BACK_PROBE_BED_POSITION)
-  #error "BACK_PROBE_BED_POSITION has been replaced by MIN_PROBE_EDGE_BACK. Please update your configuration."
+  #error "BACK_PROBE_BED_POSITION is obsolete. Set a margin with MIN_PROBE_EDGE or MIN_PROBE_EDGE_BACK instead."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
@@ -1263,12 +1263,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if DISABLED(NOZZLE_AS_PROBE)
-    static_assert(MIN_PROBE_EDGE >= 0, "MIN_PROBE_EDGE must be >= 0.");
-    static_assert(MIN_PROBE_EDGE_BACK >= 0, "MIN_PROBE_EDGE_BACK must be >= 0.");
-    static_assert(MIN_PROBE_EDGE_FRONT >= 0, "MIN_PROBE_EDGE_FRONT must be >= 0.");
-    static_assert(MIN_PROBE_EDGE_LEFT >= 0, "MIN_PROBE_EDGE_LEFT must be >= 0.");
-    static_assert(MIN_PROBE_EDGE_RIGHT >= 0, "MIN_PROBE_EDGE_RIGHT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE >= 0, "The MIN_PROBE_EDGE must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_BACK >= 0, "The MIN_PROBE_EDGE_BACK must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_FRONT >= 0, "The MIN_PROBE_EDGE_FRONT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_LEFT >= 0, "The MIN_PROBE_EDGE_LEFT must be >= 0.");
+    static_assert(MIN_PROBE_EDGE_RIGHT >= 0, "The MIN_PROBE_EDGE_RIGHT must be >= 0.");
   #endif
+
+  static_assert(MIN_PROBE_EDGE < CENTER_X, "The MIN_PROBE_EDGE is too large.");
+  static_assert(MIN_PROBE_EDGE_BACK < CENTER_Y, "The MIN_PROBE_EDGE_BACK is too large.");
+  static_assert(MIN_PROBE_EDGE_FRONT < CENTER_Y, "The MIN_PROBE_EDGE_FRONT is too large.");
+  static_assert(MIN_PROBE_EDGE_LEFT < CENTER_X, "The MIN_PROBE_EDGE_LEFT is too large.");
+  static_assert(MIN_PROBE_EDGE_RIGHT < CENTER_X, "The MIN_PROBE_EDGE_RIGHT is too large.");
 
   /**
    * Make sure Z raise values are set

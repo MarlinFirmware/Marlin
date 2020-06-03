@@ -1587,6 +1587,8 @@
 #endif
 
 /**
+ * Probing Margins
+ *
  * Override MIN_PROBE_EDGE for each side of the build plate
  * Useful to get probe points to exact positions on targets or
  * to allow leveling to avoid plate clamps on only specific
@@ -1602,12 +1604,6 @@
  * should the probe position be modified with M851XY then the
  * probe points will follow. This prevents any change from causing
  * the probe to be unable to reach any points.
- * 
- * NB. MIN_PROBE_EDGE values are relative to their edges.
- * MIN_PROBE_EDGE_LEFT  is the distance from the left  edge to the left  probe edge.
- * MIN_PROBE_EDGE_RIGHT is the distance from the right edge to the right probe edge.
- * MIN_PROBE_EDGE_FRONT is the distance from the front edge to the front probe edge.
- * MIN_PROBE_EDGE_BACK  is the distance from the back  edge to the back  probe edge.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
   //#define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
