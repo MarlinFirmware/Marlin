@@ -46,6 +46,12 @@ const char* ui16tostr4rj(const uint16_t x);
 // Convert uint16_t to string with 123 format
 const char* ui16tostr3rj(const uint16_t x);
 
+// Convert signed 16bit int to rj string with 12345 or -1234 format
+const char* i16tostr5rj(const int16_t x);
+
+// Convert signed 16bit int to rj string with 1234 or -123 format
+const char* i16tostr4rj(const int16_t x);
+
 // Convert int16_t to string with 123 format
 const char* i16tostr3rj(const int16_t x);
 

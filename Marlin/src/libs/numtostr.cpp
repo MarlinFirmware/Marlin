@@ -114,6 +114,27 @@ const char* ui16tostr3rj(const uint16_t xx) {
   return &conv[4];
 }
 
+// Convert signed 16bit int to rj string with 12345 or -1234 format
+const char* i16tostr5rj(const int16_t x) {
+  int xx = x;
+  conv[2] = MINUSOR(xx, RJDIGIT(xx, 10000));
+  conv[3] = RJDIGIT(xx, 1000);
+  conv[4] = RJDIGIT(xx, 100);
+  conv[5] = RJDIGIT(xx, 10);
+  conv[6] = DIGIMOD(xx, 1);
+  return &conv[2];
+}
+
+// Convert signed 16bit int to rj string with 1234 or -123 format
+const char* i16tostr4rj(const int16_t x) {
+  int xx = x;
+  conv[3] = MINUSOR(xx, RJDIGIT(xx, 1000));
+  conv[4] = RJDIGIT(xx, 100);
+  conv[5] = RJDIGIT(xx, 10);
+  conv[6] = DIGIMOD(xx, 1);
+  return &conv[3];
+}
+
 // Convert signed 16bit int to rj string with 123 or -12 format
 const char* i16tostr3rj(const int16_t x) {
   int xx = x;
