@@ -23,17 +23,26 @@
 
 #if defined(STM32F1xx)
   #include "stm32f1xx_hal.h"
-//#elif defined(STM32F4xx)
-  //#include "stm32f4xx_hal.h"
+#elif defined(STM32F4xx)
+  #include "stm32f4xx_hal.h"
 #endif
 
 #ifndef LCD_READ_ID
   #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
+#ifndef LCD_READ_ID4
+  #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
+#endif
 
 #define DATASIZE_8BIT    SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT   SPI_DATASIZE_16BIT
 #define TFT_IO TFT_FSMC
+
+#if defined(STM32F1xx)
+  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
+#elif defined(STM32F4xx)
+  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
+#endif
 
 typedef struct {
   __IO uint16_t REG;
@@ -47,6 +56,7 @@ class TFT_FSMC {
 
     static LCD_CONTROLLER_TypeDef *LCD;
 
+    static uint32_t ReadID(uint16_t Reg);
     static void Transmit(uint16_t Data) { LCD->RAM = Data; __DSB(); }
     static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
 
@@ -71,6 +81,10 @@ class TFT_FSMC {
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
 #elif defined(STM32F4xx)
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
+  #define FSMC_BANK1_1    0x60000000U
+  #define FSMC_BANK1_2    0x64000000U
+  #define FSMC_BANK1_3    0x68000000U
+  #define FSMC_BANK1_4    0x6C000000U
 #else
   #error No configuration for this MCU
 #endif

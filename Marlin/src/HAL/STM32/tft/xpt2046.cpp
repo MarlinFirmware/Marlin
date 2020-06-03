@@ -66,25 +66,34 @@ void XPT2046::Init() {
     #if defined(SPI1_BASE)
       if (SPIx.Instance == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
-        //__HAL_RCC_DMA1_CLK_ENABLE();
         SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_16;
-        DMAtx.Instance = DMA1_Channel3;
+        #if defined(STM32F1xx)
+          DMAtx.Instance = DMA1_Channel3;
+        #elif defined(STM32F4xx)
+          DMAtx.Instance = DMA2_Stream3; // DMA2_Stream5
+        #endif
         //SERIAL_ECHO_MSG(" Touch Screen on SPI1");
       }
     #endif
     #if defined(SPI2_BASE)
       if (SPIx.Instance == SPI2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
-        //__HAL_RCC_DMA1_CLK_ENABLE();
-        DMAtx.Instance = DMA1_Channel5;
+        #if defined(STM32F1xx)
+          DMAtx.Instance = DMA1_Channel5;
+        #elif defined(STM32F4xx)
+          DMAtx.Instance = DMA1_Stream4;
+        #endif
         //SERIAL_ECHO_MSG(" Touch Screen on SPI2");
       }
     #endif
     #if defined(SPI3_BASE)
       if (SPIx.Instance == SPI3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
-        //__HAL_RCC_DMA2_CLK_ENABLE();
-        DMAtx.Instance = DMA2_Channel2;
+        #if defined(STM32F1xx)
+          DMAtx.Instance = DMA2_Channel2;
+        #elif defined(STM32F4xx)
+          DMAtx.Instance = DMA1_Stream5;  // DMA1_Stream7
+        #endif
         //SERIAL_ECHO_MSG(" Touch Screen on SPI3");
       }
     #endif

@@ -75,12 +75,13 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
     Ymax += OFFSET_Y;
   #endif
 
-  io.DataTransferBegin(DATASIZE_8BIT);
 
   switch(lcd_id) {
     case 0x8552:    // ST7789V
     case 0x89F0:    // ST7735
     case 0x9341:    // ILI9341
+      io.DataTransferBegin(DATASIZE_8BIT);
+
       /* CASET: Column Address Set */
       io.WriteReg(ILI9341_CASET);
       io.WriteData((Xmin >> 8) & 0xFF);
@@ -99,6 +100,8 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
       io.WriteReg(ILI9341_RAMWR);
       break;
     case 0x9328:    // ILI9328
+      io.DataTransferBegin(DATASIZE_16BIT);
+
       io.WriteReg(ILI9328_HASTART);
       io.WriteData(Ymin);
       io.WriteReg(ILI9328_HAEND);
