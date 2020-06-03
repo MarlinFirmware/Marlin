@@ -1273,18 +1273,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if DISABLED(NOZZLE_AS_PROBE)
-    static_assert(PROBING_MARGIN >= 0, "The PROBING_MARGIN must be >= 0.");
-    static_assert(PROBING_MARGIN_BACK >= 0, "The PROBING_MARGIN_BACK must be >= 0.");
-    static_assert(PROBING_MARGIN_FRONT >= 0, "The PROBING_MARGIN_FRONT must be >= 0.");
-    static_assert(PROBING_MARGIN_LEFT >= 0, "The PROBING_MARGIN_LEFT must be >= 0.");
-    static_assert(PROBING_MARGIN_RIGHT >= 0, "The PROBING_MARGIN_RIGHT must be >= 0.");
+    static_assert(PROBING_MARGIN >= 0, "PROBING_MARGIN must be >= 0.");
+    static_assert(PROBING_MARGIN_BACK >= 0, "PROBING_MARGIN_BACK must be >= 0.");
+    static_assert(PROBING_MARGIN_FRONT >= 0, "PROBING_MARGIN_FRONT must be >= 0.");
+    static_assert(PROBING_MARGIN_LEFT >= 0, "PROBING_MARGIN_LEFT must be >= 0.");
+    static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
 
-  static_assert(PROBING_MARGIN < CENTER_X, "The PROBING_MARGIN is too large.");
-  static_assert(PROBING_MARGIN_BACK < CENTER_Y, "The PROBING_MARGIN_BACK is too large.");
-  static_assert(PROBING_MARGIN_FRONT < CENTER_Y, "The PROBING_MARGIN_FRONT is too large.");
-  static_assert(PROBING_MARGIN_LEFT < CENTER_X, "The PROBING_MARGIN_LEFT is too large.");
-  static_assert(PROBING_MARGIN_RIGHT < CENTER_X, "The PROBING_MARGIN_RIGHT is too large.");
+  static_assert(PROBING_MARGIN < CENTER_X, "PROBING_MARGIN is too large.");
+  static_assert(PROBING_MARGIN_BACK < CENTER_Y, "PROBING_MARGIN_BACK is too large.");
+  static_assert(PROBING_MARGIN_FRONT < CENTER_Y, "PROBING_MARGIN_FRONT is too large.");
+  static_assert(PROBING_MARGIN_LEFT < CENTER_X, "PROBING_MARGIN_LEFT is too large.");
+  static_assert(PROBING_MARGIN_RIGHT < CENTER_X, "PROBING_MARGIN_RIGHT is too large.");
 
   /**
    * Make sure Z raise values are set
