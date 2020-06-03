@@ -545,7 +545,7 @@ void MarlinUI::draw_status_screen() {
         #if CUTTER_DISPLAY_IS(PERCENT)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr3rj(cutter.power));
           lcd_put_wchar('%');
-        #elif CUTTER_DISPLAY_IS(PWM)
+        #elif CUTTER_DISPLAY_IS(PWM255)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr3rj(cutter.power));
         #elif CUTTER_DISPLAY_IS(RPM)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr5rj(cutter.power));
