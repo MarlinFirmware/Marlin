@@ -2011,6 +2011,29 @@
 
   //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
+
+  /**
+   * Unbed object pause
+   * To unbed object in continuous printing
+   * Timeout can be reset by one clic , and skipped by long press.
+   * Beeps happens 5 seconds before timeout
+   * Alert enabled, beeps 10 sec when begins/before ending
+   * Store the higher height for z clearance. (Lower to higher object suggested to avoid long unwanted z raising)
+   * Z raise can be reset after unbed an object to avoid long raising if the others are smaller
+   * Require PARK_HEAD_ON_PAUSE / NOZZLE_PARK_FEATURE / UNBED_AUTO_COUNTDOWN positive
+   *
+   * M600 A/D/C/B/U  Enable/Disable/Clear highest Z clearance/Alert/Unbedding
+   * Experimental printers with xy moves + extrusion, or z moves under object will corrupt this feature
+   */
+   //#define UNBED_AUTO
+   #if ENABLED(UNBED_AUTO)
+     #define UNBED_AUTO_Z_ADD                  10 // Override NOZZLE_PARK_FEATURE (Add from the highest layer printed)
+     //#define UNBED_AUTO_X                       // Override NOZZLE_PARK_FEATURE
+     //#define UNBED_AUTO_Y                       // Override NOZZLE_PARK_FEATURE
+     #define UNBED_AUTO_COUNTDOWN              60 // (s) Only for M125 U, négative or 0 disable feature (Bed timer reset on park for bed manipulations)
+     #define UNBED_AUTO_LONG_PRESS_INTERVAL   500 // (ms) Only for M125 U, increase if long press not applied
+     #define UNBED_AUTO_ALERT                     // Beep each sec, during 10 sec when starting and before continue print
+   #endif
 #endif
 
 // @section tmc

@@ -149,6 +149,18 @@ void menu_advanced_settings();
 
 #endif
 
+#if UNBED_AUTO_COUNTDOWN > 0
+  void menu_unbed_auto() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM(bool, MSG_UNBED_AUTO, &unbed_auto);
+    EDIT_ITEM(bool, MSG_UNBED_ALERT, &unbed_alert);
+    ACTION_ITEM(MSG_UNBED_CLEAR, clear_unbed_min_z_height);
+    ACTION_ITEM(MSG_UNBED_AUTO, unbed);
+    END_MENU();
+  }
+#endif
+
 #if HAS_HOTEND_OFFSET
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
@@ -401,6 +413,10 @@ void menu_configuration() {
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SUBMENU(MSG_TOOL_MIGRATION, menu_toolchange_migration);
     #endif
+  #endif
+
+  #if UNBED_AUTO_COUNTDOWN > 0
+    SUBMENU(MSG_UNBED_AUTO, menu_unbed_auto);
   #endif
 
   //

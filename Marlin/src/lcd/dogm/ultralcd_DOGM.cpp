@@ -316,6 +316,22 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
+    #if UNBED_AUTO_COUNTDOWN > 0
+      void MarlinUI::draw_unbed_timeout_status(const uint8_t row) {
+        row_y1 = row * (MENU_FONT_HEIGHT) + 1;
+        row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
+
+        if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
+
+        lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, ' ');
+        lcd_put_u8str(i16tostr3rj(LROUND(MS_TO_SEC(unbed_timeout - millis()))));
+        lcd_put_wchar(' ');
+        lcd_put_wchar('s');
+        lcd_put_wchar('e');
+        lcd_put_wchar('c');
+      }
+    #endif
+    
   #endif // ADVANCED_PAUSE_FEATURE
 
   // Set the colors for a menu item based on whether it is selected

@@ -48,6 +48,7 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_PARKING,
   PAUSE_MESSAGE_CHANGING,
   PAUSE_MESSAGE_WAITING,
+  PAUSE_MESSAGE_TIMED,
   PAUSE_MESSAGE_UNLOAD,
   PAUSE_MESSAGE_INSERT,
   PAUSE_MESSAGE_LOAD,
@@ -72,6 +73,14 @@ enum PauseMessage : char {
 extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
+
+#if UNBED_AUTO_COUNTDOWN > 0
+  extern float unbed_min_z_height;
+  extern bool unbed_auto, unbed_alert;
+  extern millis_t unbed_timeout;
+  extern void clear_unbed_min_z_height();
+  extern void unbed();
+#endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
   #define DXC_PARAMS , const int8_t DXC_ext=-1
