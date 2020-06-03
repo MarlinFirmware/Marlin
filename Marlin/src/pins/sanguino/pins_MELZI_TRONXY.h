@@ -52,7 +52,7 @@
 #define BTN_ENC                               26
 
 #if HAS_GRAPHICAL_LCD
-  // Delays are pre-defined in pins_MELZI.H with different values. Avoid compiler warnings.
+  // Delays are pre-defined in pins_SANGUINOLOLU_11.h with different values. Avoid compiler warnings.
 
   #ifdef BOARD_ST7920_DELAY_1
     #undef BOARD_ST7920_DELAY_1
