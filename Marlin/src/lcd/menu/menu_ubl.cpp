@@ -212,11 +212,49 @@ void _lcd_ubl_validate_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
   #if HAS_HEATED_BED
-    GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M1, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_1_TEMP_BED) " H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
-    GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M2, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_2_TEMP_BED) " H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
+    #if defined(PREHEAT_1_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M1, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_1_TEMP_BED) " H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_2_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M2, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_2_TEMP_BED) " H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_3_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M3, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_3_TEMP_BED) " H" STRINGIFY(PREHEAT_3_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_4_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M4, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_4_TEMP_BED) " H" STRINGIFY(PREHEAT_4_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_5_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M5, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_5_TEMP_BED) " H" STRINGIFY(PREHEAT_5_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_6_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M6, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_6_TEMP_BED) " H" STRINGIFY(PREHEAT_6_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_7_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M7, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_7_TEMP_BED) " H" STRINGIFY(PREHEAT_7_TEMP_HOTEND) " P"));
+    #endif
   #else
-    GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M1, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
-    GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M2, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
+    #if defined(PREHEAT_1_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M1, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_2_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M2, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_3_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M3, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_3_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_4_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M4, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_4_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_5_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M5, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_5_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_6_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M6, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_6_TEMP_HOTEND) " P"));
+    #endif
+    #if defined(PREHEAT_7_LABEL)
+      GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M7, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_7_TEMP_HOTEND) " P"));
+    #endif
   #endif
   ACTION_ITEM(MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
   ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
@@ -311,35 +349,133 @@ void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
   #if HAS_HEATED_BED
-    GCODES_ITEM(MSG_UBL_BUILD_MESH_M1, PSTR(
-      "G28\n"
-      "M190 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\n"
-      "M109 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\n"
-      "G29 P1\n"
-      "M104 S0\n"
-      "M140 S0"
-    ));
-    GCODES_ITEM(MSG_UBL_BUILD_MESH_M2, PSTR(
-      "G28\n"
-      "M190 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\n"
-      "M109 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND) "\n"
-      "G29 P1\n"
-      "M104 S0\n"
-      "M140 S0"
-    ));
+    #if defined(PREHEAT_1_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M1, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_2_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M2, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_3_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M3, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_3_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_3_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_4_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M4, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_4_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_4_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_5_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M5, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_5_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_5_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_6_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M6, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_6_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_6_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_7_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M7, PSTR(
+        "G28\n"
+        "M190 S" STRINGIFY(PREHEAT_7_TEMP_BED) "\n"
+        "M109 S" STRINGIFY(PREHEAT_7_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0\n"
+        "M140 S0"
+      ));
+    #endif
   #else
-    GCODES_ITEM(MSG_UBL_BUILD_MESH_M1, PSTR(
-      "G28\n"
-      "M109 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\n"
-      "G29 P1\n"
-      "M104 S0"
-    ));
-    GCODES_ITEM(MSG_UBL_BUILD_MESH_M2, PSTR(
-      "G28\n"
-      "M109 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND) "\n"
-      "G29 P1\n"
-      "M104 S0"
-    ));
+    #if defined(PREHEAT_1_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M1, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_2_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M2, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_3_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M3, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_3_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_4_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M4, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_4_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_5_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M5, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_5_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_6_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M6, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_6_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
+    #if defined(PREHEAT_7_LABEL)
+      GCODES_ITEM(MSG_UBL_BUILD_MESH_M7, PSTR(
+        "G28\n"
+        "M109 S" STRINGIFY(PREHEAT_7_TEMP_HOTEND) "\n"
+        "G29 P1\n"
+        "M104 S0"
+      ));
+    #endif
   #endif
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G28\nG29 P1"));

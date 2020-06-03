@@ -314,8 +314,27 @@ void menu_advanced_settings();
     END_MENU();
   }
 
-  void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
-  void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
+  #if defined(PREHEAT_1_LABEL)
+    void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
+  #endif
+  #if defined(PREHEAT_2_LABEL)
+    void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
+  #endif
+  #if defined(PREHEAT_3_LABEL)
+    void menu_preheat_material3_settings() { _menu_configuration_preheat_settings(2); }
+  #endif
+  #if defined(PREHEAT_4_LABEL)
+    void menu_preheat_material4_settings() { _menu_configuration_preheat_settings(3); }
+  #endif
+  #if defined(PREHEAT_5_LABEL)
+    void menu_preheat_material5_settings() { _menu_configuration_preheat_settings(4); }
+  #endif
+  #if defined(PREHEAT_6_LABEL)
+    void menu_preheat_material6_settings() { _menu_configuration_preheat_settings(5); }
+  #endif
+  #if defined(PREHEAT_7_LABEL)
+    void menu_preheat_material7_settings() { _menu_configuration_preheat_settings(6); }
+  #endif
 
 #endif
 
@@ -408,8 +427,27 @@ void menu_configuration() {
 
   #if DISABLED(SLIM_LCD_MENUS)
     // Preheat configurations
-    SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
-    SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
+    #if defined(PREHEAT_1_LABEL)
+      SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
+    #endif
+    #if defined(PREHEAT_2_LABEL)
+      SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
+    #endif
+    #if defined(PREHEAT_3_LABEL)
+      SUBMENU(MSG_PREHEAT_3_SETTINGS, menu_preheat_material3_settings);
+    #endif
+    #if defined(PREHEAT_4_LABEL)
+      SUBMENU(MSG_PREHEAT_4_SETTINGS, menu_preheat_material4_settings);
+    #endif
+    #if defined(PREHEAT_5_LABEL)
+      SUBMENU(MSG_PREHEAT_5_SETTINGS, menu_preheat_material5_settings);
+    #endif
+    #if defined(PREHEAT_6_LABEL)
+      SUBMENU(MSG_PREHEAT_6_SETTINGS, menu_preheat_material6_settings);
+    #endif
+    #if defined(PREHEAT_7_LABEL)
+      SUBMENU(MSG_PREHEAT_7_SETTINGS, menu_preheat_material7_settings);
+    #endif
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

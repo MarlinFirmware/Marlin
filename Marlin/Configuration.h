@@ -1442,7 +1442,7 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
@@ -1474,14 +1474,39 @@
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_HOTEND 190
+#define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
+#define PREHEAT_2_TEMP_HOTEND 220
 #define PREHEAT_2_TEMP_BED    110
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_3_LABEL       "HIPS"
+#define PREHEAT_3_TEMP_HOTEND 220 //HIPS
+#define PREHEAT_3_TEMP_BED    100
+#define PREHEAT_3_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_4_LABEL       "PP"
+#define PREHEAT_4_TEMP_HOTEND 254 //PP
+#define PREHEAT_4_TEMP_BED    100
+#define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_5_LABEL       "PETG"
+#define PREHEAT_5_TEMP_HOTEND 240 //PETG
+#define PREHEAT_5_TEMP_BED     90
+#define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_6_LABEL       "FLEX"
+#define PREHEAT_6_TEMP_HOTEND 230  //FLEX
+#define PREHEAT_6_TEMP_BED     50
+#define PREHEAT_6_FAN_SPEED     0  // Value from 0 to 255
+
+#define PREHEAT_7_LABEL       "NYLON"
+#define PREHEAT_7_TEMP_HOTEND 240 //NYLON
+#define PREHEAT_7_TEMP_BED     80
+#define PREHEAT_7_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park
