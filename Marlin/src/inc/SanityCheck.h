@@ -1280,19 +1280,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
 
-  #if IS_SCARA
-    static_assert(PROBING_MARGIN < SCARA_PRINTABLE_RADIUS, "PROBING_MARGIN is too large.");
-    static_assert(PROBING_MARGIN_BACK < SCARA_PRINTABLE_RADIUS, "PROBING_MARGIN_BACK is too large.");
-    static_assert(PROBING_MARGIN_FRONT < SCARA_PRINTABLE_RADIUS, "PROBING_MARGIN_FRONT is too large.");
-    static_assert(PROBING_MARGIN_LEFT < SCARA_PRINTABLE_RADIUS, "PROBING_MARGIN_LEFT is too large.");
-    static_assert(PROBING_MARGIN_RIGHT < SCARA_PRINTABLE_RADIUS, "PROBING_MARGIN_RIGHT is too large.");
-  #else
-    static_assert(PROBING_MARGIN < TERN(DELTA, DELTA_PROBEABLE_RADIUS, X_CENTER), "PROBING_MARGIN is too large.");
-    static_assert(PROBING_MARGIN_BACK < TERN(DELTA, DELTA_PROBEABLE_RADIUS, Y_CENTER), "PROBING_MARGIN_BACK is too large.");
-    static_assert(PROBING_MARGIN_FRONT < TERN(DELTA, DELTA_PROBEABLE_RADIUS, Y_CENTER), "PROBING_MARGIN_FRONT is too large.");
-    static_assert(PROBING_MARGIN_LEFT < TERN(DELTA, DELTA_PROBEABLE_RADIUS, X_CENTER), "PROBING_MARGIN_LEFT is too large.");
-    static_assert(PROBING_MARGIN_RIGHT < TERN(DELTA, DELTA_PROBEABLE_RADIUS, X_CENTER), "PROBING_MARGIN_RIGHT is too large.");
-  #endif
+  #define _MARGIN(A) TERN(IS_SCARA, SCARA_PRINTABLE_RADIUS, TERN(DELTA, DELTA_PRINTABLE_RADIUS, A##_CENTER))
+  static_assert(PROBING_MARGIN < _MARGIN(X), "PROBING_MARGIN is too large.");
+  static_assert(PROBING_MARGIN_BACK < _MARGIN(Y), "PROBING_MARGIN_BACK is too large.");
+  static_assert(PROBING_MARGIN_FRONT < _MARGIN(Y), "PROBING_MARGIN_FRONT is too large.");
+  static_assert(PROBING_MARGIN_LEFT < _MARGIN(X), "PROBING_MARGIN_LEFT is too large.");
+  static_assert(PROBING_MARGIN_RIGHT < _MARGIN(X), "PROBING_MARGIN_RIGHT is too large.");
+  #undef _MARGIN
 
   /**
    * Make sure Z raise values are set
