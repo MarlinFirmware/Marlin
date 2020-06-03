@@ -545,9 +545,11 @@ void MarlinUI::draw_status_screen() {
         #if CUTTER_DISPLAY_IS(PERCENT)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr3rj(cutter.power));
           lcd_put_wchar('%');
+        #elif CUTTER_DISPLAY_IS(PWM)
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr3rj(cutter.power));
         #elif CUTTER_DISPLAY_IS(RPM)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, ui16tostr5rj(cutter.power));
-          //lcd_put_wchar('K');    //does "K" effectively indicate RPM? And is it necessary or helpful?
+          lcd_put_wchar('K');
         #endif
       }
     #endif
