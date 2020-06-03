@@ -180,6 +180,13 @@
         // Marlin so this can be used for BEEPER_PIN. You can use this pin
         // with M42 instead of BEEPER_PIN.
         #define BEEPER_PIN                    27
+
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+          #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+          #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+          #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+        #endif
+
       #else                                       // Sanguinololu >=1.3
         #define LCD_PINS_RS                    4
         #define LCD_PINS_ENABLE               17

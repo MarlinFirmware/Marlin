@@ -27,5 +27,8 @@
  * M110: Set Current Line Number
  */
 void GcodeSuite::M110() {
-  if (parser.seenval('N')) queue.last_N = parser.value_long();
+
+  if (parser.seenval('N'))
+    queue.last_N[queue.command_port()] = parser.value_long();
+
 }
