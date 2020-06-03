@@ -38,10 +38,12 @@
   #define cutter_power_t              uint16_t
   #define cutter_setPower_t           uint16_t
   #define CUTTER_MENU_POWER_TYPE      uint16_5
+  #define cutter_power2str            ui16tostr5rj
 #else
   #define cutter_power_t              uint8_t
   #define cutter_setPower_t           uint8_t
   #define CUTTER_MENU_POWER_TYPE      uint8
+  #define cutter_power2str            ui8tostr3rj
 #endif
 
 #if ENABLED(MARLIN_DEV_MODE)
