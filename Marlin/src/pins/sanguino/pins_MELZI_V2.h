@@ -23,10 +23,11 @@
  */
 
 #define BOARD_INFO_NAME "Melzi V2"
-#include "pins_MELZI.h"
 
 #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
   #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
 #endif
+
+#include "pins_MELZI.h"
