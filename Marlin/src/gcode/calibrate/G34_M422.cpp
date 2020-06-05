@@ -299,8 +299,8 @@ void GcodeSuite::G34() {
             adjustment_reverse = !adjustment_reverse;
           }
 
-          // Remember the alignment for the next iteration
-          // but only if we do any stepper move otherwise it would be just zero (in case this stepper was at z_measured_min already)
+          // Remember the alignment for the next iteration, but only if steppers move,
+          // otherwise it would be just zero (in case this stepper was at z_measured_min already)
           if (z_align_abs > 0) last_z_align_move[zstepper] = z_align_abs;
         #endif
 
