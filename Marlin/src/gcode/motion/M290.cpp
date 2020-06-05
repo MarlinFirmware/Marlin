@@ -48,7 +48,7 @@
     ) {
       probe.offset.z += offs;
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET STR_Z ": ", probe.offset.z);
+      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
