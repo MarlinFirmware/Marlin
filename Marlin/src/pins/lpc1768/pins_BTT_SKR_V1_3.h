@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.3"
+#define BOARD_INFO_NAME "BTT SKR V1.3"
 
 //
 // Trinamic Stallguard pins

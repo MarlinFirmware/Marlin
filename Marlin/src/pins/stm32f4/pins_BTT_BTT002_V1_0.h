@@ -27,7 +27,7 @@
   #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
+#define BOARD_INFO_NAME "BTT BTT002 V1.0"
 
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
