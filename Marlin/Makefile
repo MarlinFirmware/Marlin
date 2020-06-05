@@ -361,32 +361,36 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1501)
 else ifeq ($(HARDWARE_MOTHERBOARD),1502)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
-# Melzi with ATmega1284 (MaKr3d version)
+# Melzi V2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1503)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
-# Melzi Creality3D board (for CR-10 etc)
+# Melzi with ATmega1284 (MaKr3d version)
 else ifeq ($(HARDWARE_MOTHERBOARD),1504)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
-# Melzi Malyan M150 board
+# Melzi Creality3D board (for CR-10 etc)
 else ifeq ($(HARDWARE_MOTHERBOARD),1505)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
-# Tronxy X5S
+# Melzi Malyan M150 board
 else ifeq ($(HARDWARE_MOTHERBOARD),1506)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
-# STB V1.1
+# Tronxy X5S
 else ifeq ($(HARDWARE_MOTHERBOARD),1507)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
-# Azteeg X1
+# STB V1.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1508)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
-# Anet 1.0 (Melzi clone)
+# Azteeg X1
 else ifeq ($(HARDWARE_MOTHERBOARD),1509)
+  HARDWARE_VARIANT ?= Sanguino
+  MCU              ?= atmega1284p
+# Anet 1.0 (Melzi clone)
+else ifeq ($(HARDWARE_MOTHERBOARD),1510)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
 
