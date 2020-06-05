@@ -238,7 +238,7 @@
       #define NEOPIXEL_PIN                    50  // D5
     #endif
 
-  #elif EITHER(MKS_MINI_12864, MKS_LCD12864)
+  #elif ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                         52
     #define DOGLCD_CS                         50

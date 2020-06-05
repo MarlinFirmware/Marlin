@@ -285,7 +285,7 @@
     #undef ST7920_DELAY_2
     #undef ST7920_DELAY_3
 
-  #elif EITHER(MKS_MINI_12864, MKS_LCD12864)
+  #elif ENABLED(MKS_MINI_12864)
     #define DOGLCD_A0                       PG6
     #define DOGLCD_CS                       PG3
 

@@ -462,7 +462,7 @@
       //#define SD_DETECT_PIN                 49
       //#define KILL_PIN                      41
 
-    #elif ANY(MKS_MINI_12864, MKS_LCD12864, FYSETC_MINI_12864)
+    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
 
       // TO TEST
       //#define BEEPER_PIN                    37
@@ -473,7 +473,7 @@
       //  #define KILL_PIN         41
       //#endif
 
-      #if EITHER(MKS_MINI_12864, MKS_LCD12864)
+      #if ENABLED(MKS_MINI_12864)
 
         // TO TEST
         //#define DOGLCD_A0                   27

@@ -155,7 +155,7 @@
   #define LCD_PINS_ENABLE                   PE9
   #define LCD_PINS_D4                       PE12
 
-  #if EITHER(MKS_MINI_12864, MKS_LCD12864)
+  #if ENABLED(MKS_MINI_12864)
     #define DOGLCD_CS                       PE13
     #define DOGLCD_A0                       PE14
   #endif
