@@ -20,3 +20,6 @@ env.Append(CXXFLAGS=[
 #
 if env.GetBuildType() == "debug":
 	env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
+env_name = str(env["PIOENV"])
+env.Replace(PROGNAME="%s_DW7" % (env_name))
+print("Environment: %s" % (env_name))
