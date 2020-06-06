@@ -52,9 +52,15 @@
 //
 #define X_MIN_PIN                           PF2
 #define X_MAX_PIN                           PG14
+
 #define Y_MIN_PIN                           PC13
 #define Y_MAX_PIN                           PG9
-#define Z_MIN_PIN                           PE0
+
+#if ENABLED(TP) && defined(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #define Z_MIN_PIN                         PH11 //PE0
+#else
+  #define Z_MIN_PIN                         PE0
+#endif
 #define Z_MAX_PIN                           PD3
 
 //
