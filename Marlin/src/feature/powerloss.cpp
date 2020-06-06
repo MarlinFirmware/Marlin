@@ -311,6 +311,15 @@ void PrintJobRecovery::resume() {
 
   char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16];
 
+  #if ENABLED(POWER_LOSS_ZHOME) 
+    // Restore the Z position as there is space to home Z safely without colliding with the print.
+    gcode.process_subcommands_now_P(PSTR("G28 Z\n"));
+    // Now move to ZsavedPos + POWER_LOSS_ZRAISE 
+    dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1);
+    sprintf_P(cmd, PSTR("G1 F200 Z%s"), str_1);
+    gcode.process_subcommands_now(cmd);
+  #endif
+  
   // Select the previously active tool (with no_move)
   #if EXTRUDERS > 1
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
@@ -406,7 +415,14 @@ void PrintJobRecovery::resume() {
     sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
   #endif
-
+  
+  // Move back to the saved XY
+  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
+    dtostrf(info.current_position.x, 1, 3, str_1),
+    dtostrf(info.current_position.y, 1, 3, str_2)
+  );
+  gcode.process_subcommands_now(cmd);
+  
   // Move back to the saved Z
   dtostrf(info.current_position.z, 1, 3, str_1);
   #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_ZHOME)
@@ -415,13 +431,6 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
     sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
   #endif
-  gcode.process_subcommands_now(cmd);
-
-  // Move back to the saved XY
-  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
-    dtostrf(info.current_position.x, 1, 3, str_1),
-    dtostrf(info.current_position.y, 1, 3, str_2)
-  );
   gcode.process_subcommands_now(cmd);
   
   // Un-retract
