@@ -308,7 +308,7 @@
  * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
  * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
  */
-#if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, LowMemoryBoard) || ENABLED(MelziHostOnly)
   #define AUTOTEMP
 #endif
 #if ENABLED(AUTOTEMP)
@@ -394,9 +394,7 @@
  * The fan turns on automatically whenever any driver is enabled and turns
  * off (or reduces to idle speed) shortly after drivers are turned off.
  */
-#if ENABLED(SKRMiniE3V2)
-  #define USE_CONTROLLER_FAN
-#endif
+//#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
   //#define CONTROLLER_FAN_PIN -1        // Set a custom pin for the controller fan
   //#define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
@@ -662,14 +660,12 @@
 
 //#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
 
-#define HOMING_BUMP_MM      { 8, 8, 2 }       // (mm) Backoff from endstops after first bump
+#define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 
-#define HOMING_BACKOFF_POST_MM { 8, 8, 2 }  // (mm) Backoff from endstops after homing
+//#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
 
-#if DISABLED(SKRMiniE3V2)
-  #define QUICK_HOME                          // If G28 contains XY do a diagonal move first
-#endif
+//#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
 //#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
 
@@ -715,11 +711,11 @@
    * Danger: Don't activate 5V mode unless attached to a 5V-tolerant controller!
    * V3.0 or 3.1: Set default mode to 5V mode at Marlin startup.
    * If disabled, OD mode is the hard-coded default on 3.0
-   * On startup, Marlin will compare its eeprom to this value. If the selected mode
+   * On startup, Marlin will compare its eeprom to this vale. If the selected mode
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11)
     #define BLTOUCH_SET_5V_MODE
   #endif
   /**
@@ -1093,7 +1089,7 @@
 #if HAS_LCD_MENU
 
   // Include a page of printer information in the LCD Main Menu
-  #if NONE(MachineCR10Orig, SKRMiniE3V2)
+  #if(DISABLED(MachineCR10Orig))
     #define LCD_INFO_MENU
   #endif
   #if ENABLED(LCD_INFO_MENU)
@@ -1132,7 +1128,7 @@
 #endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view
-#if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2)
+#if NONE(MachineCR10Orig, LowMemoryBoard)
   #define STATUS_MESSAGE_SCROLLING
 
   // On the Info Screen, display XY with one decimal place when possible
@@ -1190,7 +1186,7 @@
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
-  #if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2)
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
     #define SDCARD_RATHERRECENTFIRST
     #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
@@ -1269,7 +1265,7 @@
   #endif
 
   // Enable this option to scroll long filenames in the SD card menu
-  #if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2)
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
     // This allows hosts to request long names for files and folders with M33
     #define LONG_FILENAME_HOST_SUPPORT
     #define SCROLL_LONG_FILENAMES
@@ -1440,7 +1436,7 @@
   //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
   //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
   #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
-  #if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2)
+  #if NONE(MachineCR10Orig, LowMemoryBoard)
     #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
     #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
   #endif
@@ -1593,10 +1589,9 @@
 #endif
 
 //
-// FSMC / SPI Graphical TFT
+// FSMC Graphical TFT
 //
-#if TFT_SCALED_DOGLCD
-  //#define GRAPHICAL_TFT_ROTATE_180
+#if ENABLED(FSMC_GRAPHICAL_TFT)
   //#define TFT_MARLINUI_COLOR 0xFFFF // White
   //#define TFT_MARLINBG_COLOR 0x0000 // Black
   //#define TFT_DISABLED_COLOR 0x0003 // Almost black
@@ -1667,7 +1662,7 @@
   #endif
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI, SKRMiniE3V2) && (DISABLED(MachineEnder4) || ENABLED(GraphicLCD))
+    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI) && (DISABLED(MachineEnder4) || ENABLED(GraphicLCD))
       #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
     #endif
   #endif
@@ -1690,7 +1685,7 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-#if NONE(MachineCR10Orig, SKRMiniE3V2, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13, SKR14, SKR14Turbo, MachineCR10SV2, CrealitySilentBoard) || ENABLED(OrigLA) || (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && ENABLED(SKR_UART))
+#if NONE(MachineCR10Orig, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13, SKR14, SKR14Turbo, MachineCR10SV2, CrealitySilentBoard) || ENABLED(OrigLA) || (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && ENABLED(SKR_UART))
   #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -1753,7 +1748,7 @@
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.
  */
-#if ENABLED(ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2)
+#if ENABLED(ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard)
   #define G29_RETRY_AND_RECOVER
 #endif
 #if ENABLED(G29_RETRY_AND_RECOVER)
@@ -1835,7 +1830,7 @@
 //
 // G2/G3 Arc Support
 //
-#if NONE(MachineCR10Orig, SKRMiniE3V2)
+#if DISABLED(MachineCR10Orig)
   #define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
 #endif
 #if ENABLED(ARC_SUPPORT)
@@ -1933,7 +1928,7 @@
 
 // The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2) || DISABLED(EXTENSIBLE_UI)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) || DISABLED(EXTENSIBLE_UI)
   #define BLOCK_BUFFER_SIZE 16
 #else
   #define BLOCK_BUFFER_SIZE 8
@@ -1943,7 +1938,7 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#if ANY(MachineCR10Orig, SKRMiniE3V2) //melzi has more ram than a 2560
+#if ENABLED(MachineCR10Orig) //melzi has more ram than a 2560
   #define BUFSIZE 16
 #elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
   #define BUFSIZE 8
@@ -1996,9 +1991,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-#if NONE(SKRPRO11, SKRMiniE3V2)
-  #define EMERGENCY_PARSER
-#endif
+//#define EMERGENCY_PARSER
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
@@ -2009,7 +2002,7 @@
 #endif
 
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
-#if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, LowMemoryBoard) || ENABLED(MelziHostOnly)
   #define ADVANCED_OK
 #endif
 
@@ -2150,7 +2143,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-#if DISABLED(MachineCR10Orig) && ((ENABLED(SKRMiniE3V2) && DISABLED(POWER_LOSS_RECOVERY)) || DISABLED(SKRMiniE3V2))
+#if DISABLED(MachineCR10Orig)
   #define ADVANCED_PAUSE_FEATURE
 #endif
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -2213,7 +2206,7 @@
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
-  #if NONE(MachineCR10Orig, MachineEnder4, SKRMiniE3V2)
+  #if NONE(MachineCR10Orig, MachineEnder4)
     #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
     #define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
   #endif
@@ -2495,9 +2488,7 @@
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
    */
-  #if ENABLED(SKR_2130)
-    #define TMC_USE_SW_SPI
-  #endif
+  //#define TMC_USE_SW_SPI
   //#define TMC_SW_MOSI       -1
   //#define TMC_SW_MISO       -1
   //#define TMC_SW_SCK        -1
@@ -2514,29 +2505,22 @@
    * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
    * on the same serial port, either here or in your board's pins file.
    */
-  #if ENABLED(SKRMiniE3V2)
-    #define  X_SLAVE_ADDRESS 0
-    #define  Y_SLAVE_ADDRESS 2
-    #define  Z_SLAVE_ADDRESS 1
-    #define E0_SLAVE_ADDRESS 3
-  #else
-    #define  X_SLAVE_ADDRESS 0
-    #define  Y_SLAVE_ADDRESS 0
-    #define  Z_SLAVE_ADDRESS 0
-    #define X2_SLAVE_ADDRESS 0
-    #define Y2_SLAVE_ADDRESS 0
-    #define Z2_SLAVE_ADDRESS 0
-    #define Z3_SLAVE_ADDRESS 0
-    #define Z4_SLAVE_ADDRESS 0
-    #define E0_SLAVE_ADDRESS 0
-    #define E1_SLAVE_ADDRESS 0
-    #define E2_SLAVE_ADDRESS 0
-    #define E3_SLAVE_ADDRESS 0
-    #define E4_SLAVE_ADDRESS 0
-    #define E5_SLAVE_ADDRESS 0
-    #define E6_SLAVE_ADDRESS 0
-    #define E7_SLAVE_ADDRESS 0
-  #endif
+  #define  X_SLAVE_ADDRESS 0
+  #define  Y_SLAVE_ADDRESS 0
+  #define  Z_SLAVE_ADDRESS 0
+  #define X2_SLAVE_ADDRESS 0
+  #define Y2_SLAVE_ADDRESS 0
+  #define Z2_SLAVE_ADDRESS 0
+  #define Z3_SLAVE_ADDRESS 0
+  #define Z4_SLAVE_ADDRESS 0
+  #define E0_SLAVE_ADDRESS 0
+  #define E1_SLAVE_ADDRESS 0
+  #define E2_SLAVE_ADDRESS 0
+  #define E3_SLAVE_ADDRESS 0
+  #define E4_SLAVE_ADDRESS 0
+  #define E5_SLAVE_ADDRESS 0
+  #define E6_SLAVE_ADDRESS 0
+  #define E7_SLAVE_ADDRESS 0
 
   /**
    * Software enable
@@ -2583,7 +2567,7 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  #if ENABLED(SKR_UART) && DISABLED(SKRMiniE3V2)
+  #if ENABLED(SKR_UART)
     #define MONITOR_DRIVER_STATUS
   #endif
 
@@ -2679,7 +2663,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-    #if ENABLED(SKR_UART) && DISABLED(SKRMiniE3V2)
+    #if ENABLED(SKR_UART)
       #define TMC_DEBUG
     #endif
 
@@ -3396,7 +3380,7 @@
  *
  * Implement M486 to allow Marlin to skip objects
  */
-#if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI, SKRMiniE3V2)
+#if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI)
   #define CANCEL_OBJECTS
 #endif
 
