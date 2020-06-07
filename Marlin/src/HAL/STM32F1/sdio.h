@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../shared/Marduino.h"
+#include "../../inc/MarlinConfig.h" // Allow pins/pins.h to override SDIO clock / retries
 
 #include <libmaple/sdio.h>
 #include <libmaple/dma.h>
@@ -105,7 +105,7 @@
 #endif
 
 #ifndef SDIO_READ_RETRIES
-  #define SDIO_READ_RETRIES                   3
+  #define SDIO_READ_RETRIES                  3
 #endif
 
 // ------------------------
