@@ -312,8 +312,18 @@ void PrintJobRecovery::resume() {
   char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16];
 
   #if ENABLED(POWER_LOSS_ZHOME) 
-    // Restore the Z position as there is space to home Z safely without colliding with the print.
+    // If defined move to the safe Z homing position that avoids the print 
+    #if POWER_LOSS_ZHOME_XPOS != 0
+      gcode.process_subcommands_now_P( PSTR("G1 F1000 X" STRINGIFY(POWER_LOSS_ZHOME_XPOS)) );
+    #endif
+
+    #if POWER_LOSS_ZHOME_YPOS != 0
+      gcode.process_subcommands_now_P( PSTR("G1 F1000 Y" STRINGIFY(POWER_LOSS_ZHOME_YPOS)) );
+    #endif
+  
+    // Home and restore Z position now we are in a safe position
     gcode.process_subcommands_now_P(PSTR("G28 Z\n"));
+  
     // Now move to ZsavedPos + POWER_LOSS_ZRAISE 
     dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1);
     sprintf_P(cmd, PSTR("G1 F200 Z%s"), str_1);
