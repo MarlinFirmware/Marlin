@@ -2570,6 +2570,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
 #endif
 
+#if ENABLED(POWER_LOSS_ZHOME)
+  #if ENABLED(Z_SAFE_HOMING)
+    #error "POWER_LOSS_ZHOME cannot be used with Z_SAFE_HOMING." 
+  #endif
+#endif
+
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   #if NUM_Z_STEPPER_DRIVERS <= 1
     #error "Z_STEPPER_AUTO_ALIGN requires NUM_Z_STEPPER_DRIVERS greater than 1."
