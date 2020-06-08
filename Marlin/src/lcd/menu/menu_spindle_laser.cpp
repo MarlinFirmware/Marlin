@@ -34,7 +34,7 @@
 
   void menu_spindle_laser() {
 
-    const bool is_enabled = cutter.enabled() && cutter.isOn;
+    const bool is_enabled = cutter.enabled() && cutter.isReady;
 
     START_MENU();
     BACK_ITEM(MSG_MAIN);

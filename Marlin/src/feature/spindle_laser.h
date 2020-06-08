@@ -85,7 +85,7 @@ public:
   static const cutter_power_t mpower_min() { return cpwr_to_upwr(SPEED_POWER_MIN); }
   static const cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
 
-  static bool isOn;                       // State to determine when to apply power to OCR
+  static bool isReady;                    // Ready to apply power setting from the UI to OCR
   static uint8_t power;
 
   #if ENABLED(MARLIN_DEV_MODE)
@@ -189,12 +189,12 @@ public:
     static inline void set_direction(const bool) {}
   #endif
 
-  static inline void disable() { isOn = false; set_enabled(false); }
+  static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
 
     static inline void enable_with_dir(const bool reverse) {
-      isOn = true;
+      isReady = true;
       const uint8_t ocr = upower_to_ocr(menuPower);
       if (menuPower)
         power = ocr;
@@ -209,7 +209,7 @@ public:
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void update_from_mpower() {
-        if (isOn) power = upower_to_ocr(menuPower);
+        if (isReady) power = upower_to_ocr(menuPower);
         unitPower = menuPower;
       }
     #endif
@@ -224,7 +224,7 @@ public:
 
     // Force disengage planner power control
     static inline void inline_disable()	{
-      isOn = false;
+      isReady = false;
       unitPower = 0;
       planner.laser.status = 0;
       planner.laser.power = 0;
@@ -233,7 +233,7 @@ public:
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
       if (enable) { inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP)); }
-      else { unitPower = 0; isOn = false; menuPower = 0; TERN(SPINDLE_LASER_PWM, inline_ocr_power, inline_power)(0);}
+      else { unitPower = 0; isReady = false; menuPower = 0; TERN(SPINDLE_LASER_PWM, inline_ocr_power, inline_power)(0);}
     }
 
     // Set the power for subsequent movement blocks
@@ -241,7 +241,7 @@ public:
       unitPower = upwr;
       menuPower = unitPower;
       #if ENABLED(SPINDLE_LASER_PWM)
-          isOn = true;
+          isReady = true;
         #if ENABLED(SPEED_POWER_RELATIVE) && !CUTTER_UNIT_IS(RPM) // relative mode does not turn laser off at 0, except for RPM
           planner.laser.status = 0x03;
           planner.laser.power = upower_to_ocr(upwr);
@@ -252,7 +252,7 @@ public:
       #else
         planner.laser.status = enabled(upwr) ? 0x03 : 0x01;
         planner.laser.power  = upwr;
-        isOn = enabled(upwr);
+        isReady = enabled(upwr);
       #endif
     }
 
