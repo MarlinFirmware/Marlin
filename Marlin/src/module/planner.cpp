@@ -1826,6 +1826,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Update block laser power
   #if ENABLED(LASER_POWER_INLINE)
+    laser_inline.status.isPlanned = true;
     block->laser.status = laser_inline.status;
     block->laser.power = laser_inline.power;
   #endif
