@@ -709,12 +709,12 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           if (allow_async) {
             if (y > 0 || page > 1) LCD_IO_WaitSequence_Async();
             if (y == 7 && page == 8)
-              LCD_IO_WriteSequence(buffer, sizeof(bufferA)/sizeof(bufferA[0])); // last line of last page
+              LCD_IO_WriteSequence(buffer, COUNT(bufferA)); // last line of last page
             else
-              LCD_IO_WriteSequence_Async(buffer, sizeof(bufferA)/sizeof(bufferA[0]));
+              LCD_IO_WriteSequence_Async(buffer, COUNT(bufferA));
           }
           else
-            LCD_IO_WriteSequence(buffer, sizeof(bufferA)/sizeof(bufferA[0]));
+            LCD_IO_WriteSequence(buffer, COUNT(bufferA));
         #else
           uint8_t* bufptr = (uint8_t*) buffer;
           for (uint8_t i = 2; i--;) {
