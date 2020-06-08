@@ -41,6 +41,17 @@
 #define ENABLE_SPI2
 
 //
+// EEPROM
+//
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #undef E2END
+  #define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#endif
+
+//
 // Servos
 //
 #define SERVO0_PIN                          PA3
@@ -175,12 +186,4 @@
 #endif
 #ifndef ST7920_DELAY_3
   #define ST7920_DELAY_3           DELAY_NS(125)
-#endif
-
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
-  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #undef E2END
-  #define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
 #endif
