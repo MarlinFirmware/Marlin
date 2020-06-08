@@ -33,6 +33,13 @@
 
 #define BOARD_INFO_NAME "Melzi (Creality)"
 
+// Alter timing for graphical display
+#if HAS_GRAPHICAL_LCD
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+#endif
+
 #include "pins_MELZI.h"
 
 //
@@ -56,13 +63,6 @@
 #if ENABLED(BLTOUCH)
   #define SERVO0_PIN                         27
   #undef BEEPER_PIN
-#endif
-
-// Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif
 
 #if ENABLED(MINIPANEL)

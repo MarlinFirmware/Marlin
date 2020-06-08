@@ -92,37 +92,55 @@
 //
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
-#define FAN_PIN                             PA8   // "FAN0"
+
+#ifdef SKR_MINI_E3_V2
+  #define FAN_PIN                           PC6
+#else
+  #define FAN_PIN                           PA8   // "FAN0"
+#endif
 
 //
 // USB connect control
 //
-#define USB_CONNECT_PIN                     PC13
+#ifdef SKR_MINI_E3_V2
+  #define USB_CONNECT_PIN                   PA14
+#else
+  #define USB_CONNECT_PIN                   PC13
+#endif
+
 #define USB_CONNECT_INVERTING false
 
 /**
- *                 _____
- *             5V | 1 2 | GND
- *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
- *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
- *          RESET | 7 8 | PA9  (BTN_EN1)
- * (BTN_ENC) PB6  | 9 10| PB5  (BEEPER)
- *                 -----
- *                 EXP1
+ *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
+ *                _____                                     _____
+ *            5V | 1 2 | GND                            5V | 1 2 | GND
+ *  (LCD_EN) PB7 | 3 4 | PB8  (LCD_RS)       (LCD_EN) PB15 | 3 4 | PB8  (LCD_RS)
+ *  (LCD_D4) PB9 | 5 6   PA10 (BTN_EN2)      (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
+ *         RESET | 7 8 | PA9  (BTN_EN1)              RESET | 7 8 | PA9  (BTN_EN1)
+ * (BTN_ENC) PB6 | 9 10| PB5  (BEEPER)      (BTN_ENC) PA15 | 9 10| PB5  (BEEPER)
+ *                -----                                     -----
+ *                EXP1                                      EXP1
  */
+#ifdef SKR_MINI_E3_V2
+  #define EXP1_9                            PA15
+  #define EXP1_3                            PB15
+#else
+  #define EXP1_9                            PB6
+  #define EXP1_3                            PB7
+#endif
 
 #if HAS_SPI_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN                      PB5
+    #define BTN_ENC                       EXP1_9
 
-    #define BTN_ENC                         PB6
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PB7
+    #define LCD_PINS_ENABLE               EXP1_3
     #define LCD_PINS_D4                     PB9
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -130,7 +148,7 @@
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
 
     #define LCD_PINS_RS                     PB9
-    #define LCD_PINS_ENABLE                 PB6
+    #define LCD_PINS_ENABLE               EXP1_9
     #define LCD_PINS_D4                     PB8
     #define LCD_PINS_D5                     PA10
     #define LCD_PINS_D6                     PA9
@@ -139,25 +157,15 @@
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-    /** Creality Ender-2 display pinout
-     *                   _____
-     *               5V | 1 2 | GND
-     *      (MOSI) PB7  | 3 4 | PB8  (LCD_RS)
-     *    (LCD_A0) PB9  | 5 6   PA10 (BTN_EN2)
-     *            RESET | 7 8 | PA9  (BTN_EN1)
-     *   (BTN_ENC) PB6  | 9 10| PB5  (SCK)
-     *                   -----
-     *                    EXP1
-     */
-
-    #define BTN_ENC                         PB6
+    #define BTN_ENC                       EXP1_9
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define DOGLCD_CS                       PB8
     #define DOGLCD_A0                       PB9
     #define DOGLCD_SCK                      PB5
-    #define DOGLCD_MOSI                     PB7
+    #define DOGLCD_MOSI                   EXP1_3
+
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
 
@@ -171,7 +179,7 @@
 
   #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3.h' for details. Comment out this line to continue."
 
-  /** FYSECT TFT TFT81050 display pinout
+  /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                      Display
    *               _____                                       _____
@@ -202,7 +210,7 @@
 
   #define CLCD_SPI_BUS 1                          // SPI1 connector
 
-  #define BEEPER_PIN                        PB6
+  #define BEEPER_PIN                      EXP1_9
 
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8

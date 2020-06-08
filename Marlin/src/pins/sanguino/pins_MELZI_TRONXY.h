@@ -26,6 +26,13 @@
  */
 
 #define BOARD_INFO_NAME "Melzi (Tronxy)"
+
+#if HAS_GRAPHICAL_LCD
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+#endif
+
 #include "pins_MELZI.h"
 
 #undef Z_ENABLE_PIN
@@ -50,9 +57,3 @@
 #define BTN_EN1                               10
 #define BTN_EN2                               11
 #define BTN_ENC                               26
-
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
-#endif
