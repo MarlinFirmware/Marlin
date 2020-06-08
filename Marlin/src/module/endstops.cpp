@@ -322,15 +322,11 @@ void Endstops::not_homing() {
 }
 
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
-
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
     else kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
   }
-
-  bool Endstops::checkEndStop() { return trigger_state() != 0; }
-
 #endif
 
 // Enable / disable endstop z-probe checking
