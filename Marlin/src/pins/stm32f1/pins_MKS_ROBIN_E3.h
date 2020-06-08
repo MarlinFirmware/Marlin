@@ -32,7 +32,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "MKS Robin E3D"
+  #define BOARD_INFO_NAME "MKS Robin E3"
 #endif
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
@@ -47,8 +47,7 @@
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #undef E2END
-  #define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+  #define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE  // 2KB
 #endif
 
 //
