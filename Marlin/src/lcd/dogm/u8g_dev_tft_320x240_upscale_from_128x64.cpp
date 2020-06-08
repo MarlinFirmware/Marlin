@@ -533,7 +533,7 @@ static const uint16_t ili9341_init[] = {
   #define BUTTON_SIZE_X 32
   #define BUTTON_SIZE_Y 20
 
-  //14, 90, 166, 242, 185 are the orignal values upscaled 2x.
+  // 14, 90, 166, 242, 185 are the original values upscaled 2x.
   #define BUTTOND_X_LO (14 / 2) * (FSMC_UPSCALE)
   #define BUTTOND_X_HI (BUTTOND_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
