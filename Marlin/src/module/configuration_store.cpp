@@ -2771,7 +2771,7 @@ void MarlinSettings::reset() {
 
     SERIAL_EOL();
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if EXTRUDERS && DISABLED(NO_VOLUMETRICS)
 
       /**
        * Volumetric extrusion M200
@@ -2786,34 +2786,26 @@ void MarlinSettings::reset() {
 
       #if EXTRUDERS == 1
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-          CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR("  M200 L", LINEAR_UNIT(planner.volumetric_extruder_limit[0]));
-        #endif
-      #elif EXTRUDERS > 1
+        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled)
+                              , " D", LINEAR_UNIT(planner.filament_size[0]),
+                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+                              #endif
+                         );
+      #else
         LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
-          SERIAL_ECHOPGM("  M200");
-          SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
-          SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
+          SERIAL_ECHOLNPAIR("  M200 T", int(i)
+                                , " D", LINEAR_UNIT(planner.filament_size[i])
+                                #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                  , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+                                #endif
+                           );
         }
-        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-          LOOP_L_N(i, EXTRUDERS) {
-            CONFIG_ECHO_START();
-            SERIAL_ECHOPGM("  M200");
-            SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
-            SERIAL_ECHOLNPAIR(" L", LINEAR_UNIT(planner.volumetric_extruder_limit[i]));
-          }
-        #endif
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled));
       #endif
-
-      if (!parser.volumetric_enabled)
-        CONFIG_ECHO_MSG("  M200 S0");
-      else
-        CONFIG_ECHO_MSG("  M200 S1");
-
-    #endif // !NO_VOLUMETRICS
+    #endif // EXTRUDERS && !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
     report_M92(!forReplay);

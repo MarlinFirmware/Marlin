@@ -2981,7 +2981,7 @@
    * Activate to make volumetric extrusion the default method,
    * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
    *
-   * M200 Dn to set a new diameter.
+   * M200 D0 to disable, M200 Dn to set a new diameter (and enable volumetric).
    * M200 S0/S1 to disable/enable volumetric extrusion.
    */
   //#define VOLUMETRIC_DEFAULT_ON
@@ -2989,13 +2989,12 @@
   //#define VOLUMETRIC_EXTRUDER_LIMIT
   #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
     /**
-     * Default volumetric extrusion limit in cubic millimeter per second (mm^3/sec).
-     * Volumetric based extrusion limit is activ as long as set to >0; set to '0' to disable any volumetric based extrusion limit.
-     * DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT is valid for all extruder but can be overwritten with 'M200 Tn Ln' at runtime.
-     *
-     * M200 Ln to set a new volumetric based extrusion limit for active extruder or use 'M200 Tn Ln' to set for a specific extruder. 
+     * Default volumetric extrusion limit in cubic mm per second (mm^3/sec).
+     * This factory setting applies to all extruders.
+     * Use 'M200 [T<extruder>] L<limit>' to override and 'M502' to reset.
+     * A non-zero value activates Volume-based Extrusion Limiting.
      */
-    #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0.00
+    #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0.00      // (mm^3/sec)
   #endif
 #endif
 

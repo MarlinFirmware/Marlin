@@ -30,36 +30,41 @@
    * M200: Set filament diameter and set E axis units to cubic units
    *
    *    T<extruder> - Optional extruder number. Current extruder if omitted.
-   *    D<linear> - Diameter of the filament. 
-   *    S<0/1> - 'S1' reads E axis values as cubic mm (mm^3); S0' to switch back to linear units on the E axis.
-   *    L<float> - Volumetric extruder limit in cubic millimeter per second (mm^3/sec); set to '0' to disable any volumetric based limits
+   *    D<linear>   - Set filament diameter and enable. D0 disables volumetric.
+   *    S<bool>     - Turn volumetric ON or OFF.
+   *    L<float>    - Volumetric extruder limit (in mm^3/sec). L0 disables the limit.
    */
   void GcodeSuite::M200() {
 
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
 
+    bool vol_enable = parser.volumetric_enabled,
+         can_enable = true;
+
     if (parser.seenval('D')) {
-      // setting any extruder filament size used for volumetric extrusion calculation.
-      planner.set_filament_size(target_extruder, parser.value_linear_units() );
+      const float dval = parser.value_linear_units();
+      if (dval) { // Set filament size for volumetric calculation
+        planner.set_filament_size(target_extruder, dval);
+        vol_enable = true;    // Dn = enable for compatibility
+      }
+      else
+        can_enable = false;   // D0 = disable for compatibility
     }
-    if (parser.seenval('S')) {
-      // S1 enables volumetric on the assumption that slicers generate extruder values as cubic mm (mm^3).
-      // for all extruders
-      parser.volumetric_enabled = parser.value_bool();
-    }
+
+    // Enable or disable with S1 / S0
+    parser.volumetric_enabled = can_enable && parser.boolval('S', vol_enable);
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
       if (parser.seenval('L')) {
-        // setting any extruder volumetric limit in cubic millimeter per second (mm^3/sec).
-        const float newL = parser.value_float();
-        if (WITHIN(newL, 0, 20)) {
-          planner.set_volumetric_extruder_limit(target_extruder, newL);
-        }
+        // Set volumetric limit (in mm^3/sec)
+        const float lval = parser.value_float();
+        if (WITHIN(lval, 0, 20))
+          planner.set_volumetric_extruder_limit(target_extruder, lval);
         else
           SERIAL_ECHOLNPGM("?L value out of range (0-20).");
       }
-    #endif // VOLUMETRIC_EXTRUDER_LIMIT
+    #endif
     
     planner.calculate_volumetric_multipliers();
   }

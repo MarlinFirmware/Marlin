@@ -1462,14 +1462,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Volumetric Extruder Limit
  */
-  #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-    #if ENABLED(NO_VOLUMETRICS)
-      #error "VOLUMETRIC_EXTRUDER_LIMIT requires NO_VOLUMETRICS to be disabled."
-    #endif
-    #if MIN_STEPS_PER_SEGMENT > 1
-      #error "VOLUMETRIC_EXTRUDER_LIMIT is not compatible with MIN_STEPS_PER_SEGMENT greater than 1."
-    #endif
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+  #if ENABLED(NO_VOLUMETRICS)
+    #error "VOLUMETRIC_EXTRUDER_LIMIT requires NO_VOLUMETRICS to be disabled."
+  #elif MIN_STEPS_PER_SEGMENT > 1
+    #error "VOLUMETRIC_EXTRUDER_LIMIT is not compatible with MIN_STEPS_PER_SEGMENT greater than 1."
   #endif
+#endif
 
 /**
  * ULTIPANEL encoder

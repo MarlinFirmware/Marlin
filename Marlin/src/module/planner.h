@@ -328,9 +328,10 @@ class Planner {
                    volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
                                                       // May be auto-adjusted by a filament width sensor
     #endif
+
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      static float volumetric_extruder_limit[EXTRUDERS],          // max mm^3/sec the extruder can handle
-                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit in mm/s based on volumetric_extruder_limit
+      static float volumetric_extruder_limit[EXTRUDERS],          // Maximum mm^3/sec the extruder can handle
+                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // Feedrate limit (mm/s) calculated from volume limit
     #endif
 
     static planner_settings_t settings;
@@ -473,12 +474,6 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
-    // Update multipliers based on new diameter measurements
-    static void calculate_volumetric_multipliers();
-
-    // Update pre calculated extruder feedrate limits based on volumetric values
-    static void calculate_volumetric_extruder_limits();
-
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       void apply_filament_width_sensor(const int8_t encoded_ratio);
 
@@ -492,6 +487,15 @@ class Planner {
 
     #if DISABLED(NO_VOLUMETRICS)
 
+      // Update multipliers based on new diameter measurements
+      static void calculate_volumetric_multipliers();
+  
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        // Update pre calculated extruder feedrate limits based on volumetric values
+        static void calculate_volumetric_extruder_limit(const uint8_t e);
+        static void calculate_volumetric_extruder_limits();
+      #endif
+
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
         filament_size[e] = v;
         if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
@@ -503,11 +507,10 @@ class Planner {
     #endif
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-
       FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float &v) {
         volumetric_extruder_limit[e] = v;
+        calculate_volumetric_extruder_limit(e);
       }
-
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
