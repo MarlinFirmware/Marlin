@@ -102,7 +102,23 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
   }
 
   while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) {}
+  
+  //If there were SDIO errors, do not wait DMA.
+  if(SDIO->STA & SDIO_STA_TRX_ERROR_FLAGS){
+    SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
+    dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
+    return false;
+	}
 
+  //Wait for DMA transaction to complete
+  while((DMA2_BASE->ISR & (DMA_ISR_TEIF4|DMA_ISR_TCIF4)) == 0 ){};
+
+  if(DMA2_BASE->ISR & DMA_ISR_TEIF4){
+    dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
+    SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
+    return false;
+  }
+  
   dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
 
   if (SDIO->STA & SDIO_STA_RXDAVL) {
