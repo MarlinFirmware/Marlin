@@ -43,7 +43,7 @@
   #include "../../module/temperature.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
+#if HAS_FILAMENT_RUNOUT_DISTANCE
   #include "../../feature/runout.h"
 #endif
 
@@ -142,7 +142,7 @@ void menu_cancelobject();
       #endif
     #endif
 
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
       EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 30,
         []{ runout.set_runout_distance(editable.decimal); }, true
