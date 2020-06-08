@@ -2155,15 +2155,9 @@ uint32_t Stepper::block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if (
-        #if HAS_L64XX
-          true  // Always set direction for L64xx (This also enables the chips)
-        #else
-          current_block->direction_bits != last_direction_bits
-          #if DISABLED(MIXING_EXTRUDER)
-            || stepper_extruder != last_moved_extruder
-          #endif
-        #endif
+      if ( ENABLED(HAS_L64XX)  // Always set direction for L64xx (Also enables the chips)
+        || current_block->direction_bits != last_direction_bits
+        || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
         last_direction_bits = current_block->direction_bits;
         #if EXTRUDERS > 1
@@ -2175,9 +2169,9 @@ uint32_t Stepper::block_phase_isr() {
       }
 
       #if ENABLED(LASER_POWER_INLINE)
-        const uint8_t stat = current_block->laser.status;
+        const power_status_t stat = current_block->laser.status;
         #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-          laser_trap.enabled = (stat & 0x03) == 0x03;
+          laser_trap.enabled = stat.isPlanned && stat.isEnabled;
           laser_trap.cur_power = current_block->laser.power_entry; // RESET STATE
           laser_trap.cruise_set = false;
           #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
@@ -2187,21 +2181,19 @@ uint32_t Stepper::block_phase_isr() {
             laser_trap.till_update = 0;
           #endif
           // Always have PWM in this case
-          if (TEST(stat, 0)) {                        // Planner controls the laser
-            if (TEST(stat, 1))                        // Laser is on
-              cutter.set_ocr_power(laser_trap.cur_power);
-            else
-              cutter.set_ocr_power(0);
+          if (stat.isPlanned) {                        // Planner controls the laser
+            cutter.set_ocr_power(
+              stat.isEnabled ? laser_trap.cur_power : 0 // ON with power or OFF
+            );
           }
         #else
-          if (TEST(stat, 0)) {                        // Planner controls the laser
+          if (stat.isPlanned) {                        // Planner controls the laser
             #if ENABLED(SPINDLE_LASER_PWM)
-              if (TEST(stat, 1))                      // Laser is on
-                cutter.set_ocr_power(current_block->laser.power);
-              else
-                cutter.set_ocr_power(0);
+              cutter.set_ocr_power(
+                stat.isEnabled ? current_block->laser.power : 0 // ON with power or OFF
+              );
             #else
-              cutter.set_enabled(TEST(stat, 1));
+              cutter.set_enabled(stat.isEnabled);
             #endif
           }
         #endif
@@ -2242,15 +2234,14 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(LASER_POWER_INLINE_CONTINUOUS)
       else { // No new block found; so apply inline laser parameters
         // This should mean ending file with 'M5 I' will stop the laser; thus the inline flag isn't needed
-        const uint8_t stat = planner.laser_inline.status;
-        if (TEST(stat, 0)) {             // Planner controls the laser
+        const power_status_t stat = planner.laser_inline.status;
+        if (stat.isPlanned) {             // Planner controls the laser
           #if ENABLED(SPINDLE_LASER_PWM)
-            if (TEST(stat, 1))           // Laser is on
-              cutter.set_ocr_power(planner.laser_inline.power);
-            else
-              cutter.set_ocr_power(0);
+            cutter.set_ocr_power(
+              stat.isEnabled ? planner.laser_inline.power : 0 // ON with power or OFF
+            );
           #else
-            cutter.set_enabled(TEST(stat, 1));
+            cutter.set_enabled(stat.isEnabled);
           #endif
         }
       }

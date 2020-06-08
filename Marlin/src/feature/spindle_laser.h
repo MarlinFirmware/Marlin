@@ -53,8 +53,7 @@ public:
 
   // cpower = configured values (ie SPEED_POWER_MAX)
   static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) { // configured value to pct
-    uint8_t pct = (unitPower == 0) ? 0 : round(100 * (cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR));
-    return pct;
+    return unitPower ? round(100 * (cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR)) : 0;
   }
 
   // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
@@ -110,7 +109,7 @@ public:
   FORCE_INLINE static void refresh() { apply_power(power); }
   FORCE_INLINE static void set_power(const uint8_t upwr) { power = upwr; refresh(); }
 
-  static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: (unitPower == 0 ? 0 : upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)))) : 0);}
+  static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)) : 0); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
 
@@ -144,7 +143,7 @@ public:
         #endif
       ));
     }
-    static inline cutter_power_t power_to_range(const cutter_power_t pwr , const uint8_t pwrUnit) {
+    static inline cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
       if (pwr <= 0) return 0;
       cutter_power_t upwr;
       switch (pwrUnit) {
