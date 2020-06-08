@@ -74,7 +74,7 @@
 #endif
 
 #ifndef FSMC_UPSCALE
- #define FSMC_UPSCALE 2
+  #define FSMC_UPSCALE 2
 #endif
 
 #define WIDTH LCD_PIXEL_WIDTH
@@ -83,8 +83,8 @@
 
 #define X_LO LCD_PIXEL_OFFSET_X
 #define Y_LO LCD_PIXEL_OFFSET_Y
-#define X_HI (X_LO + FSMC_UPSCALE * WIDTH  - 1)
-#define Y_HI (Y_LO + FSMC_UPSCALE * HEIGHT - 1)
+#define X_HI (X_LO + (FSMC_UPSCALE) * WIDTH  - 1)
+#define Y_HI (Y_LO + (FSMC_UPSCALE) * HEIGHT - 1)
 
 // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 
@@ -534,23 +534,23 @@ static const uint16_t ili9341_init[] = {
   #define BUTTON_SIZE_Y 20
 
   //14, 90, 166, 242, 185 are the orignal values upscaled 2x.
-  #define BUTTOND_X_LO (14 / 2) * FSMC_UPSCALE
-  #define BUTTOND_X_HI (BUTTOND_X_LO + FSMC_UPSCALE * BUTTON_SIZE_X -1)
+  #define BUTTOND_X_LO (14 / 2) * (FSMC_UPSCALE)
+  #define BUTTOND_X_HI (BUTTOND_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
-  #define BUTTONA_X_LO (90 / 2) * FSMC_UPSCALE
-  #define BUTTONA_X_HI (BUTTONA_X_LO + FSMC_UPSCALE * BUTTON_SIZE_X -1)
+  #define BUTTONA_X_LO (90 / 2) * (FSMC_UPSCALE)
+  #define BUTTONA_X_HI (BUTTONA_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
-  #define BUTTONB_X_LO (166 / 2) * FSMC_UPSCALE
-  #define BUTTONB_X_HI (BUTTONB_X_LO + FSMC_UPSCALE * BUTTON_SIZE_X -1)
+  #define BUTTONB_X_LO (166 / 2) * (FSMC_UPSCALE)
+  #define BUTTONB_X_HI (BUTTONB_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
-  #define BUTTONC_X_LO (242 / 2) * FSMC_UPSCALE
-  #define BUTTONC_X_HI (BUTTONC_X_LO + FSMC_UPSCALE * BUTTON_SIZE_X -1)
+  #define BUTTONC_X_LO (242 / 2) * (FSMC_UPSCALE)
+  #define BUTTONC_X_HI (BUTTONC_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
-  #define BUTTON_Y_LO (170 / 2) * FSMC_UPSCALE
-  #define BUTTON_Y_HI (BUTTON_Y_LO + FSMC_UPSCALE * BUTTON_SIZE_Y -1)
+  #define BUTTON_Y_LO (170 / 2) * (FSMC_UPSCALE)
+  #define BUTTON_Y_HI (BUTTON_Y_LO + (FSMC_UPSCALE) * BUTTON_SIZE_Y - 1)
 
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
-    uint16_t buffer[BUTTON_SIZE_X * FSMC_UPSCALE * FSMC_UPSCALE];
+    uint16_t buffer[BUTTON_SIZE_X * sq(FSMC_UPSCALE)];
 
     for (uint16_t i = 0; i < height; i++) {
       uint16_t k = 0;
@@ -560,22 +560,17 @@ static const uint16_t ili9341_init[] = {
           v = color;
         else
           v = TFT_MARLINBG_COLOR;
-        for(uint8_t n=0;n<FSMC_UPSCALE;n++) {
-          buffer[k++] = v;
-        }
+        LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = v;
       }
       #ifdef LCD_USE_DMA_FSMC
-        for (k = 1; k < FSMC_UPSCALE; k++) {
-          for (uint16_t l = 0; l < (length * FSMC_UPSCALE); l++)
-          {
-            buffer[l+(length * FSMC_UPSCALE * k)] = buffer[l];
-          }
-        }
-        
-        LCD_IO_WriteSequence(buffer, sizeof(buffer)/sizeof(buffer[0]));
+        LOOP_S_L_N(n, 1, FSMC_UPSCALE)
+          for (uint16_t l = 0; l < length * (FSMC_UPSCALE); l++)
+            buffer[l + (length * (FSMC_UPSCALE) * n)] = buffer[l];
+
+        LCD_IO_WriteSequence(buffer, COUNT(buffer));
       #else
-        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t *)buffer);
-        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t *)buffer);
+        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
+        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
       #endif
     }
   }
@@ -594,7 +589,7 @@ static uint8_t page;
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
   #ifdef LCD_USE_DMA_FSMC
-    static uint16_t bufferA[WIDTH * FSMC_UPSCALE * FSMC_UPSCALE], bufferB[WIDTH * FSMC_UPSCALE * FSMC_UPSCALE];
+    static uint16_t bufferA[WIDTH * sq(FSMC_UPSCALE)], bufferB[WIDTH * sq(FSMC_UPSCALE)];
     uint16_t* buffer = &bufferA[0];
     bool allow_async = true;
   #else
@@ -704,17 +699,13 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
-          for(uint8_t n = 0; n < FSMC_UPSCALE; n++) {
-            buffer[k++] = c;
-          }
+          LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = c;
         }
         #ifdef LCD_USE_DMA_FSMC
-          for (k = 1; k < FSMC_UPSCALE; k++) {
-            for (uint16_t l = 0; l < (WIDTH * FSMC_UPSCALE); l++)
-            {
-              buffer[l+(WIDTH * FSMC_UPSCALE * k)] = buffer[l];
-            }
-          }
+          LOOP_S_L_N(n, 1, FSMC_UPSCALE)
+            for (uint16_t l = 0; l < WIDTH * (FSMC_UPSCALE); l++)
+              buffer[l + WIDTH * (FSMC_UPSCALE) * n] = buffer[l];
+
           if (allow_async) {
             if (y > 0 || page > 1) LCD_IO_WaitSequence_Async();
             if (y == 7 && page == 8)
