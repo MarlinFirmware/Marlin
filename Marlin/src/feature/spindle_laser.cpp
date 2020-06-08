@@ -33,8 +33,8 @@
 SpindleLaser cutter;
 uint8_t SpindleLaser::power;
 bool SpindleLaser::isOn;                                                // state to determine when to apply menuPower to power
-cutter_power_t SpindleLaser::menuPower;                                 // Power set via LCD menu in PWM, PERCENT, or RPM
-cutter_power_t SpindleLaser::unitPower;                               // LCD status power in PWM, PERCENT, or RPM
+cutter_power_t SpindleLaser::menuPower,                                 // Power set via LCD menu in PWM, PERCENT, or RPM
+               SpindleLaser::unitPower;                                 // LCD status power in PWM, PERCENT, or RPM
 
 #if ENABLED(MARLIN_DEV_MODE)
   cutter_frequency_t SpindleLaser::frequency;                           // setting PWM frequency; range: 2K - 50K
@@ -81,7 +81,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
   if (opwr == last_power_applied) return;
   last_power_applied = opwr;
   power = opwr;
-  #if ENABLED(SPINDLE_LASER_PWM)   
+  #if ENABLED(SPINDLE_LASER_PWM)
    if (cutter.unitPower == 0 && CUTTER_UNIT_IS(RPM)){
       ocr_off();
       isOn = false;
