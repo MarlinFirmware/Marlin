@@ -39,6 +39,7 @@ size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start() {
+  eeprom_init();
   #if ENABLED(SPI_EEPROM)
     #if SPI_CHAN_EEPROM1 == 1
       SET_OUTPUT(BOARD_SPI1_SCK_PIN);

@@ -119,7 +119,6 @@
   #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
 #endif
 
-#include "timers.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input

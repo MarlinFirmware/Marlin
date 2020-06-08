@@ -2319,16 +2319,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
             /**
              *  // Generate the JD Lookup Table
-             *  constexpr float c = 1.00751317f; // Correction factor to center error around 0
+             *  constexpr float c = 1.00751495f; // Correction factor to center error around 0
              *  for (int i = 0; i < jd_lut_count - 1; ++i) {
              *    const float x0 = (sq(i) - 1) / sq(i),
-             *                y0 = acos(x0) * (i ? c : 1),
-             *                x1 = 0.5 * x0 + 0.5,
-             *                y1 = acos(x1) * c;
+             *                y0 = acos(x0) * (i == 0 ? 1 : c),
+             *                x1 = i < jd_lut_count - 1 ?  0.5 * x0 + 0.5 : 0.999999f,
+             *                y1 = acos(x1) * (i < jd_lut_count - 1 ? c : 1);
              *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
              *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
              *  }
-             *  jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
              *
              *  // Compute correction factor (Set c to 1.0f first!)
              *  float min = INFINITY, max = -min;
@@ -2341,22 +2340,24 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
              *  }
              *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
              */
-            static constexpr int16_t  jd_lut_count = 15;
-            static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
-            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count
+            static constexpr int16_t  jd_lut_count = 16;
+            static constexpr uint16_t jd_lut_tll   = _BV(jd_lut_count - 1);
+            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count + 1
             static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
-              -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
-              -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
-              -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
+              -1.03145837f, -1.30760646f, -1.75205851f, -2.41705704f,
+              -3.37769222f, -4.74888992f, -6.69649887f, -9.45661736f,
+              -13.3640480f, -18.8928222f, -26.7136841f, -37.7754593f,
+              -53.4201813f, -75.5458374f, -106.836761f, -218.532821f };
             static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-              1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
-              4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
-              26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
+               1.57079637f,  1.70887053f,  2.04220939f,  2.62408352f,
+               3.52467871f,  4.85302639f,  6.77020454f,  9.50875854f,
+               13.4009285f,  18.9188995f,  26.7321243f,  37.7885055f,
+               53.4293975f,  75.5523529f,  106.841369f,  218.534011f };
 
             const float neg = junction_cos_theta < 0 ? -1 : 1,
                         t = neg * junction_cos_theta;
 
-            const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+            const int16_t idx = (t < 0.00000003f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
             float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
             if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
