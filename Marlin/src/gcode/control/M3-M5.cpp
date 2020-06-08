@@ -74,20 +74,19 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     return cutter.unitPower;
   };
 
-#if ENABLED(LASER_POWER_INLINE)
+  #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode
       cutter.inline_direction(is_M4); // Should always be unused
       #if ENABLED(SPINDLE_LASER_PWM)
-        if (parser.seen('O')){
+        if (parser.seen('O')) {
           cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
           cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
-          }
-        else {
-          cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
         }
+        else
+          cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
       #else
-      cutter.inline_enabled(true);
+        cutter.inline_enabled(true);
       #endif
       return;
     }
@@ -99,17 +98,16 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   cutter.set_direction(is_M4);
 
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (parser.seenval('O')){
+    if (parser.seenval('O')) {
       cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
       cutter.set_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
     }
-    else {
+    else
       cutter.set_power(cutter.upower_to_ocr(get_s_power()));
-    }
   #else
     cutter.set_enabled(true);
   #endif
-    cutter.menuPower = cutter.unitPower;
+  cutter.menuPower = cutter.unitPower;
 }
 
 /**
@@ -120,7 +118,8 @@ void GcodeSuite::M5() {
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       cutter.set_inline_enabled(false); // Laser power in inline mode
       return;
-    }    // Non-inline, standard case
+    }
+    // Non-inline, standard case
     cutter.inline_disable(); // Prevent future blocks re-setting the power
   #endif
   planner.synchronize();

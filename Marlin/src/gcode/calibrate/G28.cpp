@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(LASER_MOVE_G28_OFF)
-#include "../../feature/spindle_laser.h"
+  #include "../../feature/spindle_laser.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
