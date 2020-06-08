@@ -261,6 +261,13 @@
 #endif
 
 /**
+ * Provide a DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT in case NO_VOLUMETRICS is enabled
+ */
+#ifndef DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT
+  #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0.00
+#endif
+
+/**
  * LCD Contrast for Graphical Displays
  */
 #if ENABLED(CARTESIO_UI)
