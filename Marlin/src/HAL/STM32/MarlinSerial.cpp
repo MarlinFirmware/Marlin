@@ -27,11 +27,11 @@
 #endif
 
 #ifndef USART4
-#define USART4 UART4
+  #define USART4 UART4
 #endif
 
 #ifndef USART5
-#define USART5 UART5
+  #define USART5 UART5
 #endif
 
 #define DECLARE_SERIAL_PORT(ser_num) \
