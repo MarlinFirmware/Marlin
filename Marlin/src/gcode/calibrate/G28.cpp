@@ -63,7 +63,7 @@
         float mm = 360;
         planner.buffer_segment(_theta, _psi, delta.c, e_tam, feedRate, extruder, mm);
         millis_t time_end = millis() + 1000;
-        while (!endstops.checkEndStop()) {
+        while (!endstops.any()) {
           const millis_t ms = millis();
           if (ELAPSED(ms, time_end)) { // check
             time_end = ms + 1000;
