@@ -622,6 +622,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
+        case 0x8066:   // ILI9341 Anycubic / TronXY TFTs      
           #ifdef LCD_USE_DMA_FSMC
             writeEscSequence(ili9341_init);
           #else
