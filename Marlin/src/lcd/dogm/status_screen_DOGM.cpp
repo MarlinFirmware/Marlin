@@ -541,12 +541,15 @@ void MarlinUI::draw_status_screen() {
 
     // Laser / Spindle
     #if DO_DRAW_CUTTER
-      if (cutter.power && PAGE_CONTAINS(STATUS_CUTTER_TEXT_Y - INFO_FONT_ASCENT, STATUS_CUTTER_TEXT_Y - 1)) {
-        lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.power));
-        #if CUTTER_DISPLAY_IS(PERCENT)
+      if (cutter.isReady && PAGE_CONTAINS(STATUS_CUTTER_TEXT_Y - INFO_FONT_ASCENT, STATUS_CUTTER_TEXT_Y - 1)) {
+        #if CUTTER_UNIT_IS(PERCENT)
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.unitPower));
           lcd_put_wchar('%');
-        #elif CUTTER_DISPLAY_IS(RPM)
+        #elif CUTTER_UNIT_IS(RPM)
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X - 2, STATUS_CUTTER_TEXT_Y, ftostr51rj(float(cutter.unitPower) / 1000));
           lcd_put_wchar('K');
+        #else
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.unitPower));
         #endif
       }
     #endif

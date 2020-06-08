@@ -51,6 +51,10 @@
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
 
+#if ENABLED(LASER_MOVE_G28_OFF)
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -195,6 +199,11 @@
  *
  */
 void GcodeSuite::G28() {
+
+#if ENABLED(LASER_MOVE_G28_OFF)
+  cutter.set_inline_enabled(false);       // turn off laser
+#endif
+
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();

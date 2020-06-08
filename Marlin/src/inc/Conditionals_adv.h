@@ -142,11 +142,11 @@
 //
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define HAS_CUTTER 1
-  #define _CUTTER_DISP_PWM255  1
-  #define _CUTTER_DISP_PERCENT 2
-  #define _CUTTER_DISP_RPM     3
-  #define _CUTTER_DISP(V)      _CAT(_CUTTER_DISP_, V)
-  #define CUTTER_DISPLAY_IS(V) (_CUTTER_DISP(CUTTER_POWER_DISPLAY) == _CUTTER_DISP(V))
+  #define _CUTTER_POWER_PWM255  1
+  #define _CUTTER_POWER_PERCENT 2
+  #define _CUTTER_POWER_RPM     3
+  #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT)    == _CUTTER_POWER(V))
 #endif
 
 // Add features that need hardware PWM here
