@@ -418,7 +418,7 @@ public:
       #endif
 
       #if ENABLED(TOUCH_BUTTONS)
-        static void screen_click(uint8_t row, uint8_t col, uint8_t x, uint8_t y);
+        static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
 
       static void status_screen();
