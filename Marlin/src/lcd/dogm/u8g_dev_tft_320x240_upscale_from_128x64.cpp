@@ -546,7 +546,7 @@ static const uint16_t ili9341_init[] = {
   #define BUTTONC_X_LO (242 / 2) * (FSMC_UPSCALE)
   #define BUTTONC_X_HI (BUTTONC_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
-  #define BUTTON_Y_LO (170 / 2) * (FSMC_UPSCALE)
+  #define BUTTON_Y_LO (184 / 2) * (FSMC_UPSCALE)
   #define BUTTON_Y_HI (BUTTON_Y_LO + (FSMC_UPSCALE) * BUTTON_SIZE_Y - 1)
 
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
