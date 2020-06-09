@@ -1440,9 +1440,6 @@ void MarlinUI::update() {
 
   #if ENABLED(TOUCH_BUTTONS)
     void MarlinUI::screen_click(uint8_t row, uint8_t col, uint8_t x, uint8_t y) {
-      SERIAL_ECHOPGM("Text: ");
-      SERIAL_ECHOPAIR("Row: ", row, ", ", col);
-      SERIAL_EOL();
       //menu window, go direct to where user touch
       if (screen_items > 0) {
         encoderDiff = (row - encoderPosition + encoderTopLine) * ENCODER_PULSES_PER_STEP;
