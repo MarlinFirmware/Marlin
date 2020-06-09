@@ -33,27 +33,30 @@
 #define DEFAULT_MACHINE_NAME "STM32F103ZET6"
 
 #define DISABLE_JTAG
+
 //
 // EEPROM
 //
-#define FLASH_EEPROM_EMULATION
+
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
+
 #if ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
   #define EEPROM_PAGE_SIZE     (0x800U)     // 2KB, but will use 2x more (4KB)
-  #define E2END (EEPROM_PAGE_SIZE - 1)
+  #define MARLIN_EEPROM_SIZE EEPROM_PAGE_SIZE
 #else
-  #define E2END (0x7FFU) // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE 0x800U         // On SD, Limit to 2KB, require this amount of RAM
 #endif
+
 //
 // Limit Switches
 //
-//#define X_MAX_PIN
-#define X_MIN_PIN                           PG10
-//#define Y_MAX_PIN
-#define Y_MIN_PIN                           PA12
-//#define Z_MAX_PIN                         -1
-#define Z_MIN_PIN                           PG9
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#define Z_STOP_PIN                          PG9
 
 //
 // Steppers
@@ -94,7 +97,7 @@
 //
 // Fans
 //
-#define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN 
+#define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
 #define FAN_PIN                             PG13  // FAN
 #define FAN_PIN_2                           PG14
 
@@ -104,11 +107,11 @@
 #define BEEPER_PIN                          PB0
 //#define LED_PIN                           PD3
 //#define POWER_LOSS_PIN                    PG2   // PG4 PW_DET
-#define FIL_RUNOUT_PIN                      PA15  // MT_DET 
+#define FIL_RUNOUT_PIN                      PA15  // MT_DET
 
-/**
- * TronXY TFT Support
- */
+//
+// TronXY TFT Support
+//
 #define FSMC_GRAPHICAL_TFT
 #define TOUCH_BUTTONS
 
@@ -145,7 +148,7 @@
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
-// We nee to use the SPI2
+// so SPI2 is required.
 #define ENABLE_SPI2
 #define SCK_PIN                             PB13
 #define MISO_PIN                            PB14
