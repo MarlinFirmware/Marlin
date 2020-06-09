@@ -91,7 +91,7 @@ def encrypt_file(input, output_file, file_length):
 
     #TODO - how to enforce that the firmware aligns to block boundaries?
     block_count = int(len(input_file) / block_size)
-    print "Block Count is ", block_count
+    print ("Block Count is ", block_count)
     for block_number in range(0, block_count):
         block_offset = (block_number * block_size)
         block_end = block_offset + block_size
