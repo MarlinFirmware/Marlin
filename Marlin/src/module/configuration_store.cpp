@@ -1796,9 +1796,7 @@ void MarlinSettings::postprocess() {
         struct {
           bool volumetric_enabled;
           float filament_size[EXTRUDERS];
-          #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-            float volumetric_extruder_limit[EXTRUDERS];
-          #endif
+          float volumetric_extruder_limit[EXTRUDERS];
         } storage;
 
         _FIELD_TEST(parser_volumetric_enabled);
