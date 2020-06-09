@@ -23,6 +23,7 @@
 
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
+#include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 
 #define BUTTON_AREA_TOP 175
 #define BUTTON_AREA_BOT 234
