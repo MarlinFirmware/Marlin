@@ -1449,7 +1449,7 @@ void MarlinUI::update() {
       if (screen_items > 0)
         encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
       else
-        encoderDiff = ENCODER_PULSES_PER_STEP * (row * (col < (LCD_WIDTH) / 2 ? -1 : 1));
+        encoderDiff = ENCODER_PULSES_PER_STEP * (col < (LCD_WIDTH) / 2 ? -1 : 1);
     }
 
   #endif
