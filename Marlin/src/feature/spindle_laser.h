@@ -232,21 +232,26 @@ public:
 
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
-      if (enable) { inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP)); }
-      else { unitPower = 0; isReady = false; menuPower = 0; planner.laser_inline.status.isPlanned = false; TERN(SPINDLE_LASER_PWM, inline_ocr_power, inline_power)(0);}
+      if (enable)
+        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP)); 
+      else {
+        isReady = false;
+        unitPower = menuPower = 0;
+        planner.laser_inline.status.isPlanned = false;
+        TERN(SPINDLE_LASER_PWM, inline_ocr_power, inline_power)(0);
+      }
     }
 
     // Set the power for subsequent movement blocks
     static void inline_power(const cutter_power_t upwr) {
-      unitPower = upwr;
-      menuPower = unitPower;
+      unitPower = menuPower = upwr;
       #if ENABLED(SPINDLE_LASER_PWM)
         #if ENABLED(SPEED_POWER_RELATIVE) && !CUTTER_UNIT_IS(RPM) // relative mode does not turn laser off at 0, except for RPM
           planner.laser_inline.status.isEnabled = true;
           planner.laser_inline.power = upower_to_ocr(upwr);
           isReady = true;
         #else
-            inline_ocr_power(upower_to_ocr(upwr));
+          inline_ocr_power(upower_to_ocr(upwr));
         #endif
       #else
         planner.laser_inline.status.isEnabled = enabled(upwr) ? true : false;
