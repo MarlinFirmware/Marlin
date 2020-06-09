@@ -166,9 +166,15 @@
       #define LCD_PINS_ENABLE                 16
       #define LCD_PINS_D4                     11
 
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+      #ifndef BOARD_ST7920_DELAY_1
+        #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_2
+        #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_3
+        #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+      #endif
 
     #elif ENABLED(U8GLIB_ST7920)                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
@@ -182,9 +188,15 @@
         #define BEEPER_PIN                    27
 
         #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-          #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-          #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
-          #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+          #ifndef BOARD_ST7920_DELAY_1
+            #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+          #endif
+          #ifndef BOARD_ST7920_DELAY_2
+            #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+          #endif
+          #ifndef BOARD_ST7920_DELAY_3
+            #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+          #endif
         #endif
 
       #else                                       // Sanguinololu >=1.3

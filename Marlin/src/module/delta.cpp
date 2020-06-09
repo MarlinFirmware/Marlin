@@ -95,7 +95,7 @@ void recalc_delta_settings() {
   float delta_calibration_radius() {
     return calibration_radius_factor * (
       #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), MIN_PROBE_EDGE))
+        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
       #else
         DELTA_PRINTABLE_RADIUS
       #endif

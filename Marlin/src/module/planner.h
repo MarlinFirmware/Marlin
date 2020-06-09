@@ -117,8 +117,15 @@ enum BlockFlag : char {
 #if ENABLED(LASER_POWER_INLINE)
 
   typedef struct {
-    uint8_t status,           // See planner settings for meaning
-            power;            // Ditto; When in trapezoid mode this is nominal power
+    bool isPlanned:1;
+    bool isEnabled:1;
+    bool dir:1;
+    bool Reserved:6;
+  } power_status_t;
+
+  typedef struct {
+    power_status_t status;    // See planner settings for meaning
+    uint8_t power;            // Ditto; When in trapezoid mode this is nominal power
     #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
       uint8_t   power_entry;  // Entry power for the laser
       #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
@@ -234,18 +241,15 @@ typedef struct block_t {
 #if ENABLED(LASER_POWER_INLINE)
   typedef struct {
     /**
-     * Laser status bitmask; most bits are unused;
-     *  0: Planner buffer enable
-     *  1: Laser enable
-     *  2: Reserved for direction
+     * Laser status flags
      */
-    uint8_t status;
+    power_status_t status;
     /**
      * Laser power: 0 or 255 in case of PWM-less laser,
-     * or the OCR value;
+     * or the OCR (oscillator count register) value;
      *
-     * Using OCR instead of raw power,
-     * as it avoids floating points during move loop
+     * Using OCR instead of raw power, because it avoids
+     * floating point operations during the move loop.
      */
     uint8_t power;
   } laser_state_t;
@@ -329,10 +333,15 @@ class Planner {
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      static float volumetric_extruder_limit[EXTRUDERS],          // Maximum mm^3/sec the extruder can handle
+                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // Feedrate limit (mm/s) calculated from volume limit
+    #endif
+
     static planner_settings_t settings;
 
     #if ENABLED(LASER_POWER_INLINE)
-      static laser_state_t laser;
+      static laser_state_t laser_inline;
     #endif
 
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
@@ -469,9 +478,6 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
-    // Update multipliers based on new diameter measurements
-    static void calculate_volumetric_multipliers();
-
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       void apply_filament_width_sensor(const int8_t encoded_ratio);
 
@@ -485,13 +491,30 @@ class Planner {
 
     #if DISABLED(NO_VOLUMETRICS)
 
+      // Update multipliers based on new diameter measurements
+      static void calculate_volumetric_multipliers();
+  
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        // Update pre calculated extruder feedrate limits based on volumetric values
+        static void calculate_volumetric_extruder_limit(const uint8_t e);
+        static void calculate_volumetric_extruder_limits();
+      #endif
+
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
         filament_size[e] = v;
+        if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
         LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
+    #endif
+
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float &v) {
+        volumetric_extruder_limit[e] = v;
+        calculate_volumetric_extruder_limit(e);
+      }
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
