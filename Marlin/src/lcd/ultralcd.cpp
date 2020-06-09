@@ -1439,19 +1439,19 @@ void MarlinUI::update() {
   #endif
 
   #if ENABLED(TOUCH_BUTTONS)
-    void MarlinUI::screen_click(uint8_t row, uint8_t col, uint8_t x, uint8_t y) {
-      //menu window, go direct to where user touch
-      if (screen_items > 0) {
-        encoderDiff = (row - encoderPosition + encoderTopLine) * ENCODER_PULSES_PER_STEP;
-      }
-      //confirm and other windows, right screen is +, left screen is -
-      else {
-        encoderDiff = row * ENCODER_PULSES_PER_STEP;
-        if (col < LCD_WIDTH / 2) {
-          encoderDiff *= -1; //reverse direction
-        }
-      }
+
+    //
+    // Screen Click
+    //  - On menu screens move directly to the touched item
+    //  - On select screens (and others) touch the Right Half for +, Left Half for -
+    //
+    void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y) {
+      if (screen_items > 0)
+        encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
+      else
+        encoderDiff = ENCODER_PULSES_PER_STEP * (row * (col < (LCD_WIDTH) / 2 ? -1 : 1));
     }
+
   #endif
 
 #else // !HAS_DISPLAY
