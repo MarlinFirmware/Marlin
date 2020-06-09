@@ -650,6 +650,7 @@ class Planner {
       , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
+    
   private:
 
     #if IS_KINEMATIC
