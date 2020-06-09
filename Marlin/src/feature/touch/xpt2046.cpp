@@ -91,8 +91,8 @@ uint8_t XPT2046::read_buttons() {
          : 0;
 
   // Column and row above BUTTON_AREA_TOP
-  int8_t col = (x % (LCD_FULL_PIXEL_WIDTH) ) * (LCD_WIDTH ) / LCD_FULL_PIXEL_WIDTH,
-         row = (y % (LCD_FULL_PIXEL_HEIGHT)) * (LCD_HEIGHT) / BUTTON_AREA_TOP;
+  int8_t col = (x % (LCD_FULL_PIXEL_WIDTH) ) * (LCD_WIDTH ) / (LCD_FULL_PIXEL_WIDTH),
+         row = (y % (LCD_FULL_PIXEL_HEIGHT)) * (LCD_HEIGHT) / (BUTTON_AREA_TOP);
 
   row = (LCD_HEIGHT) - row - 1; // TODO: Can LCD or sensor be inverted?
 
