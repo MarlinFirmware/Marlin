@@ -91,8 +91,8 @@ public:
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
   #endif
 
-  static cutter_power_t menuPower;        // Power as set via LCD menu in PWM, Percentage or RPM
-  static cutter_power_t unitPower;        // Power as displayed status in PWM, Percentage or RPM
+  static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage or RPM
+                        unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   static void init();
 
@@ -254,7 +254,7 @@ public:
           inline_ocr_power(upower_to_ocr(upwr));
         #endif
       #else
-        planner.laser_inline.status.isEnabled = enabled(upwr) ? true : false;
+        planner.laser_inline.status.isEnabled = enabled(upwr);
         planner.laser_inline.power = upwr;
         isReady = enabled(upwr);
       #endif
@@ -264,8 +264,8 @@ public:
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void inline_ocr_power(const uint8_t ocrpwr) {
-        isReady = ocrpwr ? true : false;
-        planner.laser_inline.status.isEnabled = ocrpwr ? true : false;
+        isReady = ocrpwr > 0;
+        planner.laser_inline.status.isEnabled = ocrpwr > 0;
         planner.laser_inline.power = ocrpwr;
       }
     #endif
