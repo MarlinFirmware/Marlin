@@ -24,6 +24,9 @@
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
 
+#define BUTTON_AREA_TOP 175
+#define BUTTON_AREA_BOT 234
+
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
 #endif
@@ -77,26 +80,23 @@ uint8_t XPT2046::read_buttons() {
   const uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
   if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
-
-  // button area
-  if (y > 175 && y < 234) {
-    return WITHIN(x,  14,  77) ? EN_D
-       : WITHIN(x,  90, 153) ? EN_A
-       : WITHIN(x, 166, 229) ? EN_B
-       : WITHIN(x, 242, 305) ? EN_C
-       : 0;
-  }
-
-  // 175 is the max y, because the button area
-  int8_t row = (y % 240) / (175 / LCD_HEIGHT);
-  int8_t col = (x % 320) / (320 / LCD_WIDTH);
-
-  //TODO: need config to invert? or is always inverted Y?
-  row = LCD_HEIGHT - row - 1;
-
-  //We could change the encoderDiff here, but I think it's better to keep all encoder logic in MarlinUI
-  MarlinUI::screen_click(row, col, x, y);
   
+  // Touch within the button area simulates an encoder button
+  if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
+    return WITHIN(x,  14,  77) ? EN_D
+         : WITHIN(x,  90, 153) ? EN_A
+         : WITHIN(x, 166, 229) ? EN_B
+         : WITHIN(x, 242, 305) ? EN_C
+         : 0;
+
+  // Column and row above BUTTON_AREA_TOP
+  int8_t col = (x % (LCD_FULL_PIXEL_WIDTH) ) * (LCD_WIDTH ) / LCD_FULL_PIXEL_WIDTH,
+         row = (y % (LCD_FULL_PIXEL_HEIGHT)) * (LCD_HEIGHT) / BUTTON_AREA_TOP;
+
+  row = (LCD_HEIGHT) - row - 1; // TODO: Can LCD or sensor be inverted?
+
+  // Send the touch to the UI (which will simulate the encoder wheel)
+  MarlinUI::screen_click(row, col, x, y);
   return 0;
 }
 
