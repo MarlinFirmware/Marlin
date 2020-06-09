@@ -1438,6 +1438,22 @@ void MarlinUI::update() {
 
   #endif
 
+  #if ENABLED(TOUCH_BUTTONS)
+    void MarlinUI::screen_click(uint8_t row, uint8_t col, uint8_t x, uint8_t y) {
+      //menu window, go direct to where user touch
+      if (screen_items > 0) {
+        encoderDiff = (row - encoderPosition + encoderTopLine) * ENCODER_PULSES_PER_STEP;
+      }
+      //confirm and other windows, right screen is +, left screen is -
+      else {
+        encoderDiff = row * ENCODER_PULSES_PER_STEP;
+        if (col < LCD_WIDTH / 2) {
+          encoderDiff *= -1; //reverse direction
+        }
+      }
+    }
+  #endif
+
 #else // !HAS_DISPLAY
 
   //

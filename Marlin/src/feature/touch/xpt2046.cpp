@@ -80,11 +80,26 @@ uint8_t XPT2046::read_buttons() {
 
   if (y < 175 || y > 234) return 0;
 
-  return WITHIN(x,  14,  77) ? EN_D
+  // button area
+  if (y > 175 && y < 234) {
+    return WITHIN(x,  14,  77) ? EN_D
        : WITHIN(x,  90, 153) ? EN_A
        : WITHIN(x, 166, 229) ? EN_B
        : WITHIN(x, 242, 305) ? EN_C
        : 0;
+  }
+
+  // 175 is the max y, because the button area
+  int8_t row = (y % 240) / (175 / LCD_HEIGHT);
+  int8_t col = (x % 320) / (320 / LCD_WIDTH);
+
+  //TODO: need config to invert? or is always inverted Y?
+  row = LCD_HEIGHT - row - 1;
+
+  //We could change the encoderDiff here, but I think it's better to keep all encoder logic in MarlinUI
+  MarlinUI::screen_click(row, col, x, y);
+  
+  return 0;
 }
 
 bool XPT2046::isTouched() {
