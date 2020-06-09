@@ -49,63 +49,62 @@
 //
 // Limit Switches
 //
-#define X_MAX_PIN          -1
-#define X_MIN_PIN          PG10 
-#define Y_MAX_PIN          -1
-#define Y_MIN_PIN          PA12 
-#define Z_MAX_PIN          -1 
-#define Z_MIN_PIN          PA14
+#define X_MAX_PIN                           -1
+#define X_MIN_PIN                           PG10
+#define Y_MAX_PIN                           -1
+#define Y_MIN_PIN                           PA12
+#define Z_MAX_PIN                           -1
+#define Z_MIN_PIN                           PA14
 
 //
 // Steppers
 //
-#define X_ENABLE_PIN       PC13
-#define X_STEP_PIN         PE5
-#define X_DIR_PIN          PE6
+#define X_ENABLE_PIN                        PC13
+#define X_STEP_PIN                          PE5
+#define X_DIR_PIN                           PE6
 
-#define Y_ENABLE_PIN       PE4
-#define Y_STEP_PIN         PE2
-#define Y_DIR_PIN          PE3
+#define Y_ENABLE_PIN                        PE4
+#define Y_STEP_PIN                          PE2
+#define Y_DIR_PIN                           PE3
 
-#define Z_ENABLE_PIN       PE1
-#define Z_STEP_PIN         PB9
-#define Z_DIR_PIN          PE0
+#define Z_ENABLE_PIN                        PE1
+#define Z_STEP_PIN                          PB9
+#define Z_DIR_PIN                           PE0
 
-#define E0_ENABLE_PIN      PB8
-#define E0_STEP_PIN        PB4
-#define E0_DIR_PIN         PB5
+#define E0_ENABLE_PIN                       PB8
+#define E0_STEP_PIN                         PB4
+#define E0_DIR_PIN                          PB5
 
-
-#define E1_ENABLE_PIN      PG8
-#define E1_STEP_PIN        PC7
-#define E1_DIR_PIN         PC6
+#define E1_ENABLE_PIN                       PG8
+#define E1_STEP_PIN                         PC7
+#define E1_DIR_PIN                          PC6
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PA1   // TH1
-#define TEMP_BED_PIN       PA0   // TB1
+#define TEMP_0_PIN                          PA1   // TH1
+#define TEMP_BED_PIN                        PA0   // TB1
 
 //
 // Heaters
 //
-#define HEATER_0_PIN       PG12   // HEATER1
-#define HEATER_BED_PIN     PG11   // HOT BED
+#define HEATER_0_PIN                        PG12  // HEATER1
+#define HEATER_BED_PIN                      PG11  // HOT BED
 
 //
 // Fans
 //
-#define CONTROLLER_FAN_PIN PD6   // BOARD FAN 
-#define FAN_PIN            PG13  // FAN
-#define FAN_PIN_2          PG14 
+#define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN 
+#define FAN_PIN                             PG13  // FAN
+#define FAN_PIN_2                           PG14
 
 //
 // Misc
 //
-#define BEEPER_PIN         PB0  
-#define LED_PIN            -1 
-#define POWER_LOSS_PIN     -1
-#define FIL_RUNOUT_PIN     PA15
+#define BEEPER_PIN                          PB0
+#define LED_PIN                             -1
+#define POWER_LOSS_PIN                      -1
+#define FIL_RUNOUT_PIN                      PA15
 
 /**
  * TronXY TFT Support
@@ -115,49 +114,48 @@
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define FSMC_UPSCALE 3
-  #define LCD_FULL_PIXEL_WIDTH  480
-  #define LCD_PIXEL_OFFSET_X    48
+  #define LCD_FULL_PIXEL_WIDTH 480
+  #define LCD_PIXEL_OFFSET_X 48
   #define LCD_FULL_PIXEL_HEIGHT 320
 
-  #define LCD_RESET_PIN      PF11
-  #define NO_LCD_REINIT 
-  #define LCD_BACKLIGHT_PIN  PD13
-  #define FSMC_CS_PIN        PD7 
-  #define FSMC_RS_PIN        PD11
+  #define LCD_RESET_PIN                     PF11
+  #define NO_LCD_REINIT
+  #define LCD_BACKLIGHT_PIN                 PD13
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
 
-  #define LCD_USE_DMA_FSMC   // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV       DMA2
-  #define FSMC_DMA_CHANNEL   DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #if ENABLED(TOUCH_BUTTONS)
-    #define TOUCH_CS_PIN     PB7  // SPI1_NSS
-    #define TOUCH_SCK_PIN    PA5  // SPI1_SCK
-    #define TOUCH_MISO_PIN   PA6  // SPI1_MISO
-    #define TOUCH_MOSI_PIN   PA7  // SPI1_MOSI
+    #define TOUCH_CS_PIN                    PB7   // SPI1_NSS
+    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
+    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
+    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
 
-    #define BUTTON_DELAY_EDIT       50 // (ms) Button repeat delay for edit screens
-    #define BUTTON_DELAY_MENU       250 // (ms) Button repeat delay for menus
+    #define BUTTON_DELAY_EDIT 50                  // (ms) Button repeat delay for edit screens
+    #define BUTTON_DELAY_MENU 250                 // (ms) Button repeat delay for menus
 
     #define XPT2046_X_CALIBRATION   -12316
     #define XPT2046_Y_CALIBRATION   -8981
-    #define XPT2046_X_OFFSET        340
-    #define XPT2046_Y_OFFSET        429
+    #define XPT2046_X_OFFSET 340
+    #define XPT2046_Y_OFFSET 429
   #endif
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
 // We nee to use the SPI2
 #define ENABLE_SPI2
-#define SCK_PIN           PB13 
-#define MISO_PIN          PB14 
-#define MOSI_PIN          PB15 
-#define SS_PIN            PB12
-
+#define SCK_PIN                             PB13
+#define MISO_PIN                            PB14
+#define MOSI_PIN                            PB15
+#define SS_PIN                              PB12
 
 //
 // SD Card
 //
-#define SDIO_SUPPORT 
-#define SD_DETECT_PIN     -1 // PF0, but it isn't connected
+#define SDIO_SUPPORT
+#define SD_DETECT_PIN                       -1    // PF0, but it isn't connected
 #define SDIO_CLOCK 4500000
 #define SDIO_READ_RETRIES 16
