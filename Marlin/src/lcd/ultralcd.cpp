@@ -1448,7 +1448,7 @@ void MarlinUI::update() {
     void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y) {
       if (screen_items > 0)
         encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
-      else
+      else if (!on_status_screen())
         encoderDiff = ENCODER_PULSES_PER_STEP * (col < (LCD_WIDTH) / 2 ? -1 : 1);
     }
 
