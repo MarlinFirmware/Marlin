@@ -43,7 +43,7 @@
   #include "../../module/temperature.h"
 #endif
 
-#if HAS_FILAMENT_RUNOUT_DISTANCE
+#if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
   #include "../../feature/runout.h"
 #endif
 
@@ -117,14 +117,6 @@ void menu_cancelobject();
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
-      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-        EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
-        #if EXTRUDERS > 1
-          LOOP_L_N(n, EXTRUDERS)
-            EDIT_ITEM_FAST_N(float42_52, n, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[n], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
-        #endif
-      #endif
-
       if (parser.volumetric_enabled) {
         EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #if EXTRUDERS > 1
@@ -150,7 +142,7 @@ void menu_cancelobject();
       #endif
     #endif
 
-    #if HAS_FILAMENT_RUNOUT_DISTANCE
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
       editable.decimal = runout.runout_distance();
       EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 30,
         []{ runout.set_runout_distance(editable.decimal); }, true
@@ -199,14 +191,14 @@ void menu_cancelobject();
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int16_t e) {
-    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
+    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1 || e < 0
       UNUSED(e);
     #endif
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
     thermalManager.updatePID();
   }
   void copy_and_scalePID_d(int16_t e) {
-    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
+    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1 || e < 0
       UNUSED(e);
     #endif
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
@@ -271,11 +263,11 @@ void menu_cancelobject();
 
     #if ENABLED(PID_EDIT_MENU)
       #define __PID_BASE_MENU_ITEMS(N) \
-        raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
-        raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &PID_PARAM(Kp, N), 1, 9990); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
+        raw_Ki = unscalePID_i(TERN(PID_BED_MENU_SECTION, Temperature::temp_bed.pid.Ki, PID_PARAM(Ki, N))); \
+        raw_Kd = unscalePID_d(TERN(PID_BED_MENU_SECTION, Temperature::temp_bed.pid.Kd, PID_PARAM(Kd, N))); \
+        EDIT_ITEM_N(float52sign, N, TERN(PID_BED_MENU_SECTION, MSG_PID_P_BED, MSG_PID_P_E), TERN(PID_BED_MENU_SECTION, &Temperature::temp_bed.pid.Kp, &PID_PARAM(Kp, N)), 1, 9990); \
+        EDIT_ITEM_N(float52sign, N, TERN(PID_BED_MENU_SECTION, MSG_PID_I_BED, MSG_PID_I_E), &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_N(float52sign, N, TERN(PID_BED_MENU_SECTION, MSG_PID_D_BED, MSG_PID_D_E), &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_BASE_MENU_ITEMS(N) \
@@ -307,9 +299,24 @@ void menu_cancelobject();
       #define PID_EDIT_MENU_ITEMS(N) _PID_EDIT_MENU_ITEMS(N);
     #endif
 
+    #define PID_BED_MENU_SECTION false
     PID_EDIT_MENU_ITEMS(0);
     #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
+    #endif
+
+    #if ENABLED(PIDTEMPBED)
+      #undef PID_BED_MENU_SECTION
+      #define PID_BED_MENU_SECTION true
+      #if ENABLED(PID_EDIT_MENU)
+        __PID_BASE_MENU_ITEMS(-1);
+      #endif
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        #ifndef BED_OVERSHOOT
+          #define BED_OVERSHOOT 5
+        #endif
+        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_BED, &autotune_temp_bed, 70, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
+      #endif
     #endif
 
     END_MENU();
