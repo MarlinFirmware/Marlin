@@ -45,9 +45,44 @@ typedef struct {
  * measurement errors/shifts due to changed temperature.
  */
 
+// Probe temperature calibration constants
+#ifndef PTC_SAMPLE_COUNT
+  #define PTC_SAMPLE_COUNT 10U
+#endif
+#ifndef PTC_SAMPLE_RES
+  #define PTC_SAMPLE_RES 5.0f
+#endif
+#ifndef PTC_SAMPLE_START
+  #define PTC_SAMPLE_START 30.0f
+#endif
+#define PTC_SAMPLE_END ((PTC_SAMPLE_START) + (PTC_SAMPLE_COUNT) * (PTC_SAMPLE_RES))
+
+// Bed temperature calibration constants
+#ifndef BTC_PROBE_TEMP
+  #define BTC_PROBE_TEMP 30.0f
+#endif
+#ifndef BTC_SAMPLE_COUNT
+  #define BTC_SAMPLE_COUNT 10U
+#endif
+#ifndef BTC_SAMPLE_STEP
+  #define BTC_SAMPLE_RES 5.0f
+#endif
+#ifndef BTC_SAMPLE_START
+  #define BTC_SAMPLE_START 60.0f
+#endif
+#define BTC_SAMPLE_END ((BTC_SAMPLE_START) + (BTC_SAMPLE_COUNT) * (BTC_SAMPLE_RES))
+
+#ifndef PTC_PROBE_HEATING_OFFSET
+  #define PTC_PROBE_HEATING_OFFSET 0.5f
+#endif
+
+#ifndef PTC_PROBE_RAISE
+  #define PTC_PROBE_RAISE 10.0f
+#endif
+
 static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-    {  10,  5,  30,  30 + 10 *  5 },       // Probe
-    {  10,  5,  60,  60 + 10 *  5 },       // Bed
+    {  PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END },       // Probe
+    {  BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END },       // Bed
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
     {  20,  5, 180, 180 +  5 * 20 }        // Extruder
   #endif
@@ -66,7 +101,7 @@ class ProbeTempComp {
                             //measure_point    = { 12.0f, 7.3f };   // Coordinates for the MK52 magnetic heatbed
 
     static constexpr int  probe_calib_bed_temp = BED_MAX_TARGET,  // Bed temperature while calibrating probe
-                          bed_calib_probe_temp = 30;                // Probe temperature while calibrating bed
+                          bed_calib_probe_temp = BTC_PROBE_TEMP;  // Probe temperature while calibrating bed
 
     static int16_t *sensor_z_offsets[TSI_COUNT],
                    z_offsets_probe[cali_info_init[TSI_PROBE].measurements], // (µm)
