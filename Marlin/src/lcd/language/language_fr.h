@@ -248,6 +248,12 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Temp. Auto.");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Marche");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Arrêt");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("Tuning PID terminé");
+  PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Echec Autotune! E incorrect");
+  PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Echec Autotune! Temp. trop haute");
+  PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Echec Autotune! Opér. expirée");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Sélectionner");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Sélectionner *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accélération");
@@ -274,6 +280,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Mouvement");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
   PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("Limite en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("Limite *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diamètre fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diamètre fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Retrait mm");
@@ -298,6 +306,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("Stop");
   PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("Imprimer");
   PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BUTTON_IGNORE                   = _UxGT("Ignorer");
   PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Annuler");
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Terminé");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Retour");
@@ -432,10 +441,10 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocole");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Protection inactive");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Protection active");
+  PROGMEM Language_Str MSG_HOTEND_IDLE_TIMEOUT             = _UxGT("Hotend Idle Timeout");
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Lumière caisson");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Luminosité");
-
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Imprimante incorrecte");
 
   #if LCD_WIDTH >= 20
@@ -519,6 +528,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Labyrinthe");
+
+  PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Erreur index page");
+  PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Erreur vitesse page");
 
   #if LCD_HEIGHT >= 4
     // Up to 3 lines allowed
