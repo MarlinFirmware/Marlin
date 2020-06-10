@@ -307,6 +307,8 @@
 #define BOARD_MKS_ROBIN_E3            4027  // MKS Robin E3 (STM32F103RCT6)
 #define BOARD_MALYAN_M300             4028  // STM32F070-based delta
 #define BOARD_CCROBOT_MEEB_3DP        4029  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
 
 //
 // ARM Cortex-M4F
