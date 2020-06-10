@@ -184,18 +184,19 @@ float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const fl
   // offset in um
   float offset = 0.0f;
 
-#if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
-  if (idx < 0) offset = 0.0f;
-  else if (idx > measurements - 2) offset = static_cast<float>(data[measurements - 1]);
-#else
-  if (idx < 0) 
-    offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
-  else if (idx > measurements - 2) 
-    offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION - 1), point(measurements - 1));
-#endif
-  else {
-    offset = linear_interp(temp, point(idx), point(idx+1));
-  }
+  #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
+    if (idx < 0)
+      offset = 0.0f;
+    else if (idx > measurements - 2)
+      offset = static_cast<float>(data[measurements - 1]);
+  #else
+    if (idx < 0) 
+      offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
+    else if (idx > measurements - 2) 
+      offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION - 1), point(measurements - 1));
+  #endif
+    else
+      offset = linear_interp(temp, point(idx), point(idx + 1));
 
   // return offset in mm
   return offset / 1000.0f;
