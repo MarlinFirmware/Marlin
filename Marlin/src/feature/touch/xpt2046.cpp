@@ -90,11 +90,11 @@ uint8_t XPT2046::read_buttons() {
          : WITHIN(x, 242, 305) ? EN_C
          : 0;
 
-  if (y > BUTTON_AREA_BOT) return 0;
+  if (y > BUTTON_AREA_BOT || x > 320) return 0;
 
   // Column and row above BUTTON_AREA_TOP
-  int8_t col = (x % (320) ) * (LCD_WIDTH ) / (320),
-         row = (y % (240)) * (LCD_HEIGHT) / (BUTTON_AREA_TOP);
+  int8_t col = x * (LCD_WIDTH ) / (320),
+         row = y * (LCD_HEIGHT) / (BUTTON_AREA_TOP);
 
   // Send the touch to the UI (which will simulate the encoder wheel)
   MarlinUI::screen_click(row, col, x, y);
