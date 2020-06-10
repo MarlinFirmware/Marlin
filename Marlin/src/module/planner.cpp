@@ -129,7 +129,7 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
 #if ENABLED(LASER_POWER_INLINE)
-  laser_state_t Planner::laser;              // Current state for blocks
+  laser_state_t Planner::laser_inline;          // Current state for blocks
 #endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
@@ -169,6 +169,11 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
         Planner::volumetric_area_nominal = CIRCLE_AREA(float(DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5f), // Nominal cross-sectional area
         Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+#endif
+
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+  float Planner::volumetric_extruder_limit[EXTRUDERS],          // max mm^3/sec the extruder is able to handle
+        Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
 #if HAS_LEVELING
@@ -1407,9 +1412,27 @@ void Planner::check_axes_activity() {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      calculate_volumetric_extruder_limits(); // update volumetric_extruder_limits as well.
+    #endif
   }
 
 #endif // !NO_VOLUMETRICS
+
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+
+  /**
+   * Convert volumetric based limits into pre calculated extruder feedrate limits.
+   */
+  void Planner::calculate_volumetric_extruder_limit(const uint8_t e) {
+    const float &lim = volumetric_extruder_limit[e], &siz = filament_size[e];
+    volumetric_extruder_feedrate_limit[e] = (lim && siz) ? lim / CIRCLE_AREA(siz * 0.5f) : 0;
+  }
+  void Planner::calculate_volumetric_extruder_limits() {
+    LOOP_L_N(e, EXTRUDERS) calculate_volumetric_extruder_limit(e);
+  }
+
+#endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   /**
@@ -1693,7 +1716,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
  *  fr_mm_s     - (target) speed of the move
  *  extruder    - target extruder
  *
- * Returns true is movement is acceptable, false otherwise
+ * Returns true if movement is acceptable, false otherwise
  */
 bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
@@ -1803,8 +1826,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Update block laser power
   #if ENABLED(LASER_POWER_INLINE)
-    block->laser.status = laser.status;
-    block->laser.power = laser.power;
+    laser_inline.status.isPlanned = true;
+    block->laser.status = laser_inline.status;
+    block->laser.power = laser_inline.power;
   #endif
 
   // Number of steps for each axis
@@ -2077,10 +2101,33 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
           current_speed.e *= MIXING_STEPPERS;
       #endif
+
       const feedRate_t cs = ABS(current_speed.e),
                    max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
                             * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
-      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
+
+      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
+      
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] 
+                                   * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+
+        // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
+
+        if (block->steps.a || block->steps.b || block->steps.c) {
+
+          if (max_vfr > 0 && cs > max_vfr) {
+            NOMORE(speed_factor, max_vfr / cs); // respect volumetric extruder limit (if any)
+            /* <-- add a slash to enable
+            SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPAIR(" mm^3/s (", cs);
+            SERIAL_ECHOPAIR(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPAIR(" mm^3/s (", max_vfr);
+            SERIAL_ECHOLNPGM(" mm/s)");
+            //*/
+          }
+        }
+      #endif
     }
   #endif
 

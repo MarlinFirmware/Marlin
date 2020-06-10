@@ -25,7 +25,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini 1.1"
+#define BOARD_INFO_NAME "BTT SKR Mini V1.1"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG

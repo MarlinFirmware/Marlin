@@ -162,13 +162,14 @@
 #define BOARD_SANGUINOLOLU_11         1500  // Sanguinololu < 1.2
 #define BOARD_SANGUINOLOLU_12         1501  // Sanguinololu 1.2 and above
 #define BOARD_MELZI                   1502  // Melzi
-#define BOARD_MELZI_MAKR3D            1503  // Melzi with ATmega1284 (MaKr3d version)
-#define BOARD_MELZI_CREALITY          1504  // Melzi Creality3D board (for CR-10 etc)
-#define BOARD_MELZI_MALYAN            1505  // Melzi Malyan M150 board
-#define BOARD_MELZI_TRONXY            1506  // Tronxy X5S
-#define BOARD_STB_11                  1507  // STB V1.1
-#define BOARD_AZTEEG_X1               1508  // Azteeg X1
-#define BOARD_ANET_10                 1509  // Anet 1.0 (Melzi clone)
+#define BOARD_MELZI_V2                1503  // Melzi V2
+#define BOARD_MELZI_MAKR3D            1504  // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_CREALITY          1505  // Melzi Creality3D board (for CR-10 etc)
+#define BOARD_MELZI_MALYAN            1506  // Melzi Malyan M150 board
+#define BOARD_MELZI_TRONXY            1507  // Tronxy X5S
+#define BOARD_STB_11                  1508  // STB V1.1
+#define BOARD_AZTEEG_X1               1509  // Azteeg X1
+#define BOARD_ANET_10                 1510  // Anet 1.0 (Melzi clone)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -365,4 +366,4 @@
 #define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
 #define MB(V...)  DO(MB,||,V)
 
-#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY)
+#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY, MELZI_V2)
