@@ -38,8 +38,16 @@
 #define BOARD_INFO_NAME "RUMBA32"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-//#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#endif
 
 //
 // Limit Switches
