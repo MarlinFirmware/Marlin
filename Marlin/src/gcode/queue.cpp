@@ -72,7 +72,7 @@ char GCodeQueue::command_buffer[BUFSIZE][MAX_CMD_SIZE];
 /*
  * The port that the command was received on
  */
-#if NUM_SERIAL > 1
+#if HAS_MULTI_SERIAL
   int16_t GCodeQueue::port[BUFSIZE];
 #endif
 
@@ -119,14 +119,12 @@ void GCodeQueue::clear() {
  * Once a new command is in the ring buffer, call this to commit it
  */
 void GCodeQueue::_commit_command(bool say_ok
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     , int16_t p/*=-1*/
   #endif
 ) {
   send_ok[index_w] = say_ok;
-  #if NUM_SERIAL > 1
-    port[index_w] = p;
-  #endif
+  TERN_(HAS_MULTI_SERIAL, port[index_w] = p);
   TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
   if (++index_w >= BUFSIZE) index_w = 0;
   length++;
@@ -138,14 +136,14 @@ void GCodeQueue::_commit_command(bool say_ok
  * Return false for a full buffer, or if the 'command' is a comment.
  */
 bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     , int16_t pn/*=-1*/
   #endif
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(command_buffer[index_w], cmd);
   _commit_command(say_ok
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       , pn
     #endif
   );
@@ -276,7 +274,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  *   B<int>  Block queue space remaining
  */
 void GCodeQueue::ok_to_send() {
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     const int16_t pn = command_port();
     if (pn < 0) return;
     PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
@@ -303,30 +301,24 @@ void GCodeQueue::ok_to_send() {
  */
 void GCodeQueue::flush_and_request_resend() {
   const int16_t pn = command_port();
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     if (pn < 0) return;
     PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
-  
-  SERIAL_ECHOLN(last_N[pn] + 1);  
+  SERIAL_ECHOLN(last_N[pn] + 1);
   ok_to_send();
 }
 
 inline bool serial_data_available() {
-  return false
-    || MYSERIAL0.available()
-    #if NUM_SERIAL > 1
-      || MYSERIAL1.available()
-    #endif
-  ;
+  return MYSERIAL0.available() || TERN0(HAS_MULTI_SERIAL, MYSERIAL1.available());
 }
 
 inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       case 1: return MYSERIAL1.read();
     #endif
     default: return -1;
@@ -395,9 +387,15 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
     }
   #endif
 
-  buff[ind++] = c;
-  if (ind >= MAX_CMD_SIZE - 1)
-    sis = PS_EOL;               // Skip the rest on overflow
+  // Backspace erases previous characters
+  if (c == 0x08) {
+    if (ind) buff[--ind] = '\0';
+  }
+  else {
+    buff[ind++] = c;
+    if (ind >= MAX_CMD_SIZE - 1)
+      sis = PS_EOL;             // Skip the rest on overflow
+  }
 }
 
 /**
@@ -538,7 +536,7 @@ void GCodeQueue::get_serial_commands() {
 
         // Add the command to the queue
         _enqueue(serial_line_buffer[i], true
-          #if NUM_SERIAL > 1
+          #if HAS_MULTI_SERIAL
             , i
           #endif
         );

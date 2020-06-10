@@ -51,6 +51,10 @@
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
 
+#if ENABLED(LASER_MOVE_G28_OFF)
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -195,6 +199,11 @@
  *
  */
 void GcodeSuite::G28() {
+
+#if ENABLED(LASER_MOVE_G28_OFF)
+  cutter.set_inline_enabled(false);       // turn off laser
+#endif
+
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();
@@ -294,7 +303,10 @@ void GcodeSuite::G28() {
 
   #else // NOT DELTA
 
-    const bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'),
+    const bool homeZ = parser.seen('Z'),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 

@@ -27,7 +27,7 @@
   #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE SKR Pro 1.1" // redefined?
+#define BOARD_INFO_NAME "BTT SKR Pro V1.1" // redefined?
 
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
