@@ -271,11 +271,11 @@ void menu_cancelobject();
 
     #if ENABLED(PID_EDIT_MENU)
       #define __PID_BASE_MENU_ITEMS(N) \
-        raw_Ki = unscalePID_i(TERN(PID_BED_MENU_SECTION, Temperature::temp_bed.pid.Ki, PID_PARAM(Ki, N))); \
-        raw_Kd = unscalePID_d(TERN(PID_BED_MENU_SECTION, Temperature::temp_bed.pid.Kd, PID_PARAM(Kd, N))); \
-        EDIT_ITEM_N(float52sign, N, TERN(PID_BED_MENU_SECTION, MSG_PID_P_BED, MSG_PID_P_E), TERN(PID_BED_MENU_SECTION, &Temperature::temp_bed.pid.Kp, &PID_PARAM(Kp, N)), 1, 9990); \
-        EDIT_ITEM_N(float52sign, N, TERN(PID_BED_MENU_SECTION, MSG_PID_I_BED, MSG_PID_I_E), &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_N(float52sign, N, TERN(PID_BED_MENU_SECTION, MSG_PID_D_BED, MSG_PID_D_E), &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
+        raw_Ki = unscalePID_i(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Ki, PID_PARAM(Ki, N))); \
+        raw_Kd = unscalePID_d(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kd, PID_PARAM(Kd, N))); \
+        EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kp, PID_PARAM(Kp, N)), 1, 9990); \
+        EDIT_ITEM_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_BASE_MENU_ITEMS(N) \
@@ -307,17 +307,16 @@ void menu_cancelobject();
       #define PID_EDIT_MENU_ITEMS(N) _PID_EDIT_MENU_ITEMS(N);
     #endif
 
-    #define PID_BED_MENU_SECTION false
     PID_EDIT_MENU_ITEMS(0);
     #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      #undef PID_BED_MENU_SECTION
-      #define PID_BED_MENU_SECTION true
       #if ENABLED(PID_EDIT_MENU)
+        #define PID_BED_MENU_SECTION
         __PID_BASE_MENU_ITEMS(-1);
+        #undef PID_BED_MENU_SECTION
       #endif
       #if ENABLED(PID_AUTOTUNE_MENU)
         #ifndef BED_OVERSHOOT
