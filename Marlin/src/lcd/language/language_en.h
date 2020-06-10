@@ -270,10 +270,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autotune failed. Bad extruder.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autotune failed. Temperature too high.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Autotune failed! Timeout.");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE_BED                = _UxGT("PID Autotune Bed");
-  PROGMEM Language_Str MSG_PID_P_BED                       = _UxGT("PID-P Bed");
-  PROGMEM Language_Str MSG_PID_I_BED                       = _UxGT("PID-I Bed");
-  PROGMEM Language_Str MSG_PID_D_BED                       = _UxGT("PID-D Bed");
   PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
   PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
   PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
