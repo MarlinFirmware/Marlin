@@ -122,7 +122,8 @@
   PIN:  31   Port: A0        SDSS                        Output = 1
 */
 
-/*   EXP1 Connector          EXP1 as CR10 STOCKDISPLAY
+/**
+ *    EXP1 Connector                      EXP1 as CR10 STOCKDISPLAY
  *        _____                                      _____
  *   PA4 | 6 5 | PC0                     BEEPER_PIN | 6 5 | BTN_ENC
  *   PD3 | 7 4 | RESET                      BTN_EN1 | 7 4 | RESET
