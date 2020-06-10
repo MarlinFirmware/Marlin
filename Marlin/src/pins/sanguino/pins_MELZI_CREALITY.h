@@ -19,6 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * Schematic: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
+ */
+
 #pragma once
 
 /**
@@ -116,3 +121,13 @@
   PIN:  30   Port: A1        LCD_PINS_D4                 Output = 1
   PIN:  31   Port: A0        SDSS                        Output = 1
 */
+
+/*   EXP1 Connector          EXP1 as CR10 STOCKDISPLAY
+ *        _____                                      _____
+ *   PA4 | 6 5 | PC0                     BEEPER_PIN | 6 5 | BTN_ENC
+ *   PD3 | 7 4 | RESET                      BTN_EN1 | 7 4 | RESET
+ *   PD2   8 3 | PA1                        BTN_EN2   8 3 | LCD_PINS_D4 (ST9720 CLK)
+ *   PA3 | 9 2 | PC1        (ST9720 CS) LCD_PINS_RS | 9 2 | LCD_PINS_ENABLE (ST9720 DAT)
+ *   GND |10 1 | 5V                             GND |10 1 | 5V
+ *        -----                                   -----
+ */
