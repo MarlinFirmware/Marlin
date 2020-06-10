@@ -39,8 +39,13 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #if NO_EEPROM_SELECTED
-  #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
+  #if MB(RUMBA32_V1_0) 
+    #define FLASH_EEPROM_EMULATION
+    #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
+  #elif MB(RUMBA32_V1_1)
+    #define I2C_EEPROM
+    #define MARLIN_EEPROM_SIZE 0x2000             // 8KB (24LC64T-I/OT)
+  #endif
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -101,6 +106,46 @@
 #define E2_DIR_PIN                          PD3
 #define E2_ENABLE_PIN                       PD0
 #define E2_CS_PIN                           PD1
+
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PA7
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PA6
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PA5
+  #endif
+#endif
+
+#if MB(RUMBA32_V1_1)
+
+  #define SERVO0_PIN                        PA15
+
+  #if HAS_TMC_UART
+    //
+    // TMC2208/TMC2209 stepper drivers - Software Serial is used according to below pins
+    //
+    #define X_SERIAL_TX_PIN                 PA14
+    #define X_SERIAL_RX_PIN                 PC14
+
+    #define Y_SERIAL_TX_PIN                 PA13
+    #define Y_SERIAL_RX_PIN                 PE4
+
+    #define Z_SERIAL_TX_PIN                 PB10
+    #define Z_SERIAL_RX_PIN                 PE0
+
+    #define E0_SERIAL_TX_PIN                PD11
+    #define E0_SERIAL_RX_PIN                PC13
+
+    #define E1_SERIAL_TX_PIN                PB3
+    #define E1_SERIAL_RX_PIN                PD5
+
+    #define E2_SERIAL_TX_PIN                PB4
+    #define E2_SERIAL_RX_PIN                PD1
+  #endif
+#endif
 
 //
 // Temperature Sensors
