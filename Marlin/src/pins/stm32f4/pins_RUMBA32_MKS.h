@@ -56,6 +56,16 @@
 #define ENABLE_SPI1
 
 //
+// Configure Timers
+// TIM6 is used for TONE
+// TIM7 is used for SERVO
+// TIMER_SERIAL defaults to TIM7 so we'll override it here
+//
+#define STEP_TIMER                          10
+#define TEMP_TIMER                          14
+#define TIMER_SERIAL                        TIM9
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN                           PB12
