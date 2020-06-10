@@ -70,6 +70,7 @@ const tImage Images[imgCount] = {
   Back_32x32x4,
   PageUp_32x32x4,
   PageDown_32x32x4,
+  Refresh_32x32x4,
   Slider8x16x4,
 };
 

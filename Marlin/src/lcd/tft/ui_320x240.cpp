@@ -374,10 +374,21 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, co
 
   string = (uint8_t *)pstr;
 
-  if (*string == 0x02) { // LCD_STR_FOLDER
+  MarlinImage image = noImage;
+
+  switch(*string) {
+    case 0x01:  // LCD_STR_REFRESH
+      image = imgRefresh;
+      break;
+    case 0x02:  // LCD_STR_FOLDER
+      image = imgDirectory;
+      break;
+  }
+
+  if (image != noImage) {
     string++;
     offset = 32;
-    tft.add_image(0, 0, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+    tft.add_image(0, 0, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
 
   tft_string.set(string, itemIndex);

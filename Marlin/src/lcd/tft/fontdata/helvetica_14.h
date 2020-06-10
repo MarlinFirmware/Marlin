@@ -46,7 +46,7 @@ typedef struct __attribute__((__packed__)) {
 
 const uint8_t Helvetica14_symbols[] = {
   0,18,19,0,252,14,0,0,0,0,1,9,252,16,252,14,252, // tFont
-  255,  // 0x01 - LCD_STR_REFRESH
+  0,0,0,0,0,0,  // 0x01 - LCD_STR_REFRESH
   0,0,0,0,0,0,  // 0x02 - LCD_STR_FOLDER
   255,  // 0x03 - LCD_STR_ARROW_RIGHT
   255,  // 0x04 - LCD_STR_UPLEVEL

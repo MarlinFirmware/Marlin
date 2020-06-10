@@ -27,8 +27,10 @@
 #include "tft.h"
 #include "st7735.h"
 #include "st7789v.h"
+#include "st7796s.h"
 #include "ili9328.h"
 #include "ili9341.h"
+#include "ili9488.h"
 
 uint16_t TFT::buffer[];
 uint32_t TFT::lcd_id = 0xFFFFFFFF;
@@ -38,31 +40,36 @@ void TFT::init() {
     return;
 
   io.Init();
-  lcd_id = io.GetID();
+  lcd_id = io.GetID() & 0xFFFF;
 
-  switch(lcd_id & 0xFFFF) {
-    case 0x8552:    // ST7789V
+  switch(lcd_id) {
+    case 0x7796:    // ST7796     480x320
+      SERIAL_ECHO_MSG(" ST7796S");
+      write_esc_sequence(st7796s_init);
+      break;
+    case 0x8552:    // ST7789V    320x240
       SERIAL_ECHO_MSG(" ST7789V");
       write_esc_sequence(st7789v_init);
       break;
-    case 0x89F0:    // ST7735
+    case 0x89F0:    // ST7735     160x128
       SERIAL_ECHO_MSG(" ST7735");
       write_esc_sequence(st7735_init);
       break;
-    case 0x9328:    // ILI9328
+    case 0x9328:    // ILI9328    320x240
       SERIAL_ECHO_MSG(" ILI9328");
       write_esc_sequence(ili9328_init);
       break;
-    case 0x9341:    // ILI9341
+    case 0x9341:    // ILI9341    320x240
       SERIAL_ECHO_MSG(" ILI9341");
       write_esc_sequence(ili9341_init);
       break;
-    case 0x0404:  // No connected display on FSMC
-    case 0xFFFF:  // No connected display on SPI
+    case 0x9488:    // ILI9488    480x320
+      SERIAL_ECHO_MSG(" ILI9488");
+      write_esc_sequence(ili9488_init);
+      break;
     default:
       lcd_id = 0;
   }
-  lcd_id &= 0xFFFF;
 }
 
 void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
@@ -77,31 +84,34 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
 
 
   switch(lcd_id) {
-    case 0x8552:    // ST7789V
-    case 0x89F0:    // ST7735
-    case 0x9341:    // ILI9341
+    case 0x7796:    // ST7796     480x320
+    case 0x8552:    // ST7789V    320x240
+    case 0x89F0:    // ST7735     160x128
+    case 0x9341:    // ILI9341    320x240
+    case 0x9488:    // ILI9488    480x320
       io.DataTransferBegin(DATASIZE_8BIT);
 
-      /* CASET: Column Address Set */
+      // CASET: Column Address Set
       io.WriteReg(ILI9341_CASET);
       io.WriteData((Xmin >> 8) & 0xFF);
       io.WriteData(Xmin & 0xFF);
       io.WriteData((Xmax >> 8) & 0xFF);
       io.WriteData(Xmax & 0xFF);
 
-      /* RASET: Row Address Set */
-      io.WriteReg(ILI9341_RASET);
+      // RASET: Row Address Set
+      io.WriteReg(ILI9341_PASET);
       io.WriteData((Ymin >> 8) & 0xFF);
       io.WriteData(Ymin & 0xFF);
       io.WriteData((Ymax >> 8) & 0xFF);
       io.WriteData(Ymax & 0xFF);
 
-      /* RAMWR: Memory Write */
+      // RAMWR: Memory Write
       io.WriteReg(ILI9341_RAMWR);
       break;
-    case 0x9328:    // ILI9328
+    case 0x9328:    // ILI9328    320x240
       io.DataTransferBegin(DATASIZE_16BIT);
 
+      // Mind the mess: with landscape screen orientation 'Horizontal' is Y and 'Vertical' is X
       io.WriteReg(ILI9328_HASTART);
       io.WriteData(Ymin);
       io.WriteReg(ILI9328_HAEND);
@@ -116,7 +126,7 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
       io.WriteReg(ILI9328_VASET);
       io.WriteData(Xmin);
 
-      io.WriteReg(ILI9328_WRITE_RAM);
+      io.WriteReg(ILI9328_RAMWR);
       break;
     default:
       break;

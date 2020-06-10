@@ -33,14 +33,14 @@
 #define ST7735_MADCTL_RGB         0x00
 #define ST7735_MADCTL_MH          0x04 // Horizontal Refresh Order
 
-#define ST7735_ORIENTATION_UP     0x00								// 128x160 ; Cable on the upper side
+#define ST7735_ORIENTATION_UP     0x00							                	// 128x160 ; Cable on the upper side
 #define ST7735_ORIENTATION_RIGHT  ST7735_MADCTL_MV | ST7735_MADCTL_MY // 160x128 ; Cable on the right side
 #define ST7735_ORIENTATION_LEFT   ST7735_MADCTL_MV | ST7735_MADCTL_MX // 160x128 ; Cable on the left side
-#define ST7735_ORIENTATION_DOWN   ST7735_MADCTL_MX | ST7735_MADCTL_MY // 160x128 ; Cable on the lower side
+#define ST7735_ORIENTATION_DOWN   ST7735_MADCTL_MX | ST7735_MADCTL_MY // 128x160 ; Cable on the lower side
 
 #define ST7735_ORIENTATION        ST7735_ORIENTATION_DOWN
 
-#if DISABLED(TFT_COLOR_BGR)
+#if DISABLED(ST7735_COLOR_BGR)
   #define ST7735_MADCTL_DATA      ST7735_ORIENTATION
 #else
   #define ST7735_MADCTL_DATA      ST7735_ORIENTATION | ST7735_MADCTL_BGR

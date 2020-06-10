@@ -52,6 +52,7 @@
 #include "images/back_32x32x4.h"
 #include "images/page_up_32x32x4.h"
 #include "images/page_down_32x32x4.h"
+#include "images/refresh_32x32x4.h"
 
 #include "images/slider_8x16x4.h"
 
@@ -80,8 +81,10 @@ enum MarlinImage : uint8_t {
   imgBack,
   imgPageUp,
   imgPageDown,
+  imgRefresh,
   imgSlider,
-  imgCount
+  imgCount,
+  noImage = imgCount
 };
 
 enum colorMode_t : uint8_t {
@@ -138,6 +141,7 @@ const tImage Directory_32x32x4        = { (void *)directory_32x32x4, 32, 32, GRE
 const tImage Back_32x32x4             = { (void *)back_32x32x4, 32, 32, GREYSCALE4 };
 const tImage PageUp_32x32x4           = { (void *)page_up_32x32x4, 32, 32, GREYSCALE4 };
 const tImage PageDown_32x32x4         = { (void *)page_down_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Refresh_32x32x4         = { (void *)refresh_32x32x4, 32, 32, GREYSCALE4 };
 
 const tImage Slider8x16x4             = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };
 
