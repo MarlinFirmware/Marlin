@@ -19,11 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * Schematic: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
- */
-
 #pragma once
 
 /**
@@ -34,6 +29,8 @@
  * electronic components to write the bootloader.
  *
  * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
+ *
+ * Schematic: https://bit.ly/2XOnsWb
  */
 
 #define BOARD_INFO_NAME "Melzi (Creality)"
