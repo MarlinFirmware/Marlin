@@ -123,7 +123,7 @@
 #define FAN1_PIN                            PA8
 
 //
-// I2C
+// SPI
 //
 #define SCK_PIN                             PA5
 #define MISO_PIN                            PA6

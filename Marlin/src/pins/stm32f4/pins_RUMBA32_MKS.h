@@ -108,6 +108,59 @@
 #define E2_ENABLE_PIN                       PD0
 #define E2_CS_PIN                           PD1
 
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+  //#define E2_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E4_HARDWARE_SERIAL Serial1
+
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN                   PA3
+  #define X_SERIAL_RX_PIN                   PC14
+
+  #define Y_SERIAL_TX_PIN                   PA4
+  #define Y_SERIAL_RX_PIN                   PE4
+
+  #define Z_SERIAL_TX_PIN                   PD13
+  #define Z_SERIAL_RX_PIN                   PE0
+
+  #define E0_SERIAL_TX_PIN                  PD14
+  #define E0_SERIAL_RX_PIN                  PC13
+
+  #define E1_SERIAL_TX_PIN                  PD15
+  #define E1_SERIAL_RX_PIN                  PD5
+
+  #define E2_SERIAL_TX_PIN                  PD12
+  #define E2_SERIAL_RX_PIN                  PD1
+#endif
+
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PA7
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PA6
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PA5
+  #endif
+#endif
+
 //
 // Temperature Sensors
 //
@@ -129,7 +182,7 @@
 #define FAN1_PIN                            PA8
 
 //
-// I2C
+// SPI
 //
 #define SCK_PIN                             PA5
 #define MISO_PIN                            PA6
@@ -172,64 +225,6 @@
   #endif
 
 #endif
-
-
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
-  #endif
-#endif
-
-#if HAS_TMC_UART
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
-   */
-  //#define X_HARDWARE_SERIAL  Serial
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-
-  //
-  // Software serial
-  //
-  #define X_SERIAL_TX_PIN                   PA3
-  #define X_SERIAL_RX_PIN                   PC14
-
-  #define Y_SERIAL_TX_PIN                   PA4
-  #define Y_SERIAL_RX_PIN                   PE4
-
-  #define Z_SERIAL_TX_PIN                   PD13
-  #define Z_SERIAL_RX_PIN                   PE0
-
-  #define E0_SERIAL_TX_PIN                  PD14
-  #define E0_SERIAL_RX_PIN                  PC13
-
-  #define E1_SERIAL_TX_PIN                  PD15
-  #define E1_SERIAL_RX_PIN                  PD5
-
-  #define E2_SERIAL_TX_PIN                  PD12
-  #define E2_SERIAL_RX_PIN                  PD1
-#endif
-
-//
-// LCD / Controller
-//
 
 // Alter timing for graphical display
 #if HAS_GRAPHICAL_LCD
