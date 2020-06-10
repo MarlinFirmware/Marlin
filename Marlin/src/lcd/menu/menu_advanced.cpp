@@ -322,7 +322,7 @@ void menu_cancelobject();
         #ifndef BED_OVERSHOOT
           #define BED_OVERSHOOT 5
         #endif
-        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_BED, &autotune_temp_bed, 70, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
+        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, 70, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
       #endif
     #endif
 
