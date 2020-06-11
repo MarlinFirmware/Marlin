@@ -985,9 +985,7 @@ void MarlinUI::update() {
 
   } // ELAPSED(ms, next_lcd_update_ms)
 
-  #if HAS_GRAPHICAL_TFT
-    idle();
-  #endif
+  TERN_(HAS_GRAPHICAL_TFT, tft_idle());
 }
 
 #if HAS_ADC_BUTTONS

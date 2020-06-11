@@ -26,10 +26,8 @@
 
 #include "canvas.h"
 
-uint16_t CANVAS::width;
-uint16_t CANVAS::height;
-uint16_t CANVAS::startLine;
-uint16_t CANVAS::endLine;
+uint16_t CANVAS::width, CANVAS::height;
+uint16_t CANVAS::startLine, CANVAS::endLine;
 uint16_t *CANVAS::buffer = TFT::buffer;
 
 void CANVAS::New(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
@@ -53,32 +51,27 @@ bool CANVAS::ToScreen() {
 
 void CANVAS::SetBackground(uint16_t color) {
   /* TODO: test and optimize perfomance */
-/*
+  /*
   uint32_t count = (endLine - startLine) * width;
   uint16_t *pixel = buffer;
   while (count--)
     *pixel++ = color;
-*/
-  uint32_t two_pixels = (((uint32_t )color) << 16) | color;
+  */
+  const uint32_t two_pixels = (((uint32_t )color) << 16) | color;
   uint32_t count = ((endLine - startLine) * width + 1) >> 1;
   uint32_t *pointer = (uint32_t *)buffer;
-  while (count--)
-    *pointer++ = two_pixels;
+  while (count--) *pointer++ = two_pixels;
 }
 
 void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, uint16_t maxWidth) {
-  uint16_t i, stringWidth;
-  glyph_t *glyph;
-
   if (endLine < y || startLine > y + GetFontHeight()) return;
 
   if (maxWidth == 0) maxWidth = width - x;
-  stringWidth = 0;
 
-  for (i = 0 ; *(string + i) ; i++) {
-    glyph = Glyph(string + i);
-    if (stringWidth + glyph->BBXWidth > maxWidth)
-      break;
+  uint16_t *stringWidth = 0;
+  for (uint16_t i = 0 ; *(string + i) ; i++) {
+    glyph_t *glyph = Glyph(string + i);
+    if (stringWidth + glyph->BBXWidth > maxWidth) break;
     AddImage(x + stringWidth + glyph->BBXOffsetX, y + Font()->FontAscent - glyph->BBXHeight - glyph->BBXOffsetY, glyph->BBXWidth, glyph->BBXHeight, GREYSCALE1, ((uint8_t *)glyph) + sizeof(glyph_t), &color);
     stringWidth += glyph->DWidth;
   }
@@ -86,122 +79,97 @@ void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, ui
 
 void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) {
   uint16_t *data = (uint16_t *)Images[image].data;
-  uint16_t image_width = Images[image].width;
-  uint16_t image_height = Images[image].height;
+  if (data == NULL) return;
+
+  uint16_t image_width = Images[image].width,
+           image_height = Images[image].height;
   colorMode_t color_mode = Images[image].colorMode;
 
-  if (data == NULL)
-    return;
   if (color_mode != HIGHCOLOR)
     return AddImage(x, y, image_width, image_height, color_mode, (uint8_t *)data, colors);
 
   // HIGHCOLOR - 16 bits per pixel
 
-  int16_t i, j, line;
-  uint16_t *pixel;
-
-  for (i = 0; i < image_height; i++) {
-    line = y + i;
+  for (int16_t i = 0; i < image_height; i++) {
+    int16_t line = y + i;
     if (line >= startLine && line < endLine) {
-      pixel = buffer + x + (line - startLine) * width;
-      for (j = 0; j < image_width; j++) {
-        if ((x + j >= 0) && (x + j < width)) {
-          *pixel = *data;
-        }
+      int16_t *pixel = buffer + x + (line - startLine) * width;
+      for (int16_t j = 0; j < image_width; j++) {
+        if ((x + j >= 0) && (x + j < width)) *pixel = *data;
         pixel++;
         data++;
       }
-    } else {
-      data += image_width;
     }
+    else
+      data += image_width;
   }
 }
 
 void CANVAS::AddImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors) {
-  int16_t i, j, line;
-  uint16_t *pixel;
-
-  uint8_t color;
-
-  uint8_t bitsPerPixel, pixelsPerByte, mask, offset;
-
+  uint8_t bitsPerPixel;
   switch (color_mode) {
-    case GREYSCALE1:
-      bitsPerPixel = 1;
-      break;
-    case GREYSCALE2:
-      bitsPerPixel = 2;
-      break;
-    case GREYSCALE4:
-      bitsPerPixel = 4;
-      break;
-    default:
-      return;
+    case GREYSCALE1: bitsPerPixel = 1; break;
+    case GREYSCALE2: bitsPerPixel = 2; break;
+    case GREYSCALE4: bitsPerPixel = 4; break;
+    default: return;
   }
 
-  mask = 0xff >> (8 - bitsPerPixel);
-  pixelsPerByte = 8 / bitsPerPixel;
+  uint8_t mask = 0xFF >> (8 - bitsPerPixel),
+          pixelsPerByte = 8 / bitsPerPixel;
+
   colors--;
 
-  for (i = 0; i < image_height; i++) {
-    line = y + i;
+  for (int16_t i = 0; i < image_height; i++) {
+    int16_t line = y + i;
     if (line >= startLine && line < endLine) {
-      pixel = buffer + x + (line - startLine) * width;
-      offset = 8 - bitsPerPixel;
-      for (j = 0; j < image_width; j++) {
+      uint16_t *pixel = buffer + x + (line - startLine) * width;
+      uint8_t offset = 8 - bitsPerPixel;
+      for (int16_t j = 0; j < image_width; j++) {
         if (offset > 8) {
           data++;
           offset = 8 - bitsPerPixel;
         }
         if ((x + j >= 0) && (x + j < width)) {
-          color = ((*data) >> offset) & mask;
-          if (color)
-            *pixel = *(colors + color);
+          const uint8_t color = ((*data) >> offset) & mask;
+          if (color) *pixel = *(colors + color);
         }
         pixel++;
         offset -= bitsPerPixel;
       }
-      data ++;
-    } else {
-      data += (image_width + pixelsPerByte - 1) / pixelsPerByte;
+      data++;
     }
+    else
+      data += (image_width + pixelsPerByte - 1) / pixelsPerByte;
   }
-
 }
 
 void CANVAS::AddRectangle(uint16_t x, uint16_t y, uint16_t rectangleWidth, uint16_t rectangleHeight, uint16_t color) {
-  uint16_t i, j, line, *pixel;
-
   if (endLine < y || startLine > y + rectangleHeight) return;
 
-  for (i = 0; i < rectangleHeight; i++) {
-    line = y + i;
+  for (uint16_t i = 0; i < rectangleHeight; i++) {
+    uint16_t line = y + i;
     if (line >= startLine && line < endLine) {
-      pixel = buffer + x + (line - startLine) * width;
-      if (i == 0 || (i == rectangleHeight - 1)) {
-        for (j = 0; j < rectangleWidth; j++)
-          *pixel++ = color;
+      uint16_t *pixel = buffer + x + (line - startLine) * width;
+      if (i == 0 || i == rectangleHeight - 1) {
+        for (uint16_t j = 0; j < rectangleWidth; j++) *pixel++ = color;
       }
       else {
         *pixel = color;
         pixel += rectangleWidth - 1;
         *pixel = color;
       }
-     }
+    }
   }
 }
 
 void CANVAS::AddBar(uint16_t x, uint16_t y, uint16_t barWidth, uint16_t barHeight, uint16_t color) {
-  uint16_t i, j, line, *pixel;
-
   if (endLine < y || startLine > y + barHeight) return;
 
-  for (i = 0; i < barHeight; i++) {
-    line = y + i;
+  for (uint16_t i = 0; i < barHeight; i++) {
+    uint16_t line = y + i;
     if (line >= startLine && line < endLine) {
-      pixel = buffer + x + (line - startLine) * width;
-      for (j = 0; j < barWidth; j++)
-        *pixel++ = color;
+      uint16_t *pixel = buffer + x + (line - startLine) * width;
+      for (uint16_t j = 0; j < barWidth; j++) *pixel++ = color;
     }
   }
 }

@@ -111,7 +111,6 @@ void Touch::idle() {
   }
 }
 
-
 void Touch::touch(touchControl_t *control) {
   switch (control->type) {
     case MENU_SCREEN:
@@ -220,4 +219,5 @@ void Touch::touch(touchControl_t *control) {
 }
 
 Touch touch;
+
 #endif // TOUCH_SCREEN

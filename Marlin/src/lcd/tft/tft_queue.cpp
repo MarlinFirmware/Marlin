@@ -45,7 +45,7 @@ void TFT_Queue::async() {
   if (current_task == NULL) return;
   queueTask_t *task = (queueTask_t *)current_task;
 
-// Check IO busy status
+  // Check IO busy status
   if (tft.is_busy()) return;
 
   if (task->state == TASK_STATE_COMPLETED) {
@@ -56,15 +56,9 @@ void TFT_Queue::async() {
   finish_sketch();
 
   switch (task->type) {
-    case TASK_END_OF_QUEUE:
-      reset();
-      break;
-    case TASK_FILL:
-      fill(task);
-      break;
-    case TASK_CANVAS:
-      canvas(task);
-      break;
+    case TASK_END_OF_QUEUE: reset();      break;
+    case TASK_FILL:         fill(task);   break;
+    case TASK_CANVAS:       canvas(task); break;
   }
 }
 
@@ -91,9 +85,10 @@ void TFT_Queue::fill(queueTask_t *task) {
   }
 
   if (task_parameters->count > 65535) {
-      count = 65535;
-      task_parameters->count -= 65535;
-  } else {
+    count = 65535;
+    task_parameters->count -= 65535;
+  }
+  else {
     count = task_parameters->count;
     task_parameters->count = 0;
     task->state = TASK_STATE_COMPLETED;
@@ -115,7 +110,7 @@ void TFT_Queue::canvas(queueTask_t *task) {
   Canvas.Continue();
 
   for (i = 0; i < task_parameters->count; i++) {
-    switch(*item) {
+    switch (*item) {
       case CANVAS_SET_BACKGROUND:
         Canvas.SetBackground(((parametersCanvasBackground_t *)item)->color);
         item += sizeof(parametersCanvasBackground_t);

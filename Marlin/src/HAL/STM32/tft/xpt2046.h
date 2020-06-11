@@ -20,7 +20,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if defined(STM32F1xx)
+#ifdef STM32F1xx
   #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
@@ -65,7 +65,7 @@ enum XPTCoordinate : uint8_t {
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 
-#if defined(STM32F1xx)
+#ifdef STM32F1xx
   #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
 #elif defined(STM32F4xx)
   #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)

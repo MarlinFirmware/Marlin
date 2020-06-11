@@ -39,12 +39,7 @@
 #define ST7789V_ORIENTATION_DOWN  0                                     // 240x320 ; Cable on the lower side
 
 #define ST7789V_ORIENTATION       ST7789V_ORIENTATION_LEFT
-
-#if DISABLED(ST7789V_COLOR_BGR)
-  #define ST7789V_MADCTL_DATA     ST7789V_ORIENTATION
-#else
-  #define ST7789V_MADCTL_DATA     ST7789V_ORIENTATION | ST7735_MADCTL_BGR
-#endif
+#define ST7789V_MADCTL_DATA      (ST7789V_ORIENTATION | TERN0(ST7789V_COLOR_BGR, ST7735_MADCTL_BGR))
 
 #define ST7789V_NOP               0x00 // No Operation
 #define ST7789V_SWRESET           0x01 // Software reset
