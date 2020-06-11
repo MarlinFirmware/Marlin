@@ -372,10 +372,8 @@
     #define HAS_SPI_LCD 1
     #if ENABLED(DOGLCD)
       #define HAS_GRAPHICAL_LCD 1
-    #else
-      #if DISABLED(HAS_GRAPHICAL_TFT)
-        #define HAS_CHARACTER_LCD 1
-      #endif
+    #elif DISABLED(HAS_GRAPHICAL_TFT)
+      #define HAS_CHARACTER_LCD 1
     #endif
   #endif
 #endif
