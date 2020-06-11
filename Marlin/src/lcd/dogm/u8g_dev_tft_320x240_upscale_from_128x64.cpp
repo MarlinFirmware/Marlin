@@ -660,9 +660,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       // bottom line and buttons
       #if ENABLED(TOUCH_BUTTONS)
 
-        setWindow(u8g, dev, 10, 170, 309, 171);
+        setWindow(u8g, dev, BUTTOND_X_LO - 4, BUTTON_Y_LO - 5, BUTTONC_X_HI + BUFSIZE + 4, BUTTON_Y_LO - 4);
         #ifdef LCD_USE_DMA_FSMC
-          LCD_IO_WriteMultiple(TFT_DISABLED_COLOR, 600);
+          LCD_IO_WriteMultiple(TFT_DISABLED_COLOR, 600 / 2 * FSMC_UPSCALE);
         #else
           memset2(buffer, TFT_DISABLED_COLOR, 150);
           for (uint8_t i = 8; i--;)
