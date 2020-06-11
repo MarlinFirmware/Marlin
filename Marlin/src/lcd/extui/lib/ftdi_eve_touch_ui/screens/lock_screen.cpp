@@ -72,19 +72,11 @@ void LockScreen::onRedraw(draw_mode_t what) {
         message = GET_TEXT_F(MSG_PASSCODE_ACCEPTED);
         break;
       default:
-        if (passcode == 0) {
-          message = GET_TEXT_F(MSG_PASSCODE_SELECT);
-        } else {
-          message = GET_TEXT_F(MSG_PASSCODE_REQUEST);
-        }
+        message = passcode ? GET_TEXT_F(MSG_PASSCODE_REQUEST) : GET_TEXT_F(MSG_PASSCODE_SELECT);
     }
     message_style() = '\0'; // Terminate the string.
 
-    #ifdef TOUCH_UI_PORTRAIT
-      constexpr uint8_t l = 6;
-    #else
-      constexpr uint8_t l = 3;
-    #endif
+    constexpr uint8_t l = TERN(TOUCH_UI_PORTRAIT, 6, 3);
 
     const uint8_t pressed = EventLoop::get_pressed_tag();
 
@@ -144,7 +136,8 @@ void LockScreen::onPasscodeEntered() {
       onRefresh();
       sound.play(twinkle, PLAY_SYNCHRONOUS);
       GOTO_PREVIOUS();
-    } else {
+    }
+    else {
       message_style() = 'w';
       onRefresh();
       sound.play(sad_trombone, PLAY_SYNCHRONOUS);
@@ -162,7 +155,8 @@ bool LockScreen::onTouchEnd(uint8_t tag) {
         // Backspace deletes previous entered characters.
         *--c = '_';
       }
-    } else {
+    }
+    else {
       // Append character to passcode
       *c++ = tag;
       if (*c == '\0') {

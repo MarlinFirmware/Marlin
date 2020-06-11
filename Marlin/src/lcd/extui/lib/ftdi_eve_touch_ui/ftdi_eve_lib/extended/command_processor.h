@@ -78,7 +78,8 @@ class CommandProcessor : public CLCD::CommandFifo {
         y += (h - th) / 2;
         w -= tracker ? th * 5.0 : th * 2;
         h  = th;
-      } else {
+      }
+      else {
         x += (w - th) / 2;
         y += tracker ? th * 2.5 : th;
         w  = th;
@@ -254,7 +255,8 @@ class CommandProcessor : public CLCD::CommandFifo {
       if (is_tracking) {
         if (FTDI::EventLoop::is_touch_held()) {
           return CLCD::get_tracker(value);
-        } else {
+        }
+        else {
           CLCD::CommandFifo::track(0, 0, 0, 0, 0);
           CLCD::CommandFifo::execute();
           is_tracking = false;
@@ -319,7 +321,8 @@ class CommandProcessor : public CLCD::CommandFifo {
           if (is_utf8) {
             width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
             height = font_size_t::from_romfont(font).get_height();
-          } else
+          }
+          else
         #endif
           {
             CLCD::FontMetrics fm(font);
