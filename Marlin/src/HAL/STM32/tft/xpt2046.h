@@ -54,12 +54,14 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#define XPT2046_X_CALIBRATION    12013
-#define XPT2046_Y_CALIBRATION    -8711
-#define XPT2046_X_OFFSET           -32
-#define XPT2046_Y_OFFSET           256
+#if !(defined(XPT2046_X_CALIBRATION) || defined(XPT2046_Y_CALIBRATION) || defined(XPT2046_X_OFFSET) || defined(XPT2046_Y_OFFSET))
+  #define XPT2046_X_CALIBRATION    12013
+  #define XPT2046_Y_CALIBRATION    -8711
+  #define XPT2046_X_OFFSET           -32
+  #define XPT2046_Y_OFFSET           256
+#endif
 
-#ifndef XPT2046_Z1_THRESHOLD
+#if !defined(XPT2046_Z1_THRESHOLD)
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 

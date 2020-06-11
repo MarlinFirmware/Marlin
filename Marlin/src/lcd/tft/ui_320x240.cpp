@@ -486,8 +486,24 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #error Not Implemented
-  void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {}
+  void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
+    touch.clear();
+    draw_menu_navigation = false;
+    touch.add_control(RESUME_CONTINUE , 0, 0, 320, 240);
+
+    menu_line(row);
+    tft_string.set(GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE));
+    tft_string.add('E');
+    tft_string.add((char)('1' + extruder));
+    tft_string.add(' ');
+    tft_string.add(i16tostr3rj(thermalManager.degHotend(extruder)));
+    tft_string.add(LCD_STR_DEGREE);
+    tft_string.add(" / ");
+    tft_string.add(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
+    tft_string.add(LCD_STR_DEGREE);
+    tft_string.trim();
+    tft.add_text(tft_string.width() > 320 ? 0 : 160 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  }
 #endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -501,15 +517,15 @@ void menu_line(const uint8_t row, uint16_t color) {
   tft.set_background(color);
 }
 
+void menu_pause_option();
+
 void menu_item(const uint8_t row, bool sel ) {
   if (row == 0) {
     touch.clear();
-    draw_menu_navigation = true;
+    draw_menu_navigation = ui.currentScreen != menu_pause_option;
   }
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-
-  //if (draw_menu_navigation)
   touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row);
 }
 
