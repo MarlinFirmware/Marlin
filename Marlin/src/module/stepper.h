@@ -355,7 +355,7 @@ class Stepper {
     #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
 
       typedef struct {
-        bool trap_en;       // Trapezoid needed flag (i.e., laser on, planner in control)
+        bool enabled;       // Trapezoid needed flag (i.e., laser on, planner in control)
         uint8_t cur_power;  // Current laser power
         bool cruise_set;    // Power set up for cruising?
 
@@ -367,7 +367,7 @@ class Stepper {
         #endif
       } stepper_laser_t;
 
-      static stepper_laser_t laser;
+      static stepper_laser_t laser_trap;
 
     #endif
 
@@ -484,7 +484,7 @@ class Stepper {
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
     #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
-      FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
+      FORCE_INLINE static void set_z1_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
       #if NUM_Z_STEPPER_DRIVERS >= 3
         FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
@@ -492,6 +492,16 @@ class Stepper {
           FORCE_INLINE static void set_z4_lock(const bool state) { locked_Z4_motor = state; }
         #endif
       #endif
+      static inline void set_all_z_lock(const bool lock, const int8_t except=-1) {
+        set_z1_lock(lock ^ (except == 0));
+        set_z2_lock(lock ^ (except == 1));
+        #if NUM_Z_STEPPER_DRIVERS >= 3
+          set_z3_lock(lock ^ (except == 2));
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            set_z4_lock(lock ^ (except == 3));
+          #endif
+        #endif
+      }
     #endif
 
     #if ENABLED(BABYSTEPPING)

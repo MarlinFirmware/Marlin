@@ -37,9 +37,15 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE         ((SystemCoreClock) / 4)  // frequency of timers peripherals
 
-#define STEP_TIMER_NUM 0  // Timer Index for Stepper
-#define TEMP_TIMER_NUM 1  // Timer Index for Temperature
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#ifndef STEP_TIMER_NUM
+  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#endif
+#ifndef PULSE_TIMER_NUM
+  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#endif
+#ifndef TEMP_TIMER_NUM
+  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
+#endif
 
 #define TEMP_TIMER_RATE        1000000
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
@@ -59,8 +65,12 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_STEP_TIMER_ISR()  extern "C" void TIMER0_IRQHandler()
-#define HAL_TEMP_TIMER_ISR()  extern "C" void TIMER1_IRQHandler()
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR()  extern "C" void TIMER0_IRQHandler()
+#endif
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR()  extern "C" void TIMER1_IRQHandler()
+#endif
 
 // PWM timer
 #define HAL_PWM_TIMER

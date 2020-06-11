@@ -73,7 +73,6 @@ void menu_configuration();
 #endif
 
 #if HAS_CUTTER
-  #include "../../feature/spindle_laser.h"
   void menu_spindle_laser();
 #endif
 
