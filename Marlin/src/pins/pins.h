@@ -284,6 +284,8 @@
   #include "sanguino/pins_SANGUINOLOLU_12.h"    // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI)
   #include "sanguino/pins_MELZI.h"              // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+#elif MB(MELZI_V2)
+  #include "sanguino/pins_MELZI_V2.h"           // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_MAKR3D)
   #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_CREALITY)
@@ -512,6 +514,8 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_E3_V2_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_E3_DIP)
   #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(JGAURORA_A5S_A1)
@@ -532,6 +536,12 @@
   #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3)
   #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+#elif MB(CCROBOT_MEEB_3DP)
+  #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
+#elif MB(CHITU3D_V5)
+  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103
+#elif MB(CHITU3D_V6)
+  #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
 
 //
 // ARM Cortex-M4F

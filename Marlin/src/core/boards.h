@@ -162,13 +162,14 @@
 #define BOARD_SANGUINOLOLU_11         1500  // Sanguinololu < 1.2
 #define BOARD_SANGUINOLOLU_12         1501  // Sanguinololu 1.2 and above
 #define BOARD_MELZI                   1502  // Melzi
-#define BOARD_MELZI_MAKR3D            1503  // Melzi with ATmega1284 (MaKr3d version)
-#define BOARD_MELZI_CREALITY          1504  // Melzi Creality3D board (for CR-10 etc)
-#define BOARD_MELZI_MALYAN            1505  // Melzi Malyan M150 board
-#define BOARD_MELZI_TRONXY            1506  // Tronxy X5S
-#define BOARD_STB_11                  1507  // STB V1.1
-#define BOARD_AZTEEG_X1               1508  // Azteeg X1
-#define BOARD_ANET_10                 1509  // Anet 1.0 (Melzi clone)
+#define BOARD_MELZI_V2                1503  // Melzi V2
+#define BOARD_MELZI_MAKR3D            1504  // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_CREALITY          1505  // Melzi Creality3D board (for CR-10 etc)
+#define BOARD_MELZI_MALYAN            1506  // Melzi Malyan M150 board
+#define BOARD_MELZI_TRONXY            1507  // Tronxy X5S
+#define BOARD_STB_11                  1508  // STB V1.1
+#define BOARD_AZTEEG_X1               1509  // Azteeg X1
+#define BOARD_ANET_10                 1510  // Anet 1.0 (Melzi clone)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -292,18 +293,22 @@
 #define BOARD_BTT_SKR_MINI_V1_1       4013  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_E3_V1_0    4014  // BigTreeTech SKR Mini E3 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_E3_V1_2    4015  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
-#define BOARD_BTT_SKR_E3_DIP          4016  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
-#define BOARD_JGAURORA_A5S_A1         4017  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4018  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4019  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4020  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4021  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_GTM32_MINI              4022  // STM32F103VET6 controller
-#define BOARD_GTM32_MINI_A30          4023  // STM32F103VET6 controller
-#define BOARD_GTM32_REV_B             4024  // STM32F103VET6 controller
-#define BOARD_MKS_ROBIN_E3D           4025  // MKS Robin E3D (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_E3            4026  // MKS Robin E3 (STM32F103RCT6)
-#define BOARD_MALYAN_M300             4027  // STM32F070-based delta
+#define BOARD_BTT_SKR_MINI_E3_V2_0    4016  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
+#define BOARD_BTT_SKR_E3_DIP          4017  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
+#define BOARD_JGAURORA_A5S_A1         4018  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4019  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4020  // FYSETC Cheetah
+#define BOARD_FYSETC_CHEETAH_V12      4021  // FYSETC Cheetah V1.2
+#define BOARD_LONGER3D_LK             4022  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_GTM32_MINI              4023  // STM32F103VET6 controller
+#define BOARD_GTM32_MINI_A30          4024  // STM32F103VET6 controller
+#define BOARD_GTM32_REV_B             4025  // STM32F103VET6 controller
+#define BOARD_MKS_ROBIN_E3D           4026  // MKS Robin E3D (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3            4027  // MKS Robin E3 (STM32F103RCT6)
+#define BOARD_MALYAN_M300             4028  // STM32F070-based delta
+#define BOARD_CCROBOT_MEEB_3DP        4029  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
 
 //
 // ARM Cortex-M4F
@@ -363,4 +368,4 @@
 #define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
 #define MB(V...)  DO(MB,||,V)
 
-#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY)
+#define IS_MELZI MB(MELZI, MELZI_CREALITY, MELZI_MAKR3D, MELZI_MALYAN, MELZI_TRONXY, MELZI_V2)
