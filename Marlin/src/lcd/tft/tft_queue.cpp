@@ -297,13 +297,13 @@ void TFT_Queue::add_image(int16_t x, int16_t y, MarlinImage image, uint16_t colo
       colors[1] = color_main;
       break;
     case GREYSCALE2:
-      for(i = 1; i < 4; i++)
+      for (i = 1; i < 4; i++)
         colors[i] = gradient(color_main, color_background, (i << 8) / 3);
       break;
     case GREYSCALE4:
-      for(i = 1; i < 8; i++)
+      for (i = 1; i < 8; i++)
         colors[i] = gradient(color_background, color_shadow, i << 5);
-      for(i = 8; i < 16; i++)
+      for (i = 8; i < 16; i++)
         colors[i] = gradient(color_main, color_background, ((i - 8) << 8) / 7);
       break;
     default:

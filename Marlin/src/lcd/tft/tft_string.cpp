@@ -101,7 +101,7 @@ void TFT_String::add(uint8_t *string, uint8_t index) {
   uint8_t character;
   wchar_t wchar;
 
-  while(*string) {
+  while (*string) {
     string = get_utf8_value_cb(string, read_byte, &wchar);
     if (wchar > 255)
       wchar |= 0x0080;

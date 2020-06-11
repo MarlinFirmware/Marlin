@@ -456,7 +456,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #if ENABLED(SDSUPPORT)
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
-    if(isDir)
+    if (isDir)
       tft.add_image(0, 0, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
     tft.add_text(32, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, theCard.longest_filename());
   }
