@@ -108,10 +108,6 @@
 #define BOARD_ORTUR_4                 1152  // Ortur 4
 #define BOARD_TENLOG_D3_HERO          1153  // Tenlog D3 Hero IDEX printer
 
-
-
-#define BOARD_TENLOG_D3_HERO          1160  // Tenlog D3 Hero IDEX printer
-
 //
 // RAMBo and derivatives
 //
