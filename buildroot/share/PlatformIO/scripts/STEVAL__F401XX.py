@@ -7,5 +7,3 @@ for i, flag in enumerate(env["LINKFLAGS"]):
         env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
     elif flag == "-T":
         env["LINKFLAGS"][i + 1] = custom_ld_script
-
-
