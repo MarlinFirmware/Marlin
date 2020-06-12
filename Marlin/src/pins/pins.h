@@ -649,6 +649,7 @@
   #define BOARD_BIGTREE_SKR_MINI_E3     -1016
   #define BOARD_BIGTREE_SKR_E3_DIP      -1017
   #define BOARD_RUMBA32                 -1018
+  #define BOARD_RUMBA32_AUS3D           -1019
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -689,7 +690,9 @@
   #elif MB(STEVAL)
     #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
   #elif MB(RUMBA32)
-    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_AUS3D. Please update your configuration."
+    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_V1_0. Please update your configuration."
+  #elif MB(RUMBA32_AUS3D)
+    #error "BOARD_RUMBA32_AUS3D is now BOARD_RUMBA32_V1_0. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -713,6 +716,7 @@
   #undef BOARD_BIGTREE_SKR_MINI_V1_1
   #undef BOARD_BIGTREE_SKR_E3_DIP
   #undef BOARD_RUMBA32
+  #undef BOARD_RUMBA32_AUS3D
 
 #endif
 
