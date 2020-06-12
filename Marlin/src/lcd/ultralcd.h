@@ -418,6 +418,7 @@ public:
       #endif
 
       #if ENABLED(TOUCH_BUTTONS)
+        static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
 
