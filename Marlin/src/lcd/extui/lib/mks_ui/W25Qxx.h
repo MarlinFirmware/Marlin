@@ -21,7 +21,7 @@
  */
 #pragma once
 
-//#if defined(__cplusplus)
+//#ifdef __cplusplus
 //extern "C" { /* C-declarations for C++ */
 //#endif
 
@@ -122,6 +122,6 @@ extern ext_FLASH W25QXX;
 
 //extern uint32_t lv_get_pic_addr(uint8_t *Pname);
 
-//#if defined(__cplusplus)
+//#ifdef __cplusplus
 //} /* C-declarations for C++ */
 //#endif

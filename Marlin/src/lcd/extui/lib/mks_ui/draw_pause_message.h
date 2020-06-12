@@ -21,13 +21,13 @@
  */
 #pragma once
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" { /* C-declarations for C++ */
 #endif
 
 extern void lv_draw_pause_message(const PauseMessage msg);
 
 //extern void disp_temp_ready_print();
-#if defined(__cplusplus)
+#ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" { /* C-declarations for C++ */
 #endif
 
@@ -60,6 +60,6 @@ extern int ascii2dec_test(char *ascii);
 extern void lv_clear_print_file();
 
 //extern void disp_temp_ready_print();
-#if defined(__cplusplus)
+#ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

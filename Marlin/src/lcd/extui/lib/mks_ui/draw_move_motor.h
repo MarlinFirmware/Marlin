@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" { /* C-declarations for C++ */
 #endif
 
@@ -30,6 +30,6 @@ extern void lv_clear_move_motor();
 extern void disp_move_dist();
 
 //extern void disp_temp_ready_print();
-#if defined(__cplusplus)
+#ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

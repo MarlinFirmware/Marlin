@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" { /* C-declarations for C++ */
 #endif
 
@@ -74,6 +74,6 @@ extern void lv_draw_dialog(uint8_t type);
 extern void lv_clear_dialog();
 
 //extern void disp_temp_ready_print();
-#if defined(__cplusplus)
+#ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

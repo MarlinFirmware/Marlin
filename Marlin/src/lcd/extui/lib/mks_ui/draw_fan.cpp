@@ -131,8 +131,6 @@ void lv_draw_fan(void){
 
   LV_IMG_DECLARE(bmp_pic);
 
-
-
   /*Create an Image button*/
   buttonAdd = lv_imgbtn_create(scr, NULL);
   buttonDec = lv_imgbtn_create(scr, NULL);
@@ -177,7 +175,6 @@ void lv_draw_fan(void){
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
-
   #endif
 
   lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
@@ -243,4 +240,4 @@ void lv_clear_fan(){
   lv_obj_del(scr);
 }
 
-#endif
+#endif // TFT_LITTLE_VGL_UI

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" { /* C-declarations for C++ */
 #endif
 
@@ -31,6 +31,6 @@ extern void printer_state_polling();
 extern void filament_pin_setup();
 extern void filament_check();
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
