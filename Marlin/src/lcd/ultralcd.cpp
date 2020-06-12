@@ -119,6 +119,7 @@ MarlinUI ui;
   #endif
   #if ENABLED(TOUCH_BUTTONS)
     #include "../feature/touch/xpt2046.h"
+    bool MarlinUI::on_edit_screen = false;
   #endif
 #endif
 
@@ -1434,6 +1435,34 @@ void MarlinUI::update() {
           ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
         #endif
       );
+    }
+
+  #endif
+
+  #if ENABLED(TOUCH_BUTTONS)
+
+    //
+    // Screen Click
+    //  - On menu screens move directly to the touched item
+    //  - On menu screens, right side (last 3 cols) acts like a scroll - half up => prev page, half down = next page
+    //  - On select screens (and others) touch the Right Half for +, Left Half for -
+    //  - On edit screens, touch Up Half for -,  Bottom Half to +
+    //
+    void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t, const uint8_t) {
+      const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
+                   ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
+      if (on_edit_screen)
+        encoderDiff = ENCODER_PULSES_PER_STEP * ydir;
+      else if (screen_items > 0) {
+        // Last 3 cols act as a scroll :-)
+        if (col > (LCD_WIDTH) - 3)
+          // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
+          encoderDiff = ENCODER_PULSES_PER_STEP * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
+        else
+          encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
+      }
+      else if (!on_status_screen())
+        encoderDiff = ENCODER_PULSES_PER_STEP * xdir;
     }
 
   #endif
