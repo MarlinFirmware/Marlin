@@ -5,10 +5,10 @@
 #define portOutputRegister(port)   ( &(port->regs->ODR) )
 #define portInputRegister(port)    ( &(port->regs->IDR) )
 
-#define portSetRegister(pin)		  ( &(PIN_MAP[pin].gpio_device->regs->BSRR) )
-#define portClearRegister(pin)		( &(PIN_MAP[pin].gpio_device->regs->BRR) )
+#define portSetRegister(pin)       ( &(PIN_MAP[pin].gpio_device->regs->BSRR) )
+#define portClearRegister(pin)     ( &(PIN_MAP[pin].gpio_device->regs->BRR) )
 
-#define portConfigRegister(pin)		( &(PIN_MAP[pin].gpio_device->regs->CRL) )
+#define portConfigRegister(pin)    ( &(PIN_MAP[pin].gpio_device->regs->CRL) )
 
 static const uint8_t SS   = BOARD_SPI1_NSS_PIN;
 static const uint8_t SS1  = BOARD_SPI2_NSS_PIN;
