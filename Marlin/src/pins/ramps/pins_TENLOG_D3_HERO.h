@@ -38,7 +38,7 @@
 // Servos
 //
 #define SERVO0_PIN                            11
-#define SERVO1_PIN                             6  // was 6
+#define SERVO1_PIN                             6
 #define SERVO2_PIN                            -1  // Original pin 5 used for hotend fans
 #define SERVO3_PIN                             4
 
@@ -66,49 +66,49 @@
 #define X_DIR_PIN                             55
 #define X_ENABLE_PIN                          38
 //#ifndef X_CS_PIN
-//  #define X_CS_PIN                            53
+  //#define X_CS_PIN                          53
 //#endif
 
 #define X2_STEP_PIN                           36
 #define X2_DIR_PIN                            34
 #define X2_ENABLE_PIN                         30
 //#ifndef X2_CS_PIN
-//  #define X2_CS_PIN                            53
+  //#define X2_CS_PIN                         53
 //#endif
 
 #define Y_STEP_PIN                            60
 #define Y_DIR_PIN                             61
 #define Y_ENABLE_PIN                          56
 //#ifndef Y_CS_PIN
-//  #define Y_CS_PIN                            49
+ //#define Y_CS_PIN                           49
 //#endif
 
 #define Z_STEP_PIN                            46
 #define Z_DIR_PIN                             48
 #define Z_ENABLE_PIN                          62
 //#ifndef Z_CS_PIN
-//  #define Z_CS_PIN                            40
+ //#define Z_CS_PIN                           40
 //#endif
 
 #define Z2_STEP_PIN                           65
 #define Z2_DIR_PIN                            66
 #define Z2_ENABLE_PIN                         64
 //#ifndef Z2_CS_PIN
-//  #define Z2_CS_PIN                            40
+ //#define Z2_CS_PIN                          40
 //#endif
 
 #define E0_STEP_PIN                           26
 #define E0_DIR_PIN                            28
 #define E0_ENABLE_PIN                         24
 //#ifndef E0_CS_PIN
-//  #define E0_CS_PIN                           42
+  //define E0_CS_PIN                          42
 //#endif
 
 #define E1_STEP_PIN                           57
 #define E1_DIR_PIN                            58
 #define E1_ENABLE_PIN                         59
 //#ifndef E1_CS_PIN
-//  #define E1_CS_PIN                           44
+  //define E1_CS_PIN                          44
 //#endif
 
 //#define E2_STEP_PIN                         42
@@ -150,7 +150,7 @@
 //#define CASE_LIGHT_PIN                       5
 #define SDSS                                  53
 //#ifndef LED_PIN
-//  #define LED_PIN                             13
+  //#define LED_PIN                           13
 //#endif
 
 //#define SPINDLE_LASER_PWM_PIN               -1  // Hardware PWM
@@ -162,8 +162,9 @@
 //
 // LCD / Controller
 //
-//
+
 //#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+
 #define LCD_PINS_RS                           -1
 #define LCD_PINS_ENABLE                       -1
 #define LCD_PINS_D4                           -1
@@ -175,9 +176,10 @@
 //#define BTN_ENC                             35
 #define SD_DETECT_PIN                         49
 //#ifndef KILL_PIN
-//  #define KILL_PIN                          41
-//  #endif
+  //#define KILL_PIN                          41
+//#endif
 //#ifndef BEEPER_PIN
 #define BEEPER_PIN                            -1
-//  #endif
 //#endif
+
+//#endif // REPRAP_DISCOUNT_SMART_CONTROLLER
