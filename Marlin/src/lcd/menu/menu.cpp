@@ -169,7 +169,9 @@ void MenuEditItemBase::goto_edit_screen(
   ui.currentScreen = cs;
   callbackFunc = cb;
   liveEdit = le;
-  ui.on_edit_screen = true;
+  #if ENABLED(TOUCH_BUTTONS)
+    ui.on_edit_screen = true;
+  #endif
 }
 
 // TODO: Remove these but test build size with and without
