@@ -87,6 +87,9 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
   #if DISABLED(TURBO_BACK_MENU_ITEM)
     constexpr bool is_back = false;
   #endif
+  #if ENABLED(TOUCH_BUTTONS)
+    on_edit_screen = false;
+  #endif
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -166,6 +169,7 @@ void MenuEditItemBase::goto_edit_screen(
   ui.currentScreen = cs;
   callbackFunc = cb;
   liveEdit = le;
+  ui.on_edit_screen = true;
 }
 
 // TODO: Remove these but test build size with and without
