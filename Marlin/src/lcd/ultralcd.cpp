@@ -1438,6 +1438,29 @@ void MarlinUI::update() {
 
   #endif
 
+  #if ENABLED(TOUCH_BUTTONS)
+
+    //
+    // Screen Click
+    //  - On menu screens move directly to the touched item
+    //  - On menu screens, right side (last 3 cols) acts like a scroll - half up => prev page, half down = next page
+    //  - On select screens (and others) touch the Right Half for +, Left Half for -
+    //
+    void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y) {
+      if (screen_items > 0) {
+        //last 3 cols act as a scroll :-)
+        if (col > (LCD_WIDTH) - 3)
+          //2 * LCD_HEIGHT to scroll to bottom of next page. If we did 1 * LCD_HEIGHT, it just go 1 item down
+          encoderDiff = ENCODER_PULSES_PER_STEP * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * (row < (LCD_HEIGHT) / 2 ? -1 : 1);
+        else
+          encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
+      }
+      else if (!on_status_screen())
+        encoderDiff = ENCODER_PULSES_PER_STEP * (col < (LCD_WIDTH) / 2 ? -1 : 1);
+    }
+
+  #endif
+
 #else // !HAS_DISPLAY
 
   //
