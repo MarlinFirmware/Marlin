@@ -73,13 +73,13 @@ void BaseNumericAdjustmentScreen::widgets_t::_button_style(CommandProcessor &cmd
     const btn_colors *old_colors = &normal_btn;
     const btn_colors *new_colors = &normal_btn;
 
-    switch(_style) {
+    switch (_style) {
       case BTN_ACTION:   old_colors = &action_btn;   break;
       case BTN_TOGGLE:   old_colors = &ui_toggle;    break;
       case BTN_DISABLED: old_colors = &disabled_btn; break;
       default: break;
     }
-    switch(style) {
+    switch (style) {
       case BTN_ACTION:   new_colors = &action_btn;   break;
       case BTN_TOGGLE:   new_colors = &ui_toggle;    break;
       case BTN_DISABLED: new_colors = &disabled_btn; break;
