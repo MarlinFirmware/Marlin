@@ -546,11 +546,14 @@ static const uint16_t ili9341_init[] = {
   #define BUTTONC_X_LO (242 / 2) * (FSMC_UPSCALE)
   #define BUTTONC_X_HI (BUTTONC_X_LO + (FSMC_UPSCALE) * BUTTON_SIZE_X - 1)
 
-  #define BUTTON_Y_LO (184 / 2) * (FSMC_UPSCALE)
+  #define BUTTON_Y_LO (140 / 2) * (FSMC_UPSCALE) + 44 //184 2x, 254 3x
   #define BUTTON_Y_HI (BUTTON_Y_LO + (FSMC_UPSCALE) * BUTTON_SIZE_Y - 1)
 
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
     uint16_t buffer[BUTTON_SIZE_X * sq(FSMC_UPSCALE)];
+
+    //NOTE: the buffer are sized for max 32 lenght! If you need draw bigger things with this function, we need increase the buffer
+    if (length > BUTTON_SIZE_X) return;
 
     for (uint16_t i = 0; i < height; i++) {
       uint16_t k = 0;
@@ -567,7 +570,7 @@ static const uint16_t ili9341_init[] = {
           for (uint16_t l = 0; l < length * (FSMC_UPSCALE); l++)
             buffer[l + (length * (FSMC_UPSCALE) * n)] = buffer[l];
 
-        LCD_IO_WriteSequence(buffer, COUNT(buffer));
+        LCD_IO_WriteSequence(buffer, length * sq(FSMC_UPSCALE));
       #else
         u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
         u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
@@ -657,9 +660,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       // bottom line and buttons
       #if ENABLED(TOUCH_BUTTONS)
 
-        setWindow(u8g, dev, 10, 170, 309, 171);
+        setWindow(u8g, dev, BUTTOND_X_LO - 4, BUTTON_Y_LO - 5, BUTTONC_X_HI + BUFSIZE + 4, BUTTON_Y_LO - 4);
         #ifdef LCD_USE_DMA_FSMC
-          LCD_IO_WriteMultiple(TFT_DISABLED_COLOR, 600);
+          LCD_IO_WriteMultiple(TFT_DISABLED_COLOR, 600 / 2 * FSMC_UPSCALE);
         #else
           memset2(buffer, TFT_DISABLED_COLOR, 150);
           for (uint8_t i = 8; i--;)

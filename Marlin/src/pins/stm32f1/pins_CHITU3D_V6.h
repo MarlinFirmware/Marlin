@@ -120,6 +120,7 @@
   #define LCD_FULL_PIXEL_WIDTH 480
   #define LCD_PIXEL_OFFSET_X 48
   #define LCD_FULL_PIXEL_HEIGHT 320
+  #define LCD_PIXEL_OFFSET_Y 48
 
   #define LCD_RESET_PIN                     PF11
   #define NO_LCD_REINIT
