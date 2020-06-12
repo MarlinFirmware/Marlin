@@ -23,6 +23,12 @@
 
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
+#include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
+
+#define BUTTON_AREA_TOP 175
+#define BUTTON_AREA_BOT 234
+#define SCREEN_START_TOP ((LCD_PIXEL_OFFSET_Y) * 240 / (LCD_FULL_PIXEL_HEIGHT))
+#define TOUCHABLE_Y_HEIGHT (BUTTON_AREA_TOP - (SCREEN_START_TOP))
 
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
@@ -78,13 +84,23 @@ uint8_t XPT2046::read_buttons() {
                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
   if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
 
-  if (y < 175 || y > 234) return 0;
+  // Touch within the button area simulates an encoder button
+  if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
+    return WITHIN(x,  14,  77) ? EN_D
+         : WITHIN(x,  90, 153) ? EN_A
+         : WITHIN(x, 166, 229) ? EN_B
+         : WITHIN(x, 242, 305) ? EN_C
+         : 0;
 
-  return WITHIN(x,  14,  77) ? EN_D
-       : WITHIN(x,  90, 153) ? EN_A
-       : WITHIN(x, 166, 229) ? EN_B
-       : WITHIN(x, 242, 305) ? EN_C
-       : 0;
+  if (x > LCD_FULL_PIXEL_WIDTH || !WITHIN(y, SCREEN_START_TOP, BUTTON_AREA_TOP)) return 0;
+
+  // Column and row above BUTTON_AREA_TOP
+  int8_t col = x * (LCD_WIDTH) / (LCD_FULL_PIXEL_WIDTH),
+         row = (y - (SCREEN_START_TOP)) * (LCD_HEIGHT) / (TOUCHABLE_Y_HEIGHT);
+
+  // Send the touch to the UI (which will simulate the encoder wheel)
+  MarlinUI::screen_click(row, col, x, y);
+  return 0;
 }
 
 bool XPT2046::isTouched() {

@@ -35,26 +35,20 @@
 
 #define BOARD_INFO_NAME "MKS RUMBA32"
 
-#define RUMBA32_V1_0
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#endif
+
 #define ENABLE_SPI1
-//#define I2C_EEPROM
 
 #include "pins_RUMBA32_common.h"
-
-//
-// Software SPI pins for TMC2130 stepper drivers
-//
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
-  #endif
-#endif
 
 #if HAS_TMC_UART
   /**
@@ -95,15 +89,4 @@
 
   #define E2_SERIAL_TX_PIN                  PD12
   #define E2_SERIAL_RX_PIN                  PD1
-#endif
-
-//
-// LCD / Controller
-//
-
-// Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
 #endif
