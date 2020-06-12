@@ -25,24 +25,14 @@
 #include "../../inc/MarlinConfig.h"
 #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 
-#ifndef TOUCH_SCREEN_HEIGHT
-  #ifdef LCD_FULL_PIXEL_HEIGHT
-    #define TOUCH_SCREEN_HEIGHT LCD_FULL_PIXEL_HEIGHT
-  #else
-    #define TOUCH_SCREEN_HEIGHT 240
-  #endif
-#endif
+// Touch screen resolution independent of display resolution
+#define TOUCH_SCREEN_HEIGHT 240
+#define TOUCH_SCREEN_WIDTH 320
 
-#ifndef TOUCH_SCREEN_WIDTH
-  #ifdef LCD_FULL_PIXEL_WIDTH
-    #define TOUCH_SCREEN_WIDTH LCD_FULL_PIXEL_WIDTH
-  #else
-    #define TOUCH_SCREEN_WIDTH 320
-  #endif
-#endif
-
+// Coordinates in terms of touch area
 #define BUTTON_AREA_TOP 175
 #define BUTTON_AREA_BOT 234
+
 #define SCREEN_START_TOP ((LCD_PIXEL_OFFSET_Y) * (TOUCH_SCREEN_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
 #define TOUCHABLE_Y_HEIGHT (BUTTON_AREA_TOP - (SCREEN_START_TOP))
 
