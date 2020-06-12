@@ -129,7 +129,7 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
 #if ENABLED(LASER_POWER_INLINE)
-  laser_state_t Planner::laser;              // Current state for blocks
+  laser_state_t Planner::laser_inline;          // Current state for blocks
 #endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
@@ -169,6 +169,11 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
         Planner::volumetric_area_nominal = CIRCLE_AREA(float(DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5f), // Nominal cross-sectional area
         Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+#endif
+
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+  float Planner::volumetric_extruder_limit[EXTRUDERS],          // max mm^3/sec the extruder is able to handle
+        Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
 #if HAS_LEVELING
@@ -1407,9 +1412,27 @@ void Planner::check_axes_activity() {
       volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
       refresh_e_factor(i);
     }
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      calculate_volumetric_extruder_limits(); // update volumetric_extruder_limits as well.
+    #endif
   }
 
 #endif // !NO_VOLUMETRICS
+
+#if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+
+  /**
+   * Convert volumetric based limits into pre calculated extruder feedrate limits.
+   */
+  void Planner::calculate_volumetric_extruder_limit(const uint8_t e) {
+    const float &lim = volumetric_extruder_limit[e], &siz = filament_size[e];
+    volumetric_extruder_feedrate_limit[e] = (lim && siz) ? lim / CIRCLE_AREA(siz * 0.5f) : 0;
+  }
+  void Planner::calculate_volumetric_extruder_limits() {
+    LOOP_L_N(e, EXTRUDERS) calculate_volumetric_extruder_limit(e);
+  }
+
+#endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   /**
@@ -1693,7 +1716,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
  *  fr_mm_s     - (target) speed of the move
  *  extruder    - target extruder
  *
- * Returns true is movement is acceptable, false otherwise
+ * Returns true if movement is acceptable, false otherwise
  */
 bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
@@ -1803,8 +1826,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Update block laser power
   #if ENABLED(LASER_POWER_INLINE)
-    block->laser.status = laser.status;
-    block->laser.power = laser.power;
+    laser_inline.status.isPlanned = true;
+    block->laser.status = laser_inline.status;
+    block->laser.power = laser_inline.power;
   #endif
 
   // Number of steps for each axis
@@ -2077,10 +2101,33 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (mixer.get_current_vtool() == MIXER_AUTORETRACT_TOOL)
           current_speed.e *= MIXING_STEPPERS;
       #endif
+
       const feedRate_t cs = ABS(current_speed.e),
                    max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
                             * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
-      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs);
+
+      if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
+      
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] 
+                                   * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+
+        // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
+
+        if (block->steps.a || block->steps.b || block->steps.c) {
+
+          if (max_vfr > 0 && cs > max_vfr) {
+            NOMORE(speed_factor, max_vfr / cs); // respect volumetric extruder limit (if any)
+            /* <-- add a slash to enable
+            SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPAIR(" mm^3/s (", cs);
+            SERIAL_ECHOPAIR(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPAIR(" mm^3/s (", max_vfr);
+            SERIAL_ECHOLNPGM(" mm/s)");
+            //*/
+          }
+        }
+      #endif
     }
   #endif
 
@@ -2319,16 +2366,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
             /**
              *  // Generate the JD Lookup Table
-             *  constexpr float c = 1.00751317f; // Correction factor to center error around 0
+             *  constexpr float c = 1.00751495f; // Correction factor to center error around 0
              *  for (int i = 0; i < jd_lut_count - 1; ++i) {
              *    const float x0 = (sq(i) - 1) / sq(i),
-             *                y0 = acos(x0) * (i ? c : 1),
-             *                x1 = 0.5 * x0 + 0.5,
-             *                y1 = acos(x1) * c;
+             *                y0 = acos(x0) * (i == 0 ? 1 : c),
+             *                x1 = i < jd_lut_count - 1 ?  0.5 * x0 + 0.5 : 0.999999f,
+             *                y1 = acos(x1) * (i < jd_lut_count - 1 ? c : 1);
              *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
              *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
              *  }
-             *  jd_lut_k[jd_lut_count - 1] = jd_lut_b[jd_lut_count - 1] = 0;
              *
              *  // Compute correction factor (Set c to 1.0f first!)
              *  float min = INFINITY, max = -min;
@@ -2341,22 +2387,24 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
              *  }
              *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
              */
-            static constexpr int16_t  jd_lut_count = 15;
-            static constexpr uint16_t jd_lut_tll   = 1 << jd_lut_count;
-            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count
+            static constexpr int16_t  jd_lut_count = 16;
+            static constexpr uint16_t jd_lut_tll   = _BV(jd_lut_count - 1);
+            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count + 1
             static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
-              -1.03146219f, -1.30760407f, -1.75205469f, -2.41705418f, -3.37768555f,
-              -4.74888229f, -6.69648552f, -9.45659828f, -13.3640289f, -18.8927879f,
-              -26.7136307f, -37.7754059f, -53.4200745f, -75.5457306f,   0.0f };
+              -1.03145837f, -1.30760646f, -1.75205851f, -2.41705704f,
+              -3.37769222f, -4.74888992f, -6.69649887f, -9.45661736f,
+              -13.3640480f, -18.8928222f, -26.7136841f, -37.7754593f,
+              -53.4201813f, -75.5458374f, -106.836761f, -218.532821f };
             static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-              1.57079637f, 1.70886743f, 2.04220533f, 2.62408018f, 3.52467203f,
-              4.85301876f, 6.77019119f, 9.50873947f, 13.4009094f, 18.9188652f,
-              26.7320709f, 37.7884521f, 53.4292908f, 75.5522461f,  0.0f };
+               1.57079637f,  1.70887053f,  2.04220939f,  2.62408352f,
+               3.52467871f,  4.85302639f,  6.77020454f,  9.50875854f,
+               13.4009285f,  18.9188995f,  26.7321243f,  37.7885055f,
+               53.4293975f,  75.5523529f,  106.841369f,  218.534011f };
 
             const float neg = junction_cos_theta < 0 ? -1 : 1,
                         t = neg * junction_cos_theta;
 
-            const int16_t idx = (t == 0.0f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+            const int16_t idx = (t < 0.00000003f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
             float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
             if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)

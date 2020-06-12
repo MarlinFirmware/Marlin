@@ -54,11 +54,11 @@ public:
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
         static inline bool can_reach(const float &rx, const float &ry) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-              && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));       // Can the nozzle also go near there?
+              && position_is_reachable(rx, ry, ABS(PROBING_MARGIN));       // Can the nozzle also go near there?
         }
       #else
         FORCE_INLINE static bool can_reach(const float &rx, const float &ry) {
-          return position_is_reachable(rx, ry, MIN_PROBE_EDGE);
+          return position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
 
@@ -131,7 +131,7 @@ public:
       );
 
       static inline float probe_radius() {
-        return printable_radius - _MAX(MIN_PROBE_EDGE, HYPOT(offset_xy.x, offset_xy.y));
+        return printable_radius - _MAX(PROBING_MARGIN, HYPOT(offset_xy.x, offset_xy.y));
       }
     #endif
 
@@ -140,7 +140,7 @@ public:
         #if IS_KINEMATIC
           (X_CENTER) - probe_radius()
         #else
-          _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + offset_xy.x)
+          _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
         #endif
       );
     }
@@ -149,7 +149,7 @@ public:
         #if IS_KINEMATIC
           (X_CENTER) + probe_radius()
         #else
-          _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + offset_xy.x)
+          _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
         #endif
       );
     }
@@ -158,7 +158,7 @@ public:
         #if IS_KINEMATIC
           (Y_CENTER) - probe_radius()
         #else
-          _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + offset_xy.y)
+          _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
         #endif
       );
     }
@@ -167,7 +167,7 @@ public:
         #if IS_KINEMATIC
           (Y_CENTER) + probe_radius()
         #else
-          _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + offset_xy.y)
+          _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
         #endif
       );
     }

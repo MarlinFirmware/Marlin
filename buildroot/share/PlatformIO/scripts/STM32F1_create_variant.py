@@ -27,7 +27,7 @@ assert os.path.isdir(source_dir)
 
 if os.path.isdir(variant_dir):
     shutil.rmtree(variant_dir)
-    
+
 if not os.path.isdir(variant_dir):
     os.mkdir(variant_dir)
 

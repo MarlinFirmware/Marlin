@@ -1,5 +1,5 @@
 /*
- * Linker script for Generic STM32F103RC boards. 
+ * Linker script for Generic STM32F103RC boards.
  */
 MEMORY
 {

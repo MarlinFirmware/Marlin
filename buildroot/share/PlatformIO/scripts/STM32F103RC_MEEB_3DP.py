@@ -13,7 +13,7 @@ print(projenv)
 config = configparser.ConfigParser()
 config.read("platformio.ini")
 
-#com_port = config.get("env:STM32F103RC_cc_meeb_3dp", "upload_port")
+#com_port = config.get("env:STM32F103RC_meeb", "upload_port")
 #print('Use the {0:s} to reboot the board to dfu mode.'.format(com_port))
 
 #
@@ -48,7 +48,7 @@ for define in env['CPPDEFINES']:
     if define[0] == "STM32_FLASH_SIZE":
         flash_size = define[1]
 
-print('Use the {0:s} address as the marlin app entry point.'.format(vect_tab_addr))        
+print('Use the {0:s} address as the marlin app entry point.'.format(vect_tab_addr))
 print('Use the {0:d}KB flash version of stm32f103rct6 chip.'.format(flash_size))
 
 custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/STM32F103RC_MEEB_3DP.ld")
@@ -57,5 +57,3 @@ for i, flag in enumerate(env["LINKFLAGS"]):
         env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
     elif flag == "-T":
         env["LINKFLAGS"][i + 1] = custom_ld_script
-        
-        

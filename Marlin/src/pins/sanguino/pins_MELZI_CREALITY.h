@@ -29,9 +29,18 @@
  * electronic components to write the bootloader.
  *
  * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
+ *
+ * Schematic: https://bit.ly/2XOnsWb
  */
 
 #define BOARD_INFO_NAME "Melzi (Creality)"
+
+// Alter timing for graphical display
+#if HAS_GRAPHICAL_LCD
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+#endif
 
 #include "pins_MELZI.h"
 
@@ -56,13 +65,6 @@
 #if ENABLED(BLTOUCH)
   #define SERVO0_PIN                         27
   #undef BEEPER_PIN
-#endif
-
-// Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif
 
 #if ENABLED(MINIPANEL)
@@ -116,3 +118,14 @@
   PIN:  30   Port: A1        LCD_PINS_D4                 Output = 1
   PIN:  31   Port: A0        SDSS                        Output = 1
 */
+
+/**
+ *    EXP1 Connector                      EXP1 as CR10 STOCKDISPLAY
+ *        _____                                      _____
+ *   PA4 | 6 5 | PC0                     BEEPER_PIN | 6 5 | BTN_ENC
+ *   PD3 | 7 4 | RESET                      BTN_EN1 | 7 4 | RESET
+ *   PD2   8 3 | PA1                        BTN_EN2   8 3 | LCD_PINS_D4 (ST9720 CLK)
+ *   PA3 | 9 2 | PC1        (ST9720 CS) LCD_PINS_RS | 9 2 | LCD_PINS_ENABLE (ST9720 DAT)
+ *   GND |10 1 | 5V                             GND |10 1 | 5V
+ *        -----                                   -----
+ */

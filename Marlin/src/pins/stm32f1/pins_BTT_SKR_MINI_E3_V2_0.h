@@ -32,7 +32,7 @@
 
 #include "pins_BTT_SKR_MINI_E3.h"
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini E3 V2.0"
+#define BOARD_INFO_NAME "BTT SKR Mini E3 V2.0"
 
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG

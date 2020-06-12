@@ -51,7 +51,7 @@ card_flags_t CardReader::flag;
 char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 int8_t CardReader::autostart_index;
 
-#if ENABLED(BINARY_FILE_TRANSFER) && NUM_SERIAL > 1
+#if BOTH(HAS_MULTI_SERIAL, BINARY_FILE_TRANSFER)
   int8_t CardReader::transfer_port_index;
 #endif
 
@@ -1095,7 +1095,7 @@ void CardReader::fileHasFinished() {
 #if ENABLED(AUTO_REPORT_SD_STATUS)
   uint8_t CardReader::auto_report_sd_interval = 0;
   millis_t CardReader::next_sd_report_ms;
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     int8_t CardReader::auto_report_port;
   #endif
 

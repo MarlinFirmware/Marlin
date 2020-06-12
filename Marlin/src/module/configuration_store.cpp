@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V79"
+#define EEPROM_VERSION "V80"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -320,8 +320,9 @@ typedef struct SettingsDataStruct {
   //
   // !NO_VOLUMETRIC
   //
-  bool parser_volumetric_enabled;                       // M200 D  parser.volumetric_enabled
+  bool parser_volumetric_enabled;                       // M200 S  parser.volumetric_enabled
   float planner_filament_size[EXTRUDERS];               // M200 T D  planner.filament_size[]
+  float planner_volumetric_extruder_limit[EXTRUDERS];   // M200 T L  planner.volumetric_extruder_limit[]
 
   //
   // HAS_TRINAMIC_CONFIG
@@ -604,7 +605,7 @@ void MarlinSettings::postprocess() {
       #else
         constexpr bool runout_sensor_enabled = true;
       #endif
-      #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+      #if HAS_FILAMENT_RUNOUT_DISTANCE
         const float &runout_distance_mm = runout.runout_distance();
       #else
         constexpr float runout_distance_mm = 0;
@@ -935,12 +936,20 @@ void MarlinSettings::postprocess() {
 
         EEPROM_WRITE(parser.volumetric_enabled);
         EEPROM_WRITE(planner.filament_size);
+        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+          EEPROM_WRITE(planner.volumetric_extruder_limit);
+        #else
+          dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+          for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
+        #endif
 
       #else
 
         const bool volumetric_enabled = false;
-        dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
         EEPROM_WRITE(volumetric_enabled);
+        dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
+        for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
+        dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
 
       #endif
@@ -1460,7 +1469,7 @@ void MarlinSettings::postprocess() {
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
-        #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
           if (!validating) runout.set_runout_distance(runout_distance_mm);
         #endif
       }
@@ -1787,6 +1796,7 @@ void MarlinSettings::postprocess() {
         struct {
           bool volumetric_enabled;
           float filament_size[EXTRUDERS];
+          float volumetric_extruder_limit[EXTRUDERS];
         } storage;
 
         _FIELD_TEST(parser_volumetric_enabled);
@@ -1796,6 +1806,9 @@ void MarlinSettings::postprocess() {
           if (!validating) {
             parser.volumetric_enabled = storage.volumetric_enabled;
             COPY(planner.filament_size, storage.filament_size);
+            #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+              COPY(planner.volumetric_extruder_limit, storage.volumetric_extruder_limit);
+            #endif
           }
         #endif
       }
@@ -2384,9 +2397,7 @@ void MarlinSettings::reset() {
   #if HAS_FILAMENT_SENSOR
     runout.enabled = true;
     runout.reset();
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM);
-    #endif
+    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
   #endif
 
   //
@@ -2600,6 +2611,10 @@ void MarlinSettings::reset() {
     parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
     LOOP_L_N(q, COUNT(planner.filament_size))
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      LOOP_L_N(q, COUNT(planner.volumetric_extruder_limit))
+        planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+    #endif
   #endif
 
   endstops.enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
@@ -2752,7 +2767,7 @@ void MarlinSettings::reset() {
 
     SERIAL_EOL();
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if EXTRUDERS && DISABLED(NO_VOLUMETRICS)
 
       /**
        * Volumetric extrusion M200
@@ -2767,20 +2782,26 @@ void MarlinSettings::reset() {
 
       #if EXTRUDERS == 1
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-      #elif EXTRUDERS
+        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled)
+                              , " D", LINEAR_UNIT(planner.filament_size[0])
+                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+                              #endif
+                         );
+      #else
         LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
-          SERIAL_ECHOPGM("  M200");
-          if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
-          SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
+          SERIAL_ECHOLNPAIR("  M200 T", int(i)
+                                , " D", LINEAR_UNIT(planner.filament_size[i])
+                                #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                  , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+                                #endif
+                           );
         }
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled));
       #endif
-
-      if (!parser.volumetric_enabled)
-        CONFIG_ECHO_MSG("  M200 D0");
-
-    #endif // !NO_VOLUMETRICS
+    #endif // EXTRUDERS && !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
     report_M92(!forReplay);
@@ -3551,7 +3572,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
         "  M412 S", int(runout.enabled)
-        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
       );
