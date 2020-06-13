@@ -362,7 +362,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extensible_ui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif

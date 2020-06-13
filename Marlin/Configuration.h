@@ -2080,6 +2080,16 @@
 //#define TOUCH_UI_FTDI_EVE
 
 //
+// Touch-screen LCD for Anycubic printers
+//
+//#define ANYCUBIC_LCD
+#if ENABLED(ANYCUBIC_LCD)
+  #define ANYCUBIC_LCD_CHIRON
+  
+  #define ANYCUBIC_LCD_SERIAL_PORT 3
+#endif
+
+//
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
