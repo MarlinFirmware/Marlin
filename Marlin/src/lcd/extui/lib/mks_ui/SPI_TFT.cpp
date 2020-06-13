@@ -49,7 +49,7 @@
     #define SPI_TFT_RST_PIN   PC6
   #endif
 
-//use SPI1 for the spi tft.
+// use SPI1 for the spi tft.
   void TFT::spi_init(uint8_t spiRate) {
 
     SPI_TFT_CS_H;
@@ -199,7 +199,7 @@
     LCD_WR_DATA(0xa7);
     LCD_WR_REG(0xc5);
     LCD_WR_DATA(0x18);
-    LCD_WR_REG(0xe0);     //Positive Voltage Gamma Control
+    LCD_WR_REG(0xe0);     // Positive Voltage Gamma Control
     LCD_WR_DATA(0xf0);
     LCD_WR_DATA(0x09);
     LCD_WR_DATA(0x0b);
@@ -214,7 +214,7 @@
     LCD_WR_DATA(0x14);
     LCD_WR_DATA(0x18);
     LCD_WR_DATA(0x1b);
-    LCD_WR_REG(0xe1);     //Negative Voltage Gamma Control
+    LCD_WR_REG(0xe1);     // Negative Voltage Gamma Control
     LCD_WR_DATA(0xf0);
     LCD_WR_DATA(0x09);
     LCD_WR_DATA(0x0b);
@@ -233,8 +233,8 @@
     LCD_WR_DATA(0x3c);
     LCD_WR_REG(0xf0);
     LCD_WR_DATA(0x69);
-    delay(120);     //Delay 120ms
-    LCD_WR_REG(0x29);     //Display ON
+    delay(120);     // Delay 120ms
+    LCD_WR_REG(0x29);     // Display ON
 
     LCD_clear(0x0000);    //
     SPI_TFT_BLK_H;
@@ -250,22 +250,20 @@
     LCD_WriteRAM_Prepare();
     SPI_TFT_CS_L;
     SPI_TFT_DC_H;
-    for (i = 0; i < 960;)
-    {
-      tbuf[i] = color >> 8;
+    for (i = 0; i < 960;) {
+      tbuf[i]     = color >> 8;
       tbuf[i + 1] = color;
       i += 2;
     }
-    for (i = 0; i < 320; i++)
-    {
-      //for(m=0;m<480;m++)
-      //{
-      //LCD_WR_DATA(color>>8);
-      //LCD_WR_DATA(color);
+    for (i = 0; i < 320; i++) {
+      // for(m=0;m<480;m++)
+      // {
+      // LCD_WR_DATA(color>>8);
+      // LCD_WR_DATA(color);
 
       SPI.dmaSend(tbuf, 960, true);
-      //SPI_TFT_CS_H;
-      //}
+      // SPI_TFT_CS_H;
+      // }
     }
     SPI_TFT_CS_H;
   }

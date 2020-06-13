@@ -19,6 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * draw_dialog.cpp
+ */
+
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
@@ -187,8 +192,8 @@ void lv_draw_dialog(uint8_t type) {
 
   //LV_IMG_DECLARE(bmp_pic);
 
-  static lv_style_t style_btn_rel;                      /*A variable to store the released style*/
-  lv_style_copy(&style_btn_rel, &lv_style_plain);       /*Initialize from a built-in style*/
+  static lv_style_t style_btn_rel;                                   // A variable to store the released style
+  lv_style_copy(&style_btn_rel, &lv_style_plain);                    // Initialize from a built-in style
   style_btn_rel.body.border.color = lv_color_hex3(0x269);
   style_btn_rel.body.border.width = 1;
   style_btn_rel.body.main_color = lv_color_hex3(0xADF);
@@ -199,8 +204,8 @@ void lv_draw_dialog(uint8_t type) {
   style_btn_rel.text.color = lv_color_hex3(0xDEF);
   style_btn_rel.text.font = &gb2312_puhui32;
 
-  static lv_style_t style_btn_pr;                       /*A variable to store the pressed style*/
-  lv_style_copy(&style_btn_pr, &style_btn_rel);         /*Initialize from the released style*/
+  static lv_style_t style_btn_pr;                                    // A variable to store the pressed style
+  lv_style_copy(&style_btn_pr, &style_btn_rel);                      // Initialize from the released style
   style_btn_pr.body.border.color = lv_color_hex3(0x46B);
   style_btn_pr.body.main_color = lv_color_hex3(0x8BD);
   style_btn_pr.body.grad_color = lv_color_hex3(0x24A);
@@ -212,26 +217,26 @@ void lv_draw_dialog(uint8_t type) {
   lv_obj_set_style(labelDialog, &tft_style_lable_rel);
 
   if (DialogType == DIALOG_TYPE_FINISH_PRINT || DialogType == DIALOG_PAUSE_MESSAGE_RESUME) {
-    lv_obj_t * btnOk = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(btnOk, BTN_OK_X + 90, BTN_OK_Y);                        /*Set its position*/
-    lv_obj_set_size(btnOk, 100, 50);                        /*Set its size*/
+    lv_obj_t * btnOk = lv_btn_create(scr, NULL);                     // Add a button the current screen
+    lv_obj_set_pos(btnOk, BTN_OK_X + 90, BTN_OK_Y);                  // Set its position
+    lv_obj_set_size(btnOk, 100, 50);                                 // Set its size
     lv_obj_set_event_cb(btnOk, btn_ok_event_cb);
-    lv_btn_set_style(btnOk, LV_BTN_STYLE_REL, &style_btn_rel);  /*Set the button's released style*/
-    lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);    /*Set the button's pressed style*/
-    lv_obj_t * labelOk = lv_label_create(btnOk, NULL);        /*Add a label to the button*/
-    lv_label_set_text(labelOk, print_file_dialog_menu.confirm); /*Set the labels text*/
+    lv_btn_set_style(btnOk, LV_BTN_STYLE_REL, &style_btn_rel);       // Set the button's released style
+    lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);         // Set the button's pressed style
+    lv_obj_t * labelOk = lv_label_create(btnOk, NULL);               // Add a label to the button
+    lv_label_set_text(labelOk, print_file_dialog_menu.confirm);      // Set the labels text
   }
   else if (DialogType == DIALOG_PAUSE_MESSAGE_WAITING
            || DialogType == DIALOG_PAUSE_MESSAGE_INSERT
            || DialogType == DIALOG_PAUSE_MESSAGE_HEAT) {
-    lv_obj_t * btnOk = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(btnOk, BTN_OK_X + 90, BTN_OK_Y);                        /*Set its position*/
-    lv_obj_set_size(btnOk, 100, 50);                        /*Set its size*/
+    lv_obj_t * btnOk = lv_btn_create(scr, NULL);                     // Add a button the current screen
+    lv_obj_set_pos(btnOk, BTN_OK_X + 90, BTN_OK_Y);                  // Set its position
+    lv_obj_set_size(btnOk, 100, 50);                                 // Set its size
     lv_obj_set_event_cb(btnOk, btn_ok_event_cb);
-    lv_btn_set_style(btnOk, LV_BTN_STYLE_REL, &style_btn_rel);  /*Set the button's released style*/
-    lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);    /*Set the button's pressed style*/
-    lv_obj_t * labelOk = lv_label_create(btnOk, NULL);        /*Add a label to the button*/
-    lv_label_set_text(labelOk, print_file_dialog_menu.confirm); /*Set the labels text*/
+    lv_btn_set_style(btnOk, LV_BTN_STYLE_REL, &style_btn_rel);       // Set the button's released style
+    lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);         // Set the button's pressed style
+    lv_obj_t * labelOk = lv_label_create(btnOk, NULL);               // Add a label to the button
+    lv_label_set_text(labelOk, print_file_dialog_menu.confirm);      // Set the labels text
   }
   else if (DialogType == DIALOG_PAUSE_MESSAGE_PAUSING
            || DialogType == DIALOG_PAUSE_MESSAGE_CHANGING
@@ -243,28 +248,28 @@ void lv_draw_dialog(uint8_t type) {
 
   }
   else {
-    lv_obj_t * btnOk = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(btnOk, BTN_OK_X, BTN_OK_Y);                          /*Set its position*/
-    lv_obj_set_size(btnOk, 100, 50);                        /*Set its size*/
+    lv_obj_t * btnOk = lv_btn_create(scr, NULL);                     // Add a button the current screen
+    lv_obj_set_pos(btnOk, BTN_OK_X, BTN_OK_Y);                       // Set its position
+    lv_obj_set_size(btnOk, 100, 50);                                 // Set its size
     lv_obj_set_event_cb(btnOk, btn_ok_event_cb);
-    lv_btn_set_style(btnOk, LV_BTN_STYLE_REL, &style_btn_rel);  /*Set the button's released style*/
-    lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);    /*Set the button's pressed style*/
-    lv_obj_t * labelOk = lv_label_create(btnOk, NULL);        /*Add a label to the button*/
+    lv_btn_set_style(btnOk, LV_BTN_STYLE_REL, &style_btn_rel);       // Set the button's released style
+    lv_btn_set_style(btnOk, LV_BTN_STYLE_PR, &style_btn_pr);         // Set the button's pressed style
+    lv_obj_t * labelOk = lv_label_create(btnOk, NULL);               // Add a label to the button
 
-    lv_obj_t * btnCancel = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(btnCancel, BTN_CANCEL_X, BTN_CANCEL_Y);                          /*Set its position*/
-    lv_obj_set_size(btnCancel, 100, 50);                        /*Set its size*/
+    lv_obj_t * btnCancel = lv_btn_create(scr, NULL);                 // Add a button the current screen
+    lv_obj_set_pos(btnCancel, BTN_CANCEL_X, BTN_CANCEL_Y);           // Set its position
+    lv_obj_set_size(btnCancel, 100, 50);                             // Set its size
     lv_obj_set_event_cb(btnCancel, btn_cancel_event_cb);
-    lv_btn_set_style(btnCancel, LV_BTN_STYLE_REL, &style_btn_rel);  /*Set the button's released style*/
-    lv_btn_set_style(btnCancel, LV_BTN_STYLE_PR, &style_btn_pr);    /*Set the button's pressed style*/
-    lv_obj_t * labelCancel = lv_label_create(btnCancel, NULL);        /*Add a label to the button*/
+    lv_btn_set_style(btnCancel, LV_BTN_STYLE_REL, &style_btn_rel);   // Set the button's released style
+    lv_btn_set_style(btnCancel, LV_BTN_STYLE_PR, &style_btn_pr);     // Set the button's pressed style
+    lv_obj_t * labelCancel = lv_label_create(btnCancel, NULL);       // Add a label to the button
 
     if (DialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
-      lv_label_set_text(labelOk, pause_msg_menu.purgeMore); /*Set the labels text*/
+      lv_label_set_text(labelOk, pause_msg_menu.purgeMore);          // Set the labels text
       lv_label_set_text(labelCancel, pause_msg_menu.continuePrint);
     }
     else {
-      lv_label_set_text(labelOk, print_file_dialog_menu.confirm); /*Set the labels text*/
+      lv_label_set_text(labelOk, print_file_dialog_menu.confirm);    // Set the labels text
       lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
     }
   }
