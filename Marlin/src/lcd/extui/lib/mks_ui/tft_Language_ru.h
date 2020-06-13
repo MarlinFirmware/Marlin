@@ -153,16 +153,16 @@
   #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_RU         "Load filament completed,click <да> for return!"
   #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_RU       "Unload filament completed,click <да> for return!"
 #endif
-  #define FILAMENT_CHANGE_TEXT_RU                       "Please click <Load> \nor <unload>,After \npinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_RU             "Heating up the nozzle,\nplease wait..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_RU           "Heating up the nozzle,\nplease wait..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_RU         "Heat completed,please load filament \nto extruder,and click <confirm> \nfor start loading."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_RU         "Please load filament to extruder,\nand click <confirm> for start loading."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_RU        "Heat completed,please \nclick <confirm> for start unloading.!"
-  #define FILAMENT_DIALOG_LOADING_TIPS_RU               "Is loading ,please wait!"
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_RU             "Is unloading,please wait!"
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_RU         "Load filament completed,\nclick <confirm> for return!"
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_RU       "Unload filament completed,\nclick <confirm> for return!"
+#define FILAMENT_CHANGE_TEXT_RU                       "Please click <Load> \nor <unload>,After \npinter pause."
+#define FILAMENT_DIALOG_LOAD_HEAT_TIPS_RU             "Heating up the nozzle,\nplease wait..."
+#define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_RU           "Heating up the nozzle,\nplease wait..."
+#define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_RU         "Heat completed,please load filament \nto extruder,and click <confirm> \nfor start loading."
+#define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_RU         "Please load filament to extruder,\nand click <confirm> for start loading."
+#define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_RU        "Heat completed,please \nclick <confirm> for start unloading.!"
+#define FILAMENT_DIALOG_LOADING_TIPS_RU               "Is loading ,please wait!"
+#define FILAMENT_DIALOG_UNLOADING_TIPS_RU             "Is unloading,please wait!"
+#define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_RU         "Load filament completed,\nclick <confirm> for return!"
+#define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_RU       "Unload filament completed,\nclick <confirm> for return!"
 
 
 #define PRE_HEAT_EXT_TEXT_RU                "E"
@@ -170,7 +170,7 @@
 
 #define FILE_LOADING_RU                     "загрузка......"
 #if 0
-#define NO_FILE_AND_CHECK_RU                "Файлы не найдены! Вставьте SD-карту или диск U!"
+  #define NO_FILE_AND_CHECK_RU                "Файлы не найдены! Вставьте SD-карту или диск U!"
 #endif
 #define NO_FILE_AND_CHECK_RU                "нет файла,попробуйте ещё раз!"
 

@@ -51,7 +51,7 @@ UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;
 DISP_STATE disp_state = MAIN_UI;
 DISP_STATE last_disp_state;
-PRINT_TIME  print_time;
+PRINT_TIME print_time;
 
 uint32_t To_pre_view;
 uint8_t gcode_preview_over;
@@ -78,21 +78,21 @@ void gCfgItems_init() {
   gCfgItems.finish_power_off = 0;
   gCfgItems.pause_reprint = 0;
 
-  W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems.spi_flash_flag,VAR_INF_ADDR,sizeof(gCfgItems.spi_flash_flag));
+  W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems.spi_flash_flag, VAR_INF_ADDR, sizeof(gCfgItems.spi_flash_flag));
   if (gCfgItems.spi_flash_flag == GCFG_FLAG_VALUE) {
-    W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems,VAR_INF_ADDR,sizeof(gCfgItems));
+    W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   }
   else {
     gCfgItems.spi_flash_flag = GCFG_FLAG_VALUE;
     W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
-    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems,VAR_INF_ADDR,sizeof(gCfgItems));
+    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   }
 
 }
 
 void gCfg_to_spiFlah() {
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
-  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems,VAR_INF_ADDR,sizeof(gCfgItems));
+  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
 }
 
 void ui_cfg_init() {
@@ -110,7 +110,7 @@ void ui_cfg_init() {
 void update_spi_flash() {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
-  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems,VAR_INF_ADDR,sizeof(gCfgItems));
+  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
 }
 
 lv_style_t tft_style_scr;
@@ -119,32 +119,32 @@ lv_style_t tft_style_lable_rel;
 
 void tft_style_init() {
   lv_style_copy(&tft_style_scr, &lv_style_scr);
-  tft_style_scr.body.main_color     = LV_COLOR_BACKGROUND;
-  tft_style_scr.body.grad_color     = LV_COLOR_BACKGROUND;
-  tft_style_scr.text.color        = LV_COLOR_TEXT;
-  tft_style_scr.text.sel_color      = LV_COLOR_TEXT;
-  tft_style_scr.line.width      = 0;
-  tft_style_scr.text.letter_space   = 0;
-  tft_style_scr.text.line_space    = 0;
+  tft_style_scr.body.main_color = LV_COLOR_BACKGROUND;
+  tft_style_scr.body.grad_color = LV_COLOR_BACKGROUND;
+  tft_style_scr.text.color = LV_COLOR_TEXT;
+  tft_style_scr.text.sel_color = LV_COLOR_TEXT;
+  tft_style_scr.line.width = 0;
+  tft_style_scr.text.letter_space = 0;
+  tft_style_scr.text.line_space = 0;
 
   lv_style_copy(&tft_style_lable_pre, &lv_style_scr);
   lv_style_copy(&tft_style_lable_rel, &lv_style_scr);
   tft_style_lable_pre.body.main_color = LV_COLOR_BACKGROUND;
   tft_style_lable_pre.body.grad_color = LV_COLOR_BACKGROUND;
-  tft_style_lable_pre.text.color      = LV_COLOR_TEXT;
-  tft_style_lable_pre.text.sel_color      = LV_COLOR_TEXT;
+  tft_style_lable_pre.text.color = LV_COLOR_TEXT;
+  tft_style_lable_pre.text.sel_color = LV_COLOR_TEXT;
   tft_style_lable_rel.body.main_color = LV_COLOR_BACKGROUND;
   tft_style_lable_rel.body.grad_color = LV_COLOR_BACKGROUND;
-  tft_style_lable_rel.text.color        = LV_COLOR_TEXT;
-  tft_style_lable_rel.text.sel_color      = LV_COLOR_TEXT;
-  tft_style_lable_pre.text.font         = &gb2312_puhui32;
-  tft_style_lable_rel.text.font         = &gb2312_puhui32;
-  tft_style_lable_pre.line.width        = 0;
-  tft_style_lable_rel.line.width        = 0;
-  tft_style_lable_pre.text.letter_space     = 0;
-  tft_style_lable_rel.text.letter_space     = 0;
-  tft_style_lable_pre.text.line_space      = -5;
-  tft_style_lable_rel.text.line_space       = -5;
+  tft_style_lable_rel.text.color = LV_COLOR_TEXT;
+  tft_style_lable_rel.text.sel_color = LV_COLOR_TEXT;
+  tft_style_lable_pre.text.font = &gb2312_puhui32;
+  tft_style_lable_rel.text.font = &gb2312_puhui32;
+  tft_style_lable_pre.line.width = 0;
+  tft_style_lable_rel.line.width = 0;
+  tft_style_lable_pre.text.letter_space = 0;
+  tft_style_lable_rel.text.letter_space = 0;
+  tft_style_lable_pre.text.line_space = -5;
+  tft_style_lable_rel.text.line_space = -5;
 }
 
 #define MAX_TITLE_LEN 28
@@ -154,10 +154,8 @@ char public_buf_m[100] = {0};
 char public_buf_l[30];
 
 void titleText_cat(char *str, int strSize, char *addPart) {
-  if (str == 0 || addPart == 0)
-    return;
-  if ((int)(strlen(str) + strlen(addPart)) >= strSize)
-    return;
+  if (str == 0 || addPart == 0) return;
+  if ((int)(strlen(str) + strlen(addPart)) >= strSize) return;
   strcat(str, addPart);
 }
 
@@ -174,38 +172,32 @@ char *getDispText(int index) {
       break;
     case PRINTING_UI:
       if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-        #ifndef TFT35
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-        #endif
-      )
-        strcpy(public_buf_l, common_menu.print_special_title);
-      else
-        strcpy(public_buf_l, printing_menu.title);
+          #ifndef TFT35
+            || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+            || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
+          #endif
+          ) strcpy(public_buf_l, common_menu.print_special_title);
+      else strcpy(public_buf_l, printing_menu.title);
       break;
     case MOVE_MOTOR_UI:
       strcpy(public_buf_l, move_menu.title);
       break;
     case OPERATE_UI:
       if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-        #ifndef TFT35
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-        #endif
-      )
-        strcpy(public_buf_l, common_menu.operate_special_title);
-      else
-        strcpy(public_buf_l, operation_menu.title);
+          #ifndef TFT35
+            || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+            || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
+          #endif
+          ) strcpy(public_buf_l, common_menu.operate_special_title);
+      else strcpy(public_buf_l, operation_menu.title);
       break;
 
     case PAUSE_UI:
       if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-        || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-        || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-      )
-        strcpy(public_buf_l, common_menu.pause_special_title);
-      else
-        strcpy(public_buf_l, pause_menu.title);
+          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
+          ) strcpy(public_buf_l, common_menu.pause_special_title);
+      else strcpy(public_buf_l, pause_menu.title);
       break;
 
     case EXTRUSION_UI:
@@ -218,10 +210,8 @@ char *getDispText(int index) {
       strcpy(public_buf_l, fan_menu.title);
       break;
     case PRE_HEAT_UI:
-      if ((disp_state_stack._disp_state[disp_state_stack._disp_index - 1] == OPERATE_UI))
-        strcpy(public_buf_l,preheat_menu.adjust_title);
-      else
-        strcpy(public_buf_l, preheat_menu.title);
+      if ((disp_state_stack._disp_state[disp_state_stack._disp_index - 1] == OPERATE_UI)) strcpy(public_buf_l, preheat_menu.adjust_title);
+      else strcpy(public_buf_l, preheat_menu.title);
       break;
     case SET_UI:
       strcpy(public_buf_l, set_menu.title);
@@ -305,17 +295,14 @@ char *creat_title_text() {
     }
 
     titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
-    if (index < disp_state_stack._disp_index) {
-      titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)">");
-    }
+    if (index < disp_state_stack._disp_index) titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)">");
 
     index++;
   }
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-    /*|| disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-    || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI*/)
-  {
+      /*|| disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+      || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI*/) {
     titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)":");
     titleText_cat(public_buf_m, sizeof(public_buf_m), tmpCurFileStr);
   }
@@ -328,9 +315,7 @@ char *creat_title_text() {
       titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
       titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)">...>");
       tmpText = getDispText(disp_state_stack._disp_index);
-      if (*tmpText != 0) {
-        titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
-      }
+      if (*tmpText != 0) titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
     }
 
   }
@@ -338,35 +323,34 @@ char *creat_title_text() {
   return public_buf_m;
 }
 
-
 void preview_gcode_prehandle(char *path) {
   #if ENABLED(SDSUPPORT)
-  //uint8_t re;
-  //uint32_t read;
-  uint32_t pre_read_cnt = 0;
-  uint32_t *p1;
-  char *cur_name;
+    //uint8_t re;
+    //uint32_t read;
+    uint32_t pre_read_cnt = 0;
+    uint32_t *p1;
+    char *cur_name;
 
-  cur_name=strrchr(path,'/');
-  card.openFileRead(cur_name);
-  card.read(public_buf, 512);
-  p1 = (uint32_t *)strstr((char *)public_buf,";simage:");
+    cur_name = strrchr(path, '/');
+    card.openFileRead(cur_name);
+    card.read(public_buf, 512);
+    p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
-  if (p1) {
-    pre_read_cnt = (uint32_t)p1-(uint32_t)((uint32_t *)(&public_buf[0]));
+    if (p1) {
+      pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
 
-    To_pre_view = pre_read_cnt;
-    gcode_preview_over = 1;
-    gCfgItems.from_flash_pic = 1;
-    update_spi_flash();
-  }
-  else {
-    gcode_preview_over = 0;
-    default_preview_flg = 1;
-    gCfgItems.from_flash_pic = 0;
-    update_spi_flash();
-  }
-  card.closefile();
+      To_pre_view = pre_read_cnt;
+      gcode_preview_over = 1;
+      gCfgItems.from_flash_pic = 1;
+      update_spi_flash();
+    }
+    else {
+      gcode_preview_over = 0;
+      default_preview_flg = 1;
+      gCfgItems.from_flash_pic = 0;
+      update_spi_flash();
+    }
+    card.closefile();
   #endif
 }
 
@@ -383,14 +367,14 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
     cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
 
-    card.setIndex((PREVIEW_LITTLE_PIC_SIZE+To_pre_view)+size*row+8);
+    card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
     #if ENABLED(SPI_GRAPHICAL_TFT)
       SPI_TFT.spi_init(SPI_FULL_SPEED);
       //SPI_TFT.SetCursor(0,0);
-      SPI_TFT.SetWindows(xpos_pixel, ypos_pixel+row, 200,1);
+      SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
       SPI_TFT.LCD_WriteRAM_Prepare();
     #else
-      ili9320_SetWindows(xpos_pixel, ypos_pixel+row, 200,1);
+      ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
       LCD_WriteRAM_Prepare();
     #endif
 
@@ -398,23 +382,22 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
 
     while (1) {
       card.read(public_buf, 400);
-      for(i = 0; i < 400;) {
-        bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i])<<4|ascii2dec_test((char*)&public_buf[i+1]);
+      for (i = 0; i < 400;) {
+        bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
         i += 2;
         j++;
       }
 
       //if (i > 800) break;
       //#ifdef TFT70
-        //if (j>400) {
-        //  f_read(file, buff_pic, 1, &read);
-        //  break;
-        //}
+      //if (j>400) {
+      //  f_read(file, buff_pic, 1, &read);
+      //  break;
+      //}
       //#elif defined(TFT35)
-        if (j >= 400) {
-          //f_read(file, buff_pic, 1, &read);
-          break;
-        }
+      if (j >= 400)
+        //f_read(file, buff_pic, 1, &read);
+        break;
       //#endif
 
     }
@@ -429,7 +412,6 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
       SPI_TFT_DC_H;
       SPI.dmaSend(bmp_public_buf, 400, true);
       SPI_TFT_CS_H;
-
     #else
       for (i = 0; i < 400;) {
         p_index = (uint16_t *)(&bmp_public_buf[i]);
@@ -439,9 +421,8 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
       }
     #endif
     W25QXX.init(SPI_QUARTER_SPEED);
-    if (row < 20)
-      W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row*4096);
-    W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row*400, 400);
+    if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
+    W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
     row++;
     if (row >= 200) {
       size = 809;
@@ -483,14 +464,14 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
 
       card.openFileRead(cur_name);
       if (card.isFileOpen()) {
-          feedrate_percentage = 100;
-          // saved_feedrate_percentage = feedrate_percentage;
-          planner.flow_percentage[0] = 100;
-          planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
-          if (EXTRUDERS == 2) {
-            planner.flow_percentage[1] = 100;
-            planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
-          }
+        feedrate_percentage = 100;
+        // saved_feedrate_percentage = feedrate_percentage;
+        planner.flow_percentage[0] = 100;
+        planner.e_factor[0] = planner.flow_percentage[0] * 0.01;
+        if (EXTRUDERS == 2) {
+          planner.flow_percentage[1] = 100;
+          planner.e_factor[1] = planner.flow_percentage[1] * 0.01;
+        }
         card.startFileprint();
         TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
         once_flag = 0;
@@ -498,26 +479,23 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
       return;
     }
     card.closefile();
-  #endif
+  #endif // SDSUPPORT
 }
 
-void Draw_default_preview(int xpos_pixel,int ypos_pixel,uint8_t sel) {
+void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
   int index;
   int x_off = 0, y_off = 0;
   int _y;
   uint16_t *p_index;
-  int i,j;
-  uint16_t temp_p,Color;
+  int i, j;
+  uint16_t temp_p, Color;
 
-  for(index = 0; index < 10; index ++)//200*200 {
-    if (sel == 1) {
-      flash_view_Read(bmp_public_buf, 8000);//20k
+  for (index = 0; index < 10; index++) { // 200*200
+    if (sel == 1) flash_view_Read(bmp_public_buf, 8000); //20k
+    //memset(bmp_public_buf,0x1f,8000);
+    else
       //memset(bmp_public_buf,0x1f,8000);
-    }
-    else {
-      //memset(bmp_public_buf,0x1f,8000);
-      default_view_Read(bmp_public_buf, 8000);//20k
-    }
+      default_view_Read(bmp_public_buf, 8000); //20k
 
     i = 0;
     #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -527,7 +505,7 @@ void Draw_default_preview(int xpos_pixel,int ypos_pixel,uint8_t sel) {
       j = 0;
       for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
         SPI_TFT.spi_init(SPI_FULL_SPEED);
-        SPI_TFT.SetWindows(xpos_pixel, y_off * 20+ypos_pixel+j, 200, 1);    //200*200
+        SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel + j, 200, 1);    //200*200
         SPI_TFT.LCD_WriteRAM_Prepare();
 
         j++;
@@ -540,21 +518,20 @@ void Draw_default_preview(int xpos_pixel,int ypos_pixel,uint8_t sel) {
         i += 400;
         if (i >= 8000) break;
       }
-
     #else
-
       ili9320_SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20);     //200*200
 
       LCD_WriteRAM_Prepare();
 
       for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
         for (x_off = 0; x_off < 200; x_off++) {
-          if (sel==1) {
-            temp_p = (uint16_t)(bmp_public_buf[i]|bmp_public_buf[i+1]<<8);
+          if (sel == 1) {
+            temp_p = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);
             p_index = &temp_p;
           }
-          else
+          else {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
+          }
           LCD_IO_WriteData(*p_index);
           i += 2;
         }
@@ -566,16 +543,14 @@ void Draw_default_preview(int xpos_pixel,int ypos_pixel,uint8_t sel) {
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
-
-void disp_pre_gcode(int xpos_pixel,int ypos_pixel) {
-  if (gcode_preview_over == 1)
-    gcode_preview(list_file.file_name[sel_id],xpos_pixel,ypos_pixel);
+void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
+  if (gcode_preview_over == 1) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
   if (flash_preview_begin == 1) {
     flash_preview_begin = 0;
-    Draw_default_preview(xpos_pixel,ypos_pixel,1);
+    Draw_default_preview(xpos_pixel, ypos_pixel, 1);
   }
   if (default_preview_flg == 1) {
-    Draw_default_preview(xpos_pixel,ypos_pixel,0);
+    Draw_default_preview(xpos_pixel, ypos_pixel, 0);
     default_preview_flg = 0;
   }
 }
@@ -592,17 +567,14 @@ void print_time_run() {
     }
   }
   if (disp_state == PRINTING_UI) {
-    if (lastSec != print_time.seconds)
-      disp_print_time();
-    lastSec =  print_time.seconds;
+    if (lastSec != print_time.seconds) disp_print_time();
+    lastSec = print_time.seconds;
   }
 }
 
 void GUI_RefreshPage() {
-  if ((systick_uptime_millis % 1000) == 0)
-    temperature_change_frequency = 1;
-  if ((systick_uptime_millis % 3000) == 0)
-    printing_rate_update_flag = 1;
+  if ((systick_uptime_millis % 1000) == 0) temperature_change_frequency = 1;
+  if ((systick_uptime_millis % 3000) == 0) printing_rate_update_flag = 1;
 
   switch (disp_state) {
     case MAIN_UI:
@@ -988,10 +960,8 @@ void draw_return_ui() {
         lv_draw_print_file();
         break;
       case PRINTING_UI:
-        if (gCfgItems.from_flash_pic == 1)
-          flash_preview_begin = 1;
-        else
-          default_preview_flg = 1;
+        if (gCfgItems.from_flash_pic == 1) flash_preview_begin = 1;
+        else default_preview_flg = 1;
         lv_draw_printing();
         break;
       case MOVE_MOTOR_UI:
@@ -1001,11 +971,11 @@ void draw_return_ui() {
         lv_draw_opration();
         break;
 
-      #if 1
-        case PAUSE_UI:
-          //draw_pause();
-          break;
-      #endif
+        #if 1
+      case PAUSE_UI:
+        //draw_pause();
+        break;
+        #endif
 
       case EXTRUSION_UI:
         lv_draw_extrusion();
@@ -1038,11 +1008,11 @@ void draw_return_ui() {
         lv_draw_about();
         break;
 
-      #if tan_mask
-        case LOG_UI:
-          //draw_Connect();
-          break;
-      #endif
+        #if tan_mask
+      case LOG_UI:
+        //draw_Connect();
+        break;
+        #endif
 
       case CALIBRATE_UI:
         //draw_calibrate();
@@ -1069,11 +1039,11 @@ void draw_return_ui() {
         //draw_bind();
         break;
 
-      #if tan_mask
-        case ZOFFSET_UI:
-          //draw_Zoffset();
-          break;
-      #endif
+        #if tan_mask
+      case ZOFFSET_UI:
+        //draw_Zoffset();
+        break;
+        #endif
 
       case TOOL_UI:
         lv_draw_tool();
@@ -1180,6 +1150,7 @@ void draw_return_ui() {
 }
 
 #if ENABLED(SDSUPPORT)
+
   void sd_detection() {
     static bool last_sd_status;
     const bool sd_status = IS_SD_INSERTED();
@@ -1188,22 +1159,21 @@ void draw_return_ui() {
       if (sd_status) card.mount(); else card.release();
     }
   }
+
 #endif
 
 extern volatile uint32_t systick_uptime_millis;
 
 void print_time_count() {
-  if ((systick_uptime_millis % 1000) == 0) {
-    if (print_time.start == 1)
-      print_time.seconds++;
-  }
+  if ((systick_uptime_millis % 1000) == 0)
+    if (print_time.start == 1) print_time.seconds++;
 }
 
 void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
   TERN_(MKS_TEST, mks_test());
-  disp_pre_gcode(2,36);
+  disp_pre_gcode(2, 36);
   GUI_RefreshPage();
   //sd_detection();
 }

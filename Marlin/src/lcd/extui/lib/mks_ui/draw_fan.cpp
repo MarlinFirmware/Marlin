@@ -46,7 +46,7 @@ static lv_obj_t * fanText;
 
 static uint8_t fanSpeed;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event){
+static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_F_ADD:
       if (event == LV_EVENT_CLICKED) {
@@ -106,7 +106,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event){
 }
 
 
-void lv_draw_fan(void){
+void lv_draw_fan(void) {
   lv_obj_t *buttonAdd, *buttonDec, *buttonHigh, *buttonMid;
   lv_obj_t *buttonOff, *buttonBack;
 
@@ -225,7 +225,7 @@ void lv_draw_fan(void){
   disp_fan_value();
 }
 
-void disp_fan_value(){
+void disp_fan_value() {
   char buf1[10] = {0};
   public_buf_l[0] = '\0';
   strcat(public_buf_l, fan_menu.state);
@@ -236,8 +236,6 @@ void disp_fan_value(){
   lv_obj_align(fanText, NULL, LV_ALIGN_CENTER, 0, -65);
 }
 
-void lv_clear_fan(){
-  lv_obj_del(scr);
-}
+void lv_clear_fan() { lv_obj_del(scr); }
 
 #endif // TFT_LITTLE_VGL_UI

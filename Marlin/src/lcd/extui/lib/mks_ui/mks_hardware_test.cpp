@@ -106,7 +106,7 @@
     WRITE(E2_ENABLE_PIN, LOW);
   }
 
-  void mks_test_beeper(){
+  void mks_test_beeper() {
     WRITE(BEEPER_PIN, HIGH);
     delay(100);
     WRITE(BEEPER_PIN, LOW);
@@ -122,24 +122,20 @@
     if ((pw_det_sta == 1) && (mt_det_sta == 1) && (mt_det2_sta == 1) && (mt_det3_sta == 1)) {
       if (curent_disp_ui == 1) disp_det_ok();
     }
-    else {
-      if (curent_disp_ui == 1) disp_det_error();
-    }
-    if ( (endstopx1_sta == 1)
-      && (endstopx2_sta == 1)
-      && (endstopy1_sta == 1)
-      && (endstopy2_sta == 1)
-      && (endstopz1_sta == 1)
-      && (endstopz2_sta == 1)
-    ) {
+    else if (curent_disp_ui == 1) disp_det_error();
+    if ((endstopx1_sta == 1)
+        && (endstopx2_sta == 1)
+        && (endstopy1_sta == 1)
+        && (endstopy2_sta == 1)
+        && (endstopz1_sta == 1)
+        && (endstopz2_sta == 1)
+        ) {
       if (curent_disp_ui == 1) disp_Limit_ok();
     }
-    else {
-      if (curent_disp_ui == 1) {
-        disp_Limit_error();
-        //mks_test_beeper();
-      }
-    }
+    else if (curent_disp_ui == 1)
+      disp_Limit_error();
+      //mks_test_beeper();
+
   }
 
   void mks_test() {
@@ -151,10 +147,10 @@
       WRITE(E1_DIR_PIN, LOW);
       WRITE(E2_DIR_PIN, LOW);
       thermalManager.fan_speed[0] = 255;
-      WRITE(HEATER_2_PIN, HIGH);  // HE2
-      WRITE(HEATER_1_PIN, HIGH);  // HE1
-      WRITE(HEATER_0_PIN, HIGH);  // HE0
-      WRITE(HEATER_BED_PIN, HIGH);  // HOT-BED
+      WRITE(HEATER_2_PIN, HIGH); // HE2
+      WRITE(HEATER_1_PIN, HIGH); // HE1
+      WRITE(HEATER_0_PIN, HIGH); // HE0
+      WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
     }
     else {
       WRITE(X_DIR_PIN, HIGH);
@@ -164,19 +160,20 @@
       WRITE(E1_DIR_PIN, HIGH);
       WRITE(E2_DIR_PIN, HIGH);
       thermalManager.fan_speed[0] = 0;
-      WRITE(HEATER_2_PIN, LOW);  // HE2
-      WRITE(HEATER_1_PIN, LOW);  // HE1
-      WRITE(HEATER_0_PIN, LOW);  // HE0
-      WRITE(HEATER_BED_PIN, LOW);  // HOT-BED
+      WRITE(HEATER_2_PIN, LOW); // HE2
+      WRITE(HEATER_1_PIN, LOW); // HE1
+      WRITE(HEATER_0_PIN, LOW); // HE0
+      WRITE(HEATER_BED_PIN, LOW); // HOT-BED
     }
-    if ( (endstopx1_sta == 1) && (endstopx2_sta == 1)
-      && (endstopy1_sta == 1) && (endstopy2_sta == 1)
-      && (endstopz1_sta == 1) && (endstopz2_sta == 1)
-    ) {
+    if ((endstopx1_sta == 1) && (endstopx2_sta == 1)
+        && (endstopy1_sta == 1) && (endstopy2_sta == 1)
+        && (endstopz1_sta == 1) && (endstopz2_sta == 1)
+        ) {
 
     }
-    else
+    else {
       mks_test_beeper();
+    }
 
     if (curent_disp_ui == 1)
       disp_test();
@@ -569,7 +566,7 @@ static const uint16_t ASCII_Table_16x24[] PROGMEM = {
 
 void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint16_t bkColor) {
   for (uint16_t i = 0; i < 24; i++) {
-    const uint16_t tmp_char = pgm_read_word(&ASCII_Table_16x24[((c-0x20)*24)+i]);
+    const uint16_t tmp_char = pgm_read_word(&ASCII_Table_16x24[((c - 0x20) * 24) + i]);
     for (uint16_t j = 0; j < 16; j++)
       tft_set_point(x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
   }

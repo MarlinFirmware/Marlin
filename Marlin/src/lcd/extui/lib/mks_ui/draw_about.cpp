@@ -34,7 +34,7 @@
 #include "../../../../module/temperature.h"
 
 static lv_obj_t * scr;
-static lv_obj_t * fw_type,*board,*fw_version;
+static lv_obj_t * fw_type, *board, *fw_version;
 
 #define ID_A_RETURN   1
 
@@ -48,12 +48,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         clear_cur_ui();
         draw_return_ui();
       }
-    break;
+      break;
   }
 }
 
 void lv_draw_about(void) {
-  lv_obj_t *buttonBack,*label_Back;
+  lv_obj_t *buttonBack, *label_Back;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ABOUT_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = ABOUT_UI;
@@ -68,14 +68,14 @@ void lv_draw_about(void) {
 
   lv_obj_t * title = lv_label_create(scr, NULL);
   lv_obj_set_style(title, &tft_style_lable_rel);
-  lv_obj_set_pos(title,TITLE_XPOS,TITLE_YPOS);
+  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
   lv_label_set_text(title, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   LV_IMG_DECLARE(bmp_pic);
 
-    /*Create an Image button*/
+  /*Create an Image button*/
   buttonBack = lv_imgbtn_create(scr, NULL);
 
   #if 1
@@ -86,21 +86,21 @@ void lv_draw_about(void) {
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
   #endif
 
-  lv_obj_set_pos(buttonBack,BTN_X_PIXEL*3+INTERVAL_V*4,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4,  BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-    /*Create a label on the Image button*/
+  /*Create a label on the Image button*/
 
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language !=0) {
+  if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
+    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
 
   fw_version = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_version, &tft_style_lable_rel);
   lv_label_set_text(fw_version, "Version: V_2.0.5.3");
-  lv_obj_align(fw_version, NULL, LV_ALIGN_CENTER,0, -60);
+  lv_obj_align(fw_version, NULL, LV_ALIGN_CENTER, 0, -60);
 
   fw_type = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_type, &tft_style_lable_rel);
@@ -109,7 +109,7 @@ void lv_draw_about(void) {
   #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
     lv_label_set_text(fw_type, "Firmware: Robin_Nano35");
   #endif
-  lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER,0, -20);
+  lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
 
   board = lv_label_create(scr, NULL);
   lv_obj_set_style(board, &tft_style_lable_rel);
@@ -119,11 +119,9 @@ void lv_draw_about(void) {
     lv_label_set_text(board, "Board: MKS Robin nano");
   #endif
 
-  lv_obj_align(board, NULL, LV_ALIGN_CENTER,0, 20);
+  lv_obj_align(board, NULL, LV_ALIGN_CENTER, 0, 20);
 }
 
-void lv_clear_about() {
-  lv_obj_del(scr);
-}
+void lv_clear_about() { lv_obj_del(scr); }
 
 #endif // TFT_LITTLE_VGL_UI

@@ -103,17 +103,17 @@ typedef struct {
 } CFG_ITMES;
 
 typedef struct {
-  uint8_t curTempType:1,
-      curSprayerChoose:3,
-      stepHeat:4;
-  uint8_t leveling_first_time:1;
+  uint8_t curTempType : 1,
+          curSprayerChoose : 3,
+          stepHeat : 4;
+  uint8_t leveling_first_time : 1;
   uint8_t extruStep;
   uint8_t extruSpeed;
   uint8_t print_state;
   uint8_t stepPrintSpeed;
   uint8_t waitEndMoves;
   uint16_t moveSpeed;
-  float   move_dist;
+  float move_dist;
 } UI_CFG;
 
 typedef enum {
@@ -185,18 +185,18 @@ typedef enum {
 
 typedef struct {
   DISP_STATE _disp_state[100];
-  int        _disp_index;
+  int _disp_index;
 } DISP_STATE_STACK;
 
 typedef struct {
-  int16_t         days;
-  uint16_t        hours;
-  uint8_t         minutes;
+  int16_t days;
+  uint16_t hours;
+  uint8_t minutes;
   volatile int8_t seconds;
-  int8_t          ms_10;
-  int8_t          start;
+  int8_t ms_10;
+  int8_t start;
 } PRINT_TIME;
-extern PRINT_TIME  print_time;
+extern PRINT_TIME print_time;
 
 extern CFG_ITMES gCfgItems;
 extern UI_CFG uiCfg;
@@ -214,7 +214,7 @@ extern void tft_style_init();
 extern char *creat_title_text(void);
 extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
-extern void disp_pre_gcode(int xpos_pixel,int ypos_pixel);
+extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 extern void GUI_RefreshPage();
 extern void clear_cur_ui();
 extern void draw_return_ui();

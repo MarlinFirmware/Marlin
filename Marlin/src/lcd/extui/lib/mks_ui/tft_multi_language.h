@@ -395,7 +395,7 @@ typedef struct dialog_menu_disp {
 extern dialog_menu_def dialog_menu;
 
 typedef struct print_file_dialog_disp {
-    const char *title;
+  const char *title;
   const char *confirm;
   const char *cancle;
   const char *print_file;
@@ -490,9 +490,9 @@ extern pause_msg_def pause_msg_menu;
 /*****************************************/
 //********************************************//
 //#if defined(TFT70)
-  //
+//
 //#elif defined(TFT35)
-  #define TEXT_VALUE                  "%d/%d"
+#define TEXT_VALUE                  "%d/%d"
 //#endif
 
 #define TEXT_VALUE_T                  ": %d℃"

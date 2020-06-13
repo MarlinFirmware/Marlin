@@ -169,7 +169,7 @@
 
 #define FILE_LOADING_SP             "Cargando......"
 #if 0
-#define NO_FILE_AND_CHECK_SP        "No se encontraron archivos! Por favor, inserte la tarjeta SD o el disco U!"
+  #define NO_FILE_AND_CHECK_SP        "No se encontraron archivos! Por favor, inserte la tarjeta SD o el disco U!"
 #endif
 #define NO_FILE_AND_CHECK_SP        "Archivo no encontrado,\n         por favor insertar SD o disco USB!"
 

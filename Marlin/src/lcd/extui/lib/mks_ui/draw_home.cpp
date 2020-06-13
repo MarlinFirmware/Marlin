@@ -207,7 +207,7 @@ void lv_draw_home(void) {
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
-  #endif // if 1
+  #endif
          /*lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
          lv_obj_set_pos(buttonFan,BTN_X_PIXEL+INTERVAL_V*2,titleHeight);
          lv_obj_set_pos(buttonAbout,BTN_X_PIXEL*2+INTERVAL_V*3,titleHeight);
