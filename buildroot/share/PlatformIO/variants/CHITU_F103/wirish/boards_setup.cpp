@@ -92,6 +92,14 @@ namespace wirish {
         }
 
         __weak void board_setup_gpio(void) {
+            //PA14 is a pull up pin. But, some V5 boards it start with LOW state! And just behave properly when the Z- PROBE is actived at least once.
+            //So, if the sensor isnt actived, the PA14 pin will be forever in LOW state, telling Marlin the probe IS ALWAYS ACTIVE, that isnt the case!
+            //Chitu original firmware seems to start with every pullup PIN with HIGH to workaround this.
+            //So we are doing the same here.
+            //This hack only works if applied *before* the GPIO Init, it's the reason I did it here.
+            #ifdef CHITU_V5_Z_MIN_BUGFIX
+              GPIOA->regs->BSRR = (1U << PA14);
+            #endif
             gpio_init_all();
         }
 
