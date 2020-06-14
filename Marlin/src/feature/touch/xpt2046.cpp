@@ -25,6 +25,49 @@
 #include "../../inc/MarlinConfig.h"
 #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 
+/*
+ * Drawing and Touch proccess and logic
+ *
+ * All the drawings are done in LCD_PIXEL_WIDTH x LCD_PIXEL_HEIGHT (independent of display resolution) -> 128x64 
+ * The touch resolution is TOUCH_SCREEN_WIDTH x TOUCH_SCREEN_HEIGHT independent of display resolution -> 320x240
+ * And, finally we have the display resolution: LCD_FULL_PIXEL_WIDTH x LCD_FULL_PIXEL_HEIGHT   -> most common: 320x240 and 480x320
+ *
+ * The process is:
+ *  1) draw things in LCD_PIXEL* (128x64)
+ *  2) upscale it 2x or 3x to display resolution, to show in the screen
+ *  3) upscale the touch coordinates to TOUCH_SCREEN* resolution, to process the touches
+ *
+ *  Why do need a TOUCH_SCREEN* resolution? Why don't just use the same upscale logic as in (2)?
+ *    Because of calibration values. The first code of the touch was made to 320x240 in mind, so the calibration values were create using this.
+ *    If we change the resolutio space of the touch code now, the current calibration values wont work anymore and it will break the compatiblity.
+ *    Everyone that use tft with Marlin default menus will need new calibration values.
+ *
+ *  The Marlin menus are draw in:
+ *  ____________________
+ * | LCD_PIXEL_OFFSET_Y |
+ * |     __________     |
+ * |    | 128x64   |    |
+ * | X  | upscaled |    |
+ * |    |__________|    |
+ * |                    |
+ * |____________________|
+ * |                    |
+ * |   BUTTON AREA      |
+ * |____________________|
+ *
+ * So, the touchable are are:
+ *  - the touch button area (as it ever was)
+ *  - plus the rectangle area of the marlin menus
+ *
+ * The button area are X,Y fixed, in TOUCH_SCREEN* coordinate space
+ *
+ * The Marlin screen touchable rectangle:
+ *  - Y0 at LCD_PIXEL_OFFSET_Y, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_START_TOP
+ *  - X0 at LCD_PIXEL_OFFSET_X, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_START_LEFT
+ *  - Height: LCD_PIXEL_HEIGHT, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_HEIGHT
+ *  - Width: LCD_PIXEL_WIDTH, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_WIDTH
+ *
+ */
 // Touch screen resolution independent of display resolution
 #define TOUCH_SCREEN_HEIGHT 240
 #define TOUCH_SCREEN_WIDTH 320
@@ -33,8 +76,13 @@
 #define BUTTON_AREA_TOP 175
 #define BUTTON_AREA_BOT 234
 
-#define SCREEN_START_TOP ((LCD_PIXEL_OFFSET_Y) * (TOUCH_SCREEN_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
-#define TOUCHABLE_Y_HEIGHT (BUTTON_AREA_TOP - (SCREEN_START_TOP))
+#define SCREEN_START_TOP  ((LCD_PIXEL_OFFSET_Y) * (TOUCH_SCREEN_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
+#define SCREEN_START_LEFT ((LCD_PIXEL_OFFSET_X) * (TOUCH_SCREEN_WIDTH) / (LCD_FULL_PIXEL_WIDTH))
+#define SCREEN_HEIGHT     ((LCD_PIXEL_HEIGHT * FSMC_UPSCALE) * (TOUCH_SCREEN_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
+#define SCREEN_WIDTH      ((LCD_PIXEL_WIDTH * FSMC_UPSCALE) * (TOUCH_SCREEN_WIDTH) / (LCD_FULL_PIXEL_WIDTH))
+
+#define TOUCHABLE_Y_HEIGHT  SCREEN_HEIGHT
+#define TOUCHABLE_X_WIDTH  SCREEN_WIDTH
 
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
@@ -98,10 +146,10 @@ uint8_t XPT2046::read_buttons() {
          : WITHIN(x, 242, 305) ? EN_C
          : 0;
 
-  if (x > TOUCH_SCREEN_WIDTH || !WITHIN(y, SCREEN_START_TOP, BUTTON_AREA_TOP)) return 0;
+  if (x > TOUCH_SCREEN_WIDTH || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)) return 0;
 
   // Column and row above BUTTON_AREA_TOP
-  int8_t col = x * (LCD_WIDTH) / (TOUCH_SCREEN_WIDTH),
+  int8_t col = (x - (SCREEN_START_LEFT)) * (LCD_WIDTH) / (TOUCHABLE_X_WIDTH),
          row = (y - (SCREEN_START_TOP)) * (LCD_HEIGHT) / (TOUCHABLE_Y_HEIGHT);
 
   // Send the touch to the UI (which will simulate the encoder wheel)
