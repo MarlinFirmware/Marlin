@@ -34,7 +34,7 @@
 
 //#define DEBUG_GRAPHICAL_TFT
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
-#include "../../../core/debug_out.h"
+#include "../../core/debug_out.h"
 
 uint16_t TFT::buffer[];
 uint32_t TFT::lcd_id = 0xFFFFFFFF;

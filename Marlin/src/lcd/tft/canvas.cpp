@@ -68,7 +68,7 @@ void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, ui
 
   if (maxWidth == 0) maxWidth = width - x;
 
-  uint16_t *stringWidth = 0;
+  uint16_t stringWidth = 0;
   for (uint16_t i = 0 ; *(string + i) ; i++) {
     glyph_t *glyph = Glyph(string + i);
     if (stringWidth + glyph->BBXWidth > maxWidth) break;
@@ -93,7 +93,7 @@ void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
   for (int16_t i = 0; i < image_height; i++) {
     int16_t line = y + i;
     if (line >= startLine && line < endLine) {
-      int16_t *pixel = buffer + x + (line - startLine) * width;
+      uint16_t *pixel = buffer + x + (line - startLine) * width;
       for (int16_t j = 0; j < image_width; j++) {
         if ((x + j >= 0) && (x + j < width)) *pixel = *data;
         pixel++;
