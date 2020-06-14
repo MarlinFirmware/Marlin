@@ -24,7 +24,7 @@
 #include "xpt2046.h"
 #include "pinconfig.h"
 
-#define DELTA(a, b) (a > b ? a - b : b - a)
+uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 
 SPI_HandleTypeDef XPT2046::SPIx;
 DMA_HandleTypeDef XPT2046::DMAtx;
@@ -139,9 +139,9 @@ uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
 
   DataTransferEnd();
 
-  uint16_t delta01 = DELTA(data[0], data[1]);
-  uint16_t delta02 = DELTA(data[0], data[2]);
-  uint16_t delta12 = DELTA(data[1], data[2]);
+  uint16_t delta01 = delta(data[0], data[1]);
+  uint16_t delta02 = delta(data[0], data[2]);
+  uint16_t delta12 = delta(data[1], data[2]);
 
   if (delta01 > delta02 || delta01 > delta12) {
     if (delta02 > delta12)

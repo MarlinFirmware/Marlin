@@ -412,18 +412,40 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
   ui.encoder_direction_normal();
   touch.clear();
 
-  menu_line(1);
+  uint16_t line = 1;
+
+  menu_line(line++);
   tft_string.set(pstr, itemIndex);
   tft_string.trim();
   tft.add_text(tft_string.width() > 320 ? 0 : 160 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
 
-  menu_line(2);
+  TERN_(AUTO_BED_LEVELING_UBL, if (ui.external_control) line++);  // ftostr52() will overwrite *value so *value has to be displayed first
+
+  menu_line(line);
   tft_string.set(value);
   tft_string.trim();
   tft.add_text(tft_string.width() > 320 ? 0 : 160 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    if (ui.external_control) {
+      menu_line(line - 1);
+
+      tft_string.set(X_LBL);
+      tft.add_text(52, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+      tft_string.set(ftostr52(LOGICAL_X_POSITION(current_position.x)));
+      tft_string.trim();
+      tft.add_text(144 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+
+      tft_string.set(Y_LBL);
+      tft.add_text(176, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+      tft_string.set(ftostr52(LOGICAL_X_POSITION(current_position.y)));
+      tft_string.trim();
+      tft.add_text(268 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+    }
+  #endif
+
   extern screenFunc_t _manual_move_func_ptr;
-  if (ui.currentScreen != _manual_move_func_ptr) {
+  if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
 
     #define SLIDER_LENGHT 224
     #define SLIDER_Y_POSITION 140
@@ -432,10 +454,10 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
     tft.set_background(COLOR_BACKGROUND);
 
     int16_t position = (SLIDER_LENGHT - 2) * ui.encoderPosition / maxEditValue;
-    tft.add_bar(0, 7, 1, 2, /* ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : */ COLOR_SLIDER); // uncomment if you do not use imgSlider
+    tft.add_bar(0, 7, 1, 2, ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : COLOR_SLIDER);
     tft.add_bar(1, 6, position, 4, COLOR_SLIDER);
     tft.add_bar(position + 1, 6, SLIDER_LENGHT - 2 - position, 4, COLOR_SLIDER_INACTIVE);
-    tft.add_bar(SLIDER_LENGHT - 1, 7, 1, 2, /* ui.encoderPosition == maxEditValue ? COLOR_SLIDER : */ COLOR_SLIDER_INACTIVE); // uncomment if you do not use imgSlider
+    tft.add_bar(SLIDER_LENGHT - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
 
     tft.add_image((SLIDER_LENGHT - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
 
@@ -507,8 +529,69 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #error Not Implemented
-  void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {}
+  #define GRID_WIDTH  144
+  #define GRID_HEIGHT 144
+
+  void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
+
+    tft.canvas(8, 8, GRID_WIDTH, GRID_HEIGHT);
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_rectangle(0, 0, GRID_WIDTH, GRID_HEIGHT, COLOR_WHITE);
+
+    for (uint16_t x = 0; x < GRID_MAX_POINTS_X ; x++)
+      for (uint16_t y = 0; y < GRID_MAX_POINTS_Y ; y++)
+        if (position_is_reachable({ ubl.mesh_index_to_xpos(x), ubl.mesh_index_to_ypos(y) }))
+          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 2, 2, COLOR_WHITE);
+
+    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 6, 6, COLOR_WHITE);
+
+    const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
+                   lpos = pos.asLogical();
+
+    tft.canvas(216, 24, 96, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(X_LBL);
+    tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+    tft_string.set(ftostr52(lpos.x));
+    tft_string.trim();
+    tft.add_text(96 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+
+    tft.canvas(216, 64, 96, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(Y_LBL);
+    tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+    tft_string.set(ftostr52(lpos.y));
+    tft_string.trim();
+    tft.add_text(96 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+
+    tft.canvas(216, 104, 96, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(Z_LBL);
+    tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+    tft_string.set(isnan(ubl.z_values[x_plot][y_plot]) ? "-----" : ftostr43sign(ubl.z_values[x_plot][y_plot]));
+    tft_string.trim();
+    tft.add_text(96 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+
+
+    tft.canvas(64, 160, 32, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(ui8tostr3rj(x_plot));
+    tft_string.trim();
+    tft.add_text(16 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+
+    tft.canvas(160, 64, 32, 32);
+    tft.set_background(COLOR_BACKGROUND);
+    tft_string.set(ui8tostr3rj(y_plot));
+    tft_string.trim();
+    tft.add_text(15 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+
+    add_control(160, 24, UBL_UP, imgUp);
+    add_control(160, 104, UBL_DOWN, imgDown);
+    add_control(24, 160, UBL_LEFT, imgLeft);
+    add_control(104, 160, UBL_RIGHT, imgRight);
+    add_control(224, 160, CLICK, imgLeveling);
+    add_control(144, 206, BACK, imgBack);
+  }
 #endif // AUTO_BED_LEVELING_UBL
 
 

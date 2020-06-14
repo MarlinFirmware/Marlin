@@ -45,6 +45,10 @@ enum TouchControlType : uint16_t {
   FAN,
   FEEDRATE,
   FLOWRATE,
+  UBL_UP,
+  UBL_DOWN,
+  UBL_LEFT,
+  UBL_RIGHT,
 };
 
 typedef void (*screenFunc_t)();
@@ -61,6 +65,8 @@ typedef struct __attribute__((__packed__)) {
 #define MAX_CONTROLS        16
 #define MINIMUM_HOLD_TIME   15
 #define TOUCH_REPEAT_DELAY  75
+#define MIN_REPEAT_DELAY    25
+#define UBL_REPEAT_DELAY    125
 #define FREE_MOVE_RANGE     32
 
 class Touch {
@@ -74,10 +80,12 @@ class Touch {
 
     static millis_t now;
     static millis_t time_to_hold;
+    static millis_t repeat_delay;
     static bool wait_for_unclick;
 
     static inline bool get_point(int16_t *x, int16_t *y) { return io.getPoint(x, y); }
     static void touch(touchControl_t *control);
+    static void hold(touchControl_t *control, millis_t delay = 0);
 
   public:
     static void init();

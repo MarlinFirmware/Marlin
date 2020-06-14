@@ -29,6 +29,10 @@
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 #include "tft.h"
 
 int16_t Touch::x, Touch::y;
@@ -37,6 +41,7 @@ touchControl_t *Touch::current_control;
 uint16_t Touch::controls_count;
 millis_t Touch::now = 0;
 millis_t Touch::time_to_hold;
+millis_t Touch::repeat_delay;
 bool Touch::wait_for_unclick;
 
 void Touch::init() {
@@ -93,12 +98,10 @@ void Touch::idle() {
             break;
           }
         }
-
       }
 
-      if (current_control == NULL) {
+      if (current_control == NULL)
         wait_for_unclick = true;
-      }
     }
     x = _x;
     y = _y;
@@ -108,41 +111,22 @@ void Touch::idle() {
     current_control = NULL;
     wait_for_unclick = false;
     time_to_hold = 0;
+    repeat_delay = TOUCH_REPEAT_DELAY;
   }
 }
 
 
 void Touch::touch(touchControl_t *control) {
   switch (control->type) {
-    case MENU_SCREEN:
-      ui.goto_screen((screenFunc_t)control->data);
-      break;
-    case BACK:
-      ui.goto_previous_screen();
-      break;
-    case CLICK:
-      ui.lcd_clicked = true;
-      break;
+    case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
+    case BACK: ui.goto_previous_screen(); break;
+    case CLICK: ui.lcd_clicked = true;  break;
     #if HAS_RESUME_CONTINUE
-      case RESUME_CONTINUE:
-        extern bool wait_for_user;
-        wait_for_user = false;
-        break;
+      case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
-    case CANCEL:
-      ui.encoderPosition = 0;
-      ui.selection = false;
-      ui.lcd_clicked = true;
-      break;
-    case CONFIRM:
-      ui.encoderPosition = 1;
-      ui.selection = true;
-      ui.lcd_clicked = true;
-      break;
-    case MENU_ITEM:
-      ui.encoderPosition = control->data;
-      ui.refresh();
-      break;
+    case CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
+    case CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
+    case MENU_ITEM: ui.encoderPosition = control->data; ui.refresh(); break;
     case PAGE_UP:
       encoderTopLine = encoderTopLine > LCD_HEIGHT ? encoderTopLine - LCD_HEIGHT : 0;
       ui.encoderPosition = ui.encoderPosition > LCD_HEIGHT ? ui.encoderPosition - LCD_HEIGHT : 0;
@@ -153,23 +137,9 @@ void Touch::touch(touchControl_t *control) {
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < (uint32_t)screen_items ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
-    case SLIDER:
-      current_control = control;
-      ui.encoderPosition = (x - control->x) * control->data / control->width;
-      ui.refresh();
-      break;
-    case INCREASE:
-      current_control = control;
-      time_to_hold = now + TOUCH_REPEAT_DELAY;
-      ui.encoderPosition++;
-      ui.refresh();
-      break;
-    case DECREASE:
-      current_control = control;
-      time_to_hold = now + TOUCH_REPEAT_DELAY;
-      ui.encoderPosition--;
-      ui.refresh();
-      break;
+    case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
+    case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? ubl.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
+    case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? ubl.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
     case HEATER:
       int8_t heater;
       heater = control->data;
@@ -214,9 +184,24 @@ void Touch::touch(touchControl_t *control) {
       #endif
       break;
 
-    default:
-      break;
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      case UBL_UP:    hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = GRID_MAX_POINTS_X * ENCODER_STEPS_PER_MENU_ITEM; break;
+      case UBL_DOWN:  hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = - GRID_MAX_POINTS_X * ENCODER_STEPS_PER_MENU_ITEM; break;
+      case UBL_LEFT:  hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = - ENCODER_STEPS_PER_MENU_ITEM; break;
+      case UBL_RIGHT: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = ENCODER_STEPS_PER_MENU_ITEM; break;
+    #endif
+
+    default: break;
   }
+}
+
+void Touch::hold(touchControl_t *control, millis_t delay) {
+  current_control = control;
+  if (delay) {
+    repeat_delay = delay > MIN_REPEAT_DELAY ? delay : MIN_REPEAT_DELAY;
+    time_to_hold = now + repeat_delay;
+  }
+  ui.refresh();
 }
 
 Touch touch;

@@ -50,9 +50,12 @@
 #include "images/flowrate_32x32x4.h"
 #include "images/directory_32x32x4.h"
 #include "images/back_32x32x4.h"
-#include "images/page_up_32x32x4.h"
-#include "images/page_down_32x32x4.h"
+#include "images/up_32x32x4.h"
+#include "images/down_32x32x4.h"
+#include "images/left_32x32x4.h"
+#include "images/right_32x32x4.h"
 #include "images/refresh_32x32x4.h"
+#include "images/leveling_32x32x4.h"
 
 #include "images/slider_8x16x4.h"
 
@@ -79,12 +82,17 @@ enum MarlinImage : uint8_t {
   imgIncrease,
   imgDecrease,
   imgBack,
-  imgPageUp,
-  imgPageDown,
+  imgUp,
+  imgDown,
+  imgLeft,
+  imgRight,
   imgRefresh,
+  imgLeveling,
   imgSlider,
   imgCount,
-  noImage = imgCount
+  noImage = imgCount,
+  imgPageUp = imgLeft,
+  imgPageDown = imgRight,
 };
 
 enum colorMode_t : uint8_t {
@@ -139,9 +147,12 @@ const tImage Feedrate_32x32x4         = { (void *)feedrate_32x32x4, 32, 32, GREY
 const tImage Flowrate_32x32x4         = { (void *)flowrate_32x32x4, 32, 32, GREYSCALE4 };
 const tImage Directory_32x32x4        = { (void *)directory_32x32x4, 32, 32, GREYSCALE4 };
 const tImage Back_32x32x4             = { (void *)back_32x32x4, 32, 32, GREYSCALE4 };
-const tImage PageUp_32x32x4           = { (void *)page_up_32x32x4, 32, 32, GREYSCALE4 };
-const tImage PageDown_32x32x4         = { (void *)page_down_32x32x4, 32, 32, GREYSCALE4 };
-const tImage Refresh_32x32x4         = { (void *)refresh_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Up_32x32x4               = { (void *)up_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Down_32x32x4             = { (void *)down_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Left_32x32x4             = { (void *)left_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Right_32x32x4            = { (void *)right_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Refresh_32x32x4          = { (void *)refresh_32x32x4, 32, 32, GREYSCALE4 };
+const tImage Leveling_32x32x4          = { (void *)leveling_32x32x4, 32, 32, GREYSCALE4 };
 
 const tImage Slider8x16x4             = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };
 

@@ -449,7 +449,7 @@ public:
   #if HAS_LCD_MENU
     #if LCD_TIMEOUT_TO_STATUS
       static millis_t return_to_status_ms;
-    #endif  
+    #endif
 
     #if ENABLED(TOUCH_BUTTONS)
       static uint8_t touch_buttons;
@@ -600,7 +600,7 @@ public:
     #endif
 
     static void update_buttons();
-    static inline bool button_pressed() { return BUTTON_CLICK(); }
+    static inline bool button_pressed() { return BUTTON_CLICK() || TERN(HAS_GRAPHICAL_TFT, lcd_clicked, false); }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
