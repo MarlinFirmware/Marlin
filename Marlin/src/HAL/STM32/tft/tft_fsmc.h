@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if defined(STM32F1xx)
+#ifdef STM32F1xx
   #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
@@ -38,7 +38,7 @@
 #define DATASIZE_16BIT   SPI_DATASIZE_16BIT
 #define TFT_IO TFT_FSMC
 
-#if defined(STM32F1xx)
+#ifdef STM32F1xx
   #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
 #elif defined(STM32F4xx)
   #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
@@ -77,7 +77,7 @@ class TFT_FSMC {
 };
 
 
-#if defined(STM32F1xx)
+#ifdef STM32F1xx
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
 #elif defined(STM32F4xx)
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
@@ -113,7 +113,7 @@ const PinMap PinMap_FSMC[] = {
 
 const PinMap PinMap_FSMC_CS[] = {
   {PD_7,  (void *)FSMC_NORSRAM_BANK1, FSMC_PIN_DATA}, // FSMC_NE1
-  #if defined(PF0)
+  #ifdef PF0
     {PG_9,  (void *)FSMC_NORSRAM_BANK2, FSMC_PIN_DATA}, // FSMC_NE2
     {PG_10, (void *)FSMC_NORSRAM_BANK3, FSMC_PIN_DATA}, // FSMC_NE3
     {PG_12, (void *)FSMC_NORSRAM_BANK4, FSMC_PIN_DATA}, // FSMC_NE4
@@ -124,7 +124,7 @@ const PinMap PinMap_FSMC_CS[] = {
 #define FSMC_RS(A)  (void *)((2 << A) - 2)
 
 const PinMap PinMap_FSMC_RS[] = {
-  #if defined(PF0)
+  #ifdef PF0
     {PF_0,  FSMC_RS( 0), FSMC_PIN_DATA}, // FSMC_A0
     {PF_1,  FSMC_RS( 1), FSMC_PIN_DATA}, // FSMC_A1
     {PF_2,  FSMC_RS( 2), FSMC_PIN_DATA}, // FSMC_A2
@@ -150,7 +150,7 @@ const PinMap PinMap_FSMC_RS[] = {
   {PE_5,  FSMC_RS(21), FSMC_PIN_DATA}, // FSMC_A21
   {PE_6,  FSMC_RS(22), FSMC_PIN_DATA}, // FSMC_A22
   {PE_2,  FSMC_RS(23), FSMC_PIN_DATA}, // FSMC_A23
-  #if defined(PF0)
+  #ifdef PF0
     {PG_13, FSMC_RS(24), FSMC_PIN_DATA}, // FSMC_A24
     {PG_14, FSMC_RS(25), FSMC_PIN_DATA}, // FSMC_A25
   #endif

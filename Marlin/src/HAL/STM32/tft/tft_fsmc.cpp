@@ -63,7 +63,7 @@ void TFT_FSMC::Init() {
   SRAMx.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
   SRAMx.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
   SRAMx.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
-  #if defined(STM32F4xx)
+  #ifdef STM32F4xx
     SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
   #endif
   /* Read Timing - relatively slow to ensure ID information is correctly read from TFT controller */
@@ -91,7 +91,7 @@ void TFT_FSMC::Init() {
   pinmap_pinout(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
 
   controllerAddress = FSMC_BANK1_1;
-  #if defined(PF0)
+  #ifdef PF0
     switch (NSBank) {
       case FSMC_NORSRAM_BANK2: controllerAddress = FSMC_BANK1_2 ; break;
       case FSMC_NORSRAM_BANK3: controllerAddress = FSMC_BANK1_3 ; break;
@@ -101,7 +101,7 @@ void TFT_FSMC::Init() {
 
   controllerAddress |= (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
 
-/*
+  /*
   #if ENABLED(STM32_XL_DENSITY)
     FSMC_NOR_PSRAM4_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
     FSMC_NOR_PSRAM4_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
@@ -109,17 +109,17 @@ void TFT_FSMC::Init() {
     FSMC_NOR_PSRAM1_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
     FSMC_NOR_PSRAM1_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
   #endif
-*/
+  */
 
   HAL_SRAM_Init(&SRAMx, &Timing, &ExtTiming);
 
-// https://stackoverflow.com/questions/41796128/how-to-setup-fast-stm32-f4-fsmc-to-control-a-display-on-the-stm32f4discovery-boa
-//  FSMC_Bank1->BTCR[1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
-//  FSMC_Bank1->BTCR[0] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+  // https://stackoverflow.com/questions/41796128/how-to-setup-fast-stm32-f4-fsmc-to-control-a-display-on-the-stm32f4discovery-boa
+  //FSMC_Bank1->BTCR[1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
+  //FSMC_Bank1->BTCR[0] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 
   __HAL_RCC_DMA2_CLK_ENABLE();
 
-  #if defined(STM32F1xx)
+  #ifdef STM32F1xx
     DMAtx.Instance = DMA2_Channel1;
   #elif defined(STM32F4xx)
     DMAtx.Instance = DMA2_Stream0;
@@ -177,7 +177,7 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   __HAL_DMA_CLEAR_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx));
   __HAL_DMA_CLEAR_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx));
 
-  #if defined(STM32F1xx)
+  #ifdef STM32F1xx
     DMAtx.Instance->CNDTR = Count;
     DMAtx.Instance->CPAR = (uint32_t)Data;
     DMAtx.Instance->CMAR = (uint32_t)&(LCD->RAM);
@@ -189,4 +189,4 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   __HAL_DMA_ENABLE(&DMAtx);
 }
 
-#endif // HAS_GRAPHICAL_TFT
+#endif // HAS_GRAPHICAL_TFT && HAS_FSMC_TFT

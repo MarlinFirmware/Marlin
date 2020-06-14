@@ -648,9 +648,8 @@ private:
       static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
-
     #if HAS_GRAPHICAL_TFT
-      static void idle();
+      static void tft_idle();
     #endif
   #endif
 };

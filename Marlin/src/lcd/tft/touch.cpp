@@ -115,7 +115,6 @@ void Touch::idle() {
   }
 }
 
-
 void Touch::touch(touchControl_t *control) {
   switch (control->type) {
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
@@ -205,4 +204,5 @@ void Touch::hold(touchControl_t *control, millis_t delay) {
 }
 
 Touch touch;
+
 #endif // TOUCH_SCREEN

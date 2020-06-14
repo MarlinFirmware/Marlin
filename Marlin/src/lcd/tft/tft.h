@@ -34,8 +34,8 @@
 #define TFT_HEIGHT        240
 #define TFT_BUFFER_SIZE   19200
 
-#if !defined(TFT_BUFFER_SIZE)
-  #if defined(STM32F103xB)
+#ifndef TFT_BUFFER_SIZE
+  #ifdef STM32F103xB
     #define TFT_BUFFER_SIZE       1024
   #elif defined(STM32F1)
     #define TFT_BUFFER_SIZE       8192

@@ -254,7 +254,8 @@ class CommandProcessor : public CLCD::CommandFifo {
       if (is_tracking) {
         if (FTDI::EventLoop::is_touch_held()) {
           return CLCD::get_tracker(value);
-        } else {
+        }
+        else {
           CLCD::CommandFifo::track(0, 0, 0, 0, 0);
           CLCD::CommandFifo::execute();
           is_tracking = false;

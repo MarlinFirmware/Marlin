@@ -98,4 +98,5 @@ class Touch {
 };
 
 extern Touch touch;
+
 #endif // TOUCH_SCREEN

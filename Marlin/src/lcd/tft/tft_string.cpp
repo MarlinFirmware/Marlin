@@ -82,12 +82,12 @@ void TFT_String::add_glyphs(const uint8_t *font) {
     if (*pointer != NO_GLYPH) {
       glyphs[glyph] = (glyph_t *)pointer;
       pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
-    } else {
+    }
+    else {
       pointer++;
     }
   }
 }
-
 
 void TFT_String::set() {
   *data = 0x00;
@@ -101,7 +101,7 @@ void TFT_String::add(uint8_t *string, uint8_t index) {
   uint8_t character;
   wchar_t wchar;
 
-  while(*string) {
+  while (*string) {
     string = get_utf8_value_cb(string, read_byte, &wchar);
     if (wchar > 255)
       wchar |= 0x0080;
@@ -132,7 +132,8 @@ void TFT_String::rtrim(uint8_t character) {
       length--;
       span -= glyph(data[length])->DWidth;
       eol();
-    } else {
+    }
+    else {
       break;
     }
   }

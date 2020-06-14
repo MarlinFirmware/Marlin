@@ -32,39 +32,42 @@
 #include "ili9341.h"
 #include "ili9488.h"
 
+//#define DEBUG_GRAPHICAL_TFT
+#define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
+#include "../../../core/debug_out.h"
+
 uint16_t TFT::buffer[];
 uint32_t TFT::lcd_id = 0xFFFFFFFF;
 
 void TFT::init() {
-  if (lcd_id != 0xFFFFFFFF)
-    return;
+  if (lcd_id != 0xFFFFFFFF) return;
 
   io.Init();
   lcd_id = io.GetID() & 0xFFFF;
 
-  switch(lcd_id) {
+  switch (lcd_id) {
     case 0x7796:    // ST7796     480x320
-      SERIAL_ECHO_MSG(" ST7796S");
+      DEBUG_ECHO_MSG(" ST7796S");
       write_esc_sequence(st7796s_init);
       break;
     case 0x8552:    // ST7789V    320x240
-      SERIAL_ECHO_MSG(" ST7789V");
+      DEBUG_ECHO_MSG(" ST7789V");
       write_esc_sequence(st7789v_init);
       break;
     case 0x89F0:    // ST7735     160x128
-      SERIAL_ECHO_MSG(" ST7735");
+      DEBUG_ECHO_MSG(" ST7735");
       write_esc_sequence(st7735_init);
       break;
     case 0x9328:    // ILI9328    320x240
-      SERIAL_ECHO_MSG(" ILI9328");
+      DEBUG_ECHO_MSG(" ILI9328");
       write_esc_sequence(ili9328_init);
       break;
     case 0x9341:    // ILI9341    320x240
-      SERIAL_ECHO_MSG(" ILI9341");
+      DEBUG_ECHO_MSG(" ILI9341");
       write_esc_sequence(ili9341_init);
       break;
     case 0x9488:    // ILI9488    480x320
-      SERIAL_ECHO_MSG(" ILI9488");
+      DEBUG_ECHO_MSG(" ILI9488");
       write_esc_sequence(ili9488_init);
       break;
     default:
@@ -73,17 +76,14 @@ void TFT::init() {
 }
 
 void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if defined(OFFSET_X)
-    Xmin += OFFSET_X;
-    Xmax += OFFSET_X;
+  #ifdef OFFSET_X
+    Xmin += OFFSET_X; Xmax += OFFSET_X;
   #endif
-  #if defined(OFFSET_Y)
-    Ymin += OFFSET_Y;
-    Ymax += OFFSET_Y;
+  #ifdef OFFSET_Y
+    Ymin += OFFSET_Y; Ymax += OFFSET_Y;
   #endif
 
-
-  switch(lcd_id) {
+  switch (lcd_id) {
     case 0x7796:    // ST7796     480x320
     case 0x8552:    // ST7789V    320x240
     case 0x89F0:    // ST7735     160x128
@@ -149,13 +149,12 @@ void TFT::write_esc_sequence(const uint16_t *Sequence) {
     }
     data = *Sequence++;
     if (data == 0x7FFF) return;
-    if (data == 0xFFFF) {
+    if (data == 0xFFFF)
       io.WriteData(0xFFFF);
-    } else if (data & 0x8000) {
+    else if (data & 0x8000)
       HAL_Delay(data & 0x7FFF);
-    } else if ((data & 0xFF00) == 0) {
+    else if ((data & 0xFF00) == 0)
       io.WriteReg(data);
-    }
   }
 
   io.DataTransferEnd();

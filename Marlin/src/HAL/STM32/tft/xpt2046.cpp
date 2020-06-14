@@ -67,7 +67,7 @@ void XPT2046::Init() {
       if (SPIx.Instance == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
         SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_16;
-        #if defined(STM32F1xx)
+        #ifdef STM32F1xx
           DMAtx.Instance = DMA1_Channel3;
         #elif defined(STM32F4xx)
           DMAtx.Instance = DMA2_Stream3; // DMA2_Stream5
@@ -78,7 +78,7 @@ void XPT2046::Init() {
     #if defined(SPI2_BASE)
       if (SPIx.Instance == SPI2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
-        #if defined(STM32F1xx)
+        #ifdef STM32F1xx
           DMAtx.Instance = DMA1_Channel5;
         #elif defined(STM32F4xx)
           DMAtx.Instance = DMA1_Stream4;
@@ -89,7 +89,7 @@ void XPT2046::Init() {
     #if defined(SPI3_BASE)
       if (SPIx.Instance == SPI3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
-        #if defined(STM32F1xx)
+        #ifdef STM32F1xx
           DMAtx.Instance = DMA2_Channel2;
         #elif defined(STM32F4xx)
           DMAtx.Instance = DMA1_Stream5;  // DMA1_Stream7

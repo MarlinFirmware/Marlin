@@ -51,7 +51,7 @@
 
 bool draw_menu_navigation = false;
 
-void MarlinUI::idle() {
+void MarlinUI::tft_idle() {
   if (draw_menu_navigation) {
     add_control(48, 206, PAGE_UP, imgPageUp, encoderTopLine > 0);
     add_control(240, 206, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
@@ -66,13 +66,10 @@ void MarlinUI::idle() {
 void MarlinUI::init_lcd() {
   tft.init();
   tft.set_font(MENU_FONT_NAME);
-  #if defined(SYMBOLS_FONT_NAME)
+  #ifdef SYMBOLS_FONT_NAME
     tft.add_glyphs(SYMBOLS_FONT_NAME);
   #endif
-  #if ENABLED(TOUCH_SCREEN)
-    touch.init();
-  #endif
-
+  TERN_(TOUCH_SCREEN, touch.init());
   clear_lcd();
 }
 
@@ -99,7 +96,7 @@ void MarlinUI::clear_lcd() {
     tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
     tft.add_image(0, 0, imgBootScreen);  // MarlinLogo320x240x16
 
-    #if defined(WEBSITE_URL)
+    #ifdef WEBSITE_URL
       tft.add_text(4, 188, COLOR_WEBSITE_URL, WEBSITE_URL);
     #endif
 
@@ -227,45 +224,31 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
 
-  #if ENABLED(TOUCH_SCREEN)
-    touch.clear();
-  #endif
+  TERN_(TOUCH_SCREEN, touch.clear());
 
   // heaters and fan
   uint16_t i, x, y = POS_Y;
 
   for (i = 0 ; i < ITEMS_COUNT; i++) {
     x = (320 / ITEMS_COUNT - 64) / 2  + (320 * i / ITEMS_COUNT);
-    switch(i) {
-      #if defined(ITEM_E0)
-        case ITEM_E0:
-          draw_heater_status(x, y, H_E0);
-          break;
+    switch (i) {
+      #ifdef ITEM_E0
+        case ITEM_E0: draw_heater_status(x, y, H_E0); break;
       #endif
-      #if defined(ITEM_E1)
-        case ITEM_E1:
-          draw_heater_status(x, y, H_E1);
-          break;
+      #ifdef ITEM_E1
+        case ITEM_E1: draw_heater_status(x, y, H_E1); break;
       #endif
-      #if defined(ITEM_E2)
-        case ITEM_E2:
-          draw_heater_status(x, y, H_E2);
-          break;
+      #ifdef ITEM_E2
+        case ITEM_E2: draw_heater_status(x, y, H_E2); break;
       #endif
-      #if defined(ITEM_BED)
-        case ITEM_BED:
-          draw_heater_status(x, y, H_BED);
-          break;
+      #ifdef ITEM_BED
+        case ITEM_BED: draw_heater_status(x, y, H_BED); break;
       #endif
-      #if defined(ITEM_CHAMBER)
-        case ITEM_CHAMBER:
-          draw_heater_status(x, y, H_CHAMBER);
-          break;
+      #ifdef ITEM_CHAMBER
+        case ITEM_CHAMBER: draw_heater_status(x, y, H_CHAMBER); break;
       #endif
-      #if defined(ITEM_FAN)
-        case ITEM_FAN:
-          draw_fan_status(x, y, blink);
-          break;
+      #ifdef ITEM_FAN
+        case ITEM_FAN: draw_fan_status(x, y, blink); break;
       #endif
     }
   }
@@ -295,8 +278,9 @@ void MarlinUI::draw_status_screen() {
   if (blink & !is_homed) {
     tft_string.set("?");
     offset = 25; // ".00"
-  } else {
-    float z = LOGICAL_Z_POSITION(current_position.z);
+  }
+  else {
+    const float z = LOGICAL_Z_POSITION(current_position.z);
     tft_string.set(ftostr52sp((int16_t)z));
     tft_string.rtrim();
     offset = tft_string.width();
@@ -370,21 +354,14 @@ void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t st
 void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char) {
   menu_item(row, sel);
 
-  uint8_t *string, offset = MENU_TEXT_X_OFFSET;
-
-  string = (uint8_t *)pstr;
-
+  uint8_t *string = (uint8_t *)pstr;
   MarlinImage image = noImage;
-
-  switch(*string) {
-    case 0x01:  // LCD_STR_REFRESH
-      image = imgRefresh;
-      break;
-    case 0x02:  // LCD_STR_FOLDER
-      image = imgDirectory;
-      break;
+  switch (*string) {
+    case 0x01: image = imgRefresh; break;  // LCD_STR_REFRESH
+    case 0x02: image = imgDirectory; break;  // LCD_STR_FOLDER
   }
 
+  uint8_t offset = MENU_TEXT_X_OFFSET;
   if (image != noImage) {
     string++;
     offset = 32;
@@ -473,7 +450,7 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   uint16_t line = 1;
 
-  if (string == NULL) line ++;
+  if (string == NULL) line++;
 
   menu_line(line++);
   tft_string.set(pref);
@@ -501,13 +478,14 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #if ENABLED(SDSUPPORT)
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
-    if(isDir)
+    if (isDir)
       tft.add_image(0, 0, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
     tft.add_text(32, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, theCard.longest_filename());
   }
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
   void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
     touch.clear();
     draw_menu_navigation = false;
@@ -526,7 +504,8 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.trim();
     tft.add_text(tft_string.width() > 320 ? 0 : 160 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   }
-#endif // ADVANCED_PAUSE_FEATURE
+
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #define GRID_WIDTH  144

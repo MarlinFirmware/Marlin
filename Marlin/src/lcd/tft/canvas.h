@@ -30,10 +30,8 @@
 
 class CANVAS {
   private:
-    static uint16_t width;
-    static uint16_t height;
-    static uint16_t startLine;
-    static uint16_t endLine;
+    static uint16_t width, height;
+    static uint16_t startLine, endLine;
     static uint16_t *buffer;
 
     inline static font_t *Font() { return TFT_String::font(); }
