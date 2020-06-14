@@ -376,13 +376,28 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   // Draw a menu item with an editable value
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+    int test, test1, test2;
+  
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
+      const uint8_t pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(),data) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(),(char*)data));
+      
+      test1 = (MENU_FONT_WIDTH) * vallen;
+      test2 = pixelwidth + 2;
+      if  (test1 > test2)
+      {
+        test = test1;
+      }
+      else
+      {
+        test = test2;
+      }
+      
       u8g_uint_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
       if (vallen) {
         lcd_put_wchar(':');
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
-        lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH) * vallen, row_y2);
+        lcd_moveto(LCD_PIXEL_WIDTH - test, row_y2);
         if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
       }
     }
