@@ -140,15 +140,12 @@ namespace FTDI {
             if (UIData::flags.bits.touch_start_sound) sound.play(press_sound);
           }
 
-          if (lastScreen != current_screen.getScreen()) {
-            // In the case in which a touch event triggered a new screen to be
-            // drawn, we don't issue a touchEnd since it would be sent to the
-            // wrong screen.
-            UIData::flags.bits.ignore_unpress = true;
-          } else {
-            UIData::flags.bits.ignore_unpress = false;
-          }
-        } else {
+          // In the case in which a touch event triggered a new screen to be
+          // drawn, we don't issue a touchEnd since it would be sent to the
+          // wrong screen.
+          UIData::flags.bits.ignore_unpress = (lastScreen != current_screen.getScreen());
+        }
+        else {
           touch_timer.start();
         }
         break;
