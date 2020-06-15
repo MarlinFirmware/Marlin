@@ -40,7 +40,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Назад");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Карта вставлена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Карта извлечена");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD карта не активна");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Эндстопы"); // Max length 8 characters
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Прогр. эндстопы");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
@@ -407,7 +406,7 @@ namespace Language_ru {
 
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Подсветка корпуса");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яркость подсветки");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неверный принтер");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Неверный принтер");
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Счётчик печати");
@@ -438,7 +437,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("Выдавить ещё");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Возобновить печать");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Сопла: ");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Возврат не удался");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Возврат не удался");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Не удалось прощупать");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Низкая Т");
 

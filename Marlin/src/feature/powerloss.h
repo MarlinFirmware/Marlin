@@ -61,14 +61,10 @@ typedef struct {
 
   #if DISABLED(NO_VOLUMETRICS)
     bool volumetric_enabled;
-    #if EXTRUDERS > 1
-      float filament_size[EXTRUDERS];
-    #else
-      float filament_size;
-    #endif
+    float filament_size[EXTRUDERS];
   #endif
 
-  #if HOTENDS
+  #if HAS_HOTEND
     int16_t target_temperature[HOTENDS];
   #endif
 
@@ -76,7 +72,7 @@ typedef struct {
     int16_t target_temperature_bed;
   #endif
 
-  #if FAN_COUNT
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
@@ -109,6 +105,8 @@ typedef struct {
   millis_t print_job_elapsed;
 
   uint8_t valid_foot;
+
+  bool valid() { return valid_head && valid_head == valid_foot; }
 
 } job_recovery_info_t;
 
@@ -168,7 +166,7 @@ class PrintJobRecovery {
     }
   #endif
 
-  static inline bool valid() { return info.valid_head && info.valid_head == info.valid_foot; }
+  static inline bool valid() { return info.valid(); }
 
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     static void debug(PGM_P const prefix);

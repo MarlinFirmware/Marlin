@@ -42,10 +42,18 @@
 //
 // Auto fans
 //
-#define ORIG_E0_AUTO_FAN_PIN                  11
-#define ORIG_E1_AUTO_FAN_PIN                   6
-#define ORIG_E2_AUTO_FAN_PIN                   6
-#define ORIG_E3_AUTO_FAN_PIN                   6
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     11
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                      6
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN                      6
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN                      6
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
@@ -94,7 +102,9 @@
 #undef PS_ON_PIN                                  // 12
 #define PS_ON_PIN                             81  // External Power Supply
 
-#define CASE_LIGHT_PIN                        44  // Hardware PWM
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      44  // Hardware PWM
+#endif
 
 // This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
 // decided to ship the printer only with the probe and no additional Z-min

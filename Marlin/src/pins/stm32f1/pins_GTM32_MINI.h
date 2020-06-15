@@ -52,8 +52,10 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
-#define FLASH_EEPROM_EMULATION
-#define E2END 0xFFF                               // 4KB
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+#endif
 
 //
 // Limit Switches
@@ -110,9 +112,12 @@
 // These are FAN PWM pins on EXT0..EXT2 connectors.
 //
 //#define FAN_PIN                           PB9   // EXT0 port
-#define ORIG_E0_AUTO_FAN_PIN                PB9   // EXT0 port, used as main extruder fan
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PB9   // EXT0 port, used as main extruder fan
+#endif
 
 //
 // Temperature Sensors

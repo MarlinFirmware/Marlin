@@ -36,8 +36,8 @@
 
 //#define I2C_EEPROM
 
-#ifndef E2END
-  #define E2END 0xFFF                             // 4KB
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
 #endif
 
 // Ignore temp readings during development.
@@ -126,7 +126,9 @@
 #define FAN1_PIN                            PC7
 #define FAN2_PIN                            PC8
 
-#define ORIG_E0_AUTO_FAN_PIN            FAN1_PIN  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PC7
+#endif
 
 //
 // Misc. Functions

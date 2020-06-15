@@ -56,7 +56,6 @@ uint8_t _getc();
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "timers.h"
 #include "serial.h"
 
 #define SHARED_SERVOS HAS_SERVOS
@@ -106,3 +105,8 @@ inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {
   Clock::delayCycles(x);
 }
+
+// Add strcmp_P if missing
+#ifndef strcmp_P
+  #define strcmp_P(a, b) strcmp((a), (b))
+#endif

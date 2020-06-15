@@ -174,7 +174,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 //
 // Flag any i2c pin conflicts
 //
-#if ANY(DIGIPOT_I2C, DIGIPOT_MCP4018, DAC_STEPPER_CURRENT, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, PCA9632, I2C_EEPROM)
+#if ANY(HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, PCA9632, I2C_EEPROM)
   #define USEDI2CDEV_M 1  // <Arduino>/Wire.cpp
 
   #if USEDI2CDEV_M == 0         // P0_27 [D57] (AUX-1) .......... P0_28 [D58] (AUX-1)
@@ -250,4 +250,10 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #endif
 
   #undef USEDI2CDEV_M
+#endif
+
+#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+#elif ENABLED(SERIAL_STATS_DROPPED_RX)
+  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
 #endif

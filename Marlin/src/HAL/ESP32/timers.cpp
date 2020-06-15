@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef ARDUINO_ARCH_ESP32
 
 #include <stdio.h>
@@ -28,9 +27,7 @@
 #include <driver/periph_ctrl.h>
 #include <driver/timer.h>
 
-#include "HAL.h"
-
-#include "timers.h"
+#include "../../inc/MarlinConfig.h"
 
 // ------------------------
 // Local defines

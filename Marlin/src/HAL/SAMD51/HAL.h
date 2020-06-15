@@ -27,7 +27,6 @@
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "timers.h"
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
   #include "MarlinSerial_AGCM4.h"
@@ -112,12 +111,6 @@ typedef int8_t pin_t;
 
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
-
-//
-// EEPROM
-//
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
 
 //
 // ADC

@@ -27,11 +27,19 @@
   #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE Btt002 1.0"
+#define BOARD_INFO_NAME "BTT BTT002 V1.0"
 
 // Use one of these or SDCard-based Emulation will be used
-//#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
-#define FLASH_EEPROM_EMULATION                    // Use Flash-based EEPROM emulation
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  #define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#endif
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000

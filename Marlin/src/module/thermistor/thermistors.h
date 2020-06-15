@@ -23,8 +23,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#define THERMISTOR_TABLE_ADC_RESOLUTION 1024
-#define THERMISTOR_TABLE_SCALE (HAL_ADC_RANGE / (THERMISTOR_TABLE_ADC_RESOLUTION))
+#define THERMISTOR_TABLE_ADC_RESOLUTION 10
+#define THERMISTOR_TABLE_SCALE (HAL_ADC_RANGE / _BV(THERMISTOR_TABLE_ADC_RESOLUTION))
 #if ENABLED(HAL_ADC_FILTERED)
   #define OVERSAMPLENR 1
 #else
@@ -70,6 +70,9 @@
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
   #include "thermistor_501.h"
 #endif
+#if ANY_THERMISTOR_IS(502) // Unknown thermistor used by the Zonestar Prusa P802M hot bed
+  #include "thermistor_502.h"
+#endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
   #include "thermistor_512.h"
 #endif
@@ -108,6 +111,12 @@
 #endif
 #if ANY_THERMISTOR_IS(21) // Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
   #include "thermistor_21.h"
+#endif
+#if ANY_THERMISTOR_IS(22) // Thermistor in a Rostock 301 hot end, calibrated with a multimeter
+  #include "thermistor_22.h"
+#endif
+#if ANY_THERMISTOR_IS(23) // By AluOne #12622. Formerly 22 above. May need calibration/checking.
+  #include "thermistor_23.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"
   #include "thermistor_51.h"

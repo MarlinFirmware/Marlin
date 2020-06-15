@@ -124,5 +124,5 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Kalibroi Z");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Kalibroi Center");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Väärä tulostin");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Väärä tulostin");
 }

@@ -25,7 +25,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini 1.1"
+#define BOARD_INFO_NAME "BTT SKR Mini V1.1"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -33,10 +33,12 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     (0x800) // 2KB
-#define EEPROM_START_ADDRESS uint32(0x8000000 + (STM32_FLASH_SIZE) * 1024 - 2 * EEPROM_PAGE_SIZE)
-#define E2END                (EEPROM_PAGE_SIZE - 1)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+#endif
 
 //
 // Limit Switches
@@ -179,8 +181,7 @@
 //
 
 // By default the onboard SD is enabled.
-// set SDCARD_CONNECTION form 'ONBOARD' to 'LCD' and use an external SD (connected to LCD)
-#define HAS_ONBOARD_SD
+// Change SDCARD_CONNECTION from 'ONBOARD' to 'LCD' for an external (LCD module) SD
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

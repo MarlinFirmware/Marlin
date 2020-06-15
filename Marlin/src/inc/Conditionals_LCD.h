@@ -335,9 +335,7 @@
 #endif
 #if ENABLED(ULTIPANEL)
   #define IS_ULTRA_LCD
-  #ifndef NEWPANEL
-    #define NEWPANEL
-  #endif
+  #define NEWPANEL
 #endif
 
 #if ENABLED(IS_ULTRA_LCD)
@@ -361,7 +359,7 @@
   #define HAS_DGUS_LCD 1
 #endif
 
-// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+// Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
@@ -408,13 +406,15 @@
  */
 
 #if EXTRUDERS == 0
-  #undef DISTINCT_E_FACTORS
+  #undef EXTRUDERS
+  #define EXTRUDERS 0
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef MK2_MULTIPLEXER
   #undef PRUSA_MMU2
+  #undef HOTEND_IDLE_TIMEOUT
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -431,7 +431,9 @@
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
-  #define DUAL_MIXING_EXTRUDER (MIXING_STEPPERS == 2)
+  #if MIXING_STEPPERS == 2
+    #define HAS_DUAL_MIXING 1
+  #endif
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
@@ -466,6 +468,17 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
+  #if HOTENDS > 1
+    #define HAS_MULTI_HOTEND 1
+    #define HAS_HOTEND_OFFSET 1
+  #endif
+#endif
+
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
@@ -479,10 +492,6 @@
 
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
-#endif
-
-#if HOTENDS > 1
-  #define HAS_HOTEND_OFFSET 1
 #endif
 
 /**
@@ -504,12 +513,16 @@
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_E E_STEPPERS
   #define XYZE_N (XYZ + E_STEPPERS)
+  #define E_INDEX_N(E) (E)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
   #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
+  #define DISTINCT_E 1
   #define XYZE_N XYZE
+  #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
 #endif
@@ -558,7 +571,7 @@
 #if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
   #define HAS_Z_SERVO_PROBE 1
 #endif
-#if HAS_Z_SERVO_PROBE || EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+#if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
   #define HAS_SERVO_ANGLES 1
 #endif
 #if !HAS_SERVO_ANGLES
@@ -572,7 +585,7 @@
   #define HAS_BED_PROBE 1
 #endif
 
-#if HAS_BED_PROBE || EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
 
@@ -583,7 +596,7 @@
   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #define HAS_CUSTOM_PROBE_PIN 1
   #endif
-  #if Z_HOME_DIR < 0 && !HAS_CUSTOM_PROBE_PIN
+  #if Z_HOME_DIR < 0 && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT
@@ -593,7 +606,7 @@
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
-    #if EXTRA_PROBING
+    #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
     #else
       #define TOTAL_PROBING MULTIPLE_PROBING
@@ -670,8 +683,12 @@
 #endif
 
 // This flag indicates some kind of jerk storage is needed
-#if ENABLED(CLASSIC_JERK) || IS_KINEMATIC
+#if EITHER(CLASSIC_JERK, IS_KINEMATIC)
   #define HAS_CLASSIC_JERK 1
+#endif
+
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
 #endif
 
 // E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA

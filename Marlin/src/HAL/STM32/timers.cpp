@@ -19,12 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
-#include "HAL.h"
-
-#include "timers.h"
+#include "../../inc/MarlinConfig.h"
 
 // ------------------------
 // Local defines
@@ -32,10 +29,54 @@
 
 #define NUM_HARDWARE_TIMERS 2
 
+#ifndef STEP_TIMER_IRQ_PRIO
+  #define STEP_TIMER_IRQ_PRIO 2
+#endif
+#ifndef TEMP_TIMER_IRQ_PRIO
+  #define TEMP_TIMER_IRQ_PRIO 14   // 14 = after hardware ISRs
+#endif
+
+#if HAS_TMC_SW_SERIAL
+  #include <SoftwareSerial.h>
+  #ifndef SWSERIAL_TIMER_IRQ_PRIO
+    #define SWSERIAL_TIMER_IRQ_PRIO 1
+  #endif
+#endif
+
+#ifdef STM32F0xx
+  #define HAL_TIMER_RATE (F_CPU)      // Frequency of timer peripherals
+  #define MCU_STEP_TIMER 16
+  #define MCU_TEMP_TIMER 17
+#elif defined(STM32F1xx)
+  #define HAL_TIMER_RATE (F_CPU)
+  #define MCU_STEP_TIMER  4
+  #define MCU_TEMP_TIMER  2
+#elif defined(STM32F401xC) || defined(STM32F401xE)
+  #define HAL_TIMER_RATE (F_CPU / 2)
+  #define MCU_STEP_TIMER  9
+  #define MCU_TEMP_TIMER 10
+#elif defined(STM32F4xx) || defined(STM32F7xx)
+  #define HAL_TIMER_RATE (F_CPU / 2)
+  #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
+  #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
+#endif
+
+#ifndef STEP_TIMER
+  #define STEP_TIMER MCU_STEP_TIMER
+#endif
+#ifndef TEMP_TIMER
+  #define TEMP_TIMER MCU_TEMP_TIMER
+#endif
+
 #define __TIMER_DEV(X) TIM##X
 #define _TIMER_DEV(X) __TIMER_DEV(X)
 #define STEP_TIMER_DEV _TIMER_DEV(STEP_TIMER)
 #define TEMP_TIMER_DEV _TIMER_DEV(TEMP_TIMER)
+
+#define __TIMER_IRQ_NAME(X) TIM##X##_IRQn
+#define _TIMER_IRQ_NAME(X) __TIMER_IRQ_NAME(X)
+#define STEP_TIMER_IRQ_NAME _TIMER_IRQ_NAME(STEP_TIMER)
+#define TEMP_TIMER_IRQ_NAME _TIMER_IRQ_NAME(TEMP_TIMER)
 
 // ------------------------
 // Private Variables
@@ -134,6 +175,10 @@ TIM_TypeDef * HAL_timer_device(const uint8_t timer_num) {
     case TEMP_TIMER_NUM: return TEMP_TIMER_DEV;
   }
   return nullptr;
+}
+
+void SetSoftwareSerialTimerInterruptPriority() {
+  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
 }
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

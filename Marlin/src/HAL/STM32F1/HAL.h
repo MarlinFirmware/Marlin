@@ -36,7 +36,6 @@
 #include "fastio.h"
 #include "watchdog.h"
 
-#include "timers.h"
 
 #include <stdint.h>
 #include <util/atomic.h>
@@ -52,7 +51,7 @@
 // ------------------------
 
 #ifndef STM32_FLASH_SIZE
-  #ifdef MCU_STM32F103RE
+  #if defined(MCU_STM32F103RE) || defined(MCU_STM32F103VE)
     #define STM32_FLASH_SIZE 512
   #else
     #define STM32_FLASH_SIZE 256
@@ -247,19 +246,6 @@ static int freeMemory() {
 }
 
 #pragma GCC diagnostic pop
-
-//
-// EEPROM
-//
-
-/**
- * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
- * Wire library should work for i2c EEPROMs.
- */
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 //
 // ADC

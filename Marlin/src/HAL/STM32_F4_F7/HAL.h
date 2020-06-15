@@ -31,7 +31,6 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "timers.h"
 #include "watchdog.h"
 
 #include <stdint.h>
@@ -51,6 +50,8 @@
   #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
+#elif SERIAL_PORT == 0
+  #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 SerialUART1
 #elif SERIAL_PORT == 2
@@ -74,6 +75,8 @@
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
+  #elif SERIAL_PORT_2 == 0
+    #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 SerialUART1
   #elif SERIAL_PORT_2 == 2
@@ -103,6 +106,8 @@
     #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
+  #elif DGUS_SERIAL_PORT == 0
+    #define DGUS_SERIAL Serial1
   #elif DGUS_SERIAL_PORT == 1
     #define DGUS_SERIAL SerialUART1
   #elif DGUS_SERIAL_PORT == 2
@@ -205,19 +210,6 @@ static inline int freeMemory() {
 }
 
 #pragma GCC diagnostic pop
-
-//
-// EEPROM
-//
-
-/**
- * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
- * Wire library should work for i2c EEPROMs.
- */
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 //
 // ADC
