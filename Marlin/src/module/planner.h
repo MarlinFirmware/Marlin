@@ -32,7 +32,7 @@
 
 #include "../MarlinCore.h"
 
-#if HAS_JUNCTION_DEVIATION
+#if ENABLED(JUNCTION_DEVIATION_SMALL_SEGMENT_HANDLING)
   // Enable this option for perfect accuracy but maximum
   // computation. Should be fine on ARM processors.
   //#define JD_USE_MATH_ACOS
