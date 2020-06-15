@@ -194,11 +194,7 @@ public:
 
     static inline void enable_with_dir(const bool reverse) {
       isReady = true;
-      #if ENABLED(SPINDLE_LASER_PWM)
-        const uint8_t ocr = upower_to_ocr(menuPower);
-      #else
-        const uint8_t ocr = 255;
-      #endif
+      const uint8_t ocr = TERN(SPINDLE_LASER_PWM, upower_to_ocr(menuPower), 255);
       if (menuPower)
         power = ocr;
       else
