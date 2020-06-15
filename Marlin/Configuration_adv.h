@@ -2656,7 +2656,7 @@
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_FEATURE
+#define SPINDLE_FEATURE 1
 //#define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
@@ -2681,7 +2681,8 @@
     #define SPEED_POWER_SLOPE    118.4
     #define SPEED_POWER_INTERCEPT  0
     #define SPEED_POWER_MIN     5000
-    #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+    #define SPEED_POWER_MAX    24000    // SuperPID router controller 0 - 30,000 RPM
+
   #else
     #define SPEED_POWER_SLOPE      0.3922
     #define SPEED_POWER_INTERCEPT  0
@@ -2689,6 +2690,16 @@
     #define SPEED_POWER_MAX      100    // 0-100%
   #endif
 #endif
+
+/**
+ * VFD Spindle
+ */
+
+#define VFD_RX_PIN 19
+#define VFD_TX_PIN 18
+#define VFD_RTS_PIN 20
+#define VFD_BAUD 9600
+#define VFD_MODBUS_ADDR 1
 
 /**
  * Coolant Control
