@@ -67,15 +67,12 @@
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
   auto get_s_power = [] {
-    if (parser.seen('S'))
-      #if ENABLED(SPINDLE_LASER_PWM)
-        cutter.unitPower = cutter.power_to_range(cutter_power_t(round(parser.value_float())));
-      #else
-        if (parser.value_float() > 0)
-          cutter.unitPower = 255;
-        else
-          cutter.unitPower = 0;
-      #endif
+    if (parser.seen('S')) {
+      const float sval = parser.value_float();
+      cutter.unitPower = TERN(SPINDLE_LASER_PWM,
+                              cutter.power_to_range(cutter_power_t(round(sval))),
+                              sval > 0 ? 255 : 0);
+    }
     else
       cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
     return cutter.unitPower;
