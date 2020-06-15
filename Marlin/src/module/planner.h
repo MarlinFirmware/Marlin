@@ -493,7 +493,7 @@ class Planner {
 
       // Update multipliers based on new diameter measurements
       static void calculate_volumetric_multipliers();
-  
+
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
         // Update pre calculated extruder feedrate limits based on volumetric values
         static void calculate_volumetric_extruder_limit(const uint8_t e);
