@@ -2107,9 +2107,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                             * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
       if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
-      
+
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] 
+        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
                                    * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
         // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
@@ -2352,7 +2352,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         vmax_junction_sqr = junction_acceleration * junction_deviation_mm * sin_theta_d2 / (1.0f - sin_theta_d2);
 
-        #if ENABLED(JUNCTION_DEVIATION_SMALL_SEGMENT_HANDLING)
+        #if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
 
           // For small moves with >135° junction (octagon) find speed for approximate arc
           if (block->millimeters < 1 && junction_cos_theta < -0.7071067812f) {
