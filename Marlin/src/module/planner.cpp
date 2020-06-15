@@ -2438,8 +2438,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
 
-        #endif
-
+        #endif // JD_HANDLE_SMALL_SEGMENTS
       }
 
       // Get the lowest speed
