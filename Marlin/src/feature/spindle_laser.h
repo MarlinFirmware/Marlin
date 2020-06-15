@@ -109,10 +109,9 @@ public:
   FORCE_INLINE static void refresh() { apply_power(power); }
   FORCE_INLINE static void set_power(const uint8_t upwr) { power = upwr; refresh(); }
 
-  static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)) : 0); }
-
   #if ENABLED(SPINDLE_LASER_PWM)
 
+    static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)) : 0); }
     static void set_ocr(const uint8_t ocr);
     static inline void set_ocr_power(const uint8_t ocr) { power = ocr; set_ocr(ocr); }
     static void ocr_off();
@@ -172,7 +171,8 @@ public:
       }
       return upwr;
     }
-
+  #else
+     static inline void set_enabled(const bool enable) { set_power(enable ? 255 : 0); }
   #endif // SPINDLE_LASER_PWM
 
   // Wait for spindle to spin up or spin down
@@ -194,7 +194,11 @@ public:
 
     static inline void enable_with_dir(const bool reverse) {
       isReady = true;
-      const uint8_t ocr = upower_to_ocr(menuPower);
+      #if ENABLED(SPINDLE_LASER_PWM)
+        const uint8_t ocr = upower_to_ocr(menuPower);
+      #else
+        const uint8_t ocr = 255;
+      #endif
       if (menuPower)
         power = ocr;
       else
@@ -233,7 +237,7 @@ public:
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
       if (enable)
-        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP)); 
+        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP));
       else {
         isReady = false;
         unitPower = menuPower = 0;
