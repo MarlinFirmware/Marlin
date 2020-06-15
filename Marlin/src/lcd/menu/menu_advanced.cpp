@@ -454,7 +454,7 @@ void menu_cancelobject();
     #endif
     #if HAS_CLASSIC_JERK
       constexpr xyze_float_t max_jerk_edit =
-        #ifdef MAX_ACCEL_EDIT_VALUES
+        #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
         #elif ENABLED(LIMITED_JERK_EDITING)
           { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }

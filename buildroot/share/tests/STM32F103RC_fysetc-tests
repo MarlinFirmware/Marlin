@@ -9,7 +9,7 @@ set -e
 #
 # Build with the default configurations
 #
-use_example_configs "FYSETC/Cheetah 1.2/base"
+use_example_configs "Creality/Ender-3/FYSETC Cheetah 1.2/base"
 exec_test $1 $2 "Cheetah 1.2 Configuration"
 
 # clean up
