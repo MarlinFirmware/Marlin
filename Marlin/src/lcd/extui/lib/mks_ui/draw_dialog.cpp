@@ -57,7 +57,7 @@ uint8_t DialogType;
 
 static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
   if (event == LV_EVENT_CLICKED) {
-
+    // nothing to do
   }
   else if (event == LV_EVENT_RELEASED) {
     if (DialogType == DIALOG_TYPE_PRINT_FILE) {
@@ -133,9 +133,9 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
     }
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       else if (DialogType == DIALOG_PAUSE_MESSAGE_WAITING
-               || DialogType == DIALOG_PAUSE_MESSAGE_INSERT
-               || DialogType == DIALOG_PAUSE_MESSAGE_HEAT
-               ) {
+            || DialogType == DIALOG_PAUSE_MESSAGE_INSERT
+            || DialogType == DIALOG_PAUSE_MESSAGE_HEAT
+      ) {
         wait_for_user = false;
       }
       else if (DialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
@@ -151,7 +151,7 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
 
 static void btn_cancel_event_cb(lv_obj_t * btn, lv_event_t event) {
   if (event == LV_EVENT_CLICKED) {
-
+    // nothing to do
   }
   else if (event == LV_EVENT_RELEASED) {
     if (DialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
@@ -239,13 +239,14 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelOk, print_file_dialog_menu.confirm);      // Set the labels text
   }
   else if (DialogType == DIALOG_PAUSE_MESSAGE_PAUSING
-           || DialogType == DIALOG_PAUSE_MESSAGE_CHANGING
-           || DialogType == DIALOG_PAUSE_MESSAGE_UNLOAD
-           || DialogType == DIALOG_PAUSE_MESSAGE_LOAD
-           || DialogType == DIALOG_PAUSE_MESSAGE_PURGE
-           || DialogType == DIALOG_PAUSE_MESSAGE_RESUME
-           || DialogType == DIALOG_PAUSE_MESSAGE_HEATING) {
-
+        || DialogType == DIALOG_PAUSE_MESSAGE_CHANGING
+        || DialogType == DIALOG_PAUSE_MESSAGE_UNLOAD
+        || DialogType == DIALOG_PAUSE_MESSAGE_LOAD
+        || DialogType == DIALOG_PAUSE_MESSAGE_PURGE
+        || DialogType == DIALOG_PAUSE_MESSAGE_RESUME
+        || DialogType == DIALOG_PAUSE_MESSAGE_HEATING
+  ) {
+    // nothing to do
   }
   else {
     lv_obj_t * btnOk = lv_btn_create(scr, NULL);                     // Add a button the current screen
