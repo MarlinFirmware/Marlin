@@ -67,11 +67,11 @@
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
   auto get_s_power = [] {
-    if (parser.seen('S')) {
-      const float sval = parser.value_float();
+    if (parser.seenval('S')) {
+      const float spwr = parser.value_float();
       cutter.unitPower = TERN(SPINDLE_LASER_PWM,
-                              cutter.power_to_range(cutter_power_t(round(sval))),
-                              sval > 0 ? 255 : 0);
+                              cutter.power_to_range(cutter_power_t(round(spwr))),
+                              spwr > 0 ? 255 : 0);
     }
     else
       cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
@@ -84,7 +84,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
       cutter.inline_direction(is_M4); // Should always be unused
       #if ENABLED(SPINDLE_LASER_PWM)
         if (parser.seen('O')) {
-          cutter.unitPower = TERN(SPINDLE_LASER_PWM, cutter.power_to_range(parser.value_byte(), 0), parser.value_byte() > 0 ? 255 : 0);
+          cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
           cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
         }
         else
@@ -103,7 +103,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
 
   #if ENABLED(SPINDLE_LASER_PWM)
     if (parser.seenval('O')) {
-      cutter.unitPower = TERN(SPINDLE_LASER_PWM, cutter.power_to_range(parser.value_byte(), 0), parser.value_byte() > 0 ? 255 : 0);
+      cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
       cutter.set_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
     }
     else
