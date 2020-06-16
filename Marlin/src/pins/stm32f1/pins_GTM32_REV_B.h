@@ -145,12 +145,13 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     // connected with a flat wire to J2 connector on the board.
     //
-    #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PE14  // SID (MOSI)
-    #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
-    #define LCD_PINS_D5                     PD9
-    #define LCD_PINS_D6                     PD10
-    #define LCD_PINS_D7                     PE15
+    #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
+    // RW is hardwired to VSS
+    #define LCD_PINS_ENABLE                 PC7   // SID (MOSI)
+    #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
+    #define LCD_PINS_D5                     PD4
+    #define LCD_PINS_D6                     PD5
+    #define LCD_PINS_D7                     PD7
 
     #define BTN_EN1                         PE8
     #define BTN_EN2                         PE9

@@ -32,7 +32,7 @@
 
 #include "../MarlinCore.h"
 
-#if HAS_JUNCTION_DEVIATION
+#if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
   // Enable this option for perfect accuracy but maximum
   // computation. Should be fine on ARM processors.
   //#define JD_USE_MATH_ACOS
@@ -493,7 +493,7 @@ class Planner {
 
       // Update multipliers based on new diameter measurements
       static void calculate_volumetric_multipliers();
-  
+
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
         // Update pre calculated extruder feedrate limits based on volumetric values
         static void calculate_volumetric_extruder_limit(const uint8_t e);

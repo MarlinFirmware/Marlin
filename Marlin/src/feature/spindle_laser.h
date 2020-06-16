@@ -233,7 +233,7 @@ public:
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
       if (enable)
-        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP)); 
+        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP));
       else {
         isReady = false;
         unitPower = menuPower = 0;
