@@ -241,6 +241,8 @@
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
+#elif ENABLED(SPI_GRAPHICAL_TFT)
+  #define DELAYED_BACKLIGHT_INIT
 #endif
 
 /**
@@ -525,6 +527,15 @@
   #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
 #endif
 
 /**

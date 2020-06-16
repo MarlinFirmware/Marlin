@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V79"
+#define EEPROM_VERSION "V80"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -50,6 +50,11 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/dwin.h"
+#endif
+
 #include "../lcd/ultralcd.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -320,8 +325,9 @@ typedef struct SettingsDataStruct {
   //
   // !NO_VOLUMETRIC
   //
-  bool parser_volumetric_enabled;                       // M200 D  parser.volumetric_enabled
+  bool parser_volumetric_enabled;                       // M200 S  parser.volumetric_enabled
   float planner_filament_size[EXTRUDERS];               // M200 T D  planner.filament_size[]
+  float planner_volumetric_extruder_limit[EXTRUDERS];   // M200 T L  planner.volumetric_extruder_limit[]
 
   //
   // HAS_TRINAMIC_CONFIG
@@ -604,7 +610,7 @@ void MarlinSettings::postprocess() {
       #else
         constexpr bool runout_sensor_enabled = true;
       #endif
-      #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+      #if HAS_FILAMENT_RUNOUT_DISTANCE
         const float &runout_distance_mm = runout.runout_distance();
       #else
         constexpr float runout_distance_mm = 0;
@@ -803,6 +809,10 @@ void MarlinSettings::postprocess() {
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                       (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
         const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+      #elif ENABLED(DWIN_CREALITY_LCD)
+        const int16_t (&ui_preheat_hotend_temp)[2]  = HMI_ValueStruct.preheat_hotend_temp,
+                      (&ui_preheat_bed_temp)[2]     = HMI_ValueStruct.preheat_bed_temp;
+        const uint8_t (&ui_preheat_fan_speed)[2]    = HMI_ValueStruct.preheat_fan_speed;
       #else
         constexpr int16_t ui_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
                           ui_preheat_bed_temp[2]    = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
@@ -935,12 +945,20 @@ void MarlinSettings::postprocess() {
 
         EEPROM_WRITE(parser.volumetric_enabled);
         EEPROM_WRITE(planner.filament_size);
+        #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+          EEPROM_WRITE(planner.volumetric_extruder_limit);
+        #else
+          dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+          for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
+        #endif
 
       #else
 
         const bool volumetric_enabled = false;
-        dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
         EEPROM_WRITE(volumetric_enabled);
+        dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
+        for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
+        dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
 
       #endif
@@ -1460,7 +1478,7 @@ void MarlinSettings::postprocess() {
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
-        #if HAS_FILAMENT_SENSOR && defined(FILAMENT_RUNOUT_DISTANCE_MM)
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
           if (!validating) runout.set_runout_distance(runout_distance_mm);
         #endif
       }
@@ -1655,7 +1673,11 @@ void MarlinSettings::postprocess() {
           int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                   (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
           uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
-        #else
+       #elif ENABLED(DWIN_CREALITY_LCD)
+          int16_t (&ui_preheat_hotend_temp)[2]  = HMI_ValueStruct.preheat_hotend_temp,
+                  (&ui_preheat_bed_temp)[2]     = HMI_ValueStruct.preheat_bed_temp;
+          uint8_t (&ui_preheat_fan_speed)[2]    = HMI_ValueStruct.preheat_fan_speed;
+       #else
           int16_t ui_preheat_hotend_temp[2], ui_preheat_bed_temp[2];
           uint8_t ui_preheat_fan_speed[2];
         #endif
@@ -1787,6 +1809,7 @@ void MarlinSettings::postprocess() {
         struct {
           bool volumetric_enabled;
           float filament_size[EXTRUDERS];
+          float volumetric_extruder_limit[EXTRUDERS];
         } storage;
 
         _FIELD_TEST(parser_volumetric_enabled);
@@ -1796,6 +1819,9 @@ void MarlinSettings::postprocess() {
           if (!validating) {
             parser.volumetric_enabled = storage.volumetric_enabled;
             COPY(planner.filament_size, storage.filament_size);
+            #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+              COPY(planner.volumetric_extruder_limit, storage.volumetric_extruder_limit);
+            #endif
           }
         #endif
       }
@@ -2384,9 +2410,7 @@ void MarlinSettings::reset() {
   #if HAS_FILAMENT_SENSOR
     runout.enabled = true;
     runout.reset();
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-      runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM);
-    #endif
+    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
   #endif
 
   //
@@ -2528,14 +2552,22 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-
-  #if HAS_HOTEND && HAS_LCD_MENU
-    ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
-    ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-    ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
-    ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-    ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
-    ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+  #if HAS_HOTEND
+    #if ENABLED(DWIN_CREALITY_LCD)
+      HMI_ValueStruct.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+      HMI_ValueStruct.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+      HMI_ValueStruct.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+      HMI_ValueStruct.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+      HMI_ValueStruct.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+      HMI_ValueStruct.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    #elif HAS_LCD_MENU
+      ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+      ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+      ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+      ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+      ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+      ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    #endif
   #endif
 
   //
@@ -2600,6 +2632,10 @@ void MarlinSettings::reset() {
     parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
     LOOP_L_N(q, COUNT(planner.filament_size))
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      LOOP_L_N(q, COUNT(planner.volumetric_extruder_limit))
+        planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+    #endif
   #endif
 
   endstops.enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
@@ -2752,7 +2788,7 @@ void MarlinSettings::reset() {
 
     SERIAL_EOL();
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if EXTRUDERS && DISABLED(NO_VOLUMETRICS)
 
       /**
        * Volumetric extrusion M200
@@ -2767,20 +2803,26 @@ void MarlinSettings::reset() {
 
       #if EXTRUDERS == 1
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 D", LINEAR_UNIT(planner.filament_size[0]));
-      #elif EXTRUDERS
+        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled)
+                              , " D", LINEAR_UNIT(planner.filament_size[0])
+                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+                              #endif
+                         );
+      #else
         LOOP_L_N(i, EXTRUDERS) {
           CONFIG_ECHO_START();
-          SERIAL_ECHOPGM("  M200");
-          if (i) SERIAL_ECHOPAIR_P(SP_T_STR, int(i));
-          SERIAL_ECHOLNPAIR(" D", LINEAR_UNIT(planner.filament_size[i]));
+          SERIAL_ECHOLNPAIR("  M200 T", int(i)
+                                , " D", LINEAR_UNIT(planner.filament_size[i])
+                                #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                  , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+                                #endif
+                           );
         }
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled));
       #endif
-
-      if (!parser.volumetric_enabled)
-        CONFIG_ECHO_MSG("  M200 D0");
-
-    #endif // !NO_VOLUMETRICS
+    #endif // EXTRUDERS && !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
     report_M92(!forReplay);
@@ -3551,7 +3593,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR(
         "  M412 S", int(runout.enabled)
-        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
       );

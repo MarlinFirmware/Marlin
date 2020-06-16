@@ -46,9 +46,16 @@
 #endif
 
 #include "../../lcd/ultralcd.h"
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../lcd/dwin/dwin.h"
+#endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
+#endif
+
+#if ENABLED(LASER_MOVE_G28_OFF)
+  #include "../../feature/spindle_laser.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -195,10 +202,17 @@
  *
  */
 void GcodeSuite::G28() {
+
+#if ENABLED(LASER_MOVE_G28_OFF)
+  cutter.set_inline_enabled(false);       // turn off laser
+#endif
+
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();
   }
+
+  TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -294,7 +308,10 @@ void GcodeSuite::G28() {
 
   #else // NOT DELTA
 
-    const bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'),
+    const bool homeZ = parser.seen('Z'),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
@@ -369,11 +386,8 @@ void GcodeSuite::G28() {
 
       if (doZ) {
         TERN_(BLTOUCH, bltouch.init());
-        #if ENABLED(Z_SAFE_HOMING)
-          home_z_safely();
-        #else
-          homeaxis(Z_AXIS);
-        #endif
+
+        TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
 
         #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
           #if Z_AFTER_HOMING > Z_AFTER_PROBING
@@ -465,6 +479,8 @@ void GcodeSuite::G28() {
   #endif
 
   ui.refresh();
+
+  TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
 
   report_current_position();
 

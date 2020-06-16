@@ -29,7 +29,7 @@
   #error "Marlin extruder/hotends limit! Increase MAX_EXTRUDERS to continue."
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE GTR 1.0"
+#define BOARD_INFO_NAME "BTT GTR V1.0"
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM

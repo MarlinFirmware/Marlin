@@ -68,12 +68,11 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
   void menu_led();
 #endif
 
 #if HAS_CUTTER
-  #include "../../feature/spindle_laser.h"
   void menu_spindle_laser();
 #endif
 
@@ -189,8 +188,8 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
-    SUBMENU(MSG_LED_CONTROL, menu_led);
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    SUBMENU(MSG_LEDS, menu_led);
   #endif
 
   //

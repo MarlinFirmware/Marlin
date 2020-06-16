@@ -25,7 +25,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini 1.1"
+#define BOARD_INFO_NAME "BTT SKR Mini V1.1"
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -201,7 +201,7 @@
   #define MOSI_PIN                          PA7
   #define SS_PIN                            PA4
 #endif
-#define ON_BOARD_SPI_DEVICE 1                     //SPI1
+#define ON_BOARD_SPI_DEVICE 1                     // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
 #if HAS_GRAPHICAL_LCD
