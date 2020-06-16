@@ -26,47 +26,27 @@
 #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 
 /*
- * Drawing and Touch proccess and logic
+ * Draw and Touch processing
  *
- * All the drawings are done in LCD_PIXEL_WIDTH x LCD_PIXEL_HEIGHT (independent of display resolution) -> 128x64 
- * The touch resolution is TOUCH_SCREEN_WIDTH x TOUCH_SCREEN_HEIGHT independent of display resolution -> 320x240
- * And, finally we have the display resolution: LCD_FULL_PIXEL_WIDTH x LCD_FULL_PIXEL_HEIGHT   -> most common: 320x240 and 480x320
+ *      LCD_PIXEL_WIDTH/HEIGHT (128x64) is the (emulated DOGM) Pixel Drawing resolution.
+ *   TOUCH_SCREEN_WIDTH/HEIGHT (320x240) is the Touch Area resolution.
+ * LCD_FULL_PIXEL_WIDTH/HEIGHT (320x240 or 480x320) is the Actual (FSMC) Display resolution.
  *
- * The process is:
- *  1) draw things in LCD_PIXEL* (128x64)
- *  2) upscale it 2x or 3x to display resolution, to show in the screen
- *  3) upscale the touch coordinates to TOUCH_SCREEN* resolution, to process the touches
+ *  - All native (u8g) drawing is done in LCD_PIXEL_* (128x64)
+ *  - The DOGM pixels are is upscaled 2-3x (as needed) for display.
+ *  - Touch coordinates use TOUCH_SCREEN_* resolution and are converted to
+ *    click and scroll-wheel events (emulating of a common DOGM display).
  *
- *  Why do need a TOUCH_SCREEN* resolution? Why don't just use the same upscale logic as in (2)?
- *    Because of calibration values. The first code of the touch was made to 320x240 in mind, so the calibration values were create using this.
- *    If we change the resolutio space of the touch code now, the current calibration values wont work anymore and it will break the compatiblity.
- *    Everyone that use tft with Marlin default menus will need new calibration values.
+ *  TOUCH_SCREEN resolution exists to fit our calibration values. The original touch code was made
+ *  and originally calibrated for 320x240. If you decide to change the resolution of the touch code,
+ *  new calibration values will be needed.
  *
- *  The Marlin menus are draw in:
- *  ____________________
- * | LCD_PIXEL_OFFSET_Y |
- * |     __________     |
- * |    | 128x64   |    |
- * | X  | upscaled |    |
- * |    |__________|    |
- * |                    |
- * |____________________|
- * |                    |
- * |   BUTTON AREA      |
- * |____________________|
+ *  The Marlin menus are drawn scaled in the upper region of the screen. The bottom region (in a
+ *  fixed location in TOUCH_SCREEN* coordinate space) is used for 4 general-purpose buttons to
+ *  navigate and select menu items. Both regions are touchable.
  *
- * So, the touchable are are:
- *  - the touch button area (as it ever was)
- *  - plus the rectangle area of the marlin menus
- *
- * The button area are X,Y fixed, in TOUCH_SCREEN* coordinate space
- *
- * The Marlin screen touchable rectangle:
- *  - Y0 at LCD_PIXEL_OFFSET_Y, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_START_TOP
- *  - X0 at LCD_PIXEL_OFFSET_X, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_START_LEFT
- *  - Height: LCD_PIXEL_HEIGHT, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_HEIGHT
- *  - Width: LCD_PIXEL_WIDTH, that needs to be translated to TOUCH_SCREEN* coordinate space => SCREEN_WIDTH
- *
+ * The Marlin screen touchable area starts at LCD_PIXEL_OFFSET_X/Y (translated to SCREEN_START_LEFT/TOP)
+ * and spans LCD_PIXEL_WIDTH/HEIGHT (scaled to SCREEN_WIDTH/HEIGHT).
  */
 // Touch screen resolution independent of display resolution
 #define TOUCH_SCREEN_HEIGHT 240
