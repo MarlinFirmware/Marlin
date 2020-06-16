@@ -2465,7 +2465,11 @@
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
-#define MAX_VFAT_ENTRIES TERN(SCROLL_LONG_FILENAMES, 5, 2)
+#if EITHER(SCROLL_LONG_FILENAMES, DWIN_CREALITY_LCD)
+  #define MAX_VFAT_ENTRIES (5)
+#else
+  #define MAX_VFAT_ENTRIES (2)
+#endif
 
 // Nozzle park for Delta
 #if BOTH(NOZZLE_PARK_FEATURE, DELTA)

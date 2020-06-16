@@ -529,6 +529,15 @@
   #define UNUSED_E(E) UNUSED(E)
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
+#endif
+
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.

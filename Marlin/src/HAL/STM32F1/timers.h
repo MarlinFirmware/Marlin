@@ -44,8 +44,12 @@ typedef uint16_t hal_timer_t;
 
 #define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals
 
-#define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
-#define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#ifndef STEP_TIMER_CHAN
+  #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#endif
+#ifndef TEMP_TIMER_CHAN
+  #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#endif
 
 /**
  * Note: Timers may be used by platforms and libraries

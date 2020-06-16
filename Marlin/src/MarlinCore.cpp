@@ -65,6 +65,16 @@
   #include "lcd/extui/lib/mks_ui/inc/draw_ui.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "lcd/dwin/dwin.h"
+  #include "lcd/dwin/dwin_lcd.h"
+  #include "lcd/dwin/rotary_encoder.h"
+#endif
+
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #include "lcd/dwin/eeprom_BL24CXX.h"
+#endif
+
 #if ENABLED(DIRECT_STEPPING)
   #include "feature/direct_stepping.h"
 #endif
@@ -689,6 +699,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Handle SD Card insert / remove
   TERN_(SDSUPPORT, card.manage_media());
 
+  // Handle UI input / draw events
+  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+
   // Handle USB Flash Drive insert / remove
   TERN_(USB_FLASH_DRIVE_SUPPORT, Sd2Card::idle());
 
@@ -962,8 +975,19 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  SETUP_RUN(ui.init());
-  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
+  #if ENABLED(DWIN_CREALITY_LCD)
+    delay(800);   // Required delay (since boot?)
+    SERIAL_ECHOPGM("\nDWIN handshake ");
+    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+    DWIN_Frame_SetDir(1); // Orientation 90°
+    DWIN_UpdateLCD();     // Show bootscreen (first image)
+  #else
+    SETUP_RUN(ui.init());
+    #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+      SETUP_RUN(ui.show_bootscreen());
+    #endif
+    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
 
   #if BOTH(HAS_SPI_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
@@ -1141,6 +1165,22 @@ void setup() {
 
   #if ENABLED(PRUSA_MMU2)
     SETUP_RUN(mmu2.init());
+  #endif
+
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    BL24CXX::init();
+    const uint8_t err = BL24CXX::check();
+    SERIAL_ECHO_TERNARY(err, "I2C_EEPROM Check ", "failed", "succeeded", "!\n");
+  #endif
+
+  #if ENABLED(DWIN_CREALITY_LCD)
+    Encoder_Configuration();
+    HMI_Init();
+    HMI_StartFrame(true);
+  #endif
+
+  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
+    ui.reset_status(true);  // Show service messages or keep current status
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
