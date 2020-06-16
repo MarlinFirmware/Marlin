@@ -221,11 +221,7 @@ void report_real_position() {
   npos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
-    planner.unapply_modifiers(npos
-      #if HAS_LEVELING
-        , true
-      #endif
-    );
+    planner.unapply_modifiers(npos, true);
   #endif
 
   report_logical_position(npos);
@@ -304,11 +300,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   pos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
-    planner.unapply_modifiers(pos
-      #if HAS_LEVELING
-        , true
-      #endif
-    );
+    planner.unapply_modifiers(pos, true);
   #endif
 
   if (axis == ALL_AXES)
@@ -356,6 +348,11 @@ void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
 
 #endif // IS_KINEMATIC
 
+/**
+ * Do a fast or normal move to 'destination' with an optional FR.
+ *  - Move at normal speed regardless of feedrate percentage.
+ *  - Extrude the specified length regardless of flow percentage.
+ */
 void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
   #if IS_KINEMATIC
     , const bool is_fast/*=false*/
@@ -368,8 +365,8 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
   feedrate_percentage = 100;
 
   #if EXTRUDERS
-     const float old_fac = planner.e_factor[active_extruder];
-     planner.e_factor[active_extruder] = 1.0f;
+    const float old_fac = planner.e_factor[active_extruder];
+    planner.e_factor[active_extruder] = 1.0f;
   #endif
 
   #if IS_KINEMATIC
@@ -1514,6 +1511,8 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
       // retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
     }
+  #else
+    UNUSED(axis);
   #endif
 }
 
@@ -1535,24 +1534,13 @@ void homeaxis(const AxisEnum axis) {
     // Only Z homing (with probe) is permitted
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
-    #define _CAN_HOME(A) \
-      (axis == _AXIS(A) && ((A##_MIN_PIN > -1 && A##_HOME_DIR < 0) || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0)))
-    #if X_SPI_SENSORLESS
-      #define CAN_HOME_X true
-    #else
-      #define CAN_HOME_X _CAN_HOME(X)
-    #endif
-    #if Y_SPI_SENSORLESS
-      #define CAN_HOME_Y true
-    #else
-      #define CAN_HOME_Y _CAN_HOME(Y)
-    #endif
-    #if Z_SPI_SENSORLESS
-      #define CAN_HOME_Z true
-    #else
-      #define CAN_HOME_Z _CAN_HOME(Z)
-    #endif
-    if (!CAN_HOME_X && !CAN_HOME_Y && !CAN_HOME_Z) return;
+    #define _CAN_HOME(A) (axis == _AXIS(A) && ( \
+         ENABLED(A##_SPI_SENSORLESS) \
+      || (_AXIS(A) == Z_AXIS && ENABLED(HOMING_Z_WITH_PROBE)) \
+      || (A##_MIN_PIN > 0 && A##_HOME_DIR < 0) \
+      || (A##_MAX_PIN > 0 && A##_HOME_DIR > 0) \
+    ))
+    if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)) return;
   #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");
@@ -1656,9 +1644,9 @@ void homeaxis(const AxisEnum axis) {
 
           const float adj = ABS(endstops.z2_endstop_adj);
           if (adj) {
-            if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+            if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z1_lock(true); else stepper.set_z2_lock(true);
             do_homing_move(axis, pos_dir ? -adj : adj);
-            stepper.set_z_lock(false);
+            stepper.set_z1_lock(false);
             stepper.set_z2_lock(false);
           }
 
@@ -1669,7 +1657,7 @@ void homeaxis(const AxisEnum axis) {
           typedef void (*adjustFunc_t)(const bool);
 
           adjustFunc_t lock[] = {
-            stepper.set_z_lock, stepper.set_z2_lock, stepper.set_z3_lock
+            stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock
             #if NUM_Z_STEPPER_DRIVERS >= 4
               , stepper.set_z4_lock
             #endif
@@ -1737,7 +1725,7 @@ void homeaxis(const AxisEnum axis) {
             do_homing_move(axis, adj[0] - adj[1]);
           }
 
-          stepper.set_z_lock(false);
+          stepper.set_z1_lock(false);
           stepper.set_z2_lock(false);
           stepper.set_z3_lock(false);
           #if NUM_Z_STEPPER_DRIVERS >= 4

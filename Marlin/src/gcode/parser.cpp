@@ -28,7 +28,7 @@
 
 #include "../MarlinCore.h"
 
-#if NUM_SERIAL > 1
+#if HAS_MULTI_SERIAL
   #include "queue.h"
 #endif
 

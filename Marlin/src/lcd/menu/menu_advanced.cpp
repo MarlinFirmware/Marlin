@@ -43,11 +43,11 @@
   #include "../../module/temperature.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
+#if HAS_FILAMENT_RUNOUT_DISTANCE
   #include "../../feature/runout.h"
 #endif
 
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
+#if ENABLED(SD_FIRMWARE_UPDATE)
   #include "../../module/configuration_store.h"
 #endif
 
@@ -97,10 +97,6 @@ void menu_cancelobject();
 
 #endif
 
-#if ENABLED(SD_FIRMWARE_UPDATE)
-  #include "../../module/configuration_store.h"
-#endif
-
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
   //
   // Advanced Settings > Filament
@@ -120,6 +116,14 @@ void menu_cancelobject();
 
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
+
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
+        #if EXTRUDERS > 1
+          LOOP_L_N(n, EXTRUDERS)
+            EDIT_ITEM_FAST_N(float42_52, n, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[n], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
+        #endif
+      #endif
 
       if (parser.volumetric_enabled) {
         EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
@@ -146,7 +150,7 @@ void menu_cancelobject();
       #endif
     #endif
 
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
       EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 30,
         []{ runout.set_runout_distance(editable.decimal); }, true
@@ -267,9 +271,9 @@ void menu_cancelobject();
 
     #if ENABLED(PID_EDIT_MENU)
       #define __PID_BASE_MENU_ITEMS(N) \
-        raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
-        raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &PID_PARAM(Kp, N), 1, 9990); \
+        raw_Ki = unscalePID_i(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Ki, PID_PARAM(Ki, N))); \
+        raw_Kd = unscalePID_d(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kd, PID_PARAM(Kd, N))); \
+        EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kp, PID_PARAM(Kp, N)), 1, 9990); \
         EDIT_ITEM_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
         EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
@@ -306,6 +310,20 @@ void menu_cancelobject();
     PID_EDIT_MENU_ITEMS(0);
     #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
+    #endif
+
+    #if ENABLED(PIDTEMPBED)
+      #if ENABLED(PID_EDIT_MENU)
+        #define PID_BED_MENU_SECTION
+        __PID_BASE_MENU_ITEMS(-1);
+        #undef PID_BED_MENU_SECTION
+      #endif
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        #ifndef BED_OVERSHOOT
+          #define BED_OVERSHOOT 5
+        #endif
+        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, 70, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
+      #endif
     #endif
 
     END_MENU();
@@ -436,7 +454,7 @@ void menu_cancelobject();
     #endif
     #if HAS_CLASSIC_JERK
       constexpr xyze_float_t max_jerk_edit =
-        #ifdef MAX_ACCEL_EDIT_VALUES
+        #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
         #elif ENABLED(LIMITED_JERK_EDITING)
           { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
@@ -591,13 +609,8 @@ void menu_advanced_settings() {
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
     CONFIRM_ITEM(MSG_INIT_EEPROM,
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
-      []{
-        const bool inited = settings.init_eeprom();
-        ui.completion_feedback(inited);
-        UNUSED(inited);
-      },
-      ui.goto_previous_screen,
-      GET_TEXT(MSG_INIT_EEPROM), (PGM_P)nullptr, PSTR("?")
+      ui.init_eeprom, ui.goto_previous_screen,
+      GET_TEXT(MSG_INIT_EEPROM), (const char *)nullptr, PSTR("?")
     );
   #endif
 

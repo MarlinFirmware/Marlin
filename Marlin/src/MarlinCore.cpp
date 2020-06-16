@@ -59,6 +59,26 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#if ENABLED(TFT_LITTLE_VGL_UI)
+  #include "lvgl.h"
+  #include "lcd/extui/lib/mks_ui/inc/tft_lvgl_configuration.h"
+  #include "lcd/extui/lib/mks_ui/inc/draw_ui.h"
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "lcd/dwin/dwin.h"
+  #include "lcd/dwin/dwin_lcd.h"
+  #include "lcd/dwin/rotary_encoder.h"
+#endif
+
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #include "lcd/dwin/eeprom_BL24CXX.h"
+#endif
+
+#if ENABLED(DIRECT_STEPPING)
+  #include "feature/direct_stepping.h"
+#endif
+
 #if ENABLED(TOUCH_BUTTONS)
   #include "feature/touch/xpt2046.h"
 #endif
@@ -155,6 +175,10 @@
   #include "feature/runout.h"
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "feature/hotend_idle.h"
+#endif
+
 #if ENABLED(TEMP_STAT_LEDS)
   #include "feature/leds/tempstat.h"
 #endif
@@ -183,26 +207,17 @@
   #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
-const char NUL_STR[] PROGMEM = "",
-           M112_KILL_STR[] PROGMEM = "M112 Shutdown",
-           G28_STR[] PROGMEM = "G28",
-           M21_STR[] PROGMEM = "M21",
-           M23_STR[] PROGMEM = "M23 %s",
-           M24_STR[] PROGMEM = "M24",
-           SP_P_STR[] PROGMEM = " P",
-           SP_T_STR[] PROGMEM = " T",
-           SP_X_STR[] PROGMEM = " X",
-           SP_Y_STR[] PROGMEM = " Y",
-           SP_Z_STR[] PROGMEM = " Z",
-           SP_E_STR[] PROGMEM = " E",
-              X_LBL[] PROGMEM =  "X:",
-              Y_LBL[] PROGMEM =  "Y:",
-              Z_LBL[] PROGMEM =  "Z:",
-              E_LBL[] PROGMEM =  "E:",
-           SP_X_LBL[] PROGMEM = " X:",
-           SP_Y_LBL[] PROGMEM = " Y:",
-           SP_Z_LBL[] PROGMEM = " Z:",
-           SP_E_LBL[] PROGMEM = " E:";
+PGMSTR(NUL_STR, "");
+PGMSTR(M112_KILL_STR, "M112 Shutdown");
+PGMSTR(G28_STR, "G28");
+PGMSTR(M21_STR, "M21");
+PGMSTR(M23_STR, "M23 %s");
+PGMSTR(M24_STR, "M24");
+PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
+PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
+PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
+PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
+PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
 MarlinState marlin_state = MF_INITIALIZING;
 
@@ -245,7 +260,11 @@ millis_t max_inactive_time, // = 0
 
 void setup_killpin() {
   #if HAS_KILL
-    SET_INPUT_PULLUP(KILL_PIN);
+    #if KILL_PIN_STATE
+      SET_INPUT_PULLDOWN(KILL_PIN);
+    #else
+      SET_INPUT_PULLUP(KILL_PIN);
+    #endif
   #endif
 }
 
@@ -496,7 +515,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // -------------------------------------------------------------------------------
     static int killCount = 0;   // make the inactivity button a bit less responsive
     const int KILL_DELAY = 750;
-    if (!READ(KILL_PIN))
+    if (kill_state())
       killCount++;
     else if (killCount > 0)
       killCount--;
@@ -527,6 +546,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
   TERN_(AUTO_POWER_CONTROL, powerManager.check());
+
+  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
@@ -678,6 +699,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Handle SD Card insert / remove
   TERN_(SDSUPPORT, card.manage_media());
 
+  // Handle UI input / draw events
+  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+
   // Handle USB Flash Drive insert / remove
   TERN_(USB_FLASH_DRIVE_SUPPORT, Sd2Card::idle());
 
@@ -718,6 +742,13 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
+
+  // Direct Stepping
+  TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
+  #if ENABLED(TFT_LITTLE_VGL_UI)
+    LV_TASK_HANDLER();
+  #endif
 }
 
 /**
@@ -770,10 +801,10 @@ void minkill(const bool steppers_off/*=false*/) {
   #if HAS_KILL
 
     // Wait for kill to be released
-    while (!READ(KILL_PIN)) watchdog_refresh();
+    while (kill_state()) watchdog_refresh();
 
     // Wait for kill to be pressed
-    while (READ(KILL_PIN)) watchdog_refresh();
+    while (!kill_state()) watchdog_refresh();
 
     void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
@@ -854,7 +885,7 @@ void setup() {
     MYSERIAL0.begin(BAUDRATE);
     uint32_t serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       MYSERIAL1.begin(BAUDRATE);
       serial_connect_timeout = millis() + 1000UL;
       while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
@@ -944,8 +975,19 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  SETUP_RUN(ui.init());
-  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
+  #if ENABLED(DWIN_CREALITY_LCD)
+    delay(800);   // Required delay (since boot?)
+    SERIAL_ECHOPGM("\nDWIN handshake ");
+    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+    DWIN_Frame_SetDir(1); // Orientation 90°
+    DWIN_UpdateLCD();     // Show bootscreen (first image)
+  #else
+    SETUP_RUN(ui.init());
+    #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+      SETUP_RUN(ui.show_bootscreen());
+    #endif
+    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
 
   #if BOTH(HAS_SPI_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
@@ -1125,8 +1167,32 @@ void setup() {
     SETUP_RUN(mmu2.init());
   #endif
 
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    BL24CXX::init();
+    const uint8_t err = BL24CXX::check();
+    SERIAL_ECHO_TERNARY(err, "I2C_EEPROM Check ", "failed", "succeeded", "!\n");
+  #endif
+
+  #if ENABLED(DWIN_CREALITY_LCD)
+    Encoder_Configuration();
+    HMI_Init();
+    HMI_StartFrame(true);
+  #endif
+
+  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
+    ui.reset_status(true);  // Show service messages or keep current status
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     SETUP_RUN(max7219.init());
+  #endif
+
+  #if ENABLED(DIRECT_STEPPING)
+    SETUP_RUN(page_manager.init());
+  #endif
+
+  #if ENABLED(TFT_LITTLE_VGL_UI)
+    SETUP_RUN(tft_lvgl_init());
   #endif
 
   marlin_state = MF_RUNNING;
@@ -1160,6 +1226,8 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
+
+    TERN_(TFT_LITTLE_VGL_UI, printer_state_polling());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

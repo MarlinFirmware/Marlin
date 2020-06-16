@@ -70,6 +70,9 @@
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
   #include "thermistor_501.h"
 #endif
+#if ANY_THERMISTOR_IS(502) // Unknown thermistor used by the Zonestar Prusa P802M hot bed
+  #include "thermistor_502.h"
+#endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
   #include "thermistor_512.h"
 #endif
@@ -110,7 +113,7 @@
   #include "thermistor_21.h"
 #endif
 #if ANY_THERMISTOR_IS(22) // Thermistor in a Rostock 301 hot end, calibrated with a multimeter
-  #include "thermistor_22.h"  
+  #include "thermistor_22.h"
 #endif
 #if ANY_THERMISTOR_IS(23) // By AluOne #12622. Formerly 22 above. May need calibration/checking.
   #include "thermistor_23.h"

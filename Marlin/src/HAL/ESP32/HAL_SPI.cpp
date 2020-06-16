@@ -22,13 +22,12 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "HAL.h"
-#include "../shared/HAL_SPI.h"
-#include <pins_arduino.h>
-#include "spi_pins.h"
-#include <SPI.h>
+#include "../../inc/MarlinConfig.h"
 
-#include "../../core/macros.h"
+#include "../shared/HAL_SPI.h"
+
+#include <pins_arduino.h>
+#include <SPI.h>
 
 // ------------------------
 // Public Variables

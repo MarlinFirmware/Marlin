@@ -27,6 +27,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(SDSUPPORT)
+  #include "../sd/cardreader.h"
+#endif
+
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
@@ -111,7 +115,7 @@
 
   #endif // HAS_LCD_MENU
 
-#endif
+#endif // HAS_SPI_LCD
 
 // REPRAPWORLD_KEYPAD (and ADC_KEYPAD)
 #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -267,6 +271,10 @@ public:
     static void buzz(const long duration, const uint16_t freq);
   #endif
 
+  FORCE_INLINE static void chirp() {
+    TERN_(HAS_CHIRP, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+  }
+
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     static void update_indicators();
   #endif
@@ -283,9 +291,13 @@ public:
     static void init_lcd();
     FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
   #else
+    #if ENABLED(DWIN_CREALITY_LCD)
+      static void refresh();
+    #else
+      static inline void refresh()  {}
+    #endif
     static inline bool detected() { return true; }
     static inline void init_lcd() {}
-    static inline void refresh()  {}
   #endif
 
   #if HAS_DISPLAY
@@ -413,6 +425,11 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
+      #if ENABLED(TOUCH_BUTTONS)
+        static bool on_edit_screen;
+        static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
+      #endif
+
       static void status_screen();
 
     #endif
@@ -442,6 +459,16 @@ public:
 
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
+      #define MARLINUI_SCROLL_NAME 1
+    #endif
+    #if MARLINUI_SCROLL_NAME
+      static uint8_t filename_scroll_pos, filename_scroll_max;
+    #endif
+    static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
+  #endif
+
   #if HAS_LCD_MENU
 
     #if ENABLED(TOUCH_BUTTONS)
@@ -453,13 +480,6 @@ public:
       static bool encoderRateMultiplierEnabled;
       static millis_t lastEncoderMovementMillis;
       static void enable_encoder_multiplier(const bool onoff);
-    #endif
-
-    #if ENABLED(SDSUPPORT)
-      #if ENABLED(SCROLL_LONG_FILENAMES)
-        static uint8_t filename_scroll_pos, filename_scroll_max;
-      #endif
-      static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
     #endif
 
     #if IS_KINEMATIC
@@ -508,7 +528,11 @@ public:
     #endif
 
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      TERN(LCD_TIMEOUT_TO_STATUS, defer_return_to_status = defer, UNUSED(defer));
+      #if LCD_TIMEOUT_TO_STATUS > 0
+        defer_return_to_status = defer;
+      #else
+        UNUSED(defer);
+      #endif
     }
 
     static inline void goto_previous_screen_no_defer() {
@@ -518,12 +542,6 @@ public:
 
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       static void reselect_last_file();
-    #endif
-
-    #if ENABLED(G26_MESH_VALIDATION)
-      FORCE_INLINE static void chirp() {
-        TERN_(HAS_BUZZER, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
-      }
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -540,14 +558,40 @@ public:
 
   #endif
 
-  #define LCD_HAS_WAIT_FOR_MOVE EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+  //
+  // EEPROM: Reset / Init / Load / Store
+  //
+  #if HAS_LCD_MENU
+    static void reset_settings();
+  #endif
 
-  #if LCD_HAS_WAIT_FOR_MOVE
+  #if ENABLED(EEPROM_SETTINGS)
+    #if HAS_LCD_MENU
+      static void init_eeprom();
+      static void load_settings();
+      static void store_settings();
+    #endif
+    #if DISABLED(EEPROM_AUTO_INIT)
+      static void eeprom_alert(const uint8_t msgid);
+      static inline void eeprom_alert_crc()     { eeprom_alert(0); }
+      static inline void eeprom_alert_index()   { eeprom_alert(1); }
+      static inline void eeprom_alert_version() { eeprom_alert(2); }
+    #endif
+  #endif
+
+  //
+  // Special handling if a move is underway
+  //
+  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+    #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
     static constexpr bool wait_for_move = false;
   #endif
 
+  //
+  // Block interaction while under external control
+  //
   #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
@@ -611,12 +655,10 @@ private:
   #endif
 
   #if HAS_SPI_LCD
-    #if HAS_LCD_MENU
-      #if LCD_TIMEOUT_TO_STATUS
-        static bool defer_return_to_status;
-      #else
-        static constexpr bool defer_return_to_status = false;
-      #endif
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+      static bool defer_return_to_status;
+    #else
+      static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
   #endif

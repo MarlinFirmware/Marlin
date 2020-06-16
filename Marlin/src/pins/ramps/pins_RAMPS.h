@@ -603,7 +603,7 @@
         #define KILL_PIN                      41
       #endif
 
-      #if ENABLED(MKS_MINI_12864)                 // Added in Marlin 1.1.6
+      #if ENABLED(MKS_MINI_12864)
 
         #define DOGLCD_A0                     27
         #define DOGLCD_CS                     25
@@ -726,7 +726,7 @@
 
   #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_RAMPS.h' for details. Comment out this line to continue."
 
-  /** FYSECT TFT TFT81050 display pinout
+  /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                     Display
    *               _____                                     _____
@@ -753,15 +753,14 @@
    *   EXP2-1 ----------- EXP1-2
    *  EXP1-10 ----------- EXP1-1
    *
+   *  NOTE: The MISO pin should not get a 5V signal.
+   *        To fix, insert a 1N4148 diode in the MISO line.
    */
 
   #define BEEPER_PIN                          37
 
-  #define BTN_EN1                             31
-  #define LCD_PINS_RS                         33
-
   #define SD_DETECT_PIN                       49
 
-  #define KILL_PIN                            -1
-
+  #define CLCD_MOD_RESET                      31
+  #define CLCD_SPI_CS                         33
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050

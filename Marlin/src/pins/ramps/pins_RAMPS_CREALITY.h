@@ -47,7 +47,6 @@
   #define PS_ON_PIN                           40  // Used by CR2020 Industrial series
 #endif
 
-
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN)
   #define CASE_LIGHT_PIN                      65
 #endif
@@ -65,5 +64,5 @@
 
 #define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
 #ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING             true
+  #define SUICIDE_PIN_INVERTING true
 #endif

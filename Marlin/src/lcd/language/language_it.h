@@ -262,8 +262,12 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Autotemp");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("On");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("Calibrazione PID");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("Calibraz. PID *");
+  PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("Calibr.PID eseguita");
+  PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Calibrazione fallita. Estrusore errato.");
+  PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Calibrazione fallita. Temperatura troppo alta.");
+  PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Calibrazione fallita! Tempo scaduto.");
   PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
   PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
   PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
@@ -299,6 +303,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Amax *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-Ritrazione");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-Spostamento");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Frequenza max");
+  PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Feed min");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Passi/mm");
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("passi/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("passi/mm");
@@ -336,6 +342,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("Stop");
   PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("Stampa");
   PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Resetta");
+  PROGMEM Language_Str MSG_BUTTON_IGNORE                   = _UxGT("Ignora");
   PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Annulla");
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Fatto");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Indietro");
@@ -479,8 +486,12 @@ namespace Language_it {
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocollo");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("Controllo fuga: OFF");
   PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("Controllo fuga: ON");
+  PROGMEM Language_Str MSG_HOTEND_IDLE_TIMEOUT             = _UxGT("Timeout inatt.ugello");
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luci Case");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Luminosità Luci");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("STAMPANTE ERRATA");
+
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Contat. stampa");
     PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Completati");
@@ -564,7 +575,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Stampante errata");
+  PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Indice pag. errato");
+  PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Vel. pag. errata");
 
   //
   // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe

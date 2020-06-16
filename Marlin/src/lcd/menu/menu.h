@@ -65,10 +65,10 @@ class MenuItemBase {
   public:
     // An index to interject in the item label and for
     // use by the action
-    static uint8_t itemIndex;
+    static int8_t itemIndex;
 
     // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const uint8_t ind) { itemIndex = ind; }
+    FORCE_INLINE static void init(const int8_t ind) { itemIndex = ind; }
 
     // Draw an item either selected (pre_char) or not (space) with post_char
     static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
@@ -587,11 +587,6 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
-#endif
-
-#if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings();
-  void lcd_load_settings();
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)

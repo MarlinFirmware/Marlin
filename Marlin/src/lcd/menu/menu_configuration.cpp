@@ -30,8 +30,6 @@
 
 #include "menu.h"
 
-#include "../../module/configuration_store.h"
-
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
@@ -174,7 +172,7 @@ void menu_advanced_settings();
     EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Y, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
     EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Z, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
-      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
     END_MENU();
   }
@@ -271,24 +269,6 @@ void menu_advanced_settings();
 
 #endif
 
-#if ENABLED(CASE_LIGHT_MENU)
-
-  #include "../../feature/caselight.h"
-
-  #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-
-    void menu_case_light() {
-      START_MENU();
-      BACK_ITEM(MSG_CONFIGURATION);
-      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
-      EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-      END_MENU();
-    }
-
-  #endif
-
-#endif
-
 #if ENABLED(FWRETRACT)
 
   #include "../../feature/fwretract.h"
@@ -335,7 +315,7 @@ void menu_advanced_settings();
       EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
     END_MENU();
   }
@@ -405,18 +385,6 @@ void menu_configuration() {
     #endif
   #endif
 
-  //
-  // Set Case light on/off/brightness
-  //
-  #if ENABLED(CASE_LIGHT_MENU)
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (TERN1(CASE_LIGHT_USE_NEOPIXEL, PWM_PIN(CASE_LIGHT_PIN)))
-        SUBMENU(MSG_CASE_LIGHT, menu_case_light);
-      else
-    #endif
-        EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-  #endif
-
   #if HAS_LCD_CONTRAST
     EDIT_ITEM(int3, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
@@ -439,12 +407,11 @@ void menu_configuration() {
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
-    if (!busy) ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
+    ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
+    if (!busy) ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
   #endif
 
-  if (!busy)
-    ACTION_ITEM(MSG_RESTORE_DEFAULTS, []{ settings.reset(); ui.completion_feedback(); });
+  if (!busy) ACTION_ITEM(MSG_RESTORE_DEFAULTS, ui.reset_settings);
 
   END_MENU();
 }

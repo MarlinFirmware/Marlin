@@ -49,7 +49,11 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
   #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
 #endif
 
-#define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(ST##_RSENSE), ST##_SLAVE_ADDRESS)
+#if ENABLED(TMC_SERIAL_MULTIPLEXER)
+  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(ST##_RSENSE), ST##_SLAVE_ADDRESS, SERIAL_MUL_PIN1, SERIAL_MUL_PIN2)
+#else
+  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(ST##_RSENSE), ST##_SLAVE_ADDRESS)
+#endif
 #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, float(ST##_RSENSE), ST##_SLAVE_ADDRESS, ST##_SERIAL_RX_PIN > -1)
 
 #define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
@@ -58,7 +62,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 #define _TMC_UART_DEFINE(SWHW, IC, ST, AI) TMC_UART_##SWHW##_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
 #define TMC_UART_DEFINE(SWHW, ST, AI) _TMC_UART_DEFINE(SWHW, ST##_DRIVER_TYPE, ST, AI##_AXIS)
 
-#if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+#if DISTINCT_E > 1
   #define TMC_SPI_DEFINE_E(AI) TMC_SPI_DEFINE(E##AI, E##AI)
   #define TMC_UART_DEFINE_E(SWHW, AI) TMC_UART_DEFINE(SWHW, E##AI, E##AI)
 #else
@@ -318,15 +322,19 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
   enum TMCAxis : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7, TOTAL };
 
   void tmc_serial_begin() {
-    struct {
-      const void *ptr[TMCAxis::TOTAL];
-      bool began(const TMCAxis a, const void * const p) {
-        LOOP_L_N(i, a) if (p == ptr[i]) return true;
-        ptr[a] = p; return false;
-      };
-    } sp_helper;
-    #define HW_SERIAL_BEGIN(A) do{ if (!sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
-                                         A##_HARDWARE_SERIAL.begin(TMC_BAUD_RATE); }while(0)
+    #if HAS_TMC_HW_SERIAL
+      struct {
+        const void *ptr[TMCAxis::TOTAL];
+        bool began(const TMCAxis a, const void * const p) {
+          LOOP_L_N(i, a) if (p == ptr[i]) return true;
+          ptr[a] = p; return false;
+        };
+      } sp_helper;
+
+      #define HW_SERIAL_BEGIN(A) do{ if (!sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
+                                          A##_HARDWARE_SERIAL.begin(TMC_BAUD_RATE); }while(0)
+    #endif
+
     #if AXIS_HAS_UART(X)
       #ifdef X_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(X);

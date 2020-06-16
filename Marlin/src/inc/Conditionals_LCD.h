@@ -35,7 +35,15 @@
   #define IS_CARTESIAN 1
 #endif
 
-#if ENABLED(CARTESIO_UI)
+#if ENABLED(MKS_LCD12864)
+  #define MKS_MINI_12864
+#endif
+
+#if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+
+  #define MINIPANEL
+
+#elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
   #define IS_ULTIPANEL
@@ -117,10 +125,6 @@
 
   #define IS_RRD_SC
   #define IS_U8GLIB_SSD1306
-
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-
-  #define MINIPANEL
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
 
@@ -241,6 +245,8 @@
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
+#elif ENABLED(SPI_GRAPHICAL_TFT)
+  #define DELAYED_BACKLIGHT_INIT
 #endif
 
 /**
@@ -335,9 +341,7 @@
 #endif
 #if ENABLED(ULTIPANEL)
   #define IS_ULTRA_LCD
-  #ifndef NEWPANEL
-    #define NEWPANEL
-  #endif
+  #define NEWPANEL
 #endif
 
 #if ENABLED(IS_ULTRA_LCD)
@@ -410,13 +414,13 @@
 #if EXTRUDERS == 0
   #undef EXTRUDERS
   #define EXTRUDERS 0
-  #undef DISTINCT_E_FACTORS
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef MK2_MULTIPLEXER
   #undef PRUSA_MMU2
+  #undef HOTEND_IDLE_TIMEOUT
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -515,14 +519,27 @@
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_E E_STEPPERS
   #define XYZE_N (XYZ + E_STEPPERS)
+  #define E_INDEX_N(E) (E)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
   #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
+  #define DISTINCT_E 1
   #define XYZE_N XYZE
+  #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
 #endif
 
 /**
@@ -569,7 +586,7 @@
 #if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
   #define HAS_Z_SERVO_PROBE 1
 #endif
-#if HAS_Z_SERVO_PROBE || EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+#if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
   #define HAS_SERVO_ANGLES 1
 #endif
 #if !HAS_SERVO_ANGLES
@@ -583,7 +600,7 @@
   #define HAS_BED_PROBE 1
 #endif
 
-#if HAS_BED_PROBE || EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
 
@@ -604,7 +621,7 @@
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
-    #if EXTRA_PROBING
+    #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
     #else
       #define TOTAL_PROBING MULTIPLE_PROBING
@@ -681,7 +698,7 @@
 #endif
 
 // This flag indicates some kind of jerk storage is needed
-#if ENABLED(CLASSIC_JERK) || IS_KINEMATIC
+#if EITHER(CLASSIC_JERK, IS_KINEMATIC)
   #define HAS_CLASSIC_JERK 1
 #endif
 

@@ -83,13 +83,21 @@ exec_test $1 $2 "Mixing Extruder"
 # opt_set NUM_SERVOS 1
 # opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
 # exec_test $1 $2 "SWITCHING_EXTRUDER"
+
 #
 # Enable COREXY
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable COREXY
-exec_test $1 $2 "COREXY"
+opt_set X_DRIVER_TYPE TMC5160
+opt_set Y_DRIVER_TYPE TMC5160
+opt_set X_MIN_ENDSTOP_INVERTING true
+opt_set Y_MIN_ENDSTOP_INVERTING true
+opt_add X_CS_PIN 46
+opt_add Y_CS_PIN 47
+opt_enable USE_ZMIN_PLUG MONITOR_DRIVER_STATUS SENSORLESS_HOMING
+exec_test $1 $2 "Teensy 3.5/3.6 COREXY"
 
 #
 # Enable COREXZ
@@ -97,7 +105,7 @@ exec_test $1 $2 "COREXY"
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable COREXZ
-exec_test $1 $2 "COREXZ"
+exec_test $1 $2 "Teensy 3.5/3.6 COREXZ"
 
 #
 # Enable Dual Z with Dual Z endstops

@@ -70,6 +70,9 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
 #endif
 
 // Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
@@ -139,11 +142,11 @@
 //
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define HAS_CUTTER 1
-  #define _CUTTER_DISP_PWM255  1
-  #define _CUTTER_DISP_PERCENT 2
-  #define _CUTTER_DISP_RPM     3
-  #define _CUTTER_DISP(V)      _CAT(_CUTTER_DISP_, V)
-  #define CUTTER_DISPLAY_IS(V) (_CUTTER_DISP(CUTTER_POWER_DISPLAY) == _CUTTER_DISP(V))
+  #define _CUTTER_POWER_PWM255  1
+  #define _CUTTER_POWER_PERCENT 2
+  #define _CUTTER_POWER_RPM     3
+  #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT)    == _CUTTER_POWER(V))
 #endif
 
 // Add features that need hardware PWM here
@@ -259,11 +262,10 @@
 #endif
 
 /**
- * Driver Timings
+ * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.
  *       Preserve this ordering when adding new drivers.
  */
-
 #ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
@@ -278,7 +280,7 @@
   #elif HAS_DRIVER(A4988)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 200
   #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 60
   #else
     #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
   #endif
@@ -321,6 +323,18 @@
     #define MAXIMUM_STEPPER_RATE 5000000
   #else
     #define MAXIMUM_STEPPER_RATE 250000
+  #endif
+#endif
+
+#if ENABLED(DIRECT_STEPPING)
+  #ifndef STEPPER_PAGES
+    #define STEPPER_PAGES 16
+  #endif
+  #ifndef STEPPER_PAGE_FORMAT
+    #define STEPPER_PAGE_FORMAT SP_4x2_256
+  #endif
+  #ifndef PAGE_MANAGER
+    #define PAGE_MANAGER SerialPageManager
   #endif
 #endif
 

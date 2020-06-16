@@ -40,6 +40,10 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  bool PrintJobRecovery::dwin_flag; // = false
+#endif
+
 #include "../sd/cardreader.h"
 #include "../lcd/ultralcd.h"
 #include "../gcode/queue.h"
@@ -105,6 +109,7 @@ void PrintJobRecovery::check() {
     load();
     if (!valid()) return cancel();
     queue.inject_P(PSTR("M1000 S"));
+    TERN_(DWIN_CREALITY_LCD, dwin_flag = true);
   }
 }
 
@@ -185,7 +190,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       #if EXTRUDERS > 1
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
-        if (parser.volumetric_enabled) info.filament_size = planner.filament_size[active_extruder];
+        if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
       #endif
     #endif
 
@@ -331,7 +336,7 @@ void PrintJobRecovery::resume() {
       }
     #else
       if (info.volumetric_enabled) {
-        dtostrf(info.filament_size, 1, 3, str_1);
+        dtostrf(info.filament_size[0], 1, 3, str_1);
         sprintf_P(cmd, PSTR("M200 D%s"), str_1);
         gcode.process_subcommands_now(cmd);
       }

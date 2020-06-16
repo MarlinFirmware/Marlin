@@ -84,7 +84,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
       response.filament_present(extruder);
     }
 
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
       static inline float& runout_distance() { return response.runout_distance_mm; }
       static inline void set_runout_distance(const float &mm) { response.runout_distance_mm = mm; }
     #endif
@@ -103,15 +103,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
       if ( enabled && !filament_ran_out
         && (printingIsActive() || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print))
       ) {
-        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-          cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
-        #endif
+        TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
         const bool ran_out = response.has_run_out();
-        #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-          sei();
-        #endif
+        TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
         if (ran_out) {
           filament_ran_out = true;
           event_filament_runout();
@@ -140,6 +136,7 @@ class FilamentSensorBase {
       #define _INIT_RUNOUT(N) INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN);
       REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _INIT_RUNOUT)
       #undef _INIT_RUNOUT
+      #undef INIT_RUNOUT_PIN
     }
 
     // Return a bitmask of runout pin states
@@ -151,10 +148,8 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      return poll_runout_pins() ^ uint8_t(TERN0(FIL_RUNOUT_INVERTING, _BV(NUM_RUNOUT_SENSORS) - 1));
+      return poll_runout_pins() ^ uint8_t(TERN(FIL_RUNOUT_INVERTING, 0, _BV(NUM_RUNOUT_SENSORS) - 1));
     }
-
-  #undef INIT_RUNOUT_PIN
 };
 
 #if ENABLED(FILAMENT_MOTION_SENSOR)
@@ -243,7 +238,7 @@ class FilamentSensorBase {
 
 /********************************* RESPONSE TYPE *********************************/
 
-#ifdef FILAMENT_RUNOUT_DISTANCE_MM
+#if HAS_FILAMENT_RUNOUT_DISTANCE
 
   // RunoutResponseDelayed triggers a runout event only if the length
   // of filament specified by FILAMENT_RUNOUT_DISTANCE_MM has been fed
@@ -294,7 +289,7 @@ class FilamentSensorBase {
       }
   };
 
-#else // !FILAMENT_RUNOUT_DISTANCE_MM
+#else // !HAS_FILAMENT_RUNOUT_DISTANCE
 
   // RunoutResponseDebounced triggers a runout event after a runout
   // condition has been detected runout_threshold times in a row.
@@ -311,17 +306,13 @@ class FilamentSensorBase {
       static inline void filament_present(const uint8_t)          { runout_count = runout_threshold; }
   };
 
-#endif // !FILAMENT_RUNOUT_DISTANCE_MM
+#endif // !HAS_FILAMENT_RUNOUT_DISTANCE
 
 /********************************* TEMPLATE SPECIALIZATION *********************************/
 
 typedef TFilamentMonitor<
-  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    RunoutResponseDelayed,
-    TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
-  #else
-    RunoutResponseDebounced, FilamentSensorSwitch
-  #endif
-> FilamentMonitor;
+          TERN(HAS_FILAMENT_RUNOUT_DISTANCE, RunoutResponseDelayed, RunoutResponseDebounced),
+          TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
+        > FilamentMonitor;
 
 extern FilamentMonitor runout;
