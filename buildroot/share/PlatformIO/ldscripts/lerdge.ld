@@ -1,7 +1,6 @@
 /*
 *****************************************************************************
 **
-
 **  File        : LinkerScript.ld
 **
 **  Abstract    : Linker script for STM32F407VGTx Device with
