@@ -1489,6 +1489,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "POWER_MONITOR_VOLTAGE requires POWER_MONITOR_VOLTAGE_PIN to be defined."
 #elif BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE) && POWER_MONITOR_CURRENT_PIN == POWER_MONITOR_VOLTAGE_PIN
   #error "POWER_MONITOR_CURRENT_PIN and POWER_MONITOR_VOLTAGE_PIN must be different."
+#endif
 
 /**
  * Volumetric Extruder Limit
