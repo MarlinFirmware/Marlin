@@ -185,7 +185,7 @@ int CardReader::countItems(SdFile dir) {
   while (dir.readDir(&p, longFilename) > 0)
     c += is_dir_or_gcode(p);
 
-  #if ENABLED(SDCARD_SORT_ALPHA) && SDSORT_USES_RAM && SDSORT_CACHE_NAMES
+  #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
     nrFiles = c;
   #endif
 
@@ -430,7 +430,9 @@ void CardReader::release() {
   endFilePrint();
   flag.mounted = false;
   flag.workDirIsRoot = true;
-  nrFiles = 0;
+  #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
+    nrFiles = 0;
+  #endif
 }
 
 void CardReader::openAndPrintFile(const char *name) {
