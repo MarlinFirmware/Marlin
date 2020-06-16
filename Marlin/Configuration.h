@@ -2117,7 +2117,7 @@
 //#define FSMC_GRAPHICAL_TFT
 
 //
-//  TFT Little VGL UI
+// TFT Little VGL UI
 //
 //#define TFT_LITTLE_VGL_UI
 
