@@ -240,7 +240,7 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-  #if DISABLED(MKS_LCD12864B)
+  #if DISABLED(MKS_LCD12864)
 
     #if PIN_EXISTS(LCD_BACKLIGHT)
       OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
@@ -272,7 +272,7 @@ void MarlinUI::init_lcd() {
     TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
     TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
 
-  #endif // !MKS_LCD12864B
+  #endif // !MKS_LCD12864
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
