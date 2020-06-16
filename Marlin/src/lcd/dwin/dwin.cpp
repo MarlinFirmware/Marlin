@@ -1601,6 +1601,16 @@ void HMI_StartFrame(const bool with_update) {
   }
 }
 
+#ifndef MACHINE_SIZE
+  #define MACHINE_SIZE "220x220x250"
+#endif
+#ifndef CORP_WEBSITE_C
+  #define CORP_WEBSITE_C "www.cxsw3d.com"
+#endif
+#ifndef CORP_WEBSITE_E
+  #define CORP_WEBSITE_E "www.creality.com"
+#endif
+
 inline void Draw_Info_Menu() {
   Clear_Main_Window();
 
