@@ -49,17 +49,17 @@
 // currently officially supports).
 #ifndef BOARD_RCC_PLLMUL
   #if !USE_HSI_CLOCK
-  #if F_CPU==128000000
-    #define BOARD_RCC_PLLMUL RCC_PLLMUL_16
-  #elif F_CPU==72000000
-    #define BOARD_RCC_PLLMUL RCC_PLLMUL_9
-  #elif F_CPU==48000000
-    #define BOARD_RCC_PLLMUL RCC_PLLMUL_6
-  #elif F_CPU==16000000
-    #define BOARD_RCC_PLLMUL RCC_PLLMUL_2
-  #endif
+    #if F_CPU==128000000
+      #define BOARD_RCC_PLLMUL RCC_PLLMUL_16
+    #elif F_CPU==72000000
+      #define BOARD_RCC_PLLMUL RCC_PLLMUL_9
+    #elif F_CPU==48000000
+      #define BOARD_RCC_PLLMUL RCC_PLLMUL_6
+    #elif F_CPU==16000000
+      #define BOARD_RCC_PLLMUL RCC_PLLMUL_2
+    #endif
   #else
-  #define BOARD_RCC_PLLMUL RCC_PLLMUL_16
+    #define BOARD_RCC_PLLMUL RCC_PLLMUL_16
   #endif
 #endif
 
@@ -83,33 +83,39 @@ namespace wirish {
             rcc_set_prescaler(RCC_PRESCALER_AHB, RCC_AHB_SYSCLK_DIV_1);
             rcc_set_prescaler(RCC_PRESCALER_APB1, RCC_APB1_HCLK_DIV_2);
             rcc_set_prescaler(RCC_PRESCALER_APB2, RCC_APB2_HCLK_DIV_1);
-      rcc_clk_disable(RCC_USB);
-      #if F_CPU == 72000000
-      rcc_set_prescaler(RCC_PRESCALER_USB, RCC_USB_SYSCLK_DIV_1_5);
-      #elif F_CPU == 48000000
-      rcc_set_prescaler(RCC_PRESCALER_USB, RCC_USB_SYSCLK_DIV_1);     
-      #endif  
+            rcc_clk_disable(RCC_USB);
+#if F_CPU == 72000000
+            rcc_set_prescaler(RCC_PRESCALER_USB, RCC_USB_SYSCLK_DIV_1_5);
+#elif F_CPU == 48000000
+            rcc_set_prescaler(RCC_PRESCALER_USB, RCC_USB_SYSCLK_DIV_1);
+#endif
         }
 
         __weak void board_setup_gpio(void) {
+            /**
+             * PA14 is a pull up pin. But, some V5 boards it start with LOW state! And just behave properly when the Z- PROBE is actived at least once.
+             * So, if the sensor isnt actived, the PA14 pin will be forever in LOW state, telling Marlin the probe IS ALWAYS ACTIVE, that isnt the case!
+             * Chitu original firmware seems to start with every pullup PIN with HIGH to workaround this.
+             * So we are doing the same here.
+             * This hack only works if applied *before* the GPIO Init, it's the reason I did it here.
+             */
+            #ifdef CHITU_V5_Z_MIN_BUGFIX
+              GPIOA->regs->BSRR = (1U << PA14);
+            #endif
             gpio_init_all();
         }
 
         __weak void board_setup_usb(void) {
-      
+#ifdef SERIAL_USB
+#ifdef GENERIC_BOOTLOADER
+          // Reset the USB interface on generic boards - developed by Victor PV
+          gpio_set_mode(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit, GPIO_OUTPUT_PP);
+          gpio_write_bit(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit,0);
 
-  
-#ifdef SERIAL_USB 
-#ifdef GENERIC_BOOTLOADER     
-      //Reset the USB interface on generic boards - developed by Victor PV
-      gpio_set_mode(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit, GPIO_OUTPUT_PP);
-      gpio_write_bit(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit,0);
-      
-      for(volatile unsigned int i=0;i<512;i++);// Only small delay seems to be needed, and USB pins will get configured in Serial.begin
-      gpio_set_mode(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit, GPIO_INPUT_FLOATING);
-#endif  
-
-      Serial.begin();// Roger Clark. Changed SerialUSB to Serial for Arduino sketch compatibility
+          for (volatile unsigned int i = 0; i < 512; i++); // Only small delay seems to be needed, and USB pins will get configured in Serial.begin
+          gpio_set_mode(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit, GPIO_INPUT_FLOATING);
+#endif
+          Serial.begin(); // Roger Clark. Changed SerialUSB to Serial for Arduino sketch compatibility
 #endif
         }
 
@@ -118,6 +124,5 @@ namespace wirish {
             // interrupts work out of the box.
             afio_init();
         }
-
     }
 }

@@ -254,4 +254,8 @@
 #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
 #define INFO_FONT_WIDTH   6
 
+#ifndef FSMC_UPSCALE
+  #define FSMC_UPSCALE 2
+#endif
+
 extern U8G_CLASS u8g;

@@ -67,6 +67,7 @@ jobs:
         - rumba32_f446ve
         - rumba32_mks
         - mks_robin_pro
+        - STM32F103RET6_creality
 
         # Put lengthy tests last
 

@@ -32,6 +32,11 @@
 #include "../HAL/shared/Delay.h"
 
 #include "../lcd/ultralcd.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/dwin.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -560,6 +565,7 @@ volatile bool Temperature::raw_temps_ready = false;
         #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
       #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
+        TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -612,7 +618,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
         goto EXIT_M303;
       }
-      ui.update();
+      TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
     }
 
     disable_all_heaters();
@@ -794,10 +800,12 @@ void Temperature::_temp_error(const heater_ind_t heater, PGM_P const serial_msg,
 }
 
 void Temperature::max_temp_error(const heater_ind_t heater) {
+  TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(1));
   _temp_error(heater, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 }
 
 void Temperature::min_temp_error(const heater_ind_t heater) {
+  TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
   _temp_error(heater, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
@@ -1029,8 +1037,10 @@ void Temperature::manage_heater() {
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
         if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
-          if (degHotend(e) < watch_hotend[e].target)                            // Failed to increase enough?
+          if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
+            TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
             _temp_error((heater_ind_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+          }
           else                                                                  // Start again if the target is still far off
             start_watching_hotend(e);
         }
@@ -1071,8 +1081,10 @@ void Temperature::manage_heater() {
     #if WATCH_BED
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {        // Time to check the bed?
-        if (degBed() < watch_bed.target)                                // Failed to increase enough?
+        if (degBed() < watch_bed.target) {                              // Failed to increase enough?
+          TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
           _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+        }
         else                                                            // Start again if the target is still far off
           start_watching_bed();
       }
@@ -1981,6 +1993,7 @@ void Temperature::init() {
         sm.state = TRRunaway;
 
       case TRRunaway:
+        TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
         _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
     }
   }
@@ -3082,7 +3095,13 @@ void Temperature::tick() {
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
       if (wait_for_heatup) {
-        ui.reset_status();
+        #if ENABLED(DWIN_CREALITY_LCD)
+          HMI_flag.heat_flag = 0;
+          duration_t elapsed = print_job_timer.duration();  // print timer
+          heat_time = elapsed.value;
+        #else
+          ui.reset_status();
+        #endif
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
       }
 

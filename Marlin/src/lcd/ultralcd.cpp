@@ -40,7 +40,7 @@ MarlinUI ui;
   #include "../gcode/queue.h"
   #include "fontutils.h"
   #include "../sd/cardreader.h"
-  #if ENABLED(EXTENSIBLE_UI)
+  #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
     #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
   #endif
 #endif
@@ -56,7 +56,7 @@ MarlinUI ui;
   #else
     constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
   #endif
-#elif ENABLED(EXTENSIBLE_UI)
+#elif EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
   constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
@@ -145,40 +145,41 @@ millis_t MarlinUI::next_button_update_ms; // = 0
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
-#if HAS_LCD_MENU
-  #include "menu/menu.h"
+#if ENABLED(SDSUPPORT)
+
   #include "../sd/cardreader.h"
 
-  #if ENABLED(SDSUPPORT)
-
-    #if ENABLED(SCROLL_LONG_FILENAMES)
-      uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
-    #endif
-
-    const char * MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll) {
-      const char *outstr = theCard.longest_filename();
-      if (theCard.longFilename[0]) {
-        #if ENABLED(SCROLL_LONG_FILENAMES)
-          if (doScroll) {
-            for (uint8_t l = FILENAME_LENGTH; l--;)
-              hash = ((hash << 1) | (hash >> 7)) ^ theCard.filename[l];      // rotate, xor
-            static uint8_t filename_scroll_hash;
-            if (filename_scroll_hash != hash) {                              // If the hash changed...
-              filename_scroll_hash = hash;                                   // Save the new hash
-              filename_scroll_max = _MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
-              filename_scroll_pos = 0;                                       // Reset scroll to the start
-              lcd_status_update_delay = 8;                                   // Don't scroll right away
-            }
-            outstr += filename_scroll_pos;
-          }
-        #else
-          theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
-        #endif
-      }
-      return outstr;
-    }
-
+  #if MARLINUI_SCROLL_NAME
+    uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
   #endif
+
+  const char * MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll) {
+    const char *outstr = theCard.longest_filename();
+    if (theCard.longFilename[0]) {
+      #if MARLINUI_SCROLL_NAME
+        if (doScroll) {
+          for (uint8_t l = FILENAME_LENGTH; l--;)
+            hash = ((hash << 1) | (hash >> 7)) ^ theCard.filename[l];      // rotate, xor
+          static uint8_t filename_scroll_hash;
+          if (filename_scroll_hash != hash) {                              // If the hash changed...
+            filename_scroll_hash = hash;                                   // Save the new hash
+            filename_scroll_max = _MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
+            filename_scroll_pos = 0;                                       // Reset scroll to the start
+            lcd_status_update_delay = 8;                                   // Don't scroll right away
+          }
+          outstr += filename_scroll_pos;
+        }
+      #else
+        theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
+      #endif
+    }
+    return outstr;
+  }
+
+#endif
+
+#if HAS_LCD_MENU
+  #include "menu/menu.h"
 
   screenFunc_t MarlinUI::currentScreen; // Initialized in CTOR
   bool MarlinUI::screen_changed;
@@ -1455,7 +1456,7 @@ void MarlinUI::update() {
         encoderDiff = ENCODER_PULSES_PER_STEP * ydir;
       else if (screen_items > 0) {
         // Last 3 cols act as a scroll :-)
-        if (col > (LCD_WIDTH) - 3)
+        if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
           encoderDiff = ENCODER_PULSES_PER_STEP * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
         else
@@ -1579,5 +1580,7 @@ void MarlinUI::update() {
         set_status_P(eeprom_err(msgid));
       #endif
     }
-  #endif
-#endif
+
+  #endif // EEPROM_AUTO_INIT
+
+#endif // EEPROM_SETTINGS
