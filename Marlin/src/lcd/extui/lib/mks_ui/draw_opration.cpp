@@ -50,6 +50,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_O_PRE_HEAT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_opration();
@@ -58,6 +59,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_O_EXTRUCT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_opration();
@@ -66,6 +68,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_O_MOV:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_opration();
@@ -74,12 +77,14 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_O_FILAMENT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
       }
       break;
     case ID_O_FAN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_opration();
@@ -88,6 +93,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_O_SPEED:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_opration();
@@ -96,6 +102,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_O_RETURN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         clear_cur_ui();
@@ -104,6 +111,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_O_POWER_OFF:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (gCfgItems.finish_power_off == 1) {

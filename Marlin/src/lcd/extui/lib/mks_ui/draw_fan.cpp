@@ -50,6 +50,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_F_ADD:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (fanSpeed + 1 <= 255) {
@@ -62,6 +63,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_F_DEC:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (fanSpeed > 0) {
@@ -75,6 +77,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_F_HIGH:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.enqueue_one_now(PSTR("M106 S255"));
@@ -82,6 +85,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_F_MID:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.enqueue_one_now(PSTR("M106 S127"));
@@ -89,6 +93,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_F_OFF:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.enqueue_one_now(PSTR("M107"));
@@ -96,6 +101,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_F_RETURN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         clear_cur_ui();

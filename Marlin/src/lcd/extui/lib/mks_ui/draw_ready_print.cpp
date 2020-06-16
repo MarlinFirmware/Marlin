@@ -54,6 +54,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_TOOL:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         #if ENABLED(MKS_TEST)
@@ -65,6 +66,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_SET:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);
@@ -73,6 +75,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_PRINT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);

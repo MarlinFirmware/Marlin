@@ -48,12 +48,14 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_S_WIFI:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
       }
       break;
     case ID_S_FAN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);
@@ -62,6 +64,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_S_ABOUT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);
@@ -73,6 +76,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_S_MOTOR_OFF:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         #if HAS_SUICIDE
@@ -84,6 +88,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_S_LANGUAGE:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);
@@ -92,6 +97,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_S_RETURN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);

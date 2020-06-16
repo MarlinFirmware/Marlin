@@ -55,6 +55,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_E_ADD:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
@@ -70,6 +71,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_E_DEC:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
@@ -85,6 +87,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_E_TYPE:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (EXTRUDERS == 2) {
@@ -108,6 +111,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_E_STEP:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         switch (abs(uiCfg.extruStep)) {
@@ -121,6 +125,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_E_SPEED:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         switch (uiCfg.extruSpeed) {
@@ -134,6 +139,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_E_RETURN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         clear_cur_ui();

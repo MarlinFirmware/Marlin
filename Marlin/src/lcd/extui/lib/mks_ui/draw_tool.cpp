@@ -52,6 +52,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_T_PRE_HEAT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_tool();
@@ -60,6 +61,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_T_EXTRUCT:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_tool();
@@ -68,6 +70,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_T_MOV:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_tool();
@@ -76,6 +79,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_T_HOME:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_clear_tool();
@@ -84,6 +88,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_T_LEVELING:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -100,6 +105,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     case ID_T_MORE: break;
     case ID_T_RETURN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         TERN_(MKS_TEST, curent_disp_ui = 1);

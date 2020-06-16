@@ -66,6 +66,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_PAUSE:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (gcode_preview_over != 1) {
@@ -107,6 +108,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
     case ID_STOP:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (gcode_preview_over != 1) {
@@ -117,6 +119,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_OPTION:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (gcode_preview_over != 1) {

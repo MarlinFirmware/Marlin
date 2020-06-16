@@ -49,6 +49,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_M_X_P:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
@@ -62,6 +63,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_X_N:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
@@ -75,6 +77,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_Y_P:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
@@ -88,6 +91,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_Y_N:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
@@ -101,6 +105,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_Z_P:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
@@ -114,6 +119,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_Z_N:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
@@ -127,6 +133,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_STEP:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         if (abs(10 * (int)uiCfg.move_dist) == 100)
@@ -140,6 +147,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_M_RETURN:
       if (event == LV_EVENT_CLICKED) {
+        // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
         clear_cur_ui();
