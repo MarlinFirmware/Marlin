@@ -92,11 +92,13 @@ namespace wirish {
         }
 
         __weak void board_setup_gpio(void) {
-            //PA14 is a pull up pin. But, some V5 boards it start with LOW state! And just behave properly when the Z- PROBE is actived at least once.
-            //So, if the sensor isnt actived, the PA14 pin will be forever in LOW state, telling Marlin the probe IS ALWAYS ACTIVE, that isnt the case!
-            //Chitu original firmware seems to start with every pullup PIN with HIGH to workaround this.
-            //So we are doing the same here.
-            //This hack only works if applied *before* the GPIO Init, it's the reason I did it here.
+            /**
+             * PA14 is a pull up pin. But, some V5 boards it start with LOW state! And just behave properly when the Z- PROBE is actived at least once.
+             * So, if the sensor isnt actived, the PA14 pin will be forever in LOW state, telling Marlin the probe IS ALWAYS ACTIVE, that isnt the case!
+             * Chitu original firmware seems to start with every pullup PIN with HIGH to workaround this.
+             * So we are doing the same here.
+             * This hack only works if applied *before* the GPIO Init, it's the reason I did it here.
+             */
             #ifdef CHITU_V5_Z_MIN_BUGFIX
               GPIOA->regs->BSRR = (1U << PA14);
             #endif
@@ -104,12 +106,10 @@ namespace wirish {
         }
 
         __weak void board_setup_usb(void) {
-      
 
-  
 #ifdef SERIAL_USB 
 #ifdef GENERIC_BOOTLOADER     
-      //Reset the USB interface on generic boards - developed by Victor PV
+      // Reset the USB interface on generic boards - developed by Victor PV
       gpio_set_mode(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit, GPIO_OUTPUT_PP);
       gpio_write_bit(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit,0);
       
@@ -117,7 +117,7 @@ namespace wirish {
       gpio_set_mode(PIN_MAP[PA12].gpio_device, PIN_MAP[PA12].gpio_bit, GPIO_INPUT_FLOATING);
 #endif  
 
-      Serial.begin();// Roger Clark. Changed SerialUSB to Serial for Arduino sketch compatibility
+      Serial.begin(); // Roger Clark. Changed SerialUSB to Serial for Arduino sketch compatibility
 #endif
         }
 
@@ -126,6 +126,5 @@ namespace wirish {
             // interrupts work out of the box.
             afio_init();
         }
-
     }
 }
