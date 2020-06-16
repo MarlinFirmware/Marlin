@@ -73,10 +73,6 @@
   extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 #endif
 
-#ifndef FSMC_UPSCALE
-  #define FSMC_UPSCALE 2
-#endif
-
 #define WIDTH LCD_PIXEL_WIDTH
 #define HEIGHT LCD_PIXEL_HEIGHT
 #define PAGE_HEIGHT 8

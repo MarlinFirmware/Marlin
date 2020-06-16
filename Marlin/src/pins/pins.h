@@ -291,7 +291,7 @@
 #elif MB(MELZI_MAKR3D)
   #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_CREALITY)
-  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optiboot
+  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optimized env:melzi_optiboot
 #elif MB(MELZI_MALYAN)
   #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_TRONXY)
@@ -541,7 +541,7 @@
 #elif MB(CCROBOT_MEEB_3DP)
   #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
 #elif MB(CHITU3D_V5)
-  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103
+  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103 env:chitu_v5_gpio_init
 #elif MB(CHITU3D_V6)
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
 

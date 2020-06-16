@@ -31,7 +31,7 @@
 #define BOARD_INFO_NAME "RUMBA32"
 
 #if NO_EEPROM_SELECTED
-  #if MB(RUMBA32_V1_0) 
+  #if MB(RUMBA32_V1_0)
     #define FLASH_EEPROM_EMULATION
     #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
   #elif MB(RUMBA32_V1_1)
