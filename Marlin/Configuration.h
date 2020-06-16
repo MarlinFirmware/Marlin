@@ -2116,9 +2116,19 @@
 //
 //#define FSMC_GRAPHICAL_TFT
 
+//
+// TFT Little VGL UI
+//
+//#define TFT_LITTLE_VGL_UI
+
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
+
+//
+// Robin nano v2.0 SPI touch screen
+//
+//#define SPI_GRAPHICAL_TFT
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
