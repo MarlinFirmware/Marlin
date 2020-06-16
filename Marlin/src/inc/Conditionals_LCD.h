@@ -35,7 +35,15 @@
   #define IS_CARTESIAN 1
 #endif
 
-#if ENABLED(CARTESIO_UI)
+#if ENABLED(MKS_LCD12864)
+  #define MKS_MINI_12864
+#endif
+
+#if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+
+  #define MINIPANEL
+
+#elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
   #define IS_ULTIPANEL
@@ -117,10 +125,6 @@
 
   #define IS_RRD_SC
   #define IS_U8GLIB_SSD1306
-
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-
-  #define MINIPANEL
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
 
@@ -240,6 +244,8 @@
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define DOGLCD
   #define IS_ULTIPANEL
+  #define DELAYED_BACKLIGHT_INIT
+#elif ENABLED(SPI_GRAPHICAL_TFT)
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -525,6 +531,15 @@
   #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
 #endif
 
 /**
