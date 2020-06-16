@@ -69,6 +69,6 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
     }
   #endif
 
-#endif
+#endif // HAS_GRAPHICAL_LCD
 
-#endif
+#endif // HAS_POWER_MONITOR
