@@ -40,6 +40,10 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  bool PrintJobRecovery::dwin_flag; // = false
+#endif
+
 #include "../sd/cardreader.h"
 #include "../lcd/ultralcd.h"
 #include "../gcode/queue.h"
@@ -105,6 +109,7 @@ void PrintJobRecovery::check() {
     load();
     if (!valid()) return cancel();
     queue.inject_P(PSTR("M1000 S"));
+    TERN_(DWIN_CREALITY_LCD, dwin_flag = true);
   }
 }
 

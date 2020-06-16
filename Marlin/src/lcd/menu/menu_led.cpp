@@ -32,7 +32,7 @@
 
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../feature/leds/leds.h"
-  
+
   #if ENABLED(LED_COLOR_PRESETS)
     void menu_led_presets() {
       START_MENU();
@@ -71,7 +71,7 @@
 
 #if ENABLED(CASE_LIGHT_MENU)
   #include "../../feature/caselight.h"
-  
+
   #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
     void menu_case_light() {
       START_MENU();

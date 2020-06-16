@@ -603,7 +603,7 @@
         #define KILL_PIN                      41
       #endif
 
-      #if ENABLED(MKS_MINI_12864)                 // Added in Marlin 1.1.6
+      #if ENABLED(MKS_MINI_12864)
 
         #define DOGLCD_A0                     27
         #define DOGLCD_CS                     25
