@@ -165,8 +165,10 @@
 
 #define LCD_RESET_PIN                       PD6
 #define LCD_BACKLIGHT_PIN                   PD3
-#define TFT_CS_PIN                          PD4
-#define TFT_RS_PIN                          PD11
+
+#define FSMC_CS_PIN                         PD4
+#define FSMC_RS_PIN                         PD11
+
 #define TOUCH_CS_PIN                        PB6
 #define TOUCH_SCK_PIN                       PB3
 #define TOUCH_MOSI_PIN                      PB5
