@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,7 +32,7 @@
 inline bool bs_serial_data_available(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.available();
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       case 1: return MYSERIAL1.available();
     #endif
   }
@@ -42,7 +42,7 @@ inline bool bs_serial_data_available(const uint8_t index) {
 inline int bs_read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       case 1: return MYSERIAL1.read();
     #endif
   }
@@ -77,14 +77,12 @@ private:
   static bool file_open(char* filename) {
     if (!dummy_transfer) {
       card.mount();
-      card.openFile(filename, false);
+      card.openFileWrite(filename);
       if (!card.isFileOpen()) return false;
     }
     transfer_active = true;
     data_waiting = 0;
-    #if ENABLED(BINARY_STREAM_COMPRESSION)
-      heatshrink_decoder_reset(&hsd);
-    #endif
+    TERN_(BINARY_STREAM_COMPRESSION, heatshrink_decoder_reset(&hsd));
     return true;
   }
 
@@ -127,9 +125,7 @@ private:
       card.closefile();
       card.release();
     }
-    #if ENABLED(BINARY_STREAM_COMPRESSION)
-      heatshrink_decoder_finish(&hsd);
-    #endif
+    TERN_(BINARY_STREAM_COMPRESSION, heatshrink_decoder_finish(&hsd));
     transfer_active = false;
     return true;
   }
@@ -139,9 +135,7 @@ private:
       card.closefile();
       card.removeFile(card.filename);
       card.release();
-      #if ENABLED(BINARY_STREAM_COMPRESSION)
-        heatshrink_decoder_finish(&hsd);
-      #endif
+      TERN_(BINARY_STREAM_COMPRESSION, heatshrink_decoder_finish(&hsd));
     }
     transfer_active = false;
     return;
@@ -242,7 +236,7 @@ public:
       uint8_t protocol() { return (meta >> 4) & 0xF; }
       uint8_t type() { return meta & 0xF; }
       void reset() { token = 0; sync = 0; meta = 0; size = 0; checksum = 0; }
-      uint8_t data[1];
+      uint8_t data[2];
     };
 
     union Footer {

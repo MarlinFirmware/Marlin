@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -147,7 +147,7 @@
 
   #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
 
-#elif ENABLED(MKS_MINI_12864)
+#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
   // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
   // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with
@@ -196,20 +196,21 @@
   #endif
 #endif
 
-#ifndef LCD_PIXEL_WIDTH
-  #define LCD_PIXEL_WIDTH 128
-#endif
-#ifndef LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_HEIGHT 64
-#endif
-
 // LCD_FULL_PIXEL_WIDTH =
 // LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X
 #if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define LCD_FULL_PIXEL_WIDTH  320
-  #define LCD_PIXEL_OFFSET_X    32
-  #define LCD_FULL_PIXEL_HEIGHT 240
-  #define LCD_PIXEL_OFFSET_Y    32
+  #ifndef LCD_FULL_PIXEL_WIDTH
+    #define LCD_FULL_PIXEL_WIDTH  320
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_X
+    #define LCD_PIXEL_OFFSET_X    32
+  #endif
+  #ifndef LCD_FULL_PIXEL_HEIGHT
+    #define LCD_FULL_PIXEL_HEIGHT 240
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_Y
+    #define LCD_PIXEL_OFFSET_Y    32
+  #endif
 #endif
 
 // For selective rendering within a Y range
@@ -252,5 +253,9 @@
 #define INFO_FONT_DESCENT 2
 #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
 #define INFO_FONT_WIDTH   6
+
+#ifndef FSMC_UPSCALE
+  #define FSMC_UPSCALE 2
+#endif
 
 extern U8G_CLASS u8g;

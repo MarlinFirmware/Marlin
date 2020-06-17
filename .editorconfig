@@ -1,0 +1,19 @@
+# editorconfig.org
+root = true
+
+[{*.patch,syntax_test_*}]
+trim_trailing_whitespace = false
+
+[{*.c,*.cpp,*.h}]
+charset = utf-8
+
+[{*.c,*.cpp,*.h,Makefile}]
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+[{*.py,*.conf,*.sublime-project}]
+indent_style = tab
+indent_size = 4

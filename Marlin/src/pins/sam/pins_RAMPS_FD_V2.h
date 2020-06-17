@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,7 +41,7 @@
 #undef INVERTED_FAN_PINS
 
 #define I2C_EEPROM
-#define E2END 0xFFFF // 64K in a 24C512
+#define MARLIN_EEPROM_SIZE 0x10000 // 64K in a 24C512
 
 #ifndef PS_ON_PIN
   #define PS_ON_PIN        12

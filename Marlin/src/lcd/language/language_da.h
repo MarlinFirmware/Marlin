@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Danish
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -84,7 +84,7 @@ namespace Language_da {
 
   PROGMEM Language_Str MSG_BED                             = _UxGT("Plade");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Blæser hastighed");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Blæser hastighed =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Blæser hastighed ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrol");
   PROGMEM Language_Str MSG_MIN                             = _UxGT(" \002 Min");
   PROGMEM Language_Str MSG_MAX                             = _UxGT(" \002 Max");
@@ -99,15 +99,15 @@ namespace Language_da {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatur");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Bevægelse");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E i mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E i mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrast");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gem i EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Hent fra EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Gendan failsafe");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Gendan Defaults");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Genopfrisk");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Info skærm");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info skærm");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Forbered");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause printet");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Forsæt printet");
@@ -176,12 +176,16 @@ namespace Language_da {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Strømfors.");
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Driv Styrke");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driv %");
+
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Skriv");
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Forsæt print");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Forkert printer");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Forkert printer");
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Vent på start", "af filament", "skift"));

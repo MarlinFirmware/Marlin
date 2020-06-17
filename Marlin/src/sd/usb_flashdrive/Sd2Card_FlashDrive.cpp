@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,7 +40,7 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 #include "../../core/serial.h"
 #include "../../module/temperature.h"
 

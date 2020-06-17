@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,8 +40,8 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN  3
-#define Y_STOP_PIN 14
+#define X_STOP_PIN                            3
+#define Y_STOP_PIN                           14
 
 #undef X_MIN_PIN
 #undef X_MAX_PIN
@@ -52,13 +52,13 @@
 // Steppers
 //
 #undef E1_STEP_PIN
-#define E1_STEP_PIN 32
+#define E1_STEP_PIN                          32
 
 //
 // Heaters / Fans
 //
 #undef HEATER_1_PIN
-#define HEATER_1_PIN 11
+#define HEATER_1_PIN                         11
 
 //
 // Misc. Functions
@@ -69,5 +69,5 @@
 
 #if Z_STEP_PIN == 26
   #undef Z_STEP_PIN
-  #define Z_STEP_PIN 32
+  #define Z_STEP_PIN                         32
 #endif
