@@ -1830,7 +1830,7 @@ void HMI_SelectFile(void) {
 
       card.openAndPrintFile(card.filename);
 
-      #if FAN_COUNT > 0
+      #if HAS_FAN
         // All fans on for Ender 3 v2 ?
         // The slicer should manage this for us.
         //for (uint8_t i = 0; i < FAN_COUNT; i++)

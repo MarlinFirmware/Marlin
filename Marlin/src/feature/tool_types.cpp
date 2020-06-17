@@ -69,7 +69,7 @@ void report_tool_type() {
   const static char* const tool_strings[] PROGMEM = { str_tooltype_0, str_tooltype_1, str_tooltype_2 };
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM("Tool: ");
-  serialprintPGM((char*)pgm_read_word(&(tool_strings[tool_type])));
+  serialprintPGM((char*)pgm_read_ptr(&(tool_strings[tool_type])));
   SERIAL_CHAR(' ');
   SERIAL_ECHOLN((int)(tool_type == TOOL_TYPE_EXTRUDER ? active_extruder : 0));
 }

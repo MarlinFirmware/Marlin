@@ -68,9 +68,7 @@ void GcodeSuite::M106() {
 
     thermalManager.set_fan_speed(p, s);
 
-    #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-      planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS);
-    #endif
+    TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS));
   }
 }
 
@@ -80,9 +78,7 @@ void GcodeSuite::M106() {
 void GcodeSuite::M107() {
   const uint8_t p = parser.byteval('P', _ALT_P);
   thermalManager.set_fan_speed(p, 0);
-  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS);
-  #endif
+  TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS));
 }
 
 #endif // HAS_FAN
