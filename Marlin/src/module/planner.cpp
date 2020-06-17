@@ -1274,6 +1274,59 @@ void Planner::recalculate() {
 #define HAS_TAIL_FAN_SPEED (HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107))
 
 /**
+ * Apply fan speeds
+ */
+#if HAS_FAN
+
+  void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
+
+    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
+      #define CALC_FAN_SPEED(f) (fan_speed[f] ? map(fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
+    #else
+      #define CALC_FAN_SPEED(f) (fan_speed[f] ?: FAN_OFF_PWM)
+    #endif
+
+    #if ENABLED(FAN_SOFT_PWM)
+      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
+    #elif ENABLED(FAST_PWM_FAN)
+      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
+    #else
+      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
+    #endif
+    #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
+
+    const millis_t ms = millis();
+    TERN_(HAS_FAN0, FAN_SET(0));
+    TERN_(HAS_FAN1, FAN_SET(1));
+    TERN_(HAS_FAN2, FAN_SET(2));
+    TERN_(HAS_FAN3, FAN_SET(3));
+    TERN_(HAS_FAN4, FAN_SET(4));
+    TERN_(HAS_FAN5, FAN_SET(5));
+    TERN_(HAS_FAN6, FAN_SET(6));
+    TERN_(HAS_FAN7, FAN_SET(7));
+  }
+
+  #if FAN_KICKSTART_TIME
+
+    void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
+      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
+      if (fan_speed[f]) {
+        if (fan_kick_end[f] == 0) {
+          fan_kick_end[f] = ms + FAN_KICKSTART_TIME;
+          fan_speed[f] = 255;
+        }
+        else if (PENDING(ms, fan_kick_end[f]))
+          fan_speed[f] = 255;
+      }
+      else
+        fan_kick_end[f] = 0;
+    }
+
+  #endif
+
+#endif // HAS_FAN
+
+/**
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
@@ -1354,59 +1407,6 @@ void Planner::check_axes_activity() {
     TERN_(HAS_HEATER_2, analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
-
-/**
- * Apply fan speeds
- */
-#if HAS_FAN
-
-  void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
-
-    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (fan_speed[f] ? map(fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
-    #else
-      #define CALC_FAN_SPEED(f) (fan_speed[f] ?: FAN_OFF_PWM)
-    #endif
-
-    #if ENABLED(FAN_SOFT_PWM)
-      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
-    #elif ENABLED(FAST_PWM_FAN)
-      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
-    #else
-      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
-    #endif
-    #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
-
-    const millis_t ms = millis();
-    TERN_(HAS_FAN0, FAN_SET(0));
-    TERN_(HAS_FAN1, FAN_SET(1));
-    TERN_(HAS_FAN2, FAN_SET(2));
-    TERN_(HAS_FAN3, FAN_SET(3));
-    TERN_(HAS_FAN4, FAN_SET(4));
-    TERN_(HAS_FAN5, FAN_SET(5));
-    TERN_(HAS_FAN6, FAN_SET(6));
-    TERN_(HAS_FAN7, FAN_SET(7));
-  }
-
-  #if FAN_KICKSTART_TIME
-
-    void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
-      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
-      if (fan_speed[f]) {
-        if (fan_kick_end[f] == 0) {
-          fan_kick_end[f] = ms + FAN_KICKSTART_TIME;
-          fan_speed[f] = 255;
-        }
-        else if (PENDING(ms, fan_kick_end[f]))
-          fan_speed[f] = 255;
-      }
-      else
-        fan_kick_end[f] = 0;
-    }
-
-  #endif
-
-#endif // HAS_FAN
 
 #if DISABLED(NO_VOLUMETRICS)
 

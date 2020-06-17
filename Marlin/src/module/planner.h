@@ -96,7 +96,7 @@ enum BlockFlagBit : char {
   BLOCK_BIT_CONTINUED,
 
   // Sync the stepper counts from the block
-  BLOCK_BIT_SYNC_POSITION,
+  BLOCK_BIT_SYNC_POSITION
 
   // Direct stepping page
   #if ENABLED(DIRECT_STEPPING)
@@ -110,11 +110,11 @@ enum BlockFlagBit : char {
 };
 
 enum BlockFlag : char {
-  BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
-  BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
-  BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
-  BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION),
-  BLOCK_FLAG_SYNC_FANS            = _BV(BLOCK_BIT_SYNC_FANS)
+    BLOCK_FLAG_RECALCULATE        = _BV(BLOCK_BIT_RECALCULATE),
+  , BLOCK_FLAG_NOMINAL_LENGTH     = _BV(BLOCK_BIT_NOMINAL_LENGTH),
+  , BLOCK_FLAG_CONTINUED          = _BV(BLOCK_BIT_CONTINUED),
+  , BLOCK_FLAG_SYNC_POSITION      = _BV(BLOCK_BIT_SYNC_POSITION),
+  , BLOCK_FLAG_SYNC_FANS          = _BV(BLOCK_BIT_SYNC_FANS)
   #if ENABLED(DIRECT_STEPPING)
     , BLOCK_FLAG_IS_PAGE          = _BV(BLOCK_BIT_IS_PAGE)
   #endif
@@ -145,7 +145,6 @@ enum BlockFlag : char {
   } block_laser_t;
 
 #endif
->>>>>>> upstream/bugfix-2.0.x
 
 /**
  * struct block_t
