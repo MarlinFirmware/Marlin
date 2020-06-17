@@ -393,17 +393,12 @@
     #if HAS_BED_PROBE
 
       if (parser.seen('J')) {
-        if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
-          save_ubl_active_state_and_disable();
-          tilt_mesh_based_on_probed_grid(false /* false says to do normal grid probing */ );
-          restore_ubl_active_state_and_leave();
-        }
-        else { // grid_size == 0 : A 3-Point leveling has been requested
-          save_ubl_active_state_and_disable();
-          tilt_mesh_based_on_probed_grid(true /* true says to do 3-Point leveling */ );
-          restore_ubl_active_state_and_leave();
-        }
-        do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
+        save_ubl_active_state_and_disable();
+        tilt_mesh_based_on_probed_grid(g29_grid_size == 0); // Zero size does 3-Point
+        restore_ubl_active_state_and_leave();
+        #if ENABLED(UBL_G29_J_RECENTER)
+          do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
+        #endif
         report_current_position();
         probe_deployed = true;
       }
