@@ -707,7 +707,7 @@
 
 #endif // HAS_SPI_LCD
 
-#if ENABLED(REPRAPWORLD_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
   #define SHIFT_OUT                           40
   #define SHIFT_CLK                           44
   #define SHIFT_LD                            42
