@@ -78,12 +78,15 @@ class Touch {
     static touchControl_t *current_control;
     static uint16_t controls_count;
 
+    static int32_t x_calibration, y_calibration;
+    static int16_t x_offset, y_offset;
+
     static millis_t now;
     static millis_t time_to_hold;
     static millis_t repeat_delay;
     static bool wait_for_unclick;
 
-    static inline bool get_point(int16_t *x, int16_t *y) { return io.getPoint(x, y); }
+    static inline bool get_point(int16_t *x, int16_t *y);
     static void touch(touchControl_t *control);
     static void hold(touchControl_t *control, millis_t delay = 0);
 
