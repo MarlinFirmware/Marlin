@@ -25,6 +25,8 @@
   #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
+#else
+  #error FSMC TFT is currently only supported on STM32F1 and STM32F4 hardware.
 #endif
 
 #ifndef LCD_READ_ID

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
+#if HAS_FSMC_TFT
 
 #include "tft_fsmc.h"
 #include "pinconfig.h"
@@ -147,7 +147,7 @@ uint32_t TFT_FSMC::GetID() {
 
   if (id == 0)
     id = ReadID(LCD_READ_ID);
-  if ((id & 0xFFFF) == 0)
+  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
     id = ReadID(LCD_READ_ID4);
   return id;
 }
@@ -189,4 +189,4 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   __HAL_DMA_ENABLE(&DMAtx);
 }
 
-#endif // HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
+#endif // HAS_FSMC_TFT

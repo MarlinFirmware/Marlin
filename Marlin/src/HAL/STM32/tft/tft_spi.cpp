@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_GRAPHICAL_TFT && HAS_SPI_TFT
+#if HAS_SPI_TFT
 
 #include "tft_spi.h"
 #include "pinconfig.h"
@@ -205,4 +205,4 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   /* Enable Tx DMA Request */
 }
 
-#endif // HAS_GRAPHICAL_TFT && HAS_SPI_TFT
+#endif // HAS_SPI_TFT

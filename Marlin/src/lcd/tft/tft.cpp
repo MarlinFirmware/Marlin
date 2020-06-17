@@ -43,36 +43,61 @@ void TFT::init() {
   if (lcd_id != 0xFFFFFFFF) return;
 
   io.Init();
-  lcd_id = io.GetID() & 0xFFFF;
 
-  switch (lcd_id) {
-    case 0x7796:    // ST7796     480x320
-      DEBUG_ECHO_MSG(" ST7796S");
-      write_esc_sequence(st7796s_init);
-      break;
-    case 0x8552:    // ST7789V    320x240
-      DEBUG_ECHO_MSG(" ST7789V");
-      write_esc_sequence(st7789v_init);
-      break;
-    case 0x89F0:    // ST7735     160x128
-      DEBUG_ECHO_MSG(" ST7735");
+  #if defined(TFT_DRIVER) && (TFT_DRIVER != AUTO)
+    #if TFT_DRIVER == ST7735
+      lcd_id = ST7735;
       write_esc_sequence(st7735_init);
-      break;
-    case 0x9328:    // ILI9328    320x240
-      DEBUG_ECHO_MSG(" ILI9328");
+    #elif TFT_DRIVER == ST7789
+      lcd_id = ST7789;
+      write_esc_sequence(st7789v_init);
+    #elif TFT_DRIVER == ST7796
+      lcd_id = ST7796;
+      write_esc_sequence(st7796s_init);
+    #elif TFT_DRIVER == ILI9328
+      lcd_id = ILI9328;
       write_esc_sequence(ili9328_init);
-      break;
-    case 0x9341:    // ILI9341    320x240
-      DEBUG_ECHO_MSG(" ILI9341");
+    #elif TFT_DRIVER == ILI9341
+      lcd_id = ILI9341;
       write_esc_sequence(ili9341_init);
-      break;
-    case 0x9488:    // ILI9488    480x320
-      DEBUG_ECHO_MSG(" ILI9488");
+    #elif TFT_DRIVER == ILI9488
+      lcd_id = ILI9488;
       write_esc_sequence(ili9488_init);
-      break;
-    default:
-      lcd_id = 0;
-  }
+    #else
+      #error Unsupported TFT driver
+    #endif
+  #else // autodetect
+    lcd_id = io.GetID() & 0xFFFF;
+
+    switch (lcd_id) {
+      case ST7796:    // ST7796S    480x320
+        DEBUG_ECHO_MSG(" ST7796S");
+        write_esc_sequence(st7796s_init);
+        break;
+      case ST7789:    // ST7789V    320x240
+        DEBUG_ECHO_MSG(" ST7789V");
+        write_esc_sequence(st7789v_init);
+        break;
+      case ST7735:    // ST7735     160x128
+        DEBUG_ECHO_MSG(" ST7735");
+        write_esc_sequence(st7735_init);
+        break;
+      case ILI9328:   // ILI9328    320x240
+        DEBUG_ECHO_MSG(" ILI9328");
+        write_esc_sequence(ili9328_init);
+        break;
+      case ILI9341:   // ILI9341    320x240
+        DEBUG_ECHO_MSG(" ILI9341");
+        write_esc_sequence(ili9341_init);
+        break;
+      case ILI9488:   // ILI9488    480x320
+        DEBUG_ECHO_MSG(" ILI9488");
+        write_esc_sequence(ili9488_init);
+        break;
+      default:
+        lcd_id = 0;
+    }
+  #endif
 }
 
 void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
@@ -84,11 +109,11 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
   #endif
 
   switch (lcd_id) {
-    case 0x7796:    // ST7796     480x320
-    case 0x8552:    // ST7789V    320x240
-    case 0x89F0:    // ST7735     160x128
-    case 0x9341:    // ILI9341    320x240
-    case 0x9488:    // ILI9488    480x320
+    case ST7735:    // ST7735     160x128
+    case ST7789:    // ST7789V    320x240
+    case ST7796:    // ST7796     480x320
+    case ILI9341:   // ILI9341    320x240
+    case ILI9488:   // ILI9488    480x320
       io.DataTransferBegin(DATASIZE_8BIT);
 
       // CASET: Column Address Set
@@ -108,7 +133,7 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
       // RAMWR: Memory Write
       io.WriteReg(ILI9341_RAMWR);
       break;
-    case 0x9328:    // ILI9328    320x240
+    case ILI9328:   // ILI9328    320x240
       io.DataTransferBegin(DATASIZE_16BIT);
 
       // Mind the mess: with landscape screen orientation 'Horizontal' is Y and 'Vertical' is X
@@ -152,7 +177,7 @@ void TFT::write_esc_sequence(const uint16_t *Sequence) {
     if (data == 0xFFFF)
       io.WriteData(0xFFFF);
     else if (data & 0x8000)
-      HAL_Delay(data & 0x7FFF);
+      delay(data & 0x7FFF);
     else if ((data & 0xFF00) == 0)
       io.WriteReg(data);
   }

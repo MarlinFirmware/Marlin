@@ -46,7 +46,6 @@
 #define XPT2046_SER_MODE        0x04
 #define XPT2046_CONTROL         0x80
 
-
 enum XPTCoordinate : uint8_t {
   XPT2046_X  = 0x10 | XPT2046_CONTROL | XPT2046_DFR_MODE,
   XPT2046_Y  = 0x50 | XPT2046_CONTROL | XPT2046_DFR_MODE,

@@ -30,13 +30,26 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#define TFT_WIDTH         320
-#define TFT_HEIGHT        240
-#define TFT_BUFFER_SIZE   19200
+#ifdef UI_320x240
+  #define TFT_WIDTH         320
+  #define TFT_HEIGHT        240
+#else
+  #error Unsupported display resolution!
+#endif
+
+#define ST7735  0x89F0
+#define ST7789  0x8552
+#define ST7796  0x7796
+#define ILI9328 0x9328
+#define ILI9341 0x9341
+#define ILI9488 0x9488
+#define AUTO    0xFFFF
 
 #ifndef TFT_BUFFER_SIZE
   #ifdef STM32F103xB
     #define TFT_BUFFER_SIZE       1024
+  #elif defined(STM32F103xE)
+    #define TFT_BUFFER_SIZE       19200
   #elif defined(STM32F1)
     #define TFT_BUFFER_SIZE       8192
   #else
