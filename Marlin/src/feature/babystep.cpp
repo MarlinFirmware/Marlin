@@ -66,45 +66,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
     #define BSA_ENABLE(AXIS) NOOP
   #endif
 
-  #if IS_CORE
-    #if ENABLED(BABYSTEP_XY)
-      switch (axis) {
-        case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
-          BSA_ENABLE(CORE_AXIS_1);
-          BSA_ENABLE(CORE_AXIS_2);
-          steps[CORE_AXIS_1] += distance * 2;
-          steps[CORE_AXIS_2] += distance * 2;
-          break;
-        case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
-          BSA_ENABLE(CORE_AXIS_1);
-          BSA_ENABLE(CORE_AXIS_2);
-          steps[CORE_AXIS_1] += CORESIGN(distance * 2);
-          steps[CORE_AXIS_2] -= CORESIGN(distance * 2);
-          break;
-        case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
-        default:
-          BSA_ENABLE(NORMAL_AXIS);
-          steps[NORMAL_AXIS] += distance;
-          break;
-      }
-    #elif CORE_IS_XZ || CORE_IS_YZ
-      // Only Z stepping needs to be handled here
-      BSA_ENABLE(CORE_AXIS_1);
-      BSA_ENABLE(CORE_AXIS_2);
-      steps[CORE_AXIS_1] += CORESIGN(distance * 2);
-      steps[CORE_AXIS_2] -= CORESIGN(distance * 2);
-    #else
-      BSA_ENABLE(Z_AXIS);
-      steps[Z_AXIS] += distance;
-    #endif
-  #else
-    #if ENABLED(BABYSTEP_XY)
-      BSA_ENABLE(axis);
-    #else
-      BSA_ENABLE(Z_AXIS);
-    #endif
-    steps[BS_AXIS_IND(axis)] += distance;
-  #endif
+  steps[BS_AXIS_IND(axis)] += distance;
 
   TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
 
