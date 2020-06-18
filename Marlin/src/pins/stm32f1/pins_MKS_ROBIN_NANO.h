@@ -92,11 +92,24 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC3   // HEATER1
-#define HEATER_1_PIN                        PB0   // HEATER2
-#define HEATER_BED_PIN                      PA0   // HOT BED
-
-#define FAN_PIN                             PB1   // FAN
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PC3
+#endif
+#if HOTENDS == 1
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                        PB0
+  #endif
+#else
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN                    PB0
+  #endif
+#endif
+#ifndef FAN_PIN
+  #define FAN_PIN                           PB1   // FAN
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PA0
+#endif
 
 //
 // Thermocouples
@@ -127,11 +140,13 @@
 // SD Card
 //
 #ifndef SDCARD_CONNECTION
-  //#define SDCARD_CONNECTION            ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4500000   // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
+#define ONBOARD_SD_CS_PIN                   PC11
 
 //
 // LCD / Controller
