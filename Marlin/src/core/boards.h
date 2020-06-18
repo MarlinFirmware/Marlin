@@ -341,6 +341,7 @@
 #define BOARD_FYSETC_S6               4215  // FYSETC S6 board
 #define BOARD_FLYF407ZG               4216  // FLYF407ZG board (STM32F407ZG)
 #define BOARD_MKS_ROBIN2              4217  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_LERDGE_S                4213  // Lerdge S (STM32F407VE)
 
 //
 // ARM Cortex M7
