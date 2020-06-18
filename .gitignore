@@ -150,10 +150,10 @@ Marlin/*/*/*/*/readme.txt
 Configuration_Secure.h
 
 #Visual Studio
-*.sln
-*.vcxproj
-*.vcxproj.user
-*.vcxproj.filters
+# *.sln
+# *.vcxproj
+# *.vcxproj.user
+# *.vcxproj.filters
 Release/
 Debug/
 __vm/

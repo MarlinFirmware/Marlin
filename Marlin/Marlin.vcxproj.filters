@@ -1,0 +1,4364 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{c45fd958-575d-4bfc-9e54-1ae981667a5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{485e2778-e610-4931-bef7-b7e9a05b7f94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature">
+      <UniqueIdentifier>{f470411c-3a9c-4036-b0ae-6b4d940d7723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\bedlevel\abl">
+      <UniqueIdentifier>{bb93bb42-17fb-4077-90d8-b537a6990f79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\bedlevel">
+      <UniqueIdentifier>{69473ad9-e3c4-4265-bfd2-65bb7ad32a7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\bedlevel\mbl">
+      <UniqueIdentifier>{570df1d0-da9a-4aa4-94a4-b0168dec0457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\bedlevel\ubl">
+      <UniqueIdentifier>{48df7f9d-7c3c-461f-90b9-83f35ed5dcdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\dac">
+      <UniqueIdentifier>{dc938e5e-f48a-44d4-a36a-8fcd56d8451a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\digipot">
+      <UniqueIdentifier>{ccd7eed0-5ec9-4342-a1d4-9ecafb332fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\leds">
+      <UniqueIdentifier>{16fd79d3-05bb-4b39-8dc2-e3ebd9f4b269}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\mmu2">
+      <UniqueIdentifier>{63c5018c-a0c6-4856-8ec2-4ecb4c1ce015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\feature\touch">
+      <UniqueIdentifier>{3a7aff40-a026-4f20-a6b3-84db30f3ba41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\bedlevel\abl">
+      <UniqueIdentifier>{b23ee13c-6d30-4672-850c-32dd5c4bdd9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\bedlevel">
+      <UniqueIdentifier>{18c2343a-f091-4dae-a42c-435826f2e79c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode">
+      <UniqueIdentifier>{b28d0016-f2b1-4cbe-9d05-7ab33f2556eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\bedlevel\mbl">
+      <UniqueIdentifier>{5a96c505-2015-4cab-86fa-b33d85b061d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\bedlevel\ubl">
+      <UniqueIdentifier>{53234161-daab-46db-aeaa-1ace8be64531}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\calibrate">
+      <UniqueIdentifier>{a1c92fe5-1632-49b3-b081-4bc62505b5cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\config">
+      <UniqueIdentifier>{472f3dce-4569-4066-aa3f-d3c61694d035}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\control">
+      <UniqueIdentifier>{927339ab-0c1c-487c-b33e-d2d80c94774a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\eeprom">
+      <UniqueIdentifier>{da57b52e-55f9-4f24-a6d4-0c14afedf3a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\advance">
+      <UniqueIdentifier>{16bdd4b9-71d6-42f2-9b74-c842fd46c34f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature">
+      <UniqueIdentifier>{c322f255-b1f9-4d3b-98a8-5a8253b40f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\baricuda">
+      <UniqueIdentifier>{57b7b38a-4ce9-436f-8605-7020349a13c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\camera">
+      <UniqueIdentifier>{f489bbbb-5e72-4b60-9da5-e7c3dd473f58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\cancel">
+      <UniqueIdentifier>{cc4ba1d1-9a06-40d9-9f7e-cf86bab3e9b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\caselight">
+      <UniqueIdentifier>{0cf1dd8d-d748-4471-a8c2-e6171db2871f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\clean">
+      <UniqueIdentifier>{ce18a209-f09c-406a-b27c-eb73f11c3f70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\controllerfan">
+      <UniqueIdentifier>{04172bb0-26d8-4d2c-8e7c-c1196f231784}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\digipot">
+      <UniqueIdentifier>{c2d03961-9abb-4afe-b3be-a2d85cb40beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\filwidth">
+      <UniqueIdentifier>{caa9e1de-b791-472c-9862-6e80934bf648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\fwretract">
+      <UniqueIdentifier>{91b139c7-0ec4-4882-a51b-376d8f7a604c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\i2c">
+      <UniqueIdentifier>{946e4f65-dba6-4e01-8b7a-2a1ac0feb9dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\L6470">
+      <UniqueIdentifier>{d083a247-1885-4868-9233-1e95bb5678ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\leds">
+      <UniqueIdentifier>{221a70fa-ec5c-463e-8c53-d2ddf8d42fac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\macro">
+      <UniqueIdentifier>{1bd6628e-37b4-4946-9843-90b18f3c5693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\mixing">
+      <UniqueIdentifier>{17289373-add7-402a-acbb-1d155ca8b4f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\pause">
+      <UniqueIdentifier>{1ab71ad1-ff94-440f-a7af-c975913e444b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\powerloss">
+      <UniqueIdentifier>{700c751b-19b8-474d-b9ae-4021e5a83ece}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\prusa_MMU2">
+      <UniqueIdentifier>{66a192e6-c8c3-49c0-a29a-c75936822d49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\runout">
+      <UniqueIdentifier>{bd7a3d96-1702-4b3f-adaa-88eb8635c389}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\feature\trinamic">
+      <UniqueIdentifier>{ddf54160-8488-4dd6-896a-85ea2a5f206b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\geometry">
+      <UniqueIdentifier>{68d89651-806a-47dc-8e4f-2664451487e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\host">
+      <UniqueIdentifier>{19f04c34-1472-473e-854d-877728df02e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\lcd">
+      <UniqueIdentifier>{b7b48eaa-7c8a-47ec-b76b-40cafe3ad86e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\motion">
+      <UniqueIdentifier>{914a1b8c-2a40-4a7d-a914-b6fdd072d717}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\probe">
+      <UniqueIdentifier>{0ed7d0ab-830e-4320-998a-9c2e0968c098}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\scara">
+      <UniqueIdentifier>{29450f83-d650-4373-97d9-8a83f0527f16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\sd">
+      <UniqueIdentifier>{0a53566f-7d17-416d-a9b0-fa7d872d06c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\stats">
+      <UniqueIdentifier>{63eac45b-4986-4e1f-8ae7-8bcbce063a2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\temp">
+      <UniqueIdentifier>{d5f6a5a4-e744-4784-8f5d-46b649e1aa84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gcode\units">
+      <UniqueIdentifier>{2a872c87-02ac-4be6-8217-557b0b0921c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\AVR">
+      <UniqueIdentifier>{75546385-d600-42a2-b7cd-ba7f5c92fefa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL">
+      <UniqueIdentifier>{86141507-0b4a-42eb-88cf-f34f8b550917}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\DUE">
+      <UniqueIdentifier>{12ca8b4b-ced6-4d72-8cc1-310d9bf754ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\DUE\dogm">
+      <UniqueIdentifier>{36510dcf-177d-4057-a73d-15583ccff24e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\DUE\fastio">
+      <UniqueIdentifier>{47ef4b55-39e6-48f4-aea2-046404087b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\DUE\usb">
+      <UniqueIdentifier>{05421d16-9b48-497b-945b-8f06daefa8b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\ESP32">
+      <UniqueIdentifier>{289fee41-214a-44ba-8889-34016f407642}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LINUX">
+      <UniqueIdentifier>{82ea6a27-5ed6-48b6-aa76-c19a4ac81e81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LINUX\hardware">
+      <UniqueIdentifier>{cdf4609f-377b-4551-b7c0-1b9a1366ff79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LINUX\include">
+      <UniqueIdentifier>{3affdaa3-203d-413d-8b76-a0d87dc91c4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LPC1768">
+      <UniqueIdentifier>{9c0dc839-1c66-40fa-9fa6-ab4f0cb3eedd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LPC1768\include">
+      <UniqueIdentifier>{2db0cfbe-27aa-4298-8813-f18291ebf3fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LPC1768\u8g">
+      <UniqueIdentifier>{096c6f4f-a2d4-451a-b8ed-ee615a48812b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\SAMD51">
+      <UniqueIdentifier>{ab22f0e7-d184-48a9-ad24-8840fd5c8462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\shared\backtrace">
+      <UniqueIdentifier>{1f6c1837-c4b6-488a-9a45-fe29d8582350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\shared">
+      <UniqueIdentifier>{f9cae17d-1bbd-4d4e-9d1f-ebf68e0cbc9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32F1\dogm">
+      <UniqueIdentifier>{f69868f7-e479-4225-b731-ba114d0207d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32F1">
+      <UniqueIdentifier>{e0e185d2-2fa4-4f81-82e3-e322bcff630f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32">
+      <UniqueIdentifier>{215202c0-a2b8-419f-8c7f-dae2def4437d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32_F4_F7">
+      <UniqueIdentifier>{bf11ab5e-6c9e-40c5-8ac9-aa8af3c17ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32_F4_F7\STM32F4">
+      <UniqueIdentifier>{66fc1470-0103-4dd8-854d-0857d7bc7194}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32_F4_F7\STM32F7">
+      <UniqueIdentifier>{713c521f-6bf1-4e01-8982-a2e3f528e4ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\TEENSY31_32">
+      <UniqueIdentifier>{f9705925-62bd-41cd-a584-5f89272e60f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\TEENSY35_36">
+      <UniqueIdentifier>{abf36015-5b41-4c02-ab9f-11b0649386f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\dogm">
+      <UniqueIdentifier>{c9d285cd-1b9b-441c-b821-7b60826ad49b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd">
+      <UniqueIdentifier>{1f52293d-d852-4e61-9e72-131d64c51191}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\dgus">
+      <UniqueIdentifier>{61714af2-6f33-4c63-90e0-5ebea87a8589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib">
+      <UniqueIdentifier>{91c09f75-fe34-4a2a-a057-05ef5bcd699b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui">
+      <UniqueIdentifier>{e07168b3-337a-4c91-9ea8-3141e39b11fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\dgus\fysetc">
+      <UniqueIdentifier>{1eb890ac-4172-4d14-bcdd-6ad983eaddee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\dgus\hiprecy">
+      <UniqueIdentifier>{2db3aa49-eb43-45a7-879f-eafc51c6af86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\dgus\origin">
+      <UniqueIdentifier>{fa5555c9-0e4b-44d6-ae72-dcef6a812078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash">
+      <UniqueIdentifier>{2b014e37-ec9c-4227-abbd-9b9de052e6c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui">
+      <UniqueIdentifier>{399e25e0-1dbd-4497-8f9d-f19c1f5b9b8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic">
+      <UniqueIdentifier>{f8c6ce1c-09c0-4875-adda-84ea87dae070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib">
+      <UniqueIdentifier>{41178bdf-ce45-428c-b45c-e5d6823730a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended">
+      <UniqueIdentifier>{56e267fd-1477-4faa-ade1-0b3360c75603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode">
+      <UniqueIdentifier>{14105e51-5709-4940-8ca7-dde5ffc8a03d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\language">
+      <UniqueIdentifier>{a8b11b1e-f77e-4c52-bcd5-e7b27a765b9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens">
+      <UniqueIdentifier>{4da97d12-833f-4c98-bb5e-e1e471c5049d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme">
+      <UniqueIdentifier>{1eb179e9-9a99-4e89-8628-4807e1ad4d07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\HD44780">
+      <UniqueIdentifier>{51e1d289-74ac-459d-bcba-fbc145928491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\menu\game">
+      <UniqueIdentifier>{4da6da29-3406-445e-9f63-d8588a2594f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\menu">
+      <UniqueIdentifier>{8ebb8cd7-7771-4d99-adb9-f959cfce199a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libs">
+      <UniqueIdentifier>{1754b181-4b55-4b23-9803-a57cab3d533c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libs\heatshrink">
+      <UniqueIdentifier>{68f9bb52-1603-4202-bdeb-d08b9186218d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libs\L64XX">
+      <UniqueIdentifier>{82454e8b-8a7b-499f-b9bb-2d46c2102c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\module">
+      <UniqueIdentifier>{c6d121e8-dd8f-4568-a9f5-04f8c5c42ec8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\module\stepper">
+      <UniqueIdentifier>{cf642b65-b4a4-4e7e-841d-d6e63b2ec4e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd">
+      <UniqueIdentifier>{fa92a8cf-df8e-4972-a4ee-0dbde9df9091}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive\lib-uhs2">
+      <UniqueIdentifier>{8f927f64-c878-4a08-9d4d-f34d9a5c6a07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive">
+      <UniqueIdentifier>{53401205-7188-4181-8457-249b366e7d9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\AVR\fastio">
+      <UniqueIdentifier>{25db1cb2-d922-41e5-a1af-979d1fc95de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\AVR\inc">
+      <UniqueIdentifier>{6397813b-2fc2-4814-a1d8-170f726c3457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\DUE\inc">
+      <UniqueIdentifier>{06e1d462-860a-4bb8-8866-d116fb341394}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\ESP32\inc">
+      <UniqueIdentifier>{35ea3d1e-c684-412d-83c9-e17808971867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LINUX\inc">
+      <UniqueIdentifier>{da22daed-d494-492c-aa42-f18aeb744c2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\LPC1768\inc">
+      <UniqueIdentifier>{c17b3e71-010c-4a46-8dc4-4dbd804a5477}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\SAMD51\inc">
+      <UniqueIdentifier>{34bb3e37-6a3d-4911-ad7a-c742ee49a4b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32F1\inc">
+      <UniqueIdentifier>{32cb1fa9-bada-4fe6-9b40-dd1cfc66f5bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32\inc">
+      <UniqueIdentifier>{1a62d429-cc68-46c1-844d-47475d5e83fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\STM32_F4_F7\inc">
+      <UniqueIdentifier>{7d8a7173-09f0-400c-b72b-7576eef1d7a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\TEENSY31_32\inc">
+      <UniqueIdentifier>{d68290fa-713b-496d-9d02-1e7ff4c108f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\HAL\TEENSY35_36\inc">
+      <UniqueIdentifier>{cb61ef20-6c56-4466-861d-c36aaa27f712}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\inc">
+      <UniqueIdentifier>{41f0d9d0-9bfe-420b-8c44-a7e69bbf3160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\dogm\fontdata">
+      <UniqueIdentifier>{6c48e9d3-5a79-484d-92d8-f3fa47117d04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extras">
+      <UniqueIdentifier>{7af75ef7-2fdf-4114-8ab9-c9cf8e45e99e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lcd\language">
+      <UniqueIdentifier>{007eb2d1-e50e-4aae-a77d-324e7ca82891}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\module\thermistor">
+      <UniqueIdentifier>{421401be-8901-46ee-956c-140a3a928209}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\esp32">
+      <UniqueIdentifier>{f80b007d-71ab-45d3-a0c4-b73edd16aa7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins">
+      <UniqueIdentifier>{f1d88e2d-8204-45fb-ac06-b71a2d349da3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\linux">
+      <UniqueIdentifier>{42004e69-5261-4e7f-929f-4ad87782ee6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\lpc1768">
+      <UniqueIdentifier>{48f19c87-4920-4583-9951-252e6f5b4672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\lpc1769">
+      <UniqueIdentifier>{b67877ed-df78-4665-be7b-ca4257c9b6cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\mega">
+      <UniqueIdentifier>{e61f1ac2-4325-4faf-9958-2a976ef8458b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\rambo">
+      <UniqueIdentifier>{58e45816-e974-4f8a-ae6c-f6b3ce0becae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\ramps">
+      <UniqueIdentifier>{9fae82b4-1259-4d0d-b710-11e1952079f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\samd">
+      <UniqueIdentifier>{d7e467e3-58e6-46e9-95be-42811c8280a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\sam">
+      <UniqueIdentifier>{9c721057-d514-44e1-8c78-b683cc059366}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\sanguino">
+      <UniqueIdentifier>{4668bf2a-eb9f-49f2-85ea-17e5d66ae19c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\stm32f1">
+      <UniqueIdentifier>{763ff5f2-bf48-4206-9fed-8836e95e56d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\stm32f4">
+      <UniqueIdentifier>{aef42e27-8fdf-4a6e-97bf-13325eafe79a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\stm32f7">
+      <UniqueIdentifier>{cb86e0fe-9294-4b11-ac4b-c3b75260c514}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\teensy2">
+      <UniqueIdentifier>{2b0cd70f-adad-4604-86e4-35102c23a575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pins\teensy3">
+      <UniqueIdentifier>{5a1b753c-95b8-49b9-8190-95d30727d43e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive\lib-uhs3\dyn_SWI">
+      <UniqueIdentifier>{2804609b-a434-43e2-872d-9a2760b3c136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive\lib-uhs3">
+      <UniqueIdentifier>{36161964-d8dd-4e28-ba7e-b6d33341578c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host">
+      <UniqueIdentifier>{8f2282f4-7bb8-4b1a-be53-520186572654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE">
+      <UniqueIdentifier>{5d8b7941-e221-4854-bd2b-59d98d8fbc1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD">
+      <UniqueIdentifier>{e5d9f255-0b2e-4457-bf34-38962162a7cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="__vm">
+      <UniqueIdentifier>{e040cd81-569c-48e6-8fd5-3553a6dc06e5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\core\multi_language.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\serial.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\utility.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\babystep.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\backlash.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\baricuda.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bedlevel\abl\abl.cpp">
+      <Filter>src\feature\bedlevel\abl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bedlevel\bedlevel.cpp">
+      <Filter>src\feature\bedlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bedlevel\mbl\mesh_bed_leveling.cpp">
+      <Filter>src\feature\bedlevel\mbl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bedlevel\ubl\ubl.cpp">
+      <Filter>src\feature\bedlevel\ubl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bedlevel\ubl\ubl_G29.cpp">
+      <Filter>src\feature\bedlevel\ubl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bedlevel\ubl\ubl_motion.cpp">
+      <Filter>src\feature\bedlevel\ubl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\binary_protocol.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\bltouch.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\cancel_object.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\caselight.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\closedloop.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\controllerfan.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\dac\dac_dac084s085.cpp">
+      <Filter>src\feature\dac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\dac\dac_mcp4728.cpp">
+      <Filter>src\feature\dac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\dac\stepper_dac.cpp">
+      <Filter>src\feature\dac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\digipot\digipot_mcp4018.cpp">
+      <Filter>src\feature\digipot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\digipot\digipot_mcp4451.cpp">
+      <Filter>src\feature\digipot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\encoder_i2c.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\e_parser.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\fanmux.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\filwidth.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\fwretract.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\host_actions.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\joystick.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\leds\blinkm.cpp">
+      <Filter>src\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\leds\leds.cpp">
+      <Filter>src\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\leds\neopixel.cpp">
+      <Filter>src\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\leds\pca9632.cpp">
+      <Filter>src\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\leds\printer_event_leds.cpp">
+      <Filter>src\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\leds\tempstat.cpp">
+      <Filter>src\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\max7219.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\mixing.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\mmu2\mmu2.cpp">
+      <Filter>src\feature\mmu2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\pause.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\power.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\powerloss.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\probe_temp_comp.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\runout.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\snmm.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\solenoid.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\spindle_laser.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\tmc_util.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\touch\xpt2046.cpp">
+      <Filter>src\feature\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\twibus.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\z_stepper_align.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\abl\G29.cpp">
+      <Filter>src\gcode\bedlevel\abl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\abl\M421.cpp">
+      <Filter>src\gcode\bedlevel\abl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\G26.cpp">
+      <Filter>src\gcode\bedlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\G42.cpp">
+      <Filter>src\gcode\bedlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\M420.cpp">
+      <Filter>src\gcode\bedlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\mbl\G29.cpp">
+      <Filter>src\gcode\bedlevel\mbl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\mbl\M421.cpp">
+      <Filter>src\gcode\bedlevel\mbl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\ubl\G29.cpp">
+      <Filter>src\gcode\bedlevel\ubl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\bedlevel\ubl\M421.cpp">
+      <Filter>src\gcode\bedlevel\ubl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\G28.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\G33.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\G34_M422.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\G425.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\G76_M871.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M100.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M12.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M425.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M48.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M665.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M666.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\calibrate\M852.cpp">
+      <Filter>src\gcode\calibrate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M200-M205.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M217.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M218.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M220.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M221.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M281.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M301.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M302.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M304.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M305.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M43.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M540.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M575.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M672.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\config\M92.cpp">
+      <Filter>src\gcode\config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M108_M112_M410.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M111.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M120_M121.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M17_M18_M84.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M211.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M226.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M280.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M3-M5.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M350_M351.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M380_M381.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M400.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M42.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M605.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M7-M9.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M80_M81.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M85.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M997.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\M999.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\control\T.cpp">
+      <Filter>src\gcode\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\eeprom\M500-M504.cpp">
+      <Filter>src\gcode\eeprom</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\advance\M900.cpp">
+      <Filter>src\gcode\feature\advance</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\baricuda\M126-M129.cpp">
+      <Filter>src\gcode\feature\baricuda</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\camera\M240.cpp">
+      <Filter>src\gcode\feature\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\cancel\M486.cpp">
+      <Filter>src\gcode\feature\cancel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\caselight\M355.cpp">
+      <Filter>src\gcode\feature\caselight</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\clean\G12.cpp">
+      <Filter>src\gcode\feature\clean</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\controllerfan\M710.cpp">
+      <Filter>src\gcode\feature\controllerfan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\digipot\M907-M910.cpp">
+      <Filter>src\gcode\feature\digipot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\filwidth\M404-M407.cpp">
+      <Filter>src\gcode\feature\filwidth</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\fwretract\G10_G11.cpp">
+      <Filter>src\gcode\feature\fwretract</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\fwretract\M207-M209.cpp">
+      <Filter>src\gcode\feature\fwretract</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\i2c\M260_M261.cpp">
+      <Filter>src\gcode\feature\i2c</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\L6470\M122.cpp">
+      <Filter>src\gcode\feature\L6470</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\L6470\M906.cpp">
+      <Filter>src\gcode\feature\L6470</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\L6470\M916-918.cpp">
+      <Filter>src\gcode\feature\L6470</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\leds\M150.cpp">
+      <Filter>src\gcode\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\leds\M7219.cpp">
+      <Filter>src\gcode\feature\leds</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\macro\M810-M819.cpp">
+      <Filter>src\gcode\feature\macro</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\mixing\M163-M165.cpp">
+      <Filter>src\gcode\feature\mixing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\mixing\M166.cpp">
+      <Filter>src\gcode\feature\mixing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\G27.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\G60.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\G61.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\M125.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\M600.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\M603.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\pause\M701_M702.cpp">
+      <Filter>src\gcode\feature\pause</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\powerloss\M1000.cpp">
+      <Filter>src\gcode\feature\powerloss</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\powerloss\M413.cpp">
+      <Filter>src\gcode\feature\powerloss</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\prusa_MMU2\M403.cpp">
+      <Filter>src\gcode\feature\prusa_MMU2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\runout\M412.cpp">
+      <Filter>src\gcode\feature\runout</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\trinamic\M122.cpp">
+      <Filter>src\gcode\feature\trinamic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\trinamic\M569.cpp">
+      <Filter>src\gcode\feature\trinamic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\trinamic\M906.cpp">
+      <Filter>src\gcode\feature\trinamic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\feature\trinamic\M911-M914.cpp">
+      <Filter>src\gcode\feature\trinamic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\gcode.cpp">
+      <Filter>src\gcode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\geometry\G17-G19.cpp">
+      <Filter>src\gcode\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\geometry\G53-G59.cpp">
+      <Filter>src\gcode\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\geometry\G92.cpp">
+      <Filter>src\gcode\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\geometry\M206_M428.cpp">
+      <Filter>src\gcode\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M110.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M113.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M114.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M115.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M118.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M119.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M16.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\host\M876.cpp">
+      <Filter>src\gcode\host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\lcd\M0_M1.cpp">
+      <Filter>src\gcode\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\lcd\M117.cpp">
+      <Filter>src\gcode\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\lcd\M145.cpp">
+      <Filter>src\gcode\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\lcd\M250.cpp">
+      <Filter>src\gcode\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\lcd\M300.cpp">
+      <Filter>src\gcode\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\lcd\M73.cpp">
+      <Filter>src\gcode\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\motion\G0_G1.cpp">
+      <Filter>src\gcode\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\motion\G2_G3.cpp">
+      <Filter>src\gcode\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\motion\G4.cpp">
+      <Filter>src\gcode\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\motion\G5.cpp">
+      <Filter>src\gcode\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\motion\G80.cpp">
+      <Filter>src\gcode\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\motion\M290.cpp">
+      <Filter>src\gcode\motion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\parser.cpp">
+      <Filter>src\gcode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\probe\G30.cpp">
+      <Filter>src\gcode\probe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\probe\G31_G32.cpp">
+      <Filter>src\gcode\probe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\probe\G38.cpp">
+      <Filter>src\gcode\probe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\probe\M401_M402.cpp">
+      <Filter>src\gcode\probe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\probe\M851.cpp">
+      <Filter>src\gcode\probe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\probe\M951.cpp">
+      <Filter>src\gcode\probe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\queue.cpp">
+      <Filter>src\gcode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\scara\M360-M364.cpp">
+      <Filter>src\gcode\scara</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M1001.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M20.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M21_M22.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M23.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M24_M25.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M26.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M27.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M28_M29.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M30.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M32.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M33.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M34.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M524.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\sd\M928.cpp">
+      <Filter>src\gcode\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\stats\M31.cpp">
+      <Filter>src\gcode\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\stats\M75-M78.cpp">
+      <Filter>src\gcode\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M104_M109.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M105.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M106_M107.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M140_M190.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M141_M191.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M155.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\temp\M303.cpp">
+      <Filter>src\gcode\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\units\G20_G21.cpp">
+      <Filter>src\gcode\units</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\units\M149.cpp">
+      <Filter>src\gcode\units</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gcode\units\M82_M83.cpp">
+      <Filter>src\gcode\units</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\eeprom.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\fastio.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\fast_pwm.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\HAL.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\HAL_SPI.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\MarlinSerial.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\Servo.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\u8g_com_HAL_AVR_sw_spi.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\AVR\watchdog.cpp">
+      <Filter>src\HAL\AVR</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\DebugMonitor.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\dogm\u8g_com_HAL_DUE_shared_hw_spi.cpp">
+      <Filter>src\HAL\DUE\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\dogm\u8g_com_HAL_DUE_st7920_sw_spi.cpp">
+      <Filter>src\HAL\DUE\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\dogm\u8g_com_HAL_DUE_sw_spi.cpp">
+      <Filter>src\HAL\DUE\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\dogm\u8g_com_HAL_DUE_sw_spi_shared.cpp">
+      <Filter>src\HAL\DUE\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\eeprom.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\EepromEmulation.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\fastio\G2_PWM.cpp">
+      <Filter>src\HAL\DUE\fastio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\HAL.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\HAL_SPI.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\InterruptVectors.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\MarlinSerial.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\MarlinSerialUSB.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\Servo.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\timers.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\Tone.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\ctrl_access.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\sd_mmc_spi_mem.cpp">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\sysclk.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\udc.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\udi_cdc.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\udi_cdc_desc.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\udi_composite_desc.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\udi_msc.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\uotghs_device_due.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\usb\usb_task.c">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\DUE\watchdog.cpp">
+      <Filter>src\HAL\DUE</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\eeprom_impl.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\FlushableHardwareSerial.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\HAL.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\HAL_SPI.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\i2s.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\ota.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\Servo.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\spiffs.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\timers.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\watchdog.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\web.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\WebSocketSerial.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\ESP32\wifi.cpp">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\arduino.cpp">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\eeprom_impl.cpp">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\HAL.cpp">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\hardware\Clock.cpp">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\hardware\Gpio.cpp">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\hardware\Heater.cpp">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\hardware\IOLoggerCSV.cpp">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\hardware\LinearAxis.cpp">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\hardware\Timer.cpp">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\include\pinmapping.cpp">
+      <Filter>src\HAL\LINUX\include</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\main.cpp">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\timers.cpp">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LINUX\watchdog.cpp">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\DebugMonitor.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\eeprom_flash.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\eeprom_sdcard.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\fast_pwm.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\HAL.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\HAL_SPI.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\include\digipot_mcp4451_I2C_routines.c">
+      <Filter>src\HAL\LPC1768\include</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\include\i2c_util.c">
+      <Filter>src\HAL\LPC1768\include</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\main.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\MarlinSerial.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\timers.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\LCD_I2C_routines.cpp">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\LCD_pin_routines.c">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\u8g_com_HAL_LPC1768_hw_spi.cpp">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\u8g_com_HAL_LPC1768_ssd_hw_i2c.cpp">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\u8g_com_HAL_LPC1768_st7920_hw_spi.cpp">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\u8g_com_HAL_LPC1768_st7920_sw_spi.cpp">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\u8g\u8g_com_HAL_LPC1768_sw_spi.cpp">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\usb_serial.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\LPC1768\watchdog.cpp">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\eeprom.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\eeprom_flash.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\eeprom_qspi.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\HAL.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\HAL_SPI.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\MarlinSerial_AGCM4.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\QSPIFlash.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\Servo.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\timers.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\SAMD51\watchdog.cpp">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\backtrace.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwarm.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwarmbytab.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwarmmem.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwarm_arm.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwarm_thumb.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwinder.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\backtrace\unwmemaccess.cpp">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\eeprom_api.cpp">
+      <Filter>src\HAL\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\eeprom_i2c.cpp">
+      <Filter>src\HAL\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\eeprom_spi.cpp">
+      <Filter>src\HAL\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\HAL_spi_L6470.cpp">
+      <Filter>src\HAL\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\shared\servo.cpp">
+      <Filter>src\HAL\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\dogm\u8g_com_stm32duino_fsmc.cpp">
+      <Filter>src\HAL\STM32F1\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\dogm\u8g_com_stm32duino_swspi.cpp">
+      <Filter>src\HAL\STM32F1\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\eeprom.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\eeprom_flash.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\eeprom_sdcard.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\HAL.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\HAL_SPI.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\msc_sd.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\onboard_sd.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\sdio.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\Servo.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\SoftwareSerial.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\SPI.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\timers.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32F1\watchdog.cpp">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\eeprom_flash.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\eeprom_impl.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\eeprom_sdcard.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\fastio.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\HAL.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\HAL_SPI.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\Sd2Card_sdio_stm32duino.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\Servo.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\SoftwareSerial.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\timers.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32\watchdog.cpp">
+      <Filter>src\HAL\STM32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\eeprom.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\eeprom_emul.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\EmulatedEeprom.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\HAL.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\HAL_SPI.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\Servo.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\STM32F4\timers.cpp">
+      <Filter>src\HAL\STM32_F4_F7\STM32F4</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\STM32F7\timers.cpp">
+      <Filter>src\HAL\STM32_F4_F7\STM32F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\STM32F7\TMC2660.cpp">
+      <Filter>src\HAL\STM32_F4_F7\STM32F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\STM32_F4_F7\watchdog.cpp">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY31_32\eeprom_impl.cpp">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY31_32\HAL.cpp">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY31_32\HAL_SPI.cpp">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY31_32\Servo.cpp">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY31_32\timers.cpp">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY31_32\watchdog.cpp">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY35_36\eeprom.cpp">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY35_36\HAL.cpp">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY35_36\HAL_SPI.cpp">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY35_36\Servo.cpp">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY35_36\timers.cpp">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HAL\TEENSY35_36\watchdog.cpp">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\lcdprint_u8g.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\status_screen_DOGM.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\status_screen_lite_ST7920.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\u8g_dev_ssd1306_sh1106_128x64_I2C.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\u8g_dev_st7565_64128n_HAL.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\u8g_dev_st7920_128x64_HAL.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\u8g_dev_tft_320x240_upscale_from_128x64.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\u8g_dev_uc1701_mini12864_HAL.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\u8g_fontutf8.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\ultralcd_DOGM.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\dogm\ultralcd_st7920_u8glib_rrd_AVR.cpp">
+      <Filter>src\lcd\dogm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\dgus\DGUSDisplay.cpp">
+      <Filter>src\lcd\extui\lib\dgus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\dgus\fysetc\DGUSDisplayDef.cpp">
+      <Filter>src\lcd\extui\lib\dgus\fysetc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\dgus\hiprecy\DGUSDisplayDef.cpp">
+      <Filter>src\lcd\extui\lib\dgus\hiprecy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\dgus\origin\DGUSDisplayDef.cpp">
+      <Filter>src\lcd\extui\lib\dgus\origin</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash\flash_storage.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash\media_file_reader.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\commands.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\spi.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\command_processor.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\dl_cache.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\event_loop.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\screen_types.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\sound_player.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\text_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\tiny_timer.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\font_bitmaps.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\font_size_t.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\standard_char_set.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\unicode.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\western_char_set.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\language\language.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\language</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\marlin_events.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\about_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\advanced_settings_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\alert_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\backlash_compensation_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\base_numeric_adjustment_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\base_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_advanced_settings.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_confirm_home_e.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_confirm_home_xyz.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_main_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_printing_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_status_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_tune_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\boot_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\case_light_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\change_filament_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\confirm_abort_print_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\confirm_auto_calibration_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\confirm_erase_flash_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\confirm_start_print_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\confirm_user_request_alert_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\default_acceleration_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\developer_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\dialog_box_base_class.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\display_tuning_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\endstop_state_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\feedrate_percent_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\filament_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\filament_runout_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\files_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\interface_settings_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\interface_sounds_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\jerk_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\junction_deviation_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\kill_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\language_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\linear_advance_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\lock_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\main_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\max_acceleration_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\max_velocity_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\media_player_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\move_axis_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\nozzle_offsets_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\nudge_nozzle_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\preheat_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\preheat_timer_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\restore_failsafe_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\save_settings_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\screens.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\spinner_dialog_box.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\statistics_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\status_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\stepper_bump_sensitivity_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\stepper_current_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\steps_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\stress_test_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\string_format.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\temperature_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\touch_calibration_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\touch_registers_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\tune_menu.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\widget_demo_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\z_offset_screen.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\sounds.cpp">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui\ui_api.cpp">
+      <Filter>src\lcd\extui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui_dgus_lcd.cpp">
+      <Filter>src\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui_example.cpp">
+      <Filter>src\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\extui_malyan_lcd.cpp">
+      <Filter>src\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\fontutils.cpp">
+      <Filter>src\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\HD44780\lcdprint_hd44780.cpp">
+      <Filter>src\lcd\HD44780</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\HD44780\ultralcd_HD44780.cpp">
+      <Filter>src\lcd\HD44780</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\lcdprint.cpp">
+      <Filter>src\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\game\brickout.cpp">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\game\game.cpp">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\game\invaders.cpp">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\game\maze.cpp">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\game\snake.cpp">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_advanced.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_backlash.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_bed_corners.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_bed_leveling.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_cancelobject.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_configuration.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_custom.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_delta_calibrate.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_filament.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_game.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_info.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_job_recovery.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_led.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_main.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_media.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_mixer.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_mmu2.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_motion.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_spindle_laser.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_temperature.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_tmc.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_tune.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\menu\menu_ubl.cpp">
+      <Filter>src\lcd\menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcd\ultralcd.cpp">
+      <Filter>src\lcd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\buzzer.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\crc16.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\heatshrink\heatshrink_decoder.cpp">
+      <Filter>src\libs\heatshrink</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\hex_print_routines.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\L64XX\L64XX_Marlin.cpp">
+      <Filter>src\libs\L64XX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\least_squares_fit.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\nozzle.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\numtostr.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\stopwatch.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libs\vector_3.cpp">
+      <Filter>src\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MarlinCore.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\configuration_store.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\delta.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\endstops.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\motion.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\planner.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\planner_bezier.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\printcounter.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\probe.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\scara.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\servo.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\stepper.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\stepper\indirection.cpp">
+      <Filter>src\module\stepper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\stepper\L64xx.cpp">
+      <Filter>src\module\stepper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\stepper\TMC26X.cpp">
+      <Filter>src\module\stepper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\stepper\trinamic.cpp">
+      <Filter>src\module\stepper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\temperature.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\tool_change.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\cardreader.cpp">
+      <Filter>src\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\Sd2Card.cpp">
+      <Filter>src\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\SdBaseFile.cpp">
+      <Filter>src\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\SdFatUtil.cpp">
+      <Filter>src\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\SdFile.cpp">
+      <Filter>src\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\SdVolume.cpp">
+      <Filter>src\sd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\usb_flashdrive\lib-uhs2\masstorage.cpp">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\usb_flashdrive\lib-uhs2\message.cpp">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\usb_flashdrive\lib-uhs2\parsetools.cpp">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\usb_flashdrive\lib-uhs2\Usb.cpp">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\usb_flashdrive\lib-uhs2\usbhost.cpp">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sd\usb_flashdrive\Sd2Card_FlashDrive.cpp">
+      <Filter>src\sd\usb_flashdrive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\feature\VFDSpindle.cpp">
+      <Filter>src\feature</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\core\boards.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\debug_out.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\drivers.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\language.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\macros.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\millis_t.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\multi_language.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\serial.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\types.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\utility.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\babystep.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\backlash.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\baricuda.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\bedlevel\abl\abl.h">
+      <Filter>src\feature\bedlevel\abl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\bedlevel\bedlevel.h">
+      <Filter>src\feature\bedlevel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\bedlevel\mbl\mesh_bed_leveling.h">
+      <Filter>src\feature\bedlevel\mbl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\bedlevel\ubl\ubl.h">
+      <Filter>src\feature\bedlevel\ubl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\binary_protocol.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\bltouch.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\cancel_object.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\caselight.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\closedloop.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\controllerfan.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\dac\dac_dac084s085.h">
+      <Filter>src\feature\dac</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\dac\dac_mcp4728.h">
+      <Filter>src\feature\dac</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\dac\stepper_dac.h">
+      <Filter>src\feature\dac</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\digipot\digipot.h">
+      <Filter>src\feature\digipot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\encoder_i2c.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\e_parser.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\fanmux.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\filwidth.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\fwretract.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\host_actions.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\joystick.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\leds\blinkm.h">
+      <Filter>src\feature\leds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\leds\leds.h">
+      <Filter>src\feature\leds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\leds\neopixel.h">
+      <Filter>src\feature\leds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\leds\pca9632.h">
+      <Filter>src\feature\leds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\leds\printer_event_leds.h">
+      <Filter>src\feature\leds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\leds\tempstat.h">
+      <Filter>src\feature\leds</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\max7219.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\mixing.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\mmu2\mmu2.h">
+      <Filter>src\feature\mmu2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\pause.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\power.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\powerloss.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\probe_temp_comp.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\runout.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\snmm.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\solenoid.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\spindle_laser.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\tmc_util.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\touch\xpt2046.h">
+      <Filter>src\feature\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\twibus.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\feature\z_stepper_align.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gcode\gcode.h">
+      <Filter>src\gcode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gcode\parser.h">
+      <Filter>src\gcode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gcode\queue.h">
+      <Filter>src\gcode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\endstop_interrupts.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\fastio.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\fastio\fastio_1280.h">
+      <Filter>src\HAL\AVR\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\fastio\fastio_1281.h">
+      <Filter>src\HAL\AVR\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\fastio\fastio_168.h">
+      <Filter>src\HAL\AVR\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\fastio\fastio_644.h">
+      <Filter>src\HAL\AVR\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\fastio\fastio_AT90USB.h">
+      <Filter>src\HAL\AVR\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\HAL.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\inc\Conditionals_adv.h">
+      <Filter>src\HAL\AVR\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\AVR\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\inc\Conditionals_post.h">
+      <Filter>src\HAL\AVR\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\inc\SanityCheck.h">
+      <Filter>src\HAL\AVR\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\MarlinSerial.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\math.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\pinsDebug.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\pinsDebug_plus_70.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\pinsDebug_Teensyduino.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\ServoTimers.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\spi_pins.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\AVR\watchdog.h">
+      <Filter>src\HAL\AVR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\dogm\u8g_com_HAL_DUE_sw_spi_shared.h">
+      <Filter>src\HAL\DUE\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\endstop_interrupts.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\fastio.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\fastio\G2_pins.h">
+      <Filter>src\HAL\DUE\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\fastio\G2_PWM.h">
+      <Filter>src\HAL\DUE\fastio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\HAL.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\inc\Conditionals_adv.h">
+      <Filter>src\HAL\DUE\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\DUE\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\inc\Conditionals_post.h">
+      <Filter>src\HAL\DUE\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\inc\SanityCheck.h">
+      <Filter>src\HAL\DUE\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\InterruptVectors.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\MarlinSerial.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\MarlinSerialUSB.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\pinsDebug.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\ServoTimers.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\spi_pins.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\timers.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\arduino_due_x.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\compiler.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\conf_access.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\conf_clock.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\conf_usb.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\ctrl_access.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\genclk.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\mrepeat.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\osc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\pll.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\preprocessor.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\sbc_protocol.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\sd_mmc_spi_mem.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\spc_protocol.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\stringz.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\sysclk.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\tpaste.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udc_desc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udd.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udi.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udi_cdc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udi_cdc_conf.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\udi_msc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\uotghs_device_due.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\uotghs_otg.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\usb_protocol.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\usb_protocol_cdc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\usb_protocol_msc.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\usb\usb_task.h">
+      <Filter>src\HAL\DUE\usb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\DUE\watchdog.h">
+      <Filter>src\HAL\DUE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\endstop_interrupts.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\fastio.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\FlushableHardwareSerial.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\HAL.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\i2s.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\inc\Conditionals_adv.h">
+      <Filter>src\HAL\ESP32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\ESP32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\inc\Conditionals_post.h">
+      <Filter>src\HAL\ESP32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\inc\SanityCheck.h">
+      <Filter>src\HAL\ESP32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\ota.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\Servo.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\servotimers.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\spiffs.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\spi_pins.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\timers.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\watchdog.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\web.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\WebSocketSerial.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\ESP32\wifi.h">
+      <Filter>src\HAL\ESP32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\HAL.h">
+      <Filter>src\HAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\fastio.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\HAL.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\hardware\Clock.h">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\hardware\Gpio.h">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\hardware\Heater.h">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\hardware\IOLoggerCSV.h">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\hardware\LinearAxis.h">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\hardware\Timer.h">
+      <Filter>src\HAL\LINUX\hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\include\Arduino.h">
+      <Filter>src\HAL\LINUX\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\include\pinmapping.h">
+      <Filter>src\HAL\LINUX\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\include\serial.h">
+      <Filter>src\HAL\LINUX\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\inc\Conditionals_adv.h">
+      <Filter>src\HAL\LINUX\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\LINUX\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\inc\Conditionals_post.h">
+      <Filter>src\HAL\LINUX\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\inc\SanityCheck.h">
+      <Filter>src\HAL\LINUX\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\pinsDebug.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\servo_private.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\spi_pins.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\timers.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LINUX\watchdog.h">
+      <Filter>src\HAL\LINUX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\eeprom_api.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\endstop_interrupts.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\fastio.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\HAL.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\include\digipot_mcp4451_I2C_routines.h">
+      <Filter>src\HAL\LPC1768\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\include\i2c_util.h">
+      <Filter>src\HAL\LPC1768\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\include\SPI.h">
+      <Filter>src\HAL\LPC1768\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\inc\Conditionals_adv.h">
+      <Filter>src\HAL\LPC1768\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\LPC1768\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\inc\Conditionals_post.h">
+      <Filter>src\HAL\LPC1768\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\inc\SanityCheck.h">
+      <Filter>src\HAL\LPC1768\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\MarlinSerial.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\pinsDebug.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\Servo.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\spi_pins.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\timers.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\u8g\LCD_defines.h">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\u8g\LCD_delay.h">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\u8g\LCD_I2C_routines.h">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\u8g\LCD_pin_routines.h">
+      <Filter>src\HAL\LPC1768\u8g</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\LPC1768\watchdog.h">
+      <Filter>src\HAL\LPC1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\platforms.h">
+      <Filter>src\HAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\endstop_interrupts.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\fastio.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\HAL.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\inc\Conditionals_adv.h">
+      <Filter>src\HAL\SAMD51\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\SAMD51\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\inc\Conditionals_post.h">
+      <Filter>src\HAL\SAMD51\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\inc\SanityCheck.h">
+      <Filter>src\HAL\SAMD51\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\MarlinSerial_AGCM4.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\pinsDebug.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\QSPIFlash.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\SAMD51.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\ServoTimers.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\spi_pins.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\timers.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\SAMD51\watchdog.h">
+      <Filter>src\HAL\SAMD51</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\backtrace\backtrace.h">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\backtrace\unwarm.h">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\backtrace\unwarmbytab.h">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\backtrace\unwarmmem.h">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\backtrace\unwinder.h">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\backtrace\unwmemaccess.h">
+      <Filter>src\HAL\shared\backtrace</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\Delay.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\eeprom_api.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\HAL_SPI.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\HAL_ST7920.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\Marduino.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\math_32bit.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\servo.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\shared\servo_private.h">
+      <Filter>src\HAL\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\endstop_interrupts.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\fastio.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\HAL.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\inc\Conditionals_adv.h">
+      <Filter>src\HAL\STM32F1\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\STM32F1\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\inc\Conditionals_post.h">
+      <Filter>src\HAL\STM32F1\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\inc\SanityCheck.h">
+      <Filter>src\HAL\STM32F1\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\msc_sd.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\onboard_sd.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\pinsDebug.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\sdio.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\Servo.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\SoftwareSerial.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\SPI.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\spi_pins.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\timers.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32F1\watchdog.h">
+      <Filter>src\HAL\STM32F1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\endstop_interrupts.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\fastio.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\HAL.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\inc\Conditionals_adv.h">
+      <Filter>src\HAL\STM32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\STM32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\inc\Conditionals_post.h">
+      <Filter>src\HAL\STM32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\inc\SanityCheck.h">
+      <Filter>src\HAL\STM32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\pinsDebug.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\pinsDebug_STM32duino.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\pinsDebug_STM32GENERIC.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\pins_Xref.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\Servo.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\SoftwareSerial.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\spi_pins.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\timers.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32\watchdog.h">
+      <Filter>src\HAL\STM32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\eeprom_emul.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\endstop_interrupts.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\fastio.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\HAL.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\inc\Conditionals_adv.h">
+      <Filter>src\HAL\STM32_F4_F7\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\STM32_F4_F7\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\inc\Conditionals_post.h">
+      <Filter>src\HAL\STM32_F4_F7\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\inc\SanityCheck.h">
+      <Filter>src\HAL\STM32_F4_F7\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\pinsDebug.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\Servo.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\spi_pins.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\STM32F4\timers.h">
+      <Filter>src\HAL\STM32_F4_F7\STM32F4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\STM32F7\timers.h">
+      <Filter>src\HAL\STM32_F4_F7\STM32F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\STM32F7\TMC2660.h">
+      <Filter>src\HAL\STM32_F4_F7\STM32F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\timers.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\STM32_F4_F7\watchdog.h">
+      <Filter>src\HAL\STM32_F4_F7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\endstop_interrupts.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\fastio.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\HAL.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\inc\Conditionals_adv.h">
+      <Filter>src\HAL\TEENSY31_32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\TEENSY31_32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\inc\Conditionals_post.h">
+      <Filter>src\HAL\TEENSY31_32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\inc\SanityCheck.h">
+      <Filter>src\HAL\TEENSY31_32\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\pinsDebug.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\Servo.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\spi_pins.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\timers.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY31_32\watchdog.h">
+      <Filter>src\HAL\TEENSY31_32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\endstop_interrupts.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\fastio.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\HAL.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\inc\Conditionals_adv.h">
+      <Filter>src\HAL\TEENSY35_36\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\inc\Conditionals_LCD.h">
+      <Filter>src\HAL\TEENSY35_36\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\inc\Conditionals_post.h">
+      <Filter>src\HAL\TEENSY35_36\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\inc\SanityCheck.h">
+      <Filter>src\HAL\TEENSY35_36\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\pinsDebug.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\Servo.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\spi_pins.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\timers.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HAL\TEENSY35_36\watchdog.h">
+      <Filter>src\HAL\TEENSY35_36</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\Conditionals_adv.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\Conditionals_LCD.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\Conditionals_post.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\MarlinConfig.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\MarlinConfigPre.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\SanityCheck.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inc\Version.h">
+      <Filter>src\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\dogm_Bootscreen.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\dogm_Statusscreen.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\fontdata_6x9_marlin.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\fontdata_ISO10646_1.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_an.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_bg.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_ca.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_cz.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_da.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_de.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_el.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_el_gr.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_en.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_es.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_eu.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_fi.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_fr.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_gl.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_hr.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_it.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_jp_kana.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_ko_KR.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_nl.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_pl.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_pt.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_pt_br.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_ru.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_sk.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_test.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_tr.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_uk.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_vi.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_zh_CN.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\fontdata\langdata_zh_TW.h">
+      <Filter>src\lcd\dogm\fontdata</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\HAL_LCD_class_defines.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\HAL_LCD_com_defines.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\status_screen_lite_ST7920.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\u8g_fontutf8.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\ultralcd_DOGM.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\dogm\ultralcd_st7920_u8glib_rrd_AVR.h">
+      <Filter>src\lcd\dogm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\dgus\DGUSDisplay.h">
+      <Filter>src\lcd\extui\lib\dgus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\dgus\DGUSDisplayDef.h">
+      <Filter>src\lcd\extui\lib\dgus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\dgus\DGUSVPVariable.h">
+      <Filter>src\lcd\extui\lib\dgus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\dgus\fysetc\DGUSDisplayDef.h">
+      <Filter>src\lcd\extui\lib\dgus\fysetc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\dgus\hiprecy\DGUSDisplayDef.h">
+      <Filter>src\lcd\extui\lib\dgus\hiprecy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\dgus\origin\DGUSDisplayDef.h">
+      <Filter>src\lcd\extui\lib\dgus\origin</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash\flash_storage.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash\media_file_reader.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\archim2-flash</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\compat.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\config.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\boards.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\commands.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\constants.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\display_list.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\ftdi_basic.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\registers_ft800.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\registers_ft810.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\resolutions.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic\spi.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\compat.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\bitmap_info.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\command_processor.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\dl_cache.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\event_loop.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\ftdi_extended.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\grid_layout.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\polygon.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\rgb_t.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\screen_types.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\sound_list.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\sound_player.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\text_box.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\tiny_timer.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\font_bitmaps.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\font_size_t.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\standard_char_set.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\unicode.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\western_char_set.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode\western_char_set_bitmap_31.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extended\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extras\circular_progress.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extras\poly_ui.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib\ftdi_eve_lib.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\ftdi_eve_lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\language\language.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\language\language_en.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\pin_mappings.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_printer_ui_landscape.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\bio_printer_ui_portrait.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\screens.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\screen_data.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\screens\string_format.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\bitmaps.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\colors.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\fonts.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\marlin_bootscreen_landscape.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\marlin_bootscreen_portrait.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\sounds.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\lib\ftdi_eve_touch_ui\theme\theme.h">
+      <Filter>src\lcd\extui\lib\ftdi_eve_touch_ui\theme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\extui\ui_api.h">
+      <Filter>src\lcd\extui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\fontutils.h">
+      <Filter>src\lcd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\HD44780\ultralcd_HD44780.h">
+      <Filter>src\lcd\HD44780</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_an.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_bg.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_ca.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_cz.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_da.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_de.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_el.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_el_gr.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_en.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_es.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_eu.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_fi.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_fr.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_gl.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_hr.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_it.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_jp_kana.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_ko_KR.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_nl.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_pl.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_pt.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_pt_br.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_ru.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_sk.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_test.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_tr.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_uk.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_vi.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_zh_CN.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\language\language_zh_TW.h">
+      <Filter>src\lcd\language</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\lcdprint.h">
+      <Filter>src\lcd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\game\brickout.h">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\game\game.h">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\game\invaders.h">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\game\maze.h">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\game\snake.h">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\game\types.h">
+      <Filter>src\lcd\menu\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\menu.h">
+      <Filter>src\lcd\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\menu_addon.h">
+      <Filter>src\lcd\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\menu\menu_mmu2.h">
+      <Filter>src\lcd\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\thermistornames.h">
+      <Filter>src\lcd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lcd\ultralcd.h">
+      <Filter>src\lcd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\bresenham.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\buzzer.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\circularqueue.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\crc16.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\duration_t.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\heatshrink\heatshrink_common.h">
+      <Filter>src\libs\heatshrink</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\heatshrink\heatshrink_config.h">
+      <Filter>src\libs\heatshrink</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\heatshrink\heatshrink_decoder.h">
+      <Filter>src\libs\heatshrink</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\hex_print_routines.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\L64XX\L64XX_Marlin.h">
+      <Filter>src\libs\L64XX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\least_squares_fit.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\nozzle.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\numtostr.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\private_spi.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\softspi.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\stopwatch.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libs\vector_3.h">
+      <Filter>src\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MarlinCore.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\configuration_store.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\delta.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\endstops.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\motion.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\planner.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\planner_bezier.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\printcounter.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\probe.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\scara.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\servo.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\speed_lookuptable.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\stepper.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\stepper\indirection.h">
+      <Filter>src\module\stepper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\stepper\L64xx.h">
+      <Filter>src\module\stepper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\stepper\TMC26X.h">
+      <Filter>src\module\stepper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\stepper\trinamic.h">
+      <Filter>src\module\stepper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\temperature.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistors.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_1.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_10.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_1010.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_1047.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_11.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_110.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_12.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_13.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_147.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_15.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_18.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_2.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_20.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_201.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_202.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_21.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_3.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_331.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_332.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_4.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_5.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_501.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_51.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_512.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_52.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_55.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_6.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_60.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_61.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_66.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_666.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_67.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_7.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_70.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_71.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_75.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_8.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_9.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_99.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_998.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\thermistor\thermistor_999.h">
+      <Filter>src\module\thermistor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\tool_change.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\esp32\pins_E4D.h">
+      <Filter>src\pins\esp32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\esp32\pins_ESP32.h">
+      <Filter>src\pins\esp32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\esp32\pins_MRR_ESPA.h">
+      <Filter>src\pins\esp32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\esp32\pins_MRR_ESPE.h">
+      <Filter>src\pins\esp32</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\linux\pins_RAMPS_LINUX.h">
+      <Filter>src\pins\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_AZSMZ_MINI.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_BIQU_B300_V1.0.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_BIQU_BQ111_A4.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_BTT_SKR_common.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_BTT_SKR_V1_1.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_BTT_SKR_V1_3.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_BTT_SKR_V1_4.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_GMARSH_X6_REV1.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_MKS_SBASE.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_MKS_SGEN_L.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_RAMPS_RE_ARM.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1768\pins_SELENA_COMPACT.h">
+      <Filter>src\pins\lpc1768</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_AZTEEG_X5_GT.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_AZTEEG_X5_MINI.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_AZTEEG_X5_MINI_WIFI.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_BTT_SKR_V1_4_TURBO.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_COHESION3D_MINI.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_COHESION3D_REMIX.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_MKS_SGEN.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_SMOOTHIEBOARD.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\lpc1769\pins_TH3D_EZBOARD.h">
+      <Filter>src\pins\lpc1769</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_CHEAPTRONIC.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_CHEAPTRONICv2.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_CNCONTROLS_11.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_CNCONTROLS_12.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_CNCONTROLS_15.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_EINSTART-S.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_ELEFU_3.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_GT2560_REV_A.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_GT2560_REV_A_PLUS.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_GT2560_V3.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_GT2560_V3_A20.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_GT2560_V3_MC2.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_HJC2560C_REV2.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_INTAMSYS40.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_LEAPFROG.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_LEAPFROG_XEED2015.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_MEGACONTROLLER.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_MEGATRONICS.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_MEGATRONICS_2.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_MEGATRONICS_3.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_MIGHTYBOARD_REVE.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_MINITRONICS.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_OVERLORD.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_PICA.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_PICAOLD.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_SILVER_GATE.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\mega\pins_WANHAO_ONEPLUS.h">
+      <Filter>src\pins\mega</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\pins.h">
+      <Filter>src\pins</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\pinsDebug.h">
+      <Filter>src\pins</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\pinsDebug_list.h">
+      <Filter>src\pins</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\rambo\pins_EINSY_RAMBO.h">
+      <Filter>src\pins\rambo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\rambo\pins_EINSY_RETRO.h">
+      <Filter>src\pins\rambo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\rambo\pins_MINIRAMBO.h">
+      <Filter>src\pins\rambo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\rambo\pins_RAMBO.h">
+      <Filter>src\pins\rambo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\rambo\pins_SCOOVO_X9H.h">
+      <Filter>src\pins\rambo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_3DRAG.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_AZTEEG_X3.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_AZTEEG_X3_PRO.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_BAM_DICE_DUE.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_BIQU_KFB_2.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_BQ_ZUM_MEGA_3D.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_COPYMASTER_3D.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_DUPLICATOR_I3_PLUS.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FELIX2.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FORMBOT_RAPTOR.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FORMBOT_RAPTOR2.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FORMBOT_TREX2PLUS.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FORMBOT_TREX3.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FYSETC_F6_13.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_FYSETC_F6_14.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_K8200.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_K8400.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_K8800.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MAKEBOARD_MINI.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_BASE_10.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_BASE_14.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_BASE_15.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_BASE_16.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_BASE_common.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_BASE_HEROIC.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_GEN_13.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_GEN_L.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_MKS_GEN_L_V2.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS_13.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS_CREALITY.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS_DAGOMA.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS_ENDER_4.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS_OLD.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RAMPS_PLUS.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RIGIDBOARD.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RIGIDBOARD_V2.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RL200.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RUMBA.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_RUMBA_RAISE3D.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_SAINSMART_2IN1.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_TANGO.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_TRIGORILLA_13.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_TRIGORILLA_14.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_TRONXY_V3_1_0.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_TT_OSCAR.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_ULTIMAIN_2.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_ULTIMAKER.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_ULTIMAKER_OLD.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_VORON.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_ZRIB_V20.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\ramps\pins_Z_BOLT_X_SERIES.h">
+      <Filter>src\pins\ramps</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\samd\pins_RAMPS_144.h">
+      <Filter>src\pins\samd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_ADSK.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_ALLIGATOR_R2.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_ARCHIM1.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_ARCHIM2.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_CNCONTROLS_15D.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_DUE3DOM.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_DUE3DOM_MINI.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_PRINTRBOARD_G2.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RADDS.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RAMPS4DUE.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RAMPS_DUO.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RAMPS_FD_V1.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RAMPS_FD_V2.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RAMPS_SMART.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RURAMPS4D_11.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_RURAMPS4D_13.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sam\pins_ULTRATRONICS_PRO.h">
+      <Filter>src\pins\sam</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_ANET_10.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_AZTEEG_X1.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN3_MONOLITHIC.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN3_PLUS.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN6.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN6_DELUXE.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN7_12.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN7_13.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN7_14.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_GEN7_CUSTOM.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_MELZI.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_MELZI_CREALITY.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_MELZI_MAKR3D.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_MELZI_MALYAN.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_MELZI_TRONXY.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_OMCA.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_OMCA_A.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_SANGUINOLOLU_11.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_SANGUINOLOLU_12.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_SETHI.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sanguino\pins_STB_11.h">
+      <Filter>src\pins\sanguino</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\sensitive_pins.h">
+      <Filter>src\pins</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_BTT_SKR_E3_DIP.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_BTT_SKR_MINI_E3.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_BTT_SKR_MINI_E3_V1_0.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_BTT_SKR_MINI_E3_V1_2.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_BTT_SKR_MINI_V1_1.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_CHITU3D.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_FYSETC_AIO_II.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_FYSETC_CHEETAH.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_FYSETC_CHEETAH_V12.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_GTM32_MINI.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_GTM32_MINI_A30.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_GTM32_PRO_VB.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_GTM32_REV_B.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_JGAURORA_A5S_A1.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_LONGER3D_LK.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MALYAN_M200.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MKS_ROBIN.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MKS_ROBIN_LITE.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MKS_ROBIN_LITE3.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MKS_ROBIN_MINI.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MKS_ROBIN_NANO.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MKS_ROBIN_PRO.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_MORPHEUS.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_STM32F1R.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f1\pins_STM3R_MINI.h">
+      <Filter>src\pins\stm32f1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_ARMED.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_BEAST.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_BLACK_STM32F407VE.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_BTT_BTT002_V1_0.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_BTT_GTR_V1_0.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_BTT_SKR_PRO_V1_1.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_FLYF407ZG.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_FYSETC_S6.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_GENERIC_STM32F4.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_LERDGE_K.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_LERDGE_X.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_MKS_ROBIN2.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_RUMBA32_AUS3D.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_RUMBA32_common.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_RUMBA32_MKS.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_STEVAL_3DP001V1.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f4\pins_VAKE403D.h">
+      <Filter>src\pins\stm32f4</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f7\pins_REMRAM_V1.h">
+      <Filter>src\pins\stm32f7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\stm32f7\pins_THE_BORG.h">
+      <Filter>src\pins\stm32f7</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_5DPRINT.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_BRAINWAVE.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_BRAINWAVE_PRO.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_PRINTRBOARD.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_PRINTRBOARD_REVF.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_SAV_MKI.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_TEENSY2.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy2\pins_TEENSYLU.h">
+      <Filter>src\pins\teensy2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy3\pins_TEENSY31_32.h">
+      <Filter>src\pins\teensy3</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pins\teensy3\pins_TEENSY35_36.h">
+      <Filter>src\pins\teensy3</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\cardreader.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\Sd2Card.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\Sd2Card_sdio.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdBaseFile.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdFatConfig.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdFatStructs.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdFatUtil.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdFile.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdInfo.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\SdVolume.h">
+      <Filter>src\sd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\address.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\confdescparser.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\hexdump.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\macros.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\masstorage.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\max3421e.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\message.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\parsetools.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\printhex.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\settings.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\Usb.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\UsbCore.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\usbhost.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs2\usb_ch9.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs2</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\dyn_SWI\dyn_SWI.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\dyn_SWI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\dyn_SWI\SWI_INLINE.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\dyn_SWI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\macro_logic.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_address.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE\UHS_BULK_STORAGE.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE\UHS_BULK_STORAGE_INLINE.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE\UHS_SCSI.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_BULK_STORAGE</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_hexdump.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_host.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_host_INLINE.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_macros.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_message.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_printf_HELPER.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_printhex.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_settings.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_UNOFFICIAL_IDs.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_UsbCore.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_usbhost.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_usb_ch9.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_USB_IDs.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\UHS_util_INLINE.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD\UHS_max3421e.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD\USB_HOST_SHIELD.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD\USB_HOST_SHIELD_INLINE.h">
+      <Filter>src\sd\usb_flashdrive\lib-uhs3\UHS_host\USB_HOST_SHIELD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sd\usb_flashdrive\Sd2Card_FlashDrive.h">
+      <Filter>src\sd\usb_flashdrive</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.Marlin.vsarduino.h">
+      <Filter>__vm</Filter>
+    </ClInclude>
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="Configuration_adv.h" />
+    <ClInclude Include="src\feature\VFDSpindle.h">
+      <Filter>src\feature</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Marlin.ino" />
+  </ItemGroup>
+</Project>
