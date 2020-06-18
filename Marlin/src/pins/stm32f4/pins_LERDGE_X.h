@@ -163,11 +163,11 @@
 #define BTN_EN2                             PE4
 #define BTN_ENC                             PE2
 
-#define LCD_RESET_PIN                       PD6
-#define LCD_BACKLIGHT_PIN                   PD3
+#define TFT_RESET_PIN                       PD6
+#define TFT_BACKLIGHT_PIN                   PD3
 
-#define FSMC_CS_PIN                         PD4
-#define FSMC_RS_PIN                         PD11
+#define TFT_CS_PIN                         PD7
+#define TFT_RS_PIN                         PD11
 
 #define TOUCH_CS_PIN                        PB6
 #define TOUCH_SCK_PIN                       PB3

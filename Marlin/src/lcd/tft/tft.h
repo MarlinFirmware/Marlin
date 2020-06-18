@@ -43,6 +43,7 @@
 #define ILI9328 0x9328
 #define ILI9341 0x9341
 #define ILI9488 0x9488
+#define LERDGE_ST7796 0xFFFE
 #define AUTO    0xFFFF
 
 #ifndef TFT_BUFFER_SIZE
@@ -53,7 +54,7 @@
   #elif defined(STM32F1)
     #define TFT_BUFFER_SIZE       8192
   #else
-    #define TFT_BUFFER_SIZE       38400 // 320 * 120
+    #define TFT_BUFFER_SIZE       19200 // 320 * 120
   #endif
 #endif
 

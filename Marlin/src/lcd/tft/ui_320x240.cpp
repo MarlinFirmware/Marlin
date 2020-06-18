@@ -588,7 +588,7 @@ void menu_line(const uint8_t row, uint16_t color) {
   tft.set_background(color);
 }
 
-void menu_pause_option();
+__weak void menu_pause_option(){};
 
 void menu_item(const uint8_t row, bool sel ) {
   #if ENABLED(TOUCH_SCREEN)
