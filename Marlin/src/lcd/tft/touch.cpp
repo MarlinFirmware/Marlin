@@ -43,6 +43,8 @@ millis_t Touch::now = 0;
 millis_t Touch::time_to_hold;
 millis_t Touch::repeat_delay;
 bool Touch::wait_for_unclick;
+int32_t Touch::x_calibration = XPT2046_X_CALIBRATION, Touch::y_calibration = XPT2046_Y_CALIBRATION;
+int16_t Touch::x_offset = XPT2046_X_OFFSET, Touch::y_offset = XPT2046_Y_OFFSET;
 
 void Touch::init() {
   reset();
@@ -119,7 +121,7 @@ void Touch::touch(touchControl_t *control) {
   switch (control->type) {
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;
-    case CLICK: ui.lcd_clicked = true;  break;
+    case CLICK: ui.lcd_clicked = true; break;
     #if HAS_RESUME_CONTINUE
       case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
@@ -203,6 +205,14 @@ void Touch::hold(touchControl_t *control, millis_t delay) {
   ui.refresh();
 }
 
+bool Touch::get_point(int16_t *x, int16_t *y) {
+  bool is_touched = io.getRawPoint(x, y);
+  if (is_touched) {
+    *x = int16_t((int32_t(*x) * x_calibration) >> 16) + x_offset;
+    *y = int16_t((int32_t(*y) * y_calibration) >> 16) + y_offset;
+  }
+  return is_touched;
+}
 Touch touch;
 
 #endif // TOUCH_SCREEN

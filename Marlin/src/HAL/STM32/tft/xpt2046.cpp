@@ -119,11 +119,11 @@ bool XPT2046::isTouched() {
   );
 }
 
-bool XPT2046::getPoint(int16_t *x, int16_t *y) {
+bool XPT2046::getRawPoint(int16_t *x, int16_t *y) {
   if (isBusy()) return false;
   if (!isTouched()) return false;
-  *x = (int16_t)((((int32_t)getRawData(XPT2046_X) * (int32_t)XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET);
-  *y = (int16_t)((((int32_t)getRawData(XPT2046_Y) * (int32_t)XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET);
+  *x = getRawData(XPT2046_X);
+  *y = getRawData(XPT2046_Y);
   return isTouched();
 }
 

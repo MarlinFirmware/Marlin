@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if TFT_320x240
+#ifdef TFT_320x240
 
 #include "ui_320x240.h"
 
@@ -52,15 +52,17 @@
 bool draw_menu_navigation = false;
 
 void MarlinUI::tft_idle() {
-  if (draw_menu_navigation) {
-    add_control(48, 206, PAGE_UP, imgPageUp, encoderTopLine > 0);
-    add_control(240, 206, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
-    add_control(144, 206, BACK, imgBack);
-    draw_menu_navigation = false;
-  }
+  #if ENABLED(TOUCH_SCREEN)
+    if (draw_menu_navigation) {
+      add_control(48, 206, PAGE_UP, imgPageUp, encoderTopLine > 0);
+      add_control(240, 206, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
+      add_control(144, 206, BACK, imgBack);
+      draw_menu_navigation = false;
+    }
+  #endif
 
   tft.queue.async();
-  touch.idle();
+  TERN_(TOUCH_SCREEN, touch.idle());
 }
 
 void MarlinUI::init_lcd() {
@@ -87,7 +89,7 @@ void MarlinUI::clear_lcd() {
 
 #if ENABLED(SHOW_BOOTSCREEN)
   #ifndef BOOTSCREEN_TIMEOUT
-    #define BOOTSCREEN_TIMEOUT 2500
+    #define BOOTSCREEN_TIMEOUT 1500
   #endif
 
   void MarlinUI::show_bootscreen() {
@@ -105,8 +107,6 @@ void MarlinUI::clear_lcd() {
     clear_lcd();
   }
 #endif // SHOW_BOOTSCREEN
-
-
 
 void MarlinUI::draw_kill_screen() {
   tft.queue.reset();
@@ -160,8 +160,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
 #endif // HAS_TEMP_CHAMBER
   else return;
 
-  if (targetTemperature >= 0)
-    touch.add_control(HEATER, x, y, 64, 100, Heater);
+  TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(HEATER, x, y, 64, 100, Heater));
   tft.canvas(x, y, 64, 100);
   tft.set_background(COLOR_BACKGROUND);
 
@@ -200,7 +199,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
 }
 
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
-  touch.add_control(FAN, x, y, 64, 100);
+  TERN_(TOUCH_SCREEN, touch.add_control(FAN, x, y, 64, 100));
   tft.canvas(x, y, 64, 100);
   tft.set_background(COLOR_BACKGROUND);
 
@@ -298,7 +297,7 @@ void MarlinUI::draw_status_screen() {
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
   tft.add_text(32, 6, color , tft_string);
-  touch.add_control(FEEDRATE, 70, 136, 80, 32);
+  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 70, 136, 80, 32));
 
   // flow rate
   tft.canvas(170, 136, 80, 32);
@@ -308,7 +307,7 @@ void MarlinUI::draw_status_screen() {
   tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
   tft_string.add('%');
   tft.add_text(32, 6, color , tft_string);
-  touch.add_control(FLOWRATE, 170, 136, 80, 32, active_extruder);
+  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 170, 136, 80, 32, active_extruder));
 
   // print duration
   char buffer[14];
@@ -335,9 +334,9 @@ void MarlinUI::draw_status_screen() {
   tft_string.trim();
   tft.add_text(tft_string.width() > 320 ? 0 : 160 - tft_string.width() / 2 , 0, COLOR_STATUS_MESSAGE, tft_string);
 
-  add_control(256, 130, menu_main, imgSettings);
-  #if ENABLED(SDSUPPORT)
-    add_control(0, 130, menu_media, imgSD, card.isMounted() && !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+  #if ENABLED(TOUCH_SCREEN)
+    add_control(256, 130, menu_main, imgSettings);
+    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, card.isMounted() && !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
   #endif
 }
 
@@ -387,7 +386,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr,
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
 void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
   ui.encoder_direction_normal();
-  touch.clear();
+  TERN_(TOUCH_SCREEN, touch.clear());
 
   uint16_t line = 1;
 
@@ -436,14 +435,17 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
     tft.add_bar(position + 1, 6, SLIDER_LENGHT - 2 - position, 4, COLOR_SLIDER_INACTIVE);
     tft.add_bar(SLIDER_LENGHT - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
 
-    tft.add_image((SLIDER_LENGHT - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
-
-    touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGHT, 32, maxEditValue);
+    #if ENABLED(TOUCH_SCREEN)
+      tft.add_image((SLIDER_LENGHT - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
+      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGHT, 32, maxEditValue);
+    #endif
   }
 
-  add_control(32, 176, DECREASE, imgDecrease);
-  add_control(224, 176, INCREASE, imgIncrease);
-  add_control(128, 176, CLICK, imgConfirm);
+  #if ENABLED(TOUCH_SCREEN)
+    add_control(32, 176, DECREASE, imgDecrease);
+    add_control(224, 176, INCREASE, imgIncrease);
+    add_control(128, 176, CLICK, imgConfirm);
+  #endif
 }
 
 // The Select Screen presents a prompt and two "buttons"
@@ -470,9 +472,10 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.trim();
     tft.add_text(tft_string.width() > 320 ? 0 : 160 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   }
-
-  add_control(48, 176, CANCEL, imgCancel, true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
-  add_control(208, 176, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
+  #if ENABLED(TOUCH_SCREEN)
+    add_control(48, 176, CANCEL, imgCancel, true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
+    add_control(208, 176, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
+  #endif
 }
 
 #if ENABLED(SDSUPPORT)
@@ -487,9 +490,11 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
   void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
-    touch.clear();
-    draw_menu_navigation = false;
-    touch.add_control(RESUME_CONTINUE , 0, 0, 320, 240);
+    #if ENABLED(TOUCH_SCREEN)
+      touch.clear();
+      draw_menu_navigation = false;
+      touch.add_control(RESUME_CONTINUE , 0, 0, 320, 240);
+    #endif
 
     menu_line(row);
     tft_string.set(GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE));
@@ -520,9 +525,9 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     for (uint16_t x = 0; x < GRID_MAX_POINTS_X ; x++)
       for (uint16_t y = 0; y < GRID_MAX_POINTS_Y ; y++)
         if (position_is_reachable({ ubl.mesh_index_to_xpos(x), ubl.mesh_index_to_ypos(y) }))
-          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 2, 2, COLOR_WHITE);
+          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 2, 2, COLOR_UBL);
 
-    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 6, 6, COLOR_WHITE);
+    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 6, 6, COLOR_UBL);
 
     const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
                    lpos = pos.asLogical();
@@ -564,12 +569,16 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.trim();
     tft.add_text(15 - tft_string.width() / 2, MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
-    add_control(160, 24, UBL_UP, imgUp);
-    add_control(160, 104, UBL_DOWN, imgDown);
-    add_control(24, 160, UBL_LEFT, imgLeft);
-    add_control(104, 160, UBL_RIGHT, imgRight);
-    add_control(224, 160, CLICK, imgLeveling);
-    add_control(144, 206, BACK, imgBack);
+    #if ENABLED(TOUCH_SCREEN)
+      touch.clear();
+      draw_menu_navigation = false;
+      add_control(160, 24, UBL_UP, imgUp);
+      add_control(160, 104, UBL_DOWN, imgDown);
+      add_control(24, 160, UBL_LEFT, imgLeft);
+      add_control(104, 160, UBL_RIGHT, imgRight);
+      add_control(224, 160, CLICK, imgLeveling);
+      add_control(144, 206, BACK, imgBack);
+    #endif
   }
 #endif // AUTO_BED_LEVELING_UBL
 
@@ -582,31 +591,35 @@ void menu_line(const uint8_t row, uint16_t color) {
 void menu_pause_option();
 
 void menu_item(const uint8_t row, bool sel ) {
-  if (row == 0) {
-    touch.clear();
-    draw_menu_navigation = ui.currentScreen != menu_pause_option;
-  }
+  #if ENABLED(TOUCH_SCREEN)
+    if (row == 0) {
+      touch.clear();
+      draw_menu_navigation = ui.currentScreen != menu_pause_option;
+    }
+  #endif
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row);
+  TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
 }
 
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-  uint16_t width = Images[image].width;
-  uint16_t height = Images[image].height;
-  tft.canvas(x, y, width, height);
-  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-  if (is_enabled)
-    touch.add_control(control_type, x, y, width, height);
-}
+#if ENABLED(TOUCH_SCREEN)
+  void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+    uint16_t width = Images[image].width;
+    uint16_t height = Images[image].height;
+    tft.canvas(x, y, width, height);
+    tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
+    if (is_enabled)
+      touch.add_control(control_type, x, y, width, height);
+  }
 
-void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-  uint16_t width = Images[image].width;
-  uint16_t height = Images[image].height;
-  tft.canvas(x, y, width, height);
-  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-  if (is_enabled)
-    touch.add_control(MENU_SCREEN, x, y, width, height, screen);
-}
+  void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+    uint16_t width = Images[image].width;
+    uint16_t height = Images[image].height;
+    tft.canvas(x, y, width, height);
+    tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
+    if (is_enabled)
+      touch.add_control(MENU_SCREEN, x, y, width, height, screen);
+  }
+#endif // TOUCH_SCREEN
 
 #endif // TFT_320x240

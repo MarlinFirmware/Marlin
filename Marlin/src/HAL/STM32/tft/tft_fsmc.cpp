@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
+#if HAS_FSMC_TFT
 
 #include "tft_fsmc.h"
 #include "pinconfig.h"
@@ -67,17 +67,19 @@ void TFT_FSMC::Init() {
     SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
   #endif
   /* Read Timing - relatively slow to ensure ID information is correctly read from TFT controller */
-  Timing.AddressSetupTime = 4;
-  Timing.AddressHoldTime = 4;
-  Timing.DataSetupTime = 8;
+  /* Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss */
+  Timing.AddressSetupTime = 15;
+  Timing.AddressHoldTime = 15;
+  Timing.DataSetupTime = 24;
   Timing.BusTurnAroundDuration = 0;
   Timing.CLKDivision = 16;
   Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   /* Write Timing */
-  ExtTiming.AddressSetupTime = 0;
-  ExtTiming.AddressHoldTime = 0;
-  ExtTiming.DataSetupTime = 1;
+  /* Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss */
+  ExtTiming.AddressSetupTime = 8;
+  ExtTiming.AddressHoldTime = 15;
+  ExtTiming.DataSetupTime = 8;
   ExtTiming.BusTurnAroundDuration = 0;
   ExtTiming.CLKDivision = 16;
   ExtTiming.DataLatency = 17;
@@ -101,21 +103,7 @@ void TFT_FSMC::Init() {
 
   controllerAddress |= (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
 
-  /*
-  #if ENABLED(STM32_XL_DENSITY)
-    FSMC_NOR_PSRAM4_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
-    FSMC_NOR_PSRAM4_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
-  #else // PSRAM1 for STM32F103V (high density)
-    FSMC_NOR_PSRAM1_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
-    FSMC_NOR_PSRAM1_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
-  #endif
-  */
-
   HAL_SRAM_Init(&SRAMx, &Timing, &ExtTiming);
-
-  // https://stackoverflow.com/questions/41796128/how-to-setup-fast-stm32-f4-fsmc-to-control-a-display-on-the-stm32f4discovery-boa
-  //FSMC_Bank1->BTCR[1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
-  //FSMC_Bank1->BTCR[0] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 
   __HAL_RCC_DMA2_CLK_ENABLE();
 
@@ -147,7 +135,7 @@ uint32_t TFT_FSMC::GetID() {
 
   if (id == 0)
     id = ReadID(LCD_READ_ID);
-  if ((id & 0xFFFF) == 0)
+  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
     id = ReadID(LCD_READ_ID4);
   return id;
 }
@@ -189,4 +177,4 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   __HAL_DMA_ENABLE(&DMAtx);
 }
 
-#endif // HAS_GRAPHICAL_TFT && HAS_FSMC_TFT
+#endif // HAS_FSMC_TFT

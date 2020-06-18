@@ -23,8 +23,10 @@
 
 #ifdef STM32F1xx
   #include "stm32f1xx_hal.h"
-//#elif defined(STM32F4xx)
-  //#include "stm32f4xx_hal.h"
+#elif defined(STM32F4xx)
+  #include "stm32f4xx_hal.h"
+#else
+  #error SPI TFT is currently only supported on STM32F1 and STM32F4 hardware.
 #endif
 
 #define DATASIZE_8BIT    SPI_DATASIZE_8BIT

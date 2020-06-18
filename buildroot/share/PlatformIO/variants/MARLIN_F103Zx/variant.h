@@ -199,13 +199,8 @@ extern "C" {
 
 /* Extra HAL modules */
 #define HAL_DAC_MODULE_ENABLED
-
-#ifdef ARDUINO_VCCGND_F103ZET6_MINI
 #define HAL_SD_MODULE_ENABLED
-// SD card slot Definitions
-// SD detect signal can be defined if required
-#define SD_DETECT_PIN           PF10
-#endif
+#define HAL_SRAM_MODULE_ENABLED
 
 #ifdef __cplusplus
 } // extern "C"
