@@ -105,7 +105,7 @@
   #endif
 #endif
 #ifndef FAN_PIN
-  #define FAN_PIN                           PB1
+  #define FAN_PIN                           PB1   // FAN
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA0
