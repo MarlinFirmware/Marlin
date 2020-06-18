@@ -1534,8 +1534,7 @@ void homeaxis(const AxisEnum axis) {
     // Only Z homing (with probe) is permitted
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
-    #define _CAN_HOME(A) (axis == _AXIS(A) && ( \
-         ENABLED(A##_SPI_SENSORLESS)) \
+    #define _CAN_HOME(A) (axis == _AXIS(A) && ENABLED(A##_SPI_SENSORLESS) \
       || (_AXIS(A) == Z_AXIS && ENABLED(HOMING_Z_WITH_PROBE)) \
       || (A##_MIN_PIN > 0 && A##_HOME_DIR < 0) \
       || (A##_MAX_PIN > 0 && A##_HOME_DIR > 0) \
