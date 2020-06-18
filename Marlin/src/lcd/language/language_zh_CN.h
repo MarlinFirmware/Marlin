@@ -423,9 +423,9 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("收好Z探针");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("归位 %s%s%s 先");     //"Home ... first"
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("探针偏移量");
-  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("探针X偏移量");
-  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("探针Y偏移量");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("探针Y偏移量");     //"Z Offset"
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("探针X偏移");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("探针Y偏移");
+  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("探针Z偏移");     //"Z Offset"
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("微量调整X轴");     //"Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("微量调整Y轴");     //"Babystep Y"
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("微量调整Z轴");     //"Babystep Z"

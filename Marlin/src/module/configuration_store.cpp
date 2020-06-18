@@ -50,6 +50,11 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/dwin.h"
+#endif
+
 #include "../lcd/ultralcd.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -804,6 +809,10 @@ void MarlinSettings::postprocess() {
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                       (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
         const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+      #elif ENABLED(DWIN_CREALITY_LCD)
+        const int16_t (&ui_preheat_hotend_temp)[2]  = HMI_ValueStruct.preheat_hotend_temp,
+                      (&ui_preheat_bed_temp)[2]     = HMI_ValueStruct.preheat_bed_temp;
+        const uint8_t (&ui_preheat_fan_speed)[2]    = HMI_ValueStruct.preheat_fan_speed;
       #else
         constexpr int16_t ui_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
                           ui_preheat_bed_temp[2]    = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
@@ -1664,7 +1673,11 @@ void MarlinSettings::postprocess() {
           int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                   (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
           uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
-        #else
+       #elif ENABLED(DWIN_CREALITY_LCD)
+          int16_t (&ui_preheat_hotend_temp)[2]  = HMI_ValueStruct.preheat_hotend_temp,
+                  (&ui_preheat_bed_temp)[2]     = HMI_ValueStruct.preheat_bed_temp;
+          uint8_t (&ui_preheat_fan_speed)[2]    = HMI_ValueStruct.preheat_fan_speed;
+       #else
           int16_t ui_preheat_hotend_temp[2], ui_preheat_bed_temp[2];
           uint8_t ui_preheat_fan_speed[2];
         #endif
@@ -2539,14 +2552,22 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-
-  #if HAS_HOTEND && HAS_LCD_MENU
-    ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
-    ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-    ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
-    ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-    ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
-    ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+  #if HAS_HOTEND
+    #if ENABLED(DWIN_CREALITY_LCD)
+      HMI_ValueStruct.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+      HMI_ValueStruct.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+      HMI_ValueStruct.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+      HMI_ValueStruct.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+      HMI_ValueStruct.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+      HMI_ValueStruct.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    #elif HAS_LCD_MENU
+      ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+      ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+      ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+      ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+      ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+      ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    #endif
   #endif
 
   //
@@ -2783,7 +2804,7 @@ void MarlinSettings::reset() {
       #if EXTRUDERS == 1
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled)
-                              , " D", LINEAR_UNIT(planner.filament_size[0]),
+                              , " D", LINEAR_UNIT(planner.filament_size[0])
                               #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
                                 , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
                               #endif

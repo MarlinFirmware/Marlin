@@ -23,6 +23,46 @@
 
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
+#include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
+
+/*
+ * Draw and Touch processing
+ *
+ *      LCD_PIXEL_WIDTH/HEIGHT (128x64) is the (emulated DOGM) Pixel Drawing resolution.
+ *   TOUCH_SCREEN_WIDTH/HEIGHT (320x240) is the Touch Area resolution.
+ * LCD_FULL_PIXEL_WIDTH/HEIGHT (320x240 or 480x320) is the Actual (FSMC) Display resolution.
+ *
+ *  - All native (u8g) drawing is done in LCD_PIXEL_* (128x64)
+ *  - The DOGM pixels are is upscaled 2-3x (as needed) for display.
+ *  - Touch coordinates use TOUCH_SCREEN_* resolution and are converted to
+ *    click and scroll-wheel events (emulating of a common DOGM display).
+ *
+ *  TOUCH_SCREEN resolution exists to fit our calibration values. The original touch code was made
+ *  and originally calibrated for 320x240. If you decide to change the resolution of the touch code,
+ *  new calibration values will be needed.
+ *
+ *  The Marlin menus are drawn scaled in the upper region of the screen. The bottom region (in a
+ *  fixed location in TOUCH_SCREEN* coordinate space) is used for 4 general-purpose buttons to
+ *  navigate and select menu items. Both regions are touchable.
+ *
+ * The Marlin screen touchable area starts at LCD_PIXEL_OFFSET_X/Y (translated to SCREEN_START_LEFT/TOP)
+ * and spans LCD_PIXEL_WIDTH/HEIGHT (scaled to SCREEN_WIDTH/HEIGHT).
+ */
+// Touch screen resolution independent of display resolution
+#define TOUCH_SCREEN_HEIGHT 240
+#define TOUCH_SCREEN_WIDTH 320
+
+// Coordinates in terms of touch area
+#define BUTTON_AREA_TOP 175
+#define BUTTON_AREA_BOT 234
+
+#define SCREEN_START_TOP  ((LCD_PIXEL_OFFSET_Y) * (TOUCH_SCREEN_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
+#define SCREEN_START_LEFT ((LCD_PIXEL_OFFSET_X) * (TOUCH_SCREEN_WIDTH) / (LCD_FULL_PIXEL_WIDTH))
+#define SCREEN_HEIGHT     ((LCD_PIXEL_HEIGHT * FSMC_UPSCALE) * (TOUCH_SCREEN_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
+#define SCREEN_WIDTH      ((LCD_PIXEL_WIDTH * FSMC_UPSCALE) * (TOUCH_SCREEN_WIDTH) / (LCD_FULL_PIXEL_WIDTH))
+
+#define TOUCHABLE_Y_HEIGHT  SCREEN_HEIGHT
+#define TOUCHABLE_X_WIDTH  SCREEN_WIDTH
 
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
@@ -78,13 +118,23 @@ uint8_t XPT2046::read_buttons() {
                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
   if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
 
-  if (y < 175 || y > 234) return 0;
+  // Touch within the button area simulates an encoder button
+  if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
+    return WITHIN(x,  14,  77) ? EN_D
+         : WITHIN(x,  90, 153) ? EN_A
+         : WITHIN(x, 166, 229) ? EN_B
+         : WITHIN(x, 242, 305) ? EN_C
+         : 0;
 
-  return WITHIN(x,  14,  77) ? EN_D
-       : WITHIN(x,  90, 153) ? EN_A
-       : WITHIN(x, 166, 229) ? EN_B
-       : WITHIN(x, 242, 305) ? EN_C
-       : 0;
+  if (x > TOUCH_SCREEN_WIDTH || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)) return 0;
+
+  // Column and row above BUTTON_AREA_TOP
+  int8_t col = (x - (SCREEN_START_LEFT)) * (LCD_WIDTH) / (TOUCHABLE_X_WIDTH),
+         row = (y - (SCREEN_START_TOP)) * (LCD_HEIGHT) / (TOUCHABLE_Y_HEIGHT);
+
+  // Send the touch to the UI (which will simulate the encoder wheel)
+  MarlinUI::screen_click(row, col, x, y);
+  return 0;
 }
 
 bool XPT2046::isTouched() {
