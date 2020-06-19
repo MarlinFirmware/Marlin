@@ -742,32 +742,34 @@
   #define HOME_AFTER_G34
 #endif
 
-/**
- * Adjusting bed screws by probing corners
- * Add the G35 command to read bed corners to help adjust screws.
- */
-//#define SCREWS_TILT_ADJUST
-#if ENABLED(SCREWS_TILT_ADJUST)
+//
+// Add the G35 command to read bed corners to help adjust screws.
+//
+//#define ASSISTED_TRAMMING
+#if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probing points, use the hotend as reference not the sensor.
-  #define SCREWS_TILT_ADJUST_PROBE_XY { {  20, 20 }, { 200,  20 }, { 200, 200 }, { 20, 200 } }  
+  #define TRAMMING_POINT_XY { {  20, 20 }, { 200,  20 }, { 200, 200 }, { 20, 200 } }
 
   // Define positions names for probing points.
-  #define SCREWS_TILT_ADJUST_PROBE_NAMES { "Front Left", "Front Right", "Rear Right", "Rear Left" } 
+  #define TRAMMING_POINT_NAME_1 "Front-Left"
+  #define TRAMMING_POINT_NAME_2 "Front-Right"
+  #define TRAMMING_POINT_NAME_3 "Back-Right"
+  #define TRAMMING_POINT_NAME_4 "Back-Left"
 
   // Enable to restore leveling setup after operation
   #define RESTORE_LEVELING_AFTER_G35
 
-  // Screw thread: 0 - Clockwise M3
-  //               1 - Counter-Clockwise M3
-  //               2 - Clockwise M4
-  //               3 - Counter-Clockwise M4
-  //               4 - Clockwise M5
-  //               5 - Counter-Clockwise M5
-  // 
-  //               Default value is 0 (Clockwise M3), most printers use an 
-  //               M3 screw and turning the knob clockwise decrease bed height.
-  #define SCREWS_TILT_ADJUST_THREAD 0
+  /**
+   * Screw thread:
+   *   M3: 0 = Clockwise, 1 = Counter-Clockwise
+   *   M4: 2 = Clockwise, 3 = Counter-Clockwise
+   *   M5: 4 = Clockwise, 5 = Counter-Clockwise
+   *
+   * Default is Clockwise M3 (0). Most printers use M3
+   * screws, with clockwise turns moving the bed down.
+   */
+  #define TRAMMING_SCREW_THREAD 0
 
 #endif
 
