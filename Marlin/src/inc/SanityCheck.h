@@ -1770,9 +1770,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
 #endif
 
+#if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
+  #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN. Please add it to your configuration."
+#endif
+
 #if TEMP_SENSOR_PROBE
   #if !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
+    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN. Please add it to your configuration."
   #elif !HAS_TEMP_ADC_PROBE
     #error "TEMP_PROBE_PIN must be an ADC pin."
   #elif !ENABLED(FIX_MOUNTED_PROBE)

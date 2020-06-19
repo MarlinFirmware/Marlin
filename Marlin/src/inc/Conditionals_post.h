@@ -1692,16 +1692,16 @@
 #if ENABLED(JOYSTICK)
   #if PIN_EXISTS(JOY_X)
     #define HAS_JOY_ADC_X 1
-#endif
+  #endif
   #if PIN_EXISTS(JOY_Y)
     #define HAS_JOY_ADC_Y 1
-#endif
+  #endif
   #if PIN_EXISTS(JOY_Z)
     #define HAS_JOY_ADC_Z 1
-#endif
+  #endif
   #if PIN_EXISTS(JOY_EN)
     #define HAS_JOY_ADC_EN 1
-#endif
+  #endif
 #endif
 
 // Heaters
