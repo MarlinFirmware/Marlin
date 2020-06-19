@@ -25,9 +25,7 @@
  * MKS Robin E3D (STM32F103RCT6) board pin assignments
  */
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin E3D supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -41,15 +39,12 @@
 #ifndef X_CS_PIN
   #define X_CS_PIN                          PC7
 #endif
-
 #ifndef Y_CS_PIN
   #define Y_CS_PIN                          PD2
 #endif
-
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                          PC12
 #endif
-
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PC11
 #endif

@@ -25,9 +25,7 @@
  * MKS Robin E3 (STM32F103RCT6) board pin assignments
  */
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin E3 supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
