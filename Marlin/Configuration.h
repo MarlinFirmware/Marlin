@@ -153,7 +153,8 @@
 //#define SKR14_PowerLossKit // Bigtreetech power loss kit for SKR14
 
 //#define SKR_2209
-//#define SKR_UART // Configure SKR board with drivers in UART mode
+//#define SKR_2130
+//#define SKR_UART // Configure SKR board with drivers in UART mode or SPI for TMC2130
 //#define SKR13_ReverseSteppers // Some users reported directions backwards than others on SKR with various drivers.
 //#define DualZ // Uses 5th driver on CRX or SKR boards as Z2
 
@@ -1195,6 +1196,16 @@
     #else
       #define E1_DRIVER_TYPE TMC2209_STANDALONE
     #endif
+  #elif ENABLED(SKR_2130)
+    #define X_DRIVER_TYPE  TMC2130_STANDALONE
+    #define Y_DRIVER_TYPE  TMC2130_STANDALONE
+    #define Z_DRIVER_TYPE  TMC2130_STANDALONE
+    #define E0_DRIVER_TYPE TMC2130_STANDALONE
+    #if ENABLED(DualZ)
+      #define Z2_DRIVER_TYPE TMC2130_STANDALONE
+    #else
+      #define E1_DRIVER_TYPE TMC2130_STANDALONE
+    #endif
   #else
     #define X_DRIVER_TYPE  TMC2208_STANDALONE
     #define Y_DRIVER_TYPE  TMC2208_STANDALONE
@@ -1216,6 +1227,16 @@
       #define Z2_DRIVER_TYPE TMC2209
     #else
       #define E1_DRIVER_TYPE TMC2209
+    #endif
+  #elif ENABLED(SKR_2130)
+    #define X_DRIVER_TYPE  TMC2130
+    #define Y_DRIVER_TYPE  TMC2130
+    #define Z_DRIVER_TYPE  TMC2130
+    #define E0_DRIVER_TYPE TMC2130
+    #if ENABLED(DualZ)
+      #define Z2_DRIVER_TYPE TMC2130
+    #else
+      #define E1_DRIVER_TYPE TMC2130
     #endif
   #else
     #define X_DRIVER_TYPE  TMC2208
