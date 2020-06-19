@@ -57,7 +57,7 @@ static PGM_P const tramming_point_name[] PROGMEM = {
 #define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
 
 #if !WITHIN(TRAMMING_SCREW_THREAD, 0, 5)
-  "TRAMMING_SCREW_THREAD must be an integer from 0 to 5."
+  #error "TRAMMING_SCREW_THREAD must be an integer from 0 to 5."
 #endif
 
 static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY positions.");
