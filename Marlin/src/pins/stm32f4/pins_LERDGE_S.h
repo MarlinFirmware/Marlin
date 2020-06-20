@@ -35,89 +35,93 @@
 //
 // Servos
 //
-//#define SERVO0_PIN                        PD12
+#define SERVO0_PIN                          PD12 //confirmed
 //#define SERVO1_PIN                        -1
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PB12
-#define Y_STOP_PIN                          PB13
-#define Z_STOP_PIN                          PB14
+#define X_MIN_PIN                           PG9 //confirmed
+#define Y_MIN_PIN                           PG10 //confirmed
+#define Z_MIN_PIN                           PG11 //confirmed
+
+#define X_MAX_PIN                           PG12 //confirmed
+#define Y_MAX_PIN                           PG13 //confirmed
+#define Z_MAX_PIN                           PG14 //confirmed
 
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN                      PE1
+#define FIL_RUNOUT_PIN                      PC5 //confirmed
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-//#ifndef Z_MIN_PROBE_PIN
-//  #define Z_MIN_PROBE_PIN  PB15
-//#endif
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PG8 //confirmed
+#endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          PB10
-#define X_DIR_PIN                           PB2
-#define X_ENABLE_PIN                        PB11
+#define X_STEP_PIN                          PF7 //confirmed 
+#define X_DIR_PIN                           PF8 //confirmed 
+#define X_ENABLE_PIN                        PF6 //confirmed 
 //#ifndef X_CS_PIN
-//  #define X_CS_PIN                        PD1
+//  #define X_CS_PIN                        -1 //no idea
 //#endif
 
-#define Y_STEP_PIN                          PB0
-#define Y_DIR_PIN                           PC5
-#define Y_ENABLE_PIN                        PB1
+#define Y_STEP_PIN                          PF10 //confirmed 
+#define Y_DIR_PIN                           PF11 //confirmed 
+#define Y_ENABLE_PIN                        PF9 //confirmed 
 //#ifndef Y_CS_PIN
-//  #define Y_CS_PIN                        PE12
+//  #define Y_CS_PIN                        -1 //no idea
 //#endif
 
-#define Z_STEP_PIN                          PA7
-#define Z_DIR_PIN                           PA6
-#define Z_ENABLE_PIN                        PC4
+#define Z_STEP_PIN                          PF13 //confirmed 
+#define Z_DIR_PIN                           PF14 //confirmed 
+#define Z_ENABLE_PIN                        PF12 //confirmed 
 //#ifndef Z_CS_PIN
-//  #define Z_CS_PIN                        PD5
+//  #define Z_CS_PIN                        -1 //no idea
 //#endif
 
-#define E0_STEP_PIN                         PA4
-#define E0_DIR_PIN                          PA3
-#define E0_ENABLE_PIN                       PA5
+#define E0_STEP_PIN                         PG0 //confirmed
+#define E0_DIR_PIN                          PG1 //confirmed
+#define E0_ENABLE_PIN                       PF15 //confirmed
 //#ifndef E0_CS_PIN
-//  #define E0_CS_PIN                       PB4
+//  #define E0_CS_PIN                       -1 //no idea
 //#endif
 
-#define E1_STEP_PIN                         -1
-#define E1_DIR_PIN                          -1
-#define E1_ENABLE_PIN                       -1
+#define E1_STEP_PIN                         PG3 //confirmed
+#define E1_DIR_PIN                          PG4 //confirmed
+#define E1_ENABLE_PIN                       PG2 //confirmed
 //#ifndef E1_CS_PIN
-//  #define E1_CS_PIN                       PE5
+//  #define E1_CS_PIN                       -1 //no idea
 //#endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC0   // Analog Input
-#define TEMP_1_PIN                          -1    // Analog Input
-#define TEMP_BED_PIN                        PC1   // Analog Input
+#define TEMP_0_PIN                          PC0   // Analog Input //may need switch for thermocouple/thermistor mode - correct pin, wrong values
+#define TEMP_1_PIN                          PC1   // Analog Input //may need switch for thermocouple/thermistor mode - correct pin, wrong values
+#define TEMP_BED_PIN                        PC3   // Analog Input //bed is thermistor mode only, confirmed
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA1
-#define HEATER_1_PIN                        -1
-#define HEATER_BED_PIN                      PA2
+#define HEATER_0_PIN                        PA0 //confirmed
+#define HEATER_1_PIN                        PA1 //confirmed
+#define HEATER_BED_PIN                      PA3 //confirmed
 
-#ifndef FAN_PIN
-  //#define FAN_PIN                         PC15
-#endif
-#define FAN1_PIN                            PC15
-#define FAN2_PIN                            PA0
 
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PC15  // FAN1_PIN
-#endif
+#define FAN_PIN                             PA15 //heater 0 fan 1 //confirmed
+#define FAN1_PIN                            PB10 //heater 1 fan 2 //confirmed
+#define FAN2_PIN                            PF5  //heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together) //confirmed
+
+
+//#ifndef E0_AUTO_FAN_PIN
+//  #define E0_AUTO_FAN_PIN                   FAN2_PIN
+//#endif
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
@@ -128,51 +132,57 @@
 //
 // LED / Lighting
 //
-//#define CASE_LIGHT_PIN_CI                 -1
-//#define CASE_LIGHT_PIN_DO                 -1
-//#define NEOPIXEL_PIN                      -1
+//Lerdge-S board has two LED connectors (this is the one on the mainboard)
+#define CASE_LIGHT_PIN                      PC7 //confirmed
+
+//on the dual extrusion addon board is a RGB connector
+#define RGB_LED_R_PIN                       PC7 //shared with the mainboard LED connector, confirmed
+#define RGB_LED_G_PIN                       PB0 //confirmed
+#define RGB_LED_B_PIN                       PB1 //confirmed
+
 
 //
 // Misc. Functions
 //
-#define SDSS                                PC11
-#define LED_PIN                             PC7   // Alive
-#define PS_ON_PIN                           -1
-#define KILL_PIN                            -1
-#define POWER_LOSS_PIN                      -1    // Power-loss / nAC_FAULT
-
-#define SCK_PIN                             PC12
-#define MISO_PIN                            PC8
-#define MOSI_PIN                            PD2
-#define SS_PIN                              PC11
+#define SDSS                                PC11 //unchecked, will test sd access later
+#define LED_PIN                             PC6   //mainboard LED, confirmed
+#define PS_ON_PIN                           PB2   //board has a power module connector, confirmed
+#define KILL_PIN                            -1    //there is no reset button on the lcd
+#define POWER_LOSS_PIN                      -1    //PB2 could be used for this as well
 
 //
 // SD support
 //
-//#define SDIO_SUPPORT
-#define SD_DETECT_PIN                       -1
+#define SDIO_SUPPORT
+
+#define SCK_PIN                             PC12 //confirmed working 
+#define MISO_PIN                            PC8 //confirmed working 
+#define MOSI_PIN                            PD2 //confirmed working 
+#define SS_PIN                              PC11 //confirmed working 
+
+#define SD_DETECT_PIN                       PG15 //confirmed
 
 //
 // LCD / Controller
 //
 
 // The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD12
+#define BEEPER_PIN                          PD13 //confirmed
 
-#define BTN_EN1                             PE3
-#define BTN_EN2                             PE4
-#define BTN_ENC                             PE2
+#define BTN_EN1                             PC14 //confirmed
+#define BTN_EN2                             PC15 //confirmed
+#define BTN_ENC                             PC13 //confirmed
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+#define TFT_RESET_PIN                       PD6 //unchecked, unsure how to test
+#define TFT_BACKLIGHT_PIN                   PD3 //confirmed (well, this pin switches the LCD off, but I cannot see if it is only the backlight)
 
-#define TFT_CS_PIN                         PD7
-#define TFT_RS_PIN                         PD11
+#define TFT_CS_PIN                          PD7 //TFT works
+#define TFT_RS_PIN                          PD11 //TFT works
 
-#define TOUCH_CS_PIN                        PB6
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+#define TOUCH_CS_PIN                        PB6 //there is touch, but calibration is off
+#define TOUCH_SCK_PIN                       PB3 //there is touch, but calibration is off
+#define TOUCH_MOSI_PIN                      PB5 //there is touch, but calibration is off
+#define TOUCH_MISO_PIN                      PB4 //there is touch, but calibration is off
 
 //
 // ST7920 Delays
