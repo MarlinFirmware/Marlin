@@ -3191,7 +3191,7 @@
 #endif
 
 /**
- * User-defined menu items that execute custom GCode
+ * User-defined menu items (up to 25 may be used) that execute custom GCode
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
@@ -3202,6 +3202,11 @@
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
+  //#define USER_GCODE_PIN_1 -1         // PIN assigned to trigger USER_GCODE_1 execution
+  #ifdef USER_GCODE_PIN_1
+    #define USER_GCODE_PIN_INIT_1       // Init the PIN state at reboot
+    #define USER_GCODE_PIN_STATE_1 LOW  // What state should trigger USER_GCODE_1 execution (LOW or HIGH)
+  #endif
 
   #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
   #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)

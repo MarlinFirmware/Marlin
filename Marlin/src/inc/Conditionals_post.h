@@ -1966,6 +1966,9 @@
 #if PIN_EXISTS(PHOTOGRAPH)
   #define HAS_PHOTOGRAPH 1
 #endif
+#if ENABLED(CUSTOM_USER_MENUS)
+  #define HAS_CUSTOM_USER_BUTTONS 1
+#endif
 
 // Digital control
 #if PIN_EXISTS(STEPPER_RESET)
