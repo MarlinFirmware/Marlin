@@ -109,8 +109,6 @@ public:
   FORCE_INLINE static void refresh() { apply_power(power); }
   FORCE_INLINE static void set_power(const uint8_t upwr) { power = upwr; refresh(); }
 
-  static inline void set_enabled(const bool enable) { set_power(enable ? (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)) : 0); }
-
   #if ENABLED(SPINDLE_LASER_PWM)
 
     static void set_ocr(const uint8_t ocr);
@@ -148,21 +146,21 @@ public:
       cutter_power_t upwr;
       switch (pwrUnit) {
         case 0:                                                 // PWM
-          upwr = (
+          upwr = cutter_power_t(
               (pwr < pct_to_ocr(min_pct)) ? pct_to_ocr(min_pct) // Use minimum if set below
             : (pwr > pct_to_ocr(max_pct)) ? pct_to_ocr(max_pct) // Use maximum if set above
             :  pwr
           );
           break;
         case 1:                                                 // PERCENT
-          upwr = (
+          upwr = cutter_power_t(
               (pwr < min_pct) ? min_pct                         // Use minimum if set below
             : (pwr > max_pct) ? max_pct                         // Use maximum if set above
             :  pwr                                              // PCT
           );
           break;
         case 2:                                                 // RPM
-          upwr = (
+          upwr = cutter_power_t(
               (pwr < SPEED_POWER_MIN) ? SPEED_POWER_MIN         // Use minimum if set below
             : (pwr > SPEED_POWER_MAX) ? SPEED_POWER_MAX         // Use maximum if set above
             : pwr                                               // Calculate OCR value
@@ -174,6 +172,10 @@ public:
     }
 
   #endif // SPINDLE_LASER_PWM
+
+  static inline void set_enabled(const bool enable) {
+    set_power(enable ? TERN(SPINDLE_LASER_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
+  }
 
   // Wait for spindle to spin up or spin down
   static inline void power_delay(const bool on) {
@@ -194,7 +196,7 @@ public:
 
     static inline void enable_with_dir(const bool reverse) {
       isReady = true;
-      const uint8_t ocr = upower_to_ocr(menuPower);
+      const uint8_t ocr = TERN(SPINDLE_LASER_PWM, upower_to_ocr(menuPower), 255);
       if (menuPower)
         power = ocr;
       else
@@ -233,7 +235,7 @@ public:
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
       if (enable)
-        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP)); 
+        inline_power(cpwr_to_upwr(SPEED_POWER_STARTUP));
       else {
         isReady = false;
         unitPower = menuPower = 0;

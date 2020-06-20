@@ -1666,33 +1666,33 @@
     // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_START
     // (e.g. 30), in steps of PTC_SAMPLE_RES (e.g. 5) with PTC_SAMPLE_COUNT (e.g. 10) samples.
 
-    // #define PTC_SAMPLE_START  30.0f
-    // #define PTC_SAMPLE_RES    5.0f
-    // #define PTC_SAMPLE_COUNT  10U
+    //#define PTC_SAMPLE_START  30.0f
+    //#define PTC_SAMPLE_RES    5.0f
+    //#define PTC_SAMPLE_COUNT  10U
 
     // Bed temperature calibration builds a similar table.
 
-    // #define BTC_SAMPLE_START  60.0f
-    // #define BTC_SAMPLE_RES    5.0f
-    // #define BTC_SAMPLE_COUNT  10U
+    //#define BTC_SAMPLE_START  60.0f
+    //#define BTC_SAMPLE_RES    5.0f
+    //#define BTC_SAMPLE_COUNT  10U
 
     // The temperature the probe should be at while taking measurements during bed temperature
     // calibration.
-    // #define BTC_PROBE_TEMP 30.0f
+    //#define BTC_PROBE_TEMP 30.0f
 
     // Height above Z=0.0f to raise the nozzle. Lowering this can help the probe to heat faster.
     // Note: the Z=0.0f offset is determined by the probe offset which can be set using M851.
-    // #define PTC_PROBE_HEATING_OFFSET 0.5f
+    //#define PTC_PROBE_HEATING_OFFSET 0.5f
 
     // Height to raise the Z-probe between heating and taking the next measurement. Some probes
     // may fail to untrigger if they have been triggered for a long time, which can be solved by
     // increasing the height the probe is raised to.
-    // #define PTC_PROBE_RAISE 15U
+    //#define PTC_PROBE_RAISE 15U
 
-    // If the probe is outside of the defined range, use linear extrapolation using the closest 
+    // If the probe is outside of the defined range, use linear extrapolation using the closest
     // point and the PTC_LINEAR_EXTRAPOLATION'th next point. E.g. if set to 4 it will use data[0]
     // and data[4] to perform linear extrapolation for values below PTC_SAMPLE_START.
-    // #define PTC_LINEAR_EXTRAPOLATION 4
+    //#define PTC_LINEAR_EXTRAPOLATION 4
   #endif
 #endif
 
@@ -2982,6 +2982,23 @@
 
   // Display filament width on the LCD status line. Status messages will expire after 5 seconds.
   //#define FILAMENT_LCD_DISPLAY
+#endif
+
+/**
+ * Power Monitor
+ * Monitor voltage (V) and/or current (A), and -when possible- power (W)
+ *
+ * Read and configure with M430
+ *
+ * The current sensor feeds DC voltage (relative to the measured current) to an analog pin
+ * The voltage sensor feeds DC voltage (relative to the measured voltage) to an analog pin
+ */
+//#define POWER_MONITOR_CURRENT   // Monitor the system current
+//#define POWER_MONITOR_VOLTAGE   // Monitor the system voltage
+#if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+  #define POWER_MONITOR_VOLTS_PER_AMP   0.05000   // Input voltage to the MCU analog pin per amp  - DO NOT apply more than ADC_VREF!
+  #define POWER_MONITOR_VOLTS_PER_VOLT  0.11786   // Input voltage to the MCU analog pin per volt - DO NOT apply more than ADC_VREF!
+  #define POWER_MONITOR_FIXED_VOLTAGE   13.6      // Voltage for a current sensor with no voltage sensor (for power display)
 #endif
 
 /**

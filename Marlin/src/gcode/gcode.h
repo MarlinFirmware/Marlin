@@ -217,6 +217,7 @@
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
+ * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
@@ -734,6 +735,8 @@ private:
   TERN_(BACKLASH_GCODE, static void M425());
 
   TERN_(HAS_M206_COMMAND, static void M428());
+
+  TERN_(HAS_POWER_MONITOR, static void M430());
 
   TERN_(CANCEL_OBJECTS, static void M486());
 

@@ -50,6 +50,11 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/dwin.h"
+#endif
+
 #include "../lcd/ultralcd.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -87,6 +92,10 @@
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
+#endif
+
+#if ENABLED(POWER_MONITOR)
+  #include "../feature/power_monitor.h"
 #endif
 
 #include "../feature/pause.h"
@@ -295,6 +304,11 @@ typedef struct SettingsDataStruct {
   #if HAS_USER_THERMISTORS
     user_thermistor_t user_thermistor[USER_THERMISTORS]; // M305 P0 R4700 T100000 B3950
   #endif
+
+  //
+  // Power monitor
+  //
+  uint8_t power_monitor_flags;                          // M430 I V W
 
   //
   // HAS_LCD_CONTRAST
@@ -804,6 +818,10 @@ void MarlinSettings::postprocess() {
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                       (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
         const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+      #elif ENABLED(DWIN_CREALITY_LCD)
+        const int16_t (&ui_preheat_hotend_temp)[2]  = HMI_ValueStruct.preheat_hotend_temp,
+                      (&ui_preheat_bed_temp)[2]     = HMI_ValueStruct.preheat_bed_temp;
+        const uint8_t (&ui_preheat_fan_speed)[2]    = HMI_ValueStruct.preheat_fan_speed;
       #else
         constexpr int16_t ui_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
                           ui_preheat_bed_temp[2]    = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
@@ -871,6 +889,19 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(thermalManager.user_thermistor);
     }
     #endif
+
+    //
+    // Power monitor
+    //
+    {
+      #if HAS_POWER_MONITOR
+        const uint8_t &power_monitor_flags = power_monitor.flags;
+      #else
+        constexpr uint8_t power_monitor_flags = 0x00;
+      #endif
+      _FIELD_TEST(power_monitor_flags);
+      EEPROM_WRITE(power_monitor_flags);
+    }
 
     //
     // LCD Contrast
@@ -1664,7 +1695,11 @@ void MarlinSettings::postprocess() {
           int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
                   (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
           uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
-        #else
+       #elif ENABLED(DWIN_CREALITY_LCD)
+          int16_t (&ui_preheat_hotend_temp)[2]  = HMI_ValueStruct.preheat_hotend_temp,
+                  (&ui_preheat_bed_temp)[2]     = HMI_ValueStruct.preheat_bed_temp;
+          uint8_t (&ui_preheat_fan_speed)[2]    = HMI_ValueStruct.preheat_fan_speed;
+       #else
           int16_t ui_preheat_hotend_temp[2], ui_preheat_bed_temp[2];
           uint8_t ui_preheat_fan_speed[2];
         #endif
@@ -1731,6 +1766,19 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(thermalManager.user_thermistor);
       }
       #endif
+
+      //
+      // Power monitor
+      //
+      {
+        #if HAS_POWER_MONITOR
+          uint8_t &power_monitor_flags = power_monitor.flags;
+        #else
+          uint8_t power_monitor_flags;
+        #endif
+        _FIELD_TEST(power_monitor_flags);
+        EEPROM_READ(power_monitor_flags);
+      }
 
       //
       // LCD Contrast
@@ -2539,14 +2587,22 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-
-  #if HAS_HOTEND && HAS_LCD_MENU
-    ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
-    ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-    ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
-    ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-    ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
-    ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+  #if HAS_HOTEND
+    #if ENABLED(DWIN_CREALITY_LCD)
+      HMI_ValueStruct.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+      HMI_ValueStruct.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+      HMI_ValueStruct.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+      HMI_ValueStruct.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+      HMI_ValueStruct.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+      HMI_ValueStruct.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    #elif HAS_LCD_MENU
+      ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+      ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+      ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+      ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+      ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+      ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    #endif
   #endif
 
   //
@@ -2582,6 +2638,11 @@ void MarlinSettings::reset() {
   // User-Defined Thermistors
   //
   TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
+
+  //
+  // Power Monitor
+  //
+  TERN_(POWER_MONITOR, power_monitor.reset());
 
   //
   // LCD Contrast

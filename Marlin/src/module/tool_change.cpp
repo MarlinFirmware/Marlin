@@ -967,10 +967,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
           else {
-            // If first new tool, toolchange without unloading the old not initialized 'Just prime/init the new'
-            if (first_tool_is_primed)
-              unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-            first_tool_is_primed = true; // The first new tool will be primed by toolchanging
+            #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+              // For first new tool, change without unloading the old. 'Just prime/init the new'
+              if (first_tool_is_primed)
+                unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+              first_tool_is_primed = true; // The first new tool will be primed by toolchanging
+            #endif
           }
         }
       #endif

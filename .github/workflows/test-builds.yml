@@ -64,9 +64,9 @@ jobs:
         - malyan_M300
         - mks_robin_lite
         - FLYF407ZG
-        - rumba32_f446ve
-        - rumba32_mks
+        - rumba32
         - mks_robin_pro
+        - STM32F103RET6_creality
 
         # Put lengthy tests last
 

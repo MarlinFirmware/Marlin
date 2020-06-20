@@ -65,7 +65,7 @@
           SERIAL_ECHOLNPGM("?L value out of range (0-20).");
       }
     #endif
-    
+
     planner.calculate_volumetric_multipliers();
   }
 

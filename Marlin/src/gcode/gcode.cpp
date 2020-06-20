@@ -179,8 +179,10 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(LASER_MOVE_POWER)
     // Set the laser power in the planner to configure this move
-    if (parser.seen('S'))
-      cutter.inline_power(cutter.power_to_range(cutter_power_t(round(parser.value_float()))));
+    if (parser.seen('S')) {
+      const float spwr = parser.value_float();
+      cutter.inline_power(TERN(SPINDLE_LASER_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
+    }
     else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
       cutter.set_inline_enabled(false);
   #endif
@@ -716,6 +718,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_M206_COMMAND
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+      #endif
+
+      #if HAS_POWER_MONITOR
+        case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif
 
       #if ENABLED(CANCEL_OBJECTS)
