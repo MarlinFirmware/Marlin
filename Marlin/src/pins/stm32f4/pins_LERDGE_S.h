@@ -114,7 +114,7 @@
 
 #define MAX6675_SCK_PIN                     PB3 //max6675 datasheet: SCK pin, found with multimeter, not tested
 #define MAX6675_DO_PIN                      PB4 //max6675 datasheet: SO pin, found with multimeter, not tested
-#define MAX6675_SS_PIN                      PC4 //max6675 datasheet: !CS pin, found with multimeter, not tested
+#define MAX6675_SS_PIN                      PC4 //max6675 datasheet: /CS pin, found with multimeter, not tested
 
 //
 // Heaters / Fans
@@ -171,6 +171,32 @@
 #define SS_PIN                              PC11 //confirmed working 
 
 #define SD_DETECT_PIN                       PG15 //confirmed
+
+//
+// Persistent Storage
+// If no option is selected below the SD Card will be used
+// (this section modelled after pins_LONGER3D_LK.h)
+// Warning: Not tested yet! Pins confirmed with multimeter.
+//#define SPI_EEPROM
+
+#if ENABLED(SPI_EEPROM)
+  // Lerdge has an SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
+  #define SPI_CHAN_EEPROM1 1
+  #define SPI_EEPROM1_CS                    PB12 //datasheet: /CS pin, found with multimeter, not tested
+  #define EEPROM_SCK                        PB13 //datasheet: CLK pin, found with multimeter, not tested 
+  #define EEPROM_MISO                       PB14 //datasheet: DO pin, found with multimeter, not tested 
+  #define EEPROM_MOSI                       PB15 //datasheet: DI pin, found with multimeter, not tested 
+  #define EEPROM_PAGE_SIZE 0x1000U                // 4KB (from datasheet)
+  #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
+//#elif ENABLED(FLASH_EEPROM_EMULATION)
+  // I have no idea if we should use that at all 
+  // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
+  //#define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  //#define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  //#define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
+#else
+  #define MARLIN_EEPROM_SIZE 0x800U               // On SD, Limit to 2KB, require this amount of RAM
+#endif
 
 //
 // LCD / Controller
