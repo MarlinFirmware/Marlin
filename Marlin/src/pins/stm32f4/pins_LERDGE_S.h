@@ -108,13 +108,24 @@
 
 //
 // Lergde-S comes with the ability to choose thermocouple/thermistor mode in software
+// To use thermistors, PIN PF3 must be output and low (e.g. using M42 P99 S0)
+
+
 // Board contains a MAX6675 Cold-Junction-Compensated K-Thermocoupleto-Digital Converter (0°C to +1024°C) 
 // https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
 //
 
 #define MAX6675_SCK_PIN                     PB3 //max6675 datasheet: SCK pin, found with multimeter, not tested
 #define MAX6675_DO_PIN                      PB4 //max6675 datasheet: SO pin, found with multimeter, not tested
-#define MAX6675_SS_PIN                      PC4 //max6675 datasheet: /CS pin, found with multimeter, not tested
+#define MAX6675_SS_PIN                      PC4 //max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+
+//expansion board has second max6675
+//warning: my board came with the slot for the second max6675 unpopulated
+
+//#define MAX6675_SCK2_PIN                   PB3 //max6675 datasheet: SCK pin, found with multimeter, not tested
+//#define MAX6675_DO2_PIN                    PB4 //max6675 datasheet: SO pin, found with multimeter, not tested
+//#define MAX6675_SS2_PIN                    PF1 //max6675 datasheet: /CS pin, found with multimeter, not tested 
+
 
 //
 // Heaters / Fans
@@ -146,7 +157,7 @@
 #define CASE_LIGHT_PIN                      PC7 //confirmed
 
 //on the dual extrusion addon board is a RGB connector
-#define RGB_LED_R_PIN                       PC7 //shared with the mainboard LED connector, confirmed
+#define RGB_LED_R_PIN                       PC7 //shared with the mainboard LED light connector (CASE_LIGHT_PIN), confirmed
 #define RGB_LED_G_PIN                       PB0 //confirmed
 #define RGB_LED_B_PIN                       PB1 //confirmed
 
@@ -154,8 +165,8 @@
 //
 // Misc. Functions
 //
-#define SDSS                                PC11 //unchecked, will test sd access later
-#define LED_PIN                             PC6   //mainboard LED, confirmed
+#define SDSS                                PC11 //SD is working using SDIO, not sure if this definition is needed?
+#define LED_PIN                             PC6   //mainboard soldered green LED, confirmed
 #define PS_ON_PIN                           PB2   //board has a power module connector, confirmed
 #define KILL_PIN                            -1    //there is no reset button on the lcd
 #define POWER_LOSS_PIN                      -1    //PB2 could be used for this as well
@@ -176,7 +187,7 @@
 // Persistent Storage
 // If no option is selected below the SD Card will be used
 // (this section modelled after pins_LONGER3D_LK.h)
-// Warning: Not tested yet! Pins confirmed with multimeter.
+// Warning: Not tested yet! Pins traced with multimeter, mistakes are possible
 //#define SPI_EEPROM
 
 #if ENABLED(SPI_EEPROM)
