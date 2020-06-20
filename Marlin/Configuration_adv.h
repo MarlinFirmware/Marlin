@@ -1875,7 +1875,7 @@
 
 // Default serial print float precision.
 // Probing and delta settings may benefit from reporting more digits.
-#define DEFAULT_PRINT_FLOAT_PRECISION 2
+// #define DEFAULT_PRINT_FLOAT_PRECISION 4
 
 // @section extras
 
