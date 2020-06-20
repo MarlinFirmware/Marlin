@@ -1873,6 +1873,10 @@
 // This option inserts short delays between lines of serial output.
 #define SERIAL_OVERRUN_PROTECTION
 
+// Default serial print float precision.
+// Probing and delta settings may benefit from reporting more digits.
+#define DEFAULT_PRINT_FLOAT_PRECISION 2
+
 // @section extras
 
 /**
