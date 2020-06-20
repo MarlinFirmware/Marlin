@@ -112,8 +112,9 @@ void analogWrite(pin_t pin, int value);
 
 void HAL_adc_init();
 
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 

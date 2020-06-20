@@ -720,6 +720,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
       #endif
 
+      #if HAS_POWER_MONITOR
+        case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
+      #endif
+
       #if ENABLED(CANCEL_OBJECTS)
         case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif

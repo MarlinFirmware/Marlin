@@ -143,8 +143,9 @@ extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 inline void HAL_adc_init() {}//todo
 
-#define HAL_START_ADC(ch)   HAL_adc_start_conversion(ch)
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(ch)   HAL_adc_start_conversion(ch)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
