@@ -102,9 +102,19 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC0   // Analog Input //may need switch for thermocouple/thermistor mode - correct pin, wrong values
-#define TEMP_1_PIN                          PC1   // Analog Input //may need switch for thermocouple/thermistor mode - correct pin, wrong values
-#define TEMP_BED_PIN                        PC3   // Analog Input //bed is thermistor mode only, confirmed
+#define TEMP_0_PIN                          PC0   //needs some kind of setting for thermocouple/thermistor mode - correct pin, wrong values
+#define TEMP_1_PIN                          PC1   //needs some kind of setting for thermocouple/thermistor mode - correct pin, wrong values
+#define TEMP_BED_PIN                        PC3   //bed is thermistor mode only, confirmed
+
+//
+// Lergde-S comes with the ability to choose thermocouple/thermistor mode in software
+// Board contains a MAX6675 Cold-Junction-Compensated K-Thermocoupleto-Digital Converter (0°C to +1024°C) 
+// https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
+//
+
+#define MAX6675_SCK_PIN                     PB3 //max6675 datasheet: SCK pin, found with multimeter, not tested
+#define MAX6675_DO_PIN                      PB4 //max6675 datasheet: SO pin, found with multimeter, not tested
+#define MAX6675_SS_PIN                      PC4 //max6675 datasheet: !CS pin, found with multimeter, not tested
 
 //
 // Heaters / Fans
