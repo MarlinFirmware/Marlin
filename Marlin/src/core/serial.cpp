@@ -43,8 +43,8 @@ void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P)
 void serial_echopair_PGM(PGM_P const s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-#if DEFAULT_PRINT_FLOAT_PRECISION
-  #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, DEFAULT_PRINT_FLOAT_PRECISION)
+#if SERIAL_FLOAT_PRECISION
+  #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
 #else
   #define SERIAL_DECIMAL(V) SERIAL_ECHO(V)
 #endif
