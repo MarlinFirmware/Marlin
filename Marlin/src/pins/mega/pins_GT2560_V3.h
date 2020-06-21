@@ -104,9 +104,9 @@
 #define Z_DIR_PIN                             23
 #define Z_ENABLE_PIN                          27
 
-#define E0_STEP_PIN                           46
-#define E0_DIR_PIN                            44
-#define E0_ENABLE_PIN                         12
+#define E0_STEP_PIN                           43
+#define E0_DIR_PIN                            45
+#define E0_ENABLE_PIN                         41
 
 #define E1_STEP_PIN                           49
 #define E1_DIR_PIN                            47
@@ -119,21 +119,21 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            11  // Analog Input
+#define TEMP_0_PIN                             8  // Analog Input
 #define TEMP_1_PIN                             9  // Analog Input
-#define TEMP_2_PIN                             8  // Analog Input
+#define TEMP_2_PIN                             2  // Analog Input
 #define TEMP_BED_PIN                          10  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          10
+#define HEATER_0_PIN                           2
 #define HEATER_1_PIN                           3
-#define HEATER_2_PIN                           2
+#define HEATER_2_PIN                           8
 #define HEATER_BED_PIN                         4
-#define FAN_PIN                                9
+#define FAN_PIN                                7
 #define FAN1_PIN                               8
-#define FAN2_PIN                               7
+#define FAN2_PIN                               9
 
 //
 // Misc. Functions
