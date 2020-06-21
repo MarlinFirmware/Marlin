@@ -1,3 +1,16 @@
+# Tatara Anet A8 SKR 1.4 Turbo TMC 2209 BLTouch
+This is my version of Marlin 2.6 for my new Tatara framed Anet A8. It should be a good basis for similar printers, though I did have trouble with my stepper directions.
+
+To get the BLTouch working I used this fix:
+Open Conditionals_LCD.h located in ..Marlin\src\inc.. and change this  line:
+#if Z_HOME_DIR < 0 && !HAS_CUSTOM_PROBE_PIN
+to this:
+#if Z_HOME_DIR < 0 // && !HAS_CUSTOM_PROBE_PIN
+
+From <https://github.com/bigtreetech/BIGTREETECH-SKR-V1.3/issues/207> 
+
+
+
 # Marlin 3D Printer Firmware
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
