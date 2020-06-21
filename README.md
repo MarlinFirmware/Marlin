@@ -2,7 +2,7 @@
 This is my version of Marlin 2.6 for my new Tatara framed Anet A8. It should be a good basis for similar printers, though I did have trouble with my stepper directions.
 
 To get the BLTouch working I used this fix:
-Open Conditionals_LCD.h located in ..Marlin\src\inc.. and change this  line:
+Open Conditionals_LCD.h located in ..Marlin\src\inc.. and change this line:
 #if Z_HOME_DIR < 0 && !HAS_CUSTOM_PROBE_PIN
 to this:
 #if Z_HOME_DIR < 0 // && !HAS_CUSTOM_PROBE_PIN
