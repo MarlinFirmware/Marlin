@@ -117,7 +117,7 @@ void GcodeSuite::G35() {
   bool err_break = false;
 
   // Probe all positions
-  for (uint8_t i = 0; i < G35_PROBE_COUNT; ++i) {
+  LOOP_L_N(i, G35_PROBE_COUNT) {
 
     // In BLTOUCH HS mode, the probe travels in a deployed state.
     // Users of G35 might have a badly misaligned bed, so raise Z by the
