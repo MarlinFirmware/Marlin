@@ -191,8 +191,9 @@
     #define LCD_PINS_ENABLE                 PD1
     #define LCD_PINS_D4                     PC12
 
-    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
-    // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
+    // Conditionals_LCD.h defines these for CR10_STOCKDISPLAY.
+    // Undefine them so that the valid BOARD_ST7920_DELAY values defined later
+    // in the file will work.
     #undef ST7920_DELAY_1
     #undef ST7920_DELAY_2
     #undef ST7920_DELAY_3

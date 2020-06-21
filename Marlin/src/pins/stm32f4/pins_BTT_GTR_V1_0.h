@@ -328,9 +328,12 @@
     #define LCD_PINS_ENABLE                 PG5
     #define LCD_PINS_D4                     PG7
 
-    //#undef ST7920_DELAY_1
-    //#undef ST7920_DELAY_2
-    //#undef ST7920_DELAY_3
+    // Conditionals_LCD.h defines these for CR10_STOCKDISPLAY.
+    // Undefine them so that the valid BOARD_ST7920_DELAY values defined later
+    // in the file will work.
+    #undef ST7920_DELAY_1
+    #undef ST7920_DELAY_2
+    #undef ST7920_DELAY_3
 
   #else
 
