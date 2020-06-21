@@ -26,6 +26,13 @@
 #include "../gcode.h"
 #include "../../module/servo.h"
 
+/**
+ * M281 - Edit / Report Servo Angles
+ *
+ *  P<index> - Servo to update
+ *  L<angle> - Deploy Angle
+ *  U<angle> - Stowed Angle
+ */
 void GcodeSuite::M281() {
   if (!parser.seenval('P')) return;
   const int servo_index = parser.value_int();

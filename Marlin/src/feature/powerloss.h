@@ -106,6 +106,8 @@ typedef struct {
 
   uint8_t valid_foot;
 
+  bool valid() { return valid_head && valid_head == valid_foot; }
+
 } job_recovery_info_t;
 
 class PrintJobRecovery {
@@ -118,6 +120,10 @@ class PrintJobRecovery {
     static uint8_t queue_index_r;     //!< Queue index of the active command
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
+
+    #if ENABLED(DWIN_CREALITY_LCD)
+      static bool dwin_flag;
+    #endif
 
     static void init();
     static void prepare();
@@ -164,7 +170,7 @@ class PrintJobRecovery {
     }
   #endif
 
-  static inline bool valid() { return info.valid_head && info.valid_head == info.valid_foot; }
+  static inline bool valid() { return info.valid(); }
 
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     static void debug(PGM_P const prefix);

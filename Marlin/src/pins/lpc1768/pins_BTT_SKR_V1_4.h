@@ -22,7 +22,7 @@
 #pragma once
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BIGTREE SKR 1.4"
+  #define BOARD_INFO_NAME "BTT SKR V1.4"
 #endif
 
 //

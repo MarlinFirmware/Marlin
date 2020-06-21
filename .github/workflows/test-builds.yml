@@ -49,6 +49,7 @@ jobs:
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RC_fysetc
+        - STM32F103RC_meeb
         - jgaurora_a5s_a1
         - STM32F103VE_longer
         - STM32F407VE_black
@@ -63,9 +64,9 @@ jobs:
         - malyan_M300
         - mks_robin_lite
         - FLYF407ZG
-        - rumba32_f446ve
-        - rumba32_mks
+        - rumba32
         - mks_robin_pro
+        - STM32F103RET6_creality
 
         # Put lengthy tests last
 

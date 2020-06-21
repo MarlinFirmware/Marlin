@@ -123,7 +123,8 @@ void StressTestScreen::onIdle() {
       if (!isPositionKnown()) {
         extern const char G28_STR[];
         injectCommands_P(G28_STR);
-      } else {
+      }
+      else {
         injectCommands_P(PSTR(
           "G0 X100 Y100 Z100 F6000\n"
           "T0\nG4 S1"
