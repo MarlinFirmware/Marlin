@@ -106,6 +106,7 @@
 #define BOARD_MKS_GEN_L_V2            1150  // MKS GEN L V2
 #define BOARD_COPYMASTER_3D           1151  // Copymaster 3D
 #define BOARD_ORTUR_4                 1152  // Ortur 4
+#define BOARD_TENLOG_D3_HERO          1153  // Tenlog D3 Hero IDEX printer
 
 //
 // RAMBo and derivatives
@@ -307,6 +308,9 @@
 #define BOARD_MKS_ROBIN_E3            4027  // MKS Robin E3 (STM32F103RCT6)
 #define BOARD_MALYAN_M300             4028  // STM32F070-based delta
 #define BOARD_CCROBOT_MEEB_3DP        4029  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CREALITY_V4             4032  // Creality v4.x (STM32F103RE)
 
 //
 // ARM Cortex-M4F
@@ -322,20 +326,22 @@
 #define BOARD_BEAST                   4200  // STM32F4xxVxT6 Libmaple-based STM32F4 controller
 #define BOARD_GENERIC_STM32F4         4201  // STM32 STM32GENERIC-based STM32F4 controller
 #define BOARD_ARMED                   4202  // Arm'ed STM32F4-based controller
-#define BOARD_RUMBA32_AUS3D           4203  // RUMBA32 STM32F446VET6 based controller from Aus3D
-#define BOARD_RUMBA32_MKS             4204  // RUMBA32 STM32F446VET6 based controller from Makerbase
-#define BOARD_BLACK_STM32F407VE       4205  // BLACK_STM32F407VE
-#define BOARD_BLACK_STM32F407ZE       4206  // BLACK_STM32F407ZE
-#define BOARD_STEVAL_3DP001V1         4207  // STEVAL-3DP001V1 3D PRINTER BOARD
-#define BOARD_BTT_SKR_PRO_V1_1        4208  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
-#define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VG)
-#define BOARD_BTT_GTR_V1_0            4210  // BigTreeTech GTR v1.0 (STM32F407IGT)
-#define BOARD_LERDGE_K                4211  // Lerdge K (STM32F407ZG)
-#define BOARD_LERDGE_X                4212  // Lerdge X (STM32F407VE)
-#define BOARD_VAKE403D                4213  // VAkE 403D (STM32F446VET6)
-#define BOARD_FYSETC_S6               4214  // FYSETC S6 board
-#define BOARD_FLYF407ZG               4215  // FLYF407ZG board (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              4216  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_RUMBA32_V1_0            4203  // RUMBA32 STM32F446VET6 based controller from Aus3D
+#define BOARD_RUMBA32_V1_1            4204  // RUMBA32 STM32F446VET6 based controller from Aus3D
+#define BOARD_RUMBA32_MKS             4205  // RUMBA32 STM32F446VET6 based controller from Makerbase
+#define BOARD_BLACK_STM32F407VE       4206  // BLACK_STM32F407VE
+#define BOARD_BLACK_STM32F407ZE       4207  // BLACK_STM32F407ZE
+#define BOARD_STEVAL_3DP001V1         4208  // STEVAL-3DP001V1 3D PRINTER BOARD
+#define BOARD_BTT_SKR_PRO_V1_1        4209  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
+#define BOARD_BTT_SKR_PRO_V1_2        4210  // BigTreeTech SKR Pro v1.2 (STM32F407ZG)
+#define BOARD_BTT_BTT002_V1_0         4211  // BigTreeTech BTT002 v1.0 (STM32F407VG)
+#define BOARD_BTT_GTR_V1_0            4212  // BigTreeTech GTR v1.0 (STM32F407IGT)
+#define BOARD_LERDGE_K                4213  // Lerdge K (STM32F407ZG)
+#define BOARD_LERDGE_X                4214  // Lerdge X (STM32F407VE)
+#define BOARD_VAKE403D                4215  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4216  // FYSETC S6 board
+#define BOARD_FLYF407ZG               4217  // FLYF407ZG board (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4218  // MKS_ROBIN2 (STM32F407ZE)
 
 //
 // ARM Cortex M7

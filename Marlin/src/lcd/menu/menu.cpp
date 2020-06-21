@@ -61,7 +61,7 @@ typedef struct {
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
 
-uint8_t MenuItemBase::itemIndex;  // Index number for draw and action
+int8_t MenuItemBase::itemIndex;   // Index number for draw and action
 chimera_t editable;               // Value Editing
 
 // Menu Edit Items
@@ -84,9 +84,8 @@ void MarlinUI::save_previous_screen() {
 }
 
 void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
-  #if DISABLED(TURBO_BACK_MENU_ITEM)
-    constexpr bool is_back = false;
-  #endif
+  TERN(TURBO_BACK_MENU_ITEM,,constexpr bool is_back = false);
+  TERN_(TOUCH_BUTTONS, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -155,6 +154,7 @@ void MenuEditItemBase::goto_edit_screen(
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
 ) {
+  TERN_(TOUCH_BUTTONS, ui.on_edit_screen = true);
   ui.screen_changed = true;
   ui.save_previous_screen();
   ui.refresh();

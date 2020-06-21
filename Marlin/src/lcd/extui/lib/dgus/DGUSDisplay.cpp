@@ -592,7 +592,7 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &var, void 
       case VP_MOVE_E0: target_extruder = ExtUI::extruder_t::E0; break;
     #endif
     #if HOTENDS >= 2
-      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break
+      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break;
     #endif
     default: return;
   }

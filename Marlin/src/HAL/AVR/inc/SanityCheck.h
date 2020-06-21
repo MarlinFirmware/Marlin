@@ -41,6 +41,8 @@
   #elif NUM_SERVOS > 0 && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
     #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
   #endif
+#elif defined(SPINDLE_LASER_FREQUENCY)
+  #error "SPINDLE_LASER_FREQUENCY requires SPINDLE_LASER_PWM."
 #endif
 
 /**

@@ -86,9 +86,10 @@ int freeMemory();
 #pragma GCC diagnostic pop
 
 // ADC
+#define HAL_ADC_VREF           5.0
+#define HAL_ADC_RESOLUTION    10
 #define HAL_ANALOG_SELECT(ch) HAL_adc_enable_channel(ch)
 #define HAL_START_ADC(ch)     HAL_adc_start_conversion(ch)
-#define HAL_ADC_RESOLUTION    10
 #define HAL_READ_ADC()        HAL_adc_get_result()
 #define HAL_ADC_READY()       true
 
