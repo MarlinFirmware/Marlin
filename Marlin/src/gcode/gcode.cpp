@@ -321,6 +321,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
+      #if ENABLED(ASSISTED_TRAMMING)
+        case 35: G35(); break;                                    // G35: Read four bed corners to help adjust bed screws
+      #endif
+
       #if ENABLED(G38_PROBE_TARGET)
         case 38:                                                  // G38.2, G38.3: Probe towards target
           if (WITHIN(parser.subcode, 2,
