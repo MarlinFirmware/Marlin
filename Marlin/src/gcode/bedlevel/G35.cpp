@@ -127,7 +127,7 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOLNPAIR("G35 failed at point ", i, " (", tramming_point_name[i], ")"
+      SERIAL_ECHOLNPAIR("G35 failed at point ", int(i), " (", tramming_point_name[i], ")"
                         " X", screws_tilt_adjust_pos[i].x,
                         " Y", screws_tilt_adjust_pos[i].y);
       err_break = true;
