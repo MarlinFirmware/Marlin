@@ -765,9 +765,6 @@
    *   M3: 30 = Clockwise, 31 = Counter-Clockwise
    *   M4: 40 = Clockwise, 41 = Counter-Clockwise
    *   M5: 50 = Clockwise, 51 = Counter-Clockwise
-   *
-   * Default is Clockwise M3 (0). Most printers use M3
-   * screws, with clockwise turns moving the bed down.
    */
   #define TRAMMING_SCREW_THREAD 30
 
