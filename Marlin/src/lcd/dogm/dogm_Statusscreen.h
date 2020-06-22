@@ -1372,7 +1372,7 @@
     #define STATUS_LOGO_X 0
   #endif
   #ifndef STATUS_LOGO_Y
-    #define STATUS_LOGO_Y _MIN(0U, (10 - (STATUS_LOGO_HEIGHT) / 2))
+    #define STATUS_LOGO_Y _MIN(0U, ((20 - (STATUS_LOGO_HEIGHT)) / 2)
   #endif
   #ifndef STATUS_LOGO_HEIGHT
     #define STATUS_LOGO_HEIGHT (sizeof(status_logo_bmp) / (STATUS_LOGO_BYTEWIDTH))

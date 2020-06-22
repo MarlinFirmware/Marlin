@@ -1481,6 +1481,17 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * System Power Sensor
+ */
+#if ENABLED(POWER_MONITOR_CURRENT) && !PIN_EXISTS(POWER_MONITOR_CURRENT)
+  #error "POWER_MONITOR_CURRENT requires a valid POWER_MONITOR_CURRENT_PIN."
+#elif ENABLED(POWER_MONITOR_VOLTAGE) && !PIN_EXISTS(POWER_MONITOR_VOLTAGE)
+  #error "POWER_MONITOR_VOLTAGE requires POWER_MONITOR_VOLTAGE_PIN to be defined."
+#elif BOTH(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE) && POWER_MONITOR_CURRENT_PIN == POWER_MONITOR_VOLTAGE_PIN
+  #error "POWER_MONITOR_CURRENT_PIN and POWER_MONITOR_VOLTAGE_PIN must be different."
+#endif
+
+/**
  * Volumetric Extruder Limit
  */
 #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
@@ -1759,9 +1770,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
 #endif
 
+#if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
+  #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN. Please add it to your configuration."
+#endif
+
 #if TEMP_SENSOR_PROBE
   #if !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
+    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN. Please add it to your configuration."
   #elif !HAS_TEMP_ADC_PROBE
     #error "TEMP_PROBE_PIN must be an ADC pin."
   #elif !ENABLED(FIX_MOUNTED_PROBE)

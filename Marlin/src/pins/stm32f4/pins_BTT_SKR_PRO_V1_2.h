@@ -21,16 +21,10 @@
  */
 #pragma once
 
-/**
- * MKS Robin E3 (STM32F103RCT6) board pin assignments
- */
-
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "MKS Robin E3 supports up to 1 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "BIGTREE SKR Pro V1.2 supports up to 3 hotends / E-steppers."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "MKS Robin E3"
-#endif
+#define BOARD_INFO_NAME "BTT SKR Pro V1.2"
 
-#include "pins_MKS_ROBIN_E3_common.h"
+#include "pins_BTT_SKR_PRO_common.h"

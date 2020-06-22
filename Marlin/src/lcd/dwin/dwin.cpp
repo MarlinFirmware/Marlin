@@ -2743,7 +2743,7 @@ void HMI_Info(void) {
     #if HAS_LEVELING
       checkkey = Control;
       select_control.set(CONTROL_ITEMS);
-      Draw_Control_Menu()
+      Draw_Control_Menu();
     #else
       select_page.set(3);
       Goto_MainMenu();

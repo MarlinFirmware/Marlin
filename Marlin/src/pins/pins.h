@@ -567,17 +567,19 @@
 #elif MB(ARMED)
   #include "stm32f4/pins_ARMED.h"               // STM32F4                                env:ARMED
 #elif MB(RUMBA32_V1_0)
-  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32_f446ve
+  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_V1_1)
-  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32_f446ve
+  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_MKS)
-  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32_mks
+  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"   // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
   #include "stm32f4/pins_STEVAL_3DP001V1.h"     // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BTT_SKR_PRO_V1_1)
   #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"    // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BTT_SKR_PRO_V1_2)
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"    // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BTT_GTR_V1_0)
   #include "stm32f4/pins_BTT_GTR_V1_0.h"        // STM32F4                                env:BIGTREE_GTR_V1_0
 #elif MB(BTT_BTT002_V1_0)

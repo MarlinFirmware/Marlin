@@ -112,6 +112,10 @@ MarlinUI ui;
   #include "../module/thermistor/thermistors.h"
 #endif
 
+#if HAS_POWER_MONITOR
+  #include "../feature/power_monitor.h"
+#endif
+
 #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
   #if HAS_SLOW_BUTTONS
@@ -533,7 +537,6 @@ void MarlinUI::status_screen() {
   #endif // LCD_PROGRESS_BAR
 
   #if HAS_LCD_MENU
-
     if (use_click()) {
       #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         next_filament_display = millis() + 5000UL;  // Show status message for 5s

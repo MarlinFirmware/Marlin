@@ -340,6 +340,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info Screen");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepare");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Tune");
+  PROGMEM Language_Str MSG_POWER_MONITOR                   = _UxGT("Power monitor");
+  PROGMEM Language_Str MSG_CURRENT                         = _UxGT("Current");
+  PROGMEM Language_Str MSG_VOLTAGE                         = _UxGT("Voltage");
+  PROGMEM Language_Str MSG_POWER                           = _UxGT("Power");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Start Print");
   PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("Next");
   PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("Init");

@@ -59,6 +59,14 @@ void menu_configuration();
   void menu_user();
 #endif
 
+#if HAS_POWER_MONITOR
+  void menu_power_monitor();
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
@@ -74,10 +82,6 @@ void menu_configuration();
 
 #if HAS_CUTTER
   void menu_spindle_laser();
-#endif
-
-#if ENABLED(MIXING_EXTRUDER)
-  void menu_mixer();
 #endif
 
 extern const char M21_STR[];
@@ -154,6 +158,10 @@ void menu_main() {
   #endif
 
   SUBMENU(MSG_TEMPERATURE, menu_temperature);
+
+  #if HAS_POWER_MONITOR
+    MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
     SUBMENU(MSG_MIXER, menu_mixer);
