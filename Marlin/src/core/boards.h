@@ -341,7 +341,6 @@
 #define BOARD_FYSETC_S6               4215  // FYSETC S6 board
 #define BOARD_FLYF407ZG               4216  // FLYF407ZG board (STM32F407ZG)
 #define BOARD_MKS_ROBIN2              4217  // MKS_ROBIN2 (STM32F407ZE)
-#define BOARD_LERDGE_S                4213  // Lerdge S (STM32F407VE)
 
 //
 // ARM Cortex M7
@@ -362,11 +361,6 @@
 // SAMD51 ARM Cortex M4
 //
 #define BOARD_AGCM4_RAMPS_144         6100  // RAMPS 1.4.4
-
-//
-// Custom board
-//
-#define BOARD_CUSTOM                  9998  // Custom pins definition for development and/or rare boards
 
 //
 // Simulations

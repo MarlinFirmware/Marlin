@@ -70,7 +70,6 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
   if (ui.should_draw()) {
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
     TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(mesh_edit_value));
-    TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
 
@@ -81,13 +80,12 @@ void lcd_limbo() {
 
 float lcd_mesh_edit() {
   lcd_limbo();
-  TERN(HAS_GRAPHICAL_TFT,, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
+  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDITOR));
   return mesh_edit_value;
 }
 
 void lcd_mesh_edit_setup(const float &initial) {
-  TERN_(HAS_GRAPHICAL_TFT, ui.clear_lcd());
   mesh_edit_value = mesh_edit_accumulator = initial;
   lcd_limbo();
 }
@@ -455,11 +453,11 @@ void _lcd_ubl_output_map_lcd() {
 
   do {
     // Encoder to the right (++)
-    if (x_plot >= GRID_MAX_POINTS_X) { x_plot = TERN(HAS_GRAPHICAL_TFT, x_plot - GRID_MAX_POINTS_X, 0); y_plot++; }
+    if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
     if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
 
     // Encoder to the left (--)
-    if (x_plot < 0) { x_plot = TERN(HAS_GRAPHICAL_TFT, x_plot + GRID_MAX_POINTS_X, GRID_MAX_POINTS_X - 1); y_plot--; }
+    if (x_plot < 0) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
     if (y_plot < 0) y_plot = GRID_MAX_POINTS_Y - 1;
 
     #if IS_KINEMATIC

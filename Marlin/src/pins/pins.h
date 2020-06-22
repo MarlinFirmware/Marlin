@@ -584,10 +584,8 @@
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:STM32F4
-#elif MB(LERDGE_S)
-  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGE_S
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGE_X
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:STM32F4
 #elif MB(VAKE403D)
   #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
@@ -626,12 +624,6 @@
 
 #elif MB(AGCM4_RAMPS_144)
   #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
-
-//
-// Custom board (with custom PIO env)
-//
-#elif MB(CUSTOM)
-  #include "pins_custom.h"                      //                                        env:custom
 
 //
 // Linux Native Debug board
