@@ -41,7 +41,7 @@
 // timing-sensitive operations such as speaker output are note impacted by the long-running
 // temperature ISR. This must be defined in the platformio.ini file or the board's variant.h,
 // so that it will be consumed by framework code.
-#if TIM_IRQ_PRIO <= STEP_TIMER_IRQ_PRIO || TIM_IRQ_PRIO >= TEMP_TIMER_IRQ_PRIO
+#if !(TIM_IRQ_PRIO > STEP_TIMER_IRQ_PRIO && TIM_IRQ_PRIO < TEMP_TIMER_IRQ_PRIO)
   #error "Default timer interrupt priority is unspecified or set to a value which may degrade performance."
 #endif
 
