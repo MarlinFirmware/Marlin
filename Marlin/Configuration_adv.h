@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * ALTERATIONSS  // 20/06/05 UBL 20/06/16
+ * ALTERATIONSS  // 20/06/05 UBL 20/06/16 20/06/22
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
@@ -2042,7 +2042,7 @@
 
   #if AXIS_IS_TMC(X)
     #define X_CURRENT       580        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  (X_CURRENT / 2)  // (mA) RMS current for sensorless homing // 20/06/05 was X_CURRENT
+    #define X_CURRENT_HOME  (X_CURRENT)  // (mA) RMS current for sensorless homing // 20/06/22 was X_CURRENT/2
     #define X_MICROSTEPS     16    // 0..256
     #define X_RSENSE          0.11
     #define X_CHAIN_POS      -1    // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
@@ -2058,7 +2058,7 @@
 
   #if AXIS_IS_TMC(Y)
     #define Y_CURRENT       580
-    #define Y_CURRENT_HOME  (Y_CURRENT / 2)  // 20/06/05 was Y_CURRENT
+    #define Y_CURRENT_HOME  (Y_CURRENT)  // 20/06/22 was Y_CURRENT/2
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
     #define Y_CHAIN_POS      -1
@@ -2324,9 +2324,9 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  50 // 20/06/16
+    #define X_STALL_SENSITIVITY  170 // 20/06/22
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
-    #define Y_STALL_SENSITIVITY  70 // 20/06/05
+    #define Y_STALL_SENSITIVITY  100 // 20/06/22
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     #define IMPROVE_HOMING_RELIABILITY // 20/06/05
