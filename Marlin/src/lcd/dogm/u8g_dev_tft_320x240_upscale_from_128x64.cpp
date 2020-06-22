@@ -597,7 +597,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     case U8G_DEV_MSG_INIT:
       dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, &lcd_id);
 
-      switch(lcd_id & 0xFFFF) {
+      switch (lcd_id & 0xFFFF) {
         case 0x8552:   // ST7789V
           #ifdef LCD_USE_DMA_FSMC
             writeEscSequence(st7789v_init);
