@@ -16,6 +16,30 @@ Marlin 2.0 takes this popular RepRap firmware to the next level by adding suppor
 
 Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
 
+## What's in this fork?
+
+This fork contains code for CNC spindles driven by a VFD through an RS485 protocol. It's a WIP, don't expect it to work yet. 
+I'm using a P2 converter of Huanyang, using a non-std modbus. For more background on how this works, see the [protocol specs and R&D](Marlin/blob/2.0.x/Marlin/src/feature/P2A_VFD_Modbus_Protocol.md), which have been tested already in a small arduino application
+and is working. 
+
+Note that P2 VFD's have a different protocol than other Huanyang VFD's. However, it is pretty easy to use different protocol commands,
+because the basic structure is more or less the same.
+
+Why modbus/RS485? Well, if you want 10.000 RPM, you don't want 9000 RPM or 8000 RPM. A digital protocol is much more stable and robust
+for sending digital data. Second, feedback. If you set your spindle to 10.000 RPM, it will take some time to get to that speed. You
+want to start routing once (and NOT BEFORE) it reaches that speed. And third, if you start up your system, you want to know the 
+parameters before you start messing around with them. And last, if you plumb your drill bit into your piece, you want to make sure that 
+your spindle is running, which can be queried here. RS485 capabilities give you all that, along with all the options to configure
+your device. It's by far the best option to communicate with proper spindles.
+
+The API interface itself that going to use is pretty much the same as the Spindle_laser code. In other words, I attempted to retain as 
+much of the original API as possible.
+
+**THIS IS A WIP!**
+
+- TODO: Add some configuration #define's and integrate the RS485 code into Marlin. 
+- TODO: Test.
+
 ## Building Marlin 2.0
 
 To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
