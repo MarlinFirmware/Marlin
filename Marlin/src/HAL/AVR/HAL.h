@@ -162,6 +162,7 @@ inline void HAL_adc_init() {
   #define HAL_START_ADC(ch) ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
 #endif
 
+#define HAL_ADC_VREF        5.0
 #define HAL_ADC_RESOLUTION 10
 #define HAL_READ_ADC()  ADC
 #define HAL_ADC_READY() !TEST(ADCSRA, ADSC)

@@ -473,7 +473,7 @@
             }
 
             if (parser.seen('B')) {
-              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
+              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(float(Z_CLEARANCE_BETWEEN_PROBES));
               if (ABS(g29_card_thickness) > 1.5f) {
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;

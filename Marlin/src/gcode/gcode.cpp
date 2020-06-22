@@ -321,6 +321,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
+      #if ENABLED(ASSISTED_TRAMMING)
+        case 35: G35(); break;                                    // G35: Read four bed corners to help adjust bed screws
+      #endif
+
       #if ENABLED(G38_PROBE_TARGET)
         case 38:                                                  // G38.2, G38.3: Probe towards target
           if (WITHIN(parser.subcode, 2,
@@ -718,6 +722,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_M206_COMMAND
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+      #endif
+
+      #if HAS_POWER_MONITOR
+        case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif
 
       #if ENABLED(CANCEL_OBJECTS)

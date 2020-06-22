@@ -190,7 +190,7 @@ public:
           #else
             points[0].set(min_x(), min_y());
             points[1].set(max_x(), min_y());
-            points[2].set((max_x() - min_x()) / 2, max_y());
+            points[2].set((min_x() + max_x()) / 2, max_y());
           #endif
         #endif
       }
