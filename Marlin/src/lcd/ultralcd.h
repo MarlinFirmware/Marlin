@@ -651,6 +651,10 @@ public:
 
   #endif
 
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    static void touch_calibration();
+  #endif
+
 private:
 
   #if HAS_DISPLAY

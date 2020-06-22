@@ -21,11 +21,11 @@
  */
 #pragma once
 
-#define RED(color)            ((color >> 8) &   0xF8)
-#define GREEN(color)          ((color >> 3) &   0xFC)
-#define BLUE(color)           ((color << 3) &   0xF8)
-#define RGB(red, green, blue) (((red << 8) &   0xF800) | ((green << 3) &   0x07E0) | ((blue >> 3) &   0x001F))
-#define COLOR(color)          RGB(((color >> 16) &   0xFF), ((color >> 8) &   0xFF), (color &   0xFF))
+#define RED(color)            ((color >> 8) & 0xF8)
+#define GREEN(color)          ((color >> 3) & 0xFC)
+#define BLUE(color)           ((color << 3) & 0xF8)
+#define RGB(red, green, blue) (((red << 8) & 0xF800) | ((green << 3) & 0x07E0) | ((blue >> 3) & 0x001F))
+#define COLOR(color)          RGB(((color >> 16) & 0xFF), ((color >> 8) & 0xFF), (color & 0xFF))
 #define HALF(color)           RGB(RED(color) >> 1, GREEN(color) >> 1, BLUE(color) >> 1)
 
 // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
@@ -105,6 +105,8 @@
 #define COLOR_SLIDER_INACTIVE   COLOR_GREY
 
 #define COLOR_UBL               COLOR_WHITE
+
+#define COLOR_TOUCH_CALIBRATION COLOR_WHITE
 
 #define COLOR_KILL_SCREEN_BG    COLOR_MAROON
 #define COLOR_KILL_SCREEN_TEXT  COLOR_WHITE

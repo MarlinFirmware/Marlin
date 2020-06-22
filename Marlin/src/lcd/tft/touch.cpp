@@ -36,17 +36,21 @@
 #include "tft.h"
 
 int16_t Touch::x, Touch::y;
-touchControl_t Touch::controls[];
-touchControl_t *Touch::current_control;
+touch_control_t Touch::controls[];
+touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
 millis_t Touch::now = 0;
 millis_t Touch::time_to_hold;
 millis_t Touch::repeat_delay;
 bool Touch::wait_for_unclick;
-int32_t Touch::x_calibration = XPT2046_X_CALIBRATION, Touch::y_calibration = XPT2046_Y_CALIBRATION;
-int16_t Touch::x_offset = XPT2046_X_OFFSET, Touch::y_offset = XPT2046_Y_OFFSET;
+touch_calibration_t Touch::calibration;
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  calibrationState Touch::calibration_state = CALIBRATION_NONE;
+  touch_calibration_point_t Touch::calibration_points[4];
+#endif
 
 void Touch::init() {
+  TERN_(TOUCH_SCREEN_CALIBRATION, calibration_reset());
   reset();
   io.Init();
 }
@@ -71,7 +75,6 @@ void Touch::idle() {
   now = millis();
 
   if (get_point(&_x, &_y)) {
-
     #if LCD_TIMEOUT_TO_STATUS
       ui.return_to_status_ms = now + LCD_TIMEOUT_TO_STATUS;
     #endif
@@ -94,8 +97,8 @@ void Touch::idle() {
         }
       }
       else {
-        for (i = 0 ; i < controls_count ; i++) {
-          if (WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) {
+        for (i = 0; i < controls_count; i++) {
+          if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
             touch(&controls[i]);
             break;
           }
@@ -117,8 +120,59 @@ void Touch::idle() {
   }
 }
 
-void Touch::touch(touchControl_t *control) {
+void Touch::touch(touch_control_t *control) {
   switch (control->type) {
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      case CALIBRATE:
+        ui.refresh();
+
+        if (calibration_state < CALIBRATION_SUCCESS) {
+          calibration_points[calibration_state].x = int16_t(control->data >> 16);
+          calibration_points[calibration_state].y = int16_t(control->data & 0xFFFF);
+          calibration_points[calibration_state].raw_x = x;
+          calibration_points[calibration_state].raw_y = y;
+        }
+
+        switch (calibration_state) {
+          case CALIBRATION_POINT_1: calibration_state = CALIBRATION_POINT_2; break;
+          case CALIBRATION_POINT_2: calibration_state = CALIBRATION_POINT_3; break;
+          case CALIBRATION_POINT_3: calibration_state = CALIBRATION_POINT_4; break;
+          case CALIBRATION_POINT_4:
+            if (validate_precision_x(0, 1) && validate_precision_x(2, 3) && validate_precision_y(0, 2) && validate_precision_y(1, 3)) {
+              calibration_state = CALIBRATION_SUCCESS;
+              calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_x + calibration_points[2].raw_x - calibration_points[1].raw_x - calibration_points[0].raw_x);
+              calibration.y = ((calibration_points[1].y - calibration_points[0].y) << 17) / (calibration_points[3].raw_y - calibration_points[2].raw_y + calibration_points[1].raw_y - calibration_points[0].raw_y);
+              calibration.offset_x = calibration_points[0].x - int16_t(((calibration_points[0].raw_x + calibration_points[1].raw_x) * calibration.x) >> 17);
+              calibration.offset_y = calibration_points[0].y - int16_t(((calibration_points[0].raw_y + calibration_points[2].raw_y) * calibration.y) >> 17);
+              calibration.orientation = TOUCH_LANDSCAPE;
+            }
+            else if (validate_precision_y(0, 1) && validate_precision_y(2, 3) && validate_precision_x(0, 2) && validate_precision_x(1, 3)) {
+              calibration_state = CALIBRATION_SUCCESS;
+              calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_y + calibration_points[2].raw_y - calibration_points[1].raw_y - calibration_points[0].raw_y);
+              calibration.y = ((calibration_points[1].y - calibration_points[0].y) << 17) / (calibration_points[3].raw_x - calibration_points[2].raw_x + calibration_points[1].raw_x - calibration_points[0].raw_x);
+              calibration.offset_x = calibration_points[0].x - int16_t(((calibration_points[0].raw_y + calibration_points[1].raw_y) * calibration.x) >> 17);
+              calibration.offset_y = calibration_points[0].y - int16_t(((calibration_points[0].raw_x + calibration_points[2].raw_x) * calibration.y) >> 17);
+              calibration.orientation = TOUCH_PORTRAIT;
+            }
+            else {
+              calibration_state = CALIBRATION_FAIL;
+              calibration_reset();
+            }
+
+            if (calibration_state == CALIBRATION_SUCCESS) {
+              SERIAL_ECHOLN("Touch screen calibration completed");
+              SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_X ", calibration.x);
+              SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
+              SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
+              SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
+              SERIAL_ECHO("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLN("TOUCH_LANDSCAPE"); else SERIAL_ECHOLN("TOUCH_PORTRAIT");
+            }
+            break;
+          default: break;
+        }
+        break;
+    #endif // TOUCH_SCREEN_CALIBRATION
+
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;
     case CLICK: ui.lcd_clicked = true; break;
@@ -196,7 +250,7 @@ void Touch::touch(touchControl_t *control) {
   }
 }
 
-void Touch::hold(touchControl_t *control, millis_t delay) {
+void Touch::hold(touch_control_t *control, millis_t delay) {
   current_control = control;
   if (delay) {
     repeat_delay = delay > MIN_REPEAT_DELAY ? delay : MIN_REPEAT_DELAY;
@@ -206,10 +260,11 @@ void Touch::hold(touchControl_t *control, millis_t delay) {
 }
 
 bool Touch::get_point(int16_t *x, int16_t *y) {
-  bool is_touched = io.getRawPoint(x, y);
-  if (is_touched) {
-    *x = int16_t((int32_t(*x) * x_calibration) >> 16) + x_offset;
-    *y = int16_t((int32_t(*y) * y_calibration) >> 16) + y_offset;
+  bool is_touched = (calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
+
+  if (is_touched && calibration.orientation != TOUCH_NONE) {
+    *x = int16_t((int32_t(*x) * calibration.x) >> 16) + calibration.offset_x;
+    *y = int16_t((int32_t(*y) * calibration.y) >> 16) + calibration.offset_y;
   }
   return is_touched;
 }
