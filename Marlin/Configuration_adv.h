@@ -2656,8 +2656,9 @@
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-#define SPINDLE_FEATURE 1
-//#define LASER_FEATURE
+
+// #define SPINDLE_FEATURE
+// #define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
   #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
@@ -2695,11 +2696,18 @@
  * VFD Spindle
  */
 
-#define VFD_RX_PIN 19
-#define VFD_TX_PIN 18
-#define VFD_RTS_PIN 20
-#define VFD_BAUD 9600
-#define VFD_MODBUS_ADDR 1
+#define SPINDLE_VFD         // Enable if you have an RS-485 Huanyang VFD [**experimental!**]
+
+#if ENABLED(SPINDLE_VFD)
+  #define HAS_CUTTER
+
+  #define VFD_RX_PIN 19     // RS-485 RX pin
+  #define VFD_TX_PIN 18     // RS-485 TX pin
+  #define VFD_RTS_PIN 20    // RS-485 RTS pin
+  // #define VFD_RTS_PIN 21 // RS-485 RTS pin #2 when not using a single pin for both RX and TX
+  #define VFD_BAUD 1200     // Baud rate of VFD. 1200 baud is more than enough, 
+  #define VFD_ADDRESS 1     // Modbus address of the VFD
+#endif
 
 /**
  * Coolant Control

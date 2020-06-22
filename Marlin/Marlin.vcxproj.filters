@@ -2025,7 +2025,7 @@
     <ClCompile Include="src\sd\usb_flashdrive\Sd2Card_FlashDrive.cpp">
       <Filter>src\sd\usb_flashdrive</Filter>
     </ClCompile>
-    <ClCompile Include="src\feature\VFDSpindle.cpp">
+    <ClCompile Include="src\feature\vfd_spindle.cpp">
       <Filter>src\feature</Filter>
     </ClCompile>
   </ItemGroup>
@@ -4354,7 +4354,7 @@
     </ClInclude>
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="Configuration_adv.h" />
-    <ClInclude Include="src\feature\VFDSpindle.h">
+    <ClInclude Include="src\feature\vfd_spindle.h">
       <Filter>src\feature</Filter>
     </ClInclude>
   </ItemGroup>

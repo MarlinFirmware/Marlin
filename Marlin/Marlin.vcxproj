@@ -168,7 +168,7 @@
     <ClInclude Include="src\feature\tmc_util.h" />
     <ClInclude Include="src\feature\touch\xpt2046.h" />
     <ClInclude Include="src\feature\twibus.h" />
-    <ClInclude Include="src\feature\VFDSpindle.h" />
+    <ClInclude Include="src\feature\vfd_spindle.h" />
     <ClInclude Include="src\feature\z_stepper_align.h" />
     <ClInclude Include="src\gcode\gcode.h" />
     <ClInclude Include="src\gcode\parser.h" />
@@ -941,7 +941,7 @@
     <ClCompile Include="src\feature\tmc_util.cpp" />
     <ClCompile Include="src\feature\touch\xpt2046.cpp" />
     <ClCompile Include="src\feature\twibus.cpp" />
-    <ClCompile Include="src\feature\VFDSpindle.cpp" />
+    <ClCompile Include="src\feature\vfd_spindle.cpp" />
     <ClCompile Include="src\feature\z_stepper_align.cpp" />
     <ClCompile Include="src\gcode\bedlevel\abl\G29.cpp" />
     <ClCompile Include="src\gcode\bedlevel\abl\M421.cpp" />

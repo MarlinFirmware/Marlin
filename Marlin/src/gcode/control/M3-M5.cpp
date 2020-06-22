@@ -68,6 +68,12 @@
  *  (usually goes through a reset which sets all I/O pins to tri-state)
  *
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
+ *
+ *  NOTE 2: VFD spindles do NOT have these limits. If we say 20.000 RPM,
+ *  we should simply get 20.000 RPM. If someone types 'S', we get the max
+ *  value, which is '-255' here. Negative values are [-1,-255], positive
+ *  values are RPM's. Also note that typical values like 24.000 are >=
+ *  the max value of an int16.
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
 
@@ -77,7 +83,12 @@ void GcodeSuite::M3_M4(const bool is_M4) {
 
   cutter.set_direction(is_M4);
 
-  #if ENABLED(SPINDLE_LASER_PWM)
+  #if ENABLED(SPINDLE_VFD)
+  if (parser.seenval('O'))
+    cutter.set_power(-int32_t(parser.value_byte()));
+  else
+    cutter.set_power(parser.longval('S', -255));
+  #elif ENABLED(SPINDLE_LASER_PWM)
     if (parser.seenval('O'))
       cutter.set_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
     else
