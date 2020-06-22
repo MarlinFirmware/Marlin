@@ -715,11 +715,8 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     else if (raise_after == PROBE_PT_STOW)
       if (stow()) measured_z = NAN;   // Error on stow?
 
-    if (verbose_level > 2) {
-      SERIAL_ECHOPAIR("Bed X: ", LOGICAL_X_POSITION(rx));
-      SERIAL_ECHOPAIR(   " Y: ", LOGICAL_Y_POSITION(ry));
-      SERIAL_ECHOLNPAIR( " Z: ", measured_z);
-    }
+    if (verbose_level > 2)
+      SERIAL_ECHOLNPAIR("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
   }
 
   feedrate_mm_s = old_feedrate_mm_s;
