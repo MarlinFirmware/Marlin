@@ -561,8 +561,8 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 170
+//#define PREVENT_COLD_EXTRUSION
+//#define EXTRUDE_MINTEMP 170
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -1363,12 +1363,12 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT 25    // X point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT 45    // Y point for Z homing when homing all axes (G28).
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (20*60)
+#define HOMING_FEEDRATE_XY (30*60)
 #define HOMING_FEEDRATE_Z  (4*60)
 
 // Validate that endstops are triggered on homing moves
@@ -2134,7 +2134,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
@@ -2203,16 +2203,16 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-//define NEOPIXEL_LED
+#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN     P1_24       // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
+  #define NEOPIXEL_PIXELS 28      // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
-  //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+  #define NEOPIXEL_BRIGHTNESS 255  // Initial brightness (0-255)
+  #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 
   // Use a single Neopixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
