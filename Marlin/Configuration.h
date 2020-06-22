@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * ALTERATIONS ON // 20/06/05 UBL 20/06/16
+ * ALTERATIONS ON 20/06/05 UBL 20/06/16
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm ALTERATIONS ON // 20/06/05 UBL 20/06/16
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,7 +128,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_BTT_SKR_V1_4 // 20/05/27
+  #define MOTHERBOARD BOARD_BTT_SKR_V1_4 // 20/06/05
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -458,7 +458,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      80 // 20/06/05
+#define BED_MAXTEMP       80 // 20/06/05
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -482,7 +482,7 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  // Creality Ender-3 with SKR 1.4 // 20/06/05
+  // MY Creality Ender-3 with SKR 1.4 // 20/06/05
   #define DEFAULT_Kp 28.36 // 20/06/05
   #define DEFAULT_Ki 2.92 // 20/06/05
   #define DEFAULT_Kd 68.92 // 20/06/05
@@ -521,7 +521,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#define PIDTEMPBED // 20/05/27
+#define PIDTEMPBED // 20/06/05
 
 //#define BED_LIMIT_SWITCHING
 
@@ -538,8 +538,8 @@
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 158.18 // 20/06/05
+  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10) 
+  #define DEFAULT_bedKp 158.18 // MY ENDER 3 WITH SKR 1.4 // 20/06/05
   #define DEFAULT_bedKi 31.27 // 20/06/05
   #define DEFAULT_bedKd 533.43 // 20/06/05
 
@@ -562,7 +562,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 180 // 20/06/05 was 170
+#define EXTRUDE_MINTEMP 180
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -734,7 +734,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // 20/06/05
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // MY ENDER 3 WITH SKR 1.4 // 20/06/05
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1104,7 +1104,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 240 // 20/06/05
+#define Z_MAX_POS 240 // A LITTLE SAFETY MARGIN // 20/06/05
 
 /**
  * Software Endstops
@@ -1362,7 +1362,7 @@
 #define Z_SAFE_HOMING // 20/06/05
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT 10 // ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28). // 20/06/05
+  #define Z_SAFE_HOMING_X_POINT 10 // ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28). NOW SET TO FIRST BILINER POINT // 20/06/05
   #define Z_SAFE_HOMING_Y_POINT 10 // ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28). // 20/06/05
 #endif
 
@@ -1481,9 +1481,9 @@
 #define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PET" // 20/06/05
-#define PREHEAT_2_TEMP_HOTEND 210 // 20/06/05
-#define PREHEAT_2_TEMP_BED     55 // 20/06/05
-#define PREHEAT_2_FAN_SPEED   0 // Value from 0 to 255 // 20/06/05
+#define PREHEAT_2_TEMP_HOTEND  210 // 20/06/05
+#define PREHEAT_2_TEMP_BED      55 // 20/06/05
+#define PREHEAT_2_FAN_SPEED      0 // Value from 0 to 255 // 20/06/05
 
 /**
  * Nozzle Park
@@ -1909,7 +1909,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // for TFT 3.0 // 20/06/05
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // FOR TFT 3.0 // 20/06/05
 
 //
 // ReprapWorld Graphical LCD

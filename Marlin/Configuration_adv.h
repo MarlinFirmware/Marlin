@@ -1,8 +1,8 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl. ALTERATIONSS  // 20/06/05 UBL 20/06/16
+ * ALTERATIONSS  // 20/06/05 UBL 20/06/16
+ * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
@@ -1232,7 +1232,7 @@
   #define XYZ_HOLLOW_FRAME
 
   // Enable to save many cycles by drawing a hollow frame on Menu Screens
-  // #define MENU_HOLLOW_FRAME // 20/06/05
+  // #define MENU_HOLLOW_FRAME  // MAKES LCD HIGHLIGHT MORE VISIBLE // 20/06/05
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
@@ -1470,7 +1470,7 @@
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR_Z  1      // Babysteps are very small. Increase for faster motion. // 20/06/16 was CHANGED TO 10
+  #define BABYSTEP_MULTIPLICATOR_Z  1      // Babysteps are very small. Increase for faster motion. // 20/06/16 was CHANGED TO 10 NOW 1 AGAIN
   #define BABYSTEP_MULTIPLICATOR_XY 1
 
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
@@ -1480,7 +1480,7 @@
     //#define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
     #define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on doubleclick when printer is idle. // 20/06/05
     #if ENABLED(MOVE_Z_WHEN_IDLE)
-      #define MOVE_Z_IDLE_MULTIPLICATOR 10   // Multiply 1mm by this factor for the move step size. // 20/06/05 was 1
+      #define MOVE_Z_IDLE_MULTIPLICATOR 1   // Multiply 1mm by this factor for the move step size. // 20/06/05 was 10 NOW 1 AGAIN
     #endif
   #endif
 
@@ -1526,10 +1526,10 @@
  */
 #if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
   //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
+  //#define PROBE_PT_1_Y 215 // WAS 180 // 20/06/16
   //#define PROBE_PT_2_X 15
   //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
+  //#define PROBE_PT_3_X 215 // WAS 170 // 20/06/16
   //#define PROBE_PT_3_Y 20
 #endif
 
@@ -1761,7 +1761,7 @@
 // enter the serial receive buffer, so they cannot be blocked.
 // Currently handles M108, M112, M410
 // Does not work on boards using AT90USB (USBCON) processors!
-#define EMERGENCY_PARSER // 20/06/05
+#define EMERGENCY_PARSER // WAS CONFLICT WITH TFT 3.0 // 20/06/05
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
