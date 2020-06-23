@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef TFT_320x240
+#ifdef UI_320x240
 
 #include "ui_320x240.h"
 
@@ -627,51 +627,6 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.canvas(0, (TFT_HEIGHT - tft_string.font_height()) >> 1, TFT_WIDTH, tft_string.font_height());
     tft.set_background(COLOR_BACKGROUND);
     tft.add_text(tft_string.width() > TFT_WIDTH ? 0 : (TFT_WIDTH - tft_string.width()) / 2, 0, COLOR_MENU_TEXT, tft_string);
-
-/*
-
-    if (calibration_stage > 5) {
-      calibration_stage = 0;
-      defer_status_screen(false);
-      goto_previous_screen();
-      return;
-    }
-
-    touch.clear();
-
-    if (calibration_stage > 1) {
-      tft.canvas(x - 15, y - 15, 31, 31);
-      tft.set_background(COLOR_BACKGROUND);
-    }
-
-    x = 20;
-    y = 20;
-
-    switch(calibration_stage) {
-      case 1: tft_string.set("Top Left"); break;
-      case 2: y = TFT_HEIGHT - 20; tft_string.set("Bottom Left"); break;
-      case 3: x = TFT_WIDTH - 20; tft_string.set("Top Right"); break;
-      case 4: x = TFT_WIDTH - 20; y = TFT_HEIGHT - 20; tft_string.set("Bottom Right"); break;
-      case 5: tft_string.set("Calibration completed"); break;
-      default: break;
-    }
-
-    tft.canvas(0, (TFT_HEIGHT - tft_string.font_height()) >> 1, TFT_WIDTH, tft_string.font_height());
-    tft.set_background(COLOR_BACKGROUND);
-    tft.add_text(tft_string.width() > TFT_WIDTH ? 0 : (TFT_WIDTH - tft_string.width()) / 2, 0, COLOR_MENU_TEXT, tft_string);
-
-    if (calibration_stage < 5) {
-      tft.canvas(x - 15, y - 15, 31, 31);
-      tft.set_background(COLOR_BACKGROUND);
-      tft.add_bar(0, 15, 31, 1, COLOR_TOUCH_CALIBRATION);
-      tft.add_bar(15, 0, 1, 31, COLOR_TOUCH_CALIBRATION);
-
-      touch.add_control(CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 || uint32_t(y));
-    } else {
-      touch.calibration_end();
-      touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
-    }
-*/
   }
 #endif // TOUCH_SCREEN_CALIBRATION
 
@@ -686,7 +641,7 @@ void menu_item(const uint8_t row, bool sel ) {
   #if ENABLED(TOUCH_SCREEN)
     if (row == 0) {
       touch.clear();
-      draw_menu_navigation = ui.currentScreen != menu_pause_option;
+      draw_menu_navigation = TERN(ADVANCED_PAUSE_FEATURE, ui.currentScreen != menu_pause_option, true);
     }
   #endif
 
@@ -714,4 +669,4 @@ void menu_item(const uint8_t row, bool sel ) {
   }
 #endif // TOUCH_SCREEN
 
-#endif // TFT_320x240
+#endif // UI_320x240

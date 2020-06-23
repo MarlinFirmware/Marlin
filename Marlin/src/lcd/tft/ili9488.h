@@ -33,9 +33,14 @@
 #define ILI9488_MADCTL_RGB        0x00
 #define ILI9488_MADCTL_MH         0x04 // Horizontal Refresh Order
 
+#define ILI9488_ORIENTATION_UP    ILI9488_MADCTL_MY                                         // 320x480 ; Cable on the upper side
+#define ILI9488_ORIENTATION_RIGHT ILI9488_MADCTL_MV                                         // 480x320 ; Cable on the right side
+#define ILI9488_ORIENTATION_LEFT  ILI9488_MADCTL_MY | ILI9488_MADCTL_MX | ILI9488_MADCTL_MV // 480x320 ; Cable on the left side
+#define ILI9488_ORIENTATION_DOWN  ILI9488_MADCTL_MX                                         // 320x480 ; Cable on the upper side
+
 #define ILI9488_COLOR_BGR
-#define ILI9488_ORIENTATION       ILI9341_MADCTL_MY | ILI9341_MADCTL_MX | ILI9341_MADCTL_MV
-#define ILI9488_MADCTL_DATA      (ILI9488_ORIENTATION | TERN0(ILI9488_MADCTL_BGR, ILI9488_COLOR_BGR))
+#define ILI9488_ORIENTATION       ILI9488_ORIENTATION_LEFT
+#define ILI9488_MADCTL_DATA       (ILI9488_ORIENTATION | TERN(ILI9488_COLOR_BGR, ILI9488_MADCTL_BGR, ILI9488_MADCTL_RGB))
 
 #define ILI9488_NOP               0x00 // No Operation
 #define ILI9488_SWRESET           0x01 // Software Reset
@@ -135,7 +140,7 @@
 
 static const uint16_t ili9488_init[] = {
   DATASIZE_8BIT,
-  ESC_REG(ILI9488_SWRESET), ESC_DELAY(100),
+  ESC_REG(ILI9488_SWRESET), ESC_DELAY(120),
   ESC_REG(ILI9488_SLPOUT), ESC_DELAY(20),
 
   ESC_REG(ILI9488_MADCTL), ILI9488_MADCTL_DATA,
