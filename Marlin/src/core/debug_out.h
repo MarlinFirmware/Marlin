@@ -31,6 +31,7 @@
 #undef DEBUG_ERROR_START
 #undef DEBUG_CHAR
 #undef DEBUG_ECHO
+#undef DEBUG_DECIMAL
 #undef DEBUG_ECHO_F
 #undef DEBUG_ECHOLN
 #undef DEBUG_ECHOPGM
@@ -57,6 +58,7 @@
   #define DEBUG_ERROR_START       SERIAL_ERROR_START
   #define DEBUG_CHAR              SERIAL_CHAR
   #define DEBUG_ECHO              SERIAL_ECHO
+  #define DEBUG_DECIMAL           SERIAL_DECIMAL
   #define DEBUG_ECHO_F            SERIAL_ECHO_F
   #define DEBUG_ECHOLN            SERIAL_ECHOLN
   #define DEBUG_ECHOPGM           SERIAL_ECHOPGM
@@ -82,6 +84,7 @@
   #define DEBUG_ERROR_START()       NOOP
   #define DEBUG_CHAR(...)           NOOP
   #define DEBUG_ECHO(...)           NOOP
+  #define DEBUG_DECIMAL(...)        NOOP
   #define DEBUG_ECHO_F(...)         NOOP
   #define DEBUG_ECHOLN(...)         NOOP
   #define DEBUG_ECHOPGM(...)        NOOP

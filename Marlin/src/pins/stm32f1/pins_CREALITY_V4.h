@@ -119,7 +119,7 @@
 #define SD_DETECT_PIN                       PC7
 #define SDCARD_CONNECTION                ONBOARD
 #define ON_BOARD_SPI_DEVICE 1
-#define ONBOARD_SD_CS_PIN                   PA4  // SDSS
+#define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 #define SDIO_SUPPORT
 
 #if ENABLED(RET6_12864_LCD)
