@@ -393,17 +393,12 @@
     #if HAS_BED_PROBE
 
       if (parser.seen('J')) {
-        if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
-          save_ubl_active_state_and_disable();
-          tilt_mesh_based_on_probed_grid(false /* false says to do normal grid probing */ );
-          restore_ubl_active_state_and_leave();
-        }
-        else { // grid_size == 0 : A 3-Point leveling has been requested
-          save_ubl_active_state_and_disable();
-          tilt_mesh_based_on_probed_grid(true /* true says to do 3-Point leveling */ );
-          restore_ubl_active_state_and_leave();
-        }
-        do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
+        save_ubl_active_state_and_disable();
+        tilt_mesh_based_on_probed_grid(g29_grid_size == 0); // Zero size does 3-Point
+        restore_ubl_active_state_and_leave();
+        #if ENABLED(UBL_G29_J_RECENTER)
+          do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
+        #endif
         report_current_position();
         probe_deployed = true;
       }
@@ -438,7 +433,7 @@
             if (g29_verbose_level > 1) {
               SERIAL_ECHOPAIR("Probing around (", g29_pos.x);
               SERIAL_CHAR(',');
-              SERIAL_ECHO(g29_pos.y);
+              SERIAL_DECIMAL(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
             const xy_pos_t near_probe_xy = g29_pos + probe.offset_xy;
@@ -478,7 +473,7 @@
             }
 
             if (parser.seen('B')) {
-              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
+              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(float(Z_CLEARANCE_BETWEEN_PROBES));
               if (ABS(g29_card_thickness) > 1.5f) {
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;

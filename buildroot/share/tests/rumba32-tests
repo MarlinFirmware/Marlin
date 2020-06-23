@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for rumba32_f446ve
+# Build tests for rumba32
 #
 
 # exit on first failure
@@ -15,7 +15,7 @@ opt_enable PIDTEMPBED
 opt_set TEMP_SENSOR_BED 1
 opt_disable THERMAL_PROTECTION_BED
 opt_set X_DRIVER_TYPE TMC2130
-exec_test $1 $2 "rumba32_f446ve V1.0 with TMC2130, PID Bed, and bed thermal protection disabled"
+exec_test $1 $2 "RUMBA32 V1.0 with TMC2130, PID Bed, and bed thermal protection disabled"
 
 # Build examples
 restore_configs
@@ -25,7 +25,15 @@ opt_enable PIDTEMPBED EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_FULL_GRAPH
 opt_set TEMP_SENSOR_BED 1
 opt_set X_DRIVER_TYPE TMC2130
 opt_set Y_DRIVER_TYPE TMC2208
-exec_test $1 $2 "rumba32_f446ve V1.1 with TMC2130, TMC2208, PID Bed, EEPROM settings, and graphic LCD controller"
+exec_test $1 $2 "RUMBA32 V1.1 with TMC2130, TMC2208, PID Bed, EEPROM settings, and graphic LCD controller"
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_RUMBA32_MKS
+opt_set SERIAL_PORT -1
+opt_set X_DRIVER_TYPE TMC2130
+opt_set Y_DRIVER_TYPE TMC2208
+exec_test $1 $2 "RUMBA32 MKS Default Config with Mixed TMC Drivers"
 
 # cleanup
 restore_configs

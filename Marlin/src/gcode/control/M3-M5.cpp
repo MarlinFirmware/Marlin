@@ -67,8 +67,12 @@
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
   auto get_s_power = [] {
-    if (parser.seen('S'))
-      cutter.unitPower = cutter.power_to_range(cutter_power_t(round(parser.value_float())));
+    if (parser.seenval('S')) {
+      const float spwr = parser.value_float();
+      cutter.unitPower = TERN(SPINDLE_LASER_PWM,
+                              cutter.power_to_range(cutter_power_t(round(spwr))),
+                              spwr > 0 ? 255 : 0);
+    }
     else
       cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
     return cutter.unitPower;
@@ -86,7 +90,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
         else
           cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
       #else
-        cutter.inline_enabled(true);
+        cutter.set_inline_enabled(true);
       #endif
       return;
     }
