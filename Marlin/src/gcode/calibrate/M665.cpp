@@ -40,6 +40,9 @@
    *    X = Alpha (Tower 1) angle trim
    *    Y = Beta (Tower 2) angle trim
    *    Z = Gamma (Tower 3) angle trim
+   *    M = Alpha (Tower 1) digonal rod trim
+   *    N = Beta (Tower 2) digonal rod trim
+   *    O = Gamma (Tower 3) digonal rod trim
    */
   void GcodeSuite::M665() {
     if (parser.seen('H')) delta_height              = parser.value_linear_units();
@@ -49,6 +52,9 @@
     if (parser.seen('X')) delta_tower_angle_trim.a  = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim.b  = parser.value_float();
     if (parser.seen('Z')) delta_tower_angle_trim.c  = parser.value_float();
+    if (parser.seen('M')) delta_rod_diagonal_trim.a = parser.value_float();
+    if (parser.seen('N')) delta_rod_diagonal_trim.b = parser.value_float();
+    if (parser.seen('O')) delta_rod_diagonal_trim.c = parser.value_float();
     recalc_delta_settings();
   }
 

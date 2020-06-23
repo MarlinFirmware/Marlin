@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V80"
+#define EEPROM_VERSION "V81"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -262,6 +262,7 @@ typedef struct SettingsDataStruct {
           delta_diagonal_rod,                           // M665 L
           delta_segments_per_second;                    // M665 S
     abc_float_t delta_tower_angle_trim;                 // M665 XYZ
+    abc_float_t delta_diagonal_rod_trim;                // M665 MNO
   #elif HAS_EXTRA_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
@@ -775,6 +776,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
         EEPROM_WRITE(delta_segments_per_second); // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
+        EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
 
       #elif HAS_EXTRA_ENDSTOPS
 
@@ -1655,6 +1657,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_segments_per_second); // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
+          EEPROM_READ(delta_diagonal_rod_trim);    // 3 floats
 
         #elif HAS_EXTRA_ENDSTOPS
 
@@ -2542,13 +2545,14 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(DELTA)
-    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM;
+    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
     delta_height = DELTA_HEIGHT;
     delta_endstop_adj = adj;
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
+    delta_diagonal_rod_trim = ddr;
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -3102,6 +3106,9 @@ void MarlinSettings::reset() {
         , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
         , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
         , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
+        , PSTR(" M"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
+        , PSTR(" N"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
+        , PSTR(" O"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
       );
 
     #elif HAS_EXTRA_ENDSTOPS
