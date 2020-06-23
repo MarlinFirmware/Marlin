@@ -105,6 +105,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retract");
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Move Axis");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bed Leveling");
+  PROGMEM Language_Str MSG_SD_CARD                    	   = _UxGT("SD Card");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Level Bed");
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Level Corners");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Next Corner");

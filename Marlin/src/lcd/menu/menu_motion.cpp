@@ -419,43 +419,6 @@ void menu_motion() {
   #endif
       SUBMENU(MSG_MOVE_AXIS, menu_move);
 
-  //
-  // Level Bed
-  //
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-
-    SUBMENU(MSG_UBL_LEVEL_BED, _lcd_ubl_level_bed);
-
-  #elif ENABLED(LCD_BED_LEVELING)
-
-    if (!g29_in_progress) SUBMENU(MSG_BED_LEVELING, menu_bed_leveling);
-
-  #elif HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
-
-    #if DISABLED(PROBE_MANUALLY)
-      GCODES_ITEM(MSG_LEVEL_BED, PSTR("G28\nG29"));
-    #endif
-    if (all_axes_homed() && leveling_is_valid()) {
-      bool show_state = planner.leveling_active;
-      EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
-    }
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      editable.decimal = planner.z_fade_height;
-      EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
-    #endif
-
-  #endif
-
-  #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-    ACTION_ITEM(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
-  #endif
-
-  #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    GCODES_ITEM(MSG_M48_TEST, PSTR("G28\nM48 P10"));
-  #endif
-
-
-
   END_MENU();
 }
 

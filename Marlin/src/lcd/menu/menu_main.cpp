@@ -34,6 +34,7 @@
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
+#include "../../feature/bedlevel/bedlevel.h"
 
 #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
   #include "game/game.h"
@@ -48,8 +49,11 @@
 
 void menu_tune();
 void menu_motion();
+void menu_bedlevel();
+void menu_bed_leveling();
 void menu_temperature();
 void menu_configuration();
+void menu_sd();
 
 #if ENABLED(CUSTOM_USER_MENUS)
   void menu_user();
@@ -83,12 +87,7 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  const bool busy = printingIsActive()
-    #if ENABLED(SDSUPPORT)
-      , card_detected = card.isMounted()
-      , card_open = card_detected && card.isFileOpen()
-    #endif
-  ;
+  const bool busy = printingIsActive();
 
   if (busy) {
     #if MACHINE_CAN_PAUSE
@@ -146,6 +145,12 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
+	
+	#if ENABLED(LCD_BED_LEVELING)
+      if (!g29_in_progress) SUBMENU(MSG_BED_LEVELING, menu_bed_leveling);
+	#else
+	  SUBMENU(MSG_BED_LEVELING, menu_bedlevel);
+	#endif
   }
 
   #if HAS_CUTTER
@@ -160,6 +165,10 @@ void menu_main() {
 
   #if ENABLED(MMU2_MENUS)
     if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
+  #endif
+  
+  #if ENABLED(LED_CONTROL_MENU)
+    SUBMENU(MSG_LED_CONTROL, menu_led);
   #endif
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
@@ -187,10 +196,6 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
-    SUBMENU(MSG_LED_CONTROL, menu_led);
-  #endif
-
   //
   // Switch power on/off
   //
@@ -201,40 +206,8 @@ void menu_main() {
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  #if HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
-
-    // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
-
-    //
-    // Autostart
-    //
-    #if ENABLED(MENU_ADDAUTOSTART)
-      if (!busy) ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
-    #endif
-
-    if (card_detected) {
-      if (!card_open) {
-        MENU_ITEM(gcode,
-          #if PIN_EXISTS(SD_DETECT)
-            MSG_CHANGE_MEDIA, M21_STR
-          #else
-            MSG_RELEASE_MEDIA, PSTR("M22")
-          #endif
-        );
-        SUBMENU(MSG_MEDIA_MENU, menu_media);
-      }
-    }
-    else {
-      #if PIN_EXISTS(SD_DETECT)
-        ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-      #else
-        GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
-        ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
-      #endif
-    }
-
-  #endif // HAS_ENCODER_WHEEL && SDSUPPORT
-
+	SUBMENU(MSG_SD_CARD, menu_sd);
+ 
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {
       print_job_timer.resetServiceInterval(index);

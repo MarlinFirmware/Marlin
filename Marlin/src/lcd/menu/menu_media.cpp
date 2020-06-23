@@ -131,7 +131,7 @@ void menu_media() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_SD_CARD);
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });

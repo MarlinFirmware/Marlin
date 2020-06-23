@@ -233,7 +233,7 @@
  */
 void menu_bed_leveling() {
   START_MENU();
-  BACK_ITEM(MSG_MOTION);
+  BACK_ITEM(MSG_MAIN);
 
   const bool is_homed = all_axes_known();
 
