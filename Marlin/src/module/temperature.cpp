@@ -1605,16 +1605,16 @@ void Temperature::init() {
   #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
     //thermistor activation by MCU pin
     #if ENABLED(HEATER_0_USES_MAX6675)
-      OUT_WRITE(TEMP_0_TR_ENABLE_PIN, LOW);
-    #else
       OUT_WRITE(TEMP_0_TR_ENABLE_PIN, HIGH);
+    #else
+      OUT_WRITE(TEMP_0_TR_ENABLE_PIN, LOW);
     #endif
   #endif
   #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
     #if ENABLED(HEATER_1_USES_MAX6675)
-      OUT_WRITE(TEMP_1_TR_ENABLE_PIN, LOW);
+      OUT_WRITE(TEMP_1_TR_ENABLE_PIN, HIGH);
       #else
-        OUT_WRITE(TEMP_1_TR_ENABLE_PIN, HIGH);
+        OUT_WRITE(TEMP_1_TR_ENABLE_PIN, LOW);
       #endif
   #endif
 
