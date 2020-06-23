@@ -31,6 +31,9 @@
  * M995: Touch screen calibration for TFT display
  */
 void GcodeSuite::M995() {
+
   ui.goto_screen(touch_screen_calibration);
+
 }
+
 #endif // TOUCH_SCREEN_CALIBRATION
