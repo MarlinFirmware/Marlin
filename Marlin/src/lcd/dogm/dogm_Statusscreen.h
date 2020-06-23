@@ -860,8 +860,6 @@
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 
-#define BED_OR_CHAMBER_OR_FAN (BED_OR_CHAMBER || HAS_FAN0)
-
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
