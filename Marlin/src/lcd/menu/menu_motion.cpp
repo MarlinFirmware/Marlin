@@ -366,6 +366,17 @@ void menu_move() {
   END_MENU();
 }
 
+void menu_homing() {
+  START_MENU();
+  BACK_ITEM(MSG_MOTION);
+  
+    GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
+    GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
+    GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+ 
+  END_MENU();
+}
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void _lcd_ubl_level_bed();
 #elif ENABLED(LCD_BED_LEVELING)
@@ -381,21 +392,16 @@ void menu_motion() {
   BACK_ITEM(MSG_MAIN);
 
   //
-  // Move Axis
+  // Disable Steppers
   //
-  #if ENABLED(DELTA)
-    if (all_axes_homed())
-  #endif
-      SUBMENU(MSG_MOVE_AXIS, menu_move);
+  GCODES_ITEM(MSG_DISABLE_STEPPERS, PSTR("M84"));
 
   //
   // Auto Home
   //
   GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
   #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
-    GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
-    GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
-    GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+	SUBMENU(MSG_HOME_AXES, menu_homing);
   #endif
 
   //
@@ -404,6 +410,14 @@ void menu_motion() {
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     GCODES_ITEM(MSG_AUTO_Z_ALIGN, PSTR("G34"));
   #endif
+  
+  //
+  // Move Axis
+  //
+  #if ENABLED(DELTA)
+    if (all_axes_homed())
+  #endif
+      SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //
   // Level Bed
@@ -440,10 +454,7 @@ void menu_motion() {
     GCODES_ITEM(MSG_M48_TEST, PSTR("G28\nM48 P10"));
   #endif
 
-  //
-  // Disable Steppers
-  //
-  GCODES_ITEM(MSG_DISABLE_STEPPERS, PSTR("M84"));
+
 
   END_MENU();
 }

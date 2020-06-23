@@ -224,6 +224,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("White Intensity");
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("Brightness");
 
+  PROGMEM Language_Str MSG_HOME_AXES					   = _UxGT("Home Axes");
   PROGMEM Language_Str MSG_MOVING                          = _UxGT("Moving...");
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("Free XY");
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Move X");
