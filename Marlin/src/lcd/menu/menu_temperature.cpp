@@ -164,6 +164,31 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 void menu_temperature() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
+  
+   #if HAS_TEMP_HOTEND
+   
+    //
+    // Cooldown
+    //
+    bool has_heat = false;
+    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+    #if HAS_TEMP_BED
+      if (thermalManager.temp_bed.target) has_heat = true;
+    #endif
+    if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
+
+    //
+    // Preheat for Material 1 and 2
+    //
+    #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_5 != 0 || TEMP_SENSOR_6 != 0 || TEMP_SENSOR_7 != 0 || HAS_HEATED_BED
+      SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
+      SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
+    #else
+      ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
+      ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
+    #endif
+
+  #endif // HAS_TEMP_HOTEND
 
   //
   // Nozzle:
@@ -266,30 +291,7 @@ void menu_temperature() {
 
   #endif // FAN_COUNT > 0
 
-  #if HAS_TEMP_HOTEND
-
-    //
-    // Preheat for Material 1 and 2
-    //
-    #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_5 != 0 || TEMP_SENSOR_6 != 0 || TEMP_SENSOR_7 != 0 || HAS_HEATED_BED
-      SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
-      SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
-    #else
-      ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
-      ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
-    #endif
-
-    //
-    // Cooldown
-    //
-    bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
-    #if HAS_TEMP_BED
-      if (thermalManager.temp_bed.target) has_heat = true;
-    #endif
-    if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
-
-  #endif // HAS_TEMP_HOTEND
+ 
 
   END_MENU();
 }
