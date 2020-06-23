@@ -35,66 +35,66 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PD12 //confirmed
+#define SERVO0_PIN                          PD12  //confirmed
 //#define SERVO1_PIN                        -1
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PG9 //confirmed
-#define Y_MIN_PIN                           PG10 //confirmed
-#define Z_MIN_PIN                           PG11 //confirmed
+#define X_MIN_PIN                           PG9   //confirmed
+#define Y_MIN_PIN                           PG10  //confirmed
+#define Z_MIN_PIN                           PG11  //confirmed
 
-#define X_MAX_PIN                           PG12 //confirmed
-#define Y_MAX_PIN                           PG13 //confirmed
-#define Z_MAX_PIN                           PG14 //confirmed
+#define X_MAX_PIN                           PG12  //confirmed
+#define Y_MAX_PIN                           PG13  //confirmed
+#define Z_MAX_PIN                           PG14  //confirmed
 
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN                      PC5 //confirmed
+#define FIL_RUNOUT_PIN                      PC5   //confirmed
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PG8 //confirmed
+  #define Z_MIN_PROBE_PIN                   PG8   //confirmed
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          PF7 //confirmed 
-#define X_DIR_PIN                           PF8 //confirmed 
-#define X_ENABLE_PIN                        PF6 //confirmed 
+#define X_STEP_PIN                          PF7   //confirmed 
+#define X_DIR_PIN                           PF8   //confirmed 
+#define X_ENABLE_PIN                        PF6   //confirmed 
 //#ifndef X_CS_PIN
 //  #define X_CS_PIN                        -1 //no idea
 //#endif
 
-#define Y_STEP_PIN                          PF10 //confirmed 
-#define Y_DIR_PIN                           PF11 //confirmed 
-#define Y_ENABLE_PIN                        PF9 //confirmed 
+#define Y_STEP_PIN                          PF10  //confirmed 
+#define Y_DIR_PIN                           PF11  //confirmed 
+#define Y_ENABLE_PIN                        PF9   //confirmed 
 //#ifndef Y_CS_PIN
 //  #define Y_CS_PIN                        -1 //no idea
 //#endif
 
-#define Z_STEP_PIN                          PF13 //confirmed 
-#define Z_DIR_PIN                           PF14 //confirmed 
-#define Z_ENABLE_PIN                        PF12 //confirmed 
+#define Z_STEP_PIN                          PF13  //confirmed 
+#define Z_DIR_PIN                           PF14  //confirmed 
+#define Z_ENABLE_PIN                        PF12  //confirmed 
 //#ifndef Z_CS_PIN
 //  #define Z_CS_PIN                        -1 //no idea
 //#endif
 
-#define E0_STEP_PIN                         PG0 //confirmed
-#define E0_DIR_PIN                          PG1 //confirmed
-#define E0_ENABLE_PIN                       PF15 //confirmed
+#define E0_STEP_PIN                         PG0   //confirmed
+#define E0_DIR_PIN                          PG1   //confirmed
+#define E0_ENABLE_PIN                       PF15  //confirmed
 //#ifndef E0_CS_PIN
 //  #define E0_CS_PIN                       -1 //no idea
 //#endif
 
-#define E1_STEP_PIN                         PG3 //confirmed
-#define E1_DIR_PIN                          PG4 //confirmed
-#define E1_ENABLE_PIN                       PG2 //confirmed
+#define E1_STEP_PIN                         PG3   //confirmed
+#define E1_DIR_PIN                          PG4   //confirmed
+#define E1_ENABLE_PIN                       PG2   //confirmed
 //#ifndef E1_CS_PIN
 //  #define E1_CS_PIN                       -1 //no idea
 //#endif
@@ -110,35 +110,31 @@
 // Lergde-S comes with the ability to choose thermocouple/thermistor mode in software
 // To use thermistors, PIN PF3 must be output and low (e.g. using M42 P99 S0)
 
-
 // Board contains a MAX6675 Cold-Junction-Compensated K-Thermocoupleto-Digital Converter (0°C to +1024°C) 
 // https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
 //
 
-#define MAX6675_SCK_PIN                     PB3 //max6675 datasheet: SCK pin, found with multimeter, not tested
-#define MAX6675_DO_PIN                      PB4 //max6675 datasheet: SO pin, found with multimeter, not tested
-#define MAX6675_SS_PIN                      PC4 //max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define MAX6675_SCK_PIN                     PB3   //max6675 datasheet: SCK pin, found with multimeter, not tested
+#define MAX6675_DO_PIN                      PB4   //max6675 datasheet: SO pin, found with multimeter, not tested
+#define MAX6675_SS_PIN                      PC4   //max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
 
 //expansion board has second max6675
 //warning: my board came with the slot for the second max6675 unpopulated
 
-//#define MAX6675_SCK2_PIN                   PB3 //max6675 datasheet: SCK pin, found with multimeter, not tested
-//#define MAX6675_DO2_PIN                    PB4 //max6675 datasheet: SO pin, found with multimeter, not tested
-//#define MAX6675_SS2_PIN                    PF1 //max6675 datasheet: /CS pin, found with multimeter, not tested 
-
+//#define MAX6675_SCK2_PIN                  PB3   //max6675 datasheet: SCK pin, found with multimeter, not tested
+//#define MAX6675_DO2_PIN                   PB4   //max6675 datasheet: SO pin, found with multimeter, not tested
+//#define MAX6675_SS2_PIN                   PF1   //max6675 datasheet: /CS pin, found with multimeter, not tested 
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA0 //confirmed
-#define HEATER_1_PIN                        PA1 //confirmed
-#define HEATER_BED_PIN                      PA3 //confirmed
+#define HEATER_0_PIN                        PA0   //confirmed
+#define HEATER_1_PIN                        PA1   //confirmed
+#define HEATER_BED_PIN                      PA3   //confirmed
 
-
-#define FAN_PIN                             PA15 //heater 0 fan 1 //confirmed
-#define FAN1_PIN                            PB10 //heater 1 fan 2 //confirmed
-#define FAN2_PIN                            PF5  //heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together) //confirmed
-
+#define FAN_PIN                             PA15  //heater 0 fan 1 //confirmed
+#define FAN1_PIN                            PB10  //heater 1 fan 2 //confirmed
+#define FAN2_PIN                            PF5   //heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together) //confirmed
 
 //#ifndef E0_AUTO_FAN_PIN
 //  #define E0_AUTO_FAN_PIN                   FAN2_PIN
@@ -154,18 +150,17 @@
 // LED / Lighting
 //
 //Lerdge-S board has two LED connectors (this is the one on the mainboard)
-#define CASE_LIGHT_PIN                      PC7 //confirmed
+#define CASE_LIGHT_PIN                      PC7   //confirmed
 
 //on the dual extrusion addon board is a RGB connector
-#define RGB_LED_R_PIN                       PC7 //shared with the mainboard LED light connector (CASE_LIGHT_PIN), confirmed
-#define RGB_LED_G_PIN                       PB0 //confirmed
-#define RGB_LED_B_PIN                       PB1 //confirmed
-
+#define RGB_LED_R_PIN                       PC7   //shared with the mainboard LED light connector (CASE_LIGHT_PIN), confirmed
+#define RGB_LED_G_PIN                       PB0   //confirmed
+#define RGB_LED_B_PIN                       PB1   //confirmed
 
 //
 // Misc. Functions
 //
-#define SDSS                                PC11 //SD is working using SDIO, not sure if this definition is needed?
+#define SDSS                                PC11  //SD is working using SDIO, not sure if this definition is needed?
 #define LED_PIN                             PC6   //mainboard soldered green LED, confirmed
 #define PS_ON_PIN                           PB2   //board has a power module connector, confirmed
 #define KILL_PIN                            -1    //there is no reset button on the lcd
@@ -176,12 +171,12 @@
 //
 #define SDIO_SUPPORT
 
-#define SCK_PIN                             PC12 //confirmed working 
-#define MISO_PIN                            PC8 //confirmed working 
-#define MOSI_PIN                            PD2 //confirmed working 
-#define SS_PIN                              PC11 //confirmed working 
+#define SCK_PIN                             PC12  //confirmed working 
+#define MISO_PIN                            PC8   //confirmed working 
+#define MOSI_PIN                            PD2   //confirmed working 
+#define SS_PIN                              PC11  //confirmed working 
 
-#define SD_DETECT_PIN                       PG15 //confirmed
+#define SD_DETECT_PIN                       PG15  //confirmed
 
 //
 // Persistent Storage
@@ -193,10 +188,10 @@
 #if ENABLED(SPI_EEPROM)
   // Lerdge has an SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
   #define SPI_CHAN_EEPROM1 1
-  #define SPI_EEPROM1_CS                    PB12 //datasheet: /CS pin, found with multimeter, not tested
-  #define EEPROM_SCK                        PB13 //datasheet: CLK pin, found with multimeter, not tested 
-  #define EEPROM_MISO                       PB14 //datasheet: DO pin, found with multimeter, not tested 
-  #define EEPROM_MOSI                       PB15 //datasheet: DI pin, found with multimeter, not tested 
+  #define SPI_EEPROM1_CS                    PB12  //datasheet: /CS pin, found with multimeter, not tested
+  #define EEPROM_SCK                        PB13  //datasheet: CLK pin, found with multimeter, not tested 
+  #define EEPROM_MISO                       PB14  //datasheet: DO pin, found with multimeter, not tested 
+  #define EEPROM_MOSI                       PB15  //datasheet: DI pin, found with multimeter, not tested 
   #define EEPROM_PAGE_SIZE 0x1000U                // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 //#elif ENABLED(FLASH_EEPROM_EMULATION)
@@ -214,22 +209,22 @@
 //
 
 // The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD13 //confirmed
+#define BEEPER_PIN                          PD13  //confirmed
 
-#define BTN_EN1                             PC14 //confirmed
-#define BTN_EN2                             PC15 //confirmed
-#define BTN_ENC                             PC13 //confirmed
+#define BTN_EN1                             PC14  //confirmed
+#define BTN_EN2                             PC15  //confirmed
+#define BTN_ENC                             PC13  //confirmed
 
-#define TFT_RESET_PIN                       PD6 //unchecked, unsure how to test
-#define TFT_BACKLIGHT_PIN                   PD3 //confirmed (well, this pin switches the LCD off, but I cannot see if it is only the backlight)
+#define TFT_RESET_PIN                       PD6   //unchecked, unsure how to test
+#define TFT_BACKLIGHT_PIN                   PD3   //confirmed (well, this pin switches the LCD off, but I cannot see if it is only the backlight)
 
-#define TFT_CS_PIN                          PD7 //TFT works
-#define TFT_RS_PIN                          PD11 //TFT works
+#define TFT_CS_PIN                          PD7   //TFT works
+#define TFT_RS_PIN                          PD11  //TFT works
 
-#define TOUCH_CS_PIN                        PB6 //there is touch, but calibration is off
-#define TOUCH_SCK_PIN                       PB3 //there is touch, but calibration is off
-#define TOUCH_MOSI_PIN                      PB5 //there is touch, but calibration is off
-#define TOUCH_MISO_PIN                      PB4 //there is touch, but calibration is off
+#define TOUCH_CS_PIN                        PB6   //there is touch, but calibration is off
+#define TOUCH_SCK_PIN                       PB3   //there is touch, but calibration is off
+#define TOUCH_MOSI_PIN                      PB5   //there is touch, but calibration is off
+#define TOUCH_MISO_PIN                      PB4   //there is touch, but calibration is off
 
 //
 // ST7920 Delays
