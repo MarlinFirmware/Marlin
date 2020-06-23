@@ -37,8 +37,7 @@ much of the original API as possible.
 
 **THIS IS A WIP!**
 
-- TODO: Add some configuration #define's and integrate the RS485 code into Marlin. 
-- TODO: Test.
+Even though all code is currently implemented, it is by no means tested enough.
 
 ## Building Marlin 2.0
 
