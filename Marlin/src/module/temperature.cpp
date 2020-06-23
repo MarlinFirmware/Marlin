@@ -1602,19 +1602,20 @@ void Temperature::init() {
     #endif
   #endif
 
-  #if MB(LERDGE_S) || MB(LERDGE_X) || MB(LERDGE_K)
-   //thermistor activation by MCU pin
-   #if ENABLED(HEATER_0_USES_MAX6675)
-     OUT_WRITE(TEMP_0_TR_ENABLE_PIN, LOW);
-   #else
-     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, HIGH);
-   #endif
-
-   #if ENABLED(HEATER_1_USES_MAX6675)
-     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, LOW);
-   #else
-     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, HIGH);
-   #endif
+  #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
+    //thermistor activation by MCU pin
+    #if ENABLED(HEATER_0_USES_MAX6675)
+      OUT_WRITE(TEMP_0_TR_ENABLE_PIN, LOW);
+    #else
+      OUT_WRITE(TEMP_0_TR_ENABLE_PIN, HIGH);
+    #endif
+  #endif
+  #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
+    #if ENABLED(HEATER_1_USES_MAX6675)
+      OUT_WRITE(TEMP_1_TR_ENABLE_PIN, LOW);
+      #else
+        OUT_WRITE(TEMP_1_TR_ENABLE_PIN, HIGH);
+      #endif
   #endif
 
   #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)

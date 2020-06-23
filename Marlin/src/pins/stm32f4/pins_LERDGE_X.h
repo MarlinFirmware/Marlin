@@ -20,8 +20,8 @@
 
 #if !defined(STM32F4) && !defined(STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "LERDGE X supports up to 2 hotends / E-steppers."
+#elif HOTENDS > 1 || E_STEPPERS > 1
+  #error "LERDGE X supports only one hotend / E-steppers"
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge X"
@@ -103,6 +103,14 @@
 #define TEMP_BED_PIN                        PC1   // Analog Input
 
 //
+// Lergde comes with the ability to choose thermocouple/thermistor mode in software
+// To use thermistors, thermistor selectpins must be output and low. This is done 
+// automatically if a thermocouple is selected. 
+
+// - Possibly wrong, verify with multimeter
+#define TEMP_0_TR_ENABLE_PIN               PA15
+
+//
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA1
@@ -173,18 +181,3 @@
 #define TOUCH_SCK_PIN                       PB3
 #define TOUCH_MOSI_PIN                      PB5
 #define TOUCH_MISO_PIN                      PB4
-
-//
-// ST7920 Delays
-//
-#if HAS_GRAPHICAL_LCD
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
-  #endif
-#endif

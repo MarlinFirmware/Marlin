@@ -103,6 +103,14 @@
 #define TEMP_BED_PIN                        PC0   // Analog Input
 
 //
+// Lergde comes with the ability to choose thermocouple/thermistor mode in software
+// To use thermistors, thermistor pins must be output and low. This is done automatically
+// if a thermocouple is selected. 
+
+#define TEMP_0_TR_ENABLE_PIN               PF10
+#define TEMP_1_TR_ENABLE_PIN               PF9
+
+//
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA1
@@ -168,18 +176,3 @@
 #define BTN_EN1                             PE3
 #define BTN_EN2                             PE4
 #define BTN_ENC                             PE2
-
-//
-// ST7920 Delays
-//
-#if HAS_GRAPHICAL_LCD
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
-  #endif
-#endif
