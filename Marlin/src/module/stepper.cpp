@@ -2802,7 +2802,9 @@ void Stepper::report_positions() {
       EXTRA_DIR_WAIT_AFTER();                           \
     }while(0)
 
-  #elif IS_CORE
+  #endif
+
+  #if IS_CORE
 
     #define BABYSTEP_CORE(A, B, INV, DIR, ALT) do{              \
       const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
