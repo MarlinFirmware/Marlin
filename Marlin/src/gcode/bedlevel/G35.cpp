@@ -85,7 +85,7 @@ void GcodeSuite::G35() {
   const uint8_t screw_thread = parser.byteval('S', TRAMMING_SCREW_THREAD);
   if (!WITHIN(screw_thread, 30, 51) || screw_thread % 10 > 1) {
     SERIAL_ECHOLNPGM("?(S)crew thread must be 30, 31, 40, 41, 50, or 51.");
-    goto EXIT_G35;
+    return;
   }
 
   // Wait for planner moves to finish!
@@ -183,8 +183,6 @@ void GcodeSuite::G35() {
 
   // Home Z after the alignment procedure
   process_subcommands_now_P(PSTR("G28Z"));
-
-  EXIT_G35:
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G35");
 }

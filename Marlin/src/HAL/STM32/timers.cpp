@@ -36,6 +36,15 @@
   #define TEMP_TIMER_IRQ_PRIO 14   // 14 = after hardware ISRs
 #endif
 
+// Ensure the default timer priority is somewhere between the STEP and TEMP priorities.
+// The STM32 framework defaults to interrupt 14 for all timers. This should be increased so that
+// timing-sensitive operations such as speaker output are note impacted by the long-running
+// temperature ISR. This must be defined in the platformio.ini file or the board's variant.h,
+// so that it will be consumed by framework code.
+#if !(TIM_IRQ_PRIO > STEP_TIMER_IRQ_PRIO && TIM_IRQ_PRIO < TEMP_TIMER_IRQ_PRIO)
+  #error "Default timer interrupt priority is unspecified or set to a value which may degrade performance."
+#endif
+
 #if HAS_TMC_SW_SERIAL
   #include <SoftwareSerial.h>
   #ifndef SWSERIAL_TIMER_IRQ_PRIO

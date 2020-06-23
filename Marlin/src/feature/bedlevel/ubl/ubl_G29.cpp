@@ -433,7 +433,7 @@
             if (g29_verbose_level > 1) {
               SERIAL_ECHOPAIR("Probing around (", g29_pos.x);
               SERIAL_CHAR(',');
-              SERIAL_ECHO(g29_pos.y);
+              SERIAL_DECIMAL(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
             const xy_pos_t near_probe_xy = g29_pos + probe.offset_xy;
@@ -473,7 +473,7 @@
             }
 
             if (parser.seen('B')) {
-              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
+              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(float(Z_CLEARANCE_BETWEEN_PROBES));
               if (ABS(g29_card_thickness) > 1.5f) {
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
