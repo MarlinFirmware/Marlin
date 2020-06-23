@@ -88,13 +88,6 @@
 //  #define E0_CS_PIN                       PB4
 //#endif
 
-#define E1_STEP_PIN                         -1
-#define E1_DIR_PIN                          -1
-#define E1_ENABLE_PIN                       -1
-//#ifndef E1_CS_PIN
-//  #define E1_CS_PIN                       PE5
-//#endif
-
 //
 // Temperature Sensors
 //
@@ -102,13 +95,11 @@
 #define TEMP_1_PIN                          -1    // Analog Input
 #define TEMP_BED_PIN                        PC1   // Analog Input
 
-//
-// Lergde comes with the ability to choose thermocouple/thermistor mode in software
-// To use thermistors, thermistor selectpins must be output and low. This is done 
-// automatically if a thermocouple is selected. 
+// Lergde can choose thermocouple/thermistor mode in software.
+// Thermistor pins must be OUT/LOW. Done automatically for thermocouples.
 
-// - Possibly wrong, verify with multimeter
-#define TEMP_0_TR_ENABLE_PIN               PA15
+// - Possibly wrong, verify with multimeter / M43 W
+#define TEMP_0_TR_ENABLE_PIN                PA15
 
 //
 // Heaters / Fans
@@ -117,9 +108,9 @@
 #define HEATER_1_PIN                        -1
 #define HEATER_BED_PIN                      PA2
 
-#ifndef FAN_PIN
-  //#define FAN_PIN                         PC15
-#endif
+//#ifndef FAN_PIN
+//  #define FAN_PIN                         PC15
+//#endif
 #define FAN1_PIN                            PC15
 #define FAN2_PIN                            PA0
 
