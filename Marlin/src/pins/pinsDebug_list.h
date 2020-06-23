@@ -30,7 +30,7 @@
 // Analog Pin Assignments
 //
 
-#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_PINS)
+#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 
 #if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)

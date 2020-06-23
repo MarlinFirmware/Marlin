@@ -699,9 +699,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Handle SD Card insert / remove
   TERN_(SDSUPPORT, card.manage_media());
 
-  // Handle UI input / draw events
-  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
-
   // Handle USB Flash Drive insert / remove
   TERN_(USB_FLASH_DRIVE_SUPPORT, Sd2Card::idle());
 
@@ -714,8 +711,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Update the Beeper queue
   TERN_(USE_BEEPER, buzzer.tick());
 
-  // Read Buttons and Update the LCD
-  ui.update();
+  // Handle UI input / draw events
+  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -860,7 +857,7 @@ void setup() {
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHO("] ");
+      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
       serialprintPGM(msg);
       SERIAL_EOL();
     };
@@ -989,20 +986,12 @@ void setup() {
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
-  #if BOTH(HAS_SPI_LCD, SHOW_BOOTSCREEN)
-    SETUP_RUN(ui.show_bootscreen());
-  #endif
-
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
-
-  #if HAS_SERVICE_INTERVALS
-    SETUP_RUN(ui.reset_status(true)); // Show service messages or keep current status
-  #endif
 
   #if ENABLED(TOUCH_BUTTONS)
     SETUP_RUN(touch.init());

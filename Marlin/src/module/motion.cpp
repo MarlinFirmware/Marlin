@@ -1537,8 +1537,8 @@ void homeaxis(const AxisEnum axis) {
     #define _CAN_HOME(A) (axis == _AXIS(A) && ( \
          ENABLED(A##_SPI_SENSORLESS) \
       || (_AXIS(A) == Z_AXIS && ENABLED(HOMING_Z_WITH_PROBE)) \
-      || (A##_MIN_PIN > 0 && A##_HOME_DIR < 0) \
-      || (A##_MAX_PIN > 0 && A##_HOME_DIR > 0) \
+      || (A##_MIN_PIN > -1 && A##_HOME_DIR < 0) \
+      || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0) \
     ))
     if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)) return;
   #endif

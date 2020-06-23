@@ -107,7 +107,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPAIR("New zero-offset of ", zeroOffset);
           SERIAL_ECHOPAIR("New position reads as ", get_position());
           SERIAL_CHAR('(');
-          SERIAL_ECHO(mm_from_count(get_position()));
+          SERIAL_DECIMAL(mm_from_count(get_position()));
           SERIAL_ECHOLNPGM(")");
         #endif
       }

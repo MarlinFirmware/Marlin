@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,22 +21,10 @@
  */
 #pragma once
 
-/**
- * Melzi V2.0 as found at https://www.reprap.org/wiki/Melzi
- */
-
-#define BOARD_INFO_NAME "Melzi V2"
-
-#if HAS_GRAPHICAL_LCD
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
-  #endif
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "BIGTREE SKR Pro V1.2 supports up to 3 hotends / E-steppers."
 #endif
 
-#include "pins_MELZI.h"
+#define BOARD_INFO_NAME "BTT SKR Pro V1.2"
+
+#include "pins_BTT_SKR_PRO_common.h"

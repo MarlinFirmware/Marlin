@@ -84,6 +84,10 @@
   #include "../feature/filwidth.h"
 #endif
 
+#if HAS_POWER_MONITOR
+  #include "../feature/power_monitor.h"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
 #endif
@@ -564,7 +568,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
         #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
       #endif
-      if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
+      if ((ms - _MIN(t1, t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
@@ -1529,11 +1533,13 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   #endif
+
   TERN_(HAS_HEATED_BED, temp_bed.celsius = analog_to_celsius_bed(temp_bed.raw));
   TERN_(HAS_TEMP_CHAMBER, temp_chamber.celsius = analog_to_celsius_chamber(temp_chamber.raw));
   TERN_(HAS_TEMP_PROBE, temp_probe.celsius = analog_to_celsius_probe(temp_probe.raw));
   TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1));
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
+  TERN_(HAS_POWER_MONITOR, power_monitor.capture_values());
 
   // Reset the watchdog on good temperature measurement
   watchdog_refresh();
@@ -1739,6 +1745,12 @@ void Temperature::init() {
   #endif
   #if HAS_ADC_BUTTONS
     HAL_ANALOG_SELECT(ADC_KEYPAD_PIN);
+  #endif
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    HAL_ANALOG_SELECT(POWER_MONITOR_CURRENT_PIN);
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    HAL_ANALOG_SELECT(POWER_MONITOR_VOLTAGE_PIN);
   #endif
 
   HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
@@ -2760,11 +2772,29 @@ void Temperature::tick() {
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case Prepare_FILWIDTH: HAL_START_ADC(FILWIDTH_PIN); break;
       case Measure_FILWIDTH:
-        if (!HAL_ADC_READY())
-          next_sensor_state = adc_sensor_state; // redo this state
-        else
-          filwidth.accumulate(HAL_READ_ADC());
+        if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; // Redo this state
+        else filwidth.accumulate(HAL_READ_ADC());
       break;
+    #endif
+
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      case Prepare_POWER_MONITOR_CURRENT:
+        HAL_START_ADC(POWER_MONITOR_CURRENT_PIN);
+        break;
+      case Measure_POWER_MONITOR_CURRENT:
+        if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; // Redo this state
+        else power_monitor.add_current_sample(HAL_READ_ADC());
+        break;
+    #endif
+
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
+      case Prepare_POWER_MONITOR_VOLTAGE:
+        HAL_START_ADC(POWER_MONITOR_VOLTAGE_PIN);
+        break;
+      case Measure_POWER_MONITOR_VOLTAGE:
+        if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; // Redo this state
+        else power_monitor.add_voltage_sample(HAL_READ_ADC());
+        break;
     #endif
 
     #if HAS_JOY_ADC_X
