@@ -14,10 +14,10 @@
 // Complete steps below > build > flash, its that simple there are hundreds of combinations & more being added.           |
 // Post flash initilize the eeprom - M502+M500 or menu option load failsafe+store settings.                               |
 // Guides on my youtube, when you watch/like/subscribe/share it helps support the channel and helps it grow.              | 
-// Looking for help or have a question? join us on the discord or post on the forums.                                     |
+// Looking for help or have a question? join us on the discord.                                                           |
 // Confirmed to compile with vscode and the platformio extension                                                          |
 // Sometimes Vscode gets weird click the trashcan clean button and restart vscode it often fixs the issue.                |
-// If you succeeded compile, all "problems" should be ignored only a real errors mean anything.                      |  
+// If you succeeded compile, all "problems" should be ignored only a real errors mean anything.                           |  
 //-------------------------------------------------------------------------------------------------------------------------
 
 //(Step 1) enable 1 base model/frame
