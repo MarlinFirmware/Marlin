@@ -9,7 +9,7 @@ This being said i am a marlin developer and do submit my work upstream (vanilla)
 
 Currently integrated models include Supported Models: :A10(C/CT/D/E3/M/T)/A20(C/CT/D/E3/M/T)/A30(C/CT/D/E3/M/T)/I3PRO(A/B/C/W/X/C/CT/D/E3/M/T)/E180/D200/M201/Ender3/Bear & there variants hundreds of combinations + more will be added.
 
-If you expect this fork to be maintained and technical support for it, I’m going to need your support in return to make it all happen.
+If you expect this fork to be maintained and technical support for it, I’m going to need your support in return to make it happen.
 
 Additional features/models/ect integration can be requested and donations are a great motivation, you may also submit pull requests if you would rather code it your self and request it be merged.
 
@@ -29,9 +29,9 @@ YouTube: http://youtube.com/c/verta
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H71KL43)
 
-## Building Vert's Marlin 2+
+## Building Vert's Marlin 2
 
-To build Vert's Marlin 2+ you need (Vscode) https://code.visualstudio.com/ + (PlatformIO) Extention.
+To build Vert's Marlin 2 you will need (Vscode) https://code.visualstudio.com/ + (PlatformIO) Extention.
 
 ## Marlin Team Credits
 
