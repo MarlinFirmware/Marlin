@@ -71,7 +71,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(Steve 08.05.2020)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Steve 24.06.2020)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -955,7 +955,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { 26.7, 2.27, -2.01 }
+#define NOZZLE_TO_PROBE_OFFSET { 26.7, 2.27, -2.01  }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1153,7 +1153,7 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  #define FILAMENT_RUNOUT_DISTANCE_MM 10
+  // #define FILAMENT_RUNOUT_DISTANCE_MM 10
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
@@ -1282,7 +1282,7 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 0              // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 2              // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 8      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y 8
 
