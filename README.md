@@ -1,4 +1,4 @@
-## Vert's Marlin 2+ 3D Printer Firmware
+## Vert's Marlin 2 3D Printer Firmware
 
 This is a custom fork based on the latest marlin source.
 
@@ -23,11 +23,7 @@ Discord: https://discord.gg/brq79WQ
 
 Forum: http://www.vertshobbies.com/
 
-Thingivese: https://www.thingiverse.com/Vertabreaker
-
 YouTube: http://youtube.com/c/verta
-
-Contributed To Source: https://github.com/MarlinFirmware/Marlin/commits/bugfix-2.0.x?author=Vertabreak
 
 ## Support This Project
 
