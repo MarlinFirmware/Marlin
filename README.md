@@ -47,7 +47,7 @@ much of the original API as possible.
 
 **THIS IS A WIP!**
 
-- TODO: Test. All the code is implemented, but not properly tested. It probably won't break anything, but best to have that STOP button for now...
+Even though all code is currently implemented, it is by no means tested enough.
 
 ## Building Marlin 2.0
 
