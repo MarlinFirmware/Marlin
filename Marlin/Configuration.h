@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * ALTERATIONS ON 20/06/05 UBL 20/06/16 20/06/22
+ * ALTERATIONS ON 20/06/05 UBL 20/06/16 20/06/22 20/06/23
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
@@ -132,7 +132,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 22/06" // UBL
+#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 23/06" // 20/06/23
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
