@@ -201,14 +201,18 @@ void menu_temperature() {
       thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
     };
 
+    #if ENABLED(EXTRA_FAN_SPEED)
+      #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
+    #else
+      #define EDIT_EXTRA_FAN_SPEED(...)
+    #endif
+
     #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
-      auto fan_edit_items = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
-        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
-        #if ENABLED(EXTRA_FAN_SPEED)
-          EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
-        #endif
-      };
+      #define fan_edit_items(f) {\
+        editable.uint8 = thermalManager.fan_speed[f];\
+        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);\
+        EDIT_EXTRA_FAN_SPEED(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);\
+      };      
     #endif
 
     #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
