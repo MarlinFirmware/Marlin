@@ -105,7 +105,11 @@
 #endif
 
 #if HAS_CUTTER
-  #include "../feature/spindle_laser.h"
+	#ifdef SPINDLE_VFD
+	#include "../feature/vfd_spindle.h"
+	#else
+	#include "../feature/spindle_laser.h"
+	#endif
 #endif
 
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or

@@ -52,7 +52,11 @@
 #endif
 
 #if HAS_CUTTER
-  #include "../feature/spindle_laser.h"
+	#ifdef SPINDLE_VFD
+	#include "../feature/vfd_spindle.h"
+	#else
+	#include "../feature/spindle_laser.h"
+	#endif
 #endif
 
 // Feedrate for manual moves

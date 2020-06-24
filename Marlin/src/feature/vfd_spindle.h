@@ -1,8 +1,8 @@
 #pragma once
 
 /**
- * feature/spindle_laser.h
- * Support for Laser Power or Spindle Power & Direction
+ * feature/vfd_spindle.h
+ * Support for VFD Spindles with direction, on/off and rpm management
  */
 
 #include "../inc/MarlinConfig.h"
@@ -22,11 +22,17 @@ class VFDSpindle
 {
   // 50 bytes should be plenty for whatever the VFD can throw at us.
   static const int RECEIVE_BUFFER_SIZE = 50;
-  static uint8_t vfd_receive_buffer[RECEIVE_BUFFER_SIZE];
-
   static const int SEND_BUFFER_SIZE = 20;
+
+  // Some buffers:
+  static uint8_t vfd_receive_buffer[RECEIVE_BUFFER_SIZE];
   static uint8_t vfd_send_buffer[SEND_BUFFER_SIZE];
 
+  // and some state variables:
+  static int direction;
+  static bool enabled;
+
+  // Helper functions with details:
   static uint16_t get_crc_value(uint8_t* data_value, uint8_t length);
 
   static void crc_check_value(uint8_t* data_value, uint8_t length);
@@ -62,8 +68,6 @@ class VFDSpindle
 
 public:
   static cutter_power_t power;
-  static int direction;
-  static bool enabled;
 
   static inline uint8_t powerPercent(const uint8_t pp) { return ui8_to_percent(pp); } // for display
 

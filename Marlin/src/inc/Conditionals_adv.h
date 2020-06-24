@@ -116,7 +116,7 @@
   #define Z_STEPPER_ALIGN_AMP 1.0
 #endif
 
-#define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+#define HAS_CUTTER ANY(SPINDLE_FEATURE, LASER_FEATURE, SPINDLE_VFD)
 
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.

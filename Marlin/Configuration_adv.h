@@ -869,6 +869,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
+// TODO FIXME
 //#define ADAPTIVE_STEP_SMOOTHING
 
 /**
@@ -1672,8 +1673,8 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_POST_DIR_DELAY 650
-//#define MINIMUM_STEPPER_PRE_DIR_DELAY 650
+#define MINIMUM_STEPPER_POST_DIR_DELAY 1500
+#define MINIMUM_STEPPER_PRE_DIR_DELAY 1500
 
 /**
  * Minimum stepper driver pulse width (in µs)
@@ -1686,7 +1687,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_PULSE 2
+#define MINIMUM_STEPPER_PULSE 3
 
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
@@ -1700,7 +1701,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MAXIMUM_STEPPER_RATE 250000
+#define MAXIMUM_STEPPER_RATE 150000
 
 // @section temperature
 
@@ -1726,6 +1727,8 @@
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
+
+// TODO FIXME: Next section
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -2699,8 +2702,6 @@
 #define SPINDLE_VFD         // Enable if you have an RS-485 Huanyang VFD [**experimental!**]
 
 #if ENABLED(SPINDLE_VFD)
-  #define HAS_CUTTER
-
   #define VFD_RX_PIN 19     // RS-485 RX pin
   #define VFD_TX_PIN 18     // RS-485 TX pin
   #define VFD_RTS_PIN 20    // RS-485 RTS pin
@@ -2763,7 +2764,7 @@
  * Enables G53 and G54-G59.3 commands to select coordinate systems
  * and G92.1 to reset the workspace to native machine space.
  */
-//#define CNC_COORDINATE_SYSTEMS
+#define CNC_COORDINATE_SYSTEMS
 
 /**
  * Auto-report temperatures with M155 S<seconds>
@@ -2833,13 +2834,13 @@
  * Note that G0 feedrates should be used with care for 3D printing (if used at all).
  * High feedrates may cause ringing and harm print quality.
  */
-//#define PAREN_COMMENTS      // Support for parentheses-delimited comments
-//#define GCODE_MOTION_MODES  // Remember the motion mode (G0 G1 G2 G3 G5 G38.X) and apply for X Y Z E F, etc.
+#define PAREN_COMMENTS      // Support for parentheses-delimited comments
+#define GCODE_MOTION_MODES  // Remember the motion mode (G0 G1 G2 G3 G5 G38.X) and apply for X Y Z E F, etc.
 
 // Enable and set a (default) feedrate for all G0 moves
-//#define G0_FEEDRATE 3000 // (mm/m)
+#define G0_FEEDRATE 1200 // (mm/m)
 #ifdef G0_FEEDRATE
-  //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
+  #define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
 
 /**
@@ -2847,6 +2848,7 @@
  *
  * Execute certain G-code commands immediately after power-on.
  */
+// TODO FIXME: Startup, well isn't this convenient :-)
 //#define STARTUP_COMMANDS "M17 Z"
 
 /**

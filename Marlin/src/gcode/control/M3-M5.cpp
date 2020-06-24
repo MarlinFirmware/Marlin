@@ -25,7 +25,13 @@
 #if HAS_CUTTER
 
 #include "../gcode.h"
+
+#ifdef SPINDLE_VFD
+#include "../../feature/vfd_spindle.h"
+#else
 #include "../../feature/spindle_laser.h"
+#endif
+
 #include "../../module/stepper.h"
 
 /**

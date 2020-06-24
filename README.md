@@ -1,4 +1,4 @@
-# Marlin 3D Printer Firmware
+# Marlin CNC Firmware :-)
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
@@ -10,6 +10,8 @@
 Additional documentation can be found at the [Marlin Home Page](http://marlinfw.org/).
 Please let us know if Marlin misbehaves in any way. Volunteers are standing by!
 
+**ALL CREDITS GO TO THE AMAZING MARLIM TEAM**
+
 ## Marlin 2.0
 
 Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
@@ -18,12 +20,20 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
 
 ## What's in this fork?
 
-This fork contains code for CNC spindles driven by a VFD through an RS485 protocol. It's a WIP, don't expect it to work yet. 
-I'm using a P2 converter of Huanyang, using a non-std modbus. For more background on how this works, see the [protocol specs and R&D](Marlin/blob/2.0.x/Marlin/src/feature/P2A_VFD_Modbus_Protocol.md), which have been tested already in a small arduino application
-and is working. 
+Marlin is built for 3D printers. But frankly, it's just a very advanced version of what GRBL should have been. So, instead of 
+attempting to get VFD spindles (and CNC routers) to work in GRBL, I decided to use Marlin instead. 
+
+As for a client, CNCJS will do the trick.
+
+## VFD code
+
+This fork contains code for CNC spindles driven by a VFD through an RS485 protocol. 
+I'm using a P2 converter of Huanyang, using a non-std modbus. For more background on how this works, see the 
+[protocol specs and R&D](docs/P2A_VFD_Modbus_Protocol.md), which have been tested already in a small arduino application
+(and is working). 
 
 Note that P2 VFD's have a different protocol than other Huanyang VFD's. However, it is pretty easy to use different protocol commands,
-because the basic structure is more or less the same.
+because the basic structure is more or less the same. The commands for other VFD's can be found [here](https://github.com/bdring/Grbl_Esp32/blob/master/Grbl_Esp32/Spindles/HuanyangSpindle.cpp).
 
 Why modbus/RS485? Well, if you want 10.000 RPM, you don't want 9000 RPM or 8000 RPM. A digital protocol is much more stable and robust
 for sending digital data. Second, feedback. If you set your spindle to 10.000 RPM, it will take some time to get to that speed. You
@@ -37,8 +47,7 @@ much of the original API as possible.
 
 **THIS IS A WIP!**
 
-- TODO: Add some configuration #define's and integrate the RS485 code into Marlin. 
-- TODO: Test.
+- TODO: Test. All the code is implemented, but not properly tested. It probably won't break anything, but best to have that STOP button for now...
 
 ## Building Marlin 2.0
 

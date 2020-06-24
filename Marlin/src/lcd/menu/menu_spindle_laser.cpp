@@ -30,7 +30,11 @@
 
   #include "menu.h"
 
-  #include "../../feature/spindle_laser.h"
+	#ifdef SPINDLE_VFD
+	#include "../../feature/vfd_spindle.h"
+	#else
+	#include "../../feature/spindle_laser.h"
+	#endif
 
   void menu_spindle_laser() {
 

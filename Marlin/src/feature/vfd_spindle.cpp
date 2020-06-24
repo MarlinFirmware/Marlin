@@ -29,6 +29,9 @@
 
 #include "vfd_spindle.h"
 
+#if HAS_CUTTER
+#ifdef SPINDLE_VFD
+
 #if defined(__SAM3X8E__) || defined(__SAMD21G18A__)
 #if (VFD_RX_PIN == 19 && VFD_TX_PIN == 18)
 #include <HardwareSerial.h>
@@ -39,13 +42,11 @@
 #elif (VFD_RX_PIN == 15 && VFD_TX_PIN == 14)
 #include <HardwareSerial.h>
 #define VFDSerial Serial3
-#else
-#error "Incorrect serial port specified."
 #endif
 #endif
 
 #if !defined(VFDSerial)
-#include <SoftwareSerial.h>
+#include "SoftwareSerial.h"
 SoftwareSerial VFDSerial(VFD_RX_PIN, VFD_TX_PIN); // RX, TX
 #define USE_SOFTWARE_SERIAL
 #endif
@@ -65,6 +66,13 @@ SoftwareSerial VFDSerial(VFD_RX_PIN, VFD_TX_PIN); // RX, TX
 #define VFD_MODBUS_PROTO 0
 #endif
 
+// Some static variable initialization:
+uint8_t VFDSpindle::vfd_receive_buffer[VFDSpindle::RECEIVE_BUFFER_SIZE];
+uint8_t VFDSpindle::vfd_send_buffer[VFDSpindle::SEND_BUFFER_SIZE];
+int VFDSpindle::direction = 1;
+bool VFDSpindle::enabled = false;
+
+cutter_power_t VFDSpindle::power;
 
 uint16_t VFDSpindle::get_crc_value(uint8_t* data_value, uint8_t length)
 {
@@ -476,3 +484,6 @@ void VFDSpindle::set_direction(const bool reverse)
     }
   }
 }
+
+#endif // SPINDLE_VFD
+#endif // HAS_CUTTER

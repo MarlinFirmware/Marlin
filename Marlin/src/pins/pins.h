@@ -459,6 +459,8 @@
   #include "sam/pins_ALLIGATOR_R2.h"            // SAM3X8E                                env:DUE env:DUE_debug
 #elif MB(ADSK)
   #include "sam/pins_ADSK.h"                    // SAM3X8E                                env:DUE env:DUE_debug
+#elif MB(MY_CNC)
+  #include "sam/pins_MY_CNC.h"                    // SAM3X8E                                env:DUE env:DUE_debug
 #elif MB(PRINTRBOARD_G2)
   #include "sam/pins_PRINTRBOARD_G2.h"          // SAM3X8C                                env:DUE_USB
 #elif MB(CNCONTROLS_15D)

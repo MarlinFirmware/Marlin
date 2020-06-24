@@ -45,7 +45,11 @@
 #endif
 
 #if HAS_CUTTER
+  #ifdef SPINDLE_VFD
+  #include "../../feature/vfd_spindle.h"
+  #else
   #include "../../feature/spindle_laser.h"
+  #endif
 #endif
 
 #if ENABLED(SDSUPPORT)

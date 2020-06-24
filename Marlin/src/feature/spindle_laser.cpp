@@ -27,6 +27,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if HAS_CUTTER
+#ifndef SPINDLE_VFD
 
 #include "spindle_laser.h"
 
@@ -98,4 +99,5 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
 
 #endif
 
+#endif // !SPINDLE_VFD
 #endif // HAS_CUTTER

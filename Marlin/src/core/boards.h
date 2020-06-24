@@ -269,6 +269,7 @@
 
 #define BOARD_PRINTRBOARD_G2          3100  // PRINTRBOARD G2
 #define BOARD_ADSK                    3101  // Arduino DUE Shield Kit (ADSK)
+#define BOARD_MY_CNC                  3102  // Arduino DUE based CNC
 
 //
 // STM32 ARM Cortex-M3
