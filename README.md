@@ -21,8 +21,6 @@ Change Log: https://github.com/Vertabreak/Marlin/commits
 
 Discord: https://discord.gg/brq79WQ
 
-Forum: http://www.vertshobbies.com/
-
 YouTube: http://youtube.com/c/verta
 
 ## Support This Project
