@@ -85,7 +85,7 @@ void GcodeSuite::M303() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
-  ui.set_status("Autotuning PID...");
+  ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));
   thermalManager.PID_autotune(temp, e, c, u);
   ui.reset_status();
 }
