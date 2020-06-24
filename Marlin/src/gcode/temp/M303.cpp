@@ -25,6 +25,7 @@
 #if HAS_PID_HEATING
 
 #include "../gcode.h"
+#include "../../lcd/ultralcd.h"
 #include "../../module/temperature.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -84,7 +85,9 @@ void GcodeSuite::M303() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
+  ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));
   thermalManager.PID_autotune(temp, e, c, u);
+  ui.reset_status();
 }
 
 #endif // HAS_PID_HEATING
