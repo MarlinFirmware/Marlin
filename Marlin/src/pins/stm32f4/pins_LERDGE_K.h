@@ -102,8 +102,9 @@
 #define TEMP_1_PIN                          PC2   // Analog Input
 #define TEMP_BED_PIN                        PC0   // Analog Input
 
-// Lergde can choose thermocouple/thermistor mode in software.
-// Thermistor pins must be OUT/LOW. Done automatically for thermocouples.
+// Lergde-S can choose thermocouple/thermistor mode in software.
+// For use with thermistors, these pins must be OUT/LOW. 
+
 #define TEMP_0_TR_ENABLE_PIN                PF10
 #define TEMP_1_TR_ENABLE_PIN                PF9
 
