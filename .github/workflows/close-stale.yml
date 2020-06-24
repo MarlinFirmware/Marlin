@@ -7,7 +7,7 @@ name: "Close stale issues"
 
 on:
   schedule:
-  - cron: "56 * * * *"
+  - cron: "0 1 * * *"
 
 jobs:
   stale:
