@@ -1,5 +1,5 @@
 #pragma once
-#define SHORT_BUILD_VERSION "Marlin 2 Bugfix Build 494"
+#define SHORT_BUILD_VERSION "Marlin 2 Bugfix Build 495"
 #define CUSTOM_MACHINE_NAME "3D Printer"
 
 // Ctrl+click to open links
