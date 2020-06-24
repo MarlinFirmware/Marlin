@@ -1476,7 +1476,7 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_LABEL       "PETG"
+#define PREHEAT_1_LABEL       ""
 #define PREHEAT_1_TEMP_HOTEND 230
 #define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_FAN_SPEED   100 // Value from 0 to 255

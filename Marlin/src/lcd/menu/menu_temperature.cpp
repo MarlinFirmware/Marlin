@@ -182,10 +182,8 @@ void menu_temperature() {
     //
     #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_5 != 0 || TEMP_SENSOR_6 != 0 || TEMP_SENSOR_7 != 0 || HAS_HEATED_BED
       SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
-      SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
     #else
       ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
-      ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
     #endif
 
   #endif // HAS_TEMP_HOTEND
