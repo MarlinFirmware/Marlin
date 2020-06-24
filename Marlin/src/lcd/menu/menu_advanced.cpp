@@ -169,7 +169,7 @@ void menu_cancelobject();
 #if ENABLED(PID_AUTOTUNE_MENU)
 
   #if ENABLED(PIDTEMP)
-    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
+    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(200);
   #endif
 
   #if ENABLED(PIDTEMPBED)
