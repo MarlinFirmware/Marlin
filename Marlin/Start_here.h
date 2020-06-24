@@ -1,13 +1,11 @@
 #pragma once
-#define SHORT_BUILD_VERSION "Bugfix 2+ Build 494"
+#define SHORT_BUILD_VERSION "Marlin 2 Bugfix Build 494"
 #define CUSTOM_MACHINE_NAME "3D Printer"
 
 // Ctrl+click to open links
 // Youtube             "https://youtube.com/verta"
 // Discord             "https://discord.gg/brq79WQ"
-// Forum               "http://www.vertshobbies.com/" 
 // GitHub              "https://github.com/Vertabreak/Marlin"
-// Thingivese          "https://www.thingiverse.com/Vertabreaker"
 // Patreon             "https://www.patreon.com/vertabreaker" 
 // Buy me a coffee     "https://ko-fi.com/vertabreaker"
 
@@ -19,7 +17,7 @@
 // Looking for help or have a question? join us on the discord or post on the forums.                                     |
 // Confirmed to compile with vscode and the platformio extension                                                          |
 // Sometimes Vscode gets weird click the trashcan clean button and restart vscode it often fixs the issue.                |
-// If you get a succeeded compile all "problems" should be ignored only a real error means anything.                      |  
+// If you succeeded compile, all "problems" should be ignored only a real errors mean anything.                      |  
 //-------------------------------------------------------------------------------------------------------------------------
 
 //(Step 1) enable 1 base model/frame
