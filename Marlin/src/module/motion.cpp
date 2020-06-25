@@ -1597,6 +1597,7 @@ void homeaxis(const AxisEnum axis) {
         , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0)
       #endif
     );
+    
 	//check for inactive endstop
 	if(axis == X_AXIS){
 		if (X_HOME_DIR < 0) {
@@ -1615,13 +1616,31 @@ void homeaxis(const AxisEnum axis) {
 	else if(axis == Y_AXIS){
 		if (Y_HOME_DIR < 0) {
 			if((TEST(endstops.state(), Y_MIN))){
-				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+				SERIAL_ECHO_MSG("Err Y Bump. Bump_value to low or endstops broken?");
 				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
 			}
 		}
 		else{
 			if((TEST(endstops.state(), Y_MAX))){
-				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+				SERIAL_ECHO_MSG("Err Y Bump. Bump_value to low or endstops broken?");
+				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+			}
+		}
+	}
+	else if(axis == Z_AXIS){
+		if (Y_HOME_DIR < 0) {
+			#if HOMING_Z_WITH_PROBE
+			if((TEST(endstops.state(), Z_MIN))){
+			#else
+			if((TEST(endstops.state(), Z_MIN_PROBE))){
+			#endif
+				SERIAL_ECHO_MSG("Err Z Bump. Bump_value to low or endstops broken?");
+				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+			}			
+		}
+		else{
+			if((TEST(endstops.state(), Z_MAX))){
+				SERIAL_ECHO_MSG("Err Z Bump. Bump_value to low or endstops broken?");
 				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
 			}
 		}
