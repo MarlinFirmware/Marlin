@@ -327,13 +327,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(G38_PROBE_TARGET)
         case 38:                                                  // G38.2, G38.3: Probe towards target
-          if (WITHIN(parser.subcode, 2,
-            #if ENABLED(G38_PROBE_AWAY)
-              5
-            #else
-              3
-            #endif
-          )) G38(parser.subcode);                                 // G38.4, G38.5: Probe away from target
+          if (WITHIN(parser.subcode, 2, TERN(G38_PROBE_AWAY, 5, 3)))
+            G38(parser.subcode);                                  // G38.4, G38.5: Probe away from target
           break;
       #endif
 
@@ -485,14 +480,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 108: M108(); break;                                  // M108: Cancel Waiting
         case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        #if ENABLED(HOST_PROMPT_SUPPORT)
-          case 876: M876(); break;                                // M876: Handle Host prompt responses
-        #endif
+        TERN_(HOST_PROMPT_SUPPORT, case 876:)                     // M876: Handle Host prompt responses
       #else
         case 108: case 112: case 410:
-        #if ENABLED(HOST_PROMPT_SUPPORT)
-          case 876:
-        #endif
+        TERN_(HOST_PROMPT_SUPPORT, case 876:)
         break;
       #endif
 
@@ -550,7 +541,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if HAS_HOTEND && HAS_LCD_MENU
+      #if PREHEAT_COUNT
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 

@@ -193,14 +193,14 @@
         #define LCD_PINS_D7                 PD10
       #endif
 
-      #ifndef ST7920_DELAY_1
-        #define ST7920_DELAY_1     DELAY_NS(125)
+      #ifndef BOARD_ST7920_DELAY_1
+        #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
       #endif
-      #ifndef ST7920_DELAY_2
-        #define ST7920_DELAY_2     DELAY_NS(125)
+      #ifndef BOARD_ST7920_DELAY_2
+        #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
       #endif
-      #ifndef ST7920_DELAY_3
-        #define ST7920_DELAY_3     DELAY_NS(125)
+      #ifndef BOARD_ST7920_DELAY_3
+        #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
       #endif
 
     #endif // !MKS_MINI_12864
@@ -246,8 +246,6 @@
   #define FSMC_RS_PIN                       PD11  // A0
 
   #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  #define NO_LCD_REINIT                           // Suppress LCD re-initialization
-
   #define LCD_BACKLIGHT_PIN                 PD13
 
   #if ENABLED(TOUCH_BUTTONS)
