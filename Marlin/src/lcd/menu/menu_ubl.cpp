@@ -31,6 +31,7 @@
 #include "menu.h"
 #include "../../gcode/gcode.h"
 #include "../../gcode/queue.h"
+#include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/configuration_store.h"
 #include "../../feature/bedlevel/bedlevel.h"
@@ -356,24 +357,16 @@ void _lcd_ubl_build_mesh() {
 }
 
 /**
- * UBL Load Mesh Command
+ * UBL Load / Save Mesh Commands
  */
-void _lcd_ubl_load_mesh_cmd() {
+inline void _lcd_ubl_load_save_cmd(const char loadsave, PGM_P const msg) {
   char ubl_lcd_gcode[40];
-  sprintf_P(ubl_lcd_gcode, PSTR("G29 L%i\nM117 "), ubl_storage_slot);
-  sprintf_P(&ubl_lcd_gcode[strlen(ubl_lcd_gcode)], GET_TEXT(MSG_MESH_LOADED), ubl_storage_slot);
+  sprintf_P(ubl_lcd_gcode, PSTR("G29 %c%i\nM117 "), loadsave, ubl_storage_slot);
+  sprintf_P(&ubl_lcd_gcode[strlen(ubl_lcd_gcode)], msg, ubl_storage_slot);
   gcode.process_subcommands_now(ubl_lcd_gcode);
 }
-
-/**
- * UBL Save Mesh Command
- */
-void _lcd_ubl_save_mesh_cmd() {
-  char ubl_lcd_gcode[40];
-  sprintf_P(ubl_lcd_gcode, PSTR("G29 S%i\nM117 "), ubl_storage_slot);
-  sprintf_P(&ubl_lcd_gcode[strlen(ubl_lcd_gcode)], GET_TEXT(MSG_MESH_SAVED), ubl_storage_slot);
-  gcode.process_subcommands_now(ubl_lcd_gcode);
-}
+void _lcd_ubl_load_mesh_cmd() { _lcd_ubl_load_save_cmd('L', GET_TEXT(MSG_MESH_LOADED)); }
+void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT(MSG_MESH_SAVED)); }
 
 /**
  * UBL Mesh Storage submenu
@@ -444,9 +437,6 @@ void ubl_map_move_to_xy() {
 /**
  * UBL LCD "radar" map
  */
-void set_current_from_steppers_for_axis(const AxisEnum axis);
-void sync_plan_position();
-
 void _lcd_ubl_output_map_lcd() {
 
   static int16_t step_scaler = 0;

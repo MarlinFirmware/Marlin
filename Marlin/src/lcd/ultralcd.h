@@ -494,7 +494,11 @@ public:
       static void enable_encoder_multiplier(const bool onoff);
     #endif
 
+    static int8_t manual_move_axis;
+    static millis_t manual_move_start_time;
+
     #if IS_KINEMATIC
+      static float manual_move_offset;
       static bool processing_manual_move;
     #else
       static constexpr bool processing_manual_move = false;
