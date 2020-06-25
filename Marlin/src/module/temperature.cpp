@@ -3092,7 +3092,7 @@ void Temperature::tick() {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_WINDOW) {
               residency_start_ms = now;
-              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_RESIDENCY_TIME);
+              if (first_loop) residency_start_ms -= SEC_TO_MS(TEMP_RESIDENCY_TIME);
             }
           }
           else if (temp_diff > TEMP_HYSTERESIS) {
