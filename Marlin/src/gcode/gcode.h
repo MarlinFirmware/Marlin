@@ -608,7 +608,7 @@ private:
     static void M191();
   #endif
 
-  #if HAS_HOTEND && HAS_LCD_MENU
+  #if PREHEAT_COUNT
     static void M145();
   #endif
 

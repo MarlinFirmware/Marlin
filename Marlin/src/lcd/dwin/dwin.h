@@ -81,8 +81,10 @@ enum processID {
   Motion,
   Info,
   Tune,
-  PLAPreheat,
-  ABSPreheat,
+  #if HAS_HOTEND
+    PLAPreheat,
+    ABSPreheat,
+  #endif
   MaxSpeed,
   MaxSpeed_value,
   MaxAcceleration,
@@ -105,9 +107,15 @@ enum processID {
   Move_Z,
   Extruder,
   Homeoffset,
-  ETemp,
-  BedTemp,
-  FanSpeed,
+  #if HAS_HOTEND
+    ETemp,
+  #endif
+  #if HAS_HEATED_BED
+    BedTemp,
+  #endif
+  #if HAS_FAN
+    FanSpeed,
+  #endif
   PrintSpeed,
 
   /*Window ID*/
@@ -251,26 +259,31 @@ extern int checkkey, last_checkkey;
 extern float zprobe_zoffset;
 extern char print_filename[16];
 
-extern millis_t heat_time;
+extern millis_t dwin_heat_time;
 
 typedef struct {
-  int16_t E_Temp          = 0;
-  int16_t Bed_Temp        = 0;
-  int16_t Fan_speed       = 0;
+  #if HAS_HOTEND
+    int16_t E_Temp        = 0;
+  #endif
+  #if HAS_HEATED_BED
+    int16_t Bed_Temp      = 0;
+  #endif
+  #if HAS_FAN
+    int16_t Fan_speed     = 0;
+  #endif
   int16_t print_speed     = 100;
-  float Max_Feedspeed       = 0;
-  float Max_Acceleration    = 0;
-  float Max_Corner          = 0;
-  float Max_Step           = 0;
-  float Move_X_scale        = 0;
-  float Move_Y_scale        = 0;
-  float Move_Z_scale        = 0;
-  float Move_E_scale        = 0;
-  float offset_value        = 0;
-  char show_mode            = 0;    // -1: Temperature control    0: Printing temperature
-  int16_t preheat_hotend_temp[2];
-  int16_t preheat_bed_temp[2];
-  uint8_t preheat_fan_speed[2];
+  float Max_Feedspeed     = 0;
+  float Max_Acceleration  = 0;
+  float Max_Corner        = 0;
+  float Max_Step          = 0;
+  float Move_X_scale      = 0;
+  float Move_Y_scale      = 0;
+  float Move_Z_scale      = 0;
+  #if EXTRUDERS
+    float Move_E_scale    = 0;
+  #endif
+  float offset_value      = 0;
+  char show_mode          = 0;    // -1: Temperature control    0: Printing temperature
 } HMI_value_t;
 
 typedef struct {
@@ -281,9 +294,15 @@ typedef struct {
   bool select_flag:1;
   bool home_flag:1;
   bool heat_flag:1;  // 0: heating done  1: during heating
-  bool ETempTooLow_flag:1;
-  bool leveling_offset_flag:1;
-  char feedspeed_flag;
+  #if HAS_HOTEND
+    bool ETempTooLow_flag:1;
+  #endif
+  #if HAS_LEVELING
+    bool leveling_offset_flag:1;
+  #endif
+  #if HAS_FAN
+    char feedspeed_flag;
+  #endif
   char acc_flag;
   char corner_flag;
   char step_flag;
@@ -310,8 +329,11 @@ void ICON_Continue(bool show);
 void ICON_Stop(bool show);
 
 /* Popup window tips */
-void Popup_Window_Temperature(const bool toohigh);
-void Popup_Window_ETempTooLow(void);
+#if HAS_HOTEND
+  void Popup_Window_Temperature(const bool toohigh);
+  void Popup_Window_ETempTooLow(void);
+#endif
+
 void Popup_Window_Resume(void);
 void Popup_Window_Home(void);
 void Popup_Window_Leveling(void);
@@ -326,9 +348,16 @@ void HMI_Move_Z(void);
 void HMI_Move_E(void);
 
 void HMI_Zoffset(void);
-void HMI_ETemp(void);
-void HMI_BedTemp(void);
-void HMI_FanSpeed(void);
+
+#if HAS_HOTEND
+  void HMI_ETemp(void);
+#endif
+#if HAS_HEATED_BED
+  void HMI_BedTemp(void);
+#endif
+#if HAS_FAN
+  void HMI_FanSpeed(void);
+#endif
 void HMI_PrintSpeed(void);
 
 void HMI_MaxFeedspeedXYZE(void);
@@ -363,8 +392,12 @@ void HMI_Temperature(void);       // 温度菜单
 void HMI_Motion(void);            // 运动菜单
 void HMI_Info(void);              // 信息菜单
 void HMI_Tune(void);              // 调整菜单
-void HMI_PLAPreheatSetting(void); // PLA预热设置
-void HMI_ABSPreheatSetting(void); // ABS预热设置
+
+#if HAS_HOTEND
+  void HMI_PLAPreheatSetting(void); // PLA预热设置
+  void HMI_ABSPreheatSetting(void); // ABS预热设置
+#endif
+
 void HMI_MaxSpeed(void);          // 最大速度子菜单
 void HMI_MaxAcceleration(void);   // 最大加速度子菜单
 void HMI_MaxCorner(void);         // 最大拐角速度子菜单
