@@ -2706,7 +2706,7 @@
   #define VFD_TX_PIN 18     // RS-485 TX pin
   #define VFD_RTS_PIN 20    // RS-485 RTS pin
   // #define VFD_RTS_PIN 21 // RS-485 RTS pin #2 when not using a single pin for both RX and TX
-  #define VFD_BAUD 1200     // Baud rate of VFD. 1200 baud is more than enough, 
+  #define VFD_BAUD 38400    // Baud rate of VFD. 1200 baud is more than enough, 
   #define VFD_ADDRESS 1     // Modbus address of the VFD
 #endif
 

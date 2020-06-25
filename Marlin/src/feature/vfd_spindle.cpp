@@ -201,7 +201,7 @@ int VFDSpindle::query(int send_length)
   {
     send_data_detail(vfd_send_buffer, send_length);
 
-    for (int i = 0; i < 100; ++i) // We give the thing 100x10ms = 1 second before erroring.
+    for (int i = 0; i < 500; ++i) // We give the thing 100x10ms = 1 second before erroring.
     {
       int n = receive_data_detail();
       if (n == 0)
@@ -237,7 +237,7 @@ int VFDSpindle::query(int send_length)
       }
     }
 
-    SERIAL_ECHOPGM("Error communicating with VFD/RS485.");
+    SERIAL_ECHOPGM("Error communicating with VFD/RS485.\r\n");
   }
 }
 
