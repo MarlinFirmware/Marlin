@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HOTEND && HAS_LCD_MENU
+#if PREHEAT_COUNT
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"
@@ -37,25 +37,23 @@
  */
 void GcodeSuite::M145() {
   const uint8_t material = (uint8_t)parser.intval('S');
-  if (material >= COUNT(ui.preheat_hotend_temp))
+  if (material >= PREHEAT_COUNT)
     SERIAL_ERROR_MSG(STR_ERR_MATERIAL_INDEX);
   else {
-    int v;
-    if (parser.seenval('H')) {
-      v = parser.value_int();
-      ui.preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
-    }
-    if (parser.seenval('F')) {
-      v = parser.value_int();
-      ui.preheat_fan_speed[material] = (uint8_t)constrain(v, 0, 255);
-    }
+    preheat_t &mat = ui.material_preset[material];
+    #if HAS_HOTEND
+      if (parser.seenval('H'))
+        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
+    #endif
     #if TEMP_SENSOR_BED != 0
-      if (parser.seenval('B')) {
-        v = parser.value_int();
-        ui.preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAX_TARGET);
-      }
+      if (parser.seenval('B'))
+        mat.bed_temp = constrain(parser.value_int(), BED_MINTEMP, BED_MAX_TARGET);
+    #endif
+    #if HAS_FAN
+      if (parser.seenval('F'))
+        mat.fan_speed = constrain(parser.value_int(), 0, 255);
     #endif
   }
 }
 
-#endif // HOTENDS && HAS_LCD_MENU
+#endif // PREHEAT_COUNT
