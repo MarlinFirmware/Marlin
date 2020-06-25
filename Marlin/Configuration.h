@@ -743,7 +743,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 98.8 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 102.70 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1374,8 +1374,8 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT 50  // X point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT 10  // Y point for Z homing when homing all axes (G28).
 #endif
 
 // Homing speeds (mm/m)
