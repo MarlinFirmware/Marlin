@@ -79,32 +79,35 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   #if HAS_TEMP_HOTEND && HAS_HEATED_BED
-    #define _PREHEAT_ITEMS(M,E) do{ \
+
+    // Indexed "Preheat ABC" and "Heat Bed" items
+    #define PREHEAT_ITEMS(M,E) do{ \
       ACTION_ITEM_N_P(E, msg_preheat_h[M], []{ _preheat_both(M, MenuItemBase::itemIndex); }); \
       ACTION_ITEM_N_P(E, msg_preheat_end_e[M], []{ _preheat_end(M, MenuItemBase::itemIndex); }); \
     }while(0)
 
-    #if HAS_MULTI_HOTEND
-      #define PREHEAT_ITEMS(M,E) _PREHEAT_ITEMS(M,E)
-    #endif
-
   #elif HAS_MULTI_HOTEND
 
+    // No heated bed, so just indexed "Preheat ABC" items
     #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_P(E, msg_preheat_h[M], []{ _preheat_end(M, MenuItemBase::itemIndex); })
 
   #endif
 
   void menu_preheat_m(const uint8_t m) {
+
     #if HOTENDS == 1
-      PGM_P msg_preheat[]     = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1),         GET_TEXT(MSG_PREHEAT_2),         GET_TEXT(MSG_PREHEAT_3),         GET_TEXT(MSG_PREHEAT_4),          GET_TEXT(MSG_PREHEAT_5));
-      PGM_P msg_preheat_end[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_END),     GET_TEXT(MSG_PREHEAT_2_END),     GET_TEXT(MSG_PREHEAT_3_END),     GET_TEXT(MSG_PREHEAT_4_END),      GET_TEXT(MSG_PREHEAT_5_END));
+      PGM_P msg_preheat[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1), GET_TEXT(MSG_PREHEAT_2), GET_TEXT(MSG_PREHEAT_3), GET_TEXT(MSG_PREHEAT_4), GET_TEXT(MSG_PREHEAT_5));
+      PGM_P msg_preheat_end[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_END), GET_TEXT(MSG_PREHEAT_2_END), GET_TEXT(MSG_PREHEAT_3_END), GET_TEXT(MSG_PREHEAT_4_END), GET_TEXT(MSG_PREHEAT_5_END));
     #elif HAS_MULTI_HOTEND
-      PGM_P msg_preheat_all[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_ALL),     GET_TEXT(MSG_PREHEAT_2_ALL),     GET_TEXT(MSG_PREHEAT_3_ALL),     GET_TEXT(MSG_PREHEAT_4_ALL),      GET_TEXT(MSG_PREHEAT_5_ALL));
+      PGM_P msg_preheat_all[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_ALL), GET_TEXT(MSG_PREHEAT_2_ALL), GET_TEXT(MSG_PREHEAT_3_ALL), GET_TEXT(MSG_PREHEAT_4_ALL), GET_TEXT(MSG_PREHEAT_5_ALL));
     #endif
-    PGM_P msg_preheat_end_e[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_END_E),   GET_TEXT(MSG_PREHEAT_2_END_E),   GET_TEXT(MSG_PREHEAT_3_END_E),   GET_TEXT(MSG_PREHEAT_4_END_E),    GET_TEXT(MSG_PREHEAT_5_END_E));
+
+    #if HAS_TEMP_HOTEND && HAS_HEATED_BED && HAS_MULTI_HOTEND
+      PGM_P msg_preheat_end_e[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_END_E), GET_TEXT(MSG_PREHEAT_2_END_E), GET_TEXT(MSG_PREHEAT_3_END_E), GET_TEXT(MSG_PREHEAT_4_END_E), GET_TEXT(MSG_PREHEAT_5_END_E));
+    #endif
 
     #if HAS_MULTI_HOTEND
-      PGM_P msg_preheat_h[]   = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_H),       GET_TEXT(MSG_PREHEAT_2_H),       GET_TEXT(MSG_PREHEAT_3_H),       GET_TEXT(MSG_PREHEAT_4_H),        GET_TEXT(MSG_PREHEAT_5_H));
+      PGM_P msg_preheat_h[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_H), GET_TEXT(MSG_PREHEAT_2_H), GET_TEXT(MSG_PREHEAT_3_H), GET_TEXT(MSG_PREHEAT_4_H), GET_TEXT(MSG_PREHEAT_5_H));
     #endif
 
     MenuItemBase::itemIndex = m;
@@ -123,11 +126,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
     #elif HAS_MULTI_HOTEND
 
-      #if HAS_HEATED_BED
-        _PREHEAT_ITEMS(MenuItemBase::itemIndex,0);
-      #endif
-
-      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(MenuItemBase::itemIndex,n);
+      LOOP_S_L_N(n, 0, HOTENDS) PREHEAT_ITEMS(MenuItemBase::itemIndex, n);
       ACTION_ITEM_P(msg_preheat_all[m], []() {
         TERN_(HAS_HEATED_BED, _preheat_bed(MenuItemBase::itemIndex));
         HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[MenuItemBase::itemIndex].hotend_temp, e);

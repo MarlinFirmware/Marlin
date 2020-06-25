@@ -1646,7 +1646,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 // Pins are required for heaters
 #if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif HOTENDS && !HAS_TEMP_HOTEND
+#elif HAS_HOTEND && !HAS_TEMP_HOTEND
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
