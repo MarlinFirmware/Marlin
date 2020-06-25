@@ -1597,7 +1597,35 @@ void homeaxis(const AxisEnum axis) {
         , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0)
       #endif
     );
-
+	//check for inactive endstop
+	if(axis == X_AXIS){
+		if (X_HOME_DIR < 0) {
+			if((TEST(endstops.state(), X_MIN))){
+				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+			}
+		}
+		else{
+			if((TEST(endstops.state(), X_MAX))){
+				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+			}
+		}
+	}
+	else if(axis == Y_AXIS){
+		if (Y_HOME_DIR < 0) {
+			if((TEST(endstops.state(), Y_MIN))){
+				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+			}
+		}
+		else{
+			if((TEST(endstops.state(), Y_MAX))){
+				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+			}
+		}
+	}
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
