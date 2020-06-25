@@ -99,6 +99,13 @@
 #endif
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PE15
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PE9
