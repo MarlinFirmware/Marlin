@@ -9,7 +9,6 @@ on:
   pull_request:
     branches:
     - bugfix-2.0.x
-    - dev-2.1.x
     paths-ignore:
     - config/**
     - data/**
