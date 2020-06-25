@@ -83,15 +83,18 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
       ACTION_ITEM_N_P(E, msg_preheat_h[M], []{ _preheat_both(M, MenuItemBase::itemIndex); }); \
       ACTION_ITEM_N_P(E, msg_preheat_end_e[M], []{ _preheat_end(M, MenuItemBase::itemIndex); }); \
     }while(0)
-    #if HAS_HEATED_BED
+
+    #if HAS_MULTI_HOTEND
       #define PREHEAT_ITEMS(M,E) _PREHEAT_ITEMS(M,E)
     #endif
-  #else
-    #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N(E, msg_preheat_h[M], []{ _preheat_end(M, MenuItemBase::itemIndex); })
+
+  #elif HAS_MULTI_HOTEND
+
+    #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_P(E, msg_preheat_h[M], []{ _preheat_end(M, MenuItemBase::itemIndex); })
+
   #endif
 
   void menu_preheat_m(const uint8_t m) {
-    editable.int8 = m;
     #if HOTENDS == 1
       PGM_P msg_preheat[]     = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1),         GET_TEXT(MSG_PREHEAT_2),         GET_TEXT(MSG_PREHEAT_3),         GET_TEXT(MSG_PREHEAT_4),          GET_TEXT(MSG_PREHEAT_5));
       PGM_P msg_preheat_end[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_END),     GET_TEXT(MSG_PREHEAT_2_END),     GET_TEXT(MSG_PREHEAT_3_END),     GET_TEXT(MSG_PREHEAT_4_END),      GET_TEXT(MSG_PREHEAT_5_END));
@@ -99,31 +102,44 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
       PGM_P msg_preheat_all[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_ALL),     GET_TEXT(MSG_PREHEAT_2_ALL),     GET_TEXT(MSG_PREHEAT_3_ALL),     GET_TEXT(MSG_PREHEAT_4_ALL),      GET_TEXT(MSG_PREHEAT_5_ALL));
     #endif
     PGM_P msg_preheat_end_e[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_END_E),   GET_TEXT(MSG_PREHEAT_2_END_E),   GET_TEXT(MSG_PREHEAT_3_END_E),   GET_TEXT(MSG_PREHEAT_4_END_E),    GET_TEXT(MSG_PREHEAT_5_END_E));
-    PGM_P msg_preheat_bed[]   = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_BEDONLY), GET_TEXT(MSG_PREHEAT_2_BEDONLY), GET_TEXT(MSG_PREHEAT_3_BEDONLY), GET_TEXT(MSG_PREHEAT_4_BEDONLY),  GET_TEXT(MSG_PREHEAT_5_BEDONLY));
-    PGM_P msg_preheat_h[]     = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_H),       GET_TEXT(MSG_PREHEAT_2_H),       GET_TEXT(MSG_PREHEAT_3_H),       GET_TEXT(MSG_PREHEAT_4_H),        GET_TEXT(MSG_PREHEAT_5_H));
+
+    #if HAS_MULTI_HOTEND
+      PGM_P msg_preheat_h[]   = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_H),       GET_TEXT(MSG_PREHEAT_2_H),       GET_TEXT(MSG_PREHEAT_3_H),       GET_TEXT(MSG_PREHEAT_4_H),        GET_TEXT(MSG_PREHEAT_5_H));
+    #endif
+
+    MenuItemBase::itemIndex = m;
 
     START_MENU();
     BACK_ITEM(MSG_TEMPERATURE);
+
     #if HOTENDS == 1
+
       #if HAS_HEATED_BED
-        ACTION_ITEM_P(msg_preheat[m], []{ _preheat_both(editable.int8, 0); });
-        ACTION_ITEM_P(msg_preheat_end[m], []{ _preheat_end(editable.int8, 0); });
+        ACTION_ITEM_P(msg_preheat[m], []{ _preheat_both(MenuItemBase::itemIndex, 0); });
+        ACTION_ITEM_P(msg_preheat_end[m], []{ _preheat_end(MenuItemBase::itemIndex, 0); });
       #else
-        ACTION_ITEM_P(msg_preheat[m], []{ _preheat_end(editable.int8, 0); });
+        ACTION_ITEM_P(msg_preheat[m], []{ _preheat_end(MenuItemBase::itemIndex, 0); });
       #endif
+
     #elif HAS_MULTI_HOTEND
+
       #if HAS_HEATED_BED
-        _PREHEAT_ITEMS(editable.int8,0);
+        _PREHEAT_ITEMS(MenuItemBase::itemIndex,0);
       #endif
-      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(editable.int8,n);
+
+      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(MenuItemBase::itemIndex,n);
       ACTION_ITEM_P(msg_preheat_all[m], []() {
-        TERN_(HAS_HEATED_BED, _preheat_bed(editable.int8));
-        HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+        TERN_(HAS_HEATED_BED, _preheat_bed(MenuItemBase::itemIndex));
+        HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[MenuItemBase::itemIndex].hotend_temp, e);
       });
-    #endif // HAS_MULTI_HOTEND
-    #if HAS_HEATED_BED
-      ACTION_ITEM_P(msg_preheat_bed[m], []{ _preheat_bed(editable.int8); });
+
     #endif
+
+    #if HAS_HEATED_BED
+      PGM_P msg_preheat_bed[] = ARRAY_N(PREHEAT_COUNT, GET_TEXT(MSG_PREHEAT_1_BEDONLY), GET_TEXT(MSG_PREHEAT_2_BEDONLY), GET_TEXT(MSG_PREHEAT_3_BEDONLY), GET_TEXT(MSG_PREHEAT_4_BEDONLY), GET_TEXT(MSG_PREHEAT_5_BEDONLY));
+      ACTION_ITEM_P(msg_preheat_bed[m], []{ _preheat_bed(MenuItemBase::itemIndex); });
+    #endif
+
     END_MENU();
   }
 

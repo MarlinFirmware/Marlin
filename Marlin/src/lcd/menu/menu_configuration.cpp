@@ -300,19 +300,20 @@ void menu_advanced_settings();
 
 #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
-  void _menu_configuration_preheat_settings(const uint8_t material) {
+  void _menu_configuration_preheat_settings(const uint8_t m) {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
     #define _MAXTEMP_ITEM(N) HEATER_##N##_MAXTEMP,
     #define MINTEMP_ALL _MIN(REPEAT(HOTENDS, _MINTEMP_ITEM) 999)
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM(percent, MSG_FAN_SPEED, &ui.material_preset[material].fan_speed, 0, 255);
+    editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
+    EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
     #if HAS_TEMP_HOTEND
-      EDIT_ITEM(int3, MSG_NOZZLE, &ui.material_preset[material].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
+      EDIT_ITEM(uint16_3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
     #endif
     #if HAS_HEATED_BED
-      EDIT_ITEM(int3, MSG_BED, &ui.material_preset[material].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+      EDIT_ITEM(uint16_3, MSG_BED, &ui.material_preset[m].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
