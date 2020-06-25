@@ -40,7 +40,7 @@ void GcodeSuite::M145() {
   if (material >= PREHEAT_COUNT)
     SERIAL_ERROR_MSG(STR_ERR_MATERIAL_INDEX);
   else {
-    preset_t &mat = ui.material_preset[material];
+    preheat_t &mat = ui.material_preset[material];
     #if HAS_HOTEND
       if (parser.seenval('H'))
         mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
