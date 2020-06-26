@@ -207,12 +207,12 @@ void menu_temperature() {
       #define EDIT_EXTRA_FAN_SPEED(...)
     #endif
 
-    #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
-      #define fan_edit_items(f) {\
-        editable.uint8 = thermalManager.fan_speed[f];\
-        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);\
-        EDIT_EXTRA_FAN_SPEED(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);\
-      };      
+    #if FAN_COUNT > 1
+      #define FAN_EDIT_ITEMS(F) do{ \
+        editable.uint8 = thermalManager.fan_speed[f]; \
+        EDIT_ITEM_FAST_N(percent, F, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update); \
+        EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[F], 3, 255); \
+      }while(0)
     #endif
 
     #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
@@ -231,37 +231,37 @@ void menu_temperature() {
       #endif
     #endif
     #if HAS_FAN1
-      fan_edit_items(1);
+      FAN_EDIT_ITEMS(1);
     #elif SNFAN(1)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN2
-      fan_edit_items(2);
+      FAN_EDIT_ITEMS(2);
     #elif SNFAN(2)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN3
-      fan_edit_items(3);
+      FAN_EDIT_ITEMS(3);
     #elif SNFAN(3)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN4
-      fan_edit_items(4);
+      FAN_EDIT_ITEMS(4);
     #elif SNFAN(4)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN5
-      fan_edit_items(5);
+      FAN_EDIT_ITEMS(5);
     #elif SNFAN(5)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN6
-      fan_edit_items(6);
+      FAN_EDIT_ITEMS(6);
     #elif SNFAN(6)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN7
-      fan_edit_items(7);
+      FAN_EDIT_ITEMS(7);
     #elif SNFAN(7)
       singlenozzle_item(1);
     #endif
