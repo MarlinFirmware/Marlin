@@ -23,9 +23,15 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define IFSD(A,B) TERN(SDSUPPORT,A,B)
+
 #if ENABLED(SDSUPPORT)
 
-#define SD_RESORT BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
+#if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
+  #define SD_RESORT 1
+#endif
+
+#define SD_ORDER(N,C) (TERN(SDCARD_RATHERRECENTFIRST, C - 1 - (N), N))
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
@@ -55,7 +61,7 @@ public:
 
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static int8_t transfer_port_index;
     #else
       static constexpr int8_t transfer_port_index = 0;
@@ -72,6 +78,9 @@ public:
   static void release();
   static inline bool isMounted() { return flag.mounted; }
   static void ls();
+
+  // Handle media insert/remove
+  static void manage_media();
 
   // SD Card Logging
   static void openLogFile(char * const path);
@@ -110,11 +119,7 @@ public:
   static void getAbsFilename(char *dst);
   static void printFilename();
   static void startFileprint();
-  static void endFilePrint(
-    #if SD_RESORT
-      const bool re_sort=false
-    #endif
-  );
+  static void endFilePrint(TERN_(SD_RESORT, const bool re_sort=false));
   static void report_status();
   static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
@@ -147,6 +152,7 @@ public:
 
   static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
   static inline uint32_t getIndex() { return sdpos; }
+  static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
   static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
@@ -159,9 +165,7 @@ public:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static void auto_report_sd_status();
     static inline void set_auto_report_interval(uint8_t v) {
-      #if NUM_SERIAL > 1
-        auto_report_port = serial_port_index;
-      #endif
+      TERN_(HAS_MULTI_SERIAL, auto_report_port = serial_port_index);
       NOMORE(v, 60);
       auto_report_sd_interval = v;
       next_sd_report_ms = millis() + 1000UL * v;
@@ -253,7 +257,7 @@ private:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static uint8_t auto_report_sd_interval;
     static millis_t next_sd_report_ms;
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static int8_t auto_report_port;
     #endif
   #endif

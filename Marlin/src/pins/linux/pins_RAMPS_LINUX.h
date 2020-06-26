@@ -49,7 +49,9 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
-#define E2END 0xFFF                               // 4KB
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+#endif
 
 #define IS_RAMPS_EFB
 
@@ -142,7 +144,7 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else

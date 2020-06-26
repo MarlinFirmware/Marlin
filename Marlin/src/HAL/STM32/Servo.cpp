@@ -29,34 +29,62 @@
 #include "Servo.h"
 
 static uint_fast8_t servoCount = 0;
+static libServo *servos[NUM_SERVOS] = {0};
 constexpr millis_t servoDelay[] = SERVO_DELAY;
 static_assert(COUNT(servoDelay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
 
 libServo::libServo()
-: delay(servoDelay[servoCount++])
-{}
+: delay(servoDelay[servoCount]),
+  was_attached_before_pause(false),
+  value_before_pause(0)
+{
+  servos[servoCount++] = this;
+}
 
 int8_t libServo::attach(const int pin) {
   if (servoCount >= MAX_SERVOS) return -1;
   if (pin > 0) servo_pin = pin;
-  return super::attach(servo_pin);
+  return stm32_servo.attach(servo_pin);
 }
 
 int8_t libServo::attach(const int pin, const int min, const int max) {
   if (servoCount >= MAX_SERVOS) return -1;
   if (pin > 0) servo_pin = pin;
-  return super::attach(servo_pin, min, max);
+  return stm32_servo.attach(servo_pin, min, max);
 }
 
 void libServo::move(const int value) {
   if (attach(0) >= 0) {
-    write(value);
+    stm32_servo.write(value);
     safe_delay(delay);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
-#endif // HAS_SERVOS
 
+void libServo::pause() {
+  was_attached_before_pause = stm32_servo.attached();
+  if (was_attached_before_pause) {
+    value_before_pause = stm32_servo.read();
+    stm32_servo.detach();
+  }
+}
+
+void libServo::resume() {
+  if (was_attached_before_pause) {
+    attach();
+    move(value_before_pause);
+  }
+}
+
+void libServo::pause_all_servos() {
+  for (auto& servo : servos)
+    if (servo) servo->pause();
+}
+
+void libServo::resume_all_servos() {
+  for (auto& servo : servos)
+    if (servo) servo->resume();
+}
+
+#endif // HAS_SERVOS
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

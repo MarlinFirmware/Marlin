@@ -46,16 +46,14 @@ void GcodeSuite::G30() {
   if (!probe.can_reach(pos)) return;
 
   // Disable leveling so the planner won't mess with us
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(false);
-  #endif
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
   remember_feedrate_scaling_off();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
   const float measured_z = probe.probe_at_point(pos, raise_after, 1);
   if (!isnan(measured_z))
-    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(pos.x), " Y: ", FIXFLOAT(pos.y), " Z: ", FIXFLOAT(measured_z));
+    SERIAL_ECHOLNPAIR("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
 
   restore_feedrate_and_scaling();
 

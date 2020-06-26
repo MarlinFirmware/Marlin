@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfigPre.h"

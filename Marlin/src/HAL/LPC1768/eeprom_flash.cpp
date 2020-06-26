@@ -40,23 +40,28 @@
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "eeprom_api.h"
+#include "../shared/eeprom_api.h"
 
 extern "C" {
   #include <lpc17xx_iap.h>
 }
 
-#define SECTOR_START(sector)  ((sector < 16) ? (sector * 0x1000) : ((sector - 14) * 0x8000))
-#define EEPROM_SECTOR 29
-#define EEPROM_SIZE (4096)
-#define SECTOR_SIZE (32768)
-#define EEPROM_SLOTS (SECTOR_SIZE/EEPROM_SIZE)
-#define EEPROM_ERASE (0xFF)
-#define SLOT_ADDRESS(sector, slot) (((uint8_t *)SECTOR_START(sector)) + slot * EEPROM_SIZE)
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
+#endif
 
-static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
+#define SECTOR_START(sector)  ((sector < 16) ? (sector << 12) : ((sector - 14) << 15))
+#define EEPROM_SECTOR 29
+#define SECTOR_SIZE 32768
+#define EEPROM_SLOTS ((SECTOR_SIZE)/(MARLIN_EEPROM_SIZE))
+#define EEPROM_ERASE 0xFF
+#define SLOT_ADDRESS(sector, slot) (((uint8_t *)SECTOR_START(sector)) + slot * (MARLIN_EEPROM_SIZE))
+
+static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 static int current_slot = 0;
+
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
   uint32_t first_nblank_loc, first_nblank_val;
@@ -69,15 +74,15 @@ bool PersistentStore::access_start() {
 
   if (status == CMD_SUCCESS) {
     // sector is blank so nothing stored yet
-    for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
+    for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
   }
   else {
     // current slot is the first non blank one
-    current_slot = first_nblank_loc / EEPROM_SIZE;
+    current_slot = first_nblank_loc / (MARLIN_EEPROM_SIZE);
     uint8_t *eeprom_data = SLOT_ADDRESS(EEPROM_SECTOR, current_slot);
     // load current settings
-    for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
+    for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
   }
   eeprom_dirty = false;
 
@@ -121,8 +126,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   pos += size;
   return false;  // return true for any error
 }
-
-size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // FLASH_EEPROM_EMULATION
 #endif // TARGET_LPC1768

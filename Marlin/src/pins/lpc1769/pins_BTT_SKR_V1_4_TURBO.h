@@ -21,14 +21,8 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.4 TURBO"
+#define BOARD_INFO_NAME "BTT SKR V1.4 TURBO"
 #define SKR_HAS_LPC1769
-
-//
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
 
 //
 // Include SKR 1.4 pins

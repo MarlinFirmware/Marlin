@@ -144,7 +144,10 @@
 #define SDSS                                  53
 #define LED_PIN                               13
 #define PS_ON_PIN                              4
-#define CASE_LIGHT_PIN                        46
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      46
+#endif
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                         3  // Analog Input

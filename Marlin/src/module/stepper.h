@@ -240,7 +240,7 @@ class Stepper {
 
   public:
 
-    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
     #endif
 
@@ -334,28 +334,44 @@ class Stepper {
       static uint32_t nextBabystepISR;
     #endif
 
+    #if ENABLED(DIRECT_STEPPING)
+      static page_step_state_t page_step_state;
+    #endif
+
     static int32_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
-    //
     // Exact steps at which an endstop was triggered
-    //
     static xyz_long_t endstops_trigsteps;
 
-    //
     // Positions of stepper motors, in step units
-    //
     static xyze_long_t count_position;
 
-    //
-    // Current direction of stepper motors (+1 or -1)
-    //
+    // Current stepper motor directions (+1 or -1)
     static xyze_int8_t count_direction;
 
-  public:
+    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
 
+      typedef struct {
+        bool enabled;       // Trapezoid needed flag (i.e., laser on, planner in control)
+        uint8_t cur_power;  // Current laser power
+        bool cruise_set;    // Power set up for cruising?
+
+        #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+          uint32_t last_step_count, // Step count from the last update
+                   acc_step_count;  // Bresenham counter for laser accel/decel
+        #else
+          uint16_t till_update;     // Countdown to the next update
+        #endif
+      } stepper_laser_t;
+
+      static stepper_laser_t laser_trap;
+
+    #endif
+
+  public:
     // Initialize stepper hardware
     static void init();
 
@@ -414,6 +430,17 @@ class Stepper {
     static void report_a_position(const xyz_long_t &pos);
     static void report_positions();
 
+    // Discard current block and free any resources
+    FORCE_INLINE static void discard_current_block() {
+      #if ENABLED(DIRECT_STEPPING)
+        if (IS_PAGE(current_block))
+          page_manager.free_page(current_block->page_idx);
+      #endif
+      current_block = nullptr;
+      axis_did_move = 0;
+      planner.release_current_block();
+    }
+
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
@@ -425,11 +452,7 @@ class Stepper {
 
     // The extruder associated to the last movement
     FORCE_INLINE static uint8_t movement_extruder() {
-      return (0
-        #if EXTRUDERS > 1 && DISABLED(MIXING_EXTRUDER)
-          + last_moved_extruder
-        #endif
-      );
+      return (EXTRUDERS > 1 && DISABLED(MIXING_EXTRUDER)) ? last_moved_extruder : 0;
     }
 
     // Handle a triggered endstop
@@ -449,7 +472,7 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if HAS_EXTRA_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -461,7 +484,7 @@ class Stepper {
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
     #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
-      FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
+      FORCE_INLINE static void set_z1_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
       #if NUM_Z_STEPPER_DRIVERS >= 3
         FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
@@ -469,6 +492,16 @@ class Stepper {
           FORCE_INLINE static void set_z4_lock(const bool state) { locked_Z4_motor = state; }
         #endif
       #endif
+      static inline void set_all_z_lock(const bool lock, const int8_t except=-1) {
+        set_z1_lock(lock ^ (except == 0));
+        set_z2_lock(lock ^ (except == 1));
+        #if NUM_Z_STEPPER_DRIVERS >= 3
+          set_z3_lock(lock ^ (except == 2));
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            set_z4_lock(lock ^ (except == 3));
+          #endif
+        #endif
+      }
     #endif
 
     #if ENABLED(BABYSTEPPING)

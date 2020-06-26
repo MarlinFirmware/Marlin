@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_TRINAMIC_CONFIG
+#if BOTH(TOUCH_UI_FTDI_EVE, HAS_TRINAMIC_CONFIG)
 
 #include "screens.h"
 
@@ -34,39 +34,21 @@ void StepperBumpSensitivityScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(0, BaseNumericAdjustmentScreen::DEFAULT_LOWEST);
   w.heading(                     GET_TEXT_F(MSG_TMC_HOMING_THRS));
-  w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getTMCBumpSensitivity(X),
-  #if X_SENSORLESS
-    true
-  #else
-    false
-  #endif
-  );
-  w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AXIS_Y),  getTMCBumpSensitivity(Y),
-   #if Y_SENSORLESS
-     true
-   #else
-     false
-   #endif
-  );
-  w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getTMCBumpSensitivity(Z),
-   #if Z_SENSORLESS
-     true
-   #else
-     false
-   #endif
-  );
+  w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getTMCBumpSensitivity(X), ENABLED(X_SENSORLESS));
+  w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AXIS_Y),  getTMCBumpSensitivity(Y), ENABLED(Y_SENSORLESS));
+  w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getTMCBumpSensitivity(Z), ENABLED(Z_SENSORLESS));
   w.increments();
 }
 
 bool StepperBumpSensitivityScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
   switch (tag) {
-    case  2: UI_DECREMENT(TMCBumpSensitivity, X ); break;
-    case  3: UI_INCREMENT(TMCBumpSensitivity, X ); break;
-    case  4: UI_DECREMENT(TMCBumpSensitivity, Y ); break;
-    case  5: UI_INCREMENT(TMCBumpSensitivity, Y ); break;
-    case  6: UI_DECREMENT(TMCBumpSensitivity, Z ); break;
-    case  7: UI_INCREMENT(TMCBumpSensitivity, Z ); break;
+    case  2: UI_DECREMENT(TMCBumpSensitivity, X  ); break;
+    case  3: UI_INCREMENT(TMCBumpSensitivity, X2 ); break;
+    case  4: UI_DECREMENT(TMCBumpSensitivity, Y  ); break;
+    case  5: UI_INCREMENT(TMCBumpSensitivity, Y2 ); break;
+    case  6: UI_DECREMENT(TMCBumpSensitivity, Z  ); break;
+    case  7: UI_INCREMENT(TMCBumpSensitivity, Z2 ); break;
     default:
       return false;
   }

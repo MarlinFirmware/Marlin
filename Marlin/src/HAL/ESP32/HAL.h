@@ -34,8 +34,6 @@
 #include "watchdog.h"
 #include "i2s.h"
 
-#include "timers.h"
-
 #if ENABLED(WIFISUPPORT)
   #include "WebSocketSerial.h"
 #endif
@@ -109,19 +107,14 @@ int freeMemory();
 
 void analogWrite(pin_t pin, int value);
 
-// EEPROM
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
-
 // ADC
 #define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_init();
 
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 

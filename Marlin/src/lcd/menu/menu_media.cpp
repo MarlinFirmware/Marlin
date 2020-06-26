@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(SDSUPPORT)
+#if BOTH(HAS_LCD_MENU, SDSUPPORT)
 
 #include "menu.h"
 #include "../../sd/cardreader.h"
@@ -45,25 +45,11 @@ void lcd_sd_updir() {
 
   void MarlinUI::reselect_last_file() {
     if (sd_encoder_position == 0xFFFF) return;
-    //#if HAS_GRAPHICAL_LCD
-    //  // This is a hack to force a screen update.
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.synchronize();
-    //  safe_delay(50);
-    //  ui.synchronize();
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.drawing_screen = ui.screen_changed = true;
-    //#endif
-
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
-
     defer_status_screen();
-
-    //#if HAS_GRAPHICAL_LCD
-    //  update();
-    //#endif
   }
+
 #endif
 
 inline void sdcard_start_selected_file() {
@@ -113,9 +99,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       ui.screen_changed = true;
-      #if HAS_GRAPHICAL_LCD
-        ui.drawing_screen = false;
-      #endif
+      TERN_(HAS_GRAPHICAL_LCD, ui.drawing_screen = false);
       ui.refresh();
     }
 };
@@ -142,22 +126,14 @@ void menu_media() {
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
-      const uint16_t nr =
-        #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-          fileCnt - 1 -
-        #endif
-      i;
-
-      card.getfilename_sorted(nr);
-
+      card.getfilename_sorted(i);
       if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else
         MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
     }
-    else {
+    else
       SKIP_ITEM();
-    }
   }
   END_MENU();
 }

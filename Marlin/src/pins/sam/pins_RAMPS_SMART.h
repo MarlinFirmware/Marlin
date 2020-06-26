@@ -65,13 +65,12 @@
 #endif
 
 #define BOARD_INFO_NAME "RAMPS-SMART"
-
 #define IS_RAMPS_SMART
 #include "../ramps/pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM
-#define E2END 0xFFF
+#define MARLIN_EEPROM_SIZE 0x1000
 
 #define RESET_PIN                             42  // Resets the board if the jumper is attached
 

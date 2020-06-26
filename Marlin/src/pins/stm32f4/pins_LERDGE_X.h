@@ -107,12 +107,14 @@
 #define HEATER_BED_PIN                      PA2
 
 #ifndef FAN_PIN
-//  #define FAN_PIN        PC15
+  //#define FAN_PIN                         PC15
 #endif
 #define FAN1_PIN                            PC15
 #define FAN2_PIN                            PA0
 
-#define ORIG_E0_AUTO_FAN_PIN                PC15  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PC15  // FAN1_PIN
+#endif
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
@@ -168,7 +170,13 @@
 // ST7920 Delays
 //
 #if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
+  #endif
 #endif

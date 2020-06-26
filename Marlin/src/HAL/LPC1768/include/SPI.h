@@ -31,7 +31,7 @@
 class SPISettings {
   public:
     SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
-    uint32_t spiRate() { return spi_speed; }
+    uint32_t spiRate() const { return spi_speed; }
   private:
     uint32_t spi_speed;
 };
@@ -39,7 +39,7 @@ class SPISettings {
 class SPIClass {
   public:
     void begin();
-    void beginTransaction(SPISettings);
+    void beginTransaction(const SPISettings&);
     void endTransaction() {};
     uint8_t transfer(uint8_t data);
     uint16_t transfer16(uint16_t data);

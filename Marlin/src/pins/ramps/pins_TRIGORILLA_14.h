@@ -59,7 +59,7 @@
 
 #define RAMPS_D10_PIN            TG_HEATER_0_PIN  // HEATER_0_PIN is always RAMPS_D10_PIN in pins_RAMPS.h
 
-#if HOTENDS > 1                                   // EEF and EEB
+#if HAS_MULTI_HOTEND                              // EEF and EEB
   #define RAMPS_D9_PIN           TG_HEATER_1_PIN
   #if !TEMP_SENSOR_BED
     // EEF
@@ -79,11 +79,14 @@
   #define RAMPS_D8_PIN               TG_FAN0_PIN
 #endif
 
-#if HOTENDS > 1 || TEMP_SENSOR_BED                // EEF, EEB, EFB
+#if HAS_MULTI_HOTEND || TEMP_SENSOR_BED           // EEF, EEB, EFB
   #define FAN1_PIN                   TG_FAN1_PIN
 #endif
 #define FAN2_PIN                     TG_FAN2_PIN
-#define ORIG_E0_AUTO_FAN_PIN         TG_FAN2_PIN  // Used in Anycubic Kossel example config
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN            TG_FAN2_PIN  // Used in Anycubic Kossel example config
+#endif
 
 #include "pins_RAMPS.h"
 

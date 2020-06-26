@@ -129,7 +129,7 @@ namespace Theme {
   #if ENABLED(TOUCH_UI_ROYAL_THEME)
     constexpr uint32_t x_axis               = hsl_to_rgb(0,   1.00, 0.26);
     constexpr uint32_t y_axis               = hsl_to_rgb(120, 1.00, 0.13);
-    constexpr uint32_t z_axis               = hsl_to_rgb(240, 1.00, 0.10); 
+    constexpr uint32_t z_axis               = hsl_to_rgb(240, 1.00, 0.10);
   #else
     constexpr uint32_t x_axis               = hsl_to_rgb(0,   1.00, 0.5);
     constexpr uint32_t y_axis               = hsl_to_rgb(120, 1.00, 0.37);

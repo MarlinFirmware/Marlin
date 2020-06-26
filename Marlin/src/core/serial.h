@@ -47,14 +47,20 @@ extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
 #define SERIAL_BOTH 0x7F
-#if NUM_SERIAL > 1
+#if HAS_MULTI_SERIAL
   extern int8_t serial_port_index;
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
-  #define SERIAL_OUT(WHAT, V...) do{ \
-    if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
-    if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
-  }while(0)
+
+  #ifdef SERIAL_CATCHALL
+    #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
+  #else
+    #define SERIAL_OUT(WHAT, V...) do{ \
+      if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
+      if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
+    }while(0)
+  #endif
+
   #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
@@ -184,7 +190,13 @@ extern uint8_t marlin_debug_flags;
 #define _SELP_21(a,b,V...) do{ _SEP_2(a,b); _SELP_19(V); }while(0)
 #define _SELP_22(a,b,V...) do{ _SEP_2(a,b); _SELP_20(V); }while(0)
 #define _SELP_23(a,b,V...) do{ _SEP_2(a,b); _SELP_21(V); }while(0)
-#define _SELP_24(a,b,V...) do{ _SEP_2(a,b); _SELP_22(V); }while(0) // Eat two args, pass the rest up
+#define _SELP_24(a,b,V...) do{ _SEP_2(a,b); _SELP_22(V); }while(0)
+#define _SELP_25(a,b,V...) do{ _SEP_2(a,b); _SELP_23(V); }while(0)
+#define _SELP_26(a,b,V...) do{ _SEP_2(a,b); _SELP_24(V); }while(0)
+#define _SELP_27(a,b,V...) do{ _SEP_2(a,b); _SELP_25(V); }while(0)
+#define _SELP_28(a,b,V...) do{ _SEP_2(a,b); _SELP_26(V); }while(0)
+#define _SELP_29(a,b,V...) do{ _SEP_2(a,b); _SELP_27(V); }while(0)
+#define _SELP_30(a,b,V...) do{ _SEP_2(a,b); _SELP_28(V); }while(0) // Eat two args, pass the rest up
 
 #define SERIAL_ECHOLNPAIR(V...) _SELP_N(NUM_ARGS(V),V)
 
@@ -214,7 +226,13 @@ extern uint8_t marlin_debug_flags;
 #define _SELP_21_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_19_P(V); }while(0)
 #define _SELP_22_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_20_P(V); }while(0)
 #define _SELP_23_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_21_P(V); }while(0)
-#define _SELP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_22_P(V); }while(0) // Eat two args, pass the rest up
+#define _SELP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_22_P(V); }while(0)
+#define _SELP_25_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_23_P(V); }while(0)
+#define _SELP_26_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_24_P(V); }while(0)
+#define _SELP_27_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_25_P(V); }while(0)
+#define _SELP_28_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_26_P(V); }while(0)
+#define _SELP_29_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_27_P(V); }while(0)
+#define _SELP_30_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_28_P(V); }while(0) // Eat two args, pass the rest up
 
 #define SERIAL_ECHOLNPAIR_P(V...) _SELP_N_P(NUM_ARGS(V),V)
 
@@ -245,10 +263,11 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHOLIST(pre,V...)   do{ SERIAL_ECHOPGM(pre); _SLST_N(NUM_ARGS(V),V); }while(0)
 #define SERIAL_ECHOLIST_N(N,V...)   _SLST_N(N,LIST_N(N,V))
 
-#define SERIAL_ECHO_P(P)            (serialprintPGM(P))
+#define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
+#define SERIAL_ECHOLNPGM_P(P)       (serialprintPGM(P "\n"))
 
-#define SERIAL_ECHOPGM(S)           (SERIAL_ECHO_P(PSTR(S)))
-#define SERIAL_ECHOLNPGM(S)         (SERIAL_ECHO_P(PSTR(S "\n")))
+#define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
+#define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
 
 #define SERIAL_ECHOPAIR_F_P(P,V...) do{ serialprintPGM(P); SERIAL_ECHO_F(V); }while(0)
 #define SERIAL_ECHOLNPAIR_F_P(V...) do{ SERIAL_ECHOPAIR_F_P(V); SERIAL_EOL(); }while(0)
@@ -266,6 +285,12 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHO_SP(C)           serial_spaces(C)
 
 #define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(TF, PSTR(PRE), PSTR(ON), PSTR(OFF), PSTR(POST))
+
+#if SERIAL_FLOAT_PRECISION
+  #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
+#else
+  #define SERIAL_DECIMAL(V) SERIAL_ECHO(V)
+#endif
 
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)

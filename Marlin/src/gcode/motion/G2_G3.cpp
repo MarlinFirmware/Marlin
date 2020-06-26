@@ -70,14 +70,12 @@ void plan_arc(
   ab_float_t rvec = -offset;
 
   const float radius = HYPOT(rvec.a, rvec.b),
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
-                start_L  = current_position[l_axis],
-              #endif
               center_P = current_position[p_axis] - rvec.a,
               center_Q = current_position[q_axis] - rvec.b,
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
-              linear_travel = cart[l_axis] - current_position[l_axis],
+              start_L = current_position[l_axis],
+              linear_travel = cart[l_axis] - start_L,
               extruder_travel = cart.e - current_position.e;
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
@@ -105,17 +103,22 @@ void plan_arc(
 
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
-  #ifdef ARC_SEGMENTS_PER_R
-    float seg_length = MM_PER_ARC_SEGMENT * radius;
-    LIMIT(seg_length, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R);
-  #elif ARC_SEGMENTS_PER_SEC
-    float seg_length = scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC);
-    NOLESS(seg_length, MM_PER_ARC_SEGMENT);
-  #else
-    constexpr float seg_length = MM_PER_ARC_SEGMENT;
-  #endif
+  // Start with a nominal segment length
+  float seg_length = (
+    #ifdef ARC_SEGMENTS_PER_R
+      constrain(MM_PER_ARC_SEGMENT * radius, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R)
+    #elif ARC_SEGMENTS_PER_SEC
+      _MAX(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MM_PER_ARC_SEGMENT)
+    #else
+      MM_PER_ARC_SEGMENT
+    #endif
+  );
+  // Divide total travel by nominal segment length
   uint16_t segments = FLOOR(mm_of_travel / seg_length);
-  NOLESS(segments, min_segments);
+  if (segments < min_segments) {            // Too few segments?
+    segments = min_segments;                // More segments
+  }
+  seg_length = mm_of_travel / segments;
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
@@ -148,15 +151,15 @@ void plan_arc(
   const float theta_per_segment = angular_travel / segments,
               linear_per_segment = linear_travel / segments,
               extruder_per_segment = extruder_travel / segments,
-              sin_T = theta_per_segment,
-              cos_T = 1 - 0.5f * sq(theta_per_segment); // Small angle approximation
+              sq_theta_per_segment = sq(theta_per_segment),
+              sin_T = theta_per_segment - sq_theta_per_segment*theta_per_segment/6,
+              cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
   // Initialize the linear axis
   raw[l_axis] = current_position[l_axis];
 
   // Initialize the extruder axis
   raw.e = current_position.e;
-
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     const float inv_duration = scaled_fr_mm_s / seg_length;
@@ -216,19 +219,16 @@ void plan_arc(
       planner.apply_leveling(raw);
     #endif
 
-    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, seg_length
+    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
-    ))
-      break;
+    )) break;
   }
 
   // Ensure last segment arrives at target location.
   raw = cart;
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    raw[l_axis] = start_L;
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
 
   apply_motion_limits(raw);
 
@@ -242,10 +242,9 @@ void plan_arc(
     #endif
   );
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    raw[l_axis] = start_L;
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
   current_position = raw;
+
 } // plan_arc
 
 /**
@@ -283,11 +282,9 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = true;
     #endif
 
-    get_destination_from_command();
+    get_destination_from_command();   // Get X Y Z E F (and set cutter power)
 
-    #if ENABLED(SF_ARC_FIX)
-      relative_mode = relative_mode_backup;
-    #endif
+    TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
 
     ab_float_t arc_offset = { 0, 0 };
     if (parser.seenval('R')) {

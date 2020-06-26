@@ -27,7 +27,11 @@
   #include "../libs/buzzer.h"
 #endif
 
-#if HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY)
+#if ENABLED(SDSUPPORT)
+  #include "../sd/cardreader.h"
+#endif
+
+#if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
 #if (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2)
@@ -41,7 +45,13 @@
 #endif
 
 // I2C buttons must be read in the main thread
-#define HAS_SLOW_BUTTONS EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+#if EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+  #define HAS_SLOW_BUTTONS 1
+#endif
+
+#if E_MANUAL > 1
+  #define MULTI_MANUAL 1
+#endif
 
 #if HAS_SPI_LCD
 
@@ -64,11 +74,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(TOUCH_BUTTONS)
-    #define LCD_UPDATE_INTERVAL 50
-  #else
-    #define LCD_UPDATE_INTERVAL 100
-  #endif
+  #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
 
@@ -109,7 +115,7 @@
 
   #endif // HAS_LCD_MENU
 
-#endif
+#endif // HAS_SPI_LCD
 
 // REPRAPWORLD_KEYPAD (and ADC_KEYPAD)
 #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -207,12 +213,12 @@
   #define BL_DW 4   // Down
   #define BL_RI 3   // Right
   #define BL_ST 2   // Red Button
-  #define B_LE (_BV(BL_LE))
-  #define B_UP (_BV(BL_UP))
-  #define B_MI (_BV(BL_MI))
-  #define B_DW (_BV(BL_DW))
-  #define B_RI (_BV(BL_RI))
-  #define B_ST (_BV(BL_ST))
+  #define B_LE _BV(BL_LE)
+  #define B_UP _BV(BL_UP)
+  #define B_MI _BV(BL_MI)
+  #define B_DW _BV(BL_DW)
+  #define B_RI _BV(BL_RI)
+  #define B_ST _BV(BL_ST)
 
   #ifndef BUTTON_CLICK
     #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
@@ -250,6 +256,14 @@
   };
 #endif
 
+#if PREHEAT_COUNT
+  typedef struct {
+    TERN_(HAS_HOTEND,     uint16_t hotend_temp);
+    TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
+    TERN_(HAS_FAN,        uint16_t fan_speed  );
+  } preheat_t;
+#endif
+
 ////////////////////////////////////////////
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
@@ -258,14 +272,16 @@ class MarlinUI {
 public:
 
   MarlinUI() {
-    #if HAS_LCD_MENU
-      currentScreen = status_screen;
-    #endif
+    TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
   #if HAS_BUZZER
     static void buzz(const long duration, const uint16_t freq);
   #endif
+
+  FORCE_INLINE static void chirp() {
+    TERN_(HAS_CHIRP, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+  }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     static void update_indicators();
@@ -273,7 +289,24 @@ public:
 
   // LCD implementations
   static void clear_lcd();
-  static void init_lcd();
+
+  #if ENABLED(SDSUPPORT)
+    static void media_changed(const uint8_t old_stat, const uint8_t stat);
+  #endif
+
+  #if HAS_SPI_LCD
+    static bool detected();
+    static void init_lcd();
+    FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
+  #else
+    #if ENABLED(DWIN_CREALITY_LCD)
+      static void refresh();
+    #else
+      static inline void refresh()  {}
+    #endif
+    static inline bool detected() { return true; }
+    static inline void init_lcd() {}
+  #endif
 
   #if HAS_DISPLAY
 
@@ -332,12 +365,9 @@ public:
 
       static millis_t next_button_update_ms;
 
-      static bool detected();
-
       static LCDViewAction lcdDrawUpdate;
       FORCE_INLINE static bool should_draw() { return bool(lcdDrawUpdate); }
       FORCE_INLINE static void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
-      FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
 
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         static void draw_custom_bootscreen(const uint8_t frame=0);
@@ -391,6 +421,8 @@ public:
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
+      #else
+        static inline void completion_feedback(const bool=true) {}
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
@@ -401,10 +433,13 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
+      #if ENABLED(TOUCH_BUTTONS)
+        static bool on_edit_screen;
+        static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
+      #endif
+
       static void status_screen();
 
-    #else
-      static void refresh() {}
     #endif
 
     static bool get_blink();
@@ -418,19 +453,32 @@ public:
   #else // No LCD
 
     // Send status to host as a notification
-    void set_status(const char* message, const bool=false);
-    void set_status_P(PGM_P message, const int8_t=0);
-    void status_printf_P(const uint8_t, PGM_P message, ...);
+    static void set_status(const char* message, const bool=false);
+    static void set_status_P(PGM_P message, const int8_t=0);
+    static void status_printf_P(const uint8_t, PGM_P message, ...);
 
     static inline void init() {}
     static inline void update() {}
-    static inline void refresh() {}
     static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P const) {}
     static inline void reset_status(const bool=false) {}
     static inline void reset_alert_level() {}
     static constexpr bool has_status() { return false; }
 
+  #endif
+
+  #if ENABLED(SDSUPPORT)
+    #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
+      #define MARLINUI_SCROLL_NAME 1
+    #endif
+    #if MARLINUI_SCROLL_NAME
+      static uint8_t filename_scroll_pos, filename_scroll_max;
+    #endif
+    static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
+  #endif
+
+  #if PREHEAT_COUNT
+    static preheat_t material_preset[PREHEAT_COUNT];
   #endif
 
   #if HAS_LCD_MENU
@@ -446,14 +494,11 @@ public:
       static void enable_encoder_multiplier(const bool onoff);
     #endif
 
-    #if ENABLED(SDSUPPORT)
-      #if ENABLED(SCROLL_LONG_FILENAMES)
-        static uint8_t filename_scroll_pos, filename_scroll_max;
-      #endif
-      static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
-    #endif
+    static int8_t manual_move_axis;
+    static millis_t manual_move_start_time;
 
     #if IS_KINEMATIC
+      static float manual_move_offset;
       static bool processing_manual_move;
     #else
       static constexpr bool processing_manual_move = false;
@@ -464,9 +509,6 @@ public:
     #else
       static constexpr int8_t manual_move_e_index = 0;
     #endif
-
-    static int16_t preheat_hotend_temp[2], preheat_bed_temp[2];
-    static uint8_t preheat_fan_speed[2];
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
@@ -486,15 +528,9 @@ public:
     static void save_previous_screen();
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
-    #if ENABLED(TURBO_BACK_MENU_ITEM)
-      static void _goto_previous_screen(const bool is_back);
-      static inline void goto_previous_screen() { _goto_previous_screen(false); }
-      static inline void go_back()              { _goto_previous_screen(true); }
-    #else
-      static void _goto_previous_screen();
-      FORCE_INLINE static void goto_previous_screen() { _goto_previous_screen(); }
-      FORCE_INLINE static void go_back()              { _goto_previous_screen(); }
-    #endif
+    static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
+    static inline void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
+    static inline void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
 
     static void return_to_status();
     static inline bool on_status_screen() { return currentScreen == status_screen; }
@@ -505,7 +541,7 @@ public:
     #endif
 
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      #if LCD_TIMEOUT_TO_STATUS
+      #if LCD_TIMEOUT_TO_STATUS > 0
         defer_return_to_status = defer;
       #else
         UNUSED(defer);
@@ -519,14 +555,6 @@ public:
 
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       static void reselect_last_file();
-    #endif
-
-    #if ENABLED(G26_MESH_VALIDATION)
-      FORCE_INLINE static void chirp() {
-        #if HAS_BUZZER
-          buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-        #endif
-      }
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -543,14 +571,40 @@ public:
 
   #endif
 
-  #define LCD_HAS_WAIT_FOR_MOVE EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+  //
+  // EEPROM: Reset / Init / Load / Store
+  //
+  #if HAS_LCD_MENU
+    static void reset_settings();
+  #endif
 
-  #if LCD_HAS_WAIT_FOR_MOVE
+  #if ENABLED(EEPROM_SETTINGS)
+    #if HAS_LCD_MENU
+      static void init_eeprom();
+      static void load_settings();
+      static void store_settings();
+    #endif
+    #if DISABLED(EEPROM_AUTO_INIT)
+      static void eeprom_alert(const uint8_t msgid);
+      static inline void eeprom_alert_crc()     { eeprom_alert(0); }
+      static inline void eeprom_alert_index()   { eeprom_alert(1); }
+      static inline void eeprom_alert_version() { eeprom_alert(2); }
+    #endif
+  #endif
+
+  //
+  // Special handling if a move is underway
+  //
+  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+    #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
     static constexpr bool wait_for_move = false;
   #endif
 
+  //
+  // Block interaction while under external control
+  //
   #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
@@ -579,11 +633,7 @@ public:
 
     static uint32_t encoderPosition;
 
-    #if ENABLED(REVERSE_ENCODER_DIRECTION)
-      #define ENCODERBASE -1
-    #else
-      #define ENCODERBASE +1
-    #endif
+    #define ENCODERBASE (TERN(REVERSE_ENCODER_DIRECTION, -1, +1))
 
     #if EITHER(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
       static int8_t encoderDirection;
@@ -598,15 +648,11 @@ public:
     }
 
     FORCE_INLINE static void encoder_direction_menus() {
-      #if ENABLED(REVERSE_MENU_DIRECTION)
-        encoderDirection = -(ENCODERBASE);
-      #endif
+      TERN_(REVERSE_MENU_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
     FORCE_INLINE static void encoder_direction_select() {
-      #if ENABLED(REVERSE_SELECT_DIRECTION)
-        encoderDirection = -(ENCODERBASE);
-      #endif
+      TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
   #else
@@ -617,19 +663,15 @@ public:
 
 private:
 
-  static void _synchronize();
-
   #if HAS_DISPLAY
     static void finish_status(const bool persist);
   #endif
 
   #if HAS_SPI_LCD
-    #if HAS_LCD_MENU
-      #if LCD_TIMEOUT_TO_STATUS
-        static bool defer_return_to_status;
-      #else
-        static constexpr bool defer_return_to_status = false;
-      #endif
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+      static bool defer_return_to_status;
+    #else
+      static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
   #endif

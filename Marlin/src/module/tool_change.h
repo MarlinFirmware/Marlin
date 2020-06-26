@@ -28,10 +28,11 @@
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      float swap_length, extra_prime;
-      int16_t prime_speed, retract_speed;
+      float swap_length, extra_prime, extra_resume;
+      int16_t prime_speed, retract_speed, unretract_speed, fan, fan_speed, fan_time;
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
+      bool enable_park;
       xy_pos_t change_point;
     #endif
     float z_raise;
@@ -39,6 +40,27 @@
 
   extern toolchange_settings_t toolchange_settings;
 
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    extern void tool_change_prime();
+  #endif
+
+  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+    extern bool enable_first_prime;
+  #endif
+
+  #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
+    extern bool toolchange_extruder_ready[EXTRUDERS];
+  #endif
+
+  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+    typedef struct {
+      uint8_t target, last;
+      bool automode, in_progress;
+    } migration_settings_t;
+    constexpr migration_settings_t migration_defaults = { 0, 0, false, false };
+    extern migration_settings_t migration;
+    void extruder_migration();
+  #endif
 #endif
 
 #if DO_SWITCH_EXTRUDER
@@ -86,20 +108,17 @@
 
 #endif
 
-#if ENABLED(SINGLENOZZLE)
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   extern uint16_t singlenozzle_temp[EXTRUDERS];
-  #if FAN_COUNT > 0
-    extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
-  #endif
 #endif
 
-#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  void est_init();
+#if BOTH(HAS_FAN, SINGLENOZZLE_STANDBY_FAN)
+  extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
 #endif
 
-#if ENABLED(SWITCHING_TOOLHEAD)
-  void swt_init();
-#endif
+TERN_(ELECTROMAGNETIC_SWITCHING_TOOLHEAD, void est_init());
+
+TERN_(SWITCHING_TOOLHEAD, void swt_init());
 
 /**
  * Perform a tool-change, which may result in moving the

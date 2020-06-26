@@ -41,7 +41,7 @@ inline void plr_error(PGM_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
     serialprintPGM(prefix);
-    DEBUG_ECHOLNPGM(" Power-Loss Recovery Data");
+    DEBUG_ECHOLNPGM(" Job Recovery Data");
   #else
     UNUSED(prefix);
   #endif
@@ -74,9 +74,7 @@ void GcodeSuite::M1000() {
       #else
         recovery.cancel();
       #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onPrintTimerStopped();
-      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     }
     else
       recovery.resume();

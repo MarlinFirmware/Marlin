@@ -25,6 +25,7 @@
 #if HAS_PID_HEATING
 
 #include "../gcode.h"
+#include "../../lcd/ultralcd.h"
 #include "../../module/temperature.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -72,9 +73,7 @@ void GcodeSuite::M303() {
   const heater_ind_t e = (heater_ind_t)parser.intval('E');
   if (!WITHIN(e, SI, EI)) {
     SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
     return;
   }
 
@@ -86,7 +85,9 @@ void GcodeSuite::M303() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
+  ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));
   thermalManager.PID_autotune(temp, e, c, u);
+  ui.reset_status();
 }
 
 #endif // HAS_PID_HEATING

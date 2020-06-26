@@ -29,10 +29,6 @@
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
-#if HOTENDS
-  constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
-#endif
-
 void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();
 
@@ -69,10 +65,10 @@ class MenuItemBase {
   public:
     // An index to interject in the item label and for
     // use by the action
-    static uint8_t itemIndex;
+    static int8_t itemIndex;
 
     // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const uint8_t ind) { itemIndex = ind; }
+    FORCE_INLINE static void init(const int8_t ind) { itemIndex = ind; }
 
     // Draw an item either selected (pre_char) or not (space) with post_char
     static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
@@ -323,7 +319,33 @@ class MenuItem_bool : public MenuEditItemBase {
 ////////////////////////////////////////////
 
 /**
- * SCREEN_OR_MENU_LOOP generates init code for a screen or menu
+ * Marlin's native menu screens work by running a loop from the top visible line index
+ * to the bottom visible line index (according to how much the screen has been scrolled).
+ * This complete loop is done on every menu screen call.
+ *
+ * The menu system is highly dynamic, so it doesn't know ahead of any menu loop which
+ * items will be visible or hidden, so menu items don't have a fixed index number.
+ *
+ * During the loop, each menu item checks to see if its line is the current one. If it is,
+ * then it checks to see if a click has arrived so it can run its action. If the action
+ * doesn't redirect to another screen then the menu item calls its draw method.
+ *
+ * Menu item add-ons can do whatever they like.
+ *
+ * This mixture of drawing and processing inside a loop has the advantage that a single
+ * line can be used to represent a menu item, and that is the rationale for this design.
+ *
+ * One of the pitfalls of this method is that DOGM displays call the screen handler 2x,
+ * 4x, or 8x per screen update to draw just one segment of the screen. As a result, any
+ * menu item that exists in two screen segments is drawn and processed twice per screen
+ * update. With each item processed 5, 10, 20, or 40 times the logic has to be simple.
+ *
+ * To avoid repetition and side-effects, function calls for testing menu item conditions
+ * should be done before the menu loop (START_MENU / START_SCREEN).
+ */
+
+/**
+ * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
  *
  *   encoderTopLine is the top menu line to display
  *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
@@ -526,7 +548,7 @@ void menu_move();
 #endif
 
 // First Fan Speed title in "Tune" and "Control>Temperature" menus
-#if FAN_COUNT > 0 && HAS_FAN0
+#if HAS_FAN && HAS_FAN0
   #if FAN_COUNT > 1
     #define FAN_SPEED_1_SUFFIX " 1"
   #else
@@ -547,11 +569,6 @@ void _lcd_draw_homing();
   void line_to_z(const float &z);
 #endif
 
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-  void lcd_enqueue_one_now(const char * const cmd);
-  void lcd_enqueue_one_now_P(PGM_P const cmd);
-#endif
-
 #if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
@@ -570,11 +587,6 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
-#endif
-
-#if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings();
-  void lcd_load_settings();
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
