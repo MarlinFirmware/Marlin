@@ -86,7 +86,7 @@ MarlinUI ui;
   }
 #endif
 
-#if EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
+#if PREHEAT_COUNT
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
 #endif
 

@@ -2383,8 +2383,6 @@ void HMI_AxisMove(void) {
   DWIN_UpdateLCD();
 }
 
-enum
-
 /* TemperatureID */
 void HMI_Temperature(void) {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
