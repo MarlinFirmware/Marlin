@@ -34,7 +34,7 @@
  * - Extra features
  *
  * Advanced settings can be found in Configuration_adv.h
- *
+ * test test test
  */
 #define CONFIGURATION_H_VERSION 020005
 
