@@ -92,7 +92,7 @@
 #define TEMP_BED_PIN                        PC3   //confirmed
 
 // Lergde-S can choose thermocouple/thermistor mode in software.
-// For use with thermistors, these pins must be OUT/LOW. 
+// For use with thermistors, these pins must be OUT/LOW.
 #define TEMP_0_TR_ENABLE_PIN                PF3
 #define TEMP_1_TR_ENABLE_PIN                PF4
 
