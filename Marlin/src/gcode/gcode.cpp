@@ -72,7 +72,7 @@ uint8_t GcodeSuite::axis_relative = (
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
   bool GcodeSuite::autoreport_paused;   // = false
-  bool GcodeSuite::autoreport_position; // = false /new/
+  bool GcodeSuite::autoreport_position; // = false
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
