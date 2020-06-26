@@ -209,7 +209,7 @@ void menu_temperature() {
 
     #if FAN_COUNT > 1
       #define FAN_EDIT_ITEMS(F) do{ \
-        editable.uint8 = thermalManager.fan_speed[f]; \
+        editable.uint8 = thermalManager.fan_speed[F]; \
         EDIT_ITEM_FAST_N(percent, F, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update); \
         EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[F], 3, 255); \
       }while(0)
