@@ -89,7 +89,7 @@
     Additional testing is required as there are clearly some 4bit initialization problems
 
     Add -DTRANSFER_CLOCK_DIV=8 to build parameters to improve SDIO stability
-*/
+  */
 
   #ifndef TRANSFER_CLOCK_DIV
     #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
@@ -177,14 +177,15 @@
     bool status;
     hsd.Instance = SDIO;
     hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
-/*
+
+    /*
     hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
     hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
     hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
     hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
     hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
     hsd.Init.ClockDiv = 8;
-*/
+    */
 
     SD_LowLevel_Init();
 
