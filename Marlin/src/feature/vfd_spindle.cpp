@@ -21,11 +21,11 @@
  *
  */
 
-// VFD controlling of spindle, Contributed by Stefan de Bruijn.
-//
-// This implementation is compatible with the popular Huanyang P2x VFD's.
-// For other VFD's, the implementation is pretty much the same, but with
-// slightly different commands. 
+ // VFD controlling of spindle, Contributed by Stefan de Bruijn.
+ //
+ // This implementation is compatible with the popular Huanyang P2x VFD's.
+ // For other VFD's, the implementation is pretty much the same, but with
+ // slightly different commands. 
 
 #include "vfd_spindle.h"
 
@@ -136,38 +136,65 @@ void VFDSpindle::init_pins()
 
 int VFDSpindle::receive_data_detail()
 {
+  const auto waitTimePerChar = 1000000 / VFD_BAUD;
+  const auto timeForEndPacket = 4 * waitTimePerChar;
+  const auto maxWaitIterations = VFD_BAUD / 10; // 0.1 second
+
   int index = 0;
-  int n = VFDSerial.available();
-
-  // We iterate max 10 times. We could iterate more, but if we are flooded it
-  // just doesn't make sense. Also, note that 10 iterations should be more than
-  // enough.
-  for (int i = 0; i < 10 && n != 0; ++i)
+  int n;
+  for (int i = 0; i < maxWaitTime && (n = VFDSerial.available()) == 0; ++i)
   {
-    if (n + index > RECEIVE_BUFFER_SIZE) { break; }
-
-    if (n > 0)
-    {
-      VFDSerial.readBytes(vfd_receive_buffer + index, n);
-      index += n;
-
-      const auto waitTimePerChar = 1000000 / VFD_BAUD;
-      // delayMicroseconds(waitTimePerChar * 40);
-      safe_delay(10);
-
-      n = VFDSerial.available();
-    }
-    else if (n == 0)
-    {
-      break;
-    }
+    delayMicroseconds(waitTimePerChar);
   }
 
-  // if (index != 0) {
-  //   Debug(false, vfd_receive_buffer, index);
-  // }
+  if (n == 0)
+  {
+    // No data received within the allotted time:
+    SERIAL_ECHOPGM("VFD/RS485 error: no response from VFD/RS485 within the allotted time.\r\n");
+    return 0;
+  }
+  else
+  {
+    for (;;)
+    {
+      if (n + index > RECEIVE_BUFFER_SIZE)
+      {
+        // Read the remainder to flush the buffer:
+        while ((n = VFDSerial.available()) != 0)
+        {
+          VFDSerial.read();
+        }
 
-  return index;
+        SERIAL_ECHOPGM("VFD/RS485 error: packet that was received from VFD/RS485 was too long and is ignored.\r\n");
+        return 0;
+      }
+      else
+      {
+        // We have data. Read it to our buffer:
+        VFDSerial.readBytes(vfd_receive_buffer + index, n);
+        index += n;
+
+        // Check if new data is available:
+        n = VFDSerial.available();
+        if (n == 0)
+        {
+          // Not yet, but we might just be polling too fast. The spec sais that we
+          // need to wait the time of 4 characters:
+          delayMicroseconds(timeForEndPacket);
+          n = VFDSerial.available();
+          if (n == 0)
+          {
+            // Still no data, this means we're done.
+
+            debug_rs485(false, vfd_receive_buffer, index);
+
+            return index;
+          }
+        }
+        // Otherwise there's new data (n>0) which we need to process
+      }
+    }
+  }
 }
 
 void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
@@ -175,6 +202,7 @@ void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
   // send index
   crc_check_value(buffer, length);
 
+  // We assume half-duplex communication:
   digitalWrite(VFD_RTS_PIN, HIGH);
 #ifdef VFD_RTS_PIN2
   digitalWrite(VFD_RTS_PIN2, HIGH);
@@ -183,16 +211,21 @@ void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
   const auto waitTimePerChar = 1000000 / VFD_BAUD;
   delayMicroseconds(waitTimePerChar * 4);
 
+  // Before we set the MAX485 chip RTS to low, we have to flush:
   VFDSerial.write(buffer, length + 2);
+  VFDSerial.flush();
 
-  delayMicroseconds(waitTimePerChar * 4);
+  // Give it a little bit of time to flush the MAX485:
+  delayMicroseconds(1);
 
+  // And immediately set it back to low, to ensure that
+  // incoming data gets processed by the MAX485.
   digitalWrite(VFD_RTS_PIN, LOW);
 #ifdef VFD_RTS_PIN2
   digitalWrite(VFD_RTS_PIN2, LOW);
 #endif
 
-  // Debug(true, buffer, length + 2);
+  // debug_rs485(true, buffer, length + 2);
 }
 
 int VFDSpindle::query(int send_length)
@@ -201,43 +234,58 @@ int VFDSpindle::query(int send_length)
   {
     send_data_detail(vfd_send_buffer, send_length);
 
-    for (int i = 0; i < 500; ++i) // We give the thing 100x10ms = 1 second before erroring.
+    // Each iteration of receive_data_detail will take at most 0.1 seconds. 50 iterations = ~5 seconds
+    // Under normal circumstances the communication should be *much* faster though, to be exact: it would 
+    // take `((number of characters + 8) * 9) / baud` seconds. Typical is 8 characters, which is 0.0075s.
+    //
+    // All measures here are mostly there for when things are wrong, like when your VFD is unresponsive.
+    // You don't want a broken piece, so better to just wait until the problem is resolved...
+    for (int i = 0; i < 50; ++i)
     {
       int n = receive_data_detail();
+
+      // n = 0 -> No response. Give it some time:
       if (n == 0)
       {
         safe_delay(10);
       }
-      else if (!validate_crc_value(vfd_receive_buffer, n))
+      else if (n > 0)
       {
-        // try again, but don't reset 'i':
-        send_data_detail(vfd_send_buffer, send_length);
-      }
-      else
-      {
-        // CRC validates OK:
-        // 
-        // We expect: 01.    03.   0002   0002
-        //            [addr] [cmd] [len]  [data]
-        //
-        // We ignore len; it can vary with packages and we already checked CRC.
-        if (vfd_receive_buffer[0] == VFD_ADDRESS &&
-          vfd_receive_buffer[1] == vfd_send_buffer[1])
+        // If we have a response, we have to check the CRC16 checksum:
+        if (!validate_crc_value(vfd_receive_buffer, n - 2))
         {
-          // error if it doesn't add up
-          return n;
-        }
-        else if (vfd_receive_buffer[1] != vfd_send_buffer[1])
-        {
-          // error can be a colliding packet
-          // 
-          // try again:
+          // No luck, we have to try again, because the checksum failed:
+          SERIAL_ECHOPGM("VFD/RS485 error: communication checksum failed, have to retry.\r\n");
+
           send_data_detail(vfd_send_buffer, send_length);
+        }
+        else
+        {
+          // CRC validates OK:
+          // 
+          // We expect: 01.    03.   0002   0002
+          //            [addr] [cmd] [len]  [data]
+          //
+          // We ignore len; it can vary with packages and we already checked CRC.
+          if (vfd_receive_buffer[0] == VFD_ADDRESS && vfd_receive_buffer[1] == vfd_send_buffer[1])
+          {
+            // error if it doesn't add up
+            return n;
+          }
+          else if (vfd_receive_buffer[1] != vfd_send_buffer[1])
+          {
+            // error can be a colliding packet
+            // 
+            // try again:
+            SERIAL_ECHOPGM("VFD/RS485 error: response originated from other modbus address\r\n");
+
+            send_data_detail(vfd_send_buffer, send_length);
+          }
         }
       }
     }
 
-    SERIAL_ECHOPGM("Error communicating with VFD/RS485.\r\n");
+    SERIAL_ECHOPGM("VFD/RS485 error: general error communicating with VFD/RS485. Check baud rate and parity settings!\r\n");
   }
 }
 
