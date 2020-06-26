@@ -353,16 +353,21 @@ public:
     process_subcommands_now_P(G28_STR);
   }
 
+  typedef struct {
+    bool paused:1;
+    bool position:1;
+  } autoreport_t;
+
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
-    static bool autoreport_position;
-    static bool autoreport_paused;
+    static autoreport_t autoreport;
+  
     static inline bool set_autoreport_paused(const bool p) {
-      const bool was = autoreport_paused;
-      autoreport_paused = p;
+      const bool was = autoreport.paused;
+      autoreport.paused = p;
       return was;
     }
   #else
-    static constexpr bool autoreport_paused = false;
+    static constexpr autoreport_t{false};
     static inline bool set_autoreport_paused(const bool) { return false; }
   #endif
 

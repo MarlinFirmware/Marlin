@@ -71,8 +71,7 @@ uint8_t GcodeSuite::axis_relative = (
 );
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
-  bool GcodeSuite::autoreport_paused;   // = false
-  bool GcodeSuite::autoreport_position; // = false
+  GcodeSuite::autoreport_t GcodeSuite::autoreport{0};
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -975,7 +974,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
     static millis_t next_busy_signal_ms = 0;
-    if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
+    if (!autoreport.paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
       switch (busy_state) {
         case IN_HANDLER:

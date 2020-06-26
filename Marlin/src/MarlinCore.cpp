@@ -728,7 +728,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
-    if (!gcode.autoreport_paused) {
+    if (!gcode.autoreport.paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_report_temperatures());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_report_sd_status());
     }

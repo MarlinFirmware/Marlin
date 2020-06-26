@@ -31,12 +31,9 @@
  * M155: Set temperature auto-report interval. M155 S<seconds>
  */
 void GcodeSuite::M155() {
-  if (parser.seen('P'))     //automatically report_current_position_projected();
-  {
-    gcode.autoreport_position = true;
-  }
-  else
-    gcode.autoreport_position = false;
+
+  if (parser.seen('P'))
+    autoreport.position = parser.value_bool();
 
   if (parser.seenval('S'))
     thermalManager.set_auto_report_interval(parser.value_byte());
