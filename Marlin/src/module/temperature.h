@@ -425,7 +425,7 @@ class Temperature {
   public:
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
-      static uint8_t ADCKey_count;
+      static uint16_t ADCKey_count;
     #endif
 
     TERN_(PID_EXTRUSION_SCALING, static int16_t lpq_len);

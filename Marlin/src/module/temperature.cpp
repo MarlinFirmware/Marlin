@@ -351,7 +351,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #if HAS_ADC_BUTTONS
   uint32_t Temperature::current_ADCKey_raw = HAL_ADC_RANGE;
-  uint8_t Temperature::ADCKey_count = 0;
+  uint16_t Temperature::ADCKey_count = 0;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
