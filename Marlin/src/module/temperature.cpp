@@ -2989,7 +2989,7 @@ void Temperature::tick() {
         PORT_REDIRECT(SERIAL_BOTH);
         print_heater_states(active_extruder);
         SERIAL_EOL();
-        if(gcode.autoreport_position) report_current_position_projected();
+        if (gcode.autoreport.position) report_current_position_projected();
       }
     }
 
