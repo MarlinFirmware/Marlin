@@ -12,7 +12,7 @@
 #endif
 #define MSG_CUTTER(M) _MSG_CUTTER(M)
 
-typedef uint16_t cutter_power_t;
+typedef int32_t cutter_power_t;
 #define CUTTER_MENU_TYPE uint16_t
 
 // VFD spindle control for RS485 VFD's.
@@ -27,6 +27,30 @@ class VFDSpindle
   // Some buffers:
   static uint8_t vfd_receive_buffer[RECEIVE_BUFFER_SIZE];
   static uint8_t vfd_send_buffer[SEND_BUFFER_SIZE];
+
+#ifdef VFD_RS485_DEBUG
+  static inline void debug_rs485(bool sending, uint8_t* ptr, int size)
+  {
+    if (sending) {
+      SERIAL_ECHOPGM("Send: ");
+    }
+    else {
+      SERIAL_ECHOPGM("Recv: ");
+    }
+
+    char tmp[4];
+    for (int i = 0; i < size; ++i) {
+      uint8_t current = ptr[i];
+
+      tmp[0] = (char)("0123456789ABCDEF"[current >> 4]);
+      tmp[1] = (char)("0123456789ABCDEF"[current & 0xF]);
+      tmp[2] = ' ';
+      tmp[3] = '\0';
+      SERIAL_ECHOPGM(tmp);
+    }
+    SERIAL_ECHOPGM("\r\n");
+  }
+#endif
 
   // and some state variables:
   static int direction;
@@ -47,14 +71,6 @@ class VFDSpindle
 
   static int query(int send_length);
 
-  // Gets the current direction status of the VFD:
-  // -1 = backward, 1 = forward, 0 = idle, -2 = communication error.
-  static int get_direction_state();
-
-  static uint16_t get_max_rpm();
-
-  static uint16_t get_current_rpm();
-
   // direction<0: reverse
   // direction>0: forward
   // direction=0: stop
@@ -69,11 +85,23 @@ class VFDSpindle
 public:
   static cutter_power_t power;
 
-  static inline uint8_t powerPercent(const uint8_t pp) { return ui8_to_percent(pp); } // for display
+  static inline uint8_t powerPercent()
+  {
+    // for display
+    return uint8_t(uint32_t(power) * 100 / uint32_t(get_max_rpm()));
+  }
 
   static void init();
 
-  static void set_power(const cutter_power_t pwr);
+  // Gets the current direction status of the VFD:
+  // -1 = backward, 1 = forward, 0 = idle, -2 = communication error.
+  static int get_direction_state();
+
+  static uint16_t get_max_rpm();
+
+  static uint16_t get_current_rpm();
+
+  static void set_power(const int32_t pwr);
 
   static inline void refresh()
   {
@@ -82,7 +110,7 @@ public:
 
   static void set_enabled(const bool enable);
 
-  static void apply_power(const cutter_power_t inpow);
+  static void apply_power(const int32_t inpow);
 
   // Wait for spindle to spin up or spin down
   static void power_delay();

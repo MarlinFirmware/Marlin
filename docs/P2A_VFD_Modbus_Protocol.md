@@ -14,6 +14,12 @@ Use a MAX-485 and wire it like this:
 - RE 
 - RO = RX (can be any D pin, 3.3V or 5V)
 
+If you're not sure if your board can handle the RX signal (which 
+can be a bit higher than 3.3V), you should add a voltage level 
+converter (or a simple voltage divider). The normal Arduino's handle
+the RX signal just fine in my test setup, but the DUE needed a 
+voltage level converter.
+
 ## VFD settings
 
 **ALWAYS** read the manual for VFD's! This is imperative to 
@@ -23,19 +29,22 @@ certain settings to get RS485 working correctly, most notably:
 - F0.02 = 7 (use rs485)
 - F0.04 = 2 (use rs485)
 - F0.09 = 4 (use rs485)
-- F9.00 = 5 (38400 baud)
-- F9.01 = 0 (this is 8,N,1 parity, for SoftwareSerial)
+- F9.00 = 4 (19200 baud)
+- F9.01 = 0 (this is 8,N,1 parity, for SoftwareSerial) or if you use 
+  HardwareSerial (like me) pick whatever suits you. Note the DUE doesn't
+  support SoftwareSerial.
 - F9.02 = 1 (address)
 - F9.05 = 0 (non-std modbus, 1 = std modbus, 2 = ascii)
 - F9.07 = 0 (write ops responded)
 
-Note that 1200,8N1 is more than enough for anything you want 
+Note that 19200,8N1 is more than enough for anything you want 
 to throw at a VFD. High baud rates will just get you more 
-errors.
+errors -- BUT you need a high baud rate to keep Marlin happy.
+It's a bit of a trade-off...
 
-Also note 8N1. We only use 8N1 because it is the only supported
-mode in SoftwareSerial. We might move to 8O1 or even 8E2 in 
-the future.
+Also note 8N1. If you're using SoftwareSerial, you have no options
+and have to use 8N1. If you use Hardware serial (like on a DUE), 
+you should set 8E1 (which is the VFD default).
 
 ## CRC
 
@@ -143,54 +152,20 @@ REV, STOP, etc.
 
 ## Timing and receive data
 
-Timing and receive data is *VERY* tricky. We found this to 
-work best:
+Timing and receive data is *VERY* tricky. There are buffers 
+everywhere, and they need to be flushed and awaited.... 
 
-	void HandleReceiveData() 
-	{
-		int index = 0;
-		int n = VFDSerial.available();
+The timeout of the VFD is *not* 5 ms. It it more like 5 ms 
+*iff* the response is immediate. Things get interesting if 
+the response is *not* immediate. Apparently, the VFD just 
+starts sending stuff, and hopes it can produce the next 
+character in time (which is cannot apparently). It can take
+up to 20 ms till this little dance is solved.
 
-		for (int i = 0; i < 10 && n != 0; ++i)
-		{
-			if (n + index > BUFFER_SIZE) { break; }
+If it isn't working for you, the problem is probably timing
+issues in RS485. You should try a lower baud rate, or start 
+with 1200 baud and work your way up...
 
-			if (n > 0) 
-			{
-				VFDSerial.readBytes(receiveBuffer_ + index, n);
-				index += n;
-
-				const auto waitTimePerChar = 1000000 / VFD_BAUD;
-              // spec sais this (but it doesn't work):
-				// delayMicroseconds(waitTimePerChar * 40);
-				delay(10);
-
-				n = VFDSerial.available();
-			}
-			else if (n == 0) 
-			{
-				break;
-			}
-		}
-
-		if (index != 0) {
-           // handle receiveBuffer_[0..index]
-		}
-	}
-
-Sending data is just as tricky:
-
-    CRCCheckValue(buffer, length);
-    
-    digitalWrite(VFD_PIN_MODE, HIGH);
-    
-    const auto waitTimePerChar = 1000000 / VFD_BAUD;
-    // spec sais T1-T2-T3-T4 ; best to do that
-    delayMicroseconds(waitTimePerChar * 4);
-    
-    VFDSerial.write(buffer, length + 2); // +2 for CRC
-    
-    // spec sais T1-T2-T3-T4 ; best to do that
-    delayMicroseconds(waitTimePerChar * 4);
-    
-    digitalWrite(VFD_PIN_MODE, LOW);
+Another thing you can try (if you have the option) is using 
+another TX/RX port. For the DUE, Serial2 appears to work 
+better, for some weird reason...

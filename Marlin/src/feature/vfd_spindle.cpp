@@ -1,5 +1,4 @@
 /**
-#incl
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -46,6 +45,10 @@
 #endif
 
 #if !defined(VFDSerial)
+#ifdef VFD_PARITY
+  #error "VFD parity is not supported when using software serial RX/TX ports";
+#endif
+
 #include "SoftwareSerial.h"
 SoftwareSerial VFDSerial(VFD_RX_PIN, VFD_TX_PIN); // RX, TX
 #define USE_SOFTWARE_SERIAL
@@ -130,7 +133,7 @@ void VFDSpindle::init_pins()
 #ifdef USE_SOFTWARE_SERIAL
   VFDSerial.begin(VFD_BAUD);// , SERIAL_8N1);
 #else
-  VFDSerial.begin(VFD_BAUD, SERIAL_8N1);
+  VFDSerial.begin(VFD_BAUD, VFD_PARITY);
 #endif
 }
 
@@ -138,11 +141,11 @@ int VFDSpindle::receive_data_detail()
 {
   const auto waitTimePerChar = 1000000 / VFD_BAUD;
   const auto timeForEndPacket = 4 * waitTimePerChar;
-  const auto maxWaitIterations = VFD_BAUD / 10; // 0.1 second
+  const auto maxWaitIterations = VFD_BAUD; // 0.1 second
 
   int index = 0;
   int n;
-  for (int i = 0; i < maxWaitTime && (n = VFDSerial.available()) == 0; ++i)
+  for (int i = 0; i < maxWaitIterations && (n = VFDSerial.available()) == 0; ++i)
   {
     delayMicroseconds(waitTimePerChar);
   }
@@ -180,13 +183,26 @@ int VFDSpindle::receive_data_detail()
         {
           // Not yet, but we might just be polling too fast. The spec sais that we
           // need to wait the time of 4 characters:
-          delayMicroseconds(timeForEndPacket);
-          n = VFDSerial.available();
+          //
+          // delayMicroseconds(timeForEndPacket);
+          //
+          // ... but that doesn't work. Instead, it can apparently take up to 20 ms
+          // before the thing does its job and give us the right answer. Here goes.
+
+          for (int i = 0; i < 20 && n == 0; ++i)
+          {
+            safe_delay(1);
+            n = VFDSerial.available();
+          }
+
           if (n == 0)
           {
             // Still no data, this means we're done.
 
-            debug_rs485(false, vfd_receive_buffer, index);
+#ifdef VFD_RS485_DEBUG
+            // VERY chatty!
+            // debug_rs485(false, vfd_receive_buffer, index);
+#endif
 
             return index;
           }
@@ -201,6 +217,7 @@ void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
 {
   // send index
   crc_check_value(buffer, length);
+  VFDSerial.flush();
 
   // We assume half-duplex communication:
   digitalWrite(VFD_RTS_PIN, HIGH);
@@ -215,9 +232,6 @@ void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
   VFDSerial.write(buffer, length + 2);
   VFDSerial.flush();
 
-  // Give it a little bit of time to flush the MAX485:
-  delayMicroseconds(1);
-
   // And immediately set it back to low, to ensure that
   // incoming data gets processed by the MAX485.
   digitalWrite(VFD_RTS_PIN, LOW);
@@ -225,7 +239,10 @@ void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
   digitalWrite(VFD_RTS_PIN2, LOW);
 #endif
 
+#ifdef VFD_RS485_DEBUG
+  // VERY chatty!
   // debug_rs485(true, buffer, length + 2);
+#endif
 }
 
 int VFDSpindle::query(int send_length)
@@ -248,6 +265,7 @@ int VFDSpindle::query(int send_length)
       if (n == 0)
       {
         safe_delay(10);
+        send_data_detail(vfd_send_buffer, send_length);
       }
       else if (n > 0)
       {
@@ -452,16 +470,22 @@ void VFDSpindle::init()
   }
 }
 
-void VFDSpindle::set_power(const cutter_power_t pwr)
+void VFDSpindle::set_power(const int32_t pwr)
 {
-  power = normalize_power(pwr);
+  auto norm = normalize_power(pwr);
 
-  if (enabled && direction != 0)
+  if (enabled && direction != 0 && norm != power)
   {
+    power = norm;
     set_current_direction(direction);
-    set_speed(power);
+    set_speed(norm);
     power_delay();
   }
+}
+
+void VFDSpindle::apply_power(const int32_t inpow)
+{
+  set_power(inpow);
 }
 
 void VFDSpindle::set_enabled(const bool enable)
@@ -481,13 +505,6 @@ void VFDSpindle::set_enabled(const bool enable)
   }
 }
 
-void VFDSpindle::apply_power(const cutter_power_t inpow)
-{
-  auto rpm = normalize_power(inpow);
-  set_speed(rpm);
-  power_delay();
-}
-
 // Wait for spindle to spin up or spin down
 void VFDSpindle::power_delay()
 {
@@ -504,6 +521,10 @@ void VFDSpindle::power_delay()
       current_speed <= (target_rpm + tolerance))
     {
       return;
+    }
+    else
+    {
+      safe_delay(100);
     }
   }
 }
@@ -528,6 +549,7 @@ void VFDSpindle::set_direction(const bool reverse)
 
       // Enable again and wait till we hit the target rpm:
       set_current_direction(direction);
+      power = rpm;
       power_delay();
     }
   }

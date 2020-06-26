@@ -2702,12 +2702,13 @@
 #define SPINDLE_VFD         // Enable if you have an RS-485 Huanyang VFD [**experimental!**]
 
 #if ENABLED(SPINDLE_VFD)
-  #define VFD_RX_PIN 19     // RS-485 RX pin
-  #define VFD_TX_PIN 18     // RS-485 TX pin
+  #define VFD_RX_PIN 17     // RS-485 RX pin
+  #define VFD_TX_PIN 16     // RS-485 TX pin
   #define VFD_RTS_PIN 25    // RS-485 RTS pin
-//  #define VFD_RTS_PIN 27    // RS-485 RTS pin #2 when not using a single pin for both RX and TX
+   //#define VFD_RTS_PIN 23    // RS-485 RTS pin #2 when not using a single pin for both RX and TX
   #define VFD_BAUD 19200    // Baud rate of VFD. 1200 baud is more than enough, but will stall the rest... 38400 it is.
   #define VFD_ADDRESS 1     // Modbus address of the VFD
+  #define VFD_PARITY SERIAL_8E1
 
   #define VFD_RS485_DEBUG   // Modbus debugging
 #endif
