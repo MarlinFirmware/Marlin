@@ -354,6 +354,7 @@ public:
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
+    static bool autoreport_position;
     static bool autoreport_paused;
     static inline bool set_autoreport_paused(const bool p) {
       const bool was = autoreport_paused;

@@ -2988,7 +2988,11 @@ void Temperature::tick() {
         next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
         PORT_REDIRECT(SERIAL_BOTH);
         print_heater_states(active_extruder);
-        SERIAL_EOL();
+        if(gcode.autoreport_position){
+          SERIAL_CHAR(' ');
+          report_current_position_projected();}
+        else
+          SERIAL_EOL();
       }
     }
 
