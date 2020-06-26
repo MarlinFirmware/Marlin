@@ -23,7 +23,7 @@ certain settings to get RS485 working correctly, most notably:
 - F0.02 = 7 (use rs485)
 - F0.04 = 2 (use rs485)
 - F0.09 = 4 (use rs485)
-- F9.00 = 0 (1200 baud)
+- F9.00 = 5 (38400 baud)
 - F9.01 = 0 (this is 8,N,1 parity, for SoftwareSerial)
 - F9.02 = 1 (address)
 - F9.05 = 0 (non-std modbus, 1 = std modbus, 2 = ascii)
