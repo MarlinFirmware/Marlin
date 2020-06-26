@@ -96,6 +96,7 @@ class TFT_String {
     static void ltrim(uint8_t character = 0x20);
     static uint16_t width() { return span; }
     static uint8_t *string() { return data; }
+    static uint16_t center(uint16_t width) { return span > width ? 0 : (width - span) / 2; }
 };
 
 extern TFT_String tft_string;

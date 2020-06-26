@@ -27,6 +27,10 @@
 #include "tft_string.h"
 #include "../fontutils.h"
 
+//#define DEBUG_TFT_FONT
+#define DEBUG_OUT ENABLED(DEBUG_TFT_FONT)
+#include "../../core/debug_out.h"
+
 glyph_t *TFT_String::glyphs[256];
 font_t *TFT_String::font_header;
 
@@ -39,38 +43,23 @@ void TFT_String::set_font(const uint8_t *font) {
   uint32_t glyph;
 
   for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = NULL;
-  /*
-  SERIAL_ECHO("Format: ");
-  SERIAL_ECHOLN(font_header->Format);
-  SERIAL_ECHO("BBXWidth: ");
-  SERIAL_ECHOLN(font_header->BBXWidth);
-  SERIAL_ECHO("BBXHeight: ");
-  SERIAL_ECHOLN(font_header->BBXHeight);
-  SERIAL_ECHO("BBXOffsetX: ");
-  SERIAL_ECHOLN(font_header->BBXOffsetX);
-  SERIAL_ECHO("BBXOffsetY: ");
-  SERIAL_ECHOLN(font_header->BBXOffsetY);
-  SERIAL_ECHO("CapitalAHeight: ");
-  SERIAL_ECHOLN(font_header->CapitalAHeight);
-  SERIAL_ECHO("Encoding65Pos: ");
-  SERIAL_ECHOLN(font_header->Encoding65Pos);
-  SERIAL_ECHO("Encoding97Pos: ");
-  SERIAL_ECHOLN(font_header->Encoding97Pos);
-  SERIAL_ECHO("FontStartEncoding: ");
-  SERIAL_ECHOLN(font_header->FontStartEncoding);
-  SERIAL_ECHO("FontEndEncoding: ");
-  SERIAL_ECHOLN(font_header->FontEndEncoding);
-  SERIAL_ECHO("LowerGDescent: ");
-  SERIAL_ECHOLN(font_header->LowerGDescent);
-  SERIAL_ECHO("FontAscent: ");
-  SERIAL_ECHOLN(font_header->FontAscent);
-  SERIAL_ECHO("FontDescent: ");
-  SERIAL_ECHOLN(font_header->FontDescent);
-  SERIAL_ECHO("FontXAscent: ");
-  SERIAL_ECHOLN(font_header->FontXAscent);
-  SERIAL_ECHO("FontXDescent: ");
-  SERIAL_ECHOLN(font_header->FontXDescent);
-  */
+
+  DEBUG_ECHOLNPAIR("Format: ", font_header->Format);
+  DEBUG_ECHOLNPAIR("BBXWidth: ", font_header->BBXWidth);
+  DEBUG_ECHOLNPAIR("BBXHeight: ", font_header->BBXHeight);
+  DEBUG_ECHOLNPAIR("BBXOffsetX: ", font_header->BBXOffsetX);
+  DEBUG_ECHOLNPAIR("BBXOffsetY: ", font_header->BBXOffsetY);
+  DEBUG_ECHOLNPAIR("CapitalAHeight: ", font_header->CapitalAHeight);
+  DEBUG_ECHOLNPAIR("Encoding65Pos: ", font_header->Encoding65Pos);
+  DEBUG_ECHOLNPAIR("Encoding97Pos: ", font_header->Encoding97Pos);
+  DEBUG_ECHOLNPAIR("FontStartEncoding: ", font_header->FontStartEncoding);
+  DEBUG_ECHOLNPAIR("FontEndEncoding: ", font_header->FontEndEncoding);
+  DEBUG_ECHOLNPAIR("LowerGDescent: ", font_header->LowerGDescent);
+  DEBUG_ECHOLNPAIR("FontAscent: ", font_header->FontAscent);
+  DEBUG_ECHOLNPAIR("FontDescent: ", font_header->FontDescent);
+  DEBUG_ECHOLNPAIR("FontXAscent: ", font_header->FontXAscent);
+  DEBUG_ECHOLNPAIR("FontXDescent: ", font_header->FontXDescent);
+
   add_glyphs(font);
 }
 

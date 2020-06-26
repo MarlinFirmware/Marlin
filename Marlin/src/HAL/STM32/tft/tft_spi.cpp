@@ -131,11 +131,6 @@ uint32_t TFT_SPI::GetID() {
     if (SPIx.Init.Direction == SPI_DIRECTION_1LINE) SPI_1LINE_RX(&SPIx);
     __HAL_SPI_ENABLE(&SPIx);
 
-    /*
-     * Code below was not tested for hspi->Init.Direction == SPI_DIRECTION_2LINES
-     * See HAL_SPI_TransmitReceive() for implementation for separate MOSI / MISO lines
-     */
-
     for (i = 0; i < 4; i++) {
       #if TFT_MISO_PIN != TFT_MOSI_PIN
         //if (hspi->Init.Direction == SPI_DIRECTION_2LINES) {
