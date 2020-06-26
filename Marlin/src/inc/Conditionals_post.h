@@ -374,6 +374,10 @@
 
 #endif
 
+#if EITHER(LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+  #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
+#endif
+
 /**
  * Set defaults for missing (newer) options
  */
@@ -1859,6 +1863,10 @@
   #define HAS_CONTROLLER_FAN 1
 #endif
 
+#if BED_OR_CHAMBER || HAS_FAN0
+  #define BED_OR_CHAMBER_OR_FAN 1
+#endif
+
 // Servos
 #if PIN_EXISTS(SERVO0) && NUM_SERVOS > 0
   #define HAS_SERVO_0 1
@@ -2078,6 +2086,16 @@
     #define HEATER_CHAMBER_INVERTING false
   #endif
   #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ HEATER_CHAMBER_INVERTING)
+#endif
+
+#if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
+  #define HAS_TEMPERATURE 1
+#endif
+
+#if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
+  #define PREHEAT_COUNT 2
+#else
+  #undef PREHEAT_COUNT
 #endif
 
 /**

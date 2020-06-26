@@ -256,6 +256,14 @@
   };
 #endif
 
+#if PREHEAT_COUNT
+  typedef struct {
+    TERN_(HAS_HOTEND,     uint16_t hotend_temp);
+    TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
+    TERN_(HAS_FAN,        uint16_t fan_speed  );
+  } preheat_t;
+#endif
+
 ////////////////////////////////////////////
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
@@ -469,6 +477,10 @@ public:
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
   #endif
 
+  #if PREHEAT_COUNT
+    static preheat_t material_preset[PREHEAT_COUNT];
+  #endif
+
   #if HAS_LCD_MENU
 
     #if ENABLED(TOUCH_BUTTONS)
@@ -482,7 +494,11 @@ public:
       static void enable_encoder_multiplier(const bool onoff);
     #endif
 
+    static int8_t manual_move_axis;
+    static millis_t manual_move_start_time;
+
     #if IS_KINEMATIC
+      static float manual_move_offset;
       static bool processing_manual_move;
     #else
       static constexpr bool processing_manual_move = false;
@@ -493,9 +509,6 @@ public:
     #else
       static constexpr int8_t manual_move_e_index = 0;
     #endif
-
-    static int16_t preheat_hotend_temp[2], preheat_bed_temp[2];
-    static uint8_t preheat_fan_speed[2];
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;

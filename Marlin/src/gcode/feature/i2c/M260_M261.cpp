@@ -31,7 +31,7 @@
 /**
  * M260: Send data to a I2C slave device
  *
- * This is a PoC, the formating and arguments for the GCODE will
+ * This is a PoC, the formatting and arguments for the GCODE will
  * change to be more compatible, the current proposal is:
  *
  *  M260 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to

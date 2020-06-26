@@ -330,7 +330,7 @@ class Temperature {
     #if HAS_HOTEND
       #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-      static const int16_t heater_maxtemp[HOTENDS];
+      static const uint16_t heater_maxtemp[HOTENDS];
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
@@ -797,7 +797,7 @@ class Temperature {
 
     TERN_(HAS_DISPLAY, static void set_heating_message(const uint8_t e));
 
-    #if HAS_LCD_MENU
+    #if HAS_LCD_MENU && HAS_TEMPERATURE
       static void lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb);
     #endif
 

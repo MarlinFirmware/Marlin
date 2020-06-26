@@ -86,6 +86,10 @@ MarlinUI ui;
   }
 #endif
 
+#if PREHEAT_COUNT
+  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
+#endif
+
 #if HAS_SPI_LCD
 
 #if HAS_GRAPHICAL_LCD
@@ -633,12 +637,12 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 #if HAS_LCD_MENU
 
-  int8_t manual_move_axis = (int8_t)NO_AXIS;
-  millis_t manual_move_start_time = 0;
+  int8_t MarlinUI::manual_move_axis = (int8_t)NO_AXIS;
+  millis_t MarlinUI::manual_move_start_time = 0;
 
   #if IS_KINEMATIC
     bool MarlinUI::processing_manual_move = false;
-    float manual_move_offset = 0;
+    float MarlinUI::manual_move_offset = 0;
   #endif
 
   #if MULTI_MANUAL
@@ -901,8 +905,8 @@ void MarlinUI::update() {
       }
     #endif
 
-    // then we want to use 1/2 of the time only.
-    uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
+    // Then we want to use only 50% of the time
+    const uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
     if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time)) {
 
