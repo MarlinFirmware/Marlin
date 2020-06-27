@@ -1,20 +1,8 @@
+import os,sys
 Import("env")
-import os
 
-FIRMWARE=""
-
-# Specify output file name with -DFIRMWARE=<filename.bin> build parameter
-for define in env['CPPDEFINES']:
-    if define[0] == "FIRMWARE":
-        FIRMWARE=define[1]
-
-if FIRMWARE == "":
-  print("You need to define output file via '-DFIRMWARE' build parameter", file=sys.stderr)
-  exit(1);
-
-# Relocate firmware from 0x08000000 to 0x08008800
-#env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
-env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x8010000"))
+from SCons.Script import DefaultEnvironment
+board = DefaultEnvironment().BoardConfig()
 
 custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/lerdge.ld")
 for i, flag in enumerate(env["LINKFLAGS"]):
@@ -39,12 +27,11 @@ def encrypt_file(input, output_file, file_length):
     output_file.write(input_file)
     return
 
-
-# Encrypt ${PROGNAME}.bin and save it as 'update.cbd'
+# Encrypt ${PROGNAME}.bin and save it as build.firmware
 def encrypt(source, target, env):
-    print("Encrypting to:", FIRMWARE)
+    print("Encrypting to:", board.get("build.firmware"))
     firmware = open(target[0].path, "rb")
-    result = open(target[0].dir.path + "/" + FIRMWARE, "wb")
+    result = open(target[0].dir.path + "/" + board.get("build.firmware"), "wb")
     length = os.path.getsize(target[0].path)
 
     encrypt_file(firmware, result, length)
@@ -52,4 +39,8 @@ def encrypt(source, target, env):
     firmware.close()
     result.close()
 
-env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
+if 'firmware' in board.get("build").keys():
+  env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
+else:
+  print("You need to define output file via board_build.firmware = 'filename' parameter", file=sys.stderr)
+  exit(1);
