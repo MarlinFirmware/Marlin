@@ -104,25 +104,20 @@ void lv_draw_about(void) {
 
   fw_type = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_type, &tft_style_lable_rel);
-  #if (MOTHERBOARD == BOARD_MKS_ROBIN_PRO)
-    lv_label_set_text(fw_type, "Firmware: Robin_Pro35");
-  #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
-    lv_label_set_text(fw_type, "Firmware: Robin_Nano35");
-  #else
-    lv_label_set_text(fw_type, CUSTOM_MACHINE_NAME);
-  #endif
+  lv_label_set_text(fw_type,
+    #if MB(MKS_ROBIN_PRO)
+      "Firmware: Robin_Pro35"
+    #elif MB(MKS_ROBIN_NANO)
+      "Firmware: Robin_Nano35"
+    #else
+      CUSTOM_MACHINE_NAME
+    #endif
+  );
   lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
 
   board = lv_label_create(scr, NULL);
   lv_obj_set_style(board, &tft_style_lable_rel);
-  #if (MOTHERBOARD == BOARD_MKS_ROBIN_PRO)
-    lv_label_set_text(board, "Board: MKS Robin pro");
-  #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
-    lv_label_set_text(board, "Board: MKS Robin nano");
-  #else
-    lv_label_set_text(fw_type, BOARD_INFO_NAME);
-  #endif
-
+  lv_label_set_text(board, "Board: " BOARD_INFO_NAME);
   lv_obj_align(board, NULL, LV_ALIGN_CENTER, 0, 20);
 }
 
