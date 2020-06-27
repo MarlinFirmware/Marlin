@@ -1181,10 +1181,7 @@ void setup() {
   #endif
 
   #if ENABLED(TFT_LITTLE_VGL_UI)
-    //TFT_LITTLE_VGL_UI needs SD mounted to load graphics and fonts!
-    if (!card.isMounted()) {
-      SETUP_RUN(card.mount());
-    }
+    if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     SETUP_RUN(tft_lvgl_init());
   #endif
 
