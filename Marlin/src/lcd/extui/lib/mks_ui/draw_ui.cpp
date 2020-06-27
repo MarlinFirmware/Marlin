@@ -334,7 +334,7 @@ char *creat_title_text() {
   return public_buf_m;
 }
 
-#if ENABLED(HAS_GCODE_PREVIEW)
+#if HAS_GCODE_PREVIEW
 
 void preview_gcode_prehandle(char *path) {
   #if ENABLED(SDSUPPORT)
