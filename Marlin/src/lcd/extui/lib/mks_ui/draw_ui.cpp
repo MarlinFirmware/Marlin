@@ -74,7 +74,33 @@ extern void LCD_IO_WriteData(uint16_t RegValue);
 
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  gCfgItems.language = LANG_ENGLISH;
+  #if LCD_LANGUAGE == en
+    gCfgItems.language = LANG_ENGLISH;
+  #elif LCD_LANGUAGE == zh_CN
+    gCfgItems.language = LANG_SIMPLE_CHINESE;
+  #elif LCD_LANGUAGE == zh_TW
+    gCfgItems.language = LANG_COMPLEX_CHINESE;
+  #elif LCD_LANGUAGE == jp_kana
+    gCfgItems.language = LANG_JAPAN;
+  #elif LCD_LANGUAGE == de
+    gCfgItems.language = LANG_GERMAN;
+  #elif LCD_LANGUAGE == fr
+    gCfgItems.language = LANG_FRENCH;
+  #elif LCD_LANGUAGE == ru
+    gCfgItems.language = LANG_RUSSIAN;
+  #elif LCD_LANGUAGE == ko_KR
+    gCfgItems.language = LANG_KOREAN;
+  #elif LCD_LANGUAGE == tr
+    gCfgItems.language = LANG_TURKISH;
+  #elif LCD_LANGUAGE == es
+    gCfgItems.language = LANG_SPANISH;
+  #elif LCD_LANGUAGE == el
+    gCfgItems.language = LANG_GREEK;
+  #elif LCD_LANGUAGE == it
+    gCfgItems.language = LANG_ITALY;
+  #elif LCD_LANGUAGE == pt
+    gCfgItems.language = LANG_PORTUGUESE;
+  #endif
   gCfgItems.leveling_mode = 0;
   gCfgItems.from_flash_pic = 0;
   gCfgItems.curFilesize = 0;
