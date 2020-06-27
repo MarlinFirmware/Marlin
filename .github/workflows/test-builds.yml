@@ -9,7 +9,6 @@ on:
   pull_request:
     branches:
     - bugfix-2.0.x
-    - dev-2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -106,6 +105,6 @@ jobs:
         # Inline tests script
         [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
         chmod +x buildroot/bin/*
-        chmod +x buildroot/share/tests/*
-        export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
+        chmod +x buildroot/tests/*
+        export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}
         run_tests . ${{ matrix.test-platform }}
