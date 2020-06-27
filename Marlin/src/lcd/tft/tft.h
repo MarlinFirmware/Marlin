@@ -40,13 +40,14 @@
   #error Unsupported display resolution!
 #endif
 
-#define ST7735  0x89F0
-#define ST7789  0x8552
-#define ST7796  0x7796
-#define ILI9328 0x9328
-#define ILI9341 0x9341
-#define ILI9488 0x9488
-#define AUTO    0xFFFF
+#define ST7735          0x89F0
+#define ST7789          0x8552
+#define ST7796          0x7796
+#define ILI9328         0x9328
+#define ILI9341         0x9341
+#define ILI9488         0x9488
+#define LERDGE_ST7796   0xFFFE
+#define AUTO            0xFFFF
 
 #ifndef TFT_BUFFER_SIZE
   #ifdef STM32F103xB
