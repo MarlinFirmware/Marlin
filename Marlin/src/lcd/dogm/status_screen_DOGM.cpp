@@ -414,7 +414,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif
 
-  const bool showxy = TERN1(LCD_SHOW_E_TOTAL, !printingIsActive());
+  const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
 
   // At the first page, generate new display values
   if (first_page) {
@@ -434,15 +434,15 @@ void MarlinUI::draw_status_screen() {
     const xyz_pos_t lpos = current_position.asLogical();
     strcpy(zstring, ftostr52sp(lpos.z));
 
-    if (showxy) {
-      strcpy(xstring, ftostr4sign(lpos.x));
-      strcpy(ystring, ftostr4sign(lpos.y));
-    }
-    else {
+    if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
         const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
         sprintf_P(xstring, PSTR("%ld%cm"), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       #endif
+    }
+    else {
+      strcpy(xstring, ftostr4sign(lpos.x));
+      strcpy(ystring, ftostr4sign(lpos.y));
     }
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -772,13 +772,13 @@ void MarlinUI::draw_status_screen() {
 
       #else
 
-        if (showxy) {
-          _draw_axis_value(X_AXIS, xstring, blink);
-          _draw_axis_value(Y_AXIS, ystring, blink);
-        }
-        else {
+        if (show_e_total) {
           _draw_axis_value(E_AXIS, xstring, true);
           lcd_put_u8str_P(PSTR("       "));
+        }
+        else {
+          _draw_axis_value(X_AXIS, xstring, blink);
+          _draw_axis_value(Y_AXIS, ystring, blink);
         }
 
       #endif
