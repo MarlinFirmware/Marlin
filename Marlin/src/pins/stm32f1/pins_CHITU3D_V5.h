@@ -168,7 +168,6 @@
   #define SPI_TFT_RST_PIN                 PF11
 
   #define LCD_RESET_PIN                     PF11
-  // #define NO_LCD_REINIT
   #define LCD_BACKLIGHT_PIN                 PD13
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
