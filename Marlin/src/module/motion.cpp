@@ -1599,51 +1599,32 @@ void homeaxis(const AxisEnum axis) {
     );
     
 	//check for inactive endstop
-	if(axis == X_AXIS){
-		if (X_HOME_DIR < 0) {
-			if((TEST(endstops.state(), X_MIN))){
-				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+switch (axis) {
+		case X_AXIS:
+			if((TEST(endstops.state(), X_HOME_DIR < 0 ? X_MIN : X_MAX))){
+				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
 				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
 			}
-		}
-		else{
-			if((TEST(endstops.state(), X_MAX))){
-				SERIAL_ECHO_MSG("Err X Bump. Bump_value to low or endstops broken?");
+			break;
+		case Y_AXIS:
+			if((TEST(endstops.state(), Y_HOME_DIR < 0 ? Y_MIN : Y_MAX))){
+				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
 				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
 			}
-		}
-	}
-	else if(axis == Y_AXIS){
-		if (Y_HOME_DIR < 0) {
-			if((TEST(endstops.state(), Y_MIN))){
-				SERIAL_ECHO_MSG("Err Y Bump. Bump_value to low or endstops broken?");
-				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
-			}
-		}
-		else{
-			if((TEST(endstops.state(), Y_MAX))){
-				SERIAL_ECHO_MSG("Err Y Bump. Bump_value to low or endstops broken?");
-				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
-			}
-		}
-	}
-	else if(axis == Z_AXIS){
-		if (Y_HOME_DIR < 0) {
+			break;
+		case Z_AXIS:
+			if((TEST(endstops.state(), Z_HOME_DIR < 0 ? 
 			#if HOMING_Z_WITH_PROBE
-			if((TEST(endstops.state(), Z_MIN))){
+				Z_MIN
 			#else
-			if((TEST(endstops.state(), Z_MIN_PROBE))){
+				Z_MIN_PROBE
 			#endif
-				SERIAL_ECHO_MSG("Err Z Bump. Bump_value to low or endstops broken?");
-				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
-			}			
-		}
-		else{
-			if((TEST(endstops.state(), Z_MAX))){
-				SERIAL_ECHO_MSG("Err Z Bump. Bump_value to low or endstops broken?");
+			: X_MAX))){
+				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
 				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
 			}
-		}
+			break;
+		default: break;	
 	}
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
