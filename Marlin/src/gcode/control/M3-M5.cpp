@@ -96,6 +96,8 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   else
     cutter.set_power(parser.longval('S', -255));
 
+  cutter.set_enabled(true);
+
   #elif ENABLED(SPINDLE_LASER_PWM)
 
     if (parser.seenval('O'))

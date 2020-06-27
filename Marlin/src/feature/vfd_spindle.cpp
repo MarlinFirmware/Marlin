@@ -72,7 +72,7 @@ SoftwareSerial VFDSerial(VFD_RX_PIN, VFD_TX_PIN); // RX, TX
 // Some static variable initialization:
 uint8_t VFDSpindle::vfd_receive_buffer[VFDSpindle::RECEIVE_BUFFER_SIZE];
 uint8_t VFDSpindle::vfd_send_buffer[VFDSpindle::SEND_BUFFER_SIZE];
-int VFDSpindle::direction = 1;
+int VFDSpindle::direction = 0;
 bool VFDSpindle::enabled = false;
 
 cutter_power_t VFDSpindle::power;
@@ -491,9 +491,6 @@ void VFDSpindle::init()
 
 void VFDSpindle::set_power(const int32_t pwr)
 {
-  static int32_t last_power_applied = -1;
-  if (pwr == last_power_applied) return;
-
 #ifdef VFD_RS485_DEBUG
   SERIAL_ECHOPGM("VFD set power to ");
   SERIAL_ECHO(pwr);
@@ -501,6 +498,15 @@ void VFDSpindle::set_power(const int32_t pwr)
 #endif
 
   auto norm = normalize_power(pwr);
+
+  if (norm == 0) {
+    enabled = false;
+
+    power = 0;
+    set_speed(norm);
+    set_current_direction(0);
+    power_delay();
+  }
 
   if (enabled && direction != 0)
   {
@@ -513,6 +519,10 @@ void VFDSpindle::set_power(const int32_t pwr)
 
 void VFDSpindle::apply_power(const int32_t inpow)
 {
+  static int32_t last_power_applied = -1;
+  if (inpow == last_power_applied) return;
+  last_power_applied = inpow;
+
   set_power(inpow);
 }
 
@@ -530,6 +540,7 @@ void VFDSpindle::set_enabled(const bool enable)
   {
     // stop
     set_current_direction(0);
+    power_delay();
   }
   else if (power != 0 && direction != 0) // && enable
   {
@@ -550,6 +561,12 @@ void VFDSpindle::power_delay()
   while (true)
   {
     auto current_speed = get_current_rpm();
+
+#ifdef VFD_RS485_DEBUG
+    SERIAL_ECHOPGM("VFD current speed ");
+    SERIAL_ECHO(current_speed);
+    SERIAL_ECHOLNPGM(".\r\n");
+#endif
 
     if (current_speed >= (target_rpm - tolerance) &&
       current_speed <= (target_rpm + tolerance))
