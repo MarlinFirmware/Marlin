@@ -143,7 +143,7 @@ void tft_style_init() {
   tft_style_lable_rel.body.grad_color = LV_COLOR_BACKGROUND;
   tft_style_lable_rel.text.color = LV_COLOR_TEXT;
   tft_style_lable_rel.text.sel_color = LV_COLOR_TEXT;
-  #if ENABLED(HAS_SPI_FLASH_FONT)
+  #if HAS_SPI_FLASH_FONT
     tft_style_lable_pre.text.font = &gb2312_puhui32;
     tft_style_lable_rel.text.font = &gb2312_puhui32;
   #else

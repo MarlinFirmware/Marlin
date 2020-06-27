@@ -61,7 +61,7 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
   }
   else if (event == LV_EVENT_RELEASED) {
     if (DialogType == DIALOG_TYPE_PRINT_FILE) {
-      #if ENABLED(HAS_GCODE_PREVIEW)
+      #if HAS_GCODE_PREVIEW
         preview_gcode_prehandle(list_file.file_name[sel_id]);
       #endif
       reset_print_time();

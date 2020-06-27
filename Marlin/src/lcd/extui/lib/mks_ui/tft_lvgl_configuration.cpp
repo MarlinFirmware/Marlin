@@ -60,7 +60,7 @@
   extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
   extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 
-  #if ENABLED(HAS_SPI_FLASH_FONT)
+  #if HAS_SPI_FLASH_FONT
     extern void init_gb2312_font();
   #endif
 
@@ -70,7 +70,7 @@
 //extern lv_obj_t * scr;
   #if ENABLED(SDSUPPORT)
     extern void UpdatePic();
-    #if ENABLED(HAS_SPI_FLASH_FONT)
+    #if HAS_SPI_FLASH_FONT
       extern void UpdateFont();
     #endif
   #endif
@@ -473,7 +473,7 @@
 
     #if ENABLED(SDSUPPORT)
       UpdatePic();
-      #if ENABLED(HAS_SPI_FLASH_FONT)
+      #if HAS_SPI_FLASH_FONT
         UpdateFont();
       #endif
     #endif
@@ -503,7 +503,7 @@
 
     systick_attach_callback(SysTick_Callback);
 
-    #if ENABLED(HAS_SPI_FLASH_FONT)
+    #if HAS_SPI_FLASH_FONT
       init_gb2312_font();
     #endif
 
@@ -852,7 +852,7 @@
       //touchpad_get_xy(&last_x, &last_y);
       /*Save the pressed coordinates and the state*/
       if (diffTime > 10) {
-        //use marlin touch code if enabled 
+        //use marlin touch code if enabled
         #if ENABLED(TOUCH_BUTTONS)
           touch.getTouchPoint(reinterpret_cast<uint16_t&>(last_x), reinterpret_cast<uint16_t&>(last_y));
         #else

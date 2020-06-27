@@ -27,7 +27,7 @@
 #include "lvgl.h"
 #include "pic_manager.h"
 
-#if ENABLED(HAS_SPI_FLASH_FONT)
+#if HAS_SPI_FLASH_FONT
 
 typedef struct {
   uint16_t min;
