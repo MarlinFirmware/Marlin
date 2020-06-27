@@ -308,13 +308,13 @@ void lv_draw_printing(void) {
       lv_label_set_text(labelPause, printing_menu.pause);
     else
       lv_label_set_text(labelPause, printing_menu.resume);
-    lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
+    lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 20, 0);
 
     lv_label_set_text(labelStop, printing_menu.stop);
-    lv_obj_align(labelStop, buttonStop, LV_ALIGN_CENTER, 30, 0);
+    lv_obj_align(labelStop, buttonStop, LV_ALIGN_CENTER, 20, 0);
 
     lv_label_set_text(labelOperat, printing_menu.option);
-    lv_obj_align(labelOperat, buttonOperat, LV_ALIGN_CENTER, 30, 0);
+    lv_obj_align(labelOperat, buttonOperat, LV_ALIGN_CENTER, 20, 0);
   }
 
   lv_style_copy(&lv_bar_style_indic, &lv_style_pretty_color);
