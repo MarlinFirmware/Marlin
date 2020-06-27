@@ -74,6 +74,7 @@ namespace ExtUI {
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void injectCommands_P(PGM_P const);
+  void injectCommands(char * const);
   bool commandsInQueue();
 
   bool isHeaterIdle(const heater_t);
