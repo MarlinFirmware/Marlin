@@ -29,6 +29,8 @@ extern "C" { /* C-declarations for C++ */
 #include <string.h>
 #include "lvgl.h"
 
+#include "../../inc/MarlinConfigPre.h"
+
 #if 1
 
   #ifndef HAS_SPI_FLASH_FONT
