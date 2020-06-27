@@ -52,7 +52,7 @@ static char assets[][30] = {
   "bmp_PreHeat.bin",
   "bmp_Extruct.bin",
   "bmp_Mov.bin",
-  "bmp_Zero.bin",
+  // "bmp_Zero.bin",
   "bmp_Leveling.bin",
 
   //fan screen
@@ -355,7 +355,7 @@ uint8_t public_buf[512];
             break;
           }
         }
-        if (a <= 0 || a >= COUNT(assets)) continue;
+        if (a < 0 || a >= COUNT(assets)) continue;
 
         fn = assets[a];
         char dosFilename[FILENAME_LENGTH];
