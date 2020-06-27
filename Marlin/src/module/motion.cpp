@@ -1619,7 +1619,7 @@ switch (axis) {
 			#else
 				Z_MIN_PROBE
 			#endif
-			: X_MAX))){
+			: Z_MAX))){
 				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
 				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
 			}
