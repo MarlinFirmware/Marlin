@@ -54,6 +54,10 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
   uint32_t tmp_cnt = 0;
   uint32_t addr = 0;
 
+  #if ENABLED(MARLIN_DEV_MODE)
+    SERIAL_ECHOLNPAIR("Getting picture SPI Flash Address: ", (const char*)Pname);
+  #endif
+
   W25QXX.init(SPI_QUARTER_SPEED);
 
   W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
@@ -129,6 +133,7 @@ void spiFlashErase_PIC() {
   #endif
 }
 
+#if ENABLED(HAS_SPI_FLASH_FONT)
 void spiFlashErase_FONT() {
   volatile uint32_t Font_sectorcnt = 0;
 
@@ -160,6 +165,7 @@ void spiFlashErase_FONT() {
   #endif
   //spiFlashEraseFlag = 1;
 }
+#endif
 
 uint32_t LogoWrite_Addroffset = 0;
 
@@ -321,7 +327,7 @@ void UpdatePic() {
         //card.getfilename_sorted(i);
 
         if (card.longFilename[0] == 0)
-          break;
+          continue;
         /*if ( card.filename[0] == '.')
         continue;
       */
@@ -453,9 +459,10 @@ void UpdatePic() {
     }
     dir.rename(&root, bakPath);
   }
+  dir.close();
 }
 
-
+#if ENABLED(HAS_SPI_FLASH_FONT)
 void spi_flash_read_test() {W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN);}
 
 void UpdateFont() {
@@ -631,7 +638,7 @@ void UpdateFont() {
       {
         dir.remove();
       }*/
-          dir.rename(&root, bakFont);
+
           //r = f_rename(picPath, bakPath);
 
 
@@ -639,8 +646,12 @@ void UpdateFont() {
         #endif
       #endif
     }
+
+    dir.rename(&root, bakFont);
+    dir.close();
   }
 }
+    #endif //HAS_SPI_FLASH_FONT
   #endif // SDSUPPORT
 
 #endif
@@ -692,10 +703,12 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
 
 }
 
+#if ENABLED(HAS_SPI_FLASH_FONT)
 void get_spi_flash_data(const char *rec_buf, int addr, int size) {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)rec_buf, UNIGBK_FLASH_ADDR + addr, size);
 }
+#endif
 
 #endif
 

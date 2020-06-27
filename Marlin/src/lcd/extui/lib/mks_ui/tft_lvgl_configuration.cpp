@@ -57,10 +57,12 @@
   extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
   extern void LCD_IO_WriteData(uint16_t RegValue);
   extern void LCD_IO_WriteReg(uint16_t Reg);
-
+  extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
   extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 
-  extern void init_gb2312_font();
+  #if ENABLED(HAS_SPI_FLASH_FONT)
+    extern void init_gb2312_font();
+  #endif
 
   static lv_disp_buf_t disp_buf;
 //static lv_color_t buf[LV_HOR_RES_MAX * 18];
@@ -68,7 +70,9 @@
 //extern lv_obj_t * scr;
   #if ENABLED(SDSUPPORT)
     extern void UpdatePic();
-    extern void UpdateFont();
+    #if ENABLED(HAS_SPI_FLASH_FONT)
+      extern void UpdateFont();
+    #endif
   #endif
   uint16_t DeviceCode = 0x9488;
   extern uint8_t sel_id;
@@ -196,7 +200,6 @@
 
   void ili9320_SetWindows(uint16_t StartX, uint16_t StartY, uint16_t width, uint16_t heigh) {
     uint16_t s_h, s_l, e_h, e_l;
-
     uint16_t xEnd, yEnd;
     xEnd = StartX + width;
     yEnd = StartY + heigh - 1;
@@ -275,9 +278,13 @@
       tft_set_cursor(0, 0);
       ili9320_SetWindows(0, 0, 480, 320);
       LCD_WriteRAM_Prepare();
+      #ifdef LCD_USE_DMA_FSMC
+        LCD_IO_WriteMultiple(Color, LCD_FULL_PIXEL_WIDTH * LCD_FULL_PIXEL_HEIGHT);
+      #else
       //index = (160*480);
       for (index = 0; index < 320 * 480; index++)
         LCD_IO_WriteData(Color);
+      #endif
       //LCD_IO_WriteMultiple(Color, (480*320));
       //while(index --) LCD_IO_WriteData(Color);
     }
@@ -312,6 +319,31 @@
   void init_tft() {
     uint16_t i;
     //************* Start Initial Sequence **********//
+
+    //start lcd pins and dma
+    #if PIN_EXISTS(LCD_BACKLIGHT)
+      OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
+    #endif
+
+    #if PIN_EXISTS(LCD_RESET)
+      // Perform a clean hardware reset with needed delays
+      OUT_WRITE(LCD_RESET_PIN, LOW);
+      _delay_ms(5);
+      WRITE(LCD_RESET_PIN, HIGH);
+      _delay_ms(5);
+    #endif
+
+    #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+      WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    #endif
+
+    TERN_(HAS_LCD_CONTRAST, refresh_contrast());
+
+    #ifdef LCD_USE_DMA_FSMC
+      dma_init(FSMC_DMA_DEV);
+      dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+      dma_set_priority(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, DMA_PRIORITY_MEDIUM);
+    #endif
 
     LCD_IO_Init(FSMC_CS_PIN, FSMC_RS_PIN);
 
@@ -430,9 +462,20 @@
     //uint16_t test_id=0;
     W25QXX.init(SPI_QUARTER_SPEED);
     //test_id=W25QXX.W25QXX_ReadID();
+
+    //init tft first!
+    #if ENABLED(SPI_GRAPHICAL_TFT)
+      SPI_TFT.spi_init(SPI_FULL_SPEED);
+      SPI_TFT.LCD_init();
+    #else
+      init_tft();
+    #endif
+
     #if ENABLED(SDSUPPORT)
       UpdatePic();
-      UpdateFont();
+      #if ENABLED(HAS_SPI_FLASH_FONT)
+        UpdateFont();
+      #endif
     #endif
 
     gCfgItems_init();
@@ -440,12 +483,7 @@
     disp_language_init();
     //spi_flash_read_test();
 
-    #if ENABLED(SPI_GRAPHICAL_TFT)
-      SPI_TFT.spi_init(SPI_FULL_SPEED);
-      SPI_TFT.LCD_init();
-    #else
-      init_tft();
-    #endif
+    touch.init();
 
     lv_init();
 
@@ -465,7 +503,9 @@
 
     systick_attach_callback(SysTick_Callback);
 
-    init_gb2312_font();
+    #if ENABLED(HAS_SPI_FLASH_FONT)
+      init_gb2312_font();
+    #endif
 
     tft_style_init();
 
@@ -561,7 +601,52 @@
               color_p++;
             }
 
-        #else
+        #elif 1
+          width = area->x2 - area->x1 + 1;
+          height = area->y2 - area->y1 + 1;
+          uint16_t tbuf[LCD_FULL_PIXEL_WIDTH * 2];
+          tft_set_cursor((uint16_t)area->x1,(uint16_t)area->y1);
+          ili9320_SetWindows((uint16_t)area->x1, (uint16_t)area->y1, width, height);
+          LCD_WriteRAM_Prepare();
+          i = 0;
+          for (int j = 0; j < width * height - 2; j++) {
+            clr_temp = (uint16_t)(((uint16_t)color_p->ch.red << 11)
+                                  | ((uint16_t)color_p->ch.green << 5)
+                                  | ((uint16_t)color_p->ch.blue));
+
+            tbuf[i] = clr_temp;
+            i++;
+            color_p++;
+            if (i >= COUNT(tbuf)) {
+              LCD_IO_WriteSequence(tbuf, COUNT(tbuf));
+              i = 0;
+            }
+          }
+          //send remaining bytes
+          if (i > 0) {
+            LCD_IO_WriteSequence(tbuf, i);
+          }
+
+        #elif 1
+          width = area->x2 - area->x1 + 1;
+          height = area->y2 - area->y1 + 1;
+          uint16_t tbuf[LCD_FULL_PIXEL_WIDTH];
+          tft_set_cursor((uint16_t)area->x1,(uint16_t)area->y1);
+          ili9320_SetWindows((uint16_t)area->x1, (uint16_t)area->y1, width, height);
+          LCD_WriteRAM_Prepare();
+          for (int j = 0; j < height; j++) {
+            for (i = 0; i < width; i++) {
+              clr_temp = (uint16_t)(((uint16_t)color_p->ch.red << 11)
+                                    | ((uint16_t)color_p->ch.green << 5)
+                                    | ((uint16_t)color_p->ch.blue));
+
+              tbuf[i] = clr_temp;
+              color_p++;
+            }
+            LCD_IO_WriteSequence(tbuf, width);
+          }
+
+        #else //original code, dont work
           width = area->x2 - area->x1 + 1;
           height = area->y2 - area->y1 + 1;
           //tft_set_cursor((uint16_t)area->x1,(uint16_t)area->y1);
@@ -616,18 +701,19 @@
 
     #ifndef USE_XPT2046
       #define USE_XPT2046       1
-      #define XPT2046_XY_SWAP   1
-      #define XPT2046_X_INV     0
-      #define XPT2046_Y_INV     1
+      //TODO: XPT2046 parameters could be configurable
+      #define XPT2046_XY_SWAP   0
+      #define XPT2046_X_INV     1
+      #define XPT2046_Y_INV     0
     #endif
 
     #if USE_XPT2046
       #define XPT2046_HOR_RES   480
       #define XPT2046_VER_RES   320
-      #define XPT2046_X_MIN     201
-      #define XPT2046_Y_MIN     164
-      #define XPT2046_X_MAX     3919
-      #define XPT2046_Y_MAX     3776
+      #define XPT2046_X_MIN     140
+      #define XPT2046_Y_MIN     200
+      #define XPT2046_X_MAX     1900
+      #define XPT2046_Y_MAX     1900
       #define XPT2046_AVG       4
       #define XPT2046_INV       0
     #endif
@@ -766,17 +852,26 @@
       //touchpad_get_xy(&last_x, &last_y);
       /*Save the pressed coordinates and the state*/
       if (diffTime > 10) {
-        XPT2046_Rd_Addata((uint16_t *)&last_x, (uint16_t *)&last_y);
+        //use marlin touch code if enabled 
+        #if ENABLED(TOUCH_BUTTONS)
+          touch.getTouchPoint(reinterpret_cast<uint16_t&>(last_x), reinterpret_cast<uint16_t&>(last_y));
+        #else
+          XPT2046_Rd_Addata((uint16_t *)&last_x, (uint16_t *)&last_y);
+        #endif
         if (TOUCH_PressValid(last_x, last_y)) {
 
           data->state = LV_INDEV_STATE_PR;
 
           /*Set the coordinates (if released use the last pressed coordinates)*/
 
+          // SERIAL_ECHOLNPAIR("antes X: ", last_x, ", y: ", last_y);
           xpt2046_corr((uint16_t *)&last_x, (uint16_t *)&last_y);
+          // SERIAL_ECHOLNPAIR("X: ", last_x, ", y: ", last_y);
           data->point.x = last_x;
           data->point.y = last_y;
 
+          last_x = 0;
+          last_y = 0;
         }
         else {
           data->state = LV_INDEV_STATE_REL;

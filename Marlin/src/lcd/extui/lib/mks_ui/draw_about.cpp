@@ -99,7 +99,7 @@ void lv_draw_about(void) {
 
   fw_version = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_version, &tft_style_lable_rel);
-  lv_label_set_text(fw_version, "Version: V_2.0.5.3");
+  lv_label_set_text(fw_version, SHORT_BUILD_VERSION);
   lv_obj_align(fw_version, NULL, LV_ALIGN_CENTER, 0, -60);
 
   fw_type = lv_label_create(scr, NULL);
@@ -108,6 +108,8 @@ void lv_draw_about(void) {
     lv_label_set_text(fw_type, "Firmware: Robin_Pro35");
   #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
     lv_label_set_text(fw_type, "Firmware: Robin_Nano35");
+  #else
+    lv_label_set_text(fw_type, CUSTOM_MACHINE_NAME);
   #endif
   lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
 
@@ -117,6 +119,8 @@ void lv_draw_about(void) {
     lv_label_set_text(board, "Board: MKS Robin pro");
   #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
     lv_label_set_text(board, "Board: MKS Robin nano");
+  #else
+    lv_label_set_text(fw_type, BOARD_INFO_NAME);
   #endif
 
   lv_obj_align(board, NULL, LV_ALIGN_CENTER, 0, 20);

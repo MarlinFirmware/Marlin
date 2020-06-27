@@ -31,6 +31,13 @@ extern "C" { /* C-declarations for C++ */
 
 #if 1
 
+  #define HAS_SPI_FLASH_FONT              0
+  #define HAS_GCODE_PREVIEW               0
+  #define SPI_FLASH_SIZE                  0x200000 //(2 * 1024 * 1024)
+  #define PIC_TOTAL_SIZE                  0x1d8800 //1935360 //sum of all pics
+  #define FONT_TOTAL_SIZE                 0
+  #define HEADER_TOTAL_SIZE               0x27800  //SPI_FLASH_SIZE - PIC_TOTAL_SIZE - FONT_TOTAL_SIZE //
+
   #define PIC_MAX_CN           100    // Maximum number of pictures
   #define PIC_NAME_MAX_LEN      50    // Picture name maximum length
 
@@ -44,6 +51,27 @@ extern "C" { /* C-declarations for C++ */
   #define PER_PIC_MAX_SPACE_TFT32         (16*1024)
   #define PER_FONT_MAX_SPACE              (16*1024)
 
+  #if SPI_FLASH_SIZE == 0x200000
+    //pic
+    //Robin_pro pic addr
+    #define PIC_NAME_ADDR                   0x001000      // Pic information addr
+    #define PIC_SIZE_ADDR                   0x005000      // Pic size information addr
+    #define PIC_COUNTER_ADDR                0x006000      // Pic total number
+    #define PER_PIC_SAVE_ADDR               0x009000      // Storage address of each picture
+    #define PIC_LOGO_ADDR                   0x00A000      // Logo addr
+    #define PIC_DATA_ADDR                   0x008000    //
+
+    // TFT35
+    #define DEFAULT_VIEW_ADDR_TFT35         0XC5800
+    #define BAK_VIEW_ADDR_TFT35             (DEFAULT_VIEW_ADDR_TFT35+90*1024)
+    #define PIC_ICON_LOGO_ADDR_TFT35        (BAK_VIEW_ADDR_TFT35+80*1024)
+    #define PIC_DATA_ADDR_TFT35             0x00F000 //(PIC_ICON_LOGO_ADDR_TFT35+350*1024)//0XC5800
+
+    #define PIC_DATA_ADDR_TFT32             0x00F000
+    #define PIC_ICON_LOGO_ADDR_TFT32        0x5D8000
+    #define PIC_OTHER_SIZE_ADDR_TFT32       0x5EE000
+
+  #else
   //pic
   //Robin_pro pic addr
   #define PIC_NAME_ADDR                   0x003000      // Pic information addr
@@ -68,6 +96,8 @@ extern "C" { /* C-declarations for C++ */
   #define FONTINFOADDR                    0x600000 // 6M -- font addr
   #define UNIGBK_FLASH_ADDR              (FONTINFOADDR+4096) // 4*1024
   #define GBK_FLASH_ADDR                 (UNIGBK_FLASH_ADDR+180224) // 176*1024
+
+  #endif
 
   // Flash flag
   #define FLASH_INF_VALID_FLAG            0xAA558761

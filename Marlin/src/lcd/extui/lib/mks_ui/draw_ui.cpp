@@ -119,6 +119,10 @@ lv_style_t tft_style_scr;
 lv_style_t tft_style_lable_pre;
 lv_style_t tft_style_lable_rel;
 
+//the colors of the last MKS Ui
+#undef LV_COLOR_BACKGROUND
+#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) //LV_COLOR_MAKE(0x00, 0x00, 0x00)
+
 void tft_style_init() {
   lv_style_copy(&tft_style_scr, &lv_style_scr);
   tft_style_scr.body.main_color = LV_COLOR_BACKGROUND;
@@ -139,8 +143,13 @@ void tft_style_init() {
   tft_style_lable_rel.body.grad_color = LV_COLOR_BACKGROUND;
   tft_style_lable_rel.text.color = LV_COLOR_TEXT;
   tft_style_lable_rel.text.sel_color = LV_COLOR_TEXT;
-  tft_style_lable_pre.text.font = &gb2312_puhui32;
-  tft_style_lable_rel.text.font = &gb2312_puhui32;
+  #if ENABLED(HAS_SPI_FLASH_FONT)
+    tft_style_lable_pre.text.font = &gb2312_puhui32;
+    tft_style_lable_rel.text.font = &gb2312_puhui32;
+  #else
+    tft_style_lable_pre.text.font = LV_FONT_DEFAULT;
+    tft_style_lable_rel.text.font = LV_FONT_DEFAULT;
+  #endif
   tft_style_lable_pre.line.width = 0;
   tft_style_lable_rel.line.width = 0;
   tft_style_lable_pre.text.letter_space = 0;
@@ -324,6 +333,8 @@ char *creat_title_text() {
 
   return public_buf_m;
 }
+
+#if ENABLED(HAS_GCODE_PREVIEW)
 
 void preview_gcode_prehandle(char *path) {
   #if ENABLED(SDSUPPORT)
@@ -556,6 +567,7 @@ void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
     default_preview_flg = 0;
   }
 }
+#endif
 
 void print_time_run() {
   static uint8_t lastSec = 0;
@@ -1175,7 +1187,9 @@ void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
   TERN_(MKS_TEST, mks_test());
-  disp_pre_gcode(2, 36);
+  #if ENABLED(HAS_GCODE_PREVIEW)
+    disp_pre_gcode(2, 36);
+  #endif
   GUI_RefreshPage();
   //sd_detection();
 }

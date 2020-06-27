@@ -27,6 +27,8 @@
 #include "lvgl.h"
 #include "pic_manager.h"
 
+#if ENABLED(HAS_SPI_FLASH_FONT)
+
 typedef struct {
   uint16_t min;
   uint16_t max;
@@ -107,5 +109,7 @@ void init_gb2312_font() {
   gb2312_puhui32.line_height = 25;
   gb2312_puhui32.base_line = 0;
 }
+
+#endif // HAS_SPI_FLASH_FONT
 
 #endif // TFT_LITTLE_VGL_UI
