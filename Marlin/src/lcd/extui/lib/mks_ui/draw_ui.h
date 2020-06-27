@@ -215,7 +215,7 @@ extern char *creat_title_text(void);
 extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
 #if ENABLED(HAS_GCODE_PREVIEW)
-extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+  extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
 extern void GUI_RefreshPage();
 extern void clear_cur_ui();
