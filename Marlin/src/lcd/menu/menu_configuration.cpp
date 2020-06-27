@@ -269,24 +269,6 @@ void menu_advanced_settings();
 
 #endif
 
-#if ENABLED(CASE_LIGHT_MENU)
-
-  #include "../../feature/caselight.h"
-
-  #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-
-    void menu_case_light() {
-      START_MENU();
-      BACK_ITEM(MSG_CONFIGURATION);
-      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
-      EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-      END_MENU();
-    }
-
-  #endif
-
-#endif
-
 #if ENABLED(FWRETRACT)
 
   #include "../../feature/fwretract.h"
@@ -316,21 +298,22 @@ void menu_advanced_settings();
 
 #endif
 
-#if DISABLED(SLIM_LCD_MENUS)
+#if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
-  void _menu_configuration_preheat_settings(const uint8_t material) {
+  void _menu_configuration_preheat_settings(const uint8_t m) {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
     #define _MAXTEMP_ITEM(N) HEATER_##N##_MAXTEMP,
     #define MINTEMP_ALL _MIN(REPEAT(HOTENDS, _MINTEMP_ITEM) 999)
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM(percent, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
+    editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
+    EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
     #if HAS_TEMP_HOTEND
-      EDIT_ITEM(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
+      EDIT_ITEM(uint16_3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
     #endif
     #if HAS_HEATED_BED
-      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAX_TARGET);
+      EDIT_ITEM(uint16_3, MSG_BED, &ui.material_preset[m].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
@@ -340,6 +323,15 @@ void menu_advanced_settings();
 
   void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
   void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
+  #if PREHEAT_COUNT >= 3
+    void menu_preheat_material3_settings() { _menu_configuration_preheat_settings(3); }
+    #if PREHEAT_COUNT >= 4
+      void menu_preheat_material4_settings() { _menu_configuration_preheat_settings(4); }
+      #if PREHEAT_COUNT >= 5
+        void menu_preheat_material5_settings() { _menu_configuration_preheat_settings(5); }
+      #endif
+    #endif
+  #endif
 
 #endif
 
@@ -403,18 +395,6 @@ void menu_configuration() {
     #endif
   #endif
 
-  //
-  // Set Case light on/off/brightness
-  //
-  #if ENABLED(CASE_LIGHT_MENU)
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (TERN1(CASE_LIGHT_USE_NEOPIXEL, PWM_PIN(CASE_LIGHT_PIN)))
-        SUBMENU(MSG_CASE_LIGHT, menu_case_light);
-      else
-    #endif
-        EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-  #endif
-
   #if HAS_LCD_CONTRAST
     EDIT_ITEM(int3, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
@@ -430,10 +410,19 @@ void menu_configuration() {
     EDIT_ITEM(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
   #endif
 
-  #if DISABLED(SLIM_LCD_MENUS)
-    // Preheat configurations
+  // Preheat configurations
+  #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
     SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
     SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
+    #if PREHEAT_COUNT >= 3
+      SUBMENU(MSG_PREHEAT_3_SETTINGS, menu_preheat_material3_settings);
+      #if PREHEAT_COUNT >= 4
+        SUBMENU(MSG_PREHEAT_4_SETTINGS, menu_preheat_material4_settings);
+        #if PREHEAT_COUNT >= 5
+          SUBMENU(MSG_PREHEAT_5_SETTINGS, menu_preheat_material5_settings);
+        #endif
+      #endif
+    #endif
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.1"
+#define BOARD_INFO_NAME "BTT SKR V1.1"
 
 //
 // Limit Switches

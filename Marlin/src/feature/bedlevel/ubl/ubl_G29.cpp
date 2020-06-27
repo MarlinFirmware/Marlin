@@ -393,17 +393,12 @@
     #if HAS_BED_PROBE
 
       if (parser.seen('J')) {
-        if (g29_grid_size) {  // if not 0 it is a normal n x n grid being probed
-          save_ubl_active_state_and_disable();
-          tilt_mesh_based_on_probed_grid(false /* false says to do normal grid probing */ );
-          restore_ubl_active_state_and_leave();
-        }
-        else { // grid_size == 0 : A 3-Point leveling has been requested
-          save_ubl_active_state_and_disable();
-          tilt_mesh_based_on_probed_grid(true /* true says to do 3-Point leveling */ );
-          restore_ubl_active_state_and_leave();
-        }
-        do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
+        save_ubl_active_state_and_disable();
+        tilt_mesh_based_on_probed_grid(g29_grid_size == 0); // Zero size does 3-Point
+        restore_ubl_active_state_and_leave();
+        #if ENABLED(UBL_G29_J_RECENTER)
+          do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
+        #endif
         report_current_position();
         probe_deployed = true;
       }
@@ -438,7 +433,7 @@
             if (g29_verbose_level > 1) {
               SERIAL_ECHOPAIR("Probing around (", g29_pos.x);
               SERIAL_CHAR(',');
-              SERIAL_ECHO(g29_pos.y);
+              SERIAL_DECIMAL(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
             const xy_pos_t near_probe_xy = g29_pos + probe.offset_xy;
@@ -478,7 +473,7 @@
             }
 
             if (parser.seen('B')) {
-              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
+              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(float(Z_CLEARANCE_BETWEEN_PROBES));
               if (ABS(g29_card_thickness) > 1.5f) {
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
@@ -831,7 +826,7 @@
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      TERN_(HAS_LCD_MENU, ui.capture());
+      ui.capture();
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -862,15 +857,13 @@
         SERIAL_ECHOLNPGM("mm thick.");
       }
 
-      ui.release();
-
       restore_ubl_active_state_and_leave();
 
       return thickness;
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
-      TERN_(HAS_LCD_MENU, ui.capture());
+      ui.capture();
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to_xy_z(current_position, z_clearance);
@@ -898,7 +891,7 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        TERN_(HAS_LCD_MENU, ui.capture());
+        ui.capture();
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -912,7 +905,6 @@
         if (click_and_hold()) {
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          ui.release();
           return restore_ubl_active_state_and_leave();
         }
 
@@ -963,9 +955,9 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      TERN_(HAS_LCD_MENU, ui.capture());                    // Take over control of the LCD encoder
+      ui.capture();                                               // Take over control of the LCD encoder
 
-      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);  // Move to the given XY with probe clearance
 
       TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset));  // Move Z to the given 'H' offset
 
@@ -1020,8 +1012,6 @@
         ui.refresh();
 
       } while (lpos.x >= 0 && --g29_repetition_cnt > 0);
-
-      ui.release();
 
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();
@@ -1173,6 +1163,7 @@
   }
 
   void unified_bed_leveling::restore_ubl_active_state_and_leave() {
+    TERN_(HAS_LCD_MENU, ui.release());
     #if ENABLED(UBL_DEVEL_DEBUGGING)
       if (--ubl_state_recursion_chk) {
         SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
