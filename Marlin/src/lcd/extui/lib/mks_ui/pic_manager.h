@@ -37,6 +37,9 @@ extern "C" { /* C-declarations for C++ */
 #ifndef HAS_GCODE_PREVIEW
   #define HAS_GCODE_PREVIEW               1
 #endif
+#ifndef HAS_LANG_SELECT_SCREEN
+  #define HAS_LANG_SELECT_SCREEN               1
+#endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                  0x1000000 // 16MB
 #endif

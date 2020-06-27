@@ -40,6 +40,150 @@ extern unsigned char bmp_public_buf[17 * 1024];
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
+static char assets[][30] = {
+  //homing screen
+  "bmp_Zero.bin",
+  "bmp_zeroX.bin",
+  "bmp_zeroY.bin",
+  "bmp_zeroZ.bin",
+  "bmp_Motor_off.bin",
+
+  //tool screen
+  "bmp_PreHeat.bin",
+  "bmp_Extruct.bin",
+  "bmp_Mov.bin",
+  "bmp_Zero.bin",
+  "bmp_Leveling.bin",
+
+  //fan screen
+  "bmp_Add.bin",
+  "bmp_Dec.bin",
+  "bmp_Speed255.bin",
+  "bmp_Speed127.bin",
+  "bmp_Speed0.bin",
+
+  //preheat screen
+  "bmp_Add.bin",
+  "bmp_Dec.bin",
+  "bmp_Speed0.bin",
+  "bmp_Extru2.bin",
+  "bmp_Extru1.bin",
+  "bmp_Bed.bin",
+  "bmp_Step1_degree.bin",
+  "bmp_Step5_degree.bin",
+  "bmp_Step10_degree.bin",
+
+  //extrusion screen
+  "bmp_In.bin",
+  "bmp_Out.bin",
+  "bmp_Extru1.bin",
+  #if EXTRUDERS > 1
+    "bmp_Extru2.bin",
+  #endif
+  "bmp_Speed_high.bin",
+  "bmp_Speed_slow.bin",
+  "bmp_Speed_normal.bin",
+  "bmp_Step1_mm.bin",
+  "bmp_Step5_mm.bin",
+  "bmp_Step10_mm.bin",
+
+  //select file screen
+  "bmp_pageUp.bin",
+  "bmp_pageDown.bin",
+  "bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
+  "bmp_Dir.bin",
+  "bmp_File.bin",
+
+  //move motor screen
+  //TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
+  "bmp_xAdd.bin",
+  "bmp_xDec.bin",
+  "bmp_yAdd.bin",
+  "bmp_yDec.bin",
+  "bmp_zAdd.bin",
+  "bmp_zDec.bin",
+  "bmp_Step_move0_1.bin",
+  "bmp_Step_move1.bin",
+  "bmp_Step_move10.bin",
+
+  //operation screen
+  "bmp_Auto.bin",
+  "bmp_Speed.bin",
+  //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_Motor_off.bin
+  "bmp_Fan.bin",
+  //"bmp_PreHeat.bin",
+  //"bmp_Extruct.bin",
+  // "bmp_Mov.bin",
+
+  //printing screen
+  "bmp_Pause.bin",
+  "bmp_Resume.bin",
+  "bmp_Stop.bin",
+  "bmp_Ext1_state.bin",
+  #if EXTRUDERS > 1
+    "bmp_Ext2_state.bin",
+  #endif
+  "bmp_Bed_state.bin",
+  "bmp_Fan_state.bin",
+  "bmp_Time_state.bin",
+  "bmp_Zpos_state.bin",
+  "bmp_Operate.bin",
+
+  //manual leval screen (only if disabled auto level)
+  #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    "bmp_Leveling1.bin",
+    "bmp_Leveling2.bin",
+    "bmp_Leveling3.bin",
+    "bmp_Leveling4.bin",
+    "bmp_Leveling5.bin",
+  #endif
+
+  //lang select screen
+  #if HAS_LANG_SELECT_SCREEN
+    "bmp_Language.bin",
+    "bmp_Simple_cn.bin",
+    "bmp_Simple_cn_sel.bin",
+    "bmp_Tradition_cn.bin",
+    "bmp_Tradition_cn_sel.bin",
+    "bmp_English.bin",
+    "bmp_English_sel.bin",
+    "bmp_Russian.bin",
+    "bmp_Russian_sel.bin",
+    "bmp_Spanish.bin",
+    "bmp_Spanish_sel.bin",
+    "bmp_French.bin",
+    "bmp_French_sel.bin",
+    "bmp_Italy.bin",
+    "bmp_Italy_sel.bin",
+  #endif //HAS_LANG_SELECT_SCREEN
+
+  //gcode preview
+  #if HAS_SPI_FLASH_FONT
+    "bmp_preview.bin",
+  #endif
+
+  //settings screen
+  "bmp_About.bin",
+  //"bmp_Language.bin",
+  //"bmp_Fan.bin",
+  "bmp_Motor_off.bin",
+
+  //start screen
+  "bmp_Print.bin",
+  "bmp_Set.bin",
+  "bmp_Tool.bin",
+
+  //base icons
+  "bmp_Return.bin"
+};
+
+#if HAS_SPI_FLASH_FONT
+  static char fonts[][50] = {
+    "GBK16.bin",
+    "UNIGBK.bin",
+  };
+#endif
+
 uint32_t lv_get_pic_addr(uint8_t *Pname) {
   uint8_t Pic_cnt;
   uint8_t i, j;
@@ -62,7 +206,7 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
       tmp_cnt++;
     } while (PIC.name[j++] != '\0');
 
-    if ((strcmp((char*)Pname, (char*)PIC.name)) == 0) {
+    if ((strcasecmp((char*)Pname, (char*)PIC.name)) == 0) {
       if ((DeviceCode == 0x9488) || (DeviceCode == 0x5761))
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
       else
@@ -189,6 +333,7 @@ uint8_t public_buf[512];
     unsigned char logoFlag;
     uint16_t pbr;
     uint32_t pfileSize;
+    uint32_t totalSizeLoaded = 0;
     uint32_t Pic_Write_Addr;
 
     SdFile dir, root = card.getroot();
@@ -204,63 +349,87 @@ uint8_t public_buf[512];
         if (card.longFilename[0] == '.')
           continue;
 
-        fn = card.longFilename;
-
-        if (strstr(fn, ".bin")) {
-          if (strstr(fn, "_logo"))
-            logoFlag = 1;
-          else if (strstr(fn, "_titlelogo"))
-            logoFlag = 2;
-          else if (strstr(fn, "_preview"))
-            logoFlag = 3;
-          else
-            logoFlag = 0;
-
-          char dosFilename[FILENAME_LENGTH];
-          createFilename(dosFilename, d);
-
-          SdFile file;
-          if (file.open(&dir, dosFilename, O_READ)) {
-            if (logoFlag == 1) {
-              while (1) {
-                pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-                Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-                if (pbr < BMP_WRITE_BUF_LEN) break;
-              }
-            }
-            else if (logoFlag == 2) {
-              while (1) {
-                pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-                Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-                if (pbr < BMP_WRITE_BUF_LEN) break;
-              }
-            }
-            else if (logoFlag == 3) {
-              while (1) {
-                pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-                default_view_Write(public_buf, pbr); //
-                if (pbr < BMP_WRITE_BUF_LEN) break;
-              }
-            }
-            else {
-              pfileSize = file.fileSize();
-              Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
-              while (1) {
-                pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-                W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
-                Pic_Write_Addr += pbr;
-                if (pbr < BMP_WRITE_BUF_LEN) break;
-              }
-            }
-            file.close();
+        uint8_t a = -1;
+        for(a = 0; a < COUNT(assets); a++) {
+          if (strcasecmp(assets[a], card.longFilename) == 0) {
+            break;
           }
+        }
+        if (a <= 0 || a >= COUNT(assets)) continue;
 
+        fn = assets[a];
+        char dosFilename[FILENAME_LENGTH];
+        createFilename(dosFilename, d);
+
+        SdFile file;
+        if (!file.open(&dir, dosFilename, O_READ)) {
+          #if ENABLED(MARLIN_DEV_MODE)
+            SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
+          #endif
+          continue;
         }
 
+        if (strstr(fn, "_logo"))
+          logoFlag = 1;
+        else if (strstr(fn, "_titlelogo"))
+          logoFlag = 2;
+        else if (strstr(fn, "_preview"))
+          logoFlag = 3;
+        else
+          logoFlag = 0;
+
+        pfileSize = file.fileSize();
+        totalSizeLoaded += pfileSize;
+        if (logoFlag == 1) {
+          while (1) {
+            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+            Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
+            if (pbr < BMP_WRITE_BUF_LEN)
+              break;
+          }
+        }
+        else if (logoFlag == 2) {
+          while (1) {
+            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+            Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
+            if (pbr < BMP_WRITE_BUF_LEN)
+              break;
+          }
+        }
+        else if (logoFlag == 3) {
+          while (1) {
+            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+            default_view_Write(public_buf, pbr); //
+            if (pbr < BMP_WRITE_BUF_LEN)
+              break;
+          }
+        }
+        else {
+          Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
+          while (1) {
+            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+            W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+            Pic_Write_Addr += pbr;
+            if (pbr < BMP_WRITE_BUF_LEN)
+              break;
+          }
+        }
+
+        #if ENABLED(MARLIN_DEV_MODE)
+          SERIAL_ECHOLNPAIR("Asset added: ", fn);
+        #endif
+
+        file.close();
       }
       dir.rename(&root, bakPath);
     }
     dir.close();
+
+    #if ENABLED(MARLIN_DEV_MODE)
+      uint8_t pic_counter = 0;
+      W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
+      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter, ", Total size: ", totalSizeLoaded);
+    #endif
   }
 
   #if HAS_SPI_FLASH_FONT
