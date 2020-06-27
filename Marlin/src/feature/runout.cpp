@@ -91,7 +91,7 @@ void event_filament_runout() {
       #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
         SERIAL_ECHOLN("Migration Starting");
       #endif
-      extruder_migration(); return;
+      if(extruder_migration()) return;
     }
   #endif
 
