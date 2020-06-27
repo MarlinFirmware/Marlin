@@ -1187,7 +1187,7 @@ void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
   TERN_(MKS_TEST, mks_test());
-  #if ENABLED(HAS_GCODE_PREVIEW)
+  #if HAS_GCODE_PREVIEW
     disp_pre_gcode(2, 36);
   #endif
   GUI_RefreshPage();
