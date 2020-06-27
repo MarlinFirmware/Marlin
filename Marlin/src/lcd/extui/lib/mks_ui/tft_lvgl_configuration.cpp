@@ -434,7 +434,9 @@ void tft_lvgl_init() {
   disp_language_init();
   //spi_flash_read_test();
 
-  touch.init();
+  #if ENABLED(TOUCH_BUTTONS)
+    touch.init();
+  #endif
 
   lv_init();
 
