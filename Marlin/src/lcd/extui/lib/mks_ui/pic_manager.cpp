@@ -115,6 +115,15 @@ static char assets[][30] = {
   //"bmp_Extruct.bin",
   // "bmp_Mov.bin",
 
+  //change speed screen
+  "bmp_Step1_percent.bin",
+  "bmp_Step5_percent.bin",
+  "bmp_Step10_percent.bin",
+  "bmp_Extruct_speed_sel.bin",
+  "bmp_Mov_speed.bin",
+  "bmp_Extruct_speed.bin",
+  "bmp_Mov_speed_sel.bin",
+
   //printing screen
   "bmp_Pause.bin",
   "bmp_Resume.bin",
