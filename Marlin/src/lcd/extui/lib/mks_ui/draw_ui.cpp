@@ -25,7 +25,6 @@
 
 #include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
-#include "pic_manager.h"
 
 #include <SPI.h>
 
@@ -37,6 +36,8 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
+
+#include "pic_manager.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
