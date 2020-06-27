@@ -38,7 +38,7 @@ extern "C" { /* C-declarations for C++ */
   #define HAS_GCODE_PREVIEW               1
 #endif
 #ifndef SPI_FLASH_SIZE
-  #define SPI_FLASH_SIZE                  0x1000000 //(16 * 1024 * 1024)
+  #define SPI_FLASH_SIZE                  0x1000000 // 16MB
 #endif
 
 #define PIC_MAX_CN           100    // Maximum number of pictures

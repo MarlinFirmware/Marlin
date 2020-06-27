@@ -142,7 +142,7 @@
   #endif
 #endif
 
-#define SPI_FLASH_SIZE 0x200000                   //(2 * 1024 * 1024)
+#define SPI_FLASH_SIZE 0x200000                   // 2MB
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
   #define HAS_SPI_FLASH_FONT 0
