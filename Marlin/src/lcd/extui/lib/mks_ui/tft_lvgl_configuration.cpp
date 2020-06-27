@@ -531,7 +531,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
       height = area->y2 - area->y1 + 1;
       ili9320_SetWindows((uint16_t)area->x1, (uint16_t)area->y1, width, height);
       LCD_WriteRAM_Prepare();
-      for (i = 0; i < width * height; i++) {
+      for (i = 0; i < width * height - 2; i++) {
         clr_temp = (uint16_t)(((uint16_t)color_p->ch.red << 11)
                               | ((uint16_t)color_p->ch.green << 5)
                               | ((uint16_t)color_p->ch.blue));
