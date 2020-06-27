@@ -148,6 +148,50 @@
   #endif
 #endif
 
+#if ENABLED(TFT_LITTLE_VGL_UI)
+  //SPI 2
+  #define W25QXX_CS_PIN                     PB12
+  #define W25QXX_MOSI_PIN                   PB15
+  #define W25QXX_MISO_PIN                   PB14
+  #define W25QXX_SCK_PIN                    PB13
+
+  #define TOUCH_CS_PIN                    PB7   // SPI1_NSS
+  #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
+  #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
+  #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
+  // #define TOUCH_INT_PIN                   PB6
+
+  #define SPI_TFT_CS_PIN                  TOUCH_CS_PIN
+  #define SPI_TFT_SCK_PIN                 TOUCH_SCK_PIN
+  #define SPI_TFT_MISO_PIN                TOUCH_MISO_PIN
+  #define SPI_TFT_MOSI_PIN                TOUCH_MOSI_PIN
+  #define SPI_TFT_DC_PIN                  PB6
+  #define SPI_TFT_RST_PIN                 PF11
+
+  #define LCD_RESET_PIN                     PF11
+  #define NO_LCD_REINIT
+  #define LCD_BACKLIGHT_PIN                 PD13
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
+
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define LCD_FULL_PIXEL_WIDTH 480
+  #define LCD_PIXEL_OFFSET_X 48
+  #define LCD_FULL_PIXEL_HEIGHT 320
+  #define LCD_PIXEL_OFFSET_Y 48
+
+  #define LCD_PIXEL_HEIGHT 320
+  #define LCD_PIXEL_WIDTH 480
+
+  #define XPT2046_X_CALIBRATION  -12316
+  #define XPT2046_Y_CALIBRATION   8981
+  #define XPT2046_X_OFFSET        340
+  #define XPT2046_Y_OFFSET        -20
+#endif
+
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
 // so SPI2 is required.
 #define ENABLE_SPI2
