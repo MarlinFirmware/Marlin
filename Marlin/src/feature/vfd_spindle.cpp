@@ -200,8 +200,9 @@ int VFDSpindle::receive_data_detail()
             // Still no data, this means we're done.
 
 #ifdef VFD_RS485_DEBUG
-            // VERY chatty!
-            // debug_rs485(false, vfd_receive_buffer, index);
+#ifdef VFD_RS485_DEBUG_PCK
+            debug_rs485(false, vfd_receive_buffer, index);
+#endif
 #endif
 
             return index;
@@ -240,8 +241,9 @@ void VFDSpindle::send_data_detail(uint8_t* buffer, int length)
 #endif
 
 #ifdef VFD_RS485_DEBUG
-  // VERY chatty!
-  // debug_rs485(true, buffer, length + 2);
+#ifdef VFD_RS485_DEBUG_PCK
+  debug_rs485(true, buffer, length + 2);
+#endif
 #endif
 }
 
@@ -365,6 +367,12 @@ uint16_t VFDSpindle::get_max_rpm()
       uint16_t(vfd_receive_buffer[5]);
 
     max_rpm = rpm;
+
+#ifdef VFD_RS485_DEBUG
+    SERIAL_ECHOPGM("VFD max rpm is ");
+    SERIAL_ECHO(rpm);
+    SERIAL_ECHOLNPGM(".\n");
+#endif
   }
 
   return max_rpm;
@@ -428,6 +436,12 @@ void VFDSpindle::set_speed(uint16_t rpm)
   vfd_send_buffer[5] = uint8_t(speed & 0xFF);
 
   query(6);
+
+#ifdef VFD_RS485_DEBUG
+  SERIAL_ECHOPGM("VFD speed set to ");
+  SERIAL_ECHO(speed);
+  SERIAL_ECHOLNPGM(" (0-10k).\n");
+#endif
 }
 
 // Apparently some G-codes return 0-255 instead of a normal value... This
@@ -447,6 +461,10 @@ uint16_t VFDSpindle::normalize_power(int32_t value)
 
 void VFDSpindle::init()
 {
+#ifdef VFD_RS485_DEBUG
+  SERIAL_ECHOPGM("VFD initializing.\r\n");
+#endif
+
   power = 0;
   direction = 1; // forward
   enabled = false;
@@ -468,13 +486,23 @@ void VFDSpindle::init()
   {
     set_speed(0);
   }
+
 }
 
 void VFDSpindle::set_power(const int32_t pwr)
 {
+  static int32_t last_power_applied = -1;
+  if (pwr == last_power_applied) return;
+
+#ifdef VFD_RS485_DEBUG
+  SERIAL_ECHOPGM("VFD set power to ");
+  SERIAL_ECHO(pwr);
+  SERIAL_ECHOLNPGM(" rpm.\r\n");
+#endif
+
   auto norm = normalize_power(pwr);
 
-  if (enabled && direction != 0 && norm != power)
+  if (enabled && direction != 0)
   {
     power = norm;
     set_current_direction(direction);
@@ -490,6 +518,12 @@ void VFDSpindle::apply_power(const int32_t inpow)
 
 void VFDSpindle::set_enabled(const bool enable)
 {
+#ifdef VFD_RS485_DEBUG
+  SERIAL_ECHOPGM("VFD set enabled");
+  SERIAL_ECHO(enable?"true":"false");
+  SERIAL_ECHOLNPGM(".\r\n");
+#endif
+
   enabled = enable;
 
   if (!enable)
@@ -534,6 +568,12 @@ void VFDSpindle::set_direction(const bool reverse)
   auto newDirection = reverse ? -1 : 1;
   if (direction != newDirection)
   {
+#ifdef VFD_RS485_DEBUG
+    SERIAL_ECHOPGM("VFD set direction to ");
+    SERIAL_ECHO(newDirection<0?"reverse":"forward");
+    SERIAL_ECHOLNPGM(".\r\n");
+#endif
+
     direction = newDirection;
 
     // If it's enabled, we have to reverse the running direction

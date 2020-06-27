@@ -2710,7 +2710,8 @@
   #define VFD_ADDRESS 1     // Modbus address of the VFD
   #define VFD_PARITY SERIAL_8E1
 
-  #define VFD_RS485_DEBUG   // Modbus debugging
+  #define VFD_RS485_DEBUG   // VFD debugging
+  #define VFD_RS485_DEBUG_PCK // VFD debugging of all communication
 #endif
 
 /**

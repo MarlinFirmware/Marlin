@@ -90,17 +90,23 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   cutter.set_direction(is_M4);
 
   #if ENABLED(SPINDLE_VFD)
+
   if (parser.seenval('O'))
     cutter.set_power(-int32_t(parser.value_byte()));
   else
     cutter.set_power(parser.longval('S', -255));
+
   #elif ENABLED(SPINDLE_LASER_PWM)
+
     if (parser.seenval('O'))
       cutter.set_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
     else
       cutter.set_power(parser.intval('S', 255));
+
   #else
+
     cutter.set_enabled(true);
+
   #endif
 }
 
