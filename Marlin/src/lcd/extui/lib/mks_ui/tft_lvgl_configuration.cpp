@@ -578,21 +578,42 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 
   #ifndef USE_XPT2046
     #define USE_XPT2046       1
-    //TODO: XPT2046 parameters could be configurable
-    #define XPT2046_XY_SWAP   0
-    #define XPT2046_X_INV     1
-    #define XPT2046_Y_INV     0
+    #ifndef XPT2046_XY_SWAP
+      #define XPT2046_XY_SWAP   1
+    #endif
+    #ifndef XPT2046_X_INV
+      #define XPT2046_X_INV     0
+    #endif
+    #ifndef XPT2046_Y_INV
+      #define XPT2046_Y_INV     1
+    #endif
   #endif
 
   #if USE_XPT2046
-    #define XPT2046_HOR_RES   480
-    #define XPT2046_VER_RES   320
-    #define XPT2046_X_MIN     140
-    #define XPT2046_Y_MIN     200
-    #define XPT2046_X_MAX     1900
-    #define XPT2046_Y_MAX     1900
-    #define XPT2046_AVG       4
-    #define XPT2046_INV       0
+    #ifndef XPT2046_HOR_RES   480
+      #define XPT2046_HOR_RES   480
+    #endif
+    #ifndef XPT2046_VER_RES
+      #define XPT2046_VER_RES   320
+    #endif
+    #ifndef XPT2046_X_MIN
+      #define XPT2046_X_MIN     201
+    #endif
+    #ifndef XPT2046_Y_MIN
+      #define XPT2046_Y_MIN     164
+    #endif
+    #ifndef XPT2046_X_MAX
+      #define XPT2046_X_MAX     3919
+    #endif
+    #ifndef XPT2046_Y_MAX
+      #define XPT2046_Y_MAX     3776
+    #endif
+    #ifndef XPT2046_AVG
+      #define XPT2046_AVG       4
+    #endif
+    #ifndef XPT2046_INV
+      #define XPT2046_INV       0
+    #endif
   #endif
 
 #endif

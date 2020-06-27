@@ -193,6 +193,20 @@
   #define XPT2046_Y_CALIBRATION   8981
   #define XPT2046_X_OFFSET        340
   #define XPT2046_Y_OFFSET        -20
+
+  #define USE_XPT2046       1
+  #define XPT2046_XY_SWAP   0
+  #define XPT2046_X_INV     1
+  #define XPT2046_Y_INV     0
+
+  #define XPT2046_HOR_RES   480
+  #define XPT2046_VER_RES   320
+  #define XPT2046_X_MIN     140
+  #define XPT2046_Y_MIN     200
+  #define XPT2046_X_MAX     1900
+  #define XPT2046_Y_MAX     1900
+  #define XPT2046_AVG       4
+  #define XPT2046_INV       0
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
