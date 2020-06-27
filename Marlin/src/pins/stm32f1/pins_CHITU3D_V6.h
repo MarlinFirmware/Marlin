@@ -147,11 +147,11 @@
   #endif
 #endif
 
-#define SPI_FLASH_SIZE   0x200000 //(2 * 1024 * 1024)
+#define SPI_FLASH_SIZE 0x200000                   //(2 * 1024 * 1024)
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
-  #define HAS_SPI_FLASH_FONT              0
-  #define HAS_GCODE_PREVIEW               0
+  #define HAS_SPI_FLASH_FONT 0
+  #define HAS_GCODE_PREVIEW 0
 
   //SPI 2
   #define W25QXX_CS_PIN                     PB12
@@ -159,18 +159,18 @@
   #define W25QXX_MISO_PIN                   PB14
   #define W25QXX_SCK_PIN                    PB13
 
-  #define TOUCH_CS_PIN                    PB7   // SPI1_NSS
-  #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
-  #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
+  #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
+  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
+  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
+  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
   // #define TOUCH_INT_PIN                   PB6
 
-  #define SPI_TFT_CS_PIN                  TOUCH_CS_PIN
-  #define SPI_TFT_SCK_PIN                 TOUCH_SCK_PIN
-  #define SPI_TFT_MISO_PIN                TOUCH_MISO_PIN
-  #define SPI_TFT_MOSI_PIN                TOUCH_MOSI_PIN
-  #define SPI_TFT_DC_PIN                  PB6
-  #define SPI_TFT_RST_PIN                 PF11
+  #define SPI_TFT_CS_PIN            TOUCH_CS_PIN
+  #define SPI_TFT_SCK_PIN          TOUCH_SCK_PIN
+  #define SPI_TFT_MISO_PIN        TOUCH_MISO_PIN
+  #define SPI_TFT_MOSI_PIN        TOUCH_MOSI_PIN
+  #define SPI_TFT_DC_PIN                    PB6
+  #define SPI_TFT_RST_PIN                   PF11
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
