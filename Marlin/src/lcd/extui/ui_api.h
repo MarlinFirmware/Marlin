@@ -237,6 +237,8 @@ namespace ExtUI {
   #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
+    bool getFilamentRunoutState();
+    void setFilamentRunoutState(const bool);
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm();
