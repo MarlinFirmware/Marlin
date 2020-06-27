@@ -315,6 +315,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
   PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("Limite E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("Limite E *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diam. filo");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diam. filo *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Rimuovi mm");
@@ -336,6 +338,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Schermata info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prepara");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Regola");
+  PROGMEM Language_Str MSG_POWER_MONITOR                   = _UxGT("Controllo aliment.");
+  PROGMEM Language_Str MSG_CURRENT                         = _UxGT("Corrente");
+  PROGMEM Language_Str MSG_VOLTAGE                         = _UxGT("Tensione");
+  PROGMEM Language_Str MSG_POWER                           = _UxGT("Potenza");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Avvia stampa");
   PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("Prossimo");
   PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("Inizializza");

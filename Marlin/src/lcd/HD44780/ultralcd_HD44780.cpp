@@ -824,19 +824,21 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            if (TERN1(LCD_SHOW_E_TOTAL, !printingIsActive())) {
-              const xy_pos_t lpos = current_position.asLogical();
-              _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
-              lcd_put_wchar(' ');
-              _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
-            }
-            else {
+            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
+
+            if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
                 char tmp[20];
                 const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
                 sprintf_P(tmp, PSTR("E %ld%cm       "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
                 lcd_put_u8str(tmp);
               #endif
+            }
+            else {
+              const xy_pos_t lpos = current_position.asLogical();
+              _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+              lcd_put_wchar(' ');
+              _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
             }
 
           #endif // !HAS_DUAL_MIXING
