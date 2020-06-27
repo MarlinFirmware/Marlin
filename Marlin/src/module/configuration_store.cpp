@@ -140,6 +140,10 @@
   #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../feature/password.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
@@ -400,6 +404,14 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_CASE_LIGHT_BRIGHTNESS
     uint8_t case_light_brightness;
+  #endif
+
+  //
+  // PASSWORD_FEATURE
+  //
+  #if ENABLED(PASSWORD_FEATURE)
+    bool password_set;
+    uint32_t password_value;
   #endif
 
 } SettingsData;
@@ -1333,6 +1345,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Password feature
+    //
+    #if ENABLED(PASSWORD_FEATURE)
+      EEPROM_WRITE(password_set);
+      EEPROM_WRITE(password_value);
+    #endif
+    //
     // Validate CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2164,6 +2183,15 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(case_light_brightness);
       #endif
 
+      //
+      // Password feature
+      //
+      #if ENABLED(PASSWORD_FEATURE)
+        _FIELD_TEST(password_value);
+        EEPROM_READ(password_set);
+        EEPROM_READ(password_value);
+      #endif
+
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
@@ -2700,6 +2728,10 @@ void MarlinSettings::reset() {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
       fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
+  #endif
+
+  #if ENABLED(PASSWORD_FEATURE)
+    password_set = false;
   #endif
 
   postprocess();

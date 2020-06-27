@@ -50,6 +50,10 @@
   #include "../../lcd/menu/menu_mmu2.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password.h"
+#endif
+
 void menu_tune();
 void menu_motion();
 void menu_temperature();
@@ -127,7 +131,11 @@ void menu_main() {
 
       if (card_detected) {
         if (!card_open) {
+          #if BOTH(PASSWORD_FEATURE, PASSWORD_ON_SD_PRINT_MENU)
+          SUBMENU(MSG_MEDIA_MENU, password_menu_media);
+          #else
           SUBMENU(MSG_MEDIA_MENU, menu_media);
+          #endif
           MENU_ITEM(gcode,
             #if PIN_EXISTS(SD_DETECT)
               MSG_CHANGE_MEDIA, M21_STR
@@ -234,7 +242,11 @@ void menu_main() {
               MSG_RELEASE_MEDIA, PSTR("M22")
             #endif
           );
+          #if BOTH(PASSWORD_FEATURE, PASSWORD_ON_SD_PRINT_MENU)
+          SUBMENU(MSG_MEDIA_MENU, password_menu_media);
+          #else
           SUBMENU(MSG_MEDIA_MENU, menu_media);
+          #endif
         }
       }
       else {

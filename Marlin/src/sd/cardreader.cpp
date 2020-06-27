@@ -50,6 +50,9 @@
   #include "../feature/pause.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../feature/password.h"
+#endif
 // public:
 
 card_flags_t CardReader::flag;

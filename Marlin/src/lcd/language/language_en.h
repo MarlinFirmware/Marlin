@@ -587,6 +587,15 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Bad page index");
   PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Bad page speed");
 
+  PROGMEM Language_Str MSG_PASSWORD                        = _UxGT("Password: ");
+  PROGMEM Language_Str MSG_PASSWORD_SETTINGS               = _UxGT("Password Settings");
+  PROGMEM Language_Str MSG_ENTER_DIGIT                     = _UxGT("Enter Digit");
+  PROGMEM Language_Str MSG_SET_CHANGE_PASSWORD             = _UxGT("Set/Change Password");
+  PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Remove Password");
+  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Password is ");
+  PROGMEM Language_Str MSG_CLEAR                           = _UxGT("Clear");
+  PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Please Store Settings");
+
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display

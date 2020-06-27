@@ -51,6 +51,10 @@
   #include "../../module/configuration_store.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password.h"
+#endif
+
 void menu_tmc();
 void menu_backlash();
 void menu_cancelobject();
@@ -612,6 +616,10 @@ void menu_advanced_settings() {
     });
   #endif
 
+  #if ENABLED(PASSWORD_FEATURE)
+    SUBMENU(MSG_PASSWORD_SETTINGS, menu_password);
+  #endif
+
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
     CONFIRM_ITEM(MSG_INIT_EEPROM,
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
@@ -619,6 +627,7 @@ void menu_advanced_settings() {
       GET_TEXT(MSG_INIT_EEPROM), (const char *)nullptr, PSTR("?")
     );
   #endif
+
 
   END_MENU();
 }

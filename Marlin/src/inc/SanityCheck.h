@@ -3001,3 +3001,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
   #endif
 #endif
+
+/**
+* Sanity Check for Password Feature
+*/
+#if ENABLED(PASSWORD_FERATURE)
+  #if !HAS_LCD_MENU
+    #error "PASSWORD_FEATURE needs to have an LCD menu (HAS_LCD_MENU) to work"
+  #endif
+
+  #if DISABLED(EEPROM_SETTINGS)
+    #warning "PASSWORD_FEATURE Settings cannot be saved without EEPROM_SETTINGS"
+  #endif
+#endif
