@@ -31,12 +31,15 @@ extern "C" { /* C-declarations for C++ */
 
 #if 1
 
-  #define HAS_SPI_FLASH_FONT              0
-  #define HAS_GCODE_PREVIEW               0
-  #define SPI_FLASH_SIZE                  0x200000 //(2 * 1024 * 1024)
-  #define PIC_TOTAL_SIZE                  0x1d8800 //1935360 //sum of all pics
-  #define FONT_TOTAL_SIZE                 0
-  #define HEADER_TOTAL_SIZE               0x27800  //SPI_FLASH_SIZE - PIC_TOTAL_SIZE - FONT_TOTAL_SIZE //
+  #ifndef HAS_SPI_FLASH_FONT
+    #define HAS_SPI_FLASH_FONT              1
+  #endif
+  #ifndef HAS_GCODE_PREVIEW
+    #define HAS_GCODE_PREVIEW               1
+  #endif
+  #ifndef SPI_FLASH_SIZE
+    #define SPI_FLASH_SIZE                  0x1000000 //(16 * 1024 * 1024)
+  #endif
 
   #define PIC_MAX_CN           100    // Maximum number of pictures
   #define PIC_NAME_MAX_LEN      50    // Picture name maximum length
