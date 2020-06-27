@@ -116,7 +116,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (gCfgItems.finish_power_off == 1) {
           gCfgItems.finish_power_off = 0;
-          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_Mamual.bin", 0);
+          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_Motor_off.bin", 0); //dindt find bmp_Mamual...
           lv_label_set_text(label_PowerOff, printing_more_menu.manual);
           lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
           lv_obj_refresh_ext_draw_pad(label_PowerOff);
@@ -220,7 +220,7 @@ void lv_draw_opration(void) {
     if (gCfgItems.finish_power_off == 1)
       lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_Auto.bin", 0);
     else
-      lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_Mamual.bin", 0);
+      lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_Motor_off.bin", 0);
     lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
