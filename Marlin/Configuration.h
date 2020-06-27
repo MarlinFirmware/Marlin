@@ -111,7 +111,7 @@
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 #define SERIAL_PORT_2 0 // 20/06/05
-#define SERIAL_PORT_3 1 // attempt to link TFT 35 // 20/06/26
+
 /**
  * This setting determines the communication speed of the printer.
  *
