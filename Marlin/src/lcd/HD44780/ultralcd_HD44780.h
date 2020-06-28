@@ -28,6 +28,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if DISABLED(TFTGLCD_ADAPTER)
+
 #if LCD_HEIGHT > 3
   #include "../../libs/duration_t.h"
 #endif
@@ -107,3 +109,5 @@
 
 #include "../fontutils.h"
 #include "../lcdprint.h"
+
+#endif //TFTGLCD_ADAPTER

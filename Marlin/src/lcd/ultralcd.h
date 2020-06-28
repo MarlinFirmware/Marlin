@@ -27,6 +27,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(TFTGLCD_ADAPTER)
+  #include "TFTGLCD\ultralcd_TFTGLCD.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "../sd/cardreader.h"
 #endif
@@ -45,7 +49,7 @@
 #endif
 
 // I2C buttons must be read in the main thread
-#if EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2)
+#if EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2) && DISABLED(TFTGLCD_ADAPTER)
   #define HAS_SLOW_BUTTONS 1
 #endif
 
@@ -559,6 +563,9 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
+      #if ENABLED(TFTGLCD_ADAPTER)
+        static void ubl_plot_data(const uint8_t x_plot, const uint8_t y_plot);
+      #endif
     #endif
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
@@ -620,7 +627,7 @@ public:
       static volatile uint8_t keypad_buttons;
       static bool handle_keypad();
     #endif
-    #if HAS_SLOW_BUTTONS
+    #if ENABLED(HAS_SLOW_BUTTONS)
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
     #endif

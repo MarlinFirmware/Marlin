@@ -162,6 +162,28 @@
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
 
+#elif ENABLED(TFTGLCD_ADAPTER)
+
+  #define IS_ULTIPANEL
+  #define NEWPANEL
+  #define LCD_CONNECT_BY_SPI                //uncomment if panel connected by SPI bus
+  #define LCD_USE_I2C_BUZZER                //hardware buzzer on panel for I2C and SPI buses
+  #if ENABLED(SDSUPPORT)
+    #define LCD_PROGRESS_BAR
+  #endif
+  #define LCD_WIDTH                   20    //20 or 24 chars in line
+  #define LCD_HEIGHT                  10    //lines
+  #define LCD_I2C_ADDRESS             0x20  //used only when panel connected via I2C
+  #define LCD_CONTRAST_MIN            127
+  #define LCD_CONTRAST_MAX            255
+  #define DEFAULT_LCD_CONTRAST        250
+  #define ENCODER_PULSES_PER_STEP     2
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #define HAS_SLOW_BUTTONS                  //buttons and encoder on panel
+  #define CONVERT_TO_EXT_ASCII  //use extended 128-255 symbols from ASCII table except 208 and 209 as UTF markers for cyliilic
+                                //this time supported only bg, ru and uk languages (cyrillic)
+                                //first 7 ASCII symbols in panel font must be replaced with Marlin special symbols
+
 #endif
 
 #if ENABLED(IS_RRD_FG_SC)
@@ -378,7 +400,8 @@
   #endif
 #endif
 
-#if ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS)
+#if (ENABLED(ULTIPANEL) || ENABLED(TFTGLCD_ADAPTER)) && DISABLED(NO_LCD_MENUS)
+
   #define HAS_LCD_MENU 1
 #endif
 #if ENABLED(ADC_KEYPAD)

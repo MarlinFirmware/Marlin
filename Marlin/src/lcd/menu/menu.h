@@ -27,6 +27,11 @@
 
 #include "limits.h"
 
+#if ENABLED(TFTGLCD_ADAPTER)
+  #include "../TFTGLCD/ultralcd_TFTGLCD.h"
+  extern TFTGLCD lcd;
+#endif
+
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
@@ -352,13 +357,22 @@ class MenuItem_bool : public MenuEditItemBase {
  *   _menuLineNr is the menu item to draw and process
  *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  */
-#define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
-  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
-  int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
-  bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);      \
-  for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
-    _thisItemNr = 0
-
+#if DISABLED(TFTGLCD_ADAPTER)
+  #define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
+    scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
+    int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
+    bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);      \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
+      _thisItemNr = 0
+#else
+  #define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
+    scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
+    int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
+    bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);      \
+    lcd.clear_buffer(); \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
+      _thisItemNr = 0
+#endif
 /**
  * START_SCREEN  Opening code for a screen having only static items.
  *               Do simplified scrolling of the entire screen.
@@ -370,7 +384,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #define START_MENU() SCREEN_OR_MENU_LOOP(true)
 #define NEXT_ITEM() (++_thisItemNr)
 #define SKIP_ITEM() NEXT_ITEM()
-#define END_SCREEN() } screen_items = _thisItemNr
+#if DISABLED(TFTGLCD_ADAPTER)
+  #define END_SCREEN() } screen_items = _thisItemNr
+#else
+  #define END_SCREEN() } lcd.print_screen();  screen_items = _thisItemNr
+#endif
 #define END_MENU() END_SCREEN(); UNUSED(_skipStatic)
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)

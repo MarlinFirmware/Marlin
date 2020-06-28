@@ -214,9 +214,32 @@
 #define EXPA2_09_PIN                       P0_15
 #define EXPA2_10_PIN                       P0_17
 
+#if ENABLED(TFTGLCD_ADAPTER) and ENABLED(HAS_SLOW_BUTTONS)
+
+  //For SPI and I2C connections
+  #define BTN_EN1         -1
+  #define BTN_EN2         -1
+  #define BTN_ENC         -1
+
+#endif
+
 #if HAS_SPI_LCD
 
-  #if ENABLED(ANET_FULL_GRAPHICS_LCD)
+  #if ENABLED(TFTGLCD_ADAPTER) && ENABLED(LCD_CONNECT_BY_SPI)
+
+//    #define DOGLCD_CS               EXPA2_08_PIN
+    #define DOGLCD_CS               EXPA2_07_PIN  //for  my test board
+  
+    //redefined pins for my test only
+    #define E1_ENABLE_PIN           P2_12
+    #define TEMP_BED_PIN            P0_25_A2//0   // A0 (T0) - (67) - TEMP_BED_PIN
+    #define TEMP_0_PIN              P0_26_A3//1   // A1 (T1) - (68) - TEMP_0_PIN
+    #define TEMP_1_PIN              P1_31_A5//2   // A2 (T2) - (69) - TEMP_1_PIN
+
+//    #define SD_DETECT_PIN           EXPA2_04_PIN
+    #define SD_DETECT_PIN           P1_28 //for  my test board
+  
+  #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
 
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
 
@@ -265,9 +288,13 @@
 
     #define LCD_PINS_RS             EXPA1_07_PIN
 
-    #define BTN_EN1                 EXPA2_08_PIN  // (31) J3-2 & AUX-4
-    #define BTN_EN2                 EXPA2_06_PIN  // (33) J3-4 & AUX-4
-    #define BTN_ENC                 EXPA1_09_PIN  // (58) open-drain
+    #if DISABLED(TFTGLCD_ADAPTER) and DISABLED(HAS_SLOW_BUTTONS)
+
+      #define BTN_EN1               EXPA2_08_PIN  // (31) J3-2 & AUX-4
+      #define BTN_EN2               EXPA2_06_PIN  // (33) J3-4 & AUX-4
+      #define BTN_ENC               EXPA1_09_PIN  // (58) open-drain
+
+    #endif
 
     #define LCD_PINS_ENABLE         EXPA1_08_PIN
     #define LCD_PINS_D4             EXPA1_06_PIN
@@ -357,7 +384,8 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SS_PIN                    EXPA2_07_PIN
+  #define SS_PIN                    P0_10 //for  my test board
+//  #define SS_PIN                    EXPA2_07_PIN
 #endif
 
 /**

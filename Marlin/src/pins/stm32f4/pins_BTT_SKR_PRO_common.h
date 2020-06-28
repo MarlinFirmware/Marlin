@@ -272,68 +272,91 @@
 //
 // LCDs and Controllers
 //
+#if ENABLED(TFTGLCD_ADAPTER) and ENABLED(HAS_SLOW_BUTTONS)
+
+  //For SPI and I2C connections
+  #define BTN_EN1         -1
+  #define BTN_EN2         -1
+  #define BTN_ENC         -1
+
+#endif
+
 #if HAS_SPI_LCD
-  #define BEEPER_PIN                        PG4
-  #define BTN_ENC                           PA8
-  #if SD_CONNECTION_IS(LCD)
-    #define SDSS                            PB12  // Uses default hardware SPI for LCD's SD
-  #endif
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS                     PG6
+  #if ENABLED(TFTGLCD_ADAPTER) && ENABLED(LCD_CONNECT_BY_SPI)
 
-    #define BTN_EN1                         PD11
-    #define BTN_EN2                         PG2
-
-    #define LCD_PINS_ENABLE                 PG7
-    #define LCD_PINS_D4                     PG3
-
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
-  #elif ENABLED(MKS_MINI_12864)
-    #define DOGLCD_A0                       PG6
-    #define DOGLCD_CS                       PG3
+    #if ENABLED(LCD_USE_I2C_BUZZER)
+      #define BEEPER_PIN                    -1
+    #else
+      #define BEEPER_PIN                    PG4
+    #endif
+    #define DOGLCD_CS                       PG10
 
   #else
 
-    #define LCD_PINS_RS                     PD10
+    #define BEEPER_PIN                      PG4
+    #define BTN_ENC                         PA8
+    #if SD_CONNECTION_IS(LCD)
+      #define SDSS                          PB12  // Uses default hardware SPI for LCD's SD
+    #endif
 
-    #define BTN_EN1                         PG10
-    #define BTN_EN2                         PF11
-    #define SD_DETECT_PIN                   PF12
+    #if ENABLED(CR10_STOCKDISPLAY)
+      #define LCD_PINS_RS                   PG6
 
-    #define LCD_SDSS                        PB12
+      #define BTN_EN1                       PD11
+      #define BTN_EN2                       PG2
 
-    #define LCD_PINS_ENABLE                 PD11
-    #define LCD_PINS_D4                     PG2
+      #define LCD_PINS_ENABLE               PG7
+      #define LCD_PINS_D4                   PG3
 
-    #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS                     PD11
-      #define DOGLCD_A0                     PD10
-      //#define LCD_BACKLIGHT_PIN           -1
-      #define LCD_RESET_PIN                 PG2   // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-        #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN             PG3
+      // CR10_STOCKDISPLAY default timing is too fast
+      #undef BOARD_ST7920_DELAY_1
+      #undef BOARD_ST7920_DELAY_2
+      #undef BOARD_ST7920_DELAY_3
+
+    #elif ENABLED(MKS_MINI_12864)
+      #define DOGLCD_A0                     PG6
+      #define DOGLCD_CS                     PG3
+
+    #else
+
+      #define LCD_PINS_RS                   PD10
+
+      #define BTN_EN1                       PG10
+      #define BTN_EN2                       PF11
+      #define SD_DETECT_PIN                 PF12
+
+      #define LCD_SDSS                      PB12
+
+      #define LCD_PINS_ENABLE               PD11
+      #define LCD_PINS_D4                   PG2
+
+      #if ENABLED(FYSETC_MINI_12864)
+        #define DOGLCD_CS                   PD11
+        #define DOGLCD_A0                   PD10
+        //#define LCD_BACKLIGHT_PIN         -1
+        #define LCD_RESET_PIN               PG2   // Must be high or open for LCD to operate normally.
+        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+          #ifndef RGB_LED_R_PIN
+            #define RGB_LED_R_PIN           PG3
+          #endif
+          #ifndef RGB_LED_G_PIN
+            #define RGB_LED_G_PIN           PG6
+          #endif
+          #ifndef RGB_LED_B_PIN
+            #define RGB_LED_B_PIN           PG7
+          #endif
+        #elif ENABLED(FYSETC_MINI_12864_2_1)
+          #define NEOPIXEL_PIN              PG3
         #endif
-        #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN             PG6
-        #endif
-        #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN             PG7
-        #endif
-      #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN                PG3
-      #endif
-    #endif // !FYSETC_MINI_12864
+     #endif // !FYSETC_MINI_12864
 
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5                   PG3
-      #define LCD_PINS_D6                   PG6
-      #define LCD_PINS_D7                   PG7
+     #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5                 PG3
+        #define LCD_PINS_D6                 PG6
+        #define LCD_PINS_D7                 PG7
+     #endif
+
     #endif
 
   #endif

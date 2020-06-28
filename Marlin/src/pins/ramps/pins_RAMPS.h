@@ -480,6 +480,8 @@
         #define DOGLCD_MOSI                   17
         #define DOGLCD_SCK                    23
         #define DOGLCD_A0            LCD_PINS_DC
+      #elif ENABLED(TFTGLCD_ADAPTER)
+        #define DOGLCD_CS                     16
       #else
         #define LCD_PINS_RS                   16
         #define LCD_PINS_ENABLE               17
@@ -512,7 +514,12 @@
   //
   #if ENABLED(NEWPANEL)
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if ENABLED(TFTGLCD_ADAPTER)
+
+      #define SD_DETECT_PIN     49
+      #define KILL_PIN          41
+
+    #elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
       #define BEEPER_PIN                      37
 
