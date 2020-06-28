@@ -1226,21 +1226,20 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration Source Too Cold");
-      #endif
-      return false;
+        #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+          SERIAL_ECHOLN("Migration Source Too Cold");
+        #endif
+        return false;
       }
     #endif
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {
       #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("No Migration Target");
-        SERIAL_ECHOLNPAIR("Target : ", migration.target);
-        SERIAL_ECHOLNPAIR("Last : ", migration.last);
-        SERIAL_ECHOLNPAIR("Active : ", active_extruder);
+        SERIAL_ECHO_MSG("No Migration Target");
+        SERIAL_ECHO_MSG("Target: ", migration.target,
+                        " Last: ", migration.last,
+                        " Active: ", active_extruder);
       #endif
       migration.automode = false;
       return false;
