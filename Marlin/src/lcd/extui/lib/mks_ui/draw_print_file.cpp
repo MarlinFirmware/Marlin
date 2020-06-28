@@ -473,34 +473,36 @@ void lv_gcode_file_read(uint8_t *data_buf)
 	#if ENABLED (SDSUPPORT)
     uint16_t i=0,j=0,k=0;
     uint16_t row_1=0;
+    bool ignore_start = true;
     char temp_test[200];
     volatile uint16_t *p_index;
+
     memset(public_buf, 0, 200);
 
     while(card.isFileOpen())
     {
-      card.read(temp_test, 8); //line start -> ignore
+      if (ignore_start) card.read(temp_test, 8); //line start -> ignore
       card.read(temp_test, 200); //data
       //\r;;gimage: we got the bit img, so stop here
       if (temp_test[1] == ';') {
         card.closefile();
         break;
       }
-      for(i=0;i<200;)
-      {
+      for(i=0;i<200;) {
         public_buf[row_1*200+100*k+j] = (char)(ascii2dec_test(&temp_test[i])<<4|ascii2dec_test(&temp_test[i+1]));
         j++;
         i+=2;
       }
-      card.read(temp_test, 1); //CR -> ignore
-      k++;
-      j=0;
-      break;
-      if(k*100>=200) {
-        k=0;
-        //card.read(temp_test, 9);
+
+      uint16_t c = card.get();
+      //check if we have more data or finished the line (CR)
+      if (c == '\r') {
         break;
       }
+      card.setIndex(card.getIndex());
+      k++;
+      j=0;
+      ignore_start = false;
     }
     #if ENABLED(SPI_GRAPHICAL_TFT)
       for(i=0;i<200;)
