@@ -1136,7 +1136,7 @@ void setup() {
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    SETUP_RUN(init_closedloop());
+    SETUP_RUN(closedloop.init());
   #endif
 
   #ifdef STARTUP_COMMANDS
