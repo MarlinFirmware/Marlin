@@ -146,10 +146,6 @@ lv_style_t tft_style_scr;
 lv_style_t tft_style_lable_pre;
 lv_style_t tft_style_lable_rel;
 
-//the colors of the last MKS Ui
-#undef LV_COLOR_BACKGROUND
-#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) //LV_COLOR_MAKE(0x00, 0x00, 0x00)
-
 void tft_style_init() {
   lv_style_copy(&tft_style_scr, &lv_style_scr);
   tft_style_scr.body.main_color = LV_COLOR_BACKGROUND;

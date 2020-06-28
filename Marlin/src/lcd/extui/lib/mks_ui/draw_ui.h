@@ -28,6 +28,11 @@ extern "C" { /* C-declarations for C++ */
 #include <stdint.h>
 #include <string.h>
 #include "lvgl.h"
+
+//the colors of the last MKS Ui
+#undef LV_COLOR_BACKGROUND
+#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) //LV_COLOR_MAKE(0x00, 0x00, 0x00)
+
 #include "tft_multi_language.h"
 #include "draw_ready_print.h"
 #include "draw_language.h"
