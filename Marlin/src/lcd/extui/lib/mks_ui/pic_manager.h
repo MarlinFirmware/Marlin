@@ -40,6 +40,9 @@ extern "C" { /* C-declarations for C++ */
 #ifndef HAS_LANG_SELECT_SCREEN
   #define HAS_LANG_SELECT_SCREEN               1
 #endif
+#ifndef HAS_BAK_VIEW_IN_FLASH
+  #define HAS_BAK_VIEW_IN_FLASH               1
+#endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                  0x1000000 // 16MB
 #endif
@@ -68,10 +71,10 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_DATA_ADDR                   0x008000    //
 
   // TFT35
-  #define DEFAULT_VIEW_ADDR_TFT35         0xC5800
+  #define DEFAULT_VIEW_ADDR_TFT35         0x1ea070
   #define BAK_VIEW_ADDR_TFT35             (DEFAULT_VIEW_ADDR_TFT35+90*1024)
   #define PIC_ICON_LOGO_ADDR_TFT35        (BAK_VIEW_ADDR_TFT35+80*1024)
-  #define PIC_DATA_ADDR_TFT35             0x00F000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
+  #define PIC_DATA_ADDR_TFT35             0x007000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
 
   #define PIC_DATA_ADDR_TFT32             0x00F000
   #define PIC_ICON_LOGO_ADDR_TFT32        0x5D8000

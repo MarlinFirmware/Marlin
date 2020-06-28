@@ -151,8 +151,9 @@
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
   #define HAS_SPI_FLASH_FONT 0
-  #define HAS_GCODE_PREVIEW 0
+  #define HAS_GCODE_PREVIEW 1
   #define HAS_LANG_SELECT_SCREEN 0
+  #define HAS_BAK_VIEW_IN_FLASH 0
 
   //SPI 2
   #define W25QXX_CS_PIN                     PB12

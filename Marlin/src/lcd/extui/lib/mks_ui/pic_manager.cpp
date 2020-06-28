@@ -167,7 +167,7 @@ static char assets[][30] = {
   #endif //HAS_LANG_SELECT_SCREEN
 
   //gcode preview
-  #if HAS_SPI_FLASH_FONT
+  #if HAS_GCODE_PREVIEW
     "bmp_preview.bin",
   #endif
 
@@ -547,20 +547,22 @@ uint32_t default_view_addroffset = 0;
 void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize) {
   W25QXX.init(SPI_QUARTER_SPEED);
 
-  W25QXX.SPI_FLASH_BufferRead(default_view_Rbuff, DEFAULT_VIEW_ADDR_TFT35 + default_view_addroffset + 4, default_view_Readsize);
+  W25QXX.SPI_FLASH_BufferRead(default_view_Rbuff, DEFAULT_VIEW_ADDR_TFT35 + default_view_addroffset, default_view_Readsize);
   default_view_addroffset += default_view_Readsize;
   if (default_view_addroffset >= DEFAULT_VIEW_MAX_SIZE)
     default_view_addroffset = 0;
 }
 
-uint32_t flash_view_addroffset = 0;
-void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize) {
-  W25QXX.init(SPI_QUARTER_SPEED);
+#if HAS_BAK_VIEW_IN_FLASH
+  uint32_t flash_view_addroffset = 0;
+  void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize) {
+    W25QXX.init(SPI_QUARTER_SPEED);
 
-  W25QXX.SPI_FLASH_BufferRead(flash_view_Rbuff, BAK_VIEW_ADDR_TFT35 + flash_view_addroffset, flash_view_Readsize);
-  flash_view_addroffset += flash_view_Readsize;
-  if (flash_view_addroffset >= FLASH_VIEW_MAX_SIZE)
-    flash_view_addroffset = 0;
-}
+    W25QXX.SPI_FLASH_BufferRead(flash_view_Rbuff, BAK_VIEW_ADDR_TFT35 + flash_view_addroffset, flash_view_Readsize);
+    flash_view_addroffset += flash_view_Readsize;
+    if (flash_view_addroffset >= FLASH_VIEW_MAX_SIZE)
+      flash_view_addroffset = 0;
+  }
+#endif
 
 #endif // TFT_LITTLE_VGL_UI

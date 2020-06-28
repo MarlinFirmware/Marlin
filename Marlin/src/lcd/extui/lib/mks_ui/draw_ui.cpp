@@ -358,6 +358,7 @@ char *creat_title_text() {
 }
 
 #if HAS_GCODE_PREVIEW
+uint32_t gPicturePreviewStart = 0;
 
 void preview_gcode_prehandle(char *path) {
   #if ENABLED(SDSUPPORT)
@@ -367,6 +368,7 @@ void preview_gcode_prehandle(char *path) {
     uint32_t *p1;
     char *cur_name;
 
+    gPicturePreviewStart = 0;
     cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
@@ -403,7 +405,24 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
     cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
 
-    card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
+    if (gPicturePreviewStart <= 0) {
+      while (1) {
+        uint32_t br = card.read(public_buf, 400);
+        uint32_t* p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
+        if (p1) {
+          gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+          break;
+        }
+        else {
+          gPicturePreviewStart += br;
+        }
+        if (br < 400) break;
+      }
+    }
+
+    // SERIAL_ECHOLNPAIR("gPicturePreviewStart: ", gPicturePreviewStart, " PREVIEW_LITTLE_PIC_SIZE: ", PREVIEW_LITTLE_PIC_SIZE);
+
+    card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
     #if ENABLED(SPI_GRAPHICAL_TFT)
       SPI_TFT.spi_init(SPI_FULL_SPEED);
       //SPI_TFT.SetCursor(0,0);
@@ -451,14 +470,16 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
     #else
       for (i = 0; i < 400;) {
         p_index = (uint16_t *)(&bmp_public_buf[i]);
-        //if (*p_index == 0x0000)*p_index=gCfgItems.preview_bk_color;
+        if (*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
         LCD_IO_WriteData(*p_index);
         i += 2;
       }
     #endif
-    W25QXX.init(SPI_QUARTER_SPEED);
-    if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
-    W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
+    #if HAS_BAK_VIEW_IN_FLASH
+      W25QXX.init(SPI_QUARTER_SPEED);
+      if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
+      W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
+    #endif
     row++;
     if (row >= 200) {
       size = 809;
@@ -523,15 +544,15 @@ void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
   int x_off = 0, y_off = 0;
   int _y;
   uint16_t *p_index;
-  int i, j;
-  uint16_t temp_p, Color;
+  int i;
+  uint16_t temp_p;
 
   for (index = 0; index < 10; index++) { // 200*200
     if (sel == 1) flash_view_Read(bmp_public_buf, 8000); //20k
     //memset(bmp_public_buf,0x1f,8000);
     else
       //memset(bmp_public_buf,0x1f,8000);
-      default_view_Read(bmp_public_buf, 8000); //20k
+      default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); //20k
 
     i = 0;
     #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -568,6 +589,7 @@ void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
           else {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
           }
+          if (*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
           LCD_IO_WriteData(*p_index);
           i += 2;
         }
@@ -581,10 +603,12 @@ void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
 
 void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
   if (gcode_preview_over == 1) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
-  if (flash_preview_begin == 1) {
-    flash_preview_begin = 0;
-    Draw_default_preview(xpos_pixel, ypos_pixel, 1);
-  }
+  #if HAS_BAK_VIEW_IN_FLASH
+    if (flash_preview_begin == 1) {
+      flash_preview_begin = 0;
+      Draw_default_preview(xpos_pixel, ypos_pixel, 1);
+    }
+  #endif
   if (default_preview_flg == 1) {
     Draw_default_preview(xpos_pixel, ypos_pixel, 0);
     default_preview_flg = 0;
