@@ -257,12 +257,12 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(DELTA)
     float delta_height;                                 // M666 H
-    abc_float_t delta_endstop_adj;                      // M666 XYZ
+    abc_float_t delta_endstop_adj;                      // M666 X Y Z
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
           delta_segments_per_second;                    // M665 S
-    abc_float_t delta_tower_angle_trim;                 // M665 XYZ
-    abc_float_t delta_diagonal_rod_trim;                // M665 MNO
+    abc_float_t delta_tower_angle_trim;                 // M665 X Y Z
+    abc_float_t delta_diagonal_rod_trim;                // M665 A B C
   #elif HAS_EXTRA_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
