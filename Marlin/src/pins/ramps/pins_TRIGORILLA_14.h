@@ -54,6 +54,28 @@
 #define TG_FAN0_PIN                            9  // Anycubic Kossel: Usually the part cooling fan
 #define TG_FAN1_PIN                            7  // Anycubic Kossel: Unused
 #define TG_FAN2_PIN                           44  // Anycubic Kossel: Hotend fan
+#define CONTROLLER_FAN_PIN  		              TG_FAN1_PIN
+//#define BUZZER 			                          31
+#define BEEPER_PIN                            31
+#define SDSS                                  53
+#define LED_PIN                               13
+#define SD_DETECT_PIN                         49
+#define FIL_RUNOUT_PIN                        19
+
+// fix the limit pins that are wrong in pins_Ramps.h
+//
+// Limit Switches
+//
+#define X_MIN_PIN                          3
+#define X_MAX_PIN                         43
+#define Y_MIN_PIN                         42
+#define Y_MAX_PIN                         -1
+#define Z_MIN_PIN                         18
+#define Z_MAX_PIN                         -1
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#define Z_MIN_PROBE_PIN                      2
 
 // Remap MOSFET pins to common usages:
 
