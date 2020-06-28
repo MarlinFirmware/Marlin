@@ -1281,8 +1281,8 @@ void Temperature::manage_heater() {
 
     SERIAL_ECHOPAIR_F(" R", t.series_res, 1);
     SERIAL_ECHOPAIR_F_P(SP_T_STR, t.res_25, 1);
-    SERIAL_ECHOPAIR_F(" B", t.beta, 1);
-    SERIAL_ECHOPAIR_F(" C", t.sh_c_coeff, 9);
+    SERIAL_ECHOPAIR_F_P(SP_B_STR, t.beta, 1);
+    SERIAL_ECHOPAIR_F_P(SP_C_STR, t.sh_c_coeff, 9);
     SERIAL_ECHOPGM(" ; ");
     serialprintPGM(
       TERN_(HEATER_0_USER_THERMISTOR, t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :)
