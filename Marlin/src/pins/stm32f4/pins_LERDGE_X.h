@@ -30,13 +30,12 @@
 #define STEP_TIMER 4
 #define TEMP_TIMER 2
 
-//#define I2C_EEPROM
+#define I2C_EEPROM
 
 //
 // Servos
 //
-//#define SERVO0_PIN                        PD12
-//#define SERVO1_PIN                        -1
+//#define SERVO0_PIN                        PD13
 
 //
 // Limit Switches
@@ -63,30 +62,18 @@
 #define X_STEP_PIN                          PB10
 #define X_DIR_PIN                           PB2
 #define X_ENABLE_PIN                        PB11
-//#ifndef X_CS_PIN
-//  #define X_CS_PIN                        PD1
-//#endif
 
 #define Y_STEP_PIN                          PB0
 #define Y_DIR_PIN                           PC5
 #define Y_ENABLE_PIN                        PB1
-//#ifndef Y_CS_PIN
-//  #define Y_CS_PIN                        PE12
-//#endif
 
 #define Z_STEP_PIN                          PA7
 #define Z_DIR_PIN                           PA6
 #define Z_ENABLE_PIN                        PC4
-//#ifndef Z_CS_PIN
-//  #define Z_CS_PIN                        PD5
-//#endif
 
 #define E0_STEP_PIN                         PA4
 #define E0_DIR_PIN                          PA3
 #define E0_ENABLE_PIN                       PA5
-//#ifndef E0_CS_PIN
-//  #define E0_CS_PIN                       PB4
-//#endif
 
 //
 // Temperature Sensors
@@ -94,12 +81,6 @@
 #define TEMP_0_PIN                          PC0   // Analog Input
 #define TEMP_1_PIN                          -1    // Analog Input
 #define TEMP_BED_PIN                        PC1   // Analog Input
-
-// Lergde-S can choose thermocouple/thermistor mode in software.
-// For use with thermistors, these pins must be OUT/LOW. 
-
-// - Possibly wrong, verify with multimeter / M43 W
-#define TEMP_0_TR_ENABLE_PIN                PA15
 
 //
 // Heaters / Fans
@@ -119,12 +100,6 @@
 #endif
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
-//
-//#define E_MUX0_PIN                        -1
-//#define E_MUX1_PIN                        -1
-
-//
 // LED / Lighting
 //
 //#define CASE_LIGHT_PIN_CI                 -1
@@ -138,7 +113,9 @@
 #define LED_PIN                             PC7   // Alive
 #define PS_ON_PIN                           -1
 #define KILL_PIN                            -1
-#define POWER_LOSS_PIN                      -1    // Power-loss / nAC_FAULT
+
+// Lerdge supports auto-power off and power loss sense through a single pin.
+#define POWER_LOSS_PIN                      PC14    // Power-loss / nAC_FAULT
 
 #define SCK_PIN                             PC12
 #define MISO_PIN                            PC8
@@ -148,8 +125,8 @@
 //
 // SD support
 //
-//#define SDIO_SUPPORT
-#define SD_DETECT_PIN                       -1
+#define SDIO_SUPPORT
+#define SD_DETECT_PIN                       PA8
 
 //
 // LCD / Controller
@@ -162,11 +139,11 @@
 #define BTN_EN2                             PE4
 #define BTN_ENC                             PE2
 
-#define LCD_RESET_PIN                       PD6
-#define LCD_BACKLIGHT_PIN                   PD3
+#define TFT_RESET_PIN                       PD6
+#define TFT_BACKLIGHT_PIN                   PD3
 
-#define FSMC_CS_PIN                         PD4
-#define FSMC_RS_PIN                         PD11
+#define TFT_CS_PIN                         PD7
+#define TFT_RS_PIN                         PD11
 
 #define TOUCH_CS_PIN                        PB6
 #define TOUCH_SCK_PIN                       PB3

@@ -93,6 +93,7 @@
 
 // Lergde-S can choose thermocouple/thermistor mode in software.
 // For use with thermistors, these pins must be OUT/LOW.
+// This is done automatically.
 #define TEMP_0_TR_ENABLE_PIN                PF3
 #define TEMP_1_TR_ENABLE_PIN                PF4
 
@@ -194,8 +195,8 @@
 #define BTN_EN2                             PC15  //confirmed
 #define BTN_ENC                             PC13  //confirmed
 
-#define TFT_RESET_PIN                       PD6   // unchecked, unsure how to test
-#define TFT_BACKLIGHT_PIN                   PD3   //confirmed (well, this pin switches the LCD off, but I cannot see if it is only the backlight)
+#define TFT_RESET_PIN                       PD6   //confirmed
+#define TFT_BACKLIGHT_PIN                   PD3   //confirmed
 
 #define TFT_CS_PIN                          PD7   // TFT works
 #define TFT_RS_PIN                          PD11  // TFT works
