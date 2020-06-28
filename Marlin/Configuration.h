@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * ALTERATIONS ON 20/06/05 UBL 20/06/16 20/06/22 20/06/23
+ * ALTERATIONS ON 20/06/05 UBL 20/06/16 20/06/22 20/06/23 20/06/28
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
@@ -104,13 +104,13 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT -1 // 20/06/05
+#define SERIAL_PORT 0 //-1 // 20/06/28
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 0 // 20/06/05
+#define SERIAL_PORT_2 -1 //0 // 20/06/28
 
 /**
  * This setting determines the communication speed of the printer.
