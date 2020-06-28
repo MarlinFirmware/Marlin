@@ -1,0 +1,67 @@
+# Clang format style for the coding style as described here:
+# https://marlinfw.org/docs/development/coding_standards.html
+# 
+# Caveat: Not all required styles can be achieved with Clang but most of them.
+# Use this file optionally, not mandatorily.
+
+Language: Cpp
+IndentWidth: 2
+ColumnLimit: 120
+UseTab: Never
+Standard: Latest
+UseCRLF: false
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterExternBlock: false
+  AfterObjCDeclaration: true
+  AfterFunction: false
+  AfterCaseLabel: false
+  AfterClass:  false
+  AfterStruct: false
+  AfterUnion: false
+  AfterEnum: false
+  AfterControlStatement: false
+  AfterNamespace: false
+  BeforeElse: false
+
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentPPDirectives: None
+#Preprocessor directives shall be formatted as follows:
+#void myFunction() {
+#  if (myCondition == 0) {
+#    #ifdef PETER_PARKER
+#      slingWeb(100);
+#    #else
+#      findPhoneBooth();
+#    #endif
+#  }
+#}
+#
+# At the moment this option seems the best (the minimal invasive):
+#if FOO
+#if BAR
+#include <foo>
+#endif
+#endif
+
+PointerAlignment: Right
+ReflowComments: true
+
+CompactNamespaces: false
+FixNamespaceComments: true
+
+SpaceAfterCStyleCast: false
+SpacesInCStyleCastParentheses: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+
+AlignTrailingComments: true
+AlignEscapedNewlines: Left
+
+BinPackArguments: false
+BinPackParameters: false
+
+SortIncludes: false
