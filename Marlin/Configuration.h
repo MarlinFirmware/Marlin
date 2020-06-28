@@ -489,9 +489,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 22.27
-  #define DEFAULT_Ki 1.98
-  #define DEFAULT_Kd 62.47
+  #define DEFAULT_Kp 31.58
+  #define DEFAULT_Ki 3.44
+  #define DEFAULT_Kd 72.44
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -540,9 +540,9 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 82.19
-  #define DEFAULT_bedKi 16.18
-  #define DEFAULT_bedKd 278.28
+  #define DEFAULT_bedKp 85.96
+  #define DEFAULT_bedKi 16.93
+  #define DEFAULT_bedKd 291.07
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -1374,8 +1374,8 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT 15  // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT 15  // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT 10  // X point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT 10  // Y point for Z homing when homing all axes (G28).
 #endif
 
 // Homing speeds (mm/m)
