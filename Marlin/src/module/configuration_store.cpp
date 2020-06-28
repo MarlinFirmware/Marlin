@@ -261,8 +261,8 @@ typedef struct SettingsDataStruct {
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
           delta_segments_per_second;                    // M665 S
-    abc_float_t delta_tower_angle_trim;                 // M665 X Y Z
-    abc_float_t delta_diagonal_rod_trim;                // M665 A B C
+    abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
+                delta_diagonal_rod_trim;                // M665 A B C
   #elif HAS_EXTRA_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
@@ -1640,7 +1640,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_segments_per_second); // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
-          EEPROM_READ(delta_diagonal_rod_trim);    // 3 floats
+          EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
 
         #elif HAS_EXTRA_ENDSTOPS
 
@@ -3069,7 +3069,7 @@ void MarlinSettings::reset() {
         , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
       );
 
-      CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> XYZ<tower angle corrections>");
+      CONFIG_ECHO_HEADING("Delta settings: L<diagonal rod> R<radius> H<height> S<segments per sec> XYZ<tower angle trim> ABC<rod trim>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
           PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
@@ -3079,9 +3079,9 @@ void MarlinSettings::reset() {
         , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
         , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
         , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
-        , PSTR(" M"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
-        , PSTR(" N"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
-        , PSTR(" O"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
+        , PSTR(" A"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
+        , PSTR(" B"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
+        , PSTR(" C"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
       );
 
     #elif HAS_EXTRA_ENDSTOPS
