@@ -1,7 +1,9 @@
 /*
  AnycubicTFT.h  --- Support for Anycubic i3 Mega TFT
  Created by Christian Hopp on 09.12.17.
-
+ Improved by David Ramiro
+ Converted to ext_iu by John BouAntoun 21 June 2020
+ 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
