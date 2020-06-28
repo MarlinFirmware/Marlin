@@ -466,7 +466,7 @@ void VFDSpindle::init()
 #endif
 
   power = 0;
-  direction = 1; // forward
+  direction = 0; // forward
   enabled = false;
 
   init_pins();
