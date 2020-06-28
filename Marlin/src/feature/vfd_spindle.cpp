@@ -498,11 +498,12 @@ void VFDSpindle::set_power(const int32_t pwr)
 #endif
 
   auto norm = normalize_power(pwr);
+  power = norm;
 
-  if (norm == 0) {
+  if (norm == 0)
+  {
     enabled = false;
 
-    power = 0;
     set_speed(norm);
     set_current_direction(0);
     power_delay();
@@ -510,7 +511,6 @@ void VFDSpindle::set_power(const int32_t pwr)
 
   if (enabled && direction != 0)
   {
-    power = norm;
     set_current_direction(direction);
     set_speed(norm);
     power_delay();
@@ -529,7 +529,7 @@ void VFDSpindle::apply_power(const int32_t inpow)
 void VFDSpindle::set_enabled(const bool enable)
 {
 #ifdef VFD_RS485_DEBUG
-  SERIAL_ECHOPGM("VFD set enabled");
+  SERIAL_ECHOPGM("VFD set enabled ");
   SERIAL_ECHO(enable?"true":"false");
   SERIAL_ECHOLNPGM(".\r\n");
 #endif
@@ -607,6 +607,7 @@ void VFDSpindle::set_direction(const bool reverse)
       // Enable again and wait till we hit the target rpm:
       set_current_direction(direction);
       power = rpm;
+      set_speed(power);
       power_delay();
     }
   }
