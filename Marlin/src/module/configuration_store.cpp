@@ -257,11 +257,12 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(DELTA)
     float delta_height;                                 // M666 H
-    abc_float_t delta_endstop_adj;                      // M666 XYZ
+    abc_float_t delta_endstop_adj;                      // M666 X Y Z
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
           delta_segments_per_second;                    // M665 S
-    abc_float_t delta_tower_angle_trim;                 // M665 XYZ
+    abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
+                delta_diagonal_rod_trim;                // M665 A B C
   #elif HAS_EXTRA_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
@@ -775,6 +776,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
         EEPROM_WRITE(delta_segments_per_second); // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
+        EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
 
       #elif HAS_EXTRA_ENDSTOPS
 
@@ -1638,6 +1640,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_segments_per_second); // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
+          EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
 
         #elif HAS_EXTRA_ENDSTOPS
 
@@ -2510,13 +2513,14 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(DELTA)
-    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM;
+    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
     delta_height = DELTA_HEIGHT;
     delta_endstop_adj = adj;
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
+    delta_diagonal_rod_trim = ddr;
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -3065,7 +3069,7 @@ void MarlinSettings::reset() {
         , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
       );
 
-      CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> XYZ<tower angle corrections>");
+      CONFIG_ECHO_HEADING("Delta settings: L<diagonal rod> R<radius> H<height> S<segments per sec> XYZ<tower angle trim> ABC<rod trim>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
           PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
@@ -3075,6 +3079,9 @@ void MarlinSettings::reset() {
         , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
         , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
         , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
+        , PSTR(" A"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
+        , PSTR(" B"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
+        , PSTR(" C"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
       );
 
     #elif HAS_EXTRA_ENDSTOPS
