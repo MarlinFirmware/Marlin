@@ -886,8 +886,7 @@ namespace ExtUI {
   #endif
 
   void injectCommands_P(PGM_P const gcode) { queue.inject_P(gcode); }
-
-  void injectCommands(char * const gcode) { queue.inject_P(gcode); }
+  void injectCommands(char * const gcode)  { queue.inject(gcode); }
 
   bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
 
