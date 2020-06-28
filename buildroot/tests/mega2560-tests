@@ -234,11 +234,11 @@ exec_test $1 $2 "Mightyboard Rev. E | CoreXY, Gradient Mix | Endstop Int. | Home
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
 
 ######## Example Configurations ##############
 #
