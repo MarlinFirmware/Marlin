@@ -484,7 +484,7 @@ namespace Language_es {
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mezcla");
   PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Componente =");
-  PROGMEM Language_Str MSG_MIXER                           = _UxGT("Miezclador");
+  PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mezclador");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Degradado");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Degradado Total");
   PROGMEM Language_Str MSG_TOGGLE_MIX                      = _UxGT("Mezcla Conmutada");
