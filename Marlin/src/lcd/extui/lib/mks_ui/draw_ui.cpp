@@ -613,10 +613,12 @@ void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
       Draw_default_preview(xpos_pixel, ypos_pixel, 1);
     }
   #endif
-  if (default_preview_flg == 1) {
-    Draw_default_preview(xpos_pixel, ypos_pixel, 0);
-    default_preview_flg = 0;
-  }
+  #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
+    if (default_preview_flg == 1) {
+      Draw_default_preview(xpos_pixel, ypos_pixel, 0);
+      default_preview_flg = 0;
+    }
+  #endif
 }
 #endif
 

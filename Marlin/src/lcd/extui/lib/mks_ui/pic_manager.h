@@ -32,7 +32,7 @@ extern "C" { /* C-declarations for C++ */
 #include "../../inc/MarlinConfigPre.h"
 
 #ifndef HAS_SPI_FLASH_FONT
-  #define HAS_SPI_FLASH_FONT              1
+  #define HAS_SPI_FLASH_FONT              0 //disabled until fix the font load code
 #endif
 #ifndef HAS_GCODE_PREVIEW
   #define HAS_GCODE_PREVIEW               1
@@ -42,6 +42,9 @@ extern "C" { /* C-declarations for C++ */
 #endif
 #ifndef HAS_BAK_VIEW_IN_FLASH
   #define HAS_BAK_VIEW_IN_FLASH               1
+#endif
+#ifndef HAS_GCODE_DEFAULT_VIEW_IN_FLASH
+  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH               1
 #endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                  0x1000000 // 16MB
@@ -64,17 +67,17 @@ extern "C" { /* C-declarations for C++ */
   //pic
   //Robin_pro pic addr
   #define PIC_NAME_ADDR                   0x001000      // Pic information addr
-  #define PIC_SIZE_ADDR                   0x005000      // Pic size information addr
-  #define PIC_COUNTER_ADDR                0x006000      // Pic total number
-  #define PER_PIC_SAVE_ADDR               0x009000      // Storage address of each picture
-  #define PIC_LOGO_ADDR                   0x00A000      // Logo addr
-  #define PIC_DATA_ADDR                   0x008000    //
+  #define PIC_SIZE_ADDR                   0x001800      // Pic size information addr
+  #define PIC_COUNTER_ADDR                0x002000      // Pic total number
+  #define PER_PIC_SAVE_ADDR               0x000000      // Storage address of each picture
+  #define PIC_LOGO_ADDR                   0x000000      // Logo addr
+  #define PIC_DATA_ADDR                   0x003000    //
 
   // TFT35
   #define DEFAULT_VIEW_ADDR_TFT35         0x1ea070
   #define BAK_VIEW_ADDR_TFT35             (DEFAULT_VIEW_ADDR_TFT35+90*1024)
   #define PIC_ICON_LOGO_ADDR_TFT35        (BAK_VIEW_ADDR_TFT35+80*1024)
-  #define PIC_DATA_ADDR_TFT35             0x007000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
+  #define PIC_DATA_ADDR_TFT35             0x003000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
 
   #define PIC_DATA_ADDR_TFT32             0x00F000
   #define PIC_ICON_LOGO_ADDR_TFT32        0x5D8000

@@ -167,7 +167,7 @@ static char assets[][30] = {
   #endif //HAS_LANG_SELECT_SCREEN
 
   //gcode preview
-  #if HAS_GCODE_PREVIEW
+  #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
     "bmp_preview.bin",
   #endif
 
