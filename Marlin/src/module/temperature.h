@@ -625,7 +625,7 @@ class Temperature {
         return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
-    #endif // HOTENDS
+    #endif // HAS_HOTEND
 
     #if HAS_HEATED_BED
 

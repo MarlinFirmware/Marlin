@@ -22,7 +22,7 @@
 #pragma once
 
 // Pt1000 with 4k7 pullup
-const short temptable_1047[][2] PROGMEM = {
+const temp_entry_t temptable_1047[] PROGMEM = {
   // only a few values are needed as the curve is very flat
   PtLine(  0, 1000, 4700),
   PtLine( 50, 1000, 4700),

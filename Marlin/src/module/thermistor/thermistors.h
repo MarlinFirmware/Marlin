@@ -42,6 +42,8 @@
 
 #define ANY_THERMISTOR_IS(n) (THERMISTOR_HEATER_0 == n || THERMISTOR_HEATER_1 == n || THERMISTOR_HEATER_2 == n || THERMISTOR_HEATER_3 == n || THERMISTOR_HEATER_4 == n || THERMISTOR_HEATER_5 == n || THERMISTOR_HEATER_6 == n || THERMISTOR_HEATER_7 == n || THERMISTORBED == n || THERMISTORCHAMBER == n || THERMISTORPROBE == n)
 
+typedef struct { int16_t value, celsius; } temp_entry_t;
+
 // Pt1000 and Pt100 handling
 //
 // Rt=R0*(1+a*T+b*T*T) [for T>0]
@@ -185,11 +187,12 @@
   #include "thermistor_999.h"
 #endif
 #if ANY_THERMISTOR_IS(1000) // Custom
-  const short temptable_1000[][2] PROGMEM = { { 0, 0 } };
+  const temp_entry_t temptable_1000[] PROGMEM = { { 0, 0 } };
 #endif
 
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
+
 
 #if THERMISTOR_HEATER_0
   #define HEATER_0_TEMPTABLE TT_NAME(THERMISTOR_HEATER_0)
@@ -288,9 +291,12 @@
 #else
   #define CHAMBER_TEMPTABLE_LEN 0
 #endif
+
 #ifdef THERMISTORPROBE
   #define PROBE_TEMPTABLE TT_NAME(THERMISTORPROBE)
   #define PROBE_TEMPTABLE_LEN COUNT(PROBE_TEMPTABLE)
+#elif defined(HEATER_PROBE_USES_THERMISTOR)
+  #error "No probe thermistor table specified"
 #else
   #define PROBE_TEMPTABLE_LEN 0
 #endif

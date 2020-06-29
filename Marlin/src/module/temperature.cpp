@@ -110,12 +110,12 @@
 
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    static const void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
+    static const temp_entry_t* heater_ttbl_map[2] = { HEATER_0_TEMPTABLE, HEATER_1_TEMPTABLE };
     static constexpr uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
   #else
     #define NEXT_TEMPTABLE(N) ,HEATER_##N##_TEMPTABLE
     #define NEXT_TEMPTABLE_LEN(N) ,HEATER_##N##_TEMPTABLE_LEN
-    static const void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
+    static const temp_entry_t* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
     static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
   #endif
 #endif
@@ -900,11 +900,13 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           SERIAL_ECHO_START();
           SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)
+          {
             SERIAL_ECHOPAIR( STR_PID_DEBUG_PTERM, work_pid[ee].Kp, STR_PID_DEBUG_ITERM, work_pid[ee].Ki, STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif
             );
+          }
           #endif
           SERIAL_EOL();
         }
@@ -920,7 +922,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
     return pid_output;
   }
 
-#endif // HOTENDS
+#endif // HAS_HOTEND
 
 #if ENABLED(PIDTEMPBED)
 
@@ -1058,7 +1060,7 @@ void Temperature::manage_heater() {
 
     } // HOTEND_LOOP
 
-  #endif // HOTENDS
+  #endif // HAS_HOTEND
 
   #if HAS_AUTO_FAN
     if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
@@ -1208,22 +1210,22 @@ void Temperature::manage_heater() {
  * Bisect search for the range of the 'raw' value, then interpolate
  * proportionally between the under and over values.
  */
-#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                             \
-  uint8_t l = 0, r = LEN, m;                                           \
-  for (;;) {                                                           \
-    m = (l + r) >> 1;                                                  \
-    if (!m) return short(pgm_read_word(&TBL[0][1]));                   \
-    if (m == l || m == r) return short(pgm_read_word(&TBL[LEN-1][1])); \
-    short v00 = pgm_read_word(&TBL[m-1][0]),                           \
-          v10 = pgm_read_word(&TBL[m-0][0]);                           \
-         if (raw < v00) r = m;                                         \
-    else if (raw > v10) l = m;                                         \
-    else {                                                             \
-      const short v01 = short(pgm_read_word(&TBL[m-1][1])),            \
-                  v11 = short(pgm_read_word(&TBL[m-0][1]));            \
-      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);  \
-    }                                                                  \
-  }                                                                    \
+#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                            \
+  uint8_t l = 0, r = LEN, m;                                          \
+  for (;;) {                                                          \
+    m = (l + r) >> 1;                                                 \
+    if (!m) return int16_t(pgm_read_word(&TBL[0].celsius));           \
+    if (m == l || m == r) return int16_t(pgm_read_word(&TBL[LEN-1].celsius)); \
+    int16_t v00 = pgm_read_word(&TBL[m-1].value),                     \
+          v10 = pgm_read_word(&TBL[m-0].value);                       \
+         if (raw < v00) r = m;                                        \
+    else if (raw > v10) l = m;                                        \
+    else {                                                            \
+      const int16_t v01 = int16_t(pgm_read_word(&TBL[m-1].celsius)),  \
+                  v11 = int16_t(pgm_read_word(&TBL[m-0].celsius));    \
+      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00); \
+    }                                                                 \
+  }                                                                   \
 }while(0)
 
 #if HAS_USER_THERMISTORS
@@ -1452,13 +1454,13 @@ void Temperature::manage_heater() {
 
     #if HOTEND_USES_THERMISTOR
       // Thermistor with conversion table?
-      const short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
+      const temp_entry_t(*tt)[] = (temp_entry_t(*)[])(heater_ttbl_map[e]);
       SCAN_THERMISTOR_TABLE((*tt), heater_ttbllen_map[e]);
     #endif
 
     return 0;
   }
-#endif // HOTENDS
+#endif // HAS_HOTEND
 
 #if HAS_HEATED_BED
   // Derived from RepRap FiveD extruder::getTemperature()
@@ -2319,7 +2321,7 @@ void Temperature::readings_ready() {
       }
     }
 
-  #endif // HOTENDS
+  #endif // HAS_HOTEND
 
   #if HAS_HEATED_BED
     #if TEMPDIR(BED) < 0
