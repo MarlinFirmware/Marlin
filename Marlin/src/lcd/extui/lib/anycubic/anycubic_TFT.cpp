@@ -28,7 +28,6 @@
 #include "anycubic_serial.h"
 #include "../../ui_api.h"
 #include "../../../../MarlinCore.h" // for quickstop_stepper and disable_steppers
-#include "../../../../libs/buzzer.h"// for buzzer.tone
 
 /* not sure i need these */
 /*
@@ -115,13 +114,7 @@ void AnycubicTFTClass::OnSetup() {
   SelectedFile[0]=0;
   
   #ifdef STARTUP_CHIME
-    buzzer.tone(250, 554); // C#5
-    buzzer.tone(250, 554); // C#5
-    buzzer.tone(250, 740); // F#5
-    buzzer.tone(250, 554); // C#5
-    buzzer.tone(250, 740); // F#5
-    buzzer.tone(250, 554); // C#5
-    buzzer.tone(500, 831); // G#5
+    ExtUI::injectCommands_P(PSTR("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
   #endif
 
   #if ENABLED(ANYCUBIC_TFT_DEBUG)
@@ -266,16 +259,12 @@ void AnycubicTFTClass::HandleSpecialMenu() {
           switch (SelectedDirectory[2]) {
             case '0':   // "<10FWDeflts>"
               SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
-              ExtUI::injectCommands_P(PSTR("M502"));
-              buzzer.tone(105, 1661);
-              buzzer.tone(210, 1108);
+              ExtUI::injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
               break;
 
             case '1':   // "<11SvEEPROM>"
               SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
-              ExtUI::injectCommands_P(PSTR("M500"));
-              buzzer.tone(105, 1108);
-              buzzer.tone(210, 1661);
+              ExtUI::injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
               break;
 
             default:
@@ -982,11 +971,7 @@ void AnycubicTFTClass::PausePrint() {
     
       if (ExtUI::getFilamentRunoutState()) {
         // play tone to indicate filament is out
-        buzzer.tone(200, 1567);
-        buzzer.tone(200, 1174);
-        buzzer.tone(200, 1567);
-        buzzer.tone(200, 1174);
-        buzzer.tone(2000, 1567);
+        ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
       
         // tell the user that the filament has run out and wait 
         ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: Show filament prompt... J23");
