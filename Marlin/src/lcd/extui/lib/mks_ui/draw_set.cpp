@@ -175,9 +175,9 @@ void lv_draw_set(void) {
     //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_PR, &tft_style_lable_pre);
     //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_REL, &tft_style_lable_rel);
     #if HAS_SUICIDE
-      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_Motor_off.bin", 0);
+      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_manual_off.bin", 0);
     #else
-      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_Motor_off.bin", 0);
+      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_manual_off.bin", 0);
     #endif
     lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_PR, &bmp_pic);

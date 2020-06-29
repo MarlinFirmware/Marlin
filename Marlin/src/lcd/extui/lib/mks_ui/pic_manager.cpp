@@ -46,7 +46,7 @@ static char assets[][30] = {
   "bmp_zeroX.bin",
   "bmp_zeroY.bin",
   "bmp_zeroZ.bin",
-  "bmp_Motor_off.bin",
+  "bmp_manual_off.bin",
 
   //tool screen
   "bmp_PreHeat.bin",
@@ -63,11 +63,11 @@ static char assets[][30] = {
   "bmp_Speed0.bin",
 
   //preheat screen
-  "bmp_Add.bin",
-  "bmp_Dec.bin",
+  // "bmp_Add.bin",
+  // "bmp_Dec.bin",
   "bmp_Speed0.bin",
-  "bmp_Extru2.bin",
-  "bmp_Extru1.bin",
+  // "bmp_Extru2.bin",
+  // "bmp_Extru1.bin",
   "bmp_Bed.bin",
   "bmp_Step1_degree.bin",
   "bmp_Step5_degree.bin",
@@ -90,7 +90,7 @@ static char assets[][30] = {
   //select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
-  "bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
+  //"bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
   "bmp_Dir.bin",
   "bmp_File.bin",
 
@@ -107,9 +107,9 @@ static char assets[][30] = {
   "bmp_Step_move10.bin",
 
   //operation screen
-  "bmp_Auto.bin",
+  "bmp_auto_off.bin",
   "bmp_Speed.bin",
-  //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_Motor_off.bin
+  //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_manual_off.bin
   "bmp_Fan.bin",
   //"bmp_PreHeat.bin",
   //"bmp_Extruct.bin",
@@ -119,10 +119,10 @@ static char assets[][30] = {
   "bmp_Step1_percent.bin",
   "bmp_Step5_percent.bin",
   "bmp_Step10_percent.bin",
-  "bmp_Extruct_speed_sel.bin",
-  "bmp_Mov_speed.bin",
-  "bmp_Extruct_speed.bin",
-  "bmp_Mov_speed_sel.bin",
+  "bmp_extruct_sel.bin",
+  "bmp_mov_changespeed.bin",
+  // "bmp_extrude_opr.bin", equal to "bmp_Extruct.bin"
+  "bmp_mov_sel.bin",
 
   //printing screen
   "bmp_Pause.bin",
@@ -150,10 +150,10 @@ static char assets[][30] = {
   //lang select screen
   #if HAS_LANG_SELECT_SCREEN
     "bmp_Language.bin",
-    "bmp_Simple_cn.bin",
-    "bmp_Simple_cn_sel.bin",
-    "bmp_Tradition_cn.bin",
-    "bmp_Tradition_cn_sel.bin",
+    "bmp_simplified_cn.bin",
+    "bmp_simplified_cn_sel.bin",
+    "bmp_traditional_cn.bin",
+    "bmp_traditional_cn_sel.bin",
     "bmp_English.bin",
     "bmp_English_sel.bin",
     "bmp_Russian.bin",
@@ -175,10 +175,10 @@ static char assets[][30] = {
   "bmp_About.bin",
   //"bmp_Language.bin",
   //"bmp_Fan.bin",
-  "bmp_Motor_off.bin",
+  //"bmp_manual_off.bin",
 
   //start screen
-  "bmp_Print.bin",
+  "bmp_printing.bin",
   "bmp_Set.bin",
   "bmp_Tool.bin",
 

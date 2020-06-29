@@ -260,7 +260,7 @@ void lv_draw_ready_print(void) {
     buttonTool = lv_imgbtn_create(scr, NULL);
     buttonSet = lv_imgbtn_create(scr, NULL);
 
-    lv_obj_set_event_cb_mks(buttonPrint, event_handler, ID_PRINT, "bmp_Print.bin", 0);
+    lv_obj_set_event_cb_mks(buttonPrint, event_handler, ID_PRINT, "bmp_printing.bin", 0);
     //lv_imgbtn_set_src_mks(buttonPrint, LV_BTN_STATE_REL, &bmp_pic,(uint8_t *)"bmp_printing.bin");
     lv_imgbtn_set_src(buttonPrint, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonPrint, LV_BTN_STATE_PR, &bmp_pic);

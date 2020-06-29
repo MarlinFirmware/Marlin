@@ -310,13 +310,13 @@ void disp_print_speed() {
 void disp_speed_type() {
   switch (speedType) {
     case 1:
-      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_Extruct_speed_sel.bin", 0);
-      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_Mov_speed.bin", 0);
+      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_extruct_sel.bin", 0);
+      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_mov_changespeed.bin", 0);
       break;
 
     default:
-      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_Extruct_speed.bin", 0);
-      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_Mov_speed_sel.bin", 0);
+      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_Extruct.bin", 0);
+      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_mov_sel.bin", 0);
       break;
   }
   lv_obj_refresh_ext_draw_pad(buttonExt);

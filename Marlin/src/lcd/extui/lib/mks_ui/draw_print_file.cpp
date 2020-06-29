@@ -324,7 +324,7 @@ void disp_gcode_icon(uint8_t file_num) {
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, "bmp_Back.bin", 0);
+    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, "bmp_Return.bin", 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic_117x92);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic_117x92);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);

@@ -548,11 +548,15 @@ void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
   uint16_t temp_p;
 
   for (index = 0; index < 10; index++) { // 200*200
-    if (sel == 1) flash_view_Read(bmp_public_buf, 8000); //20k
-    //memset(bmp_public_buf,0x1f,8000);
-    else
+    #if HAS_BAK_VIEW_IN_FLASH
+      if (sel == 1) flash_view_Read(bmp_public_buf, 8000); //20k
       //memset(bmp_public_buf,0x1f,8000);
+      else
+        //memset(bmp_public_buf,0x1f,8000);
+        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); //20k
+    #else
       default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); //20k
+    #endif
 
     i = 0;
     #if ENABLED(SPI_GRAPHICAL_TFT)

@@ -190,13 +190,13 @@ void lv_draw_home(void) {
     lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonOffAll, event_handler, ID_H_OFF_ALL, "bmp_Motor_off.bin", 0);
+    lv_obj_set_event_cb_mks(buttonOffAll, event_handler, ID_H_OFF_ALL, "bmp_manual_off.bin", 0);
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonOffXY, event_handler, ID_H_OFF_XY, "bmp_Motor_off.bin", 0);
+    lv_obj_set_event_cb_mks(buttonOffXY, event_handler, ID_H_OFF_XY, "bmp_manual_off.bin", 0);
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_PR, &tft_style_lable_pre);
