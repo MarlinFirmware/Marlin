@@ -337,6 +337,16 @@ uint8_t public_buf[512];
 
 #if ENABLED(SDSUPPORT)
 
+  static void dosName2LongName(const char dosName[11], char* longName) {
+    uint8_t j = 0;
+    LOOP_L_N(i, 11) {
+      if (i == 8) longName[j++] = '.';
+      if (dosName[i] == '\0' || dosName[i] == ' ') continue;
+      longName[j++] = dosName[i];
+    }
+    longName[j] = '\0';
+  }
+
   void UpdatePic() {
     char *fn;
     unsigned char logoFlag;
@@ -353,6 +363,11 @@ uint8_t public_buf[512];
 
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
+        // if we dont get a long name, but gets a short one, try it
+        if (card.longFilename[0] == 0 && d.name[0] != 0) {
+          dosName2LongName((const char*)d.name, card.longFilename);
+        }
+
         if (card.longFilename[0] == 0)
           continue;
         if (card.longFilename[0] == '.')
