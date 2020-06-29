@@ -33,6 +33,7 @@
 //#include "../lvgl/src/lv_core/lv_refr.h"
 #include "draw_ui.h"
 #include "../../../../gcode/queue.h"
+#include "pic_manager.h"
 
 static lv_obj_t * scr;
 
