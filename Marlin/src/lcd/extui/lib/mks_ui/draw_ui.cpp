@@ -74,7 +74,7 @@ extern void LCD_IO_WriteData(uint16_t RegValue);
 
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  #if LCD_LANGUAGE == en
+  #if 1 //LCD_LANGUAGE == en
     gCfgItems.language = LANG_ENGLISH;
   #elif LCD_LANGUAGE == zh_CN
     gCfgItems.language = LANG_SIMPLE_CHINESE;
