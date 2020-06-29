@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE
+#define REVERSE_TEMP_SENSOR_RANGE_21 1
 
 #undef OV_SCALE
 #define OV_SCALE(N) (float((N) * 5) / 3.3f)

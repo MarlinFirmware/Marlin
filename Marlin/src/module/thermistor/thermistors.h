@@ -315,8 +315,11 @@ static_assert(
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
+
+#define _TT_REV(N) REVERSE_TEMP_SENSOR_RANGE_##N
+#define TT_REV(N) _TT_REV(N)
 #ifndef HEATER_0_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_0_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_0) || !defined(HEATER_0_USES_THERMISTOR)
     #define HEATER_0_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_0_RAW_LO_TEMP 0
   #else
@@ -325,7 +328,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_1_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_1_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_1) || !defined(HEATER_1_USES_THERMISTOR)
     #define HEATER_1_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_1_RAW_LO_TEMP 0
   #else
@@ -334,7 +337,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_2_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_2_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_2) || !defined(HEATER_2_USES_THERMISTOR)
     #define HEATER_2_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_2_RAW_LO_TEMP 0
   #else
@@ -343,7 +346,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_3_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_3_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_3) || !defined(HEATER_3_USES_THERMISTOR)
     #define HEATER_3_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_3_RAW_LO_TEMP 0
   #else
@@ -352,7 +355,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_4_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_4_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_4) || !defined(HEATER_4_USES_THERMISTOR)
     #define HEATER_4_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_4_RAW_LO_TEMP 0
   #else
@@ -361,7 +364,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_5_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_5_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_5) || !defined(HEATER_5_USES_THERMISTOR)
     #define HEATER_5_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_5_RAW_LO_TEMP 0
   #else
@@ -370,7 +373,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_6_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_6_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_6) || !defined(HEATER_6_USES_THERMISTOR)
     #define HEATER_6_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_6_RAW_LO_TEMP 0
   #else
@@ -379,7 +382,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_7_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_7_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_7) || !defined(HEATER_7_USES_THERMISTOR)
     #define HEATER_7_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_7_RAW_LO_TEMP 0
   #else
@@ -388,7 +391,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_BED_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_BED_USES_THERMISTOR)
+  #if TT_REV(THERMISTORBED) || !defined(HEATER_BED_USES_THERMISTOR)
     #define HEATER_BED_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_BED_RAW_LO_TEMP 0
   #else
@@ -397,7 +400,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_CHAMBER_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_CHAMBER_USES_THERMISTOR)
+  #if TT_REV(THERMISTORCHAMBER) || !defined(HEATER_CHAMBER_USES_THERMISTOR)
     #define HEATER_CHAMBER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_CHAMBER_RAW_LO_TEMP 0
   #else
@@ -405,5 +408,15 @@ static_assert(
     #define HEATER_CHAMBER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
   #endif
 #endif
+#ifndef HEATER_PROBE_RAW_HI_TEMP
+  #if TT_REV(THERMISTORPROBE) || !defined(HEATER_PROBE_USES_THERMISTOR)
+    #define HEATER_PROBE_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define HEATER_PROBE_RAW_LO_TEMP 0
+  #else
+    #define HEATER_PROBE_RAW_HI_TEMP 0
+    #define HEATER_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
 
-#undef REVERSE_TEMP_SENSOR_RANGE
+#undef _TT_REV
+#undef TT_REV
