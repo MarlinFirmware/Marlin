@@ -2573,6 +2573,10 @@ void Temperature::tick() {
         _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
       #endif
 
+      #if HAS_HEATED_CHAMBER
+        _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber);
+      #endif
+
     } // slow_pwm_count == 0
 
     #if HAS_HOTEND
@@ -2582,6 +2586,10 @@ void Temperature::tick() {
 
     #if HAS_HEATED_BED
       _PWM_OFF(BED, soft_pwm_bed);
+    #endif
+
+    #if HAS_HEATED_CHAMBER
+      _PWM_OFF(CHAMBER, soft_pwm_chamber);
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -2662,6 +2670,7 @@ void Temperature::tick() {
         HOTEND_LOOP() soft_pwm_hotend[e].dec();
       #endif
       TERN_(HAS_HEATED_BED, soft_pwm_bed.dec());
+      TERN_(HAS_HEATED_CHAMBER, soft_pwm_chamber.dec());
     }
 
   #endif // SLOW_PWM_HEATERS
