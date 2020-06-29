@@ -307,16 +307,12 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
             case '5':   // "<05FWDeflts>"
               SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
-              ExtUI::injectCommands_P(PSTR("M502"));
-              buzzer.tone(105, 1661);
-              buzzer.tone(210, 1108);
+              ExtUI::injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
               break;
             
             case '6':   // "<06SvEEPROM>"
               SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
-              ExtUI::injectCommands_P(PSTR("M500"));
-              buzzer.tone(105, 1108);
-              buzzer.tone(210, 1661);
+              ExtUI::injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
               break;
 
             default:
