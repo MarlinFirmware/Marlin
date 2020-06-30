@@ -1,7 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * ALTERATIONS ON 20/06/05 UBL 20/06/16 20/06/22 20/06/23 20/06/28
+ * ##############################################################################
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/28
+ * ##############################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
@@ -71,7 +73,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(meltonpieman), Ender-3)" // Who made the changes. // 20/06/05
+#define STRING_CONFIG_H_AUTHOR "(meltonpieman), Ender-3)" // Who made the changes. // 20/06/28
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -128,15 +130,15 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_BTT_SKR_V1_4 // 20/06/05
+  #define MOTHERBOARD BOARD_BTT_SKR_V1_4 // 20/06/28
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 20/06/26"
+#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 20/06/30" // ALTER TO SAVED DATE ########################### // 20/06/28
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
-//#define MACHINE_UUID "3b5fa385-4637-497c-aa42-0fdd17daecfe" //THIS IS MY MACHINE UUID SEE http IN LINE ABOVE TO GET YOURS // 20/06/05
+//#define MACHINE_UUID "3b5fa385-4637-497c-aa42-0fdd17daecfe" //THIS IS MY MACHINE UUID SEE http IN LINE ABOVE TO GET YOURS // 20/06/28
 
 // @section extruder
 
@@ -427,12 +429,12 @@
 //#define TEMP_SENSOR_1_AS_REDUNDANT
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
-#define TEMP_RESIDENCY_TIME      2  // (seconds) Time to wait for hotend to "settle" in M109 // 20/06/05 was 10
-#define TEMP_WINDOW              5  // (°C) Temperature proximity for the "temperature reached" timer // 20/06/05 was 1
+#define TEMP_RESIDENCY_TIME      2  // (seconds) Time to wait for hotend to "settle" in M109 // 20/06/28 was 10
+#define TEMP_WINDOW              5  // (°C) Temperature proximity for the "temperature reached" timer // 20/06/28 was 1
 #define TEMP_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
 
-#define TEMP_BED_RESIDENCY_TIME  2  // (seconds) Time to wait for bed to "settle" in M190 // 20/06/05 was 10
-#define TEMP_BED_WINDOW          5  // (°C) Temperature proximity for the "temperature reached" timer // 20/06/05 was 1
+#define TEMP_BED_RESIDENCY_TIME  2  // (seconds) Time to wait for bed to "settle" in M190 // 20/06/28 was 10
+#define TEMP_BED_WINDOW          5  // (°C) Temperature proximity for the "temperature reached" timer // 20/06/28 was 1
 #define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
@@ -450,7 +452,7 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 250 // 20/06/05
+#define HEATER_0_MAXTEMP 250 // 20/06/28
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
@@ -458,7 +460,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP       80 // 20/06/05
+#define BED_MAXTEMP       80 // 20/06/28
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -482,10 +484,10 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/05
-  #define DEFAULT_Kp 28.36 // 20/06/05
-  #define DEFAULT_Ki 2.92 // 20/06/05
-  #define DEFAULT_Kd 68.92 // 20/06/05
+  // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/28
+  #define DEFAULT_Kp 28.36 // 20/06/28
+  #define DEFAULT_Ki 2.92 // 20/06/28
+  #define DEFAULT_Kd 68.92 // 20/06/28
 
   // Ultimaker
   //#define DEFAULT_Kp 22.2
@@ -521,7 +523,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#define PIDTEMPBED // 20/06/05
+#define PIDTEMPBED // 20/06/28
 
 //#define BED_LIMIT_SWITCHING
 
@@ -539,9 +541,9 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10) 
-  #define DEFAULT_bedKp 158.18 // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/05
-  #define DEFAULT_bedKi 31.27 // 20/06/05
-  #define DEFAULT_bedKd 533.43 // 20/06/05
+  #define DEFAULT_bedKp 158.18 // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/28
+  #define DEFAULT_bedKi 31.27 // 20/06/28
+  #define DEFAULT_bedKd 533.43 // 20/06/28
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -590,7 +592,7 @@
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-// #define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber // 20/06/05
+// #define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber // 20/06/28
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -674,15 +676,15 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE  TMC2209 // 20/06/05
-#define Y_DRIVER_TYPE  TMC2209 // 20/06/05
-#define Z_DRIVER_TYPE  TMC2209 // 20/06/05
+#define X_DRIVER_TYPE  TMC2209 // 20/06/28
+#define Y_DRIVER_TYPE  TMC2209 // 20/06/28
+#define Z_DRIVER_TYPE  TMC2209 // 20/06/28
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE TMC2209 // 20/06/05
+#define E0_DRIVER_TYPE TMC2209 // 20/06/28
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -734,7 +736,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/05
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/28
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -805,7 +807,7 @@
  *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge // 20/06/05 was 0.08
+  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge // 20/06/28 was 0.08
 #endif
 
 /**
@@ -816,7 +818,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION // 20/06/05
+#define S_CURVE_ACCELERATION // 20/06/28
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -850,7 +852,7 @@
  *      - normally-open switches to 5V and D32.
  *
  */
-//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default SKR 1.4 is P0_10 // STILL USING THE ENDSTOP PIN IN THIS REPO // 20/06/05
+//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default SKR 1.4 is P0_10 // STILL USING THE ENDSTOP PIN IN THIS REPO // 20/06/28
 /**
  * Probe Type
  *
@@ -887,7 +889,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH // 20/06/05
+#define BLTOUCH // 20/06/28
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -959,14 +961,14 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -24, 0 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/06/22
+#define NOZZLE_TO_PROBE_OFFSET { -42, -24, 0 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/06/28
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 10000 // 20/06/05
+#define XY_PROBE_SPEED 10000 // 20/06/28
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST (HOMING_FEEDRATE_Z * 4) // UBL
@@ -1000,10 +1002,10 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   5 // Z Clearance for Deploy/Stow ALL THESE OFFSET WORK FOR MY SETUP CHECK YOUR OWN // 20/06/05
-#define Z_CLEARANCE_BETWEEN_PROBES  4 // Z Clearance between probe points // 20/06/05
-#define Z_CLEARANCE_MULTI_PROBE     4 // Z Clearance between multiple probes // 20/06/05
-//#define Z_AFTER_PROBING           4 // Z position after probing is done // 20/06/05
+#define Z_CLEARANCE_DEPLOY_PROBE   5 // Z Clearance for Deploy/Stow ALL THESE OFFSET WORK FOR MY SETUP CHECK YOUR OWN // 20/06/28
+#define Z_CLEARANCE_BETWEEN_PROBES  4 // Z Clearance between probe points // 20/06/28
+#define Z_CLEARANCE_MULTI_PROBE     4 // Z Clearance between multiple probes // 20/06/28
+//#define Z_AFTER_PROBING           4 // Z position after probing is done // 20/06/28
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
@@ -1012,7 +1014,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#define Z_MIN_PROBE_REPEATABILITY_TEST // 20/06/05
+#define Z_MIN_PROBE_REPEATABILITY_TEST // 20/06/28
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1104,7 +1106,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 240 // A LITTLE SAFETY MARGIN BELOW THE 250 AVAILABLE // 20/06/05
+#define Z_MAX_POS 240 // A LITTLE SAFETY MARGIN BELOW THE 250 AVAILABLE // 20/06/28
 
 /**
  * Software Endstops
@@ -1132,7 +1134,7 @@
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
-#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD // 20/06/05
+#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD // 20/06/28
 #endif
 
 /**
@@ -1143,7 +1145,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-#define FILAMENT_RUNOUT_SENSOR // 20/06/05
+#define FILAMENT_RUNOUT_SENSOR // 20/06/28
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
@@ -1264,7 +1266,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    #define EXTRAPOLATE_BEYOND_GRID // 20/06/05
+    #define EXTRAPOLATE_BEYOND_GRID // 20/06/28
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1293,7 +1295,7 @@
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
-  #define UBL_Z_RAISE_WHEN_OFF_MESH 0 // When the nozzle is off the mesh, this value is used // UBL was 0
+  #define UBL_Z_RAISE_WHEN_OFF_MESH 0 // When the nozzle is off the mesh, this value is used // UBL
                                           // as the Z-Height correction value.
 
 #elif ENABLED(MESH_BED_LEVELING)
@@ -1314,7 +1316,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING // 20/06/05
+#define LCD_BED_LEVELING // 20/06/28
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -1323,13 +1325,13 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-#define LEVEL_BED_CORNERS // 20/06/05
+#define LEVEL_BED_CORNERS // 20/06/28
 
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       4.0   // (mm) Z height of nozzle between leveling points
-  #define LEVEL_CENTER_TOO              // Move to the center after the last corner // 20/06/05
+  #define LEVEL_CENTER_TOO              // Move to the center after the last corner // 20/06/28
 #endif
 
 /**
@@ -1359,16 +1361,16 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#define Z_SAFE_HOMING // 20/06/05
+#define Z_SAFE_HOMING // 20/06/28
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT 10 // ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28). SET TO MY FIRST ABL PROBE POINT // 20/06/05
-  #define Z_SAFE_HOMING_Y_POINT 10 // ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28). // 20/06/05
+  #define Z_SAFE_HOMING_Y_POINT 10 // ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28). // 20/06/28
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60) // 20/06/05
-#define HOMING_FEEDRATE_Z  (4*60) // USED 2*60 BEFORE UBL TRIAL // 20/06/05
+#define HOMING_FEEDRATE_XY (50*60) // 20/06/28
+#define HOMING_FEEDRATE_Z  (4*60) // USED 2*60 BEFORE UBL TRIAL // 20/06/28
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1476,14 +1478,14 @@
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 200 // 20/06/05
-#define PREHEAT_1_TEMP_BED     60 // 20/06/05
+#define PREHEAT_1_TEMP_HOTEND 200 // 20/06/28
+#define PREHEAT_1_TEMP_BED     60 // 20/06/28
 #define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "PET" // 20/06/05
-#define PREHEAT_2_TEMP_HOTEND  210 // 20/06/05
-#define PREHEAT_2_TEMP_BED      55 // 20/06/05
-#define PREHEAT_2_FAN_SPEED      0 // Value from 0 to 255 // 20/06/05
+#define PREHEAT_2_LABEL       "PET" // 20/06/28
+#define PREHEAT_2_TEMP_HOTEND  210 // 20/06/28
+#define PREHEAT_2_TEMP_BED      55 // 20/06/28
+#define PREHEAT_2_FAN_SPEED      0 // Value from 0 to 255 // 20/06/28
 
 /**
  * Nozzle Park
@@ -1496,11 +1498,11 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-#define NOZZLE_PARK_FEATURE // 20/06/05
+#define NOZZLE_PARK_FEATURE // 20/06/28
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
-  #define NOZZLE_PARK_POINT { (X_MAX_POS - 10), (Y_MIN_POS + 10), 20 } // 20/06/05
+  #define NOZZLE_PARK_POINT { (X_MAX_POS - 10), (Y_MIN_POS + 10), 20 } // 20/06/28
   #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // (mm/s) Z axis feedrate (not used for delta printers)
 #endif
@@ -1675,7 +1677,7 @@
  *
  * Use CRC checks and retries on the SD communication.
  */
-#define SD_CHECK_AND_RETRY // 20/06/05
+#define SD_CHECK_AND_RETRY // 20/06/28
 
 /**
  * LCD Menu Items
@@ -1738,7 +1740,7 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-#define INDIVIDUAL_AXIS_HOMING_MENU // 20/06/05
+#define INDIVIDUAL_AXIS_HOMING_MENU // 20/06/28
 
 //
 // SPEAKER/BUZZER
@@ -1909,7 +1911,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // FOR TFT 35 E3 v3 // 20/06/05
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // FOR TFT 35 E3 v3 // 20/06/28
 
 //
 // ReprapWorld Graphical LCD
@@ -1989,7 +1991,7 @@
 // This is RAMPS-compatible using a single 10-pin connector.
 // (For CR-10 owners who want to replace the Melzi Creality board but retain the display)
 //
-// #define CR10_STOCKDISPLAY // 20/06/05
+// #define CR10_STOCKDISPLAY // 20/06/28
 
 //
 // Ender-2 OEM display, a variant of the MKS_MINI_12864
@@ -2133,7 +2135,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-#define FAN_SOFT_PWM // 20/06/05
+#define FAN_SOFT_PWM // 20/06/28
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.

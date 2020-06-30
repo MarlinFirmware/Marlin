@@ -1,7 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * ALTERATIONSS  // 20/06/05 UBL 20/06/16 20/06/22 20/06/23 20/06/26
+ * ##################################################################################
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26
+ * ##################################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
@@ -152,7 +154,7 @@
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
-  #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops // 20/06/05
+  #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops // 20/06/26
   #if BOTH(ADAPTIVE_FAN_SLOWING, PIDTEMP)
     //#define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
   #endif
@@ -375,7 +377,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 50 // 20/06/05 CW uses 80
+#define FAN_MIN_PWM 50 // 20/06/26
 //#define FAN_MAX_PWM 128
 
 /**
@@ -419,7 +421,7 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN P2_04 // 20/06/05
+#define E0_AUTO_FAN_PIN P2_04 // 20/06/26
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
@@ -590,11 +592,11 @@
 // @section homing
 
 // Homing hits each endstop, retracts by these distances, then does a slower bump.
-#define X_HOME_BUMP_MM 0 // 20/06/05
-#define Y_HOME_BUMP_MM 0 // 20/06/05
+#define X_HOME_BUMP_MM 0 // 20/06/26
+#define Y_HOME_BUMP_MM 0 // 20/06/26
 #define Z_HOME_BUMP_MM 2
-#define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate) // 20/06/05 was 3, 3, 4 pre TMC alts#define QUICK_HOME                       // If homing includes X and Y, do a diagonal move initially
-#define HOMING_BACKOFF_MM { 2, 2, 2}  // (mm) Move away from the endstops after homing // 20/06/05
+#define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate) // 20/06/26 was 3, 3, 4 pre TMC alts#define QUICK_HOME                       // If homing includes X and Y, do a diagonal move initially
+#define HOMING_BACKOFF_MM { 2, 2, 2}  // (mm) Move away from the endstops after homing // 20/06/26
 
 // When G28 is called, this option will make Y home before X
 //#define HOME_Y_BEFORE_X
@@ -747,7 +749,7 @@
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
-#define DISABLE_INACTIVE_Z false  // Set to false if the nozzle will fall down on your printed part when print has finished. // 20/06/05 was true
+#define DISABLE_INACTIVE_Z false  // Set to false if the nozzle will fall down on your printed part when print has finished. // 20/06/26 was true
 #define DISABLE_INACTIVE_E true
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -1099,7 +1101,7 @@
    *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
    *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
    */
-  #define SDCARD_SORT_ALPHA // 20/06/05
+  #define SDCARD_SORT_ALPHA // 20/06/26
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
@@ -1115,7 +1117,7 @@
   #endif
 
   // This allows hosts to request long names for files and folders with M33
-  #define LONG_FILENAME_HOST_SUPPORT // 20/06/05
+  #define LONG_FILENAME_HOST_SUPPORT // 20/06/26
 
   // Enable this option to scroll long filenames in the SD card menu
   #define SCROLL_LONG_FILENAMES
@@ -1232,7 +1234,7 @@
   #define XYZ_HOLLOW_FRAME
 
   // Enable to save many cycles by drawing a hollow frame on Menu Screens
-  // #define MENU_HOLLOW_FRAME  // MAKES LCD HIGHLIGHT MORE VISIBLE // 20/06/05
+  // #define MENU_HOLLOW_FRAME  // MAKES LCD HIGHLIGHT MORE VISIBLE // 20/06/26
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
@@ -1470,7 +1472,7 @@
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR_Z  1      // Babysteps are very small. Increase for faster motion. // 20/06/16 was CHANGED TO 10 NOW 1 AGAIN
+  #define BABYSTEP_MULTIPLICATOR_Z  1      // Babysteps are very small. Increase for faster motion. // 20/06/26 was CHANGED TO 10 NOW 1 AGAIN
   #define BABYSTEP_MULTIPLICATOR_XY 1
 
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
@@ -1478,15 +1480,15 @@
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
     //#define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
-    #define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on doubleclick when printer is idle. // 20/06/05
+    #define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on doubleclick when printer is idle. // 20/06/26
     #if ENABLED(MOVE_Z_WHEN_IDLE)
-      #define MOVE_Z_IDLE_MULTIPLICATOR 1   // Multiply 1mm by this factor for the move step size. // 20/06/05 was 10 NOW 1 AGAIN
+      #define MOVE_Z_IDLE_MULTIPLICATOR 1   // Multiply 1mm by this factor for the move step size. // 20/06/26 was 10 NOW 1 AGAIN
     #endif
   #endif
 
   //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
 
-  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping // 20/06/05
+  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping // 20/06/26
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
@@ -1526,10 +1528,10 @@
  */
 #if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
   //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 215 // WAS 180 // 20/06/16
+  //#define PROBE_PT_1_Y 215 // WAS 180 // 20/06/26
   //#define PROBE_PT_2_X 15
   //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 215 // WAS 170 // 20/06/16
+  //#define PROBE_PT_3_X 215 // WAS 170 // 20/06/26
   //#define PROBE_PT_3_Y 20
 #endif
 
@@ -1712,7 +1714,7 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2 (e.g. 8, 16, 32) because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller // 20/06/05 was 16
+  #define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller // 20/06/26 was 16
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
@@ -1721,7 +1723,7 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 32 // 20/06/05 was 4
+#define BUFSIZE 32 // 20/06/26 was 4
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -1730,7 +1732,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 32 // 20/06/05 was 0
+#define TX_BUFFER_SIZE 32 // 20/06/26 was 0
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1761,7 +1763,7 @@
 // enter the serial receive buffer, so they cannot be blocked.
 // Currently handles M108, M112, M410
 // Does not work on boards using AT90USB (USBCON) processors!
-#define EMERGENCY_PARSER // WAS A CONFLICT WITH TFT 35 E3 v3 // 20/06/05
+#define EMERGENCY_PARSER // WAS A CONFLICT WITH TFT 35 E3 v3 // 20/06/26
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
@@ -1876,11 +1878,11 @@
                                                   //   For direct drive, the full length of the nozzle.
                                                   //   Set to 0 for manual unloading.
   #define FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE   6  // (mm/s) Slow move when starting load.
-  #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH    100  // (mm) Slow length, to allow time to insert material. // 20/06/05 was 0
+  #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH    100  // (mm) Slow length, to allow time to insert material. // 20/06/26 was 0
                                                   // 0 to disable start loading and skip to fast load only
   #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE   6  // (mm/s) Load filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH     100  // (mm) Load length of filament, from extruder gear to nozzle. // 20/06/05
+  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH     100  // (mm) Load length of filament, from extruder gear to nozzle. // 20/06/26
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
@@ -1902,10 +1904,10 @@
   #define FILAMENT_CHANGE_ALERT_BEEPS         10  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
-  #define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.// 20/06/05
+  #define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.// 20/06/26
   //#define HOME_BEFORE_FILAMENT_CHANGE           // Ensure homing has been completed prior to parking for filament change
 
-  #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu. // 20/06/05
+  #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu. // 20/06/26
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
@@ -2263,7 +2265,7 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  #define MONITOR_DRIVER_STATUS // 20/06/05
+  #define MONITOR_DRIVER_STATUS // 20/06/26
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -2320,7 +2322,7 @@
    * IMPROVE_HOMING_RELIABILITY tunes acceleration and jerk when
    * homing and adds a guard period for endstop triggering.
    */
-  #define SENSORLESS_HOMING // StallGuard capable drivers only // 20/06/05
+  #define SENSORLESS_HOMING // StallGuard capable drivers only // 20/06/26
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
@@ -2336,13 +2338,13 @@
    * Beta feature!
    * Create a 50/50 square wave step pulse optimal for stepper drivers.
    */
-  #define SQUARE_WAVE_STEPPING // 20/06/05
+  #define SQUARE_WAVE_STEPPING // 20/06/26
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #define TMC_DEBUG // 20/06/05
+  #define TMC_DEBUG // 20/06/26
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -2851,8 +2853,8 @@
   #define USER_DESC_1 "Home & show UBL Info" // UBL
   #define USER_GCODE_1 "G28\nG29 W" // UBL
 
-  #define USER_DESC_2 "Probe UBL Slot 0 PEI pwdr coated" //Use probe to setup UBL. // 20/06/23
-  #define USER_GCODE_2 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 0 PEI p coated" // heat bed, home, UBL, fade // 20/06/23
+  #define USER_DESC_2 "Probe UBL Slot 0 PEI pwdr coated" //Use probe to setup UBL. // 20/06/26
+  #define USER_GCODE_2 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 0 PEI p coated" // heat bed, home, UBL, fade // 20/06/26
 
   #define USER_DESC_3 "UBL Z Offset Step 1" // UBL
   #define USER_GCODE_3 "G28\nG1 X117.5 Y117.5 Z0.00\nM211 S0\nM0 Lower Z Offset" // home, centre bed, software endstops off, wait to do offset // UBL
@@ -2866,11 +2868,11 @@
   #define USER_DESC_6 "Mesh Tilt 3 point level" //Tilt mesh to account for changes of knobs under the bed // UBL
   #define USER_GCODE_6 "G29 J2\nM500" // 3 point level, save eprom // UBL
 
-  #define USER_DESC_7 "Probe UBL Slot 1 PEI smooth " //Use probe to setup UBL. // 20/06/23
-  #define USER_GCODE_7 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S1\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 1 PEI smooth" // heat bed, home, UBL, fade // 20/06/23
+  #define USER_DESC_7 "Probe UBL Slot 1 PEI smooth " //Use probe to setup UBL. // 20/06/26
+  #define USER_GCODE_7 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S1\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 1 PEI smooth" // heat bed, home, UBL, fade // 20/06/26
 
-  #define USER_DESC_8 "Probe UBL Slot 2 Ender magbed" //Use probe to setup UBL. // 20/06/23
-  #define USER_GCODE_8 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S2\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 2 Ender bed" // heat bed, home, UBL, fade // 20/06/23
+  #define USER_DESC_8 "Probe UBL Slot 2 Ender magbed" //Use probe to setup UBL. // 20/06/26
+  #define USER_GCODE_8 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S2\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 2 Ender bed" // heat bed, home, UBL, fade // 20/06/26
   
   //#define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
   //#define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
