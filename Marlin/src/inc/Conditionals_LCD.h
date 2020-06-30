@@ -477,6 +477,8 @@
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
   #endif
+#else
+  #undef PID_PARAMS_PER_HOTEND
 #endif
 
 // Helper macros for extruder and hotend arrays

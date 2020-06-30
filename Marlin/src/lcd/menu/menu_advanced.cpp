@@ -205,16 +205,12 @@ void menu_cancelobject();
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int16_t e) {
-    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
-      UNUSED(e);
-    #endif
+    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
     thermalManager.updatePID();
   }
   void copy_and_scalePID_d(int16_t e) {
-    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
-      UNUSED(e);
-    #endif
+    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
     thermalManager.updatePID();
   }
@@ -239,7 +235,7 @@ void menu_cancelobject();
 
 #if HAS_HOTEND
   DEFINE_PIDTEMP_FUNCS(0);
-  #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
     REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
   #endif
 #endif
@@ -314,7 +310,7 @@ void menu_cancelobject();
     #endif
 
     PID_EDIT_MENU_ITEMS(0);
-    #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
     #endif
 
