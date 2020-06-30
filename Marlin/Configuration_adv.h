@@ -1866,7 +1866,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-#define ADVANCED_PAUSE_FEATURE // 20/06/05
+#define ADVANCED_PAUSE_FEATURE // 20/06/26
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -2326,9 +2326,9 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  120 // 20/06/26
+    #define X_STALL_SENSITIVITY  700 // 20/06/26
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
-    #define Y_STALL_SENSITIVITY  70 // 20/06/22
+    #define Y_STALL_SENSITIVITY  65 // 20/06/26
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY //commented out to make more robust // 20/06/26
@@ -2853,7 +2853,7 @@
   #define USER_DESC_1 "Home & show UBL Info" // UBL
   #define USER_GCODE_1 "G28\nG29 W" // UBL
 
-  #define USER_DESC_2 "Probe UBL Slot 0 PEI pwdr coated" //Use probe to setup UBL. // 20/06/26
+  #define USER_DESC_2 "Probe UBL Slot 0 PEI powder coated" //Use probe to setup UBL. // 20/06/26
   #define USER_GCODE_2 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 0 PEI p coated" // heat bed, home, UBL, fade // 20/06/26
 
   #define USER_DESC_3 "UBL Z Offset Step 1" // UBL
@@ -2868,8 +2868,8 @@
   #define USER_DESC_6 "Mesh Tilt 3 point level" //Tilt mesh to account for changes of knobs under the bed // UBL
   #define USER_GCODE_6 "G29 J2\nM500" // 3 point level, save eprom // UBL
 
-  #define USER_DESC_7 "Probe UBL Slot 1 PEI smooth " //Use probe to setup UBL. // 20/06/26
-  #define USER_GCODE_7 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S1\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 1 PEI smooth" // heat bed, home, UBL, fade // 20/06/26
+  #define USER_DESC_7 "Probe UBL Slot 1 PEI film " //Use probe to setup UBL. // 20/06/26
+  #define USER_GCODE_7 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S1\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 1 PEI film" // heat bed, home, UBL, fade // 20/06/26
 
   #define USER_DESC_8 "Probe UBL Slot 2 Ender magbed" //Use probe to setup UBL. // 20/06/26
   #define USER_GCODE_8 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S2\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 2 Ender bed" // heat bed, home, UBL, fade // 20/06/26
