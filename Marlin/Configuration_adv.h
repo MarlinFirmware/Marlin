@@ -1761,7 +1761,7 @@
 // enter the serial receive buffer, so they cannot be blocked.
 // Currently handles M108, M112, M410
 // Does not work on boards using AT90USB (USBCON) processors!
-#define EMERGENCY_PARSER // WAS CONFLICT WITH TFT 3.0 // 20/06/05
+#define EMERGENCY_PARSER // WAS A CONFLICT WITH TFT 35 E3 v3 // 20/06/05
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
@@ -2042,7 +2042,7 @@
 
   #if AXIS_IS_TMC(X)
     #define X_CURRENT       580        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  (X_CURRENT)  // (mA) RMS current for sensorless homing // 20/06/22 was X_CURRENT/2
+    #define X_CURRENT_HOME  (X_CURRENT)  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16    // 0..256
     #define X_RSENSE          0.11
     #define X_CHAIN_POS      -1    // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
@@ -2058,7 +2058,7 @@
 
   #if AXIS_IS_TMC(Y)
     #define Y_CURRENT       580
-    #define Y_CURRENT_HOME  (Y_CURRENT)  // 20/06/22 was Y_CURRENT/2
+    #define Y_CURRENT_HOME  (Y_CURRENT)
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
     #define Y_CHAIN_POS      -1
@@ -2324,12 +2324,12 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  120 // 20/06/22 was 70 with imp reliab 20/06/26
+    #define X_STALL_SENSITIVITY  120 // 20/06/26
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  70 // 20/06/22
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
-    //#define IMPROVE_HOMING_RELIABILITY // 20/06/05 commented out to make more robust 20/06/26
+    //#define IMPROVE_HOMING_RELIABILITY //commented out to make more robust // 20/06/26
   #endif
 
   /**

@@ -104,13 +104,13 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 0 //-1 // 20/06/28
+#define SERIAL_PORT 0 // 20/06/28
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 -1 //0 // 20/06/28
+#define SERIAL_PORT_2 -1 // 20/06/28
 
 /**
  * This setting determines the communication speed of the printer.
@@ -136,7 +136,7 @@
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
-//#define MACHINE_UUID "3b5fa385-4637-497c-aa42-0fdd17daecfe" // 20/06/05
+//#define MACHINE_UUID "3b5fa385-4637-497c-aa42-0fdd17daecfe" //THIS IS MY MACHINE UUID SEE http IN LINE ABOVE TO GET YOURS // 20/06/05
 
 // @section extruder
 
@@ -482,7 +482,7 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  // MY Creality Ender-3 with SKR 1.4 // 20/06/05
+  // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/05
   #define DEFAULT_Kp 28.36 // 20/06/05
   #define DEFAULT_Ki 2.92 // 20/06/05
   #define DEFAULT_Kd 68.92 // 20/06/05
@@ -539,7 +539,7 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10) 
-  #define DEFAULT_bedKp 158.18 // MY ENDER 3 WITH SKR 1.4 // 20/06/05
+  #define DEFAULT_bedKp 158.18 // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/05
   #define DEFAULT_bedKi 31.27 // 20/06/05
   #define DEFAULT_bedKd 533.43 // 20/06/05
 
@@ -734,7 +734,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // MY ENDER 3 WITH SKR 1.4 // 20/06/05
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/05
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -850,7 +850,7 @@
  *      - normally-open switches to 5V and D32.
  *
  */
-//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default SKR 1.4 is P0_10 // 20/06/05
+//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default SKR 1.4 is P0_10 // STILL USING THE ENDSTOP PIN IN THIS REPO // 20/06/05
 /**
  * Probe Type
  *
@@ -959,7 +959,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -24, 0 } // 20/06/22
+#define NOZZLE_TO_PROBE_OFFSET { -42, -24, 0 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/06/22
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1000,7 +1000,7 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   5 // Z Clearance for Deploy/Stow // 20/06/05
+#define Z_CLEARANCE_DEPLOY_PROBE   5 // Z Clearance for Deploy/Stow ALL THESE OFFSET WORK FOR MY SETUP CHECK YOUR OWN // 20/06/05
 #define Z_CLEARANCE_BETWEEN_PROBES  4 // Z Clearance between probe points // 20/06/05
 #define Z_CLEARANCE_MULTI_PROBE     4 // Z Clearance between multiple probes // 20/06/05
 //#define Z_AFTER_PROBING           4 // Z position after probing is done // 20/06/05
@@ -1104,7 +1104,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 240 // A LITTLE SAFETY MARGIN // 20/06/05
+#define Z_MAX_POS 240 // A LITTLE SAFETY MARGIN BELOW THE 250 AVAILABLE // 20/06/05
 
 /**
  * Software Endstops
@@ -1362,7 +1362,7 @@
 #define Z_SAFE_HOMING // 20/06/05
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT 10 // ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28). NOW SET TO FIRST BILINER POINT // 20/06/05
+  #define Z_SAFE_HOMING_X_POINT 10 // ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28). SET TO MY FIRST ABL PROBE POINT // 20/06/05
   #define Z_SAFE_HOMING_Y_POINT 10 // ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28). // 20/06/05
 #endif
 
@@ -1909,7 +1909,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // FOR TFT 3.0 // 20/06/05
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // FOR TFT 35 E3 v3 // 20/06/05
 
 //
 // ReprapWorld Graphical LCD
