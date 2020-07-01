@@ -246,7 +246,8 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
             case '8':   // "<08HtEndPID>"
               SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
-              ExtUI::injectCommands_P(PSTR("M106 S204\nM303 E0 S215 C15 U1"));
+              // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
+              ExtUI::injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
               break;
 
             case '9':   // "<09HtBedPID>"
@@ -290,7 +291,8 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
             case '3':   // "<03HtendPID>"
               SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
-              ExtUI::injectCommands_P(PSTR("M106 S204\nM303 E0 S215 C15 U1"));
+              // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
+              ExtUI::injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
               break;
 
             case '4':   // "<04HtbedPID>"
