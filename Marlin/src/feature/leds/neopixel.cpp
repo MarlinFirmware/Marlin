@@ -61,8 +61,6 @@ uint8_t Marlin_NeoPixel::get_neo_index() {
 }
 
 void Marlin_NeoPixel::set_color(const uint32_t color) {
-  //SERIAL_ECHO_START();
-  //SERIAL_ECHOLNPAIR("neoindex:",get_index());
   if (get_neo_index() < NEOPIXEL_PIXELS) { 
     set_pixel_color(get_neo_index(), color);
     set_neo_index(NEOPIXEL_PIXELS);
