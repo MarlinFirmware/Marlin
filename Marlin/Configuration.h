@@ -2131,12 +2131,12 @@
 //#define FSMC_GRAPHICAL_TFT
 
 //
-// TFT Little VGL UI
+// TFT LVGL UI
 //
 // Default MKS icons and fonts: https://git.io/JJvzK
 // Copy mks_pic and mks_font folders to the root of your SD
 //
-//#define TFT_LITTLE_VGL_UI
+//#define TFT_LVGL_UI
 
 //=============================================================================
 //============================  Other Controllers  ============================

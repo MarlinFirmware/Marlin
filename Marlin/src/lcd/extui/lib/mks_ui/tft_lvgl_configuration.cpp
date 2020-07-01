@@ -27,7 +27,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "../../../../MarlinCore.h"
 
@@ -774,4 +774,4 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   return false; /*Return `false` because we are not buffering and no more data to read*/
 }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "draw_ready_print.h"
 #include "draw_tool.h"
@@ -316,4 +316,4 @@ void lv_draw_ready_print(void) {
 
 void lv_clear_ready_print() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

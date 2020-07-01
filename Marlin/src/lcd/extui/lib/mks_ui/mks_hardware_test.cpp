@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "tft_lvgl_configuration.h"
 #include "lvgl.h"
@@ -592,4 +592,4 @@ void disp_font_update() {
   disp_string(120, 150, "FONT Updating...", 0xFFFF, 0x0000);
 }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

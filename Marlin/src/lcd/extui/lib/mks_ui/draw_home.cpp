@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
@@ -280,4 +280,4 @@ void lv_draw_home(void) {
 
 void lv_clear_home() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
   #include "../../../../MarlinCore.h"
 
@@ -215,4 +215,4 @@
     }
   }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI
