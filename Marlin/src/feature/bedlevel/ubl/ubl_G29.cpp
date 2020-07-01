@@ -55,6 +55,13 @@
 
   #if HAS_LCD_MENU
     void _lcd_ubl_output_map_lcd();
+
+    void unified_bed_leveling::steppers_were_disabled() {
+      if (lcd_map_control) {
+        lcd_map_control = false;
+        ui.defer_status_screen(false);
+      }
+    }
   #endif
 
   #define SIZE_OF_LITTLE_RAISE 1
@@ -789,11 +796,11 @@
 
     bool click_and_hold(const clickFunc_t func=nullptr) {
       if (ui.button_pressed()) {
-        ui.quick_feedback(false);                // Preserve button state for click-and-hold
+        ui.quick_feedback(false);         // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
-        while (ui.button_pressed()) {                // Loop while the encoder is pressed. Uses hardware flag!
-          idle();                                 // idle, of course
-          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
+        while (ui.button_pressed()) {     // Loop while the encoder is pressed. Uses hardware flag!
+          idle();                         // idle, of course
+          if (ELAPSED(millis(), nxt)) {   // After 1.5 seconds
             ui.quick_feedback();
             if (func) (*func)();
             ui.wait_for_release();

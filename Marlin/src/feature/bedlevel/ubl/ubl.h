@@ -111,6 +111,9 @@ class unified_bed_leveling {
 
     #if HAS_LCD_MENU
       static bool lcd_map_control;
+      static void steppers_were_disabled();
+    #else
+      static inline void steppers_were_disabled() {}
     #endif
 
     static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
