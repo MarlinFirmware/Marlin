@@ -116,7 +116,7 @@ class unified_bed_leveling {
       static inline void steppers_were_disabled() {}
     #endif
 
-    static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
+    static volatile int16_t encoder_diff; // Volatile because buttons may changed it at interrupt time
 
     unified_bed_leveling();
 

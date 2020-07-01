@@ -230,7 +230,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
           screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
         else {
           #if ENABLED(MOVE_Z_WHEN_IDLE)
-            move_menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
+            ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
             screen = lcd_move_z;
           #endif
         }
