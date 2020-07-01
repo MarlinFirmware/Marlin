@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
@@ -33,6 +33,7 @@
 //#include "../lvgl/src/lv_core/lv_refr.h"
 #include "draw_ui.h"
 #include "../../../../gcode/queue.h"
+#include "pic_manager.h"
 
 static lv_obj_t * scr;
 
@@ -110,7 +111,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_set(void) {
   lv_obj_t *buttonFan, *buttonAbout;
-  lv_obj_t *buMotorOff, *buttonLanguage, *buttonBack;
+  lv_obj_t *buMotorOff, *buttonBack;
+  #if HAS_LANG_SELECT_SCREEN
+    lv_obj_t *buttonLanguage;
+  #endif
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != SET_UI) {
     disp_state_stack._disp_index++;
@@ -141,7 +145,9 @@ void lv_draw_set(void) {
   buttonAbout = lv_imgbtn_create(scr, NULL);
   //buttonContinue = lv_imgbtn_create(scr, NULL);
   buMotorOff = lv_imgbtn_create(scr, NULL);
-  buttonLanguage = lv_imgbtn_create(scr, NULL);
+  #if HAS_LANG_SELECT_SCREEN
+    buttonLanguage = lv_imgbtn_create(scr, NULL);
+  #endif
   buttonBack = lv_imgbtn_create(scr, NULL);
 
 
@@ -170,20 +176,22 @@ void lv_draw_set(void) {
     //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_PR, &tft_style_lable_pre);
     //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_REL, &tft_style_lable_rel);
     #if HAS_SUICIDE
-      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_Mamual.bin", 0);
+      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_manual_off.bin", 0);
     #else
-      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_Motor_off.bin", 0);
+      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_manual_off.bin", 0);
     #endif
     lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buMotorOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buMotorOff, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonLanguage, event_handler, ID_S_LANGUAGE, "bmp_Language.bin", 0);
-    lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    #if HAS_LANG_SELECT_SCREEN
+      lv_obj_set_event_cb_mks(buttonLanguage, event_handler, ID_S_LANGUAGE, "bmp_Language.bin", 0);
+      lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_REL, &bmp_pic);
+      lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_PR, &bmp_pic);
+      lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_PR, &tft_style_lable_pre);
+      lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    #endif
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_S_RETURN, "bmp_Return.bin", 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
@@ -205,7 +213,9 @@ void lv_draw_set(void) {
   lv_obj_set_pos(buttonAbout, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
   //lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
   lv_obj_set_pos(buMotorOff, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonLanguage, INTERVAL_V, titleHeight);
+  #if HAS_LANG_SELECT_SCREEN
+    lv_obj_set_pos(buttonLanguage, INTERVAL_V, titleHeight);
+  #endif
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4,  BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
   /*Create a label on the Image button*/
@@ -214,7 +224,9 @@ void lv_draw_set(void) {
   lv_btn_set_layout(buttonAbout, LV_LAYOUT_OFF);
   //lv_btn_set_layout(buttonContinue, LV_LAYOUT_OFF);
   lv_btn_set_layout(buMotorOff, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonLanguage, LV_LAYOUT_OFF);
+  #if HAS_LANG_SELECT_SCREEN
+    lv_btn_set_layout(buttonLanguage, LV_LAYOUT_OFF);
+  #endif
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
   //lv_obj_t * labelWifi= lv_label_create(buttonWifi, NULL);
@@ -222,7 +234,9 @@ void lv_draw_set(void) {
   lv_obj_t * label_About = lv_label_create(buttonAbout, NULL);
   //lv_obj_t * label_Continue = lv_label_create(buttonContinue, NULL);
   lv_obj_t * label_MotorOff = lv_label_create(buMotorOff, NULL);
-  lv_obj_t * label_Language = lv_label_create(buttonLanguage, NULL);
+  #if HAS_LANG_SELECT_SCREEN
+    lv_obj_t * label_Language = lv_label_create(buttonLanguage, NULL);
+  #endif
   lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
 
 
@@ -245,8 +259,10 @@ void lv_draw_set(void) {
     #endif
     lv_obj_align(label_MotorOff, buMotorOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
-    lv_label_set_text(label_Language, set_menu.language);
-    lv_obj_align(label_Language, buttonLanguage, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    #if HAS_LANG_SELECT_SCREEN
+      lv_label_set_text(label_Language, set_menu.language);
+      lv_obj_align(label_Language, buttonLanguage, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    #endif
 
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -255,4 +271,4 @@ void lv_draw_set(void) {
 
 void lv_clear_set() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

@@ -231,7 +231,7 @@
 
   #endif // HAS_SPI_LCD
 
-#elif ENABLED(TFT_LITTLE_VGL_UI)
+#elif ENABLED(TFT_LVGL_UI)
 
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0

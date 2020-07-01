@@ -26,7 +26,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -61,7 +61,9 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
   }
   else if (event == LV_EVENT_RELEASED) {
     if (DialogType == DIALOG_TYPE_PRINT_FILE) {
-      preview_gcode_prehandle(list_file.file_name[sel_id]);
+      #if HAS_GCODE_PREVIEW
+        preview_gcode_prehandle(list_file.file_name[sel_id]);
+      #endif
       reset_print_time();
       start_print_time();
 
@@ -202,7 +204,7 @@ void lv_draw_dialog(uint8_t type) {
   style_btn_rel.body.shadow.type = LV_SHADOW_BOTTOM;
   style_btn_rel.body.radius = LV_RADIUS_CIRCLE;
   style_btn_rel.text.color = lv_color_hex3(0xDEF);
-  style_btn_rel.text.font = &gb2312_puhui32;
+  style_btn_rel.text.font = &lv_font_roboto_22;
 
   static lv_style_t style_btn_pr;                                    // A variable to store the pressed style
   lv_style_copy(&style_btn_pr, &style_btn_rel);                      // Initialize from the released style
@@ -211,7 +213,7 @@ void lv_draw_dialog(uint8_t type) {
   style_btn_pr.body.grad_color = lv_color_hex3(0x24A);
   style_btn_pr.body.shadow.width = 2;
   style_btn_pr.text.color = lv_color_hex3(0xBCD);
-  style_btn_pr.text.font = &gb2312_puhui32;
+  style_btn_pr.text.font = &lv_font_roboto_22;
 
   lv_obj_t * labelDialog = lv_label_create(scr, NULL);
   lv_obj_set_style(labelDialog, &tft_style_lable_rel);
@@ -340,4 +342,4 @@ void lv_draw_dialog(uint8_t type) {
 
 void lv_clear_dialog() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI
