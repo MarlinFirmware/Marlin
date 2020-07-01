@@ -81,7 +81,7 @@ namespace Language_jp_kana {
     PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = PREHEAT_2_LABEL _UxGT(" ベッドヨネツ");  // " Bed"
     PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = PREHEAT_2_LABEL _UxGT(" ヨネツセッテイ");  // " conf"
   #endif
-  #ifdef PREHEAT_2_LABEL
+  #ifdef PREHEAT_3_LABEL
     PROGMEM Language_Str MSG_PREHEAT_3                       = PREHEAT_3_LABEL _UxGT(" ヨネツ");       // "Preheat " PREHEAT_3_LABEL
     PROGMEM Language_Str MSG_PREHEAT_3_H                     = PREHEAT_3_LABEL _UxGT(" ヨネツ ~");       // "Preheat " PREHEAT_3_LABEL
     PROGMEM Language_Str MSG_PREHEAT_3_END                   = PREHEAT_3_LABEL _UxGT(" ヨネツノズル");  // " Nozzle"
