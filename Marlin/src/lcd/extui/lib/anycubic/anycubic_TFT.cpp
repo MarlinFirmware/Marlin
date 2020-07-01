@@ -188,16 +188,20 @@ bool AnycubicTFTClass::CodeSeen(char code) {
 }
 
 void AnycubicTFTClass::HandleSpecialMenu() {
+  //
+  // NOTE: that the file selection command actual lowercases the entire selected file/foldername, so charracter comparisons need to be lowercase.
+  //
   if (SelectedDirectory[0] == '<' ) {
     
     switch (SelectedDirectory[1]) {
-      
-      case 'S': // "<SpecialMnu>"
-        SpecialMenu = true;
-        return;
-        break;
+    
+      // this will not bein the special menu as it was in the root folder
+      // case 's': // "<specialmnu>"
+      //   SpecialMenu = true;
+      //   return;
+      //   break;
 
-      case 'E': // "<Exit>"
+      case 'e': // "<exit>"
         SpecialMenu = false;
         return;
         break;
@@ -431,7 +435,7 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
   for (cnt = selectedNumber; cnt <= max_files; cnt++) {
     if (cnt == 0) {  // Special Entry
       if(currentFileList.isAtRootDir()) {
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<SpecialMnu>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<specialmnu>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special Menu>");
       } else {
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("/..");
@@ -519,7 +523,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
         #if ENABLED(ANYCUBIC_TFT_DEBUG)
           if ((a_command>7) && (a_command != 20)) { // No debugging of status polls, please!
             SERIAL_ECHOPGM("TFT Serial Command: ");
-            SERIAL_ECHO(TFTcmdbuffer[TFTbufindw]);
+            SERIAL_ECHOLN(TFTcmdbuffer[TFTbufindw]);
           }
         #endif
 
@@ -662,6 +666,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                   ANYCUBIC_SERIAL_ENTER();
                 } else if (TFTstrchr_pointer[4] == '<') {
                   strcpy(SelectedDirectory, TFTstrchr_pointer+4);
+                  SpecialMenu = true;
                   SelectedFile[0] = 0;
                   ANYCUBIC_SENDCOMMAND_DBG_PGM("J21", "TFT Serial Debug: Clear file selection... J21 "); // J21 Not File Selected
                   ANYCUBIC_SERIAL_ENTER();
@@ -734,7 +739,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             }
             break;
 
-          case 19: // A19 stop stepper drivers
+          case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
             if(!ExtUI::isPrinting()) {
               quickstop_stepper();
               disable_all_steppers();
@@ -780,6 +785,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
               float coorvalue;
               unsigned int movespeed = 0;
               char commandStr[30];
+              char fullCommandStr[38];
               
               commandStr[0] = 0;  // empty string
               if (CodeSeen('F')) {  // Set feedrate
@@ -825,10 +831,14 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                   sprintf_P(commandStr, PSTR("G1 E%iF500"), int(coorvalue)); 
                 }
               }
- 
-              if(strlen_P(commandStr) > 0) {
-                sprintf_P(commandStr, PSTR("G91\n%s\nG90"), commandStr);
-                ExtUI::injectCommands(commandStr);
+
+              if(strlen(commandStr) > 0) {
+                sprintf_P(fullCommandStr, PSTR("G91\n%s\nG90"), commandStr);
+                #if ENABLED(ANYCUBIC_TFT_DEBUG)
+                  SERIAL_ECHOPGM("TFT Serial Debug: A22 Move final request with gcode... ");
+                  SERIAL_ECHOLN(fullCommandStr);
+                #endif
+                ExtUI::injectCommands(fullCommandStr);
               }
             }
             ANYCUBIC_SERIAL_ENTER();
