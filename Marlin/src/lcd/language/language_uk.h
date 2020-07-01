@@ -80,20 +80,51 @@ namespace Language_uk {
   #endif
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Зміщення прийняті");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Встановити ноль");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Нагрів ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" все");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" стіл");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" налашт");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Нагрів ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Нагрів ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" сопло");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" сопло ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" все");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" стіл");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" налашт");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Нагрів ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" все");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" стіл");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" налашт");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Нагрів ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Нагрів ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" сопло");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" все");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" стіл");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Нагрів ") PREHEAT_2_LABEL _UxGT(" налашт");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Нагрів ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Нагрів ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Нагрів ") PREHEAT_3_LABEL _UxGT(" сопло");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Нагрів ") PREHEAT_3_LABEL _UxGT(" сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Нагрів ") PREHEAT_3_LABEL _UxGT(" все");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Нагрів ") PREHEAT_3_LABEL _UxGT(" стіл");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Нагрів ") PREHEAT_3_LABEL _UxGT(" налашт");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Нагрів ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Нагрів ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Нагрів ") PREHEAT_4_LABEL _UxGT(" сопло");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Нагрів ") PREHEAT_4_LABEL _UxGT(" сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Нагрів ") PREHEAT_4_LABEL _UxGT(" все");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Нагрів ") PREHEAT_4_LABEL _UxGT(" стіл");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Нагрів ") PREHEAT_4_LABEL _UxGT(" налашт");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Нагрів ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Нагрів ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Нагрів ") PREHEAT_5_LABEL _UxGT(" сопло");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Нагрів ") PREHEAT_5_LABEL _UxGT(" сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Нагрів ") PREHEAT_5_LABEL _UxGT(" все");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Нагрів ") PREHEAT_5_LABEL _UxGT(" стіл");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Нагрів ") PREHEAT_5_LABEL _UxGT(" налашт");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Нагрів Свій");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Вимкнути нагрів");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Частота");
@@ -148,7 +179,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("Друге сопло X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("Друге сопло Y");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("Друге сопло Z");
-  
+
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Виконується G29");
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Інструменти UBL");
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Налаштування UBL");
@@ -185,14 +216,40 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Редагування сітки");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Сітка побудована");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Будувати сітку");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Будувати сітку ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Будувати сітку ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Будувати сітку ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Будувати сітку ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Будувати сітку ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Будувати сітку ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Будувати сітку ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Буд. холодну сітку");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Встан.висоту сітки");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Висота");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Підтвердити сітку");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Підтвердити ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Підтвердити ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Підтвердити ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Підтвердити ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Підтвердити ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Підтвердити ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Підтвердити ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Підтвердити свою");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрів столу");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 нагрів сопла");
@@ -651,7 +708,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Помилка паркування");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Помилка зондування");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: низька Т") LCD_STR_DEGREE;
-  
+
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ОБЕРІТЬ ПРУТОК");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Налаштування MMU");
   PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Понови прошивку MMU!");

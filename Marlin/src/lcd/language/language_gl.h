@@ -72,20 +72,51 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Axustar Desfases");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Desfases aplicados");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Fixar orixe");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Prequentar ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Todo");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Cama");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Prequentar ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Prequentar ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Todo");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Cama");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" conf");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Prequentar ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Prequentar ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Prequentar ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Prequentar ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Prequentar ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Prequentar ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Prequentar ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Prequentar ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Prequentar ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" conf");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preque. Personali.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Arrefriar");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecuencia");
@@ -148,14 +179,40 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Fin Edición da Malla");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crear Malla Person.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crear Malla");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crear Malla (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crear Malla (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crear Malla (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crear Malla (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Crear Malla (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Crear Malla (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Crear Malla (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Crear Malla Fría");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Axustar Altura Malla");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Altura");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Validar Malla");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Validar Malla (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Validar Malla (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Validar Malla (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Validar Malla (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Validar Malla (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Validar Malla (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Validar Malla (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Validar Malla perso.");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Quentando Cama");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Quentando Bico");

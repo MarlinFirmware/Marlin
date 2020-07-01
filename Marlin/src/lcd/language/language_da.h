@@ -49,20 +49,51 @@ namespace Language_da {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Sæt forsk. af home");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Forsk. er nu aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sæt origin");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Forvarm ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end")
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Forvarm ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Forvarm ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end")
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Alle");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Bed");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" conf");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Forvarm ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end")
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Forvarm ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Forvarm ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end")
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Alle");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Bed");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Forvarm ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Forvarm ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Forvarm ") PREHEAT_3_LABEL _UxGT(" end")
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Forvarm ") PREHEAT_3_LABEL _UxGT(" end ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Forvarm ") PREHEAT_3_LABEL _UxGT(" Alle");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Forvarm ") PREHEAT_3_LABEL _UxGT(" Bed");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Forvarm ") PREHEAT_3_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Forvarm ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Forvarm ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Forvarm ") PREHEAT_4_LABEL _UxGT(" end")
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Forvarm ") PREHEAT_4_LABEL _UxGT(" end ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Forvarm ") PREHEAT_4_LABEL _UxGT(" Alle");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Forvarm ") PREHEAT_4_LABEL _UxGT(" Bed");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Forvarm ") PREHEAT_4_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Forvarm ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Forvarm ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Forvarm ") PREHEAT_5_LABEL _UxGT(" end")
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Forvarm ") PREHEAT_5_LABEL _UxGT(" end ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Forvarm ") PREHEAT_5_LABEL _UxGT(" Alle");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Forvarm ") PREHEAT_5_LABEL _UxGT(" Bed");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Forvarm ") PREHEAT_5_LABEL _UxGT(" conf");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Afkøl");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Slå strøm til");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Slå strøm fra");
