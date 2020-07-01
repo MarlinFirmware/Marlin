@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "../../../../MarlinCore.h"
 #include "lv_conf.h"
@@ -244,4 +244,4 @@ void disp_fan_value() {
 
 void lv_clear_fan() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

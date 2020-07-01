@@ -59,7 +59,7 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
   #include "lvgl.h"
   #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/lib/mks_ui/draw_ui.h"
@@ -743,7 +743,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
 
-  #if ENABLED(TFT_LITTLE_VGL_UI)
+  #if ENABLED(TFT_LVGL_UI)
     LV_TASK_HANDLER();
   #endif
 }
@@ -936,11 +936,11 @@ void setup() {
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   const byte mcu = HAL_get_reset_source();
-  if (mcu &  1) SERIAL_ECHOLNPGM(STR_POWERUP);
-  if (mcu &  2) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
-  if (mcu &  4) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
-  if (mcu &  8) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
-  if (mcu & 32) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
+  if (mcu & RST_POWER_ON) SERIAL_ECHOLNPGM(STR_POWERUP);
+  if (mcu & RST_EXTERNAL) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
+  if (mcu & RST_BROWN_OUT) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
+  if (mcu & RST_WATCHDOG) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
+  if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
   serialprintPGM(GET_TEXT(MSG_MARLIN));
@@ -1136,7 +1136,7 @@ void setup() {
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    SETUP_RUN(init_closedloop());
+    SETUP_RUN(closedloop.init());
   #endif
 
   #ifdef STARTUP_COMMANDS
@@ -1180,7 +1180,8 @@ void setup() {
     SETUP_RUN(page_manager.init());
   #endif
 
-  #if ENABLED(TFT_LITTLE_VGL_UI)
+  #if ENABLED(TFT_LVGL_UI)
+    if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     SETUP_RUN(tft_lvgl_init());
   #endif
 
@@ -1216,7 +1217,7 @@ void loop() {
 
     endstops.event_handler();
 
-    TERN_(TFT_LITTLE_VGL_UI, printer_state_polling());
+    TERN_(TFT_LVGL_UI, printer_state_polling());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

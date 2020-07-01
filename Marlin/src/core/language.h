@@ -65,6 +65,7 @@
 // pl         Polish
 // pt         Portuguese
 // pt_br      Portuguese (Brazilian)
+// ro         Romanian
 // ru         Russian
 // sk         Slovak
 // tr         Turkish

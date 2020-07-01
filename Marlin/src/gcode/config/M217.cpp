@@ -49,7 +49,7 @@ void M217_report(const bool eeprom=false) {
                     " G", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" N", int(migration.automode));
+      SERIAL_ECHOPAIR(" A", int(migration.automode));
       SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration.last));
     #endif
 
