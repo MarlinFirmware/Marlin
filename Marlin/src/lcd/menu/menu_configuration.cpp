@@ -307,8 +307,10 @@ void menu_advanced_settings();
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
-    EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
+    #if HAS_FAN
+      editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
+      EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
+    #endif 
     #if HAS_TEMP_HOTEND
       EDIT_ITEM(uint16_3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
     #endif
