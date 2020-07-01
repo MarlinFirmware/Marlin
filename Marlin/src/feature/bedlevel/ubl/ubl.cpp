@@ -206,7 +206,7 @@
         if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
         SERIAL_FLUSHTX();
-        idle();
+        idle_no_sleep();
       }
       if (!lcd) SERIAL_EOL();
 
