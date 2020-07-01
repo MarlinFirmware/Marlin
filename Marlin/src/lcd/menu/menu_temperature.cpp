@@ -66,17 +66,17 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
   ui.return_to_status();
 }
 
-#if HAS_TEMP_HOTEND
-  inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
-  #if HAS_HEATED_BED
-    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
-  #endif
-#endif
-#if HAS_HEATED_BED
-  inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
-#endif
+#if PREHEAT_COUNT
 
-#if HAS_TEMP_HOTEND || HAS_HEATED_BED
+  #if HAS_TEMP_HOTEND
+    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
+    #if HAS_HEATED_BED
+      inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
+    #endif
+  #endif
+  #if HAS_HEATED_BED
+    inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
+  #endif
 
   #if HAS_TEMP_HOTEND && HAS_HEATED_BED
 
@@ -145,16 +145,22 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
   }
 
   void menu_preheat_m1() { menu_preheat_m(0); }
-  void menu_preheat_m2() { menu_preheat_m(1); }
-  #if PREHEAT_COUNT >= 3
-    void menu_preheat_m3() { menu_preheat_m(2); }
-    #if PREHEAT_COUNT >= 4
-      void menu_preheat_m4() { menu_preheat_m(3); }
-      #if PREHEAT_COUNT >= 5
-        void menu_preheat_m5() { menu_preheat_m(4); }
+  #if PREHEAT_COUNT >= 2
+    void menu_preheat_m2() { menu_preheat_m(1); }
+    #if PREHEAT_COUNT >= 3
+      void menu_preheat_m3() { menu_preheat_m(2); }
+      #if PREHEAT_COUNT >= 4
+        void menu_preheat_m4() { menu_preheat_m(3); }
+        #if PREHEAT_COUNT >= 5
+          void menu_preheat_m5() { menu_preheat_m(4); }
+        #endif
       #endif
     #endif
   #endif
+
+#endif // PREHEAT_COUNT
+
+#if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
     thermalManager.zero_fan_speeds();
@@ -279,32 +285,36 @@ void menu_temperature() {
 
   #endif // HAS_FAN
 
-  #if HAS_TEMP_HOTEND
+  //
+  // Preheat for Materials 1 to 5
+  //
+  #ifdef PREHEAT_COUNT
 
-    //
-    // Preheat for Material 1 and 2
-    //
     #if HOTENDS > 1 || HAS_HEATED_BED
       SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
-      SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
-      #if PREHEAT_COUNT >= 3
-        SUBMENU(MSG_PREHEAT_3, menu_preheat_m3);
-        #if PREHEAT_COUNT >= 4
-          SUBMENU(MSG_PREHEAT_4, menu_preheat_m4);
-          #if PREHEAT_COUNT >= 5
-            SUBMENU(MSG_PREHEAT_5, menu_preheat_m5);
+      #if PREHEAT_COUNT >= 2
+        SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
+        #if PREHEAT_COUNT >= 3
+          SUBMENU(MSG_PREHEAT_3, menu_preheat_m3);
+          #if PREHEAT_COUNT >= 4
+            SUBMENU(MSG_PREHEAT_4, menu_preheat_m4);
+            #if PREHEAT_COUNT >= 5
+              SUBMENU(MSG_PREHEAT_5, menu_preheat_m5);
+            #endif
           #endif
         #endif
       #endif
     #else
       ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
-      ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
-      #if PREHEAT_COUNT >= 3
-        ACTION_ITEM(MSG_PREHEAT_3, []{ _preheat_end(2, 0); });
+      #if PREHEAT_COUNT >= 2
+        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
         #if PREHEAT_COUNT >= 3
-          ACTION_ITEM(MSG_PREHEAT_4, []{ _preheat_end(3, 0); });
-          #if PREHEAT_COUNT >= 3
-            ACTION_ITEM(MSG_PREHEAT_5, []{ _preheat_end(4, 0); });
+          ACTION_ITEM(MSG_PREHEAT_3, []{ _preheat_end(2, 0); });
+          #if PREHEAT_COUNT >= 4
+            ACTION_ITEM(MSG_PREHEAT_4, []{ _preheat_end(3, 0); });
+            #if PREHEAT_COUNT >= 5
+              ACTION_ITEM(MSG_PREHEAT_5, []{ _preheat_end(4, 0); });
+            #endif
           #endif
         #endif
       #endif
@@ -316,7 +326,7 @@ void menu_temperature() {
     if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
 
-  #endif // HAS_TEMP_HOTEND
+  #endif // PREHEAT_COUNT
 
   END_MENU();
 }

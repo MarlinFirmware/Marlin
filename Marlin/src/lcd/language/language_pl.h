@@ -70,20 +70,51 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ust. poz. zer.");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Poz. zerowa ust.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ustaw punkt zero");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Rozgrzej ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Rozgrzej ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" wsz.");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" stół");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" ustaw.");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Rozgrzej ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Rozgrzej ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" Dysza");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" Dysza ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" wsz.");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" stół");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" ustaw.");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Rozgrzej ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Rozgrzej ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" Dysza ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" wsz.");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" stół");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" ustaw.");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Rozgrzej ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Rozgrzej ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" Dysza");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" Dysza ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" wsz.");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" stół");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_2_LABEL _UxGT(" ustaw.");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Rozgrzej ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Rozgrzej ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Rozgrzej ") PREHEAT_3_LABEL _UxGT(" Dysza");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Rozgrzej ") PREHEAT_3_LABEL _UxGT(" Dysza ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Rozgrzej ") PREHEAT_3_LABEL _UxGT(" wsz.");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_3_LABEL _UxGT(" stół");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_3_LABEL _UxGT(" ustaw.");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Rozgrzej ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Rozgrzej ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Rozgrzej ") PREHEAT_4_LABEL _UxGT(" Dysza");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Rozgrzej ") PREHEAT_4_LABEL _UxGT(" Dysza ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Rozgrzej ") PREHEAT_4_LABEL _UxGT(" wsz.");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_4_LABEL _UxGT(" stół");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_4_LABEL _UxGT(" ustaw.");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Rozgrzej ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Rozgrzej ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Rozgrzej ") PREHEAT_5_LABEL _UxGT(" Dysza");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Rozgrzej ") PREHEAT_5_LABEL _UxGT(" Dysza ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Rozgrzej ") PREHEAT_5_LABEL _UxGT(" wsz.");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Rozgrzej ") PREHEAT_5_LABEL _UxGT(" stół");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Rozgrzej ") PREHEAT_5_LABEL _UxGT(" ustaw.");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Rozgrzej własne ust.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Chłodzenie");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Sterowanie Lasera");
@@ -145,14 +176,40 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Koniec edycji siati");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Buduj własna siatkę");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Buduj siatkę");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Buduj siatkę (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Buduj siatkę (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Buduj siatkę (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Buduj siatkę (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Buduj siatkę (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Buduj siatkę (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Buduj siatkę (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Buduj siatkę na zimno");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Dostrojenie wysokości siatki");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Wartość wysokości");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Sprawdzenie siatki");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Sprawdzenie siatki (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Sprawdzenie siatki (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Sprawdzenie siatki (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Sprawdzenie siatki (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Sprawdzenie siatki (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Sprawdzenie siatki (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Sprawdzenie siatki (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Sprawdzenie własnej siatki");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Nagrzewanie stołu");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Nagrzewanie dyszy");

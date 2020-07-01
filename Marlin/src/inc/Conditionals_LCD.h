@@ -589,14 +589,6 @@
   #define NUM_SERVOS 0
 #endif
 
-#ifndef PREHEAT_1_LABEL
-  #define PREHEAT_1_LABEL "PLA"
-#endif
-
-#ifndef PREHEAT_2_LABEL
-  #define PREHEAT_2_LABEL "ABS"
-#endif
-
 /**
  * Set a flag for a servo probe (or BLTouch)
  */

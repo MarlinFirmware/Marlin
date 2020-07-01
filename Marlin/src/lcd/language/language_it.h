@@ -72,20 +72,51 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Imp. offset home");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset applicato");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Imposta Origine");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Piatto");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preriscalda ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preriscalda ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Ugello");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Ugello ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Tutto");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Piatto");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" conf");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preriscalda ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preriscalda ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Preriscalda ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Preriscalda ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Preris.") PREHEAT_3_LABEL _UxGT(" Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Preris.") PREHEAT_3_LABEL _UxGT(" Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Preris.") PREHEAT_3_LABEL _UxGT(" Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Preris.") PREHEAT_3_LABEL _UxGT(" Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Preris.") PREHEAT_3_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Preriscalda ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Preriscalda ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Preris.") PREHEAT_4_LABEL _UxGT(" Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Preris.") PREHEAT_4_LABEL _UxGT(" Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Preris.") PREHEAT_4_LABEL _UxGT(" Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Preris.") PREHEAT_4_LABEL _UxGT(" Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Preris.") PREHEAT_4_LABEL _UxGT(" conf");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Preriscalda ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Preriscalda ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Preris.") PREHEAT_5_LABEL _UxGT(" Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Preris.") PREHEAT_5_LABEL _UxGT(" Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Preris.") PREHEAT_5_LABEL _UxGT(" Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Preris.") PREHEAT_5_LABEL _UxGT(" Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Preris.") PREHEAT_5_LABEL _UxGT(" conf");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Prerisc.personal.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Raffredda");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenza");
@@ -148,14 +179,40 @@ namespace Language_it {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Modif.Mesh fatta");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crea Mesh personal.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crea Mesh");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crea Mesh ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crea Mesh ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crea Mesh ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crea Mesh ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Crea Mesh ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Crea Mesh ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Crea Mesh ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Crea Mesh a freddo");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Aggiusta Alt. Mesh");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Altezza");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Valida Mesh");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Valida Mesh ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Valida Mesh ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Valida Mesh ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Valida Mesh ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Valida Mesh ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Valida Mesh ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Valida Mesh ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 riscald.letto");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 riscald.ugello");
   PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Priming manuale...");

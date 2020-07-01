@@ -75,20 +75,51 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ofset Ayarla");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofset Tamam");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sıfır Belirle");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Ön Isınma ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tüm");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tabla");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Ayarlar");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Ön Isınma ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Ayarlar");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Ön Isınma ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Ön Isınma ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_3_LABEL _UxGT(" Ayarlar");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Ön Isınma ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Ön Isınma ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Ön Isınma ") PREHEAT_4_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Ön Isınma ") PREHEAT_4_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Ön Isınma ") PREHEAT_4_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_4_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_4_LABEL _UxGT(" Ayarlar");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Ön Isınma ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Ön Isınma ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Ön Isınma ") PREHEAT_5_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Ön Isınma ") PREHEAT_5_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Ön Isınma ") PREHEAT_5_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_5_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_5_LABEL _UxGT(" Ayarlar");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Özel Ön Isınma");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Soğut/(Durdur)");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Lazer Kontrolü");
@@ -150,14 +181,40 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Mesh Düzenleme Tamam");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Özel Mesh Oluştur");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Mesh Oluştur");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Mesh Oluştur (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Mesh Oluştur (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Mesh Oluştur (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Mesh Oluştur (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Mesh Oluştur (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Mesh Oluştur (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Mesh Oluştur (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Soğuk Mesh Oluştur");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Mesh Yükseklik Ayarı");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Yükseklik miktarı");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Doğrulama Mesh");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Doğrulama Mesh (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Doğrulama Mesh (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Doğrulama Mesh (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Doğrulama Mesh (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Doğrulama Mesh (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Doğrulama Mesh (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Doğrulama Mesh (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Özel Mesh Doğrulama");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Isıtma Tablası");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Isıtma Memesi");

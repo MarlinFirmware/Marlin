@@ -55,14 +55,36 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("누르면 시작합니다");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("다음 Point");
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("레벨링 완료!");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("예열하기 - ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("예열하기 - ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐 ~");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("예열하기 - ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("예열하기 - ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐 ~");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("예열하기 - ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("예열하기 - ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("예열하기 - ") PREHEAT_3_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("예열하기 - ") PREHEAT_3_LABEL _UxGT(" 노즐 ~");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("예열하기 - ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("예열하기 - ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("예열하기 - ") PREHEAT_4_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("예열하기 - ") PREHEAT_4_LABEL _UxGT(" 노즐 ~");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("예열하기 - ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("예열하기 - ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("예열하기 - ") PREHEAT_5_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("예열하기 - ") PREHEAT_5_LABEL _UxGT(" 노즐 ~");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Custom 예열");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("식히기");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("스위치 전원 켜기");

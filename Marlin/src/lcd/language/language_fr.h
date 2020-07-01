@@ -70,20 +70,51 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Régl. décal origine");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Décalages appliqués");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Régler origine");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" Tout");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" lit");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Préchauffage ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Préchauffage ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" buse");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" buse ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" Tout");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" lit");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Préchauffage ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Préchauffage ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Préchauffage ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Préchauffage ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Préch. ") PREHEAT_3_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Préch. ") PREHEAT_3_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Préch. ") PREHEAT_3_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Préch. ") PREHEAT_3_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Préchauffage ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Préchauffage ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Préch. ") PREHEAT_4_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Préch. ") PREHEAT_4_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Préch. ") PREHEAT_4_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Préch. ") PREHEAT_4_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Préchauffage ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Préchauffage ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Préch. ") PREHEAT_5_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Préch. ") PREHEAT_5_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Préch. ") PREHEAT_5_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Préch. ") PREHEAT_5_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Préchauf. perso");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Refroidir");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Contrôle Laser");
@@ -146,15 +177,41 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Réglage fin");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Terminer");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Créer la grille");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Créer grille ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Créer grille ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Créer grille ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Créer grille ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Créer grille ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Créer grille ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Créer grille ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Créer grille ...");
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Mesure à froid");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Ajuster haut. couche");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Hauteur (x0.1mm)");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Vérifier grille");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Impr. grille ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Impr. grille ") PREHEAT_2_LABEL;
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Impr. grille ") PREHEAT_1_LABEL;
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Impr. grille ") PREHEAT_2_LABEL;
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Impr. grille ") PREHEAT_3_LABEL;
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Impr. grille ") PREHEAT_4_LABEL;
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Impr. grille ") PREHEAT_5_LABEL;
+  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Impr. grille ...");
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Continuer grille");
   PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("Niveau par mailles");

@@ -324,13 +324,15 @@ void menu_advanced_settings();
   }
 
   void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
-  void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
-  #if PREHEAT_COUNT >= 3
-    void menu_preheat_material3_settings() { _menu_configuration_preheat_settings(3); }
-    #if PREHEAT_COUNT >= 4
-      void menu_preheat_material4_settings() { _menu_configuration_preheat_settings(4); }
-      #if PREHEAT_COUNT >= 5
-        void menu_preheat_material5_settings() { _menu_configuration_preheat_settings(5); }
+  #if PREHEAT_COUNT >= 2
+    void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
+    #if PREHEAT_COUNT >= 2
+      void menu_preheat_material3_settings() { _menu_configuration_preheat_settings(2); }
+      #if PREHEAT_COUNT >= 4
+        void menu_preheat_material4_settings() { _menu_configuration_preheat_settings(3); }
+        #if PREHEAT_COUNT >= 5
+          void menu_preheat_material5_settings() { _menu_configuration_preheat_settings(4); }
+        #endif
       #endif
     #endif
   #endif
@@ -415,13 +417,15 @@ void menu_configuration() {
   // Preheat configurations
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
     SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
-    SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
-    #if PREHEAT_COUNT >= 3
-      SUBMENU(MSG_PREHEAT_3_SETTINGS, menu_preheat_material3_settings);
-      #if PREHEAT_COUNT >= 4
-        SUBMENU(MSG_PREHEAT_4_SETTINGS, menu_preheat_material4_settings);
-        #if PREHEAT_COUNT >= 5
-          SUBMENU(MSG_PREHEAT_5_SETTINGS, menu_preheat_material5_settings);
+    #if PREHEAT_COUNT >= 2
+      SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
+      #if PREHEAT_COUNT >= 3
+        SUBMENU(MSG_PREHEAT_3_SETTINGS, menu_preheat_material3_settings);
+        #if PREHEAT_COUNT >= 4
+          SUBMENU(MSG_PREHEAT_4_SETTINGS, menu_preheat_material4_settings);
+          #if PREHEAT_COUNT >= 5
+            SUBMENU(MSG_PREHEAT_5_SETTINGS, menu_preheat_material5_settings);
+          #endif
         #endif
       #endif
     #endif

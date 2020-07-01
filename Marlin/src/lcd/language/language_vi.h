@@ -65,20 +65,51 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Đặt bù đắp nhà");                       // Set home offsets
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Bù đắp được áp dụng");                  // Offsets applied
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Đặt nguồn gốc");                        // Set origin
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Tất cả");     // all
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Bàn");        // bed -- using vietnamese term for 'table' instead
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cấu hình");   // conf
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước");      // Preheat
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ~");    // Preheat
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Tất cả");    // all
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Cấu hình");  // conf
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Tất cả");     // all
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Bàn");        // bed -- using vietnamese term for 'table' instead
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cấu hình");   // conf
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước");      // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" trước ~");    // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Đầu ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Tất cả");    // all
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_2_LABEL _UxGT(" Cấu hình");  // conf
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" trước");      // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" trước ~");    // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" Đầu");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" Đầu ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" Tất cả");    // all
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_3_LABEL _UxGT(" Cấu hình");  // conf
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" trước");      // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" trước ~");    // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" Đầu");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" Đầu ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" Tất cả");    // all
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_4_LABEL _UxGT(" Cấu hình");  // conf
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" trước");      // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" trước ~");    // Preheat
+    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" Đầu");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" Đầu ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" Tất cả");    // all
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" Bàn");       // bed -- using vietnamese term for 'table' instead
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Làm nóng ") PREHEAT_5_LABEL _UxGT(" Cấu hình");  // conf
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Sự nóng trước tự chọn");                // Preheat Custom
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Nguội xuống");                          // Cooldown
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Bật nguồn");                            // Switch power on
@@ -124,14 +155,40 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Chỉnh sửa xong lưới");                  // Done Editing Mesh
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Xây dựng lưới tự chọn");                // Build Custom Mesh
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Xây dựng lưới");                        // Build Mesh
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Xây dựng lưới (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Xây dựng lưới (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Xây dựng lưới (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Xây dựng lưới (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Xây dựng lưới (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Xây dựng lưới (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Xây dựng lưới (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Xây dựng lưới lạnh");                   // Build cold mesh
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Điều chỉnh chiều cao lưới");            // Adjust Mesh Height
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Số lượng chiều cao");                   // Height Amount
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Thẩm tra lưới");                        // Validate Mesh
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Thẩm tra lưới (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Thẩm tra lưới (") PREHEAT_2_LABEL _UxGT(")");
+  #ifdef PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Thẩm tra lưới (") PREHEAT_1_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_2_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Thẩm tra lưới (") PREHEAT_2_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_3_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Thẩm tra lưới (") PREHEAT_3_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_4_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Thẩm tra lưới (") PREHEAT_4_LABEL _UxGT(")");
+  #endif
+  #ifdef PREHEAT_5_LABEL
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Thẩm tra lưới (") PREHEAT_5_LABEL _UxGT(")");
+  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Thẩm tra lưới tự chọn");                // validate custom mesh
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Tiếp tục xây lưới bàn");                // Continue Bed Mesh
   PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("Đang san lấp lưới");                    // Mesh Leveling
