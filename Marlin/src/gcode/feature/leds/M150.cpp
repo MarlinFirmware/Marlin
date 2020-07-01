@@ -43,8 +43,12 @@
  *   M150 W          ; Turn LED white using a white LED
  *   M150 P127       ; Set LED 50% brightness
  *   M150 P          ; Set LED full brightness
- */
+ *   M150 I          ; Index of NEOPIXEL LED to change
+ */  
 void GcodeSuite::M150() {
+  #if ENABLED(NEOPIXEL_LED)
+    neo.set_neo_index(parser.seen('I') ? (parser.has_value() ? parser.value_byte() : NEOPIXEL_PIXELS) : NEOPIXEL_PIXELS);
+  #endif
   leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,

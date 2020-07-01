@@ -65,12 +65,16 @@ private:
       , adaneo2
     #endif
   ;
+  static uint8_t neoindex;
 
 public:
   static void init();
   static void set_color_startup(const uint32_t c);
 
   static void set_color(const uint32_t c);
+
+  static void set_neo_index(const uint8_t neoIndex);
+  static uint8_t get_neo_index(void);
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
     static void set_color_background();
