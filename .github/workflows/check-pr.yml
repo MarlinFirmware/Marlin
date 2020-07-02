@@ -19,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: harupy/comment-on-pr@master
+      - name: Close Pull
+        uses: peter-evans/close-pull@update-dependencies
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          filename: bad-target.md
+          delete-branch: false
