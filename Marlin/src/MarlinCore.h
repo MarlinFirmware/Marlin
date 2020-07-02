@@ -87,9 +87,6 @@ extern bool wait_for_heatup;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
-// Inactivity shutdown timer
-extern millis_t max_inactive_time, stepper_inactive_time;
-
 #if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)

@@ -1629,28 +1629,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
+ * A Sensor ID has to be set for each heater
  */
-#if !HAS_HEATER_0
-  #error "HEATER_0_PIN not defined for this board."
-#elif !ANY_PIN(TEMP_0, MAX6675_SS)
-  #error "TEMP_0_PIN not defined for this board."
-#elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
-  #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
-#elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
-  #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-#elif EXTRUDERS && TEMP_SENSOR_0 == 0
-  #error "TEMP_SENSOR_0 is required with any extruders."
-#endif
-
-// Pins are required for heaters
-#if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
-  #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif HAS_HOTEND && !HAS_TEMP_HOTEND
-  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
-  #error "HEATER_1_PIN not defined for this board."
-#endif
 
 #if HAS_MULTI_HOTEND
   #if ENABLED(HEATER_1_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS2)
@@ -1790,6 +1770,30 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
+#endif
+
+/**
+ * Test Heater, Temp Sensor, and Extruder Pins
+ */
+#if !HAS_HEATER_0
+  #error "HEATER_0_PIN not defined for this board."
+#elif !ANY_PIN(TEMP_0, MAX6675_SS)
+  #error "TEMP_0_PIN not defined for this board."
+#elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
+  #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
+#elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
+  #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+#elif EXTRUDERS && TEMP_SENSOR_0 == 0
+  #error "TEMP_SENSOR_0 is required if there are any extruders."
+#endif
+
+// Pins are required for heaters
+#if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
+  #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif HAS_HOTEND && !HAS_TEMP_HOTEND
+  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+  #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
 #endif
 
 /**

@@ -37,13 +37,8 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if HOTENDS <= 1
-  #define HOTEND_INDEX  0
-  #define E_NAME
-#else
-  #define HOTEND_INDEX  e
-  #define E_NAME e
-#endif
+#define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
+#define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
 // Identifiers for other heaters
 typedef enum : int8_t {
@@ -74,29 +69,17 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
+#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0))
+#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
+#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
+#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
 #if ENABLED(PIDTEMP)
-  #define _PID_Kp(H) Temperature::temp_hotend[H].pid.Kp
-  #define _PID_Ki(H) Temperature::temp_hotend[H].pid.Ki
-  #define _PID_Kd(H) Temperature::temp_hotend[H].pid.Kd
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    #define _PID_Kc(H) Temperature::temp_hotend[H].pid.Kc
-  #else
-    #define _PID_Kc(H) 1
-  #endif
-
-  #if ENABLED(PID_FAN_SCALING)
-    #define _PID_Kf(H) Temperature::temp_hotend[H].pid.Kf
-  #else
-    #define _PID_Kf(H) 0
-  #endif
+  #define _PID_Kc(H) TERN(PID_EXTRUSION_SCALING, Temperature::temp_hotend[H].pid.Kc, 1)
+  #define _PID_Kf(H) TERN(PID_FAN_SCALING,       Temperature::temp_hotend[H].pid.Kf, 0)
 #else
-  #define _PID_Kp(H) NAN
-  #define _PID_Ki(H) NAN
-  #define _PID_Kd(H) NAN
   #define _PID_Kc(H) 1
+  #define _PID_Kf(H) 0
 #endif
-
-#define PID_PARAM(F,H) _PID_##F(H)
 
 /**
  * States for ADC reading in the ISR
@@ -625,7 +608,7 @@ class Temperature {
         return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
-    #endif // HOTENDS
+    #endif // HAS_HOTEND
 
     #if HAS_HEATED_BED
 

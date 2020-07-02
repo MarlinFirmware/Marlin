@@ -50,6 +50,7 @@ void GcodeSuite::M17() {
  */
 void GcodeSuite::M18_M84() {
   if (parser.seenval('S')) {
+    reset_stepper_timeout();
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
