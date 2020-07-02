@@ -238,7 +238,7 @@ void lv_draw_move_motor(void) {
     lv_imgbtn_set_style(buttonV, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonV, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_M_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_M_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -303,11 +303,11 @@ void disp_move_dist() {
   //char buf[30] = {0};
 
   if ((int)(10 * uiCfg.move_dist) == 1)
-    lv_obj_set_event_cb_mks(buttonV, event_handler, ID_M_STEP, "bmp_Step_move0_1.bin", 0);
+		lv_obj_set_event_cb_mks(buttonV, event_handler,ID_M_STEP,"bmp_step_move0_1.bin",0);
   else if ((int)(10 * uiCfg.move_dist) == 10)
-    lv_obj_set_event_cb_mks(buttonV, event_handler, ID_M_STEP, "bmp_Step_move1.bin", 0);
+		lv_obj_set_event_cb_mks(buttonV, event_handler,ID_M_STEP,"bmp_step_move1.bin",0);
   else if ((int)(10 * uiCfg.move_dist) == 100)
-    lv_obj_set_event_cb_mks(buttonV, event_handler, ID_M_STEP, "bmp_Step_move10.bin", 0);
+		lv_obj_set_event_cb_mks(buttonV, event_handler,ID_M_STEP,"bmp_step_move10.bin",0);
   if (gCfgItems.multiple_language != 0) {
     if ((int)(10 * uiCfg.move_dist) == 1) {
       lv_label_set_text(labelV, move_menu.step_01mm);

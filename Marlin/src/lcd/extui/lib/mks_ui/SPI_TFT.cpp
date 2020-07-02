@@ -27,6 +27,7 @@
   #include <SPI.h>
   #include "../../../../inc/MarlinConfig.h"
   #include "SPI_TFT.h"
+  #include "pic_manager.h"
 
   TFT SPI_TFT;
 
@@ -145,18 +146,28 @@
     LCD_WR_DATA(y >> 8);
     LCD_WR_DATA(y);
   }
+void TFT::SetPoit(uint16_t x,uint16_t y,uint16_t point)
+{
+    if ( (x>480)||(y>320) ) return;
+	
+    SetCursor(x,y); 
+
+    LCD_WriteRAM_Prepare(); 
+    LCD_WR_DATA((uint8_t)(point >> 8));
+    LCD_WR_DATA((uint8_t)point);
+}
   void TFT::SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height) {
     LCD_WR_REG(0x2a);
     LCD_WR_DATA(x >> 8);
     LCD_WR_DATA(x);
-    LCD_WR_DATA((x + with) >> 8);
-    LCD_WR_DATA((x + with));
+	LCD_WR_DATA((x+with-1)>>8);
+	LCD_WR_DATA((x+with-1));	
 
     LCD_WR_REG(0x2b);
     LCD_WR_DATA(y >> 8);
     LCD_WR_DATA(y);
-    LCD_WR_DATA((y + height) >> 8);
-    LCD_WR_DATA(y + height);
+	LCD_WR_DATA((y+height-1)>>8);
+	LCD_WR_DATA(y+height-1);		
   }
   void TFT::LCD_init() {
     SPI_TFT_RST_H;
@@ -237,12 +248,13 @@
     LCD_WR_REG(0x29);     // Display ON
 
     LCD_clear(0x0000);    //
+	LCD_Draw_Logo();
     SPI_TFT_BLK_H;
+	delay(2000);
 
   }
   void TFT::LCD_clear(uint16_t color) {
-    unsigned int i, m;
-    uint32_t count;
+  	unsigned int i;
     uint8_t tbuf[960];
 
     SetCursor(0, 0);
@@ -267,5 +279,63 @@
     }
     SPI_TFT_CS_H;
   }
+  
+extern unsigned char bmp_public_buf[17 * 1024];
+void TFT::LCD_Draw_Logo()
+{  
+	uint16_t i,y_off = 0;
+	uint16_t *p_index;
+	uint16_t Color;
+	
+	#if 1
+	for(y_off = 0; y_off < 320; y_off ++)
+	{
+		Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, 960);
+		
+		SPI_TFT.spi_init(SPI_FULL_SPEED);
+		SetWindows(0, y_off, 480, 1);
+		LCD_WriteRAM_Prepare(); /* Prepare to write GRAM */ 
+		for(i=0;i<960;)
+		{
+			p_index = (uint16_t *)(&bmp_public_buf[i]);
+
+		       Color = (*p_index >> 8);
+			*p_index = Color | ((*p_index & 0xff) << 8);
+			i+=2;
+		}
+		SPI_TFT_CS_L;
+		SPI_TFT_DC_H;
+		SPI.dmaSend(bmp_public_buf,960,true);
+		SPI_TFT_CS_H;	
+	}
+	SetWindows(0, 0, 479, 319);
+	#else
+	for(index = 0; index < 40; index ++)
+	{
+		Pic_Logo_Read((uint8_t *)"", bmp_public_buf, 480*8*2);
+		
+		i = 0;
+		SetCursor(0,0);
+		SetWindows(0, y_off * 8, 480, 8);
+		LCD_WriteRAM_Prepare(); /* Prepare to write GRAM */ 
+		for(i=0;i<480*8*2;)
+		{
+			p_index = (uint16_t *)(&bmp_public_buf[i]);
+
+		       Color = (*p_index >> 8);
+			*p_index = Color | ((*p_index & 0xff) << 8);
+			i+=2;
+		}
+		SPI_TFT_CS_L;
+		SPI_TFT_DC_H;
+		SPI.dmaSend(bmp_public_buf,480*8*2,true);
+		SPI_TFT_CS_H;
+		
+		y_off++;		
+		
+	}
+	SetWindows(0, 0, 479, 319);
+	#endif
+}
 
 #endif // SPI_GRAPHICAL_TFT

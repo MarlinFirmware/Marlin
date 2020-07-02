@@ -311,6 +311,7 @@
 #define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CREALITY_V4             4032  // Creality v4.x (STM32F103RE)
+#define BOARD_MKS_ROBIN_NANO_V2       4033  // MKS Robin Nano V2 (STM32F103VET6)
 
 //
 // ARM Cortex-M4F

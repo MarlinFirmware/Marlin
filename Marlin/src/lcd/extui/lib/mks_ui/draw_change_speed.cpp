@@ -215,7 +215,7 @@ void lv_draw_change_speed(void) {
     lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_C_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_C_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -264,11 +264,11 @@ void lv_draw_change_speed(void) {
 
 void disp_speed_step() {
   if (uiCfg.stepPrintSpeed == 1)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, "bmp_Step1_percent.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_C_STEP,"bmp_step1_percent.bin",0);  							
   else if (uiCfg.stepPrintSpeed == 5)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, "bmp_Step5_percent.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_C_STEP,"bmp_step5_percent.bin",0);  										
   else if (uiCfg.stepPrintSpeed == 10)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, "bmp_Step10_percent.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_C_STEP,"bmp_step10_percent.bin",0);										
 
   if (gCfgItems.multiple_language != 0) {
     if (uiCfg.stepPrintSpeed == 1) {
@@ -311,11 +311,11 @@ void disp_speed_type() {
   switch (speedType) {
     case 1:
       lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_extruct_sel.bin", 0);
-      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_mov_changespeed.bin", 0);
+			lv_obj_set_event_cb_mks(buttonMov, event_handler,ID_C_MOVE,"bmp_mov_changeSpeed.bin",0);	
       break;
 
     default:
-      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_Extruct.bin", 0);
+			lv_obj_set_event_cb_mks(buttonExt, event_handler,ID_C_EXT,"bmp_speed_extruct.bin",0);
       lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_mov_sel.bin", 0);
       break;
   }

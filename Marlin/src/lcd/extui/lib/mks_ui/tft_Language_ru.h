@@ -98,6 +98,8 @@
 #define MOTOR_OFF_TEXT_RU               "отклмотор"
 #define MOTOR_OFF_XY_TEXT_RU            "Off-XY"
 #define SHUTDOWN_TEXT_RU                "выключение"
+#define MACHINE_PARA_RU					"конфиг"
+#define EEPROM_SETTINGS_RU    			"Eeprom Set"
 
 #define U_DISK_TEXT_RU                  "U диск"
 #define SD_CARD_TEXT_RU                 "SD диск"
@@ -270,3 +272,11 @@
 #define MESSEGE_OPTION_RU                   "Очистить больше или продолжить печать?"
 #define MESSEGE_PURGE_MORE_RU               "чистка"
 #define MESSEGE_CONTINUE_PRINT_RU           "Распечатать"
+#define EEPROM_SETTINGS_TITLE_RU  			"Настройки EEPROM"
+#define EEPROM_SETTINGS_STORE_RU  			"Сохранение настроек в EEPROM"
+#define EEPROM_SETTINGS_READ_RU  			"Чтение настроек из EEPROM"
+#define EEPROM_SETTINGS_REVERT_RU 			"Восстановить заводские настройки по умолчанию"
+
+#define EEPROM_STORE_TIPS_RU  				"Сохранить настройки в EEPROM?"
+#define EEPROM_READ_TIPS_RU   				"Читать настройки из EEPROM?"
+#define EEPROM_REVERT_TIPS_RU 				"Revert settings to factory defaults?"

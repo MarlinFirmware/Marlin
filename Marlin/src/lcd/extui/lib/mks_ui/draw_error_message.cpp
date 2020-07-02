@@ -33,6 +33,9 @@
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../MarlinCore.h"
+#if ENABLED(SPI_GRAPHICAL_TFT)
+#include "SPI_TFT.h"
+#endif
 
 static lv_obj_t * scr;
 
@@ -72,7 +75,11 @@ void lv_draw_error_message(PGM_P const msg) {
 
     lv_task_handler();
   #endif
-  LCD_Clear(0x0000);
+	#if ENABLED(SPI_GRAPHICAL_TFT)
+	SPI_TFT.LCD_clear(0x0000);
+	#else
+	LCD_Clear(0x0000);
+	#endif
   if (msg) disp_string((TFT_WIDTH - strlen(msg) * 16) / 2, 100, msg, 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("PRINTER HALTED") * 16) / 2, 140, "PRINTER HALTED", 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("Please Reset") * 16) / 2, 180, "Please Reset", 0xFFFF, 0x0000);

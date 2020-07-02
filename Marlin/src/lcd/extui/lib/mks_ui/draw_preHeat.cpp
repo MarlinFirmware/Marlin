@@ -252,13 +252,13 @@ void lv_draw_preHeat(void) {
     lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonOff, event_handler, ID_P_OFF, "bmp_Speed0.bin", 0);
+	lv_obj_set_event_cb_mks(buttonOff, event_handler,ID_P_OFF,"bmp_speed0.bin",0);	
     lv_imgbtn_set_src(buttonOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOff, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_P_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -314,14 +314,14 @@ void disp_temp_type() {
 
   if (uiCfg.curTempType == 0) {
     if (uiCfg.curSprayerChoose == 1) {
-      lv_obj_set_event_cb_mks(buttoType, event_handler, ID_P_TYPE, "bmp_Extru2.bin", 0);
+			lv_obj_set_event_cb_mks(buttoType, event_handler,ID_P_TYPE,"bmp_extru2.bin",0);
       if (gCfgItems.multiple_language != 0) {
         lv_label_set_text(labelType, preheat_menu.ext2);
         lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
       }
     }
     else {
-      lv_obj_set_event_cb_mks(buttoType, event_handler, ID_P_TYPE, "bmp_Extru1.bin", 0);
+			lv_obj_set_event_cb_mks(buttoType, event_handler,ID_P_TYPE,"bmp_extru1.bin",0);
       if (gCfgItems.multiple_language != 0) {
         lv_label_set_text(labelType, preheat_menu.ext1);
         lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -330,7 +330,7 @@ void disp_temp_type() {
 
   }
   else {
-    lv_obj_set_event_cb_mks(buttoType, event_handler, ID_P_TYPE, "bmp_Bed.bin", 0);
+		lv_obj_set_event_cb_mks(buttoType, event_handler,ID_P_TYPE,"bmp_bed.bin",0);
     if (gCfgItems.multiple_language != 0) {
       lv_label_set_text(labelType, preheat_menu.hotbed);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -365,11 +365,11 @@ void disp_desire_temp() {
 
 void disp_step_heat() {
   if (uiCfg.stepHeat == 1)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_P_STEP, "bmp_Step1_degree.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_P_STEP,"bmp_step1_degree.bin",0);	
   else if (uiCfg.stepHeat == 5)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_P_STEP, "bmp_Step5_degree.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_P_STEP,"bmp_step5_degree.bin",0);
   else if (uiCfg.stepHeat == 10)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_P_STEP, "bmp_Step10_degree.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_P_STEP,"bmp_step10_degree.bin",0);
 
   if (gCfgItems.multiple_language != 0) {
     if (uiCfg.stepHeat == 1) {

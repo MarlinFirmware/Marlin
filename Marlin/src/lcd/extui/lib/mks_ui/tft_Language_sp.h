@@ -98,6 +98,8 @@
 #define MOTOR_OFF_TEXT_SP       "Apagar motor"
 #define MOTOR_OFF_XY_TEXT_SP    "Off-XY"
 #define SHUTDOWN_TEXT_SP        "Apagar"
+#define MACHINE_PARA_SP				"Config"
+#define EEPROM_SETTINGS_SP    "Eeprom Set"
 
 #define U_DISK_TEXT_SP              "PENDRIVE"
 #define SD_CARD_TEXT_SP             "SD"
@@ -277,3 +279,11 @@
 #define MESSEGE_OPTION_SP           "¿Purgar más o continuar con la impresión?"
 #define MESSEGE_PURGE_MORE_SP       "Purga"
 #define MESSEGE_CONTINUE_PRINT_SP   "Impresión"
+#define EEPROM_SETTINGS_TITLE_SP  "Configuraciones EEPROM"
+#define EEPROM_SETTINGS_STORE_SP  "Guardar configuración en EEPROM"
+#define EEPROM_SETTINGS_READ_SP   "Leer la configuración de EEPROM"
+#define EEPROM_SETTINGS_REVERT_SP "Revert settings to factory defaults"
+
+#define EEPROM_STORE_TIPS_SP  "¿Guardar ajustes en EEPROM?"
+#define EEPROM_READ_TIPS_SP   "Leer la configuración de EEPROM?"
+#define EEPROM_REVERT_TIPS_SP "Revert settings to factory defaults?"

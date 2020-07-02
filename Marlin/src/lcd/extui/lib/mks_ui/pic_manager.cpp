@@ -220,7 +220,7 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
       else
         addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
-      return (addr + 4);//The purpose of adding 4 is to remove 4-byte picture header information.
+			return addr;
     }
   }
 
@@ -235,7 +235,7 @@ const char *bakFont = "bak_font";
 
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
-  for (pic_sectorcnt = 0; pic_sectorcnt < TERN(MKS_TEST, 2, PIC_SIZE_xM * 1024 / 64); pic_sectorcnt++)
+  for (pic_sectorcnt = 0; pic_sectorcnt < PIC_SIZE_xM * 1024 / 64; pic_sectorcnt++)
     W25QXX.SPI_FLASH_BlockErase(PICINFOADDR + pic_sectorcnt * 64 * 1024);
 }
 
@@ -552,6 +552,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
 
 uint32_t logo_addroffset = 0;
 void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize) {
+	W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead(Logo_Rbuff, PIC_LOGO_ADDR + logo_addroffset, LogoReadsize);
   logo_addroffset += LogoReadsize;
   if (logo_addroffset >= LOGO_MAX_SIZE_TFT35)

@@ -51,11 +51,6 @@
   #include "SPI_TFT.h"
 #endif
 
-extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
-extern void LCD_IO_WriteData(uint16_t RegValue);
-extern void LCD_IO_WriteReg(uint16_t Reg);
-extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
-extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 
 #if HAS_SPI_FLASH_FONT
   extern void init_gb2312_font();
@@ -96,6 +91,13 @@ void SysTick_Callback() {
   print_time_count();
 }
 
+#if DISABLED(SPI_GRAPHICAL_TFT)
+
+extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
+extern void LCD_IO_WriteData(uint16_t RegValue);
+extern void LCD_IO_WriteReg(uint16_t Reg);
+
+extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 void tft_set_cursor(uint16_t x, uint16_t y) {
   LCD_IO_WriteReg(0x002A);
   LCD_IO_WriteData(x >> 8);
@@ -133,9 +135,9 @@ void tft_set_point(uint16_t x, uint16_t y, uint16_t point) {
   if ((x > 480) || (y > 320)) return;
   //}
   //**if ( (x>320)||(y>240) ) return;
-  tft_set_cursor(x, y); /*设置光标位置*/
+  tft_set_cursor(x, y); 
 
-  LCD_WriteRAM_Prepare();   /* 开始写入GRAM*/
+  LCD_WriteRAM_Prepare();   
   //LCD_WriteRAM(point);
   LCD_IO_WriteData(point);
 }
@@ -265,7 +267,6 @@ void LCD_Clear(uint16_t Color) {
 
 extern uint16_t ILI9488_ReadRAM();
 
-#if DISABLED(SPI_GRAPHICAL_TFT)
 
 void init_tft() {
   uint16_t i;
@@ -409,10 +410,16 @@ void init_tft() {
 #endif // if DISABLED(SPI_GRAPHICAL_TFT)
 
 extern uint8_t bmp_public_buf[17 * 1024];
+
 void tft_lvgl_init() {
+  
   //uint16_t test_id=0;
   W25QXX.init(SPI_QUARTER_SPEED);
   //test_id=W25QXX.W25QXX_ReadID();
+
+  gCfgItems_init();
+  ui_cfg_init();
+  disp_language_init();
 
   //init tft first!
   #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -428,10 +435,8 @@ void tft_lvgl_init() {
       UpdateFont();
     #endif
   #endif
+  mks_test_get();
 
-  gCfgItems_init();
-  ui_cfg_init();
-  disp_language_init();
   //spi_flash_read_test();
 
   #if ENABLED(TOUCH_BUTTONS)
@@ -485,9 +490,9 @@ void tft_lvgl_init() {
   #endif
   lv_draw_ready_print();
 
-  #if ENABLED(MKS_TEST)
-    Test_GPIO();
-  #endif
+  if(mks_test_flag == 0x1e){
+	mks_gpio_test();
+  }
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
@@ -590,7 +595,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #endif
 
   #if USE_XPT2046
-    #ifndef XPT2046_HOR_RES   480
+    #ifndef XPT2046_HOR_RES   
       #define XPT2046_HOR_RES   480
     #endif
     #ifndef XPT2046_VER_RES
@@ -664,9 +669,11 @@ uint16_t x_addata[times], y_addata[times];
 void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
   uint16_t i, j, k;
 
-  #if ENABLED(SPI_GRAPHICAL_TFT)
-    SPI_TFT.spi_init(SPI_QUARTER_SPEED);
-  #endif
+  	#if ENABLED(SPI_GRAPHICAL_TFT)
+	SPI_TFT.spi_init(SPI_SPEED_6);
+	#else
+	W25QXX.init(SPI_SPEED_6);
+	#endif
 
   for (i = 0; i < times; i++) {
     #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -692,6 +699,9 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
     #endif
 
   }
+  #if DISABLED(SPI_GRAPHICAL_TFT)
+  W25QXX.init(SPI_QUARTER_SPEED);
+  #endif
 
   for (i = 0; i < times; i++)
     for (j = i + 1; j < times; j++)

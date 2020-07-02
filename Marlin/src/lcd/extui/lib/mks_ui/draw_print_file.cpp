@@ -324,7 +324,7 @@ void disp_gcode_icon(uint8_t file_num) {
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_P_RETURN,"bmp_back.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic_117x92);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic_117x92);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -366,7 +366,7 @@ void disp_gcode_icon(uint8_t file_num) {
       cutFileName((char *)list_file.long_name[i], 16, 8,  (char *)public_buf_m);
 
       if (list_file.IsFolder[i] == 1) {
-        lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), "bmp_Dir.bin", 0);
+			lv_obj_set_event_cb_mks(buttonGcode[i], event_handler,(i+1),"bmp_dir.bin",0);
         lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_REL, &bmp_pic);
         lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_PR, &bmp_pic);
         if (i < 3)
@@ -424,7 +424,7 @@ void disp_gcode_icon(uint8_t file_num) {
           lv_obj_align(labelPageUp[i], buttonText[i], LV_ALIGN_IN_BOTTOM_MID, 0, 0);
         }
         else {
-          lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), "bmp_File.bin", 0);
+				lv_obj_set_event_cb_mks(buttonGcode[i], event_handler,(i+1),"bmp_file.bin",0);
           lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_REL, &bmp_pic);
           lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_PR, &bmp_pic);
           if (i < 3)
@@ -443,13 +443,27 @@ void disp_gcode_icon(uint8_t file_num) {
   }
 }
 
-void lv_open_gcode_file(char *path) {
-  #if ENABLED(SDSUPPORT)
-    char *cur_name;
-    cur_name = strrchr(path, '/');
-    card.openFileRead(cur_name);
-  #endif
+void lv_open_gcode_file(char *path){
+	#if ENABLED (SDSUPPORT)
+
+	uint32_t *ps4;
+	int pre_sread_cnt;
+	char *cur_name;
+
+	cur_name=strrchr(path,'/');
+
+	card.openFileRead(cur_name);
+	card.read(public_buf, 512);
+	ps4 = (uint32_t *)strstr((char *)public_buf,";simage:");
+	//Ignore the beginning message of gcode file
+	if(ps4)
+	{
+		pre_sread_cnt = (uint32_t)ps4-(uint32_t)((uint32_t *)(&public_buf[0]));
+		card.setIndex(pre_sread_cnt);	
+	}
+	#endif//SDSUPPORT
 }
+
 
 int ascii2dec_test(char *ascii) {
   int result = 0;
@@ -523,9 +537,9 @@ void lv_gcode_file_read(uint8_t *data_buf)
         i+=2;
         if(*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full; // 0x18C3; //
       }
-    #endif
+    #endif//SPI_GRAPHICAL_TFT
     memcpy(data_buf,public_buf,200);
-	#endif
+	#endif//SDSUPPORT
 }
 
 void lv_close_gcode_file() {TERN_(SDSUPPORT, card.closefile());}

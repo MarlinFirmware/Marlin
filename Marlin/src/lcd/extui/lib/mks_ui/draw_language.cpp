@@ -85,7 +85,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonEN, event_handler, ID_EN, "bmp_English_sel.bin", 0);
+	        lv_obj_set_event_cb_mks(buttonEN, event_handler,ID_EN,"bmp_english_sel.bin",0);
         gCfgItems.language = LANG_ENGLISH;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -97,7 +97,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonRU, event_handler, ID_RU, "bmp_Russian_sel.bin", 0);
+	        lv_obj_set_event_cb_mks(buttonRU, event_handler,ID_RU,"bmp_russian_sel.bin",0);
         gCfgItems.language = LANG_RUSSIAN;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -109,7 +109,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonES, event_handler, ID_ES, "bmp_Spanish_sel.bin", 0);
+	        lv_obj_set_event_cb_mks(buttonES, event_handler,ID_ES,"bmp_spanish_sel.bin",0);
         gCfgItems.language = LANG_SPANISH;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -121,7 +121,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonFR, event_handler, ID_FR, "bmp_French_sel.bin", 0);
+	        lv_obj_set_event_cb_mks(buttonFR, event_handler,ID_FR,"bmp_french_sel.bin",0);
         gCfgItems.language = LANG_FRENCH;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -133,7 +133,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonIT, event_handler, ID_FR, "bmp_Italy_sel.bin", 0);
+	        lv_obj_set_event_cb_mks(buttonIT, event_handler,ID_FR,"bmp_italy_sel.bin",0);
         gCfgItems.language = LANG_ITALY;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -173,43 +173,43 @@ static void disp_language(uint8_t language, uint8_t state) {
 
     case LANG_SIMPLE_CHINESE:
       id = ID_CN;
-      strcat(public_buf_l, "bmp_Simple_cn");
+			strcat(public_buf_l,"bmp_simplified_cn");
       obj = buttonCN;
 
       break;
     case LANG_COMPLEX_CHINESE:
       id = ID_T_CN;
-      strcat(public_buf_l, "bmp_Tradition_cn");
+			strcat(public_buf_l,"bmp_traditional_cn");
       obj = buttonT_CN;
       break;
     case LANG_ENGLISH:
       id = ID_EN;
-      strcat(public_buf_l, "bmp_English");
+			strcat(public_buf_l,"bmp_english");
       obj = buttonEN;
       break;
     case LANG_RUSSIAN:
       id = ID_RU;
-      strcat(public_buf_l, "bmp_Russian");
+			strcat(public_buf_l,"bmp_russian");
       obj = buttonRU;
       break;
     case LANG_SPANISH:
       id = ID_ES;
-      strcat(public_buf_l, "bmp_Spanish");
+			strcat(public_buf_l,"bmp_spanish");
       obj = buttonES;
       break;
     case LANG_FRENCH:
       id = ID_FR;
-      strcat(public_buf_l, "bmp_French");
+			strcat(public_buf_l,"bmp_french");
       obj = buttonFR;
       break;
     case LANG_ITALY:
       id = ID_IT;
-      strcat(public_buf_l, "bmp_Italy");
+			strcat(public_buf_l,"bmp_italy");
       obj = buttonIT;
       break;
     default:
       id = ID_CN;
-      strcat(public_buf_l, "bmp_Simple_cn");
+			strcat(public_buf_l,"bmp_simplified_cn");
       obj = buttonCN;
       break;
   }
@@ -271,37 +271,37 @@ void lv_draw_language(void) {
     lv_imgbtn_set_style(buttonT_CN, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonT_CN, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonEN, event_handler, ID_EN, "bmp_English.bin", 0);
+	lv_obj_set_event_cb_mks(buttonEN, event_handler,ID_EN,"bmp_english.bin",0);	
     lv_imgbtn_set_src(buttonEN, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonEN, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonEN, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonEN, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonRU, event_handler, ID_RU, "bmp_Russian.bin", 0);
+	lv_obj_set_event_cb_mks(buttonRU, event_handler,ID_RU,"bmp_russian.bin",0);	
     lv_imgbtn_set_src(buttonRU, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonRU, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonRU, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonRU, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonES, event_handler, ID_ES, "bmp_Spanish.bin", 0);
+	lv_obj_set_event_cb_mks(buttonES, event_handler,ID_ES,"bmp_spanish.bin",0);	
     lv_imgbtn_set_src(buttonES, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonES, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonES, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonES, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonFR, event_handler, ID_FR, "bmp_French.bin", 0);
+	lv_obj_set_event_cb_mks(buttonFR, event_handler,ID_FR,"bmp_french.bin",0);	
     lv_imgbtn_set_src(buttonFR, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonFR, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonFR, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonFR, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonIT, event_handler, ID_IT, "bmp_Italy.bin", 0);
+	lv_obj_set_event_cb_mks(buttonIT, event_handler,ID_IT,"bmp_italy.bin",0);	
     lv_imgbtn_set_src(buttonIT, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonIT, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonIT, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonIT, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_L_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_L_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);

@@ -48,6 +48,226 @@ extern void disp_language_init();
 #define MULTI_LANGUAGE_ENABLE   1
 #define MULTI_LANGUAGE_DISABLE  0
 
+typedef struct machine_common_disp{
+	const char *default_value;
+	
+	const char *next;
+	const char *previous;
+	
+	const char *MachineConfigTitle;
+	const char *MachineType;
+	const char *Stroke;
+	const char *HomeDir;
+	const char *EndStopType;
+	const char *FilamentConf;
+	const char *LevelingConf;
+
+	const char *MachineTypeConfTitle;
+	const char *xyz;
+	const char *delta;
+	const char *corexy;
+	
+	const char *StrokeConfTitle;
+	const char *xStroke;
+	const char *yStroke;
+	const char *zStroke;
+
+	const char *xmin;
+	const char *ymin;
+	const char *zmin;
+
+	const char *HomeDirConfTitle;
+	const char *xHomeDir;
+	const char *yHomeDir;
+	const char *zHomeDir;
+	const char *min;
+	const char *max;
+
+	const char *EndstopConfTitle;
+	const char *xEndstop_min;
+	const char *yEndstop_min;
+	const char *zEndstop_min;
+	const char *xEndstop_max;
+	const char *yEndstop_max;
+	const char *zEndstop_max;	
+	const char *FilamentEndstop;
+	const char *LevelingEndstop;
+	const char *opened;
+	const char *closed;
+
+	const char *FilamentConfTitle;
+	const char *InTemperature;
+	const char *InLength;
+	const char *InSpeed;
+	const char *OutTemperature;
+	const char *OutLength;
+	const char *OutSpeed;	
+
+	const char *LevelingParaConfTitle;
+	const char *LevelingParaConf;
+	const char *DeltaLevelConf;
+	const char *XYZLevelconf;
+	
+	const char *LevelingSubConfTitle;
+	const char *AutoLevelEnable;
+	const char *BLtouchEnable;
+	const char *ProbePort;
+	const char *ProbeXoffset;
+	const char *ProbeYoffset;
+	const char *ProbeZoffset;
+	const char *ProbeXYspeed;
+	const char *ProbeZspeed;
+	const char *enable;
+	const char *disable;
+	const char *z_min;
+	const char *z_max;
+
+	const char *LevelingSubDeltaConfTitle;
+	const char *MachineRadius;
+	const char *DiagonalRod;
+	const char *PrintableRadius;
+	const char *DeltaHeight;
+	const char *SmoothRodOffset;
+	const char *EffectorOffset;
+	const char *CalibrationRadius;
+	
+	const char *LevelingSubXYZConfTitle;
+	//const char *Level_positon1;
+	//const char *Level_positon2;
+	//const char *Level_positon3;
+	//const char *Level_positon4;
+
+	const char *TemperatureConfTitle;
+	const char *NozzleConf;
+	const char *HotBedConf;
+	const char *PreheatTemperConf;
+
+	const char *NozzleCnt;
+	const char *NozzleConfTitle;
+	const char *NozzleType;
+	const char *NozzleAdjustType;
+	const char *NozzleMinTemperature;
+	const char *NozzleMaxTemperature;
+	const char *Extrude_Min_Temper;
+
+	const char *HotbedEnable;
+	const char *HotbedConfTitle;
+	const char *HotbedAjustType;
+	const char *HotbedMinTemperature;
+	const char *HotbedMaxTemperature;
+
+	const char *MotorConfTitle;
+	const char *MaxFeedRateConf;
+	const char *AccelerationConf;
+	const char *JerkConf;
+	const char *StepsConf;
+	const char *MotorDirConf;
+	const char *HomeFeedRateConf;
+	const char *TMCcurrentConf;
+	const char *TMCStepModeConf;
+
+	const char *MaxFeedRateConfTitle;
+	const char *XMaxFeedRate;
+	const char *YMaxFeedRate;
+	const char *ZMaxFeedRate;
+	const char *E0MaxFeedRate;
+	const char *E1MaxFeedRate;
+
+	const char *AccelerationConfTitle;
+	const char *PrintAcceleration;
+	const char *RetractAcceleration;
+	const char *TravelAcceleration;
+	const char *X_Acceleration;
+	const char *Y_Acceleration;
+	const char *Z_Acceleration;
+	const char *E0_Acceleration;
+	const char *E1_Acceleration;
+
+	const char *JerkConfTitle;
+	const char *X_Jerk;
+	const char *Y_Jerk;
+	const char *Z_Jerk;
+	const char *E_Jerk;
+
+	const char *StepsConfTitle;
+	const char *X_Steps;
+	const char *Y_Steps;
+	const char *Z_Steps;
+	const char *E0_Steps;
+	const char *E1_Steps;
+
+	const char *TmcCurrentConfTitle;
+	const char *X_Current;
+	const char *Y_Current;
+	const char *Z_Current;
+	const char *E0_Current;
+	const char *E1_Current;
+
+	const char *TmcStepModeConfTitle;
+	const char *X_StepMode;
+	const char *Y_StepMode;
+	const char *Z_StepMode;
+	const char *E0_StepMode;
+	const char *E1_StepMode;
+
+	const char *MotorDirConfTitle;
+	const char *X_MotorDir;
+	const char *Y_MotorDir;
+	const char *Z_MotorDir;
+	const char *E0_MotorDir;
+	const char *E1_MotorDir;
+	const char *Invert_1;
+	const char *Invert_0;
+
+	const char *HomeFeedRateConfTitle;
+	const char *XY_HomeFeedRate;
+	const char *Y_HomeFeedRate;
+	const char *Z_HomeFeedRate;
+
+	const char *AdvancedConfTitle;
+	const char *PwrOffDection;
+	const char *PwrOffAfterPrint;
+	const char *HaveUps;
+	const char *Z2andZ2Endstop;
+	const char *EnablePinsInvert;
+	const char *PausePosition;
+	
+	const char *Z2ConfTitle;
+	const char *Z2Enable;
+	const char *Z2EndstopEnable;
+	const char *Z2Port;
+
+	const char *EnablePinsInvertTitle;
+	const char *XInvert;
+	const char *YInvert;
+	const char *ZInvert;
+	const char *EInvert;
+
+	const char *key_1;	
+	const char *key_2;	
+	const char *key_3;	
+	const char *key_4;	
+	const char *key_5;	
+	const char *key_6;	
+	const char *key_7;	
+	const char *key_8;	
+	const char *key_9;	
+	const char *key_0;	
+	const char *key_point;	
+	const char *key_back;	
+	const char *key_reset;	
+	const char *key_confirm;	
+	const char *negative;
+	const char *low_level;
+	const char *high_level;
+
+	const char *PausePosText;
+	const char *xPos;
+	const char *yPos;
+	const char *zPos;
+	
+}machine_common_def;
+extern machine_common_def machine_menu;
 typedef struct common_menu_disp {
   const char *text_back;
   const char *dialog_confirm_title;
@@ -187,6 +407,7 @@ typedef struct set_menu_disp {
   const char *shutdown;
   const char *language;
   const char *machine_para;
+	const char *eepromSet;
   const char *back;
 } set_menu_def;
 extern set_menu_def set_menu;
@@ -487,6 +708,16 @@ typedef struct pause_msg_disp {
 } pause_msg_def;
 extern pause_msg_def pause_msg_menu;
 
+typedef struct eeprom_disp{
+	const char *title;
+	const char *store;
+	const char *read;
+	const char *revert;
+	const char *storeTips;
+	const char *readTips;
+	const char *revertTips;
+}eeprom_def;
+extern eeprom_def eeprom_menu;
 /*****************************************/
 //********************************************//
 //#if defined(TFT70)
@@ -533,7 +764,7 @@ extern pause_msg_def pause_msg_menu;
 #define LANGUAGE_JP         "日本語"
 #define LANGUAGE_GE         "Deutsch"
 #define LANGUAGE_FR         "français"
-#define LANGUAGE_IT         "Italia"
+#define LANGUAGE_IT         "Italiano"
 #define LANGUAGE_PR         "português"
 #define LANGUAGE_KR         "Korean"
 #define LANGUAGE_BR         "Brazil"

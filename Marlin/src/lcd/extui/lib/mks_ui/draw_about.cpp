@@ -78,8 +78,10 @@ void lv_draw_about(void) {
   /*Create an Image button*/
   buttonBack = lv_imgbtn_create(scr, NULL);
 
-  #if 1
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_A_RETURN, "bmp_Return.bin", 0);
+	#if 1
+	
+
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_A_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -108,6 +110,8 @@ void lv_draw_about(void) {
     #if MB(MKS_ROBIN_PRO)
       "Firmware: Robin_Pro35"
     #elif MB(MKS_ROBIN_NANO)
+      "Firmware: Robin_Nano35"
+    #elif MB(MKS_ROBIN_NANO_V2)
       "Firmware: Robin_Nano35"
     #else
       CUSTOM_MACHINE_NAME

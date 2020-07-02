@@ -546,7 +546,8 @@
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103 env:chitu_f103_lvgl
 #elif MB(CREALITY_V4)
   #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
-
+#elif MB(MKS_ROBIN_NANO_V2)
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35_v2
 //
 // ARM Cortex-M4F
 //

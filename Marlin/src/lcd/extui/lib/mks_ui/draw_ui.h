@@ -34,6 +34,7 @@ extern "C" { /* C-declarations for C++ */
 #define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) //LV_COLOR_MAKE(0x00, 0x00, 0x00)
 
 #include "tft_multi_language.h"
+#include "pic_manager.h"
 #include "draw_ready_print.h"
 #include "draw_language.h"
 #include "draw_set.h"
@@ -52,6 +53,19 @@ extern "C" { /* C-declarations for C++ */
 #include "draw_manuaLevel.h"
 #include "draw_error_message.h"
 #include "printer_opration.h"
+#include "draw_machine_para.h"
+#include "draw_machine_settings.h"
+#include "draw_motor_settings.h"
+#include "draw_advance_settings.h"
+#include "draw_acceleration_settings.h"
+#include "draw_number_key.h"
+#include "draw_jerk_settings.h"
+#include "draw_pause_position.h"
+#include "draw_step_settings.h"
+#include "draw_tmc_current_settings.h"
+#include "draw_eeprom_settings.h"
+#include "draw_max_feedrate_settings.h"
+#include "draw_tmc_step_mode_settings.h"
 
 #define TFT35
 
@@ -86,6 +100,29 @@ extern "C" { /* C-declarations for C++ */
 
   #define GCFG_FLAG_VALUE   0xEE
 
+//machine parameter ui
+#define PARA_UI_POS_X	10
+#define PARA_UI_POS_Y	50
+
+#define PARA_UI_SIZE_X	450
+#define PARA_UI_SIZE_Y	40
+
+#define PARA_UI_ARROW_V	12
+
+#define PARA_UI_BACL_POS_X		400
+#define PARA_UI_BACL_POS_Y		270
+
+#define PARA_UI_TURN_PAGE_POS_X		320
+#define PARA_UI_TURN_PAGE_POS_Y		270
+
+#define PARA_UI_VALUE_SIZE_X	370
+#define PARA_UI_VALUE_POS_X	400
+#define PARA_UI_VALUE_V	5
+
+#define PARA_UI_STATE_POS_X	380
+#define PARA_UI_STATE_V		2
+
+
 #else
 
   #define TFT_WIDTH     320
@@ -104,6 +141,9 @@ typedef struct {
   uint8_t from_flash_pic;
   uint8_t finish_power_off;
   uint8_t pause_reprint;
+  float pausePosX;
+  float pausePosY;
+  float pausePosZ;
   uint32_t curFilesize;
 } CFG_ITMES;
 
@@ -111,7 +151,8 @@ typedef struct {
   uint8_t curTempType : 1,
           curSprayerChoose : 3,
           stepHeat : 4;
-  uint8_t leveling_first_time : 1;
+	uint8_t leveling_first_time:1,
+			para_ui_page:1;
   uint8_t extruStep;
   uint8_t extruSpeed;
   uint8_t print_state;
@@ -185,7 +226,11 @@ typedef enum {
   ENABLE_INVERT_UI,
   NUMBER_KEY_UI,
   BABY_STEP_UI,
-  ERROR_MESSAGE_UI
+  ERROR_MESSAGE_UI,
+  PAUSE_POS_UI,
+  TMC_CURRENT_UI,
+  TMC_MODE_UI,
+  EEPROM_SETTINGS_UI
 } DISP_STATE;
 
 typedef struct {
@@ -202,6 +247,46 @@ typedef struct {
   int8_t start;
 } PRINT_TIME;
 extern PRINT_TIME print_time;
+typedef enum
+{
+	PrintAcceleration,
+	RetractAcceleration,
+	TravelAcceleration,
+	XAcceleration,
+	YAcceleration,
+	ZAcceleration,
+	E0Acceleration,
+	E1Acceleration,
+
+	XMaxFeedRate,
+	YMaxFeedRate,
+	ZMaxFeedRate,
+	E0MaxFeedRate,
+	E1MaxFeedRate,
+
+	XJerk,
+	YJerk,
+	ZJerk,
+	EJerk,
+
+	Xstep,
+	Ystep,
+	Zstep,
+	E0step,
+	E1step,
+
+	Xcurrent,
+	Ycurrent,
+	Zcurrent,
+	E0current,
+	E1current,
+
+	pause_pos_x,
+	pause_pos_y,
+	pause_pos_z
+
+}value_state;
+extern value_state value;
 
 extern CFG_ITMES gCfgItems;
 extern UI_CFG uiCfg;
@@ -212,6 +297,15 @@ extern DISP_STATE_STACK disp_state_stack;
 extern lv_style_t tft_style_scr;
 extern lv_style_t tft_style_lable_pre;
 extern lv_style_t tft_style_lable_rel;
+extern lv_style_t style_line;
+extern lv_style_t style_para_value_pre;
+extern lv_style_t style_para_value_rel;
+extern lv_style_t style_num_key_pre;
+extern lv_style_t style_num_key_rel;
+extern lv_style_t style_num_text;
+
+
+extern lv_point_t line_points[4][2];
 
 extern void gCfgItems_init();
 extern void ui_cfg_init();
@@ -230,6 +324,7 @@ extern void gCfg_to_spiFlah();
 extern void print_time_count();
 
 extern void LV_TASK_HANDLER();
+extern void lv_ex_line(lv_obj_t * line,lv_point_t *points);
 
 #ifdef __cplusplus
 } /* C-declarations for C++ */

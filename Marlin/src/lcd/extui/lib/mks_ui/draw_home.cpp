@@ -160,7 +160,7 @@ void lv_draw_home(void) {
   //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_REL, &tft_style_lable_rel);
   //lv_obj_clear_protect(buttonWifi, LV_PROTECT_FOLLOW);
   #if 1
-    lv_obj_set_event_cb_mks(buttonHomeAll, event_handler, ID_H_ALL, "bmp_Zero.bin", 0);
+	lv_obj_set_event_cb_mks(buttonHomeAll, event_handler,ID_H_ALL,"bmp_zero.bin",0);
     lv_imgbtn_set_src(buttonHomeAll, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHomeAll, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -190,19 +190,19 @@ void lv_draw_home(void) {
     lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonOffAll, event_handler, ID_H_OFF_ALL, "bmp_manual_off.bin", 0);
+	lv_obj_set_event_cb_mks(buttonOffAll, event_handler,ID_H_OFF_ALL,"bmp_function1.bin",0);	
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonOffXY, event_handler, ID_H_OFF_XY, "bmp_manual_off.bin", 0);
+	lv_obj_set_event_cb_mks(buttonOffXY, event_handler,ID_H_OFF_XY,"bmp_function1.bin",0);	
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_H_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_H_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);

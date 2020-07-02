@@ -182,19 +182,18 @@ void lv_draw_extrusion(void) {
   buttonSpeed = lv_imgbtn_create(scr, NULL);
   buttonBack = lv_imgbtn_create(scr, NULL);
 
-  lv_obj_set_event_cb_mks(buttonAdd, event_handler, ID_E_ADD, "bmp_In.bin", 0);
-  lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_REL, &bmp_pic);
-  lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_PR, &bmp_pic);
-  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_lable_pre);
-  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_lable_rel);
-  lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_E_DEC, "bmp_Out.bin", 0);
-    lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_lable_rel);
+	lv_obj_set_event_cb_mks(buttonAdd, event_handler,ID_E_ADD,"bmp_in.bin",0);
+	lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_REL, &bmp_pic);
+	lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_PR, &bmp_pic);
+	lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_lable_pre);
+	lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_lable_rel);
+	lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
+	#if 1
+	lv_obj_set_event_cb_mks(buttonDec, event_handler,ID_E_DEC,"bmp_out.bin",0);
+	lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_REL, &bmp_pic);
+	lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_PR, &bmp_pic);
+	lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_lable_pre);
+	lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, &bmp_pic);
@@ -211,7 +210,7 @@ void lv_draw_extrusion(void) {
     lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_E_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_E_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -266,14 +265,14 @@ void lv_draw_extrusion(void) {
 
 void disp_ext_type() {
   if (uiCfg.curSprayerChoose == 1) {
-    lv_obj_set_event_cb_mks(buttoType, event_handler, ID_E_TYPE, "bmp_Extru2.bin", 0);
+		lv_obj_set_event_cb_mks(buttoType, event_handler,ID_E_TYPE,"bmp_extru2.bin",0);
     if (gCfgItems.multiple_language != 0) {
       lv_label_set_text(labelType, extrude_menu.ext2);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
   }
   else {
-    lv_obj_set_event_cb_mks(buttoType, event_handler, ID_E_TYPE, "bmp_Extru1.bin", 0);
+		lv_obj_set_event_cb_mks(buttoType, event_handler,ID_E_TYPE,"bmp_extru1.bin",0);
     if (gCfgItems.multiple_language != 0) {
       lv_label_set_text(labelType, extrude_menu.ext1);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -283,11 +282,11 @@ void disp_ext_type() {
 
 void disp_ext_speed() {
   if (uiCfg.extruSpeed == 20)
-    lv_obj_set_event_cb_mks(buttonSpeed, event_handler, ID_E_SPEED, "bmp_Speed_high.bin", 0);
+		lv_obj_set_event_cb_mks(buttonSpeed, event_handler,ID_E_SPEED,"bmp_speed_high.bin",0);	
   else if (uiCfg.extruSpeed == 1)
-    lv_obj_set_event_cb_mks(buttonSpeed, event_handler, ID_E_SPEED, "bmp_Speed_slow.bin", 0);
+		lv_obj_set_event_cb_mks(buttonSpeed, event_handler,ID_E_SPEED,"bmp_speed_slow.bin",0);
   else
-    lv_obj_set_event_cb_mks(buttonSpeed, event_handler, ID_E_SPEED, "bmp_Speed_normal.bin", 0);
+		lv_obj_set_event_cb_mks(buttonSpeed, event_handler,ID_E_SPEED,"bmp_speed_normal.bin",0);
 
   if (gCfgItems.multiple_language != 0) {
     if (uiCfg.extruSpeed == 20) {
@@ -351,11 +350,11 @@ void disp_extru_amount() {
 
 void disp_ext_step() {
   if (uiCfg.extruStep == 1)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_E_STEP, "bmp_Step1_mm.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_E_STEP,"bmp_step1_mm.bin",0);	
   else if (uiCfg.extruStep == 5)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_E_STEP, "bmp_Step5_mm.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_E_STEP,"bmp_step5_mm.bin",0);
   else if (uiCfg.extruStep == 10)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_E_STEP, "bmp_Step10_mm.bin", 0);
+		lv_obj_set_event_cb_mks(buttonStep, event_handler,ID_E_STEP,"bmp_step10_mm.bin",0);
 
   if (gCfgItems.multiple_language != 0) {
     if (uiCfg.extruStep == 1) {

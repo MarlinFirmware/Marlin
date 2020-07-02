@@ -30,6 +30,7 @@
 
 #include "lv_conf.h"
 #include "draw_ui.h"
+
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
@@ -42,12 +43,13 @@
 #include "../../../../module/planner.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../../feature/powerloss.h"
+  #include "../../../feature/powerloss.h"
 #endif
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
-  #include "../../../../feature/pause.h"
+  #include "../../../feature/pause.h"
 #endif
+#include "../../../../gcode/gcode.h"
 
 static lv_obj_t * scr;
 extern uint8_t sel_id;
@@ -148,6 +150,21 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
         draw_return_ui();
       }
     #endif
+	else if(DialogType == DIALOG_STORE_EEPROM_TIPS){
+		gcode.process_subcommands_now_P(PSTR("M500"));
+		clear_cur_ui();
+		draw_return_ui();
+	}
+	else if(DialogType == DIALOG_READ_EEPROM_TIPS){
+		gcode.process_subcommands_now_P(PSTR("M501"));
+		clear_cur_ui();
+		draw_return_ui();
+	}
+	else if(DialogType == DIALOG_REVERT_EEPROM_TIPS){
+		gcode.process_subcommands_now_P(PSTR("M502"));
+		clear_cur_ui();
+		draw_return_ui();
+	}
   }
 }
 
@@ -204,7 +221,11 @@ void lv_draw_dialog(uint8_t type) {
   style_btn_rel.body.shadow.type = LV_SHADOW_BOTTOM;
   style_btn_rel.body.radius = LV_RADIUS_CIRCLE;
   style_btn_rel.text.color = lv_color_hex3(0xDEF);
+  #if HAS_SPI_FLASH_FONT
+  style_btn_rel.text.font  = &gb2312_puhui32;
+  #else
   style_btn_rel.text.font = &lv_font_roboto_22;
+  #endif
 
   static lv_style_t style_btn_pr;                                    // A variable to store the pressed style
   lv_style_copy(&style_btn_pr, &style_btn_rel);                      // Initialize from the released style
@@ -213,7 +234,11 @@ void lv_draw_dialog(uint8_t type) {
   style_btn_pr.body.grad_color = lv_color_hex3(0x24A);
   style_btn_pr.body.shadow.width = 2;
   style_btn_pr.text.color = lv_color_hex3(0xBCD);
+  #if HAS_SPI_FLASH_FONT
+  style_btn_rel.text.font  = &gb2312_puhui32;
+  #else
   style_btn_pr.text.font = &lv_font_roboto_22;
+  #endif
 
   lv_obj_t * labelDialog = lv_label_create(scr, NULL);
   lv_obj_set_style(labelDialog, &tft_style_lable_rel);
@@ -338,6 +363,18 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, pause_msg_menu.option);
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
   }
+  else if(DialogType == DIALOG_STORE_EEPROM_TIPS){
+    lv_label_set_text(labelDialog, eeprom_menu.storeTips);
+  	lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+  }
+  else if(DialogType == DIALOG_READ_EEPROM_TIPS){
+    lv_label_set_text(labelDialog, eeprom_menu.readTips);
+	lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+ }
+ else if(DialogType == DIALOG_REVERT_EEPROM_TIPS){
+    lv_label_set_text(labelDialog, eeprom_menu.revertTips);
+	lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+ }
 }
 
 void lv_clear_dialog() { lv_obj_del(scr); }

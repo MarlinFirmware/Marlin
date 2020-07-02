@@ -35,9 +35,6 @@
 
 //static lv_obj_t *buttonMoveZ,*buttonTest,*buttonZ0,*buttonStop,*buttonReturn;
 static lv_obj_t * scr;
-#if ENABLED(MKS_TEST)
-  extern uint8_t curent_disp_ui;
-#endif
 
 #define ID_T_PRE_HEAT   1
 #define ID_T_EXTRUCT    2
@@ -153,7 +150,7 @@ void lv_draw_tool(void) {
   //buttonMore = lv_imgbtn_create(scr, NULL);
   buttonBack = lv_imgbtn_create(scr, NULL);
 
-  lv_obj_set_event_cb_mks(buttonPreHeat, event_handler, ID_T_PRE_HEAT, "bmp_PreHeat.bin", 0);
+	lv_obj_set_event_cb_mks(buttonPreHeat, event_handler,ID_T_PRE_HEAT,"bmp_preHeat.bin",0);
   lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_REL, &bmp_pic);
   lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_PR, &bmp_pic);
   lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -161,25 +158,25 @@ void lv_draw_tool(void) {
   lv_obj_clear_protect(buttonPreHeat, LV_PROTECT_FOLLOW);
 
   #if 1
-    lv_obj_set_event_cb_mks(buttonExtrusion, event_handler, ID_T_EXTRUCT, "bmp_Extruct.bin", 0);
+	lv_obj_set_event_cb_mks(buttonExtrusion, event_handler,ID_T_EXTRUCT,"bmp_extruct.bin",0);
     lv_imgbtn_set_src(buttonExtrusion, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonExtrusion, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonMove, event_handler, ID_T_MOV, "bmp_Mov.bin", 0);
+	lv_obj_set_event_cb_mks(buttonMove, event_handler,ID_T_MOV,"bmp_mov.bin",0);	
     lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonHome, event_handler, ID_T_HOME, "bmp_Zero.bin", 0);
+	lv_obj_set_event_cb_mks(buttonHome, event_handler,ID_T_HOME,"bmp_zero.bin",0);	
     lv_imgbtn_set_src(buttonHome, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHome, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonHome, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonHome, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonLevel, event_handler, ID_T_LEVELING, "bmp_Leveling.bin", 0);
+	lv_obj_set_event_cb_mks(buttonLevel, event_handler,ID_T_LEVELING,"bmp_leveling.bin",0);	
     lv_imgbtn_set_src(buttonLevel, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonLevel, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonLevel, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -197,7 +194,7 @@ void lv_draw_tool(void) {
     //lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_PR, &tft_style_lable_pre);
     //lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_T_RETURN, "bmp_Return.bin", 0);
+	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_T_RETURN,"bmp_return.bin",0);	
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);

@@ -28,29 +28,32 @@
 #include "draw_ready_print.h"
 #include "W25Qxx.h"
 #include "mks_hardware_test.h"
+#include "draw_ui.h"
+#include "pic_manager.h"
+
+#if ENABLED(SPI_GRAPHICAL_TFT)
+#include "SPI_TFT.h"
+#endif
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../feature/touch/xpt2046.h"
+#include "../../../../sd/cardreader.h"
 
-#include "pic_manager.h"
 
-#if ENABLED(MKS_TEST)
-
-  extern uint8_t curent_disp_ui;
 
   uint8_t pw_det_sta, pw_off_sta, mt_det_sta, mt_det2_sta, mt_det3_sta;
   uint8_t endstopx1_sta, endstopx2_sta, endstopy1_sta, endstopy2_sta, endstopz1_sta, endstopz2_sta;
   void test_gpio_readlevel_L() {
     volatile uint32_t itest;
-    WRITE(WIFI_IO2_PIN, HIGH);
+    WRITE(WIFI_IO0_PIN, HIGH);
     itest = 10000;
     while (itest--);
     pw_det_sta = (READ(POWER_LOSS_PIN) == 0);
     pw_off_sta = (READ(PS_ON_PIN) == 0);
-    mt_det_sta = (READ(FIL_RUNOUT_PIN) == 0);
-    mt_det2_sta = (READ(FIL_RUNOUT_2_PIN) == 0);
-    mt_det3_sta = (READ(FIL_RUNOUT_3_PIN) == 0);
+    mt_det_sta = (READ(MT_DET_1_PIN) == 0);
+    mt_det2_sta = (READ(MT_DET_2_PIN) == 0);
+    //mt_det3_sta = (READ(FIL_RUNOUT_3_PIN) == 0);
     endstopx1_sta = (READ(X_MIN_PIN) == 0);
     endstopx2_sta = (READ(X_MAX_PIN) == 0);
     endstopy1_sta = (READ(Y_MIN_PIN) == 0);
@@ -61,14 +64,14 @@
 
   void test_gpio_readlevel_H() {
     volatile uint32_t itest;
-    WRITE(WIFI_IO2_PIN, LOW);
+    WRITE(WIFI_IO0_PIN, LOW);
     itest = 10000;
     while (itest--);
     pw_det_sta = (READ(POWER_LOSS_PIN) == 1);
     pw_off_sta = (READ(PS_ON_PIN) == 1);
-    mt_det_sta = (READ(FIL_RUNOUT_PIN) == 1);
-    mt_det2_sta = (READ(FIL_RUNOUT_2_PIN) == 1);
-    mt_det3_sta = (READ(FIL_RUNOUT_3_PIN) == 1);
+    mt_det_sta = (READ(MT_DET_1_PIN) == 1);
+    mt_det2_sta = (READ(MT_DET_2_PIN) == 1);
+    //mt_det3_sta = (READ(MT_DET_3_PIN) == 1);
     endstopx1_sta = (READ(X_MIN_PIN) == 1);
     endstopx2_sta = (READ(X_MAX_PIN) == 1);
     endstopy1_sta = (READ(Y_MIN_PIN) == 1);
@@ -77,7 +80,7 @@
     endstopz2_sta = (READ(Z_MAX_PIN) == 1);
   }
 
-  void init_Tst_GPIO() {
+  void init_test_gpio() {
     SET_INPUT_PULLUP(X_MIN_PIN);
     SET_INPUT_PULLUP(X_MAX_PIN);
     SET_INPUT_PULLUP(Y_MIN_PIN);
@@ -85,26 +88,29 @@
     SET_INPUT_PULLUP(Z_MIN_PIN);
     SET_INPUT_PULLUP(Z_MAX_PIN);
 
-    SET_OUTPUT(WIFI_IO2_PIN);
+    SET_OUTPUT(WIFI_IO0_PIN);
 
-    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
-    SET_INPUT_PULLUP(FIL_RUNOUT_2_PIN);
-    SET_INPUT_PULLUP(FIL_RUNOUT_3_PIN);
+    SET_INPUT_PULLUP(MT_DET_1_PIN);
+    SET_INPUT_PULLUP(MT_DET_2_PIN);
+    //SET_INPUT_PULLUP(MT_DET_3_PIN);
 
     SET_INPUT_PULLUP(POWER_LOSS_PIN);
     SET_INPUT_PULLUP(PS_ON_PIN);
 
     SET_INPUT_PULLUP(SERVO0_PIN);
 
+	SET_OUTPUT(X_ENABLE_PIN);
+	SET_OUTPUT(Y_ENABLE_PIN);
+	SET_OUTPUT(Z_ENABLE_PIN);
     SET_OUTPUT(E0_ENABLE_PIN);
-    SET_OUTPUT(X_ENABLE_PIN);
+    SET_OUTPUT(E1_ENABLE_PIN);
 
     WRITE(X_ENABLE_PIN, LOW);
     WRITE(Y_ENABLE_PIN, LOW);
     WRITE(Z_ENABLE_PIN, LOW);
     WRITE(E0_ENABLE_PIN, LOW);
     WRITE(E1_ENABLE_PIN, LOW);
-    WRITE(E2_ENABLE_PIN, LOW);
+    //WRITE(E2_ENABLE_PIN, LOW);
   }
 
   void mks_test_beeper() {
@@ -114,41 +120,45 @@
     delay(100);
   }
 
-  void Test_GPIO() {
-    init_Tst_GPIO();
+void mks_gpio_test(){
+  init_test_gpio();
 
     test_gpio_readlevel_L();
     test_gpio_readlevel_H();
     test_gpio_readlevel_L();
-    if ((pw_det_sta == 1) && (mt_det_sta == 1) && (mt_det2_sta == 1) && (mt_det3_sta == 1)) {
-      if (curent_disp_ui == 1) disp_det_ok();
-    }
-    else if (curent_disp_ui == 1) disp_det_error();
-    if ((endstopx1_sta == 1)
-        && (endstopx2_sta == 1)
-        && (endstopy1_sta == 1)
-        && (endstopy2_sta == 1)
-        && (endstopz1_sta == 1)
-        && (endstopz2_sta == 1)
-        ) {
-      if (curent_disp_ui == 1) disp_Limit_ok();
-    }
-    else if (curent_disp_ui == 1)
-      disp_Limit_error();
-      //mks_test_beeper();
-
+  	if((pw_det_sta == 1)&&(mt_det_sta == 1)&&(mt_det2_sta == 1))//&&(mt_det3_sta == 1))
+  	{
+		disp_det_ok();
+	}
+	else 
+	{
+		disp_det_error();
+	}
+	if((endstopx1_sta== 1)
+    &&(endstopx2_sta== 1)
+		&&(endstopy1_sta== 1)
+    &&(endstopy2_sta== 1)
+		&&(endstopz1_sta== 1)
+		&&(endstopz2_sta== 1))
+	{
+	      disp_Limit_ok();
+	}
+	else
+	{
+      		disp_Limit_error();
+	}
   }
 
-  void mks_test() {
+void mks_hardware_test(){
     if (millis() % 2000 < 1000) {
       WRITE(X_DIR_PIN, LOW);
       WRITE(Y_DIR_PIN, LOW);
       WRITE(Z_DIR_PIN, LOW);
       WRITE(E0_DIR_PIN, LOW);
       WRITE(E1_DIR_PIN, LOW);
-      WRITE(E2_DIR_PIN, LOW);
+      //WRITE(E2_DIR_PIN, LOW);
       thermalManager.fan_speed[0] = 255;
-      WRITE(HEATER_2_PIN, HIGH); // HE2
+      //WRITE(HEATER_2_PIN, HIGH); // HE2
       WRITE(HEATER_1_PIN, HIGH); // HE1
       WRITE(HEATER_0_PIN, HIGH); // HE0
       WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
@@ -159,9 +169,9 @@
       WRITE(Z_DIR_PIN, HIGH);
       WRITE(E0_DIR_PIN, HIGH);
       WRITE(E1_DIR_PIN, HIGH);
-      WRITE(E2_DIR_PIN, HIGH);
+      //WRITE(E2_DIR_PIN, HIGH);
       thermalManager.fan_speed[0] = 0;
-      WRITE(HEATER_2_PIN, LOW); // HE2
+      //WRITE(HEATER_2_PIN, LOW); // HE2
       WRITE(HEATER_1_PIN, LOW); // HE1
       WRITE(HEATER_0_PIN, LOW); // HE0
       WRITE(HEATER_BED_PIN, LOW); // HOT-BED
@@ -173,14 +183,14 @@
 
     }
     else {
-      mks_test_beeper();
+			//mks_test_beeper();
     }
 
-    if (curent_disp_ui == 1)
-      disp_test();
+		if(disp_state == PRINT_READY_UI)
+			mks_disp_test();
   }
 
-#endif // MKS_TEST
+
 
 static const uint16_t ASCII_Table_16x24[] PROGMEM = {
   // Space ' '
@@ -569,7 +579,11 @@ void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint1
   for (uint16_t i = 0; i < 24; i++) {
     const uint16_t tmp_char = pgm_read_word(&ASCII_Table_16x24[((c - 0x20) * 24) + i]);
     for (uint16_t j = 0; j < 16; j++)
+	#if ENABLED(SPI_GRAPHICAL_TFT)
+	  SPI_TFT.SetPoit(x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
+	#else
       tft_set_point(x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
+	#endif
   }
 }
 
@@ -583,13 +597,30 @@ void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor
 
 //static lv_obj_t * scr_test;
 void disp_pic_update() {
-  LCD_Clear(0x0000);
+	#if DISABLED(SPI_GRAPHICAL_TFT)
+	LCD_Clear(0x0000);
+	#endif
   disp_string(120, 150, "PIC Updating...", 0xFFFF, 0x0000);
 }
 
 void disp_font_update() {
-  LCD_Clear(0x0000);
+	#if DISABLED(SPI_GRAPHICAL_TFT)
+	LCD_Clear(0x0000);
+	#endif
   disp_string(120, 150, "FONT Updating...", 0xFFFF, 0x0000);
 }
 
+uint8_t mks_test_flag = 0;
+const char *MKSTestPath = "MKS_TEST";
+
+#if ENABLED (SDSUPPORT)
+void mks_test_get()
+{
+	SdFile dir, root = card.getroot();
+	if (dir.open(&root, MKSTestPath, O_RDONLY))
+	{	
+		mks_test_flag = 0x1e;
+	}
+}
+#endif
 #endif // TFT_LVGL_UI

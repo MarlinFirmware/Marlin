@@ -131,7 +131,7 @@ void ext_FLASH::spi_flash_SendBlock(uint8_t token, const uint8_t* buf) {
 uint16_t ext_FLASH::W25QXX_ReadID(void) {
   uint16_t Temp = 0;
   W25QXX_CS_L;
-  spi_flash_Send(0x90);//���Ͷ�ȡID����
+  spi_flash_Send(0x90);
   spi_flash_Send(0x00);
   spi_flash_Send(0x00);
   spi_flash_Send(0x00);
