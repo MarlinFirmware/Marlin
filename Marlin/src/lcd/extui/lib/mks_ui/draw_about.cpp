@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -99,29 +99,28 @@ void lv_draw_about(void) {
 
   fw_version = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_version, &tft_style_lable_rel);
-  lv_label_set_text(fw_version, "Version: V_2.0.5.3");
+  lv_label_set_text(fw_version, SHORT_BUILD_VERSION);
   lv_obj_align(fw_version, NULL, LV_ALIGN_CENTER, 0, -60);
 
   fw_type = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_type, &tft_style_lable_rel);
-  #if (MOTHERBOARD == BOARD_MKS_ROBIN_PRO)
-    lv_label_set_text(fw_type, "Firmware: Robin_Pro35");
-  #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
-    lv_label_set_text(fw_type, "Firmware: Robin_Nano35");
-  #endif
+  lv_label_set_text(fw_type,
+    #if MB(MKS_ROBIN_PRO)
+      "Firmware: Robin_Pro35"
+    #elif MB(MKS_ROBIN_NANO)
+      "Firmware: Robin_Nano35"
+    #else
+      CUSTOM_MACHINE_NAME
+    #endif
+  );
   lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
 
   board = lv_label_create(scr, NULL);
   lv_obj_set_style(board, &tft_style_lable_rel);
-  #if (MOTHERBOARD == BOARD_MKS_ROBIN_PRO)
-    lv_label_set_text(board, "Board: MKS Robin pro");
-  #elif (MOTHERBOARD == BOARD_MKS_ROBIN_NANO)
-    lv_label_set_text(board, "Board: MKS Robin nano");
-  #endif
-
+  lv_label_set_text(board, "Board: " BOARD_INFO_NAME);
   lv_obj_align(board, NULL, LV_ALIGN_CENTER, 0, 20);
 }
 
 void lv_clear_about() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

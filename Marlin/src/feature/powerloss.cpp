@@ -472,7 +472,7 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOPGM("current_position: ");
         LOOP_XYZE(i) {
           if (i) DEBUG_CHAR(',');
-          DEBUG_ECHO(info.current_position[i]);
+          DEBUG_DECIMAL(info.current_position[i]);
         }
         DEBUG_EOL();
 
@@ -480,7 +480,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOPGM("home_offset: ");
           LOOP_XYZ(i) {
             if (i) DEBUG_CHAR(',');
-            DEBUG_ECHO(info.home_offset[i]);
+            DEBUG_DECIMAL(info.home_offset[i]);
           }
           DEBUG_EOL();
         #endif
@@ -489,7 +489,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOPGM("position_shift: ");
           LOOP_XYZ(i) {
             if (i) DEBUG_CHAR(',');
-            DEBUG_ECHO(info.position_shift[i]);
+            DEBUG_DECIMAL(info.position_shift[i]);
           }
           DEBUG_EOL();
         #endif

@@ -1638,9 +1638,9 @@
  * Select the language to display on the LCD. These languages are available:
  *
  *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, hu, it,
- *   jp_kana, ko_KR, nl, pl, pt, pt_br, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
+ *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro ru, sk, tr, uk, vi, zh_CN, zh_TW, test
  *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
  */
 #define LCD_LANGUAGE en
 
@@ -1928,6 +1928,8 @@
 // IMPORTANT: The U8glib library is required for Graphical Display!
 //            https://github.com/olikraus/U8glib_Arduino
 //
+// NOTE: If the LCD is unresponsive you may need to reverse the plugs.
+//
 
 //
 // RepRapDiscount FULL GRAPHIC Smart Controller
@@ -2119,6 +2121,10 @@
 //
 //#define EXTENSIBLE_UI
 
+#if ENABLED(EXTENSIBLE_UI)
+  //#define EXTUI_LOCAL_BEEPER // Enables use of local Beeper pin with external display
+#endif
+
 //=============================================================================
 //=============================== Graphical TFTs ==============================
 //=============================================================================
@@ -2129,9 +2135,12 @@
 //#define FSMC_GRAPHICAL_TFT
 
 //
-// TFT Little VGL UI
+// TFT LVGL UI
 //
-//#define TFT_LITTLE_VGL_UI
+// Default MKS icons and fonts: https://git.io/JJvzK
+// Copy mks_pic and mks_font folders to the root of your SD
+//
+//#define TFT_LVGL_UI
 
 //=============================================================================
 //============================  Other Controllers  ============================

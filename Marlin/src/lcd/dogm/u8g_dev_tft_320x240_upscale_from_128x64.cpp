@@ -64,7 +64,7 @@
 
 #include <string.h>
 
-#if ENABLED(LCD_USE_DMA_FSMC)
+#ifdef LCD_USE_DMA_FSMC
   extern void LCD_IO_WriteReg(uint16_t Reg);
   extern void LCD_IO_WriteData(uint16_t RegValue);
   extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);

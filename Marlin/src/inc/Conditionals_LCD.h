@@ -106,15 +106,9 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   #define IS_RRD_FG_SC
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_NS(125)
-  #endif
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -483,6 +477,8 @@
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
   #endif
+#else
+  #undef PID_PARAMS_PER_HOTEND
 #endif
 
 // Helper macros for extruder and hotend arrays
