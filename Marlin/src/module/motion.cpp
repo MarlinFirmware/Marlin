@@ -1467,7 +1467,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
         case X_AXIS:
           axisMicrostepSize = 256 / (X_MICROSTEPS);
           phaseCurrent = stepperX.get_microstep_counter();
-          invertDir = INVERT_X_DIR ^ (X_HOME_DIR > 0);
+          invertDir = (INVERT_X_DIR) ^ (X_HOME_DIR > 0);
           homeDir = X_HOME_DIR;
           break;
       #endif
@@ -1475,7 +1475,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
         case Y_AXIS:
           axisMicrostepSize = 256 / (Y_MICROSTEPS);
           phaseCurrent = stepperY.get_microstep_counter();
-          invertDir = INVERT_Y_DIR ^ (Y_HOME_DIR > 0);
+          invertDir = (INVERT_Y_DIR) ^ (Y_HOME_DIR > 0);
           homeDir = Y_HOME_DIR;
           break;
       #endif
