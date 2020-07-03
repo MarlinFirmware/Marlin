@@ -1386,14 +1386,14 @@ void Stepper::isr() {
     ENABLE_ISRS();
 
     #if ENABLED(TFT_LVGL_UI)
-    if(mks_test_flag == 0x1e){
-	    WRITE(X_STEP_PIN, HIGH);
-	    WRITE(Y_STEP_PIN, HIGH);
-	    WRITE(Z_STEP_PIN, HIGH);
-	    WRITE(E0_STEP_PIN, HIGH);
-	    WRITE(E1_STEP_PIN, HIGH);
-	    //WRITE(E2_STEP_PIN, HIGH);
-    }
+      if (mks_test_flag == 0x1E) {
+        WRITE(X_STEP_PIN, HIGH);
+        WRITE(Y_STEP_PIN, HIGH);
+        WRITE(Z_STEP_PIN, HIGH);
+        WRITE(E0_STEP_PIN, HIGH);
+        WRITE(E1_STEP_PIN, HIGH);
+        //WRITE(E2_STEP_PIN, HIGH);
+      }
     #endif
 
     if (!nextMainISR) pulse_phase_isr();                            // 0 = Do coordinated axes Stepper pulses
@@ -1483,15 +1483,16 @@ void Stepper::isr() {
      * read and the write of the new period value).
      */
      #if ENABLED(TFT_LVGL_UI)
-     if(mks_test_flag == 0x1e){
-	     WRITE(X_STEP_PIN, LOW);
-	     WRITE(Y_STEP_PIN, LOW);
-	     WRITE(Z_STEP_PIN, LOW);
-	     WRITE(E0_STEP_PIN, LOW);
-	     WRITE(E1_STEP_PIN, LOW);
-	     //WRITE(E2_STEP_PIN, LOW);
-     }
+       if (mks_test_flag == 0x1E) {
+         WRITE(X_STEP_PIN, LOW);
+         WRITE(Y_STEP_PIN, LOW);
+         WRITE(Z_STEP_PIN, LOW);
+         WRITE(E0_STEP_PIN, LOW);
+         WRITE(E1_STEP_PIN, LOW);
+         //WRITE(E2_STEP_PIN, LOW);
+       }
      #endif
+
      DISABLE_ISRS();
 
     /**
