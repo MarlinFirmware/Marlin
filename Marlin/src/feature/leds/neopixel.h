@@ -73,8 +73,8 @@ public:
 
   static void set_color(const uint32_t c);
 
-  static void set_neo_index(const uint8_t neoIndex);
-  static uint8_t get_neo_index(void);
+  FORCE_INLINE static void set_neo_index(const uint8_t neoIndex) { neoindex = neoIndex; }
+  FORCE_INLINE static uint8_t get_neo_index() { return neoindex; }
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
     static void set_color_background();
