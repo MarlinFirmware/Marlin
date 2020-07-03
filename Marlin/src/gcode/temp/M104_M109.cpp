@@ -53,6 +53,7 @@
  * M104: Set Hotend Temperature target and return immediately
  *
  * Parameters:
+ *  I<preset> : Material Preset index (if material presets are defined)
  *  T<index>  : Tool index. If omitted, applies to the active tool
  *  S<target> : The target temperature in current units
  */
@@ -69,15 +70,15 @@ void GcodeSuite::M104() {
 
   int16_t temp = 0;
 
-  // Accept 'P' if there are temperature presets are defined
+  // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const bool got_preset = parser.seenval('P');
+    const bool got_preset = parser.seenval('I');
     if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].hotend_temp;
   #else
     constexpr bool got_preset = false;
   #endif
 
-  // If no 'P' get the temperature from 'S'
+  // If no 'I' get the temperature from 'S'
   const bool got_temp = !got_preset && parser.seenval('S');
   if (got_temp) temp = parser.value_celsius();
 
@@ -111,6 +112,7 @@ void GcodeSuite::M104() {
  * M109: Set Hotend Temperature target and wait
  *
  * Parameters
+ *  I<preset> : Material Preset index (if material presets are defined)
  *  T<index>  : Tool index. If omitted, applies to the active tool
  *  S<target> : The target temperature in current units. Wait for heating only.
  *  R<target> : The target temperature in current units. Wait for heating and cooling.
@@ -140,8 +142,9 @@ void GcodeSuite::M109() {
 
   int16_t temp = 0;
 
+  // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const bool got_preset = parser.seenval('P');
+    const bool got_preset = parser.seenval('I');
     if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].hotend_temp;
   #else
     constexpr bool got_preset = false;
