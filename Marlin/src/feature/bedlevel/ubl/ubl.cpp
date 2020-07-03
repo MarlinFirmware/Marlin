@@ -84,11 +84,7 @@
     _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
   );
 
-  #if HAS_LCD_MENU
-    bool unified_bed_leveling::lcd_map_control = false;
-  #endif
-
-  volatile int unified_bed_leveling::encoder_diff;
+  volatile int16_t unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
     reset();

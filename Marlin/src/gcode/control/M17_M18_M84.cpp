@@ -64,11 +64,6 @@ void GcodeSuite::M18_M84() {
     else
       planner.finish_and_disable();
 
-    #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
-      if (ubl.lcd_map_control) {
-        ubl.lcd_map_control = false;
-        ui.defer_status_screen(false);
-      }
-    #endif
+    TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
   }
 }
