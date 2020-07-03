@@ -164,38 +164,38 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Montar Malha Custom");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Montar ");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Montar ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Montar ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Montar ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Montar ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Montar ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Montar ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Montar ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Montar ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Montar ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Montar ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Montar Malha fria");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Ajustar Altura");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Quant. de Altura");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Validar Malha");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Checar ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Checar ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Checar ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Checar ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Checar ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Checar ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Checar ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Checar ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Checar ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Checar ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Validar Malha Custom");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Aquecendo Mesa");

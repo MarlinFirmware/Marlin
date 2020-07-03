@@ -182,38 +182,38 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Özel Mesh Oluştur");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Mesh Oluştur");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Mesh Oluştur (") PREHEAT_1_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Mesh Oluştur (") PREHEAT_1_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Mesh Oluştur (") PREHEAT_2_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Mesh Oluştur (") PREHEAT_2_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Mesh Oluştur (") PREHEAT_3_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Mesh Oluştur (") PREHEAT_3_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Mesh Oluştur (") PREHEAT_4_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Mesh Oluştur (") PREHEAT_4_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Mesh Oluştur (") PREHEAT_5_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Mesh Oluştur (") PREHEAT_5_LABEL _UxGT(")");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Soğuk Mesh Oluştur");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Mesh Yükseklik Ayarı");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Yükseklik miktarı");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Doğrulama Mesh");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Doğrulama Mesh (") PREHEAT_1_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Doğrulama Mesh (") PREHEAT_1_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Doğrulama Mesh (") PREHEAT_2_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Doğrulama Mesh (") PREHEAT_2_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Doğrulama Mesh (") PREHEAT_3_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Doğrulama Mesh (") PREHEAT_3_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Doğrulama Mesh (") PREHEAT_4_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Doğrulama Mesh (") PREHEAT_4_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Doğrulama Mesh (") PREHEAT_5_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Doğrulama Mesh (") PREHEAT_5_LABEL _UxGT(")");
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Özel Mesh Doğrulama");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Isıtma Tablası");

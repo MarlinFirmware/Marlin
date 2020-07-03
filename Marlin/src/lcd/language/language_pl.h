@@ -177,38 +177,38 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Buduj własna siatkę");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Buduj siatkę");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Buduj siatkę (") PREHEAT_1_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Buduj siatkę (") PREHEAT_1_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Buduj siatkę (") PREHEAT_2_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Buduj siatkę (") PREHEAT_2_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Buduj siatkę (") PREHEAT_3_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Buduj siatkę (") PREHEAT_3_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Buduj siatkę (") PREHEAT_4_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Buduj siatkę (") PREHEAT_4_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Buduj siatkę (") PREHEAT_5_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Buduj siatkę (") PREHEAT_5_LABEL _UxGT(")");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Buduj siatkę na zimno");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Dostrojenie wysokości siatki");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Wartość wysokości");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Sprawdzenie siatki");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Sprawdzenie siatki (") PREHEAT_1_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Sprawdzenie siatki (") PREHEAT_1_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Sprawdzenie siatki (") PREHEAT_2_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Sprawdzenie siatki (") PREHEAT_2_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Sprawdzenie siatki (") PREHEAT_3_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Sprawdzenie siatki (") PREHEAT_3_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Sprawdzenie siatki (") PREHEAT_4_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Sprawdzenie siatki (") PREHEAT_4_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Sprawdzenie siatki (") PREHEAT_5_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Sprawdzenie siatki (") PREHEAT_5_LABEL _UxGT(")");
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Sprawdzenie własnej siatki");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Nagrzewanie stołu");

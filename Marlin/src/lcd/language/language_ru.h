@@ -216,19 +216,19 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Точная правка сетки");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Построить сетку");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Построить сетку ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Построить сетку ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Построить сетку ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Построить сетку ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Построить сетку ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Построить сетку ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Построить сетку ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Построить сетку ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Построить сетку ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Построить сетку ") PREHEAT_5_LABEL;
   #endif
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH           = _UxGT("Построить холодную сетку");

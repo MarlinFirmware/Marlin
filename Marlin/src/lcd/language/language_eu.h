@@ -130,37 +130,37 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Sarea editatzea eginda");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Sarea sortu");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = PREHEAT_1_LABEL _UxGT(" sarea sortu");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = PREHEAT_1_LABEL _UxGT(" sarea sortu");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = PREHEAT_2_LABEL _UxGT(" sarea sortu");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = PREHEAT_2_LABEL _UxGT(" sarea sortu");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = PREHEAT_3_LABEL _UxGT(" sarea sortu");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = PREHEAT_3_LABEL _UxGT(" sarea sortu");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = PREHEAT_4_LABEL _UxGT(" sarea sortu");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = PREHEAT_4_LABEL _UxGT(" sarea sortu");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = PREHEAT_5_LABEL _UxGT(" sarea sortu");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = PREHEAT_5_LABEL _UxGT(" sarea sortu");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Sare hotza sortu");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Sarearen altuera doitu");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Sarea balioetsi");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = PREHEAT_1_LABEL _UxGT(" sarea balioetsi");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = PREHEAT_1_LABEL _UxGT(" sarea balioetsi");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = PREHEAT_2_LABEL _UxGT(" sarea balioetsi");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = PREHEAT_2_LABEL _UxGT(" sarea balioetsi");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = PREHEAT_3_LABEL _UxGT(" sarea balioetsi");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = PREHEAT_3_LABEL _UxGT(" sarea balioetsi");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = PREHEAT_4_LABEL _UxGT(" sarea balioetsi");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = PREHEAT_4_LABEL _UxGT(" sarea balioetsi");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = PREHEAT_5_LABEL _UxGT(" sarea balioetsi");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = PREHEAT_5_LABEL _UxGT(" sarea balioetsi");
   #endif
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Ohe sarea balioetsi");
   PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("Sare berdinketa");
