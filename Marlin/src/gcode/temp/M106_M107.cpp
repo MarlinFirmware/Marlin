@@ -64,6 +64,7 @@ void GcodeSuite::M106() {
 
     uint16_t speed = dspeed;
 
+    // Accept 'I' if temperature presets are defined
     #if PREHEAT_COUNT
       const bool got_preset = parser.seenval('I');
       if (got_preset) speed = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].fan_speed;

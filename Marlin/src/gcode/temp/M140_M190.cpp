@@ -56,7 +56,7 @@ void GcodeSuite::M140() {
 
   int16_t temp = 0;
 
-  // Accept 'P' if there are temperature presets are defined
+  // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
     const bool got_preset = parser.seenval('I');
     if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].bed_temp;
@@ -64,7 +64,7 @@ void GcodeSuite::M140() {
     constexpr bool got_preset = false;
   #endif
 
-  // If no 'P' get the temperature from 'S'
+  // If no 'I' get the temperature from 'S'
   const bool got_temp = !got_preset && parser.seenval('S');
   if (got_temp) temp = parser.value_celsius();
 
@@ -102,6 +102,7 @@ void GcodeSuite::M190() {
 
   int16_t temp = 0;
 
+  // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
     const bool got_preset = parser.seenval('I');
     if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].bed_temp;
