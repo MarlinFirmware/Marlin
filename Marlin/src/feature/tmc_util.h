@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 #include "../lcd/ultralcd.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include <TMCStepper.h>
 #include "../module/planner.h"
@@ -110,6 +110,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
     #endif
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -121,6 +122,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
         #endif
       }
     #endif
+
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC::sgt(); }
       void homing_threshold(int16_t sgt_val) {
@@ -149,6 +151,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     static constexpr int8_t sgt_min = -64,
                             sgt_max =  63;
 };
+
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
@@ -172,6 +175,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
     #endif
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -217,6 +221,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
     #endif
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -391,8 +396,8 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
 #endif // USE_SENSORLESS
 
-#if TMC_HAS_SPI
+#if HAS_TMC_SPI
   void tmc_init_cs_pins();
 #endif
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -46,14 +46,14 @@ GcodeSuite gcode;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../sd/cardreader.h"
-  #include "../feature/power_loss_recovery.h"
+  #include "../feature/powerloss.h"
 #endif
 
 #if ENABLED(CANCEL_OBJECTS)
   #include "../feature/cancel_object.h"
 #endif
 
-#include "../MarlinCore.h" // for idle() and suspend_auto_report
+#include "../MarlinCore.h" // for idle()
 
 millis_t GcodeSuite::previous_move_ms;
 
@@ -65,6 +65,10 @@ uint8_t GcodeSuite::axis_relative = (
   | (ar_init.z ? _BV(REL_Z) : 0)
   | (ar_init.e ? _BV(REL_E) : 0)
 );
+
+#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+  bool GcodeSuite::autoreport_paused; // = false
+#endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
   GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
@@ -90,7 +94,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", int(e));
     return -1;
   }
   return active_extruder;
@@ -107,9 +111,9 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   SERIAL_ECHO_START();
   SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
   if (e == -1)
-    SERIAL_ECHOLNPGM(" " MSG_E_STEPPER_NOT_SPECIFIED);
+    SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " MSG_INVALID_E_STEPPER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", int(e));
   return -1;
 }
 
@@ -131,7 +135,7 @@ void GcodeSuite::get_destination_from_command() {
 
   // Get new XYZ position, whether absolute or relative
   LOOP_XYZ(i) {
-    if ( (seen[i] = parser.seenval(axis_codes[i])) ) {
+    if ( (seen[i] = parser.seenval(XYZ_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         destination[i] = current_position[i];
@@ -273,7 +277,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 27: G27(); break;                                    // G27: Nozzle Park
       #endif
 
-      case 28: G28(false); break;                                 // G28: Home all axes, one at a time
+      case 28: G28(); break;                                      // G28: Home one or more axes
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
@@ -353,7 +357,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
       #endif
 
-      default: parser.unknown_command_error(); break;
+      default: parser.unknown_command_warning(); break;
     }
     break;
 
@@ -748,6 +752,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 702: M702(); break;                                  // M702: Unload Filament
       #endif
 
+      #if ENABLED(CONTROLLER_FAN_EDITABLE)
+        case 710: M710(); break;                                  // M710: Set Controller Fan settings
+      #endif
+
       #if ENABLED(GCODE_MACROS)
         case 810: case 811: case 812: case 813: case 814:
         case 815: case 816: case 817: case 818: case 819:
@@ -781,7 +789,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if HAS_TRINAMIC
+      #if HAS_TRINAMIC_CONFIG
         case 122: M122(); break;                                  // M122: Report driver configuration and status
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         #if HAS_STEALTHCHOP
@@ -849,14 +857,18 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
-        case 1000: M1000(); break;                                // M1000: Resume from power-loss
+        case 1000: M1000(); break;                                // M1000: [INTERNAL] Resume from power-loss
+      #endif
+
+      #if ENABLED(SDSUPPORT)
+        case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
-      default: parser.unknown_command_error(); break;
+      default: parser.unknown_command_warning(); break;
     }
     break;
 
@@ -866,7 +878,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_error();
+      parser.unknown_command_warning();
   }
 
   if (!no_ok) queue.ok_to_send();
@@ -926,6 +938,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
+    if (delim) *delim = '\n';                         // Put back the newline
     process_parsed_command(true);                     // Process it
     if (!delim) break;                                // Last command?
     gcode = delim + 1;                                // Get the next command
@@ -942,18 +955,18 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
     static millis_t next_busy_signal_ms = 0;
-    if (!suspend_auto_report && host_keepalive_interval && busy_state != NOT_BUSY) {
+    if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
-          SERIAL_ECHO_MSG(MSG_BUSY_PROCESSING);
+          SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_USER);
+          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
           break;
         case PAUSED_FOR_INPUT:
-          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_INPUT);
+          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
           break;
         default:
           break;

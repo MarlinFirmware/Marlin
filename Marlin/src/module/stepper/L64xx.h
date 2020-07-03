@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -55,6 +55,9 @@
     #define X_DIR_INIT()        NOOP
     #define X_DIR_WRITE(STATE)  L64XX_DIR_WRITE(X, STATE)
     #define X_DIR_READ()        (stepper##X.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_X(L6470)
+      #define DISABLE_STEPPER_X() stepperX.free()
+    #endif
   #endif
 #endif
 
@@ -72,6 +75,9 @@
     #define Y_DIR_INIT()        NOOP
     #define Y_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Y, STATE)
     #define Y_DIR_READ()        (stepper##Y.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_Y(L6470)
+      #define DISABLE_STEPPER_Y() stepperY.free()
+    #endif
   #endif
 #endif
 
@@ -89,6 +95,9 @@
     #define Z_DIR_INIT()        NOOP
     #define Z_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Z, STATE)
     #define Z_DIR_READ()        (stepper##Z.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_Z(L6470)
+      #define DISABLE_STEPPER_Z() stepperZ.free()
+    #endif
   #endif
 #endif
 
@@ -109,6 +118,10 @@
   #endif
 #endif
 
+#if AXIS_DRIVER_TYPE_X2(L6470)
+  #define DISABLE_STEPPER_X2() stepperX2.free()
+#endif
+
 // Y2 Stepper
 #if HAS_Y2_ENABLE && AXIS_IS_L64XX(Y2)
   extern L64XX_CLASS(Y2)         stepperY2;
@@ -124,6 +137,10 @@
     #define Y2_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Y2, STATE)
     #define Y2_DIR_READ()        (stepper##Y2.getStatus() & STATUS_DIR);
   #endif
+#endif
+
+#if AXIS_DRIVER_TYPE_Y2(L6470)
+  #define DISABLE_STEPPER_Y2() stepperY2.free()
 #endif
 
 // Z2 Stepper
@@ -143,6 +160,10 @@
   #endif
 #endif
 
+#if AXIS_DRIVER_TYPE_Z2(L6470)
+  #define DISABLE_STEPPER_Z2() stepperZ2.free()
+#endif
+
 // Z3 Stepper
 #if HAS_Z3_ENABLE && AXIS_IS_L64XX(Z3)
   extern L64XX_CLASS(Z3)         stepperZ3;
@@ -158,6 +179,10 @@
     #define Z3_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Z3, STATE)
     #define Z3_DIR_READ()        (stepper##Z3.getStatus() & STATUS_DIR);
   #endif
+#endif
+
+#if AXIS_DRIVER_TYPE_Z3(L6470)
+  #define DISABLE_STEPPER_Z3() stepperZ3.free()
 #endif
 
 // Z4 Stepper
@@ -177,6 +202,10 @@
   #endif
 #endif
 
+#if AXIS_DRIVER_TYPE_Z4(L6470)
+  #define DISABLE_STEPPER_Z4() stepperZ4.free()
+#endif
+
 // E0 Stepper
 #if AXIS_IS_L64XX(E0)
   extern L64XX_CLASS(E0)         stepperE0;
@@ -191,6 +220,9 @@
     #define E0_DIR_INIT()        NOOP
     #define E0_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E0, STATE)
     #define E0_DIR_READ()        (stepper##E0.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E0(L6470)
+      #define DISABLE_STEPPER_E0() do{ stepperE0.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif
 
@@ -208,6 +240,9 @@
     #define E1_DIR_INIT()        NOOP
     #define E1_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E1, STATE)
     #define E1_DIR_READ()        (stepper##E1.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E1(L6470)
+      #define DISABLE_STEPPER_E1() do{ stepperE1.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif
 
@@ -225,6 +260,9 @@
     #define E2_DIR_INIT()        NOOP
     #define E2_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E2, STATE)
     #define E2_DIR_READ()        (stepper##E2.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E2(L6470)
+      #define DISABLE_STEPPER_E2() do{ stepperE2.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif
 
@@ -259,6 +297,9 @@
     #define E4_DIR_INIT()        NOOP
     #define E4_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E4, STATE)
     #define E4_DIR_READ()        (stepper##E4.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E4(L6470)
+      #define DISABLE_STEPPER_E4() do{ stepperE4.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif
 
@@ -276,6 +317,9 @@
     #define E5_DIR_INIT()        NOOP
     #define E5_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E5, STATE)
     #define E5_DIR_READ()        (stepper##E5.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E5(L6470)
+      #define DISABLE_STEPPER_E5() do{ stepperE5.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif
 
@@ -293,6 +337,9 @@
     #define E6_DIR_INIT()        NOOP
     #define E6_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E6, STATE)
     #define E6_DIR_READ()        (stepper##E6.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E6(L6470)
+      #define DISABLE_STEPPER_E6() do{ stepperE6.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif
 
@@ -310,5 +357,8 @@
     #define E7_DIR_INIT()        NOOP
     #define E7_DIR_WRITE(STATE)  L64XX_DIR_WRITE(E7, STATE)
     #define E7_DIR_READ()        (stepper##E7.getStatus() & STATUS_DIR);
+    #if AXIS_DRIVER_TYPE_E7(L6470)
+      #define DISABLE_STEPPER_E7() do{ stepperE7.free(); CBI(axis_known_position, E_AXIS); }while(0)
+    #endif
   #endif
 #endif

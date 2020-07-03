@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -134,7 +134,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
           ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
         #endif
       }
@@ -228,7 +228,7 @@ void menu_main() {
       #if PIN_EXISTS(SD_DETECT)
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);
       #else
-        GCODES_ITEM(MSG_INIT_MEDIA, M21_STR);
+        GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
         ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
       #endif
     }

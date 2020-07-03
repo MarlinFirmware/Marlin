@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,6 +33,7 @@
   #include "neopixel.h"
 #endif
 
+// A white component can be passed
 #define HAS_WHITE_LED EITHER(RGBW_LED, NEOPIXEL_LED)
 
 /**
@@ -137,7 +138,7 @@ typedef struct LEDColor {
 #define LEDColorBlue()            LEDColor(  0,   0, 255)
 #define LEDColorIndigo()          LEDColor(  0, 255, 255)
 #define LEDColorViolet()          LEDColor(255,   0, 255)
-#if HAS_WHITE_LED
+#if HAS_WHITE_LED && DISABLED(RGB_LED)
   #define LEDColorWhite()         LEDColor(  0,   0,   0, 255)
 #else
   #define LEDColorWhite()         LEDColor(255, 255, 255)

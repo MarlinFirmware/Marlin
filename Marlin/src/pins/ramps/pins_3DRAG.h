@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -40,11 +40,11 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN        9
-#define RAMPS_D9_PIN        8
-#define MOSFET_D_PIN       12
+#define RAMPS_D8_PIN                           9
+#define RAMPS_D9_PIN                           8
+#define MOSFET_D_PIN                          12
 
-#define CASE_LIGHT_PIN     -1   // Hardware PWM but one is not available on expansion header
+#define CASE_LIGHT_PIN                        -1  // Hardware PWM but one is not available on expansion header
 
 #include "pins_RAMPS.h"
 
@@ -57,21 +57,21 @@
 // Steppers
 //
 #undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN       63
+#define Z_ENABLE_PIN                          63
 
 //
 // Heaters / Fans
 //
-#define HEATER_2_PIN        6
+#define HEATER_2_PIN                           6
 
 //
 // Misc. Functions
 //
 #undef SDSS
-#define SDSS               25
+#define SDSS                                  25
 
 #undef SD_DETECT_PIN
-#define SD_DETECT_PIN      53
+#define SD_DETECT_PIN                         53
 
 //
 // LCD / Controller
@@ -85,24 +85,24 @@
   #undef LCD_PINS_D5
   #undef LCD_PINS_D6
   #undef LCD_PINS_D7
-  #define LCD_PINS_RS      27
-  #define LCD_PINS_ENABLE  29
-  #define LCD_PINS_D4      37
-  #define LCD_PINS_D5      35
-  #define LCD_PINS_D6      33
-  #define LCD_PINS_D7      31
+  #define LCD_PINS_RS                         27
+  #define LCD_PINS_ENABLE                     29
+  #define LCD_PINS_D4                         37
+  #define LCD_PINS_D5                         35
+  #define LCD_PINS_D6                         33
+  #define LCD_PINS_D7                         31
 
   // Buttons
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC
-  #define BTN_EN1          16
-  #define BTN_EN2          17
-  #define BTN_ENC          23
+  #define BTN_EN1                             16
+  #define BTN_EN2                             17
+  #define BTN_ENC                             23
 
 #else
 
-  #define BEEPER_PIN       33
+  #define BEEPER_PIN                          33
 
 #endif // HAS_SPI_LCD && NEWPANEL
 
@@ -137,7 +137,7 @@
  *
  *  Note: Socket names vary from vendor to vendor
  */
-#undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are not good with 3DRAG
+#undef SPINDLE_LASER_PWM_PIN                      // Definitions in pins_RAMPS.h are not good with 3DRAG
 #undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
@@ -149,14 +149,14 @@
     #undef Z_DIR_PIN
     #undef Z_ENABLE_PIN
     #undef Z_STEP_PIN
-    #define Z_DIR_PIN                28
-    #define Z_ENABLE_PIN             24
-    #define Z_STEP_PIN               26
-    #define SPINDLE_LASER_PWM_PIN    46   // Hardware PWM
-    #define SPINDLE_LASER_ENA_PIN    62   // Pullup!
-    #define SPINDLE_DIR_PIN          48
-  #elif !BOTH(ULTRA_LCD, NEWPANEL)     // use expansion header if no LCD in use
-    #define SPINDLE_LASER_ENA_PIN    16   // Pullup or pulldown!
-    #define SPINDLE_DIR_PIN          17
+    #define Z_DIR_PIN                         28
+    #define Z_ENABLE_PIN                      24
+    #define Z_STEP_PIN                        26
+    #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
+    #define SPINDLE_DIR_PIN                   48
+  #elif !BOTH(ULTRA_LCD, NEWPANEL)                // use expansion header if no LCD in use
+    #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
+    #define SPINDLE_DIR_PIN                   17
   #endif
 #endif

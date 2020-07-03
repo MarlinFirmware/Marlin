@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -110,7 +110,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD контраст");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Запази в EPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Зареди от EPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Фабрични настройки");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Фабрични настройки");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Обнови");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Преглед");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Действия");
@@ -136,7 +136,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Автоoткат");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Смяна нишка");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Смяна нишка *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Иниц. SD-Карта");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Иниц. SD-Карта");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Смяна SD-Карта");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-сондата е извадена");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z Отстояние");

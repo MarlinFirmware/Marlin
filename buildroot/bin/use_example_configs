@@ -2,7 +2,7 @@
 
 restore_configs
 
-EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/master/config/examples"
+EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/bugfix-2.0.x/config/examples"
 
 cd Marlin
 

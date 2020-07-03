@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -125,7 +125,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Alzar memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Cargar memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Restaurar memoria");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restaurar memoria");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Tornar a cargar");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Informacion");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
@@ -151,7 +151,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Retraccion auto.");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Cambear filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Cambear filamento *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Encetan. tarcheta");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Encetan. tarcheta");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Cambiar tarcheta");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z fuera");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reset BLTouch");

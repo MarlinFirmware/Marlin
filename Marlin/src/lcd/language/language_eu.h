@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -187,7 +187,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrastea");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gorde memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Kargatu memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Larri. berriz.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Larri. berriz.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM-a hasieratu");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantaila info");
@@ -221,7 +221,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Harizpia deskargatu");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Harizpia deskargatu *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Erabat deskargatu");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Hasieratu SD-a");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Hasieratu SD-a");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Aldatu txartela");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z zunda kanpora");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Okertze faktorea");

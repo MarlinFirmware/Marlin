@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -240,7 +240,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD对比度");     //"LCD contrast"
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("保存设置");     //"Store memory"
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("装载设置");     //"Load memory"
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("恢复安全值");     //"Restore failsafe"
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("恢复安全值");     //"Restore Defaults"
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("初始化设置");     // "Initialize EEPROM"
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("刷新");     //"Refresh"
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"
@@ -274,7 +274,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("卸载丝料");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("卸载丝料 *");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("卸载全部");     // "Unload All"
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("初始化存储卡");     //"Init. SD card"
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("初始化存储卡");     //"Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("更换存储卡");     //"Change SD card"
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探针在热床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因数");     // "Skew Factor"

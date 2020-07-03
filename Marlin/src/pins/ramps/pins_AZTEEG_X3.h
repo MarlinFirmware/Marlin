@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,15 +32,15 @@
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
-  #define CASE_LIGHT_PIN    6   // Define before RAMPS pins include
+  #define CASE_LIGHT_PIN                       6  // Define before RAMPS pins include
 #endif
 #define BOARD_INFO_NAME "Azteeg X3"
 
 //
 // Servos
 //
-#define SERVO0_PIN         44   // SERVO1 port
-#define SERVO1_PIN         55   // SERVO2 port
+#define SERVO0_PIN                            44  // SERVO1 port
+#define SERVO1_PIN                            55  // SERVO2 port
 
 #include "pins_RAMPS_13.h"
 
@@ -55,17 +55,17 @@
   #undef DOGLCD_A0
   #undef DOGLCD_CS
   #undef BTN_ENC
-  #define DOGLCD_A0         31
-  #define DOGLCD_CS         32
-  #define BTN_ENC           12
+  #define DOGLCD_A0                           31
+  #define DOGLCD_CS                           32
+  #define BTN_ENC                             12
 
-  #define STAT_LED_RED_PIN  64
-  #define STAT_LED_BLUE_PIN 63
+  #define STAT_LED_RED_PIN                    64
+  #define STAT_LED_BLUE_PIN                   63
 
 #else
 
-  #define STAT_LED_RED_PIN   6
-  #define STAT_LED_BLUE_PIN 11
+  #define STAT_LED_RED_PIN                     6
+  #define STAT_LED_BLUE_PIN                   11
 
 #endif
 
@@ -79,18 +79,18 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#undef SPINDLE_LASER_PWM_PIN    // Definitions in pins_RAMPS.h are no good with the AzteegX3 board
+#undef SPINDLE_LASER_PWM_PIN                      // Definitions in pins_RAMPS.h are no good with the AzteegX3 board
 #undef SPINDLE_LASER_ENA_PIN
 #undef SPINDLE_DIR_PIN
 
 #if HAS_CUTTER
-  #undef SDA                       // use EXP3 header
+  #undef SDA                                      // use EXP3 header
   #undef SCL
   #if SERVO0_PIN == 7
     #undef SERVO0_PIN
-    #define SERVO0_PIN     11
+    #define SERVO0_PIN                        11
   #endif
-  #define SPINDLE_LASER_PWM_PIN     7   // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN    20   // Pullup!
-  #define SPINDLE_DIR_PIN          21
+  #define SPINDLE_LASER_PWM_PIN                7  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               20  // Pullup!
+  #define SPINDLE_DIR_PIN                     21
 #endif

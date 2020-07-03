@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -100,9 +100,9 @@ void GcodeSuite::G0_G1(
     #endif // FWRETRACT
 
     #if IS_SCARA
-      fast_move ? prepare_fast_move_to_destination() : prepare_move_to_destination();
+      fast_move ? prepare_fast_move_to_destination() : prepare_line_to_destination();
     #else
-      prepare_move_to_destination();
+      prepare_line_to_destination();
     #endif
 
     #ifdef G0_FEEDRATE
@@ -118,7 +118,7 @@ void GcodeSuite::G0_G1(
       #endif
       if (_MOVE_SYNC) {
         planner.synchronize();
-        SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+        SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
       }
     #endif
   }

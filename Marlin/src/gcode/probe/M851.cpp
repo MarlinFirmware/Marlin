@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,17 +39,17 @@ void GcodeSuite::M851() {
   if (!parser.seen("XYZ")) {
     SERIAL_ECHOLNPAIR_P(
       #if HAS_PROBE_XY_OFFSET
-        PSTR(MSG_PROBE_OFFSET " X"), probe_offset.x, SP_Y_STR, probe_offset.y, SP_Z_STR
+        PSTR(STR_PROBE_OFFSET " X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR
       #else
-        PSTR(MSG_PROBE_OFFSET " X0 Y0 Z")
+        PSTR(STR_PROBE_OFFSET " X0 Y0 Z")
       #endif
-      , probe_offset.z
+      , probe.offset.z
     );
     return;
   }
 
   // Start with current offsets and modify
-  xyz_pos_t offs = probe_offset;
+  xyz_pos_t offs = probe.offset;
 
   // Assume no errors
   bool ok = true;
@@ -93,7 +93,7 @@ void GcodeSuite::M851() {
   }
 
   // Save the new offsets
-  if (ok) probe_offset = offs;
+  if (ok) probe.offset = offs;
 }
 
 #endif // HAS_BED_PROBE

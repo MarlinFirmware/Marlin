@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,15 +33,16 @@
 #define dSPIN_STEP_CLOCK      0x58
 #define dSPIN_STEP_CLOCK_FWD dSPIN_STEP_CLOCK
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
-#define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5))
+#define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5) || AXIS_IS_L64XX(E6) || AXIS_IS_L64XX(E7))
 
 enum L64XX_axis_t : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7, MAX_L64XX };
 
 class L64XX_Marlin : public L64XXHelper {
 public:
-  static char index_to_axis[MAX_L64XX][3];
+  static PGM_P const index_to_axis[MAX_L64XX];
 
-  static uint8_t index_to_dir[MAX_L64XX];
+  static const uint8_t index_to_dir[MAX_L64XX];
+
   static uint8_t dir_commands[MAX_L64XX];
 
   // Flags to guarantee graceful switch if stepper interrupts L6470 SPI transfer
@@ -69,7 +70,6 @@ public:
 
   static void transfer(uint8_t L6470_buf[], const uint8_t length);
 
-  //static char* index_to_axis(const uint8_t index);
   static void say_axis(const L64XX_axis_t axis, const uint8_t label=true);
   #if ENABLED(L6470_CHITCHAT)
     static void error_status_decode(

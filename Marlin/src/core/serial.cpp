@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -54,7 +54,7 @@ void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P con
   serialprintPGM(onoff ? on : off);
   if (post) serialprintPGM(post);
 }
-void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) : PSTR(MSG_OFF)); }
+void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(STR_ON) : PSTR(STR_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
 void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : PSTR("false")); }
 

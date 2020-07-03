@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,39 +39,40 @@ L64XX_Marlin L64xxManager;
 
 void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }
 
-char L64XX_Marlin::index_to_axis[MAX_L64XX][3] = { "X ", "Y ", "Z ", "X2", "Y2", "Z2", "Z3", "Z4", "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7" };
+static const char str_X[] PROGMEM = "X ",  str_Y[] PROGMEM = "Y ",  str_Z[] PROGMEM = "Z ",
+                 str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",
+                 str_Z2[] PROGMEM = "Z2", str_Z3[] PROGMEM = "Z3", str_Z4[] PROGMEM = "Z4",
+                 str_E0[] PROGMEM = "E0", str_E1[] PROGMEM = "E1",
+                 str_E2[] PROGMEM = "E2", str_E3[] PROGMEM = "E3",
+                 str_E4[] PROGMEM = "E4", str_E5[] PROGMEM = "E5",
+                 str_E6[] PROGMEM = "E6", str_E7[] PROGMEM = "E7"
+                 ;
+
+PGM_P const L64XX_Marlin::index_to_axis[] PROGMEM = {
+  str_X, str_Y, str_Z, str_X2, str_Y2, str_Z2, str_Z3, str_Z4,
+  str_E0, str_E1, str_E2, str_E3, str_E4, str_E5, str_E6, str_E7
+};
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
 uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction command for each driver
 
-uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = { (INVERT_X_DIR),                         //  0 X
-                                                  (INVERT_Y_DIR),                         //  1 Y
-                                                  (INVERT_Z_DIR),                         //  2 Z
-                                                  #if ENABLED(X_DUAL_STEPPER_DRIVERS)     //  3 X2
-                                                    (INVERT_X_DIR) ^ (INVERT_X2_VS_X_DIR),
-                                                  #else
-                                                    (INVERT_X_DIR),
-                                                  #endif
-                                                  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)     //  4 Y2
-                                                    (INVERT_Y_DIR) ^ (INVERT_Y2_VS_Y_DIR),
-                                                  #else
-                                                    (INVERT_Y_DIR),
-                                                  #endif
-                                                  (INVERT_Z_DIR),                         //  5 Z2
-                                                  (INVERT_Z_DIR),                         //  6 Z3
-                                                  (INVERT_Z_DIR),                         //  7 Z4
+const uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = {
+  INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR
+  , (INVERT_X_DIR)                            // X2
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+      ^ (INVERT_X2_VS_X_DIR)
+    #endif
+  , (INVERT_Y_DIR)                            // Y2
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+      ^ (INVERT_Y2_VS_Y_DIR)
+    #endif
+  , INVERT_Z_DIR, INVERT_Z_DIR, INVERT_Z_DIR  // Z2,Z3,Z4
 
-                                                  (INVERT_E0_DIR),                        //  8 E0
-                                                  (INVERT_E1_DIR),                        //  9 E1
-                                                  (INVERT_E2_DIR),                        // 10 E2
-                                                  (INVERT_E3_DIR),                        // 11 E3
-                                                  (INVERT_E4_DIR),                        // 12 E4
-                                                  (INVERT_E5_DIR),                        // 13 E5
-                                                  (INVERT_E6_DIR),                        // 14 E6
-                                                  (INVERT_E7_DIR)                         // 15 E7
-                                                };
+  , INVERT_E0_DIR, INVERT_E1_DIR, INVERT_E2_DIR, INVERT_E3_DIR
+  , INVERT_E4_DIR, INVERT_E5_DIR, INVERT_E6_DIR, INVERT_E7_DIR
+};
 
 volatile uint8_t L64XX_Marlin::spi_abort = false;
 uint8_t L64XX_Marlin::spi_active = false;
@@ -125,6 +126,12 @@ void L6470_populate_chain_array() {
   #endif
   #if AXIS_IS_L64XX(E5)
     _L6470_INIT_SPI(E5);
+  #endif
+  #if AXIS_IS_L64XX(E6)
+    _L6470_INIT_SPI(E6);
+  #endif
+  #if AXIS_IS_L64XX(E7)
+    _L6470_INIT_SPI(E7);
   #endif
 }
 
@@ -239,6 +246,12 @@ uint16_t L64XX_Marlin::get_status(const L64XX_axis_t axis) {
     #if AXIS_IS_L64XX(E5)
       case E5: return STATUS_L6470(E5);
     #endif
+    #if AXIS_IS_L64XX(E6)
+      case E6: return STATUS_L6470(E6);
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      case E7: return STATUS_L6470(E7);
+    #endif
   }
 
   return 0; // Not needed but kills a compiler warning
@@ -291,6 +304,12 @@ uint32_t L64XX_Marlin::get_param(const L64XX_axis_t axis, const uint8_t param) {
     #endif
     #if AXIS_IS_L64XX(E5)
       case E5: return GET_L6470_PARAM(E5);
+    #endif
+    #if AXIS_IS_L64XX(E6)
+      case E6: return GET_L6470_PARAM(E6);
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      case E7: return GET_L6470_PARAM(E7);
     #endif
   }
 
@@ -345,6 +364,12 @@ void L64XX_Marlin::set_param(const L64XX_axis_t axis, const uint8_t param, const
     #if AXIS_IS_L64XX(E5)
       case E5: SET_L6470_PARAM(E5); break;
     #endif
+    #if AXIS_IS_L64XX(E6)
+      case E6: SET_L6470_PARAM(E6); break;
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      case E7: SET_L6470_PARAM(E7); break;
+    #endif
   }
 }
 
@@ -379,35 +404,27 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
     found_displacement = true;
     displacement = _displacement;
     uint8_t axis_offset = parser.byteval('J');
-    axis_mon[0][0] = axis_codes[i];   // axis ASCII value (target character)
+    axis_mon[0][0] = axis_codes[i];         // Axis first character, one of XYZE
+    const bool single_or_e = axis_offset >= 2 || axis_mon[0][0] == 'E',
+               one_or_more = !single_or_e && axis_offset == 0;
     uint8_t driver_count_local = 0;         // Can't use "driver_count" directly as a subscript because it's passed by reference
-    if (axis_offset >= 2 || axis_mon[0][0] == 'E') {  // Single axis, E0, or E1
-      axis_mon[0][1] = axis_offset + '0';
-      for (j = 0; j < MAX_L64XX; j++) {       // See how many drivers on this axis
-        const char * const str = index_to_axis[j];
-        if (axis_mon[0][0] == str[0]) {
-          char * const mon = axis_mon[driver_count_local];
-          mon[0] = str[0];
-          mon[1] = str[1];
-          mon[2] = str[2];   // append end of string
-          axis_index[driver_count_local] = (L64XX_axis_t)j;        // set axis index
+    if (single_or_e)                        // Single axis, E0, or E1
+      axis_mon[0][1] = axis_offset + '0';   // Index given by 'J' parameter
+
+    if (single_or_e || one_or_more) {
+      for (j = 0; j < MAX_L64XX; j++) {     // Count up the drivers on this axis
+        PGM_P str = (PGM_P)pgm_read_ptr(&index_to_axis[j]); // Get a PGM_P from progmem
+        const char c = pgm_read_byte(str);                  // Get a char from progmem
+        if (axis_mon[0][0] == c) {          // For each stepper on this axis...
+          char *mon = axis_mon[driver_count_local];
+          *mon++ = c;                        // Copy the 3 letter axis name
+          *mon++ = pgm_read_byte(&str[1]);   //  to the axis_mon array
+          *mon   = pgm_read_byte(&str[2]);
+          axis_index[driver_count_local] = (L64XX_axis_t)j; // And store the L64XX axis index
           driver_count_local++;
         }
       }
-    }
-    else if (axis_offset == 0) {              // One or more axes
-      for (j = 0; j < MAX_L64XX; j++) {       // See how many drivers on this axis
-        const char * const str = index_to_axis[j];
-        if (axis_mon[0][0] == str[0]) {
-          char * const mon = axis_mon[driver_count_local];
-          mon[0] = str[0];
-          mon[1] = str[1];
-          mon[2] = str[2];   // append end of string
-          axis_index[driver_count_local] = (L64XX_axis_t)j;        // set axis index
-          driver_count_local++;
-        }
-      }
-      driver_count = driver_count_local;
+      if (one_or_more) driver_count = driver_count_local;
     }
     break; // only take first axis found
   }
@@ -491,11 +508,11 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   // Work on the drivers
   //
 
-  for (uint8_t k = 0; k < driver_count; k++) {
+  LOOP_L_N(k, driver_count) {
     uint8_t not_found = true;
     for (j = 1; j <= L64XX::chain[0]; j++) {
-      const char * const ind_axis = index_to_axis[L64XX::chain[j]];
-      if (ind_axis[0] == axis_mon[k][0] && ind_axis[1] == axis_mon[k][1]) { // See if a L6470 driver
+      PGM_P const str = (PGM_P)pgm_read_ptr(&index_to_axis[L64XX::chain[j]]);
+      if (pgm_read_byte(&str[0]) == axis_mon[k][0] && pgm_read_byte(&str[1]) == axis_mon[k][1]) { // See if a L6470 driver
         not_found = false;
         break;
       }
@@ -701,30 +718,37 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
       {  6, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Z4)
-      {  6, 0, 0, 0, 0, 0, 0 },
-    #endif
-    #if AXIS_IS_L64XX(E0)
       {  7, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E1)
+    #if AXIS_IS_L64XX(E0)
       {  8, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E2)
+    #if AXIS_IS_L64XX(E1)
       {  9, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E3)
+    #if AXIS_IS_L64XX(E2)
       { 10, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E4)
+    #if AXIS_IS_L64XX(E3)
       { 11, 0, 0, 0, 0, 0, 0 },
     #endif
+    #if AXIS_IS_L64XX(E4)
+      { 12, 0, 0, 0, 0, 0, 0 },
+    #endif
     #if AXIS_IS_L64XX(E5)
-      { 12, 0, 0, 0, 0, 0, 0 }
+      { 13, 0, 0, 0, 0, 0, 0 }
+    #endif
+    #if AXIS_IS_L64XX(E6)
+      { 14, 0, 0, 0, 0, 0, 0 }
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      { 16, 0, 0, 0, 0, 0, 0 }
     #endif
   };
 
   void L64XX_Marlin::append_stepper_err(char* &p, const uint8_t stepper_index, const char * const err/*=nullptr*/) {
-    p += sprintf_P(p, PSTR("Stepper %c%c "), index_to_axis[stepper_index][0], index_to_axis[stepper_index][1]);
+    PGM_P const str = (PGM_P)pgm_read_ptr(&index_to_axis[stepper_index]);
+    p += sprintf_P(p, PSTR("Stepper %c%c "), pgm_read_byte(&str[0]), pgm_read_byte(&str[1]));
     if (err) p += sprintf_P(p, err);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
 #include "../../module/stepper.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "../../feature/I2CPositionEncoder.h"
+  #include "../../feature/encoder_i2c.h"
 #endif
 
 /**
@@ -35,7 +35,7 @@ void GcodeSuite::G92() {
 
   bool sync_E = false, sync_XYZ = false;
 
-  #if USE_GCODE_SUBCODES
+  #if ENABLED(USE_GCODE_SUBCODES)
     const uint8_t subcode_G92 = parser.subcode;
   #else
     constexpr uint8_t subcode_G92 = 0;
