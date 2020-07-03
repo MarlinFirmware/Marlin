@@ -138,12 +138,8 @@ namespace Language_test {
     PROGMEM Language_Str MSG_DISABLE_STEPPERS                = STRG_C2_8;
     PROGMEM Language_Str MSG_AUTO_HOME                       = STRG_C2_9;
     PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = STRG_C2_a;
-    #ifdef PREHEAT_1_LABEL
-      PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_C2_b;
-    #endif
-    #ifdef PREHEAT_2_LABEL
-      PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_C3_8;
-    #endif
+    PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_C2_b;
+    PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_C3_8;
     PROGMEM Language_Str MSG_COOLDOWN                        = STRG_C3_9;
     PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = STRG_C3_a;
     PROGMEM Language_Str MSG_MOVE_AXIS                       = STRG_C3_b;
@@ -179,12 +175,8 @@ namespace Language_test {
     PROGMEM Language_Str MSG_DISABLE_STEPPERS                = STRG_D0_8;
     PROGMEM Language_Str MSG_AUTO_HOME                       = STRG_D0_9;
     PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = STRG_D0_a;
-    #ifdef PREHEAT_1_LABEL
-      PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_D0_b;
-    #endif
-    #ifdef PREHEAT_2_LABEL
-      PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_D1_8;
-    #endif
+    PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_D0_b;
+    PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_D1_8;
     PROGMEM Language_Str MSG_COOLDOWN                        = STRG_D1_9;
     PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = STRG_D1_a;
     PROGMEM Language_Str MSG_MOVE_AXIS                       = STRG_D1_b;
@@ -219,12 +211,8 @@ namespace Language_test {
     PROGMEM Language_Str MSG_DISABLE_STEPPERS                = STRG_E382_8;
     PROGMEM Language_Str MSG_AUTO_HOME                       = STRG_E382_9;
     PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = STRG_E382_a;
-    #ifdef PREHEAT_1_LABEL
-      PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_E382_b;
-    #endif
-    #ifdef PREHEAT_2_LABEL
-      PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_E383_8;
-    #endif
+    PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_E382_b;
+    PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_E383_8;
     PROGMEM Language_Str MSG_COOLDOWN                        = STRG_E383_9;
     PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = STRG_E383_a;
     PROGMEM Language_Str MSG_MOVE_AXIS                       = STRG_E383_b;
