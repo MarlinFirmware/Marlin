@@ -42,7 +42,8 @@ uint16_t Touch::controls_count;
 millis_t Touch::now = 0;
 millis_t Touch::time_to_hold;
 millis_t Touch::repeat_delay;
-bool Touch::wait_for_unclick;
+millis_t Touch::touch_time;
+TouchControlType  Touch::touch_control_type = NONE;
 touch_calibration_t Touch::calibration;
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   calibrationState Touch::calibration_state = CALIBRATION_NONE;
@@ -79,7 +80,14 @@ void Touch::idle() {
       ui.return_to_status_ms = now + LCD_TIMEOUT_TO_STATUS;
     #endif
 
-    if (wait_for_unclick) return;
+    if (touch_time) {
+      #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+          ui.goto_screen(touch_screen_calibration);
+      #endif
+      return;
+    }
+
     if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
     if (PENDING(now, time_to_hold)) return;
 
@@ -99,6 +107,7 @@ void Touch::idle() {
       else {
         for (i = 0; i < controls_count; i++) {
           if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
+            touch_control_type = controls[i].type;
             touch(&controls[i]);
             break;
           }
@@ -106,7 +115,7 @@ void Touch::idle() {
       }
 
       if (current_control == NULL)
-        wait_for_unclick = true;
+        touch_time = now;
     }
     x = _x;
     y = _y;
@@ -114,7 +123,8 @@ void Touch::idle() {
   else {
     x = y = 0;
     current_control = NULL;
-    wait_for_unclick = false;
+    touch_time = 0;
+    touch_control_type = NONE;
     time_to_hold = 0;
     repeat_delay = TOUCH_REPEAT_DELAY;
   }
@@ -240,10 +250,7 @@ void Touch::touch(touch_control_t *control) {
       break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      case UBL_UP:    hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = GRID_MAX_POINTS_X * ENCODER_STEPS_PER_MENU_ITEM; break;
-      case UBL_DOWN:  hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = - GRID_MAX_POINTS_X * ENCODER_STEPS_PER_MENU_ITEM; break;
-      case UBL_LEFT:  hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = - ENCODER_STEPS_PER_MENU_ITEM; break;
-      case UBL_RIGHT: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition = ENCODER_STEPS_PER_MENU_ITEM; break;
+      case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
     #endif
 
     default: break;
@@ -262,12 +269,25 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
 bool Touch::get_point(int16_t *x, int16_t *y) {
   bool is_touched = (calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
 
-  if (is_touched && calibration.orientation != TOUCH_NONE) {
+  if (is_touched && calibration.orientation != TOUCH_ORIENTATION_NONE) {
     *x = int16_t((int32_t(*x) * calibration.x) >> 16) + calibration.offset_x;
     *y = int16_t((int32_t(*y) * calibration.y) >> 16) + calibration.offset_y;
   }
   return is_touched;
 }
 Touch touch;
+
+bool MarlinUI::touch_pressed() {
+  return touch.is_clicked();
+}
+
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, int32_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+  uint16_t width = Images[image].width;
+  uint16_t height = Images[image].height;
+  tft.canvas(x, y, width, height);
+  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
+  if (is_enabled)
+    touch.add_control(control_type, x, y, width, height, data);
+}
 
 #endif // TOUCH_SCREEN

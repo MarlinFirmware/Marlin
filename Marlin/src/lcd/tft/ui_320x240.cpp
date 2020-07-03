@@ -511,12 +511,15 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #define GRID_WIDTH  144
-  #define GRID_HEIGHT 144
+  #define GRID_OFFSET_X   8
+  #define GRID_OFFSET_Y   8
+  #define GRID_WIDTH      144
+  #define GRID_HEIGHT     144
+  #define CONTROL_OFFSET  8
 
   void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
 
-    tft.canvas(8, 8, GRID_WIDTH, GRID_HEIGHT);
+    tft.canvas(GRID_OFFSET_X, GRID_OFFSET_Y, GRID_WIDTH, GRID_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     tft.add_rectangle(0, 0, GRID_WIDTH, GRID_HEIGHT, COLOR_WHITE);
 
@@ -530,7 +533,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
                    lpos = pos.asLogical();
 
-    tft.canvas(216, 24, 96, 32);
+    tft.canvas(216, GRID_OFFSET_Y + (GRID_HEIGHT - 32) / 2 - 32, 96, 32);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(X_LBL);
     tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
@@ -538,7 +541,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.trim();
     tft.add_text(96 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
-    tft.canvas(216, 64, 96, 32);
+    tft.canvas(216, GRID_OFFSET_Y + (GRID_HEIGHT - 32) / 2, 96, 32);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(Y_LBL);
     tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
@@ -546,7 +549,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.trim();
     tft.add_text(96 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
-    tft.canvas(216, 104, 96, 32);
+    tft.canvas(216, GRID_OFFSET_Y + (GRID_HEIGHT - 32) / 2 + 32, 96, 32);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(Z_LBL);
     tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
@@ -555,26 +558,26 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.add_text(96 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
 
-    tft.canvas(64, 160, 32, 32);
+    tft.canvas(GRID_OFFSET_X + (GRID_WIDTH - 32) / 2, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET - 1, 32, 32);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(ui8tostr3rj(x_plot));
     tft_string.trim();
     tft.add_text(tft_string.center(32), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
-    tft.canvas(160, 64, 32, 32);
+    tft.canvas(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET, GRID_OFFSET_Y + (GRID_HEIGHT - 27) / 2, 32, 32);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(ui8tostr3rj(y_plot));
     tft_string.trim();
-    tft.add_text(tft_string.center(32) - 1, MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+    tft.add_text(tft_string.center(32), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
     #if ENABLED(TOUCH_SCREEN)
       touch.clear();
       draw_menu_navigation = false;
-      add_control(160, 24, UBL_UP, imgUp);
-      add_control(160, 104, UBL_DOWN, imgDown);
-      add_control(24, 160, UBL_LEFT, imgLeft);
-      add_control(104, 160, UBL_RIGHT, imgRight);
-      add_control(224, 160, CLICK, imgLeveling);
+      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + CONTROL_OFFSET,                    UBL,   ENCODER_STEPS_PER_MENU_ITEM * GRID_MAX_POINTS_X, imgUp);
+      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + GRID_HEIGHT - CONTROL_OFFSET - 32, UBL, - ENCODER_STEPS_PER_MENU_ITEM * GRID_MAX_POINTS_X, imgDown);
+      add_control(GRID_OFFSET_X + CONTROL_OFFSET,                   GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL, - ENCODER_STEPS_PER_MENU_ITEM, imgLeft);
+      add_control(GRID_OFFSET_X + GRID_WIDTH - CONTROL_OFFSET - 32, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL,   ENCODER_STEPS_PER_MENU_ITEM, imgRight);
+      add_control(224, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET, CLICK, imgLeveling);
       add_control(144, 206, BACK, imgBack);
     #endif
   }
@@ -646,25 +649,5 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
 }
-
-#if ENABLED(TOUCH_SCREEN)
-  void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-    uint16_t width = Images[image].width;
-    uint16_t height = Images[image].height;
-    tft.canvas(x, y, width, height);
-    tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-    if (is_enabled)
-      touch.add_control(control_type, x, y, width, height);
-  }
-
-  void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-    uint16_t width = Images[image].width;
-    uint16_t height = Images[image].height;
-    tft.canvas(x, y, width, height);
-    tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-    if (is_enabled)
-      touch.add_control(MENU_SCREEN, x, y, width, height, screen);
-  }
-#endif // TOUCH_SCREEN
 
 #endif // UI_320x240

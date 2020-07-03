@@ -515,10 +515,10 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #define GRID_OFFSET_X 8
-  #define GRID_OFFSET_Y 8
-  #define GRID_WIDTH    192
-  #define GRID_HEIGHT   192
+  #define GRID_OFFSET_X   8
+  #define GRID_OFFSET_Y   8
+  #define GRID_WIDTH      192
+  #define GRID_HEIGHT     192
   #define CONTROL_OFFSET  16
 
   void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
@@ -577,11 +577,10 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     #if ENABLED(TOUCH_SCREEN)
       touch.clear();
       draw_menu_navigation = false;
-      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET, GRID_OFFSET_Y + CONTROL_OFFSET, UBL_UP, imgUp);
-      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET, GRID_OFFSET_Y + GRID_HEIGHT - CONTROL_OFFSET - 32, UBL_DOWN, imgDown);
-      add_control(GRID_OFFSET_X + CONTROL_OFFSET, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET, UBL_LEFT, imgLeft);
-      add_control(GRID_OFFSET_X + GRID_WIDTH - CONTROL_OFFSET - 32, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET, UBL_RIGHT, imgRight);
-
+      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + CONTROL_OFFSET,                    UBL,   ENCODER_STEPS_PER_MENU_ITEM * GRID_MAX_POINTS_X, imgUp);
+      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + GRID_HEIGHT - CONTROL_OFFSET - 32, UBL, - ENCODER_STEPS_PER_MENU_ITEM * GRID_MAX_POINTS_X, imgDown);
+      add_control(GRID_OFFSET_X + CONTROL_OFFSET,                   GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL, - ENCODER_STEPS_PER_MENU_ITEM, imgLeft);
+      add_control(GRID_OFFSET_X + GRID_WIDTH - CONTROL_OFFSET - 32, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL,   ENCODER_STEPS_PER_MENU_ITEM, imgRight);
       add_control(320, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET, CLICK, imgLeveling);
       add_control(224, 286, BACK, imgBack);
     #endif
@@ -654,25 +653,5 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 4 + 45 * row, TFT_WIDTH, 43, encoderTopLine + row));
 }
-
-#if ENABLED(TOUCH_SCREEN)
-  void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-    uint16_t width = Images[image].width;
-    uint16_t height = Images[image].height;
-    tft.canvas(x, y, width, height);
-    tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-    if (is_enabled)
-      touch.add_control(control_type, x, y, width, height);
-  }
-
-  void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-    uint16_t width = Images[image].width;
-    uint16_t height = Images[image].height;
-    tft.canvas(x, y, width, height);
-    tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-    if (is_enabled)
-      touch.add_control(MENU_SCREEN, x, y, width, height, screen);
-  }
-#endif // TOUCH_SCREEN
 
 #endif // UI_480x320

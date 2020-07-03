@@ -22,12 +22,21 @@
 
 #if ENABLED(TOUCH_SCREEN)
 
+#include "tft_color.h"
+#include "tft_image.h"
+
 #include "tft/xpt2046.h"
 #define TOUCH_DRIVER XPT2046
 
-#define TOUCH_CALIBRATION_PRECISION 80
+#ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
+  #define TOUCH_SCREEN_CALIBRATION_PRECISION  80
+#endif
 
-#define TOUCH_NONE              0
+#ifndef TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS
+  #define TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS   2500
+#endif
+
+#define TOUCH_ORIENTATION_NONE  0
 #define TOUCH_LANDSCAPE         1
 #define TOUCH_PORTRAIT          2
 
@@ -43,7 +52,7 @@
     #define TOUCH_CALIBRATION_Y  0
     #define TOUCH_OFFSET_X       0
     #define TOUCH_OFFSET_Y       0
-    #define TOUCH_ORIENTATION    TOUCH_NONE
+    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
 
@@ -51,6 +60,7 @@
 extern int8_t encoderTopLine, encoderLine, screen_items;
 
 enum TouchControlType : uint16_t {
+  NONE = 0x0000,
   CALIBRATE,
   MENU_SCREEN,
   MENU_ITEM,
@@ -68,13 +78,14 @@ enum TouchControlType : uint16_t {
   FAN,
   FEEDRATE,
   FLOWRATE,
-  UBL_UP,
-  UBL_DOWN,
-  UBL_LEFT,
-  UBL_RIGHT,
+  UBL,
 };
 
 typedef void (*screenFunc_t)();
+
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, int32_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
+inline void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, control_type, 0, image, is_enabled, color_enabled, color_disabled); }
+inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (int32_t)screen, image, is_enabled, color_enabled, color_disabled); }
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
@@ -129,7 +140,8 @@ class Touch {
     static millis_t now;
     static millis_t time_to_hold;
     static millis_t repeat_delay;
-    static bool wait_for_unclick;
+    static millis_t touch_time;
+    static TouchControlType touch_control_type;
 
     static inline bool get_point(int16_t *x, int16_t *y);
     static void touch(touch_control_t *control);
@@ -139,24 +151,24 @@ class Touch {
       static calibrationState calibration_state;
       static touch_calibration_point_t calibration_points[4];
 
-      static bool validate_precision(int32_t a, int32_t b) { return (a > b ? (100 * b) / a :  (100 * a) / b) > TOUCH_CALIBRATION_PRECISION; }
+      static bool validate_precision(int32_t a, int32_t b) { return (a > b ? (100 * b) / a :  (100 * a) / b) > TOUCH_SCREEN_CALIBRATION_PRECISION; }
       static bool validate_precision_x(uint8_t a, uint8_t b) { return validate_precision(calibration_points[a].raw_x, calibration_points[b].raw_x); }
       static bool validate_precision_y(uint8_t a, uint8_t b) { return validate_precision(calibration_points[a].raw_y, calibration_points[b].raw_y); }
     #endif // TOUCH_SCREEN_CALIBRATION
 
   public:
     static void init();
-    static void reset() { controls_count = 0; wait_for_unclick = true; current_control = NULL; };
-    static void clear() { controls_count = 0; };
+    static void reset() { controls_count = 0; touch_time = -1; current_control = NULL; }
+    static void clear() { controls_count = 0; }
     static void idle();
+    static bool is_clicked() { return touch_control_type == CLICK; }
 
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data = 0);
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height,  screenFunc_t screen) { add_control(type, x, y, width, height, (int32_t)screen); }
 
     static touch_calibration_t calibration;
 
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      static calibrationState calibration_start() { calibration = {0, 0, 0, 0, TOUCH_NONE}; return calibration_state = CALIBRATION_POINT_1; }
+      static calibrationState calibration_start() { calibration = {0, 0, 0, 0, TOUCH_ORIENTATION_NONE}; return calibration_state = CALIBRATION_POINT_1; }
       static void calibration_end() { calibration_state = CALIBRATION_NONE; }
       static calibrationState get_calibration_state() { return calibration_state; }
       static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }

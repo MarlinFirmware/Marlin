@@ -28,8 +28,6 @@
 
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
-  void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
-  void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
 #endif
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater);
