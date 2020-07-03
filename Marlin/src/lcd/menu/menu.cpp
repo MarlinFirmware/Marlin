@@ -343,48 +343,18 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     ui.defer_status_screen();
     const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
     if (ui.encoderPosition) {
-
-
-      #if ENABLED(BABYSTEP_ZPROBE_OFFSET_USE_MM) // Use mm directly
-
-        const float mm_thousanths = 0.001;
-        const float babystep_increment_f = float(int16_t(ui.encoderPosition)) * (BABYSTEP_MULTIPLICATOR_Z);
-        const float babystep_out = mm_thousanths*babystep_increment_f;
-
-        const float diff = mm_thousanths * babystep_increment_f,
-                    new_probe_offset = probe.offset.z + diff,
-                    new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                      , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
-                      , new_probe_offset
-                      );
-                  
-      #else // Use actual babysteps insead of mm
-
-        const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_MULTIPLICATOR_Z);
-        const float babystep_out = babystep_increment;
-        const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                    new_probe_offset = probe.offset.z + diff,
-                    new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                      , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
-                      , new_probe_offset
-                    );
-
-      #endif
-
+      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
       ui.encoderPosition = 0;
 
-
+      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+                  new_probe_offset = probe.offset.z + diff,
+                  new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
+                    , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
+                    , new_probe_offset
+                  );
       if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
-        #if ENABLED(BABYSTEP_ZPROBE_OFFSET_USE_MM) // Use mm directly
-
-          babystep.add_mm(Z_AXIS, babystep_out);
-
-        #else
-
-          babystep.add_steps(Z_AXIS, babystep_out);
-
-        #endif
+        babystep.add_steps(Z_AXIS, babystep_increment);
 
         if (do_probe)
           probe.offset.z = new_offs;
