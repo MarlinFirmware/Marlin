@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 #pragma once
 
 // Pt100 with 1k0 pullup
-const short temptable_110[][2] PROGMEM = {
+const temp_entry_t temptable_110[] PROGMEM = {
   // only a few values are needed as the curve is very flat
   PtLine(  0, 100, 1000),
   PtLine( 50, 100, 1000),

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -55,9 +55,10 @@
     if (ui.encoderPosition) {
       const int16_t steps = int16_t(ui.encoderPosition) * (
         #if ENABLED(BABYSTEP_XY)
-          axis != Z_AXIS ? BABYSTEP_MULTIPLICATOR_XY :
+          axis == X_AXIS ? BABYSTEP_SIZE_X :
+          axis == Y_AXIS ? BABYSTEP_SIZE_Y :
         #endif
-        BABYSTEP_MULTIPLICATOR_Z
+        BABYSTEP_SIZE_Z
       );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);
@@ -65,23 +66,15 @@
     }
     if (ui.should_draw()) {
       const float spm = planner.steps_to_mm[axis];
-      MenuEditItemBase::draw_edit_screen(msg, LCD_Z_OFFSET_FUNC(spm * babystep.accum));
+      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        const bool in_view = (true
-          #if HAS_GRAPHICAL_LCD
-            && PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1)
-          #endif
-        );
+        const bool in_view = TERN1(HAS_GRAPHICAL_LCD, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
-          #if HAS_GRAPHICAL_LCD
-            ui.set_font(FONT_MENU);
-            lcd_moveto(0, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT);
-          #else
-            lcd_moveto(0, LCD_HEIGHT - 1);
-          #endif
+          TERN_(HAS_GRAPHICAL_LCD, ui.set_font(FONT_MENU));
+          lcd_moveto(0, TERN(HAS_GRAPHICAL_LCD, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
           lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
           lcd_put_wchar(':');
-          lcd_put_u8str(LCD_Z_OFFSET_FUNC(spm * babystep.axis_total[BS_TOTAL_AXIS(axis)]));
+          lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
         }
       #endif
     }
@@ -126,27 +119,28 @@ void menu_tune() {
   // Nozzle [1-4]:
   //
   #if HOTENDS == 1
-    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - 15, []{ thermalManager.start_watching_hotend(0); });
-  #elif HOTENDS > 1
+    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(0); });
+  #elif HAS_MULTI_HOTEND
     HOTEND_LOOP()
-      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, heater_maxtemp[e] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
-  #if ENABLED(SINGLENOZZLE)
-    EDIT_ITEM_FAST(uint16_3, MSG_NOZZLE_STANDBY, &singlenozzle_temp[active_extruder ? 0 : 1], 0, HEATER_0_MAXTEMP - 15);
+  #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+    LOOP_S_L_N(e, 1, EXTRUDERS)
+      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
   #endif
 
   //
   // Bed:
   //
   #if HAS_HEATED_BED
-    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
+    EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
   #endif
 
   //
   // Fan Speed:
   //
-  #if FAN_COUNT > 0
+  #if HAS_FAN
 
     auto on_fan_update = []{
       thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
@@ -162,10 +156,10 @@ void menu_tune() {
       };
     #endif
 
-    #define SNFAN(N) (ENABLED(SINGLENOZZLE) && !HAS_FAN##N && EXTRUDERS > N)
+    #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
     #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
       auto singlenozzle_item = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
+        editable.uint8 = singlenozzle_fan_speed[f];
         EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
       };
     #endif
@@ -213,7 +207,7 @@ void menu_tune() {
       singlenozzle_item(1);
     #endif
 
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   //
   // Flow:
@@ -222,7 +216,7 @@ void menu_tune() {
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
     #if EXTRUDERS > 1
-      for (uint8_t n = 0; n < EXTRUDERS; n++)
+      LOOP_L_N(n, EXTRUDERS)
         EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
     #endif
   #endif
@@ -232,10 +226,10 @@ void menu_tune() {
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
     #if EXTRUDERS == 1
-      EDIT_ITEM(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      for (uint8_t n = 0; n < EXTRUDERS; n++)
-        EDIT_ITEM_N(float52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+      LOOP_L_N(n, EXTRUDERS)
+        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
   #endif
 

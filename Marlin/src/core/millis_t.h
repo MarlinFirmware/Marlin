@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,6 +24,10 @@
 #include <stdint.h>
 
 typedef uint32_t millis_t;
+
+#define SEC_TO_MS(N) millis_t((N)*1000UL)
+#define MIN_TO_MS(N) SEC_TO_MS((N)*60UL)
+#define MS_TO_SEC(N) millis_t((N)/1000UL)
 
 #define PENDING(NOW,SOON) ((int32_t)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))

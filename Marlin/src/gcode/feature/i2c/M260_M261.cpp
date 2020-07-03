@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,7 +31,7 @@
 /**
  * M260: Send data to a I2C slave device
  *
- * This is a PoC, the formating and arguments for the GCODE will
+ * This is a PoC, the formatting and arguments for the GCODE will
  * change to be more compatible, the current proposal is:
  *
  *  M260 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to

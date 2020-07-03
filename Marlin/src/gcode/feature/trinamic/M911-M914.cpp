@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
@@ -348,7 +348,7 @@
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
-    LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
+    LOOP_XYZ(i) if (parser.seen(XYZ_CHAR(i))) {
       const int16_t value = parser.value_int();
       report = false;
       switch (i) {
@@ -426,4 +426,4 @@
   }
 #endif // USE_SENSORLESS
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

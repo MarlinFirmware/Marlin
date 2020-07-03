@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -71,13 +71,11 @@ void Marlin_NeoPixel::set_color_startup(const uint32_t color) {
 }
 
 void Marlin_NeoPixel::init() {
-  SET_OUTPUT(NEOPIXEL_PIN);
   set_brightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
   begin();
   show();  // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
-    safe_delay(1000);
     set_color_startup(adaneo1.Color(255, 0, 0, 0));  // red
     safe_delay(1000);
     set_color_startup(adaneo1.Color(0, 255, 0, 0));  // green

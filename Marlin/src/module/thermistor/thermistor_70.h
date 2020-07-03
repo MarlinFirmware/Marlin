@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
 // ANENG AN8009 DMM with a K-type probe used for measurements.
 
 // R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up, bqh2 stock thermistor
-const short temptable_70[][2] PROGMEM = {
+const temp_entry_t temptable_70[] PROGMEM = {
   { OV(  18), 270 },
   { OV(  27), 248 },
   { OV(  34), 234 },

@@ -9,7 +9,6 @@ on:
   pull_request:
     branches:
     - bugfix-2.0.x
-    - dev-2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -29,32 +28,44 @@ jobs:
         - DUE
         - esp32
         - linux_native
-        - megaatmega2560
+        - mega2560
         - teensy31
         - teensy35
+        - SAMD51_grandcentral_m4
 
         # Extended AVR Environments
 
         - FYSETC_F6_13
-        - megaatmega1280
+        - mega1280
         - rambo
-        - sanguino_atmega1284p
-        - sanguino_atmega644p
+        - sanguino1284p
+        - sanguino644p
 
         # Extended STM32 Environments
 
-        - STM32F103RC_bigtree
-        - STM32F103RC_bigtree_USB
-        - STM32F103RE_bigtree
-        - STM32F103RE_bigtree_USB
+        - STM32F103RC_btt
+        - STM32F103RC_btt_USB
+        - STM32F103RE_btt
+        - STM32F103RE_btt_USB
         - STM32F103RC_fysetc
+        - STM32F103RC_meeb
         - jgaurora_a5s_a1
         - STM32F103VE_longer
         - STM32F407VE_black
+        - STM32F401VE_STEVAL
+        - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
+        - BIGTREE_GTR_V1_0
         - mks_robin
         - ARMED
         - FYSETC_S6
+        - STM32F070RB_malyan
+        - malyan_M300
+        - mks_robin_lite
+        - FLYF407ZG
+        - rumba32
+        - mks_robin_pro
+        - STM32F103RET6_creality
 
         # Put lengthy tests last
 
@@ -67,15 +78,11 @@ jobs:
         #- STM32F7
 
         # Non-working environment tests
-
-        #- BIGTREE_BTT002
         #- at90usb1286_cdc
         #- at90usb1286_dfu
         #- STM32F103CB_malyan
-        #- mks_robin_lite
         #- mks_robin_mini
         #- mks_robin_nano
-        #- SAMD51_grandcentral_m4
 
     steps:
 
@@ -98,6 +105,6 @@ jobs:
         # Inline tests script
         [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
         chmod +x buildroot/bin/*
-        chmod +x buildroot/share/tests/*
-        export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
+        chmod +x buildroot/tests/*
+        export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}
         run_tests . ${{ matrix.test-platform }}

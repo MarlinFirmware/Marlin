@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * Vietnamese
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_vi {
@@ -39,7 +39,6 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Đang hủy bỏ...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Phương tiện được cắm vào");             // Media inserted
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Phương tiện được rút ra");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Phương tiện đã phát hành");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Chờ đợi phương tiện");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Lỗi đọc phương tiện");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB được rút ra");
@@ -159,8 +158,8 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Khe nhớ");                              // Memory Slot
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Tải lưới bàn");                         // Load Bed Mesh
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Lưu lưới bàn");                         // Save Bed Mesh
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("M117 %i lưới được nạp");                // Mesh %i loaded
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("M117 %i lưới đã lưu");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("%i lưới được nạp");                // Mesh %i loaded
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("%i lưới đã lưu");
   PROGMEM Language_Str MSG_NO_STORAGE                      = _UxGT("Không lưu trữ");                        // No Storage
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Điều sai: Lưu UBL");                    // Err: UBL Save
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Điều Sai: Khôi Phục UBL");              // Err: UBL Restore
@@ -266,7 +265,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Độ tương phản LCD");                    // LCD contrast
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Lưu các thiết lập");                    // Store settings
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Tải các cài đặt");                      // Load settings
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Khôi phục phòng hư");                   // Restore failsafe
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Khôi phục phòng hư");                   // Restore Defaults
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Khởi Tạo EEPROM");                      // Initialize EEPROM
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Cập Nhật phương tiện");                 // Update media
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Bặt Lại Máy In");
@@ -300,8 +299,8 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Khoảng Cách Rút");                      // Retract Distance
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Thay Đổi Công Cụ");                     // Tool Change
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Đưa Lên Z");                            // Z Raise
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Tốc Độ Tuôn Ra");                       // Prime Speed
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Tốc Độ Rút Lại");                       // Retract Speed
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Tốc Độ Tuôn Ra");                       // Prime Speed
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Tốc Độ Rút Lại");                       // Retract Speed
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Thay dây nhựa");                        // change filament
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Thay dây nhựa *");                      // change filament
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Nạp dây nhựa");                         // load filament
@@ -309,7 +308,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Dỡ dây nhựa");                          // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Dỡ dây nhựa *");                        // unload filament
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Dỡ tất cả");                            // Unload All
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Khởi tạo phương tiện");                 // Init. media
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Khởi tạo phương tiện");                 // Attach media
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Thay phương tiện");                     // Change midea
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Phát hành phương tiện");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Đầu Dò Z qua bàn");                     // Z Probe past bed
@@ -403,7 +402,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Tiếp tục");                             // continue
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Đầu Phun: ");                         // Nozzle
   PROGMEM Language_Str MSG_RUNOUT_SENSOR_ENABLE            = _UxGT("Cảm Biến Hết");                         // Runout Sensor
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Sự nhà không thành công");              // Homing failed
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Sự nhà không thành công");              // Homing failed
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT(" không thành công");                    // Probing failed
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Quá lạnh");
 

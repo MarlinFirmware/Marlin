@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,10 +21,10 @@
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE
+#define REVERSE_TEMP_SENSOR_RANGE_20 1
 
 // Pt100 with INA826 amp on Ultimaker v2.0 electronics
-const short temptable_20[][2] PROGMEM = {
+const temp_entry_t temptable_20[] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
   { OV(236),   10 },

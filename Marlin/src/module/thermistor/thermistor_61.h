@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,7 +30,7 @@
 // Resistance Tolerance     + / -1%
 // B Value             3950K at 25/50 deg. C
 // B Value Tolerance         + / - 1%
-const short temptable_61[][2] PROGMEM = {
+const temp_entry_t temptable_61[] PROGMEM = {
   { OV(   2.00), 420 }, // Guestimate to ensure we dont lose a reading and drop temps to -50 when over
   { OV(  12.07), 350 },
   { OV(  12.79), 345 },

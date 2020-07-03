@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 3960 K, 4.7 kOhm pull-up, RS thermistor 198-961
-const short temptable_10[][2] PROGMEM = {
+const temp_entry_t temptable_10[] PROGMEM = {
   { OV(   1), 929 },
   { OV(  36), 299 },
   { OV(  71), 246 },

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,46 +31,65 @@
 #if HAS_SERVO_ANGLES
 
   #if ENABLED(SWITCHING_EXTRUDER)
-    #ifndef SWITCHING_EXTRUDER_E23_SERVO_NR
-      #define SWITCHING_EXTRUDER_E23_SERVO_NR -1
-    #endif
+    // Switching extruder can have 2 or 4 angles
     #if EXTRUDERS > 3
       #define REQ_ANGLES 4
     #else
       #define REQ_ANGLES 2
     #endif
-    #define SADATA    SWITCHING_EXTRUDER_SERVO_ANGLES
-    #define ASRC(N,E) (SWITCHING_EXTRUDER_SERVO_NR == N ? asrc[E] : SWITCHING_EXTRUDER_E23_SERVO_NR == N ? asrc[E+2] : 0)
-  #elif ENABLED(SWITCHING_NOZZLE)
-    #define SADATA    SWITCHING_NOZZLE_SERVO_ANGLES
-    #define ASRC(N,E) (SWITCHING_NOZZLE_SERVO_NR == N ? asrc[E] : 0)
-  #elif defined(Z_PROBE_SERVO_NR)
-    #define ASRC(N,E) (Z_PROBE_SERVO_NR == N ? asrc[E] : 0)
+    constexpr uint16_t sase[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+    static_assert(COUNT(sase) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
+  #else
+    constexpr uint16_t sase[4] = { 0 };
+  #endif
+
+  #if ENABLED(SWITCHING_NOZZLE)
+    constexpr uint16_t sasn[] = SWITCHING_NOZZLE_SERVO_ANGLES;
+    static_assert(COUNT(sasn) == 2, "SWITCHING_NOZZLE_SERVO_ANGLES needs 2 angles.");
+  #else
+    constexpr uint16_t sasn[2] = { 0 };
+  #endif
+
+  #ifdef Z_PROBE_SERVO_NR
     #if ENABLED(BLTOUCH)
       #include "../feature/bltouch.h"
+      #undef Z_SERVO_ANGLES
+      #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
     #endif
-    #ifdef BLTOUCH_ANGLES
-      #define SADATA  BLTOUCH_ANGLES
-    #elif defined(Z_SERVO_ANGLES)
-      #define SADATA  Z_SERVO_ANGLES
-    #else
-      #error "Servo angles are needed!"
-    #endif
+    constexpr uint16_t sazp[] = Z_SERVO_ANGLES;
+    static_assert(COUNT(sazp) == 2, "Z_SERVO_ANGLES needs 2 angles.");
+  #else
+    constexpr uint16_t sazp[2] = { 0 };
   #endif
+
+  #ifndef SWITCHING_EXTRUDER_SERVO_NR
+    #define SWITCHING_EXTRUDER_SERVO_NR -1
+  #endif
+  #ifndef SWITCHING_EXTRUDER_E23_SERVO_NR
+    #define SWITCHING_EXTRUDER_E23_SERVO_NR -1
+  #endif
+  #ifndef SWITCHING_NOZZLE_SERVO_NR
+    #define SWITCHING_NOZZLE_SERVO_NR -1
+  #endif
+  #ifndef Z_PROBE_SERVO_NR
+    #define Z_PROBE_SERVO_NR -1
+  #endif
+
+  #define ASRC(N,I) (                                  \
+      N == SWITCHING_EXTRUDER_SERVO_NR     ? sase[I]   \
+    : N == SWITCHING_EXTRUDER_E23_SERVO_NR ? sase[I+2] \
+    : N == SWITCHING_NOZZLE_SERVO_NR       ? sasn[I]   \
+    : N == Z_PROBE_SERVO_NR                ? sazp[I]   \
+    : 0                                                )
 
   #if ENABLED(EDITABLE_SERVO_ANGLES)
     extern uint16_t servo_angles[NUM_SERVOS][2];
-    #define BASE_SERVO_ANGLES base_servo_angles
+    #define CONST_SERVO_ANGLES base_servo_angles
   #else
-    #define BASE_SERVO_ANGLES servo_angles
+    #define CONST_SERVO_ANGLES servo_angles
   #endif
 
-  constexpr uint16_t asrc[] = SADATA;
-  #if REQ_ANGLES
-    static_assert(COUNT(asrc) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
-  #endif
-
-  constexpr uint16_t BASE_SERVO_ANGLES [NUM_SERVOS][2] = {
+  constexpr uint16_t CONST_SERVO_ANGLES [NUM_SERVOS][2] = {
       { ASRC(0,0), ASRC(0,1) }
     #if NUM_SERVOS > 1
       , { ASRC(1,0), ASRC(1,1) }

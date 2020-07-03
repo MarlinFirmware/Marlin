@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 
 // 100k thermistor supplied with RPW-Ultra hotend, 4.7k pullup
 
-const short temptable_512[][2] PROGMEM = {
+const temp_entry_t temptable_512[] PROGMEM = {
   { OV(26),  300 },
   { OV(28),  295 },
   { OV(30),  290 },

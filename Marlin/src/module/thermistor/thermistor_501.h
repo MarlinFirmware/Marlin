@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 #pragma once
 
 // 100k Zonestar thermistor. Adjusted By Hally
-const short temptable_501[][2] PROGMEM = {
+const temp_entry_t temptable_501[] PROGMEM = {
    { OV(   1), 713 },
    { OV(  14), 300 }, // Top rating 300C
    { OV(  16), 290 },
