@@ -65,49 +65,49 @@ namespace Language_de {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Homeversatz aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_1                       = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_1_H                     = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                   = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = PREHEAT_1_LABEL _UxGT(" Einstellungen");
+    PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = PREHEAT_1_LABEL _UxGT(" Einstellungen");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                       = PREHEAT_2_LABEL _UxGT(" Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_2_H                     = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                   = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ~");
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = PREHEAT_2_LABEL _UxGT(" Alles Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = PREHEAT_2_LABEL _UxGT(" Bett Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = PREHEAT_2_LABEL _UxGT(" Einstellungen");
+    PROGMEM Language_Str MSG_PREHEAT_2                     = PREHEAT_2_LABEL _UxGT(" Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_2_H                   = PREHEAT_2_LABEL _UxGT(" Vorwärmen") " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                 = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = PREHEAT_2_LABEL _UxGT(" Extr. Vorwärm. ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = PREHEAT_2_LABEL _UxGT(" Alles Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = PREHEAT_2_LABEL _UxGT(" Bett Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = PREHEAT_2_LABEL _UxGT(" Einstellungen");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                       = PREHEAT_3_LABEL _UxGT(" Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_3_H                     = PREHEAT_3_LABEL _UxGT(" Vorwärmen") " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                   = PREHEAT_3_LABEL _UxGT(" Extr. Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = PREHEAT_3_LABEL _UxGT(" Extr. Vorwärm. ~");
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = PREHEAT_3_LABEL _UxGT(" Alles Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = PREHEAT_3_LABEL _UxGT(" Bett Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = PREHEAT_3_LABEL _UxGT(" Einstellungen");
+    PROGMEM Language_Str MSG_PREHEAT_3                     = PREHEAT_3_LABEL _UxGT(" Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_3_H                   = PREHEAT_3_LABEL _UxGT(" Vorwärmen") " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                 = PREHEAT_3_LABEL _UxGT(" Extr. Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = PREHEAT_3_LABEL _UxGT(" Extr. Vorwärm. ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = PREHEAT_3_LABEL _UxGT(" Alles Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = PREHEAT_3_LABEL _UxGT(" Bett Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = PREHEAT_3_LABEL _UxGT(" Einstellungen");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                       = PREHEAT_4_LABEL _UxGT(" Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_4_H                     = PREHEAT_4_LABEL _UxGT(" Vorwärmen") " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                   = PREHEAT_4_LABEL _UxGT(" Extr. Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = PREHEAT_4_LABEL _UxGT(" Extr. Vorwärm. ~");
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = PREHEAT_4_LABEL _UxGT(" Alles Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = PREHEAT_4_LABEL _UxGT(" Bett Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = PREHEAT_4_LABEL _UxGT(" Einstellungen");
+    PROGMEM Language_Str MSG_PREHEAT_4                     = PREHEAT_4_LABEL _UxGT(" Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_4_H                   = PREHEAT_4_LABEL _UxGT(" Vorwärmen") " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                 = PREHEAT_4_LABEL _UxGT(" Extr. Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = PREHEAT_4_LABEL _UxGT(" Extr. Vorwärm. ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = PREHEAT_4_LABEL _UxGT(" Alles Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = PREHEAT_4_LABEL _UxGT(" Bett Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = PREHEAT_4_LABEL _UxGT(" Einstellungen");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                       = PREHEAT_5_LABEL _UxGT(" Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_5_H                     = PREHEAT_5_LABEL _UxGT(" Vorwärmen") " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                   = PREHEAT_5_LABEL _UxGT(" Extr. Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = PREHEAT_5_LABEL _UxGT(" Extr. Vorwärm. ~");
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = PREHEAT_5_LABEL _UxGT(" Alles Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = PREHEAT_5_LABEL _UxGT(" Bett Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = PREHEAT_5_LABEL _UxGT(" Einstellungen");
+    PROGMEM Language_Str MSG_PREHEAT_5                     = PREHEAT_5_LABEL _UxGT(" Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_5_H                   = PREHEAT_5_LABEL _UxGT(" Vorwärmen") " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                 = PREHEAT_5_LABEL _UxGT(" Extr. Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = PREHEAT_5_LABEL _UxGT(" Extr. Vorwärm. ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = PREHEAT_5_LABEL _UxGT(" Alles Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = PREHEAT_5_LABEL _UxGT(" Bett Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = PREHEAT_5_LABEL _UxGT(" Einstellungen");
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("benutzerdef. Heizen");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Abkühlen");

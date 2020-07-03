@@ -73,49 +73,49 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Desfases aplicados");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Fixar orixe");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Prequentar ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Todo");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Cama");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" conf");
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Prequentar ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" conf");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Prequentar ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Prequentar ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Todo");
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Cama");
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" conf");
+    PROGMEM Language_Str MSG_PREHEAT_2                     = _UxGT("Prequentar ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                   = _UxGT("Prequentar ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                 = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = _UxGT("Preque. ") PREHEAT_2_LABEL _UxGT(" conf");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Prequentar ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Prequentar ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Todo");
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Cama");
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" conf");
+    PROGMEM Language_Str MSG_PREHEAT_3                     = _UxGT("Prequentar ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                   = _UxGT("Prequentar ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                 = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = _UxGT("Preque. ") PREHEAT_3_LABEL _UxGT(" conf");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Prequentar ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Prequentar ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Todo");
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Cama");
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" conf");
+    PROGMEM Language_Str MSG_PREHEAT_4                     = _UxGT("Prequentar ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                   = _UxGT("Prequentar ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                 = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = _UxGT("Preque. ") PREHEAT_4_LABEL _UxGT(" conf");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Prequentar ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Prequentar ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Todo");
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Cama");
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" conf");
+    PROGMEM Language_Str MSG_PREHEAT_5                     = _UxGT("Prequentar ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                   = _UxGT("Prequentar ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                 = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = _UxGT("Preque. ") PREHEAT_5_LABEL _UxGT(" conf");
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preque. Personali.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Arrefriar");
