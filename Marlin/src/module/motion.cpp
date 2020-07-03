@@ -1443,22 +1443,23 @@ void set_axis_not_trusted(const AxisEnum axis) {
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
 }
 
-/**
- * Move the axis back to its home_phase if set and driver is capable (TMC)
- *
- * Improves homing repeatability by homing to stepper coil's nearest absolute
- * phase position. Trinamic drivers use a stepper phase table with 1024 values
- * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
- */
-void backout_to_tmc_homing_phase(const AxisEnum axis) {
-  #ifdef TMC_HOME_PHASE
-    const abc_long_t home_phase = TMC_HOME_PHASE;
+#ifdef TMC_HOME_PHASE
+  /**
+   * Move the axis back to its home_phase if set and driver is capable (TMC)
+   *
+   * Improves homing repeatability by homing to stepper coil's nearest absolute
+   * phase position. Trinamic drivers use a stepper phase table with 1024 values
+   * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
+   */
+  void backout_to_tmc_homing_phase(const AxisEnum axis) {
+    const xyz_long_t home_phase = TMC_HOME_PHASE;
 
     // check if home phase is disabled for this axis.
     if (home_phase[axis] < 0) return;
 
-    int16_t axisMicrostepSize;
-    int16_t phaseCurrent;
+    int16_t axisMicrostepSize,
+            phaseCurrent,
+            homeDir;
     bool invertDir;
 
     switch (axis) {
@@ -1466,21 +1467,24 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
         case X_AXIS:
           axisMicrostepSize = 256 / (X_MICROSTEPS);
           phaseCurrent = stepperX.get_microstep_counter();
-          invertDir = INVERT_X_DIR;
+          invertDir = INVERT_X_DIR ^ (X_HOME_DIR > 0);
+          homeDir = X_HOME_DIR;
           break;
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
           axisMicrostepSize = 256 / (Y_MICROSTEPS);
           phaseCurrent = stepperY.get_microstep_counter();
-          invertDir = INVERT_Y_DIR;
+          invertDir = INVERT_Y_DIR ^ (Y_HOME_DIR > 0);
+          homeDir = Y_HOME_DIR;
           break;
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
           axisMicrostepSize = 256 / (Z_MICROSTEPS);
           phaseCurrent = stepperZ.get_microstep_counter();
-          invertDir = INVERT_Z_DIR;
+          invertDir = (INVERT_Z_DIR) ^ (Z_HOME_DIR > 0);
+          homeDir = Z_HOME_DIR;
           break;
       #endif
       default: return;
@@ -1498,8 +1502,8 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
-    // Get the integer µsteps to target. Unreachable phase? Consistently stop at the µstep before / after based on invertDir.
-    const float mmDelta = -(int16_t(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * (Z_HOME_DIR));
+    // Convert µsteps to mm to be on phase
+    const float mmDelta = (-phaseDelta * homeDir) * planner.steps_to_mm[axis] / axisMicrostepSize;
 
     // optional debug messages.
     if (DEBUGGING(LEVELING)) {
@@ -1513,10 +1517,8 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
       // retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
     }
-  #else
-    UNUSED(axis);
-  #endif
-}
+  }
+#endif
 
 
 /**
@@ -1748,8 +1750,10 @@ void homeaxis(const AxisEnum axis) {
     }
   #endif
 
-  // move back to homing phase if configured and capable
-  backout_to_tmc_homing_phase(axis);
+  #ifdef TMC_HOME_PHASE
+    // move back to homing phase if configured and capable
+    backout_to_tmc_homing_phase(axis);
+  #endif
 
   #if IS_SCARA
 
