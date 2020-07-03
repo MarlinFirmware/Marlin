@@ -68,14 +68,13 @@
 #define LCD_PINS_D4                          30   // ST9720 CLK
 
 #if ENABLED(BLTOUCH)
-  #undef FIL_RUNOUT_PIN                           // Uses Beeper/LED Pin Pulled to GND
   #define SERVO0_PIN                         27
   #undef BEEPER_PIN
 #elif ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN                     27
+    #define FIL_RUNOUT_PIN                   27
   #endif
-  #if (FIL_RUNOUT_PIN == BEEPER_PIN)
+  #if FIL_RUNOUT_PIN == BEEPER_PIN
     #undef BEEPER_PIN
   #endif
 #endif
