@@ -211,7 +211,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
   #endif
 
   bool MarlinUI::lcd_clicked;
-  float move_menu_scale;
 
   bool MarlinUI::use_click() {
     const bool click = lcd_clicked;
@@ -388,7 +387,7 @@ bool MarlinUI::get_blink() {
     void lcd_move_z();
 
     void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
-      move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+      ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
       ui.encoderPosition = dir;
       switch (axis) {
         case X_AXIS: lcd_move_x(); break;
@@ -637,51 +636,65 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 #if HAS_LCD_MENU
 
-  int8_t MarlinUI::manual_move_axis = (int8_t)NO_AXIS;
-  millis_t MarlinUI::manual_move_start_time = 0;
+  ManualMove MarlinUI::manual_move{};
 
-  #if IS_KINEMATIC
-    bool MarlinUI::processing_manual_move = false;
-    float MarlinUI::manual_move_offset = 0;
-  #endif
-
-  #if MULTI_MANUAL
-    int8_t MarlinUI::manual_move_e_index = 0;
-  #endif
+  millis_t ManualMove::start_time = 0;
+  float ManualMove::menu_scale = 1;
+  TERN_(IS_KINEMATIC, float ManualMove::offset = 0);
+  TERN_(IS_KINEMATIC, bool ManualMove::processing = false);
+  TERN_(MULTI_MANUAL, int8_t ManualMove::e_index = 0);
+  uint8_t ManualMove::axis = (uint8_t)NO_AXIS;
 
   /**
-   * If the most recent manual move hasn't been fed to the planner yet,
-   * and the planner can accept one, send a move immediately.
+   * If a manual move has been posted and its time has arrived, and if the planner
+   * has a space for it, then add a linear move to current_position the planner.
+   *
+   * If any manual move needs to be interrupted, make sure to force a manual move
+   * by setting manual_move.start_time to millis() after updating current_position.
+   *
+   * To post a manual move:
+   *   - Update current_position to the new place you want to go.
+   *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES for diagonal moves.
+   *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
+   *
+   * For kinematic machines:
+   *   - Set manual_move.offset to modify one axis and post the move.
+   *     This is used to achieve more rapid stepping on kinematic machines.
+   *
+   * Currently used by the _lcd_move_xyz function in menu_motion.cpp
+   * and the ubl_map_move_to_xy funtion in menu_ubl.cpp.
    */
-  void MarlinUI::manage_manual_move() {
+  void ManualMove::task() {
 
-    if (processing_manual_move) return;
+    if (processing) return;   // Prevent re-entry from idle() calls
 
-    if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
+    // Add a manual move to the queue?
+    if (axis != (uint8_t)NO_AXIS && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = manual_feedrate_mm_s[manual_move_axis];
+      const feedRate_t fr_mm_s = (uint8_t(axis) <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+
       #if IS_KINEMATIC
 
         #if EXTRUDERS > 1
           const int8_t old_extruder = active_extruder;
-          if (manual_move_axis == E_AXIS) active_extruder = manual_move_e_index;
+          if (axis == E_AXIS) active_extruder = e_index;
         #endif
 
-        // Set movement on a single axis
+        // Apply a linear offset to a single axis
         destination = current_position;
-        destination[manual_move_axis] += manual_move_offset;
+        if (axis <= XYZE) destination[axis] += offset;
 
         // Reset for the next move
-        manual_move_offset = 0;
-        manual_move_axis = (int8_t)NO_AXIS;
+        offset = 0;
+        axis = (uint8_t)NO_AXIS;
 
         // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
         // move_to_destination. This will cause idle() to be called, which can then call this function while the
-        // previous invocation is being blocked. Modifications to manual_move_offset shouldn't be made while
-        // processing_manual_move is true or the planner will get out of sync.
-        processing_manual_move = true;
+        // previous invocation is being blocked. Modifications to offset shouldn't be made while
+        // processing is true or the planner will get out of sync.
+        processing = true;
         prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
-        processing_manual_move = false;
+        processing = false;
 
         #if EXTRUDERS > 1
           active_extruder = old_extruder;
@@ -689,14 +702,46 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
       #else
 
-        planner.buffer_line(current_position, fr_mm_s, manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
-        manual_move_axis = (int8_t)NO_AXIS;
+        // For Cartesian / Core motion simply move to the current_position
+        planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
+
+        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", int(axis), " at FR ", fr_mm_s);
+
+        axis = (uint8_t)NO_AXIS;
 
       #endif
     }
   }
 
+  //
+  // Tell ui.update() to start a move to current_position after a short delay.
+  //
+  void ManualMove::soon(AxisEnum move_axis
+    #if MULTI_MANUAL
+      , const int8_t eindex/*=-1*/
+    #endif
+  ) {
+    #if MULTI_MANUAL
+      if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
+    #endif
+    start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
+    axis = (uint8_t)move_axis;
+    //SERIAL_ECHOLNPAIR("Post Move with Axis ", int(axis), " soon.");
+  }
+
 #endif // HAS_LCD_MENU
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+
+  void MarlinUI::external_encoder() {
+    if (external_control && encoderDiff) {
+      ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
+      encoderDiff = 0;                  // Hide encoder events from the screen handler
+      refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
+    }
+  }
+
+#endif
 
 /**
  * Update the LCD, read encoder buttons, etc.
@@ -753,7 +798,7 @@ void MarlinUI::update() {
   #if HAS_LCD_MENU
 
     // Handle any queued Move Axis motion
-    manage_manual_move();
+    manual_move.task();
 
     // Update button states for button_pressed(), etc.
     // If the state changes the next update may be delayed 300-500ms.
@@ -776,7 +821,7 @@ void MarlinUI::update() {
           if (ELAPSED(ms, next_button_update_ms)) {
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
             if (touch_buttons & EN_A) encoderDiff *= -1;
-            TERN_(AUTO_BED_LEVELING_UBL, if (external_control) ubl.encoder_diff = encoderDiff);
+            TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
             next_button_update_ms = ms + repeat_delay;    // Assume the repeat delay
             if (!wait_for_unclick) {
               next_button_update_ms += 250;               // Longer delay on first press
@@ -1196,10 +1241,7 @@ void MarlinUI::update() {
           case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
           case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
         }
-        if (external_control) {
-          TERN_(AUTO_BED_LEVELING_UBL, ubl.encoder_diff = encoderDiff); // Make encoder rotation available to UBL G29 mesh editing.
-          encoderDiff = 0;                    // Hide the encoder event from the current screen handler.
-        }
+        TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
         lastEncoderBits = enc;
       }
 

@@ -49,46 +49,36 @@ static int8_t x_plot = 0, y_plot = 0; // May be negative during move
   static int16_t custom_bed_temp = 50;
 #endif
 
-float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5 decimal places. So we keep a
-                                              // separate value that doesn't lose precision.
-static int16_t ubl_encoderPosition = 0;
+float mesh_edit_accumulator;  // Rounded to 2.5 decimal places on use
+
+inline float rounded_mesh_value() {
+  const int32_t rounded = int32_t(mesh_edit_accumulator * 1000);
+  return float(rounded - (rounded % 5L)) / 1000;
+}
 
 static void _lcd_mesh_fine_tune(PGM_P const msg) {
   ui.defer_status_screen();
   if (ubl.encoder_diff) {
-    ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
+    mesh_edit_accumulator += ubl.encoder_diff > 0 ? 0.005f : -0.005f;
     ubl.encoder_diff = 0;
-
-    mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005f * 0.5f;
-    mesh_edit_value = mesh_edit_accumulator;
-    ui.encoderPosition = 0;
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-
-    const int32_t rounded = (int32_t)(mesh_edit_value * 1000);
-    mesh_edit_value = float(rounded - (rounded % 5L)) / 1000;
   }
 
   if (ui.should_draw()) {
-    MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
-    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(mesh_edit_value));
+    const float rounded_f = rounded_mesh_value();
+    MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
+    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
   }
 }
 
-void lcd_limbo() {
-  ui.currentScreen = []{};
-  ui.defer_status_screen();
-}
-
-float lcd_mesh_edit() {
-  lcd_limbo();
-  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-  _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDITOR));
-  return mesh_edit_value;
-}
+//
+// Called external to the menu system to acquire the result of an edit.
+//
+float lcd_mesh_edit() { return rounded_mesh_value(); }
 
 void lcd_mesh_edit_setup(const float &initial) {
-  mesh_edit_value = mesh_edit_accumulator = initial;
-  lcd_limbo();
+  mesh_edit_accumulator = initial;
+  ui.goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
 }
 
 void _lcd_z_offset_edit() {
@@ -97,11 +87,11 @@ void _lcd_z_offset_edit() {
 
 float lcd_z_offset_edit() {
   ui.goto_screen(_lcd_z_offset_edit);
-  return mesh_edit_value;
+  return rounded_mesh_value();
 }
 
 void lcd_z_offset_edit_setup(const float &initial) {
-  mesh_edit_value = mesh_edit_accumulator = initial;
+  mesh_edit_accumulator = initial;
   ui.goto_screen(_lcd_z_offset_edit);
 }
 
@@ -391,23 +381,9 @@ void _lcd_ubl_storage_mesh() {
 }
 
 /**
- * UBL LCD "radar" map homing
- */
-void _lcd_ubl_output_map_lcd();
-
-void _lcd_ubl_map_homing() {
-  ui.defer_status_screen();
-  _lcd_draw_homing();
-  if (all_axes_homed()) {
-    ubl.lcd_map_control = true; // Return to the map screen
-    ui.goto_screen(_lcd_ubl_output_map_lcd);
-  }
-}
-
-/**
  * UBL LCD "radar" map point editing
  */
-void _lcd_ubl_map_lcd_edit_cmd() {
+void _lcd_ubl_map_edit_cmd() {
   char ubl_lcd_gcode[50], str[10], str2[10];
   dtostrf(ubl.mesh_index_to_xpos(x_plot), 0, 2, str);
   dtostrf(ubl.mesh_index_to_ypos(y_plot), 0, 2, str2);
@@ -419,85 +395,122 @@ void _lcd_ubl_map_lcd_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
-  const feedRate_t fr_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
-
-  destination = current_position;          // sync destination at the start
 
   #if ENABLED(DELTA)
-    if (current_position.z > delta_clip_start_height) {
+    if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
+      destination = current_position;
       destination.z = delta_clip_start_height;
-      prepare_internal_move_to_destination(fr_mm_s);
+      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
     }
   #endif
 
-  destination.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
-  prepare_internal_move_to_destination(fr_mm_s);
+  // Set the nozzle position to the mesh point
+  current_position.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
+
+  // Use the built-in manual move handler
+  ui.manual_move.soon(ALL_AXES);
+}
+
+inline int32_t grid_index(const uint8_t x, const uint8_t y) {
+  return (GRID_MAX_POINTS_X) * y + x;
 }
 
 /**
  * UBL LCD "radar" map
  */
-void _lcd_ubl_output_map_lcd() {
+void ubl_map_screen() {
+  // static millis_t next_move = 0;
+  // const millis_t ms = millis();
 
-  static int16_t step_scaler = 0;
+  uint8_t x, y;
 
-  if (ui.use_click()) return _lcd_ubl_map_lcd_edit_cmd();
+  if (ui.first_page) {
 
-  if (ui.encoderPosition) {
-    step_scaler += int32_t(ui.encoderPosition);
-    x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
-    ui.encoderPosition = 0;
-    ui.refresh(LCDVIEW_REDRAW_NOW);
-  }
+    // On click send "G29 P4 ..." to edit the Z value
+    if (ui.use_click()) {
+      _lcd_ubl_map_edit_cmd();
+      return;
+    }
 
-  #define KEEP_LOOPING ENABLED(IS_KINEMATIC) // Loop until a valid point is found
-
-  do {
-    // Encoder to the right (++)
-    if (x_plot >= GRID_MAX_POINTS_X) { x_plot = 0; y_plot++; }
-    if (y_plot >= GRID_MAX_POINTS_Y) y_plot = 0;
-
-    // Encoder to the left (--)
-    if (x_plot < 0) { x_plot = GRID_MAX_POINTS_X - 1; y_plot--; }
-    if (y_plot < 0) y_plot = GRID_MAX_POINTS_Y - 1;
+    ui.defer_status_screen();
 
     #if IS_KINEMATIC
-      const xy_pos_t xy = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) };
-      if (position_is_reachable(xy)) break; // Found a valid point
-      x_plot += (step_scaler < 0) ? -1 : 1;
+      // Index of the mesh point upon entry
+      const uint32_t old_pos_index = grid_index(x_plot, y_plot);
+      // Direction from new (unconstrained) encoder value
+      const int8_t step_dir = int32_t(ui.encoderPosition) < old_pos_index ? -1 : 1;
     #endif
 
-  } while(KEEP_LOOPING);
+    do {
+      // Now, keep the encoder position within range
+      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS - 1;
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = 0;
 
-  // Determine number of points to edit
-  #if IS_KINEMATIC
-    n_edit_pts = 9; //TODO: Delta accessible edit points
-  #else
-    const bool xc = WITHIN(x_plot, 1, GRID_MAX_POINTS_X - 2),
-               yc = WITHIN(y_plot, 1, GRID_MAX_POINTS_Y - 2);
-    n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
-  #endif
+      // Draw the grid point based on the encoder
+      x = ui.encoderPosition % (GRID_MAX_POINTS_X);
+      y = ui.encoderPosition / (GRID_MAX_POINTS_X);
 
-  // Cleanup
-  if (ABS(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
+      // Validate if needed
+      #if IS_KINEMATIC
+        const xy_pos_t xy = { ubl.mesh_index_to_xpos(x), ubl.mesh_index_to_ypos(y) };
+        if (position_is_reachable(xy)) break; // Found a valid point
+        ui.encoderPosition += step_dir;       // Test the next point
+      #endif
+    } while(ENABLED(IS_KINEMATIC));
 
-  if (ui.should_draw()) {
-    ui.ubl_plot(x_plot, y_plot);
-    if (!planner.movesplanned())
-      ubl_map_move_to_xy();       // Move to new location
+    // Determine number of points to edit
+    #if IS_KINEMATIC
+      n_edit_pts = 9; // TODO: Delta accessible edit points
+    #else
+      const bool xc = WITHIN(x, 1, GRID_MAX_POINTS_X - 2),
+                 yc = WITHIN(y, 1, GRID_MAX_POINTS_Y - 2);
+      n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
+    #endif
+
+    // Refresh is also set by encoder movement
+    //if (int32_t(ui.encoderPosition) != grid_index(x, y))
+    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+  }
+
+  // Draw the grid point based on the encoder
+  x = ui.encoderPosition % (GRID_MAX_POINTS_X);
+  y = ui.encoderPosition / (GRID_MAX_POINTS_X);
+
+  if (ui.should_draw()) ui.ubl_plot(x, y);
+
+  // Add a move if needed to match the grid point
+  if (x != x_plot || y != y_plot) {
+    x_plot = x; y_plot = y;   // The move is always posted, so update the grid point now
+    ubl_map_move_to_xy();     // Sets up a "manual move"
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); // Clean up a half drawn box
+  }
+}
+
+/**
+ * UBL LCD "radar" map homing
+ */
+void _ubl_map_screen_homing() {
+  ui.defer_status_screen();
+  _lcd_draw_homing();
+  if (all_axes_homed()) {
+    ubl.lcd_map_control = true;     // Return to the map screen after editing Z
+    ui.goto_screen(ubl_map_screen, grid_index(x_plot, y_plot)); // Pre-set the encoder value
+    ui.manual_move.menu_scale = 0;  // Immediate move
+    ubl_map_move_to_xy();           // Move to current mesh point
+    ui.manual_move.menu_scale = 1;  // Delayed moves
   }
 }
 
 /**
  * UBL Homing before LCD map
  */
-void _lcd_ubl_output_map_lcd_cmd() {
+void _ubl_goto_map_screen() {
+  if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
   if (!all_axes_known()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }
-  if (planner.movesplanned()) return;
-  ui.goto_screen(_lcd_ubl_map_homing);
+  ui.goto_screen(_ubl_map_screen_homing); // Go to the "Homing" screen
 }
 
 /**
@@ -591,7 +604,7 @@ void _lcd_ubl_level_bed() {
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
-  ACTION_ITEM(MSG_UBL_MESH_EDIT, _lcd_ubl_output_map_lcd_cmd);
+  ACTION_ITEM(MSG_UBL_MESH_EDIT, _ubl_goto_map_screen);
   SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
