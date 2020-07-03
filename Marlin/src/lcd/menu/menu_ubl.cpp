@@ -325,19 +325,19 @@ void _lcd_ubl_build_mesh() {
   BACK_ITEM(MSG_UBL_TOOLS);
   #if PREHEAT_COUNT
     #if HAS_HEATED_BED
-      #define BUILD_MESH_GCODE_ITEM(p)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##p, PSTR(  \
+      #define BUILD_MESH_GCODE_ITEM(M)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##M, PSTR(  \
                                           "G28\n" \
-                                          "M190 S" STRINGIFY(PREHEAT_##p##_TEMP_BED) "\n" \
-                                          "M109 S" STRINGIFY(PREHEAT_##p##_TEMP_HOTEND) "\n"  \
-                                          "G29 P1\n"  \
+                                          "M190 I" STRINGIFY(DECREMENT(M)) "\n" \
+                                          "M109 I" STRINGIFY(DECREMENT(M)) "\n"  \
+                                          "G29 P1\n" \
                                           "M104 S0\n" \
                                           "M140 S0" \
                                         ))
     #else
       #define BUILD_MESH_GCODE_ITEM(p)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##p, PSTR(  \
                                           "G28\n" \
-                                           "M109 S" STRINGIFY(PREHEAT_##p##_TEMP_HOTEND) "\n" \
-                                          "G29 P1\n"  \
+                                          "M109 I" STRINGIFY(DECREMENT(p)) "\n" \
+                                          "G29 P1\n" \
                                           "M104 S0" \
                                         ))
     #endif
