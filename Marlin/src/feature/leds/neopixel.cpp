@@ -35,7 +35,7 @@
 #endif
 
 Marlin_NeoPixel neo;
-uint8_t Marlin_NeoPixel::neoindex;
+int8_t Marlin_NeoPixel::neoindex;
 
 Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800)
   #if MULTIPLE_NEOPIXEL_TYPES
