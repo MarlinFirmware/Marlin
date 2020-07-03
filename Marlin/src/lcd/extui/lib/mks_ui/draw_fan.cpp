@@ -117,9 +117,9 @@ void lv_draw_fan(void) {
   lv_obj_t *buttonAdd, *buttonDec, *buttonHigh, *buttonMid;
   lv_obj_t *buttonOff, *buttonBack;
 
-	#if FAN_COUNT > 0
-	fanSpeed = thermalManager.fan_speed[0];
-	#endif
+  #if FAN_COUNT > 0
+    fanSpeed = thermalManager.fan_speed[0];
+  #endif
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != FAN_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = FAN_UI;
@@ -133,7 +133,7 @@ void lv_draw_fan(void) {
   lv_obj_clean(scr);
 
   lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_lable_rel);
+  lv_obj_set_style(title, &tft_style_label_rel);
   lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
   lv_label_set_text(title, creat_title_text());
 
@@ -152,39 +152,39 @@ void lv_draw_fan(void) {
   lv_obj_set_event_cb_mks(buttonAdd, event_handler, ID_F_ADD, "bmp_Add.bin", 0);
   lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_REL, &bmp_pic);
   lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_PR, &bmp_pic);
-  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_lable_pre);
-  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_lable_rel);
+  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_label_pre);
+  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
   #if 1
     lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_F_DEC, "bmp_Dec.bin", 0);
     lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonHigh, event_handler,ID_F_HIGH,"bmp_speed255.bin",0);	
+    lv_obj_set_event_cb_mks(buttonHigh, event_handler,ID_F_HIGH,"bmp_speed255.bin",0);
     lv_imgbtn_set_src(buttonHigh, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHigh, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonHigh, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonHigh, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonHigh, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonHigh, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonMid, event_handler,ID_F_MID,"bmp_speed127.bin",0);
+    lv_obj_set_event_cb_mks(buttonMid, event_handler,ID_F_MID,"bmp_speed127.bin",0);
     lv_imgbtn_set_src(buttonMid, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonMid, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonMid, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonMid, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonMid, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonMid, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonOff, event_handler,ID_F_OFF,"bmp_speed0.bin",0);	
+    lv_obj_set_event_cb_mks(buttonOff, event_handler,ID_F_OFF,"bmp_speed0.bin",0);
     lv_imgbtn_set_src(buttonOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOff, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_F_RETURN,"bmp_return.bin",0);	
+    lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_F_RETURN,"bmp_return.bin",0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
   #endif
 
   lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
@@ -231,7 +231,7 @@ void lv_draw_fan(void) {
   }
 
   fanText = lv_label_create(scr, NULL);
-  lv_obj_set_style(fanText, &tft_style_lable_rel);
+  lv_obj_set_style(fanText, &tft_style_label_rel);
   disp_fan_value();
 }
 

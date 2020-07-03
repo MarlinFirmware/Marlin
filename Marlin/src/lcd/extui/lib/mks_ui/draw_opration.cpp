@@ -116,7 +116,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (gCfgItems.finish_power_off == 1) {
           gCfgItems.finish_power_off = 0;
-          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_manual_off.bin", 0); //dindt find bmp_Mamual...
+          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_manual_off.bin", 0); // dindt find bmp_Mamual...
           lv_label_set_text(label_PowerOff, printing_more_menu.manual);
           lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
           lv_obj_refresh_ext_draw_pad(label_PowerOff);
@@ -156,7 +156,7 @@ void lv_draw_opration(void) {
   lv_obj_clean(scr);
 
   lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_lable_rel);
+  lv_obj_set_style(title, &tft_style_label_rel);
   lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
   lv_label_set_text(title, creat_title_text());
 
@@ -165,57 +165,59 @@ void lv_draw_opration(void) {
   LV_IMG_DECLARE(bmp_pic);
 
   /*Create an Image button*/
-  buttonPreHeat = lv_imgbtn_create(scr, NULL);
+  buttonPreHeat   = lv_imgbtn_create(scr, NULL);
   buttonExtrusion = lv_imgbtn_create(scr, NULL);
-  buttonFan = lv_imgbtn_create(scr, NULL);
-  buttonSpeed = lv_imgbtn_create(scr, NULL);
+  buttonFan       = lv_imgbtn_create(scr, NULL);
+  buttonSpeed     = lv_imgbtn_create(scr, NULL);
 
-  if (uiCfg.print_state != WORKING)
+  if (uiCfg.print_state != WORKING) {
     //buttonFilament = lv_imgbtn_create(scr, NULL);
-    //else
+    //} else {
     buttonMove = lv_imgbtn_create(scr, NULL);
-  buttonPowerOff = lv_imgbtn_create(scr, NULL);
-  buttonBack = lv_imgbtn_create(scr, NULL);
+  }
 
-	lv_obj_set_event_cb_mks(buttonPreHeat, event_handler,ID_O_PRE_HEAT,"bmp_temp.bin",0);
+  buttonPowerOff = lv_imgbtn_create(scr, NULL);
+  buttonBack     = lv_imgbtn_create(scr, NULL);
+
+  lv_obj_set_event_cb_mks(buttonPreHeat, event_handler, ID_O_PRE_HEAT, "bmp_temp.bin", 0);
   lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_REL, &bmp_pic);
   lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_PR, &bmp_pic);
-  lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_PR, &tft_style_lable_pre);
-  lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_REL, &tft_style_lable_rel);
+  lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_PR, &tft_style_label_pre);
+  lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_obj_clear_protect(buttonPreHeat, LV_PROTECT_FOLLOW);
   #if 1
-	lv_obj_set_event_cb_mks(buttonExtrusion, event_handler,ID_O_EXTRUCT,"bmp_extrude_opr.bin",0);
+    lv_obj_set_event_cb_mks(buttonExtrusion, event_handler, ID_O_EXTRUCT, "bmp_extrude_opr.bin", 0);
     lv_imgbtn_set_src(buttonExtrusion, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonExtrusion, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonFan, event_handler,ID_O_FAN,"bmp_fan.bin",0);	
+    lv_obj_set_event_cb_mks(buttonFan, event_handler, ID_O_FAN, "bmp_fan.bin", 0);
     lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonSpeed, event_handler,ID_O_SPEED,"bmp_speed.bin",0);	
+    lv_obj_set_event_cb_mks(buttonSpeed, event_handler, ID_O_SPEED, "bmp_speed.bin", 0);
     lv_imgbtn_set_src(buttonSpeed, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonSpeed, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     if (uiCfg.print_state != WORKING) {
       /*{
           lv_obj_set_event_cb_mks(buttonFilament, event_handler,ID_O_FILAMENT,"bmp_Filamentchange.bin",0);
           lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_REL, &bmp_pic);
           lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_PR, &bmp_pic);
-          lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_lable_pre);
-          lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_lable_rel);
+          lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_label_pre);
+          lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_label_rel);
       }
       else*/
-		lv_obj_set_event_cb_mks(buttonMove, event_handler,ID_O_MOV,"bmp_move_opr.bin",0);	
+      lv_obj_set_event_cb_mks(buttonMove, event_handler, ID_O_MOV, "bmp_move_opr.bin", 0);
       lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_REL, &bmp_pic);
       lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_PR, &bmp_pic);
-      lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_PR, &tft_style_lable_pre);
-      lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_REL, &tft_style_lable_rel);
+      lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_PR, &tft_style_label_pre);
+      lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_REL, &tft_style_label_rel);
     }
     if (gCfgItems.finish_power_off == 1)
       lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_auto_off.bin", 0);
@@ -223,15 +225,15 @@ void lv_draw_opration(void) {
       lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_manual_off.bin", 0);
     lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-	lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_O_RETURN,"bmp_return.bin",0);	
+    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_O_RETURN, "bmp_return.bin", 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
-  #endif
+    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  #endif // if 1
 
   lv_obj_set_pos(buttonPreHeat, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonExtrusion, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
@@ -259,25 +261,25 @@ void lv_draw_opration(void) {
   lv_btn_set_layout(buttonSpeed, LV_LAYOUT_OFF);
 
   if (uiCfg.print_state != WORKING)
-  /*{
-          lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
-  }
-  else*/
+    /*{
+            lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
+    }
+    else*/
     lv_btn_set_layout(buttonMove, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonPowerOff, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  labelPreHeat = lv_label_create(buttonPreHeat, NULL);
+  labelPreHeat   = lv_label_create(buttonPreHeat, NULL);
   labelExtrusion = lv_label_create(buttonExtrusion, NULL);
 
-  label_Fan = lv_label_create(buttonFan, NULL);
+  label_Fan   = lv_label_create(buttonFan, NULL);
   label_Speed = lv_label_create(buttonSpeed, NULL);
 
   if (uiCfg.print_state != WORKING)
-  /*{
-          label_Filament = lv_label_create(buttonFilament, NULL);
-  }
-  else*/
+    /*{
+            label_Filament = lv_label_create(buttonFilament, NULL);
+    }
+    else*/
     label_Move = lv_label_create(buttonMove, NULL);
   label_PowerOff = lv_label_create(buttonPowerOff, NULL);
 

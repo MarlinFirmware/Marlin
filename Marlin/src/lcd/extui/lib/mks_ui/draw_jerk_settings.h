@@ -28,7 +28,6 @@ extern "C" { /* C-declarations for C++ */
 extern void lv_draw_jerk_settings(void);
 extern void lv_clear_jerk_settings();
 
-
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

@@ -28,8 +28,6 @@ extern "C" { /* C-declarations for C++ */
 extern void lv_draw_max_feedrate_settings(void);
 extern void lv_clear_max_feedrate_settings();
 
-
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
-

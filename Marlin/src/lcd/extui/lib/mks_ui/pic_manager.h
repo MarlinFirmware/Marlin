@@ -32,19 +32,19 @@ extern "C" { /* C-declarations for C++ */
 #include "../../inc/MarlinConfigPre.h"
 
 #ifndef HAS_SPI_FLASH_FONT
-  #define HAS_SPI_FLASH_FONT              1 //disabled until fix the font load code
+  #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code
 #endif
 #ifndef HAS_GCODE_PREVIEW
   #define HAS_GCODE_PREVIEW               1
 #endif
 #ifndef HAS_LANG_SELECT_SCREEN
-  #define HAS_LANG_SELECT_SCREEN               1
+  #define HAS_LANG_SELECT_SCREEN          1
 #endif
 #ifndef HAS_BAK_VIEW_IN_FLASH
-  #define HAS_BAK_VIEW_IN_FLASH               1
+  #define HAS_BAK_VIEW_IN_FLASH           1
 #endif
 #ifndef HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH               1
+  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 1
 #endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                  0x1000000 // 16MB
@@ -71,7 +71,7 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_COUNTER_ADDR                0x002000      // Pic total number
   #define PER_PIC_SAVE_ADDR               0x000000      // Storage address of each picture
   #define PIC_LOGO_ADDR                   0x000000      // Logo addr
-  #define PIC_DATA_ADDR                   0x003000    //
+  #define PIC_DATA_ADDR                   0x003000      //
 
   // TFT35
   #define DEFAULT_VIEW_ADDR_TFT35         0x1ea070
@@ -89,8 +89,8 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_NAME_ADDR                   0x003000      // Pic information addr
   #define PIC_SIZE_ADDR                   0x007000      // Pic size information addr
   #define PIC_COUNTER_ADDR                0x008000      // Pic total number
-  //#define PER_PIC_SAVE_ADDR		      0x009000	    //Storage address of each picture
-  #define PIC_LOGO_ADDR					  0x009000	    //logo addr
+  //#define PER_PIC_SAVE_ADDR         0x009000      //Storage address of each picture
+  #define PIC_LOGO_ADDR                   0x009000      // logo addr
   //#define PIC_DATA_ADDR                 0x02F000      //
 
   // TFT35

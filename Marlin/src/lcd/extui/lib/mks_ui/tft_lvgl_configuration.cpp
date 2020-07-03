@@ -135,9 +135,9 @@ void tft_set_point(uint16_t x, uint16_t y, uint16_t point) {
   if ((x > 480) || (y > 320)) return;
   //}
   //**if ( (x>320)||(y>240) ) return;
-  tft_set_cursor(x, y); 
+  tft_set_cursor(x, y);
 
-  LCD_WriteRAM_Prepare();   
+  LCD_WriteRAM_Prepare();
   //LCD_WriteRAM(point);
   LCD_IO_WriteData(point);
 }
@@ -145,7 +145,7 @@ void tft_set_point(uint16_t x, uint16_t y, uint16_t point) {
 void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue) {
   /* Write 16-bit Index, then Write Reg */
   ClrCs
-    LCD_IO_WriteReg(LCD_Reg);
+  LCD_IO_WriteReg(LCD_Reg);
   /* Write 16-bit Reg */
   LCD_IO_WriteData(LCD_RegValue);
   SetCs
@@ -357,12 +357,10 @@ void init_tft() {
 
     LCD_IO_WriteReg(0x0036);
     //ILI9488_WriteData(0x0068);
-    //if (gCfgItems.overturn_180 != 0xEE)
-    //{
+    //if (gCfgItems.overturn_180 != 0xEE) {
     LCD_IO_WriteData(0x0068);
     //}
-    //else
-    //{
+    //else {
     //ILI9488_WriteData(0x00A8);
     //}
 
@@ -412,7 +410,7 @@ void init_tft() {
 extern uint8_t bmp_public_buf[17 * 1024];
 
 void tft_lvgl_init() {
-  
+
   //uint16_t test_id=0;
   W25QXX.init(SPI_QUARTER_SPEED);
   //test_id=W25QXX.W25QXX_ReadID();
@@ -431,17 +429,13 @@ void tft_lvgl_init() {
 
   #if ENABLED(SDSUPPORT)
     UpdatePic();
-    #if HAS_SPI_FLASH_FONT
-      UpdateFont();
-    #endif
+    TERN_(HAS_SPI_FLASH_FONT, UpdateFont());
   #endif
   mks_test_get();
 
   //spi_flash_read_test();
 
-  #if ENABLED(TOUCH_BUTTONS)
-    touch.init();
-  #endif
+  TERN_(TOUCH_BUTTONS, touch.init());
 
   lv_init();
 
@@ -470,29 +464,28 @@ void tft_lvgl_init() {
   filament_pin_setup();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-  if (recovery.valid()) {
-    if (gCfgItems.from_flash_pic == 1)
-      flash_preview_begin = 1;
+    if (recovery.valid()) {
+      if (gCfgItems.from_flash_pic == 1)
+        flash_preview_begin = 1;
+      else
+        default_preview_flg = 1;
+
+      uiCfg.print_state = REPRINTING;
+
+      memset(public_buf_m, 0, sizeof(public_buf_m));
+      strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+      card.printLongPath(public_buf_m);
+
+      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
+
+      lv_draw_printing();
+    }
     else
-      default_preview_flg = 1;
-
-    uiCfg.print_state = REPRINTING;
-
-    memset(public_buf_m, 0, sizeof(public_buf_m));
-    strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
-    card.printLongPath(public_buf_m);
-
-    strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
-
-    lv_draw_printing();
-  }
-  else
   #endif
-  lv_draw_ready_print();
+    lv_draw_ready_print();
 
-  if(mks_test_flag == 0x1e){
-	mks_gpio_test();
-  }
+  if (mks_test_flag == 0x1E)
+    mks_gpio_test();
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
@@ -595,7 +588,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #endif
 
   #if USE_XPT2046
-    #ifndef XPT2046_HOR_RES   
+    #ifndef XPT2046_HOR_RES
       #define XPT2046_HOR_RES   480
     #endif
     #ifndef XPT2046_VER_RES
@@ -642,7 +635,7 @@ static void xpt2046_corr(uint16_t *x, uint16_t *y) {
   #endif
 }
 
-#define  times  4
+#define times 4
 #define CHX   0x90
 #define CHY   0xD0
 
@@ -669,11 +662,11 @@ uint16_t x_addata[times], y_addata[times];
 void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
   uint16_t i, j, k;
 
-  	#if ENABLED(SPI_GRAPHICAL_TFT)
-	SPI_TFT.spi_init(SPI_SPEED_6);
-	#else
-	W25QXX.init(SPI_SPEED_6);
-	#endif
+  #if ENABLED(SPI_GRAPHICAL_TFT)
+    SPI_TFT.spi_init(SPI_SPEED_6);
+  #else
+    W25QXX.init(SPI_SPEED_6);
+  #endif
 
   for (i = 0; i < times; i++) {
     #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -700,7 +693,7 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
 
   }
   #if DISABLED(SPI_GRAPHICAL_TFT)
-  W25QXX.init(SPI_QUARTER_SPEED);
+    W25QXX.init(SPI_QUARTER_SPEED);
   #endif
 
   for (i = 0; i < times; i++)
@@ -736,8 +729,10 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
 #define ADC_VALID_OFFSET  10
 
 uint8_t TOUCH_PressValid(uint16_t _usX, uint16_t _usY) {
-  if (   (_usX <= ADC_VALID_OFFSET) || (_usY <= ADC_VALID_OFFSET)
-      || (_usX >= 4095 - ADC_VALID_OFFSET) || (_usY >= 4095 - ADC_VALID_OFFSET)
+  if ( (_usX <= ADC_VALID_OFFSET)
+    || (_usY <= ADC_VALID_OFFSET)
+    || (_usX >= 4095 - ADC_VALID_OFFSET)
+    || (_usY >= 4095 - ADC_VALID_OFFSET)
   ) return 0;
   return 1;
 }
@@ -764,7 +759,7 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 
       data->state = LV_INDEV_STATE_PR;
 
-      /*Set the coordinates (if released use the last pressed coordinates)*/
+      /* Set the coordinates (if released use the last pressed coordinates) */
 
       // SERIAL_ECHOLNPAIR("antes X: ", last_x, ", y: ", last_y);
       xpt2046_corr((uint16_t *)&last_x, (uint16_t *)&last_y);

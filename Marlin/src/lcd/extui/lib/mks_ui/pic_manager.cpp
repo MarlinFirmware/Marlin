@@ -220,7 +220,7 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
       else
         addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
-			return addr;
+      return addr;
     }
   }
 
@@ -374,10 +374,9 @@ uint8_t public_buf[512];
           continue;
 
         uint8_t a = -1;
-        for(a = 0; a < COUNT(assets); a++) {
-          if (strcasecmp(assets[a], card.longFilename) == 0) {
+        for (a = 0; a < COUNT(assets); a++) {
+          if (strcasecmp(assets[a], card.longFilename) == 0)
             break;
-          }
         }
         if (a < 0 || a >= COUNT(assets)) continue;
 
@@ -408,24 +407,21 @@ uint8_t public_buf[512];
           while (1) {
             pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
             Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
+            if (pbr < BMP_WRITE_BUF_LEN) break;
           }
         }
         else if (logoFlag == 2) {
           while (1) {
             pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
             Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
+            if (pbr < BMP_WRITE_BUF_LEN) break;
           }
         }
         else if (logoFlag == 3) {
           while (1) {
             pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
             default_view_Write(public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
+            if (pbr < BMP_WRITE_BUF_LEN) break;
           }
         }
         else {
@@ -434,8 +430,7 @@ uint8_t public_buf[512];
             pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
             W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
             Pic_Write_Addr += pbr;
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
+            if (pbr < BMP_WRITE_BUF_LEN) break;
           }
         }
 
@@ -473,11 +468,8 @@ uint8_t public_buf[512];
 
         dir_t d;
         while (dir.readDir(&d, card.longFilename) > 0) {
-          if (card.longFilename[0] == 0)
-            break;
-
-          if (card.longFilename[0] == '.')
-            continue;
+          if (card.longFilename[0] == 0) break;
+          if (card.longFilename[0] == '.') continue;
 
           fn = card.longFilename;
 
@@ -552,7 +544,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
 
 uint32_t logo_addroffset = 0;
 void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize) {
-	W25QXX.init(SPI_QUARTER_SPEED);
+  W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead(Logo_Rbuff, PIC_LOGO_ADDR + logo_addroffset, LogoReadsize);
   logo_addroffset += LogoReadsize;
   if (logo_addroffset >= LOGO_MAX_SIZE_TFT35)
@@ -562,7 +554,6 @@ void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize
 uint32_t default_view_addroffset = 0;
 void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize) {
   W25QXX.init(SPI_QUARTER_SPEED);
-
   W25QXX.SPI_FLASH_BufferRead(default_view_Rbuff, DEFAULT_VIEW_ADDR_TFT35 + default_view_addroffset, default_view_Readsize);
   default_view_addroffset += default_view_Readsize;
   if (default_view_addroffset >= DEFAULT_VIEW_MAX_SIZE)
@@ -573,7 +564,6 @@ void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsi
   uint32_t flash_view_addroffset = 0;
   void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize) {
     W25QXX.init(SPI_QUARTER_SPEED);
-
     W25QXX.SPI_FLASH_BufferRead(flash_view_Rbuff, BAK_VIEW_ADDR_TFT35 + flash_view_addroffset, flash_view_Readsize);
     flash_view_addroffset += flash_view_Readsize;
     if (flash_view_addroffset >= FLASH_VIEW_MAX_SIZE)
