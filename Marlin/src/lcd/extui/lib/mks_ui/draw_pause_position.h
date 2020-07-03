@@ -28,8 +28,6 @@ extern "C" { /* C-declarations for C++ */
 extern void lv_draw_pause_position(void);
 extern void lv_clear_pause_position();
 
-
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
-

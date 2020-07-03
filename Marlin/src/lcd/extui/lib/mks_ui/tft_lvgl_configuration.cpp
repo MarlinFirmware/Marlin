@@ -472,7 +472,7 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
 

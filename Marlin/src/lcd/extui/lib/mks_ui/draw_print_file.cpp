@@ -220,7 +220,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         else if (event == LV_EVENT_RELEASED) {
           if (list_file.file_name[i][0] != 0) {
             if (list_file.IsFolder[i] == 1) {
-              memset(list_file.curDirPath, 0, sizeof(list_file.curDirPath));
+              ZERO(list_file.curDirPath);
               strcpy(list_file.curDirPath,  list_file.file_name[i]);
               curDirLever++;
               list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;

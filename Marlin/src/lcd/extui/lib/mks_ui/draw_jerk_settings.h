@@ -31,4 +31,3 @@ extern void lv_clear_jerk_settings();
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
-

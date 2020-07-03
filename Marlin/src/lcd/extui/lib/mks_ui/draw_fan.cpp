@@ -56,7 +56,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (fanSpeed + 1 <= 255) {
           fanSpeed++;
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "M106 S%d", fanSpeed);
           gcode.process_subcommands_now_P(PSTR(public_buf_l));
         }
@@ -69,7 +69,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (fanSpeed > 0) {
           fanSpeed--;
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "M106 S%d", fanSpeed);
           gcode.process_subcommands_now_P(PSTR(public_buf_l));
         }
@@ -112,12 +112,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   }
 }
 
-
 void lv_draw_fan(void) {
   lv_obj_t *buttonAdd, *buttonDec, *buttonHigh, *buttonMid;
   lv_obj_t *buttonOff, *buttonBack;
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     fanSpeed = thermalManager.fan_speed[0];
   #endif
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != FAN_UI) {

@@ -60,7 +60,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
           queue.enqueue_one_now(PSTR("G91"));
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf((char *)public_buf_l, "G1 E%d F%d", uiCfg.extruStep, 60 * uiCfg.extruSpeed);
           queue.enqueue_one_now(PSTR(public_buf_l));
           queue.enqueue_one_now(PSTR("G90"));
@@ -76,7 +76,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
           queue.enqueue_one_now(PSTR("G91"));
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf((char *)public_buf_l, "G1 E%d F%d", 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
           queue.enqueue_one_now(PSTR(public_buf_l));
           queue.enqueue_one_now(PSTR("G90"));

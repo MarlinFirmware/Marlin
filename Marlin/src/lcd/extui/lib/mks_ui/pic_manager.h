@@ -47,7 +47,7 @@ extern "C" { /* C-declarations for C++ */
   #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 1
 #endif
 #ifndef SPI_FLASH_SIZE
-  #define SPI_FLASH_SIZE                  0x1000000 // 16MB
+  #define SPI_FLASH_SIZE                0x1000000 // 16MB
 #endif
 
 #define PIC_MAX_CN           100    // Maximum number of pictures
@@ -66,48 +66,48 @@ extern "C" { /* C-declarations for C++ */
 #if SPI_FLASH_SIZE == 0x200000
   //pic
   //Robin_pro pic addr
-  #define PIC_NAME_ADDR                   0x001000      // Pic information addr
-  #define PIC_SIZE_ADDR                   0x001800      // Pic size information addr
-  #define PIC_COUNTER_ADDR                0x002000      // Pic total number
-  #define PER_PIC_SAVE_ADDR               0x000000      // Storage address of each picture
-  #define PIC_LOGO_ADDR                   0x000000      // Logo addr
-  #define PIC_DATA_ADDR                   0x003000      //
+  #define PIC_NAME_ADDR                 0x001000      // Pic information addr
+  #define PIC_SIZE_ADDR                 0x001800      // Pic size information addr
+  #define PIC_COUNTER_ADDR              0x002000      // Pic total number
+  #define PER_PIC_SAVE_ADDR             0x000000      // Storage address of each picture
+  #define PIC_LOGO_ADDR                 0x000000      // Logo addr
+  #define PIC_DATA_ADDR                 0x003000      //
 
   // TFT35
-  #define DEFAULT_VIEW_ADDR_TFT35         0x1ea070
-  #define BAK_VIEW_ADDR_TFT35             (DEFAULT_VIEW_ADDR_TFT35+90*1024)
-  #define PIC_ICON_LOGO_ADDR_TFT35        (BAK_VIEW_ADDR_TFT35+80*1024)
-  #define PIC_DATA_ADDR_TFT35             0x003000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
+  #define DEFAULT_VIEW_ADDR_TFT35       0x1ea070
+  #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35+90*1024)
+  #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35+80*1024)
+  #define PIC_DATA_ADDR_TFT35           0x003000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
 
-  #define PIC_DATA_ADDR_TFT32             0x00F000
-  #define PIC_ICON_LOGO_ADDR_TFT32        0x5D8000
-  #define PIC_OTHER_SIZE_ADDR_TFT32       0x5EE000
+  #define PIC_DATA_ADDR_TFT32           0x00F000
+  #define PIC_ICON_LOGO_ADDR_TFT32      0x5D8000
+  #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
 
 #else
   //pic
   //Robin_pro pic addr
-  #define PIC_NAME_ADDR                   0x003000      // Pic information addr
-  #define PIC_SIZE_ADDR                   0x007000      // Pic size information addr
-  #define PIC_COUNTER_ADDR                0x008000      // Pic total number
-  //#define PER_PIC_SAVE_ADDR         0x009000      //Storage address of each picture
-  #define PIC_LOGO_ADDR                   0x009000      // logo addr
-  //#define PIC_DATA_ADDR                 0x02F000      //
+  #define PIC_NAME_ADDR                 0x003000      // Pic information addr
+  #define PIC_SIZE_ADDR                 0x007000      // Pic size information addr
+  #define PIC_COUNTER_ADDR              0x008000      // Pic total number
+  //#define PER_PIC_SAVE_ADDR           0x009000      // Storage address of each picture
+  #define PIC_LOGO_ADDR                 0x009000      // Logo addr
+  //#define PIC_DATA_ADDR               0x02F000      //
 
   // TFT35
-  #define DEFAULT_VIEW_ADDR_TFT35         0xC5800
-  #define BAK_VIEW_ADDR_TFT35             (DEFAULT_VIEW_ADDR_TFT35+90*1024)
-  #define PIC_ICON_LOGO_ADDR_TFT35        (BAK_VIEW_ADDR_TFT35+80*1024)
-  #define PIC_DATA_ADDR_TFT35             (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
+  #define DEFAULT_VIEW_ADDR_TFT35       0xC5800
+  #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35+90*1024)
+  #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35+80*1024)
+  #define PIC_DATA_ADDR_TFT35           (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
 
   // TFT32
-  #define PIC_DATA_ADDR_TFT32             0x02F000
-  #define PIC_ICON_LOGO_ADDR_TFT32        0x5D8000
-  #define PIC_OTHER_SIZE_ADDR_TFT32       0x5EE000
+  #define PIC_DATA_ADDR_TFT32           0x02F000
+  #define PIC_ICON_LOGO_ADDR_TFT32      0x5D8000
+  #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
 
   // font
-  #define FONTINFOADDR                    0x600000 // 6M -- font addr
-  #define UNIGBK_FLASH_ADDR              (FONTINFOADDR+4096) // 4*1024
-  #define GBK_FLASH_ADDR                 (UNIGBK_FLASH_ADDR+180224) // 176*1024
+  #define FONTINFOADDR                  0x600000 // 6M -- font addr
+  #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
+  #define GBK_FLASH_ADDR               (UNIGBK_FLASH_ADDR+180224) // 176*1024
 
 #endif
 

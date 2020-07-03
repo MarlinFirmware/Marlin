@@ -28,8 +28,6 @@ extern "C" { /* C-declarations for C++ */
 extern void lv_draw_number_key(void);
 extern void lv_clear_number_key();
 
-
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
-

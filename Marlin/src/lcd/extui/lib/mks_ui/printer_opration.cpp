@@ -54,13 +54,13 @@ void printer_state_polling() {
         gcode.process_subcommands_now_P(PSTR("M25"));
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 Z%.1f", gCfgItems.pausePosZ);
           gcode.process_subcommands_now_P(PSTR(public_buf_l));
           gcode.process_subcommands_now_P(PSTR("G90"));
         }
         if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 X%.1f Y%.1f", gCfgItems.pausePosX, gCfgItems.pausePosY);
           gcode.process_subcommands_now_P(PSTR(public_buf_l));
         }
@@ -96,12 +96,12 @@ void printer_state_polling() {
   }
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (uiCfg.print_state == REPRINTED) {
-      memset(public_buf_m, 0, sizeof(public_buf_m));
-      #if HOTENDS
+      ZERO(public_buf_m);
+      #if HAS_HOTEND
         HOTEND_LOOP() {
           const int16_t et = recovery.info.target_temperature[e];
           if (et) {
-            #if HOTENDS > 1
+            #if HAS_MULTI_HOTEND
               sprintf_P(public_buf_m, PSTR("T%i"), e);
               gcode.process_subcommands_now(public_buf_m);
             #endif

@@ -340,12 +340,12 @@ void lv_draw_printing(void) {
 }
 
 void disp_ext_temp() {
-  memset(public_buf_l, 0, sizeof(public_buf_l));
+  ZERO(public_buf_l);
   sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target);
   lv_label_set_text(labelExt1, public_buf_l);
 
   if (EXTRUDERS == 2) {
-    memset(public_buf_l, 0, sizeof(public_buf_l));
+    ZERO(public_buf_l);
     sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target);
     lv_label_set_text(labelExt2, public_buf_l);
   }
@@ -353,20 +353,20 @@ void disp_ext_temp() {
 
 void disp_bed_temp() {
   #if HAS_HEATED_BED
-    memset(public_buf_l, 0, sizeof(public_buf_l));
+    ZERO(public_buf_l);
     sprintf(public_buf_l, printing_menu.bed_temp, (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target);
     lv_label_set_text(labelBed, public_buf_l);
   #endif
 }
 
 void disp_fan_speed() {
-  memset(public_buf_l, 0, sizeof(public_buf_l));
+  ZERO(public_buf_l);
   sprintf(public_buf_l, "%3d", thermalManager.fan_speed[0]);
   lv_label_set_text(labelFan, public_buf_l);
 }
 
 void disp_print_time() {
-  memset(public_buf_l, 0, sizeof(public_buf_l));
+  ZERO(public_buf_l);
   #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
     sprintf(public_buf_l, "%02d:%02d R", r / 3600, (r % 3600) / 60);
@@ -377,7 +377,7 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  memset(public_buf_l, 0, sizeof(public_buf_l));
+  ZERO(public_buf_l);
   sprintf(public_buf_l, "%.3f", current_position[Z_AXIS]);
   lv_label_set_text(labelZpos, public_buf_l);
 }

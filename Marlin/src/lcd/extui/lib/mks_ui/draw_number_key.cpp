@@ -78,111 +78,111 @@ static void disp_key_value() {
 
   switch (value) {
     case PrintAcceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.acceleration);
       break;
     case RetractAcceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.retract_acceleration);
       break;
     case TravelAcceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.travel_acceleration);
       break;
     case XAcceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
       break;
     case YAcceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
       break;
     case ZAcceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
       break;
     case E0Acceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
       break;
     case E1Acceleration:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
       break;
     case XMaxFeedRate:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[X_AXIS]);
       break;
     case YMaxFeedRate:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[Y_AXIS]);
       break;
     case ZMaxFeedRate:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[Z_AXIS]);
       break;
     case E0MaxFeedRate:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[E_AXIS]);
       break;
     case E1MaxFeedRate:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
       break;
 
     case XJerk:
       #if HAS_CLASSIC_JERK
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         sprintf(public_buf_m, "%.1f", planner.max_jerk[X_AXIS]);
       #endif
       break;
     case YJerk:
       #if HAS_CLASSIC_JERK
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         sprintf(public_buf_m, "%.1f", planner.max_jerk[Y_AXIS]);
       #endif
       break;
     case ZJerk:
       #if HAS_CLASSIC_JERK
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         sprintf(public_buf_m, "%.1f", planner.max_jerk[Z_AXIS]);
       #endif
       break;
     case EJerk:
       #if HAS_CLASSIC_JERK
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         sprintf(public_buf_m, "%.1f", planner.max_jerk[E_AXIS]);
       #endif
       break;
 
     case Xstep:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[X_AXIS]);
 
       break;
     case Ystep:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[Y_AXIS]);
 
       break;
     case Zstep:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[Z_AXIS]);
 
       break;
     case E0step:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[E_AXIS]);
 
       break;
     case E1step:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
       break;
 
     case Xcurrent:
       #if AXIS_IS_TMC(X)
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         milliamps = stepperX.getMilliamps();
         sprintf(public_buf_m, "%.1f", milliamps);
       #endif
@@ -190,7 +190,7 @@ static void disp_key_value() {
 
     case Ycurrent:
       #if AXIS_IS_TMC(Y)
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         milliamps = stepperY.getMilliamps();
         sprintf(public_buf_m, "%.1f", milliamps);
       #endif
@@ -198,7 +198,7 @@ static void disp_key_value() {
 
     case Zcurrent:
       #if AXIS_IS_TMC(Z)
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         milliamps = stepperZ.getMilliamps();
         sprintf(public_buf_m, "%.1f", milliamps);
       #endif
@@ -206,7 +206,7 @@ static void disp_key_value() {
 
     case E0current:
       #if AXIS_IS_TMC(E0)
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         milliamps = stepperE0.getMilliamps();
         sprintf(public_buf_m, "%.1f", milliamps);
       #endif
@@ -214,26 +214,26 @@ static void disp_key_value() {
 
     case E1current:
       #if AXIS_IS_TMC(E1)
-        memset(public_buf_m, 0, sizeof(public_buf_m));
+        ZERO(public_buf_m);
         milliamps = stepperE1.getMilliamps();
         sprintf(public_buf_m, "%.1f", milliamps);
       #endif
       break;
 
     case pause_pos_x:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", gCfgItems.pausePosX);
       break;
     case pause_pos_y:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", gCfgItems.pausePosY);
       break;
     case pause_pos_z:
-      memset(public_buf_m, 0, sizeof(public_buf_m));
+      ZERO(public_buf_m);
       sprintf(public_buf_m, "%.1f", gCfgItems.pausePosZ);
       break;
   }
-  memset(key_value, 0, sizeof(key_value));
+  ZERO(key_value);
   strcpy(key_value, public_buf_m);
   cnt  = strlen(key_value);
   temp = strchr(key_value, '.');
@@ -533,7 +533,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-        memset(key_value, 0, sizeof(key_value));
+        ZERO(key_value);
         cnt            = 0;
         key_value[cnt] = (char)'0';
         point_flg      = 1;

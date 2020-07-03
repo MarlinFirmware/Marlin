@@ -58,7 +58,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
           queue.enqueue_one_P(PSTR("G1 Z10"));
 
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 X%d Y%d", X_MIN_POS + 30, Y_MIN_POS + 30);
           queue.enqueue_one_P(PSTR(public_buf_l));
           queue.enqueue_one_P(PSTR("G1 Z0"));
@@ -78,7 +78,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
           queue.enqueue_one_P(PSTR("G1 Z10"));
 
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 X%d Y%d", X_MAX_POS - 30, Y_MIN_POS + 30);
           queue.enqueue_one_P(PSTR(public_buf_l));
           queue.enqueue_one_P(PSTR("G1 Z0"));
@@ -98,7 +98,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
           queue.enqueue_one_P(PSTR("G1 Z10"));
 
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 X%d Y%d", X_MAX_POS - 30, Y_MAX_POS - 30);
           queue.enqueue_one_P(PSTR(public_buf_l));
           queue.enqueue_one_P(PSTR("G1 Z0"));
@@ -119,7 +119,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
           queue.enqueue_one_P(PSTR("G1 Z10"));
 
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 X%d Y%d", X_MIN_POS + 30, Y_MAX_POS - 30);
           queue.enqueue_one_P(PSTR(public_buf_l));
           queue.enqueue_one_P(PSTR("G1 Z0"));
@@ -139,7 +139,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
           queue.enqueue_one_P(PSTR("G1 Z10"));
 
-          memset(public_buf_l, 0, sizeof(public_buf_l));
+          ZERO(public_buf_l);
           sprintf(public_buf_l, "G1 X%d Y%d", X_BED_SIZE / 2, Y_BED_SIZE / 2);
           queue.enqueue_one_P(PSTR(public_buf_l));
           queue.enqueue_one_P(PSTR("G1 Z0"));

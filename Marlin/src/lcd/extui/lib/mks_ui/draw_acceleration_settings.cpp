@@ -418,22 +418,22 @@ void lv_draw_acceleration_settings(void) {
       lv_label_set_text(labelTurnPage, machine_menu.next);
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%.1f", planner.settings.acceleration);
       lv_label_set_text(labelPrintValue, public_buf_l);
       lv_obj_align(labelPrintValue, buttonPrintValue, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%.1f", planner.settings.retract_acceleration);
       lv_label_set_text(labelRetraValue, public_buf_l);
       lv_obj_align(labelRetraValue, buttonRetraValue, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%.1f", planner.settings.travel_acceleration);
       lv_label_set_text(labelTravelValue, public_buf_l);
       lv_obj_align(labelTravelValue, buttonTravelValue, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%d", (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
       lv_label_set_text(labelXValue, public_buf_l);
       lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
@@ -453,22 +453,22 @@ void lv_draw_acceleration_settings(void) {
 
       lv_label_set_text(labelTurnPage, machine_menu.previous);
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%d", (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
       lv_label_set_text(labelYValue, public_buf_l);
       lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%d", (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
       lv_label_set_text(labelZValue, public_buf_l);
       lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%d", (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
       lv_label_set_text(labelE0Value, public_buf_l);
       lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
 
-      memset(public_buf_l, 0, sizeof(public_buf_l));
+      ZERO(public_buf_l);
       sprintf(public_buf_l, "%d", (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
       lv_label_set_text(labelE1Value, public_buf_l);
       lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);

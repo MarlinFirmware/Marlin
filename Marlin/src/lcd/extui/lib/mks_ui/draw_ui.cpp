@@ -263,7 +263,7 @@ void titleText_cat(char *str, int strSize, char *addPart) {
 
 char *getDispText(int index) {
 
-  memset(public_buf_l, 0, sizeof(public_buf_l));
+  ZERO(public_buf_l);
 
   switch (disp_state_stack._disp_state[index]) {
     case PRINT_READY_UI:
@@ -383,7 +383,7 @@ char *creat_title_text() {
   char *tmpText = 0;
   char tmpCurFileStr[20];
 
-  memset(tmpCurFileStr, 0, sizeof(tmpCurFileStr));
+  ZERO(tmpCurFileStr);
 
   #if _LFN_UNICODE
     // cutFileName((TCHAR *)curFileName, 16, 16, (TCHAR *)tmpCurFileStr);
@@ -391,7 +391,7 @@ char *creat_title_text() {
     cutFileName(list_file.long_name[sel_id], 16, 16, tmpCurFileStr);
   #endif
 
-  memset(public_buf_m, 0, sizeof(public_buf_m));
+  ZERO(public_buf_m);
 
   while (index <= disp_state_stack._disp_index) {
     tmpText = getDispText(index);
@@ -415,7 +415,7 @@ char *creat_title_text() {
   }
 
   if (strlen(public_buf_m) > MAX_TITLE_LEN) {
-    memset(public_buf_m, 0, sizeof(public_buf_m));
+    ZERO(public_buf_m);
     tmpText = getDispText(0);
     if (*tmpText != 0) {
       titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);

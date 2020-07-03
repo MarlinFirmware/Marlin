@@ -188,17 +188,17 @@ void lv_draw_pause_position(void) {
   label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
-    memset(public_buf_l, 0, sizeof(public_buf_l));
+    ZERO(public_buf_l);
     sprintf(public_buf_l, "%.1f", gCfgItems.pausePosX);
     lv_label_set_text(labelXValue, public_buf_l);
     lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
 
-    memset(public_buf_l, 0, sizeof(public_buf_l));
+    ZERO(public_buf_l);
     sprintf(public_buf_l, "%.1f", gCfgItems.pausePosY);
     lv_label_set_text(labelYValue, public_buf_l);
     lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
-    memset(public_buf_l, 0, sizeof(public_buf_l));
+    ZERO(public_buf_l);
     sprintf(public_buf_l, "%.1f", gCfgItems.pausePosZ);
     lv_label_set_text(labelZValue, public_buf_l);
     lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
