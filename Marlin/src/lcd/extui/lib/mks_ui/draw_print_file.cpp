@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "../../../../MarlinCore.h"
 #include "lv_conf.h"
@@ -324,7 +324,7 @@ void disp_gcode_icon(uint8_t file_num) {
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_PR, &tft_style_lable_pre);
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_REL, &tft_style_lable_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, "bmp_Back.bin", 0);
+    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, "bmp_Return.bin", 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic_117x92);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic_117x92);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -445,21 +445,9 @@ void disp_gcode_icon(uint8_t file_num) {
 
 void lv_open_gcode_file(char *path) {
   #if ENABLED(SDSUPPORT)
-    //uint32_t read;
-    uint32_t *ps4;
-    int pre_sread_cnt;
     char *cur_name;
-
     cur_name = strrchr(path, '/');
-
     card.openFileRead(cur_name);
-    card.read(public_buf, 512);
-    ps4 = (uint32_t *)strstr((char *)public_buf, ";simage:");
-
-    if (ps4) {
-      pre_sread_cnt = (uint32_t)ps4 - (uint32_t)((uint32_t *)(&public_buf[0]));
-      card.setIndex(pre_sread_cnt + 8);
-    }
   #endif
 }
 
@@ -480,30 +468,64 @@ int ascii2dec_test(char *ascii) {
   return result;
 }
 
-void lv_gcode_file_read(uint8_t *data_buf) {
-  #if ENABLED(SDSUPPORT)
-    uint16_t i = 0, j = 0, k = 0;
-    //uint32_t read;
-    uint16_t row_1 = 0;
+void lv_gcode_file_read(uint8_t *data_buf)
+{
+	#if ENABLED (SDSUPPORT)
+    uint16_t i=0,j=0,k=0;
+    uint16_t row_1=0;
+    bool ignore_start = true;
     char temp_test[200];
+    volatile uint16_t *p_index;
 
-    while (1) {
-      card.read(temp_test, 200);
-      for (i = 0; i < 200;) {
-        public_buf[row_1 * 200 + 100 * k + j] = (char)(ascii2dec_test(&temp_test[i]) << 4 | ascii2dec_test(&temp_test[i + 1]));
-        j++;
-        i += 2;
-      }
-      k++;
-      j = 0;
-      if (k >= 2) {
-        k = 0;
-        card.read(temp_test, 9);
+    memset(public_buf, 0, 200);
+
+    while(card.isFileOpen())
+    {
+      if (ignore_start) card.read(temp_test, 8); //line start -> ignore
+      card.read(temp_test, 200); //data
+      //\r;;gimage: we got the bit img, so stop here
+      if (temp_test[1] == ';') {
+        card.closefile();
         break;
       }
+      for(i=0;i<200;) {
+        public_buf[row_1*200+100*k+j] = (char)(ascii2dec_test(&temp_test[i])<<4|ascii2dec_test(&temp_test[i+1]));
+        j++;
+        i+=2;
+      }
+
+      uint16_t c = card.get();
+      //check if we have more data or finished the line (CR)
+      if (c == '\r') {
+        break;
+      }
+      card.setIndex(card.getIndex());
+      k++;
+      j=0;
+      ignore_start = false;
     }
-    memcpy(data_buf, public_buf, 200);
-  #endif
+    #if ENABLED(SPI_GRAPHICAL_TFT)
+      for(i=0;i<200;)
+      {
+        p_index = (uint16_t *)(&public_buf[i]);
+
+            //Color = (*p_index >> 8);
+        //*p_index = Color | ((*p_index & 0xff) << 8);
+        i+=2;
+        if(*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full;
+      }
+    #else
+      for(i=0;i<200;)
+      {
+        p_index = (uint16_t *)(&public_buf[i]);
+        //Color = (*p_index >> 8);
+        //*p_index = Color | ((*p_index & 0xff) << 8);
+        i+=2;
+        if(*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full; // 0x18C3; //
+      }
+    #endif
+    memcpy(data_buf,public_buf,200);
+	#endif
 }
 
 void lv_close_gcode_file() {TERN_(SDSUPPORT, card.closefile());}
@@ -592,4 +614,4 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
 
 void lv_clear_print_file() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

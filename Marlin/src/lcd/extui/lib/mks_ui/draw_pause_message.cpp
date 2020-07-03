@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if BOTH(TFT_LITTLE_VGL_UI, ADVANCED_PAUSE_FEATURE)
+#if BOTH(TFT_LVGL_UI, ADVANCED_PAUSE_FEATURE)
 
 #include "draw_ui.h"
 #include "lv_conf.h"
@@ -52,4 +52,4 @@ void lv_draw_pause_message(const PauseMessage msg) {
   }
 }
 
-#endif // TFT_LITTLE_VGL_UI && ADVANCED_PAUSE_FEATURE
+#endif // TFT_LVGL_UI && ADVANCED_PAUSE_FEATURE

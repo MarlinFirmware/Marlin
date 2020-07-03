@@ -129,7 +129,6 @@ void HAL_adc_init();
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-inline uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 //
 // Pin Map

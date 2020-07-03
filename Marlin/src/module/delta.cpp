@@ -59,6 +59,7 @@ abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
+abc_float_t delta_diagonal_rod_trim;
 
 float delta_safe_distance_from_top();
 
@@ -67,17 +68,16 @@ float delta_safe_distance_from_top();
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings() {
-  constexpr abc_float_t trt = DELTA_RADIUS_TRIM_TOWER,
-                        drt = DELTA_DIAGONAL_ROD_TRIM_TOWER;
+  constexpr abc_float_t trt = DELTA_RADIUS_TRIM_TOWER;
   delta_tower[A_AXIS].set(cos(RADIANS(210 + delta_tower_angle_trim.a)) * (delta_radius + trt.a), // front left tower
                           sin(RADIANS(210 + delta_tower_angle_trim.a)) * (delta_radius + trt.a));
   delta_tower[B_AXIS].set(cos(RADIANS(330 + delta_tower_angle_trim.b)) * (delta_radius + trt.b), // front right tower
                           sin(RADIANS(330 + delta_tower_angle_trim.b)) * (delta_radius + trt.b));
   delta_tower[C_AXIS].set(cos(RADIANS( 90 + delta_tower_angle_trim.c)) * (delta_radius + trt.c), // back middle tower
                           sin(RADIANS( 90 + delta_tower_angle_trim.c)) * (delta_radius + trt.c));
-  delta_diagonal_rod_2_tower.set(sq(delta_diagonal_rod + drt.a),
-                                 sq(delta_diagonal_rod + drt.b),
-                                 sq(delta_diagonal_rod + drt.c));
+  delta_diagonal_rod_2_tower.set(sq(delta_diagonal_rod + delta_diagonal_rod_trim.a),
+                                 sq(delta_diagonal_rod + delta_diagonal_rod_trim.b),
+                                 sq(delta_diagonal_rod + delta_diagonal_rod_trim.c));
   update_software_endstops(Z_AXIS);
   set_all_unhomed();
 }
