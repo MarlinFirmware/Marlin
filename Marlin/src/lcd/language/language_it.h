@@ -180,38 +180,38 @@ namespace Language_it {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crea Mesh personal.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crea Mesh");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crea Mesh ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Crea Mesh ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crea Mesh ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Crea Mesh ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Crea Mesh ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Crea Mesh ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Crea Mesh ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Crea Mesh ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Crea Mesh ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Crea Mesh ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Crea Mesh a freddo");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Aggiusta Alt. Mesh");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Altezza");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Valida Mesh");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Valida Mesh ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Valida Mesh ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Valida Mesh ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Valida Mesh ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Valida Mesh ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Valida Mesh ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Valida Mesh ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Valida Mesh ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Valida Mesh ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Valida Mesh ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 riscald.letto");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 riscald.ugello");

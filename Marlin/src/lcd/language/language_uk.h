@@ -217,38 +217,38 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Сітка побудована");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Будувати сітку");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Будувати сітку ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Будувати сітку ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Будувати сітку ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Будувати сітку ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Будувати сітку ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Будувати сітку ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Будувати сітку ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Будувати сітку ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Будувати сітку ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Будувати сітку ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Буд. холодну сітку");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Встан.висоту сітки");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Висота");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Підтвердити сітку");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Підтвердити ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Підтвердити ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Підтвердити ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Підтвердити ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Підтвердити ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Підтвердити ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Підтвердити ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Підтвердити ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Підтвердити ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Підтвердити ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Підтвердити свою");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрів столу");

@@ -156,38 +156,38 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Xây dựng lưới tự chọn");                // Build Custom Mesh
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Xây dựng lưới");                        // Build Mesh
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Xây dựng lưới (") PREHEAT_1_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Xây dựng lưới (") PREHEAT_1_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Xây dựng lưới (") PREHEAT_2_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Xây dựng lưới (") PREHEAT_2_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Xây dựng lưới (") PREHEAT_3_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Xây dựng lưới (") PREHEAT_3_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Xây dựng lưới (") PREHEAT_4_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Xây dựng lưới (") PREHEAT_4_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Xây dựng lưới (") PREHEAT_5_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Xây dựng lưới (") PREHEAT_5_LABEL _UxGT(")");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Xây dựng lưới lạnh");                   // Build cold mesh
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Điều chỉnh chiều cao lưới");            // Adjust Mesh Height
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Số lượng chiều cao");                   // Height Amount
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Thẩm tra lưới");                        // Validate Mesh
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Thẩm tra lưới (") PREHEAT_1_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Thẩm tra lưới (") PREHEAT_1_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Thẩm tra lưới (") PREHEAT_2_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Thẩm tra lưới (") PREHEAT_2_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Thẩm tra lưới (") PREHEAT_3_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Thẩm tra lưới (") PREHEAT_3_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Thẩm tra lưới (") PREHEAT_4_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Thẩm tra lưới (") PREHEAT_4_LABEL _UxGT(")");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Thẩm tra lưới (") PREHEAT_5_LABEL _UxGT(")");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Thẩm tra lưới (") PREHEAT_5_LABEL _UxGT(")");
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Thẩm tra lưới tự chọn");                // validate custom mesh
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Tiếp tục xây lưới bàn");                // Continue Bed Mesh

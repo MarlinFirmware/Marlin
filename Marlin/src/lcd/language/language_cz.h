@@ -188,38 +188,38 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Vlastní síť");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Vytvořit síť");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Síť bodů ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Síť bodů ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Síť bodů ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Síť bodů ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = _UxGT("Síť bodů ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Síť bodů ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = _UxGT("Síť bodů ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Síť bodů ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = _UxGT("Síť bodů ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Síť bodů ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Studená síť bodů");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Upravit výšku sítě");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Výška");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Zkontrolovat síť");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Kontrola sítě ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Kontrola sítě ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Kontrola sítě ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Kontrola sítě ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = _UxGT("Kontrola sítě ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Kontrola sítě ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = _UxGT("Kontrola sítě ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Kontrola sítě ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = _UxGT("Kontrola sítě ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Kontrola sítě ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Kontrola vlast. sítě");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 zahřívání podl.");

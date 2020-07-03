@@ -172,38 +172,38 @@ namespace Language_de {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Eigenes Netz erst.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Netz erstellen");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = PREHEAT_1_LABEL _UxGT(" Netz erstellen");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = PREHEAT_1_LABEL _UxGT(" Netz erstellen");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = PREHEAT_2_LABEL _UxGT(" Netz erstellen");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = PREHEAT_2_LABEL _UxGT(" Netz erstellen");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3               = PREHEAT_3_LABEL _UxGT(" Netz erstellen");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = PREHEAT_3_LABEL _UxGT(" Netz erstellen");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4               = PREHEAT_4_LABEL _UxGT(" Netz erstellen");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = PREHEAT_4_LABEL _UxGT(" Netz erstellen");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5               = PREHEAT_5_LABEL _UxGT(" Netz erstellen");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = PREHEAT_5_LABEL _UxGT(" Netz erstellen");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Netz erstellen kalt");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Netzhöhe einst.");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Höhe");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Netz validieren");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = PREHEAT_1_LABEL _UxGT(" Netz validieren");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = PREHEAT_1_LABEL _UxGT(" Netz validieren");
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = PREHEAT_2_LABEL _UxGT(" Netz validieren");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = PREHEAT_2_LABEL _UxGT(" Netz validieren");
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3            = PREHEAT_3_LABEL _UxGT(" Netz validieren");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = PREHEAT_3_LABEL _UxGT(" Netz validieren");
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4            = PREHEAT_4_LABEL _UxGT(" Netz validieren");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = PREHEAT_4_LABEL _UxGT(" Netz validieren");
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5            = PREHEAT_5_LABEL _UxGT(" Netz validieren");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = PREHEAT_5_LABEL _UxGT(" Netz validieren");
   #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Eig. Netz validieren");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 heizt Bett");
