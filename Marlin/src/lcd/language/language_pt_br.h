@@ -70,49 +70,49 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Alteração aplicada");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ajustar Origem");
   #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Extrusora ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ajustar ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Extrusora ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Ajustar ") PREHEAT_1_LABEL;
   #endif
   #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Extrusora ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Extrusora ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ajustar ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2                     = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_H                   = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_END                 = _UxGT("Extrusora ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = _UxGT("Extrusora ") PREHEAT_2_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_2_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = _UxGT("Ajustar ") PREHEAT_2_LABEL;
   #endif
   #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                       = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_H                     = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                   = _UxGT("Extrusora ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E                 = _UxGT("Extrusora ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS              = _UxGT("Ajustar ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3                     = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_H                   = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_END                 = _UxGT("Extrusora ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = _UxGT("Extrusora ") PREHEAT_3_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_3_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = _UxGT("Ajustar ") PREHEAT_3_LABEL;
   #endif
   #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                       = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_H                     = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                   = _UxGT("Extrusora ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E                 = _UxGT("Extrusora ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS              = _UxGT("Ajustar ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4                     = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_H                   = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_END                 = _UxGT("Extrusora ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = _UxGT("Extrusora ") PREHEAT_4_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_4_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = _UxGT("Ajustar ") PREHEAT_4_LABEL;
   #endif
   #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                       = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_H                     = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                   = _UxGT("Extrusora ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E                 = _UxGT("Extrusora ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS              = _UxGT("Ajustar ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5                     = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_H                   = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_END                 = _UxGT("Extrusora ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = _UxGT("Extrusora ") PREHEAT_5_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_5_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = _UxGT("Ajustar ") PREHEAT_5_LABEL;
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Customizar Pre-aq.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Esfriar");
