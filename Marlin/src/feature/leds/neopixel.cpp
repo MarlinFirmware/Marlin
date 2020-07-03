@@ -52,14 +52,6 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
 
 #endif
 
-void Marlin_NeoPixel::set_neo_index(const uint8_t neoIndex) {
-  neoindex = neoIndex;
-}
-
-uint8_t Marlin_NeoPixel::get_neo_index() {
-  return neoindex; 
-}
-
 void Marlin_NeoPixel::set_color(const uint32_t color) {
   if (get_neo_index() < NEOPIXEL_PIXELS) { 
     set_pixel_color(get_neo_index(), color);
