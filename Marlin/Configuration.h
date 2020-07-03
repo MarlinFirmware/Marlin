@@ -480,10 +480,16 @@
   //#define DEFAULT_Ki 1.08
   //#define DEFAULT_Kd 114
 
-  // Tronxy X3A
-  #define DEFAULT_Kp 19.76
-  #define DEFAULT_Ki 1.10
-  #define DEFAULT_Kd 88.62
+  // Tronxy X3A_default
+  //#define DEFAULT_Kp 19.76
+  //#define DEFAULT_Ki 1.10
+  //#define DEFAULT_Kd 88.62
+  
+  
+  // Tronxy X3A_WEW 04/25/2020
+  #define DEFAULT_Kp 38.5
+  #define DEFAULT_Ki 2.93
+  #define DEFAULT_Kd 126.56
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -673,7 +679,7 @@
 #define Z_DRIVER_TYPE  TMC2130
 //#define X2_DRIVER_TYPE TMC2130
 //#define Y2_DRIVER_TYPE TMC2130
-//#define Z2_DRIVER_TYPE TMC2130
+#define Z2_DRIVER_TYPE TMC2130
 //#define Z3_DRIVER_TYPE TMC2130
 #define E0_DRIVER_TYPE TMC2130
 //#define E1_DRIVER_TYPE TMC2130
@@ -794,8 +800,8 @@
  *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.0  // (mm) Distance from real junction edge
-  //#define JUNCTION_DEVIATION_MM 0.03  // (mm) Distance from real junction edge
+  //#define JUNCTION_DEVIATION_MM 0.0  // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.03  // (mm) Distance from real junction edge
   //#define JUNCTION_DEVIATION_MM 0.08  // (mm) Distance from real junction edge
 #endif
 
@@ -930,7 +936,8 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -32, -10, -01.25 }
+// WEW 04/25/2020
+#define NOZZLE_TO_PROBE_OFFSET { -32, -10, -0.785}
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 50
@@ -1031,7 +1038,7 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
-#define INVERT_Z_DIR true
+#define INVERT_Z_DIR false
 
 // @section extruder
 
@@ -1065,11 +1072,11 @@
 #define Y_BED_SIZE 220
 
 // Tronxy X3A specific offsets
-// WEW 0/16/20
-//#define TRONXY_X_BED_OFFSET -17
-//#define TRONXY_Y_BED_OFFSET -25
-#define TRONXY_X_BED_OFFSET -7
-#define TRONXY_Y_BED_OFFSET -15
+// WEW 0/16/20 redacted 04/23/2020
+#define TRONXY_X_BED_OFFSET -17
+#define TRONXY_Y_BED_OFFSET -25
+//#define TRONXY_X_BED_OFFSET -7
+//#define TRONXY_Y_BED_OFFSET -15
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS TRONXY_X_BED_OFFSET
@@ -1077,7 +1084,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE - (2 * TRONXY_X_BED_OFFSET)
 #define Y_MAX_POS Y_BED_SIZE - (TRONXY_Y_BED_OFFSET + 5)
-#define Z_MAX_POS 316
+#define Z_MAX_POS 300
 
 /**
  * Software Endstops
