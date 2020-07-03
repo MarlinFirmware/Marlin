@@ -43,11 +43,11 @@
 #include "../../../../module/planner.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../feature/powerloss.h"
+  #include "../../../../feature/powerloss.h"
 #endif
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
-  #include "../../../feature/pause.h"
+  #include "../../../../feature/pause.h"
 #endif
 #include "../../../../gcode/gcode.h"
 
