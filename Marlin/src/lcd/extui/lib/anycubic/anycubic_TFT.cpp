@@ -89,6 +89,9 @@ void AnycubicTFTClass::OnSetup() {
     WRITE(FIL_RUNOUT_PIN,HIGH);
   #endif
 
+  mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+  mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+
   // DoSDCardStateCheck();
   ANYCUBIC_SENDCOMMAND_DBG_PGM("J12", "TFT Serial Debug: Ready... J12");  // J12 Ready
   ExtUI::delay_ms(10);
@@ -106,6 +109,17 @@ void AnycubicTFTClass::OnSetup() {
 
 void AnycubicTFTClass::OnCommandScan() {
   // CheckHeaterError();
+  
+  // if (mediaPrintingState == AMPRINTSTATE_PAUSED && !ExtUI::isMoving()) {
+  //   mediaPrintingState = AMPRINTSTATE_PAUSED;
+  //   ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: SD print paused done... J18");
+  // } else 
+  
+  if (mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && !ExtUI::isMoving()) {
+    mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+    mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+    ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stopped... J16");
+  }
   
   if(TFTbuflen<(TFTBUFSIZE-1)) {
     GetCommandFromTFT();
@@ -131,6 +145,10 @@ void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   DoSDCardStateCheck();
 }
 
+void AnycubicTFTClass::OnSDCardError() {
+  ANYCUBIC_SENDCOMMAND_DBG_PGM("J21", "TFT Serial Debug: On SD Card Error ... J21");
+}
+
 void AnycubicTFTClass::OnFilamentRunout() {
   #if ENABLED(ANYCUBIC_TFT_DEBUG)
     SERIAL_ECHOLNPGM("TFT Serial Debug: FilamentRunout triggered...");
@@ -146,8 +164,8 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #endif
 
   #if ENABLED(SDSUPPORT)
-    
-    // TODO: JBA Might have to handle states like heater time out and the like for interactive resume? 
+    //
+    // The only way to handle these states is strcmp_P with the msg unfortunately 
     /**
      * Need to handle the process of following states
      * "Nozzle Parked"
@@ -156,8 +174,35 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
      * "HeaterTimeout"
      * "Reheat finished."
      */
+    if (strcmp_P(msg, PSTR("Nozzle Parked")) == 0) {
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_PARKED;
+      // enable continue button
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
+    } else if (strcmp_P(msg, PSTR("Load Filament")) == 0) {
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_FILAMENT_OUT;
+      // enable continue button
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is out... J18");
+      // tell the user that the filament has run out and wait 
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: UserConfirm Blocking filament prompt... J23");
+    } else if (strcmp_P(msg, PSTR("Filament Purging...")) == 0) {
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_PARKING;
+      // disable all buttons
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
+    } else if (strcmp_P(msg, PSTR("HeaterTimeout")) == 0) {
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_HEATER_TIMEOUT;
+      // enable continue button
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD Heater timeout... J18");
+    } else if (strcmp_P(msg, PSTR("Reheat finished.")) == 0) {
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_REHEAT_FINISHED;
+      // enable continue button
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD Reheat done... J18");
+    }
   #endif
-  
 }
 
 float AnycubicTFTClass::CodeValue() {
@@ -174,15 +219,7 @@ void AnycubicTFTClass::HandleSpecialMenu() {
   // NOTE: that the file selection command actual lowercases the entire selected file/foldername, so charracter comparisons need to be lowercase.
   //
   if (SelectedDirectory[0] == '<' ) {
-    
     switch (SelectedDirectory[1]) {
-    
-      // this will not bein the special menu as it was in the root folder
-      // case 's': // "<specialmnu>"
-      //   SpecialMenu = true;
-      //   return;
-      //   break;
-
       case 'e': // "<exit>"
         SpecialMenu = false;
         return;
@@ -461,7 +498,7 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
 
 void AnycubicTFTClass::OnPrintTimerStarted() {
   #if ENABLED(SDSUPPORT)
-    if (IsPrintingFromMedia) {
+    if (mediaPrintingState == AMPRINTSTATE_PRINTING) {
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J04","TFT Serial Debug: Starting SD Print... J04"); // J04 Starting Print
     }
   #endif
@@ -469,18 +506,22 @@ void AnycubicTFTClass::OnPrintTimerStarted() {
 
 void AnycubicTFTClass::OnPrintTimerPaused() {
   #if ENABLED(SDSUPPORT)
-    if (IsPrintingFromMedia) {
-      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: SD print paused done... J18");
+    if (ExtUI::isPrintingFromMedia) {
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_PARKING;
     }
   #endif
 }
 
 void AnycubicTFTClass::OnPrintTimerStopped() {
   #if ENABLED(SDSUPPORT)
-    if (IsPrintingFromMedia) {
-      IsPrintingFromMedia = false;
+    if (mediaPrintingState == AMPRINTSTATE_PRINTING) {
+      mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+      mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J14", "TFT Serial Debug: SD Print Completed... J14");
     }
+
+    // otherwise it was stopped by the printer so don't send print completed signal to TFT
   #endif
 }
 
@@ -935,7 +976,7 @@ void AnycubicTFTClass::DoSDCardStateCheck() {
 void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     if (ExtUI::getFilamentRunoutState()) {
-      if(IsPrintingFromMedia or ExtUI::isPrintingFromMedia()) {
+      if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
         ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
       
@@ -957,7 +998,8 @@ void AnycubicTFTClass::StartPrint() {
         SERIAL_ECHOPGM(" ");
         SERIAL_ECHOLN(SelectedFile);
       #endif
-      IsPrintingFromMedia = true;
+      mediaPrintingState = AMPRINTSTATE_PRINTING;
+      mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
       ExtUI::printFile(SelectedFile);
     }
   #endif // SDUPPORT
@@ -966,15 +1008,9 @@ void AnycubicTFTClass::StartPrint() {
 void AnycubicTFTClass::PausePrint() {
   #if ENABLED(SDSUPPORT)
     if(ExtUI::isPrintingFromMedia()) {
+      mediaPrintingState = AMPRINTSTATE_PAUSE_REQUESTED;
+      mediaPauseState = AMPAUSESTATE_NOT_PAUSED; // need the userconfirm method to update pause state
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
-
-      if (ExtUI::getFilamentRunoutState()) {
-        // tell the user that the filament has run out and wait 
-        ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: Show filament prompt... J23");
-      
-        // play tone to indicate filament is out
-        ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
-      }
 
       ExtUI::pausePrint();
     }
@@ -985,19 +1021,31 @@ void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       if (ExtUI::getFilamentRunoutState()) {
-        PausePrint();
+        DoFilamentRunoutCheck();
         return;
       }
     #endif
+    
+    if(mediaPauseState == AMPAUSESTATE_HEATER_TIMEOUT) {
+      mediaPauseState = AMPAUSESTATE_REHEATING;
+      // disable the continue button 
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: Resume called with heater timeout... J05"); // J05 printing pause
+      // reheat the nozzle
+      ExtUI::setUserConfirmed();
+    } else {
+      mediaPrintingState = AMPRINTSTATE_PRINTING;
+      mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
 
-    ANYCUBIC_SENDCOMMAND_DBG_PGM("J04", "TFT Serial Debug: SD print resumed... J04"); // J04 printing form sd card now
-    ExtUI::resumePrint();
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J04", "TFT Serial Debug: SD print resumed... J04"); // J04 printing form sd card now
+      ExtUI::resumePrint();
+    }
   #endif
 }
 
 void AnycubicTFTClass::StopPrint() {
   #if ENABLED(SDSUPPORT)
-    ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stopped... J16");
+    mediaPrintingState = AMPRINTSTATE_STOP_REQUESTED;
+    mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
     ExtUI::stopPrint();
   #endif // SDSUPPORT
 }

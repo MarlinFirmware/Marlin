@@ -54,7 +54,9 @@ namespace ExtUI {
     AnycubicTFT.OnSDCardStateChange(true);
   };
   
-  void onMediaError() {};
+  void onMediaError() {
+    AnycubicTFT.OnSDCardError();
+  };
 
   void onMediaRemoved() {
     AnycubicTFT.OnSDCardStateChange(false);

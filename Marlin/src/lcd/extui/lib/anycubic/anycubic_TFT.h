@@ -56,6 +56,24 @@ char *itostr2(const uint8_t &x);
 #define ANYCUBIC_TFT_STATE_SDSTOP_REQ     5
 #define ANYCUBIC_TFT_STATE_SDOUTAGE       99
 */
+enum AnycubicMediaPrintState {
+  AMPRINTSTATE_NOT_PRINTING,
+  AMPRINTSTATE_PRINTING,
+  AMPRINTSTATE_PAUSE_REQUESTED,
+  AMPRINTSTATE_PAUSED,
+  AMPRINTSTATE_STOP_REQUESTED
+};
+
+enum AnycubicMediaPauseState {
+  AMPAUSESTATE_NOT_PAUSED,
+  AMPAUSESTATE_PARKING,
+  AMPAUSESTATE_PARKED,
+  AMPAUSESTATE_FILAMENT_OUT,
+  AMPAUSESTATE_FIAMENT_PRUGING,
+  AMPAUSESTATE_HEATER_TIMEOUT,
+  AMPAUSESTATE_REHEATING,
+  AMPAUSESTATE_REHEAT_FINISHED
+};
 
 class AnycubicTFTClass {
 public:
@@ -64,6 +82,7 @@ public:
   void OnCommandScan();
   void OnKillTFT();
   void OnSDCardStateChange(bool);
+  void OnSDCardError();
   void OnFilamentRunout();
   void OnUserConfirmRequired(const char *);
   void OnPrintTimerStarted();
@@ -81,7 +100,8 @@ private:
   char *TFTstrchr_pointer;
   uint16_t HeaterCheckCount = 0;
   uint8_t SpecialMenu = false;
-  uint8_t IsPrintingFromMedia = false;
+  AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+  AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
   
   float CodeValue();
   bool CodeSeen(char);
