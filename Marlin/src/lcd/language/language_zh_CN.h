@@ -444,7 +444,6 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("错误：最低热床温度");     //"Err: MINTEMP BED"
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("错误：最高机箱温度");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("错误：最低机箱温度");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("归位 XY 先");     // "Home XY First"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("打印停机");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("请重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only

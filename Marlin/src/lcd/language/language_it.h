@@ -453,7 +453,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: TEMP MIN PIATTO");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: TEMP MAX CAMERA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: TEMP MIN CAMERA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY prima");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("STAMPANTE FERMATA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Riavviare prego");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("g"); // Un solo carattere

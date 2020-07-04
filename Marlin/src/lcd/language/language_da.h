@@ -141,7 +141,6 @@ namespace Language_da {
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Fejl: Min temp");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Fejl: Maks Plade temp");
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Fejl: Min Plade temp");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY først");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER STOPPET");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reset Venligst");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // Kun et bogstav

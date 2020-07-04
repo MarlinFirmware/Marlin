@@ -448,7 +448,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Hiba: MIN ÁGY HÖFOK");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Hiba: MAX KAMRA HÖFOK");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Hiba: MIN KAMRA HÖFOK");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("XY Kezdöpont");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("A NYOMTATÓ LEFAGYOTT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Indítsd újra!");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n"); // Csak egy karakter

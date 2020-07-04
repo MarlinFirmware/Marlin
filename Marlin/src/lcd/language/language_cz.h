@@ -413,7 +413,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("NÍZ. TEPL. PODL.");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: MAXTEMP KOMORA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: MINTEMP KOMORA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Domů XY první");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("TISK. ZASTAVENA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Proveďte reset");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");
