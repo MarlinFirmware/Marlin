@@ -116,13 +116,6 @@
 
   inline void home_z_safely() {
 
-    // Disallow Z homing if X or Y are unknown
-    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
-      LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_MSG(STR_ERR_Z_HOMING_SER);
-      return;
-    }
-
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("home_z_safely >>>");
 
     sync_plan_position();
@@ -311,9 +304,11 @@ void GcodeSuite::G28() {
 
   #else // NOT DELTA
 
+    #define Z_HOME_NEEDS_XY (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS))
+
     const bool homeZ = parser.seen('Z'),
-               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
-               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, Z_HOME_NEEDS_XY),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, Z_HOME_NEEDS_XY),
                homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
