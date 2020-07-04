@@ -1804,16 +1804,16 @@ void Temperature::init() {
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
-    #if THERMISTOR_HEATER_0
+    #if THERMISTOR_HEATER_0 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_0_MINTEMP
       _TEMP_MIN_E(0);
       #endif
       #ifdef HEATER_0_MAXTEMP
-        _TEMP_MAX_E(0);
+        _TEMP_MAX_E(0); 
       #endif
     #endif
 
-    #if HAS_MULTI_HOTEND && THERMISTOR_HEATER_1
+    #if HAS_MULTI_HOTEND && THERMISTOR_HEATER_1 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_1_MINTEMP
         _TEMP_MIN_E(1);
       #endif
@@ -1822,7 +1822,7 @@ void Temperature::init() {
       #endif
     #endif
 
-    #if HOTENDS > 2 && THERMISTOR_HEATER_2
+    #if HOTENDS > 2 && THERMISTOR_HEATER_2 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_2_MINTEMP
         _TEMP_MIN_E(2);
       #endif
@@ -1831,7 +1831,7 @@ void Temperature::init() {
       #endif
     #endif
 
-    #if HOTENDS > 3 && THERMISTOR_HEATER_3
+    #if HOTENDS > 3 && THERMISTOR_HEATER_3 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_3_MINTEMP
         _TEMP_MIN_E(3);
       #endif
@@ -1840,7 +1840,7 @@ void Temperature::init() {
       #endif
     #endif
 
-    #if HOTENDS > 4 && THERMISTOR_HEATER_4
+    #if HOTENDS > 4 && THERMISTOR_HEATER_4 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_4_MINTEMP
         _TEMP_MIN_E(4);
       #endif
@@ -1849,7 +1849,7 @@ void Temperature::init() {
       #endif
     #endif
 
-    #if HOTENDS > 5 && THERMISTOR_HEATER_5
+    #if HOTENDS > 5 && THERMISTOR_HEATER_5 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_5_MINTEMP
         _TEMP_MIN_E(5);
       #endif
@@ -1858,7 +1858,7 @@ void Temperature::init() {
       #endif
     #endif
 
-    #if HOTENDS > 6 && THERMISTOR_HEATER_6
+    #if HOTENDS > 6 && THERMISTOR_HEATER_6 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_6_MINTEMP
         _TEMP_MIN_E(6);
       #endif
@@ -1867,7 +1867,7 @@ void Temperature::init() {
       #endif
     #endif
 
-    #if HOTENDS > 7 && THERMISTOR_HEATER_7
+    #if HOTENDS > 7 && THERMISTOR_HEATER_7 && THERMISTOR_HEATER_0 != 999 && THERMISTOR_HEATER_0 != 998
       #ifdef HEATER_7_MINTEMP
         _TEMP_MIN_E(7);
       #endif
