@@ -134,15 +134,15 @@ void lv_draw_machine_para(void) {
   LV_IMG_DECLARE(bmp_para_back);
   LV_IMG_DECLARE(bmp_para_arrow);
 
-  buttonMachine = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonMachine, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
-  lv_obj_set_size(buttonMachine, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+  buttonMachine = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+  lv_obj_set_pos(buttonMachine, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
+  lv_obj_set_size(buttonMachine, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
   // lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonMachine, event_handler, ID_PARA_MACHINE, NULL, 0);
   lv_btn_set_style(buttonMachine, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonMachine, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonMachine, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
   lv_btn_set_layout(buttonMachine, LV_LAYOUT_OFF);
-  labelMachine = lv_label_create(buttonMachine, NULL);        /*Add a label to the button*/
+  labelMachine = lv_label_create(buttonMachine, NULL);                      /*Add a label to the button*/
 
   buttonMachineNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonMachineNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
@@ -156,15 +156,15 @@ void lv_draw_machine_para(void) {
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
-  buttonMotor = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonMotor, PARA_UI_POS_X, PARA_UI_POS_Y * 2);                       /*Set its position*/
-  lv_obj_set_size(buttonMotor, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+  buttonMotor = lv_btn_create(scr, NULL);                                   /*Add a button the current screen*/
+  lv_obj_set_pos(buttonMotor, PARA_UI_POS_X, PARA_UI_POS_Y * 2);            /*Set its position*/
+  lv_obj_set_size(buttonMotor, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);             /*Set its size*/
   // lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonMotor, event_handler, ID_PARA_MOTOR, NULL, 0);
-  lv_btn_set_style(buttonMotor, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonMotor, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonMotor, LV_BTN_STYLE_REL, &tft_style_label_rel);    /*Set the button's released style*/
+  lv_btn_set_style(buttonMotor, LV_BTN_STYLE_PR, &tft_style_label_pre);     /*Set the button's pressed style*/
   lv_btn_set_layout(buttonMotor, LV_LAYOUT_OFF);
-  labelMotor = lv_label_create(buttonMotor, NULL);        /*Add a label to the button*/
+  labelMotor = lv_label_create(buttonMotor, NULL);                          /*Add a label to the button*/
 
   buttonMotorNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonMotorNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
@@ -178,15 +178,15 @@ void lv_draw_machine_para(void) {
   line2 = lv_line_create(scr, NULL);
   lv_ex_line(line2, line_points[1]);
 
-  buttonAdvance = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonAdvance, PARA_UI_POS_X, PARA_UI_POS_Y * 3);                       /*Set its position*/
-  lv_obj_set_size(buttonAdvance, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+  buttonAdvance = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+  lv_obj_set_pos(buttonAdvance, PARA_UI_POS_X, PARA_UI_POS_Y * 3);          /*Set its position*/
+  lv_obj_set_size(buttonAdvance, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
   // lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonAdvance, event_handler, ID_PARA_ADVANCE, NULL, 0);
   lv_btn_set_style(buttonAdvance, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonAdvance, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonAdvance, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
   lv_btn_set_layout(buttonAdvance, LV_LAYOUT_OFF);
-  labelAdvance = lv_label_create(buttonAdvance, NULL);        /*Add a label to the button*/
+  labelAdvance = lv_label_create(buttonAdvance, NULL);                      /*Add a label to the button*/
 
   buttonAdvanceNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonAdvanceNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V);

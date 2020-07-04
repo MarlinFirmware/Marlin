@@ -1066,7 +1066,7 @@ void clear_cur_ui() {
       lv_clear_move_motor();
       break;
     case OPERATE_UI:
-      lv_clear_opration();
+      lv_clear_operation();
       break;
     case PAUSE_UI:
       //Clear_pause();
@@ -1274,7 +1274,7 @@ void draw_return_ui() {
         lv_draw_move_motor();
         break;
       case OPERATE_UI:
-        lv_draw_opration();
+        lv_draw_operation();
         break;
 
         #if 1

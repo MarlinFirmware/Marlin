@@ -587,11 +587,11 @@ void lv_draw_number_key(void) {
   lv_obj_t *NumberKey_1 = NULL, *NumberKey_2 = NULL, *NumberKey_3 = NULL, *NumberKey_4 = NULL, *NumberKey_5 = NULL;
   lv_obj_t *NumberKey_6 = NULL, *NumberKey_7 = NULL, *NumberKey_8 = NULL, *NumberKey_9 = NULL, *NumberKey_0 = NULL;
   lv_obj_t *KeyPoint = NULL, *KeyConfirm = NULL, *KeyReset = NULL, *KeyBack = NULL;
-  lv_obj_t *Nagetive = NULL;
+  lv_obj_t *Minus = NULL;
   lv_obj_t *labelKey_1 = NULL, *labelKey_2 = NULL, *labelKey_3 = NULL, *labelKey_4 = NULL, *labelKey_5 = NULL;
   lv_obj_t *labelKey_6 = NULL, *labelKey_7 = NULL, *labelKey_8 = NULL, *labelKey_9 = NULL, *labelKey_0 = NULL;
   lv_obj_t *labelKeyPoint = NULL, *labelKeyConfirm = NULL, *labelKeyReset = NULL, *labelKeyBack = NULL;
-  lv_obj_t *labelNagetive = NULL;
+  lv_obj_t *labelMinus = NULL;
 
   buttonValue = NULL;
   labelValue  = NULL;
@@ -617,182 +617,181 @@ void lv_draw_number_key(void) {
 
   // LV_IMG_DECLARE(bmp_pic);
 
-  buttonValue = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonValue, 92, 40);                         /*Set its position*/
+  buttonValue = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(buttonValue, 92, 40);                                  /*Set its position*/
   lv_obj_set_size(buttonValue, 296, 40);
   lv_obj_set_event_cb_mks(buttonValue, event_handler, ID_NUM_KEY1, NULL, 0);
-  lv_btn_set_style(buttonValue, LV_BTN_STYLE_REL, &style_num_text);  /*Set the button's released style*/
-  lv_btn_set_style(buttonValue, LV_BTN_STYLE_PR, &style_num_text);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonValue, LV_BTN_STYLE_REL, &style_num_text);     /*Set the button's released style*/
+  lv_btn_set_style(buttonValue, LV_BTN_STYLE_PR, &style_num_text);      /*Set the button's pressed style*/
   lv_btn_set_layout(buttonValue, LV_LAYOUT_OFF);
-  labelValue = lv_label_create(buttonValue, NULL);        /*Add a label to the button*/
+  labelValue = lv_label_create(buttonValue, NULL);                      /*Add a label to the button*/
 
-  NumberKey_1 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_1, 92, 90);                         /*Set its position*/
+  NumberKey_1 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_1, 92, 90);                                  /*Set its position*/
   lv_obj_set_size(NumberKey_1, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_1, event_handler, ID_NUM_KEY1, NULL, 0);
   lv_btn_set_style(NumberKey_1, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_1, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_1, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_1, LV_LAYOUT_OFF);
-  labelKey_1 = lv_label_create(NumberKey_1, NULL);        /*Add a label to the button*/
+  labelKey_1 = lv_label_create(NumberKey_1, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_1, machine_menu.key_1);
   lv_obj_align(labelKey_1, NumberKey_1, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_2 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_2, 168, 90);                         /*Set its position*/
+  NumberKey_2 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_2, 168, 90);                                 /*Set its position*/
   lv_obj_set_size(NumberKey_2, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_2, event_handler, ID_NUM_KEY2, NULL, 0);
   lv_btn_set_style(NumberKey_2, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_2, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_2, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_2, LV_LAYOUT_OFF);
-  labelKey_2 = lv_label_create(NumberKey_2, NULL);        /*Add a label to the button*/
+  labelKey_2 = lv_label_create(NumberKey_2, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_2, machine_menu.key_2);
   lv_obj_align(labelKey_2, NumberKey_2, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_3 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_3, 244, 90);                         /*Set its position*/
+  NumberKey_3 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_3, 244, 90);                                 /*Set its position*/
   lv_obj_set_size(NumberKey_3, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_3, event_handler, ID_NUM_KEY3, NULL, 0);
   lv_btn_set_style(NumberKey_3, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_3, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_3, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_3, LV_LAYOUT_OFF);
-  labelKey_3 = lv_label_create(NumberKey_3, NULL);        /*Add a label to the button*/
+  labelKey_3 = lv_label_create(NumberKey_3, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_3, machine_menu.key_3);
   lv_obj_align(labelKey_3, NumberKey_3, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_4 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_4, 92, 140);                         /*Set its position*/
+  NumberKey_4 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_4, 92, 140);                                 /*Set its position*/
   lv_obj_set_size(NumberKey_4, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_4, event_handler, ID_NUM_KEY4, NULL, 0);
   lv_btn_set_style(NumberKey_4, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_4, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_4, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_4, LV_LAYOUT_OFF);
-  labelKey_4 = lv_label_create(NumberKey_4, NULL);        /*Add a label to the button*/
+  labelKey_4 = lv_label_create(NumberKey_4, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_4, machine_menu.key_4);
   lv_obj_align(labelKey_4, NumberKey_4, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_5 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_5, 168, 140);                         /*Set its position*/
+  NumberKey_5 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_5, 168, 140);                                /*Set its position*/
   lv_obj_set_size(NumberKey_5, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_5, event_handler, ID_NUM_KEY5, NULL, 0);
   lv_btn_set_style(NumberKey_5, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_5, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_5, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_5, LV_LAYOUT_OFF);
-  labelKey_5 = lv_label_create(NumberKey_5, NULL);        /*Add a label to the button*/
+  labelKey_5 = lv_label_create(NumberKey_5, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_5, machine_menu.key_5);
   lv_obj_align(labelKey_5, NumberKey_5, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_6 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_6, 244, 140);                         /*Set its position*/
+  NumberKey_6 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_6, 244, 140);                                /*Set its position*/
   lv_obj_set_size(NumberKey_6, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_6, event_handler, ID_NUM_KEY6, NULL, 0);
   lv_btn_set_style(NumberKey_6, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_6, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_6, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_6, LV_LAYOUT_OFF);
-  labelKey_6 = lv_label_create(NumberKey_6, NULL);        /*Add a label to the button*/
+  labelKey_6 = lv_label_create(NumberKey_6, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_6, machine_menu.key_6);
   lv_obj_align(labelKey_6, NumberKey_6, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_7 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_7, 92, 190);                         /*Set its position*/
+  NumberKey_7 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_7, 92, 190);                                 /*Set its position*/
   lv_obj_set_size(NumberKey_7, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_7, event_handler, ID_NUM_KEY7, NULL, 0);
   lv_btn_set_style(NumberKey_7, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_7, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_7, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_7, LV_LAYOUT_OFF);
-  labelKey_7 = lv_label_create(NumberKey_7, NULL);        /*Add a label to the button*/
+  labelKey_7 = lv_label_create(NumberKey_7, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_7, machine_menu.key_7);
   lv_obj_align(labelKey_7, NumberKey_7, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_8 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_8, 168, 190);                         /*Set its position*/
+  NumberKey_8 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_8, 168, 190);                                /*Set its position*/
   lv_obj_set_size(NumberKey_8, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_8, event_handler, ID_NUM_KEY8, NULL, 0);
   lv_btn_set_style(NumberKey_8, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_8, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_8, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_8, LV_LAYOUT_OFF);
-  labelKey_8 = lv_label_create(NumberKey_8, NULL);        /*Add a label to the button*/
+  labelKey_8 = lv_label_create(NumberKey_8, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_8, machine_menu.key_8);
   lv_obj_align(labelKey_8, NumberKey_8, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_9 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_9, 244, 190);                         /*Set its position*/
+  NumberKey_9 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_9, 244, 190);                                /*Set its position*/
   lv_obj_set_size(NumberKey_9, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_9, event_handler, ID_NUM_KEY9, NULL, 0);
   lv_btn_set_style(NumberKey_9, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_9, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_9, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_9, LV_LAYOUT_OFF);
-  labelKey_9 = lv_label_create(NumberKey_9, NULL);        /*Add a label to the button*/
+  labelKey_9 = lv_label_create(NumberKey_9, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_9, machine_menu.key_9);
   lv_obj_align(labelKey_9, NumberKey_9, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_0 = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(NumberKey_0, 92, 240);                         /*Set its position*/
+  NumberKey_0 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
+  lv_obj_set_pos(NumberKey_0, 92, 240);                                 /*Set its position*/
   lv_obj_set_size(NumberKey_0, 68, 40);
   lv_obj_set_event_cb_mks(NumberKey_0, event_handler, ID_NUM_KEY0, NULL, 0);
   lv_btn_set_style(NumberKey_0, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(NumberKey_0, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(NumberKey_0, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   lv_btn_set_layout(NumberKey_0, LV_LAYOUT_OFF);
-  labelKey_0 = lv_label_create(NumberKey_0, NULL);        /*Add a label to the button*/
+  labelKey_0 = lv_label_create(NumberKey_0, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_0, machine_menu.key_0);
   lv_obj_align(labelKey_0, NumberKey_0, LV_ALIGN_CENTER, 0, 0);
 
-  KeyBack = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(KeyBack, 320, 90);                         /*Set its position*/
+  KeyBack = lv_btn_create(scr, NULL);                                   /*Add a button the current screen*/
+  lv_obj_set_pos(KeyBack, 320, 90);                                     /*Set its position*/
   lv_obj_set_size(KeyBack, 68, 40);
   lv_obj_set_event_cb_mks(KeyBack, event_handler, ID_NUM_BACK, NULL, 0);
-  lv_btn_set_style(KeyBack, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(KeyBack, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(KeyBack, LV_BTN_STYLE_REL, &style_num_key_pre);      /*Set the button's released style*/
+  lv_btn_set_style(KeyBack, LV_BTN_STYLE_PR, &style_num_key_rel);       /*Set the button's pressed style*/
   lv_btn_set_layout(KeyBack, LV_LAYOUT_OFF);
-  labelKeyBack = lv_label_create(KeyBack, NULL);        /*Add a label to the button*/
+  labelKeyBack = lv_label_create(KeyBack, NULL);                        /*Add a label to the button*/
   lv_label_set_text(labelKeyBack, machine_menu.key_back);
   lv_obj_align(labelKeyBack, KeyBack, LV_ALIGN_CENTER, 0, 0);
 
-  KeyReset = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(KeyReset, 320, 140);                         /*Set its position*/
+  KeyReset = lv_btn_create(scr, NULL);                                  /*Add a button the current screen*/
+  lv_obj_set_pos(KeyReset, 320, 140);                                   /*Set its position*/
   lv_obj_set_size(KeyReset, 68, 40);
   lv_obj_set_event_cb_mks(KeyReset, event_handler, ID_NUM_RESET, NULL, 0);
-  lv_btn_set_style(KeyReset, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(KeyReset, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(KeyReset, LV_BTN_STYLE_REL, &style_num_key_pre);     /*Set the button's released style*/
+  lv_btn_set_style(KeyReset, LV_BTN_STYLE_PR, &style_num_key_rel);      /*Set the button's pressed style*/
   lv_btn_set_layout(KeyReset, LV_LAYOUT_OFF);
-  labelKeyReset = lv_label_create(KeyReset, NULL);        /*Add a label to the button*/
+  labelKeyReset = lv_label_create(KeyReset, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKeyReset, machine_menu.key_reset);
   lv_obj_align(labelKeyReset, KeyReset, LV_ALIGN_CENTER, 0, 0);
 
-  KeyConfirm = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(KeyConfirm, 320, 190);                         /*Set its position*/
+  KeyConfirm = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+  lv_obj_set_pos(KeyConfirm, 320, 190);                                 /*Set its position*/
   lv_obj_set_size(KeyConfirm, 68, 90);
   lv_obj_set_event_cb_mks(KeyConfirm, event_handler, ID_NUM_CONFIRM, NULL, 0);
-  lv_btn_set_style(KeyConfirm, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
+  lv_btn_set_style(KeyConfirm, LV_BTN_STYLE_REL, &style_num_key_pre);   /*Set the button's released style*/
   lv_btn_set_style(KeyConfirm, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
   lv_btn_set_layout(KeyConfirm, LV_LAYOUT_OFF);
-  labelKeyConfirm = lv_label_create(KeyConfirm, NULL);        /*Add a label to the button*/
+  labelKeyConfirm = lv_label_create(KeyConfirm, NULL);                  /*Add a label to the button*/
   lv_label_set_text(labelKeyConfirm, machine_menu.key_confirm);
   lv_obj_align(labelKeyConfirm, KeyConfirm, LV_ALIGN_CENTER, 0, 0);
 
-  KeyPoint = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(KeyPoint, 244, 240);                         /*Set its position*/
+  KeyPoint = lv_btn_create(scr, NULL);                                  /*Add a button the current screen*/
+  lv_obj_set_pos(KeyPoint, 244, 240);                                   /*Set its position*/
   lv_obj_set_size(KeyPoint, 68, 40);
   lv_obj_set_event_cb_mks(KeyPoint, event_handler, ID_NUM_POINT, NULL, 0);
-  lv_btn_set_style(KeyPoint, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(KeyPoint, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
+  lv_btn_set_style(KeyPoint, LV_BTN_STYLE_REL, &style_num_key_pre);     /*Set the button's released style*/
+  lv_btn_set_style(KeyPoint, LV_BTN_STYLE_PR, &style_num_key_rel);      /*Set the button's pressed style*/
   lv_btn_set_layout(KeyPoint, LV_LAYOUT_OFF);
-  labelKeyPoint = lv_label_create(KeyPoint, NULL);        /*Add a label to the button*/
+  labelKeyPoint = lv_label_create(KeyPoint, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKeyPoint, machine_menu.key_point);
   lv_obj_align(labelKeyPoint, KeyPoint, LV_ALIGN_CENTER, 0, 0);
 
-  Nagetive = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(Nagetive, 168, 240);                         /*Set its position*/
-  lv_obj_set_size(Nagetive, 68, 40);
-  lv_obj_set_event_cb_mks(Nagetive, event_handler, ID_NUM_NAGETIVE, NULL, 0);
-  lv_btn_set_style(Nagetive, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
-  lv_btn_set_style(Nagetive, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
-  lv_btn_set_layout(Nagetive, LV_LAYOUT_OFF);
-  labelNagetive = lv_label_create(Nagetive, NULL);        /*Add a label to the button*/
-  lv_label_set_text(labelNagetive, machine_menu.negative);
-  lv_obj_align(labelNagetive, Nagetive, LV_ALIGN_CENTER, 0, 0);
+  Minus = lv_btn_create(scr, NULL);                                     /*Add a button the current screen*/
+  lv_obj_set_pos(Minus, 168, 240);                                      /*Set its position*/
+  lv_obj_set_size(Minus, 68, 40);
+  lv_obj_set_event_cb_mks(Minus, event_handler, ID_NUM_NAGETIVE, NULL, 0);
+  lv_btn_set_style(Minus, LV_BTN_STYLE_REL, &style_num_key_pre);        /*Set the button's released style*/
+  lv_btn_set_style(Minus, LV_BTN_STYLE_PR, &style_num_key_rel);         /*Set the button's pressed style*/
+  lv_btn_set_layout(Minus, LV_LAYOUT_OFF);
+  labelMinus = lv_label_create(Minus, NULL);                            /*Add a label to the button*/
+  lv_label_set_text(labelMinus, machine_menu.negative);
+  lv_obj_align(labelMinus, Minus, LV_ALIGN_CENTER, 0, 0);
 
   disp_key_value();
-
 }
 
 void lv_clear_number_key() { lv_obj_del(scr); }

@@ -127,7 +127,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (gcode_preview_over != 1) {
           lv_obj_del(scr);
-          lv_draw_opration();
+          lv_draw_operation();
         }
       }
       break;

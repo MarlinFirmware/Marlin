@@ -53,7 +53,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        lv_clear_opration();
+        lv_clear_operation();
         lv_draw_preHeat();
       }
       break;
@@ -62,7 +62,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        lv_clear_opration();
+        lv_clear_operation();
         lv_draw_extrusion();
       }
       break;
@@ -71,7 +71,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        lv_clear_opration();
+        lv_clear_operation();
         lv_draw_move_motor();
       }
       break;
@@ -87,7 +87,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        lv_clear_opration();
+        lv_clear_operation();
         lv_draw_fan();
       }
       break;
@@ -96,7 +96,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        lv_clear_opration();
+        lv_clear_operation();
         lv_draw_change_speed();
       }
       break;
@@ -136,7 +136,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   }
 }
 
-void lv_draw_opration(void) {
+void lv_draw_operation(void) {
   lv_obj_t *buttonPreHeat, *buttonExtrusion, *buttonSpeed;
   lv_obj_t *buttonBack, *buttonFan;
   lv_obj_t *labelPreHeat, *labelExtrusion;
@@ -205,14 +205,14 @@ void lv_draw_opration(void) {
     lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     if (uiCfg.print_state != WORKING) {
-      /*{
-          lv_obj_set_event_cb_mks(buttonFilament, event_handler,ID_O_FILAMENT,"bmp_Filamentchange.bin",0);
-          lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_REL, &bmp_pic);
-          lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_PR, &bmp_pic);
-          lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_label_pre);
-          lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_label_rel);
-      }
-      else*/
+      /*
+        lv_obj_set_event_cb_mks(buttonFilament, event_handler,ID_O_FILAMENT,"bmp_Filamentchange.bin",0);
+        lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_REL, &bmp_pic);
+        lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_PR, &bmp_pic);
+        lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_label_pre);
+        lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_label_rel);
+      } else {
+      */
       lv_obj_set_event_cb_mks(buttonMove, event_handler, ID_O_MOV, "bmp_move_opr.bin", 0);
       lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_REL, &bmp_pic);
       lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_PR, &bmp_pic);
@@ -242,10 +242,10 @@ void lv_draw_opration(void) {
   lv_obj_set_pos(buttonSpeed, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
 
   if (uiCfg.print_state != WORKING) {
-    /*{
-            lv_obj_set_pos(buttonFilament,INTERVAL_V,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-    }
-    else*/
+    /*
+      lv_obj_set_pos(buttonFilament,INTERVAL_V,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+    } else {
+    */
     lv_obj_set_pos(buttonMove, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
     lv_obj_set_pos(buttonPowerOff, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   }
@@ -260,12 +260,13 @@ void lv_draw_opration(void) {
   lv_btn_set_layout(buttonFan, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonSpeed, LV_LAYOUT_OFF);
 
-  if (uiCfg.print_state != WORKING)
-    /*{
-            lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
-    }
-    else*/
+  if (uiCfg.print_state != WORKING) {
+    /*
+      lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
+    } else {
+    */
     lv_btn_set_layout(buttonMove, LV_LAYOUT_OFF);
+  }
   lv_btn_set_layout(buttonPowerOff, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
@@ -275,12 +276,13 @@ void lv_draw_opration(void) {
   label_Fan   = lv_label_create(buttonFan, NULL);
   label_Speed = lv_label_create(buttonSpeed, NULL);
 
-  if (uiCfg.print_state != WORKING)
-    /*{
-            label_Filament = lv_label_create(buttonFilament, NULL);
-    }
-    else*/
-    label_Move = lv_label_create(buttonMove, NULL);
+  if (uiCfg.print_state != WORKING) {
+    /*
+      label_Filament = lv_label_create(buttonFilament, NULL);
+    } else {
+    */
+      label_Move = lv_label_create(buttonMove, NULL);
+  }
   label_PowerOff = lv_label_create(buttonPowerOff, NULL);
 
   label_Back = lv_label_create(buttonBack, NULL);
@@ -299,11 +301,11 @@ void lv_draw_opration(void) {
     lv_obj_align(label_Speed, buttonSpeed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
     if (uiCfg.print_state != WORKING) {
-      /*{
-          lv_label_set_text(label_Filament, operation_menu.filament);
-          lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-      }
-      else*/
+      /*
+        lv_label_set_text(label_Filament, operation_menu.filament);
+        lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
+      } else {
+      */
       lv_label_set_text(label_Move, operation_menu.move);
       lv_obj_align(label_Move, buttonMove, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
@@ -319,6 +321,6 @@ void lv_draw_opration(void) {
   }
 }
 
-void lv_clear_opration() { lv_obj_del(scr); }
+void lv_clear_operation() { lv_obj_del(scr); }
 
 #endif // TFT_LVGL_UI

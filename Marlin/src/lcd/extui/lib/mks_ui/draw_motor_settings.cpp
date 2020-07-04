@@ -144,15 +144,15 @@ void lv_draw_motor_settings(void) {
   LV_IMG_DECLARE(bmp_para_back);
   LV_IMG_DECLARE(bmp_para_arrow);
 
-  buttonSteps = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonSteps, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
-  lv_obj_set_size(buttonSteps, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+  buttonSteps = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+  lv_obj_set_pos(buttonSteps, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
+  lv_obj_set_size(buttonSteps, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
   // lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonSteps, event_handler, ID_MOTOR_STEPS, NULL, 0);
   lv_btn_set_style(buttonSteps, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonSteps, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonSteps, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
   lv_btn_set_layout(buttonSteps, LV_LAYOUT_OFF);
-  labelSteps = lv_label_create(buttonSteps, NULL);        /*Add a label to the button*/
+  labelSteps = lv_label_create(buttonSteps, NULL);                        /*Add a label to the button*/
 
   buttonStepsNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonStepsNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
@@ -166,15 +166,15 @@ void lv_draw_motor_settings(void) {
   line1 = lv_line_create(lv_scr_act(), NULL);
   lv_ex_line(line1, line_points[0]);
   #if HAS_TRINAMIC_CONFIG
-    buttonTMCcurrent = lv_btn_create(scr, NULL); /*Add a button the current screen*/
-    lv_obj_set_pos(buttonTMCcurrent, PARA_UI_POS_X, PARA_UI_POS_Y * 2);                     /*Set its position*/
-    lv_obj_set_size(buttonTMCcurrent, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                     /*Set its size*/
+    buttonTMCcurrent = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+    lv_obj_set_pos(buttonTMCcurrent, PARA_UI_POS_X, PARA_UI_POS_Y * 2);         /*Set its position*/
+    lv_obj_set_size(buttonTMCcurrent, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
     // lv_obj_set_event_cb(buttonMachine, event_handler);
     lv_obj_set_event_cb_mks(buttonTMCcurrent, event_handler, ID_MOTOR_TMC_CURRENT, NULL, 0);
     lv_btn_set_style(buttonTMCcurrent, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
     lv_btn_set_style(buttonTMCcurrent, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
     lv_btn_set_layout(buttonTMCcurrent, LV_LAYOUT_OFF);
-    labelTMCcurrent = lv_label_create(buttonTMCcurrent, NULL);      /*Add a label to the button*/
+    labelTMCcurrent = lv_label_create(buttonTMCcurrent, NULL);                  /*Add a label to the button*/
 
     buttonTMCcurrentNarrow = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonTMCcurrentNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
@@ -189,15 +189,15 @@ void lv_draw_motor_settings(void) {
     lv_ex_line(line2, line_points[1]);
 
     #if HAS_STEALTHCHOP
-      buttonStepMode = lv_btn_create(scr, NULL); /*Add a button the current screen*/
-      lv_obj_set_pos(buttonStepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3);                     /*Set its position*/
-      lv_obj_set_size(buttonStepMode, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                     /*Set its size*/
+      buttonStepMode = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+      lv_obj_set_pos(buttonStepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3);         /*Set its position*/
+      lv_obj_set_size(buttonStepMode, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
       // lv_obj_set_event_cb(buttonMachine, event_handler);
       lv_obj_set_event_cb_mks(buttonStepMode, event_handler, ID_MOTOR_STEP_MODE, NULL, 0);
       lv_btn_set_style(buttonStepMode, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
       lv_btn_set_style(buttonStepMode, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
       lv_btn_set_layout(buttonStepMode, LV_LAYOUT_OFF);
-      labelStepMode = lv_label_create(buttonStepMode, NULL);      /*Add a label to the button*/
+      labelStepMode = lv_label_create(buttonStepMode, NULL);                    /*Add a label to the button*/
 
       buttonStepModeNarrow = lv_imgbtn_create(scr, NULL);
       lv_obj_set_pos(buttonStepModeNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V);

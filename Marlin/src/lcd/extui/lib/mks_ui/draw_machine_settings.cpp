@@ -141,15 +141,15 @@ void lv_draw_machine_settings(void) {
   LV_IMG_DECLARE(bmp_para_back);
   LV_IMG_DECLARE(bmp_para_arrow);
 
-  buttonAcceleration = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
-  lv_obj_set_size(buttonAcceleration, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+  buttonAcceleration = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+  lv_obj_set_pos(buttonAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y);             /*Set its position*/
+  lv_obj_set_size(buttonAcceleration, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
   // lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonAcceleration, event_handler, ID_MACHINE_ACCELERATION, NULL, 0);
-  lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
+  lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
   lv_btn_set_layout(buttonAcceleration, LV_LAYOUT_OFF);
-  labelAcceleration = lv_label_create(buttonAcceleration, NULL);        /*Add a label to the button*/
+  labelAcceleration = lv_label_create(buttonAcceleration, NULL);                /*Add a label to the button*/
 
   buttonAccelerationNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonAccelerationNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
@@ -163,15 +163,15 @@ void lv_draw_machine_settings(void) {
   line1 = lv_line_create(lv_scr_act(), NULL);
   lv_ex_line(line1, line_points[0]);
 
-  buttonMaxFeedrate = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonMaxFeedrate, PARA_UI_POS_X, PARA_UI_POS_Y * 2);                       /*Set its position*/
-  lv_obj_set_size(buttonMaxFeedrate, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+  buttonMaxFeedrate = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+  lv_obj_set_pos(buttonMaxFeedrate, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
+  lv_obj_set_size(buttonMaxFeedrate, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
   // lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonMaxFeedrate, event_handler, ID_MACHINE_FEEDRATE, NULL, 0);
   lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
   lv_btn_set_layout(buttonMaxFeedrate, LV_LAYOUT_OFF);
-  labelMaxFeedrate = lv_label_create(buttonMaxFeedrate, NULL);        /*Add a label to the button*/
+  labelMaxFeedrate = lv_label_create(buttonMaxFeedrate, NULL);                  /*Add a label to the button*/
 
   buttonMaxFeedrateNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonMaxFeedrateNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
@@ -186,15 +186,15 @@ void lv_draw_machine_settings(void) {
   lv_ex_line(line2, line_points[1]);
 
   #if HAS_CLASSIC_JERK
-    buttonJerk = lv_btn_create(scr, NULL); /*Add a button the current screen*/
-    lv_obj_set_pos(buttonJerk, PARA_UI_POS_X, PARA_UI_POS_Y * 3);                     /*Set its position*/
-    lv_obj_set_size(buttonJerk, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                     /*Set its size*/
+    buttonJerk = lv_btn_create(scr, NULL);                                      /*Add a button the current screen*/
+    lv_obj_set_pos(buttonJerk, PARA_UI_POS_X, PARA_UI_POS_Y * 3);               /*Set its position*/
+    lv_obj_set_size(buttonJerk, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                /*Set its size*/
     // lv_obj_set_event_cb(buttonMotor, event_handler);
     lv_obj_set_event_cb_mks(buttonJerk, event_handler, ID_MACHINE_JERK, NULL, 0);
-    lv_btn_set_style(buttonJerk, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
-    lv_btn_set_style(buttonJerk, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
+    lv_btn_set_style(buttonJerk, LV_BTN_STYLE_REL, &tft_style_label_rel);       /*Set the button's released style*/
+    lv_btn_set_style(buttonJerk, LV_BTN_STYLE_PR, &tft_style_label_pre);        /*Set the button's pressed style*/
     lv_btn_set_layout(buttonJerk, LV_LAYOUT_OFF);
-    labelJerk = lv_label_create(buttonJerk, NULL);      /*Add a label to the button*/
+    labelJerk = lv_label_create(buttonJerk, NULL);                              /*Add a label to the button*/
 
     buttonJerkNarrow = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonJerkNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V);

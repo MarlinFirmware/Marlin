@@ -225,8 +225,8 @@ void lv_draw_tool(void) {
   lv_obj_t * label_Move     = lv_label_create(buttonMove, NULL);
   lv_obj_t * label_Home     = lv_label_create(buttonHome, NULL);
   lv_obj_t * label_Level    = lv_label_create(buttonLevel, NULL);
-  // lv_obj_t * label_Filament = lv_label_create(buttonFilament, NULL);
-  // lv_obj_t * label_More = lv_label_create(buttonMore, NULL);
+  //lv_obj_t * label_Filament = lv_label_create(buttonFilament, NULL);
+  //lv_obj_t * label_More = lv_label_create(buttonMore, NULL);
   lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
