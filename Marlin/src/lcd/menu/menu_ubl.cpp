@@ -340,9 +340,9 @@ void _lcd_ubl_build_mesh() {
                                           "M140 S0" \
                                         ))
     #else
-      #define BUILD_MESH_GCODE_ITEM(p)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##p, PSTR( \
+      #define BUILD_MESH_GCODE_ITEM(M)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##M, PSTR( \
                                           "G28\n" \
-                                          "M109 I" STRINGIFY(DECREMENT(p)) "\n" \
+                                          "M109 I" STRINGIFY(DECREMENT(M)) "\n" \
                                           "G29 P1\n" \
                                           "M104 S0" \
                                         ))
