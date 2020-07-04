@@ -619,7 +619,7 @@ void GcodeSuite::G26() {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
-    g26_hotend_temp = noztemp
+    g26_hotend_temp = noztemp;
   }
 
   // 'U' to Randomize and optionally set circle deviation
