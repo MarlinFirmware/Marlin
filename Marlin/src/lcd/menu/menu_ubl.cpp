@@ -215,15 +215,11 @@ void _lcd_ubl_edit_mesh() {
     BACK_ITEM(MSG_UBL_TOOLS);
     #if PREHEAT_COUNT
       #if HAS_HEATED_BED
-        #define VALIDATE_MESH_GCODE_ITEM(p) GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M##p, PSTR( \
-                                              "G28\n" \
-                                              "G26 C B" STRINGIFY(PREHEAT_##p##_TEMP_BED) " H" STRINGIFY(PREHEAT_##p##_TEMP_HOTEND) " P"  \
-                                            ))
+        #define VALIDATE_MESH_GCODE_ITEM(M) \
+          GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M##M, PSTR("G28\nG26 C P I" STRINGIFY(DECREMENT(M))))
       #else
-        #define VALIDATE_MESH_GCODE_ITEM(p) GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M##p, PSTR( \
-                                              "G28\n" \
-                                              "G26 C B0 H" STRINGIFY(PREHEAT_##p#_TEMP_HOTEND) " P" \
-                                            ))
+        #define VALIDATE_MESH_GCODE_ITEM(M) \
+          GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M##M, PSTR("G28\nG26 C P B0 I" STRINGIFY(DECREMENT(M))))
       #endif
 
       VALIDATE_MESH_GCODE_ITEM(1);
