@@ -68,21 +68,25 @@ void GcodeSuite::M104() {
     if (target_extruder < 0) return;
   #endif
 
+  bool got_temp = false;
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const bool got_preset = parser.seenval('I');
-    if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].hotend_temp;
-  #else
-    constexpr bool got_preset = false;
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].hotend_temp;
+    }
   #endif
 
   // If no 'I' get the temperature from 'S'
-  const bool got_temp = !got_preset && parser.seenval('S');
-  if (got_temp) temp = parser.value_celsius();
+  if (!got_temp) {
+    got_temp = parser.seenval('S');
+    if (got_temp) temp = parser.value_celsius();
+  }
 
-  if (got_preset || got_temp) {
+  if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
@@ -140,25 +144,27 @@ void GcodeSuite::M109() {
     if (target_extruder < 0) return;
   #endif
 
+  bool got_temp = false;
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const bool got_preset = parser.seenval('I');
-    if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].hotend_temp;
-  #else
-    constexpr bool got_preset = false;
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].hotend_temp;
+    }
   #endif
 
   // Get the temperature from 'S' or 'R'
-  bool no_wait_for_cooling = false, got_temp = false;
-  if (!got_preset) {
+  bool no_wait_for_cooling = false;
+  if (!got_temp) {
     no_wait_for_cooling = parser.seenval('S');
     got_temp = no_wait_for_cooling || parser.seenval('R');
     if (got_temp) temp = int16_t(parser.value_celsius());
   }
 
-  if (got_preset || got_temp) {
+  if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
@@ -187,7 +193,7 @@ void GcodeSuite::M109() {
 
   TERN_(AUTOTEMP, planner.autotemp_M104_M109());
 
-  if (got_preset || got_temp)
+  if (got_temp)
     (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
 }
 

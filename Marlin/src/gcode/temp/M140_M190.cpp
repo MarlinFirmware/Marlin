@@ -54,21 +54,22 @@
 void GcodeSuite::M140() {
   if (DEBUGGING(DRYRUN)) return;
 
+  bool got_temp = false;
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const bool got_preset = parser.seenval('I');
-    if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].bed_temp;
-  #else
-    constexpr bool got_preset = false;
+    got_temp = parser.seenval('I');
+    if (got_temp) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].bed_temp;
   #endif
 
   // If no 'I' get the temperature from 'S'
-  const bool got_temp = !got_preset && parser.seenval('S');
-  if (got_temp) temp = parser.value_celsius();
+  if (!got_temp) {
+    got_temp = parser.seenval('S');
+    if (got_temp) temp = parser.value_celsius();
+  }
 
-  if (got_preset || got_temp) {
+  if (got_temp) {
     thermalManager.setTargetBed(temp);
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -100,25 +101,27 @@ void GcodeSuite::M140() {
 void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
+  bool got_temp = false;
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const bool got_preset = parser.seenval('I');
-    if (got_preset) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].bed_temp;
-  #else
-    constexpr bool got_preset = false;
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
+    }
   #endif
 
   // Get the temperature from 'S' or 'R'
-  bool no_wait_for_cooling = false, got_temp = false;
-  if (!got_preset) {
+  bool no_wait_for_cooling = false;
+  if (!got_temp) {
     no_wait_for_cooling = parser.seenval('S');
     got_temp = no_wait_for_cooling || parser.seenval('R');
     if (got_temp) temp = int16_t(parser.value_celsius());
   }
 
-  if (!got_preset && !got_temp) return;
+  if (!got_temp) return;
 
   thermalManager.setTargetBed(temp);
 
