@@ -28,6 +28,10 @@
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
+#if PREHEAT_COUNT
+  #include "../../lcd/ultralcd.h"
+#endif
+
 #if ENABLED(SINGLENOZZLE)
   #define _ALT_P active_extruder
   #define _CNT_P EXTRUDERS
