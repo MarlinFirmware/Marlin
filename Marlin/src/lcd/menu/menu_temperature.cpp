@@ -305,15 +305,15 @@ void menu_temperature() {
         #endif
       #endif
     #else
-      ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
+      ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(1-1, 0); });
       #if PREHEAT_COUNT >= 2
-        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
+        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(2-1, 0); });
         #if PREHEAT_COUNT >= 3
-          ACTION_ITEM(MSG_PREHEAT_3, []{ _preheat_end(2, 0); });
+          ACTION_ITEM(MSG_PREHEAT_3, []{ _preheat_end(3-1, 0); });
           #if PREHEAT_COUNT >= 4
-            ACTION_ITEM(MSG_PREHEAT_4, []{ _preheat_end(3, 0); });
+            ACTION_ITEM(MSG_PREHEAT_4, []{ _preheat_end(4-1, 0); });
             #if PREHEAT_COUNT >= 5
-              ACTION_ITEM(MSG_PREHEAT_5, []{ _preheat_end(4, 0); });
+              ACTION_ITEM(MSG_PREHEAT_5, []{ _preheat_end(5-1, 0); });
             #endif
           #endif
         #endif
