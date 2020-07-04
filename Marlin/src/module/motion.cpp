@@ -506,6 +506,13 @@ void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float &z, const feedRat
   do_blocking_move_to(raw.x, raw.y, z, fr_mm_s);
 }
 
+void do_z_clearance(const float &zclear, const bool z_known/*=true*/, const bool raise_on_unknown/*=true*/, const bool lower_allowed/*=false*/) {
+  const bool rel = raise_on_unknown && !z_known;
+  float zdest = zclear + (rel ? current_position.z : 0.0f);
+  if (!lower_allowed) NOLESS(zdest, current_position.z);
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+}
+
 //
 // Prepare to do endstop or probe moves with custom feedrates.
 //  - Save / restore current feedrate and multiplier

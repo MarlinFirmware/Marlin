@@ -260,15 +260,10 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
  * Raise Z to a minimum height to make room for a probe to move
  */
 void Probe::do_z_raise(const float z_raise) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probe::move_z(", z_raise, ")");
-
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probe::do_z_raise(", z_raise, ")");
   float z_dest = z_raise;
   if (offset.z < 0) z_dest -= offset.z;
-
-  NOMORE(z_dest, Z_MAX_POS);
-
-  if (z_dest > current_position.z)
-    do_blocking_move_to_z(z_dest);
+  do_z_clearance(z_dest);
 }
 
 FORCE_INLINE void probe_specific_action(const bool deploy) {
@@ -409,16 +404,6 @@ bool Probe::set_deployed(const bool deploy) {
   endstops.enable_z_probe(deploy);
   return false;
 }
-
-#ifdef Z_AFTER_PROBING
-  // After probing move to a preferred Z position
-  void Probe::move_z_after_probing() {
-    if (current_position.z != Z_AFTER_PROBING) {
-      do_blocking_move_to_z(Z_AFTER_PROBING);
-      current_position.z = Z_AFTER_PROBING;
-    }
-  }
-#endif
 
 /**
  * @brief Used by run_z_probe to do a single Z probe move.

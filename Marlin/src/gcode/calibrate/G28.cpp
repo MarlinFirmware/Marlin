@@ -305,8 +305,6 @@ void GcodeSuite::G28() {
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
-    destination = current_position;
-
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
       if (doZ) homeaxis(Z_AXIS);
@@ -314,17 +312,14 @@ void GcodeSuite::G28() {
     #endif
 
     const float z_homing_height =
-      (DISABLED(UNKNOWN_Z_NO_RAISE) || TEST(axis_known_position, Z_AXIS))
-        ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
-        : 0;
+      ENABLED(UNKNOWN_Z_NO_RAISE) && TEST(axis_known_position, Z_AXIS)
+        ? 0
+        : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
-    if (z_homing_height && (doX || doY || ENABLED(Z_SAFE_HOMING))) {
+    if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
-      if (destination.z > current_position.z) {
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) to ", destination.z);
-        do_blocking_move_to_z(destination.z);
-      }
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
+      do_z_clearance(z_homing_height, TEST(axis_known_position, Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
     }
 
     #if ENABLED(QUICK_HOME)
@@ -379,15 +374,7 @@ void GcodeSuite::G28() {
 
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
 
-        #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
-          #if Z_AFTER_HOMING > Z_AFTER_PROBING
-            do_blocking_move_to_z(Z_AFTER_HOMING);
-          #else
-            probe.move_z_after_probing();
-          #endif
-        #elif defined(Z_AFTER_HOMING)
-          do_blocking_move_to_z(Z_AFTER_HOMING);
-        #endif
+        probe.move_z_after_homing();
 
       } // doZ
 
