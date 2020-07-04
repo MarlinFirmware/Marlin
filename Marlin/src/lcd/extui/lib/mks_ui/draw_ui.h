@@ -95,32 +95,32 @@
   #define FILE_PRE_PIC_X_OFFSET 8
   #define FILE_PRE_PIC_Y_OFFSET 0
 
-  #define PREVIEW_LITTLE_PIC_SIZE   40910// 400*100+9*101+1
-  #define PREVIEW_SIZE      202720// (PREVIEW_LITTLE_PIC_SIZE+800*200+201*9+1)
+  #define PREVIEW_LITTLE_PIC_SIZE  40910  // 400*100+9*101+1
+  #define PREVIEW_SIZE      202720        // (PREVIEW_LITTLE_PIC_SIZE+800*200+201*9+1)
 
   #define GCFG_FLAG_VALUE   0xEE
 
   // machine parameter ui
-  #define PARA_UI_POS_X 10
-  #define PARA_UI_POS_Y 50
+  #define PARA_UI_POS_X            10
+  #define PARA_UI_POS_Y            50
 
-  #define PARA_UI_SIZE_X  450
-  #define PARA_UI_SIZE_Y  40
+  #define PARA_UI_SIZE_X          450
+  #define PARA_UI_SIZE_Y           40
 
-  #define PARA_UI_ARROW_V 12
+  #define PARA_UI_ARROW_V          12
 
-  #define PARA_UI_BACL_POS_X    400
-  #define PARA_UI_BACL_POS_Y    270
+  #define PARA_UI_BACL_POS_X      400
+  #define PARA_UI_BACL_POS_Y      270
 
-  #define PARA_UI_TURN_PAGE_POS_X   320
-  #define PARA_UI_TURN_PAGE_POS_Y   270
+  #define PARA_UI_TURN_PAGE_POS_X 320
+  #define PARA_UI_TURN_PAGE_POS_Y 270
 
-  #define PARA_UI_VALUE_SIZE_X  370
-  #define PARA_UI_VALUE_POS_X 400
-  #define PARA_UI_VALUE_V 5
+  #define PARA_UI_VALUE_SIZE_X    370
+  #define PARA_UI_VALUE_POS_X     400
+  #define PARA_UI_VALUE_V           5
 
-  #define PARA_UI_STATE_POS_X 380
-  #define PARA_UI_STATE_V   2
+  #define PARA_UI_STATE_POS_X     380
+  #define PARA_UI_STATE_V           2
 
 #else // ifdef TFT35
 

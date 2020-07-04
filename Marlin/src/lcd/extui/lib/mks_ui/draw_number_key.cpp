@@ -391,7 +391,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (cnt <= 10) {
-          key_value[cnt] = '1';
+          key_value[cnt] = (char)'1';
           lv_label_set_text(labelValue, key_value);
           lv_obj_align(labelValue, buttonValue, LV_ALIGN_CENTER, 0, 0);
           cnt++;
@@ -522,8 +522,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (cnt > 0)
           cnt--;
-        if (key_value[cnt] == '.') point_flg = 1;
-        key_value[cnt] = 0;
+        if (key_value[cnt] == (char)'.') point_flg = 1;
+        key_value[cnt] = (char)'\0';
         lv_label_set_text(labelValue, key_value);
         lv_obj_align(labelValue, buttonValue, LV_ALIGN_CENTER, 0, 0);
       }
